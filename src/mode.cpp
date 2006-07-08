@@ -396,9 +396,6 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 
 			switch (modechar)
 			{
-
-				log(DEBUG,"Iterate mode letter %c",modechar);
-
 				/* NB:
 				 * For + and - mode characters, we don't just stick the character into the output sequence.
 				 * This is because the user may do something dumb, like: +-+ooo or +oo-+. To prevent this
@@ -438,22 +435,16 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 					{
 						bool abort = false;
 
-						log(DEBUG,"Found a ModeHandler* for mode %c",modechar);
-
 						for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 						{
-							log(DEBUG,"Call a ModeWatcher*");
 							if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
 								abort = true;
 						}
 						if ((modehandlers[handler_id]->GetModeType() == type) && (!abort))
 						{
-							log(DEBUG,"Modetype match, calling handler");
-
 							if (modehandlers[handler_id]->GetNumParams(adding))
 							{
-								log(DEBUG,"ModeHandler* for this mode says it has parameters. pcnt=%d parameter_counter=%d",pcnt,parameter_counter);
-
+								/* This mode expects a parameter, do we have any parameters left in our list to use? */
 								if (parameter_counter < pcnt)
 								{
 									parameter = parameters[parameter_counter++];
@@ -464,6 +455,8 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 									continue;
 								}
 							}
+
+							/* Call the handler for the mode */
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
 
 							if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter == ""))
@@ -477,37 +470,30 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 
 							if (ma == MODEACTION_ALLOW)
 							{
-								log(DEBUG,"ModeAction was allow");
-
 								/* We're about to output a valid mode letter - was there previously a pending state-change? */
 								if (state_change)
-								{
-									log(DEBUG,"Appending state change");
 									output_sequence.append(adding ? "+" : "-");
-								}
 								
 								/* Add the mode letter */
 								output_sequence.push_back(modechar);
-								log(DEBUG,"Added mode letter to output sequence, sequence now: '%s'",output_sequence.c_str());
 
 								/* Is there a valid parameter for this mode? If so add it to the parameter list */
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
-								{
-									log(DEBUG,"Added parameter to parameter_list, list now: '%s'",parameter_list.str().c_str());
 									parameter_list << " " << parameter;
-								}
 
 								/* Call all the AfterMode events in the mode watchers for this mode */
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-								{
-									log(DEBUG,"Called a ModeWatcher* after event");
 									(*watchers)->AfterMode(user, targetuser, targetchannel, parameter, adding, type);
-								}
 
 								/* Reset the state change flag */
 								state_change = false;
 							}
 						}
+					}
+					else
+					{
+						/* No mode handler? Unknown mode character then. */
+						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick, modechar);
 					}
 				break;
 			}
