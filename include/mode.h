@@ -118,17 +118,79 @@ class ModeHandler
 	bool oper;
 
  public:
+	/**
+	 * The constructor for ModeHandler initalizes the mode handler.
+	 * The constructor of any class you derive from ModeHandler should
+	 * probably call this constructor with the parameters set correctly.
+	 * @param modeletter The mode letter you wish to handle
+	 * @param parameters_on The number of parameters your mode takes when being set. Note that any nonzero value is treated as 1.
+	 * @param parameters_off The number of parameters your mode takes when being unset. Note that any nonzero value is treated as 1.
+	 * @param listmode Set to true if your mode is a listmode, e.g. it will respond to MODE #channel +modechar with a list of items
+	 * @param ModeType Set this to MODETYPE_USER for a usermode, or MODETYPE_CHANNEL for a channelmode.
+	 * @param operonly Set this to true if only opers should be allowed to set or unset the mode.
+	 */
 	ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly);
+	/**
+	 * The default destructor does nothing
+	 */
 	virtual ~ModeHandler();
 
+	/**
+	 * Returns true if the mode is a list mode
+	 */
 	bool IsListMode();
+	/**
+	 * Returns the modes type
+	 */
 	ModeType GetModeType();
+	/**
+	 * Returns true if the mode can only be set/unset by an oper
+	 */
 	bool NeedsOper();
+	/**
+	 * Returns the number of parameters for the mode. Any non-zero
+	 * value should be considered to be equivalent to one.
+	 * @param adding If this is true, the number of parameters required to set the mode should be returned, otherwise the number of parameters required to unset the mode shall be returned.
+	 * @return The number of parameters the mode expects
+	 */
 	int GetNumParams(bool adding);
+	/**
+	 * Returns the mode character this handler handles.
+	 * @return The mode character
+	 */
 	char GetModeChar();
 
+	/**
+	 * Called when a mode change for your mode occurs.
+	 * @param source Contains the user setting the mode.
+	 * @param dest For usermodes, contains the destination user the mode is being set on. For channelmodes, this is an undefined value.
+	 * @param channel For channel modes, contains the destination channel the modes are being set on. For usermodes, this is an undefined value.
+	 * @param parameter The parameter for your mode, if you indicated that your mode requires a parameter when being set or unset. Note that
+	 * if you alter this value, the new value becomes the one displayed and send out to the network, also, if you set this to an empty string
+	 * but you specified your mode REQUIRES a parameter, this is equivalent to returning MODEACTION_DENY and will prevent the mode from being
+	 * displayed.
+	 * @param adding This value is true when the mode is being set, or false when it is being unset.
+	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
+	 */
 	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
+	/**
+	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
+	 * without any parameter or other modes in the command.
+	 * @param user The user issuing the command
+	 * @parameter channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
+	 */
 	virtual void DisplayList(userrec* user, chanrec* channel);
+	/**
+	 * If your mode needs special action during a server sync to determine which side wins when comparing timestamps,
+	 * override this function and use it to return true or false. The default implementation just returns true if
+	 * theirs < ours.
+	 * @param theirs The timestamp of the remote side
+	 * @param ours The timestamp of the local side
+	 * @param their_param Their parameter if the mode has a parameter
+	 * @param our_param Our parameter if the mode has a parameter
+	 * @param channel The channel we are checking against
+	 * @return True if the other side wins the merge, false if we win the merge for this mode.
+	 */
 	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel);
 };
 
