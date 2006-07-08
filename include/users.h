@@ -45,7 +45,7 @@ enum ClassTypes {
 
 /** RFC1459 channel modes
  *  */
-enum ChannelModes {
+enum UserModes {
 	UM_SERVERNOTICE = 's'-65,
 	UM_WALLOPS = 'w'-65,
 	UM_INVISIBLE = 'i'-65,
