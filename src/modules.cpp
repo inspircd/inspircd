@@ -59,95 +59,7 @@ extern command_table cmdlist;
 
 class Server;
 
-ExtModeList EMode;
 featurelist Features;
-
-// returns true if an extended mode character is in use
-bool ModeDefined(char modechar, int type)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == type))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool ModeIsListMode(char modechar, int type)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == type) && (i->list == true))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool ModeDefinedOper(char modechar, int type)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == type) && (i->needsoper == true))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-// returns number of parameters for a custom mode when it is switched on
-int ModeDefinedOn(char modechar, int type)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == type))
-		{
-			return i->params_when_on;
-		}
-	}
-	return 0;
-}
-
-// returns number of parameters for a custom mode when it is switched on
-int ModeDefinedOff(char modechar, int type)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == type))
-		{
-			return i->params_when_off;
-		}
-	}
-	return 0;
-}
-
-// returns true if an extended mode character is in use
-bool DoAddExtendedMode(char modechar, int type, bool requires_oper, int params_on, int params_off)
-{
-	if (ModeDefined(modechar,type)) {
-		return false;
-	}
-	EMode.push_back(ExtMode(modechar,type,requires_oper,params_on,params_off));
-	return true;
-}
-
-// turns a mode into a listmode
-void ModeMakeList(char modechar)
-{
-	for (ExtModeListIter i = EMode.begin(); i < EMode.end(); i++)
-	{
-		if ((i->modechar == modechar) && (i->type == MT_CHANNEL))
-		{
-			i->list = true;
-			return;
-		}
-	}
-	return;
-}
 
 // version is a simple class for holding a modules version number
 
@@ -668,52 +580,15 @@ Admin Server::GetAdmin()
 }
 
 
-
-bool Server::AddExtendedMode(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off)
+bool Server::AddMode(ModeHandler* mh, const unsigned char mode)
 {
-	if (((modechar >= 'A') && (modechar <= 'Z')) || ((modechar >= 'a') && (modechar <= 'z')))
-	{
-		if (type == MT_SERVER)
-		{
-			ModuleException e("Modes of type MT_SERVER are reserved for future expansion");
-			throw(e);
-			return false;
-		}
-		if (((params_when_on>0) || (params_when_off>0)) && (type == MT_CLIENT))
-		{
-			ModuleException e("Parameters on MT_CLIENT modes are not supported");
-			throw(e);
-			return false;
-		}
-		if ((params_when_on>1) || (params_when_off>1))
-		{
-			ModuleException e("More than one parameter for an MT_CHANNEL mode is not yet supported");
-			throw(e);
-			return false;
-		}
-		return DoAddExtendedMode(modechar,type,requires_oper,params_when_on,params_when_off);
-	}
-	else
-	{
-		ModuleException e("Muppet modechar detected.");
-		throw(e);
-	}
-	return false;
-}
-
-bool Server::AddExtendedListMode(char modechar)
-{
-	bool res = DoAddExtendedMode(modechar,MT_CHANNEL,false,1,1);
-	if (res)
-		ModeMakeList(modechar);
-	return res;
+	return ServerInstance->ModeGrok->AddMode(mh,mode);
 }
 
 int Server::CountUsers(chanrec* c)
 {
 	return usercount(c);
 }
-
 
 bool Server::UserToPseudo(userrec* user, const std::string &message)
 {

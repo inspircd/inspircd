@@ -74,6 +74,7 @@ enum TargetTypeFlags {
 #include <sstream>
 #include <typeinfo>
 #include "timer.h"
+#include "mode.h"
 
 class Server;
 class ServerConfig;
@@ -264,22 +265,6 @@ class Event : public ModuleMessage
 	 */
 	char* Send();
 };
-
-/** Holds an extended mode's details.
- * Used internally by modules.cpp
- */
-class ExtMode : public classbase
-{
- public:
-	char modechar;
-	int type;
-	bool needsoper;
-	int params_when_on;
-	int params_when_off;
-	bool list;
-	ExtMode(char mc, int ty, bool oper, int p_on, int p_off) : modechar(mc), type(ty), needsoper(oper), params_when_on(p_on), params_when_off(p_off), list(false) { };
-};
-
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
  * When a module whishes to abort, e.g. within a constructor, it should throw an exception using ModuleException or
@@ -472,7 +457,7 @@ class Module : public classbase
 	 * @param user The user issuing the mode
 	 * @param target The user or channel having the mode set on them
 	 * @param modechar The mode character being set
-	 * @param type The type of mode (user or channel) being set
+	 * @param type The type of 4mode (user or channel) being set
 	 * @param mode_on True if the mode is being set, false if it is being unset
 	 * @param params A list of parameters for any channel mode (currently supports either 0 or 1 parameters)
 	 */
@@ -907,7 +892,7 @@ class Module : public classbase
 	 * AC_DEVOICE (4) - a user is being devoiced<br>
 	 * AC_HALFOP (5) - a user is being halfopped<br>
 	 * AC_DEHALFOP (6) - a user is being dehalfopped<br>
-	 * AC_INVITE (7) - a user is being invited<br>
+	 * AC_INVITE () - a user is being invited<br>
 	 * AC_GENERAL_MODE (8) - a user channel mode is being changed<br><br>
 	 * Upon returning from your function you must return either ACR_DEFAULT, to indicate the module wishes
 	 * to do nothing, or ACR_DENY where approprate to deny the action, and ACR_ALLOW where appropriate to allow
@@ -1471,48 +1456,7 @@ class Server : public classbase
 	 */
 	virtual Admin GetAdmin();
 
-	/** Adds an extended mode letter which is parsed by a module.
-	 * This allows modules to add extra mode letters, e.g. +x for hostcloak.
-	 * the "type" parameter is either MT_CHANNEL, MT_CLIENT, or MT_SERVER, to
-	 * indicate wether the mode is a channel mode, a client mode, or a server mode.
-	 * requires_oper is used with MT_CLIENT type modes only to indicate the mode can only
-	 * be set or unset by an oper. If this is used for MT_CHANNEL type modes it is ignored.
-	 * params_when_on is the number of modes to expect when the mode is turned on
-	 * (for type MT_CHANNEL only), e.g. with mode +k, this would have a value of 1.
-	 * the params_when_off value has a similar value to params_when_on, except it indicates
-	 * the number of parameters to expect when the mode is disabled. Modes which act in a similar
-	 * way to channel mode +l (e.g. require a parameter to enable, but not to disable) should
-	 * use this parameter. The function returns false if the mode is unavailable, and will not
-	 * attempt to allocate another character, as this will confuse users. This also means that
-	 * as only one module can claim a specific mode character, the core does not need to keep track
-	 * of which modules own which modes, which speeds up operation of the server. In this version,
-	 * a mode can have at most one parameter, attempting to use more parameters will have undefined
-	 * effects.
-	 */
-	virtual bool AddExtendedMode(char modechar, int type, bool requires_oper, int params_when_on, int params_when_off);
-
-	/** Adds an extended mode letter which is parsed by a module and handled in a list fashion.
-	 * This call is used to implement modes like +q and +a. The characteristics of these modes are
-	 * as follows:
-	 *
-	 * (1) They are ALWAYS on channels, not on users, therefore their type is MT_CHANNEL
-	 *
-	 * (2) They always take exactly one parameter when being added or removed
-	 *
-	 * (3) They can be set multiple times, usually on users in channels
-	 *
-	 * (4) The mode and its parameter are NOT stored in the channels modes structure
-	 *
-	 * It is down to the module handling the mode to maintain state and determine what 'items' (e.g. users,
-	 * or a banlist) have the mode set on them, and process the modes at the correct times, e.g. during access
-	 * checks on channels, etc. When the extended mode is triggered the OnExtendedMode method will be triggered
-	 * as above. Note that the target you are given will be a channel, if for example your mode is set 'on a user'
-	 * (in for example +a) you must use Server::Find to locate the user the mode is operating on.
-	 * Your mode handler may return 1 to handle the mode AND tell the core to display the mode change, e.g.
-	 * '+aaa one two three' in the case of the mode for 'two', or it may return -1 to 'eat' the mode change,
-	 * so the above example would become '+aa one three' after processing.
-	 */
-	virtual bool AddExtendedListMode(char modechar);
+	virtual bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your
@@ -1975,12 +1919,5 @@ class ModuleFactory : public classbase
 typedef DLLFactory<ModuleFactory> ircd_module;
 typedef std::vector<Module*> ModuleList;
 typedef std::vector<ircd_module*> FactoryList;
-
-bool ModeDefined(char c, int i);
-bool ModeDefinedOper(char c, int i);
-int ModeDefinedOn(char c, int i);
-int ModeDefinedOff(char c, int i);
-void ModeMakeList(char modechar);
-bool ModeIsListMode(char modechar, int type);
 
 #endif
