@@ -36,6 +36,8 @@ ModeAction ModeChannelLimit::OnModeChange(userrec* source, userrec* dest, chanre
 			return MODEACTION_DENY;
 		}
 
+		parameter = ConvToStr(limit);
+
 		/* Set new limit */
 		channel->limit = limit;
 		channel->modes[CM_LIMIT] = 1;
