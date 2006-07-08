@@ -25,20 +25,50 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
+class BlockColor : public ModeHandler
+{
+ public:
+	BlockColor() : ModeHandler('c', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('c'))
+			{
+				channel->SetCustomMode('c',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('c'))
+			{
+				channel->SetCustomMode('c',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleBlockColour : public Module
 {
 	Server *Srv;
+	BlockColor *bc;
  public:
  
 	ModuleBlockColour(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('c',MT_CHANNEL,false,0,0);
+		bc = new BlockColor();
+		Srv->AddMode(bc, 'c');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -55,9 +85,9 @@ class ModuleBlockColour : public Module
 			if(c->IsModeSet('c'))
 			{
 				/* Replace a strlcpy(), which ran even when +c wasn't set, with this (no copies at all) -- Om */
-				for(unsigned int i = 0; i < text.length(); i++)
+				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
-					switch (text[i])
+					switch (*i)
 					{
 						case 2:
 						case 3:
@@ -78,20 +108,6 @@ class ModuleBlockColour : public Module
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status);
-	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'c') && (type == MT_CHANNEL))
-  		{
-  			log(DEBUG,"Allowing c change");
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
 	}
 
 	virtual ~ModuleBlockColour()
