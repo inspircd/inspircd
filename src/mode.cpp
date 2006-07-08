@@ -222,63 +222,6 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 	return "";
 }
 
-/*
-char* ModeParser::GiveVoice(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-	
-	if (d)
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_VOICE));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)))
-				{
-					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Grant(d,chan,UCMODE_VOICE);
-	}
-	return NULL;
-}
-
-char* ModeParser::TakeVoice(userrec *user,char *dest,chanrec *chan,int status)
-{
-	userrec *d = this->SanityChecks(user,dest,chan,status);
-
-	if (d)	
-	{
-		if (IS_LOCAL(user))
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEVOICE));
-			
-			if (MOD_RESULT == ACR_DENY)
-				return NULL;
-			if (MOD_RESULT == ACR_DEFAULT)
-			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)))
-				{
-					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, chan->name);
-					return NULL;
-				}
-			}
-		}
-
-		return this->Revoke(d,chan,UCMODE_VOICE);
-	}
-	return NULL;
-}*/
-
 void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool servermode)
 {
 	std::string target = parameters[0];
