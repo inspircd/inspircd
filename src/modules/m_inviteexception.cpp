@@ -4,6 +4,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "mode.h"
 #include "helperfuncs.h"
 #include "u_listmode.h"
 
@@ -18,16 +19,27 @@
  * ignoring if +i is set on the channel
  */
 
-class ModuleInviteException : public ListModeBaseModule
+class InviteException : public ListModeBase
 {
+ public:
+	InviteException(Server* serv) : ListModeBase(serv, 'I', "End of Channel Invite Exception List", "346", "347") { }
+};
+
+class ModuleInviteException : public Module
+{
+	InviteException* ie;
+	Server* Srv;
+
 public:
-	ModuleInviteException(Server* serv) : ListModeBaseModule::ListModeBaseModule(serv, 'I', "End of Channel Invite Exception List", "346", "347")
+	ModuleInviteException(Server* serv) : Module(serv)
 	{
+		ie = new BanException(serv);
+		Srv = serv;
 	}
 	
 	virtual void Implements(char* List)
 	{
-		this->DoImplements(List);
+		ie->DoImplements(List);
 		List[I_On005Numeric] = List[I_OnCheckInvite] = 1;
 	}
 	
@@ -41,7 +53,7 @@ public:
 	{
 		if(chan != NULL)
 		{
-			modelist* list = (modelist*)chan->GetExt(infokey);
+			modelist* list = (modelist*)chan->GetExt(ie->GetInfoKey());
 			Srv->Log(DEBUG, std::string(user->nick)+" is trying to join "+std::string(chan->name)+", checking for invite exceptions");
 			if (list)
 			{
@@ -58,6 +70,26 @@ public:
 		}
 
 		return 0;		
+	}
+
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		ie->DoCleanup(target_type, item);
+	}
+
+	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	{
+		ie->DoSyncChannel(chan, proto, opaque);
+	}
+
+	virtual void OnChannelDelete(chanrec* chan)
+	{
+		ie->DoChannelDelete(chan);
+	}
+
+	virtual void OnRehash(const std::string &param)
+	{
+		ie->DoRehash();
 	}
 		
 	virtual Version GetVersion()
