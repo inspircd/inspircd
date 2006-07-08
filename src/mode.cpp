@@ -405,6 +405,10 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 				{
 					WriteChannelWithServ(Config->ServerName,targetchannel,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 				}
+				else
+				{
+					WriteServ("MODE %s %s",targetuser->nick,output_sequence.c_str());
+				}
 			}
 			else
 			{
@@ -413,6 +417,11 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 					log(DEBUG,"Write output sequence and parameters to channel: %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					WriteChannel(targetchannel,user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
+				}
+				else
+				{
+					WriteTo(targetuser->fd,user,"MODE %s %s",targetuser->nick,output_sequence.c_str());
+					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
 				}
 			}
 		}
