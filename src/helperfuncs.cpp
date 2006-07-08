@@ -1045,7 +1045,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 			for (int n = 0; n < modelen; n++)
 			{
-				if (!hasumode(t,modes[n]))
+				if (!t->modes[modes[n]-65])
 				{
 					send_to_user = false;
 					break;
@@ -1058,7 +1058,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 			for (int n = 0; n < modelen; n++)
 			{
-				if (hasumode(t,modes[n]))
+				if (t->modes[modes[n]-65])
 				{
 					send_to_user = true;
 					break;

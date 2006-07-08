@@ -268,6 +268,8 @@ class userrec : public connection
 	 * Create a displayable mode string for this users umodes
 	 */
 	const char* FormatModes();
+
+	bool HasMode(unsigned char m);
 	
 	/** Returns true if a user is invited to a channel.
 	 */

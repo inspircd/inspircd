@@ -110,6 +110,11 @@ bool DoneClassesAndTypes(const char* tag)
 	return true;
 }
 
+bool userrec::HasMode(unsigned char m)
+{
+	return (modes[m-65]);
+}
+
 const char* userrec::FormatModes()
 {
 	static char data[MAXBUF];

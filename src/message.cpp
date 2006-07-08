@@ -198,16 +198,6 @@ int c_count(userrec* u)
 
 }
 
-bool hasumode(userrec* user, unsigned char mode)
-{
-	if (user)
-	{
-		return user->modes[mode-65];
-	}
-	else return false;
-}
-
-
 void ChangeName(userrec* user, const char* gecos)
 {
 	if (user->fd > -1)
