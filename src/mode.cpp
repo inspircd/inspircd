@@ -20,26 +20,14 @@ using namespace std;
 #include "inspircd.h"
 #include "configreader.h"
 #include <unistd.h>
-#include <sys/errno.h>
-#include <time.h>
-#include <string>
 #include "hash_map.h"
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "connection.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
 #include "message.h"
-#include "commands.h"
-#include "xline.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "commands.h"
 #include "mode.h"
 
 /* +s (secret) */
@@ -56,6 +44,8 @@ using namespace std;
 #include "modes/cmode_n.h"
 /* +i (invite only) */
 #include "modes/cmode_i.h"
+/* +k (keyed channel) */
+#include "modes/cmode_k.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -655,6 +645,7 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelTopicOps, 't');
 	this->AddMode(new ModeChannelNoExternal, 'n');
 	this->AddMode(new ModeChannelInviteOnly, 'i');
-	/* TODO: Modes +l, +k, +o, +v, +h */
+	this->AddMode(new ModeChannelKey, 'k');
+	/* TODO: Modes +l, +o, +v, +h */
 }
 
