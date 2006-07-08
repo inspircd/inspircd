@@ -61,6 +61,8 @@ using namespace std;
 #include "modes/umode_w.h"
 /* +i (invisible) */
 #include "modes/umode_i.h"
+/* +o (operator) */
+#include "modes/umode_o.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -376,6 +378,12 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 								}
 							}
 
+							/* It's an oper only mode, check if theyre an oper. If they arent,
+							 * eat any parameter that  came with the mode, and continue to next
+							 */
+							if ((modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
+								continue;
+
 							/* Call the handler for the mode */
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
 
@@ -551,6 +559,7 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeUserServerNotice, 's');
 	this->AddMode(new ModeUserWallops, 'w');
 	this->AddMode(new ModeUserInvisible, 'i');
+	this->AddMode(new ModeUserOperator, 'o');
 
 	/* TODO: User modes +swio */
 }
