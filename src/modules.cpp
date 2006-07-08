@@ -780,21 +780,25 @@ bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &me
 void Server::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+	apply_lines(APPLY_GLINES);
 }
 
 void Server::AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname)
 {
 	add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
+	apply_lines(APPLY_QLINES);
 }
 
 void Server::AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr)
 {
 	add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+	apply_lines(APPLY_ZLINES);
 }
 
 void Server::AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+	apply_lines(APPLY_KLINES);
 }
 
 void Server::AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
