@@ -36,7 +36,7 @@ class BlockColor : public ModeHandler
 		{
 			if (!channel->IsModeSet('c'))
 			{
-				channel->SetCustomMode('c',true);
+				channel->SetMode('c',true);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -44,7 +44,7 @@ class BlockColor : public ModeHandler
 		{
 			if (channel->IsModeSet('c'))
 			{
-				channel->SetCustomMode('c',false);
+				channel->SetMode('c',false);
 				return MODEACTION_ALLOW;
 			}
 		}

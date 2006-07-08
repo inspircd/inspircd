@@ -57,17 +57,17 @@ chanrec::chanrec()
 	memset(&modes,0,64);
 }
 
-void chanrec::SetCustomMode(char mode,bool mode_on)
+void chanrec::SetMode(char mode,bool mode_on)
 {
 	modes[mode-65] = mode_on;
 	if (!mode_on)
-		this->SetCustomModeParam(mode,"",false);
+		this->SetModeParam(mode,"",false);
 }
 
 
-void chanrec::SetCustomModeParam(char mode,char* parameter,bool mode_on)
+void chanrec::SetModeParam(char mode,char* parameter,bool mode_on)
 {
-	log(DEBUG,"SetCustomModeParam called");
+	log(DEBUG,"SetModeParam called");
 	
 	CustomModeList::iterator n = custom_mode_params.find(mode);	
 

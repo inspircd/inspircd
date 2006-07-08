@@ -24,6 +24,31 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style umode +B */
 
+class BotMode : public ModeHandler
+{
+	BotMode() : ModeHandler('B', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('B'))
+			{
+				user->SetMode('B',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('B'))
+			{
+				user->SetMode('B',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+	}
+};
+
 class ModuleBotMode : public Module
 {
 	Server *Srv; 

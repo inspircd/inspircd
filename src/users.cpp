@@ -110,9 +110,14 @@ bool DoneClassesAndTypes(const char* tag)
 	return true;
 }
 
-bool userrec::HasMode(unsigned char m)
+bool userrec::IsModeSet(unsigned char m)
 {
 	return (modes[m-65]);
+}
+
+void userrec::SetMode(unsigned char m, bool value)
+{
+	modes[m-65] = value;
 }
 
 const char* userrec::FormatModes()

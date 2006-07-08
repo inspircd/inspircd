@@ -269,7 +269,9 @@ class userrec : public connection
 	 */
 	const char* FormatModes();
 
-	bool HasMode(unsigned char m);
+	bool IsModeSet(unsigned char m);
+
+	void SetMode(unsigned char m, bool value);
 	
 	/** Returns true if a user is invited to a channel.
 	 */

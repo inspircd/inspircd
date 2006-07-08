@@ -33,7 +33,7 @@ class BlockCaps : public ModeHandler
 		{
 			if (!channel->IsModeSet('P'))
 			{
-				channel->SetCustomMode('P',true);
+				channel->SetMode('P',true);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -41,7 +41,7 @@ class BlockCaps : public ModeHandler
 		{
 			if (channel->IsModeSet('P'))
 			{
-				channel->SetCustomMode('P',false);
+				channel->SetMode('P',false);
 				return MODEACTION_ALLOW;
 			}
 		}
