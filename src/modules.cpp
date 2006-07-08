@@ -134,7 +134,6 @@ void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &par
 void		Module::OnRehash(const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
-int		Module::OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params) { return false; }
 void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { };
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void		Module::OnOper(userrec* user, const std::string &opertype) { };
@@ -152,7 +151,6 @@ int		Module::OnKill(userrec* source, userrec* dest, const std::string &reason) {
 void		Module::OnLoadModule(Module* mod,const std::string &name) { };
 void		Module::OnUnloadModule(Module* mod,const std::string &name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
-void		Module::OnSendList(userrec* user, chanrec* channel, char mode) { };
 int		Module::OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
 bool		Module::OnCheckReady(userrec* user) { return true; };
 void		Module::OnUserRegister(userrec* user) { };

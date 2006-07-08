@@ -22,20 +22,49 @@
 
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
 
+class BlockCaps : public ModeHandler
+{
+	BlockCaps() : ModeHandler('P', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('P'))
+			{
+				channel->SetCustomMode('P',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('P'))
+			{
+				channel->SetCustomMode('P',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleBlockCAPS : public Module
 {
 	Server *Srv;
+	BlockCaps* bc;
 public:
 	
 	ModuleBlockCAPS(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('P', MT_CHANNEL, false, 0, 0);
+		bc = new BlockCaps;
+		Srv->AddMode(bc, 'P');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -72,20 +101,6 @@ public:
 		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'P') && (type == MT_CHANNEL))
-  		{
-  			log(DEBUG,"Allowing P change");
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
 	virtual ~ModuleBlockCAPS()
 	{
 	}

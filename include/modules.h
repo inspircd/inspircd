@@ -22,10 +22,6 @@
  */
 enum DebugLevels { DEBUG, VERBOSE, DEFAULT, SPARSE, NONE };
 
-/** Used with OnExtendedMode() method of modules
- */
-enum ModeTargetType { MT_CHANNEL, MT_CLIENT, MT_SERVER };
-
 /** Used with OnAccessCheck() method of modules
  */
 enum AccessControlType {
@@ -305,13 +301,13 @@ enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFOR
 /** Implementation-specific flags which may be set in Module::Implements()
  */
 enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash, I_OnServerRaw, 
-			I_OnExtendedMode, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
+			I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois, I_OnUserPreInvite,
 			I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick, I_OnUserMessage, I_OnUserNotice, I_OnMode,
 			I_OnGetServerDescription, I_OnSyncUser, I_OnSyncChannel, I_OnSyncChannelMetaData, I_OnSyncUserMetaData,
 			I_OnDecodeMetaData, I_ProtoSendMode, I_ProtoSendMetaData, I_OnWallops, I_OnChangeHost, I_OnChangeName, I_OnAddGLine,
 			I_OnAddZLine, I_OnAddQLine, I_OnAddKLine, I_OnAddELine, I_OnDelGLine, I_OnDelZLine, I_OnDelKLine, I_OnDelELine, I_OnDelQLine,
 			I_OnCleanup, I_OnUserPostNick, I_OnAccessCheck, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule, I_OnUnloadModule,
-			I_OnBackgroundTimer, I_OnSendList, I_OnPreCommand, I_OnCheckReady, I_OnUserRrgister, I_OnRawMode, I_OnCheckInvite,
+			I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnUserRrgister, I_OnRawMode, I_OnCheckInvite,
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnGlobalConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
@@ -446,23 +442,6 @@ class Module : public classbase
 	 */
  	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user);
 
-	/** Called whenever an extended mode is to be processed.
-	 * The type parameter is MT_SERVER, MT_CLIENT or MT_CHANNEL, dependent on where the mode is being
-	 * changed. mode_on is set when the mode is being set, in which case params contains a list of
-	 * parameters for the mode as strings. If mode_on is false, the mode is being removed, and parameters
-	 * may contain the parameters for the mode, dependent on wether they were defined when a mode handler
- 	 * was set up with Server::AddExtendedMode
- 	 * If the mode is a channel mode, target is a chanrec*, and if it is a user mode, target is a userrec*.
- 	 * You must cast this value yourself to make use of it.
-	 * @param user The user issuing the mode
-	 * @param target The user or channel having the mode set on them
-	 * @param modechar The mode character being set
-	 * @param type The type of 4mode (user or channel) being set
-	 * @param mode_on True if the mode is being set, false if it is being unset
-	 * @param params A list of parameters for any channel mode (currently supports either 0 or 1 parameters)
-	 */
- 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params);
- 	
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
@@ -970,18 +949,6 @@ class Module : public classbase
 	 * @param curtime The current timer derived from time(2)
 	 */
 	virtual void OnBackgroundTimer(time_t curtime);
-
-	/** Called whenever a list is needed for a listmode.
-	 * For example, when a /MODE #channel +b (without any other parameters) is called,
-	 * if a module was handling +b this function would be called. The function can then
-	 * output any lists it wishes to. Please note that all modules will see all mode
-	 * characters to provide the ability to extend each other, so please only output
-	 * a list if the mode character given matches the one(s) you want to handle.
-	 * @param user The user requesting the list
-	 * @param channel The channel the list is for
-	 * @param mode The listmode which a list is being requested on
-	 */
-	virtual void OnSendList(userrec* user, chanrec* channel, char mode);
 
 	/** Called whenever any command is about to be executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,

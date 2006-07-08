@@ -116,7 +116,7 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoImplements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnChannelDelete] = List[I_OnSyncChannel] = List[I_OnCleanup] = List[I_OnRehash] = 1;
+		List[I_OnChannelDelete] = List[I_OnSyncChannel] = List[I_OnCleanup] = List[I_OnRehash] = 1;
 	}
 
 	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
