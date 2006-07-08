@@ -655,5 +655,6 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelTopicOps, 't');
 	this->AddMode(new ModeChannelNoExternal, 'n');
 	this->AddMode(new ModeChannelInviteOnly, 'i');
+	/* TODO: Modes +l, +k, +o, +v, +h */
 }
 
