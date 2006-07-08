@@ -46,6 +46,8 @@ using namespace std;
 #include "modes/cmode_i.h"
 /* +k (keyed channel) */
 #include "modes/cmode_k.h"
+/* +l (channel user limit) */
+#include "modes/cmode_l.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -646,6 +648,7 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeChannelNoExternal, 'n');
 	this->AddMode(new ModeChannelInviteOnly, 'i');
 	this->AddMode(new ModeChannelKey, 'k');
-	/* TODO: Modes +l, +o, +v, +h */
+	this->AddMode(new ModeChannelLimit, 'l');
+	/* TODO: Modes +o, +v, +h */
 }
 
