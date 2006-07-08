@@ -304,12 +304,31 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			return;
 		}
+
+		/* Special case for displaying the list for listmodes,
+		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
+		 */
+		if ((type== MODETYPE_CHANNEL) && (pcnt == 2))
+		{
+			char* mode = parameters[1];
+			if (*mode == '+')
+				mode++;
+
+			unsigned char handler_id = ((*mode) - 65) | mask;
+			ModeHandler* mh = modehandlers[handler_id];
+
+			if ((mh) && (mh->IsListMode()))
+			{
+				mh->DisplayList(user, targetchannel);
+			}
+		}
+		
 		std::string mode_sequence = parameters[1];
 		std::string parameter = "";
 		std::ostringstream parameter_list;
 		std::string output_sequence = "";
 		bool adding = true, state_change = false;
-		int handler_id = 0;
+		unsigned char handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
 
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)

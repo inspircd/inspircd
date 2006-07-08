@@ -45,6 +45,17 @@ ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec*
 	return MODEACTION_ALLOW;
 }
 
+void ModeChannelBan::DisplayList(userrec* user, chanrec* channel)
+{
+	/* Display the channel banlist */
+	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
+	{
+		WriteServ(user->fd,"367 %s %s %s %s %d",user->nick, channel->name, i->data, i->set_by, i->set_time);
+	}
+	WriteServ(user->fd,"368 %s %s :End of channel ban list",user->nick, channel->name);
+	return;
+}
+
 std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
 {
 	if ((!user) || (!chan))
