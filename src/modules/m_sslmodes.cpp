@@ -7,8 +7,9 @@
 
 class SSLMode : public ModeHandler
 {
+	Server* Srv;
  public:
-	SSLMode() : ModeHandler('z', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	SSLMode(Server* s) : ModeHandler('z', 0, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -57,7 +58,7 @@ class ModuleSSLModes : public Module
 	{
 		Srv = Me;
 
-		sslm = new SSLMode();
+		sslm = new SSLMode(Me);
 		Srv->AddMode(sslm, 'z');
 	}
 

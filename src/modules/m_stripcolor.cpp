@@ -28,7 +28,7 @@ using namespace std;
 class ChannelStripColor : public ModeHandler
 {
  public:
-	StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	ChannelStripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -60,7 +60,7 @@ class ChannelStripColor : public ModeHandler
 class UserStripColor : public ModeHandler
 {
  public:
-	StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
+	UserStripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
