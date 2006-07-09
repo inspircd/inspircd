@@ -24,9 +24,38 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +Q */
 
+class NoKicks : public ModeHandler
+{
+ public:
+	NoKicks() : ModeHandler('Q', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('Q'))
+			{
+				channel->SetMode('Q',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('Q'))
+			{
+				channel->SetMode('Q',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleNoKicks : public Module
 {
 	Server *Srv;
+	NoKicks* nk;
 	
  public:
  
@@ -34,12 +63,13 @@ class ModuleNoKicks : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('Q',MT_CHANNEL,false,0,0);
+		nk = new NoKicks();
+		Srv->AddMode(nk, 'Q');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnAccessCheck] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnAccessCheck] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -68,22 +98,10 @@ class ModuleNoKicks : public Module
 		}
 		return ACR_DEFAULT;
 	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'Q') && (type == MT_CHANNEL))
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
 
 	virtual ~ModuleNoKicks()
 	{
+		DELETE(nk);
 	}
 	
 	virtual Version GetVersion()
