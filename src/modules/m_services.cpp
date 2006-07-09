@@ -24,25 +24,159 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 
+static bool kludgeme = false;
+
 /* $ModDesc: Povides support for services +r user/chan modes and more */
+
+class Channel_r : public ModeHandler
+{
+	Server* Srv;
+ public:
+	Channel_r(Server* srv) : ModeHandler('r', 0, 0, false, MODETYPE_CHANNEL, false), Srv(srv) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		// only a u-lined server may add or remove the +r mode.
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		{
+			log(DEBUG,"Allowing cmode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			channel->SetMode('r',adding);
+			return MODEACTION_ALLOW;
+		}
+		else
+		{
+			log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			Srv->SendServ(source->fd,"500 "+std::string(source->nick)+" :Only a server may modify the +r channel mode");
+			return MODEACTION_DENY;
+		}
+	}
+};
+
+class User_r : public ModeHandler
+{
+	Server* Srv;
+ public:
+	User_r(Server* srv) : ModeHandler('r', 0, 0, false, MODETYPE_USER, false), Srv(srv) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if ((kludgeme) || (Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		{
+			log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			dest->SetMode('r',adding);
+			return MODEACTION_ALLOW;
+		}
+		else
+		{
+			log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",source->nick, source->server);
+			Srv->SendServ(source->fd,"500 "+std::string(source->nick)+" :Only a server may modify the +r user mode");
+			return MODEACTION_DENY;
+		}
+	}
+};
+
+class Channel_R : public ModeHandler
+{
+ public:
+	Channel_R() : ModeHandler('R', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('R'))
+			{
+				channel->SetMode('R',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('R'))
+			{
+				channel->SetMode('R',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
+class User_R : public ModeHandler
+{
+ public:
+	User_R() : ModeHandler('R', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('R'))
+			{
+				dest->SetMode('R',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('R'))
+			{
+				dest->SetMode('R',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
+class Channel_M : public ModeHandler
+{
+ public:
+	Channel_M() : ModeHandler('M', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('M'))
+			{
+				channel->SetMode('M',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('M'))
+			{
+				channel->SetMode('M',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
 
 class ModuleServices : public Module
 {
-	Server *Srv; 
-	bool kludgeme;
-
+	Server *Srv;
+	Channel_r* m1;
+	Channel_R* m2;
+	Channel_M* m3;
+	User_r* m4;
+	User_R* m5;
  public:
 	ModuleServices(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-
-		Srv->AddExtendedMode('r',MT_CHANNEL,false,0,0);
-		Srv->AddExtendedMode('r',MT_CLIENT,false,0,0);
-		Srv->AddExtendedMode('R',MT_CHANNEL,false,0,0);
-		Srv->AddExtendedMode('R',MT_CLIENT,false,0,0);
-		Srv->AddExtendedMode('M',MT_CHANNEL,false,0,0);
-
+		m1 = new Channel_r(Me);
+		m2 = new Channel_R();
+		m3 = new Channel_M();
+		m4 = new User_r(Me);
+		m5 = new User_R();
 		kludgeme = false;
 	}
 
@@ -54,7 +188,7 @@ class ModuleServices : public Module
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		if (dest->modes['r'-65])
+		if (dest->IsModeSet('r'))
 		{
 			/* user is registered */
 			WriteServ(source->fd, "307 %s %s :is a registered nick", source->nick, dest->nick);
@@ -63,13 +197,13 @@ class ModuleServices : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 	}
 
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->modes['r'-65])
+		if (user->IsModeSet('r'))
 		{
 			char* modechange[2];
 			modechange[0] = user->nick;
@@ -80,60 +214,12 @@ class ModuleServices : public Module
 		}
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		
-		if (modechar == 'r')
-  		{
-			if (type == MT_CHANNEL)
-			{
-				// only a u-lined server may add or remove the +r mode.
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
-				{
-					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
-					return 1;
-				}
-				else
-				{
-					log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",user->nick,user->server);
-					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a server may modify the +r channel mode");
-				}
-			}
-			else
-			{
-				if ((kludgeme) || (Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"") || (strchr(user->nick,'.'))))
-				{
-					log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",user->nick,user->server);
-					return 1;
-				}
-				else
-				{
-					log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",user->nick,user->server);
-					Srv->SendServ(user->fd,"500 "+std::string(user->nick)+" :Only a server may modify the +r user mode");
-				}
-			}
-		}
-		else if (modechar == 'R')
-		{
-			return 1;
-		}
-		else if (modechar == 'M')
-		{
-			if (type == MT_CHANNEL)
-			{
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;
-			if ((c->IsModeSet('M')) && (!user->modes['r'-65]))
+			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
@@ -148,7 +234,7 @@ class ModuleServices : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			if ((u->modes['R'-65]) && (user->modes['r'-65]))
+			if ((u->IsModeSet('R')) && (user->IsModeSet('r')))
 			{
 				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 				{
@@ -174,7 +260,7 @@ class ModuleServices : public Module
 		{
 			if (chan->IsModeSet('R'))
 			{
-				if (user->modes['r'-65])
+				if (user->IsModeSet('r'))
 				{
 					if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
 					{
@@ -192,6 +278,11 @@ class ModuleServices : public Module
 
 	virtual ~ModuleServices()
 	{
+		DELETE(m1);
+		DELETE(m2);
+		DELETE(m3);
+		DELETE(m4);
+		DELETE(m5);
 	}
 	
 	virtual Version GetVersion()
