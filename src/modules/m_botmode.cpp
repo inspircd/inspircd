@@ -47,6 +47,8 @@ class BotMode : public ModeHandler
 				return MODEACTION_ALLOW;
 			}
 		}
+		
+		return MODEACTION_DENY;
 	}
 };
 
@@ -112,4 +114,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleBotModeFactory;
 }
-
