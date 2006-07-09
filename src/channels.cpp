@@ -65,7 +65,7 @@ void chanrec::SetMode(char mode,bool mode_on)
 }
 
 
-void chanrec::SetModeParam(char mode,char* parameter,bool mode_on)
+void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 {
 	log(DEBUG,"SetModeParam called");
 	

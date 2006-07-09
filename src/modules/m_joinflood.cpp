@@ -136,6 +136,8 @@ class JoinFlood : public ModeHandler
 					{
 						joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
 						channel->Extend("joinflood",(char*)f);
+						channel->SetMode('j', true);
+						channel->SetModeParam('j', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
 					}
 				}
@@ -153,6 +155,7 @@ class JoinFlood : public ModeHandler
 				joinfloodsettings *f = (joinfloodsettings*)channel->GetExt("joinflood");
 				DELETE(f);
 				channel->Shrink("joinflood");
+				channel->SetMode('j', false);
 				return MODEACTION_ALLOW;
 			}
 		}

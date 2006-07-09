@@ -135,6 +135,8 @@ class MsgFlood : public ModeHandler
 					{
 						floodsettings *f = new floodsettings(ban,nsecs,nlines);
 						channel->Extend("flood",(char*)f);
+						channel->SetMode('f', true);
+						channel->SetModeParam('f', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
 					}
 				}
@@ -153,6 +155,7 @@ class MsgFlood : public ModeHandler
 				floodsettings *f = (floodsettings*)channel->GetExt("flood");
 				DELETE(f);
 				channel->Shrink("flood");
+				channel->SetMode('f', false);
 				return MODEACTION_ALLOW;
 			}
 		}

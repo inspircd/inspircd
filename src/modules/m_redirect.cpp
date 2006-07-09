@@ -24,6 +24,42 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
 
+class Redirect : public ModeHandler
+{
+ public:
+	Redirect() : ModeHandler('L', 1, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			chanrec* c = NULL;
+
+			if (!IsValidChannelName(parameter.c_str()))
+			{
+				WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameter.c_str());
+				parameter = "";
+				return MODEACTION_DENY;
+			}
+
+			c = Srv->FindChannel(parameter);
+			if (c)
+			{
+				/* Fix by brain: Dont let a channel be linked to *itself* either */
+				if ((c == target) || (c->IsModeSet('L')))
+				{
+					WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,parameter.c_str());
+					parameter = "";
+					return MODEACTION_DENY;
+				}
+			}
+
+			c->SetMode('L', true);
+			c->SetModeParam('L', parameter);
+			return MODEACTION_ALLOW;
+		}
+	}
+};
 
 class ModuleRedirect : public Module
 {

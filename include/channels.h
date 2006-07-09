@@ -173,7 +173,7 @@ class chanrec : public Extensible
 	 * @param parameter The parameter string to associate with this mode character
 	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
-	void SetModeParam(char mode,char* parameter,bool mode_on);
+	void SetModeParam(char mode,const char* parameter,bool mode_on);
  
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
