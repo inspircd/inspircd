@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -86,8 +86,8 @@ bool CullList::IsValid(userrec* user)
 
 CullItem::CullItem(userrec* u, std::string &r)
 {
-        this->user = u;
-        this->reason = r;
+	this->user = u;
+	this->reason = r;
 }
 
 CullItem::CullItem(userrec* u, const char* r)
@@ -102,27 +102,27 @@ CullItem::~CullItem()
 
 userrec* CullItem::GetUser()
 {
-        return this->user;
+	return this->user;
 }
 
 std::string& CullItem::GetReason()
 {
-        return this->reason;
+	return this->reason;
 }
 
 CullList::CullList()
 {
 	list.clear();
-        exempt.clear();
+	exempt.clear();
 }
 
 void CullList::AddItem(userrec* user, std::string &reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{
-	        CullItem item(user,reason);
-	        list.push_back(item);
-	        exempt[user] = user->signon;
+		CullItem item(user,reason);
+		list.push_back(item);
+		exempt[user] = user->signon;
 	}
 }
 

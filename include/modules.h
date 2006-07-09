@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -492,15 +492,15 @@ class Module : public classbase
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname);
 	
 	/** Called whenever a user is about to be kicked.
-         * Returning a value of 1 from this function stops the process immediately, causing no
-         * output to be sent to the user by the core. If you do this you must produce your own numerics,
-         * notices etc.
+	 * Returning a value of 1 from this function stops the process immediately, causing no
+	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
+	 * notices etc.
 	 * @param source The user issuing the kick
 	 * @param user The user being kicked
 	 * @param chan The channel the user is being kicked from
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
-         */
+	 */
 	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
 
 	/** Called whenever a user is kicked.
@@ -799,72 +799,72 @@ class Module : public classbase
 
 	/** Called whenever a zline is added by a local user.
 	 * This method is triggered after the line is added.
-         * @param duration The duration of the line in seconds
-         * @param source The sender of the line
-         * @param reason The reason text to be displayed
-         * @param ipmask The hostmask to add
+	 * @param duration The duration of the line in seconds
+	 * @param source The sender of the line
+	 * @param reason The reason text to be displayed
+	 * @param ipmask The hostmask to add
 	 */
 	virtual void OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask);
 
 	/** Called whenever a kline is added by a local user.
 	 * This method is triggered after the line is added.
-         * @param duration The duration of the line in seconds
-         * @param source The sender of the line
-         * @param reason The reason text to be displayed
-         * @param hostmask The hostmask to add
+	 * @param duration The duration of the line in seconds
+	 * @param source The sender of the line
+	 * @param reason The reason text to be displayed
+	 * @param hostmask The hostmask to add
 	 */
 	virtual void OnAddKLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a qline is added by a local user.
 	 * This method is triggered after the line is added.
-         * @param duration The duration of the line in seconds
-         * @param source The sender of the line
-         * @param reason The reason text to be displayed
-         * @param nickmask The hostmask to add
+	 * @param duration The duration of the line in seconds
+	 * @param source The sender of the line
+	 * @param reason The reason text to be displayed
+	 * @param nickmask The hostmask to add
 	 */
 	virtual void OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask);
 
 	/** Called whenever a eline is added by a local user.
 	 * This method is triggered after the line is added.
-         * @param duration The duration of the line in seconds
-         * @param source The sender of the line
-         * @param reason The reason text to be displayed
-         * @param hostmask The hostmask to add
+	 * @param duration The duration of the line in seconds
+	 * @param source The sender of the line
+	 * @param reason The reason text to be displayed
+	 * @param hostmask The hostmask to add
 	 */
 	virtual void OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a gline is deleted.
 	 * This method is triggered after the line is deleted.
-         * @param source The user removing the line
-         * @param hostmask The hostmask to delete
+	 * @param source The user removing the line
+	 * @param hostmask The hostmask to delete
 	 */
 	virtual void OnDelGLine(userrec* source, const std::string &hostmask);
 
 	/** Called whenever a zline is deleted.
 	 * This method is triggered after the line is deleted.
-         * @param source The user removing the line
-         * @param hostmask The hostmask to delete
+	 * @param source The user removing the line
+	 * @param hostmask The hostmask to delete
 	 */
 	virtual void OnDelZLine(userrec* source, const std::string &ipmask);
 
 	/** Called whenever a kline is deleted.
 	 * This method is triggered after the line is deleted.
-         * @param source The user removing the line
-         * @param hostmask The hostmask to delete
+	 * @param source The user removing the line
+	 * @param hostmask The hostmask to delete
 	 */
 	virtual void OnDelKLine(userrec* source, const std::string &hostmask);
 	
 	/** Called whenever a qline is deleted.
 	 * This method is triggered after the line is deleted.
-         * @param source The user removing the line
-         * @param hostmask The hostmask to delete
+	 * @param source The user removing the line
+	 * @param hostmask The hostmask to delete
 	 */
 	virtual void OnDelQLine(userrec* source, const std::string &nickmask);
 
 	/** Called whenever a eline is deleted.
 	 * This method is triggered after the line is deleted.
-         * @param source The user removing the line
-         * @param hostmask The hostmask to delete
+	 * @param source The user removing the line
+	 * @param hostmask The hostmask to delete
 	 */
 	virtual void OnDelELine(userrec* source, const std::string &hostmask);
 
@@ -881,13 +881,13 @@ class Module : public classbase
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
-         * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
-         * check user->server before taking any action (including returning nonzero from the method).
+	 * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
+	 * check user->server before taking any action (including returning nonzero from the method).
 	 * Because this method is called after the nickchange is taken place, no return values are possible
 	 * to indicate forbidding of the nick change. Use OnUserPreNick for this.
 	 * @param user The user changing their nick
 	 * @param oldnick The old nickname of the user before the nickchange
-         */
+	 */
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
 
 	/** Called before an action which requires a channel privilage check.
@@ -960,17 +960,17 @@ class Module : public classbase
 	virtual void OnLoadModule(Module* mod,const std::string &name);
 
 	/** Called whenever a module is unloaded.
-         * mod will contain a pointer to the module, and string will contain its name,
-         * for example m_widgets.so. This function is primary for dependency checking,
-         * your module may decide to enable some extra features if it sees that you have
-         * for example loaded "m_killwidgets.so" with "m_makewidgets.so". It is highly
-         * recommended that modules do *NOT* bail if they cannot satisfy dependencies,
-         * but instead operate under reduced functionality, unless the dependency is
-         * absolutely neccessary (e.g. a module that extends the features of another
-         * module).
+	 * mod will contain a pointer to the module, and string will contain its name,
+	 * for example m_widgets.so. This function is primary for dependency checking,
+	 * your module may decide to enable some extra features if it sees that you have
+	 * for example loaded "m_killwidgets.so" with "m_makewidgets.so". It is highly
+	 * recommended that modules do *NOT* bail if they cannot satisfy dependencies,
+	 * but instead operate under reduced functionality, unless the dependency is
+	 * absolutely neccessary (e.g. a module that extends the features of another
+	 * module).
 	 * @param mod Pointer to the module being unloaded (still valid)
 	 * @param name The filename of the module being unloaded
-         */
+	 */
 	virtual void OnUnloadModule(Module* mod,const std::string &name);
 
 	/** Called once every five seconds for background processing.
@@ -1058,34 +1058,34 @@ class Module : public classbase
 	virtual int OnCheckInvite(userrec* user, chanrec* chan);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
-         * This method will always be called for each join, wether or not the channel is actually +k, and
-         * determines the outcome of an if statement around the whole section of key checking code.
+	 * This method will always be called for each join, wether or not the channel is actually +k, and
+	 * determines the outcome of an if statement around the whole section of key checking code.
 	 * if the user specified no key, the keygiven string will be a valid but empty value.
-         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 	 * @param user The user joining the channel
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-         */
+	 */
 	virtual int OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
-         * This method will always be called for each join, wether or not the channel is actually +l, and
-         * determines the outcome of an if statement around the whole section of channel limit checking code.
-         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+	 * This method will always be called for each join, wether or not the channel is actually +l, and
+	 * determines the outcome of an if statement around the whole section of channel limit checking code.
+	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 	 * @param user The user joining the channel
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-         */
+	 */
 	virtual int OnCheckLimit(userrec* user, chanrec* chan);
 
 	/** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
-         * This method will always be called for each join, wether or not the user actually matches a channel ban, and
-         * determines the outcome of an if statement around the whole section of ban checking code.
-         * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
+	 * This method will always be called for each join, wether or not the user actually matches a channel ban, and
+	 * determines the outcome of an if statement around the whole section of ban checking code.
+	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 	 * @param user The user joining the channel
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-         */
+	 */
 	virtual int OnCheckBan(userrec* user, chanrec* chan);
 
 	/** Called on all /STATS commands

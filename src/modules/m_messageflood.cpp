@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -206,12 +206,12 @@ class ModuleMsgFlood : public Module
 		}
 	}
 
-        virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
 	{
-                if (target_type == TYPE_CHANNEL)
-                {
-                        ProcessMessages(user,(chanrec*)dest,text);
-                }
+		if (target_type == TYPE_CHANNEL)
+		{
+			ProcessMessages(user,(chanrec*)dest,text);
+		}
 	}
 
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status)

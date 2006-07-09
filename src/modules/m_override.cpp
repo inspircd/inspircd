@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -70,20 +70,20 @@ class ModuleOverride : public Module
 		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		output = output + std::string(" OVERRIDE");
-        }
+	}
 
 	virtual bool CanOverride(userrec* source, char* token)
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
 		if (j != overrides.end())
-                {
+		{
 			// its defined, return its value as a boolean for if the token is set
 			return strstr(j->second.c_str(),token);
-                }
+		}
 		// its not defined at all, count as false
 		return false;
 	}
@@ -119,49 +119,49 @@ class ModuleOverride : public Module
 							if (CanOverride(source,"MODEDEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 						case AC_OP:
 							if (CanOverride(source,"MODEOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 						case AC_VOICE:
 							if (CanOverride(source,"MODEVOICE"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 						case AC_DEVOICE:
 							if (CanOverride(source,"MODEDEVOICE"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 						case AC_HALFOP:
 							if (CanOverride(source,"MODEHALFOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 						case AC_DEHALFOP:
 							if (CanOverride(source,"MODEDEHALFOP"))
 							{
 								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-                                                                return ACR_ALLOW;
+								return ACR_ALLOW;
 							}
-                                                        else return ACR_DEFAULT;
+							else return ACR_DEFAULT;
 						break;
 					}
 				}
@@ -198,25 +198,25 @@ class ModuleOverride : public Module
 					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
 					return -1;
 				}
-                                if ((chan->key[0]) && (CanOverride(user,"KEY")))
-                                {
-                                        if (NoisyOverride)
-                                                WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s bypassed the channel key",cname,user->nick);
-                                        Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
+				if ((chan->key[0]) && (CanOverride(user,"KEY")))
+				{
+					if (NoisyOverride)
+						WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s bypassed the channel key",cname,user->nick);
+					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
-                                }
+				}
 				if ((chan->limit > 0) && (Srv->CountUsers(chan) >= chan->limit) && (CanOverride(user,"LIMIT")))
-                                {
-                                        if (NoisyOverride)
-                                                WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
-                                        Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
+				{
+					if (NoisyOverride)
+						WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
+					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
-                                }
+				}
 
 				if (CanOverride(user,"BANWALK"))
 				{
 					// other join
-        	                        return -1;
+					return -1;
 				}
 			}
 		}

@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -39,7 +39,7 @@ class CullItem
 	/** Holds a pointer to the user,
 	 * must be valid and can be a local or remote user.
 	 */
-        userrec* user;
+	userrec* user;
 	/** Holds the quit reason to use for this user.
 	 */
 	std::string reason;
@@ -50,14 +50,14 @@ class CullItem
 	 * @param u The user to add
 	 * @param r The quit reason of the added user
 	 */
-        CullItem(userrec* u, std::string &r);
+	CullItem(userrec* u, std::string &r);
 	CullItem(userrec* u, const char* r);
 
 	~CullItem();
 
 	/** Returns a pointer to the user
 	 */
-        userrec* GetUser();
+	userrec* GetUser();
 	/** Returns the user's quit reason
 	 */
 	std::string& GetReason();
@@ -83,7 +83,7 @@ class CullList
 	  * See the information for CullItem for
 	  * more information.
 	  */
-         std::vector<CullItem> list;
+	 std::vector<CullItem> list;
 	 /** A list of users who have already been
 	  * placed on the list, as a map for fast
 	  * reference. When deleting an item, the
@@ -102,13 +102,13 @@ class CullList
 	  * Clears the CullList::list and CullList::exempt
 	  * items.
 	  */
-         CullList();
+	 CullList();
 	 /** Adds a user to the cull list for later
 	  * removal via QUIT.
 	  * @param user The user to add
 	  * @param reason The quit reason of the user being added
 	  */
-         void AddItem(userrec* user, std::string &reason);
+	 void AddItem(userrec* user, std::string &reason);
 	 void AddItem(userrec* user, const char* reason);
 	 /** Applies the cull list, quitting all the users
 	  * on the list with their quit reasons all at once.
@@ -118,7 +118,7 @@ class CullList
 	  * to be done, or recursion.
 	  * @returns The number of users removed from IRC.
 	  */
-         int Apply();
+	 int Apply();
 };
 
 #endif

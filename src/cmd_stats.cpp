@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -196,9 +196,9 @@ void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
 		if (!getrusage(RUSAGE_SELF,&R))
 		{
 			WriteServ(user->fd,"249 %s :Total allocation: %luK (0x%lx)",user->nick,R.ru_maxrss,R.ru_maxrss);
-			WriteServ(user->fd,"249 %s :Signals:          %lu  (0x%lx)",user->nick,R.ru_nsignals,R.ru_nsignals);
+			WriteServ(user->fd,"249 %s :Signals:	  %lu  (0x%lx)",user->nick,R.ru_nsignals,R.ru_nsignals);
 			WriteServ(user->fd,"249 %s :Page faults:      %lu  (0x%lx)",user->nick,R.ru_majflt,R.ru_majflt);
-			WriteServ(user->fd,"249 %s :Swaps:            %lu  (0x%lx)",user->nick,R.ru_nswap,R.ru_nswap);
+			WriteServ(user->fd,"249 %s :Swaps:	    %lu  (0x%lx)",user->nick,R.ru_nswap,R.ru_nswap);
 			WriteServ(user->fd,"249 %s :Context Switches: %lu  (0x%lx)",user->nick,R.ru_nvcsw+R.ru_nivcsw,R.ru_nvcsw+R.ru_nivcsw);
 		}
 	}

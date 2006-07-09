@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -37,18 +37,18 @@ class cmd_userip : public command_t
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
-	        char Return[MAXBUF],junk[MAXBUF];
-	        snprintf(Return,MAXBUF,"340 %s :",user->nick);
-	        for (int i = 0; i < pcnt; i++)
-	        {
-	                userrec *u = Find(parameters[i]);
-	                if (u)
-	                {
-	                        snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,(char*)inet_ntoa(u->ip4));
-	                        strlcat(Return,junk,MAXBUF);
-	                }
-	        }
-	        WriteServ(user->fd,Return);
+		char Return[MAXBUF],junk[MAXBUF];
+		snprintf(Return,MAXBUF,"340 %s :",user->nick);
+		for (int i = 0; i < pcnt; i++)
+		{
+			userrec *u = Find(parameters[i]);
+			if (u)
+			{
+				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,(char*)inet_ntoa(u->ip4));
+				strlcat(Return,junk,MAXBUF);
+			}
+		}
+		WriteServ(user->fd,Return);
 	}
 };
 
@@ -69,10 +69,10 @@ class ModuleUserIP : public Module
 		List[I_On005Numeric] = 1;
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		output = output + std::string(" USERIP");
-        }
+	}
 	
 	virtual ~ModuleUserIP()
 	{

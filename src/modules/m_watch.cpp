@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -51,17 +51,17 @@ class cmd_watch : public command_t
 	{
 		if (!pcnt)
 		{
-	                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-	                {
-	                        if (q->watcher == user)
-	                        {
+			for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			{
+				if (q->watcher == user)
+				{
 					userrec* targ = Srv->FindNick(q->target);
 					if (targ)
 					{
 						WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
 					}
-	                        }
-	                }
+				}
+			}
 			WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
 		}
 		else if (pcnt > 0)
@@ -72,46 +72,46 @@ class cmd_watch : public command_t
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
-			                bool done = false;
-			                while (!done)
-			                {
-			                        done = true;
-			                        for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-			                        {
-			                                if (q->watcher == user)
-			                                {
-			                                        done = false;
-			                                        watches.erase(q);
-			                                        break;
-			                                }
-			                        }
-			                }
+					bool done = false;
+					while (!done)
+					{
+						done = true;
+						for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+						{
+							if (q->watcher == user)
+							{
+								done = false;
+								watches.erase(q);
+								break;
+							}
+						}
+					}
 				}
 				else if (!strcasecmp(nick,"L"))
 				{
-			                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-			                {
-			                        if (q->watcher == user)
-			                        {
-			                                userrec* targ = Srv->FindNick(q->target);
-			                                if (targ)
-			                                {
-			                                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
-			                                }
-			                        }
-			                }
-			                WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					{
+						if (q->watcher == user)
+						{
+							userrec* targ = Srv->FindNick(q->target);
+							if (targ)
+							{
+								WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
+							}
+						}
+					}
+					WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
 					std::string list = "";
-			                for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-			                {
-			                        if (q->watcher == user)
-			                        {
+					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					{
+						if (q->watcher == user)
+						{
 							list = list + " " + q->target;
-			                        }
-			                }
+						}
+					}
 					char* l = (char*)list.c_str();
 					if (*l == ' ')
 						l++;
@@ -123,25 +123,25 @@ class cmd_watch : public command_t
 					// removing an item from the list
 					nick++;
 					irc::string n1 = nick;
-		                        for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-		                        {
-		                                if (q->watcher == user)
-		                                {
+					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					{
+						if (q->watcher == user)
+						{
 							irc::string n2 = q->target.c_str();
 							userrec* a = Srv->FindNick(q->target);
-	                                                if (a)
-	                                                {
-	                                                        WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
-	                                                }
-	                                                else
-	                                                {
-	                                                         WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,q->target.c_str());
-	                                                }
-	                                                if (n1 == n2)
-	                                                {
-	                                                        watches.erase(q);
-	                                                        break;
-	                                                }
+							if (a)
+							{
+								WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
+							}
+							else
+							{
+								 WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,q->target.c_str());
+							}
+							if (n1 == n2)
+							{
+								watches.erase(q);
+								break;
+							}
 						}
 					}
 				}
@@ -170,15 +170,15 @@ class cmd_watch : public command_t
 						watches.push_back(w);
 						log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
 					}
-	               	                userrec* a = Srv->FindNick(nick);
-	               	                if (a)
-	               	                {
-	               	                        WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
-	                                }
-	                                else
-	                                {
-	                                        WriteServ(user->fd,"605 %s %s * * 0 :is offline",user->nick,nick);
-	                                }
+		       			userrec* a = Srv->FindNick(nick);
+		       			if (a)
+		       			{
+		       				WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
+					}
+					else
+					{
+						WriteServ(user->fd,"605 %s %s * * 0 :is offline",user->nick,nick);
+					}
 				}
 			}
 		}

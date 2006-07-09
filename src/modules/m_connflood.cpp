@@ -3,9 +3,9 @@
  *   +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                    E-mail:
- *             <brain@chatspike.net>
- *             <Craig@chatspike.net>
+ *		    E-mail:
+ *	     <brain@chatspike.net>
+ *	     <Craig@chatspike.net>
  *
  *     --- This module contributed by pippijn ---
  * 

@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -190,9 +190,9 @@ class userrec : public connection
 	 */
 	char oper[NICKMAX];
 
-        /** True when DNS lookups are completed.
-         */
-        bool dns_done;
+	/** True when DNS lookups are completed.
+	 */
+	bool dns_done;
 
 	/** Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag
 	 */

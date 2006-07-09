@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -98,11 +98,11 @@ class InspIRCd
 
  private:
 	char MODERR[MAXBUF];
-        void erase_factory(int j);
-        void erase_module(int j);
+	void erase_factory(int j);
+	void erase_module(int j);
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
-        bool expire_run;
+	bool expire_run;
 
  public:
 	time_t startup_time;

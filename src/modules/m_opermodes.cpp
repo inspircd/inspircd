@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -64,12 +64,12 @@ class ModuleModesOnOper : public Module
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes
 		// to add modes to the user or -modes to take modes from the user.
-                for (int j =0; j < Conf->Enumerate("type"); j++)
-                {
-                        std::string typen = Conf->ReadValue("type","name",j);
-                        if (!strcmp(typen.c_str(),user->oper))
-                        {
-                                std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
+		for (int j =0; j < Conf->Enumerate("type"); j++)
+		{
+			std::string typen = Conf->ReadValue("type","name",j);
+			if (!strcmp(typen.c_str(),user->oper))
+			{
+				std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
 				char first = *(ThisOpersModes.c_str());
 				if ((first != '+') && (first != '-'))
 					ThisOpersModes = "+" + ThisOpersModes;
@@ -80,9 +80,9 @@ class ModuleModesOnOper : public Module
 					modes[1] = (char*)ThisOpersModes.c_str();
 					Srv->SendMode(modes,2,user);
 				}
-                                break;
-                        }
-                }
+				break;
+			}
+		}
 	}
 };
 

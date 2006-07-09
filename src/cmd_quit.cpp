@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -113,11 +113,11 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->fd > -1)
 	{
 		ServerInstance->SE->DelFd(user->fd);
-                if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-                {
-                        log(DEBUG,"Delete local user");
-                        local_users.erase(find(local_users.begin(),local_users.end(),user));
-                }
+		if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+		{
+			log(DEBUG,"Delete local user");
+			local_users.erase(find(local_users.begin(),local_users.end(),user));
+		}
 		user->CloseSocket();
 	}
 	
@@ -129,8 +129,8 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 	if (user->registered == 7) {
 		purge_empty_chans(user);
 	}
-        if (user->fd > -1)
-                fd_ref_table[user->fd] = NULL;
+	if (user->fd > -1)
+		fd_ref_table[user->fd] = NULL;
 	delete user;
 }
 

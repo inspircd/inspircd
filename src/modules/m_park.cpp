@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -69,7 +69,7 @@ class cmd_park : public command_t
 		int othersessions = 0;
 		/* XXX - why can't just use pinfo.size() like we do below, rather than iterating over the whole vector? -- w00t */
 		if (pinfo.size())
-		        for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
+			for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
 				if (j->host == std::string(user->host))
 					othersessions++;
 		if (othersessions >= ConcurrentParks)
@@ -153,8 +153,8 @@ class cmd_unpark : public command_t
 		if (key == atoi(parameters[1]))
 		{
 			// first part the user from all chans theyre on, so things dont get messy
-		        for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
-		        {
+			for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+			{
 				if (((ucrec*)(*i))->channel != NULL)
 				{
 					Srv->PartUserFromChannel(user,((ucrec*)(*i))->channel->name,"Unparking");
@@ -240,24 +240,24 @@ class ModulePark : public Module
 		this->ReadSettings();
 	}
 
-        virtual void On005Numeric(std::string &output)
-        {
-                output = output + std::string(" PARK");
-        }
+	virtual void On005Numeric(std::string &output)
+	{
+		output = output + std::string(" PARK");
+	}
 
-        virtual void OnUserQuit(userrec* user, const std::string &reason)
-        {
-                std::string nick = user->nick;
-                // track quits in our parked user list
-                for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
-                {
-                        if (j->nick == nick)
-                        {
-                                pinfo.erase(j);
-                                break;
-                        }
-                }
-        }
+	virtual void OnUserQuit(userrec* user, const std::string &reason)
+	{
+		std::string nick = user->nick;
+		// track quits in our parked user list
+		for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
+		{
+			if (j->nick == nick)
+			{
+				pinfo.erase(j);
+				break;
+			}
+		}
+	}
 
 
 	virtual void OnPrePrivmsg(userrec* user, userrec* dest, const std::string &text)
@@ -283,42 +283,42 @@ class ModulePark : public Module
 		// track nickchanges in our parked user list
 		// (this isnt too efficient, i'll tidy it up some time)
 		/* XXX - perhaps extend the user record, or, that wouldn't work - perhaps use a map? -- w00t */
-                for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
-                {
-                        if (j->nick == std::string(user->nick))
-                        {
-                                j->nick = newnick;
-                                break;
-                        }
-                }
+		for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
+		{
+			if (j->nick == std::string(user->nick))
+			{
+				j->nick = newnick;
+				break;
+			}
+		}
 		return 0;
 	}
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
-	        // look for parked clients which have timed out (this needs tidying)
-	        if (pinfo.empty())
-	                return;
-        	bool go_again = true;
-	        while (go_again)
-	        {
-	                go_again = false;
-	                for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
-	                {
-	                        if (time(NULL) >= (j->parktime+ParkMaxTime))
-	                        {
-	                                userrec* thisnick = Srv->FindNick(j->nick);
+		// look for parked clients which have timed out (this needs tidying)
+		if (pinfo.empty())
+			return;
+		bool go_again = true;
+		while (go_again)
+		{
+			go_again = false;
+			for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
+			{
+				if (time(NULL) >= (j->parktime+ParkMaxTime))
+				{
+					userrec* thisnick = Srv->FindNick(j->nick);
 					// THIS MUST COME BEFORE THE QuitUser - QuitUser can
 					// create a recursive call to OnUserQuit in this module
 					// and then corrupt the pointer!
 					pinfo.erase(j);
-	                                if (thisnick)
-	                                        Srv->QuitUser(thisnick,"PARK timeout");
-	                                go_again = true;
-	                                break;
-	                        }
-	                }
-	        }
+					if (thisnick)
+						Srv->QuitUser(thisnick,"PARK timeout");
+					go_again = true;
+					break;
+				}
+			}
+		}
 	}
 
 	/* XXX - why is OnPrePrivmsg seperated here, I assume there is reason for the extra function call? --w00t */
@@ -332,11 +332,11 @@ class ModulePark : public Module
 		return 0;
 	}
 
-        virtual void OnWhois(userrec* src, userrec* dst)
-        {
+	virtual void OnWhois(userrec* src, userrec* dst)
+	{
 		if (dst->GetExt("park_awaylog"))
-	                Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a parked client");
-        }
+			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a parked client");
+	}
 	
 	virtual Version GetVersion()
 	{

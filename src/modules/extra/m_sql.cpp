@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2004 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -98,15 +98,15 @@ class SQLConnection
 	{
 		if (!CheckConnection()) return 0;
 
-	        int r = mysql_query(&connection, query.c_str());
-	        if (!r)
-	        {
-	                res = mysql_store_result(&connection);
-	                unsigned long rows = mysql_affected_rows(&connection);
-	                mysql_free_result(res);
-	                return rows;
-	        }
-	        return 0;
+		int r = mysql_query(&connection, query.c_str());
+		if (!r)
+		{
+			res = mysql_store_result(&connection);
+			unsigned long rows = mysql_affected_rows(&connection);
+			mysql_free_result(res);
+			return rows;
+		}
+		return 0;
 	}
 
 	// This method fetches a row, if available from the database. You must issue a query

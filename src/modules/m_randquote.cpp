@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -99,7 +99,7 @@ class ModuleRandQuote : public Module
 		{
 			RandquoteException e("m_randquote: Quotefile not specified - Please check your config.");
 			throw(e);
-                }
+		}
 
 		quotes = new FileReader(q_file);
 		if(!quotes->Exists())

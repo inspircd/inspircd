@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -51,21 +51,21 @@ using namespace std;
 namespace nspace
 {
 #ifdef GCC34
-        template<> struct hash<in_addr>
+	template<> struct hash<in_addr>
 #else
-        template<> struct nspace::hash<in_addr>
+	template<> struct nspace::hash<in_addr>
 #endif
-        {
-                size_t operator()(const struct in_addr &a) const;
-        };
+	{
+		size_t operator()(const struct in_addr &a) const;
+	};
 #ifdef GCC34
-        template<> struct hash<string>
+	template<> struct hash<string>
 #else
-        template<> struct nspace::hash<string>
+	template<> struct nspace::hash<string>
 #endif
-        {
-                size_t operator()(const string &s) const;
-        };
+	{
+		size_t operator()(const string &s) const;
+	};
 }
 
 /** The irc namespace contains a number of helper classes.
@@ -81,7 +81,7 @@ namespace irc
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-	        bool operator()(const std::string& s1, const std::string& s2) const;
+		bool operator()(const std::string& s1, const std::string& s2) const;
 	};
 
 
@@ -93,7 +93,7 @@ namespace irc
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-	        bool operator()(const in_addr &s1, const in_addr &s2) const;
+		bool operator()(const in_addr &s1, const in_addr &s2) const;
 	};
 
 

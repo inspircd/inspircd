@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -209,10 +209,10 @@ class chanrec : public Extensible
 	void AddHalfoppedUser(userrec* user);
 	void AddVoicedUser(userrec* user);
 
-        /** Delete a user pointer to the internal reference list
+	/** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
 	 * @return number of users left on the channel
-         */
+	 */
 	unsigned long DelUser(userrec* user);
 	void DelOppedUser(userrec* user);
 	void DelHalfoppedUser(userrec* user);

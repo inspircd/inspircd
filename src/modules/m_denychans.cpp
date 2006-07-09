@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -57,8 +57,8 @@ class ModuleDenyChannels : public Module
 		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 
-        virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
-        {
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
 			irc::string cn = Conf->ReadValue("badchan","name",j).c_str();
@@ -78,7 +78,7 @@ class ModuleDenyChannels : public Module
 			}
 		}
 		return 0;
-        }
+	}
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.

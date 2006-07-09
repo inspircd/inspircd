@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -31,8 +31,8 @@
 class cmd_pass : public command_t
 {
  public:
-        cmd_pass () : command_t("PASS",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+	cmd_pass () : command_t("PASS",0,1) { }
+	void Handle(char **parameters, int pcnt, userrec *user);
 };
 
 #endif

@@ -73,16 +73,16 @@ void SHA256(const char *src, char *dest, int len);
 #define SHA256_F3(x) (ROTR(x,  7) ^ ROTR(x, 18) ^ SHFR(x,  3))
 #define SHA256_F4(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ SHFR(x, 10))
 
-#define UNPACK32(x, str)                       \
-{                                              \
+#define UNPACK32(x, str)		       \
+{					      \
 	*((str) + 3) = (uint8_t) ((x)      );      \
 	*((str) + 2) = (uint8_t) ((x) >>  8);      \
 	*((str) + 1) = (uint8_t) ((x) >> 16);      \
 	*((str) + 0) = (uint8_t) ((x) >> 24);      \
 }
 
-#define PACK32(str, x)                         \
-{                                              \
+#define PACK32(str, x)			 \
+{					      \
 	*(x) = ((uint32_t) *((str) + 3)      )     \
 	| ((uint32_t) *((str) + 2) <<  8)     \
 	| ((uint32_t) *((str) + 1) << 16)     \
@@ -91,8 +91,8 @@ void SHA256(const char *src, char *dest, int len);
 
 /* Macros used for loops unrolling */
 
-#define SHA256_SCR(i)                          \
-{                                              \
+#define SHA256_SCR(i)			  \
+{					      \
 	w[i] =  SHA256_F4(w[i - 2]) + w[i - 7]     \
 	+ SHA256_F3(w[i - 15]) + w[i - 16];  \
 }

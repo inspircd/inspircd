@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -30,12 +30,12 @@ static Server *Srv;
 class cmd_chghost : public command_t
 {
  public:
-         cmd_chghost () : command_t("CHGHOST",'o',2)
+	 cmd_chghost () : command_t("CHGHOST",'o',2)
 	 {
 		 this->source = "m_chghost.so";
 	 }
 	 
-        void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(char **parameters, int pcnt, userrec *user)
 	{
 		char * x = parameters[1];
 

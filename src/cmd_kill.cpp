@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -52,18 +52,18 @@ void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
 	char killreason[MAXBUF];
 	int MOD_RESULT = 0;
 
-        log(DEBUG,"kill: %s %s", parameters[0], parameters[1]);
+	log(DEBUG,"kill: %s %s", parameters[0], parameters[1]);
 
 	if (u)
 	{
 		log(DEBUG, "into kill mechanism");
-                FOREACH_RESULT(I_OnKill, OnKill(user, u, parameters[1]));
+		FOREACH_RESULT(I_OnKill, OnKill(user, u, parameters[1]));
 
-                if (MOD_RESULT)
+		if (MOD_RESULT)
 		{
 			log(DEBUG, "A module prevented the kill with result %d", MOD_RESULT);
-                        return;
-                }
+			return;
+		}
 
 		if (!IS_LOCAL(u))
 		{

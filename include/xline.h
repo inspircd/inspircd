@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -87,10 +87,10 @@ class GLine : public XLine
 class ELine : public XLine
 {
   public:
-        /** Hostmask (ident@host) to match against
-         * May contain wildcards.
-         */
-        char hostmask[200];
+	/** Hostmask (ident@host) to match against
+	 * May contain wildcards.
+	 */
+	char hostmask[200];
 };
 
 /** ZLine class

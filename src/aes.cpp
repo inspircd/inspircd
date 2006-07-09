@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -946,7 +946,7 @@ AES::~AES()
 }
 
 //Expand a user-supplied key material into a session key.
-// key        - The 128/192/256-bit user-key to use.
+// key	- The 128/192/256-bit user-key to use.
 // chain      - initial chain block for CBC and CFB modes.
 // keylength  - 16, 24 or 32 bytes
 // blockSize  - The block size in bytes of this Rijndael (16, 24 or 32 bytes).
@@ -1055,7 +1055,7 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 
 //Convenience method to encrypt exactly one block of plaintext, assuming
 //Rijndael's default block size (128-bit).
-// in         - The plaintext
+// in	 - The plaintext
 // result     - The ciphertext generated from a plaintext using the key
 void AES::DefEncryptBlock(char const* in, char* result)
 {
@@ -1130,7 +1130,7 @@ void AES::DefEncryptBlock(char const* in, char* result)
 
 //Convenience method to decrypt exactly one block of plaintext, assuming
 //Rijndael's default block size (128-bit).
-// in         - The ciphertext.
+// in	 - The ciphertext.
 // result     - The plaintext generated from a ciphertext using the session key.
 void AES::DefDecryptBlock(char const* in, char* result)
 {
@@ -1160,19 +1160,19 @@ void AES::DefDecryptBlock(char const* in, char* result)
 		a0 = (sm_T5[(t0 >> 24) & 0xFF] ^
 			sm_T6[(t3 >> 16) & 0xFF] ^
 			sm_T7[(t2 >>  8) & 0xFF] ^
-			sm_T8[ t1        & 0xFF] ) ^ Kdr[0];
+			sm_T8[ t1	& 0xFF] ) ^ Kdr[0];
 		a1 = (sm_T5[(t1 >> 24) & 0xFF] ^
 			sm_T6[(t0 >> 16) & 0xFF] ^
 			sm_T7[(t3 >>  8) & 0xFF] ^
-			sm_T8[ t2        & 0xFF] ) ^ Kdr[1];
+			sm_T8[ t2	& 0xFF] ) ^ Kdr[1];
 		a2 = (sm_T5[(t2 >> 24) & 0xFF] ^
 			sm_T6[(t1 >> 16) & 0xFF] ^
 			sm_T7[(t0 >>  8) & 0xFF] ^
-			sm_T8[ t3        & 0xFF] ) ^ Kdr[2];
+			sm_T8[ t3	& 0xFF] ) ^ Kdr[2];
 		a3 = (sm_T5[(t3 >> 24) & 0xFF] ^
 			sm_T6[(t2 >> 16) & 0xFF] ^
 			sm_T7[(t1 >>  8) & 0xFF] ^
-			sm_T8[ t0        & 0xFF] ) ^ Kdr[3];
+			sm_T8[ t0	& 0xFF] ) ^ Kdr[3];
 		t0 = a0;
 		t1 = a1;
 		t2 = a2;
@@ -1203,7 +1203,7 @@ void AES::DefDecryptBlock(char const* in, char* result)
 }
 
 //Encrypt exactly one block of plaintext.
-// in           - The plaintext.
+// in	   - The plaintext.
 // result       - The ciphertext generated from a plaintext using the key.
 void AES::EncryptBlock(char const* in, char* result)
 {
@@ -1253,7 +1253,7 @@ void AES::EncryptBlock(char const* in, char* result)
 }
 
 //Decrypt exactly one block of ciphertext.
-// in         - The ciphertext.
+// in	 - The ciphertext.
 // result     - The plaintext generated from a ciphertext using the session key.
 void AES::DecryptBlock(char const* in, char* result)
 {
@@ -1467,11 +1467,11 @@ int from64tobits(char *out, const char *in, int maxlen)
 	{
 	    ++len;
 	    if (maxlen && len > maxlen)
-	        return(-1);
+		return(-1);
 	    *out++ = ((DECODE64(digit2) << 4) & 0xf0) | (DECODE64(digit3) >> 2);
 	    if (digit4 != '=')
 	    {
-	        ++len;
+		++len;
 		if (maxlen && len > maxlen)
 		    return(-1);
 		*out++ = ((DECODE64(digit3) << 6) & 0xc0) | DECODE64(digit4);

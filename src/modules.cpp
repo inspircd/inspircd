@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -324,12 +324,12 @@ void Server::AddSocket(InspSocket* sock)
 
 void Server::RemoveSocket(InspSocket* sock)
 {
-        for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-        {
-                InspSocket* s = (InspSocket*)*a;
-                if (s == sock)
+	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	{
+		InspSocket* s = (InspSocket*)*a;
+		if (s == sock)
 			s->MarkAsClosed();
-        }
+	}
 }
 
 long Server::PriorityAfter(const std::string &modulename)
@@ -704,8 +704,8 @@ bool Server::UserToPseudo(userrec* user, const std::string &message)
 	}
 
 	ServerInstance->SE->DelFd(old_fd);
-        shutdown(old_fd,2);
-        close(old_fd);
+	shutdown(old_fd,2);
+	close(old_fd);
 	return true;
 }
 
@@ -722,29 +722,29 @@ bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &me
 	std::string oldhost = alive->host;
 	std::string oldident = alive->ident;
 	kill_link(alive,message.c_str());
-        if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
-        {
+	if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
+	{
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));
 		log(DEBUG,"Delete local user");
-        }
+	}
 	// Fix by brain - cant write the user until their fd table entry is updated
 	fd_ref_table[zombie->fd] = zombie;
 	Write(zombie->fd,":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
-        for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
-        {
-                if (((ucrec*)(*i))->channel != NULL)
-                {
+	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
+	{
+		if (((ucrec*)(*i))->channel != NULL)
+		{
 				chanrec* Ptr = ((ucrec*)(*i))->channel;
 				WriteFrom(zombie->fd,zombie,"JOIN %s",Ptr->name);
-	                        if (Ptr->topicset)
-                        	{
-                                	WriteServ(zombie->fd,"332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
-                                	WriteServ(zombie->fd,"333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
-                        	}
-                        	userlist(zombie,Ptr);
-                        	WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
-                }
-        }
+				if (Ptr->topicset)
+				{
+					WriteServ(zombie->fd,"332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
+					WriteServ(zombie->fd,"333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+				}
+				userlist(zombie,Ptr);
+				WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
+		}
+	}
 	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->fd != FD_MAGIC_NUMBER))
 		local_users.push_back(zombie);
 
@@ -813,28 +813,28 @@ long Server::CalcDuration(const std::string &delta)
 bool Server::IsValidMask(const std::string &mask)
 {
 	char* dest = (char*)mask.c_str();
-        if (strchr(dest,'!')==0)
-                return false;
-        if (strchr(dest,'@')==0)
-                return false;
-        for (char* i = dest; *i; i++)
-                if (*i < 32)
-                        return false;
-        for (char* i = dest; *i; i++)
-                if (*i > 126)
-                        return false;
-        unsigned int c = 0;
-        for (char* i = dest; *i; i++)
-                if (*i == '!')
-                        c++;
-        if (c>1)
-                return false;
-        c = 0;
-        for (char* i = dest; *i; i++)
-                if (*i == '@')
-                        c++;
-        if (c>1)
-                return false;
+	if (strchr(dest,'!')==0)
+		return false;
+	if (strchr(dest,'@')==0)
+		return false;
+	for (char* i = dest; *i; i++)
+		if (*i < 32)
+			return false;
+	for (char* i = dest; *i; i++)
+		if (*i > 126)
+			return false;
+	unsigned int c = 0;
+	for (char* i = dest; *i; i++)
+		if (*i == '!')
+			c++;
+	if (c>1)
+		return false;
+	c = 0;
+	for (char* i = dest; *i; i++)
+		if (*i == '@')
+			c++;
+	if (c>1)
+		return false;
 
 	return true;
 }

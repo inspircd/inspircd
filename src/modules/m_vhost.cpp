@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -29,30 +29,30 @@ static Server* Srv;
 class cmd_vhost : public command_t
 {
  public:
-        cmd_vhost() : command_t("VHOST", 0, 2)
-        {
-                this->source = "m_vhost.so";
-        }
+	cmd_vhost() : command_t("VHOST", 0, 2)
+	{
+		this->source = "m_vhost.so";
+	}
 
-        void Handle (char **parameters, int pcnt, userrec *user)
-        {
-                for (int index = 0; index < Conf->Enumerate("vhost"); index++)
-                {
-                        std::string mask = Conf->ReadValue("vhost","host",index);
+	void Handle (char **parameters, int pcnt, userrec *user)
+	{
+		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
+		{
+			std::string mask = Conf->ReadValue("vhost","host",index);
 			std::string username = Conf->ReadValue("vhost","user",index);
 			std::string pass = Conf->ReadValue("vhost","pass",index);
-                        if ((!strcmp(parameters[0],username.c_str())) && (!strcmp(parameters[1],pass.c_str())))
-                        {
-                                if (mask != "")
-                                {
-                                        Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
-                                        Srv->ChangeHost(user,mask);
-                                        return;
-                                }
-                        }
-                }
+			if ((!strcmp(parameters[0],username.c_str())) && (!strcmp(parameters[1],pass.c_str())))
+			{
+				if (mask != "")
+				{
+					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
+					Srv->ChangeHost(user,mask);
+					return;
+				}
+			}
+		}
 		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid username or password.");
-        }
+	}
 };
 
 class ModuleVHost : public Module
@@ -66,9 +66,9 @@ class ModuleVHost : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-                Conf = new ConfigReader;
-                mycommand = new cmd_vhost();
-                Srv->AddCommand(mycommand);
+		Conf = new ConfigReader;
+		mycommand = new cmd_vhost();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleVHost()

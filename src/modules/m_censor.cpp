@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -70,10 +70,10 @@ class ModuleCensor : public Module
 	}
 
 
-        virtual void On005Numeric(std::string &output)
-        {
+	virtual void On005Numeric(std::string &output)
+	{
 		InsertMode(output,"G",4);
-        }
+	}
 
 
 	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
@@ -158,10 +158,10 @@ class ModuleCensor : public Module
 			throw(e);
 		}
 		censors.clear();
-                for (int index = 0; index < MyConf->Enumerate("badword"); index++)
-                {
-                        irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
-                        irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
+		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
+		{
+			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
+			irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
 		delete Conf;

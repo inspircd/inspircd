@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -71,11 +71,11 @@ void cmd_whois::Handle (char **parameters, int pcnt, userrec *user)
 	{
 		do_whois(user,dest,0,0,parameters[0]);
 	}
-        else
-        {
-                /* no such nick/channel */
-                WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-                WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+	else
+	{
+		/* no such nick/channel */
+		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 	}
 }
 

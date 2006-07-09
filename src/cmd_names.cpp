@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -77,10 +77,10 @@ void cmd_names::Handle (char **parameters, int pcnt, userrec *user)
 	if (c)
 	{
 		if ((c->modes[CM_SECRET]) && (!c->HasUser(user)))
-                {
-                      WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, c->name);
-                      return;
-                }
+		{
+		      WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, c->name);
+		      return;
+		}
 		userlist(user,c);
 		WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
 	}

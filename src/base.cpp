@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -24,7 +24,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 
-const int bitfields[]           =       {1,2,4,8,16,32,64,128};
+const int bitfields[]	   =       {1,2,4,8,16,32,64,128};
 const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};
 
 extern time_t TIME;

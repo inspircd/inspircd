@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -55,7 +55,7 @@ private:
 	/**
 	 * The file descriptor of this socket
 	 */
-        int fd;
+	int fd;
 
 	/**
 	 * The resolver for this socket
@@ -84,26 +84,26 @@ private:
 	 * The host being connected to,
 	 * in sockaddr form
 	 */
-        sockaddr_in addr;
+	sockaddr_in addr;
 
 	/** 
 	 * The host being connected to,
 	 * in in_addr form
 	 */
-        in_addr addy;
+	in_addr addy;
 
 	/**
 	 * When this time is reached,
 	 * the socket times out if it is
 	 * in the CONNECTING state
 	 */
-        time_t timeout_end;
+	time_t timeout_end;
 
 	/**
 	 * This value is true if the
 	 * socket has timed out.
 	 */
-        bool timeout;
+	bool timeout;
 	
 	/**
 	 * Socket input buffer, used by read(). The class which

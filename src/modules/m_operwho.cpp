@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -165,7 +165,7 @@ class ModuleOperWho : public Module
 					}
 					if (*u->oper) { strlcat(tmp, "*" ,9); }
 					WriteServ(user->fd,"352 %s %s %s %s %s %s %s :0 %s",user->nick, u->chans.size() && ((ucrec*)*(u->chans.begin()))->channel ? ((ucrec*)*(u->chans.begin()))->channel->name
-	                                : "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
+					: "*", u->ident, u->dhost, u->server, u->nick, tmp, u->fullname);
 				}
 				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 				return 1;
@@ -173,10 +173,10 @@ class ModuleOperWho : public Module
 		}
 		if (pcnt == 2)
 		{
-	                if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
-	                {
+			if ((!strcmp(parameters[0],"0")) || (!strcmp(parameters[0],"*")) && (!strcmp(parameters[1],"o")))
+			{
 			  	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
-	                        {
+				{
 					// If i were a rich man.. I wouldn't need to me making these bugfixes..
 					// But i'm a poor bastard with nothing better to do.
 					userrec* oper = *i;
@@ -186,12 +186,12 @@ class ModuleOperWho : public Module
 					} else {
 						strlcat(tmp, "H" ,9);
 					}
-	                                WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && ((ucrec*)*(oper->chans.begin()))->channel ?
+					WriteServ(user->fd,"352 %s %s %s %s %s %s %s* :0 %s", user->nick, oper->chans.size() && ((ucrec*)*(oper->chans.begin()))->channel ?
 					((ucrec*)*(oper->chans.begin()))->channel->name : "*", oper->ident, oper->host, oper->server, oper->nick, tmp, oper->fullname);
-	                        }
-	                        WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
-	                        return 1;
-	                }
+				}
+				WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+				return 1;
+			}
 		}
 		return 0;
 	}

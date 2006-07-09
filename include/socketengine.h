@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
 */
@@ -40,10 +40,10 @@
  * socketengine.cpp)
  */
 const char X_EMPTY_SLOT		= 0;
-const char X_LISTEN             = 1;
+const char X_LISTEN	   	= 1;
 const char X_ESTAB_CLIENT       = 2;
 const char X_ESTAB_MODULE       = 3;
-const char X_ESTAB_DNS          = 4;
+const char X_ESTAB_DNS	 	= 4;
 
 /**
  * To indicate that a socket is readable, we
@@ -53,7 +53,7 @@ const char X_ESTAB_DNS          = 4;
  * are dealt with when read() and write() return
  * negative or zero values).
  */
-const char X_READBIT            = 0x80;
+const char X_READBIT	    = 0x80;
 
 /**
  * The actual socketengine class presents the

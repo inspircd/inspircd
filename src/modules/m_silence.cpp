@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -71,22 +71,22 @@ class cmd_silence : public command_t
 				// does it contain any entries and does it exist?
 				if (sl)
 				{
-	                		if (sl->size())
-	                		{
-	                	        	for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-	               		         	{
+					if (sl->size())
+					{
+						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
+		       			 	{
 							// search through for the item
 							irc::string listitem = i->c_str();
 							irc::string target = nick;
 							if (listitem == target)
-	               	                        	{
-	               	                                	sl->erase(i);
+		       					{
+		       						sl->erase(i);
 								WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
 								// we have modified the vector from within a loop, we must now bail out
-	        	                                       	return;
-	       	                                	}
-	       		                	}
-			                }
+							       	return;
+	       						}
+	       					}
+					}
 					if (!sl->size())
 					{
 						// tidy up -- if a user's list is empty, theres no use having it
@@ -178,9 +178,9 @@ class ModuleSilence : public Module
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-                                        irc::string listitem = c->c_str();
-                                        irc::string target = user->nick;
-                                        if (listitem == target)
+					irc::string listitem = c->c_str();
+					irc::string target = user->nick;
+					if (listitem == target)
 					{
 						return 1;
 					}
@@ -190,10 +190,10 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
-        virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
-        {
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	{
 		return OnUserPreNotice(user,dest,target_type,text,status);
-        }
+	}
 
 	virtual ~ModuleSilence()
 	{

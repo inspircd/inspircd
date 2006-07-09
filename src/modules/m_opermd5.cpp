@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -32,7 +32,7 @@ using namespace std;
 
 /* This is the central step in the MD5 algorithm. */
 #define MD5STEP(f,w,x,y,z,in,s) \
-         (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
+	 (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
 typedef unsigned int word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;

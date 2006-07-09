@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -62,8 +62,8 @@ class cmd_tban : public command_t
 				}
 				for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 				{
-	                                irc::string listitem = i->mask.c_str();
-	                                irc::string target = parameters[2];
+					irc::string listitem = i->mask.c_str();
+					irc::string target = parameters[2];
 					irc::string listchan = i->channel.c_str();
 					irc::string targetchan = parameters[0];
 					if ((listitem == target) && (listchan == targetchan))
@@ -129,16 +129,16 @@ class ModuleTimedBans : public Module
 
 	virtual int OnDelBan(userrec* source, chanrec* chan, const std::string &banmask)
 	{
-                for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
-                {
-                        irc::string listitem = banmask.c_str();
-                        irc::string target = i->mask.c_str();
-                        if (listitem == target)
-                        {
-                                TimedBanList.erase(i);
-                                break;
-                        }
-                }
+		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+		{
+			irc::string listitem = banmask.c_str();
+			irc::string target = i->mask.c_str();
+			if (listitem == target)
+			{
+				TimedBanList.erase(i);
+				break;
+			}
+		}
 		return 0;
 	}
 

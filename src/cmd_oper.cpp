@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -128,9 +128,9 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 	}
 	if (found)
 	{
-                /* correct oper credentials */
-                WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
-                WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
+		/* correct oper credentials */
+		WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+		WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 		if (!strchr(user->modes,'o'))
 		{
 			strcat(user->modes,"o");
@@ -153,7 +153,7 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		{
 			WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
 			WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
-                        log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
+			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
 		}
 	}
 	return;

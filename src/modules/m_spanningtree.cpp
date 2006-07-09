@@ -3,13 +3,13 @@
  *   +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                     E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		     E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -227,13 +227,13 @@ class TreeServer
 		 * to get here. If we were to try this algorithm with server B,
 		 * the Route pointer would point at its own object ('this').
 		 *
-		 *              A
-		 *             / \
-		 *          + B   C
-		 *           / \   \
-		 *          D   E   F
-		 *         /         \
-		 *      * G           H
+		 *	      A
+		 *	     / \
+		 *	  + B   C
+		 *	   / \   \
+		 *	  D   E   F
+		 *	 /	 \
+		 *      * G	   H
 		 *
 		 * We only run this algorithm when a server is created, as
 		 * the routes remain constant while ever the server exists, and
@@ -606,7 +606,7 @@ class cmd_rconnect : public command_t
 	cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
 	{
 		this->source = "m_spanningtree.so";
-	}                
+	}		
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{

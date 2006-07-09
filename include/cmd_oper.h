@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -33,8 +33,8 @@ bool OneOfMatches(const char* host, const char* hostlist);
 class cmd_oper : public command_t
 {
  public:
-        cmd_oper () : command_t("OPER",0,2) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+	cmd_oper () : command_t("OPER",0,2) { }
+	void Handle(char **parameters, int pcnt, userrec *user);
 };
 
 #endif

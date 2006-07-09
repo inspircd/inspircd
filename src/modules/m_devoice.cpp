@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -46,12 +46,12 @@ class cmd_devoice : public command_t
 		 *
 		 * - I'm not aware what checking I need, so for now... be supreme evil.
 		 */
-                char* modes[3];
-                modes[0] = parameters[0];
-                modes[1] = "-v";
-                modes[2] = user->nick;
+		char* modes[3];
+		modes[0] = parameters[0];
+		modes[1] = "-v";
+		modes[2] = user->nick;
 
-                Srv->SendMode(modes,3,user);
+		Srv->SendMode(modes,3,user);
 	}
 };
 
