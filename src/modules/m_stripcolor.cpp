@@ -25,6 +25,71 @@ using namespace std;
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
 
+class ChannelStripColor : public ModeHandler
+{
+ public:
+        StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+        ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+        {
+	        /* Only opers can change other users modes */
+	        if ((source != dest) && (!*source->oper))
+	                return MODEACTION_DENY;
+
+                if (adding)
+                {
+                        if (!channel->IsModeSet('S'))
+                        {
+                                channel->SetMode('S',true);
+                                return MODEACTION_ALLOW;
+                        }
+                }
+                else
+                {
+                        if (channel->IsModeSet('S'))
+                        {
+                                channel->SetMode('S',false);
+                                return MODEACTION_ALLOW;
+                        }
+                }
+
+                return MODEACTION_DENY;
+        }
+};
+
+class UserStripColor : public ModeHandler
+{
+ public:
+        StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
+
+        ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+        {
+	        /* Only opers can change other users modes */
+	        if ((source != dest) && (!*source->oper))
+	                return MODEACTION_DENY;
+
+                if (adding)
+                {
+                        if (!dest->IsModeSet('S'))
+                        {
+                                dest->SetMode('S',true);
+                                return MODEACTION_ALLOW;
+                        }
+                }
+                else
+                {
+                        if (dest->IsModeSet('S'))
+                        {
+                                dest->SetMode('S',false);
+                                return MODEACTION_ALLOW;
+                        }
+                }
+
+                return MODEACTION_DENY;
+        }
+};
+
+
 class ModuleStripColor : public Module
 {
  Server *Srv;

@@ -32,6 +32,10 @@ class BotMode : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
+		/* Only opers can change other users modes */
+		if ((source != dest) && (!*source->oper))
+			return MODEACTION_DENY;
+
 		if (adding)
 		{
 			if (!dest->IsModeSet('B'))
