@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -26,21 +26,51 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
+class NoNicks : public ModeHandler
+{
+ public:
+	NoNicks() : ModeHandler('N', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('N'))
+			{
+				channel->SetMode('N',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('N'))
+			{
+				channel->SetMode('N',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleNoNickChange : public Module
 {
 	Server *Srv;
+	NoNicks* nn;
 	
  public:
 	ModuleNoNickChange(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		
-		Srv->AddExtendedMode('N',MT_CHANNEL,false,0,0);
+		nn = new NoNicks();
+		Srv->AddMode(nn, 'N');
 	}
 	
 	virtual ~ModuleNoNickChange()
 	{
+		DELETE(nn);
 	}
 	
 	virtual Version GetVersion()
@@ -50,7 +80,7 @@ class ModuleNoNickChange : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreNick] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreNick] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -81,20 +111,6 @@ class ModuleNoNickChange : public Module
 		}
 		return 0;
 	}
- 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'N') && (type == MT_CHANNEL))
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
