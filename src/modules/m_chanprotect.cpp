@@ -187,8 +187,8 @@ class ModuleChanProtect : public Module
 		Srv->AddMode(cp, 'a');
 		Srv->AddMode(cf, 'q');
 		
-		// read our config options (main config file)
-		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
+		/* Load config stuff */
+		OnRehash("");
 	}
 
 	void Implements(char* List)
