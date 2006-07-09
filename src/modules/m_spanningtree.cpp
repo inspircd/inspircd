@@ -3941,6 +3941,13 @@ class ModuleSpanningTree : public Module
 			(*params)[2] = ":" + (*params)[2];
 			DoOneToMany(Srv->GetServerName(),"METADATA",*params);
 		}
+                else if (event->GetEventID() == "send_mode")
+		{
+			std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
+			if (params->size() < 2)
+				return;
+			DoOneToMany(Srv->GetServerName(),"FMODE",*params);
+		}
 	}
 
 	virtual ~ModuleSpanningTree()
