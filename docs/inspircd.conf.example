@@ -251,6 +251,9 @@
 #   This works alongside with the classes specified above.            #
 #                                                                     #
 #  type name  - a name for the combined class types                   #
+#               a type name cannot contain spaces, however if you     #
+#               put an _ symbol in the name, it will be translated    #
+#               to a space when displayed in a WHOIS.                 #
 #                                                                     #
 #  classes    - specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
