@@ -26,8 +26,9 @@ using namespace std;
 
 class Redirect : public ModeHandler
 {
+	Server* Srv;
  public:
-	Redirect() : ModeHandler('L', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	Redirect(Server* s) : ModeHandler('L', 1, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -37,7 +38,7 @@ class Redirect : public ModeHandler
 
 			if (!IsValidChannelName(parameter.c_str()))
 			{
-				WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameter.c_str());
+				WriteServ(source->fd,"403 %s %s :Invalid channel name",source->nick, parameter.c_str());
 				parameter = "";
 				return MODEACTION_DENY;
 			}
@@ -46,24 +47,36 @@ class Redirect : public ModeHandler
 			if (c)
 			{
 				/* Fix by brain: Dont let a channel be linked to *itself* either */
-				if ((c == target) || (c->IsModeSet('L')))
+				if ((c == channel) || (c->IsModeSet('L')))
 				{
-					WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,parameter.c_str());
+					WriteServ(source->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",source->nick,parameter.c_str());
 					parameter = "";
 					return MODEACTION_DENY;
 				}
 			}
 
-			c->SetMode('L', true);
-			c->SetModeParam('L', parameter);
+			channel->SetMode('L', true);
+			channel->SetModeParam('L', parameter.c_str(), true);
 			return MODEACTION_ALLOW;
 		}
+		else
+		{
+			if (channel->IsModeSet('L'))
+			{
+				channel->SetMode('L', false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+		
 	}
 };
 
 class ModuleRedirect : public Module
 {
 	Server *Srv;
+	Redirect* re;
 	
  public:
  
@@ -71,43 +84,13 @@ class ModuleRedirect : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('L',MT_CHANNEL,false,1,0);
+		re = new Redirect(Me);
+		Srv->AddMode(re, 'L');
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'L') && (type == MT_CHANNEL))
-		{
-			if (mode_on)
-			{
-				std::string ChanToJoin = params[0];
-				chanrec *c;
-
-				if (!IsValidChannelName(ChanToJoin.c_str()))
-				{
-					WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, ChanToJoin.c_str());
-					return 0;
-				}
-
-				c = Srv->FindChannel(ChanToJoin);
-				if (c)
-				{
-					/* Fix by brain: Dont let a channel be linked to *itself* either */
-					if ((c == target) || (c->IsModeSet('L')))
-					{
-						WriteServ(user->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",user->nick,params[0].c_str());
-     						return 0;
-					}
-				}
-			}
-			return 1;
-		}
-		return 0;
-	}
-
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -135,6 +118,7 @@ class ModuleRedirect : public Module
 
 	virtual ~ModuleRedirect()
 	{
+		DELETE(re);
 	}
 	
 	virtual Version GetVersion()
