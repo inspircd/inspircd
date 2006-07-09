@@ -177,6 +177,11 @@ class ModuleServices : public Module
 		m3 = new Channel_M();
 		m4 = new User_r(Me);
 		m5 = new User_R();
+		Srv->AddMode(m1, 'r');
+		Srv->AddMode(m2, 'R');
+		Srv->AddMode(m3, 'M');
+		Srv->AddMode(m4, 'r');
+		Srv->AddMode(m5, 'R');
 		kludgeme = false;
 	}
 

@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -26,18 +26,106 @@ using namespace std;
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
+class AChannel_R : public ModeHandler
+{
+ public:
+	AChannel_R() : ModeHandler('R', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('R'))
+			{
+				channel->SetMode('R',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('R'))
+			{
+				channel->SetMode('R',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
+class AUser_R : public ModeHandler
+{
+ public:
+	AUser_R() : ModeHandler('R', 0, 0, false, MODETYPE_USER, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('R'))
+			{
+				dest->SetMode('R',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('R'))
+			{
+				dest->SetMode('R',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
+class AChannel_M : public ModeHandler
+{
+ public:
+	AChannel_M() : ModeHandler('M', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('M'))
+			{
+				channel->SetMode('M',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('M'))
+			{
+				channel->SetMode('M',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleServicesAccount : public Module
 {
 	Server *Srv; 
-
+	AChannel_R* m1;
+	AChannel_M* m2;
+	AUser_R* m3;
  public:
 	ModuleServicesAccount(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-
-		Srv->AddExtendedMode('R',MT_CHANNEL,false,0,0);
-		Srv->AddExtendedMode('R',MT_CLIENT,false,0,0);
-		Srv->AddExtendedMode('M',MT_CHANNEL,false,0,0);
+		m1 = new AChannel_R();
+		m2 = new AChannel_M();
+		m3 = new AUser_R();
+		Srv->AddMode(m1, 'R');
+		Srv->AddMode(m2, 'M');
+		Srv->AddMode(m3, 'R');
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -59,25 +147,8 @@ class ModuleServicesAccount : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnUserPreMessage] = List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnWhois] = List[I_OnUserPreMessage] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 		List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnDecodeMetaData] = 1;
-	}
-
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if (modechar == 'R')
-		{
-			return 1;
-		}
-		else if (modechar == 'M')
-		{
-			if (type == MT_CHANNEL)
-			{
-				return 1;
-			}
-		}
-
-		return 0;
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
@@ -239,6 +310,9 @@ class ModuleServicesAccount : public Module
 
 	virtual ~ModuleServicesAccount()
 	{
+		DELETE(m1);
+		DELETE(m2);
+		DELETE(m3);
 	}
 	
 	virtual Version GetVersion()
