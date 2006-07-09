@@ -98,8 +98,9 @@ class ChanFounder : public ModeHandler
 
 class ChanProtect : public ModeHandler
 {
+	Server* Srv;
  public:
-	ChanProtect() : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false) { }
+	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
