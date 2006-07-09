@@ -22,7 +22,7 @@
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(Server* serv) : ListModeBase(serv, 'I', "End of Channel Invite Exception List", "346", "347") { }
+	InviteException(Server* serv) : ListModeBase(serv, 'I', "End of Channel Invite Exception List", "346", "347", true) { }
 };
 
 class ModuleInviteException : public Module

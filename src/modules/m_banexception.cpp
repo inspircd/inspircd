@@ -20,7 +20,7 @@
 class BanException : public ListModeBase
 {
  public:
-	BanException(Server* serv) : ListModeBase(serv, 'e', "End of Channel Exception List", "348", "349") { }
+	BanException(Server* serv) : ListModeBase(serv, 'e', "End of Channel Exception List", "348", "349", true) { }
 };
 
 

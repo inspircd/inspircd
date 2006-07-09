@@ -31,7 +31,7 @@ using namespace std;
 class ChanFilter : public ListModeBase
 {
  public:
-	ChanFilter(Server* serv) : ListModeBase(serv, 'g', "End of channel spamfilter list", "941", "940", "chanfilter") { }
+	ChanFilter(Server* serv) : ListModeBase(serv, 'g', "End of channel spamfilter list", "941", "940", false, "chanfilter") { }
 	
 	virtual bool ValidateParam(userrec* user, chanrec* chan, std::string &word)
 	{

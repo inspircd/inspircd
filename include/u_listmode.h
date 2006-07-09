@@ -48,7 +48,7 @@ class ListModeBase : public ModeHandler
 {
  protected:
 	Server* Srv;
- 
+ 	bool tidy;
 	std::string infokey;
 	std::string listnumeric;
 	std::string endoflistnumeric;
@@ -57,8 +57,8 @@ class ListModeBase : public ModeHandler
 	limitlist chanlimits;
  
  public:
-	ListModeBase(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, const std::string &ctag = "banlist")
- 	: ModeHandler(modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), configtag(ctag)
+	ListModeBase(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
+ 	: ModeHandler(modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
@@ -130,7 +130,8 @@ class ListModeBase : public ModeHandler
 			}
 
 			// Clean the mask up
-			ModeParser::CleanMask(parameter);
+			if (this->tidy)
+				ModeParser::CleanMask(parameter);
 
 			// Check if the item already exists in the list
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
