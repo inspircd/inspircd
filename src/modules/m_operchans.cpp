@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -24,48 +24,54 @@ using namespace std;
 
 /* $ModDesc: Provides support for oper-only chans via the +O channel mode */
 
+class OperChans : public ModeHandler
+{
+ public:
+	/* This is an oper-only mode */
+	OperChans() : ModeHandler('O', 0, 0, false, MODETYPE_CHANNEL, true) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('O'))
+			{
+				channel->SetMode('O',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('O'))
+			{
+				channel->SetMode('O',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleOperChans : public Module
 {
 	Server* Srv;
+	OperChans* oc;
  public:
 	ModuleOperChans(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
 		// Add a mode +O for channels with no parameters		
-		Srv->AddExtendedMode('O',MT_CHANNEL,false,0,0);
+		oc = new OperChans();
+		Srv->AddMode(oc, 'O');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'O') && (type == MT_CHANNEL))
-		{
-			chanrec* chan = (chanrec*)target;
-			
-			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!*user->server) || (*user->oper))
-			{
-				log(DEBUG,"Allowing mode +O");
-				return 1;
-			}
-			else
-			{
-				// eat the mode change, return an error
-				WriteServ(user->fd,"468 %s %s :Only servers and opers may set channel mode +O",user->nick, chan->name);
-				return 0;
-			}
-	
-			// must return 1 to handle the mode!
-			return 1;
-		}
-		
-		return 0;
-	}
-
 	virtual void On005Numeric(std::string &output)
 	{
 		InsertMode(output,"O",4);
@@ -89,6 +95,7 @@ class ModuleOperChans : public Module
 	
     	virtual ~ModuleOperChans()
 	{
+		DELETE(oc);
 	}
 	
 	virtual Version GetVersion()
