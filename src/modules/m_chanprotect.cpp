@@ -14,9 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -24,7 +21,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel modes +a and +q */
 
-char fakevalue[] = "on";
+const char fakevalue* = "on";
 
 class ModuleChanProtect : public Module
 {
@@ -35,13 +32,9 @@ class ModuleChanProtect : public Module
  public:
  
 	ModuleChanProtect(Server* Me)
-		: Module::Module(Me)
-	{
-	
-		// here we initialise our module. Use new to create new instances of the required
-		// classes.
-		
-		Srv = Me;
+	: Module::Module(Me), Srv(Me)
+	{	
+		/* Initialise module variables */
 		Conf = new ConfigReader;
 		
 		// set up our modes. We're using listmodes and not normal extmodes here.
@@ -372,4 +365,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleChanProtectFactory;
 }
-

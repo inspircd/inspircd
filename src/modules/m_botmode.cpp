@@ -72,6 +72,7 @@ class ModuleBotMode : public Module
 	
 	virtual ~ModuleBotMode()
 	{
+		DELETE(bm);
 	}
 	
 	virtual Version GetVersion()

@@ -92,6 +92,11 @@ public:
 	{
 		return Version(1, 0, 0, 3, VF_STATIC | VF_VENDOR);
 	}
+	
+	virtual ~ModuleBanException()
+	{
+		DELETE(be);	
+	}
 };
 
 class ModuleBanExceptionFactory : public ModuleFactory

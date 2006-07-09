@@ -104,6 +104,7 @@ public:
 	
 	virtual ~ModuleBlockCAPS()
 	{
+		DELETE(bc);
 	}
 	
 	virtual Version GetVersion()

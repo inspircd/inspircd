@@ -148,6 +148,7 @@ class ModuleChanFilter : public Module
 	
 	virtual ~ModuleChanFilter()
 	{
+		DELETE(cf);
 	}
 };
 

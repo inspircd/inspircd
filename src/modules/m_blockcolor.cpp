@@ -112,6 +112,7 @@ class ModuleBlockColour : public Module
 
 	virtual ~ModuleBlockColour()
 	{
+		DELETE(bc);
 	}
 	
 	virtual Version GetVersion()

@@ -137,8 +137,8 @@ class ModuleCensor : public Module
  
 	virtual ~ModuleCensor()
 	{
-		delete cu;
-		delete cc;
+		DELETE(cu);
+		DELETE(cc);
 	}
 	
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
@@ -249,4 +249,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleCensorFactory;
 }
-
