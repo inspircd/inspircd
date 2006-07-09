@@ -24,33 +24,60 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "u_listmode.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
-typedef std::vector<irc::string> SpamList;
+class ChanFilter : public ListModeBase
+{
+ public:
+	ChanFilter(Server* serv) : ListModeBase(serv, 'g', "End of channel spamfilter list", "941", "940", "chanfilter") { }
+	
+	virtual bool ValidateParam(userrec* user, chanrec* chan, std::string &word)
+	{
+		if (word.length() > 35)
+		{
+			WriteServ(user->fd, "935 %s %s %s :word is too long for censor list",user->nick, chan->name,word.c_str());
+			return false;
+		}
+		
+		return true;
+	}
+	
+	virtual bool TellListTooLong(userrec* user, chanrec* chan, std::string &word)
+	{
+		WriteServ(user->fd,"939 %s %s %s :Channel spamfilter list is full",user->nick, chan->name, word.c_str());
+		return true;
+	}
+	
+	virtual void TellAlreadyOnList(userrec* user, chanrec* chan, std::string &word)
+	{
+		WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
+	}
+	
+	virtual void TellNotSet(userrec* user, chanrec* chan, std::string &word)
+	{
+		WriteServ(user->fd,"938 %s %s :No such spamfilter word is set",user->nick, chan->name);
+	}
+};
 
 class ModuleChanFilter : public Module
 {
 	Server *Srv;
-	ConfigReader *Conf;
-	long MaxEntries;
+	ChanFilter* cf;
 	
  public:
  
 	ModuleChanFilter(Server* Me)
-		: Module::Module(Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		Srv = Me;
-		Conf = new ConfigReader;
-		Srv->AddExtendedListMode('g');
-		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
-		if (MaxEntries == 0)
-			MaxEntries = 32;
+		cf = new ChanFilter(Srv);
+		Srv->AddMode(cf, 'g');
 	}
 
 	void Implements(char* List) 
 	{ 
-		List[I_On005Numeric] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
+		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnSyncChannel] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)
@@ -58,42 +85,30 @@ class ModuleChanFilter : public Module
 		InsertMode(output,"g",1);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
+	virtual void OnChannelDelete(chanrec* chan)
 	{
-		// when the last user parts, delete the list
-		if (Srv->CountUsers(channel) == 1)
-		{
-			SpamList* spamlist = (SpamList*)channel->GetExt("spam_list");
-			if (spamlist)
-			{
-				channel->Shrink("spam_list");
-				DELETE(spamlist);
-			}
-		}
+		cf->DoChannelDelete(chan);
 	}
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		DELETE(Conf);
-		Conf = new ConfigReader;
-		// re-read our config options on a rehash
-		MaxEntries = Conf->ReadInteger("chanfilter","maxsize",0,true);
+		cf->DoRehash();
 	}
 
 	virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
 	{
-
 		// Create a copy of the string in irc::string
 		irc::string line = text.c_str();
 
-		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
-		if (spamlist)
+		modelist* list = (modelist*)chan->GetExt(cf->GetInfoKey());
+
+		if (list)
 		{
-			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
+			for (modelist::iterator i = list->begin(); i != list->end(); i++)
 			{
-				if (line.find(*i) != std::string::npos)
+				if (line.find(i->mask.c_str()) != std::string::npos)
 				{
-					WriteServ(user->fd,"936 %s %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name, i->c_str());
+					WriteServ(user->fd,"936 %s %s %s :Your message contained a censored word, and was blocked",user->nick, chan->name, i->mask.c_str());
 					return 1;
 				}
 			}
@@ -110,112 +125,29 @@ class ModuleChanFilter : public Module
 		else return 0;
 	}
 
+	virtual void OnCleanup(int target_type, void* item)
+	{
+		cf->DoCleanup(target_type, item);
+	}
+	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
+	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
-		if ((modechar == 'g') && (type == MT_CHANNEL))
-		{
-			chanrec* chan = (chanrec*)target;
-
-			irc::string word = params[0].c_str();
-
-			if (word == "")
-				return -1;
-
-			if (mode_on)
-			{
-				SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
-				if (!spamlist)
-				{
-					spamlist = new SpamList;
-					chan->Extend("spam_list",(char*)spamlist);
-				}
-				if (spamlist->size() < (unsigned)MaxEntries)
-				{
-					if (word.length() > 35)
-					{
-						WriteServ(user->fd,"935 %s %s %s :word is too long for censor list",user->nick, chan->name,word.c_str());
-						return -1;
-					}
-					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
-					{
-						if (*i == word)
-						{
-							WriteServ(user->fd,"937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
-							return -1;
-						}
-					}
-					spamlist->push_back(word);
-					return 1;
-				}
-				WriteServ(user->fd,"939 %s %s :Channel spamfilter list is full",user->nick, chan->name);
-				return -1;
-			}
-			else
-			{
-				SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
-				if (spamlist)
-				{
-					for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
-					{
-						if (*i == word)
-						{
-							spamlist->erase(i);
-							return 1;
-						}
-					}
-				}
-				WriteServ(user->fd,"938 %s %s :No such spamfilter word is set",user->nick, chan->name);
-				return -1;
-			}
-			return -1;
-		}	
-		return 0;
+		cf->DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual void OnSendList(userrec* user, chanrec* channel, char mode)
+	virtual Version GetVersion()
 	{
-		if (mode == 'g')
-		{
-			SpamList* spamlist = (SpamList*)channel->GetExt("spam_list");
-			if (spamlist)
-			{
-				for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
-				{
-					WriteServ(user->fd,"941 %s %s %s",user->nick, channel->name,i->c_str());
-				}
-			}
-			WriteServ(user->fd,"940 %s %s :End of channel spamfilter list",user->nick, channel->name);
-		}
+		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
 	
 	virtual ~ModuleChanFilter()
 	{
-		DELETE(Conf);
 	}
-	
-	virtual Version GetVersion()
-	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
-	}
-	
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
-	{
-		SpamList* spamlist = (SpamList*)chan->GetExt("spam_list");
-		string_list commands;
-		if (spamlist)
-		{
-			for (SpamList::iterator i = spamlist->begin(); i != spamlist->end(); i++)
-			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+g "+std::string(i->c_str()));
-			}
-		}
-	}
-
 };
 
 
@@ -242,4 +174,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleChanFilterFactory;
 }
-

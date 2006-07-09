@@ -8,19 +8,15 @@
 #include <string>
 #include "modules.h"
 
-enum SQLerrorNum { BAD_DBID };
+enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
 
 class SQLerror
 {
 	SQLerrorNum id;
+	std::string str;
 public:
-	
-	SQLerror()
-	{	
-	}
-	
-	SQLerror(SQLerrorNum i)
-	: id(i)
+	SQLerror(SQLerrorNum i = NO_ERROR, const std::string &s = "")
+	: id(i), str(s)
 	{	
 	}
 	
@@ -29,12 +25,26 @@ public:
 		id = i;
 	}
 	
+	void Str(const std::string &s)
+	{
+		str = s;
+	}
+	
 	const char* Str()
 	{
+		if(str.length())
+			return str.c_str();
+		
 		switch(id)
 		{
+			case NO_ERROR:
+				return "No error";
 			case BAD_DBID:
 				return "Invalid database ID";
+			case BAD_CONN:
+				return "Invalid connection";
+			case QSEND_FAIL:
+				return "Sending query failed";
 			default:
 				return "Unknown error";				
 		}
@@ -57,6 +67,7 @@ public:
 
 class SQLresult : public Request
 {
+	
 public:
 	SQLresult(Module* s, Module* d)
 	: Request(SQLRESID, s, d)

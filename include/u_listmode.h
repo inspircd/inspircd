@@ -126,7 +126,7 @@ class ListModeBase : public ModeHandler
 			{
 				// Make one
 				el = new modelist;
-				channel->Extend(infokey, (char*)el);
+				channel->Extend(infokey, el);
 			}
 
 			// Clean the mask up
@@ -137,8 +137,10 @@ class ListModeBase : public ModeHandler
 			{
 				if(parameter == it->mask)
 				{
+					/* Give a subclass a chance to error about this */
+					TellAlreadyOnList(source, channel, parameter);
+					
 					// it does, deny the change
-					parameter = "";
 					return MODEACTION_DENY;
 				}
 			}
@@ -153,22 +155,44 @@ class ListModeBase : public ModeHandler
 					maxsize = el->size();
 					if (maxsize < it->limit)
 					{
-						// And now add the mask onto the list...
-						ListItem e;
-						e.mask = parameter;
-						e.nick = source->nick;
-						e.time = stringtime();
+						/* Ok, it *could* be allowed, now give someone subclassing us
+						 * a chance to validate the parameter.
+						 * The param is passed by reference, so they can both modify it
+						 * and tell us if we allow it or not.
+						 *
+						 * eg, the subclass could:
+						 * 1) allow
+						 * 2) 'fix' parameter and then allow
+						 * 3) deny
+						 */
+						if(ValidateParam(source, channel, parameter))
+						{
+							// And now add the mask onto the list...
+							ListItem e;
+							e.mask = parameter;
+							e.nick = source->nick;
+							e.time = stringtime();
 
-						el->push_back(e);
-						return MODEACTION_ALLOW;
+							el->push_back(e);
+							return MODEACTION_ALLOW;
+						}
+						else
+						{
+							/* If they deny it they have the job of giving an error message */
+							return MODEACTION_DENY;
+						}
 					}
 				}
 			}
 
-			// List is full
-			WriteServ(source->fd, "478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
+			/* List is full, give subclass a chance to send a custom message */
+			if(!TellListTooLong(source, channel, parameter))
+			{
+				WriteServ(source->fd, "478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
+			}
+			
 			parameter = "";
-			return MODEACTION_DENY;
+			return MODEACTION_DENY;	
 		}
 		else
 		{
@@ -186,6 +210,11 @@ class ListModeBase : public ModeHandler
 							delete el;
 						}
 						return MODEACTION_ALLOW;
+					}
+					else
+					{
+						/* Tried to remove something that wasn't set */
+						TellNotSet(source, channel, parameter);
 					}
 				}
 				parameter = "";
@@ -243,6 +272,25 @@ class ListModeBase : public ModeHandler
 				delete list;
 			}
 		}
+	}
+	
+	virtual bool ValidateParam(userrec* source, chanrec* channel, std::string &parameter)
+	{
+		return true;
+	}
+	
+	virtual bool TellListTooLong(userrec* source, chanrec* channel, std::string &parameter)
+	{
+		return false;
+	}
+	
+	virtual void TellAlreadyOnList(userrec* source, chanrec* channel, std::string &parameter)
+	{
+	}
+	
+	virtual void TellNotSet(userrec* source, chanrec* channel, std::string &parameter)
+	{
+		
 	}
 };
 
