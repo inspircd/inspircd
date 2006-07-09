@@ -114,7 +114,7 @@ class ChanProtect : public ModeHandler
 		}
 
 		// given user isnt even on the channel, eat the mode change
-		if (!chan->HasUser(theuser))
+		if (!channel->HasUser(theuser))
 		{
 			parameter = "";
 			return MODEACTION_DENY;
@@ -148,7 +148,7 @@ class ChanProtect : public ModeHandler
 		else
 		{
 			// bzzzt, wrong answer!
-			WriteServ(user->fd,"482 %s %s :You are not a channel founder",user->nick, chan->name);
+			WriteServ(source->fd,"482 %s %s :You are not a channel founder",source->nick, channel->name);
 			return MODEACTION_DENY;
 		}
 	}
@@ -187,7 +187,7 @@ class ModuleChanProtect : public Module
 		cf = new ChanFounder(Me);
 		
 		Srv->AddMode(cp, 'a');
-		Srv->AdDMode(cf, 'q');
+		Srv->AddMode(cf, 'q');
 		
 		// read our config options (main config file)
 		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
