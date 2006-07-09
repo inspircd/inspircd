@@ -30,6 +30,16 @@ extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
 
+const char* Spacify(char* n)
+{
+	static char x[MAXBUF];
+	strlcpy(x,n,MAXBUF);
+	for (char* y = x; *y; y++)
+		if (*y == '_')
+			*y = ' ';
+	return x;
+}
+
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
@@ -66,7 +76,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		if (*dest->oper)
 		{
-			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),dest->oper, Config->Network);
+			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{
