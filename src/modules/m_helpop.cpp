@@ -25,11 +25,38 @@ using namespace std;
 static ConfigReader *helpop;
 static Server *Srv;
 
-void handle_helpop(char**, int, userrec*);
 bool do_helpop(char**, int, userrec*);
 void sendtohelpop(userrec*, int, char**);
 
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
+
+class Helpop : public ModeHandler
+{
+ public:
+	Helpop() : ModeHandler('h', 0, 0, false, MODETYPE_USER, true) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('h'))
+			{
+				dest->SetMode('h',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('h'))
+			{
+				dest->SetMode('h',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
 
 class cmd_helpop : public command_t
 {
@@ -169,6 +196,7 @@ class ModuleHelpop : public Module
 		ConfigReader *conf;
 		std::string  h_file;
 		cmd_helpop* mycommand;
+		Helpop* ho;
 
 	public:
 		ModuleHelpop(Server* Me)
@@ -177,12 +205,8 @@ class ModuleHelpop : public Module
 			Srv  = Me;
 
 			ReadConfig();
-			if (!Srv->AddExtendedMode('h',MT_CLIENT,true,0,0))
-			{
-				Srv->Log(DEFAULT,"Unable to claim the +h usermode.");
-				return;
-			}
-
+			ho = new Helpop();
+			Srv->AddMode(ho, 'h');
 			mycommand = new cmd_helpop();
 			Srv->AddCommand(mycommand);
 		}
@@ -211,7 +235,7 @@ class ModuleHelpop : public Module
 
 		void Implements(char* List)
 		{
-			List[I_OnRehash] = List[I_OnExtendedMode] = List[I_OnWhois] = 1;
+			List[I_OnRehash] = List[I_OnWhois] = 1;
 		}
 
 		virtual void OnRehash(const std::string &parameter)
@@ -223,18 +247,9 @@ class ModuleHelpop : public Module
 			ReadConfig();
 		}
 
-		virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-		{
-			if ((modechar == 'h') && (type == MT_CLIENT))
-	  		{
-				return 1;
-			}
-			return 0;
-		}
-
 		virtual void OnWhois(userrec* src, userrec* dst)
 		{
-			if (dst->modes['h'-65])
+			if (dst->IsModeSet('h'))
 			{
 				Srv->SendTo(NULL,src,"310 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is available for help.");
 			}
@@ -244,6 +259,7 @@ class ModuleHelpop : public Module
 		{
 			DELETE(conf);
 			DELETE(helpop);
+			DELETE(ho);
 		}
 	
 		virtual Version GetVersion()
