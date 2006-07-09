@@ -25,6 +25,7 @@ class SSLMode : public ModeHandler
 						return MODEACTION_DENY;
 					}
 				}
+				channel->SetMode('z',true);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -34,7 +35,13 @@ class SSLMode : public ModeHandler
 		}
 		else
 		{
-			(channel->IsModeSet('z')) ? return MODEACTION_DENY : return MODEACTION_ALLOW;
+			if (channel->IsModeSet('z'))
+			{
+				channel->SetMode('z',false);
+				return MODEACTION_ALLOW;
+			}
+
+			return MODEACTION_DENY;
 		}
 	}
 };
