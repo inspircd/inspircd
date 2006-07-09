@@ -48,11 +48,11 @@ class ListModeBase : public ModeHandler
 {
  protected:
 	Server* Srv;
- 	bool tidy;
 	std::string infokey;
 	std::string listnumeric;
 	std::string endoflistnumeric;
 	std::string endofliststring;
+	bool tidy;
  	std::string configtag;
 	limitlist chanlimits;
  
