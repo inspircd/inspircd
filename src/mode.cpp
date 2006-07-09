@@ -400,7 +400,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
 							 */
-							if ((modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
+							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
 								continue;
 
 							/* Call the handler for the mode */
