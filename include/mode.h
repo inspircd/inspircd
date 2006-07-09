@@ -17,8 +17,7 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-// include the common header files
-
+/* include the common header files */
 #include <typeinfo>
 #include <iostream>
 #include <string>
@@ -184,20 +183,69 @@ class ModeHandler
 	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel);
 };
 
+/**
+ * The ModeWatcher class can be used to alter the behaviour of a mode implemented
+ * by the core or by another module. To use ModeWatcher, derive a class from it,
+ * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
+ * A ModeWatcher will be called both before and after the mode change.
+ */
 class ModeWatcher
 {
  protected:
+	/**
+	 * The mode letter this class is watching
+	 */
 	char mode;
+	/**
+	 * The mode type being watched (user or  channel)
+	 */
 	ModeType m_type;
 
  public:
+	/**
+	 * The constructor initializes the mode and the mode type
+	 */
 	ModeWatcher(char modeletter, ModeType type);
+	/**
+	 * The default destructor does nothing.
+	 */
 	virtual ~ModeWatcher();
 
+	/**
+	 * Get the mode character being watched
+	 * @return The mode character being watched
+	 */
 	char GetModeChar();
+	/**
+	 * Get the mode type being watched
+	 * @return The mode type being watched (user or channel)
+	 */
 	ModeType GetModeType();
 
-	virtual bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type); /* Can change the mode parameter */
+	/**
+	 * Before the mode character is processed by its handler, this method will be called.
+	 * @param source The sender of the mode
+	 * @param dest The target user for the mode, if you are watching a user mode
+	 * @param channel The target channel for the mode, if you are watching a channel mode
+	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
+	 * If you alter the parameter you are given, the mode handler will see your atered version
+	 * when it handles the mode.
+	 * @param adding True if the mode is being added and false if it is being removed
+	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
+	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
+	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
+	 */
+	virtual bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type);
+	/**
+	 * After the mode character has been processed by the ModeHandler, this method will be called.
+	 * @param source The sender of the mode
+	 * @param dest The target user for the mode, if you are watching a user mode
+	 * @param channel The target channel for the mode, if you are watching a channel mode
+	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
+	 * You cannot alter the parameter here, as the mode handler has already processed it.
+	 * @param adding True if the mode is being added and false if it is being removed
+	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
+	 */
 	virtual void AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
@@ -219,27 +267,81 @@ class ModeParser
 	 * we have 256 lists of them.
 	 */
 	std::vector<ModeWatcher*> modewatchers[256];
-
+	/**
+	 * Displays the current modes of a channel or user.
+	 * Used by ModeParser::Process.
+	 */
 	void DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text);
 
  public:
 
+	/**
+	 * The constructor initializes all the RFC basic modes by using ModeParserAddMode().
+	 */
 	ModeParser();
 
+	/**
+	 * Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
+	 * for example, should 'user A' be able to 'op' on 'channel B'.
+	 */
 	static userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
+	/**
+	 * Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
+	 */
 	static const char* Grant(userrec *d,chanrec *chan,int MASK);
+	/**
+	 * Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
+	 */
 	static const char* Revoke(userrec *d,chanrec *chan,int MASK);
+	/**
+	 * Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
+	 * E.g.
+	 *
+	 * nick -> nick!*@*
+	 * 
+	 * nick!ident -> nick!ident@*
+	 * 
+	 * host.name -> *!*@host.name
+	 * 
+	 * ident@host.name -> *!ident@host.name
+	 *
+	 * This method can be used on both IPV4 and IPV6 user masks.
+	 */
 	static void CleanMask(std::string &mask);
-	static void BuildModeString(userrec* user);
-
+	/**
+	 * Add a mode to the mode parser. The modeletter parameter
+	 * is purely to save on doing a lookup in the function, as
+	 * strictly it could be obtained via ModeHandler::GetModeChar().
+	 * @return True if the mode was successfully added.
+	 */
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
+	/**
+	 * Process a set of mode changes from a server or user.
+	 * @param parameters The parameters of the mode change, in the format
+	 * they would be from a MODE command.
+	 * @param pcnt The number of items in the parameters array
+	 * @param user The user setting or removing the modes. When the modes are set
+	 * by a server, an 'uninitialized' userrec is used, where *user::nick == NULL
+	 * and *user->server == NULL.
+	 * @param servermode True if a server is setting the mode.
+	 */
 	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
 };
 
+/**
+ * Command handler class for the MODE command.
+ * put here for completeness.
+ */
 class cmd_mode : public command_t
 {
  public:
+	/**
+	 * Standard constructor
+	 */
 	cmd_mode () : command_t("MODE",0,1) { }
+	/**
+	 * Handle MODE
+	 */
 	void Handle(char **parameters, int pcnt, userrec *user);
 };
 
