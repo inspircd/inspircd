@@ -21,12 +21,13 @@
 
 /* $ModDesc: Provides channel modes +a and +q */
 
-const char fakevalue* = "on";
+const char* fakevalue = "on";
 
 class ChanFounder : public ModeHandler
 {
+	Server* Srv;
  public:
-	ChanFounder() : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false) { }
+	ChanFounder(Server* s) : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -176,14 +177,13 @@ class ModuleChanProtect : public Module
 	
  public:
  
-	ModuleChanProtect(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleChanProtect(Server* Me) : Module::Module(Me), Srv(Me)
 	{	
 		/* Initialise module variables */
 		Conf = new ConfigReader;
 
-		cp = new ChanProtect();
-		cf = new ChanFounder();
+		cp = new ChanProtect(Me);
+		cf = new ChanFounder(Me);
 		
 		Srv->AddMode(cp, 'a');
 		Srv->AdDMode(cf, 'q');
