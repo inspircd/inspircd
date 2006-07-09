@@ -40,6 +40,7 @@ class KickRejoin : public ModeHandler
 		}
 		if ((!adding) || (atoi(parameter.c_str()) > 0))
 		{
+			parameter = ConvToStr(atoi(parameter.c_str()));
 			channel->SetModeParam('J', parameter.c_str(), adding);
 			channel->SetMode('J', adding);
 			return MODEACTION_ALLOW;
