@@ -23,8 +23,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+/* $ModDesc: Provides support for GLOBOPS and user mode +g */
 
 static Server *Srv;
 
@@ -47,31 +48,54 @@ class cmd_globops : public command_t
 	}
 };
 
+class ModeGlobops : public ModeHandler
+{
+ public:
+	ModeGlobops() : ModeHandler('g', 0, 0, false, MODETYPE_USER, true) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('g'))
+			{
+				dest->SetMode('P',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('g'))
+			{
+				dest->SetMode('P',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 
 class ModuleGlobops : public Module
 {
 	cmd_globops* mycommand;
+	ModeGlobops* mg;
  public:
 	ModuleGlobops(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		
-		if (!Srv->AddExtendedMode('g',MT_CLIENT,true,0,0))
-		{
-			Srv->Log(DEFAULT,"*** m_globops: ERROR, failed to allocate user mode +g!");
-			printf("Could not claim usermode +g for this module!");
-			return;
-		}
-		else
-		{
-			mycommand = new cmd_globops();
-			Srv->AddCommand(mycommand);
-		}
+		mg = new ModeGlobops();
+		Srv->AddMode(mg, 'g');
+		mycommand = new cmd_globops();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleGlobops()
 	{
+		DELETE(mycommand);
+		DELETE(mg);
 	}
 	
 	virtual Version GetVersion()
@@ -81,27 +105,8 @@ class ModuleGlobops : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = 1;
-	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'g') && (type == MT_CLIENT))
-  		{
-			// we dont actually do anything with the mode in this module -
-   			// just tell the core its been claimed and is ok to give users.  			
-			return 1;
-		}
-		else
-		{
-			// this mode isn't ours, we have to bail and return 0 to not handle it.
-			return 0;
-		}
 	}
 };
-
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
 class ModuleGlobopsFactory : public ModuleFactory
 {
