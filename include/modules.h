@@ -1295,7 +1295,7 @@ class Server : public classbase
 	 */
 	Module* FindFeature(const std::string &FeatureName);
 
-	const char* GetModuleName(Module* m);
+	const std::string& GetModuleName(Module* m);
 
 	/** Writes a log string.
 	 * This method writes a line of text to the log. If the level given is lower than the
