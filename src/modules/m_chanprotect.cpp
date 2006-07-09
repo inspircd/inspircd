@@ -171,6 +171,8 @@ class ModuleChanProtect : public Module
 	Server *Srv;
 	bool FirstInGetsFounder;
 	ConfigReader *Conf;
+	ChanProtect* cp;
+	ChanFounder* cf;
 	
  public:
  
@@ -179,12 +181,12 @@ class ModuleChanProtect : public Module
 	{	
 		/* Initialise module variables */
 		Conf = new ConfigReader;
+
+		cp = new ChanProtect();
+		cf = new ChanFounder();
 		
-		// set up our modes. We're using listmodes and not normal extmodes here.
-		// listmodes only need one parameter as everything else is assumed by the
-		// nature of the mode thats being created.
-		Srv->AddExtendedListMode('a');
-		Srv->AddExtendedListMode('q');
+		Srv->AddMode(cp, 'a');
+		Srv->AdDMode(cf, 'q');
 		
 		// read our config options (main config file)
 		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
@@ -192,7 +194,7 @@ class ModuleChanProtect : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnExtendedMode] = List[I_OnSendList] = List[I_OnSyncChannel] = 1;
+		List[I_On005Numeric] = List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)
@@ -331,130 +333,11 @@ class ModuleChanProtect : public Module
 		return ACR_DEFAULT;
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// not out mode, bail
-		if ((modechar == 'q') && (type == MT_CHANNEL))
-		{
-			// set up parameters
-			chanrec* chan = (chanrec*)target;
-			userrec* theuser = Srv->FindNick(params[0]);
-		
-			// cant find the user given as the parameter, eat the mode change.
-			if (!theuser)
-				return -1;
-			
-			// given user isnt even on the channel, eat the mode change
-			if (!chan->HasUser(theuser))
-				return -1;
-			
-			// source is a server, or ulined, we'll let them +-q the user.
-			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
-			{
-				if (mode_on)
-   				{
-   					if (!theuser->GetExt("cm_founder_"+std::string(chan->name)))
-   					{
-						theuser->Extend("cm_founder_"+std::string(chan->name),fakevalue);
-						return 1;
-					}
-				}
-				else
- 				{
- 					if (theuser->GetExt("cm_founder_"+std::string(chan->name)))
- 					{
-						theuser->Shrink("cm_founder_"+std::string(chan->name));
-						return 1;
-					}
-				}	
-
-				return -1;
-			}
-			else
-			{
-				// whoops, someones being naughty!
-				WriteServ(user->fd,"468 %s %s :Only servers may set channel mode +q",user->nick, chan->name);
-				return -1;
-			}
-		}
-		if ((modechar == 'a') && (type == MT_CHANNEL))
-		{
-			// set up parameters
-			chanrec* chan = (chanrec*)target;
-			userrec* theuser = Srv->FindNick(params[0]);
-		
-			// cant find the user given as the parameter, eat the mode change.
-			if (!theuser)
-				return -1;
-			
-			// given user isnt even on the channel, eat the mode change
-			if (!chan->HasUser(theuser))
-				return -1;
-
-			// source has +q, is a server, or ulined, we'll let them +-a the user.
-			if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")) || (user->GetExt("cm_founder_"+std::string(chan->name))))
-			{
-				if (mode_on)
-   				{
-   					if (!theuser->GetExt("cm_protect_"+std::string(chan->name)))
-   					{
-						theuser->Extend("cm_protect_"+std::string(chan->name),fakevalue);
-						return 1;
-					}
-				}
-				else
-    				{
-    					if (theuser->GetExt("cm_protect_"+std::string(chan->name)))
-    					{
-						theuser->Shrink("cm_protect_"+std::string(chan->name));
-						return 1;
-					}
-				}	
-
-				return -1;
-			}
-			else
-			{
-				// bzzzt, wrong answer!
-				WriteServ(user->fd,"482 %s %s :You are not a channel founder",user->nick, chan->name);
-				return -1;
-			}
-		}
-		return 0;
-	}
-
-	virtual void OnSendList(userrec* user, chanrec* channel, char mode)
-	{
-		if (mode == 'q')
-		{
-			chanuserlist cl = Srv->GetUsers(channel);
-			for (unsigned int i = 0; i < cl.size(); i++)
-			{
-				if (cl[i]->GetExt("cm_founder_"+std::string(channel->name)))
-				{
-					WriteServ(user->fd,"386 %s %s %s",user->nick, channel->name,cl[i]->nick);
-				}
-			}
-			WriteServ(user->fd,"387 %s %s :End of channel founder list",user->nick, channel->name);
-		}
-		if (mode == 'a')
-		{
-			chanuserlist cl = Srv->GetUsers(channel);
-			for (unsigned int i = 0; i < cl.size(); i++)
-			{
-				if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
-				{
-					WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
-				}
-			}
-			WriteServ(user->fd,"389 %s %s :End of channel protected user list",user->nick, channel->name);
-		}
-
-	}
-	
 	virtual ~ModuleChanProtect()
 	{
 		DELETE(Conf);
+		DELETE(cp);
+		DELETE(cf);
 	}
 	
 	virtual Version GetVersion()
