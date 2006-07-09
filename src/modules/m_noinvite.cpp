@@ -24,22 +24,51 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +V */
 
+class NoInvite : public ModeHandler
+{
+ public:
+	NoInvite() : ModeHandler('V', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('V'))
+			{
+				channel->SetMode('V',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('V'))
+			{
+				channel->SetMode('V',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleNoInvite : public Module
 {
 	Server *Srv;
+	NoInvite *ni;
 	
 	public:
  
-		ModuleNoInvite(Server* Me)
-			: Module::Module(Me)
+		ModuleNoInvite(Server* Me) : Module::Module(Me)
 		{
 			Srv = Me;
-			Srv->AddExtendedMode('V',MT_CHANNEL,false,0,0);
+			ni = new NoInvite();
+			Srv->AddMode(ni, 'V');
 		}
 
 		void Implements(char* List)
 		{
-			List[I_On005Numeric] = List[I_OnUserPreInvite] = List[I_OnExtendedMode] = 1;
+			List[I_On005Numeric] = List[I_OnUserPreInvite] = 1;
 		}
 
 		virtual void On005Numeric(std::string &output)
@@ -57,22 +86,10 @@ class ModuleNoInvite : public Module
 			}
 			return 0;
 		}
-	
-		virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-		{
-			// check if this is our mode character...
-			if ((modechar == 'V') && (type == MT_CHANNEL))
-  			{
-				return 1;
-			}
-			else
-			{
-				return 0;
-			}
-		}
 
 		virtual ~ModuleNoInvite()
 		{
+			DELETE(ni);
 		}
 	
 		virtual Version GetVersion()
