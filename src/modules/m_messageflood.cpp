@@ -83,9 +83,88 @@ class floodsettings
 	}
 };
 
+class MsgFlood : public ModeHandler
+{
+ public:
+	MsgFlood() : ModeHandler('f', 1, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			char ndata[MAXBUF];
+			char* data = ndata;
+			strlcpy(ndata,parameter.c_str(),MAXBUF);
+			char* lines = data;
+			char* secs = NULL;
+			bool ban = false;
+			if (*data == '*')
+			{
+				ban = true;
+				lines++;
+			}
+			else
+			{
+				ban = false;
+			}
+			while (*data)
+			{
+				if (*data == ':')
+				{
+					*data = 0;
+					data++;
+					secs = data;
+					break;
+				}
+				else data++;
+			}
+			if (secs)
+			{
+				/* Set up the flood parameters for this channel */
+				int nlines = atoi(lines);
+				int nsecs = atoi(secs);
+				if ((nlines<1) || (nsecs<1))
+				{
+					WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+					parameter = "";
+					return MODEACTION_DENY;
+				}
+				else
+				{
+					if (!channel->GetExt("flood"))
+					{
+						floodsettings *f = new floodsettings(ban,nsecs,nlines);
+						channel->Extend("flood",(char*)f);
+						return MODEACTION_ALLOW;
+					}
+				}
+			}
+			else
+			{
+				WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+				parameter = "";
+				return MODEACTION_DENY;
+			}
+		}
+		else
+		{
+			if (channel->GetExt("flood"))
+			{
+				floodsettings *f = (floodsettings*)channel->GetExt("flood");
+				DELETE(f);
+				channel->Shrink("flood");
+				return MODEACTION_ALLOW;
+			}
+		}
+		
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleMsgFlood : public Module
 {
 	Server *Srv;
+	MsgFlood* mf;
 	
  public:
  
@@ -93,85 +172,10 @@ class ModuleMsgFlood : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('f',MT_CHANNEL,false,1,0);
+		mf = new MsgFlood();
+		Srv->AddMode(mf, 'f');
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'f') && (type == MT_CHANNEL))
-		{
-			if (mode_on)
-			{
-				std::string FloodParams = params[0];
-				chanrec* c = (chanrec*)target;
-				char ndata[MAXBUF];
-				char* data = ndata;
-				strlcpy(ndata,FloodParams.c_str(),MAXBUF);
-				char* lines = data;
-				char* secs = NULL;
-				bool ban = false;
-				if (*data == '*')
-				{
-					ban = true;
-					lines++;
-				}
-				else
-				{
-					ban = false;
-				}
-				while (*data)
-				{
-					if (*data == ':')
-					{
-						*data = 0;
-						data++;
-						secs = data;
-						break;
-					}
-					else data++;
-				}
-				if (secs)
-				{
-					/* Set up the flood parameters for this channel */
-					int nlines = atoi(lines);
-					int nsecs = atoi(secs);
-					if ((nlines<1) || (nsecs<1))
-					{
-						WriteServ(user->fd,"608 %s %s :Invalid flood parameter",user->nick,c->name);
-						return 0;
-					}
-					else
-					{
-						if (!c->GetExt("flood"))
-						{
-							floodsettings *f = new floodsettings(ban,nsecs,nlines);
-							c->Extend("flood",(char*)f);
-						}
-					}
-					return 1;
-				}
-				else
-				{
-					WriteServ(user->fd,"608 %s %s :Invalid flood parameter",user->nick,c->name);
-					return 0;
-				}
-				
-			}
-			else
-			{
-				chanrec* c = (chanrec*)target;
-				if (c->GetExt("flood"))
-				{
-					floodsettings *f = (floodsettings*)c->GetExt("flood");
-					DELETE(f);
-					c->Shrink("flood");
-				}
-			}
-			return 1;
-		}
-		return 0;
-	}
-
 	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
 	{
 		if (IS_LOCAL(user))
@@ -226,7 +230,7 @@ class ModuleMsgFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
+		List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -236,6 +240,7 @@ class ModuleMsgFlood : public Module
 
 	virtual ~ModuleMsgFlood()
 	{
+		DELETE(mf);
 	}
 	
 	virtual Version GetVersion()
