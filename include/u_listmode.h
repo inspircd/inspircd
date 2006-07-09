@@ -47,23 +47,19 @@ typedef std::vector<ListLimit> limitlist;
 class ListModeBase : public ModeHandler
 {
  protected:
+	Server* Srv;
+ 
 	std::string infokey;
 	std::string listnumeric;
 	std::string endoflistnumeric;
 	std::string endofliststring;
+ 	std::string configtag;
 	limitlist chanlimits;
-
-	Server* Srv;
-	ConfigReader* Conf;
+ 
  public:
-	ListModeBase(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum) : ModeHandler(modechar, 1, 1, true, MODETYPE_CHANNEL, false)
+	ListModeBase(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, const std::string &ctag = "banlist")
+ 	: ModeHandler(modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), configtag(ctag)
 	{
-		Srv = serv;
-		Conf = new ConfigReader;
-		mode = modechar;
-		listnumeric = lnum;
-		endoflistnumeric = eolnum;
-		endofliststring = eolstr;
 		this->DoRehash();
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
 	}
@@ -83,26 +79,25 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoRehash()
 	{
-		delete Conf;
-		Conf = new ConfigReader;
+		ConfigReader Conf;
 
 		chanlimits.clear();
 
-		for(int i = 0; i < Conf->Enumerate("banlist"); i++)
+		for(int i = 0; i < Conf.Enumerate(configtag); i++)
 		{
 			// For each <banlist> tag
 			ListLimit limit;
-			limit.mask = Conf->ReadValue("banlist", "chan", i);
-			limit.limit = Conf->ReadInteger("banlist", "limit", i, true);
+			limit.mask = Conf.ReadValue(configtag, "chan", i);
+			limit.limit = Conf.ReadInteger(configtag, "limit", i, true);
 
 			if(limit.mask.size() && limit.limit > 0)
 			{
 				chanlimits.push_back(limit);
-				log(DEBUG, "m_exceptionbase.so: Read channel listmode limit of %u for mask '%s'", limit.limit, limit.mask.c_str());
+				log(DEBUG, "Read channel listmode limit of %u for mask '%s'", limit.limit, limit.mask.c_str());
 			}
 			else
 			{
-				log(DEBUG, "m_exceptionbase.so: Invalid tag");
+				log(DEBUG, "Invalid tag");
 			}
 		}
 		if(chanlimits.size() == 0)
