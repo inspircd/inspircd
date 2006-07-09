@@ -292,6 +292,18 @@ Module* Server::FindFeature(const std::string &FeatureName)
 	return iter->second;
 }
 
+const char* Server::GetModuleName(Module* m)
+{
+	for (int i = 0; i <= MODCOUNT; i++)
+	{
+		if (modules[i] == m)
+		{
+			return module_names[i];
+		}
+	}
+	return "";
+}
+
 void Server::RehashServer()
 {
 	WriteOpers("*** Rehashing config file");
