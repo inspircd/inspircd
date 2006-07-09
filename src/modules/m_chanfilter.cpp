@@ -77,6 +77,7 @@ class ModuleChanFilter : public Module
 
 	void Implements(char* List) 
 	{ 
+		cf->DoImplements(List);
 		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnSyncChannel] = 1;
 	}
 	
