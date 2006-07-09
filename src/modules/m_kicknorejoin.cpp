@@ -6,6 +6,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
@@ -19,9 +20,39 @@ inline int strtoint(const std::string &str)
 
 typedef std::map<userrec*, time_t> delaylist;
 
+class KickRejoin : public ModeHandler
+{
+ public:
+	KickRejoin() : ModeHandler('J', 1, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (!adding)
+		{
+			// Taking the mode off, we need to clean up.
+			delaylist* dl = (delaylist*)channel->GetExt("norejoinusers");
+
+			if (dl)
+			{
+				DELETE(dl);
+				channel->Shrink("norejoinusers");
+			}
+		}
+		if ((!adding) || (atoi(parameter.c_str()) > 0))
+		{
+			return MODEACTION_ALLOW;
+		}
+		else
+		{
+			return MODEACTION_DENY;
+		}
+	}
+};
+
 class ModuleKickNoRejoin : public Module
 {
 	Server *Srv;
+	KickRejoin* kr;
 	
 public:
  
@@ -29,31 +60,8 @@ public:
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		
-		Srv->AddExtendedMode('J', MT_CHANNEL, false, 1, 0);
-	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'J') && (type == MT_CHANNEL))
-		{
-			if (!mode_on)
-			{
-				// Taking the mode off, we need to clean up.
-				chanrec* c = (chanrec*)target;
-				
-				delaylist* dl = (delaylist*)c->GetExt("norejoinusers");
-				
-				if (dl)
-				{
-					DELETE(dl);
-					c->Shrink("norejoinusers");
-				}
-			}
-			/* Don't allow negative or 0 +J value */
-			return ((!mode_on) || (atoi(params[0].c_str()) > 0));
-		}
-		return 0;
+		kr = new KickRejoin();
+		Srv->AddMode(kr, 'J');
 	}
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
@@ -139,7 +147,7 @@ public:
 
 	virtual void Implements(char* List)
 	{
-		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserKick] = 1;
+		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserKick] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -149,6 +157,7 @@ public:
 
 	virtual ~ModuleKickNoRejoin()
 	{
+		DELETE(kr);
 	}
 	
 	virtual Version GetVersion()
