@@ -92,12 +92,78 @@ class joinfloodsettings
 		unlocktime = time(NULL) + 60;
 	}
 
-	
+};
+
+class JoinFlood : public ModeHandler
+{
+ public:
+	JoinFlood() : ModeHandler('j', 1, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			char ndata[MAXBUF];
+			char* data = ndata;
+			strlcpy(ndata,parameter.c_str(),MAXBUF);
+			char* joins = data;
+			char* secs = NULL;
+			while (*data)
+			{
+				if (*data == ':')
+				{
+					*data = 0;
+					data++;
+					secs = data;
+					break;
+				}
+				else data++;
+			}
+			if (secs)
+			{
+				/* Set up the flood parameters for this channel */
+				int njoins = atoi(joins);
+				int nsecs = atoi(secs);
+				if ((njoins<1) || (nsecs<1))
+				{
+					WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+					parameter = "";
+					return MODEACTION_DENY;
+				}
+				else
+				{
+					if (!channel->GetExt("joinflood"))
+					{
+						joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
+						channel->Extend("joinflood",(char*)f);
+						return MODEACTION_ALLOW;
+					}
+				}
+			}
+			else
+			{
+				WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+				return MODEACTION_DENY;
+			}
+		}
+		else
+		{
+			if (channel->GetExt("joinflood"))
+			{
+				joinfloodsettings *f = (joinfloodsettings*)channel->GetExt("joinflood");
+				DELETE(f);
+				channel->Shrink("joinflood");
+				return MODEACTION_ALLOW;
+			}
+		}
+		return MODEACTION_DENY;
+	}
 };
 
 class ModuleJoinFlood : public Module
 {
 	Server *Srv;
+	JoinFlood* jf;
 	
  public:
  
@@ -105,75 +171,10 @@ class ModuleJoinFlood : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('j',MT_CHANNEL,false,1,0);
+		jf = new JoinFlood();
+		Srv->AddMode(jf, 'j');
 	}
 	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		if ((modechar == 'j') && (type == MT_CHANNEL))
-		{
-			if (mode_on)
-			{
-				std::string FloodParams = params[0];
-				chanrec* c = (chanrec*)target;
-				char ndata[MAXBUF];
-				char* data = ndata;
-				strlcpy(ndata,FloodParams.c_str(),MAXBUF);
-				char* joins = data;
-				char* secs = NULL;
-				while (*data)
-				{
-					if (*data == ':')
-					{
-						*data = 0;
-						data++;
-						secs = data;
-						break;
-					}
-					else data++;
-				}
-				if (secs)
-				{
-					/* Set up the flood parameters for this channel */
-					int njoins = atoi(joins);
-					int nsecs = atoi(secs);
-					if ((njoins<1) || (nsecs<1))
-					{
-						WriteServ(user->fd,"608 %s %s :Invalid flood parameter",user->nick,c->name);
-						return 0;
-					}
-					else
-					{
-						if (!c->GetExt("joinflood"))
-						{
-							joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
-							c->Extend("joinflood",(char*)f);
-						}
-					}
-					return 1;
-				}
-				else
-				{
-					WriteServ(user->fd,"608 %s %s :Invalid flood parameter",user->nick,c->name);
-					return 0;
-				}
-				
-			}
-			else
-			{
-				chanrec* c = (chanrec*)target;
-				if (c->GetExt("joinflood"))
-				{
-					joinfloodsettings *f = (joinfloodsettings*)c->GetExt("joinflood");
-					DELETE(f);
-					c->Shrink("joinflood");
-				}
-			}
-			return 1;
-		}
-		return 0;
-	}
-
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
 		if (chan)
@@ -218,7 +219,7 @@ class ModuleJoinFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserJoin] = 1;
+		List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserJoin] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -228,6 +229,7 @@ class ModuleJoinFlood : public Module
 
 	virtual ~ModuleJoinFlood()
 	{
+		DELETE(jf);
 	}
 	
 	virtual Version GetVersion()
