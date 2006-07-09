@@ -23,6 +23,149 @@
 
 const char fakevalue* = "on";
 
+class ChanFounder : public ModeHandler
+{
+ public:
+	ChanFounder() : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		userrec* theuser = Srv->FindNick(parameter);
+
+		// cant find the user given as the parameter, eat the mode change.
+		if (!theuser)
+		{
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+
+		// given user isnt even on the channel, eat the mode change
+		if (!channel->HasUser(theuser))
+		{
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+
+		 // source is a server, or ulined, we'll let them +-q the user.
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server))
+		{
+			if (adding)
+			{
+				if (!theuser->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					theuser->Extend("cm_founder_"+std::string(channel->name),fakevalue);
+					// Tidy the nickname (make case match etc)
+					parameter = theuser->nick;
+					return MODEACTION_ALLOW;
+				}
+			}
+			else
+			{
+				if (theuser->GetExt("cm_founder_"+std::string(channel->name)))
+				{
+					theuser->Shrink("cm_founder_"+std::string(channel->name));
+					// Tidy the nickname (make case match etc)
+					parameter = theuser->nick;
+					return MODEACTION_ALLOW;
+				}
+			}
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			// whoops, someones being naughty!
+			WriteServ(source->fd,"468 %s %s :Only servers may set channel mode +q",source->nick, channel->name);
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+	}
+
+	void DisplayList(userrec* user, chanrec* channel)
+	{
+		chanuserlist cl = Srv->GetUsers(channel);
+		for (unsigned int i = 0; i < cl.size(); i++)
+		{
+			if (cl[i]->GetExt("cm_founder_"+std::string(channel->name)))
+			{
+				WriteServ(user->fd,"386 %s %s %s",user->nick, channel->name,cl[i]->nick);
+			}
+		}
+		WriteServ(user->fd,"387 %s %s :End of channel founder list",user->nick, channel->name);
+	}
+
+};
+
+class ChanProtect : public ModeHandler
+{
+ public:
+	ChanProtect() : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		userrec* theuser = Srv->FindNick(parameter);
+
+		// cant find the user given as the parameter, eat the mode change.
+		if (!theuser)
+		{
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+
+		// given user isnt even on the channel, eat the mode change
+		if (!chan->HasUser(theuser))
+		{
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+
+		// source has +q, is a server, or ulined, we'll let them +-a the user.
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt("cm_founder_"+std::string(channel->name))))
+		{
+			if (adding)
+			{
+				if (!theuser->GetExt("cm_protect_"+std::string(channel->name)))
+				{
+					theuser->Extend("cm_protect_"+std::string(channel->name),fakevalue);
+					// Tidy the nickname (make case match etc)
+					parameter = theuser->nick;
+					return MODEACTION_ALLOW;
+				}
+			}
+			else
+			{
+				if (theuser->GetExt("cm_protect_"+std::string(channel->name)))
+				{
+					theuser->Shrink("cm_protect_"+std::string(channel->name));
+					// Tidy the nickname (make case match etc)
+					parameter = theuser->nick;
+					return MODEACTION_ALLOW;
+				}
+			}
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			// bzzzt, wrong answer!
+			WriteServ(user->fd,"482 %s %s :You are not a channel founder",user->nick, chan->name);
+			return MODEACTION_DENY;
+		}
+	}
+
+	virtual void DisplayList(userrec* user, chanrec* channel)
+	{
+		chanuserlist cl = Srv->GetUsers(channel);
+		for (unsigned int i = 0; i < cl.size(); i++)
+		{
+			if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
+			{
+				WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
+			}
+		}
+		WriteServ(user->fd,"389 %s %s :End of channel protected user list",user->nick, channel->name);
+	}
+
+};
+
 class ModuleChanProtect : public Module
 {
 	Server *Srv;
