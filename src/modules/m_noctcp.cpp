@@ -24,9 +24,38 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
+class NoCTCP : public ModeHandler
+{
+ public:
+	NoCTCP() : ModeHandler('C', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('C'))
+			{
+				channel->SetMode('C',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('C'))
+			{
+				channel->SetMode('C',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleNoCTCP : public Module
 {
 	Server *Srv;
+	NoCTCP* nc;
 	
  public:
  
@@ -34,12 +63,13 @@ class ModuleNoCTCP : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('C',MT_CHANNEL,false,0,0);
+		nc = new NoCTCP();
+		Srv->AddMode(nc, 'C');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -71,25 +101,12 @@ class ModuleNoCTCP : public Module
 		}
 		return 0;
 	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'C') && (type == MT_CHANNEL))
-  		{
-  			log(DEBUG,"Allowing C change");
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
 
 	virtual ~ModuleNoCTCP()
 	{
+		DELETE(nc);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
