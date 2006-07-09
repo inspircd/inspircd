@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -24,21 +24,51 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +T */
 
+class NoNotice : public ModeHandler
+{
+ public:
+	NoNotice() : ModeHandler('T', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('T'))
+			{
+				channel->SetMode('T',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('T'))
+			{
+				channel->SetMode('T',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleNoNotice : public Module
 {
 	Server *Srv;
+	NoNotice* nt;
  public:
  
 	ModuleNoNotice(Server* Me)
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('T',MT_CHANNEL,false,0,0);
+		nt = new NoNotice();
+		Srv->AddMode(nt, 'T');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreNotice] = List[I_On005Numeric] = List[I_OnExtendedMode] = 1;
+		List[I_OnUserPreNotice] = List[I_On005Numeric] = 1;
 	}
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
@@ -68,21 +98,9 @@ class ModuleNoNotice : public Module
 		InsertMode(output,"T",4);
 	}
 
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'T') && (type == MT_CHANNEL))
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	
 	virtual ~ModuleNoNotice()
 	{
+		DELETE(nt);
 	}
 	
 	virtual Version GetVersion()
