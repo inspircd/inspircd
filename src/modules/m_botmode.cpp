@@ -21,6 +21,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style umode +B */
 
