@@ -521,10 +521,6 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
-void ModeParser::BuildModeString(userrec* user)
-{
-}
-
 bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 {
 	unsigned char mask = 0;
