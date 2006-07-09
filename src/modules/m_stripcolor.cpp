@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -28,65 +28,65 @@ using namespace std;
 class ChannelStripColor : public ModeHandler
 {
  public:
-        StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-        ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
-        {
-	        /* Only opers can change other users modes */
-	        if ((source != dest) && (!*source->oper))
-	                return MODEACTION_DENY;
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		/* Only opers can change other users modes */
+		if ((source != dest) && (!*source->oper))
+			return MODEACTION_DENY;
 
-                if (adding)
-                {
-                        if (!channel->IsModeSet('S'))
-                        {
-                                channel->SetMode('S',true);
-                                return MODEACTION_ALLOW;
-                        }
-                }
-                else
-                {
-                        if (channel->IsModeSet('S'))
-                        {
-                                channel->SetMode('S',false);
-                                return MODEACTION_ALLOW;
-                        }
-                }
+		if (adding)
+		{
+			if (!channel->IsModeSet('S'))
+			{
+				channel->SetMode('S',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('S'))
+			{
+				channel->SetMode('S',false);
+				return MODEACTION_ALLOW;
+			}
+		}
 
-                return MODEACTION_DENY;
-        }
+		return MODEACTION_DENY;
+	}
 };
 
 class UserStripColor : public ModeHandler
 {
  public:
-        StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
+	StripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
 
-        ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
-        {
-	        /* Only opers can change other users modes */
-	        if ((source != dest) && (!*source->oper))
-	                return MODEACTION_DENY;
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		/* Only opers can change other users modes */
+		if ((source != dest) && (!*source->oper))
+			return MODEACTION_DENY;
 
-                if (adding)
-                {
-                        if (!dest->IsModeSet('S'))
-                        {
-                                dest->SetMode('S',true);
-                                return MODEACTION_ALLOW;
-                        }
-                }
-                else
-                {
-                        if (dest->IsModeSet('S'))
-                        {
-                                dest->SetMode('S',false);
-                                return MODEACTION_ALLOW;
-                        }
-                }
+		if (adding)
+		{
+			if (!dest->IsModeSet('S'))
+			{
+				dest->SetMode('S',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('S'))
+			{
+				dest->SetMode('S',false);
+				return MODEACTION_ALLOW;
+			}
+		}
 
-                return MODEACTION_DENY;
-        }
+		return MODEACTION_DENY;
+	}
 };
 
 
@@ -94,6 +94,8 @@ class ModuleStripColor : public Module
 {
  Server *Srv;
  ConfigReader *Conf, *MyConf;
+ ChannelStripColor *csc;
+ UserStripColor *usc;
  
  public:
 	ModuleStripColor(Server* Me)
@@ -101,26 +103,16 @@ class ModuleStripColor : public Module
 	{
 		Srv = Me;
 
-		Srv->AddExtendedMode('S',MT_CHANNEL,false,0,0);
-		Srv->AddExtendedMode('S',MT_CLIENT,false,0,0);
+		usc = new UserStripColor();
+		csc = new ChannelStripColor();
+
+		Srv->AddMode(usc, 'S');
+		Srv->AddMode(csc, 'S');
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnExtendedMode] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
-	}
-
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if (modechar == 'S')
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
+		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -130,6 +122,8 @@ class ModuleStripColor : public Module
  	
 	virtual ~ModuleStripColor()
 	{
+		DELETE(usc);
+		DELETE(csc);
 	}
 	
 	// ANSI colour stripping by Doc (Peter Wood)
@@ -139,7 +133,7 @@ class ModuleStripColor : public Module
 		char sentence[MAXBUF];
 		strlcpy(sentence,text.c_str(),MAXBUF);
   
-		len = strlen(sentence);
+		len = text.length();
 
 		for (i = 0; i < len; i++)
   		{
