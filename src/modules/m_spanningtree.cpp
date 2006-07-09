@@ -227,13 +227,13 @@ class TreeServer
 		 * to get here. If we were to try this algorithm with server B,
 		 * the Route pointer would point at its own object ('this').
 		 *
-		 *	      A
-		 *	     / \
-		 *	  + B   C
-		 *	   / \   \
-		 *	  D   E   F
-		 *	 /	 \
-		 *      * G	   H
+		 *            A
+		 *           / \
+		 *        + B   C
+		 *         / \   \
+		 *        D   E   F
+		 *	 /         \
+		 *    * G           H
 		 *
 		 * We only run this algorithm when a server is created, as
 		 * the routes remain constant while ever the server exists, and
