@@ -33,7 +33,7 @@ class ModuleInviteException : public Module
 public:
 	ModuleInviteException(Server* serv) : Module(serv)
 	{
-		ie = new BanException(serv);
+		ie = new InviteException(serv);
 		Srv = serv;
 	}
 	
