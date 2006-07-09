@@ -133,6 +133,7 @@ class MsgFlood : public ModeHandler
 				{
 					if (!channel->GetExt("flood"))
 					{
+						parameter = ConvToStr(nlines) + ":" +ConvToStr(nsecs);
 						floodsettings *f = new floodsettings(ban,nsecs,nlines);
 						channel->Extend("flood",(char*)f);
 						channel->SetMode('f', true);

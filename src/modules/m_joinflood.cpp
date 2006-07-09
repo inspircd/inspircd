@@ -134,6 +134,7 @@ class JoinFlood : public ModeHandler
 				{
 					if (!channel->GetExt("joinflood"))
 					{
+						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
 						joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
 						channel->Extend("joinflood",(char*)f);
 						channel->SetMode('j', true);
