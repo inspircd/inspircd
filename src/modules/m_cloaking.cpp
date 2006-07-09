@@ -14,8 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 // Hostname cloaking (+x mode) module for inspircd.
 // version 1.0.0.1 by brain (C. J. Edwards) Mar 2004.
 //
@@ -34,6 +32,7 @@ using namespace std;
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <stdint.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -58,17 +57,15 @@ struct xMD5Context {
 	word32 in[16];
 };
 
-class ModuleCloaking : public Module
+class CloakUser : public ModeHandler
 {
- private:
-
-	Server *Srv;
+	Server* Srv;
 	std::string prefix;
 	word32 key1;
 	word32 key2;
 	word32 key3;
 	word32 key4;
-
+	
 	void byteSwap(word32 *buf, unsigned words)
 	{
 		byte *p = (byte *)buf;
@@ -275,106 +272,51 @@ class ModuleCloaking : public Module
 		}
 		strlcpy(dest,hash,MAXBUF);
 	}
-	 
+	
  public:
-	ModuleCloaking(Server* Me)
-		: Module::Module(Me)
+	CloakUser(Server* Me) : ModeHandler('x', 0, 0, false, MODETYPE_USER, false), Srv(Me) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		// We must take a copy of the Server class to work with
-		Srv = Me;
+		/* Only opers can change other users modes */
+		if ((source != dest) && (!*source->oper))
+			return MODEACTION_DENY;
 		
-		// we must create a new mode. Set the parameters so the
-		// mode doesn't require oper, and is a client usermode
-  		// with no parameters (actually, you cant have params for a umode!)
-		Srv->AddExtendedMode('x',MT_CLIENT,false,0,0);
-
-		OnRehash("");
-	}
-	
-	virtual ~ModuleCloaking()
-	{
-	}
-	
-	virtual Version GetVersion()
-	{
-		// returns the version number of the module to be
-		// listed in /MODULES
-		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
-	}
-
-	virtual void OnRehash(const std::string &parameter)
-	{
-		ConfigReader* Conf = new ConfigReader();
-		key1 = key2 = key3 = key4 = 0;
-		key1 = Conf->ReadInteger("cloak","key1",0,false);
-		key2 = Conf->ReadInteger("cloak","key2",0,false);
-		key3 = Conf->ReadInteger("cloak","key3",0,false);
-		key4 = Conf->ReadInteger("cloak","key4",0,false);
-		prefix = Conf->ReadValue("cloak","prefix",0);
-		if (prefix == "")
+		if (adding)
 		{
-			prefix = Srv->GetNetworkName();
-		}
-		if (!key1 && !key2 && !key3 && !key4)
-		{
-			ModuleException ex("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
-			throw (ex);
-		}
-
-		/*ctx->buf[0] = 0x67452301;
-		ctx->buf[1] = 0xefcdab89;
-		ctx->buf[2] = 0x98badcfe;
-		ctx->buf[3] = 0x10325476;*/
-	}
-
-	void Implements(char* List)
-	{
-		List[I_OnRehash] = List[I_OnExtendedMode] = List[I_OnUserConnect] = 1;
-	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// this method is called for any extended mode character.
-		// all module modes for all modules pass through here
-		// (unless another module further up the chain claims them)
-		// so we must be VERY careful to only act upon modes which
-		// we have claimed ourselves. This is a feature to allow
-		// modules to 'spy' on extended mode activity if they so wish.
-		if ((modechar == 'x') && (type == MT_CLIENT))
-  		{
-  			// OnExtendedMode gives us a void* as the target, we must cast
-  			// it into a userrec* or a chanrec* depending on the value of
-  			// the 'type' parameter (MT_CLIENT or MT_CHANNEL)
-  			userrec* dest = (userrec*)target;
-  			
-			// we've now determined that this is our mode character...
-			// is the user adding the mode to their list or removing it?
-			if (mode_on)
+			if(!dest->IsModeSet('x'))
 			{
-				// the mode is being turned on - so attempt to
-				// allocate the user a cloaked host using a non-reversible
-				// algorithm (its simple, but its non-reversible so the
-				// simplicity doesnt really matter). This algorithm
-				// will not work if the user has only one level of domain
-				// naming in their hostname (e.g. if they are on a lan or
-				// are connecting via localhost) -- this doesnt matter much.
+				/* The mode is being turned on - so attempt to
+				 * allocate the user a cloaked host using a non-reversible
+				 * algorithm (its simple, but its non-reversible so the
+				 * simplicity doesnt really matter). This algorithm
+				 * will not work if the user has only one level of domain
+				 * naming in their hostname (e.g. if they are on a lan or
+				 * are connecting via localhost) -- this doesnt matter much.
+				 */
+			
 				if (strchr(dest->host,'.'))
 				{
-					// in inspircd users have two hostnames. A displayed
-					// hostname which can be modified by modules (e.g.
-					// to create vhosts, implement chghost, etc) and a
-					// 'real' hostname which you shouldnt write to.
+					/* InspIRCd users have two hostnames; A displayed
+					 * hostname which can be modified by modules (e.g.
+					 * to create vhosts, implement chghost, etc) and a
+					 * 'real' hostname which you shouldnt write to.
+					 */
+				
 					std::string a = strstr(dest->host,".");
+					
 					char ra[64];
 					this->GenHash(dest->host,ra);
 					std::string b = "";
 					in_addr testaddr;
 					std::string hostcloak = prefix + "-" + std::string(ra) + a;
+				
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
 					 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 					 * vhost.
 					 */
+				
 					if ((!inet_aton(dest->host,&testaddr)) && (hostcloak.length() < 64))
 					{
 						// if they have a hostname, make something appropriate
@@ -388,24 +330,89 @@ class ModuleCloaking : public Module
 					Srv->Log(DEBUG,"cloak: allocated "+b);
 					Srv->ChangeHost(dest,b);
 				}
+				
+				dest->SetMode('x',true);
+				return MODEACTION_ALLOW;
 			}
-			else
-  			{
-  				// user is removing the mode, so just restore their real host
-  				// and make it match the displayed one.
-				Srv->ChangeHost(dest,dest->host);
-			}
-			// this mode IS ours, and we have handled it. If we chose not to handle it,
-			// for example the user cannot cloak as they have a vhost or such, then
-			// we could return 0 here instead of 1 and the core would not send the mode
-			// change to the user.
-			return 1;
 		}
 		else
-		{
-			// this mode isn't ours, we have to bail and return 0 to not handle it.
-			return 0;
+  		{
+			if (dest->IsModeSet('x'))
+			{
+  				/* User is removing the mode, so just restore their real host
+  				 * and make it match the displayed one.
+				 */
+				Srv->ChangeHost(dest,dest->host);
+				dest->SetMode('x',false);
+				return MODEACTION_ALLOW;
+			}
 		}
+
+		return MODEACTION_DENY;
+	}
+	
+	void DoRehash()
+	{
+		ConfigReader Conf;
+		key1 = key2 = key3 = key4 = 0;
+		key1 = Conf.ReadInteger("cloak","key1",0,false);
+		key2 = Conf.ReadInteger("cloak","key2",0,false);
+		key3 = Conf.ReadInteger("cloak","key3",0,false);
+		key4 = Conf.ReadInteger("cloak","key4",0,false);
+		
+		prefix = Conf.ReadValue("cloak","prefix",0);
+		if (prefix == "")
+		{
+			prefix = Srv->GetNetworkName();
+		}
+		if (!key1 && !key2 && !key3 && !key4)
+		{
+			ModuleException ex("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
+			throw (ex);
+		}
+	}
+};
+
+
+class ModuleCloaking : public Module
+{
+ private:
+	Server *Srv;
+ 	CloakUser* cu;
+
+ public:
+	ModuleCloaking(Server* Me)
+	: Module::Module(Me), Srv(Me)
+	{
+		/* Create new mode handler object */
+		cu = new CloakUser(Srv);
+
+		/* Register it with the core */		
+		Srv->AddMode(cu, 'x');
+
+		OnRehash("");
+	}
+	
+	virtual ~ModuleCloaking()
+	{
+		DELETE(cu);
+	}
+	
+	virtual Version GetVersion()
+	{
+		// returns the version number of the module to be
+		// listed in /MODULES
+		return Version(1,0,0,2,VF_STATIC|VF_VENDOR);
+	}
+
+	virtual void OnRehash(const std::string &parameter)
+	{
+		cu->DoRehash();
+	}
+
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnUserConnect] = 1;
 	}
 
 	virtual void OnUserConnect(userrec* user)
@@ -449,4 +456,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleCloakingFactory;
 }
-
