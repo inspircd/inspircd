@@ -191,6 +191,14 @@ class ModuleMsgFlood : public Module
 						parameters[1] = "+b";
 						parameters[2] = user->MakeWildHost();
 						Srv->SendMode(parameters,3,user);
+						/* FIX: Send mode remotely*/
+						std::deque<std::string> n;
+						n.push_back(dest->name);
+						n.push_back("+b");
+						n.push_back(user->MakeWildHost());
+						Event rmode((char *)&n, NULL, "send_mode");
+						rmode.Send();
+						
 					}
 					Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
 				}
