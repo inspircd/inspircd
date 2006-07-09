@@ -30,10 +30,12 @@ class ModuleBanException : public Module
 	Server* Srv;
 
 public:
-	ModuleBanException(Server* serv) : Module(serv)
+	ModuleBanException(Server* serv)
+	: Module::Module(serv)
 	{
 		be = new BanException(serv);
 		Srv = serv;
+		Srv->AddMode(be, 'e');
 	}
 	
 	virtual void Implements(char* List)
