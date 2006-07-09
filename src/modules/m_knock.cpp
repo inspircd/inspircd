@@ -73,22 +73,51 @@ class cmd_knock : public command_t
 	}
 };
 
+class Knock : public ModeHandler
+{
+ public:
+	Knock() : ModeHandler('K', 0, 0, false, MODETYPE_CHANNEL, false) { }
+
+	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!channel->IsModeSet('K'))
+			{
+				channel->SetMode('K',true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (channel->IsModeSet('K'))
+			{
+				channel->SetMode('K',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleKnock : public Module
 {
 	cmd_knock* mycommand;
+	Knock* kn;
  public:
-	ModuleKnock(Server* Me)
-		: Module::Module(Me)
+	ModuleKnock(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		Srv->AddExtendedMode('K',MT_CHANNEL,false,0,0);
+		kn = new Knock();
+		Srv->AddMode(kn, 'K');
 		mycommand = new cmd_knock();
 		Srv->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnExtendedMode] = 1;
+		List[I_On005Numeric] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -98,26 +127,13 @@ class ModuleKnock : public Module
 
 	virtual ~ModuleKnock()
 	{
+		DELETE(kn);
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
 	}
-	
-	virtual int OnExtendedMode(userrec* user, void* target, char modechar, int type, bool mode_on, string_list &params)
-	{
-		// check if this is our mode character...
-		if ((modechar == 'K') && (type == MT_CHANNEL))
-  		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
