@@ -35,6 +35,7 @@ public:
 	{
 		ie = new InviteException(serv);
 		Srv = serv;
+		Srv->AddMode(ie, 'I');
 	}
 	
 	virtual void Implements(char* List)
