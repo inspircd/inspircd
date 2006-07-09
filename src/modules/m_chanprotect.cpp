@@ -172,7 +172,6 @@ class ModuleChanProtect : public Module
 {
 	Server *Srv;
 	bool FirstInGetsFounder;
-	ConfigReader *Conf;
 	ChanProtect* cp;
 	ChanFounder* cf;
 	
@@ -181,7 +180,6 @@ class ModuleChanProtect : public Module
 	ModuleChanProtect(Server* Me) : Module::Module(Me), Srv(Me)
 	{	
 		/* Initialise module variables */
-		Conf = new ConfigReader;
 
 		cp = new ChanProtect(Me);
 		cf = new ChanFounder(Me);
@@ -219,11 +217,14 @@ class ModuleChanProtect : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		// on a rehash we delete our classes for good measure and create them again.
-		DELETE(Conf);
-		Conf = new ConfigReader;
-		// re-read our config options on a rehash
-		FirstInGetsFounder = Conf->ReadFlag("options","noservices",0);
+		/* Create a configreader class and read our flag,
+		 * in old versions this was heap-allocated and the
+		 * object was kept between rehashes...now we just
+		 * stack-allocate it locally.
+		 */
+		ConfigReader Conf;
+		
+		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
@@ -336,7 +337,6 @@ class ModuleChanProtect : public Module
 	
 	virtual ~ModuleChanProtect()
 	{
-		DELETE(Conf);
 		DELETE(cp);
 		DELETE(cf);
 	}
