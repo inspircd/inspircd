@@ -110,6 +110,17 @@ void split_chlist(userrec* user, userrec* dest, std::string &cl)
 	}
 }
 
+const char* Spacify(char* n)
+{       
+	static char x[MAXBUF];
+	strlcpy(x,n,MAXBUF);
+	for (char* y = x; *y; y++)
+		if (*y == '_')
+			*y = ' ';
+	return x;
+}       
+
+
 /* XXX - perhaps this should be in cmd_whois? -- w00t */
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, char* nick)
 {
@@ -147,7 +158,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		if (*dest->oper)
 		{
-			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),dest->oper, Config->Network);
+			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{
