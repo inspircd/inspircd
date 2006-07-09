@@ -118,7 +118,6 @@ void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
 		if (!user->modes[UM_OPERATOR])
 		{
 			user->modes[UM_OPERATOR] = 1;
-			ModeParser::BuildModeString(user);
 			WriteServ(user->fd,"MODE %s :+o",user->nick);
 			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
 			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
