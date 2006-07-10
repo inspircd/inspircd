@@ -1850,6 +1850,14 @@ class FileReader : public classbase
 	  */
 	 void LoadFile(const std::string &filename);
 
+	 /** Returns the whole content of the file as std::string
+	  */
+	 std::string Contents();
+
+	 /** Returns the entire size of the file as std::string
+	  */
+	 unsigned long ContentSize();
+
 	 /** Returns true if the file exists
 	  * This function will return false if the file could not be opened.
 	  */
