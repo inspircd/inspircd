@@ -66,7 +66,8 @@ class ListModeBase : public ModeHandler
 
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
-		modelist* el = (modelist*)channel->GetExt(infokey);
+		modelist* el;
+		channel->GetExt(infokey, el);
 		if (el)
 		{
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
@@ -117,7 +118,8 @@ class ListModeBase : public ModeHandler
 	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		// Try and grab the list
-		modelist* el = (modelist*)channel->GetExt(infokey);
+		modelist* el;
+		channel->GetExt(infokey, el);
 
 		if (adding)
 		{
@@ -238,7 +240,8 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoChannelDelete(chanrec* chan)
 	{
-		modelist* list = (modelist*)chan->GetExt(infokey);
+		modelist* list;
+		chan->GetExt(infokey, list);
 
 		if (list)
 		{
@@ -249,7 +252,8 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
-		modelist* list = (modelist*)chan->GetExt(infokey);
+		modelist* list;
+		chan->GetExt(infokey, list);
 		if (list)
 		{
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
@@ -265,7 +269,8 @@ class ListModeBase : public ModeHandler
 		{
 			chanrec* chan = (chanrec*)item;
 
-			modelist* list = (modelist*)chan->GetExt(infokey);
+			modelist* list;
+			chan->GetExt(infokey, list);
 
 			if (list)
 			{

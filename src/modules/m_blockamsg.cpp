@@ -126,7 +126,8 @@ public:
 					userchans++;
 
 			// Check that this message wasn't already sent within a few seconds.
-			BlockedMessage* m = (BlockedMessage*)user->GetExt("amsgblock");
+			BlockedMessage* m;
+			user->GetExt("amsgblock", m);
 			
 			// If the message is identical and within the time.
 			// We check the target is *not* identical, that'd straying into the realms of flood control. Which isn't what we're doing...
@@ -168,7 +169,8 @@ public:
 		if(target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			BlockedMessage* m = (BlockedMessage*)user->GetExt("amsgblock");
+			BlockedMessage* m;
+			user->GetExt("amsgblock", m);
 			if(m)
 			{
 				DELETE(m);

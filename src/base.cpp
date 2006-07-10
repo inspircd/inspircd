@@ -63,13 +63,13 @@ bool Extensible::Shrink(const std::string &key)
 	}
 }
 
-char* Extensible::GetExt(const std::string &key)
+/*char* Extensible::GetExt(const std::string &key)
 {
-	/* This was calling ExtensibleStore::find() twice,
+	* This was calling ExtensibleStore::find() twice,
 	 * once to see if there was a value, and again to
 	 * get that value if it was there. Now we store
 	 * the iterator so we only have to search for it once.
-	 */
+	 *
 	ExtensibleStore::iterator iter = this->Extension_Items.find(key);
 	
 	if(iter != this->Extension_Items.end())
@@ -80,7 +80,7 @@ char* Extensible::GetExt(const std::string &key)
 	{
 		return NULL;
 	}
-}
+}*/
 
 void Extensible::GetExtList(std::deque<std::string> &list)
 {

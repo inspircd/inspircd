@@ -94,7 +94,20 @@ public:
 	 *
 	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
-	char* GetExt(const std::string &key);
+	template<typename T> bool GetExt(const std::string &key, T* &p)
+	{
+	        ExtensibleStore::iterator iter = this->Extension_Items.find(key);
+	        if(iter != this->Extension_Items.end())
+	        {
+			p = (T*)iter->second;
+	                return true;
+	        }
+	        else
+	        {
+         	       return false;
+		}
+	}
+	//char* GetExt(const std::string &key);
 
 	/** Get a list of all extension items names.
 	 *
