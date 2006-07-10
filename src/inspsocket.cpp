@@ -73,12 +73,12 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		{
 			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()))
 			{
+				log(DEBUG,"BindSocket() error %s",strerror(errno));
 				this->Close();
 				this->fd = -1;
 				this->state = I_ERROR;
 				this->OnError(I_ERR_BIND);
 				this->ClosePending = true;
-				log(DEBUG,"BindSocket() error %s",strerror(errno));
 				return;
 			}
 			else

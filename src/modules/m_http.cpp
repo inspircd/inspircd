@@ -20,6 +20,8 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspsocket.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
 
@@ -42,6 +44,7 @@ class HttpSocket : public InspSocket
 
 	HttpSocket(std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(host, port, listening, maxtime), index(index_page)
 	{
+		log(DEBUG,"HttpSocket constructor");
 		InternalState = HTTP_LISTEN;
 	}
 
@@ -57,6 +60,7 @@ class HttpSocket : public InspSocket
 			HttpSocket* s = new HttpSocket(newsock, ip);
 			Srv->AddSocket(s);
 		}
+		return true;
 	}
 
 	virtual void OnClose()
@@ -78,6 +82,7 @@ class HttpSocket : public InspSocket
 				this->Write("<HTML><H1>COWS.</H1></HTML>");
 			}
 		}
+		return true;
 	}
 };
 
@@ -107,7 +112,7 @@ class ModuleHttp : public Module
 
 	void CreateListener()
 	{
-		http = new HttpSocket(this->host, this->port, true, 0, &index);
+		http = new HttpSocket(this->bindip, this->port, true, 0, &index);
 		Srv->AddSocket(http);
 	}
 
