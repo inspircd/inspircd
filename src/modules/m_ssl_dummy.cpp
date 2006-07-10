@@ -24,6 +24,7 @@
 class ModuleSSLDummy : public Module
 {
 	Server* Srv;
+	char* dummy;
  public:
 	
 	ModuleSSLDummy(Server* Me)	: Module::Module(Me)
@@ -48,7 +49,7 @@ class ModuleSSLDummy : public Module
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		if(dest->GetExt("ssl"))
+		if(dest->GetExt("ssl", dummy))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
@@ -60,7 +61,7 @@ class ModuleSSLDummy : public Module
 		if(extname == "ssl")
 		{
 			// check if this user has an ssl field to send
-			if(user->GetExt(extname))
+			if(user->GetExt(extname, dummy))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -76,7 +77,7 @@ class ModuleSSLDummy : public Module
 		{
 			userrec* dest = (userrec*)target;
 			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname))
+			if (!dest->GetExt(extname, dummy))
 			{
 				dest->Extend(extname, "ON");
 			}

@@ -43,6 +43,8 @@ class ModuleSSLGnuTLS : public Module
 	Server* Srv;
 	ServerConfig* SrvConf;
 	ConfigReader* Conf;
+
+	char* dummy;
 	
 	CullList culllist;
 	
@@ -201,7 +203,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl") && isin(user->port, listenports))
+			if(user->GetExt("ssl", dummy) && isin(user->port, listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -459,7 +461,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl") || (IS_LOCAL(dest) &&  isin(dest->port, listenports)))
+		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->port, listenports)))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
@@ -471,7 +473,7 @@ class ModuleSSLGnuTLS : public Module
 		if(extname == "ssl")
 		{
 			// check if this user has an swhois field to send
-			if(user->GetExt(extname))
+			if(user->GetExt(extname, dummy))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -487,7 +489,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			userrec* dest = (userrec*)target;
 			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname))
+			if (!dest->GetExt(extname, dummy))
 			{
 				dest->Extend(extname, "ON");
 			}
@@ -537,7 +539,7 @@ class ModuleSSLGnuTLS : public Module
 			userrec* extendme = Srv->FindDescriptor(session->fd);
 			if (extendme)
 			{
-				if (!extendme->GetExt("ssl"))
+				if (!extendme->GetExt("ssl", dummy))
 					extendme->Extend("ssl", "ON");
 			}
 
@@ -555,7 +557,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propogated the NICK message.
-		if ((user->GetExt("ssl")) && (IS_LOCAL(user)))
+		if ((user->GetExt("ssl", dummy)) && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			std::deque<std::string>* metadata = new std::deque<std::string>;
