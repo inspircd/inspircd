@@ -110,6 +110,33 @@ bool DoneClassesAndTypes(const char* tag)
 	return true;
 }
 
+bool userrec::ProcessNoticeMasks(const char *sm)
+{
+	bool adding = true;
+	const char *c = sm;
+
+	while (c && *c)
+	{
+		switch (*c)
+		{
+			case '+':
+				adding = true;
+				break;
+			case '-':
+				adding = false;
+				break;
+			default:
+				if ((*c >= 'A') && (*c <= 'z'))
+					this->SetNoticeMask(*c, adding);
+				break;
+		}
+
+		*c++;
+	}
+
+	return true;
+}
+
 bool userrec::IsNoticeMaskSet(unsigned char sm)
 {
 	return (snomasks[sm-65]);

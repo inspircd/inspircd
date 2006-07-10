@@ -274,6 +274,8 @@ class userrec : public connection
 	 */
 	const char* FormatNoticeMasks();
 
+	bool userrec::ProcessNoticeMasks(const char *sm);
+
 	bool IsNoticeMaskSet(unsigned char sm);
 
 	void SetNoticeMask(unsigned char sm, bool value);
