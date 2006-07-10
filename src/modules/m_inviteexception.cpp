@@ -55,7 +55,7 @@ public:
 		if(chan != NULL)
 		{
 			modelist* list;
-			chan->GetExt(ie->GetInfoKey(), modelist);
+			chan->GetExt(ie->GetInfoKey(), list);
 			Srv->Log(DEBUG, std::string(user->nick)+" is trying to join "+std::string(chan->name)+", checking for invite exceptions");
 			if (list)
 			{
