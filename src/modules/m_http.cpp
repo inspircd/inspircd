@@ -113,11 +113,15 @@ class ModuleHttp : public Module
 	void CreateListener()
 	{
 		http = new HttpSocket(this->bindip, this->port, true, 0, &index);
-		Srv->AddSocket(http);
+		if ((http) && (http->GetState() == I_LISTENING))
+		{
+			Srv->AddSocket(http);
+		}
 	}
 
 	ModuleHttp(Server* Me) : Module::Module(Me)
 	{
+		Srv = Me;
 		ReadConfig();
 		CreateListener();
 	}
