@@ -225,8 +225,8 @@ class ModuleIdent : public Module
 		 * either due to timeout or due to closing, so, we just hold them until they dont
 		 * have an ident field any more.
 		 */
-		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
-		return (!ident);
+		RFC1413* ident;
+		return (!user->GetExt("ident_data", ident));
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -234,8 +234,8 @@ class ModuleIdent : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
-			if (ident)
+			RFC1413* ident;
+			if (user->GetExt("ident_data", ident))
 			{
 				// FIX: If the user record is deleted, the socket wont be removed
 				// immediately so there is chance of the socket trying to write to
@@ -257,8 +257,8 @@ class ModuleIdent : public Module
 		 * who have quit, as class RFC1459 is only loosely bound to userrec* via a pair of pointers
 		 * and this would leave at least one of the invalid ;)
 		 */
-		RFC1413* ident = (RFC1413*)user->GetExt("ident_data");
-		if (ident)
+		RFC1413* ident;
+		if (user->GetExt("ident_data", ident))
 		{
 			ident->u = NULL;
 			Srv->RemoveSocket(ident);
