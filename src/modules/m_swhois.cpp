@@ -45,7 +45,8 @@ class cmd_swhois : public command_t
 				line.append(parameters[i]);
 			}
 			
-			std::string* text = (std::string*)dest->GetExt("swhois");
+			std::string* text;
+			dest->GetExt("swhois", text);
 	
 			if(text)
 			{
@@ -99,10 +100,10 @@ class ModuleSWhois : public Module
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		char* desc = dest->GetExt("swhois");
-		if (desc)
+		std::string* swhois;
+		dest->GetExt("swhois", swhois);
+		if (swhois)
 		{
-			std::string* swhois = (std::string*)desc;
 			WriteServ(source->fd,"320 %s %s :%s",source->nick,dest->nick,swhois->c_str());
 		}
 	}
@@ -118,11 +119,10 @@ class ModuleSWhois : public Module
 		if (extname == "swhois")
 		{
 			// check if this user has an swhois field to send
-			char* field = user->GetExt("swhois");
-			if (field)
+			std::string* swhois;
+			user->GetExt("swhois", swhois);
+			if (swhois)
 			{
-				// get our extdata out with a cast
-				std::string* swhois = (std::string*)field;
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
 				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*swhois);
@@ -133,10 +133,10 @@ class ModuleSWhois : public Module
 	// when a user quits, tidy up their metadata
 	virtual void OnUserQuit(userrec* user, const std::string &message)
 	{
-		char* field = user->GetExt("swhois");
-		if (field)
+		std::string* swhois;
+		user->GetExt("swhois", swhois);
+		if (swhois)
 		{
-			std::string* swhois = (std::string*)field;
 			user->Shrink("swhois");
 			DELETE(swhois);
 		}
@@ -148,10 +148,10 @@ class ModuleSWhois : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			char* field = user->GetExt("swhois");
-			if (field)
+			std::string* swhois;
+			user->GetExt("swhois", swhois);
+			if (swhois)
 			{
-				std::string* swhois = (std::string*)field;
 				user->Shrink("swhois");
 				DELETE(swhois);
 			}
@@ -172,10 +172,11 @@ class ModuleSWhois : public Module
 		{
 			userrec* dest = (userrec*)target;
 			// if they dont already have an swhois field, accept the remote server's
-			if (!dest->GetExt("swhois"))
+			std::string* text;
+			if (!dest->GetExt("swhois", text))
 			{
 				std::string* text = new std::string(extdata);
-				dest->Extend("swhois",(char*)text);
+				dest->Extend("swhois",text);
 			}
 		}
 	}
@@ -192,14 +193,15 @@ class ModuleSWhois : public Module
 				
 				if(swhois.length())
 				{
-					if(std::string* old = (std::string*)user->GetExt("swhois"))
+					std::string* old;
+					if(user->GetExt("swhois", old))
 					{
 						user->Shrink("swhois");
 						DELETE(old);
 					}
 			
 					std::string* text = new std::string(swhois);
-					user->Extend("swhois", (char*)text);
+					user->Extend("swhois", text);
 					
 					break;
 				}
