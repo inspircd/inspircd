@@ -80,7 +80,8 @@ class ModuleWaitPong : public Module
 	{
 		if(command == "PONG")
 		{
-			char* pingrpl = user->GetExt("waitpong_pingstr");
+			char* pingrpl;
+			user->GetExt("waitpong_pingstr", pingrpl);
 			
 			if(pingrpl)
 			{
@@ -104,12 +105,14 @@ class ModuleWaitPong : public Module
 
 	virtual bool OnCheckReady(userrec* user)
 	{
-		return (!user->GetExt("waitpong_pingstr"));
+		char* pingrpl;
+		return (!user->GetExt("waitpong_pingstr", pingrpl));
 	}
 	
 	virtual void OnUserDisconnect(userrec* user)
 	{
-		char* pingrpl = user->GetExt("waitpong_pingstr");
+		char* pingrpl;
+		user->GetExt("waitpong_pingstr", pingrpl);
 
 		if(pingrpl)
 		{
@@ -123,7 +126,8 @@ class ModuleWaitPong : public Module
 		if(target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			char* pingrpl = user->GetExt("waitpong_pingstr");
+			char* pingrpl;
+			user->GetExt("waitpong_pingstr", pingrpl);
 			
 			if(pingrpl)
 			{
