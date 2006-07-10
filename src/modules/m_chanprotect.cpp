@@ -26,6 +26,8 @@ const char* fakevalue = "on";
 class ChanFounder : public ModeHandler
 {
 	Server* Srv;
+	char* dummyptr;
+
  public:
 	ChanFounder(Server* s) : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
@@ -47,14 +49,17 @@ class ChanFounder : public ModeHandler
 			return MODEACTION_DENY;
 		}
 
+		std::string protect = "cm_protect_"+std::string(channel->name);
+		std::string founder = "cm_founder_"+std::string(channel->name);
+
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server))
 		{
 			if (adding)
 			{
-				if (!theuser->GetExt("cm_founder_"+std::string(channel->name)))
+				if (!theuser->GetExt(founder,dummyptr))
 				{
-					theuser->Extend("cm_founder_"+std::string(channel->name),fakevalue);
+					theuser->Extend(founder,fakevalue);
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
 					return MODEACTION_ALLOW;
@@ -62,9 +67,9 @@ class ChanFounder : public ModeHandler
 			}
 			else
 			{
-				if (theuser->GetExt("cm_founder_"+std::string(channel->name)))
+				if (theuser->GetExt(founder, dummyptr))
 				{
-					theuser->Shrink("cm_founder_"+std::string(channel->name));
+					theuser->Shrink(founder);
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
 					return MODEACTION_ALLOW;
@@ -84,9 +89,10 @@ class ChanFounder : public ModeHandler
 	void DisplayList(userrec* user, chanrec* channel)
 	{
 		chanuserlist cl = Srv->GetUsers(channel);
+		std::string founder = "cm_founder_"+std::string(channel->name);
 		for (unsigned int i = 0; i < cl.size(); i++)
 		{
-			if (cl[i]->GetExt("cm_founder_"+std::string(channel->name)))
+			if (cl[i]->GetExt(founder, dummyptr))
 			{
 				WriteServ(user->fd,"386 %s %s %s",user->nick, channel->name,cl[i]->nick);
 			}
@@ -99,6 +105,7 @@ class ChanFounder : public ModeHandler
 class ChanProtect : public ModeHandler
 {
 	Server* Srv;
+	char* dummyptr;
  public:
 	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
@@ -120,14 +127,17 @@ class ChanProtect : public ModeHandler
 			return MODEACTION_DENY;
 		}
 
+		std::string protect = "cm_protect_"+std::string(channel->name);
+		std::string founder = "cm_founder_"+std::string(channel->name);
+
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt("cm_founder_"+std::string(channel->name))))
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)))
 		{
 			if (adding)
 			{
-				if (!theuser->GetExt("cm_protect_"+std::string(channel->name)))
+				if (!theuser->GetExt(protect,dummyptr))
 				{
-					theuser->Extend("cm_protect_"+std::string(channel->name),fakevalue);
+					theuser->Extend(protect,fakevalue);
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
 					return MODEACTION_ALLOW;
@@ -135,9 +145,9 @@ class ChanProtect : public ModeHandler
 			}
 			else
 			{
-				if (theuser->GetExt("cm_protect_"+std::string(channel->name)))
+				if (theuser->GetExt(protect,dummyptr))
 				{
-					theuser->Shrink("cm_protect_"+std::string(channel->name));
+					theuser->Shrink(protect);
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
 					return MODEACTION_ALLOW;
@@ -156,9 +166,10 @@ class ChanProtect : public ModeHandler
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
 		chanuserlist cl = Srv->GetUsers(channel);
+		std::string protect = "cm_protect_"+std::string(channel->name);
 		for (unsigned int i = 0; i < cl.size(); i++)
 		{
-			if (cl[i]->GetExt("cm_protect_"+std::string(channel->name)))
+			if (cl[i]->GetExt(protect,dummyptr))
 			{
 				WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
 			}
@@ -174,6 +185,7 @@ class ModuleChanProtect : public Module
 	bool FirstInGetsFounder;
 	ChanProtect* cp;
 	ChanFounder* cf;
+	char* dummyptr;
 	
  public:
  
@@ -272,16 +284,19 @@ class ModuleChanProtect : public Module
 			return ACR_ALLOW;
 		}
 
+		std::string founder = "cm_founder_"+std::string(channel->name);
+		std::string protect = "cm_protect_"+std::string(channel->name);
+
 		switch (access_type)
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				if (dest->GetExt(founder,dummyptr))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -290,12 +305,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				if (dest->GetExt(founder,dummyptr))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -304,12 +319,12 @@ class ModuleChanProtect : public Module
 
 			// a user is being dehalfopped. Yes, we do disallow -h of a +ha user
 			case AC_DEHALFOP:
-				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				if (dest->GetExt(founder,dummyptr))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -318,12 +333,12 @@ class ModuleChanProtect : public Module
 
 			// same with devoice.
 			case AC_DEVOICE:
-				if (dest->GetExt("cm_founder_"+std::string(channel->name)))
+				if (dest->GetExt(founder,dummyptr))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
-				if ((dest->GetExt("cm_protect_"+std::string(channel->name))) && (!source->GetExt("cm_protect_"+std::string(channel->name))))
+				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
@@ -353,13 +368,15 @@ class ModuleChanProtect : public Module
 		// know whos +q/+a on the channel.
 		chanuserlist cl = Srv->GetUsers(chan);
 		string_list commands;
+		std::string founder = "cm_founder_"+std::string(chan->name);
+		std::string protect = "cm_protect_"+std::string(chan->name);
 		for (unsigned int i = 0; i < cl.size(); i++)
 		{
-			if (cl[i]->GetExt("cm_founder_"+std::string(chan->name)))
+			if (cl[i]->GetExt(founder,dummyptr))
 			{
 				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(cl[i]->nick));
 			}
-			if (cl[i]->GetExt("cm_protect_"+std::string(chan->name)))
+			if (cl[i]->GetExt(protect,dummyptr))
 			{
 				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(cl[i]->nick));
 			}
