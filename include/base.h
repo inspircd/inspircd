@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
@@ -96,15 +96,16 @@ public:
 	 */
 	template<typename T> bool GetExt(const std::string &key, T* &p)
 	{
-	        ExtensibleStore::iterator iter = this->Extension_Items.find(key);
-	        if(iter != this->Extension_Items.end())
-	        {
+		ExtensibleStore::iterator iter = this->Extension_Items.find(key);
+		if(iter != this->Extension_Items.end())
+		{
 			p = (T*)iter->second;
-	                return true;
-	        }
-	        else
-	        {
-         	       return false;
+			return true;
+		}
+		else
+		{
+			p = NULL;	
+			return false;
 		}
 	}
 	//char* GetExt(const std::string &key);
