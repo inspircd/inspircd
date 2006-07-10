@@ -294,6 +294,7 @@ Module* Server::FindFeature(const std::string &FeatureName)
 
 const std::string& Server::GetModuleName(Module* m)
 {
+	static std::string nothing = ""; /* Prevent compiler warning */
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
 		if (modules[i] == m)
@@ -301,7 +302,7 @@ const std::string& Server::GetModuleName(Module* m)
 			return Config->module_names[i];
 		}
 	}
-	return "";
+	return nothing; /* As above */
 }
 
 void Server::RehashServer()
