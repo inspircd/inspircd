@@ -942,7 +942,7 @@ std::string FileReader::Contents()
 	std::string x = "";
 	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
 	{
-		x.append((std::string*)(*a));
+		x.append(a->c_str());
 		x.append("\r\n");
 	}
 	return x;
@@ -952,7 +952,7 @@ unsigned long FileReader::ContentSize()
 {
 	unsigned long n = 0;
 	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
-		n += (((std::string*)(*a))->length() + 2);
+		n += (a->length() + 2);
 	return n;
 }
 
