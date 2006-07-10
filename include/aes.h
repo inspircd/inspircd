@@ -2,6 +2,7 @@
 #define __AES_H__
 
 #include <cstring>
+#include "base.h"
 
 using namespace std;
 
