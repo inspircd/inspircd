@@ -26,6 +26,7 @@ using namespace std;
 /* $ModDesc: Provides HTTP serving facilities to modules */
 
 static Server *Srv;
+extern time_t TIME;
 
 enum HttpState
 {
@@ -80,6 +81,9 @@ class HttpSocket : public InspSocket
 				/* Headers are complete */
 				InternalState = HTTP_SERVE_SEND_DATA;
 				this->Write("<HTML><H1>COWS.</H1></HTML>");
+
+				this->timeout_end = TIME + 1;
+				this->SetState(I_CONNECTING);
 			}
 		}
 		return true;
