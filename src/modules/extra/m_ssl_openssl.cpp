@@ -42,6 +42,8 @@ public:
 	issl_io_status rstat;
 	issl_io_status wstat;
 
+	char* dummy;
+
 	unsigned int inbufoffset;
 	char* inbuf; 			// Buffer OpenSSL reads into.
 	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
@@ -225,7 +227,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl") && IS_LOCAL(user) && isin(user->port, listenports))
+			if(user->GetExt("ssl", dummy) && IS_LOCAL(user) && isin(user->port, listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -531,7 +533,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl") || (IS_LOCAL(dest) &&  isin(dest->port, listenports)))
+		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->port, listenports)))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
@@ -543,7 +545,7 @@ class ModuleSSLOpenSSL : public Module
 		if(extname == "ssl")
 		{
 			// check if this user has an swhois field to send
-			if(user->GetExt(extname))
+			if(user->GetExt(extname, dummy))
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
@@ -559,7 +561,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			userrec* dest = (userrec*)target;
 			// if they dont already have an ssl flag, accept the remote server's
-			if (!dest->GetExt(extname))
+			if (!dest->GetExt(extname, dummy))
 			{
 				dest->Extend(extname, "ON");
 			}
@@ -604,7 +606,7 @@ class ModuleSSLOpenSSL : public Module
 			userrec* u = Srv->FindDescriptor(session->fd);
 			if (u)
 			{
-				if (!u->GetExt("ssl"))
+				if (!u->GetExt("ssl", dummy))
 					u->Extend("ssl", "ON");
 			}
 			
@@ -620,7 +622,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propogated the NICK message.
-		if ((user->GetExt("ssl")) && (IS_LOCAL(user)))
+		if ((user->GetExt("ssl", dummy)) && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
 			std::deque<std::string>* metadata = new std::deque<std::string>;

@@ -5,6 +5,8 @@
 
 /* $ModDesc: Provides support for unreal-style channel mode +z */
 
+static char* dummy;
+
 class SSLMode : public ModeHandler
 {
 	Server* Srv;
@@ -20,7 +22,7 @@ class SSLMode : public ModeHandler
 				chanuserlist userlist = Srv->GetUsers(channel);
 				for(unsigned int i = 0; i < userlist.size(); i++)
 				{
-					if(!userlist[i]->GetExt("ssl"))
+					if(!userlist[i]->GetExt("ssl", dummy))
 					{
 						WriteServ(source->fd, "490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
 						return MODEACTION_DENY;
@@ -76,7 +78,7 @@ class ModuleSSLModes : public Module
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
-			if(user->GetExt("ssl"))
+			if(user->GetExt("ssl", dummy))
 			{
 				// Let them in
 				return 0;
