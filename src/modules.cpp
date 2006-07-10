@@ -931,6 +931,7 @@ FileReader::FileReader(const std::string &filename)
 	file_cache c;
 	readfile(c,filename.c_str());
 	this->fc = c;
+	this->CalcSize();
 }
 
 FileReader::FileReader()
@@ -942,7 +943,7 @@ std::string FileReader::Contents()
 	std::string x = "";
 	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
 	{
-		x.append(a->c_str());
+		x.append(*a);
 		x.append("\r\n");
 	}
 	return x;
@@ -950,10 +951,15 @@ std::string FileReader::Contents()
 
 unsigned long FileReader::ContentSize()
 {
+	return this->contentsize;
+}
+
+void FileReader::CalcSize()
+{
 	unsigned long n = 0;
 	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
 		n += (a->length() + 2);
-	return n;
+	this->contentsize = n;
 }
 
 void FileReader::LoadFile(const std::string &filename)
@@ -961,6 +967,7 @@ void FileReader::LoadFile(const std::string &filename)
 	file_cache c;
 	readfile(c,filename.c_str());
 	this->fc = c;
+	this->CalcSize();
 }
 
 

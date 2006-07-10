@@ -1824,57 +1824,62 @@ class FileReader : public classbase
 	/** The file contents
 	 */
 	file_cache fc;
+
+	unsigned long contentsize;
+
+	void CalcSize();
+
  public:
-	 /** Default constructor.
-	  * This method does not load any file into memory, you must use the LoadFile method
-	  * after constructing the class this way.
-	  */
-	 FileReader();
+	/** Default constructor.
+	 * This method does not load any file into memory, you must use the LoadFile method
+	 * after constructing the class this way.
+	 */
+	FileReader();
 
-	 /** Secondary constructor.
-	  * This method initialises the class with a file loaded into it ready for GetLine and
-	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	  * returns 0.
-	  */
-	 FileReader(const std::string &filename);
+	/** Secondary constructor.
+	 * This method initialises the class with a file loaded into it ready for GetLine and
+	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
+	 * returns 0.
+	 */
+	FileReader(const std::string &filename);
 
-	 /** Default destructor.
-	  * This deletes the memory allocated to the file.
-	  */
-	 ~FileReader();
+	/** Default destructor.
+	 * This deletes the memory allocated to the file.
+	 */
+	~FileReader();
 
-	 /** Used to load a file.
-	  * This method loads a file into the class ready for GetLine and
-	  * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	  * returns 0.
-	  */
-	 void LoadFile(const std::string &filename);
+	/** Used to load a file.
+	 * This method loads a file into the class ready for GetLine and
+	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
+	 * returns 0.
+	 */
+	void LoadFile(const std::string &filename);
 
-	 /** Returns the whole content of the file as std::string
-	  */
-	 std::string Contents();
+	/** Returns the whole content of the file as std::string
+	 */
+	std::string Contents();
 
-	 /** Returns the entire size of the file as std::string
-	  */
-	 unsigned long ContentSize();
+	/** Returns the entire size of the file as std::string
+	 */
+	unsigned long ContentSize();
 
-	 /** Returns true if the file exists
-	  * This function will return false if the file could not be opened.
-	  */
-	 bool Exists();
-	 
-	 /** Retrieve one line from the file.
-	  * This method retrieves one line from the text file. If an empty non-NULL string is returned,
-	  * the index was out of bounds, or the line had no data on it.
-	  */
-	 std::string GetLine(int x);
+	/** Returns true if the file exists
+	 * This function will return false if the file could not be opened.
+	 */
+	bool Exists();
+ 
+	/** Retrieve one line from the file.
+	 * This method retrieves one line from the text file. If an empty non-NULL string is returned,
+	 * the index was out of bounds, or the line had no data on it.
+	 */
+	std::string GetLine(int x);
 
-	 /** Returns the size of the file in lines.
-	  * This method returns the number of lines in the read file. If it is 0, no lines have been
-	  * read into memory, either because the file is empty or it does not exist, or cannot be
-	  * opened due to permission problems.
-	  */
-	 int FileSize();
+	/** Returns the size of the file in lines.
+	 * This method returns the number of lines in the read file. If it is 0, no lines have been
+	 * read into memory, either because the file is empty or it does not exist, or cannot be
+	 * opened due to permission problems.
+	 */
+	int FileSize();
 };
 
 
