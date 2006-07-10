@@ -69,7 +69,7 @@ enum ModeMasks {
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class ModeHandler
+class ModeHandler : public Extensible
 {
  protected:
 	/**
@@ -189,7 +189,7 @@ class ModeHandler
  * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
  * A ModeWatcher will be called both before and after the mode change.
  */
-class ModeWatcher
+class ModeWatcher : public Extensible
 {
  protected:
 	/**

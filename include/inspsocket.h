@@ -45,7 +45,7 @@ enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I
  * and use the InspSocket constructors to establish connections
  * and bindings.
  */
-class InspSocket
+class InspSocket : public Extensible
 {
 protected:
 

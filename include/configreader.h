@@ -5,7 +5,7 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *                <Craig@chatspike.net>
  *                <omster@gmail.com>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
@@ -54,7 +54,7 @@ struct MultiConfig {
  * and storage of the configuration data needed to run the ircd, such as
  * the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
  */
-class ServerConfig : public classbase
+class ServerConfig : public Extensible
 {
   private:
 	/** This variable holds the names of all
@@ -214,18 +214,18 @@ class ServerConfig : public classbase
 	 * handling code, used to read data into a user's
 	 * recvQ.
 	 */
-        int NetBufferSize;
+	int NetBufferSize;
 
 	/** The value to be used for listen() backlogs
 	 * as default.
 	 */
-        int MaxConn;
+	int MaxConn;
 
 	/** The soft limit value assigned to the irc server.
 	 * The IRC server will not allow more than this
 	 * number of local users.
 	 */
-        unsigned int SoftLimit;
+	unsigned int SoftLimit;
 
 	/** Maximum number of targets for a multi target command
 	 * such as PRIVMSG or KICK
@@ -235,20 +235,20 @@ class ServerConfig : public classbase
 	/** The maximum number of /WHO results allowed
 	 * in any single /WHO command.
 	 */
-        int MaxWhoResults;
+	int MaxWhoResults;
 
 	/** True if the DEBUG loglevel is selected.
 	 */
-        int debugging;
+	int debugging;
 
 	/** The loglevel in use by the IRC server
 	 */
-        int LogLevel;
+	int LogLevel;
 
 	/** How many seconds to wait before exiting
 	 * the program when /DIE is correctly issued.
 	 */
-        int DieDelay;
+	int DieDelay;
 
 	/** True if we're going to hide netsplits as *.net *.split for non-opers
 	 */
@@ -271,7 +271,7 @@ class ServerConfig : public classbase
 	/** A list of IP addresses the server is listening
 	 * on.
 	 */
-        char addrs[MAXBUF][255];
+	char addrs[MAXBUF][255];
 
 	/** The MOTD file, cached in a file_cache type.
 	 */

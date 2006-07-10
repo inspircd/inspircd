@@ -27,7 +27,7 @@
  * your object (which you should override) will be called
  * at the given time.
  */
-class InspTimer
+class InspTimer : public Extensible
 {
  private:
 	/** The triggering time

@@ -83,7 +83,6 @@ public:
 	 *
 	 * You must provide a key name. The given key name will be removed from the classes data. If
 	 * you provide a nonexistent key (case is important) then the function will return false.
-	 *
 	 * @return Returns true on success.
 	 */
 	bool Shrink(const std::string &key);
@@ -91,7 +90,6 @@ public:
 	/** Get an extension item.
 	 *
 	 * @param key The key parameter is an arbitary string which identifies the extension data
-	 *
 	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
 	 */
 	template<typename T> bool GetExt(const std::string &key, T* &p)
@@ -108,12 +106,9 @@ public:
 			return false;
 		}
 	}
-	//char* GetExt(const std::string &key);
 
 	/** Get a list of all extension items names.
-	 *
 	 * @param list A deque of strings to receive the list
-	 *
 	 * @return This function writes a list of all extension items stored in this object by name into the given deque and returns void.
 	 */
 	void GetExtList(std::deque<std::string> &list);

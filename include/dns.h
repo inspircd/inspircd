@@ -30,7 +30,7 @@ struct dns_ip4list {
 /** The DNS class allows fast nonblocking resolution of hostnames
  * and ip addresses. It is based heavily upon firedns by Ian Gulliver.
  */
-class DNS
+class DNS : public Extensible
 {
 private:
 	in_addr *binip;

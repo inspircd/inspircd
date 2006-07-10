@@ -26,7 +26,7 @@ class userrec;
 
 /** A structure that defines a command
  */
-class command_t
+class command_t : public Extensible
 {
  public:
 	/** Command name

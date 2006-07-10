@@ -318,7 +318,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevent section) for the module to be initialised.
  */
-class Module : public classbase
+class Module : public Extensible
 {
  public:
 

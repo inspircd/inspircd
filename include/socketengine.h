@@ -64,7 +64,8 @@ const char X_READBIT            = 0x80;
  * settings chosen by the server admin. The current
  * version supports select, epoll and kqueue.
  */
-class SocketEngine {
+class SocketEngine : public Extensible
+{
 
 	int EngineHandle;			/* Handle to the socket engine if needed */
 	int CurrentSetSize;			/* Current number of descriptors in the engine */
