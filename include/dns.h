@@ -19,9 +19,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #define _DNS_H
 
 #include <string>
+#include "inspircd_config.h"
 #include "socket.h"
+#include "base.h"
 
-struct dns_ip4list {
+struct dns_ip4list
+{
 	in_addr ip;
 	dns_ip4list *next;
 };
