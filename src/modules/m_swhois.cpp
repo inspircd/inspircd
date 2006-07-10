@@ -66,7 +66,7 @@ class cmd_swhois : public command_t
 			}
 			
 			text = new std::string(line);
-			dest->Extend("swhois", (char*)text);
+			dest->Extend("swhois", text);
 		}
 	}
 };
