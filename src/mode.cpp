@@ -63,6 +63,8 @@ using namespace std;
 #include "modes/umode_i.h"
 /* +o (operator) */
 #include "modes/umode_o.h"
+/* +n (notice mask - our implementation of snomasks) */
+#include "modes/umode_n.h"
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -620,7 +622,6 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeUserWallops, 'w');
 	this->AddMode(new ModeUserInvisible, 'i');
 	this->AddMode(new ModeUserOperator, 'o');
-
-	/* TODO: User modes +swio */
+	this->AddMode(new ModeUserServerNoticeMask, 'n');
 }
 
