@@ -49,7 +49,7 @@ class HttpSocket : public InspSocket
 		InternalState = HTTP_LISTEN;
 	}
 
-	HttpSocket(int newfd, char* ip) : InspSocket(newfd, ip)
+	HttpSocket(int newfd, char* ip, FileReader* ind) : InspSocket(newfd, ip), index(ind)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
@@ -58,7 +58,7 @@ class HttpSocket : public InspSocket
 	{
 		if (InternalState == HTTP_LISTEN)
 		{
-			HttpSocket* s = new HttpSocket(newsock, ip);
+			HttpSocket* s = new HttpSocket(newsock, ip, index);
 			Srv->AddSocket(s);
 		}
 		return true;
@@ -73,7 +73,8 @@ class HttpSocket : public InspSocket
 		struct tm *timeinfo = localtime(&TIME);
 		this->Write("HTTP/1.1 200 OK\r\nDate: ");
 		this->Write(asctime(timeinfo));	
-		this->Write("Server: InspIRCd/m_http.so/1.1\r\nContent-Length: "+ConvToStr(index->FileSize())+"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
+		this->Write("Server: InspIRCd/m_http.so/1.1\r\nContent-Length: "+ConvToStr(index->ContentSize())+
+				"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
 	}
 
 	virtual bool OnDataReady()
@@ -84,7 +85,7 @@ class HttpSocket : public InspSocket
 		{
 			headers << data;
 
-			if (headers.str().find("\r\n\r\n"))
+			if (headers.str().find("\r\n\r\n") != std::string::npos)
 			{
 				/* Headers are complete */
 				InternalState = HTTP_SERVE_SEND_DATA;
@@ -92,14 +93,7 @@ class HttpSocket : public InspSocket
 
 				this->Write(index->Contents());
 
-				/* This clever hax makes InspSocket think its
-				 * in a connecting state, and time out 2 seconds
-				 * from now. Most apache servers do this if the
-				 * client doesnt close the connection as its
-				 * supposed to.
-				 */
-				this->timeout_end = TIME + 2;
-				this->SetState(I_CONNECTING);
+				return false;
 			}
 			return true;
 		}
