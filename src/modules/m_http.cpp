@@ -82,7 +82,7 @@ class HttpSocket : public InspSocket
 				InternalState = HTTP_SERVE_SEND_DATA;
 				this->Write("<HTML><H1>COWS.</H1></HTML>");
 
-				this->timeout_end = TIME + 1;
+				this->timeout_end = TIME;
 				this->SetState(I_CONNECTING);
 			}
 		}
