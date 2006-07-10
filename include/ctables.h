@@ -19,6 +19,7 @@
 
 #include "inspircd_config.h"
 #include "hash_map.h"
+#include "base.h"
 
 class userrec;
 
