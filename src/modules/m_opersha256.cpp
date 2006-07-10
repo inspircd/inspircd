@@ -37,11 +37,18 @@
 using namespace std;
 
 #include <stdio.h>
+#include "inspircd_config.h"
+#ifdef HAS_STDINT
 #include <stdint.h>
+#endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+
+#ifndef HAS_STDINT
+typedef unsigned int uint32_t;
+#endif
 
 static Server *Srv;
 
