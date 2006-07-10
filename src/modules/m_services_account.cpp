@@ -136,12 +136,12 @@ class ModuleServicesAccount : public Module
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
-		char *account = dest->GetExt("accountname");
+		std::string *account;
+		dest->GetExt("accountname", account);
 
 		if (account)
 		{
-			std::string* accountn = (std::string*)account;
-			WriteServ(source->fd, "330 %s %s %s :is logged in as", source->nick, dest->nick, accountn->c_str());
+			WriteServ(source->fd, "330 %s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
 		}
 	}
 
@@ -153,7 +153,8 @@ class ModuleServicesAccount : public Module
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
-		char *account = user->GetExt("accountname");
+		std::string *account;
+		user->GetExt("accountname", account);
 		
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -199,7 +200,8 @@ class ModuleServicesAccount : public Module
 	 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
-		char *account = user->GetExt("accountname");
+		std::string *account;
+		user->GetExt("accountname", account);
 		
 		if (chan)
 		{
@@ -232,11 +234,10 @@ class ModuleServicesAccount : public Module
 		if (extname == "accountname")
 		{
 			// check if this user has an swhois field to send
-			char* field = user->GetExt("accountname");
-			if (field)
+			std::string* account;
+			user->GetExt("accountname", account);
+			if (account)
 			{
-				// get our extdata out with a cast
-				std::string* account = (std::string*)field;
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
 				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*account);
@@ -247,10 +248,10 @@ class ModuleServicesAccount : public Module
 	// when a user quits, tidy up their metadata
 	virtual void OnUserQuit(userrec* user, const std::string &message)
 	{
-		char* field = user->GetExt("accountname");
-		if (field)
+		std::string* account;
+		user->GetExt("accountname", account);
+		if (account)
 		{
-			std::string* account = (std::string*)field;
 			user->Shrink("accountname");
 			delete account;
 		}
@@ -262,10 +263,10 @@ class ModuleServicesAccount : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			char* field = user->GetExt("accountname");
-			if (field)
+			std::string* account;
+			user->GetExt("accountname", account);
+			if (account)
 			{
-				std::string* account = (std::string*)field;
 				user->Shrink("accountname");
 				delete account;
 			}
@@ -288,10 +289,10 @@ class ModuleServicesAccount : public Module
 			/* logging them out? */
 			if (extdata == "")
 			{
-				char* field = dest->GetExt("accountname");
-				if (field)
+				std::string* account;
+				dest->GetExt("accountname", account);
+				if (account)
 				{
-					std::string* account = (std::string*)field;
 					dest->Shrink("accountname");
 					delete account;
 				}
@@ -299,10 +300,11 @@ class ModuleServicesAccount : public Module
 			else
 			{
 				// if they dont already have an accountname field, accept the remote server's
-				if (!dest->GetExt("accountname"))
+				std::string* text;
+				if (!dest->GetExt("accountname", text))
 				{
-					std::string* text = new std::string(extdata);
-					dest->Extend("accountname",(char*)text);
+					text = new std::string(extdata);
+					dest->Extend("accountname", text);
 				}
 			}
 		}

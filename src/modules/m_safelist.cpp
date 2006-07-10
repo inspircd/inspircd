@@ -76,7 +76,8 @@ class ListTimer : public InspTimer
 				 *  - If not, spool more channels
 				 */
 				userrec* u = (userrec*)(*iter);
-				ListData* ld = (ListData*)u->GetExt("safelist_cache");
+				ListData* ld;
+				u->GetExt("safelist_cache", ld);
 				if (ld->list_position > Srv->GetChannelCount())
 				{
 					u->Shrink("safelist_cache");
@@ -185,7 +186,8 @@ class ModuleSafeList : public Module
 	int HandleList(char** parameters, int pcnt, userrec* user)
 	{
 		/* First, let's check if the user is currently /list'ing */
-		ListData *ld = (ListData*)user->GetExt("safelist_cache");
+		ListData *ld;
+		user->GetExt("safelist_cache", ld);
  
 		if (ld)
 		{
@@ -193,7 +195,8 @@ class ModuleSafeList : public Module
 			return 1;
 		}
 
-		time_t* last_list_time = (time_t*)user->GetExt("safelist_last");
+		time_t* last_list_time;
+		user->GetExt("safelist_last", last_list_time);
 		if (last_list_time)
 		{
 			if (TIME < (*last_list_time)+60)
@@ -210,12 +213,12 @@ class ModuleSafeList : public Module
 		 * start at channel 0! ;)
 		 */
 		ld = new ListData(0,TIME);
-		user->Extend("safelist_cache", (char*)ld);
+		user->Extend("safelist_cache", ld);
 		listusers.push_back(user);
 
 		time_t* llt = new time_t;
 		*llt = TIME;
-		user->Extend("safelist_last",(char*)llt);
+		user->Extend("safelist_last", llt);
 	
 		return 1;
 	}
@@ -225,7 +228,8 @@ class ModuleSafeList : public Module
 		if(target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)item;
-			ListData* ld = (ListData*)u->GetExt("safelist_cache");
+			ListData* ld;
+			u->GetExt("safelist_cache", ld);
 			if (ld)
 			{
 				u->Shrink("safelist_cache");
@@ -240,7 +244,8 @@ class ModuleSafeList : public Module
 					break;
 				}
 			}
-			time_t* last_list_time = (time_t*)u->GetExt("safelist_last");
+			time_t* last_list_time;
+			u->GetExt("safelist_last", last_list_time);
 			if (last_list_time)
 			{
 				DELETE(last_list_time);
