@@ -30,9 +30,9 @@ class KickRejoin : public ModeHandler
 		if (!adding)
 		{
 			// Taking the mode off, we need to clean up.
-			delaylist* dl = (delaylist*)channel->GetExt("norejoinusers");
+			delaylist* dl;
 
-			if (dl)
+			if (channel->GetExt("norejoinusers", dl))
 			{
 				DELETE(dl);
 				channel->Shrink("norejoinusers");
@@ -71,10 +71,8 @@ public:
 	{
 		if (chan)
 		{
-			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
-			log(DEBUG, "m_kicknorejoin.so: tried to grab delay list");
-			
-			if (dl)
+			delaylist* dl;
+			if (chan->GetExt("norejoinusers", dl))
 			{
 				log(DEBUG, "m_kicknorejoin.so: got delay list, iterating over it");
 				std::vector<userrec*> itemstoremove;
@@ -108,36 +106,35 @@ public:
 					// Now it's empty..
 						DELETE(dl);
 						chan->Shrink("norejoinusers");
-					}
 				}
 			}
-			return 0;
 		}
+		return 0;
+	}
 		
-		virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+	{
+		if (chan->IsModeSet('J') && (source != user))
 		{
-			if (chan->IsModeSet('J') && (source != user))
+			delaylist* dl;
+			if (!chan->GetExt("norejoinusers", dl))
 			{
-				delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
-				
-				if (!dl)
-				{
-					dl = new delaylist;
-					chan->Extend("norejoinusers", (char*)dl);
-				}
-				
-				log(DEBUG, "m_kicknorejoin.so: setting record for %s, %d second delay", user->nick, strtoint(chan->GetModeParameter('J')));
-				(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
+				dl = new delaylist;
+				chan->Extend("norejoinusers", dl);
 			}
-		}
-		
-		virtual void OnChannelDelete(chanrec* chan)
-		{
-			delaylist* dl = (delaylist*)chan->GetExt("norejoinusers");
 			
-			if (dl)
-			{
-				DELETE(dl);
+			log(DEBUG, "m_kicknorejoin.so: setting record for %s, %d second delay", user->nick, strtoint(chan->GetModeParameter('J')));
+			(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
+		}
+	}
+	
+	virtual void OnChannelDelete(chanrec* chan)
+	{
+		delaylist* dl;
+			
+		if (chan->GetExt("norejoinusers", dl))
+		{
+			DELETE(dl);
 			chan->Shrink("norejoinusers");
 		}
 	}

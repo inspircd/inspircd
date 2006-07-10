@@ -90,6 +90,8 @@ class MsgFlood : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
+		floodsettings *f;
+
 		if (adding)
 		{
 			char ndata[MAXBUF];
@@ -131,11 +133,11 @@ class MsgFlood : public ModeHandler
 				}
 				else
 				{
-					if (!channel->GetExt("flood"))
+					if (!channel->GetExt("flood", f))
 					{
 						parameter = ConvToStr(nlines) + ":" +ConvToStr(nsecs);
 						floodsettings *f = new floodsettings(ban,nsecs,nlines);
-						channel->Extend("flood",(char*)f);
+						channel->Extend("flood",f);
 						channel->SetMode('f', true);
 						channel->SetModeParam('f', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
@@ -151,9 +153,8 @@ class MsgFlood : public ModeHandler
 		}
 		else
 		{
-			if (channel->GetExt("flood"))
+			if (channel->GetExt("flood", f))
 			{
-				floodsettings *f = (floodsettings*)channel->GetExt("flood");
 				DELETE(f);
 				channel->Shrink("flood");
 				channel->SetMode('f', false);
@@ -184,8 +185,8 @@ class ModuleMsgFlood : public Module
 	{
 		if (IS_LOCAL(user))
 		{
-			floodsettings *f = (floodsettings*)dest->GetExt("flood");
-			if (f)
+			floodsettings *f;
+			if (dest->GetExt("flood", f))
 			{
 				f->addmessage(user);
 				if (f->shouldkick(user))
@@ -236,9 +237,9 @@ class ModuleMsgFlood : public Module
 
 	void OnChannelDelete(chanrec* chan)
 	{
-		if (chan->GetExt("flood"))
+		floodsettings* f;
+		if (chan->GetExt("flood", f))
 		{
-			floodsettings *f = (floodsettings*)chan->GetExt("flood");
 			DELETE(f);
 			chan->Shrink("flood");
 		}

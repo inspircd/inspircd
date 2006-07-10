@@ -101,6 +101,8 @@ class JoinFlood : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
+		joinfloodsettings* dummy;
+
 		if (adding)
 		{
 			char ndata[MAXBUF];
@@ -132,11 +134,11 @@ class JoinFlood : public ModeHandler
 				}
 				else
 				{
-					if (!channel->GetExt("joinflood"))
+					if (!channel->GetExt("joinflood", dummy))
 					{
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
 						joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
-						channel->Extend("joinflood",(char*)f);
+						channel->Extend("joinflood", f);
 						channel->SetMode('j', true);
 						channel->SetModeParam('j', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
@@ -151,9 +153,10 @@ class JoinFlood : public ModeHandler
 		}
 		else
 		{
-			if (channel->GetExt("joinflood"))
+			if (channel->GetExt("joinflood", dummy))
 			{
-				joinfloodsettings *f = (joinfloodsettings*)channel->GetExt("joinflood");
+				joinfloodsettings *f;
+				channel->GetExt("joinflood", f);
 				DELETE(f);
 				channel->Shrink("joinflood");
 				channel->SetMode('j', false);
@@ -183,8 +186,8 @@ class ModuleJoinFlood : public Module
 	{
 		if (chan)
 		{
-			joinfloodsettings *f = (joinfloodsettings*)chan->GetExt("joinflood");
-			if (f)
+			joinfloodsettings *f;
+			if (chan->GetExt("joinflood", f))
 			{
 				if (f->islocked())
 				{
@@ -198,8 +201,8 @@ class ModuleJoinFlood : public Module
 
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
-		joinfloodsettings *f = (joinfloodsettings*)channel->GetExt("joinflood");
-		if (f)
+		joinfloodsettings *f;
+		if (channel->GetExt("joinflood",f))
 		{
 			f->addjoin();
 			if (f->shouldlock())
@@ -213,9 +216,9 @@ class ModuleJoinFlood : public Module
 
 	void OnChannelDelete(chanrec* chan)
 	{
-		if (chan->GetExt("joinflood"))
+		joinfloodsettings *f;
+		if (chan->GetExt("joinflood",f))
 		{
-			joinfloodsettings *f = (joinfloodsettings*)chan->GetExt("joinflood");
 			DELETE(f);
 			chan->Shrink("joinflood");
 		}
