@@ -31,7 +31,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "inspircd_config.h"
+#ifdef HAS_STDINT
 #include <stdint.h>
+#endif
 #include "inspircd.h"
 #include "users.h"
 #include "channels.h"
@@ -47,6 +50,10 @@
 #define F3(x, y, z) (x ^ y ^ z)
 #define F4(x, y, z) (y ^ (x | ~z))
 #define MD5STEP(f,w,x,y,z,in,s) (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
+
+#ifndef HAS_STDINT
+typedef unsigned int uint32_t;
+#endif
 
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
