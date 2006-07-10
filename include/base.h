@@ -41,7 +41,7 @@ class classbase
 	/** Constructor,
 	 * Sets the object's time
 	 */
-	classbase() { time = TIME; id++; }
+	classbase() { age = TIME; id++; }
 	~classbase() { id--; }
 };
 
