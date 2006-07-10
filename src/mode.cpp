@@ -530,17 +530,62 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
 	 */
-	if ((modeletter < 'A') || (modeletter > 'z'))
+	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
 		return false;
 
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
-	pos = (modeletter-65) | mask;
+	pos = (mh->GetModeChar()-65) | mask;
 
 	if (modehandlers[pos])
 		return false;
 
 	modehandlers[pos] = mh;
-	log(DEBUG,"ModeParser::AddMode: added mode %c",modeletter);
+	log(DEBUG,"ModeParser::AddMode: added mode %c",mh->GetModeChar());
+	return true;
+}
+
+bool ModeParser::AddModeWatcher(ModeWatcher* mw)
+{
+	unsigned char mask = 0;
+	unsigned char pos = 0;
+
+	if (!mw)
+		return false;
+
+	if ((mw->GetModeChar() < 'A') || (mw->GetModeChar() > 'z'))
+		return false;
+
+	mw->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	pos = (mw->GetModeChar()-65) | mask;
+
+	modewatchers[pos].push_back(mw);
+	log(DEBUG,"ModeParser::AddModeWatcher: watching mode %c",mw->GetModeChar());
+
+	return true;
+}
+
+bool ModeParser::DelModeWatcher(ModeWatcher* mw)
+{
+	unsigned char mask = 0;
+	unsigned char pos = 0;
+
+	if (!mw)
+		return false;
+
+	if ((mw->GetModeType() < 'A') || (mw->GetModeType() > 'z'))
+		return false;
+
+	mw->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	pos = (mw->GetModeChar()-65) | mask;
+
+	ModeWatchIter a = find(modewatchers[pos].begin(),modewatchers[pos].end(),mw);
+
+	if (a == modewatchers[pos].end())
+		return false;
+
+	modewatchers[pos].erase(a);
+	log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
+
 	return true;
 }
 

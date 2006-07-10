@@ -316,6 +316,24 @@ class ModeParser
 	 */
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
 	/**
+	 * Add a mode watcher.
+	 * A mode watcher is triggered before and after a mode handler is
+	 * triggered. See the documentation of class ModeWatcher for more
+	 * information.
+	 * @param mw The ModeWatcher you want to add
+	 * @return True if the ModeWatcher was added correctly
+	 */
+	bool AddModeWatcher(ModeWatcher* mw);
+	/**
+	 * Delete a mode watcher.
+	 * A mode watcher is triggered before and after a mode handler is
+	 * triggered. See the documentation of class ModeWatcher for more
+	 * information.
+	 * @param mw The ModeWatcher you want to delete
+	 * @return True if the ModeWatcher was deleted correctly
+	 */
+	bool DelModeWatcher(ModeWatcher* mw);
+	/**
 	 * Process a set of mode changes from a server or user.
 	 * @param parameters The parameters of the mode change, in the format
 	 * they would be from a MODE command.
