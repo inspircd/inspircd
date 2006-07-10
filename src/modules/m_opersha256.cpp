@@ -37,7 +37,10 @@
 using namespace std;
 
 #include <stdio.h>
+#include "inspircd_config.h"
+#ifdef HAS_STDINT
 #include <stdint.h>
+#endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -47,6 +50,10 @@ static Server *Srv;
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
+
+#ifndef HAS_STDINT
+typedef unsigned int uint32_t;
+#endif
 
 struct SHA256Context
 {
