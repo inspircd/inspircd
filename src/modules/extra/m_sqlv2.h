@@ -10,7 +10,7 @@
 
 enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
 
-class SQLerror
+class SQLerror : public classbase
 {
 	SQLerrorNum id;
 	std::string str;

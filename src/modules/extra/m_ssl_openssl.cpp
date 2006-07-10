@@ -34,7 +34,7 @@ char* get_error()
 	return ERR_error_string(ERR_get_error(), NULL);
 }
 
-class issl_session
+class issl_session : public classbase
 {
 public:
 	SSL* sess;

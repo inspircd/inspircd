@@ -7,7 +7,7 @@ using namespace std;
 
 /** The AES class is a utility class for use in modules and the core for encryption of data.
  */
-class AES
+class AES : public classbase
 {
 public:
 	enum { ECB=0, CBC=1, CFB=2 };

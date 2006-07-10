@@ -27,7 +27,7 @@ bool isin(int port, const std::vector<int> &portlist)
 	return false;
 }
 
-class issl_session
+class issl_session : public classbase
 {
 public:
 	gnutls_session_t sess;

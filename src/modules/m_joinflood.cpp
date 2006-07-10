@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +j (join flood protection) */
 
-class joinfloodsettings
+class joinfloodsettings : public classbase
 {
  public:
 

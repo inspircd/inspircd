@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 
-class floodsettings
+class floodsettings : public classbase
 {
  public:
 	bool ban;

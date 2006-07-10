@@ -501,7 +501,7 @@ class TreeServer : public classbase
  * of them, and populate the list on rehash/load.
  */
 
-class Link
+class Link : public classbase
 {
  public:
 	 irc::string Name;

@@ -29,7 +29,7 @@ using namespace std;
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 
-class Filter
+class Filter : public classbase
 {
  public:
 	std::string reason;

@@ -32,7 +32,7 @@ extern time_t TIME;
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 
-class BlockedMessage
+class BlockedMessage : public classbase
 {
 public:
 	std::string message;

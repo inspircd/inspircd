@@ -27,7 +27,7 @@
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
-class CBan
+class CBan : public classbase
 {
 public:
 	irc::string chname;

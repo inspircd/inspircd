@@ -24,7 +24,7 @@ using namespace std;
 
 /* $ModDesc: Provides aliases of commands. */
 
-class Alias
+class Alias : public classbase
 {
 	public:
  		irc::string text;

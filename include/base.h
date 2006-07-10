@@ -118,7 +118,7 @@ public:
  * Use BoolSet::Set and BoolSet::Get to set and get bools in the bitmask,
  * and Unset and Invert for special operations upon them.
  */
-class BoolSet
+class BoolSet : public classbase
 {
 	char bits;
 

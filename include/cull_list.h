@@ -33,7 +33,7 @@
  * a list of users which are to be culled when a long
  * operation (such as a netsplit) has completed.
  */
-class CullItem
+class CullItem : public classbase
 {
  private:
 	/** Holds a pointer to the user,
@@ -76,7 +76,7 @@ class CullItem
  * you attempt to add the same user twice, then the second
  * attempt will be ignored.
  */
-class CullList
+class CullList : public classbase
 {
  private:
 	 /** Holds a list of users being quit.

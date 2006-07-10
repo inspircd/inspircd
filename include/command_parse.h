@@ -24,7 +24,7 @@
 #include "ctables.h"
 #include "typedefs.h"
  
-class CommandParser
+class CommandParser : public classbase
 {
  private:
 	int ProcessParameters(char **command_p,char *parameters);
