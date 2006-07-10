@@ -34,6 +34,7 @@ $config{MAX_CHANNE}         = "20";                             		# Default Max.
 $config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
+$config{HAS_STDINT}         = "n";						# stdint.h check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
 $config{THREADED_DNS}       = "n";						# threaded dns (experimental)
@@ -153,6 +154,16 @@ if (!$config{MAX_CLIENT}) {
 	# higher than the found value" :))
 	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
 }
+
+printf "Checking if stdint.h exists... ";
+$config{HAS_STDINT} = "true";
+my $fail = 0;
+open(STDINT, "</usr/include/stdint.h") or $config{HAS_STDINT} = "false";
+if ($config{HAS_STDINT} eq "true") {
+	close(STDINT);
+}
+print "yes\n" if $config{HAS_STDINT} eq "true";
+print "no\n" if $config{HAS_STDINT} eq "false";
 
 printf "Checking if strlcpy exists... ";
 # Perform the strlcpy() test..
@@ -976,6 +987,9 @@ EOF
 	}
 	if ($config{HAS_STRLCPY} eq "true") {
 		print FILEHANDLE "#define HAS_STRLCPY\n";
+	}
+	if ($config{HAS_STDINT} eq "true") {
+		print FILEHANDLE "#define HAS_STDINT\n";
 	}
 	if ($config{THREADED_DNS} =~ /y/i) {
 		print FILEHANDLE "#define THREADED_DNS\n";
