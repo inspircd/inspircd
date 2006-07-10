@@ -268,7 +268,7 @@ class Event : public ModuleMessage
  * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
  * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
  */
-class ModuleException
+class ModuleException : public classbase
 {
  private:
 	/** Holds the error message to be displayed
@@ -1210,7 +1210,7 @@ class Module : public Extensible
  * output to users and other servers. All modules should instantiate at least one copy of this class,
  * and use its member functions to perform their tasks.
  */
-class Server : public classbase
+class Server : public Extensible
 {
  public:
 	/** Default constructor.

@@ -45,7 +45,8 @@ typedef unsigned int uint32_t;
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
-struct MD5Context {
+clas MD5Context : public classbase
+{
 	word32 buf[4];
 	word32 bytes[2];
 	word32 in[16];

@@ -52,7 +52,7 @@ template<typename T> inline std::string ConvToStr(const T &in)
 	return tmp.str();
 }
 
-class serverstats
+class serverstats : public classbase
 {
   public:
 	int statsAccept;
@@ -77,7 +77,7 @@ class serverstats
 };
 
 
-class InspIRCd
+class InspIRCd : public classbase
 {
  private:
 	char MODERR[MAXBUF];

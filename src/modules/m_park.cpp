@@ -26,7 +26,11 @@ using namespace std;
 
 /* $ModDesc: Provides support for user parking/unparking */
 
-class awaymsg
+class parking : public classbase
+{
+};
+
+class awaymsg : public parking
 {
  public:
 	std::string from;
@@ -34,7 +38,7 @@ class awaymsg
 	time_t tm;
 };
 
-class parkedinfo
+class parkedinfo : public parking
 {
  public:
 	std::string nick;

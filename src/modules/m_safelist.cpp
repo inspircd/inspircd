@@ -25,7 +25,7 @@ using namespace std;
  
 extern time_t TIME;
 
-class ListData
+class ListData : public classbase
 {
  public:
 	long list_start;

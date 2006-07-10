@@ -55,8 +55,9 @@ static Server *Srv;
 typedef unsigned int uint32_t;
 #endif
 
-struct SHA256Context
+class SHA256Context : public classbase
 {
+ public:
 	unsigned int tot_len;
 	unsigned int len;
 	unsigned char block[2 * SHA256_BLOCK_SIZE];

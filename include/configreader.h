@@ -32,7 +32,9 @@ typedef bool (*MultiNotify)(const char*);
 
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
-struct InitialConfig {
+class InitialConfig : public classbase
+{
+ public:
 	char* tag;
 	char* value;
 	void* val;
@@ -40,7 +42,9 @@ struct InitialConfig {
 	Validator validation_function;
 };
 
-struct MultiConfig {
+class MultiConfig : public classbase
+{
+ public:
 	const char* tag;
 	char* items[12];
 	int datatype[12];

@@ -25,7 +25,7 @@ inline std::string stringtime()
 	return TIME.str();
 }
 
-class ListItem
+class ListItem : public classbase
 {
 public:
 	std::string nick;
@@ -33,7 +33,7 @@ public:
 	std::string time;
 };
 
-class ListLimit
+class ListLimit : public classbase
 {
 public:
 	std::string mask;

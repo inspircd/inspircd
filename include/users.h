@@ -398,7 +398,7 @@ class userrec : public connection
 
 /** Used to hold WHOWAS information
  */
-class WhoWasGroup
+class WhoWasGroup : public classbase
 {
  public:
 	char* host;

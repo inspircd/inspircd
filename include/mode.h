@@ -251,7 +251,7 @@ class ModeWatcher : public Extensible
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 
-class ModeParser
+class ModeParser : public classbase
 {
  private:
 	/**
