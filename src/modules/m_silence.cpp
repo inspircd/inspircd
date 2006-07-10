@@ -47,7 +47,8 @@ class cmd_silence : public command_t
 		{
 			// no parameters, show the current silence list.
 			// Use Extensible::GetExt to fetch the silence list
-			silencelist* sl = (silencelist*)user->GetExt("silence_list");
+			silencelist* sl;
+			user->GetExt("silence_list", sl);
 			// if the user has a silence list associated with their user record, show it
 			if (sl)
 			{
@@ -67,7 +68,8 @@ class cmd_silence : public command_t
 				// removing an item from the list
 				nick++;
 				// fetch their silence list
-				silencelist* sl = (silencelist*)user->GetExt("silence_list");
+				silencelist* sl;
+				user->GetExt("silence_list", sl);
 				// does it contain any entries and does it exist?
 				if (sl)
 				{
@@ -100,12 +102,13 @@ class cmd_silence : public command_t
 			{
 				nick++;
 				// fetch the user's current silence list
-				silencelist* sl = (silencelist*)user->GetExt("silence_list");
+				silencelist* sl;
+				user->GetExt("silence_list", sl);
 				// what, they dont have one??? WE'RE ALL GONNA DIE! ...no, we just create an empty one.
 				if (!sl)
 				{
 					sl = new silencelist;
-					user->Extend(std::string("silence_list"),(char*)sl);
+					user->Extend(std::string("silence_list"), sl);
 				}
 				// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
@@ -150,7 +153,8 @@ class ModuleSilence : public Module
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
 		// and to prevent a HONKING BIG MEMORY LEAK!
-		silencelist* sl = (silencelist*)user->GetExt("silence_list");
+		silencelist* sl;
+		user->GetExt("silence_list", sl);
 		if (sl)
 		{
 			DELETE(sl);
@@ -173,7 +177,8 @@ class ModuleSilence : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			silencelist* sl = (silencelist*)u->GetExt("silence_list");
+			silencelist* sl;
+			u->GetExt("silence_list", sl);
 			if (sl)
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
