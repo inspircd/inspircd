@@ -596,6 +596,16 @@ bool Server::AddMode(ModeHandler* mh, const unsigned char mode)
 	return ServerInstance->ModeGrok->AddMode(mh,mode);
 }
 
+bool Server::AddModeWatcher(ModeWatcher* mw)
+{
+	return ServerInstance->ModeGrok->AddModeWatcher(mw);
+}
+
+bool Server::DelModeWatcher(ModeWatcher* mw)
+{
+	return ServerInstance->ModeGrok->DelModeWatcher(mw);
+}
+
 int Server::CountUsers(chanrec* c)
 {
 	return usercount(c);

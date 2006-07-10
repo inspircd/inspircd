@@ -1427,6 +1427,10 @@ class Server : public classbase
 
 	virtual bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
+	virtual bool AddModeWatcher(ModeWatcher* mw);
+
+	virtual bool DelModeWatcher(ModeWatcher* mw);
+
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your
 	 * module which is is of type handlerfunc:
