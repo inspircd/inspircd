@@ -33,13 +33,19 @@ using namespace std;
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "inspircd_config.h"
+#ifdef HAS_STDINT
 #include <stdint.h>
+#endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 
 /* $ModDesc: Provides masking of user hostnames */
 
+#ifndef HAS_STDINT
+typedef unsigned int uint32_t;
+#endif
 
 /* The four core functions - F1 is optimized somewhat */
 
