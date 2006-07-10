@@ -64,7 +64,8 @@ public:
 	 * @param key The key parameter is an arbitary string which identifies the extension data
 	 * @param p This parameter is a pointer to any data you wish to associate with the object
 	 *
-	 * You must provide a key to store the data as, and a void* to the data (typedef VoidPointer)
+	 * You must provide a key to store the data as via the parameter 'key' and store the data
+	 * in the templated parameter 'p'.
 	 * The data will be inserted into the map. If the data already exists, you may not insert it
 	 * twice, Extensible::Extend will return false in this case.
 	 *
@@ -92,7 +93,8 @@ public:
 	/** Get an extension item.
 	 *
 	 * @param key The key parameter is an arbitary string which identifies the extension data
-	 * @return If you provide a non-existent key name, the function returns NULL, otherwise a pointer to the item referenced by the key is returned.
+	 * @param p If you provide a non-existent key, this value will be NULL. Otherwise a pointer to the item you requested will be placed in this templated parameter.
+	 * @return Returns true if the item was found and false if it was nor, regardless of wether 'p' is NULL. This allows you to store NULL values in Extensible.
 	 */
 	template<typename T> bool GetExt(const std::string &key, T* &p)
 	{
