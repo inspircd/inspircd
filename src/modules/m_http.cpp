@@ -68,6 +68,14 @@ class HttpSocket : public InspSocket
 	{
 	}
 
+	void SendHeaders()
+	{
+		struct tm *timeinfo = localtime(&TIME);
+		this->Write("HTTP/1.1 200 OK\r\nDate: ");
+		this->Write(asctime(timeinfo));	
+		this->Write("Server: InspIRCd/m_http.so/1.1\r\nContent-Length: 27\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
+	}
+
 	virtual bool OnDataReady()
 	{
 		char* data = this->Read();
@@ -80,13 +88,28 @@ class HttpSocket : public InspSocket
 			{
 				/* Headers are complete */
 				InternalState = HTTP_SERVE_SEND_DATA;
+				SendHeaders();
+
 				this->Write("<HTML><H1>COWS.</H1></HTML>");
 
-				this->timeout_end = TIME;
+				/* This clever hax makes InspSocket think its
+				 * in a connecting state, and time out 2 seconds
+				 * from now. Most apache servers do this if the
+				 * client doesnt close the connection as its
+				 * supposed to.
+				 */
+				this->timeout_end = TIME + 2;
 				this->SetState(I_CONNECTING);
 			}
+			return true;
 		}
-		return true;
+		else
+		{
+			/* Bastard client closed the socket on us!
+			 * Oh wait, theyre SUPPOSED to do that!
+			 */
+			return false;
+		}
 	}
 };
 
