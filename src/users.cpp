@@ -110,6 +110,33 @@ bool DoneClassesAndTypes(const char* tag)
 	return true;
 }
 
+bool userrec::IsNoticeMaskSet(unsigned char sm)
+{
+	return (snomasks[sm-65]);
+}
+
+void userrec::SetNoticeMask(unsigned char sm, bool value)
+{
+	snomasks[sm-65] = value;
+}
+
+const char* userrec::FormatNoticeMasks()
+{
+	static char data[MAXBUF];
+	int offset = 0;
+
+	for (int n = 0; n < 64; n++)
+	{
+		if (snomasks[n])
+			data[offset++] = n+65;
+	}
+
+	data[offset] = 0;
+	return data;
+}
+
+
+
 bool userrec::IsModeSet(unsigned char m)
 {
 	return (modes[m-65]);
