@@ -101,7 +101,8 @@ class ModuleChanFilter : public Module
 		// Create a copy of the string in irc::string
 		irc::string line = text.c_str();
 
-		modelist* list = (modelist*)chan->GetExt(cf->GetInfoKey());
+		modelist* list;
+		chan->GetExt(cf->GetInfoKey(), list);
 
 		if (list)
 		{
