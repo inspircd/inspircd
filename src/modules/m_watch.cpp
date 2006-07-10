@@ -29,7 +29,7 @@ using namespace std;
 
 static Server *Srv;
 
-class watchentry
+class watchentry : public classbase
 {
  public:
 	userrec* watcher;

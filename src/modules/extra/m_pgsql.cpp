@@ -83,7 +83,7 @@ enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE };
  * until pop() is called.
  */
 
-class QueryQueue
+class QueryQueue : public classbase
 {
 private:
 	std::deque<SQLresult> priority;	/* The priority queue */

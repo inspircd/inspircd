@@ -37,7 +37,7 @@ using namespace std;
 #define mysql_field_count mysql_num_fields
 #endif
 
-class SQLConnection
+class SQLConnection : public classbase
 {
  protected:
 

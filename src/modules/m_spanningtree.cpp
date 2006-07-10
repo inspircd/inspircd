@@ -154,7 +154,7 @@ extern std::vector<ELine> pelines;
  * are created and destroyed.
  */
 
-class TreeServer
+class TreeServer : public classbase
 {
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */

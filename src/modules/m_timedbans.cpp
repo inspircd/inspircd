@@ -28,7 +28,7 @@ using namespace std;
 
 static Server *Srv;
 	 
-class TimedBan
+class TimedBan : public classbase
 {
  public:
 	std::string channel;

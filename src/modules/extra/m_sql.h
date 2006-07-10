@@ -18,7 +18,7 @@ using namespace std;
 // so that we can neatly pass information around the
 // system.
 
-class SQLRequest
+class SQLRequest : public classbase
 {
  protected:
 	long conn_id;
@@ -65,7 +65,7 @@ class SQLRequest
 
 // Upon completion, an SQLRequest returns an SQLResponse.
 
-class SQLResult
+class SQLResult : public classbase
 {
  protected:
 	int resptype;
@@ -118,7 +118,7 @@ class SQLResult
 	}
 };
 
-class SQLQuery
+class SQLQuery : public classbase
 {
  private:
 	SQLRequest* rowrequest;
