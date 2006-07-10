@@ -60,6 +60,7 @@ class cmd_remove : public command_t
 		userrec* target;
 		chanrec* channel;
 		int tlevel, ulevel;
+		char* dummy;
 		std::string tprivs, uprivs, reason;
 		
 		
@@ -102,16 +103,19 @@ class cmd_remove : public command_t
 		
 		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set. */
 		/* Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
+
+		std::string protect = "cm_protect_" + std::string(channel->name);
+		std::string founder = "cm_founder_"+std::string(channel->name);
 		
-		if (user->GetExt("cm_protect_" + std::string(channel->name)))
+		if (user->GetExt(protect, dummy))
 			uprivs = "&";
-		if (user->GetExt("cm_founder_"+std::string(channel->name)))
+		if (user->GetExt(founder, dummy))
 			uprivs = "~";
 			
 		/* Now it's the same idea, except for the target */
-		if (target->GetExt("cm_protect_"+std::string(channel->name)))
+		if (target->GetExt(protect, dummy))
 			tprivs = "&";
-		if (target->GetExt("cm_founder_"+std::string(channel->name)))
+		if (target->GetExt(founder, dummy))
 			tprivs = "~";
 			
 		tlevel = chartolevel(tprivs);

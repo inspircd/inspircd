@@ -30,11 +30,12 @@ static Server *Srv;
 
 class cmd_nicklock : public command_t
 {
+	char* dummy;
  public:
-	 cmd_nicklock () : command_t("NICKLOCK", 'o', 2)
-	 {
+	cmd_nicklock () : command_t("NICKLOCK", 'o', 2)
+	{
 		this->source = "m_nicklock.so";
-	 }
+	}
 
 	void Handle(char **parameters, int pcnt, userrec *user)
 	{
@@ -44,7 +45,7 @@ class cmd_nicklock : public command_t
 
 		if (source)
 		{
-			if (source->GetExt("nick_locked"))
+			if (source->GetExt("nick_locked", dummy))
 			{
 				WriteServ(user->fd,"946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
 				return;
@@ -88,6 +89,7 @@ class ModuleNickLock : public Module
 {
 	cmd_nicklock*	cmd1;
 	cmd_nickunlock*	cmd2;
+	char* n;
  public:
 	ModuleNickLock(Server* Me)
 		: Module::Module(Me)
@@ -115,7 +117,7 @@ class ModuleNickLock : public Module
 
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
-		if (user->GetExt("nick_locked"))
+		if (user->GetExt("nick_locked", n))
 		{
 			WriteServ(user->fd,"447 %s :You cannot change your nickname (your nick is locked)",user->nick);
 			return 1;

@@ -80,12 +80,13 @@ class cmd_park : public command_t
 		{
 			awaylog* aw;
 			char msg[MAXBUF];
-			unsigned long key = abs(random() * 12345);
-			snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %lu",user->nick,key);
+			unsigned long* key = new unsigned long;
+			*key = abs(random() * 12345);
+			snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %lu",user->nick, *key);
 			Srv->UserToPseudo(user,std::string(msg));
 			aw = new awaylog;
-			user->Extend("park_awaylog",(char*)aw);
-			user->Extend("park_key",(char*)key);
+			user->Extend("park_awaylog", aw);
+			user->Extend("park_key", key);
 			pi.nick = user->nick;
 			pi.host = user->host;
 			pi.parktime = time(NULL);
@@ -143,14 +144,16 @@ class cmd_unpark : public command_t
 			WriteServ(user->fd,"942 %s %s :Invalid user specified.",user->nick, parameters[0]);
 			return;
 		}
-		awaylog* awy = (awaylog*)unpark->GetExt("park_awaylog");
-		long key = (long)unpark->GetExt("park_key");
+		awaylog* awy;
+		unpark->GetExt("park_awaylog", awy);
+		long* key;
+		unpark->GetExt("park_key", key);
 		if (!awy)
 		{
 			WriteServ(user->fd,"943 %s %s :This user is not parked.",user->nick, unpark->nick);
 			return;
 		}
-		if (key == atoi(parameters[1]))
+		if (*key == atoi(parameters[1]))
 		{
 			// first part the user from all chans theyre on, so things dont get messy
 			for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
@@ -177,6 +180,7 @@ class cmd_unpark : public command_t
 				WriteServ(unpark->fd,"NOTICE %s :From %s at %s: \2%s\2",unpark->nick,i->from.c_str(),timebuf,i->text.c_str());
 			}
 			DELETE(awy);
+			DELETE(key);
 			unpark->Shrink("park_awaylog");
 			unpark->Shrink("park_key");
 			for (parkinfo::iterator j = pinfo.begin(); j != pinfo.end(); j++)
@@ -262,7 +266,8 @@ class ModulePark : public Module
 
 	virtual void OnPrePrivmsg(userrec* user, userrec* dest, const std::string &text)
 	{
-		awaylog* awy = (awaylog*)dest->GetExt("park_awaylog");
+		awaylog* awy;
+		dest->GetExt("park_awaylog", awy);
 		if (awy)
 		{
 			if (awy->size() <= (unsigned)ParkMaxMsgs)
@@ -334,7 +339,8 @@ class ModulePark : public Module
 
 	virtual void OnWhois(userrec* src, userrec* dst)
 	{
-		if (dst->GetExt("park_awaylog"))
+		char* dummy;
+		if (dst->GetExt("park_awaylog", dummy))
 			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a parked client");
 	}
 	
