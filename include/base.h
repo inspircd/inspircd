@@ -36,13 +36,12 @@ class classbase
  	/** Time that the object was instantiated (used for TS calculation etc)
  	*/
 	time_t age;
-	static unsigned long id;
 
 	/** Constructor,
 	 * Sets the object's time
 	 */
-	classbase() { age = TIME; id++; }
-	~classbase() { id--; }
+	classbase() { age = TIME; }
+	~classbase() { }
 };
 
 /** class Extensible is the parent class of many classes such as userrec and chanrec.
