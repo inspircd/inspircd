@@ -246,8 +246,10 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	{
 		/* Display user's current mode string */
 		WriteServ(user->fd,"221 %s :+%s",targetuser->nick,targetuser->FormatModes());
+		WriteServ(user->fd, "008 %s :+%s", targetuser->nick, targetuser->FormatNoticeMasks());
 		return;
 	}
+
 	/* No such nick/channel */
 	WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, text);
 	return;
