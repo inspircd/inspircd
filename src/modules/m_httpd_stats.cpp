@@ -51,22 +51,26 @@ class ModuleHttpStats : public Module
 
 		if (event->GetEventID() == "httpd_url")
 		{
-			log(DEBUG,"HTTP URL!");
-
-			data << "<HTML><HEAD>";
-			data << "<TITLE>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</TITLE>";
-			data << "</HEAD><BODY>";
-			data << "<H1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</H1>";
-			
-			data << "</BODY>";
-			data << "</HTML>";
-
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
-			HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html\r\n");
-			Request req((char*)&response, (Module*)this, event->GetSource());
-			req.Send();
 
-			log(DEBUG,"Sent");
+			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
+			{
+				log(DEBUG,"HTTP URL!");
+
+				data << "<HTML><HEAD>";
+				data << "<TITLE>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</TITLE>";
+				data << "</HEAD><BODY>";
+				data << "<H1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</H1>";
+				
+				data << "</BODY>";
+				data << "</HTML>";
+
+				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html\r\n");
+				Request req((char*)&response, (Module*)this, event->GetSource());
+				req.Send();
+
+				log(DEBUG,"Sent");
+			}
 		}
 	}
 
