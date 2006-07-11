@@ -28,15 +28,7 @@ using namespace std;
 
 class ModuleHttpStats : public Module
 {
-	int port;
-	std::string host;
-	std::string bindip;
-	std::string indexfile;
-
-	FileReader index;
-
-	HttpSocket* http;
-
+	Server* Srv;
  public:
 
 	void ReadConfig()
@@ -51,7 +43,7 @@ class ModuleHttpStats : public Module
 
 	void OnEvent(Event* event)
 	{
-		if (event->GetID() == "httpd_url")
+		if (event->GetEventID() == "httpd_url")
 		{
 			log(DEBUG,"HTTP URL!");
 		}
@@ -69,7 +61,6 @@ class ModuleHttpStats : public Module
 
 	virtual ~ModuleHttpStats()
 	{
-		Srv->DelSocket(http);
 	}
 
 	virtual Version GetVersion()

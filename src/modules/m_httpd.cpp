@@ -109,6 +109,7 @@ class HttpSocket : public InspSocket
 				{
 					HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
 					Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+					e.Send();
 				}
 
 				return false;
