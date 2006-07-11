@@ -29,7 +29,7 @@ using namespace std;
 class ModuleHttp;
 
 static Server *Srv;
-static ModuleHttp* HttpModule;
+ModuleHttp* HttpModule;
 extern time_t TIME;
 
 enum HttpState
@@ -85,6 +85,7 @@ class HttpSocket : public InspSocket
 	{
 		char* data = this->Read();
 		std::string request_type;
+		std::string uri;
 
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
@@ -99,15 +100,15 @@ class HttpSocket : public InspSocket
 				headers >> request_type;
 				headers >> uri;
 
-				if ((request_type == "GET") && (uri = "/"))
+				if ((request_type == "GET") && (uri == "/"))
 				{
 					SendHeaders(index->ContentSize());
 					this->Write(index->Contents());
 				}
 				else
 				{
-					HttpRequest httpr(request_type,uri,headers,this,this->GetIP());
-					Event e(uri, HttpModule, "httpd_url");
+					HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
+					Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
 				}
 
 				return false;
@@ -203,8 +204,8 @@ class ModuleHttpFactory : public ModuleFactory
 	
 	virtual Module * CreateModule(Server* Me)
 	{
-		ModuleHttp = new ModuleHttp(Me);
-		return new HttpModule;
+		HttpModule = new ModuleHttp(Me);
+		return HttpModule;
 	}
 };
 
