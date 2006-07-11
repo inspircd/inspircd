@@ -113,7 +113,7 @@ class ModuleHttpStats : public Module
 				data << "</head><body>";
 				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</h1>";
 
-				data << "<div id='totals'>";
+				data << "<div class='totals'>";
 				data << "<h2>Totals</h2>";
 				data << "<table>";
 				data << "<tr><td>Users</td><td>" << clientlist.size() << "</td></tr>";
@@ -123,7 +123,7 @@ class ModuleHttpStats : public Module
 				data << "</table>";
 				data << "</div>";
 
-				data << "<div id='modules'>";
+				data << "<div class='modules'>";
 				data << "<h2>Modules</h2>";
 				data << "<table>";
 				for (int i = 0; i <= MODCOUNT; i++)
@@ -134,10 +134,10 @@ class ModuleHttpStats : public Module
 				data << "</table>";
 				data << "</div>";
 
-				data << "<div id='channels'>";
+				data << "<div class='channels'>";
 				data << "<h2>Channels</h2>";
 				data << "<table>";
-				data << "<tr><th>Users</th><th>Name</th><th>@</th><th>%</th><th>+</th></tr>";
+				data << "<tr><th>Users</th><th>Name</th><th>@</th><th>%</th><th>+</th><th>Topic</th></tr>";
 
 				/* If the list has changed since last time it was displayed, re-sort it
 				 * this time only (not every time, as this would be moronic)
@@ -155,6 +155,7 @@ class ModuleHttpStats : public Module
 						data << "<td>" << c->GetOppedUsers()->size() << "</td>";
 						data << "<td>" << c->GetHalfoppedUsers()->size() << "</td>";
 						data << "<td>" << c->GetVoicedUsers()->size() << "</td>";
+						data << "<td>" << c->topic << "</td>";
 						data << "</tr>";
 					}
 				}
@@ -166,7 +167,7 @@ class ModuleHttpStats : public Module
 
 
 
-				data << "<div id='validion'>";
+				data << "<div class='validion'>";
 				data << "<p><a href='http://validator.w3.org/check?uri=referer'><img src='http://www.w3.org/Icons/valid-xhtml11' alt='Valid XHTML 1.1' height='31' width='88' /></a></p>";
 				data << "</div>";
 				
