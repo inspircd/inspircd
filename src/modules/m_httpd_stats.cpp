@@ -29,11 +29,14 @@ using namespace std;
 class ModuleHttpStats : public Module
 {
 	Server* Srv;
+	std::string stylesheet;
 
  public:
 
 	void ReadConfig()
 	{
+		ConfigReader c;
+		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
 	}
 
 	ModuleHttpStats(Server* Me) : Module::Module(Me)
@@ -50,7 +53,13 @@ class ModuleHttpStats : public Module
 		{
 			log(DEBUG,"HTTP URL!");
 
-			data << "<html><h1>Chickens</h1></html>";
+			data << "<HTML><HEAD>";
+			data << "<TITLE>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</TITLE>";
+			data << "</HEAD><BODY>";
+			data << "<H1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</H1>";
+			
+			data << "</BODY>";
+			data << "</HTML>";
 
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
 			HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\n");
