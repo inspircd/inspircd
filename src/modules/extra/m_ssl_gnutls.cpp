@@ -204,7 +204,6 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
 				culllist.AddItem(user, "SSL module unloading");
 			}
 		}
@@ -264,7 +263,6 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		log(DEBUG, "OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
 	}
 	
@@ -280,18 +278,11 @@ class ModuleSSLGnuTLS : public Module
 			return 1;
 		}
 		
-		log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
-		
 		if(session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
 			
-			if(Handshake(session))
-			{
-				// Handshake successfully resumed.
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: successfully resumed handshake");
-			}
-			else
+			if(!Handshake(session))
 			{
 				// Couldn't resume handshake.	
 				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: failed to resume handshake");
@@ -310,7 +301,6 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 			// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-			log(DEBUG, "m_ssl_gnutls.so: gnutls_record_recv(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
 			
 			int ret = gnutls_record_recv(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
@@ -326,7 +316,6 @@ class ModuleSSLGnuTLS : public Module
 			{
 				if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 				{
-					log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Not all SSL data read: %s", gnutls_strerror(ret));
 					return -1;
 				}
 				else
@@ -344,8 +333,6 @@ class ModuleSSLGnuTLS : public Module
 				
 				unsigned int length = ret + session->inbufoffset;
 		
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Read %d bytes, now have %d waiting to be passed up", ret, length);
-						
 				if(count <= length)
 				{
 					memcpy(buffer, session->inbuf, count);
@@ -366,13 +353,11 @@ class ModuleSSLGnuTLS : public Module
 					readresult = length;
 				}
 			
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Passing %d bytes up to insp:", length);
 				Srv->Log(DEBUG, std::string(buffer, readresult));
 			}
 		}
 		else if(session->status == ISSL_CLOSING)
 		{
-			log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: session closing...");
 			readresult = 0;
 		}
 		
@@ -395,12 +380,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// The handshake isn't finished, try to finish it.
 			
-			if(Handshake(session))
-			{
-				// Handshake successfully resumed.
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: successfully resumed handshake");
-			}
-			else
+			if(!Handshake(session))
 			{
 				// Couldn't resume handshake.	
 				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: failed to resume handshake"); 
@@ -411,16 +391,12 @@ class ModuleSSLGnuTLS : public Module
 			log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: handshake wants to read data but we are currently writing");
 		}
 
-		log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
 		session->outbuf.append(sendbuffer, count);
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
 
 		if(session->status == ISSL_HANDSHAKEN)
 		{
-			log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Trying to write %d bytes:", count);
-			Srv->Log(DEBUG, session->outbuf);
-			
 			int ret = gnutls_record_send(session->sess, sendbuffer, count);
 		
 			if(ret == 0)
@@ -430,11 +406,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else if(ret < 0)
 			{
-				if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-				{
-					log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Not all SSL data written: %s", gnutls_strerror(ret));
-				}
-				else
+				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
 				{
 					log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Error writing SSL data: %s", gnutls_strerror(ret));
 					CloseSession(session);					
@@ -442,13 +414,11 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Successfully wrote %d bytes", ret);
 				session->outbuf = session->outbuf.substr(ret);
 			}
 		}
 		else if(session->status == ISSL_CLOSING)
 		{
-			log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: session closing...");
 		}
 		
 		return 1;
@@ -507,13 +477,11 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to read() again.
 					session->status = ISSL_HANDSHAKING_READ;
-					log(DEBUG, "m_ssl_gnutls.so: Handshake needs resuming (reading) later, error string: %s", gnutls_strerror(ret));
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					log(DEBUG, "m_ssl_gnutls.so: Handshake needs resuming (writing) later, error string: %s", gnutls_strerror(ret));
 					MakePollWrite(session);	
 				}
 			}
@@ -530,7 +498,6 @@ class ModuleSSLGnuTLS : public Module
 		else
 		{
 			// Handshake complete.
-			log(DEBUG, "m_ssl_gnutls.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			userrec* extendme = Srv->FindDescriptor(session->fd);

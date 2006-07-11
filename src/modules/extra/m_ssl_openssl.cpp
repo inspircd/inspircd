@@ -229,7 +229,6 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				log(DEBUG, "m_ssl_openssl.so: Adding user %s to cull list", user->nick);
 				culllist.AddItem(user, "SSL module unloading");
 			}
 		}
@@ -286,7 +285,6 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
 	}
 	
@@ -302,19 +300,12 @@ class ModuleSSLOpenSSL : public Module
 			return 1;
 		}
 		
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
-		
 		if(session->status == ISSL_HANDSHAKING)
 		{
 			if(session->rstat == ISSL_READ || session->wstat == ISSL_READ)
 			{
 				// The handshake isn't finished and it wants to read, try to finish it.
-				if(Handshake(session))
-				{
-					// Handshake successfully resumed.
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: successfully resumed handshake");
-				}
-				else
+				if(!Handshake(session))
 				{
 					// Couldn't resume handshake.	
 					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: failed to resume handshake");
@@ -364,9 +355,6 @@ class ModuleSSLOpenSSL : public Module
 						session->inbufoffset = 0;
 					}
 				
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: Passing %d bytes up to insp:", count);
-					Srv->Log(DEBUG, std::string(buffer, readresult));
-				
 					return 1;
 				}
 				else
@@ -390,7 +378,6 @@ class ModuleSSLOpenSSL : public Module
 			return 1;
 		}
 		
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
 		session->outbuf.append(buffer, count);
 		
 		if(session->status == ISSL_HANDSHAKING)
@@ -398,12 +385,7 @@ class ModuleSSLOpenSSL : public Module
 			// The handshake isn't finished, try to finish it.
 			if(session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
 			{
-				if(Handshake(session))
-				{
-					// Handshake successfully resumed.
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: successfully resumed handshake");
-				}
-				else
+				if(!Handshake(session))
 				{
 					// Couldn't resume handshake.	
 					log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: failed to resume handshake"); 
@@ -433,9 +415,6 @@ class ModuleSSLOpenSSL : public Module
 	
 	int DoWrite(issl_session* session)
 	{
-		log(DEBUG, "m_ssl_openssl.so: DoWrite: Trying to write %d bytes:", session->outbuf.size());
-		Srv->Log(DEBUG, session->outbuf);
-			
 		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
 		
 		if(ret == 0)
@@ -450,7 +429,6 @@ class ModuleSSLOpenSSL : public Module
 			
 			if(err == SSL_ERROR_WANT_WRITE)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written, need to retry: %s", get_error());
 				session->wstat = ISSL_WRITE;
 				return -1;
 			}
@@ -469,7 +447,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else
 		{
-			log(DEBUG, "m_ssl_openssl.so: DoWrite: Successfully wrote %d bytes", ret);
 			session->outbuf = session->outbuf.substr(ret);
 			return ret;
 		}
@@ -479,7 +456,6 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-		log(DEBUG, "m_ssl_openssl.so: DoRead: SSL_read(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
 			
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
@@ -496,7 +472,6 @@ class ModuleSSLOpenSSL : public Module
 				
 			if(err == SSL_ERROR_WANT_READ)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read, need to retry: %s", get_error());
 				session->rstat = ISSL_READ;
 				return -1;
 			}
@@ -519,8 +494,6 @@ class ModuleSSLOpenSSL : public Module
 			// There are 'ret' + 'inbufoffset' bytes of data in 'inbuf'
 			// 'buffer' is 'count' long
 			
-			log(DEBUG, "m_ssl_openssl.so: DoRead: Read %d bytes, now have %d waiting to be passed up", ret, ret + session->inbufoffset);
-
 			session->inbufoffset += ret;
 
 			return ret;
@@ -576,13 +549,11 @@ class ModuleSSLOpenSSL : public Module
 				
 			if(err == SSL_ERROR_WANT_READ)
 			{
-				log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to read again: %s", get_error());
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 			}
 			else if(err == SSL_ERROR_WANT_WRITE)
 			{
-				log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to write more data: %s", get_error());
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
@@ -598,7 +569,6 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			// Handshake complete.
-			log(DEBUG, "m_ssl_openssl.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			userrec* u = Srv->FindDescriptor(session->fd);
