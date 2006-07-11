@@ -72,8 +72,8 @@ class HttpSocket : public InspSocket
 	{
 		struct tm *timeinfo = localtime(&TIME);
 		this->Write("HTTP/1.1 200 OK\r\nDate: ");
-		this->Write(asctime(timeinfo));	
-		this->Write("Server: InspIRCd/m_http.so/1.1\r\nContent-Length: "+ConvToStr(index->ContentSize())+
+		this->Write(asctime(timeinfo));
+		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(index->ContentSize())+
 				"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
 	}
 
