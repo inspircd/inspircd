@@ -48,12 +48,15 @@ class ModuleHttpStats : public Module
 		{
 			log(DEBUG,"HTTP URL!");
 
+			data.clear();
 			data << "<html><h1>Chickens</h1></html>";
 
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
 			HTTPDocument response(http->sock, &data, 200);
 			Request req((char*)&response, (Module*)this, event->GetSource());
 			req.Send();
+
+			log(DEBUG,"Sent");
 		}
 	}
 

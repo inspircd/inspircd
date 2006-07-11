@@ -213,7 +213,10 @@ class HttpSocket : public InspSocket
 						e.Send();
 
 						if (!claimed)
+						{
 							SendHeaders(0, 404);
+							log(DEBUG,"Page not claimed, 404");
+						}
 					}
 				}
 
@@ -232,6 +235,7 @@ class HttpSocket : public InspSocket
 
 	void Page(std::stringstream* n, int response)
 	{
+		log(DEBUG,"Sending page");
 		SendHeaders(n->str().length(),response);
 		this->Write(n->str());
 	}
@@ -283,6 +287,7 @@ class ModuleHttp : public Module
 
 	char* OnRequest(Request* request)
 	{
+		log(DEBUG,"Got HTTPDocument object");
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();
 		HttpSocket* sock = (HttpSocket*)doc->sock;
