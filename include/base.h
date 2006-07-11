@@ -79,6 +79,26 @@ public:
 		 */
 		return this->Extension_Items.insert(std::make_pair(key, (char*)p)).second;
 	}
+	
+	/** Extend an Extensible class.
+	 *
+	 * @param key The key parameter is an arbitary string which identifies the extension data
+	 *
+	 * You must provide a key to store the data as via the parameter 'key', this single-parameter
+	 * version takes no 'data' parameter, this is used purely for boolean values.
+	 * The key will be inserted into the map with a NULL 'data' pointer. If the key already exists
+	 * then you may not insert it twice, Extensible::Extend will return false in this case.
+	 *
+	 * @return Returns true on success, false if otherwise
+	 */
+	bool Extend(const std::string &key)
+	{
+		/* This will only add an item if it doesnt already exist,
+		 * the return value is a std::pair of an iterator to the
+		 * element, and a bool saying if it was actually inserted.
+		 */
+		return this->Extension_Items.insert(std::make_pair(key, (char*)NULL)).second;
+	}
 
 	/** Shrink an Extensible class.
 	 *
@@ -109,6 +129,20 @@ public:
 			p = NULL;	
 			return false;
 		}
+	}
+	
+	/** Get an extension item.
+	 *
+	 * @param key The key parameter is an arbitary string which identifies the extension data
+	 * @return Returns true if the item was found and false if it was not.
+	 * 
+	 * This single-parameter version only checks if the key exists, it does nothing with
+	 * the 'data' field and is probably only useful in conjunction with the single-parameter
+	 * version of Extend().
+	 */
+	bool GetExt(const std::string &key)
+	{
+		return (this->Extension_Items.find(key) != this->Extension_Items.end());
 	}
 
 	/** Get a list of all extension items names.
