@@ -102,8 +102,6 @@ class ModuleHttpStats : public Module
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
-				log(DEBUG,"HTTP URL!");
-
 				data << "<!DOCTYPE html PUBLIC \
 					\"-//W3C//DTD XHTML 1.1//EN\" \
 					\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n\
@@ -114,7 +112,7 @@ class ModuleHttpStats : public Module
 				data << "</head><body>";
 				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</h1>";
 
-				data << "<div id='TOTALS'>";
+				data << "<div id='totals'>";
 				data << "<h2>Totals</h2>";
 				data << "<table>";
 				data << "<tr><td>Users</td><td>" << clientlist.size() << "</td></tr>";
@@ -124,7 +122,7 @@ class ModuleHttpStats : public Module
 				data << "</table>";
 				data << "</div>";
 
-				data << "<div id='MODULES'>";
+				data << "<div id='modules'>";
 				data << "<h2>Modules</h2>";
 				data << "<table>";
 				for (int i = 0; i <= MODCOUNT; i++)
@@ -135,7 +133,7 @@ class ModuleHttpStats : public Module
 				data << "</table>";
 				data << "</div>";
 
-				data << "<div id='CHANNELS'>";
+				data << "<div id='channels'>";
 				data << "<h2>Channels</h2>";
 				data << "<table>";
 				data << "<tr><th>Users</th><th>Name</th><th>@</th><th>%</th><th>+</th></tr>";
@@ -163,6 +161,13 @@ class ModuleHttpStats : public Module
 				data << "</table>";
 				data << "</div>";
 
+
+
+
+
+				data << "<div id='validion'>";
+				data << "<p><a href='http://validator.w3.org/check?uri=referer'><img src='http://www.w3.org/Icons/valid-xhtml11' alt='Valid XHTML 1.1' height='31' width='88' /></a></p>";
+				data << "</div>";
 				
 				data << "</body>";
 				data << "</html>";
