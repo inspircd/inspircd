@@ -52,7 +52,10 @@ class HTTPDocument : public classbase
 	int responsecode;
 
  public:
-	HTTPDocument(std::stringstream* doc, int response) : document(doc), responsecode(response)
+
+	void* sock;
+
+	HTTPDocument(void* opaque, std::stringstream* doc, int response) : document(doc), responsecode(response), sock(opaque)
 	{
 	}
 
@@ -61,9 +64,9 @@ class HTTPDocument : public classbase
 		return this->document;
 	}
 
-	std::stringstream* GetDocumentSize()
+	unsigned long GetDocumentSize()
 	{
-		return this->document.size();
+		return this->document->str().length();
 	}
 
 	int GetResponseCode()

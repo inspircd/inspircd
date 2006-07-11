@@ -232,7 +232,7 @@ class HttpSocket : public InspSocket
 
 	void Page(std::stringstream* n, int response)
 	{
-		SendHeaders(n->size(),response);
+		SendHeaders(n->str().length(),response);
 		this->Write(n->str());
 	}
 };
@@ -284,6 +284,9 @@ class ModuleHttp : public Module
 	char* OnRequest(Request* request)
 	{
 		claimed = true;
+		HTTPDocument* doc = (HTTPDocument*)request->GetData();
+		HttpSocket* sock = (HttpSocket*)doc->sock;
+		sock->Page(doc->GetDocument(), doc->GetResponseCode());
 		return NULL;
 	}
 
