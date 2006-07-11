@@ -108,6 +108,7 @@ class ModuleHttpStats : public Module
 					<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">";
 
 				data << "<head>";
+				data << "<link rel='stylesheet' href='" << this->stylesheet << "' type='text/css' />";
 				data << "<title>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</title>";
 				data << "</head><body>";
 				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</h1>";
