@@ -88,10 +88,7 @@ class ModuleHttpStats : public Module
 		/* Sorts the hash into the sorted list using an insertion sort */
 		so->clear();
 		for (StatsIter a = sh->begin(); a != sh->end(); a++)
-		{
-			log(DEBUG, "InsertOrder on %d %s",a->second,a->first.c_str());
 			InsertOrder(a->first, a->second);
-		}
 		this->changed = false;
 	}
 
