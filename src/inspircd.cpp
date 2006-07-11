@@ -889,7 +889,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			break;
 		}
 	}
-	yield_depth--;
 }
 
 int InspIRCd::Run()
@@ -920,7 +919,6 @@ int InspIRCd::Run()
 
 	/* main loop, this never returns */
 	expire_run = false;
-	yield_depth = 0;
 	iterations = 0;
 
 	while (true)
