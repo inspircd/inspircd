@@ -22,10 +22,14 @@ using namespace std;
 #include "modules.h"
 #include "inspsocket.h"
 #include "helperfuncs.h"
+#include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
 
+class ModuleHttp;
+
 static Server *Srv;
+static ModuleHttp* HttpModule;
 extern time_t TIME;
 
 enum HttpState
@@ -68,18 +72,20 @@ class HttpSocket : public InspSocket
 	{
 	}
 
-	void SendHeaders()
+	void SendHeaders(unsigned long size)
 	{
 		struct tm *timeinfo = localtime(&TIME);
 		this->Write("HTTP/1.1 200 OK\r\nDate: ");
 		this->Write(asctime(timeinfo));
-		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(index->ContentSize())+
+		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
 				"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
 	}
 
 	virtual bool OnDataReady()
 	{
 		char* data = this->Read();
+		std::string request_type;
+
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
 		{
@@ -89,9 +95,20 @@ class HttpSocket : public InspSocket
 			{
 				/* Headers are complete */
 				InternalState = HTTP_SERVE_SEND_DATA;
-				SendHeaders();
 
-				this->Write(index->Contents());
+				headers >> request_type;
+				headers >> uri;
+
+				if ((request_type == "GET") && (uri = "/"))
+				{
+					SendHeaders(index->ContentSize());
+					this->Write(index->Contents());
+				}
+				else
+				{
+					HttpRequest httpr(request_type,uri,headers,this,this->GetIP());
+					Event e(uri, HttpModule, "httpd_url");
+				}
 
 				return false;
 			}
@@ -147,6 +164,15 @@ class ModuleHttp : public Module
 		CreateListener();
 	}
 
+	void OnEvent(Event* event)
+	{
+	}
+
+	char* OnRequest(Request* request)
+	{
+		return NULL;
+	}
+
 	void Implements(char* List)
 	{
 		List[I_OnEvent] = List[I_OnRequest] = 1;
@@ -177,7 +203,8 @@ class ModuleHttpFactory : public ModuleFactory
 	
 	virtual Module * CreateModule(Server* Me)
 	{
-		return new ModuleHttp(Me);
+		ModuleHttp = new ModuleHttp(Me);
+		return new HttpModule;
 	}
 };
 
