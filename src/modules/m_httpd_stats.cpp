@@ -136,7 +136,7 @@ class ModuleHttpStats : public Module
 				data << "<DIV ID='CHANNELS'>";
 				data << "<H2>Channels</H2>";
 				data << "<TABLE>";
-				data << "<TR><TH>Users</TH><TH>Count</TH><TH>@</TH><TH>%</TH><TH>+</TH></TR>";
+				data << "<TR><TH>Users</TH><TH>Name</TH><TH>@</TH><TH>%</TH><TH>+</TH></TR>";
 
 				/* If the list has changed since last time it was displayed, re-sort it
 				 * this time only (not every time, as this would be moronic)
