@@ -62,7 +62,7 @@ class ModuleHttpStats : public Module
 			data << "</HTML>";
 
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
-			HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\n");
+			HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html\r\n");
 			Request req((char*)&response, (Module*)this, event->GetSource());
 			req.Send();
 
