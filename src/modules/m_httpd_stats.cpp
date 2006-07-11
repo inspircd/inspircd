@@ -19,12 +19,26 @@ using namespace std;
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"
+#include "configreader.h"
 #include "modules.h"
 #include "inspsocket.h"
 #include "helperfuncs.h"
 #include "httpd.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
+
+extern user_hash clientlist;
+extern chan_hash chanlist;
+extern std::vector<userrec*> all_opers;
+extern InspIRCd* ServerInstance;
+extern ServerConfig* Config;
+
+extern int MODCOUNT;
+
+typedef std::map<irc::string,int> StatsHash;
+typedef StatsHash::iterator StatsIter;
+static StatsHash* sh = new StatsHash();
 
 class ModuleHttpStats : public Module
 {
@@ -61,15 +75,96 @@ class ModuleHttpStats : public Module
 				data << "<TITLE>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</TITLE>";
 				data << "</HEAD><BODY>";
 				data << "<H1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</H1>";
+
+				data << "<DIV ID='TOTALS'>";
+				data << "<H2>Totals</H2>";
+				data << "<TABLE>";
+				data << "<TR><TD>Users</TD><TD>" << clientlist.size() << "</TD></TR>";
+				data << "<TR><TD>Channels</TD><TD>" << chanlist.size() << "</TD></TR>";
+				data << "<TR><TD>Opers</TD><TD>" << all_opers.size() << "</TD></TR>";
+				data << "<TR><TD>Sockets</TD><TD>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</TD></TR>";
+				data << "</TABLE>";
+				data << "</DIV>";
+
+				data << "<DIV ID='MODULES'>";
+				data << "<H2>Modules</H2>";
+				data << "<TABLE>";
+				for (int i = 0; i <= MODCOUNT; i++)
+				{
+					if (Config->module_names[i] != "")
+						data << "<TR><TD>" << Config->module_names[i] << "</TD></TR>";
+				}
+				data << "</TABLE>";
+				data << "</DIV>";
+
+				data << "<DIV ID='CHANNELS'>";
+				data << "<H2>Channels</H2>";
+				data << "<TABLE>";
+				data << "<TR><TH>Users</TH><TH>Count</TH></TR>";
+				for (StatsIter a = sh->begin(); a != sh->end(); a++)
+				{
+					data << "<TR><TD>" << a->second << "</TD><TD>" << a->first << "</TD></TR>";
+				}
+				data << "</TABLE>";
+				data << "</DIV>";
+
 				
 				data << "</BODY>";
 				data << "</HTML>";
 
+				/* Send the document back to m_httpd */
 				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html\r\n");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 
 				log(DEBUG,"Sent");
+			}
+		}
+	}
+
+	void OnChannelDelete(chanrec* chan)
+	{
+		StatsIter a = sh->find(chan->name);
+		if (a != sh->end())
+		{
+			sh->erase(a);
+		}
+	}
+
+	void OnUserJoin(userrec* user, chanrec* channel)
+	{
+		StatsIter a = sh->find(channel->name);
+		if (a != sh->end())
+		{
+			a->second++;
+		}
+		else
+		{
+			a[channel->name] = 1;
+		}
+	}
+
+	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
+	{
+		StatsIter a = sh->find(channel->name);
+		if (a != sh->end())
+		{
+			a->second--;
+		}
+	}
+
+	void OnUserQuit(userrec* user, const std::string &message)
+	{
+		for (std::vector<ucrec*>::const_iterator v = user->chans.begin(); v != user->chans.end(); v++)
+		{
+			if (((ucrec*)(*v))->channel)
+			{
+				chanrec* c = ((ucrec*)(*v))->channel;
+				StatsIter a = sh->find(c->name);
+				if (a != sh->end())
+				{
+					a->second--;
+				}
 			}
 		}
 	}
@@ -81,11 +176,12 @@ class ModuleHttpStats : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnEvent] = List[I_OnRequest] = 1;
+		List[I_OnEvent] = List[I_OnRequest] = List[I_OnChannelDelete] = List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = 1;
 	}
 
 	virtual ~ModuleHttpStats()
 	{
+		delete sh;
 	}
 
 	virtual Version GetVersion()
