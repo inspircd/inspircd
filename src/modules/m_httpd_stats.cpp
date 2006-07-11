@@ -38,12 +38,18 @@ extern int MODCOUNT;
 
 typedef std::map<irc::string,int> StatsHash;
 typedef StatsHash::iterator StatsIter;
+
+typedef std::vector<std::pair<int,irc::string> > SortedList;
+typedef SortedList::iterator SortedIter;
+
 static StatsHash* sh = new StatsHash();
+static SortedList* so = new SortedList();
 
 class ModuleHttpStats : public Module
 {
 	Server* Srv;
 	std::string stylesheet;
+	bool changed;
 
  public:
 
@@ -57,6 +63,36 @@ class ModuleHttpStats : public Module
 	{
 		Srv = Me;
 		ReadConfig();
+		this->changed = false;
+	}
+
+	void InsertOrder(irc::string channel, int count)
+	{
+		/* This function figures out where in the sorted list to put an item from the hash */
+		SortedIter a;
+		for (a = so->begin(); a != so->end(); a++)
+		{
+			/* Found an item equal to or less than, we insert our item before it */
+			if (a->first <= count)
+			{
+				so->insert(a,std::pair<int,irc::string>(count,channel));
+				return;
+			}
+		}
+		/* There are no items in the list yet, insert something at the beginning */
+		so->insert(so->begin(), std::pair<int,irc::string>(count,channel));
+	}
+
+	void SortList()
+	{
+		/* Sorts the hash into the sorted list using an insertion sort */
+		so->clear();
+		for (StatsIter a = sh->begin(); a != sh->end(); a++)
+		{
+			log(DEBUG, "InsertOrder on %d %s",a->second,a->first.c_str());
+			InsertOrder(a->first, a->second);
+		}
+		this->changed = false;
 	}
 
 	void OnEvent(Event* event)
@@ -101,10 +137,19 @@ class ModuleHttpStats : public Module
 				data << "<H2>Channels</H2>";
 				data << "<TABLE>";
 				data << "<TR><TH>Users</TH><TH>Count</TH></TR>";
-				for (StatsIter a = sh->begin(); a != sh->end(); a++)
+
+				/* If the list has changed since last time it was displayed, re-sort it
+				 * this time only (not every time, as this would be moronic)
+				 */
+				if (this->changed)
+					this->SortList();
+
+				int n = 0;
+				for (SortedIter a = so->begin(); ((a != so->end()) && (n < 25)); a++, n++)
 				{
-					data << "<TR><TD>" << a->second << "</TD><TD>" << a->first << "</TD></TR>";
+					data << "<TR><TD>" << a->first << "</TD><TD>" << a->second << "</TD></TR>";
 				}
+
 				data << "</TABLE>";
 				data << "</DIV>";
 
@@ -129,6 +174,7 @@ class ModuleHttpStats : public Module
 		{
 			sh->erase(a);
 		}
+		this->changed = true;
 	}
 
 	void OnUserJoin(userrec* user, chanrec* channel)
@@ -143,6 +189,7 @@ class ModuleHttpStats : public Module
 			irc::string name = channel->name;
 			sh->insert(std::pair<irc::string,int>(name,1));
 		}
+		this->changed = true;
 	}
 
 	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
@@ -152,6 +199,7 @@ class ModuleHttpStats : public Module
 		{
 			a->second--;
 		}
+		this->changed = true;
 	}
 
 	void OnUserQuit(userrec* user, const std::string &message)
@@ -168,6 +216,7 @@ class ModuleHttpStats : public Module
 				}
 			}
 		}
+		this->changed = true;
 	}
 
 	char* OnRequest(Request* request)
