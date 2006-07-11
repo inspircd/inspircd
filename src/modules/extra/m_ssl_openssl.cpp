@@ -42,8 +42,6 @@ public:
 	issl_io_status rstat;
 	issl_io_status wstat;
 
-	char* dummy;
-
 	unsigned int inbufoffset;
 	char* inbuf; 			// Buffer OpenSSL reads into.
 	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
@@ -70,6 +68,8 @@ class ModuleSSLOpenSSL : public Module
 	issl_session sessions[MAX_DESCRIPTORS];
 	
 	SSL_CTX* ctx;
+	
+	char* dummy;
 	
 	std::string keyfile;
 	std::string certfile;
