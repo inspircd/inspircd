@@ -70,9 +70,6 @@
 
 InspIRCd* ServerInstance;
 
-int WHOWAS_STALE = 48; // default WHOWAS Entries last 2 days before they go 'stale'
-int WHOWAS_MAX = 100;  // default 100 people maximum in the WHOWAS list
-
 extern ModuleList modules;
 extern FactoryList factory;
 
@@ -81,12 +78,9 @@ std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
-int openSockfd[MAX_DESCRIPTORS];
-int yield_depth;
 int iterations = 0;
 
 insp_sockaddr client, server;
-
 socklen_t length;
 
 extern InspSocket* socket_ref[MAX_DESCRIPTORS];
@@ -694,11 +688,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	insp_sockaddr sock_us;     // our port number
 	socklen_t uslen;	 // length of our port number
 
-	if (yield_depth > 100)
-		return;
-
-	yield_depth++;
-
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 	 * Once per loop iteration is pleanty.
 	 */
@@ -731,7 +720,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		}
 		TickMissedTimers(TIME);
 		expire_run = true;
-		yield_depth--;
 		return;
 	}   
 	else if ((TIME % 5) == 1)
@@ -772,10 +760,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * servers... so its nice and easy, just one call.
 	 */
 	if (!(numberactive = SE->Wait(activefds)))
-	{
-		yield_depth--;
 		return;
-	}
 
 	/**
 	 * Now process each of the fd's. For users, we have a fast
@@ -929,7 +914,7 @@ int InspIRCd::Run()
 	 * to the socket engine
 	 */
 	for (int count = 0; count < stats->BoundPortCount; count++)
-		SE->AddFd(openSockfd[count],true,X_LISTEN);
+		SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
 
 	this->WritePID(Config->PID);
 

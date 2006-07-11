@@ -26,7 +26,6 @@
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
-extern int openSockfd[MAX_DESCRIPTORS];
 
 /** This will bind a socket to a port. It works for UDP/TCP.
  * If a hostname is given to bind to, the function will first
@@ -165,21 +164,21 @@ int BindPorts(bool bail)
 		{
 			for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
 			{
-				if ((openSockfd[count] = OpenTCPSocket()) == ERROR)
+				if ((Config->openSockfd[count] = OpenTCPSocket()) == ERROR)
 				{
-					log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[count],Config->addrs[count],Config->ports[count]);
+					log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
 					return ERROR;
 				}
-				if (!BindSocket(openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
+				if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
 				{
 					log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 				}
 				else
 				{
 					/* Associate the new open port with a slot in the socket engine */
-					if (openSockfd[count] > -1)
+					if (Config->openSockfd[count] > -1)
 					{
-						ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN);
+						ServerInstance->SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
 						BoundPortCount++;
 					}
 				}
@@ -221,13 +220,13 @@ int BindPorts(bool bail)
 
 	for (int count = 0; count < PortCount; count++)
 	{
-		if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
+		if ((Config->openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
 		{
-			log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
+			log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
 			return ERROR;
 		}
 
-		if (!BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
+		if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
 		{
 			log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 		}

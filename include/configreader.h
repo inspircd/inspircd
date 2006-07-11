@@ -301,6 +301,10 @@ class ServerConfig : public Extensible
 	 */
 	int ports[255];
 
+	/** A list of the file descriptors for the listening client ports
+	 */
+	int openSockfd[MAX_DESCRIPTORS];
+
 	/** Boolean sets of which modules implement which functions
 	 */
 	char implement_lists[255][255];
