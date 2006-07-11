@@ -136,7 +136,7 @@ class ModuleHttpStats : public Module
 				data << "<DIV ID='CHANNELS'>";
 				data << "<H2>Channels</H2>";
 				data << "<TABLE>";
-				data << "<TR><TH>Users</TH><TH>Count</TH></TR>";
+				data << "<TR><TH>Users</TH><TH>Count</TH><TH>@</TH><TH>%</TH><TH>+</TH></TR>";
 
 				/* If the list has changed since last time it was displayed, re-sort it
 				 * this time only (not every time, as this would be moronic)
@@ -147,7 +147,15 @@ class ModuleHttpStats : public Module
 				int n = 0;
 				for (SortedIter a = so->begin(); ((a != so->end()) && (n < 25)); a++, n++)
 				{
-					data << "<TR><TD>" << a->first << "</TD><TD>" << a->second << "</TD></TR>";
+					chanrec* c = Srv->FindChannel(a->second.c_str());
+					if (c)
+					{
+						data << "<TR><TD>" << a->first << "</TD><TD>" << a->second << "</TD>";
+						data << "<TD>" << c->GetOppedUsers()->size() << "</TD>";
+						data << "<TD>" << c->GetHalfoppedUsers()->size() << "</TD>";
+						data << "<TD>" << c->GetVoicedUsers()->size() << "</TD>";
+						data << "</TR>";
+					}
 				}
 
 				data << "</TABLE>";
