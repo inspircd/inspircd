@@ -50,12 +50,13 @@ class HTTPDocument : public classbase
  protected:
 	std::stringstream* document;
 	int responsecode;
+	std::string extraheaders;
 
  public:
 
 	void* sock;
 
-	HTTPDocument(void* opaque, std::stringstream* doc, int response) : document(doc), responsecode(response), sock(opaque)
+	HTTPDocument(void* opaque, std::stringstream* doc, int response, const std::string &extra) : document(doc), responsecode(response), extraheaders(extra), sock(opaque)
 	{
 	}
 
@@ -72,6 +73,11 @@ class HTTPDocument : public classbase
 	int GetResponseCode()
 	{
 		return this->responsecode;
+	}
+
+	std::string& GetExtraHeaders()
+	{
+		return this->extraheaders;
 	}
 };
 

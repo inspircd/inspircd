@@ -52,7 +52,7 @@ class ModuleHttpStats : public Module
 			data << "<html><h1>Chickens</h1></html>";
 
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
-			HTTPDocument response(http->sock, &data, 200);
+			HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\n");
 			Request req((char*)&response, (Module*)this, event->GetSource());
 			req.Send();
 

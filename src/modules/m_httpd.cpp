@@ -164,11 +164,12 @@ class HttpSocket : public InspSocket
 		}
 	}
 
-	void SendHeaders(unsigned long size, int response)
+	void SendHeaders(unsigned long size, int response, std::string &extraheaders)
 	{
 		struct tm *timeinfo = localtime(&TIME);
 		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
 		this->Write(asctime(timeinfo));
+		this->Write(extraheaders);
 		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
 				"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
 	}
@@ -202,7 +203,7 @@ class HttpSocket : public InspSocket
 				{
 					if ((request_type == "GET") && (uri == "/"))
 					{
-						SendHeaders(index->ContentSize(),200);
+						SendHeaders(index->ContentSize(), 200, "");
 						this->Write(index->Contents());
 					}
 					else
@@ -214,7 +215,7 @@ class HttpSocket : public InspSocket
 
 						if (!claimed)
 						{
-							SendHeaders(0, 404);
+							SendHeaders(0, 404, "");
 							log(DEBUG,"Page not claimed, 404");
 						}
 					}
@@ -233,10 +234,10 @@ class HttpSocket : public InspSocket
 		}
 	}
 
-	void Page(std::stringstream* n, int response)
+	void Page(std::stringstream* n, int response, std::string& extraheaders)
 	{
 		log(DEBUG,"Sending page");
-		SendHeaders(n->str().length(),response);
+		SendHeaders(n->str().length(), response, extraheaders);
 		this->Write(n->str());
 	}
 };
@@ -291,7 +292,7 @@ class ModuleHttp : public Module
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();
 		HttpSocket* sock = (HttpSocket*)doc->sock;
-		sock->Page(doc->GetDocument(), doc->GetResponseCode());
+		sock->Page(doc->GetDocument(), doc->GetResponseCode(), doc->GetExtraHeaders());
 		return NULL;
 	}
 
