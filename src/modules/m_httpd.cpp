@@ -29,8 +29,9 @@ using namespace std;
 class ModuleHttp;
 
 static Server *Srv;
-ModuleHttp* HttpModule;
+static ModuleHttp* HttpModule;
 extern time_t TIME;
+static bool claimed;
 
 enum HttpState
 {
@@ -72,10 +73,101 @@ class HttpSocket : public InspSocket
 	{
 	}
 
-	void SendHeaders(unsigned long size)
+	std::string Response(int response)
+	{
+		switch (response)
+		{
+			case 100:
+				return "CONTINUE";
+			case 101:
+				return "SWITCHING PROTOCOLS";
+			case 200:
+				return "OK";
+			case 201:
+				return "CREATED";
+			case 202:
+				return "ACCEPTED";
+			case 203:
+				return "NON-AUTHORITATIVE INFORMATION";
+			case 204:
+				return "NO CONTENT";
+			case 205:
+				return "RESET CONTENT";
+			case 206:
+				return "PARTIAL CONTENT";
+			case 300:
+				return "MULTIPLE CHOICES";
+			case 301:
+				return "MOVED PERMENANTLY";
+			case 302:
+				return "FOUND";
+			case 303:
+				return "SEE OTHER";
+			case 304:
+				return "NOT MODIFIED";
+			case 305:
+				return "USE PROXY";
+			case 307:
+				return "TEMPORARY REDIRECT";
+			case 400:
+				return "BAD REQUEST";
+			case 401:
+				return "UNAUTHORIZED";
+			case 402:
+				return "PAYMENT REQUIRED";
+			case 403:
+				return "FORBIDDEN";
+			case 404:
+				return "NOT FOUND";
+			case 405:
+				return "METHOD NOT ALLOWED";
+			case 406:
+				return "NOT ACCEPTABLE";
+			case 407:
+				return "PROXY AUTHENTICATION REQUIRED";
+			case 408:
+				return "REQUEST TIMEOUT";
+			case 409:
+				return "CONFLICT";
+			case 410:
+				return "GONE";
+			case 411:
+				return "LENGTH REQUIRED";
+			case 412:
+				return "PRECONDITION FAILED";
+			case 413:
+				return "REQUEST ENTITY TOO LARGE";
+			case 414:
+				return "REQUEST-URI TOO LONG";
+			case 415:
+				return "UNSUPPORTED MEDIA TYPE";
+			case 416:
+				return "REQUESTED RANGE NOT SATISFIABLE";
+			case 417:
+				return "EXPECTATION FAILED";
+			case 500:
+				return "INTERNAL SERVER ERROR";
+			case 501:
+				return "NOT IMPLEMENTED";
+			case 502:
+				return "BAD GATEWAY";
+			case 503:
+				return "SERVICE UNAVAILABLE";
+			case 504:
+				return "GATEWAY TIMEOUT";
+			case 505:
+				return "HTTP VERSION NOT SUPPORTED";
+			default:
+				return "WTF";
+			break;
+				
+		}
+	}
+
+	void SendHeaders(unsigned long size, int response)
 	{
 		struct tm *timeinfo = localtime(&TIME);
-		this->Write("HTTP/1.1 200 OK\r\nDate: ");
+		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
 		this->Write(asctime(timeinfo));
 		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
 				"\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n");
@@ -86,6 +178,7 @@ class HttpSocket : public InspSocket
 		char* data = this->Read();
 		std::string request_type;
 		std::string uri;
+		std::string http_version;
 
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
@@ -99,17 +192,29 @@ class HttpSocket : public InspSocket
 
 				headers >> request_type;
 				headers >> uri;
+				headers >> http_version;
 
-				if ((request_type == "GET") && (uri == "/"))
+				if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 				{
-					SendHeaders(index->ContentSize());
-					this->Write(index->Contents());
+					SendHeaders(0, 505);
 				}
 				else
 				{
-					HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
-					Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-					e.Send();
+					if ((request_type == "GET") && (uri == "/"))
+					{
+						SendHeaders(index->ContentSize(),200);
+						this->Write(index->Contents());
+					}
+					else
+					{
+						claimed = false;
+						HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
+						Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+						e.Send();
+
+						if (!claimed)
+							SendHeaders(0, 404);
+					}
 				}
 
 				return false;
@@ -123,6 +228,12 @@ class HttpSocket : public InspSocket
 			 */
 			return false;
 		}
+	}
+
+	void Page(std::stringstream* n, int response)
+	{
+		SendHeaders(n->size(),response);
+		this->Write(n->str());
 	}
 };
 
@@ -172,6 +283,7 @@ class ModuleHttp : public Module
 
 	char* OnRequest(Request* request)
 	{
+		claimed = true;
 		return NULL;
 	}
 

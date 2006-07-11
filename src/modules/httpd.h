@@ -45,6 +45,33 @@ class HTTPRequest : public classbase
 	}
 };
 
+class HTTPDocument : public classbase
+{
+ protected:
+	std::stringstream* document;
+	int responsecode;
+
+ public:
+	HTTPDocument(std::stringstream* doc, int response) : document(doc), responsecode(response)
+	{
+	}
+
+	std::stringstream* GetDocument()
+	{
+		return this->document;
+	}
+
+	std::stringstream* GetDocumentSize()
+	{
+		return this->document.size();
+	}
+
+	int GetResponseCode()
+	{
+		return this->responsecode;
+	}
+};
+
 #endif
 
 //httpr(request_type,uri,headers,this,this->GetIP());
