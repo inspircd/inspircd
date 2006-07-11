@@ -164,7 +164,7 @@ class HttpSocket : public InspSocket
 		}
 	}
 
-	void SendHeaders(unsigned long size, int response, std::string &extraheaders)
+	void SendHeaders(unsigned long size, int response, const std::string &extraheaders)
 	{
 		struct tm *timeinfo = localtime(&TIME);
 		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
@@ -197,7 +197,7 @@ class HttpSocket : public InspSocket
 
 				if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 				{
-					SendHeaders(0, 505);
+					SendHeaders(0, 505, "");
 				}
 				else
 				{
