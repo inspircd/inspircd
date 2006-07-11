@@ -140,7 +140,8 @@ class ModuleHttpStats : public Module
 		}
 		else
 		{
-			a[channel->name] = 1;
+			irc::string name = channel->name;
+			sh->insert(std::pair<irc::string,int>(name,1));
 		}
 	}
 
