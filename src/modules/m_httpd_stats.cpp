@@ -104,36 +104,41 @@ class ModuleHttpStats : public Module
 			{
 				log(DEBUG,"HTTP URL!");
 
-				data << "<HTML><HEAD>";
-				data << "<TITLE>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</TITLE>";
-				data << "</HEAD><BODY>";
-				data << "<H1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</H1>";
+				data << "<!DOCTYPE html PUBLIC \
+					\"-//W3C//DTD XHTML 1.1//EN\" \
+					\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n\
+					<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">";
 
-				data << "<DIV ID='TOTALS'>";
-				data << "<H2>Totals</H2>";
-				data << "<TABLE>";
-				data << "<TR><TD>Users</TD><TD>" << clientlist.size() << "</TD></TR>";
-				data << "<TR><TD>Channels</TD><TD>" << chanlist.size() << "</TD></TR>";
-				data << "<TR><TD>Opers</TD><TD>" << all_opers.size() << "</TD></TR>";
-				data << "<TR><TD>Sockets</TD><TD>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</TD></TR>";
-				data << "</TABLE>";
-				data << "</DIV>";
+				data << "<head>";
+				data << "<title>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</title>";
+				data << "</head><body>";
+				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</h1>";
 
-				data << "<DIV ID='MODULES'>";
-				data << "<H2>Modules</H2>";
-				data << "<TABLE>";
+				data << "<div id='TOTALS'>";
+				data << "<h2>Totals</h2>";
+				data << "<table>";
+				data << "<tr><td>Users</td><td>" << clientlist.size() << "</td></tr>";
+				data << "<tr><td>Channels</td><td>" << chanlist.size() << "</td></tr>";
+				data << "<tr><td>Opers</td><td>" << all_opers.size() << "</td></tr>";
+				data << "<tr><td>Sockets</td><td>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</td></tr>";
+				data << "</table>";
+				data << "</div>";
+
+				data << "<div id='MODULES'>";
+				data << "<h2>Modules</h2>";
+				data << "<table>";
 				for (int i = 0; i <= MODCOUNT; i++)
 				{
 					if (Config->module_names[i] != "")
-						data << "<TR><TD>" << Config->module_names[i] << "</TD></TR>";
+						data << "<tr><td>" << Config->module_names[i] << "</td></tr>";
 				}
-				data << "</TABLE>";
-				data << "</DIV>";
+				data << "</table>";
+				data << "</div>";
 
-				data << "<DIV ID='CHANNELS'>";
-				data << "<H2>Channels</H2>";
-				data << "<TABLE>";
-				data << "<TR><TH>Users</TH><TH>Name</TH><TH>@</TH><TH>%</TH><TH>+</TH></TR>";
+				data << "<div id='CHANNELS'>";
+				data << "<h2>Channels</h2>";
+				data << "<table>";
+				data << "<tr><th>Users</th><th>Name</th><th>@</th><th>%</th><th>+</th></tr>";
 
 				/* If the list has changed since last time it was displayed, re-sort it
 				 * this time only (not every time, as this would be moronic)
@@ -147,23 +152,23 @@ class ModuleHttpStats : public Module
 					chanrec* c = Srv->FindChannel(a->second.c_str());
 					if (c)
 					{
-						data << "<TR><TD>" << a->first << "</TD><TD>" << a->second << "</TD>";
-						data << "<TD>" << c->GetOppedUsers()->size() << "</TD>";
-						data << "<TD>" << c->GetHalfoppedUsers()->size() << "</TD>";
-						data << "<TD>" << c->GetVoicedUsers()->size() << "</TD>";
-						data << "</TR>";
+						data << "<tr><td>" << a->first << "</td><td>" << a->second << "</td>";
+						data << "<td>" << c->GetOppedUsers()->size() << "</td>";
+						data << "<td>" << c->GetHalfoppedUsers()->size() << "</td>";
+						data << "<td>" << c->GetVoicedUsers()->size() << "</td>";
+						data << "</tr>";
 					}
 				}
 
-				data << "</TABLE>";
-				data << "</DIV>";
+				data << "</table>";
+				data << "</div>";
 
 				
-				data << "</BODY>";
-				data << "</HTML>";
+				data << "</body>";
+				data << "</html>";
 
 				/* Send the document back to m_httpd */
-				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html\r\n");
+				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html; charset=iso-8859-1\r\n");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 
