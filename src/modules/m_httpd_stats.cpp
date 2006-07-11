@@ -50,8 +50,9 @@ class ModuleHttpStats : public Module
 
 			data << "<html><h1>Chickens</h1></html>";
 
-			HTTPDocument response(&data, 200, event->GetData()->sock);
-			Request req(&response, this, event->GetSource());
+			HTTPRequest* http = (HTTPRequest*)event->GetData();
+			HTTPDocument response(http->sock, &data, 200);
+			Request req((char*)&response, (Module*)this, event->GetSource());
 			req.Send();
 		}
 	}
