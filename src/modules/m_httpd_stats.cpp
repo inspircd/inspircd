@@ -29,7 +29,7 @@ using namespace std;
 class ModuleHttpStats : public Module
 {
 	Server* Srv;
-	std::stringstream data;
+
  public:
 
 	void ReadConfig()
@@ -44,11 +44,12 @@ class ModuleHttpStats : public Module
 
 	void OnEvent(Event* event)
 	{
+		std::stringstream data("");
+
 		if (event->GetEventID() == "httpd_url")
 		{
 			log(DEBUG,"HTTP URL!");
 
-			data.clear();
 			data << "<html><h1>Chickens</h1></html>";
 
 			HTTPRequest* http = (HTTPRequest*)event->GetData();
