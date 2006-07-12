@@ -44,6 +44,7 @@ const char X_LISTEN             = 1;
 const char X_ESTAB_CLIENT       = 2;
 const char X_ESTAB_MODULE       = 3;
 const char X_ESTAB_DNS          = 4;
+const char X_ESTAB_CLASSDNS	= 5;
 
 /**
  * To indicate that a socket is readable, we

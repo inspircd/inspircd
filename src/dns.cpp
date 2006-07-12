@@ -50,6 +50,7 @@ using namespace std;
 #include "inspircd.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
+#include "configreader.h"
 
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
@@ -64,6 +65,8 @@ class s_connection;
 typedef std::map<int,s_connection*> connlist;
 typedef connlist::iterator connlist_iter;
 connlist connections;
+
+Resolver* dns_classes[MAX_DESCRIPTORS];
 
 struct in_addr servers4[8];
 int i4;
@@ -875,3 +878,98 @@ void* dns_task(void* arg)
 	return NULL;
 }
 #endif
+
+Resolver::Resolver(const std::string &source, bool forward, const std::string &dnsserver = "") : input(source), fwd(forward), server(dnsserver)
+{
+	if (this->server != "")
+		Query.SetNS(this->server);
+	else
+		Query.SetNS(Config->DNSServer);
+
+	if (forward)
+		this->fd = Query.ForwardLookup(input.c_str());
+	else
+		this->fd = Query.ReverseLookup(input.c_str());
+	if (fd < 0)
+		this->OnError(RESOLVER_NSDOWN);
+
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_CLASSDNS);
+	else
+		this->OnError(RESOLVER_NOTREADY);
+}
+
+Resolver::~Resolver()
+{
+	if (ServerInstance && ServerInstance->SE)
+		ServerInstance->SE->DelFd(this->fd);
+}
+
+int Resolver::GetFd()
+{
+	return this->fd;
+}
+
+bool Resolver::ProcessResult()
+{
+	if (this->fwd)
+		result = Query.GetResultIP();
+	else
+		result = Query.GetResult();
+
+	if (result != "")
+	{
+		this->OnLookupComplete(result);
+		return true;
+	}
+	else
+	{
+		this->OnError(RESOLVER_NXDOMAIN);
+		return false;
+	}
+}
+
+void Resolver::OnLookupComplete(const std::string &result)
+{
+}
+
+void Resolver::OnError(ResolverError e)
+{
+}
+
+void dns_deal_with_classes(int fd)
+{
+	if ((fd > -1) && (dns_classes[fd]))
+	{
+		dns_classes[fd]->ProcessResult();
+		delete dns_classes[fd];
+		dns_classes[fd] = NULL;
+	}
+}
+
+bool dns_add_class(Resolver* r)
+{
+	if ((r) && (r->GetFd() > -1))
+	{
+		if (!dns_classes[r->GetFd()])
+		{
+			dns_classes[r->GetFd()] = r;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		delete r;
+		return true;
+	}
+}
+
+void init_dns()
+{
+	memset(dns_classes,0,sizeof(dns_classes));
+}
+

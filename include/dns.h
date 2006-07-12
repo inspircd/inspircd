@@ -29,6 +29,14 @@ struct dns_ip4list
 	dns_ip4list *next;
 };
 
+enum ResolverError
+{
+	RESOLVER_NOERROR	=	0,
+	RESOLVER_NSDOWN		= 	1,
+	RESOLVER_NXDOMAIN	=	2,
+	RESOLVER_NOTREADY	=	3
+};
+
 
 /** The DNS class allows fast nonblocking resolution of hostnames
  * and ip addresses. It is based heavily upon firedns by Ian Gulliver.
@@ -100,6 +108,29 @@ public:
 	int GetFD();
 	void SetNS(const std::string &dnsserver);
 };
+
+class Resolver : public Extensible
+{
+ private:
+	DNS Query;
+	std::string input;
+	bool fwd;
+	std::string server;
+	int fd;
+	std::string result;
+ public:
+	Resolver(const std::string &source, bool forward, const std::string &dnsserver);
+	virtual ~Resolver();
+	virtual void OnLookupComplete(const std::string &result);
+	virtual void OnError(ResolverError e);
+
+	bool ProcessResult();
+	int GetFd();
+};
+
+void init_dns();
+void dns_deal_with_classes(int fd);
+bool dns_add_class(Resolver* r);
 
 /** This is the handler function for multi-threaded DNS.
  * It cannot be a class member as pthread will not let us

@@ -240,6 +240,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	this->Start();
 	module_sockets.clear();
+	init_dns();
 	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
@@ -834,6 +835,15 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 				log(DEBUG,"Type: X_ESTAB_DNS: fd=%d",activefds[activefd]);
 				dns_poll(activefds[activefd]);
 #endif
+			break;
+
+			case X_ESTAB_CLASSDNS:
+				/* Handles instances of the Resolver class,
+				 * a simple class extended by modules for
+				 * nonblocking resolving of addresses.
+				 */
+
+				dns_deal_with_classes(activefds[activefd]);
 			break;
 
 			case X_LISTEN:
