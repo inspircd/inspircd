@@ -77,7 +77,7 @@ class CGIResolver : public Resolver
 		if ((them) && (them == fd_ref_table[theirfd]))
 		{
 			if (notify)
-				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick, them->host, result.c_str(), typ.c_str());
+				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick, them->host,typ.c_str());
 		}
 	}
 
