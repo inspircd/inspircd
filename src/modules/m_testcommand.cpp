@@ -26,6 +26,7 @@ using namespace std;
 
 class MyResolver : public Resolver
 {
+ public:
 	MyResolver(const std::string &source, bool forward, const std::string &dnsserver = "") : Resolver(source, forward, dnsserver) { }
 
 	virtual void OnLookupComplete(const std::string &result)
