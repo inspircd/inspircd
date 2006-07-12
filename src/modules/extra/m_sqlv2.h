@@ -67,8 +67,11 @@ public:
 
 class SQLresult : public Request
 {
-	
 public:
+	std::string query;
+	std::string dbid;
+	SQLerror error;	
+
 	SQLresult(Module* s, Module* d)
 	: Request(SQLRESID, s, d)
 	{
