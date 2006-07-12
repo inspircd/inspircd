@@ -55,8 +55,16 @@ class cmd_woot : public command_t
 	{
 		/* We dont have to worry about deleting 'r', the core will
 		 * do it for us as required.*/
-		MyResolver* r = new MyResolver("brainbox.ath.cx", true);
-		Srv->AddResolver(r);
+
+		try
+		{
+			MyResolver* r = new MyResolver("brainbox.ath.cx", true);
+			Srv->AddResolver(r);
+		}
+		catch (ModuleException& e)
+		{
+			log(DEBUG,"Danger, will robinson! There was an exception: %s",e.GetReason());
+		}
 	}
 };
 
