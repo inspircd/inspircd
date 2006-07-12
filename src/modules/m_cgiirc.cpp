@@ -66,9 +66,18 @@ class CGIResolver : public Resolver
 			if (notify)
 				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
 
-			strlcpy(them->host, result.c_str(), 16);
-			strlcpy(them->dhost, result.c_str(), 16);
+			strlcpy(them->host, result.c_str(), 63);
+			strlcpy(them->dhost, result.c_str(), 63);
 			strlcpy(them->ident, "~cgiirc", 8);
+		}
+	}
+
+	virtual void OnError(ResolverError e)
+	{
+		if ((them) && (them == fd_ref_table[theirfd]))
+		{
+			if (notify)
+				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved!", them->nick, them->host, result.c_str(), typ.c_str());
 		}
 	}
 
@@ -316,9 +325,6 @@ public:
 		/*strlcpy(user->host, newip, 16);
 		strlcpy(user->dhost, newip, 16);
 		strlcpy(user->ident, "~cgiirc", 8);*/
-		
-		/*if(NotifyOpers)
-			WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from ident", user->nick, user->host, newip);*/
 
 		return true;
 	}
