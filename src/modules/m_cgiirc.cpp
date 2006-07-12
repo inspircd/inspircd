@@ -24,12 +24,17 @@
 #include "users.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "dns.h"
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
+
+/* We need this for checking our user hasnt /quit before we finish our lookup */
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
+
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST };
 
-class CGIhost
+class CGIhost : public classbase
 {
 public:
 	std::string hostmask;
@@ -42,6 +47,35 @@ public:
 };
 
 typedef std::vector<CGIhost> CGIHostlist;
+
+class CGIResolver : public Resolver
+{
+	std::string typ;
+	int theirfd;
+	userrec* them;
+	bool notify;
+ public:
+	CGIResolver(bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type)
+		: Resolver(source, forward, ""), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+
+	virtual void OnLookupComplete(const std::string &result)
+	{
+		/* Check the user still exists */
+		if ((them) && (them == fd_ref_table[theirfd]))
+		{
+			if (notify)
+				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
+
+			strlcpy(them->host, result.c_str(), 16);
+			strlcpy(them->dhost, result.c_str(), 16);
+			strlcpy(them->ident, "~cgiirc", 8);
+		}
+	}
+
+	virtual ~CGIResolver()
+	{
+	}
+};
 
 class ModuleCgiIRC : public Module
 {
@@ -205,18 +239,31 @@ public:
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				log(DEBUG, "m_cgiirc.so: Got an IP in the user's password");
+
+				if(NotifyOpers)
+					WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);
 			}
 			else
 			{
 				/* We got as resolved hostname in the password. */
-				inet_aton("0.0.0.0", &user->ip4);
 				log(DEBUG, "m_cgiirc.so: Got a hostname in the user's password");
+
+				try
+				{
+					CGIResolver* r = new CGIResolver(NotifyOpers, user->password, false, user, user->fd, "PASS");
+					Srv->AddResolver(r);
+				}
+				catch (ModuleException& e)
+				{
+					if (NotifyOpers)
+						WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+				}
 			}
 			
 			*user->password = 0;
 
-			if(NotifyOpers)
-				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);
+			/*if(NotifyOpers)
+				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);*/
 
 			return true;
 		}
@@ -251,12 +298,27 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(inet_ntoa(user->ip4)));
 		inet_aton(newip, &user->ip4);
-		strlcpy(user->host, newip, 16);
+
+		try
+		{
+			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->fd, "IDENT");
+			Srv->AddResolver(r);
+		}
+		catch (ModuleException& e)
+		{
+			strlcpy(user->host, newip, 16);
+			strlcpy(user->dhost, newip, 16);
+			strlcpy(user->ident, "~cgiirc", 8);
+
+			if(NotifyOpers)
+				 WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
+		}
+		/*strlcpy(user->host, newip, 16);
 		strlcpy(user->dhost, newip, 16);
-		strlcpy(user->ident, "~cgiirc", 8);
+		strlcpy(user->ident, "~cgiirc", 8);*/
 		
-		if(NotifyOpers)
-			WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from ident", user->nick, user->host, newip);
+		/*if(NotifyOpers)
+			WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from ident", user->nick, user->host, newip);*/
 
 		return true;
 	}
