@@ -84,7 +84,6 @@ insp_sockaddr client, server;
 socklen_t length;
 
 extern InspSocket* socket_ref[MAX_DESCRIPTORS];
-
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 // This table references users by file descriptor.
