@@ -169,9 +169,9 @@ class Resolver : public Extensible
 	 * @param dnsserver This optional parameter specifies an alterate nameserver to use.
 	 * If it is not specified, or is an empty string, the value of ServerConfig::DNSServer
 	 * is used instead.
-	 * @throw This class may throw an instance of ModuleException, in the event there are
-	 * no more file descriptors, or a similar hard error occurs such as the network being
-	 * down.
+	 * @throw ModuleException This class may throw an instance of ModuleException, in the
+	 * event there are no more file descriptors, or a similar hard error occurs such as
+	 * the network being down.
 	 */
 	Resolver(const std::string &source, bool forward, const std::string &dnsserver);
 	/**
