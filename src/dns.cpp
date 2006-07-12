@@ -906,6 +906,9 @@ Resolver::Resolver(const std::string &source, bool forward, const std::string &d
 	{
 		log(DEBUG,"Resolver::Resolver: RESOLVER_NSDOWN");
 		this->OnError(RESOLVER_NSDOWN);
+		ModuleException e("Resolver: Nameserver is down");
+		throw e;
+		/* We shouldnt get here really */
 		return;
 	}
 
@@ -918,6 +921,10 @@ Resolver::Resolver(const std::string &source, bool forward, const std::string &d
 	{
 		log(DEBUG,"Resolver::Resolver: RESOLVER_NOTREADY");
 		this->OnError(RESOLVER_NOTREADY);
+		ModuleException e("Resolver: Core not initialized yet");
+		throw e;
+		/* We shouldnt get here really */
+		return;
 	}
 }
 
