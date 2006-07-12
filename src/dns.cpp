@@ -900,7 +900,7 @@ Resolver::Resolver(const std::string &source, bool forward, const std::string &d
 	else
 	{
 		Query.ReverseLookup(input.c_str(), false);
-		this->Fd = Query.GetFD();
+		this->fd = Query.GetFD();
 	}
 	if (fd < 0)
 	{
