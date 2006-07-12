@@ -20,6 +20,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 #include "dns.h"
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
