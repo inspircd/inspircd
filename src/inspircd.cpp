@@ -90,7 +90,6 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 // its an array to make it VERY fast, as all lookups are referenced
 // by an integer, meaning there is no need for a scan/search operation.
 userrec* fd_ref_table[MAX_DESCRIPTORS];
-
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
 user_hash clientlist;
