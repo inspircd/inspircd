@@ -20,8 +20,24 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "dns.h"
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
+
+class MyResolver : public Resolver
+{
+	MyResolver(const std::string &source, bool forward, const std::string &dnsserver = "") : Resolver(source, forward, dnsserver) { }
+
+	virtual void OnLookupComplete(const std::string &result)
+	{
+		log(DEBUG,"*** RESOLVER COMPLETED LOOKUP, IP IS: '%s'",result.c_str());
+	}
+
+	virtual void OnError(ResolverError e)
+	{
+		log(DEBUG,"*** RESOLVER GOT ERROR: %d",e);
+	}
+};
 
 static Server *Srv;
 	 
@@ -35,21 +51,10 @@ class cmd_woot : public command_t
 
 	void Handle (char **parameters, int pcnt, userrec *user)
 	{
-		Srv->Log(DEBUG,"woot handler");
-		// Here is a sample of how to send servermodes. Note that unless remote
-		// servers in your net are u:lined, they may reverse this, but its a
-		// quick and effective modehack.
-		
-		// NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
-		// invalid or plain confusing mode changes, code some checking!
-		char* modes[3];
-		modes[0] = "#chatspike";
-		modes[1] = "+o";
-		modes[2] = user->nick;
-		
-		// run the mode change, send numerics (such as "no such channel") back
-		// to "user".
-		Srv->SendMode(modes,3,user);
+		/* We dont have to worry about deleting 'r', the core will
+		 * do it for us as required.*/
+		MyResolver* r = new MyResolver("brainbox.ath.cx", true);
+		Srv->AddResolver(r);
 	}
 };
 

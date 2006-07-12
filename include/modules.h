@@ -71,6 +71,7 @@ enum TargetTypeFlags {
 #include <typeinfo>
 #include "timer.h"
 #include "mode.h"
+#include "dns.h"
 
 class Server;
 class ServerConfig;
@@ -1430,6 +1431,8 @@ class Server : public Extensible
 	virtual bool AddModeWatcher(ModeWatcher* mw);
 
 	virtual bool DelModeWatcher(ModeWatcher* mw);
+
+	virtual bool AddResolver(Resolver* r);
 
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your

@@ -43,6 +43,7 @@
 #include "typedefs.h"
 #include "modules.h"
 #include "command_parse.h"
+#include "dns.h"
 
 extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
@@ -604,6 +605,11 @@ bool Server::AddModeWatcher(ModeWatcher* mw)
 bool Server::DelModeWatcher(ModeWatcher* mw)
 {
 	return ServerInstance->ModeGrok->DelModeWatcher(mw);
+}
+
+bool Server::AddResolver(Resolver* r)
+{
+	return dns_add_class(r);
 }
 
 int Server::CountUsers(chanrec* c)
