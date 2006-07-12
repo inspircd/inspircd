@@ -78,6 +78,7 @@ std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
+
 int iterations = 0;
 
 insp_sockaddr client, server;
