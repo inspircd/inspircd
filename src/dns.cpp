@@ -593,8 +593,10 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 			q = 0;
 			while (q == 0 && i < l && o + 256 < 1023)
 			{
+				log(DEBUG,"DNS: loop 1");
 				if (h.payload[i] > 63)
 				{
+					log(DEBUG,"DNS: h.payload[i] > 63");
 					memcpy(&p,&h.payload[i],2);
 					i = ntohs(p) - 0xC000 - 12;
 				}
@@ -606,6 +608,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 					}
 					else
 					{
+						log(DEBUG,"Loop 2: res='%s'",res);
 						res[o] = '\0';
 						if (o != 0)
 							res[o++] = '.';
@@ -616,6 +619,7 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 				}
 			}
 			res[o] = '\0';
+			log(DEBUG,"DNS: res='%s'",res);
 		break;
 		case DNS_QRY_A:
 			log(DEBUG,"DNS: got a result of type DNS_QRY_A");

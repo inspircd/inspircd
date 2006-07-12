@@ -198,7 +198,7 @@ public:
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		log(DEBUG, "m_cgiirc.so: User %s registering", user->nick);
+		log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,inet_ntoa(user->ip4));
 		
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 		{
@@ -310,6 +310,7 @@ public:
 
 		try
 		{
+			log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");
 			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->fd, "IDENT");
 			Srv->AddResolver(r);
 		}
