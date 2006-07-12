@@ -703,7 +703,7 @@ DNS::~DNS()
 {
 }
 
-bool DNS::ReverseLookup(const std::string &ip)
+bool DNS::ReverseLookup(const std::string &ip, bool ins)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;
@@ -720,13 +720,16 @@ bool DNS::ReverseLookup(const std::string &ip)
 	}
 	log(DEBUG,"DNS: ReverseLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
-	if (ServerInstance && ServerInstance->SE)
-		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	if (ins)
+	{
+		if (ServerInstance && ServerInstance->SE)
+			ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	}
 #endif
 	return true;
 }
 
-bool DNS::ForwardLookup(const std::string &host)
+bool DNS::ForwardLookup(const std::string &host, bool ins)
 {
 	if (ServerInstance && ServerInstance->stats)
 		ServerInstance->stats->statsDns++;
@@ -737,8 +740,11 @@ bool DNS::ForwardLookup(const std::string &host)
 	}
 	log(DEBUG,"DNS: ForwardLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
-	if (ServerInstance && ServerInstance->SE)
-		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	if (ins)
+	{
+		if (ServerInstance && ServerInstance->SE)
+			ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+	}
 #endif
 	return true;
 }
@@ -856,7 +862,7 @@ void* dns_task(void* arg)
 		host = dns1.GetResult();
 		if (host != "")
 		{
-			if (dns2.ForwardLookup(host))
+			if (dns2.ForwardLookup(host), false)
 			{
 				while (!dns2.HasResult())
 				{
@@ -887,20 +893,37 @@ Resolver::Resolver(const std::string &source, bool forward, const std::string &d
 		Query.SetNS(Config->DNSServer);
 
 	if (forward)
-		this->fd = Query.ForwardLookup(input.c_str());
+	{
+		Query.ForwardLookup(input.c_str(), false);
+		this->fd = Query.GetFD();
+	}
 	else
-		this->fd = Query.ReverseLookup(input.c_str());
+	{
+		Query.ReverseLookup(input.c_str(), false);
+		this->Fd = Query.GetFD();
+	}
 	if (fd < 0)
+	{
+		log(DEBUG,"Resolver::Resolver: RESOLVER_NSDOWN");
 		this->OnError(RESOLVER_NSDOWN);
+		return;
+	}
 
 	if (ServerInstance && ServerInstance->SE)
+	{
+		log(DEBUG,"Resolver::Resolver: this->fd=%d",this->fd);
 		ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_CLASSDNS);
+	}
 	else
+	{
+		log(DEBUG,"Resolver::Resolver: RESOLVER_NOTREADY");
 		this->OnError(RESOLVER_NOTREADY);
+	}
 }
 
 Resolver::~Resolver()
 {
+	log(DEBUG,"Resolver::~Resolver");
 	if (ServerInstance && ServerInstance->SE)
 		ServerInstance->SE->DelFd(this->fd);
 }
@@ -912,6 +935,7 @@ int Resolver::GetFd()
 
 bool Resolver::ProcessResult()
 {
+	log(DEBUG,"Resolver::ProcessResult");
 	if (this->fwd)
 		result = Query.GetResultIP();
 	else
@@ -919,11 +943,13 @@ bool Resolver::ProcessResult()
 
 	if (result != "")
 	{
+		log(DEBUG,"Resolver::OnLookupComplete(%s)",result.c_str());
 		this->OnLookupComplete(result);
 		return true;
 	}
 	else
 	{
+		log(DEBUG,"Resolver::OnError(RESOLVER_NXDOMAIN)");
 		this->OnError(RESOLVER_NXDOMAIN);
 		return false;
 	}
@@ -939,8 +965,10 @@ void Resolver::OnError(ResolverError e)
 
 void dns_deal_with_classes(int fd)
 {
+	log(DEBUG,"dns_deal_with_classes(%d)",fd);
 	if ((fd > -1) && (dns_classes[fd]))
 	{
+		log(DEBUG,"Valid fd %d",fd);
 		dns_classes[fd]->ProcessResult();
 		delete dns_classes[fd];
 		dns_classes[fd] = NULL;
@@ -949,20 +977,24 @@ void dns_deal_with_classes(int fd)
 
 bool dns_add_class(Resolver* r)
 {
+	log(DEBUG,"dns_add_class");
 	if ((r) && (r->GetFd() > -1))
 	{
 		if (!dns_classes[r->GetFd()])
 		{
+			log(DEBUG,"dns_add_class: added class");
 			dns_classes[r->GetFd()] = r;
 			return true;
 		}
 		else
 		{
+			log(DEBUG,"Space occupied!");
 			return false;
 		}
 	}
 	else
 	{
+		log(DEBUG,"Bad class");
 		delete r;
 		return true;
 	}

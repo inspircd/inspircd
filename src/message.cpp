@@ -168,15 +168,15 @@ void NonBlocking(int s)
 
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward)
 {
-	int fd;
+	bool ok;
 	std::string ipaddr;
 
 	DNS d(Config->DNSServer);
 	if (forward)
-		fd = d.ForwardLookup(unresolvedHost);
+		ok = d.ForwardLookup(unresolvedHost, false);
 	else
-		fd = d.ReverseLookup(unresolvedHost);
-	if (fd < 0)
+		ok = d.ReverseLookup(unresolvedHost, false);
+	if (!ok)
 		return 0;
 	time_t T = time(NULL)+1;
 	while ((!d.HasResult()) && (time(NULL)<T));

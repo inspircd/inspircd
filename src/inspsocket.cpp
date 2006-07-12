@@ -104,7 +104,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 			log(DEBUG,"Attempting to resolve %s",this->host);
 			/* Its not an ip, spawn the resolver */
 			this->dns.SetNS(std::string(Config->DNSServer));
-			this->dns.ForwardLookupWithFD(host,fd);
+			this->dns.ForwardLookupWithFD(host,fd, true);
 			timeout_end = time(NULL) + maxtime;
 			timeout = false;
 			this->state = I_RESOLVING;

@@ -82,11 +82,11 @@ public:
 	 * format, e.g. 1.2.3.4, and returns true if the lookup was successfully
 	 * initiated.
 	 */
-	bool ReverseLookup(const std::string &ip);
+	bool ReverseLookup(const std::string &ip, bool ins);
 	/** This method will start the forward lookup of a hostname, e.g. www.inspircd.org,
 	 * and returns true if the lookup was successfully initiated.
 	 */
-	bool ForwardLookup(const std::string &host);
+	bool ForwardLookup(const std::string &host, bool ins);
 	/** Used by modules to perform a dns lookup but have the socket engine poll a module, instead of the dns object directly.
 	 */
 	bool ForwardLookupWithFD(const std::string &host, int &fd);

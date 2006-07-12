@@ -71,7 +71,7 @@ public:
 		if (usr)
 		{
 			resolver1.SetNS(std::string(Config->DNSServer));
-			if (!resolver1.ReverseLookup(std::string(usr->host)))
+			if (!resolver1.ReverseLookup(std::string(usr->host), true))
 			{
 				return false;
 			}
@@ -166,7 +166,7 @@ public:
 					}
 					if (hostname != "")
 					{
-						resolver2.ForwardLookup(hostname);
+						resolver2.ForwardLookup(hostname, true);
 						if (resolver2.GetFD() != -1)
 							dnslist[resolver2.GetFD()] = this;
 					}
