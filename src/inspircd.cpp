@@ -93,7 +93,6 @@ userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;
-
 user_hash clientlist;
 chan_hash chanlist;
 servernamelist servernames;
