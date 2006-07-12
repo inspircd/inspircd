@@ -96,7 +96,6 @@ ServerConfig *Config = new ServerConfig;
 
 user_hash clientlist;
 chan_hash chanlist;
-
 servernamelist servernames;
 char lowermap[255];
 
