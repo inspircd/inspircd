@@ -932,7 +932,7 @@ sub getmodules {
 		}
 	}
 	closedir(DIRHANDLE);
-	print "\nOk, $i modules.";
+	print "\nOk, $i modules.\n";
 }
 
 sub getrevision {
