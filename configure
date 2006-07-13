@@ -919,6 +919,7 @@ sub is_dir {
 
 sub getmodules {
 	my $i = 0;
+	print "Detecting modules ";
 	opendir(DIRHANDLE, "src/modules");
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^m_(.+)\.cpp$/)
@@ -926,10 +927,12 @@ sub getmodules {
 			$mod = $1;
 			if ($mod !~ /_static$/) {
 				$modlist[$i++] = $mod;
+				print ".";
 			}
 		}
 	}
 	closedir(DIRHANDLE);
+	print "\nOk, $i modules.";
 }
 
 sub getrevision {
