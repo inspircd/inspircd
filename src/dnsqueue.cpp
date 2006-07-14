@@ -95,9 +95,6 @@ public:
 			}
 			strlcpy(u,nick.c_str(),NICKMAX-1);
 
-#ifndef THREADED_DNS
-			usr->dns_fd = resolver1.GetFD();
-#endif
 			/* ASSOCIATE WITH DNS LOOKUP LIST */
 			if (resolver1.GetFD() != -1)
 			{
@@ -143,9 +140,6 @@ public:
 								WriteServ(usr->fd,"NOTICE Auth :*** Found your hostname");
 							}
 							usr->dns_done = true;
-#ifndef THREADED_DNS
-							usr->dns_fd = -1;
-#endif
 							return true;
 						}
 					}
@@ -156,9 +150,6 @@ public:
 					if (usr)
 					{
 						usr->dns_done = true;
-#ifndef THREADED_DNS
-						usr->dns_fd = -1;
-#endif
 					}
 					return true;
 				}
@@ -191,16 +182,11 @@ public:
 							return true;
 						}
 					}
-					if ((hostname != "") && (usr))
+					if (hostname != "")
 					{
 						resolver2.ForwardLookup(hostname);
 						if (resolver2.GetFD() != -1)
-						{
 							dnslist[resolver2.GetFD()] = this;
-#ifndef THREADED_DNS
-							usr->dns_fd = resolver2.GetFD();
-#endif
-						}
 					}
 				}
 			}
