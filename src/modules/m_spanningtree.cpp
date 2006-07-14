@@ -167,8 +167,6 @@ class TreeServer : public classbase
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
-	std::map<userrec*,userrec*> Users;	/* Users on this server */
-	bool DontModifyHash;			/* When the server is splitting, this is set to true so we dont bash our own iterator to death */
 	
  public:
 
@@ -183,7 +181,6 @@ class TreeServer : public classbase
 		VersionString = "";
 		UserCount = OperCount = 0;
 		VersionString = Srv->GetVersion();
-		DontModifyHash = false;
 	}
 
 	/* We use this constructor only to create the 'root' item, TreeRoot, which
@@ -198,7 +195,6 @@ class TreeServer : public classbase
 		VersionString = Srv->GetVersion();
 		Route = NULL;
 		Socket = NULL; /* Fix by brain */
-		DontModifyHash = false;
 		AddHashEntry();
 	}
 
@@ -210,7 +206,6 @@ class TreeServer : public classbase
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
-		DontModifyHash = false;
 		this->SetNextPingTime(time(NULL) + 120);
 		this->SetPingFlag();
 
@@ -270,24 +265,24 @@ class TreeServer : public classbase
 
 	int QuitUsers(const std::string &reason)
 	{
-                log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
-                const char* reason_s = reason.c_str();
-                std::vector<userrec*> time_to_die;
-                for (user_hash::iterator n = clientlist.begin(); n != clientlist.end(); n++)
-                {
-                        if (!strcmp(n->second->server, this->ServerName.c_str()))
-                        {
-                                time_to_die.push_back(n->second);
-                        }
-                }
-                for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
-                {
-                        userrec* a = (userrec*)*n;
-                        log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
-                        if (!IS_LOCAL(a))
-                                kill_link(a,reason_s);
-                }
-                return time_to_die.size();
+		log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
+		const char* reason_s = reason.c_str();
+		std::vector<userrec*> time_to_die;
+		for (user_hash::iterator n = clientlist.begin(); n != clientlist.end(); n++)
+		{
+			if (!strcmp(n->second->server, this->ServerName.c_str()))
+			{
+				time_to_die.push_back(n->second);
+			}
+		}
+		for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
+		{
+			userrec* a = (userrec*)*n;
+			log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
+			if (!IS_LOCAL(a))
+				kill_link(a,reason_s);
+		}
+		return time_to_die.size();
 	}
 
 	/* This method is used to add the structure to the
