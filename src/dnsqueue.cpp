@@ -5,8 +5,8 @@
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
  *                       E-mail:
  *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
- *
+ *           	  <Craig@chatspike.net>
+ *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
@@ -71,14 +71,12 @@ public:
 		if (usr)
 		{
 			resolver1.SetNS(std::string(Config->DNSServer));
+			if (!resolver1.ReverseLookup(std::string(usr->host), true))
 			{
 				return false;
 			}
 			strlcpy(u,nick.c_str(),NICKMAX-1);
 
-#ifndef THREADED_DNS
-			usr->dns_fd = resolver1.GetFD();
-#endif
 			/* ASSOCIATE WITH DNS LOOKUP LIST */
 			if (resolver1.GetFD() != -1)
 			{
@@ -124,9 +122,6 @@ public:
 								WriteServ(usr->fd,"NOTICE Auth :*** Found your hostname");
 							}
 							usr->dns_done = true;
-#ifndef THREADED_DNS
-							usr->dns_fd = -1;
-#endif
 							return true;
 						}
 					}
@@ -137,9 +132,6 @@ public:
 					if (usr)
 					{
 						usr->dns_done = true;
-#ifndef THREADED_DNS
-						usr->dns_fd = -1;
-#endif
 					}
 					return true;
 				}
@@ -172,16 +164,11 @@ public:
 							return true;
 						}
 					}
-					if ((hostname != "") && (usr))
+					if (hostname != "")
 					{
 						resolver2.ForwardLookup(hostname, true);
 						if (resolver2.GetFD() != -1)
-						{
 							dnslist[resolver2.GetFD()] = this;
-#ifndef THREADED_DNS
-							usr->dns_fd = resolver2.GetFD();
-#endif
-						}
 					}
 				}
 			}
@@ -283,4 +270,3 @@ void dns_poll(int fdcheck)
 	if (ServerInstance && ServerInstance->SE)
 		ServerInstance->SE->DelFd(fdcheck);
 }
-

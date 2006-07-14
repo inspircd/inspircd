@@ -202,9 +202,7 @@ userrec::userrec()
 	invites.clear();
 	chans.resize(MAXCHANS);
 	memset(modes,0,sizeof(modes));
-#ifndef THREADED_DNS
-	dns_fd = -1;
-#endif
+	
 	for (unsigned int n = 0; n < MAXCHANS; n++)
 	{
 		ucrec* x = new ucrec();
@@ -220,11 +218,6 @@ userrec::~userrec()
 	{
 		ucrec* x = (ucrec*)*n;
 		DELETE(x);
-	}
-	if (dns_fd > -1)
-	{
-		shutdown(dns_fd, 2);
-		close(dns_fd);
 	}
 }
 
