@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -39,6 +39,11 @@ class cmd_sanick : public command_t
 		userrec* source = Srv->FindNick(std::string(parameters[0]));
 		if (source)
 		{
+			if (Srv->IsUlined(source->server))
+			{
+				WriteServ(user->fd,"990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				return;
+			}
 			if (Srv->IsNick(std::string(parameters[1])))
 			{
 				// FIX by brain: Cant use source->nick here because if it traverses a server link then
