@@ -169,8 +169,6 @@ class TreeServer
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
-	std::map<userrec*,userrec*> Users;	/* Users on this server */
-	bool DontModifyHash;			/* When the server is splitting, this is set to true so we dont bash our own iterator to death */
 	
  public:
 
@@ -185,7 +183,6 @@ class TreeServer
 		VersionString = "";
 		UserCount = OperCount = 0;
 		VersionString = Srv->GetVersion();
-		DontModifyHash = false;
 	}
 
 	/* We use this constructor only to create the 'root' item, TreeRoot, which
@@ -200,7 +197,6 @@ class TreeServer
 		VersionString = Srv->GetVersion();
 		Route = NULL;
 		Socket = NULL; /* Fix by brain */
-		DontModifyHash = false;
 		AddHashEntry();
 	}
 
@@ -212,7 +208,6 @@ class TreeServer
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
-		DontModifyHash = false;
 		this->SetNextPingTime(time(NULL) + 120);
 		this->SetPingFlag();
 
@@ -270,66 +265,26 @@ class TreeServer
 		this->AddHashEntry();
 	}
 
-	void AddUser(userrec* user)
-	{
-		if (this->DontModifyHash)
-			return;
-
-		log(DEBUG,"Add user %s to server %s",user->nick,this->ServerName.c_str());
-		std::map<userrec*,userrec*>::iterator iter;
-		iter = Users.find(user);
-		if (iter == Users.end())
-			Users[user] = user;
-	}
-
-	void DelUser(userrec* user)
-	{
-		/* FIX BY BRAIN:
-		 *
-		 * READ THIS, THIS MEANS YOU!
-		 *
-		 * This is the source of the 'servers crash on netsplit bug.
-		 * What happens (in theory) is this:
-		 *
-		 * When a server splits, QuitUsers (below) is called. When QuitUsers
-		 * is called, it iterates through this->Users and calls kill_link on
-		 * each one. We were under the impression this was safe, however it
-		 * was not because each call to kill_link ended up calling
-		 * SpanningTree::OnUserQuit, which would then... yes, you guess it...
-		 * go and remove the user from the hash in THIS function. So now, when
-		 * we are splitting, we set a value this->DontModifyHash, which tells
-		 * the object its hash isnt to be messed with right now, and skips over
-		 * the unsafe DelUser within this operation!
-		 *
-		 * Smart, or what? :-)
-		 *
-		 * - 24/05/06
-		 */
-		if (this->DontModifyHash)
-			return;
-
-		log(DEBUG,"Remove user %s from server %s",user->nick,this->ServerName.c_str());
-		std::map<userrec*,userrec*>::iterator iter;
-		iter = Users.find(user);
-		if (iter != Users.end())
-			Users.erase(iter);
-	}
-
 	int QuitUsers(const std::string &reason)
 	{
-		int x = Users.size();
 		log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
 		const char* reason_s = reason.c_str();
-		this->DontModifyHash = true;
-		for (std::map<userrec*,userrec*>::iterator n = Users.begin(); n != Users.end(); n++)
+		std::vector<userrec*> time_to_die;
+		for (user_hash::iterator n = clientlist.begin(); n != clientlist.end(); n++)
 		{
-			log(DEBUG,"Kill %s fd=%d",n->second->nick,n->second->fd);
-			if (!IS_LOCAL(n->second))
-				kill_link(n->second,reason_s);
+			if (!strcmp(n->second->server, this->ServerName.c_str()))
+			{
+				time_to_die.push_back(n->second);
+			}
 		}
-		Users.clear();
-		this->DontModifyHash = false;
-		return x;
+		for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
+		{
+			userrec* a = (userrec*)*n;
+			log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
+			if (!IS_LOCAL(a))
+				kill_link(a,reason_s);
+		}
+		return time_to_die.size();
 	}
 
 	/* This method is used to add the structure to the
@@ -1198,7 +1153,6 @@ class TreeSocket : public InspSocket
 		TreeServer* SourceServer = FindServer(source);
 		if (SourceServer)
 		{
-			SourceServer->AddUser(clientlist[tempnick]);
 			SourceServer->AddUserCount();
 		}
 
@@ -2580,15 +2534,7 @@ class TreeSocket : public InspSocket
 					}
 					if (who)
 					{
-						if (command == "QUIT")
-						{
-							TreeServer* s = FindServer(who->server);
-							if (s)
-							{
-								s->DelUser(who);
-							}
-						}
-						else if ((command == "NICK") && (params.size() > 0))
+						if ((command == "NICK") && (params.size() > 0))
 						{
 							/* On nick messages, check that the nick doesnt
 							 * already exist here. If it does, kill their copy,
@@ -2609,11 +2555,6 @@ class TreeSocket : public InspSocket
 								userrec* y = Srv->FindNick(prefix);
 								if (y)
 								{
-									TreeServer* n = FindServer(y->server);
-									if (n)
-									{
-										n->DelUser(y);
-									}
 									Srv->QuitUser(y,"Nickname collision");
 								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
@@ -3698,7 +3639,6 @@ class ModuleSpanningTree : public Module
 		if (SourceServer)
 		{
 			SourceServer->DelUserCount();
-			SourceServer->DelUser(user);
 		}
 
 	}
@@ -3739,17 +3679,6 @@ class ModuleSpanningTree : public Module
 		params.push_back(dest->nick);
 		params.push_back(":"+reason);
 		DoOneToMany(source->nick,"KILL",params);
-		/* NOTE: We must remove the user from the servers list here.
-		 * If we do not, there is a chance the user could hang around
-		 * in the list if there is a desync for example (this would
-		 * not be good).
-		 * Part of the 'random crash on netsplit' tidying up. -Brain
-		 */
-		TreeServer* n = FindServer(dest->server);
-		if (n)
-		{
-			n->DelUser(dest);
-		}
 	}
 
 	virtual void OnRehash(const std::string &parameter)
