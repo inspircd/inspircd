@@ -268,56 +268,26 @@ class TreeServer : public classbase
 		this->AddHashEntry();
 	}
 
-	void AddUser(userrec* user)
-	{
-		if (this->DontModifyHash)
-		{
-			log(DEBUG,"Not modifying hash");
-			return;
-		}
-
-		log(DEBUG,"Add user %s to server %s",user->nick,this->ServerName.c_str());
-		std::map<userrec*,userrec*>::iterator iter;
-		iter = Users.find(user);
-		if (iter == Users.end())
-			Users[user] = user;
-	}
-
-	void DelUser(userrec* user)
-	{
-		/* FIX BY BRAIN:
-		 * Quitting the user in QuitUsers changes the hash by removing the user here,
-		 * corrupting the iterator!
-		 * When netsplitting, this->DontModifyHash is set to prevent it now!
-		 */
-		if (this->DontModifyHash)
-		{
-			log(DEBUG,"Not modifying hash");
-			return;
-		}
-
-		log(DEBUG,"Remove user %s from server %s",user->nick,this->ServerName.c_str());
-		std::map<userrec*,userrec*>::iterator iter;
-		iter = Users.find(user);
-		if (iter != Users.end())
-			Users.erase(iter);
-	}
-
 	int QuitUsers(const std::string &reason)
 	{
-		int x = Users.size();
-		log(DEBUG,"Removing %d users from server %s",x,this->ServerName.c_str());
-		const char* reason_s = reason.c_str();
-		this->DontModifyHash = true;
-		for (std::map<userrec*,userrec*>::iterator n = Users.begin(); n != Users.end(); n++)
-		{
-			log(DEBUG,"Kill %s fd=%d",n->second->nick,n->second->fd);
-			if (!IS_LOCAL(n->second))
-				kill_link(n->second,reason_s);
-		}
-		Users.clear();
-		this->DontModifyHash = false;
-		return x;
+                log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
+                const char* reason_s = reason.c_str();
+                std::vector<userrec*> time_to_die;
+                for (user_hash::iterator n = clientlist.begin(); n != clientlist.end(); n++)
+                {
+                        if (!strcmp(n->second->server, this->ServerName.c_str()))
+                        {
+                                time_to_die.push_back(n->second);
+                        }
+                }
+                for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
+                {
+                        userrec* a = (userrec*)*n;
+                        log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
+                        if (!IS_LOCAL(a))
+                                kill_link(a,reason_s);
+                }
+                return time_to_die.size();
 	}
 
 	/* This method is used to add the structure to the
@@ -1193,7 +1163,6 @@ class TreeSocket : public InspSocket
 		if (SourceServer)
 		{
 			log(DEBUG,"Found source server of %s",clientlist[tempnick]->nick);
-			SourceServer->AddUser(clientlist[tempnick]);
 			SourceServer->AddUserCount();
 		}
 
@@ -2567,15 +2536,7 @@ class TreeSocket : public InspSocket
 					}
 					if (who)
 					{
-						if (command == "QUIT")
-						{
-							TreeServer* s = FindServer(who->server);
-							if (s)
-							{
-								s->DelUser(who);
-							}
-						}
-						else if ((command == "NICK") && (params.size() > 0))
+						if ((command == "NICK") && (params.size() > 0))
 						{
 							/* On nick messages, check that the nick doesnt
 							 * already exist here. If it does, kill their copy,
@@ -2596,11 +2557,6 @@ class TreeSocket : public InspSocket
 								userrec* y = Srv->FindNick(prefix);
 								if (y)
 								{
-									TreeServer* n = FindServer(y->server);
-									if (n)
-									{
-										n->DelUser(y);
-									}       
 									Srv->QuitUser(y,"Nickname collision");
 								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
@@ -3678,7 +3634,6 @@ class ModuleSpanningTree : public Module
 		if (SourceServer)
 		{
 			SourceServer->DelUserCount();
-			SourceServer->DelUser(user);
 		}
 
 	}
@@ -3719,17 +3674,6 @@ class ModuleSpanningTree : public Module
 		params.push_back(dest->nick);
 		params.push_back(":"+reason);
 		DoOneToMany(source->nick,"KILL",params);
-		/* NOTE: We must remove the user from the servers list here.
-		 * If we do not, there is a chance the user could hang around
-		 * in the list if there is a desync for example (this would
-		 * not be good).
-		 * Part of the 'random crash on netsplit' tidying up. -Brain
-		 */
-		TreeServer* n = FindServer(dest->server);
-		if (n)
-		{
-			n->DelUser(dest);
-		}
 	}
 
 	virtual void OnRehash(const std::string &parameter)
