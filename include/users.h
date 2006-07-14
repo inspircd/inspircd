@@ -393,6 +393,8 @@ class userrec : public connection
 	/** Thread used for threaded lookups
 	 */
 	pthread_t dnsthread;
+#else
+	int dns_fd;
 #endif
 };
 
