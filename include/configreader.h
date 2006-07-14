@@ -344,6 +344,10 @@ class ServerConfig : public Extensible
 	 */
 	std::map<std::string,int> maxbans;
 
+	/** If set to true, no user DNS lookups are to be performed
+	 */
+	bool NoUserDns;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for

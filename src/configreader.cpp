@@ -45,7 +45,7 @@ ServerConfig::ServerConfig()
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
-	forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
+	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
 	writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
@@ -545,6 +545,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"hidewhois",			&this->HideWhoisServer,		DT_CHARPTR, NoValidation},
 		{"options",		"operspywhois",			&this->OperSpyWhois,		DT_BOOLEAN, NoValidation},
 		{"options",		"tempdir",			&this->TempDir,			DT_CHARPTR, ValidateTempDir},
+		{"options",		"nouserdns",			&this->NoUserDns,		DT_BOOLEAN, NoValidation},
 		{"pid",			"file",				&this->PID,			DT_CHARPTR, NoValidation},
 		{NULL}
 	};
