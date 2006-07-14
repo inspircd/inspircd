@@ -50,21 +50,13 @@ using namespace std;
 
 namespace nspace
 {
-#ifdef GCC34
 	template<> struct hash<in_addr>
-#else
-	template<> struct nspace::hash<in_addr>
-#endif
 	{
 		size_t operator()(const struct in_addr &a) const;
 	};
-#ifdef GCC34
-	template<> struct hash<string>
-#else
-	template<> struct nspace::hash<string>
-#endif
+	template<> struct hash<std::string>
 	{
-		size_t operator()(const string &s) const;
+		size_t operator()(const std::string &s) const;
 	};
 }
 
