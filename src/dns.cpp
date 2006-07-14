@@ -698,6 +698,11 @@ void DNS::SetNS(const std::string &dnsserver)
 
 DNS::~DNS()
 {
+	if (this->myfd > -1)
+	{
+		log(DEBUG,"HA! An FD tried to sneak by unnoticed - freed it.");
+		dns_close(this->myfd);
+	}
 }
 
 bool DNS::ReverseLookup(const std::string &ip)
