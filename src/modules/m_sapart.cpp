@@ -40,6 +40,12 @@ class cmd_sapart : public command_t
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if (dest)
 		{
+			if (Srv->IsUlined(dest->server))
+			{
+				WriteServ(user->fd,"990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				return;
+			}
+
 			if (!IsValidChannelName(parameters[1]))
 			{
 				Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");

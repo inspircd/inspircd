@@ -31,6 +31,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 
@@ -49,6 +50,12 @@ class cmd_saquit : public command_t
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if (dest)
 		{
+			if (Srv->IsUlined(dest->server))
+			{
+				WriteServ(user->fd,"990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				return;
+			}
+
 			std::string line = "";
 			for (int i = 1; i < pcnt - 1; i++)
 			{

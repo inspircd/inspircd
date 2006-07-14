@@ -21,6 +21,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
 
 /* $ModDesc: Provides support for SANICK command */
 
@@ -39,6 +40,12 @@ class cmd_sanick : public command_t
 		userrec* source = Srv->FindNick(std::string(parameters[0]));
 		if (source)
 		{
+			if (Srv->IsUlined(source->server))
+			{
+				WriteServ(user->fd,"990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				return;
+			}
+
 			if (Srv->IsNick(std::string(parameters[1])))
 			{
 				// FIX by brain: Cant use source->nick here because if it traverses a server link then
