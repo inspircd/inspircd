@@ -21,11 +21,7 @@ using namespace std;
 #include "inspircd_io.h"
 #include <time.h>
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -33,8 +29,8 @@ using namespace std;
 #include <pthread.h>
 #endif
 #ifndef RUSAGE_SELF
-#define   RUSAGE_SELF     0
-#define   RUSAGE_CHILDREN     -1
+#define RUSAGE_SELF      0
+#define RUSAGE_CHILDREN -1
 #endif
 #include <map>
 #include <sstream>

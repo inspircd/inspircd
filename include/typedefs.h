@@ -11,11 +11,7 @@
 #include "globals.h"
 #include "inspircd_config.h"
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;

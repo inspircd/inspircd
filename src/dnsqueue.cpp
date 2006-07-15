@@ -26,11 +26,7 @@ using namespace std;
 #include <cstdio>
 #include <time.h>
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>

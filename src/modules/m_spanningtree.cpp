@@ -23,11 +23,7 @@ using namespace std;
 #include <deque>
 #include "globals.h"
 #include "inspircd_config.h"
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -43,11 +39,7 @@ using namespace std;
 #include "cull_list.h"
 #include "aes.h"
 
-#ifdef GCC3
 #define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
 
 /*
  * The server list in InspIRCd is maintained as two structures

@@ -29,11 +29,7 @@ using namespace std;
 #include <exception>
 #include <stdexcept>
 #include <new>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>

@@ -26,11 +26,7 @@ using namespace std;
 #include <sys/utsname.h>
 #include <time.h>
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>
@@ -60,12 +56,7 @@ using namespace std;
 #include "command_parse.h"
 #include "ctables.h"
 
-#ifdef GCC3
 #define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
-
 
 extern InspIRCd* ServerInstance;
 

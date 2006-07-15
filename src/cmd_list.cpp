@@ -20,11 +20,7 @@ using namespace std;
 #include "inspircd.h"
 #include "inspircd_io.h"
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"

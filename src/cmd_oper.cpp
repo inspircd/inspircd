@@ -21,11 +21,7 @@ using namespace std;
 #include "inspircd_io.h"
 #include <time.h>
 #include <string>
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 #include <map>
 #include <sstream>
 #include <vector>
