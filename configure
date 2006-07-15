@@ -44,7 +44,6 @@ $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
-chomp($config{GCC34}        = `g++ -dumpversion | cut -c 3`);   		# Minor GCC Version
 chomp($config{OSNAME}       = `/bin/uname`);                      		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
 $config{MAKEORDER}	    = "ircd mods";					# build order
@@ -303,7 +302,7 @@ if ($rev eq "r0") {
 print ".\n\n";
 
 $config{CHANGE_COMPILER} = "n";
-print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
+print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
 
 while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
 	print "\033[1;32mIMPORTANT!\033[0m A GCC 2.x compiler has been detected, and
@@ -318,9 +317,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		}
 		chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
 		if ($foo ne "") {
-			chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change
-			chomp($config{GCC34}        = `$config{CC} -dumpversion | cut -c 3`); # the compiler path
-			print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.$config{GCC34}\033[0m)\n";
+			chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
+			print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
 			if ($config{GCCVER} < 3) {
 				print "\033[1;32mGCC 2.x WILL NOT WORK!\033[0m. Let's try that again, shall we?\n";
 			}
@@ -656,23 +654,23 @@ if ($var eq "1") {
 }
 
 print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
-print "\033[0mBase install path:\033[1;32m\t\t$config{BASE_DIR}\n";
-print "\033[0mConfig path:\033[1;32m\t\t\t$config{CONFIG_DIR}\n";
-print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\n";
-print "\033[0mLibrary path:\033[1;32m\t\t\t$config{LIBRARY_DIR}\n";
-print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\n";
-print "\033[0mMax User Channels:\033[1;32m\t\t$config{MAX_CHANNE}\n";
-print "\033[0mMax Oper Channels:\033[1;32m\t\t$config{MAX_OPERCH}\n";
-print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\n";
-print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\n";
-print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\n";
-print "\033[0mMax ident length:\033[1;32m\t\t$config{MAX_IDENT}\n";
-print "\033[0mMax quit length:\033[1;32m\t\t$config{MAX_QUIT}\n";
-print "\033[0mMax topic length:\033[1;32m\t\t$config{MAX_TOPIC}\n";
-print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\n";
-print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\n";
-print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\n";
-print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.$config{GCC34}\n";
+print "\033[0mBase install path:\033[1;32m\t\t$config{BASE_DIR}\033[0m\n";
+print "\033[0mConfig path:\033[1;32m\t\t\t$config{CONFIG_DIR}\033[0m\n";
+print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\033[0m\n";
+print "\033[0mLibrary path:\033[1;32m\t\t\t$config{LIBRARY_DIR}\033[0m\n";
+print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\033[0m\n";
+print "\033[0mMax User Channels:\033[1;32m\t\t$config{MAX_CHANNE}\033[0m\n";
+print "\033[0mMax Oper Channels:\033[1;32m\t\t$config{MAX_OPERCH}\033[0m\n";
+print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\033[0m\n";
+print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\033[0m\n";
+print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\033[0m\n";
+print "\033[0mMax ident length:\033[1;32m\t\t$config{MAX_IDENT}\033[0m\n";
+print "\033[0mMax quit length:\033[1;32m\t\t$config{MAX_QUIT}\033[0m\n";
+print "\033[0mMax topic length:\033[1;32m\t\t$config{MAX_TOPIC}\033[0m\n";
+print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\033[0m\n";
+print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\033[0m\n";
+print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\033[0m\n";
+print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.x\033[0m\n";
 print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
@@ -871,8 +869,7 @@ sub getosflags {
 			# compile as this standard version is 2.95.3!
 			if ($foo ne "") {
 				$config{CC} = "eg++";
-				chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change
-				chomp($config{GCC34}        = `eg++ -dumpversion | cut -c 3`); # the compiler path
+				chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
 			}
 		}
 	} else {
@@ -1007,18 +1004,8 @@ EOF
 		if ($config{STATIC_LINK} eq "yes") {
 			print FILEHANDLE "#define STATIC_LINK\n";
 		}
-		if ($config{GCCVER} > 3) {
+		if ($config{GCCVER} >= 3) {
 			print FILEHANDLE "#define GCC3\n";
-			print FILEHANDLE "#define GCC34\n";
-		}
-		else
-		{
-			if ($config{GCCVER} == 3) {
-				print FILEHANDLE "#define GCC3\n";
-				if ($config{GCC34} > 3) {
-					print FILEHANDLE "#define GCC34\n";
-				}
-			}
 		}
 		if ($config{HAS_STRLCPY} eq "true") {
 			print FILEHANDLE "#define HAS_STRLCPY\n";

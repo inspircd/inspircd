@@ -21,17 +21,9 @@ using namespace std;
 #include <string>
 #include "hashcomp.h"
 #include "helperfuncs.h"
-#ifdef GCC3
 #include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
 
-#ifdef GCC3
 #define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
 
 // from helperfuncs.cpp
 extern const char lowermap[255];

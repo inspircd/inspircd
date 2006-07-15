@@ -51,12 +51,7 @@
 #include "command_parse.h"
 #include "ctables.h"
 
-#ifdef GCC3
 #define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
-
 
 extern InspIRCd* ServerInstance;
 

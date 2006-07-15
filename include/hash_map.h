@@ -20,16 +20,7 @@
 
 #include "inspircd_config.h"
 
-#ifdef GCC3
-
 #include <ext/hash_map>
 #define nspace __gnu_cxx
-
-#else
-
-#include <hash_map>
-#define nspace std
-
-#endif
 
 #endif

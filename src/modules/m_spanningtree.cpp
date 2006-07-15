@@ -41,11 +41,7 @@ using namespace std;
 #include "cull_list.h"
 #include "aes.h"
 
-#ifdef GCC3
 #define nspace __gnu_cxx
-#else
-#define nspace std
-#endif
 
 /*
  * The server list in InspIRCd is maintained as two structures
