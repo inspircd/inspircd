@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -52,6 +52,8 @@ extern InspIRCd* ServerInstance;
 class Lookup;
 
 Lookup* dnslist[MAX_DESCRIPTORS];
+Lookup* user_fd_to_dns[MAX_DESCRIPTORS];
+
 
 //enum LookupState { reverse, forward };
 
@@ -95,6 +97,7 @@ public:
 			if (resolver1.GetFD() != -1)
 			{
 				dnslist[resolver1.GetFD()] = this;
+				user_fd_to_dns[usr->fd] = this;
 				return true;
 			}
 		}
@@ -162,7 +165,10 @@ public:
 				if ((usr) && (usr->dns_done))
 				{
 					if (resolver1.GetFD() != -1)
+					{
 						dnslist[resolver1.GetFD()] = NULL;
+						user_fd_to_dns[usr->fd] = NULL;
+					}
 					return true;
 				}
 				if (resolver1.GetFD() != -1)
@@ -171,6 +177,7 @@ public:
 					hostname = resolver1.GetResult();
 					if (usr)
 					{
+						user_fd_to_dns[usr->fd] = NULL;
 						if ((usr->registered > 3) || (hostname == ""))
 						{
 							WriteServ(usr->fd,"NOTICE Auth :*** Could not resolve your hostname -- Using your IP address instead");
@@ -182,7 +189,10 @@ public:
 					{
 						resolver2.ForwardLookup(hostname);
 						if (resolver2.GetFD() != -1)
+						{
 							dnslist[resolver2.GetFD()] = this;
+							user_fd_to_dns[usr->fd] = this;
+						}
 					}
 				}
 			}
@@ -283,5 +293,28 @@ void dns_poll(int fdcheck)
 	 */
 	if (ServerInstance && ServerInstance->SE)
 		ServerInstance->SE->DelFd(fdcheck);
+}
+
+void ZapThisDns(int fd)
+{
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		return;
+
+	Lookup *x = user_fd_to_dns[fd];
+
+	if (x)
+	{
+		if (x->resolver1.GetFD() != -1)
+		{
+			log(DEBUG,"Whacked resolver1");
+			dns_close(x->resolver1.GetFD());
+		}
+
+		if (x->resolver2.GetFD() != -1)
+		{
+			log(DEBUG,"Whacked resolver2");
+			dns_close(x->resolver2.GetFD());
+		}
+	}
 }
 

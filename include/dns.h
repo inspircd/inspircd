@@ -107,4 +107,6 @@ public:
  */
 void* dns_task(void* arg);
 
+void dns_close(int fd);
+
 #endif
