@@ -98,198 +98,45 @@ cmd_pass* command_pass;
  * before the actual list as well. This code is used by many functions which
  * can function as "one to list" (see the RFC) */
 
-int CommandParser::LoopCall(command_t* fn, const char** parameters, int pcnt, userrec *u, int start, int end, int joins)
+int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
-	/* Copy of the parameter list, because like strltok, we make a bit of
-	 * a mess of the parameter string we're given, and we want to keep this
-	 * private.
-	 */
-	char paramlist[MAXBUF];
-	/* Temporary variable used to hold one split parameter
-	 */
-	char *param;
-	/* Parameter list, we can have up to 32 of these
-	 */
-	const char *pars[32];
-	/* Seperated items, e.g. holds the #one and #two from "#one,#two"
-	 */
-	const char *sep_items[32];
-	/* Seperated keys, holds the 'two' and 'three' of "two,three"
-	 */
-	const char *sep_keys[32];
-	/* Misc. counters, the total values hold the total number of
-	 * seperated items in sep_items (total) and the total number of
-	 * seperated items in sep_keys (total2)
-	 */
-	int j = 0, q = 0, total = 0, total2 = 0;
-	/* A temporary copy of the comma seperated key list (see the description
-	 * of the paramlist variable)
-	 */
-	char keylist[MAXBUF];
-	/* Exactly what it says. Its nothing. We point invalid parameters at this.
-	 */
-	char nothing = 0;
-
-	/* First, initialize our arrays */
-	for (int i = 0; i < 32; i++)
-		sep_items[i] = sep_keys[i] = NULL;
-
-	/* Now find all parameters that are NULL, maybe above pcnt,
-	 * and for safety, point them at 'nothing'
-	 */
-	for (int i = 0; i < 10; i++)
+	/*if ((unsigned int)j > Config->MaxTargets)
 	{
-		if (!parameters[i])
-		{
-			parameters[i] = &nothing;
-		}
+		WriteServ(u->fd,"407 %s %s :Too many targets in list, message not delivered.",u->nick,sep_items[j-1]);
+		return 1;
 	}
-	/* Check if we're doing JOIN handling. JOIN has two lists in
-	 * it, potentially, if we have keys, so this is a special-case
-	 * to handle the keys if they are provided.
-	 */
-	if (joins)
-	{
-		if (pcnt > 1) /* we have a key to copy */
-		{
-			strlcpy(keylist,parameters[1],MAXBUF);
-		}
-	}
-
-	/* There's nothing to split! We don't do anything
-	 */
-	if (!parameters[start] || (!strchr(parameters[start],',')))
-	{
+	fn->Handle(pars,pcnt-(end-start),u);
+	return 1;*/
+	if (!strchr(parameters[splithere],','))
 		return 0;
-	}
 
-	/* This function can handle multiple comma seperated
-	 * lists as one, which is a feature no actual commands
-	 * have yet -- this is futureproofing in case we encounter
-	 * a command that  does.
-	 */
-	*paramlist = 0;
+	irc::commasepstream items1(parameters[splithere]);
+	irc::commasepstream items2(parameters[extra]);
+	std::string item = "";
 
-	for (int i = start; i <= end; i++)
+	while ((item = items1.GetToken()) != "")
 	{
-		if (parameters[i])
-		{
-			strlcat(paramlist,parameters[i],MAXBUF);
-		}
+		std::string extrastuff = items2.GetToken();
+		parameters[splithere] = item.c_str();
+		parameters[extra] = extrastuff.c_str();
+		CommandObj->Handle(parameters,pcnt,user);
 	}
+	return 1;
+}
 
-	/* Now we split off paramlist into seperate parameters using
-	 * pointer voodoo, this parameter list goes into sep_items
-	 */
-	j = 0;
-	param = paramlist;
+int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
+{
+	if (!strchr(parameters[splithere],','))
+		return 0;
 
-	for (char* i = paramlist; *i; i++)
+	irc::commasepstream items1(parameters[splithere]);
+	std::string item = "";
+
+	while ((item = items1.GetToken()) != "")
 	{
-		/* Found an item */
-		if (*i == ',')
-		{
-			*i = '\0';
-			sep_items[j++] = param;
-			/* Iterate along to next item, if there is one */
-			param = i+1;
-			if ((unsigned int)j > Config->MaxTargets)
-			{
-				/* BZZT! Too many items */
-				WriteServ(u->fd,"407 %s %s :Too many targets in list, message not delivered.",u->nick,sep_items[j-1]);
-				return 1;
-			}
-		}
+		parameters[splithere] = item.c_str();
+		CommandObj->Handle(parameters,pcnt,user);
 	}
-	sep_items[j++] = param;
-	total = j;
-
-	/* We add this extra comma here just to ensure we get all the keys
-	 * in the event the user gave a malformed key string (yes, you guessed
-	 * it, this is a mirc-ism)
-	 */
-	if ((joins) && (*keylist) && (total>0)) // more than one channel and is joining
-	{
-		charlcat(keylist,',',MAXBUF);
-	}
-
-	/* If we're doing JOIN handling (e.g. we've had to kludge for two
-	 * lists being handled at once, real smart by the way JRO </sarcasm>)
-	 * and we also have keys, we must seperate out this key list into
-	 * our char** list sep_keys for later use.
-	 */
-	if ((joins) && (*keylist))
-	{
-		/* There is more than one key */
-		if (strchr(keylist,','))
-		{
-			j = 0;
-			param = keylist;
-			for (char* i = keylist; *i; i++)
-			{
-				if (*i == ',')
-				{
-					*i = '\0';
-					sep_keys[j++] = param;
-					param = i+1;
-				}
-			}
-
-			sep_keys[j++] = param;
-			total2 = j;
-		}
-	}
-
-	/* Now the easier bit. We call the command class's Handle function
-	 * X times, where x is the number of parameters we've 'collated'.
-	 */
-	for (j = 0; j < total; j++)
-	{
-		if (sep_items[j])
-		{
-			pars[0] = sep_items[j];
-		}
-
-		for (q = end; q < pcnt-1; q++)
-		{
-			if (parameters[q+1])
-			{
-				pars[q-end+1] = parameters[q+1];
-			}
-		}
-
-		if ((joins) && (parameters[1]))
-		{
-			if (pcnt > 1)
-			{
-				pars[1] = sep_keys[j];
-			}
-			else
-			{
-				pars[1] = NULL;
-			}
-		}
-
-		/* repeatedly call the function with the hacked parameter list */
-		if ((joins) && (pcnt > 1))
-		{
-			if (pars[1])
-			{
-				/* pars[1] already set up and containing key from sep_keys[j] */
-				fn->Handle(pars,2,u);
-			}
-			else
-			{
-				pars[1] = parameters[1];
-				fn->Handle(pars,2,u);
-			}
-		}
-		else
-		{
-			fn->Handle(pars,pcnt-(end-start),u);
-		}
-	}
-
 	return 1;
 }
 

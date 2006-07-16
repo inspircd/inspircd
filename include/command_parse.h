@@ -36,7 +36,8 @@ class CommandParser : public classbase
 	CommandParser();
 	bool CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
 	bool IsValidCommand(const std::string &commandname, int pcnt, userrec * user);
-	int LoopCall(command_t *fn, const char** parameters, int pcnt, userrec *u, int start, int end, int joins);
+	int LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
+	int LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
 	void ProcessBuffer(std::string &buffer,userrec *user);
 	bool RemoveCommands(const char* source);
 	bool CreateCommand(command_t *f);

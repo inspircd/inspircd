@@ -93,6 +93,19 @@ namespace irc
 		const std::string GetToken();
 	};
 
+	class commasepstream
+	{
+	 private:
+		std::string tokens;
+		std::string::iterator last_starting_position;
+		std::string::iterator n;
+	 public:
+		commasepstream(const std::string &source);
+		~commasepstream();
+
+		const std::string GetToken();
+	};
+
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-

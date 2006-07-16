@@ -24,15 +24,28 @@ extern InspIRCd* ServerInstance;
 
 void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (ServerInstance->Parser->LoopCall(this, parameters, pcnt, user, 0, 0, 1))
-		return;
-
-	if (IsValidChannelName(parameters[0]))
+	if (pcnt > 1)
 	{
-		add_channel(user, parameters[0], parameters[1], false);
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0, 1))
+			return;
+
+		if (IsValidChannelName(parameters[0]))
+		{
+			add_channel(user, parameters[0], parameters[1], false);
+			return;
+		}
 	}
 	else
 	{
-		WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameters[0]);
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
+			return;
+
+		if (IsValidChannelName(parameters[0]))
+		{
+			add_channel(user, parameters[0], "", false);
+			return;
+		}
 	}
+
+	WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameters[0]);
 }

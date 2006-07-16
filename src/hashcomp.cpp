@@ -219,3 +219,31 @@ const std::string irc::tokenstream::GetToken()
 	}
 	return "";
 }
+
+irc::commasepstream::commasepstream(const std::string &source) : tokens(source)
+{
+	last_starting_position = tokens.begin();
+	n = tokens.begin();
+}
+
+const std::string irc::commasepstream::GetToken()
+{
+	std::string::iterator lsp = last_starting_position;
+
+	while (n != tokens.end())
+	{
+		if ((*n == ',') || (n+1 == tokens.end()))
+		{
+			last_starting_position = n+1;
+			return std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+		}
+
+		n++;
+	}
+
+	return "";
+}
+
+irc::commasepstream::~commasepstream()
+{
+}

@@ -32,8 +32,9 @@ void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
+	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
+
 	c = FindChan(parameters[0]);
 	if (c)
 	{
