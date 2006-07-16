@@ -851,6 +851,8 @@ std::string DNS::GetResultIP()
 void* dns_task(void* arg)
 {
 	userrec* u = (userrec*)arg;
+	int thisfd = u->fd;
+
 	log(DEBUG,"DNS thread for user %s",u->nick);
 	DNS dns1;
 	DNS dns2;
@@ -872,18 +874,22 @@ void* dns_task(void* arg)
 					usleep(100);
 				}
 				ip = dns2.GetResultIP();
-				if (ip == std::string((char*)inet_ntoa(u->ip4)))
+				if (ip == std::string(inet_ntoa(u->ip4)))
 				{
 					if (host.length() < 160)
 					{
-						strcpy(u->host,host.c_str());
-						strcpy(u->dhost,host.c_str());
+						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+						{
+							strcpy(u->host,host.c_str());
+							strcpy(u->dhost,host.c_str());
+						}
 					}
 				}
 			}
 		}
 	}
-	u->dns_done = true;
+	if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+		u->dns_done = true;
 	return NULL;
 }
 #endif
