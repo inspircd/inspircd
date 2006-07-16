@@ -119,30 +119,19 @@ void ProcessUser(userrec* cu)
 	{
 		userrec *current;
 		int currfd;
-		int floodlines;
+		int floodlines = 0;
 
 		ServerInstance->stats->statsRecv += result;
 		/*
 		 * perform a check on the raw buffer as an array (not a string!) to remove
-		 * characters 0 and 7 which are illegal in the RFC - replace them with spaces.
-		 * hopefully this should stop even more people whining about "Unknown command: *"
-		 */
-
-		/*
-		 * XXX - potential replacement for the below using my beloved pointers. --w00t
+		 * character 0 which is illegal in the RFC - replace them with spaces.
 		 * XXX - no garauntee there's not \0's in the middle of the data,
 		 *       and no reason for it to be terminated either. -- Om
-		 *
-		 * for (char *c = data; data && *data; data++)
-		 * {
-		 * 	if (*data == 0 || *data == 7)
-		 * 		data = ' ';
-		 * }
 		 */
 
 		for (int checker = 0; checker < result; checker++)
 		{
-			if ((data[checker] == 0) || (data[checker] == 7))
+			if (data[checker] == 0)
 				data[checker] = ' ';
 		}
 
@@ -151,7 +140,6 @@ void ProcessUser(userrec* cu)
 
 		current = cu;
 		currfd = current->fd;
-		floodlines = 0;
 
 		// add the data to the users buffer
 		if (result > 0)
@@ -214,18 +202,13 @@ void ProcessUser(userrec* cu)
 			// while there are complete lines to process...
 			while (current->BufferIsReady())
 			{
-				char sanitized[MAXBUF];
-
-				floodlines++;
 				if (TIME > current->reset_due)
 				{
 					current->reset_due = TIME + current->threshold;
 					current->lines_in = 0;
 				}
 
-				current->lines_in++;
-
-				if (current->lines_in > current->flood)
+				if (++current->lines_in > current->flood)
 				{
 					log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
@@ -233,7 +216,7 @@ void ProcessUser(userrec* cu)
 					return;
 				}
 
-				if ((floodlines > current->flood) && (current->flood != 0))
+				if ((++floodlines > current->flood) && (current->flood != 0))
 				{
 					if (current->registered == 7)
 					{
@@ -254,29 +237,27 @@ void ProcessUser(userrec* cu)
 				std::string single_line = current->GetBuffer();
 				current->bytes_in += single_line.length();
 				current->cmds_in++;
-				strlcpy(sanitized,single_line.c_str(),511);
+				if (single_line.length() > 512)
+					single_line.resize(512);
 
-				if (*sanitized)
+				userrec* old_comp = fd_ref_table[currfd];
+
+				ServerInstance->Parser->ProcessBuffer(single_line,current);
+				/*
+				 * look for the user's record in case it's changed... if theyve quit,
+				 * we cant do anything more with their buffer, so bail.
+				 * there used to be an ugly, slow loop here. Now we have a reference
+				 * table, life is much easier (and FASTER)
+				 */
+				userrec* new_comp = fd_ref_table[currfd];
+				if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
 				{
-					userrec* old_comp = fd_ref_table[currfd];
-
-					ServerInstance->Parser->ProcessBuffer(sanitized,current);
-					/*
-					 * look for the user's record in case it's changed... if theyve quit,
-					 * we cant do anything more with their buffer, so bail.
-					 * there used to be an ugly, slow loop here. Now we have a reference
-					 * table, life is much easier (and FASTER)
-					 */
-					userrec* new_comp = fd_ref_table[currfd];
-					if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
-					{
-						return;
-					}
-					else
-					{
-						/* The user is still here, flush their buffer */
-						current->FlushWriteBuf();
-					}
+					return;
+				}
+				else
+				{
+					/* The user is still here, flush their buffer */
+					current->FlushWriteBuf();
 				}
 			}
 

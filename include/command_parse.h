@@ -28,7 +28,7 @@ class CommandParser : public classbase
 {
  private:
 	int ProcessParameters(char **command_p,char *parameters);
-	void ProcessCommand(userrec *user, char* cmd);
+	void ProcessCommand(userrec *user, std::string &cmd);
 	void SetupCommandTable();
  public:
 	command_table cmdlist;
@@ -37,7 +37,7 @@ class CommandParser : public classbase
 	bool CallHandler(const std::string &commandname,char **parameters, int pcnt, userrec *user);
 	bool IsValidCommand(const std::string &commandname, int pcnt, userrec * user);
 	int LoopCall(command_t *fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
-	void ProcessBuffer(const char* cmdbuf,userrec *user);
+	void ProcessBuffer(std::string &buffer,userrec *user);
 	bool RemoveCommands(const char* source);
 	bool CreateCommand(command_t *f);
 };

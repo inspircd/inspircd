@@ -345,245 +345,24 @@ bool CommandParser::CallHandler(const std::string &commandname,char **parameters
 	return false;
 }
 
-int CommandParser::ProcessParameters(char **command_p,char *parameters)
+void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 {
-	int j = 0;
-
-	if (!*parameters)
-	{
-		/* no parameters, command_p invalid! */
-		return 0;
-	}
-
-	if (*parameters == ':')
-	{
-		command_p[0] = parameters+1;
-		return 1;
-	}
-
-	if (*parameters)
-	{
-		char* n = strchr(parameters,' ');
-		if ((!n) || (*parameters == ':'))
-		{
-			/* only one parameter */
-			command_p[0] = parameters;
-			if (*parameters == ':')
-			{
-				if (n)
-				{
-					command_p[0]++;
-				}
-			}
-
-			return 1;
-		}
-	}
-
-	command_p[j++] = parameters;
-
-	for (char* i = parameters; *i; i++)
-	{
-		if (*i == ' ')
-		{
-			command_p[j++] = i+1;
-			*i = '\0';
-
-			if (*command_p[j-1] == ':')
-			{
-				*command_p[j-1]++; /* remove dodgy ":" */
-				break;
-				/* parameter like this marks end of the sequence */
-			}
-		}
-	}
-	return j; /* returns total number of items in the list */
-}
-
-void CommandParser::ProcessCommand(userrec *user, char* cmd)
-{
-	char *parameters;
-	char *command;
 	char *command_p[127];
-	char p[MAXBUF], temp[MAXBUF];
-	int j, items, cmd_found;
-	int total_params = 0;
+	int items = 0;
 
-	for (int i = 0; i < 127; i++)
-		command_p[i] = NULL;
+	std::string para[127];
+	irc::tokenstream tokens(cmd);
+	std::string xcommand = tokens.GetToken();
 
-	if (!user || !cmd || !*cmd)
-	{
-		return;
-	}
-
-	char* first_space = NULL;
-
-	/* If the command is > 2 characters (quick and dirty way to find out) */
-	if (*cmd && *(cmd+1) && *(cmd+2))
-	{
-		for (char* q = cmd; *q; q++)
-		{
-			if (*q == ' ')
-			{
-				first_space = q;
-				if (*(q+1) == ':')
-				{
-					total_params++;
-					// found a 'trailing', we dont count them after this.
-					break;
-				}
-				else
-					total_params++;
-			}
-		}
-	}
-
-	// another phidjit bug...
-	if (total_params > 126)
-	{
-		*first_space = 0;
-		WriteServ(user->fd,"421 %s %s :Too many parameters given",user->nick,cmd);
-		return;
-	}
-
-	strlcpy(temp,cmd,MAXBUF);
-
-	std::string tmp = cmd;
-
-	for (int i = 0; i <= MODCOUNT; i++)
-	{
-		std::string oldtmp = tmp;
-		modules[i]->OnServerRaw(tmp,true,user);
-		if (oldtmp != tmp)
-		{
-			log(DEBUG,"A Module changed the input string!");
-			log(DEBUG,"New string: %s",tmp.c_str());
-			log(DEBUG,"Old string: %s",oldtmp.c_str());
-			break;
-		}
-	}
-
-	strlcpy(cmd,tmp.c_str(),MAXBUF);
-	strlcpy(temp,cmd,MAXBUF);
-
-	char* has_space = strchr(cmd,' ');
-	int cm_length = 0;
-	if (!has_space)
-	{
-		/*
-		 * no parameters, lets skip the formalities and not chop up
-		 * the string
-		 */
-		log(DEBUG,"About to preprocess command with no params");
-		items = 0;
-		command_p[0] = NULL;
-		parameters = NULL;
-		for (char* i = cmd; *i; i++,cm_length++)
-			*i = toupper(*i);
-		command = cmd;
-	}
-	else
-	{
-		*cmd = 0;
-		j = 0;
-
-		/* strip out extraneous linefeeds through mirc's crappy pasting (thanks Craig) */
-		for (char* i = temp; *i; i++)
-		{
-			if ((*i != 10) && (*i != 13) && (*i != 0) && (*i != 7))
-			{
-				cmd[j++] = *i;
-			}
-		}
-		cmd[j] = 0;
-
-		/* split the full string into a command plus parameters */
-		parameters = p;
-		p[0] = ' ';
-		p[1] = 0;
-
-		command = cmd;
-
-		if (has_space)
-		{
-			for (char* i = cmd; *i; i++)
-			{
-				/* capitalise the command ONLY, leave params intact */
-				*i = toupper(*i);
-				/* are we nearly there yet?! :P */
-				if (*i == ' ')
-				{
-					command = cmd;
-					parameters = i+1;
-					*i = 0;
-					break;
-				}
-			}
-		}
-		else
-		{
-			for (char* i = cmd; *i; i++,cm_length++)
-			{
-				*i = toupper(*i);
-			}
-		}
-	}
-
-	if (cm_length > MAXCOMMAND)
-	{
-		WriteServ(user->fd,"421 %s %s :Command too long",user->nick,command);
-		return;
-	}
-
-	for (char* x = command; *x; x++)
-	{
-		if (((*x < 'A') || (*x > 'Z')) && (*x != '.'))
-		{
-			if (((*x < '0') || (*x> '9')) && (*x != '-'))
-			{
-				if (strchr("@!\"$%^&*(){}[]_=+;:'#~,<>/?\\|`",*x))
-				{
-					ServerInstance->stats->statsUnknown++;
-					WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
-					return;
-				}
-			}
-		}
-	}
-
-	std::string xcommand = command;
-	if ((user->registered != 7) && (xcommand == "SERVER"))
-	{
-		kill_link(user,"Server connection to non-server port");
-		return;
-	}
-	
-	/* Tweak by brain - why was this INSIDE the mainloop? */
-	if (parameters)
-	{
-		 if (parameters[0])
-		 {
-			 items = this->ProcessParameters(command_p,parameters);
-		 }
-		 else
-		 {
-			 items = 0;
-			 command_p[0] = NULL;
-		 }
-	}
-	else
-	{
-		items = 0;
-		command_p[0] = NULL;
-	}
-
+	while ((para[items] = tokens.GetToken()) != "")
+		command_p[items] = (char*)para[items++].c_str();
+		
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false));
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(xcommand,command_p,items,user,false));
 	if (MOD_RESULT == 1) {
 		return;
 	}
-	
+
 	nspace::hash_map<std::string,command_t*>::iterator cm = cmdlist.find(xcommand);
 	
 	if (cm != cmdlist.end())
@@ -592,29 +371,25 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 		{
 			/* activity resets the ping pending timer */
 			user->nping = TIME + user->pingmax;
-			if ((items) < cm->second->min_params)
+			if (items < cm->second->min_params)
 			{
-				log(DEBUG,"not enough parameters: %s %s",user->nick,command);
-				WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command);
+				log(DEBUG,"not enough parameters: %s %s",user->nick,xcommand.c_str());
+				WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,xcommand.c_str());
 				return;
 			}
 			if (cm->second->flags_needed)
 			{
-				if (!user->modes[cm->second->flags_needed-65])
+				if (!user->IsModeSet(cm->second->flags_needed))
 				{
-					log(DEBUG,"permission denied: %s %s",user->nick,command);
+					log(DEBUG,"permission denied: %s %s",user->nick,xcommand.c_str());
 					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
-					cmd_found = 1;
 					return;
 				}
 			}
 			if ((cm->second->flags_needed) && (!user->HasPermission(xcommand)))
 			{
-				log(DEBUG,"permission denied: %s %s",user->nick,command);
-				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command);
-				if (!IS_LOCAL(user))
-					WriteOpers("*** \2WARNING\2: Command '%s' not allowed for oper '%s', dropped.",command,user->nick);
-				cmd_found = 1;
+				log(DEBUG,"permission denied: %s %s",user->nick,xcommand.c_str());
+				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,xcommand.c_str());
 				return;
 			}
 			/* if the command isnt USER, PASS, or NICK, and nick is empty,
@@ -623,21 +398,24 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 			{
 				if ((!isnick(user->nick)) || (user->registered != 7))
 				{
-					log(DEBUG,"not registered: %s %s",user->nick,command);
-					WriteServ(user->fd,"451 %s :You have not registered",command);
+					log(DEBUG,"not registered: %s %s",user->nick,xcommand.c_str());
+					WriteServ(user->fd,"451 %s :You have not registered",xcommand.c_str());
 					return;
 				}
 			}
 			if ((user->registered == 7) && (!*user->oper) && (*Config->DisabledCommands))
 			{
+				/* XXX: We should have a disabled setting in the command object, and on rehash set the disabled flag
+				 * in the ones which are disabled, rather than this craq
+				 */
 				std::stringstream dcmds(Config->DisabledCommands);
 				std::string thiscmd;
 				while (dcmds >> thiscmd)
 				{
-					if (!strcasecmp(thiscmd.c_str(),command))
+					if (!strcasecmp(thiscmd.c_str(),xcommand.c_str()))
 					{
 						// command is disabled!
-						WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command);
+						WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,xcommand.c_str());
 						return;
 					}
 				}
@@ -645,18 +423,13 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 			if ((user->registered == 7) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
 			{
 				/* ikky /stats counters */
-				if (temp)
-				{
-					cm->second->use_count++;
-					cm->second->total_bytes+=strlen(temp);
-				}
+				cm->second->use_count++;
+				cm->second->total_bytes += cmd.length();
 
 				int MOD_RESULT = 0;
-				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true));
+				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(xcommand,command_p,items,user,true));
 				if (MOD_RESULT == 1)
-				{
 					return;
-				}
 
 				/*
 				 * WARNING: nothing may come after the
@@ -669,7 +442,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 			}
 			else
 			{
-				WriteServ(user->fd,"451 %s :You have not registered",command);
+				WriteServ(user->fd,"451 %s :You have not registered",xcommand.c_str());
 				return;
 			}
 		}
@@ -677,7 +450,7 @@ void CommandParser::ProcessCommand(userrec *user, char* cmd)
 	else if (user)
 	{
 		ServerInstance->stats->statsUnknown++;
-		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command);
+		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,xcommand.c_str());
 	}
 }
 
@@ -705,43 +478,21 @@ bool CommandParser::RemoveCommands(const char* source)
 	return true;
 }
 
-void CommandParser::ProcessBuffer(const char* cmdbuf,userrec *user)
+void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 {
-	char cmd[MAXBUF];
+	std::string::size_type a;
 
-	if (!user || !cmdbuf || !*cmdbuf)
-	{
-		log(DEFAULT,"*** BUG *** process_buffer was given an invalid parameter");
-		return;
-	}
-
-	while (*cmdbuf == ' ') cmdbuf++; // strip leading spaces
-
-	if (!*cmdbuf)
-		return;
-	
-	strlcpy(cmd,cmdbuf,MAXBUF);
-
-	while (charremove(cmd,10));
-	while (charremove(cmd,13));
-
-	int sl = strlen(cmd)-1;
-	while (sl && (cmd[sl] == ' ')) // strip trailing spaces
-	{
-		cmd[sl--] = 0;
-	}
-
-	if (!sl)
+	if (!user)
 		return;
 
-	log(DEBUG,"CMDIN: %s %s",user->nick,cmd);
+	while ((a = buffer.find("\n")) != std::string::npos)
+		buffer.erase(a);
+	while ((a = buffer.find("\r")) != std::string::npos)
+		buffer.erase(a);
 
-	tidystring(cmd);
+	log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
 
-	if (user && cmd)
-	{
-		this->ProcessCommand(user,cmd);
-	}
+	this->ProcessCommand(user,buffer);
 }
 
 bool CommandParser::CreateCommand(command_t *f)
