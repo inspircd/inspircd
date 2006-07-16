@@ -104,7 +104,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	irc::commasepstream items1(parameters[splithere]);
 	irc::commasepstream items2(parameters[extra]);
 	std::string item = "";
-	int max = 0;
+	unsigned int max = 0;
 
 	/* Attempt to iterate these lists and call the command objech
 	 * which called us, for every parameter pair until there are
@@ -131,7 +131,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	/* Only one commasepstream here */
 	irc::commasepstream items1(parameters[splithere]);
 	std::string item = "";
-	int max = 0;
+	unsigned int max = 0;
 
 	/* Parse the commasepstream until there are no tokens remaining.
 	 * Each token we parse out, call the command handler that called us

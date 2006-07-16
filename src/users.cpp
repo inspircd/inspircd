@@ -397,9 +397,8 @@ bool userrec::HasPermission(const std::string &command)
 bool userrec::AddBuffer(const std::string &a)
 {
 	std::string b = "";
-	char* n = (char*)a.c_str();
 	
-	for (char* i = n; *i; i++)
+	for (std::string::const_iterator i = a.begin(); i != a.end(); i++)
 	{
 		if ((*i != '\r') && (*i != '\0') && (*i != 7))
 			b = b + *i;
@@ -429,12 +428,7 @@ bool userrec::AddBuffer(const std::string &a)
 
 bool userrec::BufferIsReady()
 {
-	unsigned int t = recvq.length();
-	
-	for (unsigned int i = 0; i < t; i++)
-		if (recvq[i] == '\n')
-			return true;
-	return false;
+	return (recvq.find('\n') != std::string::npos);
 }
 
 void userrec::ClearBuffer()
@@ -447,10 +441,10 @@ std::string userrec::GetBuffer()
 	if (recvq == "")
 		return "";
 		
-	char* line = (char*)recvq.c_str();
+	const char* line = recvq.c_str();
 	
 	std::string ret = "";
-	
+
 	while ((*line != '\n') && (*line))
 	{
 		ret = ret + *line;
