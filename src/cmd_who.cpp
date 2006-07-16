@@ -27,8 +27,110 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 
+/* get the last 'visible' chan of a user */
+static char *getlastchanname(userrec *u)
+{
+	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
+	{
+		ucrec* temp = (ucrec*)*v;
+
+		if (temp->channel)
+		{
+			if (!temp->channel->IsModeSet('s'))
+				return temp->channel->name;
+		}
+	}
+
+	return "*";
+}
+
 void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
+	bool opt_viewopersonly = false;
+	chanrec *ch = NULL;
+	std::vector<std::string> whoresults;
+	std::string initial = "352 " + std::string(user->nick) + " ";
+
+	if (pcnt == 2)
+	{
+		/* parse flags */
+		const char *iter = parameters[1];
+
+		while (*iter)
+		{
+			switch (*iter)
+			{
+				case 'o':
+					opt_viewopersonly = true;
+					break;
+			}
+
+			*iter++;
+		}
+	}
+
+
+	/* who on a channel? */
+	ch = FindChan(parameters[0]);
+
+	if (ch)
+	{
+		/* who on a channel. */
+		CUList *cu = ch->GetUsers();
+
+		for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
+		{
+			/* opers only, please */
+			if (opt_viewopersonly && !*(i->second)->oper)
+				continue;
+
+
+			std::string wholine = initial;
+
+			wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + i->second->dhost + " " + 
+					i->second->server + " " + i->second->nick + " ";
+
+			/* away? */
+			if (*(i->second)->awaymsg)
+			{
+				wholine.append("G");
+			}
+			else
+			{
+				wholine.append("H");
+			}
+
+			/* oper? */
+			if (*(i->second)->oper)
+			{
+				wholine.append("*");
+			}
+
+			wholine = wholine + cmode(i->second, ch) + " :0 " + i->second->fullname;
+			whoresults.push_back(wholine);
+		}
+	}
+	else
+	{
+		/* uhggle. who on .. something else. */
+
+//   The <name> passed to WHO is matched against users' host, server, real
+//   name and nickname
+
+	}
+
+
+	return;
+
+
+
+
+
+
+
+
+
+
 	chanrec* Ptr = NULL;
 	char tmp[10];
 	
