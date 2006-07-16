@@ -457,7 +457,10 @@ void kill_link(userrec *user,const char* r)
 
 	log(DEBUG,"kill_link: %s fd=%d '%s'",user->nick,user->fd,reason);
 	if (IS_LOCAL(user))
+	{
+		ZapThisDns(user->fd);
 		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
+	}
 
 	if (user->registered == 7) {
 		purge_empty_chans(user);
