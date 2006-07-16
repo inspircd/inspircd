@@ -963,7 +963,7 @@ int main(int argc, char** argv)
 	 * Token 0 = 'AAAAAAA'
 	 * String: ''
 	 * NumItems = 0
-	 */
+	 *
 	std::string a = "PRIVMSG #test FOO BAR";
 	printf("String: '%s'\n",a.c_str());
 	irc::tokenstream test(a);
@@ -998,7 +998,7 @@ int main(int argc, char** argv)
 	printf("Token 0 = '%s'\n",test5.GetToken().c_str());
 
 	exit(0);
-	
+	*/
 	try
 	{
 		ServerInstance = new InspIRCd(argc, argv);
