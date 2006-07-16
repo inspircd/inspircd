@@ -169,7 +169,6 @@ void dns_close(int fd)
 	if (fd == lastcreate)
 	{
 		wantclose = 1;
-		return;
 	}
 	shutdown(fd,2);
 	close(fd);
