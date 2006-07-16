@@ -67,15 +67,14 @@ enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE };
  * 'unimportant' queries will only be executed when the
  * priority queue is empty.
  *
- * These are lists of SQLresult so we can, from the moment the
- * SQLrequest is recieved, be beginning to construct the result
- * object. The copy in the deque can then be submitted in-situ
- * and finally deleted from this queue. No copies of the SQLresult :)
+ * We store lists of SQLrequest's here, by value as we want to avoid storing
+ * any data allocated inside the client module (in case that module is unloaded
+ * while the query is in progress).
  *
- * Because we work on the SQLresult in-situ, we need a way of accessing the
- * result we are currently processing, QueryQueue::front(), but that call
- * needs to always return the same element until that element is removed
- * from the queue, this is what the 'which' variable is. New queries are
+ * Because we want to work on the current SQLrequest in-situ, we need a way
+ * of accessing the request we are currently processing, QueryQueue::front(),
+ * but that call needs to always return the same request until that request
+ * is removed from the queue, this is what the 'which' variable is. New queries are
  * always added to the back of one of the two queues, but if when front()
  * is first called then the priority queue is empty then front() will return
  * a query from the normal queue, but if a query is then added to the priority
@@ -86,22 +85,21 @@ enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE };
 class QueryQueue : public classbase
 {
 private:
-	std::deque<SQLresult> priority;	/* The priority queue */
-	std::deque<SQLresult> normal;	/* The 'normal' queue */
+	std::deque<SQLrequest> priority;	/* The priority queue */
+	std::deque<SQLrequest> normal;	/* The 'normal' queue */
 	enum { PRI, NOR, NON } which;	/* Which queue the currently active element is at the front of */
 
 public:
 	QueryQueue()
 	: which(NON)
 	{
-	
 	}
 	
-	void push(const Query &q, bool pri = false)
+	void push(const SQLrequest &q)
 	{
-		log(DEBUG, "QueryQueue::push_back(): Adding %s query to queue: %s", ((pri) ? "priority" : "non-priority"), q.c_str());
+		log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.c_str());
 		
-		if(pri)
+		if(q.pri)
 			priority.push_back(q);
 		else
 			normal.push_back(q);
@@ -118,10 +116,13 @@ public:
 			normal.pop_front();
 		}
 		
+		/* Reset this */
+		which = NON;
+		
 		/* Silently do nothing if there was no element to pop() */
 	}
 	
-	SQLresult& front()
+	SQLrequest& front()
 	{
 		switch(which)
 		{
@@ -183,7 +184,6 @@ private:
 	SQLstatus		status;	/* PgSQL database connection status */
 	bool			qinprog;/* If there is currently a query in progress */
 	QueryQueue		queue;	/* Queue of queries waiting to be executed on this connection */
-	Query			query;	/* The currently active query on this connection */
 
 public:
 
@@ -359,7 +359,7 @@ public:
 			case PGRES_POLLING_OK:
 				log(DEBUG, "PGconnectPoll: PGRES_POLLING_OK");
 				status = WWRITE;
-				return DoConnectedPoll()
+				return DoConnectedPoll();
 			default:
 				log(DEBUG, "PGconnectPoll: wtf?");
 				break;
@@ -373,8 +373,8 @@ public:
 		if(!qinprog && queue.totalsize())
 		{
 			/* There's no query currently in progress, and there's queries in the queue. */
-			query = queue.pop_front();
-			DoQuery();
+			SQLrequest& query = queue.front();
+			DoQuery(query);
 		}
 		
 		if(PQconsumeInput(sql))
@@ -385,7 +385,7 @@ public:
 			{
 				log(DEBUG, "Still busy processing command though");
 			}
-			else
+			else if(qinprog)
 			{
 				log(DEBUG, "Looks like we have a result to process!");
 				
@@ -405,6 +405,8 @@ public:
 				}
 				
 				qinprog = false;
+				queue.pop();				
+				DoConnectedPoll();
 			}
 			
 			return true;
@@ -536,17 +538,15 @@ public:
 		return "Err...what, erm..BUG!";
 	}
 	
-	SQLerror Query(const Query &query, bool pri)
+	SQLerror DoQuery(const SQLrequest &req)
 	{
-		queue.push_back(query, pri);
-		
 		if((status == WREAD) || (status == WWRITE))
 		{
 			if(!qinprog)
 			{
-				if(PQsendQuery(sql, query.c_str()))
+				if(PQsendQuery(sql, req.query.c_str()))
 				{
-					log(DEBUG, "Dispatched query: %s", query.c_str());
+					log(DEBUG, "Dispatched query: %s", req.query.c_str());
 					qinprog = true;
 					return SQLerror();
 				}
@@ -560,6 +560,22 @@ public:
 
 		log(DEBUG, "Can't query until connection is complete");
 		return SQLerror(BAD_CONN, "Can't query until connection is complete");
+	}
+	
+	SQLerror Query(const SQLrequest &req)
+	{
+		queue.push(req);
+		
+		if(!qinprog && queue.totalsize())
+		{
+			/* There's no query currently in progress, and there's queries in the queue. */
+			SQLrequest& query = queue.front();
+			return DoQuery(query);
+		}
+		else
+		{
+			return SQLerror();
+		}
 	}
 };
 
@@ -629,7 +645,7 @@ public:
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				/* Execute query */
-				req->error = iter->second->Query(Query(req->query, req->GetSource(), this), req->pri);
+				req->error = iter->second->Query(*req);
 				
 				return SQLSUCCESS;
 			}
