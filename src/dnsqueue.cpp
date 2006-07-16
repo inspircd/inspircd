@@ -170,15 +170,15 @@ public:
 							usr->dns_done = true;
 							return true;
 						}
-					}
-					if (hostname != "")
-					{
-						resolver2.ForwardLookup(hostname, true);
-						if (resolver2.GetFD() != -1)
+						if (hostname != "")
 						{
-							dnslist[resolver2.GetFD()] = this;
-							if (usr)
-								user_fd_to_dns[usr->fd] = this;
+							resolver2.ForwardLookup(hostname, true);
+							if (resolver2.GetFD() != -1)
+							{
+								dnslist[resolver2.GetFD()] = this;
+								if (usr)
+									user_fd_to_dns[usr->fd] = this;
+							}
 						}
 					}
 				}
