@@ -397,15 +397,17 @@ bool userrec::HasPermission(const std::string &command)
 bool userrec::AddBuffer(const std::string &a)
 {
 	std::string b = "";
-	
+
+	/* NB: std::string is arsey about \r and \n and tries to translate them
+	 * somehow, so we CANNOT use std::string::find() here :(
+	 */
 	for (std::string::const_iterator i = a.begin(); i != a.end(); i++)
 	{
 		if (*i != '\r')
 			b += *i;
 	}
-	
+
 	recvq.append(b);
-	//unsigned int i = 0;
 
 	if (recvq.length() > (unsigned)this->recvqmax)
 	{
@@ -413,11 +415,7 @@ bool userrec::AddBuffer(const std::string &a)
 		WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
 		return false;
 	}
-	
-	/*
-	 * return false if we've had more than 600 characters WITHOUT
-	 * a carriage return (this is BAD, drop the socket)
-	 */
+
 	return true;
 }
 
@@ -435,23 +433,27 @@ std::string userrec::GetBuffer()
 {
 	if (recvq == "")
 		return "";
-		
-	const char* line = recvq.c_str();
-	
-	std::string ret = "";
 
-	while ((*line != '\n') && (*line))
+	/* Strip any leading \r or \n off the string.
+	 * Usually there are only one or two of these,
+	 * so its is computationally cheap to do.
+	 */
+	while ((*recvq.begin() == '\r') || (*recvq.begin() == '\n'))
+		recvq.erase(recvq.begin());
+
+	for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
 	{
-		ret = ret + *line;
-		line++;
+		/* Find the first complete line, return it as the
+		 * result, and leave the recvq as whats left
+		 */
+		if (*x == '\n')
+		{
+			std::string ret = std::string(recvq.begin(), x);
+			recvq.erase(recvq.begin(), x + 1);
+			return ret;
+		}
 	}
-	
-	while ((*line == '\n') || (*line == '\r'))
-		line++;
-	
-	recvq = line;
-	
-	return ret;
+	return "";
 }
 
 void userrec::AddWriteBuf(const std::string &data)
@@ -479,7 +481,7 @@ void userrec::FlushWriteBuf()
 {
 	if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 	{
-		char* tb = (char*)this->sendq.c_str();
+		const char* tb = this->sendq.c_str();
 		int n_sent = write(this->fd,tb,this->sendq.length());
 		if (n_sent == -1)
 		{
