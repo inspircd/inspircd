@@ -459,7 +459,8 @@ void kill_link(userrec *user,const char* r)
 	log(DEBUG,"kill_link: %s fd=%d '%s'",user->nick,user->fd,reason);
 	if (IS_LOCAL(user))
 	{
-		ZapThisDns(user->fd);
+		/* XXX: Not required here, previous fix ensures dns is closed - brain*/
+		/*ZapThisDns(user->fd);*/
 		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 	}
 
