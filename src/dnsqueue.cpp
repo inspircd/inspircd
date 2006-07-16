@@ -244,13 +244,13 @@ void ZapThisDns(int fd)
 
 	if (x)
 	{
-		if (x->resolver1.GetFD() != -1)
+		if (x->resolver1.GetFD() > 0)
 		{
 			log(DEBUG,"Whacked resolver1");
 			dns_close(x->resolver1.GetFD());
 		}
 
-		if (x->resolver2.GetFD() != -1)
+		if (x->resolver2.GetFD() > 0)
 		{
 			log(DEBUG,"Whacked resolver2");
 			dns_close(x->resolver2.GetFD());
