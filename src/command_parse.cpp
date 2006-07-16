@@ -80,41 +80,37 @@ cmd_user* command_user;
 cmd_nick* command_nick;
 cmd_pass* command_pass;
 
-/* This function pokes and hacks at a parameter list like the following:
- *
- * PART #winbot,#darkgalaxy :m00!
- *
- * to turn it into a series of individual calls like this:
- *
- * PART #winbot :m00!
- * PART #darkgalaxy :m00!
- *
- * The seperate calls are sent to a callback function provided by the caller
- * (the caller will usually call itself recursively). The callback function
- * must be a command handler. Calling this function on a line with no list causes
- * no action to be taken. You must provide a starting and ending parameter number
- * where the range of the list can be found, useful if you have a terminating
- * parameter as above which is actually not part of the list, or parameters
- * before the actual list as well. This code is used by many functions which
- * can function as "one to list" (see the RFC) */
 
+/* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
+ * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
+ * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
+ * the channel names and their keys as follows:
+ * JOIN #chan1,#chan2,#chan3 key1,,key3
+ * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
+ * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
+ * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
+ * Both will only parse until they reach Config->MaxTargets number of targets, to stop abuse via spam.
+ */
 int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
-	/*if ((unsigned int)j > Config->MaxTargets)
-	{
-		WriteServ(u->fd,"407 %s %s :Too many targets in list, message not delivered.",u->nick,sep_items[j-1]);
-		return 1;
-	}
-	fn->Handle(pars,pcnt-(end-start),u);
-	return 1;*/
+	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
+	 * which called us just carries on as it was.
+	 */
 	if (!strchr(parameters[splithere],','))
 		return 0;
 
+	/* Create two lists, one for channel names, one for keys
+	 */
 	irc::commasepstream items1(parameters[splithere]);
 	irc::commasepstream items2(parameters[extra]);
 	std::string item = "";
+	int max = 0;
 
-	while ((item = items1.GetToken()) != "")
+	/* Attempt to iterate these lists and call the command objech
+	 * which called us, for every parameter pair until there are
+	 * no more left to parse.
+	 */
+	while (((item = items1.GetToken()) != "") && (max++ < Config->MaxTargets))
 	{
 		std::string extrastuff = items2.GetToken();
 		parameters[splithere] = item.c_str();
@@ -126,17 +122,30 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 
 int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
 {
+	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
+	 * which called us just carries on as it was.
+	 */
 	if (!strchr(parameters[splithere],','))
 		return 0;
 
+	/* Only one commasepstream here */
 	irc::commasepstream items1(parameters[splithere]);
 	std::string item = "";
+	int max = 0;
 
-	while ((item = items1.GetToken()) != "")
+	/* Parse the commasepstream until there are no tokens remaining.
+	 * Each token we parse out, call the command handler that called us
+	 * with it
+	 */
+	while (((item = items1.GetToken()) != "") && (max++ < Config->MaxTargets))
 	{
 		parameters[splithere] = item.c_str();
 		CommandObj->Handle(parameters,pcnt,user);
 	}
+	/* By returning 1 we tell our caller that nothing is to be done,
+	 * as all the previous calls handled the data. This makes the parent
+	 * return without doing any processing.
+	 */
 	return 1;
 }
 
