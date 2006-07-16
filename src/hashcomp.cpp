@@ -178,7 +178,7 @@ std::istream& operator>>(std::istream &is, irc::string &str)
 	return is;
 }
 
-irc::tokenstream::tokenstream(std::string &source) : tokens(source), last_pushed(false)
+irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)
 {
 	last_starting_position = tokens.begin();
 	n = tokens.begin();
@@ -219,4 +219,3 @@ const std::string irc::tokenstream::GetToken()
 	}
 	return "";
 }
-

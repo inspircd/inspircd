@@ -87,7 +87,7 @@ namespace irc
 		std::string::iterator n;
 		bool last_pushed;
 	 public:
-		tokenstream(std::string &source);
+		tokenstream(const std::string &source);
 		~tokenstream();
 
 		const std::string GetToken();
