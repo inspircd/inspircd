@@ -407,7 +407,8 @@ bool userrec::AddBuffer(const std::string &a)
 			b += *i;
 	}
 
-	recvq.append(b);
+	if (b.length())
+		recvq.append(b);
 
 	if (recvq.length() > (unsigned)this->recvqmax)
 	{

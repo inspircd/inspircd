@@ -326,9 +326,11 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 	while ((a = buffer.find("\r")) != std::string::npos)
 		buffer.erase(a);
 
-	log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
-
-	this->ProcessCommand(user,buffer);
+	if (buffer.length())
+	{
+		log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
+		this->ProcessCommand(user,buffer);
+	}
 }
 
 bool CommandParser::CreateCommand(command_t *f)
