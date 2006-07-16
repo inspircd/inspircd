@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -29,8 +29,7 @@ class ModuleAntiBear : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleAntiBear(Server* Me)
-		: Module::Module(Me)
+	ModuleAntiBear(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
 	}
@@ -46,14 +45,14 @@ class ModuleAntiBear : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserConnect] = 1;
+		List[I_OnUserRegister] = 1;
 	}
 	
-	virtual void OnUserConnect(userrec* user)
+	virtual void OnUserRegister(userrec* user)
 	{
 		WriteServ(user->fd,"439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
-		WriteServ(user->fd,"931 %s :Spambots, trojans, and malicious botnets are", user->nick);
-		WriteServ(user->fd,"437 %s :NOT WELCOME HERE. Please take your war elsewhere.", user->nick);
+		WriteServ(user->fd,"931 %s :Malicious bots, spammers, and other automated systems of", user->nick);
+		WriteServ(user->fd,"437 %s :dubious origin are NOT welcome here.", user->nick); 
 	}
 };
 
