@@ -971,6 +971,7 @@ int main(int argc, char** argv)
 	printf("Token 1 = '%s'\n",test.GetToken().c_str());
 	printf("Token 2 = '%s'\n",test.GetToken().c_str());
 	printf("Token 3 = '%s'\n",test.GetToken().c_str());
+	printf("Token 4 = '%s'\n",test.GetToken().c_str());
 
 	std::string b = "PRIVMSG #test :FOO BAR BAZ";
 	printf("String: '%s'\n",b.c_str());
@@ -978,6 +979,7 @@ int main(int argc, char** argv)
 	printf("Token 0 = '%s'\n",test2.GetToken().c_str());
 	printf("Token 1 = '%s'\n",test2.GetToken().c_str());
 	printf("Token 2 = '%s'\n",test2.GetToken().c_str());
+	printf("Token 3 = '%s'\n",test2.GetToken().c_str());
 
 	std::string c = ":PRIVMSG #test :FOO BAR BAZ";
 	printf("String: '%s'\n",c.c_str());
@@ -988,6 +990,7 @@ int main(int argc, char** argv)
 	printf("String: '%s'\n",c.c_str());
 	irc::tokenstream test4(c);
 	printf("Token 0 = '%s'\n",test4.GetToken().c_str());
+	printf("Token 1 = '%s'\n",test4.GetToken().c_str());
 
 	c = "";
 	printf("String: '%s'\n",c.c_str());

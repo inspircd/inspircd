@@ -182,39 +182,11 @@ irc::tokenstream::tokenstream(std::string &source) : tokens(source), last_pushed
 {
 	last_starting_position = tokens.begin();
 	n = tokens.begin();
-
-	/*for (std::string::iterator n = source.begin(); n != source.end(); n++)
-	{
-		if ((last_pushed) && (*n == ':'))
-		{
-			 * If we find a token thats not the first and starts with :,
-			 * this is the last token on the line
-			 *
-			tokens.push_back(new std::string(n+1, source.end()));
-			break;
-		}
-
-		last_pushed = false;
-
-		if ((*n == ' ') || (n+1 == source.end()))
-		{
-			* If we find a space, or end of string, this is the end of a token.
-			
-			tokens.push_back(new std::string(last_starting_position, n+1 == source.end() ? n+1  : n));
-			last_starting_position = n+1;
-			last_pushed = true;
-		}
-	}*/
 }
 
 irc::tokenstream::~tokenstream()
 {
 }
-
-/*unsigned int irc::tokenstream::GetNumTokens()
-{
-	return tokens.size();
-}*/
 
 const std::string irc::tokenstream::GetToken()
 {
@@ -227,7 +199,9 @@ const std::string irc::tokenstream::GetToken()
 			/* If we find a token thats not the first and starts with :,
 			 * this is the last token on the line
 			 */
-			return std::string(n+1, tokens.end());
+			std::string::iterator curr = ++n;
+			n = tokens.end();
+			return std::string(curr, tokens.end());
 		}
 
 		last_pushed = false;
