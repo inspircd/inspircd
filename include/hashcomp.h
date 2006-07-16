@@ -79,6 +79,18 @@ namespace irc
 	        bool operator()(const in_addr &s1, const in_addr &s2) const;
 	};
 
+	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
+	 * It will split the string into 'tokens' each containing one parameter
+	 * from the string.
+	 * For instance, if it is instantiated with the string:
+	 * "PRIVMSG #test :foo bar baz qux"
+	 * then each successive call to tokenstream::GetToken() will return
+	 * "PRIVMSG", "#test", "foo bar baz qux", "".
+	 * Note that if the whole string starts with a colon this is not taken
+	 * to mean the string is all one parameter, and the first item in the
+	 * list will be ":item". This is to allow for parsing 'source' fields
+	 * from data.
+	 */
 	class tokenstream
 	{
 	 private:
@@ -87,12 +99,24 @@ namespace irc
 		std::string::iterator n;
 		bool last_pushed;
 	 public:
+		/** Create a tokenstream and fill it with the provided data
+		 */
 		tokenstream(const std::string &source);
 		~tokenstream();
 
+		/** Fetch the next token from the stream
+		 * @returns The next token is returned, or an empty string if none remain
+		 */
 		const std::string GetToken();
 	};
 
+	/** irc::commasepstream allows for splitting comma seperated lists.
+	 * Lists passed to irc::commasepstream should not contain spaces
+	 * after the commas, or this will be taken to be part of the item
+	 * data. Each successive call to commasepstream::GetToken() returns
+	 * the next token, until none remain, at which point the method returns
+	 * an empty string.
+	 */
 	class commasepstream
 	{
 	 private:
@@ -100,9 +124,14 @@ namespace irc
 		std::string::iterator last_starting_position;
 		std::string::iterator n;
 	 public:
+		/** Create a commasepstream and fill it with the provided data
+		 */
 		commasepstream(const std::string &source);
 		~commasepstream();
 
+		/** Fetch the next token from the stream
+		 * @returns The next token is returned, or an empty string if none remain
+		 */
 		const std::string GetToken();
 	};
 
