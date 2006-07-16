@@ -306,7 +306,6 @@ bool userrec::IsInvited(irc::string &channel)
 			return true;
 		}
 	}
-	
 	return false;
 }
 
@@ -318,7 +317,6 @@ InvitedList* userrec::GetInviteList()
 void userrec::InviteTo(irc::string &channel)
 {
 	Invited i;
-	
 	i.channel = channel;
 	invites.push_back(i);
 }
@@ -691,6 +689,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = clientlist.find(tempnick);
 	const char *ipaddr = inet_ntoa(ip4);
+	userrec* _new;
 	int j = 0;
 
 	/*
@@ -711,24 +710,25 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 
 	log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
-	clientlist[tempnick] = new userrec();
-	clientlist[tempnick]->fd = socket;
-	strlcpy(clientlist[tempnick]->nick,tempnick.c_str(),NICKMAX-1);
+	_new = new userrec();
+	clientlist[tempnick] = _new;
+	_new->fd = socket;
+	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	for (char* temp = (char*)ipaddr; *temp && j < 64; temp++, j++)
-		clientlist[tempnick]->dhost[j] = clientlist[tempnick]->host[j] = *temp;
-	clientlist[tempnick]->dhost[j] = clientlist[tempnick]->host[j] = 0;
+	for (const char* temp = ipaddr; *temp && j < 64; temp++, j++)
+		_new->dhost[j] = _new->host[j] = *temp;
+	_new->dhost[j] = _new->host[j] = 0;
 
-	clientlist[tempnick]->server = (char*)FindServerNamePtr(Config->ServerName);
+	_new->server = FindServerNamePtr(Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
-	strcpy(clientlist[tempnick]->ident, "unknown");
+	strcpy(_new->ident, "unknown");
 
-	clientlist[tempnick]->registered = 0;
-	clientlist[tempnick]->signon = TIME + Config->dns_timeout;
-	clientlist[tempnick]->lastping = 1;
-	clientlist[tempnick]->ip4 = ip4;
-	clientlist[tempnick]->port = port;
+	_new->registered = 0;
+	_new->signon = TIME + Config->dns_timeout;
+	_new->lastping = 1;
+	_new->ip4 = ip4;
+	_new->port = port;
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -743,7 +743,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		{
 			class_regtimeout = (unsigned long)i->registration_timeout;
 			class_flood = i->flood;
-			clientlist[tempnick]->pingmax = i->pingtime;
+			_new->pingmax = i->pingtime;
 			class_threshold = i->threshold;
 			class_sqmax = i->sendqmax;
 			class_rqmax = i->recvqmax;
@@ -751,25 +751,25 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		}
 	}
 
-	clientlist[tempnick]->nping = TIME+clientlist[tempnick]->pingmax + Config->dns_timeout;
-	clientlist[tempnick]->timeout = TIME+class_regtimeout;
-	clientlist[tempnick]->flood = class_flood;
-	clientlist[tempnick]->threshold = class_threshold;
-	clientlist[tempnick]->sendqmax = class_sqmax;
-	clientlist[tempnick]->recvqmax = class_rqmax;
+	_new->nping = TIME + _new->pingmax + Config->dns_timeout;
+	_new->timeout = TIME+class_regtimeout;
+	_new->flood = class_flood;
+	_new->threshold = class_threshold;
+	_new->sendqmax = class_sqmax;
+	_new->recvqmax = class_rqmax;
 
-	fd_ref_table[socket] = clientlist[tempnick];
-	local_users.push_back(clientlist[tempnick]);
+	fd_ref_table[socket] = _new;
+	local_users.push_back(_new);
 
 	if (local_users.size() > Config->SoftLimit)
 	{
-		kill_link(clientlist[tempnick],"No more connections allowed");
+		kill_link(_new,"No more connections allowed");
 		return;
 	}
 
 	if (local_users.size() >= MAXCLIENTS)
 	{
-		kill_link(clientlist[tempnick],"No more connections allowed");
+		kill_link(_new,"No more connections allowed");
 		return;
 	}
 
@@ -785,7 +785,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 	 */
 	if ((unsigned)socket >= MAX_DESCRIPTORS)
 	{
-		kill_link(clientlist[tempnick],"Server is full");
+		kill_link(_new,"Server is full");
 		return;
 	}
 	char* e = matches_exception(ipaddr);
@@ -796,7 +796,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
-			kill_link(clientlist[tempnick],reason);
+			kill_link(_new,reason);
 			return;
 		}
 	}
@@ -806,7 +806,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 	}
 
-	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
+	WriteServ(_new->fd,"NOTICE Auth :*** Looking up your hostname...");
 }
 
 long FindMatchingGlobal(userrec* user)
