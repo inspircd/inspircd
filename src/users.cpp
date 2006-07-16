@@ -405,25 +405,20 @@ bool userrec::AddBuffer(const std::string &a)
 	}
 	
 	recvq.append(b);
-	unsigned int i = 0;
-	
-	// count the size of the first line in the buffer.
-	while (i < recvq.length())
-	{
-		if (recvq[i++] == '\n')
-			break;
-	}
+	//unsigned int i = 0;
+
 	if (recvq.length() > (unsigned)this->recvqmax)
 	{
 		this->SetWriteError("RecvQ exceeded");
 		WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
+		return false;
 	}
 	
 	/*
 	 * return false if we've had more than 600 characters WITHOUT
 	 * a carriage return (this is BAD, drop the socket)
 	 */
-	return (i < 600);
+	return true;
 }
 
 bool userrec::BufferIsReady()

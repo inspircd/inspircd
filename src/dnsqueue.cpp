@@ -177,7 +177,8 @@ public:
 						if (resolver2.GetFD() != -1)
 						{
 							dnslist[resolver2.GetFD()] = this;
-							user_fd_to_dns[usr->fd] = this;
+							if (usr)
+								user_fd_to_dns[usr->fd] = this;
 						}
 					}
 				}
