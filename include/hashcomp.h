@@ -79,6 +79,19 @@ namespace irc
 	        bool operator()(const in_addr &s1, const in_addr &s2) const;
 	};
 
+	class tokenstream
+	{
+	 private:
+		std::string tokenbuffer;
+		std::vector<std::string> tokens;
+	 public:
+		tokenstream(std::string &source);
+		~tokenstream();
+
+		unsigned int GetNumTokens();
+		const std::string& GetToken(unsigned int index);
+	};
+
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-

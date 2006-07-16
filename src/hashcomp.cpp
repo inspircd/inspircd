@@ -177,3 +177,47 @@ std::istream& operator>>(std::istream &is, irc::string &str)
 	str = tmp.c_str();
 	return is;
 }
+
+irc::tokenstream::tokenstream(std::string &source)
+{
+	std::string::iterator last_starting_position = source.begin();
+	bool last_pushed = false;
+
+	for (std::string::iterator n = source.begin(); n != source.end(); n++)
+	{
+		if ((last_pushed) && (*n == ':'))
+		{
+			/* If we find a token thats not the first and starts with :,
+			 * this is the last token on the line
+			 */
+			tokens.push_back(std::string(n+1, source.end()));
+			break;
+		}
+
+		last_pushed = false;
+
+		if ((*n == ' ') || (n+1 == source.end()))
+		{
+			/* If we find a space, or end of string, this is the end of a token.
+			 */
+			tokens.push_back(std::string(last_starting_position, n+1 == source.end() ? n+1  : n));
+			last_starting_position = n+1;
+			last_pushed = true;
+		}
+	}
+}
+
+irc::tokenstream::~tokenstream()
+{
+}
+
+unsigned int irc::tokenstream::GetNumTokens()
+{
+	return tokens.size();
+}
+
+const std::string& irc::tokenstream::GetToken(unsigned int index)
+{
+	return tokens[index];
+}
+
