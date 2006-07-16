@@ -431,7 +431,7 @@ void userrec::ClearBuffer()
 
 std::string userrec::GetBuffer()
 {
-	if (recvq == "")
+	if (!recvq.length())
 		return "";
 
 	/* Strip any leading \r or \n off the string.
@@ -504,7 +504,7 @@ void userrec::SetWriteError(const std::string &error)
 {
 	log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 	// don't try to set the error twice, its already set take the first string.
-	if (this->WriteError == "")
+	if (!this->WriteError.length())
 		this->WriteError = error;
 }
 
@@ -854,13 +854,13 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	if (FindMatchingLocal(user) > a.maxlocal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
-		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,(char*)inet_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,inet_ntoa(user->ip4));
 		return;
 	}
 	else if (FindMatchingGlobal(user) > a.maxglobal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
-		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,(char*)inet_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,inet_ntoa(user->ip4));
 		return;
 	}
 
@@ -928,7 +928,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
 	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
 	user->registered = 7;
-	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,(char*)inet_ntoa(user->ip4));
+	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,inet_ntoa(user->ip4));
 }
 
 /** ReHashNick()
