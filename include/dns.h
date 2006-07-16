@@ -216,6 +216,8 @@ void dns_deal_with_classes(int fd);
  */
 bool dns_add_class(Resolver* r);
 
+void dns_close(int fd);
+
 #ifdef THREADED_DNS
 /** This is the handler function for multi-threaded DNS.
  * It cannot be a class member as pthread will not let us

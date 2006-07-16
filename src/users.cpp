@@ -217,7 +217,7 @@ userrec::~userrec()
 	for (std::vector<ucrec*>::iterator n = chans.begin(); n != chans.end(); n++)
 	{
 		ucrec* x = (ucrec*)*n;
-		DELETE(x);
+		delete x;
 	}
 }
 

@@ -172,7 +172,6 @@ void dns_close(int fd)
 	if (fd == lastcreate)
 	{
 		wantclose = 1;
-		return;
 	}
 	shutdown(fd,2);
 	close(fd);
@@ -800,6 +799,7 @@ std::string DNS::GetResult()
 		if (ServerInstance && ServerInstance->stats)
 			ServerInstance->stats->statsDnsGood++;
 		dns_close(this->myfd);
+		this->myfd = -1;
 		return result;
 	}
 	else
@@ -809,6 +809,7 @@ std::string DNS::GetResult()
 		if (this->myfd != -1)
 		{
 			dns_close(this->myfd);
+			this->myfd = -1;
 		}
 		return "";
 	}
@@ -822,6 +823,7 @@ std::string DNS::GetResultIP()
 	if (this->myfd != -1)
 	{
 		dns_close(this->myfd);
+		this->myfd = -1;
 	}
 	if (result)
 	{
