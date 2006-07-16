@@ -128,11 +128,11 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			/* who on a single user */
 			std::string wholine = initial;
 
-			wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + i->second->dhost + " " + 
-					i->second->server + " " + i->second->nick + " ";
+			wholine = wholine + getlastchanname(u) + " " + u->ident + " " + u->dhost + " " + 
+					u->server + " " + u->nick + " ";
 
 			/* away? */
-			if (*(i->second)->awaymsg)
+			if (*u->awaymsg)
 			{
 				wholine.append("G");
 			}
@@ -142,16 +142,16 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 
 			/* oper? */
-			if (*(i->second)->oper)
+			if (*u->oper)
 			{
 				wholine.append("*");
 			}
 
-			wholine = wholine + cmode(i->second, ch) + " :0 " + i->second->fullname;
+			wholine = wholine + cmode(u, ch) + " :0 " + u->fullname;
 			whoresults.push_back(wholine);
 		}
 
-		is (*parameters[0] == '*' || *parameters[0] == '0')
+		if (*parameters[0] == '*' || *parameters[0] == '0')
 		{
 			if (!opt_viewopersonly && !*user->oper)
 				return; /* No way, jose */
@@ -160,13 +160,15 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 				{
+					userrec* oper = (userrec*)*i;
+
 					std::string wholine = initial;
 
-					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + i->second->dhost + " " + 
-							i->second->server + " " + i->second->nick + " ";
+					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + oper->dhost + " " + 
+							oper->server + " " + oper->nick + " ";
 
 					/* away? */
-					if (*(i->second)->awaymsg)
+					if (*oper->awaymsg)
 					{
 						wholine.append("G");
 					}
@@ -176,18 +178,18 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					}
 
 					/* oper? */
-					if (*(i->second)->oper)
+					if (*oper->oper)
 					{
 						wholine.append("*");
 					}
 
-					wholine = wholine + cmode(i->second, ch) + " :0 " + i->second->fullname;
+					wholine = wholine + cmode(oper, ch) + " :0 " + oper->fullname;
 					whoresults.push_back(wholine);
 				}
 			}
 			else
 			{
-				for (std::vector<userrec*>::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+				for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 				{
 					std::string wholine = initial;
 
