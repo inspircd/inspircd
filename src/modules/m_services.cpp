@@ -210,7 +210,7 @@ class ModuleServices : public Module
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet('r'))
 		{
-			char* modechange[2];
+			const char* modechange[2];
 			modechange[0] = user->nick;
 			modechange[1] = "-r";
 			kludgeme = true;

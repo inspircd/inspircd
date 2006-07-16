@@ -23,7 +23,7 @@
 
 extern ServerConfig* Config;
 
-void cmd_map::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_map::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something

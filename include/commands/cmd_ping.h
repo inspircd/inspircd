@@ -32,7 +32,7 @@ class cmd_ping : public command_t
 {
  public:
         cmd_ping () : command_t("PING",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

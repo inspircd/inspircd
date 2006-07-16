@@ -22,7 +22,7 @@
 
 extern InspIRCd* ServerInstance;
 
-void cmd_names::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* c;
 

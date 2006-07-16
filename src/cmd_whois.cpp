@@ -101,7 +101,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 	}
 }
 
-void cmd_whois::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))

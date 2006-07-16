@@ -27,7 +27,7 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 
-void cmd_who::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr = NULL;
 	char tmp[10];

@@ -55,7 +55,7 @@ class cmd_remove : public command_t
 		this->source = "m_remove.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* target;
 		chanrec* channel;

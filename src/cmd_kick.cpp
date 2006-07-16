@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_kick.h"
 
-void cmd_kick::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];
 	chanrec* c = FindChan(parameters[0]);

@@ -37,7 +37,7 @@ class cmd_globops : public command_t
 		this->source = "m_globops.so";
 	}
 	
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		std::string line = "*** GLOBOPS - From " + std::string(user->nick) + ": ";
 		for (int i = 0; i < pcnt; i++)

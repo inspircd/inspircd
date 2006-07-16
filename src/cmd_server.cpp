@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_server.h"
 
-void cmd_server::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_server::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"666 %s :You cannot identify as a server, you are a USER. IRC Operators informed.",user->nick);
 	WriteOpers("*** WARNING: %s attempted to issue a SERVER command and is registered as a user!",user->nick);

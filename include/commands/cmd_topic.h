@@ -32,7 +32,7 @@ class cmd_topic : public command_t
 {
  public:
         cmd_topic () : command_t("TOPIC",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

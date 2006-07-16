@@ -34,7 +34,7 @@ class cmd_oper : public command_t
 {
  public:
         cmd_oper () : command_t("OPER",0,2) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

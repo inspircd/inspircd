@@ -32,7 +32,7 @@ class cmd_pong : public command_t
 {
  public:
         cmd_pong () : command_t("PONG",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

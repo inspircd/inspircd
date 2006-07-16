@@ -47,10 +47,10 @@ extern chan_hash chanlist;
 extern std::vector<userrec*> local_users;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
-void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
-	char* reason;
+	char reason[MAXBUF];
 
 	if (user->registered == 7)
 	{
@@ -60,10 +60,7 @@ void cmd_quit::Handle (char **parameters, int pcnt, userrec *user)
 			if (*parameters[0] == ':')
 				parameters[0]++;
 
-			reason = parameters[0];
-
-			if (strlen(reason) > MAXQUIT)
-				reason[MAXQUIT-1] = 0;
+			strlcpy(reason, parameters[0],MAXQUIT-1);
 
 			/* We should only prefix the quit for a local user. Remote users have
 			 * already been prefixed, where neccessary, by the upstream server.

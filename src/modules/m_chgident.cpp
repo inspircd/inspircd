@@ -16,7 +16,7 @@ class cmd_chgident : public command_t
 		Srv = serv;
 	}
 	
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		

@@ -232,7 +232,7 @@ public:
 		this->source = "m_opersha256.so";
 	}
 
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		char buffer[SHA256_BLOCK_SIZE + 1];
 		SHA256(parameters[0], buffer, strlen(parameters[0]));

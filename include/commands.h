@@ -33,7 +33,7 @@ long duration(const char* str);
 bool host_matches_everyone(const std::string &mask, userrec* user);
 bool ip_matches_everyone(const std::string &ip, userrec* user);
 bool nick_matches_everyone(const std::string &nick, userrec* user);	
-int operstrcmp(char* data,char* input);
+int operstrcmp(const char* data,const char* input);
 void split_chlist(userrec* user, userrec* dest, const std::string &cl);
 
 /*       XXX Serious WTFness XXX

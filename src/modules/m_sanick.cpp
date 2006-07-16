@@ -34,7 +34,7 @@ class cmd_sanick : public command_t
 		this->source = "m_sanick.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = Srv->FindNick(std::string(parameters[0]));
 		if (source)

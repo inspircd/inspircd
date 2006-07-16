@@ -35,7 +35,7 @@ class cmd_setname : public command_t
 		this->source = "m_setname.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		std::string line = "";
 		for (int i = 0; i < pcnt-1; i++)

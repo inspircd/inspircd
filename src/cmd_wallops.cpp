@@ -25,7 +25,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern ServerConfig* Config;
 
-void cmd_wallops::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteWallOps(user,false,"%s",parameters[0]);
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));

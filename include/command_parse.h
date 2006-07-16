@@ -34,9 +34,9 @@ class CommandParser : public classbase
 	command_table cmdlist;
 
 	CommandParser();
-	bool CallHandler(const std::string &commandname,char **parameters, int pcnt, userrec *user);
+	bool CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
 	bool IsValidCommand(const std::string &commandname, int pcnt, userrec * user);
-	int LoopCall(command_t *fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins);
+	int LoopCall(command_t *fn, const char** parameters, int pcnt, userrec *u, int start, int end, int joins);
 	void ProcessBuffer(std::string &buffer,userrec *user);
 	bool RemoveCommands(const char* source);
 	bool CreateCommand(command_t *f);

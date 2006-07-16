@@ -27,7 +27,7 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 
-void cmd_user::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (user->registered < 3)
 	{

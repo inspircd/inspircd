@@ -28,7 +28,7 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
-void cmd_invite::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	int MOD_RESULT = 0;
 

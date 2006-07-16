@@ -32,7 +32,7 @@ class cmd_zline : public command_t
 {
  public:
         cmd_zline () : command_t("ZLINE",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

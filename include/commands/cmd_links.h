@@ -32,7 +32,7 @@ class cmd_links : public command_t
 {
  public:
         cmd_links () : command_t("LINKS",0,0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

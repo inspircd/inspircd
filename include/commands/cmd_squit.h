@@ -32,7 +32,7 @@ class cmd_squit : public command_t
 {
  public:
         cmd_squit () : command_t("SQUIT",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

@@ -32,7 +32,7 @@ class cmd_die : public command_t
 {
  public:
         cmd_die () : command_t("DIE",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

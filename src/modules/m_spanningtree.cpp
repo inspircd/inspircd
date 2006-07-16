@@ -555,9 +555,9 @@ class cmd_rconnect : public command_t
 	cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
 	{
 		this->source = "m_spanningtree.so";
-	}                
+	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		WriteServ(user->fd,"NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
 		/* Is this aimed at our server? */
@@ -565,7 +565,7 @@ class cmd_rconnect : public command_t
 		{
 			/* Yes, initiate the given connect */
 			WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
-			char* para[1];
+			const char* para[1];
 			para[0] = parameters[1];
 			Creator->OnPreCommand("CONNECT", para, 1, user, true);
 		}
@@ -888,7 +888,7 @@ class TreeSocket : public InspSocket
 			return true;
 		userrec* who = new userrec();
 		who->fd = FD_MAGIC_NUMBER;
-		char* modelist[64];
+		const char* modelist[64];
 		memset(&modelist,0,sizeof(modelist));
 		for (unsigned int q = 0; q < params.size(); q++)
 		{
@@ -956,7 +956,7 @@ class TreeSocket : public InspSocket
 		memset(&mode_users,0,sizeof(mode_users));
 		mode_users[0] = first;
 		mode_users[1] = modestring;
-		strcpy(mode_users[1],"+");
+		strcpy(first,"+");
 		unsigned int modectr = 2;
 		
 		userrec* who = NULL;
@@ -991,7 +991,7 @@ class TreeSocket : public InspSocket
 		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
 		{
 			/* process one channel at a time, applying modes. */
-			char* usr = const_cast<char*>(params[usernum].c_str());
+			char* usr = (char*)params[usernum].c_str();
 			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 			 * (is this even possible?) */
 			if (usr && *usr)
@@ -1028,7 +1028,7 @@ class TreeSocket : public InspSocket
 						{
 							/* We also always let u-lined clients win, no matter what the TS value */
 							log(DEBUG,"Our our channel newer than theirs, accepting their modes");
-							Srv->SendMode(mode_users,modectr,who);
+							Srv->SendMode((const char**)mode_users,modectr,who);
 						}
 						else
 						{
@@ -1058,7 +1058,7 @@ class TreeSocket : public InspSocket
 			if (ourTS >= TS)
 			{
 				log(DEBUG,"Our our channel newer than theirs, accepting their modes");
-				Srv->SendMode(mode_users,modectr,who);
+				Srv->SendMode((const char**)mode_users,modectr,who);
 			}
 			else
 			{
@@ -2555,10 +2555,10 @@ class TreeSocket : public InspSocket
 						}
 						// its a user
 						target = who->server;
-						char* strparams[127];
+						const char* strparams[127];
 						for (unsigned int q = 0; q < params.size(); q++)
 						{
-							strparams[q] = (char*)params[q].c_str();
+							strparams[q] = params[q].c_str();
 						}
 						if (!Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 						{
@@ -2970,14 +2970,14 @@ class ModuleSpanningTree : public Module
 		return serverlist.size();
 	}
 
-	void HandleLinks(char** parameters, int pcnt, userrec* user)
+	void HandleLinks(const char** parameters, int pcnt, userrec* user)
 	{
 		ShowLinks(TreeRoot,user,0);
 		WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
 		return;
 	}
 
-	void HandleLusers(char** parameters, int pcnt, userrec* user)
+	void HandleLusers(const char** parameters, int pcnt, userrec* user)
 	{
 		unsigned int n_users = usercnt();
 
@@ -3062,7 +3062,7 @@ class ModuleSpanningTree : public Module
 	// (a character matrix), then draw the branches as a series of "L" shapes
 	// from the nodes. This is not only friendlier on CPU it uses less stack.
 
-	void HandleMap(char** parameters, int pcnt, userrec* user)
+	void HandleMap(const char** parameters, int pcnt, userrec* user)
 	{
 		// This array represents a virtual screen which we will
 		// "scratch" draw to, as the console device of an irc
@@ -3118,7 +3118,7 @@ class ModuleSpanningTree : public Module
 		return;
 	}
 
-	int HandleSquit(char** parameters, int pcnt, userrec* user)
+	int HandleSquit(const char** parameters, int pcnt, userrec* user)
 	{
 		TreeServer* s = FindServerMask(parameters[0]);
 		if (s)
@@ -3148,7 +3148,7 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
-	int HandleTime(char** parameters, int pcnt, userrec* user)
+	int HandleTime(const char** parameters, int pcnt, userrec* user)
 	{
 		if ((user->fd > -1) && (pcnt))
 		{
@@ -3172,7 +3172,7 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
-	int HandleRemoteWhois(char** parameters, int pcnt, userrec* user)
+	int HandleRemoteWhois(const char** parameters, int pcnt, userrec* user)
 	{
 		if ((user->fd > -1) && (pcnt > 1))
 		{
@@ -3250,7 +3250,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	int HandleVersion(char** parameters, int pcnt, userrec* user)
+	int HandleVersion(const char** parameters, int pcnt, userrec* user)
 	{
 		// we've already checked if pcnt > 0, so this is safe
 		TreeServer* found = FindServerMask(parameters[0]);
@@ -3287,7 +3287,7 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 	
-	int HandleConnect(char** parameters, int pcnt, userrec* user)
+	int HandleConnect(const char** parameters, int pcnt, userrec* user)
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 		{
@@ -3336,7 +3336,7 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)

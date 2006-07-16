@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_summon.h"
 
-void cmd_summon::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_summon::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"445 %s :SUMMON has been disabled (depreciated command)",user->nick);
 }

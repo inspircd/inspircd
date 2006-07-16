@@ -38,7 +38,7 @@ class cmd_devoice : public command_t
 		this->source = "m_devoice.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/*
 		 * NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
@@ -46,7 +46,7 @@ class cmd_devoice : public command_t
 		 *
 		 * - I'm not aware what checking I need, so for now... be supreme evil.
 		 */
-		char* modes[3];
+		const char* modes[3];
 		modes[0] = parameters[0];
 		modes[1] = "-v";
 		modes[2] = user->nick;

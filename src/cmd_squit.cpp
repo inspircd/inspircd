@@ -22,7 +22,7 @@
 /*
  * This is handled by the server linking module, if necessary. Do not remove this stub.
  */
-void cmd_squit::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_squit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd, "NOTICE %s :You are a nub. Load a linking module.", user->nick);
 }

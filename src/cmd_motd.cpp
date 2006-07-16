@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_motd.h"
 
-void cmd_motd::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_motd::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	ShowMOTD(user);
 }

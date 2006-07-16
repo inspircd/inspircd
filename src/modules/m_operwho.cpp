@@ -41,7 +41,7 @@ class ModuleOperWho : public Module
 		List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 
 		if ((!*user->oper) || (command != "WHO"))

@@ -32,7 +32,7 @@ class cmd_nick : public command_t
 {
  public:
         cmd_nick () : command_t("NICK",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

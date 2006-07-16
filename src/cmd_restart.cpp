@@ -22,7 +22,7 @@
 
 extern ServerConfig* Config;;
 
-void cmd_restart::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char *argv[32];
 	log(DEFAULT,"Restart: %s",user->nick);

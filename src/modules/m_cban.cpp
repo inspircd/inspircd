@@ -68,7 +68,7 @@ class cmd_cban : public command_t
 		this->Srv = Me;
 	}
 
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */

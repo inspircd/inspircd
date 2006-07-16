@@ -967,7 +967,7 @@ class Module : public Extensible
 	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated);
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
@@ -1474,7 +1474,7 @@ class Server : public Extensible
 	 * your server in an unstable state!
 	 */
 
-  	virtual void SendMode(char **parameters, int pcnt, userrec *user);
+  	virtual void SendMode(const char **parameters, int pcnt, userrec *user);
   	
   	/** Sends to all users matching a mode mask
   	 * You must specify one or more usermodes as the first parameter. These can be RFC specified modes such as +i,
@@ -1550,7 +1550,7 @@ class Server : public Extensible
 	 * used for privilage checks, etc.
 	 * @return True if the command exists
 	 */
-	virtual bool CallCommandHandler(const std::string &commandname, char** parameters, int pcnt, userrec* user);
+	virtual bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
 
 	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
 	 * of paramters the command requires, the user specified is allowed to execute the command, AND

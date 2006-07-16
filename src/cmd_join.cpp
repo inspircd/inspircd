@@ -22,7 +22,7 @@
 
 extern InspIRCd* ServerInstance;
 
-void cmd_join::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->Parser->LoopCall(this, parameters, pcnt, user, 0, 0, 1))
 		return;

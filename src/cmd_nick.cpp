@@ -35,7 +35,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 
-void cmd_nick::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];
 

@@ -92,7 +92,7 @@ class cmd_spylist : public command_t
 		this->source = "m_spy.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
@@ -112,7 +112,7 @@ class cmd_spynames : public command_t
 		  this->source = "m_spy.so";
 	  }
 
-	  void Handle (char **parameters, int pcnt, userrec *user)
+	  void Handle (const char** parameters, int pcnt, userrec *user)
 	  {
 		  chanrec* c;
 

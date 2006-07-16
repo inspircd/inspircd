@@ -24,7 +24,7 @@
 extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 
-void cmd_version::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	std::stringstream out(Config->data005);
 	std::string token = "";

@@ -35,7 +35,7 @@ class cmd_gloadmodule : public command_t
 		this->source = "m_globalload.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (ServerInstance->LoadModule(parameters[0]))
 		{
@@ -57,7 +57,7 @@ class cmd_gunloadmodule : public command_t
 		this->source = "m_globalload.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (ServerInstance->UnloadModule(parameters[0]))
 		{

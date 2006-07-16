@@ -47,7 +47,7 @@ class cmd_watch : public command_t
 		this->source = "m_watch.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!pcnt)
 		{
@@ -68,7 +68,7 @@ class cmd_watch : public command_t
 		{
 			for (int x = 0; x < pcnt; x++)
 			{
-				char *nick = parameters[x];
+				const char *nick = parameters[x];
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear

@@ -24,7 +24,7 @@
 extern ServerConfig* Config;
 extern time_t TIME;
 
-void cmd_time::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	struct tm* timeinfo;
 

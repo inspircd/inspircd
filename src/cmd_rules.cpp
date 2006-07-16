@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_rules.h"
 
-void cmd_rules::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_rules::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	ShowRULES(user);
 }

@@ -94,7 +94,7 @@ public:
 		DELETE(Conf);
 	}
 
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != 7) || !IS_LOCAL(user))
@@ -117,7 +117,7 @@ public:
 			if(*parameters[0] != '#')
 				targets--;
 			
-			for(char* c = parameters[0]; *c; c++)
+			for(const char* c = parameters[0]; *c; c++)
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
 					

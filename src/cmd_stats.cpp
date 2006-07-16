@@ -52,16 +52,11 @@ extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
-void cmd_stats::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt != 1)
 	{
 		return;
-	}
-	if (parameters[0][1])
-	{
-		/* make the stats query 1 character long */
-		parameters[0][1] = 0;
 	}
 
 	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,*parameters[0])) && (!*user->oper))

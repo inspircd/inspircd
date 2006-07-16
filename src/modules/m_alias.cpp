@@ -87,7 +87,7 @@ class ModuleAlias : public Module
 			return Version(1,0,0,1,VF_VENDOR);
 		}
 
-		virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+		virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 		{
 			userrec *u = NULL;
 			irc::string c = command.c_str();
@@ -137,9 +137,9 @@ class ModuleAlias : public Module
 					stuff >> cmd;
 					stuff >> target;
 
-					char* para[2];
-					para[0] = (char*)target.c_str();
-					para[1] = (char*)n.c_str();
+					const char* para[2];
+					para[0] = target.c_str();
+					para[1] = n.c_str();
 
 					Srv->CallCommandHandler(cmd,para,2,user);
 					return 1;

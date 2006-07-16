@@ -29,7 +29,7 @@ extern time_t TIME;
 extern ModuleList modules;
 extern FactoryList factory;
 
-void cmd_topic::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 

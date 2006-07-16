@@ -227,7 +227,7 @@ class ModuleSQLLog : public Module
 		return 0;
 	}
 
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
 		{

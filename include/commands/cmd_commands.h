@@ -32,7 +32,7 @@ class cmd_commands : public command_t
 {
  public:
         cmd_commands () : command_t("COMMANDS",0,0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

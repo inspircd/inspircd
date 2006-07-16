@@ -24,7 +24,7 @@
 extern ServerConfig* Config;
 extern whowas_users whowas;
 
-void cmd_whowas::Handle (char **parameters, int pcnt, userrec* user)
+void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
 	whowas_users::iterator i = whowas.find(parameters[0]);
 

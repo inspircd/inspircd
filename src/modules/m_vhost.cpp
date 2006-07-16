@@ -35,7 +35,7 @@ class cmd_vhost : public command_t
 		this->source = "m_vhost.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
 		{

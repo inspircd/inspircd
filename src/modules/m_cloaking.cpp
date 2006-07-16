@@ -432,7 +432,7 @@ class ModuleCloaking : public Module
 		// SAMODE in unreal. Note that to the user it will appear as if they set
 		// the mode on themselves.
 		
-		char* modes[2];			// only two parameters
+		const char* modes[2];		// only two parameters
 		modes[0] = user->nick;		// first parameter is the nick
 		modes[1] = "+x";		// second parameter is the mode
 		Srv->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +x"

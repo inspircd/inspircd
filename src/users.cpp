@@ -944,7 +944,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
  * re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved
  */
-userrec* ReHashNick(char* Old, char* New)
+userrec* ReHashNick(const char* Old, const char* New)
 {
 	//user_hash::iterator newnick;
 	user_hash::iterator oldnick = clientlist.find(Old);
@@ -1003,10 +1003,10 @@ void force_nickchange(userrec* user,const char* newnick)
 
 		if (user->registered == 7)
 		{
-			char* pars[1];
-			
+			const char* pars[1];
 			pars[0] = nick;
 			std::string cmd = "NICK";
+
 			ServerInstance->Parser->CallHandler(cmd,pars,1,user);
 		}
 	}

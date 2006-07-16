@@ -32,7 +32,7 @@ class cmd_kill : public command_t
 {
  public:
         cmd_kill () : command_t("KILL",'o',2) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

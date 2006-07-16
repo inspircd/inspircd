@@ -195,12 +195,12 @@ class ModuleMsgFlood : public Module
 					f->clear(user);
 					if (f->ban)
 					{
-						char* parameters[3];
+						const char* parameters[3];
 						parameters[0] = dest->name;
 						parameters[1] = "+b";
 						parameters[2] = user->MakeWildHost();
 						Srv->SendMode(parameters,3,user);
-                                                std::deque<std::string> n;
+						std::deque<std::string> n;
 						/* Propogate the ban to other servers.
 						 * We dont know what protocol we may be using,
 						 * so this event is picked up by our protocol

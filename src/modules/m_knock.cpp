@@ -35,7 +35,7 @@ class cmd_knock : public command_t
 		this->source = "m_knock.so";
 	}
 	
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* c = Srv->FindChannel(parameters[0]);
 

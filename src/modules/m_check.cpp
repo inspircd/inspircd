@@ -39,7 +39,7 @@ class cmd_check : public command_t
 		this->source = "m_check.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec *targuser;
 		chanrec *targchan;

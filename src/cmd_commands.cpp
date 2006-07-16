@@ -22,7 +22,7 @@
 
 extern InspIRCd* ServerInstance;
 
-void cmd_commands::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_commands::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{

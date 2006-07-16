@@ -32,7 +32,7 @@ class cmd_trace : public command_t
 {
  public:
         cmd_trace () : command_t("TRACE",'o',0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

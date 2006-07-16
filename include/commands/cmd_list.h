@@ -32,7 +32,7 @@ class cmd_list : public command_t
 {
  public:
         cmd_list () : command_t("LIST",0,0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

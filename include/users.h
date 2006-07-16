@@ -423,7 +423,7 @@ void AddWhoWas(userrec* u);
 void MaintainWhoWas(time_t TIME);
 void AddClient(int socket, int port, bool iscached, in_addr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
-userrec* ReHashNick(char* Old, char* New);
+userrec* ReHashNick(const char* Old, const char* New);
 void force_nickchange(userrec* user,const char* newnick);
 
 /* Configuration callbacks */

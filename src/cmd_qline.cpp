@@ -28,7 +28,7 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 
-void cmd_qline::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{

@@ -276,7 +276,7 @@ class cmd_mkpasswd : public command_t
 		this->source = "m_opermd5.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char buffer[MAXBUF];
 		GenHash(parameters[0],buffer);

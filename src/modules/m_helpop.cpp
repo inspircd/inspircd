@@ -25,8 +25,8 @@ using namespace std;
 static ConfigReader *helpop;
 static Server *Srv;
 
-bool do_helpop(char**, int, userrec*);
-void sendtohelpop(userrec*, int, char**);
+bool do_helpop(const char**, int, userrec*);
+void sendtohelpop(userrec*, int, const char**);
 
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
 
@@ -66,7 +66,7 @@ class cmd_helpop : public command_t
 		 this->source = "m_helpop.so";
 	 }
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char a[MAXBUF];
 		std::string output = " ";
@@ -80,12 +80,12 @@ class cmd_helpop : public command_t
 			return;
 	   	}
 
-		if (parameters[0][0] == '!')
+		if (*parameters[0] == '!')
 		{
 			// Force send to all +h users
 			sendtohelpop(user, pcnt, parameters);
 		}
-		else if (parameters[0][0] == '?')
+		else if (*parameters[0] == '?')
 		{
 			// Force to the helpop system with no forward if not found.
 			if (do_helpop(parameters, pcnt, user) == false)
@@ -127,25 +127,22 @@ class cmd_helpop : public command_t
 };
 
 
-bool do_helpop(char **parameters, int pcnt, userrec *src)
+bool do_helpop(const char** parameters, int pcnt, userrec *src)
 {
-	char *search;
+	char search[MAXBUF];
 	std::string output = " "; // a fix bought to you by brain :p
 	char a[MAXBUF];
 	int nlines = 0;
 
 	if (!pcnt)
 	{
- 		search = "start";
+ 		strcpy(search,"start");
   	}
 	else
 	{
- 		search = parameters[0];
-   	}
-
-	if (search[0] == '?')
-	{
- 		search++;
+		if (*parameters[0] == '?')
+			parameters[0]++;
+ 		strlcpy(search,parameters[0],MAXBUF);
    	}
 
 	strlower(search);
@@ -165,9 +162,9 @@ bool do_helpop(char **parameters, int pcnt, userrec *src)
 
 
 
-void sendtohelpop(userrec *src, int pcnt, char **params)
+void sendtohelpop(userrec *src, int pcnt, const char **params)
 {
-	char* first = params[0];
+	const char* first = params[0];
 	if (*first == '!')
 	{
 		first++;

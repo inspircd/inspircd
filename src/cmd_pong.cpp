@@ -19,7 +19,7 @@
 #include "commands/cmd_pong.h"
 #include "helperfuncs.h"
 
-void cmd_pong::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_pong::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// set the user as alive so they survive to next ping
 	user->lastping = 1;

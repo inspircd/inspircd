@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_pass.h"
 
-void cmd_pass::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_pass::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// Check to make sure they havnt registered -- Fix by FCS
 	if (user->registered == 7)

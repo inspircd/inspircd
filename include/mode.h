@@ -343,7 +343,7 @@ class ModeParser : public classbase
 	 * and *user->server == NULL.
 	 * @param servermode True if a server is setting the mode.
 	 */
-	void Process(char **parameters, int pcnt, userrec *user, bool servermode);
+	void Process(const char** parameters, int pcnt, userrec *user, bool servermode);
 };
 
 /**
@@ -360,7 +360,7 @@ class cmd_mode : public command_t
 	/**
 	 * Handle MODE
 	 */
-	void Handle(char **parameters, int pcnt, userrec *user);
+	void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

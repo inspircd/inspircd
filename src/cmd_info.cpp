@@ -26,7 +26,7 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
-void cmd_info::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd, "371 %s :. o O (The Inspire Internet Relay Chat Server) O o .", user->nick);
 	WriteServ(user->fd, "371 %s : ", user->nick);

@@ -19,7 +19,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_users.h"
 
-void cmd_users::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_users::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"445 %s :USERS has been disabled (depreciated command)",user->nick);
 }

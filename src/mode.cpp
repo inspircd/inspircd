@@ -255,7 +255,7 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	return;
 }
 
-void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool servermode)
+void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool servermode)
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
@@ -314,7 +314,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 		 */
 		if ((type== MODETYPE_CHANNEL) && (pcnt == 2))
 		{
-			char* mode = parameters[1];
+			const char* mode = parameters[1];
 			if (*mode == '+')
 				mode++;
 
@@ -482,7 +482,7 @@ void ModeParser::Process(char **parameters, int pcnt, userrec *user, bool server
 }
 
 
-void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_mode::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!user)
 		return;

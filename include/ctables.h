@@ -55,7 +55,7 @@ class command_t : public Extensible
 		source = "<core>";
 	}
 
-	virtual void Handle(char** parameters, int pcnt, userrec* user) = 0;
+	virtual void Handle(const char** parameters, int pcnt, userrec* user) = 0;
 
 	virtual ~command_t() {}
 };

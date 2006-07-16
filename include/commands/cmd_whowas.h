@@ -32,7 +32,7 @@ class cmd_whowas : public command_t
 {
  public:
         cmd_whowas () : command_t("WHOWAS",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

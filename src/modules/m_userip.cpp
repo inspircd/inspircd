@@ -35,7 +35,7 @@ class cmd_userip : public command_t
 		this->source = "m_userip.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char Return[MAXBUF],junk[MAXBUF];
 		snprintf(Return,MAXBUF,"340 %s :",user->nick);

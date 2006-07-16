@@ -32,7 +32,7 @@ class cmd_part : public command_t
 {
  public:
         cmd_part () : command_t("PART",0,1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

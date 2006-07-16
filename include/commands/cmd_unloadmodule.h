@@ -32,7 +32,7 @@ class cmd_unloadmodule : public command_t
 {
  public:
         cmd_unloadmodule () : command_t("UNLOADMODULE",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

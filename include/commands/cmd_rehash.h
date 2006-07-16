@@ -32,7 +32,7 @@ class cmd_rehash : public command_t
 {
  public:
         cmd_rehash () : command_t("REHASH",'o',0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

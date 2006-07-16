@@ -37,7 +37,7 @@ class cmd_nicklock : public command_t
 		this->source = "m_nicklock.so";
 	}
 
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = Srv->FindNick(std::string(parameters[0]));
 		irc::string server;
@@ -72,7 +72,7 @@ class cmd_nickunlock : public command_t
 		this->source = "m_nickunlock.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = Srv->FindNick(std::string(parameters[0]));
 		if (source)

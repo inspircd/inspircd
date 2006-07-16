@@ -41,7 +41,7 @@ class cmd_randquote : public command_t
 		this->source = "m_randquote.so";
 	}
 
-	void Handle (char** parameters, int pcntl, userrec *user)
+	void Handle (const char** parameters, int pcntl, userrec *user)
 	{
 		std::string str;
 		int fsize;

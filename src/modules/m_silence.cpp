@@ -41,7 +41,7 @@ class cmd_silence : public command_t
 		this->source = "m_silence.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!pcnt)
 		{
@@ -62,7 +62,7 @@ class cmd_silence : public command_t
 		else if (pcnt > 0)
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			char *nick = parameters[0];
+			const char *nick = parameters[0];
 			if (nick[0] == '-')
 			{
 				// removing an item from the list

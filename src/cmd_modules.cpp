@@ -51,7 +51,7 @@ char* itab[] = {
 	"OnOperCompare", "OnChannelDelete", "OnPostOper", "OnSyncOtherMetaData", "OnSetAway", "OnCancelAway", NULL
 };
 
-void cmd_modules::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 {
   	for (unsigned int i = 0; i < Config->module_names.size(); i++)
 	{

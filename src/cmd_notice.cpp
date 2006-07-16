@@ -36,7 +36,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 
-void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	chanrec *chan;
@@ -48,8 +48,7 @@ void cmd_notice::Handle (char **parameters, int pcnt, userrec *user)
 	if ((parameters[0][0] == '$') && ((*user->oper) || (is_uline(user->server))))
 	{
 		// notice to server mask
-		char* servermask = parameters[0];
-		servermask++;
+		const char* servermask = parameters[0] + 1;
 		if (match(Config->ServerName,servermask))
 		{
 			NoticeAll(user, true, "%s",parameters[1]);

@@ -26,7 +26,7 @@
 extern ServerConfig* Config;
 extern std::vector<userrec*> all_opers;
 
-void cmd_die::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!strcmp(parameters[0],Config->diepass))
 	{

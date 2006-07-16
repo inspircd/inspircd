@@ -22,7 +22,7 @@
 
 extern InspIRCd* ServerInstance;
 
-void cmd_loadmodule::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_loadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->LoadModule(parameters[0]))
 	{

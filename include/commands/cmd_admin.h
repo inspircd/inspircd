@@ -25,7 +25,7 @@ class cmd_admin : public command_t
 {
  public:
         cmd_admin () : command_t("ADMIN",0,0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

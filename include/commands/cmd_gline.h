@@ -32,7 +32,7 @@ class cmd_gline : public command_t
 {
  public:
         cmd_gline () : command_t("GLINE",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

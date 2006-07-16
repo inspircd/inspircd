@@ -35,7 +35,7 @@ class cmd_sethost : public command_t
 		this->source = "m_sethost.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (strlen(parameters[0]) > 64)
 		{

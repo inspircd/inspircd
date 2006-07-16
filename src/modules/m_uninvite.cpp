@@ -35,7 +35,7 @@ class cmd_uninvite : public command_t
 		this->source = "m_uninvite.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* u = Find(parameters[0]);
 		chanrec* c = FindChan(parameters[1]);

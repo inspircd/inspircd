@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_userhost.h"
 
-void cmd_userhost::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF],junk[MAXBUF];
 	snprintf(Return,MAXBUF,"302 %s :",user->nick);

@@ -35,9 +35,9 @@ class cmd_chghost : public command_t
 		this->source = "m_chghost.so";
 	}
 	 
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
-		char * x = parameters[1];
+		const char * x = parameters[1];
 
 		for (; *x; x++)
 		{

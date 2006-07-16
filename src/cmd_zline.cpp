@@ -29,7 +29,7 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 
-void cmd_zline::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{

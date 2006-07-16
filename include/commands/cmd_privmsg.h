@@ -32,7 +32,7 @@ class cmd_privmsg : public command_t
 {
  public:
         cmd_privmsg () : command_t("PRIVMSG",0,2) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

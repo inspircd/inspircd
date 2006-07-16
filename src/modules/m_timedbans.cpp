@@ -47,7 +47,7 @@ class cmd_tban : public command_t
 		this->source = "m_timedbans.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* channel = Srv->FindChannel(parameters[0]);
 		if (channel)
@@ -83,7 +83,7 @@ class cmd_tban : public command_t
 				char duration[MAXBUF];
 				snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
 				std::string mask = parameters[2];
-				char *setban[32];
+				const char *setban[32];
 				setban[0] = parameters[0];
 				setban[1] = "+b";
 				setban[2] = parameters[2];
@@ -157,10 +157,10 @@ class ModuleTimedBans : public Module
 					if (cr)
 					{
 						Srv->SendChannelServerNotice(Srv->GetServerName(),cr,"NOTICE "+std::string(cr->name)+" :Timed ban on "+i->mask+" expired.");
-						char *setban[3];
-						setban[0] = (char*)i->channel.c_str();
+						const char *setban[3];
+						setban[0] = i->channel.c_str();
 						setban[1] = "-b";
-						setban[2] = (char*)i->mask.c_str();
+						setban[2] = i->mask.c_str();
 						// kludge alert!
 						// ::SendMode expects a userrec* to send the numeric replies
 						// back to, so we create it a fake user that isnt in the user

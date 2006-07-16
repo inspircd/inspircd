@@ -51,7 +51,7 @@ class cmd_woot : public command_t
 		this->source = "m_testcommand.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/* We dont have to worry about deleting 'r', the core will
 		 * do it for us as required.*/

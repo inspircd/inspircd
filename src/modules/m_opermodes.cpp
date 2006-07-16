@@ -76,9 +76,9 @@ class ModuleModesOnOper : public Module
 					ThisOpersModes = "+" + ThisOpersModes;
 				if (ThisOpersModes != "")
 				{
-					char* modes[2];
+					const char* modes[2];
 					modes[0] = user->nick;
-					modes[1] = (char*)ThisOpersModes.c_str();
+					modes[1] = ThisOpersModes.c_str();
 					Srv->SendMode(modes,2,user);
 				}
 				break;

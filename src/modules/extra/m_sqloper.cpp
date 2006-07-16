@@ -82,7 +82,7 @@ class ModuleSQLOper : public Module
 		List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		if ((command == "OPER") && (validated))
 		{

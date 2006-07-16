@@ -21,7 +21,7 @@
 
 extern user_hash clientlist;
 
-void cmd_trace::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{

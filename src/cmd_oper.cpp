@@ -59,7 +59,7 @@ bool OneOfMatches(const char* host, const char* hostlist)
 	return false;
 }
 
-void cmd_oper::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char LoginName[MAXBUF];
 	char Password[MAXBUF];

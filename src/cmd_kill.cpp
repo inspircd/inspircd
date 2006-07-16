@@ -30,7 +30,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern user_hash clientlist;
 
-void cmd_kill::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *u = Find(parameters[0]);
 	char killreason[MAXBUF];

@@ -98,7 +98,7 @@ cmd_pass* command_pass;
  * before the actual list as well. This code is used by many functions which
  * can function as "one to list" (see the RFC) */
 
-int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec *u, int start, int end, int joins)
+int CommandParser::LoopCall(command_t* fn, const char** parameters, int pcnt, userrec *u, int start, int end, int joins)
 {
 	/* Copy of the parameter list, because like strltok, we make a bit of
 	 * a mess of the parameter string we're given, and we want to keep this
@@ -110,13 +110,13 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
 	char *param;
 	/* Parameter list, we can have up to 32 of these
 	 */
-	char *pars[32];
+	const char *pars[32];
 	/* Seperated items, e.g. holds the #one and #two from "#one,#two"
 	 */
-	char *sep_items[32];
+	const char *sep_items[32];
 	/* Seperated keys, holds the 'two' and 'three' of "two,three"
 	 */
-	char *sep_keys[32];
+	const char *sep_keys[32];
 	/* Misc. counters, the total values hold the total number of
 	 * seperated items in sep_items (total) and the total number of
 	 * seperated items in sep_keys (total2)
@@ -316,7 +316,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 
 // calls a handler function for a command
 
-bool CommandParser::CallHandler(const std::string &commandname,char **parameters, int pcnt, userrec *user)
+bool CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
 {
 	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 
@@ -347,15 +347,14 @@ bool CommandParser::CallHandler(const std::string &commandname,char **parameters
 
 void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 {
-	char *command_p[127];
+	const char *command_p[127];
 	int items = 0;
-
 	std::string para[127];
 	irc::tokenstream tokens(cmd);
 	std::string xcommand = tokens.GetToken();
 
-	while ((para[items] = tokens.GetToken()) != "")
-		command_p[items] = (char*)para[items++].c_str();
+	while (((para[items] = tokens.GetToken()) != "") && (items < 127))
+		command_p[items] = para[items++].c_str();
 		
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(xcommand,command_p,items,user,false));

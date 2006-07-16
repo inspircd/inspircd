@@ -22,7 +22,7 @@
 
 extern InspIRCd* ServerInstance;
 
-void cmd_unloadmodule::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->UnloadModule(parameters[0]))
 	{

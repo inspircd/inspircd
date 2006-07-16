@@ -37,7 +37,7 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 
-void cmd_kline::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{

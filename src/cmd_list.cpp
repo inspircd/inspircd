@@ -22,7 +22,7 @@
 
 extern chan_hash chanlist;
 
-void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)

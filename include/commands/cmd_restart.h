@@ -32,7 +32,7 @@ class cmd_restart : public command_t
 {
  public:
         cmd_restart () : command_t("RESTART",'o',1) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

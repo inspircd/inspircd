@@ -152,7 +152,7 @@ int		Module::OnKill(userrec* source, userrec* dest, const std::string &reason) {
 void		Module::OnLoadModule(Module* mod,const std::string &name) { };
 void		Module::OnUnloadModule(Module* mod,const std::string &name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
-int		Module::OnPreCommand(const std::string &command, char **parameters, int pcnt, userrec *user, bool validated) { return 0; };
+int		Module::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated) { return 0; };
 bool		Module::OnCheckReady(userrec* user) { return true; };
 void		Module::OnUserRegister(userrec* user) { };
 int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
@@ -423,7 +423,7 @@ bool Server::IsUlined(const std::string &server)
 	return is_uline(server.c_str());
 }
 
-bool Server::CallCommandHandler(const std::string &commandname, char** parameters, int pcnt, userrec* user)
+bool Server::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
 {
 	return ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
@@ -447,7 +447,7 @@ void Server::AddCommand(command_t *f)
 	}
 }
 
-void Server::SendMode(char **parameters, int pcnt, userrec *user)
+void Server::SendMode(const char** parameters, int pcnt, userrec *user)
 {
 	//ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
 }

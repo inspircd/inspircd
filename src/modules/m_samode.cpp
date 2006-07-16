@@ -46,7 +46,7 @@ class cmd_samode : public command_t
 		this->source = "m_samode.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.

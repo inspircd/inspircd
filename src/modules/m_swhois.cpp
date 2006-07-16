@@ -31,7 +31,7 @@ class cmd_swhois : public command_t
 		this->source = "m_swhois.so";
 	}
 
-	void Handle(char** parameters, int pcnt, userrec* user)
+	void Handle(const char** parameters, int pcnt, userrec* user)
 	{
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if(dest)

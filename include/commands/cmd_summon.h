@@ -32,7 +32,7 @@ class cmd_summon : public command_t
 {
  public:
         cmd_summon () : command_t("SUMMON",0,0) { }
-        void Handle(char **parameters, int pcnt, userrec *user);
+        void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

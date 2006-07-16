@@ -63,7 +63,7 @@ class cmd_park : public command_t
 		this->source = "m_park.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/** Parking. easy stuff.
 		 *
@@ -108,7 +108,7 @@ class cmd_parkstats : public command_t
 		this->source = "m_park.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char status[MAXBUF];
 		snprintf(status,MAXBUF,"NOTICE %s :There are a total of %lu parked clients on this server, with a maximum of %lu parked sessions allowed per user.",user->nick,(unsigned long)pinfo.size(),(unsigned long)ConcurrentParks);
@@ -124,7 +124,7 @@ class cmd_unpark : public command_t
 		this->source = "m_park.so";
 	}
 
-	void Handle (char **parameters, int pcnt, userrec *user)
+	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/** Unparking. complicated stuff.
 		 *

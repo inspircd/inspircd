@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_ison.h"
 
-void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
+void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char retbuf[MAXBUF];
 	userrec *u;

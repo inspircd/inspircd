@@ -14,7 +14,7 @@ class cmd_setident : public command_t
 		this->source = "m_setident.so";
 	}
 
-	void Handle(char **parameters, int pcnt, userrec *user)
+	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		for(unsigned int x = 0; x < strlen(parameters[0]); x++)
 		{

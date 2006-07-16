@@ -127,7 +127,7 @@ bool is_uline(const char* server)
 	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
 }
 
-int operstrcmp(char* data,char* input)
+int operstrcmp(const char* data,const char* input)
 {
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnOperCompare,OnOperCompare(data,input))
