@@ -400,8 +400,8 @@ bool userrec::AddBuffer(const std::string &a)
 	
 	for (std::string::const_iterator i = a.begin(); i != a.end(); i++)
 	{
-		if ((*i != '\r') && (*i != '\0') && (*i != 7))
-			b = b + *i;
+		if (*i != '\r')
+			b += *i;
 	}
 	
 	recvq.append(b);
