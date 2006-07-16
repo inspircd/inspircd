@@ -122,7 +122,7 @@ class cmd_spynames : public command_t
 			  return;
 		  }
 
-		  if (ServerInstance->Parser->LoopCall(this,parameters,pcnt,user,0,pcnt-1,0))
+		  if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
 			  return;
 
 		  WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
