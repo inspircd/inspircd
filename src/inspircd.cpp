@@ -949,60 +949,52 @@ int main(int argc, char** argv)
 	 * Expected output:
 	 * 
 	 * String: 'PRIVMSG #test FOO BAR'
-	 * NumItems = 4
 	 * Token 0 = 'PRIVMSG'
 	 * Token 1 = '#test'
 	 * Token 2 = 'FOO'
 	 * Token 3 = 'BAR'
 	 * String: 'PRIVMSG #test :FOO BAR BAZ'
-	 * NumItems = 3
 	 * Token 0 = 'PRIVMSG'
 	 * Token 1 = '#test'
 	 * Token 2 = 'FOO BAR BAZ'
 	 * String: ':PRIVMSG #test :FOO BAR BAZ'
-	 * NumItems = 3
 	 * Token 0 = ':PRIVMSG'
 	 * String: 'AAAAAAA'
-	 * NumItems = 1
 	 * Token 0 = 'AAAAAAA'
 	 * String: ''
 	 * NumItems = 0
-	 *
+	 */
 	std::string a = "PRIVMSG #test FOO BAR";
 	printf("String: '%s'\n",a.c_str());
 	irc::tokenstream test(a);
-	printf("NumItems = %d\n",test.GetNumTokens());
-	printf("Token 0 = '%s'\n",test.GetToken(0).c_str());
-	printf("Token 1 = '%s'\n",test.GetToken(1).c_str());
-	printf("Token 2 = '%s'\n",test.GetToken(2).c_str());
-	printf("Token 3 = '%s'\n",test.GetToken(3).c_str());
+	printf("Token 0 = '%s'\n",test.GetToken().c_str());
+	printf("Token 1 = '%s'\n",test.GetToken().c_str());
+	printf("Token 2 = '%s'\n",test.GetToken().c_str());
+	printf("Token 3 = '%s'\n",test.GetToken().c_str());
 
 	std::string b = "PRIVMSG #test :FOO BAR BAZ";
 	printf("String: '%s'\n",b.c_str());
 	irc::tokenstream test2(b);
-	printf("NumItems = %d\n",test2.GetNumTokens());
-	printf("Token 0 = '%s'\n",test2.GetToken(0).c_str());
-	printf("Token 1 = '%s'\n",test2.GetToken(1).c_str());
-	printf("Token 2 = '%s'\n",test2.GetToken(2).c_str());
+	printf("Token 0 = '%s'\n",test2.GetToken().c_str());
+	printf("Token 1 = '%s'\n",test2.GetToken().c_str());
+	printf("Token 2 = '%s'\n",test2.GetToken().c_str());
 
 	std::string c = ":PRIVMSG #test :FOO BAR BAZ";
 	printf("String: '%s'\n",c.c_str());
 	irc::tokenstream test3(c);
-	printf("NumItems = %d\n",test3.GetNumTokens());
-	printf("Token 0 = '%s'\n",test3.GetToken(0).c_str());
+	printf("Token 0 = '%s'\n",test3.GetToken().c_str());
 
 	c = "AAAAAAA";
 	printf("String: '%s'\n",c.c_str());
 	irc::tokenstream test4(c);
-	printf("NumItems = %d\n",test4.GetNumTokens());
-	printf("Token 0 = '%s'\n",test4.GetToken(0).c_str());
+	printf("Token 0 = '%s'\n",test4.GetToken().c_str());
 
 	c = "";
 	printf("String: '%s'\n",c.c_str());
 	irc::tokenstream test5(c);
-	printf("NumItems = %d\n",test5.GetNumTokens());
+	printf("Token 0 = '%s'\n",test5.GetToken().c_str());
 
-	exit(0); */
+	exit(0);
 	
 	try
 	{

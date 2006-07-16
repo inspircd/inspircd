@@ -82,14 +82,15 @@ namespace irc
 	class tokenstream
 	{
 	 private:
-		std::string tokenbuffer;
-		std::vector<std::string> tokens;
+		std::string tokens;
+		std::string::iterator last_starting_position;
+		std::string::iterator n;
+		bool last_pushed;
 	 public:
 		tokenstream(std::string &source);
 		~tokenstream();
 
-		unsigned int GetNumTokens();
-		const std::string& GetToken(unsigned int index);
+		const std::string GetToken();
 	};
 
 
