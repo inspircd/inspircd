@@ -59,11 +59,12 @@ Lookup* user_fd_to_dns[MAX_DESCRIPTORS];
 
 class Lookup {
 private:
-	DNS resolver1;
-	DNS resolver2;
 	char u[NICKMAX];
 	std::string hostname;
 public:
+	DNS resolver1;
+	DNS resolver2;
+
 	Lookup()
 	{
 		*u = 0;

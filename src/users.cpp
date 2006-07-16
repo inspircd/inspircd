@@ -36,6 +36,7 @@ using namespace std;
 #include "wildcard.h"
 #include "xline.h"
 #include "cull_list.h"
+#include "dnsqueue.h"
 
 extern InspIRCd* ServerInstance;
 extern int WHOWAS_STALE;
