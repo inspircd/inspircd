@@ -200,6 +200,28 @@ bool ValidateDnsTimeout(const char* tag, const char* value, void* data)
 	return true;
 }
 
+bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
+{
+	std::stringstream dcmds(data);
+	std::string thiscmd;
+
+	/* Enable everything first */
+	for (nspace::hash_map<std::string,command_t*>::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+		x->second->Disable(false);
+
+	/* Now disable all the ones which the user wants disabled */
+	while (dcmds >> thiscmd)
+	{
+		nspace::hash_map<std::string,command_t*>::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
+		if (cm != ServerInstance->Parser->cmdlist.end())
+		{
+			log(DEBUG,"Disabling command '%s'",cm->second->command.c_str());
+			cm->second->Disable(true);
+		}
+	}
+	return true;
+}
+
 bool ValidateDnsServer(const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;

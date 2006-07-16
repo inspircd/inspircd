@@ -351,18 +351,21 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	int items = 0;
 	std::string para[127];
 	irc::tokenstream tokens(cmd);
-	std::string xcommand = tokens.GetToken();
+	std::string command = tokens.GetToken();
 
 	while (((para[items] = tokens.GetToken()) != "") && (items < 127))
 		command_p[items] = para[items++].c_str();
+
+	for (std::string::iterator makeupper = command.begin(); makeupper != command.end(); makeupper++)
+		*makeupper = toupper(*makeupper);
 		
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(xcommand,command_p,items,user,false));
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false));
 	if (MOD_RESULT == 1) {
 		return;
 	}
 
-	nspace::hash_map<std::string,command_t*>::iterator cm = cmdlist.find(xcommand);
+	nspace::hash_map<std::string,command_t*>::iterator cm = cmdlist.find(command);
 	
 	if (cm != cmdlist.end())
 	{
@@ -372,52 +375,30 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			user->nping = TIME + user->pingmax;
 			if (items < cm->second->min_params)
 			{
-				log(DEBUG,"not enough parameters: %s %s",user->nick,xcommand.c_str());
-				WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,xcommand.c_str());
+				log(DEBUG,"not enough parameters: %s %s",user->nick,command.c_str());
+				WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command.c_str());
 				return;
 			}
 			if (cm->second->flags_needed)
 			{
 				if (!user->IsModeSet(cm->second->flags_needed))
 				{
-					log(DEBUG,"permission denied: %s %s",user->nick,xcommand.c_str());
+					log(DEBUG,"permission denied: %s %s",user->nick,command.c_str());
 					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
 					return;
 				}
 			}
-			if ((cm->second->flags_needed) && (!user->HasPermission(xcommand)))
+			if ((cm->second->flags_needed) && (!user->HasPermission(command)))
 			{
-				log(DEBUG,"permission denied: %s %s",user->nick,xcommand.c_str());
-				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,xcommand.c_str());
+				log(DEBUG,"permission denied: %s %s",user->nick,command.c_str());
+				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
 				return;
 			}
-			/* if the command isnt USER, PASS, or NICK, and nick is empty,
-			 * deny command! */
-			if ((cm->second != command_user) && (cm->second != command_nick) && (cm->second != command_pass))
+			if ((user->registered == 7) && (!*user->oper) && (cm->second->IsDisabled()))
 			{
-				if ((!isnick(user->nick)) || (user->registered != 7))
-				{
-					log(DEBUG,"not registered: %s %s",user->nick,xcommand.c_str());
-					WriteServ(user->fd,"451 %s :You have not registered",xcommand.c_str());
-					return;
-				}
-			}
-			if ((user->registered == 7) && (!*user->oper) && (*Config->DisabledCommands))
-			{
-				/* XXX: We should have a disabled setting in the command object, and on rehash set the disabled flag
-				 * in the ones which are disabled, rather than this craq
-				 */
-				std::stringstream dcmds(Config->DisabledCommands);
-				std::string thiscmd;
-				while (dcmds >> thiscmd)
-				{
-					if (!strcasecmp(thiscmd.c_str(),xcommand.c_str()))
-					{
-						// command is disabled!
-						WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,xcommand.c_str());
-						return;
-					}
-				}
+				/* command is disabled! */
+				WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command.c_str());
+				return;
 			}
 			if ((user->registered == 7) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
 			{
@@ -426,7 +407,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				cm->second->total_bytes += cmd.length();
 
 				int MOD_RESULT = 0;
-				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(xcommand,command_p,items,user,true));
+				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true));
 				if (MOD_RESULT == 1)
 					return;
 
@@ -441,7 +422,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			}
 			else
 			{
-				WriteServ(user->fd,"451 %s :You have not registered",xcommand.c_str());
+				WriteServ(user->fd,"451 %s :You have not registered",command.c_str());
 				return;
 			}
 		}
@@ -449,7 +430,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	else if (user)
 	{
 		ServerInstance->stats->statsUnknown++;
-		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,xcommand.c_str());
+		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command.c_str());
 	}
 }
 

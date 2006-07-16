@@ -294,13 +294,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	OpenLog(argv, argc);
 	this->stats = new serverstats();
+	this->Parser = new CommandParser();
 	Config->ClearStack();
 	Config->Read(true,NULL);
 	CheckRoot();
 	this->ModeGrok = new ModeParser();
-	this->Parser = new CommandParser();
 	AddServerName(Config->ServerName);
 	CheckDie();
+	InitializeDisabledCommands(Config->DisabledCommands, this);
 	stats->BoundPortCount = BindPorts(true);
 
 	for(int t = 0; t < 255; t++)

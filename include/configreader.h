@@ -394,4 +394,6 @@ class ServerConfig : public Extensible
 	bool DelIOHook(int port);
 };
 
+bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
+
 #endif

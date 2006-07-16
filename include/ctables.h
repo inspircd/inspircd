@@ -48,14 +48,27 @@ class command_t : public Extensible
 	/** used for resource tracking between modules
 	 */
 	std::string source;
+	/** True if the command is disabled to non-opers
+	 */
+	bool disabled;
 
-	command_t(const std::string &cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara)
+	command_t(const std::string &cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara), disabled(false)
 	{
 		use_count = total_bytes = 0;
 		source = "<core>";
 	}
 
 	virtual void Handle(const char** parameters, int pcnt, userrec* user) = 0;
+
+	void Disable(bool setting)
+	{
+		disabled = setting;
+	}
+
+	bool IsDisabled()
+	{
+		return disabled;
+	}
 
 	virtual ~command_t() {}
 };
