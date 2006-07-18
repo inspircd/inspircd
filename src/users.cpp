@@ -472,7 +472,17 @@ void userrec::AddWriteBuf(const std::string &data)
 		return;
 	}
 	
-	sendq.append(data);
+	if (data.length() > 512)
+	{
+		std::string newdata(data);
+		newdata.resize(510);
+		newdata.append("\r\n");
+		sendq.append(newdata);
+	}
+	else
+	{
+		sendq.append(data);
+	}
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)

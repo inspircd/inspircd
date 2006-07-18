@@ -161,7 +161,6 @@ void Write_NoFormat(int sock, const char *text)
 	if (fd_ref_table[sock])
 	{
 		bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
-		chop(tb);
 
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
@@ -210,7 +209,6 @@ void Write(int sock, char *text, ...)
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 		bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
-		chop(tb);
 
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
@@ -247,7 +245,6 @@ void WriteServ_NoFormat(int sock, const char* text)
 	if (fd_ref_table[sock])
 	{
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
-		chop(tb);
 
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
@@ -312,7 +309,6 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 	if (fd_ref_table[sock])
 	{
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
-		chop(tb);
 
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
@@ -360,7 +356,6 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
-		chop(tb);
 
 		if (Config->GetIOHook(fd_ref_table[sock]->port))
 		{
@@ -403,7 +398,6 @@ void WriteTo(userrec *source, userrec *dest,char *data, ...)
 	va_start(argsPtr, data);
 	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
 	va_end(argsPtr);
-	chop(textbuffer);
 
 	// if no source given send it from the server.
 	if (!source)

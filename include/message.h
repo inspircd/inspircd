@@ -29,8 +29,6 @@
 #include "channels.h"
 
 int common_channels(userrec *u, userrec *u2);
-void chop(char* str);
-void tidystring(char* str);
 void Blocking(int s);
 void NonBlocking(int s);
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward);
