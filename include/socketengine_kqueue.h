@@ -34,7 +34,7 @@ private:
 	struct kevent ke_list[MAX_DESCRIPTORS];	/* Up to 64k sockets for kqueue */
 	struct timespec ts;			/* kqueue delay value */
 public:
-	KQueueEngineEngine();
+	KQueueEngine();
 	virtual ~KQueueEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
