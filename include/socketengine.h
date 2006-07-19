@@ -55,6 +55,15 @@ const char X_READBIT            = 0x80;
  * from system to system and upon the config
  * settings chosen by the server admin. The current
  * version supports select, epoll and kqueue.
+ * The configure script will enable a socket engine
+ * based upon what OS is detected, and will derive
+ * a class from SocketEngine based upon what it finds.
+ * The derived classes file will also implement a
+ * classfactory, SocketEngineFactory, which will
+ * create a derived instance of SocketEngine using
+ * polymorphism so that the core and modules do not
+ * have to be aware of which SocketEngine derived
+ * class they are using.
  */
 class SocketEngine : public Extensible
 {

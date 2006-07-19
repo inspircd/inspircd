@@ -19,6 +19,7 @@
 #include "inspircd.h"
 #include <vector>
 #include <string>
+#include <sys/select.h>
 #include "socketengine_select.h"
 #include "helperfuncs.h"
 

@@ -20,6 +20,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <sys/select.h>
 #include "inspircd_config.h"
 #include "globals.h"
 #include "inspircd.h"
