@@ -63,15 +63,16 @@ class serverstats : public classbase
 	unsigned long statsDnsGood;
 	unsigned long statsDnsBad;
 	unsigned long statsConnects;
-	unsigned long statsSent;
-	unsigned long statsRecv;
+	double statsSent;
+	double statsRecv;
 	unsigned long BoundPortCount;
 
 	serverstats()
 	{
 		statsAccept = statsRefused = statsUnknown = 0;
 		statsCollisions = statsDns = statsDnsGood = 0;
-		statsDnsBad = statsConnects = statsSent = statsRecv = 0;
+		statsDnsBad = statsConnects = 0;
+		statsSent = statsRecv = 0.0;
 		BoundPortCount = 0;
 	}
 };

@@ -181,12 +181,12 @@ void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (*parameters[0] == 'T')
 	{
-		WriteServ(user->fd,"249 %s :accepts %d refused %d",user->nick,ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
-		WriteServ(user->fd,"249 %s :unknown commands %d",user->nick,ServerInstance->stats->statsUnknown);
-		WriteServ(user->fd,"249 %s :nick collisions %d",user->nick,ServerInstance->stats->statsCollisions);
-		WriteServ(user->fd,"249 %s :dns requests %d succeeded %d failed %d",user->nick,ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
-		WriteServ(user->fd,"249 %s :connections %d",user->nick,ServerInstance->stats->statsConnects);
-		WriteServ(user->fd,"249 %s :bytes sent %dK recv %dK",user->nick,(ServerInstance->stats->statsSent / 1024),(ServerInstance->stats->statsRecv / 1024));
+		WriteServ(user->fd,"249 %s :accepts %lu refused %lu",user->nick,ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
+		WriteServ(user->fd,"249 %s :unknown commands %lu",user->nick,ServerInstance->stats->statsUnknown);
+		WriteServ(user->fd,"249 %s :nick collisions %lu",user->nick,ServerInstance->stats->statsCollisions);
+		WriteServ(user->fd,"249 %s :dns requests %lu succeeded %lu failed %lu",user->nick,ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
+		WriteServ(user->fd,"249 %s :connections %lu",user->nick,ServerInstance->stats->statsConnects);
+		WriteServ(user->fd,"249 %s :bytes sent %5.2fK recv %5.2fK",user->nick,ServerInstance->stats->statsSent / 1024,ServerInstance->stats->statsRecv / 1024);
 	}
 	
 	/* stats o */

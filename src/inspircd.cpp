@@ -923,7 +923,7 @@ int InspIRCd::Run()
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
-	for (int count = 0; count < stats->BoundPortCount; count++)
+	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 		SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
 
 	this->WritePID(Config->PID);

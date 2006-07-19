@@ -119,7 +119,7 @@ int OpenTCPSocket()
 
 bool HasPort(int port, char* addr)
 {
-	for (int count = 0; count < ServerInstance->stats->BoundPortCount; count++)
+	for (unsigned long count = 0; count < ServerInstance->stats->BoundPortCount; count++)
 	{
 		if ((port == Config->ports[count]) && (!strcasecmp(Config->addrs[count],addr)))
 		{
