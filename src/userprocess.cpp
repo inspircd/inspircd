@@ -320,18 +320,20 @@ void DoBackgroundUserStuff(time_t TIME)
 {
 	CullList GlobalGoners;
 
-	for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
-	{
-		/* Sanity checks for corrupted iterators (yes, really) */
-		userrec* curr = NULL;
+	int cfd = 0;
 
-		if (*count2)
-			curr = (userrec*)(*count2);
-		if ((long)curr == -1)
-			return;
+	/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
+	for (unsigned long count2 = 0; count2 != local_users.size(); count2++)
+	{
+		if (count2 >= local_users.size())
+			break;
+
+		userrec* curr = local_users[count2];
 
 		if (curr)
 		{
+			cfd = curr->fd;
+
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
 			 * in the time specified in their connection class.
@@ -384,12 +386,14 @@ void DoBackgroundUserStuff(time_t TIME)
 			 * We can flush the write buffer as the last thing we do, because if they
 			 * match any of the above conditions its no use flushing their buffer anyway.
 			 */
-			curr->FlushWriteBuf();
-
-			if (*curr->GetWriteError())
+			if ((cfd > 0) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
 			{
-				GlobalGoners.AddItem(curr,curr->GetWriteError());
-				continue;
+				curr->FlushWriteBuf();
+				if (*curr->GetWriteError())
+				{
+					GlobalGoners.AddItem(curr,curr->GetWriteError());
+					continue;
+				}
 			}
 		}
 	}
