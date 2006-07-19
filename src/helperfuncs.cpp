@@ -51,7 +51,7 @@ extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-static int already_sent[MAX_DESCRIPTORS] = {0};
+static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
@@ -64,7 +64,7 @@ static char TIMESTR[26];
 static time_t LAST = 0;
 
 /* XXX: Used for speeding up WriteCommon operations */
-int uniq_id = 0;
+unsigned long uniq_id = 0;
 
 /** log()
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
