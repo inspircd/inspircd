@@ -23,15 +23,6 @@
 #include "inspircd_config.h"
 #include "globals.h"
 #include "inspircd.h"
-#ifdef USE_EPOLL
-#include <sys/epoll.h>
-#define EP_DELAY 5
-#endif
-#ifdef USE_KQUEUE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#endif
 
 /**
  * Each of these values represents a socket
@@ -67,21 +58,10 @@ const char X_READBIT            = 0x80;
  */
 class SocketEngine : public Extensible
 {
-
+protected:
 	int EngineHandle;			/* Handle to the socket engine if needed */
 	int CurrentSetSize;			/* Current number of descriptors in the engine */
-#ifdef USE_SELECT
-	std::map<int,int> fds;			/* List of file descriptors being monitored */
-	fd_set wfdset, rfdset;			/* Readable and writeable sets for select() */
-#endif
-#ifdef USE_KQUEUE
-	struct kevent ke_list[MAX_DESCRIPTORS];	/* Up to 64k sockets for kqueue */
-	struct timespec ts;			/* kqueue delay value */
-#endif
-#ifdef USE_EPOLL
-	struct epoll_event events[MAX_DESCRIPTORS];	/* Up to 64k sockets for epoll */
-#endif
-
+	char ref[MAX_DESCRIPTORS];		/* Reference table */
 public:
 
 	/** Constructor
@@ -98,7 +78,7 @@ public:
 	 * The destructor transparently tidies up
 	 * any resources used by the socket engine.
 	 */
-	~SocketEngine();
+	virtual ~SocketEngine();
 
 	/** Add a file descriptor to the engine
 	 * Use AddFd to add a file descriptor to the
@@ -109,7 +89,7 @@ public:
 	 * or write events (there is currently no
 	 * need for support of both).
 	 */
-	bool AddFd(int fd, bool readable, char type);
+	virtual bool AddFd(int fd, bool readable, char type);
 
 	/** Returns the type value for this file descriptor
 	 * This function masks off the X_READBIT value
@@ -126,19 +106,19 @@ public:
 	/** Returns the maximum number of file descriptors
 	 * you may store in the socket engine at any one time.
 	 */
-	int GetMaxFds();
+	virtual int GetMaxFds();
 
 	/** Returns the number of file descriptor slots
 	 * which are available for storing fds.
 	 */
-	int GetRemainingFds();
+	virtual int GetRemainingFds();
 
 	/** Delete a file descriptor from the engine
 	 * This function call deletes a file descriptor
 	 * from the engine, returning true if it succeeded
 	 * and false if it failed.
 	 */
-	bool DelFd(int fd);
+	virtual bool DelFd(int fd);
 
 	/** Returns true if a socket exists in the socket
 	 * engine's list.
@@ -151,13 +131,13 @@ public:
 	 * of active file descriptors in the vector
 	 * fdlist which the core may then act upon.
 	 */
-	int Wait(int* fdlist);
+	virtual int Wait(int* fdlist);
 
 	/** Returns the socket engines name
 	 * This returns the name of the engine for use
 	 * in /VERSION responses.
 	 */
-	std::string GetName();
+	virtual std::string GetName();
 };
 
 #endif

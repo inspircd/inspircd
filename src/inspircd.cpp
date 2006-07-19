@@ -63,6 +63,7 @@
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"
+#include "inspircd_se_config.h"
 #include "userprocess.h"
 #include "socket.h"
 #include "typedefs.h"
@@ -323,7 +324,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
 	 * initialize the socket engine.
 	 */
-	SE = new SocketEngine();
+	SocketEngineFactory* SEF = new SocketEngineFactory();
+	SE = SEF->Create();
+	delete SEF;
 
 	/* We must load the modules AFTER initializing the socket engine, now */
 

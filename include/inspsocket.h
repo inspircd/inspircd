@@ -20,8 +20,8 @@
 #include <sstream>
 #include <string>
 #include <deque>
-#include "inspircd_config.h"
 #include "dns.h"
+#include "inspircd_config.h"
 #include "socket.h"
 
 /**
