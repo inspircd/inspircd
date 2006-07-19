@@ -32,10 +32,6 @@
 
 SocketEngine::SocketEngine()
 {
-	printf("Something blew up in your face. class SocketEngine is an abstract class and configure must\n");
-	printf("select a socket engine to derive from it such as EPollEngine, KQueueEngine or SelectEngine.\n");
-	printf("Rerun configure, and try again.\n");
-	exit(0);
 }
 
 SocketEngine::~SocketEngine()
