@@ -51,7 +51,7 @@ extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-static int already_sent[MAX_DESCRIPTORS];
+static int already_sent[MAX_DESCRIPTORS] = {0};
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
@@ -709,14 +709,8 @@ void WriteCommon(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	// XXX: Save on memset calls by only requiring memset every 4 billion or so
-	// messages. This clever trick thought of during discussion with nazzy and w00t.
+	// XXX: Save on memset calls by using an ID. This clever trick thought of during discussion with nazzy and w00t.
 	uniq_id++;
-	if (!uniq_id)
-	{
-		memset(&already_sent,0,MAX_DESCRIPTORS);
-		uniq_id++;
-	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -764,11 +758,6 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 
 	// XXX: See comment in WriteCommon
 	uniq_id++;
-	if (!uniq_id)
-	{
-		memset(&already_sent,0,MAX_DESCRIPTORS);
-		uniq_id++;
-	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -869,11 +858,6 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 	}
 
 	uniq_id++;
-	if (!uniq_id)
-	{
-		memset(&already_sent,0,MAX_DESCRIPTORS);
-		uniq_id++;
-	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -917,11 +901,6 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 	}
 
 	uniq_id++;
-	if (!uniq_id)
-	{
-		memset(&already_sent,0,MAX_DESCRIPTORS);
-		uniq_id++;
-	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
