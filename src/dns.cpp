@@ -68,8 +68,6 @@ connlist connections;
 struct in_addr servers4[8];
 int i4;
 int initdone = 0;
-int wantclose = 0;
-int lastcreate = -1;
 
 class s_connection
 {
@@ -166,10 +164,7 @@ void dns_close(int fd)
 		ServerInstance->SE->DelFd(fd);
 #endif
 	log(DEBUG,"DNS: dns_close on fd %d",fd);
-	if (fd == lastcreate)
-	{
-		wantclose = 1;
-	}
+
 	shutdown(fd,2);
 	close(fd);
 	return;
@@ -291,13 +286,6 @@ s_connection *dns_add_query(s_header *h)
 	if (connections.find(s->fd) == connections.end())
 		connections[s->fd] = s;
 
-	if (wantclose == 1)
-	{
-		shutdown(lastcreate,2);
-		close(lastcreate);
-		wantclose = 0;
-	}
-	lastcreate = s->fd;
 	return s;
 }
 

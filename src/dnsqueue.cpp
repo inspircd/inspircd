@@ -117,6 +117,7 @@ public:
 				{
 					dnslist[resolver2.GetFD()] = NULL;
 					std::string ip = resolver2.GetResultIP();
+					log(DEBUG,"Got IP %s",ip.c_str());
 					usr = Find(u);
 					if (usr)
 					{
@@ -129,6 +130,7 @@ public:
 						{
 							if ((std::string(inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
+								log(DEBUG,"POS2");
 								if ((hostname.find_last_of(".in-addr.arpa") == hostname.length() - 1) && (hostname.find_last_of(".in-addr.arpa") != std::string::npos))
 								{
 									WriteServ(usr->fd,"NOTICE Auth :*** Your ISP are muppets -- reverse resolution resolves back to same reverse .arpa domain (!)");
@@ -186,17 +188,24 @@ public:
 							usr->dns_done = true;
 							return true;
 						}
-						if (hostname != "")
+					}
+					if (hostname != "")
+					{
+						log(DEBUG,"Begin fwd lookup on '%s'",hostname.c_str());
+						resolver2.ForwardLookup(hostname);
+						//log(DEBUG,"Begin fwd lookup on '%s'",hostname.c_str());
+						if (resolver2.GetFD() != -1)
 						{
-							resolver2.ForwardLookup(hostname);
-							if (resolver2.GetFD() != -1)
-							{
-								dnslist[resolver2.GetFD()] = this;
-								if (usr)
-									user_fd_to_dns[usr->fd] = this;
-							}
+							log(DEBUG,"Set dns lookup pointers");
+							dnslist[resolver2.GetFD()] = this;
+							if (usr)
+								user_fd_to_dns[usr->fd] = this;
 						}
 					}
+				}
+				else
+				{
+					log(DEBUG,"Resolver1 fd is -1");
 				}
 			}
 		}
