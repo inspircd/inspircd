@@ -341,8 +341,14 @@ void DoBackgroundUserStuff(time_t TIME)
 {
 	CullList GlobalGoners;
 
+	size_t f = local_users.size();
+
 	for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 	{
+		/* GRONK */
+		if (f != local_users.size())
+			break;
+
 		/* Sanity checks for corrupted iterators (yes, really) */
 		userrec* curr = NULL;
 
@@ -400,6 +406,10 @@ void DoBackgroundUserStuff(time_t TIME)
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}
+
+			/* GANK */
+			if (f != local_users.size())
+				break;
 
 			/*
 			 * We can flush the write buffer as the last thing we do, because if they
