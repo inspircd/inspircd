@@ -1549,42 +1549,18 @@ void ShowMOTD(userrec *user)
 {
 	static char mbuf[MAXBUF];
 	static char crud[MAXBUF];
-	std::string WholeMOTD = "";
 
 	if (!Config->MOTD.size())
 	{
 		WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
 		return;
 	}
-
-	snprintf(crud,MAXBUF,":%s 372 %s :- ", Config->ServerName, user->nick);
-	snprintf(mbuf,MAXBUF,":%s 375 %s :- %s message of the day\r\n", Config->ServerName, user->nick, Config->ServerName);
-	WholeMOTD = WholeMOTD + mbuf;
+	WriteServ(user->fd,"375 %s :%s message of the day", user->nick, Config->ServerName);
 
 	for (unsigned int i = 0; i < Config->MOTD.size(); i++)
-		WholeMOTD = WholeMOTD + std::string(crud) + Config->MOTD[i].c_str() + std::string("\r\n");
+		WriteServ(user->fd,"372 %s :- ",user->nick,Config->MOTD[i].c_str());
 
-	snprintf(mbuf,MAXBUF,":%s 376 %s :End of message of the day.\r\n", Config->ServerName, user->nick);
-	WholeMOTD = WholeMOTD + mbuf;
-
-	// only one write operation
-	if (Config->GetIOHook(user->port))
-	{
-		try
-		{
-			Config->GetIOHook(user->port)->OnRawSocketWrite(user->fd,(char*)WholeMOTD.c_str(),WholeMOTD.length());
-		}
-		catch (ModuleException& modexcept)
-		{
-			log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-		}
-	}
-	else
-	{
-		user->AddWriteBuf(WholeMOTD);
-	}
-
-	ServerInstance->stats->statsSent += WholeMOTD.length();
+	WriteServ(user->fd,"376 %s :End of message of the day.", user->nick);
 }
 
 void ShowRULES(userrec *user)
