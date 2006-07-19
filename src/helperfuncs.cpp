@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -62,6 +62,9 @@ extern std::vector<userrec*> local_users;
 
 static char TIMESTR[26];
 static time_t LAST = 0;
+
+/* XXX: Used for speeding up WriteCommon operations */
+int uniq_id = 0;
 
 /** log()
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
@@ -706,8 +709,14 @@ void WriteCommon(userrec *u, char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	// FIX: Stops a message going to the same person more than once
-	memset(&already_sent,0,MAX_DESCRIPTORS);
+	// XXX: Save on memset calls by only requiring memset every 4 billion or so
+	// messages. This clever trick thought of during discussion with nazzy and w00t.
+	uniq_id++;
+	if (!uniq_id)
+	{
+		memset(&already_sent,0,MAX_DESCRIPTORS);
+		uniq_id++;
+	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -717,9 +726,9 @@ void WriteCommon(userrec *u, char* text, ...)
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
+				if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
 				{
-					already_sent[i->second->fd] = 1;
+					already_sent[i->second->fd] = uniq_id;
 					WriteFrom_NoFormat(i->second->fd,u,textbuffer);
 					sent_to_at_least_one = true;
 				}
@@ -753,8 +762,13 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 		return;
 	}
 
-	// FIX: Stops a message going to the same person more than once
-	memset(&already_sent,0,MAX_DESCRIPTORS);
+	// XXX: See comment in WriteCommon
+	uniq_id++;
+	if (!uniq_id)
+	{
+		memset(&already_sent,0,MAX_DESCRIPTORS);
+		uniq_id++;
+	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -764,9 +778,9 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
+				if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
 				{
-					already_sent[i->second->fd] = 1;
+					already_sent[i->second->fd] = uniq_id;
 					WriteFrom_NoFormat(i->second->fd,u,text);
 					sent_to_at_least_one = true;
 				}
@@ -854,7 +868,12 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 		}
 	}
 
-	memset(&already_sent,0,MAX_DESCRIPTORS);
+	uniq_id++;
+	if (!uniq_id)
+	{
+		memset(&already_sent,0,MAX_DESCRIPTORS);
+		uniq_id++;
+	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -866,9 +885,9 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 			{
 				if (u != i->second)
 				{
-					if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
+					if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
 					{
-						already_sent[i->second->fd] = 1;
+						already_sent[i->second->fd] = uniq_id;
 
 						if (quit_munge)
 						{
@@ -897,7 +916,12 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 		return;
 	}
 
-	memset(&already_sent,0,MAX_DESCRIPTORS);
+	uniq_id++;
+	if (!uniq_id)
+	{
+		memset(&already_sent,0,MAX_DESCRIPTORS);
+		uniq_id++;
+	}
 
 	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
 	{
@@ -909,9 +933,9 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 			{
 				if (u != i->second)
 				{
-					if ((i->second->fd > -1) && (!already_sent[i->second->fd]))
+					if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
 					{
-						already_sent[i->second->fd] = 1;
+						already_sent[i->second->fd] = uniq_id;
 						WriteFrom_NoFormat(i->second->fd,u,text);
 					}
 				}
@@ -1547,9 +1571,6 @@ long local_count()
 
 void ShowMOTD(userrec *user)
 {
-	static char mbuf[MAXBUF];
-	static char crud[MAXBUF];
-
 	if (!Config->MOTD.size())
 	{
 		WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
@@ -1870,7 +1891,7 @@ void LoadAllModules(InspIRCd* ServerInstance)
 		Config->ConfValue(Config->config_data, "module","name",count,configToken,MAXBUF);
 		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 		
-		if (!ServerInstance->LoadModule(configToken))                
+		if (!ServerInstance->LoadModule(configToken))		
 		{
 			log(DEFAULT,"Exiting due to a module loader error.");
 			printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
