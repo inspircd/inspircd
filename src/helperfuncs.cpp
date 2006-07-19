@@ -51,7 +51,7 @@ extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-static char already_sent[MAX_DESCRIPTORS];
+static int already_sent[MAX_DESCRIPTORS];
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;
@@ -1235,13 +1235,14 @@ void purge_empty_chans(userrec* u)
 	// firstly decrement the count on each channel
 	for (std::vector<ucrec*>::iterator f = u->chans.begin(); f != u->chans.end(); f++)
 	{
-		if (((ucrec*)(*f))->channel)
+		ucrec* uc = (ucrec*)(*f);
+		if (uc->channel)
 		{
-			if (((ucrec*)(*f))->channel->DelUser(u) == 0)
+			if (uc->channel->DelUser(u) == 0)
 			{
 				/* No users left in here, mark it for deletion */
-				to_delete.push_back(((ucrec*)(*f))->channel);
-				((ucrec*)(*f))->channel = NULL;
+				to_delete.push_back(uc->channel);
+				uc->channel = NULL;
 			}
 		}
 	}
