@@ -55,17 +55,17 @@ template<typename T> inline std::string ConvToStr(const T &in)
 class serverstats : public classbase
 {
   public:
-	int statsAccept;
-	int statsRefused;
-	int statsUnknown;
-	int statsCollisions;
-	int statsDns;
-	int statsDnsGood;
-	int statsDnsBad;
-	int statsConnects;
-	int statsSent;
-	int statsRecv;
-	int BoundPortCount;
+	unsigned long statsAccept;
+	unsigned long statsRefused;
+	unsigned long statsUnknown;
+	unsigned long statsCollisions;
+	unsigned long statsDns;
+	unsigned long statsDnsGood;
+	unsigned long statsDnsBad;
+	unsigned long statsConnects;
+	unsigned long statsSent;
+	unsigned long statsRecv;
+	unsigned long BoundPortCount;
 
 	serverstats()
 	{
