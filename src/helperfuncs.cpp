@@ -1580,7 +1580,7 @@ void ShowMOTD(userrec *user)
 	WriteServ(user->fd,"375 %s :%s message of the day", user->nick, Config->ServerName);
 
 	for (unsigned int i = 0; i < Config->MOTD.size(); i++)
-		WriteServ(user->fd,"372 %s :- ",user->nick,Config->MOTD[i].c_str());
+		WriteServ(user->fd,"372 %s :- %s",user->nick,Config->MOTD[i].c_str());
 
 	WriteServ(user->fd,"376 %s :End of message of the day.", user->nick);
 }
