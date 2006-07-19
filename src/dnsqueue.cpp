@@ -127,17 +127,18 @@ public:
 						}
 						if ((hostname != "") && (usr->registered != 7))
 						{
-							if ((std::string((char*)inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
+							if ((std::string(inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
-								strlcpy(usr->host,hostname.c_str(),64);
-								strlcpy(usr->dhost,hostname.c_str(),64);
-								/*address_cache::iterator address = addrcache.find(usr->ip4);
-								if (address == addrcache.end())
+								if ((hostname.find_last_of(".in-addr.arpa") == hostname.length() - 1) && (hostname.find_last_of(".in-addr.arpa") != std::string::npos))
 								{
-									log(DEBUG,"Caching hostname %s -> %s",(char*)inet_ntoa(usr->ip4),hostname.c_str());
-									addrcache[usr->ip4] = new std::string(hostname);
-								}*/
-								WriteServ(usr->fd,"NOTICE Auth :*** Found your hostname");
+									WriteServ(usr->fd,"NOTICE Auth :*** Your ISP are muppets -- reverse resolution resolves back to same reverse .arpa domain (!)");
+								}
+								else
+								{
+									strlcpy(usr->host,hostname.c_str(),64);
+									strlcpy(usr->dhost,hostname.c_str(),64);
+									WriteServ(usr->fd,"NOTICE Auth :*** Found your hostname");
+								}
 							}
 							usr->dns_done = true;
 							return true;
