@@ -875,6 +875,12 @@ std::string DNS::GetResultIP()
  * SMP setups (like the one i have here *grin*).
  * This is in comparison to the non-threaded dns, which must monitor the thread sockets
  * in a nonblocking fashion, consuming more resources to do so.
+ *
+ * NB: Yes this does scale, thank you. Even with large numbers of connecting clients
+ * in any one timeframe, they wont all connect *at the same time* therefore any argument
+ * of "but there will be thousands of threads it'll blow up" is moot, ive tested this and
+ * there will only ever be somewhere around the listen backlog in number of pending
+ * lookups at any one time. This is significant on any modern SMP system.
  */
 void* dns_task(void* arg)
 {
@@ -888,49 +894,38 @@ void* dns_task(void* arg)
 	std::string ip;
 	int iterations = 0;
 
-	log(DEBUG,"Thread loc 1");
 	if (dns1.ReverseLookup(inet_ntoa(u->ip4),false))
 	{
-		log(DEBUG,"Thread loc 2");
 		/* FIX: Dont make these infinite! */
 		while ((!dns1.HasResult()) && (++iterations < 20))
 			usleep(100);
 
-		log(DEBUG,"Thread loc 3");
 		if (iterations < 20)
 		{
-			log(DEBUG,"Thread loc 4");
 			if (dns1.GetFD() != -1)
 			{
 				host = dns1.GetResult();
 				if (host != "")
 				{
-					log(DEBUG,"Thread loc 5");
 					if (dns2.ForwardLookup(host, false))
 					{
 						iterations = 0;
 						while ((!dns2.HasResult()) && (++iterations < 20))
 							usleep(100);
 
-						log(DEBUG,"Thread loc 6");
 						if (iterations < 20)
 						{
 							if (dns2.GetFD() != -1)
 							{
-								log(DEBUG,"Thread loc 7");
 								ip = dns2.GetResultIP();
 								if (ip == std::string(inet_ntoa(u->ip4)))
 								{
-									log(DEBUG,"Thread loc 8");
 									if (host.length() < 65)
 									{
-										log(DEBUG,"Thread loc 9");
 										if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 										{
-											log(DEBUG,"Thread loc 10");
 											if (!u->dns_done)
 											{
-												log(DEBUG,"Thread loc 11");
 												strcpy(u->host,host.c_str());
 												if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 												{
@@ -947,7 +942,6 @@ void* dns_task(void* arg)
 			}
 		}
 	}
-	log(DEBUG,"Thread loc 12");
 	if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 		u->dns_done = true;
 	log(DEBUG,"THREAD EXIT");

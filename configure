@@ -360,10 +360,10 @@ if (!$chose_hiperf) {
 	print "not to enable one. Defaulting to select() engine.\n\n";
 }
 
-yesno(THREADED_DNS,"Would you like to enable the experimental multi-threaded DNS lookup?");
+yesno(THREADED_DNS,"InspIRCd supports multi-threaded DNS lookups,\nwhich can improve the efficiency on a multiple-processor machine.\nDo you want to enable this feature?");
 print "\n";
 
-yesno(IPV6,"Would you like to enable IPv6 support?");
+yesno(IPV6,"Would you like to enable experimental IPv6 support?");
 print "\n";
 
 if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
