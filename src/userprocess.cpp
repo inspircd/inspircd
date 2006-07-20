@@ -356,52 +356,57 @@ void DoBackgroundUserStuff(time_t TIME)
 		{
 			cfd = curr->fd;
 
-			/*
-			 * registration timeout -- didnt send USER/NICK/HOST
-			 * in the time specified in their connection class.
-			 */
-			if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
+			if ((cfd > 0) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
 			{
-				log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-				ZapThisDns(curr->fd);
-				GlobalGoners.AddItem(curr,"Registration timeout");
-				continue;
-			}
-
-			/*
-			 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
-			 * say this user is ok to proceed, fully connect them.
-			 */
-			if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-			{
-				curr->dns_done = true;
-				ServerInstance->stats->statsDnsBad++;
-				ZapThisDns(curr->fd);
-				FullConnectUser(curr,&GlobalGoners);
-				continue;
-			}
-
-			if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
-			{
-				log(DEBUG,"dns done, registered=3, and modules ready, OK");
-				ZapThisDns(curr->fd);
-				FullConnectUser(curr,&GlobalGoners);
-				continue;
-			}
-
-			// It's time to PING this user. Send them a ping.
-			if ((TIME > curr->nping) && (curr->registered == 7))
-			{
-				// This user didn't answer the last ping, remove them
-				if (!curr->lastping)
+				/*
+				 * registration timeout -- didnt send USER/NICK/HOST
+				 * in the time specified in their connection class.
+				 */
+				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
 				{
-					GlobalGoners.AddItem(curr,"Ping timeout");
+					log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+					ZapThisDns(curr->fd);
+						GlobalGoners.AddItem(curr,"Registration timeout");
 					continue;
 				}
-
-				Write(curr->fd,"PING :%s",Config->ServerName);
-				curr->lastping = 0;
-				curr->nping = TIME+curr->pingmax;
+	
+				/*
+				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
+				 * say this user is ok to proceed, fully connect them.
+				 */
+				if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+				{
+					curr->dns_done = true;
+					ServerInstance->stats->statsDnsBad++;
+						ZapThisDns(curr->fd);
+					FullConnectUser(curr,&GlobalGoners);
+					continue;
+				}
+	
+				if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+				{
+						log(DEBUG,"dns done, registered=3, and modules ready, OK");
+					ZapThisDns(curr->fd);
+					FullConnectUser(curr,&GlobalGoners);
+					continue;
+				}
+	
+				// It's time to PING this user. Send them a ping.
+				if ((TIME > curr->nping) && (curr->registered == 7))
+				{
+					// This user didn't answer the last ping, remove them
+					if (!curr->lastping)
+					{
+						GlobalGoners.AddItem(curr,"Ping timeout");
+						curr->lastping = 1;
+						curr->nping = TIME+curr->pingmax;
+						continue;
+					}
+	
+					Write(curr->fd,"PING :%s",Config->ServerName);
+					curr->lastping = 0;
+					curr->nping = TIME+curr->pingmax;
+				}
 			}
 
 			/*
