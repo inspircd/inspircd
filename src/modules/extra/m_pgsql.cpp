@@ -87,8 +87,10 @@ enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE };
 class QueryQueue : public classbase
 {
 private:
-	std::deque<SQLrequest> priority;	/* The priority queue */
-	std::deque<SQLrequest> normal;	/* The 'normal' queue */
+	typedef std::deque<SQLrequest> ReqDeque;	
+
+	ReqDeque priority;	/* The priority queue */
+	ReqDeque normal;	/* The 'normal' queue */
 	enum { PRI, NOR, NON } which;	/* Which queue the currently active element is at the front of */
 
 public:
@@ -162,6 +164,33 @@ public:
 	int totalsize()
 	{
 		return priority.size() + normal.size();
+	}
+	
+	void PurgeModule(Module* mod)
+	{
+		DoPurgeModule(mod, priority);
+		DoPurgeModule(mod, normal);
+	}
+	
+private:
+	void DoPurgeModule(Module* mod, ReqDeque& q)
+	{
+		for(ReqDeque::iterator iter = q.begin(); iter != q.end(); iter++)
+		{
+			if(iter->GetSource() == mod)
+			{
+				if(iter->id == front().id)
+				{
+					/* It's the currently active query.. :x */
+					iter->SetSource(NULL);
+				}
+				else
+				{
+					/* It hasn't been executed yet..just remove it */
+					iter = q.erase(iter);
+				}
+			}
+		}
 	}
 };
 
@@ -405,6 +434,8 @@ public:
 	SQLerror DoQuery(const SQLrequest &req);
 	
 	SQLerror Query(const SQLrequest &req);
+	
+	void OnUnloadModule(Module* mod);
 };
 
 class ModulePgSQL : public Module
@@ -431,7 +462,7 @@ public:
 
 	void Implements(char* List)
 	{
-		List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
+		List[I_OnUnloadModule] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
 	}
 
 	virtual void OnRehash(const std::string &parameter)
@@ -497,6 +528,20 @@ public:
 		return NULL;
 	}
 	
+	virtual void OnUnloadModule(Module* mod, const std::string&	name)
+	{
+		/* When a module unloads we have to check all the pending queries for all our connections
+		 * and set the Module* specifying where the query came from to NULL. If the query has already
+		 * been dispatched then when it is processed it will be dropped if the pointer is NULL.
+		 *
+		 * If the queries we find are not already being executed then we can simply remove them immediately.
+		 */
+		for(ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			
+		}
+	}
+
 	unsigned long NewID()
 	{
 		if (currid+1 == 0)
@@ -928,6 +973,11 @@ SQLerror SQLConn::Query(const SQLrequest &req)
 	{
 		return SQLerror();
 	}
+}
+
+void SQLConn::OnUnloadModule(Module* mod)
+{
+	queue.PurgeModule(mod);
 }
 
 class ModulePgSQLFactory : public ModuleFactory

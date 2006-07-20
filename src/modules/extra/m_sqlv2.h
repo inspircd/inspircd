@@ -81,7 +81,12 @@ public:
 	SQLrequest(Module* s, Module* d, const std::string &q, const std::string &id, bool p = false)
 	: Request(SQLREQID, s, d), query(q), dbid(id), pri(p), id(0)
 	{
-	}	
+	}
+	
+	void SetSource(Module* mod)
+	{
+		source = mod;
+	}
 };
 
 class SQLfield
