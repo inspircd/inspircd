@@ -153,7 +153,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			// initialize their dns lookup thread
 			if (pthread_create(&user->dnsthread, NULL, dns_task, (void *)user) != 0)
 			{
-				log(DEBUG,"Failed to create DNS lookup thread for user %s",user->nick);
+				log(DEBUG,"Failed to create DNS lookup thread for user %s: %s",user->nick, strerror(errno));
 			}
 #else
 			user->dns_done = (!lookup_dns(user->nick));

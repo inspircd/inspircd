@@ -917,7 +917,7 @@ void* dns_task(void* arg)
 	}
 	if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 		u->dns_done = true;
-	return NULL;
+	pthread_exit(0);
 }
 #endif
 
