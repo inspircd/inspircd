@@ -869,10 +869,9 @@ void* dns_task(void* arg)
 					if (host.length() < 160)
 					{
 						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
-						{
 							strcpy(u->host,host.c_str());
+						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 							strcpy(u->dhost,host.c_str());
-						}
 					}
 				}
 			}
