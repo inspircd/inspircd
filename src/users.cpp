@@ -517,10 +517,12 @@ void userrec::FlushWriteBuf()
 
 void userrec::SetWriteError(const std::string &error)
 {
-	log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 	// don't try to set the error twice, its already set take the first string.
 	if (!this->WriteError.length())
+	{
+		log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 		this->WriteError = error;
+	}
 }
 
 const char* userrec::GetWriteError()
