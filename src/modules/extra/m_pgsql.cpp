@@ -47,6 +47,8 @@ InspSocket* socket_ref[MAX_DESCRIPTORS];
 
 /* Forward declare, so we can have the typedef neatly at the top */
 class SQLConn;
+/* Also needs forward declaration, as it's used inside SQLconn */
+class ModulePgSQL;
 
 typedef std::map<std::string, SQLConn*> ConnMap;
 
@@ -163,6 +165,47 @@ public:
 	}
 };
 
+/** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
+ * All SQL providers must create their own subclass and define it's methods using that
+ * database library's data retriveal functions. The aim is to avoid a slow and inefficient process
+ * of converting all data to a common format before it reaches the result structure. This way
+ * data is passes to the module nearly as directly as if it was using the API directly itself.
+ */
+
+class PgSQLresult : public SQLresult
+{
+	PGresult* res;
+public:
+	PgSQLresult(Module* self, Module* to, PGresult* result)
+	: SQLresult(self, to), res(result)
+	{
+		int rows = PQntuples(res);
+		int cols = PQnfields(res);
+		
+		log(DEBUG, "Created new PgSQL result; %d rows, %d columns", rows, cols);
+		
+		for (int r = 0; r < rows; r++)
+		{
+			log(DEBUG, "Row %d:", r);
+					
+			for(int i = 0; i < cols; i++)
+			{
+				log(DEBUG, "\t[%s]: %s", PQfname(result, i), PQgetvalue(result, r, i));
+			}
+		}
+	}
+	
+	~PgSQLresult()
+	{
+		PQclear(res);
+	}
+	
+	virtual int Rows()
+	{
+		return PQntuples(res);
+	}
+};
+
 /** SQLConn represents one SQL session.
  * Each session has its own persistent connection to the database.
  * This is a subclass of InspSocket so it can easily recieve read/write events from the core socket
@@ -173,6 +216,7 @@ public:
 class SQLConn : public InspSocket
 {
 private:
+	ModulePgSQL* us;		/* Pointer to the SQL provider itself */
 	Server* Srv;			/* Server* for..uhm..something, maybe */
 	std::string 	dbhost;	/* Database server hostname */
 	unsigned int	dbport;	/* Database server port */
@@ -189,394 +233,37 @@ public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(Server* srv, const std::string &h, unsigned int p, const std::string &d, const std::string &u, const std::string &pwd, bool s)
-	: InspSocket::InspSocket(), Srv(srv), dbhost(h), dbport(p), dbname(d), dbuser(u), dbpass(pwd), ssl(s), sql(NULL), status(CWRITE), qinprog(false)
-	{
-		log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
+	SQLConn(ModulePgSQL* self, Server* srv, const std::string &h, unsigned int p, const std::string &d, const std::string &u, const std::string &pwd, bool s);
 
-		/* Some of this could be reviewed, unsure if I need to fill 'host' etc...
-		 * just copied this over from the InspSocket constructor.
-		 */
-		strlcpy(this->host, dbhost.c_str(), MAXBUF);
-		this->port = dbport;
-		
-		this->ClosePending = false;
-		
-		if(!inet_aton(this->host, &this->addy))
-		{
-			/* Its not an ip, spawn the resolver.
-			 * PgSQL doesn't do nonblocking DNS 
-			 * lookups, so we do it for it.
-			 */
-			
-			log(DEBUG,"Attempting to resolve %s", this->host);
-			
-			this->dns.SetNS(Srv->GetConfig()->DNSServer);
-			this->dns.ForwardLookupWithFD(this->host, fd);
-			
-			this->state = I_RESOLVING;
-			socket_ref[this->fd] = this;
-			
-			return;
-		}
-		else
-		{
-			log(DEBUG,"No need to resolve %s", this->host);
-			strlcpy(this->IP, this->host, MAXBUF);
-			
-			if(!this->DoConnect())
-			{
-				throw ModuleException("Connect failed");
-			}
-		}
-	}
-	
-	~SQLConn()
-	{
-		Close();
-	}
-	
-	bool DoResolve()
-	{	
-		log(DEBUG, "Checking for DNS lookup result");
-		
-		if(this->dns.HasResult())
-		{
-			std::string res_ip = dns.GetResultIP();
-			
-			if(res_ip.length())
-			{
-				log(DEBUG, "Got result: %s", res_ip.c_str());
-				
-				strlcpy(this->IP, res_ip.c_str(), MAXBUF);
-				dbhost = res_ip;
-				
-				socket_ref[this->fd] = NULL;
-				
-				return this->DoConnect();
-			}
-			else
-			{
-				log(DEBUG, "DNS lookup failed, dying horribly");
-				Close();
-				return false;
-			}
-		}
-		else
-		{
-			log(DEBUG, "No result for lookup yet!");
-			return true;
-		}
-	}
+	~SQLConn();
 
-	bool DoConnect()
-	{
-		log(DEBUG, "SQLConn::DoConnect()");
-		
-		if(!(sql = PQconnectStart(MkInfoStr().c_str())))
-		{
-			log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
-			Close();
-			return false;
-		}
-		
-		if(PQstatus(sql) == CONNECTION_BAD)
-		{
-			log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
-			Close();
-			return false;
-		}
-		
-		ShowStatus();
-		
-		if(PQsetnonblocking(sql, 1) == -1)
-		{
-			log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
-			Close();
-			return false;
-		}
-		
-		/* OK, we've initalised the connection, now to get it hooked into the socket engine
-		 * and then start polling it.
-		 */
-		
-		log(DEBUG, "Old DNS socket: %d", this->fd);
-		this->fd = PQsocket(sql);
-		log(DEBUG, "New SQL socket: %d", this->fd);
-		
-		if(this->fd <= -1)
-		{
-			log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
-			Close();
-			return false;
-		}
-		
-		this->state = I_CONNECTING;
-		ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
-		socket_ref[this->fd] = this;
-		
-		/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-		
-		return DoPoll();
-	}
-	
-	virtual void Close()
-	{
-		log(DEBUG,"SQLConn::Close");
-		
-		if(this->fd > 01)
-			socket_ref[this->fd] = NULL;
-		this->fd = -1;
-		this->state = I_ERROR;
-		this->OnError(I_ERR_SOCKET);
-		this->ClosePending = true;
-		
-		if(sql)
-		{
-			PQfinish(sql);
-			sql = NULL;
-		}
-		
-		return;
-	}
-	
-	bool DoPoll()
-	{
-		switch(PQconnectPoll(sql))
-		{
-			case PGRES_POLLING_WRITING:
-				log(DEBUG, "PGconnectPoll: PGRES_POLLING_WRITING");
-				WantWrite();
-				status = CWRITE;
-				return DoPoll();
-			case PGRES_POLLING_READING:
-				log(DEBUG, "PGconnectPoll: PGRES_POLLING_READING");
-				status = CREAD;
-				break;
-			case PGRES_POLLING_FAILED:
-				log(DEBUG, "PGconnectPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
-				return false;
-			case PGRES_POLLING_OK:
-				log(DEBUG, "PGconnectPoll: PGRES_POLLING_OK");
-				status = WWRITE;
-				return DoConnectedPoll();
-			default:
-				log(DEBUG, "PGconnectPoll: wtf?");
-				break;
-		}
-		
-		return true;
-	}
-	
-	bool DoConnectedPoll()
-	{
-		if(!qinprog && queue.totalsize())
-		{
-			/* There's no query currently in progress, and there's queries in the queue. */
-			SQLrequest& query = queue.front();
-			DoQuery(query);
-		}
-		
-		if(PQconsumeInput(sql))
-		{
-			log(DEBUG, "PQconsumeInput succeeded");
-				
-			if(PQisBusy(sql))
-			{
-				log(DEBUG, "Still busy processing command though");
-			}
-			else if(qinprog)
-			{
-				log(DEBUG, "Looks like we have a result to process!");
-				
-				while(PGresult* result = PQgetResult(sql))
-				{
-					int cols = PQnfields(result);
-					
-					log(DEBUG, "Got result! :D");
-					log(DEBUG, "%d rows, %d columns checking now what the column names are", PQntuples(result), cols);
-						
-					for(int i = 0; i < cols; i++)
-					{
-						log(DEBUG, "Column name: %s (%d)", PQfname(result, i));
-					}
-						
-					PQclear(result);
-				}
-				
-				qinprog = false;
-				queue.pop();				
-				DoConnectedPoll();
-			}
-			
-			return true;
-		}
-		
-		log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-		return false;
-	}
-	
-	void ShowStatus()
-	{
-		switch(PQstatus(sql))
-		{
-			case CONNECTION_STARTED:
-				log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
-				break;
- 
-			case CONNECTION_MADE:
-				log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
-				break;
-			
-			case CONNECTION_AWAITING_RESPONSE:
-				log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
-				break;
-			
-			case CONNECTION_AUTH_OK:
-				log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
-				break;
-			
-			case CONNECTION_SSL_STARTUP:
-				log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
-				break;
-			
-			case CONNECTION_SETENV:
-				log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
-				break;
-			
-			default:
-				log(DEBUG, "PQstatus: ???");
-		}
-	}
-	
-	virtual bool OnDataReady()
-	{
-		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-		log(DEBUG, "OnDataReady(): status = %s", StatusStr());
-		
-		return DoEvent();
-	}
+	bool DoResolve();
 
-	virtual bool OnWriteReady()
-	{
-		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-		log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
-		
-		return DoEvent();
-	}
-	
-	virtual bool OnConnected()
-	{
-		log(DEBUG, "OnConnected(): status = %s", StatusStr());
-		
-		return DoEvent();
-	}
-	
-	bool DoEvent()
-	{
-		bool ret;
-		
-		if((status == CREAD) || (status == CWRITE))
-		{
-			ret = DoPoll();
-		}
-		else
-		{
-			ret = DoConnectedPoll();
-		}
-		
-		switch(PQflush(sql))
-		{
-			case -1:
-				log(DEBUG, "Error flushing write queue: %s", PQerrorMessage(sql));
-				break;
-			case 0:
-				log(DEBUG, "Successfully flushed write queue (or there was nothing to write)");
-				break;
-			case 1:
-				log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
-				WantWrite();
-				break;
-		}
+	bool DoConnect();
 
-		return ret;
-	}
+	virtual void Close();
 	
-	std::string MkInfoStr()
-	{			
-		/* XXX - This needs nonblocking DNS lookups */
-		
-		std::ostringstream conninfo("connect_timeout = '2'");
-		
-		if(dbhost.length())
-			conninfo << " hostaddr = '" << dbhost << "'";
-		
-		if(dbport)
-			conninfo << " port = '" << dbport << "'";
-		
-		if(dbname.length())
-			conninfo << " dbname = '" << dbname << "'";
-		
-		if(dbuser.length())
-			conninfo << " user = '" << dbuser << "'";
-		
-		if(dbpass.length())
-			conninfo << " password = '" << dbpass << "'";
-		
-		if(ssl)
-			conninfo << " sslmode = 'require'";
-		
-		return conninfo.str();
-	}
+	bool DoPoll();
 	
-	const char* StatusStr()
-	{
-		if(status == CREAD) return "CREAD";
-		if(status == CWRITE) return "CWRITE";
-		if(status == WREAD) return "WREAD";
-		if(status == WWRITE) return "WWRITE";
-		return "Err...what, erm..BUG!";
-	}
+	bool DoConnectedPoll();
 	
-	SQLerror DoQuery(const SQLrequest &req)
-	{
-		if((status == WREAD) || (status == WWRITE))
-		{
-			if(!qinprog)
-			{
-				if(PQsendQuery(sql, req.query.c_str()))
-				{
-					log(DEBUG, "Dispatched query: %s", req.query.c_str());
-					qinprog = true;
-					return SQLerror();
-				}
-				else
-				{
-					log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
-					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
-				}
-			}
-		}
+	void ShowStatus();	
+	
+	virtual bool OnDataReady();
 
-		log(DEBUG, "Can't query until connection is complete");
-		return SQLerror(BAD_CONN, "Can't query until connection is complete");
-	}
+	virtual bool OnWriteReady();
 	
-	SQLerror Query(const SQLrequest &req)
-	{
-		queue.push(req);
-		
-		if(!qinprog && queue.totalsize())
-		{
-			/* There's no query currently in progress, and there's queries in the queue. */
-			SQLrequest& query = queue.front();
-			return DoQuery(query);
-		}
-		else
-		{
-			return SQLerror();
-		}
-	}
+	virtual bool OnConnected();
+	
+	bool DoEvent();
+	
+	std::string MkInfoStr();
+	
+	const char* StatusStr();
+	
+	SQLerror DoQuery(const SQLrequest &req);
+	
+	SQLerror Query(const SQLrequest &req);
 };
 
 class ModulePgSQL : public Module
@@ -584,13 +271,19 @@ class ModulePgSQL : public Module
 private:
 	Server* Srv;
 	ConnMap connections;
+	unsigned long currid;
+	char* sqlsuccess;
 
 public:
 	ModulePgSQL(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	: Module::Module(Me), Srv(Me), currid(0)
 	{
 		log(DEBUG, "%s 'SQL' feature", Srv->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
 		log(DEBUG, "%s 'PgSQL' feature", Srv->PublishFeature("PgSQL", this) ? "Published" : "Couldn't publish");
+		
+		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
+		
+		strcpy(sqlsuccess, SQLSUCCESS);
 
 		OnRehash("");
 	}
@@ -622,7 +315,8 @@ public:
 			SQLConn* newconn;
 			
 			id = conf.ReadValue("database", "id", i);
-			newconn = new SQLConn(Srv,	conf.ReadValue("database", "hostname", i),
+			newconn = new SQLConn(this, Srv,
+										conf.ReadValue("database", "hostname", i),
 										conf.ReadInteger("database", "port", i, true),
 										conf.ReadValue("database", "name", i),
 										conf.ReadValue("database", "username", i),
@@ -646,8 +340,9 @@ public:
 			{
 				/* Execute query */
 				req->error = iter->second->Query(*req);
+				req->id = NewID();
 				
-				return SQLSUCCESS;
+				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
 			}
 			else
 			{
@@ -660,6 +355,14 @@ public:
 		
 		return NULL;
 	}
+	
+	unsigned long NewID()
+	{
+		if (currid+1 == 0)
+			currid++;
+		
+		return ++currid;
+	}
 		
 	virtual Version GetVersion()
 	{
@@ -668,8 +371,423 @@ public:
 	
 	virtual ~ModulePgSQL()
 	{
+		DELETE(sqlsuccess);
 	}	
 };
+
+SQLConn::SQLConn(ModulePgSQL* self, Server* srv, const std::string &h, unsigned int p, const std::string &d, const std::string &u, const std::string &pwd, bool s)
+: InspSocket::InspSocket(), us(self), Srv(srv), dbhost(h), dbport(p), dbname(d), dbuser(u), dbpass(pwd), ssl(s), sql(NULL), status(CWRITE), qinprog(false)
+{
+	log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
+
+	/* Some of this could be reviewed, unsure if I need to fill 'host' etc...
+	 * just copied this over from the InspSocket constructor.
+	 */
+	strlcpy(this->host, dbhost.c_str(), MAXBUF);
+	this->port = dbport;
+	
+	this->ClosePending = false;
+	
+	if(!inet_aton(this->host, &this->addy))
+	{
+		/* Its not an ip, spawn the resolver.
+		 * PgSQL doesn't do nonblocking DNS 
+		 * lookups, so we do it for it.
+		 */
+		
+		log(DEBUG,"Attempting to resolve %s", this->host);
+		
+		this->dns.SetNS(Srv->GetConfig()->DNSServer);
+		this->dns.ForwardLookupWithFD(this->host, fd);
+		
+		this->state = I_RESOLVING;
+		socket_ref[this->fd] = this;
+		
+		return;
+	}
+	else
+	{
+		log(DEBUG,"No need to resolve %s", this->host);
+		strlcpy(this->IP, this->host, MAXBUF);
+		
+		if(!this->DoConnect())
+		{
+			throw ModuleException("Connect failed");
+		}
+	}
+}
+
+SQLConn::~SQLConn()
+{
+	Close();
+}
+
+bool SQLConn::DoResolve()
+{	
+	log(DEBUG, "Checking for DNS lookup result");
+	
+	if(this->dns.HasResult())
+	{
+		std::string res_ip = dns.GetResultIP();
+		
+		if(res_ip.length())
+		{
+			log(DEBUG, "Got result: %s", res_ip.c_str());
+			
+			strlcpy(this->IP, res_ip.c_str(), MAXBUF);
+			dbhost = res_ip;
+			
+			socket_ref[this->fd] = NULL;
+			
+			return this->DoConnect();
+		}
+		else
+		{
+			log(DEBUG, "DNS lookup failed, dying horribly");
+			Close();
+			return false;
+		}
+	}
+	else
+	{
+		log(DEBUG, "No result for lookup yet!");
+		return true;
+	}
+}
+
+bool SQLConn::DoConnect()
+{
+	log(DEBUG, "SQLConn::DoConnect()");
+	
+	if(!(sql = PQconnectStart(MkInfoStr().c_str())))
+	{
+		log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
+		Close();
+		return false;
+	}
+	
+	if(PQstatus(sql) == CONNECTION_BAD)
+	{
+		log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
+		Close();
+		return false;
+	}
+	
+	ShowStatus();
+	
+	if(PQsetnonblocking(sql, 1) == -1)
+	{
+		log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
+		Close();
+		return false;
+	}
+	
+	/* OK, we've initalised the connection, now to get it hooked into the socket engine
+	 * and then start polling it.
+	 */
+	
+	log(DEBUG, "Old DNS socket: %d", this->fd);
+	this->fd = PQsocket(sql);
+	log(DEBUG, "New SQL socket: %d", this->fd);
+	
+	if(this->fd <= -1)
+	{
+		log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
+		Close();
+		return false;
+	}
+	
+	this->state = I_CONNECTING;
+	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+	socket_ref[this->fd] = this;
+	
+	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
+	
+	return DoPoll();
+}
+
+void SQLConn::Close()
+{
+	log(DEBUG,"SQLConn::Close");
+	
+	if(this->fd > 01)
+		socket_ref[this->fd] = NULL;
+	this->fd = -1;
+	this->state = I_ERROR;
+	this->OnError(I_ERR_SOCKET);
+	this->ClosePending = true;
+	
+	if(sql)
+	{
+		PQfinish(sql);
+		sql = NULL;
+	}
+	
+	return;
+}
+
+bool SQLConn::DoPoll()
+{
+	switch(PQconnectPoll(sql))
+	{
+		case PGRES_POLLING_WRITING:
+			log(DEBUG, "PGconnectPoll: PGRES_POLLING_WRITING");
+			WantWrite();
+			status = CWRITE;
+			return DoPoll();
+		case PGRES_POLLING_READING:
+			log(DEBUG, "PGconnectPoll: PGRES_POLLING_READING");
+			status = CREAD;
+			break;
+		case PGRES_POLLING_FAILED:
+			log(DEBUG, "PGconnectPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
+			return false;
+		case PGRES_POLLING_OK:
+			log(DEBUG, "PGconnectPoll: PGRES_POLLING_OK");
+			status = WWRITE;
+			return DoConnectedPoll();
+		default:
+			log(DEBUG, "PGconnectPoll: wtf?");
+			break;
+	}
+	
+	return true;
+}
+
+bool SQLConn::DoConnectedPoll()
+{
+	if(!qinprog && queue.totalsize())
+	{
+		/* There's no query currently in progress, and there's queries in the queue. */
+		SQLrequest& query = queue.front();
+		DoQuery(query);
+	}
+	
+	if(PQconsumeInput(sql))
+	{
+		log(DEBUG, "PQconsumeInput succeeded");
+			
+		if(PQisBusy(sql))
+		{
+			log(DEBUG, "Still busy processing command though");
+		}
+		else if(qinprog)
+		{
+			log(DEBUG, "Looks like we have a result to process!");
+			
+			/* Grab the request we're processing */
+			SQLrequest& query = queue.front();
+			
+			/* Get a pointer to the module we're about to return the result to */
+			Module* to = query.GetSource();
+			
+			/* Fetch the result.. */
+			PGresult* result = PQgetResult(sql);
+			
+			/* PgSQL would allow a query string to be sent which has multiple
+			 * queries in it, this isn't portable across database backends and
+			 * we don't want modules doing it. But just in case we make sure we
+			 * drain any results there are and just use the last one.
+			 * If the module devs are behaving there will only be one result.
+			 */
+			while (PGresult* temp = PQgetResult(sql))
+			{
+				PQclear(result);
+				result = temp;
+			}
+			
+			if(to)
+			{
+				/* ..and the result */
+				log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
+					
+				PgSQLresult reply(us, to, result);
+				
+				reply.Send();
+				
+				/* PgSQLresult's destructor will free the PGresult */
+			}
+			else
+			{
+				/* If the client module is unloaded partway through a query then the provider will set
+				 * the pointer to NULL. We cannot just cancel the query as the result will still come
+				 * through at some point...and it could get messy if we play with invalid pointers...
+				 */
+				log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: %lu", query.id);
+				PQclear(result);
+			}
+			
+			qinprog = false;
+			queue.pop();				
+			DoConnectedPoll();
+		}
+		
+		return true;
+	}
+	
+	log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
+	return false;
+}
+
+void SQLConn::ShowStatus()
+{
+	switch(PQstatus(sql))
+	{
+		case CONNECTION_STARTED:
+			log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
+			break;
+
+		case CONNECTION_MADE:
+			log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
+			break;
+		
+		case CONNECTION_AWAITING_RESPONSE:
+			log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
+			break;
+		
+		case CONNECTION_AUTH_OK:
+			log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
+			break;
+		
+		case CONNECTION_SSL_STARTUP:
+			log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
+			break;
+		
+		case CONNECTION_SETENV:
+			log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
+			break;
+		
+		default:
+			log(DEBUG, "PQstatus: ???");
+	}
+}
+
+bool SQLConn::OnDataReady()
+{
+	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
+	log(DEBUG, "OnDataReady(): status = %s", StatusStr());
+	
+	return DoEvent();
+}
+
+bool SQLConn::OnWriteReady()
+{
+	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
+	log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
+	
+	return DoEvent();
+}
+
+bool SQLConn::OnConnected()
+{
+	log(DEBUG, "OnConnected(): status = %s", StatusStr());
+	
+	return DoEvent();
+}
+
+bool SQLConn::DoEvent()
+{
+	bool ret;
+	
+	if((status == CREAD) || (status == CWRITE))
+	{
+		ret = DoPoll();
+	}
+	else
+	{
+		ret = DoConnectedPoll();
+	}
+	
+	switch(PQflush(sql))
+	{
+		case -1:
+			log(DEBUG, "Error flushing write queue: %s", PQerrorMessage(sql));
+			break;
+		case 0:
+			log(DEBUG, "Successfully flushed write queue (or there was nothing to write)");
+			break;
+		case 1:
+			log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
+			WantWrite();
+			break;
+	}
+
+	return ret;
+}
+
+std::string SQLConn::MkInfoStr()
+{			
+	std::ostringstream conninfo("connect_timeout = '2'");
+	
+	if(dbhost.length())
+		conninfo << " hostaddr = '" << dbhost << "'";
+	
+	if(dbport)
+		conninfo << " port = '" << dbport << "'";
+	
+	if(dbname.length())
+		conninfo << " dbname = '" << dbname << "'";
+	
+	if(dbuser.length())
+		conninfo << " user = '" << dbuser << "'";
+	
+	if(dbpass.length())
+		conninfo << " password = '" << dbpass << "'";
+	
+	if(ssl)
+		conninfo << " sslmode = 'require'";
+	
+	return conninfo.str();
+}
+
+const char* SQLConn::StatusStr()
+{
+	if(status == CREAD) return "CREAD";
+	if(status == CWRITE) return "CWRITE";
+	if(status == WREAD) return "WREAD";
+	if(status == WWRITE) return "WWRITE";
+	return "Err...what, erm..BUG!";
+}
+
+SQLerror SQLConn::DoQuery(const SQLrequest &req)
+{
+	if((status == WREAD) || (status == WWRITE))
+	{
+		if(!qinprog)
+		{
+			if(PQsendQuery(sql, req.query.c_str()))
+			{
+				log(DEBUG, "Dispatched query: %s", req.query.c_str());
+				qinprog = true;
+				return SQLerror();
+			}
+			else
+			{
+				log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
+				return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+			}
+		}
+	}
+
+	log(DEBUG, "Can't query until connection is complete");
+	return SQLerror(BAD_CONN, "Can't query until connection is complete");
+}
+
+SQLerror SQLConn::Query(const SQLrequest &req)
+{
+	queue.push(req);
+	
+	if(!qinprog && queue.totalsize())
+	{
+		/* There's no query currently in progress, and there's queries in the queue. */
+		SQLrequest& query = queue.front();
+		return DoQuery(query);
+	}
+	else
+	{
+		return SQLerror();
+	}
+}
 
 class ModulePgSQLFactory : public ModuleFactory
 {

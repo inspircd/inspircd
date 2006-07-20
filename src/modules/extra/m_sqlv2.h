@@ -20,9 +20,15 @@ public:
 	{	
 	}
 	
-	void Id(SQLerrorNum i)
+	SQLerrorNum Id()
+	{
+		return id;
+	}
+	
+	SQLerrorNum Id(SQLerrorNum i)
 	{
 		id = i;
+		return id;
 	}
 	
 	void Str(const std::string &s)
@@ -57,10 +63,11 @@ public:
 	std::string query;
 	std::string dbid;
 	bool pri;
+	unsigned long id;
 	SQLerror error;
 	
 	SQLrequest(Module* s, Module* d, const std::string &q, const std::string &id, bool p = false)
-	: Request(SQLREQID, s, d), query(q), dbid(id), pri(p)
+	: Request(SQLREQID, s, d), query(q), dbid(id), pri(p), id(0)
 	{
 	}	
 };
@@ -78,10 +85,7 @@ public:
 		
 	}
 	
-	virtual int Rows()
-	{
-		return 0;
-	}
+	virtual int Rows() = 0;
 };
 
 #endif
