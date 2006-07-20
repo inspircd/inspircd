@@ -12,7 +12,7 @@
 
 enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
 
-class SQLexception
+class SQLexception : public ModuleException
 {
 };
 
