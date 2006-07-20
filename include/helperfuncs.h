@@ -71,7 +71,6 @@ int usercount_i(chanrec *c);
 int usercount(chanrec *c);
 ConnectClass GetClass(userrec *user);
 void send_error(char *s);
-void Error(int status);
 int usercnt(void);
 int registered_usercount(void);
 int usercount_invisible(void);

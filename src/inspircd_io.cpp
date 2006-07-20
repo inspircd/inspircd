@@ -863,7 +863,6 @@ void SetSignals()
 	signal (SIGHUP, Rehash);
 	signal (SIGPIPE, SIG_IGN);
 	signal (SIGTERM, Exit);
-	signal (SIGSEGV, Error);
 }
 
 

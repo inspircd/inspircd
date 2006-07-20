@@ -1448,22 +1448,6 @@ void send_error(char *s)
 	}
 }
 
-void Error(int status)
-{
-	signal(SIGALRM, SIG_IGN);
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
-	signal(SIGABRT, SIG_IGN);
-	signal(SIGSEGV, SIG_IGN);
-	signal(SIGURG, SIG_IGN);
-	signal(SIGKILL, SIG_IGN);
-	log(DEFAULT,"*** fell down a pothole in the road to perfection ***");
-	send_error("Error! Segmentation fault! save meeeeeeeeeeeeee *splat!*");
-	signal(SIGSEGV, SIG_DFL);
-	raise(SIGSEGV);
-	Exit(status);
-}
-
 // this function counts all users connected, wether they are registered or NOT.
 int usercnt(void)
 {
