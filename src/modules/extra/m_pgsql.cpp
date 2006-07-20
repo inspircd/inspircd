@@ -175,24 +175,18 @@ public:
 class PgSQLresult : public SQLresult
 {
 	PGresult* res;
+	int currentrow;
+	
+	SQLfieldList* fieldlist;
+	SQLfieldMap* fieldmap;
 public:
 	PgSQLresult(Module* self, Module* to, PGresult* result)
-	: SQLresult(self, to), res(result)
+	: SQLresult(self, to), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
 	{
 		int rows = PQntuples(res);
 		int cols = PQnfields(res);
 		
 		log(DEBUG, "Created new PgSQL result; %d rows, %d columns", rows, cols);
-		
-		for (int r = 0; r < rows; r++)
-		{
-			log(DEBUG, "Row %d:", r);
-					
-			for(int i = 0; i < cols; i++)
-			{
-				log(DEBUG, "\t[%s]: %s", PQfname(result, i), PQgetvalue(result, r, i));
-			}
-		}
 	}
 	
 	~PgSQLresult()
@@ -203,6 +197,153 @@ public:
 	virtual int Rows()
 	{
 		return PQntuples(res);
+	}
+	
+	virtual int Cols()
+	{
+		return PQnfields(res);
+	}
+	
+	virtual std::string ColName(int column)
+	{
+		char* name = PQfname(res, column);
+		
+		return (name) ? name : "";
+	}
+	
+	virtual int ColNum(const std::string &column)
+	{
+		int n = PQfnumber(res, column.c_str());
+		
+		if(n == -1)
+		{
+			throw SQLbadColName();
+		}
+		else
+		{
+			return n;
+		}
+	}
+	
+	virtual SQLfield GetValue(int row, int column)
+	{
+		char* v = PQgetvalue(res, row, column);
+		
+		if(v)
+		{
+			return SQLfield(std::string(v, PQgetlength(res, row, column)), PQgetisnull(res, row, column));
+		}
+		else
+		{
+			log(DEBUG, "PQgetvalue returned a null pointer..nobody wants to tell us what this means");
+			throw SQLbadColName();
+		}
+	}
+	
+	virtual SQLfieldList& GetRow()
+	{
+		/* In an effort to reduce overhead we don't actually allocate the list
+		 * until the first time it's needed...so...
+		 */
+		if(fieldlist)
+		{
+			fieldlist->clear();
+		}
+		else
+		{
+			fieldlist = new SQLfieldList;
+		}
+		
+		if(currentrow < PQntuples(res))
+		{
+			int cols = PQnfields(res);
+			
+			for(int i = 0; i < cols; i++)
+			{
+				fieldlist->push_back(GetValue(currentrow, i));
+			}
+			
+			currentrow++;
+		}
+		
+		return *fieldlist;
+	}
+	
+	virtual SQLfieldMap& GetRowMap()
+	{
+		/* In an effort to reduce overhead we don't actually allocate the map
+		 * until the first time it's needed...so...
+		 */
+		if(fieldmap)
+		{
+			fieldmap->clear();
+		}
+		else
+		{
+			fieldmap = new SQLfieldMap;
+		}
+		
+		if(currentrow < PQntuples(res))
+		{
+			int cols = PQnfields(res);
+			
+			for(int i = 0; i < cols; i++)
+			{
+				fieldmap->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
+			}
+			
+			currentrow++;
+		}
+		
+		return *fieldmap;
+	}
+	
+	virtual SQLfieldList* GetRowPtr()
+	{
+		SQLfieldList* fl = new SQLfieldList;
+		
+		if(currentrow < PQntuples(res))
+		{
+			int cols = PQnfields(res);
+			
+			for(int i = 0; i < cols; i++)
+			{
+				fl->push_back(GetValue(currentrow, i));
+			}
+			
+			currentrow++;
+		}
+		
+		return fl;
+	}
+	
+	virtual SQLfieldMap* GetRowMapPtr()
+	{
+		SQLfieldMap* fm = new SQLfieldMap;
+		
+		if(currentrow < PQntuples(res))
+		{
+			int cols = PQnfields(res);
+			
+			for(int i = 0; i < cols; i++)
+			{
+				fm->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
+			}
+			
+			currentrow++;
+		}
+		
+		return fm;
+	}
+	
+	virtual void Free(SQLfieldMap* fm)
+	{
+		DELETE(fm);
+	}
+	
+	virtual void Free(SQLfieldList* fl)
+	{
+		DELETE(fl);
 	}
 };
 
