@@ -53,9 +53,14 @@ using namespace std;
 #include "socketengine.h"
 #include "configreader.h"
 
+#ifdef THREADED_DNS
+pthread_mutex_t connmap_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif
+
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 enum QueryType { DNS_QRY_A = 1, DNS_QRY_PTR = 12 };
 enum QueryFlags1 { FLAGS1_MASK_RD = 0x01, FLAGS1_MASK_TC = 0x02, FLAGS1_MASK_AA = 0x04, FLAGS1_MASK_OPCODE = 0x78, FLAGS1_MASK_QR = 0x80 };
@@ -287,10 +292,15 @@ s_connection *dns_add_query(s_header *h)
 		return NULL;
 	}
 	/* create new connection object, add to linked list */
+#ifdef THREADED_DNS
+	pthread_mutex_lock(&connmap_lock);
+#endif
 	if (connections.find(s->fd) == connections.end())
 		connections[s->fd] = s;
+#ifdef THREADED_DNS
+	pthread_mutex_unlock(&connmap_lock);
+#endif
 
-	lastcreate = s->fd;
 	return s;
 }
 
@@ -453,6 +463,14 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		*res = 0;
 
 	/* FireDNS used a linked list for this. How ugly (and slow). */
+
+#ifdef THREADED_DNS
+	/* XXX: STL really does NOT like being poked and prodded in more than
+	 * one orifice by threaded apps. Make sure we remain nice to it, and
+	 * lock a mutex around any access to the std::map.
+	 */
+	pthread_mutex_lock(&connmap_lock);
+#endif
 	connlist_iter n_iter = connections.find(cfd);
 	if (n_iter == connections.end())
 	{
@@ -466,6 +484,9 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 		/* We don't delete c here, because its done later when needed */
 		connections.erase(n_iter);
 	}
+#ifdef THREADED_DNS
+	pthread_mutex_unlock(&connmap_lock);
+#endif
 
 	l = recv(c->fd,buffer,sizeof(s_header),0);
 	dns_close(c->fd);
@@ -838,6 +859,20 @@ std::string DNS::GetResultIP()
 
 
 #ifdef THREADED_DNS
+
+/* This function is a thread function which can be thought of as a lightweight process
+ * to all you non-threaded people. In actuality its so much more, and pretty damn cool.
+ * With threaded dns enabled, each user which connects gets a thread attached to their
+ * user record when their DNS lookup starts. This function starts in parallel, and
+ * commences a blocking dns lookup. Because its a seperate thread, this occurs without
+ * actually blocking the main application. Once the dns lookup is completed, the thread
+ * checks if the user is still around by checking their fd against the reference table,
+ * and if they are, writes the hostname into the struct and terminates, after setting
+ * userrec::dns_done to true. Because this is multi-threaded it can make proper use of
+ * SMP setups (like the one i have here *grin*).
+ * This is in comparison to the non-threaded dns, which must monitor the thread sockets
+ * in a nonblocking fashion, consuming more resources to do so.
+ */
 void* dns_task(void* arg)
 {
 	userrec* u = (userrec*)arg;
@@ -848,30 +883,33 @@ void* dns_task(void* arg)
 	DNS dns2;
 	std::string host;
 	std::string ip;
-	if (dns1.ReverseLookup((char*)inet_ntoa(u->ip4)))
+	if (dns1.ReverseLookup(inet_ntoa(u->ip4),false))
 	{
 		while (!dns1.HasResult())
-		{
 			usleep(100);
-		}
 		host = dns1.GetResult();
 		if (host != "")
 		{
-			if (dns2.ForwardLookup(host), false)
+			if (dns2.ForwardLookup(host, false))
 			{
 				while (!dns2.HasResult())
-				{
 					usleep(100);
-				}
 				ip = dns2.GetResultIP();
 				if (ip == std::string(inet_ntoa(u->ip4)))
 				{
-					if (host.length() < 160)
+					if (host.length() < 65)
 					{
 						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
-							strcpy(u->host,host.c_str());
-						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
-							strcpy(u->dhost,host.c_str());
+						{
+							if (!u->dns_done)
+							{
+								strcpy(u->host,host.c_str());
+								if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+								{
+									strcpy(u->dhost,host.c_str());
+								}
+							}
+						}
 					}
 				}
 			}

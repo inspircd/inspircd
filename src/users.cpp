@@ -219,6 +219,12 @@ userrec::~userrec()
 		ucrec* x = (ucrec*)*n;
 		delete x;
 	}
+#ifdef THREADED_DNS
+	if ((!dns_done) && (registered >= 3))
+	{
+		pthread_kill(this->dnsthread, SIGTERM);
+	}
+#endif
 }
 
 /* XXX - minor point, other *Host functions return a char *, this one creates it. Might be nice to be consistant? */

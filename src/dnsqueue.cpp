@@ -239,6 +239,7 @@ bool lookup_dns(const std::string &nick)
 
 void ZapThisDns(int fd)
 {
+#ifndef THREADED_DNS
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return;
 
@@ -258,6 +259,7 @@ void ZapThisDns(int fd)
 			dns_close(x->resolver2.GetFD());
 		}
 	}
+#endif
 }
 
 void dns_poll(int fdcheck)
