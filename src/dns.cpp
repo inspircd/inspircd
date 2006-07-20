@@ -475,6 +475,9 @@ char* DNS::dns_getresult_s(const int cfd, char *res) { /* retrieve result of DNS
 	if (n_iter == connections.end())
 	{
 		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d",cfd);
+#ifdef THREADED_DNS
+		pthread_mutex_unlock(&connmap_lock);
+#endif
 		return NULL;
 	}
 	else
@@ -879,34 +882,63 @@ void* dns_task(void* arg)
 	int thisfd = u->fd;
 
 	log(DEBUG,"DNS thread for user %s",u->nick);
-	DNS dns1;
-	DNS dns2;
+	DNS dns1(Config->DNSServer);
+	DNS dns2(Config->DNSServer);
 	std::string host;
 	std::string ip;
+	int iterations = 0;
+
+	log(DEBUG,"Thread loc 1");
 	if (dns1.ReverseLookup(inet_ntoa(u->ip4),false))
 	{
-		while (!dns1.HasResult())
+		log(DEBUG,"Thread loc 2");
+		/* FIX: Dont make these infinite! */
+		while ((!dns1.HasResult()) && (++iterations < 20))
 			usleep(100);
-		host = dns1.GetResult();
-		if (host != "")
+
+		log(DEBUG,"Thread loc 3");
+		if (iterations < 20)
 		{
-			if (dns2.ForwardLookup(host, false))
+			log(DEBUG,"Thread loc 4");
+			if (dns1.GetFD() != -1)
 			{
-				while (!dns2.HasResult())
-					usleep(100);
-				ip = dns2.GetResultIP();
-				if (ip == std::string(inet_ntoa(u->ip4)))
+				host = dns1.GetResult();
+				if (host != "")
 				{
-					if (host.length() < 65)
+					log(DEBUG,"Thread loc 5");
+					if (dns2.ForwardLookup(host, false))
 					{
-						if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+						iterations = 0;
+						while ((!dns2.HasResult()) && (++iterations < 20))
+							usleep(100);
+
+						log(DEBUG,"Thread loc 6");
+						if (iterations < 20)
 						{
-							if (!u->dns_done)
+							if (dns2.GetFD() != -1)
 							{
-								strcpy(u->host,host.c_str());
-								if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+								log(DEBUG,"Thread loc 7");
+								ip = dns2.GetResultIP();
+								if (ip == std::string(inet_ntoa(u->ip4)))
 								{
-									strcpy(u->dhost,host.c_str());
+									log(DEBUG,"Thread loc 8");
+									if (host.length() < 65)
+									{
+										log(DEBUG,"Thread loc 9");
+										if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+										{
+											log(DEBUG,"Thread loc 10");
+											if (!u->dns_done)
+											{
+												log(DEBUG,"Thread loc 11");
+												strcpy(u->host,host.c_str());
+												if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
+												{
+													strcpy(u->dhost,host.c_str());
+												}
+											}
+										}
+									}
 								}
 							}
 						}
@@ -915,9 +947,11 @@ void* dns_task(void* arg)
 			}
 		}
 	}
+	log(DEBUG,"Thread loc 12");
 	if ((fd_ref_table[thisfd] == u) && (fd_ref_table[thisfd]))
 		u->dns_done = true;
-	pthread_exit(0);
+	log(DEBUG,"THREAD EXIT");
+	return NULL;
 }
 #endif
 

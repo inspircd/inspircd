@@ -39,6 +39,7 @@ class Lookup;
 
 Lookup* dnslist[MAX_DESCRIPTORS];
 Lookup* user_fd_to_dns[MAX_DESCRIPTORS];
+extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 //enum LookupState { reverse, forward };
 
@@ -239,7 +240,19 @@ bool lookup_dns(const std::string &nick)
 
 void ZapThisDns(int fd)
 {
-#ifndef THREADED_DNS
+#ifdef THREADED_DNS
+/*	if (fd_ref_table[fd])
+	{
+       		if (fd_ref_table[fd]->registered >= 3)
+		{
+			log(DEBUG,"Joining thread for user %d",fd);
+			if (pthread_join(fd_ref_table[fd]->dnsthread, NULL))
+			{
+				log(DEBUG,"Can't pthread_join(): %s", strerror(errno));
+			}
+		}
+	}*/
+#else
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return;
 
