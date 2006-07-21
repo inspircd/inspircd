@@ -35,7 +35,7 @@ public:
 		
 		if(target)
 		{
-			SQLrequest foo(this, target, "SELECT foo, bar FROM rawr", "foo");
+			SQLrequest foo = SQLreq(this, target, "foo", "SELECT foo, bar FROM ?", "rawr");
 			
 			if(foo.Send())
 			{

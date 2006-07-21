@@ -1,16 +1,22 @@
 #ifndef INSPIRCD_SQLAPI_2
 #define INSPIRCD_SQLAPI_2
 
-#define SQLREQID "SQLv2 Request"
-#define SQLRESID "SQLv2 Result"
-#define SQLSUCCESS "You shouldn't be reading this (success)"
-
 #include <string>
 #include <vector>
 #include <map>
 #include "modules.h"
 
+/* This is the voodoo magic which lets us pass multiple parameters
+ * to the SQLrequest constructor..voodoo...
+ */
+#define SQLreq(a, b, c, d, e...) SQLrequest(a, b, c, (SQLquery(d), ##e))
+
+#define SQLREQID "SQLv2 Request"
+#define SQLRESID "SQLv2 Result"
+#define SQLSUCCESS "You shouldn't be reading this (success)"
+
 enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
+typedef std::vector<std::string> ParamL;
 
 class SQLexception : public ModuleException
 {
@@ -69,18 +75,54 @@ public:
 	}
 };
 
+class SQLquery
+{
+public:
+	std::string q;
+	ParamL p;
+
+	SQLquery(const std::string &query)
+	: q(query)
+	{
+		log(DEBUG, "SQLquery constructor: %s", q.c_str());
+	}
+
+	SQLquery(const std::string &query, const ParamL &params)
+	: q(query), p(params)
+	{
+		log(DEBUG, "SQLquery constructor with %d params: %s", p.size(), q.c_str());
+	}	
+	
+	SQLquery& operator,(const std::string &foo)
+	{
+		p.push_back(foo);
+		return *this;
+	}
+	
+	SQLquery& operator%(const std::string &foo)
+	{
+		p.push_back(foo);
+		return *this;
+	}
+};
+
 class SQLrequest : public Request
 {
 public:
-	std::string query;
+	SQLquery query;
 	std::string dbid;
 	bool pri;
 	unsigned long id;
 	SQLerror error;
 	
-	SQLrequest(Module* s, Module* d, const std::string &q, const std::string &id, bool p = false)
-	: Request(SQLREQID, s, d), query(q), dbid(id), pri(p), id(0)
+	SQLrequest(Module* s, Module* d, const std::string &databaseid, const SQLquery &q)
+	: Request(SQLREQID, s, d), query(q), dbid(databaseid), pri(false), id(0)
 	{
+	}
+	
+	void Priority(bool p = true)
+	{
+		pri = p;
 	}
 	
 	void SetSource(Module* mod)

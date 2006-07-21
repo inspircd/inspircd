@@ -101,7 +101,7 @@ public:
 	
 	void push(const SQLrequest &q)
 	{
-		log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.c_str());
+		log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.q.c_str());
 		
 		if(q.pri)
 			priority.push_back(q);
@@ -506,7 +506,7 @@ public:
 			SQLrequest* req = (SQLrequest*)request;
 			ConnMap::iterator iter;
 		
-			log(DEBUG, "Got query: '%s' on id '%s'", req->query.c_str(), req->dbid.c_str());
+			log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
 
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
@@ -941,16 +941,42 @@ SQLerror SQLConn::DoQuery(const SQLrequest &req)
 	{
 		if(!qinprog)
 		{
-			if(PQsendQuery(sql, req.query.c_str()))
+			/* Parse the command string and dispatch it */
+			
+			/* A list of offsets into the original string of the '?' characters we're substituting */
+			std::vector<unsigned int> insertlocs;
+			
+			for(unsigned int i = 0; i < req.query.q.length(); i++)
 			{
-				log(DEBUG, "Dispatched query: %s", req.query.c_str());
-				qinprog = true;
-				return SQLerror();
+				if(req.query.q[i] == '?')
+				{
+					insertlocs.push_back(i);
+				}
+			}
+			
+			char* query = new char[(req.query.q.length()*2)+1];
+			int error = 0;
+			
+			// PQescapeStringConn(sql, query, req.query.q.c_str(), req.query.q.length(), error);
+			
+			if(error == 0)
+			{
+				if(PQsendQuery(sql, query))
+				{
+					log(DEBUG, "Dispatched query: %s", query);
+					qinprog = true;
+					return SQLerror();
+				}
+				else
+				{
+					log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
+					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+				}
 			}
 			else
 			{
-				log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
-				return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+				log(DEBUG, "Failed to escape query string");
+				return SQLerror(QSEND_FAIL, "Couldn't escape query string");
 			}
 		}
 	}
