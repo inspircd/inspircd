@@ -19,15 +19,18 @@ using namespace std;
 #include <stdio.h>
 #include <string>
 #include <mysql.h>
+#include <pthread.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
-#include "m_sql.h"
+#include "m_sqlv2.h"
+
+/* VERSION 2 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
-/* $CompileFlags: `mysql_config --include` */
-/* $LinkerFlags: `mysql_config --libs` `perl ../mysql_rpath.pl` */
+/* $CompileFlags: -pthread `mysql_config --include` */
+/* $LinkerFlags: -pthread `mysql_config --libs_r` `perl ../mysql_rpath.pl` */
 
 /** SQLConnection represents one mysql session.
  * Each session has its own persistent connection to the database.
