@@ -37,6 +37,7 @@ class SQLConnection;
 
 extern InspIRCd* ServerInstance;
 typedef std::map<std::string, SQLConnection*> ConnMap;
+bool giveup = false;
 
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -153,7 +154,8 @@ private:
 	}
 };
 
-
+/* A mutex to wrap around queue accesses */
+pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 class SQLConnection : public classbase
 {
@@ -171,6 +173,8 @@ class SQLConnection : public classbase
 	long id;
 
  public:
+
+	QueryQueue queue;
 
 	// This constructor creates an SQLConnection object with the given credentials, and creates the underlying
 	// MYSQL struct, but does not connect yet.
@@ -192,6 +196,12 @@ class SQLConnection : public classbase
 		mysql_init(&connection);
 		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
 		return mysql_real_connect(&connection, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), 0, NULL, 0);
+	}
+
+	void DoLeadingQuery()
+	{
+		SQLrequest& query = queue.front();
+		log(DEBUG,"DO QUERY: %s",query.query.q.c_str());
 	}
 
 	// This method issues a query that expects multiple rows of results. Use GetRow() and QueryDone() to retrieve
@@ -368,14 +378,54 @@ class ModuleSQL : public Module
 	Server *Srv;
 	ConfigReader *Conf;
 	pthread_t Dispatcher;
+	int currid;
 
 	void Implements(char* List)
 	{
 		List[I_OnRehash] = List[I_OnRequest] = 1;
 	}
 
+        unsigned long NewID()
+	{
+		if (currid+1 == 0)
+			currid++;
+		return ++currid;
+	}
+
 	char* OnRequest(Request* request)
 	{
+		if(strcmp(SQLREQID, request->GetData()) == 0)
+		{
+			SQLrequest* req = (SQLrequest*)request;
+
+			/* XXX: Lock */
+			pthread_mutex_lock(&queue_mutex);
+
+			ConnMap::iterator iter;
+
+			char* returnval = NULL;
+
+			log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
+
+			if((iter = Connections.find(req->dbid)) != Connections.end())
+			{
+				iter->second->queue.push(*req);
+				req->id = NewID();
+				returnval = SQLSUCCESS;
+			}
+			else
+			{
+				req->error.Id(BAD_DBID);
+			}
+
+			pthread_mutex_unlock(&queue_mutex);
+			/* XXX: Unlock */
+
+			return returnval;
+		}
+
+		log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+
 		return NULL;
 	}
 
@@ -384,13 +434,16 @@ class ModuleSQL : public Module
 	{
 		Srv = Me;
 		Conf = new ConfigReader();
+		currid = 0;
 		pthread_attr_t attribs;
 		pthread_attr_init(&attribs);
 		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
 		if (pthread_create(&this->Dispatcher, &attribs, DispatcherThread, (void *)this) != 0)
 		{
-			log(DEBUG,"m_mysql: Failed to create dispatcher thread: %s", strerror(errno));
+			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
 		}
+		Srv->PublishFeature("SQL", this);
+		Srv->PublishFeature("MySQL", this);
 	}
 	
 	virtual ~ModuleSQL()
@@ -414,6 +467,37 @@ void* DispatcherThread(void* arg)
 {
 	ModuleSQL* thismodule = (ModuleSQL*)arg;
 	LoadDatabases(thismodule->Conf, thismodule->Srv);
+
+	while (!giveup)
+	{
+		SQLConnection* conn = NULL;
+		/* XXX: Lock here for safety */
+		pthread_mutex_lock(&queue_mutex);
+		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
+		{
+			if (i->second->queue.totalsize())
+			{
+				conn = i->second;
+				break;
+			}
+		}
+		pthread_mutex_unlock(&queue_mutex);
+		/* XXX: Unlock */
+
+		/* Theres an item! */
+		if (conn)
+		{
+			conn->DoLeadingQuery();
+
+			/* XXX: Lock */
+			pthread_mutex_lock(&queue_mutex);
+			conn->queue.pop();
+			pthread_mutex_unlock(&queue_mutex);
+			/* XXX: Unlock */
+		}
+
+		usleep(50);
+	}
 
 	return NULL;
 }
