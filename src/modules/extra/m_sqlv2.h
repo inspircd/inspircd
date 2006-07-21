@@ -2,7 +2,7 @@
 #define INSPIRCD_SQLAPI_2
 
 #include <string>
-#include <vector>
+#include <deque>
 #include <map>
 #include "modules.h"
 
@@ -16,7 +16,7 @@
 #define SQLSUCCESS "You shouldn't be reading this (success)"
 
 enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
-typedef std::vector<std::string> ParamL;
+typedef std::deque<std::string> ParamL;
 
 class SQLexception : public ModuleException
 {
