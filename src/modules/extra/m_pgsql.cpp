@@ -431,7 +431,7 @@ public:
 	
 	const char* StatusStr();
 	
-	SQLerror DoQuery(const SQLrequest &req);
+	SQLerror DoQuery(SQLrequest &req);
 	
 	SQLerror Query(const SQLrequest &req);
 	
@@ -935,7 +935,7 @@ const char* SQLConn::StatusStr()
 	return "Err...what, erm..BUG!";
 }
 
-SQLerror SQLConn::DoQuery(const SQLrequest &req)
+SQLerror SQLConn::DoQuery(SQLrequest &req)
 {
 	if((status == WREAD) || (status == WWRITE))
 	{
@@ -943,45 +943,99 @@ SQLerror SQLConn::DoQuery(const SQLrequest &req)
 		{
 			/* Parse the command string and dispatch it */
 			
-			/* A list of offsets into the original string of the '?' characters we're substituting */
-			std::vector<unsigned int> insertlocs;
+			/* Pointer to the buffer we screw around with substitution in */
+			char* query;
+			/* Pointer to the current end of query, where we append new stuff */
+			char* queryend;
+			/* Total length of the unescaped parameters */
+			unsigned int paramlen;
+			
+			paramlen = 0;
+			
+			for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
+			{
+				paramlen += i->size();
+			}
+			
+			/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
+			 * sizeofquery + (totalparamlength*2) + 1
+			 * 
+			 * The +1 is for null-terminating the string for PQsendQuery()
+			 */
+			
+			query = new char[req.query.q.length() + (paramlen*2)];
+			queryend = query;
+			
+			/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
+			 * the parameters into it...
+			 */
 			
 			for(unsigned int i = 0; i < req.query.q.length(); i++)
 			{
 				if(req.query.q[i] == '?')
 				{
-					insertlocs.push_back(i);
-				}
-			}
-			
-			char* query = new char[(req.query.q.length()*2)+1];
-			int error = 0;
+					/* We found a place to substitute..what fun.
+					 * Use the PgSQL calls to escape and write the
+					 * escaped string onto the end of our query buffer,
+					 * then we "just" need to make sure queryend is
+					 * pointing at the right place.
+					 */
+					
+					if(req.query.p.size())
+					{
+						int error = 0;
+						size_t len = 0;
 
 #ifdef PGSQL_HAS_ESCAPECONN
-			PQescapeStringConn(sql, query, req.query.q.c_str(), req.query.q.length(), &error);
+						len = PQescapeStringConn(sql, queryend, req.query.p.front().c_str(), req.query.p.front().length(), &error);
 #else
-			PQescapeString(query, req.query.q.c_str(), req.query.q.length());
-			error = 0;
+						len = PQescapeStringConn(queryend, req.query.p.front().c_str(), req.query.p.front().length());
+						error = 0;
 #endif
-			
-			if(error == 0)
-			{
-				if(PQsendQuery(sql, query))
-				{
-					log(DEBUG, "Dispatched query: %s", query);
-					qinprog = true;
-					return SQLerror();
+						
+						if(error)
+						{
+							log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+						}
+						
+						log(DEBUG, "Appended %d bytes of escaped string onto the query", len);
+						
+						/* Incremenet queryend to the end of the newly escaped parameter */
+						queryend += len;
+						
+						/* Remove the parameter we just substituted in */
+						req.query.p.pop_front();
+					}
+					else
+					{
+						log(DEBUG, "Found a substitution location but no parameter to substitute :|");
+						break;
+					}
 				}
 				else
 				{
-					log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
-					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+					*queryend = req.query.q[i];
+					queryend++;
 				}
+			}
+			
+			/* Null-terminate the query */
+			*queryend = 0;
+	
+			log(DEBUG, "Attempting to dispatch query: %s", query);		
+
+			if(PQsendQuery(sql, query))
+			{
+				log(DEBUG, "Dispatched query successfully");
+				qinprog = true;
+				DELETE(query);
+				return SQLerror();
 			}
 			else
 			{
-				log(DEBUG, "Failed to escape query string");
-				return SQLerror(QSEND_FAIL, "Couldn't escape query string");
+				log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
+				DELETE(query);
+				return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
 			}
 		}
 	}
