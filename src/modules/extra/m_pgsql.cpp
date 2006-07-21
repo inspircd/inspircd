@@ -31,7 +31,7 @@
 #include "m_sqlv2.h"
 
 /* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */
-/* $CompileFlags: -I`pg_config --includedir` */
+/* $CompileFlags: -I`pg_config --includedir` `perl extra/pgsql_config.pl` */
 /* $LinkerFlags: -L`pg_config --libdir` -lpq */
 
 /* UGH, UGH, UGH, UGH, UGH, UGH
@@ -956,8 +956,13 @@ SQLerror SQLConn::DoQuery(const SQLrequest &req)
 			
 			char* query = new char[(req.query.q.length()*2)+1];
 			int error = 0;
-			
-			// PQescapeStringConn(sql, query, req.query.q.c_str(), req.query.q.length(), error);
+
+#ifdef PGSQL_HAS_ESCAPECONN
+			PQescapeStringConn(sql, query, req.query.q.c_str(), req.query.q.length(), &error);
+#else
+			PQescapeString(query, req.query.q.c_str(), req.query.q.length());
+			error = 0;
+#endif
 			
 			if(error == 0)
 			{
