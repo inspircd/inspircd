@@ -1022,7 +1022,9 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 			/* Null-terminate the query */
 			*queryend = 0;
 	
-			log(DEBUG, "Attempting to dispatch query: %s", query);		
+			log(DEBUG, "Attempting to dispatch query: %s", query);
+			
+			req.query.q = query;
 
 			if(PQsendQuery(sql, query))
 			{
