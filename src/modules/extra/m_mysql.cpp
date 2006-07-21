@@ -157,6 +157,159 @@ private:
 /* A mutex to wrap around queue accesses */
 pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+class MySQLresult : public SQLresult
+{
+	int currentrow;
+	//std::vector<std::map<std::string,std::string> > results;
+	std::vector<std::string> colnames;
+	std::vector<SQLfieldList> fieldlists;
+	SQLfieldMap* fieldmap;
+	int rows;
+	int cols;
+
+	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows) : SQLresult(self, to), currentrow(0), fieldmap(NULL)
+	{
+		/* A number of affected rows from from mysql_affected_rows.
+		 */
+		fieldlists.clear();
+		rows = affected_rows;
+		fieldlists.resize(rows);
+		unsigned int field_count;
+		if (res)
+		{
+			MYSQL_ROW row;
+			int n = 0;
+			while ((row = mysql_fetch_row(res)))
+			{
+				field_count = 0;
+				MYSQL_FIELD *fields = mysql_fetch_fields(res);
+				if(mysql_num_fields(res) == 0)
+					break;
+				if (fields && mysql_num_fields(res))
+				{
+					colnames.clear();
+					while (field_count < mysql_num_fields(res))
+					{
+						std::string a = (fields[field_count].name ? fields[field_count].name : "");
+						std::string b = (row[field_count] ? row[field_count] : "");
+						SQLfield sqlf(a, !row[field_count]);
+						colnames.push_back(a);
+						fieldlists[n].push_back(sqlf); 
+						field_count++;
+					}
+					n++;
+				}
+			}
+			cols = mysql_num_fields(res);
+			mysql_free_result(res);
+		}
+		cols = field_count;
+		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
+	}
+
+	~MySQLresult()
+	{
+	}
+
+	virtual int Rows()
+	{
+		return rows;
+	}
+
+	virtual int Cols()
+	{
+		return cols;
+	}
+
+	virtual std::string ColName(int column)
+	{
+		if (column < (int)colnames.size())
+		{
+			return colnames[column];
+		}
+		else
+		{
+			throw SQLbadColName();
+		}
+		return "";
+	}
+
+	virtual int ColNum(const std::string &column)
+	{
+		for (unsigned int i = 0; i < colnames.size(); i++)
+		{
+			if (column == colnames[i])
+				return i;
+		}
+		throw SQLbadColName();
+		return 0;
+	}
+
+	virtual SQLfield GetValue(int row, int column)
+	{
+		if ((row >= 0) && (row < rows) && (column >= 0) && (column < cols))
+		{
+			return fieldlists[row][column];
+		}
+
+		log(DEBUG,"Danger will robinson, we don't have row %d, column %d!", row, column);
+		throw SQLbadColName();
+
+		/* XXX: We never actually get here because of the throw */
+		return SQLfield("",true);
+	}
+
+	virtual SQLfieldList& GetRow()
+	{
+		return fieldlists[currentrow];
+	}
+
+	virtual SQLfieldMap& GetRowMap()
+	{
+		fieldmap = new SQLfieldMap();
+		
+		for (int i = 0; i < cols; i++)
+		{
+			fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+		}
+		currentrow++;
+
+		return *fieldmap;
+	}
+
+	virtual SQLfieldList* GetRowPtr()
+	{
+		return &fieldlists[currentrow++];
+	}
+
+	virtual SQLfieldMap* GetRowMapPtr()
+	{
+		fieldmap = new SQLfieldMap();
+
+		for (int i = 0; i < cols; i++)
+		{
+			fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+		}
+		currentrow++;
+
+		return fieldmap;
+	}
+
+	virtual void Free(SQLfieldMap* fm)
+	{
+		delete fm;
+	}
+
+	virtual void Free(SQLfieldList* fl)
+	{
+		/* XXX: Yes, this is SUPPOSED to do nothing, we
+		 * dont want to free our fieldlist until we
+		 * destruct the object. Unlike the pgsql module,
+		 * we only have the one.
+		 */
+	}
+};
+
 class SQLConnection : public classbase
 {
  protected:
@@ -213,6 +366,9 @@ class SQLConnection : public classbase
 		/* Total length of the unescaped parameters */
 		unsigned long paramlen;
 
+		/* Total length of query, used for binary-safety in mysql_real_query */
+		unsigned long querylength;
+
 		paramlen = 0;
 
 		for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
@@ -261,6 +417,7 @@ class SQLConnection : public classbase
 				*queryend = req.query.q[i];
 				queryend++;
 			}
+			querylength++;
 		}
 
 		*queryend = 0;
@@ -268,10 +425,16 @@ class SQLConnection : public classbase
 		log(DEBUG, "Attempting to dispatch query: %s", query);
 
 		pthread_mutex_lock(&queue_mutex);
-		req.query.q = query;
+		req.query.q = std::string(query,querylength);
 		pthread_mutex_unlock(&queue_mutex);
 
-		/* TODO: Do the mysql_real_query here */
+		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
+		{
+			/* Successfull query */
+			res = mysql_use_result(&connection);
+		}
+
+		
 	}
 
 	// This method issues a query that expects multiple rows of results. Use GetRow() and QueryDone() to retrieve
@@ -455,7 +618,7 @@ class ModuleSQL : public Module
 		List[I_OnRehash] = List[I_OnRequest] = 1;
 	}
 
-        unsigned long NewID()
+	unsigned long NewID()
 	{
 		if (currid+1 == 0)
 			currid++;
