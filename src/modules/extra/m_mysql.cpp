@@ -200,8 +200,78 @@ class SQLConnection : public classbase
 
 	void DoLeadingQuery()
 	{
-		SQLrequest& query = queue.front();
-		log(DEBUG,"DO QUERY: %s",query.query.q.c_str());
+		/* Parse the command string and dispatch it to mysql */
+		SQLrequest& req = queue.front();
+		log(DEBUG,"DO QUERY: %s",req.query.q.c_str());
+
+		/* Pointer to the buffer we screw around with substitution in */
+		char* query;
+
+		/* Pointer to the current end of query, where we append new stuff */
+		char* queryend;
+
+		/* Total length of the unescaped parameters */
+		unsigned long paramlen;
+
+		paramlen = 0;
+
+		for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
+		{
+			paramlen += i->size();
+		}
+
+		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
+		 * sizeofquery + (totalparamlength*2) + 1
+		 *
+		 * The +1 is for null-terminating the string for mysql_real_escape_string
+		 */
+
+		query = new char[req.query.q.length() + (paramlen*2)];
+		queryend = query;
+
+		/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
+		 * the parameters into it...
+		 */
+
+		for(unsigned long i = 0; i < req.query.q.length(); i++)
+		{
+			if(req.query.q[i] == '?')
+			{
+				/* We found a place to substitute..what fun.
+				 * use mysql calls to escape and write the
+				 * escaped string onto the end of our query buffer,
+				 * then we "just" need to make sure queryend is
+				 * pointing at the right place.
+				 */
+				if(req.query.p.size())
+				{
+					unsigned long len = mysql_real_escape_string(&connection, queryend, req.query.p.front().c_str(), req.query.p.front().length());
+
+					queryend += len;
+					req.query.p.pop_front();
+				}
+				else
+				{
+					log(DEBUG, "Found a substitution location but no parameter to substitute :|");
+					break;
+				}
+			}
+			else
+			{
+				*queryend = req.query.q[i];
+				queryend++;
+			}
+		}
+
+		*queryend = 0;
+
+		log(DEBUG, "Attempting to dispatch query: %s", query);
+
+		pthread_mutex_lock(&queue_mutex);
+		req.query.q = query;
+		pthread_mutex_unlock(&queue_mutex);
+
+		/* TODO: Do the mysql_real_query here */
 	}
 
 	// This method issues a query that expects multiple rows of results. Use GetRow() and QueryDone() to retrieve
