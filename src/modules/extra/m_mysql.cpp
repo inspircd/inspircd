@@ -210,7 +210,7 @@ class MySQLresult : public SQLresult
 	int cols;
  public:
 
-	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows) : SQLresult(self, to), currentrow(0), fieldmap(NULL)
+	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows, unsigned int id) : SQLresult(self, to, id), currentrow(0), fieldmap(NULL)
 	{
 		/* A number of affected rows from from mysql_affected_rows.
 		 */
@@ -260,7 +260,7 @@ class MySQLresult : public SQLresult
 		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
 	}
 
-	MySQLresult(Module* self, Module* to, SQLerror e) : SQLresult(self, to), currentrow(0)
+	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int id) : SQLresult(self, to, id), currentrow(0)
 	{
 		rows = 0;
 		cols = 0;
@@ -502,7 +502,7 @@ class SQLConnection : public classbase
 			/* Successfull query */
 			res = mysql_use_result(&connection);
 			unsigned long rows = mysql_affected_rows(&connection);
-			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), res, rows);
+			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), res, rows, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
 			/* Put this new result onto the results queue.
@@ -518,7 +518,7 @@ class SQLConnection : public classbase
 			 * possible error numbers and error messages */
 			log(DEBUG,"SQL ERROR: %s",mysql_error(&connection));
 			SQLerror e((SQLerrorNum)mysql_errno(&connection), mysql_error(&connection));
-			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), e);
+			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), e, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
 
