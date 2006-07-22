@@ -254,16 +254,14 @@ class MySQLresult : public SQLresult
 				}
 				rows++;
 			}
-			cols = field_count;
 			mysql_free_result(res);
 		}
-		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
+		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, colnames.size());
 	}
 
 	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int id) : SQLresult(self, to, id), currentrow(0)
 	{
 		rows = 0;
-		cols = 0;
 		error = e;
 		log(DEBUG,"Created new MySQLresult of error type");
 	}
@@ -274,12 +272,18 @@ class MySQLresult : public SQLresult
 
 	virtual int Rows()
 	{
-		return rows;
+		/* An INSERT can return 0 columns, but N rows. This is unsafe to
+		 * allow the user to 'see'. Go figure. I hate you, MySQL devs.
+		 */
+		if (colnames.size())
+			return rows;
+		else
+			return 0;
 	}
 
 	virtual int Cols()
 	{
-		return cols;
+		return colnames.size();
 	}
 
 	virtual std::string ColName(int column)
@@ -308,7 +312,7 @@ class MySQLresult : public SQLresult
 
 	virtual SQLfield GetValue(int row, int column)
 	{
-		if ((row >= 0) && (row < rows) && (column >= 0) && (column < cols))
+		if ((row >= 0) && (row < rows) && (column >= 0) && (column < Cols()))
 		{
 			return fieldlists[row][column];
 		}

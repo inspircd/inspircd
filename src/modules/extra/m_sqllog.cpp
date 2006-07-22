@@ -60,6 +60,7 @@ class QueryInfo
 	int hostid;
 	int category;
 	time_t date;
+	std::string lastquery;
 
 	QueryInfo(const std::string &n, const std::string &h, unsigned long i, int cat)
 	{
@@ -70,6 +71,7 @@ class QueryInfo
 		category = cat;
 		sourceid = nickid = hostid = -1;
 		date = TIME;
+		lastquery = "";
 	}
 
 	void Go(SQLresult* res)
@@ -86,26 +88,39 @@ class QueryInfo
 				// If we find it, advance to FIND_NICK state, otherwise go to INSERT_SOURCE
 				if (res->Rows())
 				{
-					qs = INSERT_SOURCE;
+					if (sourceid == -1)
+					{
+						sourceid = atoi(res->GetValue(0,0).d.c_str());
+						qs = FIND_NICK;
+					}
+					else qs = INSERT_SOURCE;
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
-					if(req.Send())
+					if (lastquery == "SELECT id,actor FROM ircd_log_actors WHERE actor='?'")
 					{
-						qs = FIND_SOURCE;
-						active_queries[req.id] = this;
+						qs = INSERT_SOURCE;
 					}
 					else
 					{
-						log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						lastquery = "SELECT id,actor FROM ircd_log_actors WHERE actor='?'";
+						req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
+						if(req.Send())
+						{
+							qs = FIND_SOURCE;
+							active_queries[req.id] = this;
+						}
+						else
+						{
+							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						}
+						break;
 					}
-					break;
-
 				}
 			case INSERT_SOURCE:
 				// "INSERT INTO ircd_log_actors VALUES('','"+nick+"')")
 				// after we've done this, go back to FIND_SOURCE
+				lastquery = "INSERT INTO ircd_log_actors VALUES('','?')";
 				req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_actors VALUES('','?')", nick);
 				if(req.Send())
 				{
@@ -123,21 +138,33 @@ class QueryInfo
 				// If we find it, advance to FIND_HOST state, otherwise go to INSERT_NICK
 				if (res->Rows())
 				{
-					qs = INSERT_NICK;
+                                        if (nickid == -1)
+                                        {
+                                                nickid = atoi(res->GetValue(0,0).d.c_str());
+                                                qs = FIND_HOST;
+                                        }
+                                        else qs = INSERT_NICK;
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
-					if(req.Send())
+					if (lastquery == "SELECT id,actor FROM ircd_log_actors WHERE actor='?'")
 					{
-						qs = FIND_NICK;
-						active_queries[req.id] = this;
+						qs = INSERT_NICK;
 					}
 					else
 					{
-						log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
+						if(req.Send())
+						{
+							qs = FIND_NICK;
+							active_queries[req.id] = this;
+						}
+						else
+						{
+							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						}
+						break;
 					}
-					break;
 				}
 			case INSERT_NICK:
 				// "INSERT INTO ircd_log_actors VALUES('','"+nick+"')")
@@ -158,25 +185,39 @@ class QueryInfo
 				// If we find it, advance to INSERT_LOGENTRY state, otherwise go to INSERT_HOST
 				if (res->Rows())
 				{
-					qs = INSERT_HOST;
+                                        if (hostid == -1)
+                                        {
+                                                hostid = atoi(res->GetValue(0,0).d.c_str());
+                                                qs = INSERT_LOGENTRY;
+                                        }
+                                        else qs = INSERT_HOST;
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'",hostname);
-					if(req.Send())
+					if (lastquery == "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'")
 					{
-						qs = FIND_HOST;
-						active_queries[req.id] = this;
+						qs = INSERT_HOST;
 					}
 					else
 					{
-						log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						lastquery = "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'";
+						req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'",hostname);
+						if(req.Send())
+						{
+							qs = FIND_HOST;
+							active_queries[req.id] = this;
+						}
+						else
+						{
+							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						}
+						break;
 					}
-					break;
 				}
 			case INSERT_HOST:
 				// "INSERT INTO ircd_log_hosts VALUES('','"+host+"')"
 				// after we've done this, go back to FIND_HOST
+				lastquery = "INSERT INTO ircd_log_hosts VALUES('','?')";
 				req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_hosts VALUES('','?')", hostname);
 				if(req.Send())
 				{
@@ -198,6 +239,7 @@ class QueryInfo
 				}
 				else
 				{
+					lastquery = "INSERT INTO ircd_log VALUES()";
 					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log VALUES('',"+ConvToStr(category)+","+ConvToStr(nickid)+","+ConvToStr(hostid)+","+ConvToStr(sourceid)+","+ConvToStr(date)+")");
 							/*,category,
 							nickid,
