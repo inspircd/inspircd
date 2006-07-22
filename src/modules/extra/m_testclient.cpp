@@ -56,7 +56,7 @@ public:
 		
 			SQLresult* res = (SQLresult*)request;
 
-			if (res->error.Id() != NO_ERROR)
+			if (res->error.Id() == NO_ERROR)
 			{
 				log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
 
