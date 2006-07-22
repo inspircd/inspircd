@@ -787,9 +787,20 @@ bool SQLConn::DoConnectedPoll()
 			if(to)
 			{
 				/* ..and the result */
-				log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
-					
 				PgSQLresult reply(us, to, query.id, result);
+				
+				log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));	
+				
+				switch(PQresultStatus(result))
+				{
+					case PGRES_EMPTY_QUERY:
+					case PGRES_BAD_RESPONSE:
+					case PGRES_FATAL_ERROR:
+						reply.error.Id(QREPLY_FAIL);
+						reply.error.Str(PQresultErrorMessage(result));
+					default:;
+						/* No action, other values are not errors */
+				}
 				
 				reply.Send();
 				
