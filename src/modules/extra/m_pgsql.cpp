@@ -15,6 +15,7 @@
  * ---------------------------------------------------
  */
 
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <deque>
@@ -205,6 +206,8 @@ class PgSQLresult : public SQLresult
 {
 	PGresult* res;
 	int currentrow;
+	int rows;
+	int cols;
 	
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
@@ -212,10 +215,10 @@ public:
 	PgSQLresult(Module* self, Module* to, unsigned long id, PGresult* result)
 	: SQLresult(self, to, id), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
 	{
-		int rows = PQntuples(res);
-		int cols = PQnfields(res);
+		rows = PQntuples(res);
+		cols = PQnfields(res);
 		
-		log(DEBUG, "Created new PgSQL result; %d rows, %d columns", rows, cols);
+		log(DEBUG, "Created new PgSQL result; %d rows, %d columns, %s affected", rows, cols, PQcmdTuples(res));
 	}
 	
 	~PgSQLresult()
@@ -225,7 +228,14 @@ public:
 	
 	virtual int Rows()
 	{
-		return PQntuples(res);
+		if(!cols && !rows)
+		{
+			return atoi(PQcmdTuples(res));
+		}
+		else
+		{
+			return rows;
+		}
 	}
 	
 	virtual int Cols()

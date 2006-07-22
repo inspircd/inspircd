@@ -35,7 +35,7 @@ public:
 		
 		if(target)
 		{
-			SQLrequest foo = SQLreq(this, target, "foo", "SELECT foo, bar FROM ?", "rawr");
+			SQLrequest foo = SQLreq(this, target, "foo", "UPDATE rawr SET foo = '?' WHERE bar = 42", ConvToStr(time(NULL)));
 			
 			if(foo.Send())
 			{
@@ -58,16 +58,23 @@ public:
 
 			if (res->error.Id() == NO_ERROR)
 			{
-				log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
-
-				for (int r = 0; r < res->Rows(); r++)
+				if(res->Cols())
 				{
-						log(DEBUG, "Row %d:", r);
-					
-					for(int i = 0; i < res->Cols(); i++)
+					log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+
+					for (int r = 0; r < res->Rows(); r++)
 					{
-						log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+						log(DEBUG, "Row %d:", r);
+						
+						for(int i = 0; i < res->Cols(); i++)
+						{
+							log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+						}
 					}
+				}
+				else
+				{
+					log(DEBUG, "%d rows affected in query", res->Rows());
 				}
 			}
 			else
