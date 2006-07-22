@@ -15,7 +15,7 @@
 #define SQLRESID "SQLv2 Result"
 #define SQLSUCCESS "You shouldn't be reading this (success)"
 
-enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL };
+enum SQLerrorNum { NO_ERROR, BAD_DBID, BAD_CONN, QSEND_FAIL, QREPLY_FAIL };
 typedef std::deque<std::string> ParamL;
 
 class SQLexception : public ModuleException
@@ -69,6 +69,8 @@ public:
 				return "Invalid connection";
 			case QSEND_FAIL:
 				return "Sending query failed";
+			case QREPLY_FAIL:
+				return "Getting query result failed";
 			default:
 				return "Unknown error";				
 		}
