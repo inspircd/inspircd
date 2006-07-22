@@ -419,6 +419,9 @@ class SQLConnection : public classbase
 
 	void DoLeadingQuery()
 	{
+		if (!CheckConnection())
+			return;
+
 		/* Parse the command string and dispatch it to mysql */
 		SQLrequest& req = queue.front();
 		log(DEBUG,"DO QUERY: %s",req.query.q.c_str());
