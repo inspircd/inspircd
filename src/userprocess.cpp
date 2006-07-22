@@ -360,6 +360,10 @@ void DoBackgroundUserStuff(time_t TIME)
 					FullConnectUser(curr,&GlobalGoners);
 					continue;
 				}
+
+				if ((fd_ref_table[cfd] != curr) && (curr))
+					/* Somebody blatted this user in OnCheckReady (!) */
+					continue;
 	
 				if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
 				{
@@ -368,6 +372,10 @@ void DoBackgroundUserStuff(time_t TIME)
 					ZapThisDns(curr->fd);
 					continue;
 				}
+
+				if ((fd_ref_table[cfd] != curr) && (curr))
+					/* Somebody blatted this user in OnCheckReady (!) */
+					continue;
 		
 				// It's time to PING this user. Send them a ping.
 				if ((TIME > curr->nping) && (curr->registered == 7))
