@@ -783,8 +783,12 @@ class ModuleSQL : public Module
 		{
 			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
 		}
-		Srv->PublishFeature("SQL", this);
-		Srv->PublishFeature("MySQL", this);
+		if (!Srv->PublishFeature("SQL", this))
+		{
+			/* Tell worker thread to exit NOW */
+			giveup = true;
+			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
+		}
 	}
 	
 	virtual ~ModuleSQL()
