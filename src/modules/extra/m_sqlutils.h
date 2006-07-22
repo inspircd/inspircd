@@ -16,7 +16,7 @@ public:
 	unsigned long id;
 	userrec* user;
 	
-	AssociateUser(Module* s, Module* d, userrec* u, unsigned long i)
+	AssociateUser(Module* s, Module* d, unsigned long i, userrec* u)
 	: Request(SQLUTILAU, s, d), id(i), user(u)
 	{
 	}
@@ -34,7 +34,7 @@ public:
 	unsigned long id;
 	chanrec* chan;
 	
-	AssociateChan(Module* s, Module* d, chanrec* u, unsigned long i)
+	AssociateChan(Module* s, Module* d, unsigned long i, chanrec* u)
 	: Request(SQLUTILAC, s, d), id(i), chan(u)
 	{
 	}

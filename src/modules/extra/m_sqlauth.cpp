@@ -123,7 +123,7 @@ public:
 			 	 */
 				log(DEBUG, "Sent query, got given ID %lu", req.id);
 				
-				AssociateUser(this, SQLutils, user, req.id).Send();
+				AssociateUser(this, SQLutils, req.id, user).Send();
 					
 				return true;
 			}
