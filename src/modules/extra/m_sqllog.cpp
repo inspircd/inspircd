@@ -86,7 +86,7 @@ class QueryInfo
 			case FIND_SOURCE:
 				// "SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'"
 				// If we find it, advance to FIND_NICK state, otherwise go to INSERT_SOURCE
-				if (res->Rows())
+				if (res->Cols())
 				{
 					if (sourceid == -1)
 					{
@@ -136,7 +136,7 @@ class QueryInfo
 			case FIND_NICK:
 				// "SELECT id,actor FROM ircd_log_actors WHERE actor='"+nick+"'"
 				// If we find it, advance to FIND_HOST state, otherwise go to INSERT_NICK
-				if (res->Rows())
+				if (res->Cols())
 				{
                                         if (nickid == -1)
                                         {
@@ -183,7 +183,7 @@ class QueryInfo
 			case FIND_HOST:
 				// "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='"+host+"'"
 				// If we find it, advance to INSERT_LOGENTRY state, otherwise go to INSERT_HOST
-				if (res->Rows())
+				if (res->Cols())
 				{
                                         if (hostid == -1)
                                         {

@@ -272,13 +272,7 @@ class MySQLresult : public SQLresult
 
 	virtual int Rows()
 	{
-		/* An INSERT can return 0 columns, but N rows. This is unsafe to
-		 * allow the user to 'see'. Go figure. I hate you, MySQL devs.
-		 */
-		if (colnames.size())
-			return rows;
-		else
-			return 0;
+		return rows;
 	}
 
 	virtual int Cols()

@@ -315,16 +315,19 @@ public:
 	 * Return the number of rows in the result
 	 * Note that if you have perfomed an INSERT
 	 * or UPDATE query or other query which will
-	 * not return rows, this value will NOT be
-	 * the number of affected rows, as this would
-	 * then indicate there are rows in the set,
-	 * which there are not.
+	 * not return rows, this will return the
+	 * number of affected rows, and SQLresult::Cols()
+	 * will contain 0. In this case you SHOULD NEVER
+	 * access any of the result set rows, as there arent any!
 	 * @returns Number of rows in the result set.
 	 */
 	virtual int Rows() = 0;
 	
 	/**
-	 * Return the number of columns in the result
+	 * Return the number of columns in the result.
+	 * If you performed an UPDATE or INSERT which
+	 * does not return a dataset, this value will
+	 * be 0.
 	 * @returns Number of columns in the result set.
 	 */
 	virtual int Cols() = 0;
