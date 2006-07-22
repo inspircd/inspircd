@@ -248,6 +248,7 @@ public:
 		if(user->GetExt("sqlauth_failed"))
 		{
 			Srv->QuitUser(user,killreason);
+			return false;
 		}
 		
 		return user->GetExt("sqlauthed");
