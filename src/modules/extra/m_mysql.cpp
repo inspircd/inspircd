@@ -182,8 +182,12 @@ class MySQLresult : public SQLresult
 		 */
 		log(DEBUG,"Created new MySQLresult of non-error type");
 		fieldlists.clear();
-		rows = affected_rows;
-		fieldlists.resize(rows);
+		rows = 0;
+		if (affected_rows >= 1)
+		{
+			rows = affected_rows;
+			fieldlists.resize(rows);
+		}
 		unsigned int field_count;
 		if (res)
 		{
@@ -191,6 +195,10 @@ class MySQLresult : public SQLresult
 			int n = 0;
 			while ((row = mysql_fetch_row(res)))
 			{
+				if (fieldlists.size() < (unsigned int)rows+1)
+				{
+					fieldlists.resize(fieldlists.size()+1);
+				}
 				field_count = 0;
 				MYSQL_FIELD *fields = mysql_fetch_fields(res);
 				if(mysql_num_fields(res) == 0)
@@ -202,13 +210,14 @@ class MySQLresult : public SQLresult
 					{
 						std::string a = (fields[field_count].name ? fields[field_count].name : "");
 						std::string b = (row[field_count] ? row[field_count] : "");
-						SQLfield sqlf(a, !row[field_count]);
+						SQLfield sqlf(b, !row[field_count]);
 						colnames.push_back(a);
 						fieldlists[n].push_back(sqlf); 
 						field_count++;
 					}
 					n++;
 				}
+				rows++;
 			}
 			cols = mysql_num_fields(res);
 			mysql_free_result(res);
@@ -448,7 +457,7 @@ class SQLConnection : public classbase
 		log(DEBUG, "Attempting to dispatch query: %s", query);
 
 		pthread_mutex_lock(&queue_mutex);
-		req.query.q = std::string(query,querylength);
+		req.query.q = query;
 		pthread_mutex_unlock(&queue_mutex);
 
 		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
@@ -470,6 +479,7 @@ class SQLConnection : public classbase
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
+			log(DEBUG,"SQL ERROR: %s",mysql_error(&connection));
 			SQLerror e((SQLerrorNum)mysql_errno(&connection), mysql_error(&connection));
 			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), e);
 			r->dbid = this->GetID();
@@ -759,6 +769,7 @@ class ModuleSQL : public Module
 
 void* DispatcherThread(void* arg)
 {
+	log(DEBUG,"Starting Dispatcher thread, mysql version %d",mysql_get_client_version());
 	ModuleSQL* thismodule = (ModuleSQL*)arg;
 	LoadDatabases(thismodule->Conf, thismodule->Srv);
 
