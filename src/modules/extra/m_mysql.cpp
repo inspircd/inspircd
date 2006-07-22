@@ -517,7 +517,7 @@ class SQLConnection : public classbase
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
 			log(DEBUG,"SQL ERROR: %s",mysql_error(&connection));
-			SQLerror e((SQLerrorNum)mysql_errno(&connection), mysql_error(&connection));
+			SQLerror e(QREPLY_FAIL, ConvToStr(mysql_errno(&connection)) + std::string(": ") + mysql_error(&connection));
 			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), e, req.id);
 			r->dbid = this->GetID();
 			r->query = req.query.q;
