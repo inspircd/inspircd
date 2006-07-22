@@ -115,11 +115,9 @@ public:
 				/* When we get the query response from the service provider we will be given an ID to play with,
 				 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
 				 * so we insert it into a map mapping the IDs to users.
-				 * This isn't quite enough though, as if the user quit while the query was in progress then when the result
-				 * came to be processed we'd get an invalid userrec* out of the map. Now we *could* solve this by watching
-				 * OnUserDisconnect() and iterating the map every time someone quits to make sure they didn't have any queries
-				 * in progress, but that would be relatively slow and inefficient. Instead (thanks to w00t ;p) we attach a list
-			 	 * of query IDs associated with it to the userrec, so in OnUserDisconnect() we can remove it immediately.
+				 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
+				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
+				 * us to discard the query.
 			 	 */
 				log(DEBUG, "Sent query, got given ID %lu", req.id);
 				
