@@ -209,8 +209,8 @@ class PgSQLresult : public SQLresult
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
 public:
-	PgSQLresult(Module* self, Module* to, PGresult* result)
-	: SQLresult(self, to), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
+	PgSQLresult(Module* self, Module* to, unsigned long id, PGresult* result)
+	: SQLresult(self, to, id), res(result), currentrow(0), fieldlist(NULL), fieldmap(NULL)
 	{
 		int rows = PQntuples(res);
 		int cols = PQnfields(res);
@@ -787,7 +787,7 @@ bool SQLConn::DoConnectedPoll()
 				/* ..and the result */
 				log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
 					
-				PgSQLresult reply(us, to, result);
+				PgSQLresult reply(us, to, query.id, result);
 				
 				reply.Send();
 				

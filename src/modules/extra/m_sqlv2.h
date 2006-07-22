@@ -156,9 +156,10 @@ public:
 	std::string query;
 	std::string dbid;
 	SQLerror error;	
+	unsigned long id;
 
-	SQLresult(Module* s, Module* d)
-	: Request(SQLRESID, s, d)
+	SQLresult(Module* s, Module* d, unsigned long i)
+	: Request(SQLRESID, s, d), id(i)
 	{
 	}
 	
