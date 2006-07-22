@@ -511,8 +511,8 @@ public:
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				/* Execute query */
-				req->error = iter->second->Query(*req);
 				req->id = NewID();
+				req->error = iter->second->Query(*req);
 				
 				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
 			}
@@ -763,6 +763,8 @@ bool SQLConn::DoConnectedPoll()
 			
 			/* Grab the request we're processing */
 			SQLrequest& query = queue.front();
+			
+			log(DEBUG, "ID is %lu", query.id);
 			
 			/* Get a pointer to the module we're about to return the result to */
 			Module* to = query.GetSource();
