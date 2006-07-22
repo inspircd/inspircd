@@ -38,31 +38,7 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all
-ifeq ($(DARWIN),NO)
-	@-install -v -m 0700 src/libIRCDaes.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDasyncdns.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDbase.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDchannels.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDcommand_parse.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDcommands.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDcull_list.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDdnsqueue.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDdynamic.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDhash.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDhelper.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDio.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDmessage.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDmode.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDmodules.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDsocket.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDsocketengine.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDstring.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDuserprocess.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDusers.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDwildcard.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDxline.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDtimer.so $(LIBPATH)
-endif
+	@INSTALL_OUTPUT@
 	@-install -v -m 0700 src/inspircd $(BINPATH)
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
 	@-cp conf/inspircd.quotes.example $(CONPATH)

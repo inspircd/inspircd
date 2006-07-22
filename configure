@@ -99,6 +99,7 @@ if ($arg eq "-update") {
 		getosflags();
 		$has_epoll = $config{HAS_EPOLL};
 		$has_kqueue = $config{HAS_KQUEUE};
+		find_darwin();
 		writefiles(1);
 		print "Complete.\n";
 		exit;
@@ -132,6 +133,7 @@ if ($arg eq "-modupdate") {
                 getosflags();
                 $has_epoll = $config{HAS_EPOLL};
                 $has_kqueue = $config{HAS_KQUEUE};
+		find_darwin();
                 writefiles(0);
                 print "Complete.\n";
                 exit;
@@ -217,8 +219,41 @@ if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} eq "CYG-STATIC")) {
 	$config{HAS_STRLCPY} = "true";
 }
 
-if ($config{OSNAME} =~ /Darwin/) {
-	$config{IS_DARWIN} = "YES";
+find_darwin();
+
+sub find_darwin()
+{
+	if ($config{OSNAME} =~ /Darwin/) {
+		$config{IS_DARWIN} = "YES";
+		$config{INSTALL_OUTPUT} = "";
+	}
+	else
+	{
+		$config{INSTALL_OUTPUT} = "\@-install -v -m 0700 src/libIRCDaes.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDasyncdns.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDbase.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDchannels.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDcommand_parse.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDcommands.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDcull_list.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDdnsqueue.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDdynamic.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDhash.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDhelper.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDio.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDmessage.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDmode.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDmodules.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDsocket.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDsocketengine.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDstring.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDuserprocess.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDusers.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDwildcard.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDxline.so \$(LIBPATH)
+	\@-install -v -m 0700 src/libIRCDtimer.so \$(LIBPATH)
+	";
+	}
 }
 
 $config{HAS_EPOLL} = $has_epoll;
@@ -1053,6 +1088,7 @@ EOF
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@IS_DARWIN\@/$config{IS_DARWIN}/;
 			$tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
+			$tmp =~ s/\@INSTALL_OUTPUT\@/$config{INSTALL_OUTPUT}/;
 
 			print "Writing \033[1;32m$file\033[0m\n";
 			open(FILEHANDLE, ">$file");
