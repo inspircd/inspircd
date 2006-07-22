@@ -86,8 +86,6 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			if (verbose)
-				WriteOpers("Forbidden connection from %s!%s@%s (invalid login/password)",user->nick,user->ident,user->host);
 			Srv->QuitUser(user,killreason);
 		}
 	}
@@ -162,21 +160,6 @@ public:
 				
 				user = iter->second;
 				
-				log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);
-				
-				log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
-			
-				if(res->Rows())
-				{
-					/* We got a row in the result, this is enough really */
-					user->Extend("sqlauthed");
-				}
-				else if (verbose)
-				{
-					/* No rows in result, this means there was no record matching the user */
-					WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
-				}
-				
 				/* Remove our ID from the lookup table to keep it as small and neat as possible */
 				qumap.erase(iter);
 				
@@ -185,6 +168,30 @@ public:
 				{
 					user->Shrink("sqlauth_queryid");
 					delete id;
+				}
+				
+				if(res->error.Id() == NO_ERROR)
+				{				
+					log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
+					log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+			
+					if(res->Rows())
+					{
+						/* We got a row in the result, this is enough really */
+						user->Extend("sqlauthed");
+					}
+					else if (verbose)
+					{
+						/* No rows in result, this means there was no record matching the user */
+						WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
+						user->Extend("sqlauth_failed");
+					}
+				}
+				else if (verbose)
+				{
+					log(DEBUG, "Query failed: %s", res->error.Str());
+					WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					user->Extend("sqlauth_failed");
 				}
 			}
 			else
@@ -230,11 +237,19 @@ public:
 			
 			user->Shrink("sqlauth_queryid");
 			delete id;
-		}			
+		}
+
+		user->Shrink("sqlauthed");
+		user->Shrink("sqlauth_failed");		
 	}
 	
 	virtual bool OnCheckReady(userrec* user)
 	{
+		if(user->GetExt("sqlauth_failed"))
+		{
+			Srv->QuitUser(user,killreason);
+		}
+		
 		return user->GetExt("sqlauthed");
 	}
 
