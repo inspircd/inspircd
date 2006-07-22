@@ -180,6 +180,7 @@ class MySQLresult : public SQLresult
 	{
 		/* A number of affected rows from from mysql_affected_rows.
 		 */
+		log(DEBUG,"Created new MySQLresult of non-error type");
 		fieldlists.clear();
 		rows = affected_rows;
 		fieldlists.resize(rows);
@@ -216,9 +217,12 @@ class MySQLresult : public SQLresult
 		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
 	}
 
-	MySQLresult(Module* self, Module* to, SQLerror e) : SQLresult(self, to), currentrow(0), rows(0), cols(0)
+	MySQLresult(Module* self, Module* to, SQLerror e) : SQLresult(self, to), currentrow(0)
 	{
+		rows = 0;
+		cols = 0;
 		error = e;
+		log(DEBUG,"Created new MySQLresult of error type");
 	}
 
 	~MySQLresult()
