@@ -55,17 +55,25 @@ public:
 			log(DEBUG, "Got SQL result (%s)", request->GetData());
 		
 			SQLresult* res = (SQLresult*)request;
-		
-			log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
-			
-			for (int r = 0; r < res->Rows(); r++)
+
+			if (res->error.Id() != NO_ERROR)
 			{
-				log(DEBUG, "Row %d:", r);
-					
-				for(int i = 0; i < res->Cols(); i++)
+				log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+
+				for (int r = 0; r < res->Rows(); r++)
 				{
-					log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+						log(DEBUG, "Row %d:", r);
+					
+					for(int i = 0; i < res->Cols(); i++)
+					{
+						log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+					}
 				}
+			}
+			else
+			{
+				log(DEBUG, "SQLrequest failed: %s", res->error.Str());
+				
 			}
 		
 			return SQLSUCCESS;
