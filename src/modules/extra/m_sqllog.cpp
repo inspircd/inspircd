@@ -262,6 +262,7 @@ class ModuleSQLLog : public Module
 
 	virtual char* OnRequest(Request* request)
 	{
+		log(DEBUG,"OnRequest in m_sqllog.so");
 		if(strcmp(SQLRESID, request->GetData()) == 0)
 		{
 			SQLresult* res;
@@ -296,6 +297,7 @@ class ModuleSQLLog : public Module
 			QueryInfo* i = new QueryInfo(nick, host, req.id, category);
 			i->qs = FIND_SOURCE;
 			active_queries[req.id] = i;
+			log(DEBUG,"Active query id %d",req.id);
 		}
 		else
 		{

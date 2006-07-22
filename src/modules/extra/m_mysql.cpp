@@ -222,7 +222,7 @@ class MySQLresult : public SQLresult
 			rows = affected_rows;
 			fieldlists.resize(rows);
 		}
-		unsigned int field_count;
+		unsigned int field_count = 0;
 		if (res)
 		{
 			MYSQL_ROW row;
@@ -247,16 +247,16 @@ class MySQLresult : public SQLresult
 						SQLfield sqlf(b, !row[field_count]);
 						colnames.push_back(a);
 						fieldlists[n].push_back(sqlf); 
+						log(DEBUG,"Inc field count to %d",field_count+1);
 						field_count++;
 					}
 					n++;
 				}
 				rows++;
 			}
-			cols = mysql_num_fields(res);
+			cols = field_count;
 			mysql_free_result(res);
 		}
-		cols = field_count;
 		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
 	}
 
@@ -496,6 +496,8 @@ class SQLConnection : public classbase
 		pthread_mutex_lock(&queue_mutex);
 		req.query.q = query;
 		pthread_mutex_unlock(&queue_mutex);
+
+		log(DEBUG,"REQUEST ID: %d",req.id);
 
 		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
 		{
@@ -744,8 +746,8 @@ class ModuleSQL : public Module
 
 			if((iter = Connections.find(req->dbid)) != Connections.end())
 			{
-				iter->second->queue.push(*req);
 				req->id = NewID();
+				iter->second->queue.push(*req);
 				returnval = SQLSUCCESS;
 			}
 			else
