@@ -537,7 +537,7 @@ public:
 		 */
 		for(ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
 		{
-			
+			iter->second->OnUnloadModule(mod);
 		}
 	}
 
