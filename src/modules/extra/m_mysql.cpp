@@ -33,6 +33,41 @@ using namespace std;
 /* $LinkerFlags: `mysql_config --libs_r` `perl ../mysql_rpath.pl` */
 
 
+/* THE NONBLOCKING MYSQL API!
+ * 
+ * MySQL provides no nonblocking (asyncronous) API of its own, and its developers recommend
+ * that instead, you should thread your program. This is what i've done here to allow for
+ * asyncronous SQL requests via mysql. The way this works is as follows:
+ *
+ * The module spawns a thread via pthreads, and performs its mysql queries in this thread,
+ * using a queue with priorities. There is a mutex on either end which prevents two threads
+ * adjusting the queue at the same time, and crashing the ircd. Every 50 milliseconds, the
+ * worker thread wakes up, and checks if there is a request at the head of its queue.
+ * If there is, it processes this request, blocking the worker thread but leaving the ircd
+ * thread to go about its business as usual. During this period, the ircd thread is able
+ * to insert futher pending requests into the queue.
+ *
+ * Once the processing of a request is complete, it is removed from the incoming queue to
+ * an outgoing queue, and initialized as a 'response'. The worker thread then signals the
+ * ircd thread (via a loopback socket) of the fact a result is available, by sending the
+ * connection ID through the connection.
+ *
+ * The ircd thread then mutexes the queue once more, reads the outbound response off the head
+ * of the queue, and sends it on its way to the original calling module.
+ *
+ * XXX: You might be asking "why doesnt he just send the response from within the worker thread?"
+ * The answer to this is simple. The majority of InspIRCd, and in fact most ircd's are not
+ * threadsafe. This module is designed to be threadsafe and is careful with its use of threads,
+ * however, if we were to call a module's OnRequest even from within a thread which was not the
+ * one the module was originally instantiated upon, there is a chance of all hell breaking loose
+ * if a module is ever put in a re-enterant state (stack corruption could occur, crashes, data
+ * corruption, and worse, so DONT think about it until the day comes when InspIRCd is 100%
+ * gauranteed threadsafe!)
+ *
+ * For a diagram of this system please see http://www.inspircd.org/wiki/Mysql2
+ */
+
+
 class SQLConnection;
 class Notifier;
 
