@@ -780,6 +780,8 @@ void* DispatcherThread(void* arg)
 		return NULL;
 	}
 
+	log(DEBUG,"Connect QUEUE FD");
+
 	while (!giveup)
 	{
 		SQLConnection* conn = NULL;
