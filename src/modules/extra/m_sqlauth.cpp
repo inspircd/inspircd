@@ -16,7 +16,6 @@
  */
 
 #include <string>
-#include <map>
 
 #include "users.h"
 #include "channels.h"
@@ -24,14 +23,14 @@
 #include "inspircd.h"
 #include "helperfuncs.h"
 #include "m_sqlv2.h"
+#include "m_sqlutils.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
-
-typedef std::map<unsigned int, userrec*> QueryUserMap;
 
 class ModuleSQLAuth : public Module
 {
 	Server* Srv;
+	Module* SQLutils;
 
 	std::string usertable;
 	std::string userfield;
@@ -43,13 +42,22 @@ class ModuleSQLAuth : public Module
 	
 	bool verbose;
 	
-	QueryUserMap qumap;
-	
 public:
 	ModuleSQLAuth(Server* Me)
-	: Module::Module(Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		Srv = Me;
+		SQLutils = Srv->FindFeature("SQLutils");
+		
+		if(SQLutils)
+		{
+			log(DEBUG, "Successfully got SQLutils pointer");
+		}
+		else
+		{
+			log(DEFAULT, "ERROR: This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
+			throw ModuleException("This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
+		}
+				
 		OnRehash("");
 	}
 
@@ -111,25 +119,21 @@ public:
 				 * came to be processed we'd get an invalid userrec* out of the map. Now we *could* solve this by watching
 				 * OnUserDisconnect() and iterating the map every time someone quits to make sure they didn't have any queries
 				 * in progress, but that would be relatively slow and inefficient. Instead (thanks to w00t ;p) we attach a list
-				 * of query IDs associated with it to the userrec, so in OnUserDisconnect() we can remove it immediately.
-				 */
+			 	 * of query IDs associated with it to the userrec, so in OnUserDisconnect() we can remove it immediately.
+			 	 */
 				log(DEBUG, "Sent query, got given ID %lu", req.id);
-				qumap.insert(std::make_pair(req.id, user));
 				
-				if(!user->Extend("sqlauth_queryid", new unsigned long(req.id)))
-				{
-					log(DEBUG, "BUG: user being sqlauth'd already extended with 'sqlauth_queryid' :/");
-				}
-				
+				AssociateUser(this, SQLutils, user, req.id).Send();
+					
 				return true;
 			}
 			else
 			{
 				log(DEBUG, "SQLrequest failed: %s", req.error.Str());
-				
+			
 				if (verbose)
 					WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
-				
+			
 				return false;
 			}
 		}
@@ -145,31 +149,16 @@ public:
 		if(strcmp(SQLRESID, request->GetData()) == 0)
 		{
 			SQLresult* res;
-			QueryUserMap::iterator iter;
 		
 			res = static_cast<SQLresult*>(request);
 			
 			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetData(), res->id);
 			
-			iter = qumap.find(res->id);
+			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
+			UnAssociate(this, SQLutils, res->id).S();
 			
-			if(iter != qumap.end())
+			if(user)
 			{
-				userrec* user;
-				unsigned long* id;
-				
-				user = iter->second;
-				
-				/* Remove our ID from the lookup table to keep it as small and neat as possible */
-				qumap.erase(iter);
-				
-				/* Cleanup the userrec, no point leaving this here */
-				if(user->GetExt("sqlauth_queryid", id))
-				{
-					user->Shrink("sqlauth_queryid");
-					delete id;
-				}
-				
 				if(res->error.Id() == NO_ERROR)
 				{				
 					log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
@@ -209,36 +198,6 @@ public:
 	
 	virtual void OnUserDisconnect(userrec* user)
 	{
-		unsigned long* id;
-		
-		if(user->GetExt("sqlauth_queryid", id))
-		{
-			QueryUserMap::iterator iter;
-			
-			iter = qumap.find(*id);
-			
-			if(iter != qumap.end())
-			{
-				if(iter->second == user)
-				{
-					qumap.erase(iter);
-					
-					log(DEBUG, "Erased query from map associated with quitting user %s", user->nick);
-				}
-				else
-				{
-					log(DEBUG, "BUG: ID associated with user %s doesn't have the same userrec* associated with it in the map");
-				}		
-			}
-			else
-			{
-				log(DEBUG, "BUG: user %s was extended with sqlauth_queryid but there was nothing matching in the map", user->nick);
-			}
-			
-			user->Shrink("sqlauth_queryid");
-			delete id;
-		}
-
 		user->Shrink("sqlauthed");
 		user->Shrink("sqlauth_failed");		
 	}
