@@ -32,7 +32,6 @@ using namespace std;
 /* $CompileFlags: `mysql_config --include` */
 /* $LinkerFlags: `mysql_config --libs_r` `perl ../mysql_rpath.pl` */
 
-
 /* THE NONBLOCKING MYSQL API!
  * 
  * MySQL provides no nonblocking (asyncronous) API of its own, and its developers recommend
