@@ -216,7 +216,7 @@ class MySQLresult : public SQLresult
 		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, cols);
 	}
 
-	MySQLresult(Module* self, Module* to, SQLerror e) : SQLresult(self, to)
+	MySQLresult(Module* self, Module* to, SQLerror e) : SQLresult(self, to), currentrow(0), rows(0), cols(0)
 	{
 		error = e;
 	}
@@ -582,7 +582,10 @@ void NotifyMainThread(SQLConnection* connection_with_new_result)
 	 * connection back.
 	 */
 	log(DEBUG,"Notify of result on connection: %s",connection_with_new_result->GetID().c_str());
-	write(QueueFD, connection_with_new_result->GetID().c_str(), connection_with_new_result->GetID().length()+1); // add one for null terminator
+	if (send(QueueFD, connection_with_new_result->GetID().c_str(), connection_with_new_result->GetID().length()+1, 0) < 1) // add one for null terminator
+	{
+		log(DEBUG,"Error writing to QueueFD: %s",strerror(errno));
+	}
 	log(DEBUG,"Sent it on its way via fd=%d",QueueFD);
 }
 
@@ -606,7 +609,7 @@ class Notifier : public InspSocket
 		}
 	}
 
-	Notifier(int newfd, char* ip, Server* S) : Srv(S)
+	Notifier(int newfd, char* ip, Server* S) : InspSocket(newfd, ip), Srv(S)
 	{
 		log(DEBUG,"Constructor of new socket");
 	}
@@ -619,7 +622,7 @@ class Notifier : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		log(DEBUG,"Inbound connection!");
+		log(DEBUG,"Inbound connection on fd %d!",newsock);
 		Notifier* n = new Notifier(newsock, ip, Srv);
 		Srv->AddSocket(n);
 		return true;
