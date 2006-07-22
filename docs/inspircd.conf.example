@@ -892,6 +892,19 @@
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MySQL module: Allows other SQL modules to access MySQL databases
+# through a unified API. You must copy the source for this module
+# from the directory src/modules/extra, plus the file m_sqlv2.h
+#<module name="m_mysql.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_mysql.so is more complex than described here, see the wiki for    #
+# more: http://www.inspircd.org/wiki/SQL_Service_Provider_Module      #
+#
+#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
 # user from changing their nick again. /NICKLOCK and /NICKUNLOCK
 #<module name="m_nicklock.so">
@@ -982,6 +995,19 @@
 #                                                                     #
 # m_park.so is too complex it describe here, see the wiki:            #
 # http://www.inspircd.org/wiki/User_Parking_Module                    #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# PostgreSQL module: Allows other SQL modules to access PgSQL databases
+# through a unified API. You must copy the source for this module
+# from the directory src/modules/extra, plus the file m_sqlv2.h
+#<module name="m_pgsql.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# m_pgsql.so is more complex than described here, see the wiki for    #
+# more: http://www.inspircd.org/wiki/SQL_Service_Provider_Module      #
+#
+#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect
@@ -1126,19 +1152,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SILENCE module: Adds support for /SILENCE
 #<module name="m_silence.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SQL module: Allows other SQL modules to access SQL databases
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra
-#<module name="m_sql.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_sql.so is more complex than described here, see the wiki for more:#
-# http://www.inspircd.org/wiki/SQL_Service_Provider_Module            #
-#
-#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL authentication module: Allows IRCd connections to be tied into
