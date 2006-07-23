@@ -209,7 +209,6 @@ class MySQLresult : public SQLresult
 	SQLfieldMap fieldmap2;
 	SQLfieldList emptyfieldlist;
 	int rows;
-	int cols;
  public:
 
 	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows, unsigned int id) : SQLresult(self, to, id), currentrow(0), fieldmap(NULL)
@@ -334,9 +333,9 @@ class MySQLresult : public SQLresult
 
 		if (currentrow < rows)
 		{
-			for (int i = 0; i < cols; i++)
+			for (int i = 0; i < Cols(); i++)
 			{
-				fieldmap2.insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+				fieldmap2.insert(std::make_pair(colnames[i],GetValue(currentrow, i)));
 			}
 			currentrow++;
 		}
@@ -354,6 +353,7 @@ class MySQLresult : public SQLresult
 			{
 				fieldlist->push_back(fieldlists[currentrow][i]);
 			}
+			currentrow++;
 		}
 		return fieldlist;
 	}
@@ -364,9 +364,9 @@ class MySQLresult : public SQLresult
 		
 		if (currentrow < rows)
 		{
-			for (int i = 0; i < cols; i++)
+			for (int i = 0; i < Cols(); i++)
 			{
-				fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+				fieldmap->insert(std::make_pair(colnames[i],GetValue(currentrow, i)));
 			}
 			currentrow++;
 		}
@@ -381,11 +381,6 @@ class MySQLresult : public SQLresult
 
 	virtual void Free(SQLfieldList* fl)
 	{
-		/* XXX: Yes, this is SUPPOSED to do nothing, we
-		 * dont want to free our fieldlist until we
-		 * destruct the object. Unlike the pgsql module,
-		 * we only have the one.
-		 */
 		delete fl;
 	}
 };
