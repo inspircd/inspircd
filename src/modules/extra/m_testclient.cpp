@@ -50,9 +50,9 @@ public:
 	
 	virtual char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLRESID, request->GetData()) == 0)
+		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
-			log(DEBUG, "Got SQL result (%s)", request->GetData());
+			log(DEBUG, "Got SQL result (%s)", request->GetId());
 		
 			SQLresult* res = (SQLresult*)request;
 
@@ -86,7 +86,7 @@ public:
 			return SQLSUCCESS;
 		}
 		
-		log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}

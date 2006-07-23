@@ -57,7 +57,7 @@ public:
 
 	virtual char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLUTILAU, request->GetData()) == 0)
+		if(strcmp(SQLUTILAU, request->GetId()) == 0)
 		{
 			AssociateUser* req = (AssociateUser*)request;
 			
@@ -67,7 +67,7 @@ public:
 			
 			AttachList(req->user, req->id);
 		}
-		else if(strcmp(SQLUTILAC, request->GetData()) == 0)
+		else if(strcmp(SQLUTILAC, request->GetId()) == 0)
 		{
 			AssociateChan* req = (AssociateChan*)request;
 
@@ -77,7 +77,7 @@ public:
 			
 			AttachList(req->chan, req->id);
 		}
-		else if(strcmp(SQLUTILUA, request->GetData()) == 0)
+		else if(strcmp(SQLUTILUA, request->GetId()) == 0)
 		{
 			UnAssociate* req = (UnAssociate*)request;
 			
@@ -90,7 +90,7 @@ public:
 			DoUnAssociate(iduser, req->id);
 			DoUnAssociate(idchan, req->id);
 		}
-		else if(strcmp(SQLUTILGU, request->GetData()) == 0)
+		else if(strcmp(SQLUTILGU, request->GetId()) == 0)
 		{
 			GetAssocUser* req = (GetAssocUser*)request;
 			
@@ -104,7 +104,7 @@ public:
 				req->user = iter->second;
 			}
 		}
-		else if(strcmp(SQLUTILGC, request->GetData()) == 0)
+		else if(strcmp(SQLUTILGC, request->GetId()) == 0)
 		{
 			GetAssocChan* req = (GetAssocChan*)request;			
 			
@@ -120,7 +120,7 @@ public:
 		}
 		else
 		{
-			log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+			log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 			return NULL;
 		}
 		

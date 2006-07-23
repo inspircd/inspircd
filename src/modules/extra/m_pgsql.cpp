@@ -517,7 +517,7 @@ public:
 	
 	virtual char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLREQID, request->GetData()) == 0)
+		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{
 			SQLrequest* req = (SQLrequest*)request;
 			ConnMap::iterator iter;
@@ -539,7 +539,7 @@ public:
 			}
 		}
 
-		log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}

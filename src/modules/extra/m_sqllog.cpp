@@ -305,13 +305,13 @@ class ModuleSQLLog : public Module
 	virtual char* OnRequest(Request* request)
 	{
 		log(DEBUG,"OnRequest in m_sqllog.so");
-		if(strcmp(SQLRESID, request->GetData()) == 0)
+		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			SQLresult* res;
 			std::map<unsigned long, QueryInfo*>::iterator n;
 
 			res = static_cast<SQLresult*>(request);
-			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetData(), res->id);
+			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
 
 			n = active_queries.find(res->id);
 
@@ -431,4 +431,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleSQLLogFactory;
 }
-

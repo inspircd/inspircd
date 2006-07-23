@@ -221,7 +221,7 @@ public:
 	 * @param q A properly initialized SQLquery object.
 	 */
 	SQLrequest(Module* s, Module* d, const std::string &databaseid, const SQLquery &q)
-	: Request(SQLREQID, s, d), query(q), dbid(databaseid), pri(false), id(0)
+	: Request(s, d, SQLREQID), query(q), dbid(databaseid), pri(false), id(0)
 	{
 	}
 	
@@ -307,7 +307,7 @@ public:
 	/** Used by the SQL API to instantiate an SQLrequest
 	 */
 	SQLresult(Module* s, Module* d, unsigned long i)
-	: Request(SQLRESID, s, d), id(i)
+	: Request(s, d, SQLRESID), id(i)
 	{
 	}
 	

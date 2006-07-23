@@ -142,13 +142,13 @@ public:
 	
 	virtual char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLRESID, request->GetData()) == 0)
+		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			SQLresult* res;
 		
 			res = static_cast<SQLresult*>(request);
 			
-			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetData(), res->id);
+			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
 			
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
@@ -187,7 +187,7 @@ public:
 			return SQLSUCCESS;
 		}
 		
-		log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}

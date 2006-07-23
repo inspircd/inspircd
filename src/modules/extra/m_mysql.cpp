@@ -750,7 +750,7 @@ class ModuleSQL : public Module
 
 	char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLREQID, request->GetData()) == 0)
+		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{
 			SQLrequest* req = (SQLrequest*)request;
 
@@ -780,7 +780,7 @@ class ModuleSQL : public Module
 			return returnval;
 		}
 
-		log(DEBUG, "Got unsupported API version string: %s", request->GetData());
+		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 
 		return NULL;
 	}
@@ -923,4 +923,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleSQLFactory;
 }
-

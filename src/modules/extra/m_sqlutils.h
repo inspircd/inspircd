@@ -17,7 +17,7 @@ public:
 	userrec* user;
 	
 	AssociateUser(Module* s, Module* d, unsigned long i, userrec* u)
-	: Request(SQLUTILAU, s, d), id(i), user(u)
+	: Request(s, d, SQLUTILAU), id(i), user(u)
 	{
 	}
 	
@@ -35,7 +35,7 @@ public:
 	chanrec* chan;
 	
 	AssociateChan(Module* s, Module* d, unsigned long i, chanrec* u)
-	: Request(SQLUTILAC, s, d), id(i), chan(u)
+	: Request(s, d, SQLUTILAC), id(i), chan(u)
 	{
 	}
 	
@@ -52,7 +52,7 @@ public:
 	unsigned long id;
 
 	UnAssociate(Module* s, Module* d, unsigned long i)
-	: Request(SQLUTILUA, s, d), id(i)
+	: Request(s, d, SQLUTILUA), id(i)
 	{
 	}
 	
@@ -70,7 +70,7 @@ public:
 	userrec* user;
 
 	GetAssocUser(Module* s, Module* d, unsigned long i)
-	: Request(SQLUTILGU, s, d), id(i), user(NULL)
+	: Request(s, d, SQLUTILGU), id(i), user(NULL)
 	{
 	}
 	
@@ -88,7 +88,7 @@ public:
 	chanrec* chan;
 
 	GetAssocChan(Module* s, Module* d, unsigned long i)
-	: Request(SQLUTILGC, s, d), id(i), chan(NULL)
+	: Request(s, d, SQLUTILGC), id(i), chan(NULL)
 	{
 	}
 	
