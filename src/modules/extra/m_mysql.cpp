@@ -207,6 +207,7 @@ class MySQLresult : public SQLresult
 	std::vector<SQLfieldList> fieldlists;
 	SQLfieldMap* fieldmap;
 	SQLfieldMap fieldmap2;
+	SQLfieldList emptyfieldlist;
 	int rows;
 	int cols;
  public:
@@ -321,12 +322,15 @@ class MySQLresult : public SQLresult
 
 	virtual SQLfieldList& GetRow()
 	{
-		return fieldlists[currentrow];
+		if (currentrow < rows)
+			return fieldlists[currentrow];
+		else
+			return emptyfieldlist;
 	}
 
 	virtual SQLfieldMap& GetRowMap()
 	{
-		fieldmap2 = SQLfieldMap();
+		fieldmap2.clear();
 
 		if (currentrow < rows)
 		{
@@ -342,7 +346,10 @@ class MySQLresult : public SQLresult
 
 	virtual SQLfieldList* GetRowPtr()
 	{
-		return &fieldlists[currentrow++];
+		if (currentrow < rows)
+			return &fieldlists[currentrow++];
+		else
+			return &emptyfieldlist;
 	}
 
 	virtual SQLfieldMap* GetRowMapPtr()
