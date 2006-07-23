@@ -79,11 +79,15 @@ Admin::Admin(std::string name, std::string email, std::string nick)
 Request::Request(char* anydata, Module* src, Module* dst)
 : data(anydata), source(src), dest(dst)
 {
+	/* Ensure that because this module doesnt support ID strings, it doesnt break modules that do
+	 * by passing them uninitialized pointers (could happen)
+	 */
+	id = '\0';
 }
 
 Request::Request(Module* src, Module* dst, const char* idstr)
 : id(idstr), source(src), dest(dst)
-{	
+{
 };
 
 char* Request::GetData()
