@@ -259,7 +259,7 @@ public:
 
 	/** Initialize an SQLfield
 	 */
-	SQLfield(const std::string &data, bool n)
+	SQLfield(const std::string &data = "", bool n = false)
 	: d(data), null(n)
 	{
 		
