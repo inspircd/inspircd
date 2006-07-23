@@ -210,27 +210,28 @@ public:
 		return NULL;
 	}	
 
-	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &hostname, const std::string &type)
+	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{
 		ConfigReader Conf;
 		
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{
-			std::string TypeName = Conf.ReadValue("type","name",j);
+			std::string tname = Conf.ReadValue("type","name",j);
 			
-			Srv->Log(DEBUG,"Scanning opertype: "+TypeName);
+			log(DEBUG, "Scanning opertype: %s", tname.c_str());
 			
-			std::string pattern = std::string(user->ident) + "@" + std::string(user->host);
+			std::string hostname(user->ident);
+			hostname.append("@").append(user->host);
 							
-			if((TypeName == type) && OneOfMatches(pattern.c_str(), hostname.c_str()))
+			if((tname == type) && OneOfMatches(hostname.c_str(), pattern.c_str()))
 			{
-				/* found this oper's opertype */
-				Srv->Log(DEBUG,"Host and type match: "+TypeName+" "+type);
+				/* Opertype and host match, looks like this is it. */
+				log(DEBUG, "Host (%s matched %s) and type (%s)", pattern.c_str(), hostname.c_str(), type.c_str());
 				
-				std::string HostName = Conf.ReadValue("type","host",j);
+				std::string operhost = Conf.ReadValue("type", "host", j);
 							
-				if(HostName.size())
-					Srv->ChangeHost(user, HostName);
+				if(operhost.size())
+					Srv->ChangeHost(user, operhost);
 								
 				strlcpy(user->oper, type.c_str(), NICKMAX-1);
 				
