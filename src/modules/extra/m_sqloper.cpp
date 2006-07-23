@@ -237,7 +237,7 @@ public:
 				WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
-				if(user->modes[UM_OPERATOR])
+				if(!user->modes[UM_OPERATOR])
 				{
 					user->modes[UM_OPERATOR] = 1;
 					WriteServ(user->fd,"MODE %s :+o",user->nick);
