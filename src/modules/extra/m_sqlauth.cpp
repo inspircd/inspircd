@@ -100,10 +100,8 @@ public:
 
 	bool CheckCredentials(userrec* user)
 	{
-		bool found;
 		Module* target;
 		
-		found = false;
 		target = Srv->FindFeature("SQL");
 		
 		if(target)
