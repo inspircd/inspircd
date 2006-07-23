@@ -193,6 +193,11 @@ class Request : public ModuleMessage
 	/** This member holds a pointer to arbitary data set by the emitter of the message
 	 */
 	char* data;
+ 	/** This should be a null-terminated string identifying the type of request,
+ 	 * all modules should define this and use it to determine the nature of the
+ 	 * request before they attempt to cast the Request in any way.
+ 	 */
+ 	const char* id;
 	/** This is a pointer to the sender of the message, which can be used to
 	 * directly trigger events, or to create a reply.
 	 */
@@ -202,11 +207,28 @@ class Request : public ModuleMessage
 	Module* dest;
  public:
 	/** Create a new Request
+ 	 * This is for the 'old' way of casting whatever the data is
+ 	 * to char* and hoping you get the right thing at the other end.
+ 	 * This is slowly being depreciated in favor of the 'new' way.
 	 */
 	Request(char* anydata, Module* src, Module* dst);
+ 	/** Create a new Request
+ 	 * This is for the 'new' way of defining a subclass
+ 	 * of Request and defining it in a common header,
+	 * passing an object of your Request subclass through
+ 	 * as a Request* and using the ID string to determine
+ 	 * what to cast it back to and the other end. This is
+ 	 * much safer as there are no casts not confirmed by
+ 	 * the ID string, and all casts are child->parent and
+ 	 * can be checked at runtime with dynamic_cast<>()
+ 	 */
+ 	Request(Module* src, Module* dst, const char* idstr);
 	/** Fetch the Request data
 	 */
 	char* GetData();
+ 	/** Fetch the ID string
+	 */
+	const char* GetId();
 	/** Fetch the request source
 	 */
 	Module* GetSource();

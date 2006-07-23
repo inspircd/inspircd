@@ -64,17 +64,36 @@ featurelist Features;
 
 // version is a simple class for holding a modules version number
 
-Version::Version(int major, int minor, int revision, int build, int flags) : Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags) { };
+Version::Version(int major, int minor, int revision, int build, int flags)
+: Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags)
+{
+}
 
 // admin is a simple class for holding a server's administrative info
 
-Admin::Admin(std::string name, std::string email, std::string nick) : Name(name), Email(email), Nick(nick) { };
+Admin::Admin(std::string name, std::string email, std::string nick)
+: Name(name), Email(email), Nick(nick)
+{
+}
 
-Request::Request(char* anydata, Module* src, Module* dst) : data(anydata), source(src), dest(dst) { };
+Request::Request(char* anydata, Module* src, Module* dst)
+: data(anydata), source(src), dest(dst)
+{
+}
+
+Request::Request(Module* src, Module* dst, const char* idstr)
+: id(idstr), source(src), dest(dst)
+{	
+};
 
 char* Request::GetData()
 {
-	return (char*)this->data;
+	return this->data;
+}
+
+const char* Request::GetId()
+{
+	return this->id;
 }
 
 Module* Request::GetSource()
