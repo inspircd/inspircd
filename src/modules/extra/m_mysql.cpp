@@ -346,10 +346,16 @@ class MySQLresult : public SQLresult
 
 	virtual SQLfieldList* GetRowPtr()
 	{
+		SQLfieldList* fieldlist = new SQLfieldList();
+
 		if (currentrow < rows)
-			return &fieldlists[currentrow++];
-		else
-			return &emptyfieldlist;
+		{
+			for (int i = 0; i < Rows(); i++)
+			{
+				fieldlist->push_back(fieldlists[currentrow][i]);
+			}
+		}
+		return fieldlist;
 	}
 
 	virtual SQLfieldMap* GetRowMapPtr()
@@ -380,6 +386,7 @@ class MySQLresult : public SQLresult
 		 * destruct the object. Unlike the pgsql module,
 		 * we only have the one.
 		 */
+		delete fl;
 	}
 };
 
