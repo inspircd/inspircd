@@ -223,6 +223,13 @@ public:
 	
 	~PgSQLresult()
 	{
+		/* If we allocated these, free them... */
+		if(fieldlist)
+			DELETE(fieldlist);
+		
+		if(fieldmap)
+			DELETE(fieldmap);
+		
 		PQclear(res);
 	}
 	
