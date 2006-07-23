@@ -36,7 +36,7 @@ class watchentry : public classbase
 	std::string target;
 };
 
-typedef std::vector<watchentry> watchlist;
+typedef std::vector<watchentry*> watchlist;
 watchlist watches;
 
 class cmd_watch : public command_t
@@ -53,9 +53,10 @@ class cmd_watch : public command_t
 		{
 			for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 			{
-				if (q->watcher == user)
+				watchentry* a = (watchentry*)(*q);
+				if (a->watcher == user)
 				{
-					userrec* targ = Srv->FindNick(q->target);
+					userrec* targ = Srv->FindNick(a->target);
 					if (targ)
 					{
 						WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
@@ -78,10 +79,12 @@ class cmd_watch : public command_t
 						done = true;
 						for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 						{
-							if (q->watcher == user)
+							watchentry* a = (watchentry*)(*q);
+							if (a->watcher == user)
 							{
 								done = false;
 								watches.erase(q);
+								delete a;
 								break;
 							}
 						}
@@ -91,9 +94,10 @@ class cmd_watch : public command_t
 				{
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
-						if (q->watcher == user)
+						watchentry* a = (watchentry*)(*q);
+						if (a->watcher == user)
 						{
-							userrec* targ = Srv->FindNick(q->target);
+							userrec* targ = Srv->FindNick(a->target);
 							if (targ)
 							{
 								WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
@@ -107,9 +111,10 @@ class cmd_watch : public command_t
 					std::string list = "";
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
-						if (q->watcher == user)
+						watchentry* a = (watchentry*)(*q);
+						if (a->watcher == user)
 						{
-							list = list + " " + q->target;
+							list.append(" ").append(a->target);
 						}
 					}
 					char* l = (char*)list.c_str();
@@ -125,21 +130,23 @@ class cmd_watch : public command_t
 					irc::string n1 = nick;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
-						if (q->watcher == user)
+						watchentry* b = (watchentry*)(*q);
+						if (b->watcher == user)
 						{
-							irc::string n2 = q->target.c_str();
-							userrec* a = Srv->FindNick(q->target);
+							irc::string n2 = b->target.c_str();
+							userrec* a = Srv->FindNick(b->target);
 							if (a)
 							{
 								WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
 							}
 							else
 							{
-								 WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,q->target.c_str());
+								 WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
 							}
 							if (n1 == n2)
 							{
 								watches.erase(q);
+								delete b;
 								break;
 							}
 						}
@@ -152,9 +159,10 @@ class cmd_watch : public command_t
 					bool exists = false;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
-						if (q->watcher == user)
+						watchentry* a = (watchentry*)(*q);
+						if (a->watcher == user)
 						{
-							irc::string n2 = q->target.c_str();
+							irc::string n2 = a->target.c_str();
 							if (n1 == n2)
 							{
 								// already on watch list
@@ -164,9 +172,9 @@ class cmd_watch : public command_t
 					}
 					if (!exists)
 					{
-						watchentry w;
-						w.watcher = user;
-						w.target = nick;
+						watchentry* w = new watchentry();
+						w->watcher = user;
+						w->target = nick;
 						watches.push_back(w);
 						log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
 					}
@@ -210,11 +218,12 @@ class Modulewatch : public Module
 		irc::string n2 = user->nick;
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
-			irc::string n1 = q->target.c_str();
+			watchentry* a = (watchentry*)(*q);
+			irc::string n1 = a->target.c_str();
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,q->watcher->nick);
-				WriteServ(q->watcher->fd,"601 %s %s %s %s %lu :went offline",q->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
+				log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,a->watcher->nick);
+				WriteServ(a->watcher->fd,"601 %s %s %s %s %lu :went offline",a->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
 			}
 		}
 		bool done = false;
@@ -223,10 +232,12 @@ class Modulewatch : public Module
 			done = true;
 			for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 			{
-				if (q->watcher == user)
+				watchentry* a = (watchentry*)(*q);
+				if (a->watcher == user)
 				{
 					done = false;
 					watches.erase(q);
+					delete a;
 					break;
 				}
 			}
@@ -239,11 +250,12 @@ class Modulewatch : public Module
 		log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
-			irc::string n1 = q->target.c_str();
+			watchentry* a = (watchentry*)(*q);
+			irc::string n1 = a->target.c_str();
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,q->watcher->nick);
-				WriteServ(q->watcher->fd,"600 %s %s %s %s %lu :arrived online",q->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,a->watcher->nick);
+				WriteServ(a->watcher->fd,"600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}
 	}
@@ -255,18 +267,19 @@ class Modulewatch : public Module
 		log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
-			irc::string n1 = q->target.c_str();
+			watchentry* a = (watchentry*)(*q);
+			irc::string n1 = a->target.c_str();
 			// changed from a nick on the watchlist to one that isnt
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),q->watcher->nick);
-				WriteServ(q->watcher->fd,"601 %s %s %s %s %lu :went offline",q->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
+				log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),a->watcher->nick);
+				WriteServ(a->watcher->fd,"601 %s %s %s %s %lu :went offline",a->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
 			}
 			else if (n1 == n3)
 			{
 				// changed from a nick not on notify to one that is
-				log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,q->watcher->nick);
-				WriteServ(q->watcher->fd,"600 %s %s %s %s %lu :arrived online",q->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,a->watcher->nick);
+				WriteServ(a->watcher->fd,"600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}
 	}	
