@@ -206,6 +206,7 @@ class MySQLresult : public SQLresult
 	std::vector<std::string> colnames;
 	std::vector<SQLfieldList> fieldlists;
 	SQLfieldMap* fieldmap;
+	SQLfieldMap fieldmap2;
 	int rows;
 	int cols;
  public:
@@ -325,15 +326,18 @@ class MySQLresult : public SQLresult
 
 	virtual SQLfieldMap& GetRowMap()
 	{
-		fieldmap = new SQLfieldMap();
-		
-		for (int i = 0; i < cols; i++)
-		{
-			fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
-		}
-		currentrow++;
+		fieldmap2 = SQLfieldMap();
 
-		return *fieldmap;
+		if (currentrow < rows)
+		{
+			for (int i = 0; i < cols; i++)
+			{
+				fieldmap2.insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+			}
+			currentrow++;
+		}
+
+		return fieldmap2;
 	}
 
 	virtual SQLfieldList* GetRowPtr()
@@ -344,12 +348,15 @@ class MySQLresult : public SQLresult
 	virtual SQLfieldMap* GetRowMapPtr()
 	{
 		fieldmap = new SQLfieldMap();
-
-		for (int i = 0; i < cols; i++)
+		
+		if (currentrow < rows)
 		{
-			fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+			for (int i = 0; i < cols; i++)
+			{
+				fieldmap->insert(std::make_pair(colnames[cols],GetValue(currentrow, i)));
+			}
+			currentrow++;
 		}
-		currentrow++;
 
 		return fieldmap;
 	}
