@@ -2995,9 +2995,12 @@ class ModuleSpanningTree : public Module
 			max_global = n_users;
 
 		WriteServ(user->fd,"251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-usercount_invisible(),usercount_invisible(),this->CountServs());
-		WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
-		WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
-		WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
+		if (usercount_opers())
+			WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
+		if (usercount_unknown())
+			WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
+		if (chancount())	
+			WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
 		WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
 		WriteServ(user->fd,"265 %s :Current Local Users: %d  Max: %d",user->nick,local_count(),max_local);
 		WriteServ(user->fd,"266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
