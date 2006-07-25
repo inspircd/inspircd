@@ -62,7 +62,7 @@ $config{HAS_OPENSSL} = $1;
 
 if ($config{GCCVER} eq "") {
 	print "g++ was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
-	return 0;
+	exit;
 }
 
 # Minihack! Convert Cygwin to 'Cyg-Static' so i can
@@ -1257,7 +1257,7 @@ HEADER
 			print FILEHANDLE <<EOCHEESE;
 m_$i.o: .m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c .m_$i\_static.cpp
-	mv m_$i\_static.o ../m_$i.o
+	mv .m_$i\_static.o ../m_$i.o
 
 EOCHEESE
 			###
