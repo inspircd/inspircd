@@ -3467,7 +3467,7 @@ class ModuleSpanningTree : public Module
 				DoOneToOne(user->nick,"NOTICE",params,d->server);
 			}
 		}
-		else
+		else if (target_type == TYPE_CHANNEL)
 		{
 			if (user->fd > -1)
 			{
@@ -3485,6 +3485,14 @@ class ModuleSpanningTree : public Module
 						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
 				}
 			}
+		}
+                else if (target_type == TYPE_SERVER)
+		{
+			char* target = (char*)dest;
+			std::deque<std::string> par;
+			par.push_back(target);
+			par.push_back(":"+text);
+			DoOneToMany(user->nick,"NOTICE",par);
 		}
 	}
 
@@ -3504,7 +3512,7 @@ class ModuleSpanningTree : public Module
 				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
 			}
 		}
-		else
+		else if (target_type == TYPE_CHANNEL)
 		{
 			if (user->fd > -1)
 			{
@@ -3522,6 +3530,14 @@ class ModuleSpanningTree : public Module
 						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
 				}
 			}
+		}
+                else if (target_type == TYPE_SERVER)
+		{
+			char* target = (char*)dest;
+			std::deque<std::string> par;
+			par.push_back(target);
+			par.push_back(":"+text);
+			DoOneToMany(user->nick,"PRIVMSG",par);
 		}
 	}
 
