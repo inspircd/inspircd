@@ -3489,11 +3489,14 @@ class ModuleSpanningTree : public Module
 		}
                 else if (target_type == TYPE_SERVER)
 		{
-			char* target = (char*)dest;
-			std::deque<std::string> par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			DoOneToMany(user->nick,"NOTICE",par);
+			if (user->fd > -1)
+			{
+				char* target = (char*)dest;
+				std::deque<std::string> par;
+				par.push_back(target);
+				par.push_back(":"+text);
+				DoOneToMany(user->nick,"NOTICE",par);
+			}
 		}
 	}
 
@@ -3534,11 +3537,14 @@ class ModuleSpanningTree : public Module
 		}
 		else if (target_type == TYPE_SERVER)
 		{
-			char* target = (char*)dest;
-			std::deque<std::string> par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			DoOneToMany(user->nick,"PRIVMSG",par);
+			if (user->fd > -1)
+			{
+				char* target = (char*)dest;
+				std::deque<std::string> par;
+				par.push_back(target);
+				par.push_back(":"+text);
+				DoOneToMany(user->nick,"PRIVMSG",par);
+			}
 		}
 	}
 
