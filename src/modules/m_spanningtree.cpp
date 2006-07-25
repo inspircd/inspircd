@@ -2697,14 +2697,14 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 	TreeServer* omitroute = BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
-		if ((params.size() >= 2) && (*(params[0].c_str()) != '$'))
+		if (params.size() >= 2)
 		{
 			/* Prefixes */
 			if ((*(params[0].c_str()) == '@') || (*(params[0].c_str()) == '%') || (*(params[0].c_str()) == '+'))
 			{
 				params[0] = params[0].substr(1, params[0].length()-1);
 			}
-			if (*(params[0].c_str()) != '#')
+			if ((*(params[0].c_str()) != '#') && (*(params[0].c_str()) != '$'))
 			{
 				// special routing for private messages/notices
 				userrec* d = Srv->FindNick(params[0]);
@@ -2716,6 +2716,14 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 					DoOneToOne(prefix,command.c_str(),par,d->server);
 					return true;
 				}
+			}
+			else if (*(params[0].c_str()) == '$')
+			{
+				std::deque<std::string> par;
+				par.push_back(params[0]);
+				par.push_back(":"+params[1]);
+				DoOneToAllButSender(prefix,command.c_str(),par,omitroute->GetName());
+				return true;
 			}
 			else
 			{
