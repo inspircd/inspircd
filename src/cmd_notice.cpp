@@ -47,13 +47,20 @@ void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 		return;
 	if ((parameters[0][0] == '$') && ((*user->oper) || (is_uline(user->server))))
 	{
-		// notice to server mask
-		const char* servermask = parameters[0] + 1;
-		if (match(Config->ServerName,servermask))
-		{
-			NoticeAll(user, true, "%s",parameters[1]);
-		}
-		return;
+		int MOD_RESULT = 0;
+                std::string temp = parameters[1];
+                FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0));
+                if (MOD_RESULT)
+                        return;
+                parameters[1] = (char*)temp.c_str();
+                // notice to server mask
+                const char* servermask = parameters[0] + 1;
+                if (match(Config->ServerName,servermask))
+                {
+                        NoticeAll(user, true, "%s",parameters[1]);
+                }
+                FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
+                return;
 	}
 	char status = 0;
 	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
