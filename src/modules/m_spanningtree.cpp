@@ -3923,12 +3923,21 @@ class ModuleSpanningTree : public Module
 			if (params->size() < 2)
 				return;
 			// Insert the TS value of the object, either userrec or chanrec
-			classbase* a = reinterpret_cast<classbase*>(Srv->FindNick((*params)[0]));
-			if (!a)
+			time_t ourTS = 0;
+			userrec* a = Srv->FindNick((*params)[0]);
+			if (a)
 			{
-				a = reinterpret_cast<classbase*>(Srv->FindChannel((*params)[0]));
+				ourTS = a->age;
 			}
-			params->insert(params->begin() + 1,ConvToStr(a->age));
+			else
+			{
+				chanrec* a = Srv->FindChannel((*params)[0]);
+				if (a)
+				{
+					ourTS = a->age;
+				}
+			}
+			params->insert(params->begin() + 1,ConvToStr(ourTS));
 			DoOneToMany(Srv->GetServerName(),"FMODE",*params);
 		}
 	}
