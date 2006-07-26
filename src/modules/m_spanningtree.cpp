@@ -2176,72 +2176,13 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
-	void Split(std::string line, bool stripcolon, std::deque<std::string> &n)
+	void Split(std::string line, std::deque<std::string> &n)
 	{
-		// we don't do anything with a line > 2048
-		if (line.length() > 2048)
-		{
-			log(DEBUG,"Line too long!");
-			return;
-		}
-		if (!strchr(line.c_str(),' '))
-		{
-			n.push_back(line);
-			return;
-		}
-		std::stringstream s(line);
-		int count = 0;
-		char param[1024];
-		char* pptr = param;
-
 		n.clear();
-		int item = 0;
-		while (!s.eof())
-		{
-			char c = 0;
-			s.get(c);
-			if (c == ' ')
-			{
-				*pptr = 0;
-				if (*param)
-					n.push_back(param);
-				*param = count = 0;
-				pptr = param;
-				item++;
-			}
-			else
-			{
-				if (!s.eof())
-				{
-					*pptr++ = c;
-					count++;
-				}
-				if ((*param == ':') && (count == 1) && (item > 0))
-				{
-					*param = count = 0;
-					pptr = param;
-					while (!s.eof())
-					{
-						s.get(c);
-						if (!s.eof())
-						{
-							*pptr++ = c;
-							count++;
-						}
-					}
-					*pptr = 0;
-					n.push_back(param);
-					*param = count = 0;
-					pptr = param;
-				}
-			}
-		}
-		*pptr = 0;
-		if (*param)
-		{
+		irc::tokenstream tokens(line);
+		std::string param;
+		while ((param = tokens.GetToken()) != "")
 			n.push_back(param);
-		}
-
 		return;
 	}
 
@@ -2258,7 +2199,7 @@ class TreeSocket : public InspSocket
 		
 		log(DEBUG,"IN: %s", line.c_str());
 		
-		this->Split(line.c_str(),true,params);
+		this->Split(line.c_str(),params);
 			
 		if ((params[0][0] == ':') && (params.size() > 1))
 		{
