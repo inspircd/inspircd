@@ -884,18 +884,79 @@ class TreeSocket : public InspSocket
 	/* FMODE command */
 	bool ForceMode(std::string source, std::deque<std::string> &params)
 	{
-		if (params.size() < 2)
-			return true;
+		if (params.size() < 3)
+		{
+			this->WriteLine("ERROR :Version 1.0 FMODE sent to version 1.1 server");
+			return false;
+		}
 		userrec* who = new userrec();
 		who->fd = FD_MAGIC_NUMBER;
 		const char* modelist[64];
+		time_t TS = 0;
+		int n = 0;
 		memset(&modelist,0,sizeof(modelist));
-		for (unsigned int q = 0; q < params.size(); q++)
+		for (unsigned int q = 0; q < params.size(); q++, n++)
 		{
-			modelist[q] = (char*)params[q].c_str();
+			if (q == 1)
+			{
+				/* The timestamp */
+				TS = atoi(params[q].c_str());
+			}
+			modelist[n] = params[q].c_str();
 		}
-		Srv->SendMode(modelist,params.size(),who);
-		DoOneToAllButSender(source,"FMODE",params,source);
+                // Insert the TS value of the object, either userrec or chanrec
+		userrec* a = Srv->FindNick(params[0]);
+		time_t ourTS = 0;
+		if (a)
+		{
+			ourTS = a->age;
+		}
+		//classbase* a = reinterpret_cast<classbase*>(Srv->FindNick(params[0]));
+		else
+		{
+			chanrec* a = Srv->FindChannel(params[0]);
+			if (a)
+			{
+				ourTS = a->age;
+			}
+		}
+		/* U-lined servers always win regardless of their TS */
+		if ((TS > ourTS) && (!Srv->IsUlined(source)))
+		{
+			/* Bounce the mode back to its sender.
+			 * We use our higher TS, so the other end
+			 * SHOULD accept it, if its clock is right.
+			 * If its clock is wrong well bully for you :p
+			 */
+			params[1] = ConvToStr(ourTS);
+			/* Invert the mode string by changing + to -,
+			 * and - to + in the first param.
+			 */
+			for (std::string::iterator x = params[2].begin(); x != params[2].end(); x++)
+			{
+				switch (*x)
+				{
+					case '-':
+						*x = '+';
+					break;
+					case '+':
+						*x = '-';
+					break;
+				}
+			}
+			DoOneToOne(source,"FMODE",params,source);
+			log(DEBUG,"Mode bounced, our TS less than theirs");
+		}
+		else
+		{
+			if ((Srv->IsUlined(source)) && (TS > ourTS))
+			{
+				WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",source.c_str(),params[0].c_str());
+			}
+			/* Allow the mode */
+			Srv->SendMode(modelist,params.size(),who);
+			DoOneToAllButSender(source,"FMODE",params,source);
+		}
 		DELETE(who);
 		return true;
 	}
@@ -1029,6 +1090,11 @@ class TreeSocket : public InspSocket
 							/* We also always let u-lined clients win, no matter what the TS value */
 							log(DEBUG,"Our our channel newer than theirs, accepting their modes");
 							Srv->SendMode((const char**)mode_users,modectr,who);
+							if (ourTS != TS)
+							{
+								log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us,ourTS,TS);
+								us->age = TS;
+							}
 						}
 						else
 						{
@@ -1039,6 +1105,10 @@ class TreeSocket : public InspSocket
 							*mode_users[1] = '-';
 							for (unsigned int x = 0; x < modectr; x++)
 							{
+								if (x == 1)
+								{
+									params.push_back(ConvToStr(us->age));
+								}
 								params.push_back(mode_users[x]);
 							}
 							// tell everyone to bounce the modes. bad modes, bad!
@@ -1059,6 +1129,11 @@ class TreeSocket : public InspSocket
 			{
 				log(DEBUG,"Our our channel newer than theirs, accepting their modes");
 				Srv->SendMode((const char**)mode_users,modectr,who);
+				if (ourTS != TS)
+				{
+					log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us,ourTS,TS);
+					us->age = TS;
+				}
 			}
 			else
 			{
@@ -1067,6 +1142,10 @@ class TreeSocket : public InspSocket
 				*mode_users[1] = '-';
 				for (unsigned int x = 0; x < modectr; x++)
 				{
+					if (x == 1)
+					{
+						params.push_back(ConvToStr(us->age));
+					}
 					params.push_back(mode_users[x]);
 				}
 				DoOneToMany(Srv->GetServerName(),"FMODE",params);
@@ -1077,7 +1156,7 @@ class TreeSocket : public InspSocket
 
 	bool SyncChannelTS(std::string source, std::deque<std::string> &params)
 	{
-		if (params.size() == 2)
+		if (params.size() >= 2)
 		{
 			chanrec* c = Srv->FindChannel(params[0]);
 			if (c)
@@ -1168,7 +1247,7 @@ class TreeSocket : public InspSocket
 	{
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
-		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name;
+		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age);
 		
 		size_t dlen, curlen;
 		dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
@@ -1178,6 +1257,8 @@ class TreeSocket : public InspSocket
 		CUList *ulist = c->GetUsers();
 		std::vector<userrec*> specific_halfop;
 		std::vector<userrec*> specific_voice;
+		std::string modes = "";
+		std::string params = "";
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
@@ -1221,11 +1302,15 @@ class TreeSocket : public InspSocket
 				numusers = 0;
 				for (unsigned int y = 0; y < specific_voice.size(); y++)
 				{
-					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
+					modes.append("v");
+					params.append(specific_voice[y]->nick).append(" ");
+					//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
 				}
 				for (unsigned int y = 0; y < specific_halfop.size(); y++)
 				{
-					this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +h "+specific_halfop[y]->nick);
+					modes.append("h");
+					params.append(specific_halfop[y]->nick).append(" ");
+					//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
 				}
 			}
 		}
@@ -1234,14 +1319,27 @@ class TreeSocket : public InspSocket
 			this->WriteLine(list);
 			for (unsigned int y = 0; y < specific_voice.size(); y++)
 			{
-				this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +v "+specific_voice[y]->nick);
+				modes.append("v");
+				params.append(specific_voice[y]->nick).append(" ");
+				//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
 			}
 			for (unsigned int y = 0; y < specific_halfop.size(); y++)
 			{
-				this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" +h "+specific_halfop[y]->nick);
+				modes.append("h");
+				params.append(specific_halfop[y]->nick).append(" ");
+				//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
 			}
 		}
-		this->WriteLine(":"+Srv->GetServerName()+" SYNCTS "+c->name+" "+ConvToStr(c->age));
+		//std::string modes = "";
+		//std::string params = "";
+                for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
+                {
+			modes.append("b");
+			params.append(b->data).append(" ");
+                }
+		/* XXX: Send each channel mode and its params -- we'll need a method for this in ModeHandler? */
+                //FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
+		this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+chanmodes(c,true)+modes+" "+params);
 	}
 
 	/* Send G, Q, Z and E lines */
@@ -1305,16 +1403,9 @@ class TreeSocket : public InspSocket
 		for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++, iterations++)
 		{
 			SendFJoins(Current, c->second);
-			snprintf(data,MAXBUF,":%s FMODE %s +%s",sn,c->second->name,chanmodes(c->second,true));
-			this->WriteLine(data);
 			if (*c->second->topic)
 			{
 				snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",sn,c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
-				this->WriteLine(data);
-			}
-			for (BanList::iterator b = c->second->bans.begin(); b != c->second->bans.end(); b++)
-			{
-				snprintf(data,MAXBUF,":%s FMODE %s +b %s",sn,c->second->name,b->data);
 				this->WriteLine(data);
 			}
 			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
@@ -2359,10 +2450,6 @@ class TreeSocket : public InspSocket
 				else if (command == "FJOIN")
 				{
 					return this->ForceJoin(prefix,params);
-				}
-				else if (command == "SYNCTS")
-				{
-					return this->SyncChannelTS(prefix,params);
 				}
 				else if (command == "SERVER")
 				{
@@ -3847,12 +3934,12 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+u->nick+" "+modeline);
+				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+u->nick+" "+ConvToStr(u->age)+" "+modeline);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+modeline);
+				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+modeline);
 			}
 		}
 	}
@@ -3894,6 +3981,13 @@ class ModuleSpanningTree : public Module
 			std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
 			if (params->size() < 2)
 				return;
+			// Insert the TS value of the object, either userrec or chanrec
+			classbase* a = reinterpret_cast<classbase*>(Srv->FindNick((*params)[0]));
+			if (!a)
+			{
+				a = reinterpret_cast<classbase*>(Srv->FindChannel((*params)[0]));
+			}
+			params->insert(params->begin() + 1,ConvToStr(a->age));
 			DoOneToMany(Srv->GetServerName(),"FMODE",*params);
 		}
 	}
