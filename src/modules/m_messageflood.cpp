@@ -88,6 +88,15 @@ class MsgFlood : public ModeHandler
  public:
 	MsgFlood() : ModeHandler('f', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+		floodsettings* x;
+        	if (channel->GetExt("flood",x))
+			return std::make_pair(true, (x->ban ? "*" : "")+ConvToStr(x->lines)+":"+ConvToStr(x->secs));
+                else
+                        return std::make_pair(false, parameter);
+        }
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		floodsettings *f;

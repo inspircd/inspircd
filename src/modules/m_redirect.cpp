@@ -30,6 +30,14 @@ class Redirect : public ModeHandler
  public:
 	Redirect(Server* s) : ModeHandler('L', 1, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
 
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+                if (channel->IsModeSet('L'))
+                        return std::make_pair(true, channel->GetModeParameter('L'));
+                else
+                        return std::make_pair(false, parameter);
+        }
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		if (adding)

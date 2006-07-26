@@ -8,6 +8,18 @@ ModeChannelLimit::ModeChannelLimit() : ModeHandler('l', 1, 0, false, MODETYPE_CH
 {
 }
 
+std::pair<bool,std::string> ModeChannelLimit::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+{
+	if (channel->limit)
+	{
+		return std::make_pair(true, ConvToStr(channel->limit));
+	}
+	else
+	{
+		return std::make_pair(false, parameter);
+	}
+}
+
 ModeAction ModeChannelLimit::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	if (adding)

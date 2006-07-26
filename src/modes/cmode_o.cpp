@@ -26,6 +26,23 @@ ModeChannelOp::ModeChannelOp() : ModeHandler('o', 1, 1, true, MODETYPE_CHANNEL, 
 {
 }
 
+std::pair<bool,std::string> ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+{
+        userrec* x = Find(parameter);
+        if (x)
+        {
+                if (cstatus(x, channel) == STATUS_OP)
+                {
+                        return std::make_pair(true, x->nick);
+                }
+                else
+                {
+                        return std::make_pair(false, parameter);
+                }
+        }
+	return std::make_pair(false, parameter);
+}
+
 ModeAction ModeChannelOp::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	int status = cstatus(source, channel);

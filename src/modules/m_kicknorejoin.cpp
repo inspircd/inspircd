@@ -25,6 +25,14 @@ class KickRejoin : public ModeHandler
  public:
 	KickRejoin() : ModeHandler('J', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+                if (channel->IsModeSet('J'))
+                        return std::make_pair(true, channel->GetModeParameter('J'));
+                else
+                        return std::make_pair(false, parameter);
+        } 
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		if (!adding)

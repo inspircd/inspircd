@@ -31,6 +31,32 @@ class ChanFounder : public ModeHandler
  public:
 	ChanFounder(Server* s) : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
+	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+	        userrec* x = Find(parameter);
+	        if (x)
+	        {
+			if (!channel->HasUser(x))
+			{
+				return std::make_pair(false, parameter);
+			}
+			else
+			{
+				std::string founder = "cm_founder_"+std::string(channel->name);
+				if (x->GetExt(founder,dummyptr))
+		                {
+		                        return std::make_pair(true, x->nick);
+		                }
+		                else
+		                {
+		                        return std::make_pair(false, parameter);
+		                }
+			}
+	        }
+		return std::make_pair(false, parameter);
+	}
+
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		userrec* theuser = Srv->FindNick(parameter);
@@ -108,6 +134,31 @@ class ChanProtect : public ModeHandler
 	char* dummyptr;
  public:
 	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
+
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+                userrec* x = Find(parameter);
+                if (x)
+                {
+                        if (!channel->HasUser(x))
+                        {
+                                return std::make_pair(false, parameter);
+                        }
+                        else
+                        {
+                                std::string founder = "cm_protect_"+std::string(channel->name);
+                                if (x->GetExt(founder,dummyptr))
+                                {
+                                        return std::make_pair(true, x->nick);
+                                }
+                                else
+                                {
+                                        return std::make_pair(false, parameter);
+                                }
+                        }
+                }
+                return std::make_pair(false, parameter);
+        }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{

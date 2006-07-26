@@ -945,6 +945,11 @@ class TreeSocket : public InspSocket
 				}
 			}
 			DoOneToOne(source,"FMODE",params,source);
+			/* XXX: We should check that we arent bouncing anything thats already set at this end.
+			 * If we are, bounce +ourmode.
+			 *
+			 * E.G. They send +l 50, we have +l 10 set. rather than bounce -l 50, we bounce +l 10.
+			 */
 			log(DEBUG,"Mode bounced, our TS less than theirs");
 		}
 		else

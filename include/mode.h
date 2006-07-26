@@ -181,6 +181,8 @@ class ModeHandler : public Extensible
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
 	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel);
+
+	virtual std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
 };
 
 /**

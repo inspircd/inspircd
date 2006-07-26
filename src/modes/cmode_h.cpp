@@ -26,6 +26,23 @@ ModeChannelHalfOp::ModeChannelHalfOp() : ModeHandler('h', 1, 1, true, MODETYPE_C
 {
 }
 
+std::pair<bool,std::string> ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+{
+	userrec* x = Find(parameter);
+	if (x)
+	{
+	        if (cstatus(x, channel) == STATUS_HOP)
+	        {
+	                return std::make_pair(true, x->nick);
+	        }
+	        else
+	        {
+	                return std::make_pair(false, parameter);
+	        }
+	}
+	return std::make_pair(false, parameter);
+}
+
 ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	/* If halfops are not enabled in the conf, we don't execute

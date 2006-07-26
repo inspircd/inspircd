@@ -99,6 +99,15 @@ class JoinFlood : public ModeHandler
  public:
 	JoinFlood() : ModeHandler('j', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+                joinfloodsettings* x;
+                if (channel->GetExt("joinflood",x))
+                        return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
+                else
+                        return std::make_pair(false, parameter);
+        } 
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		joinfloodsettings* dummy;

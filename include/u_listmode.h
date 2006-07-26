@@ -64,6 +64,23 @@ class ListModeBase : public ModeHandler
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
 	}
 
+        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        {
+		modelist* el;
+		channel->GetExt(infokey, el);
+		if (el)
+		{
+	                for (modelist::iterator it = el->begin(); it != el->end(); it++)
+	                {
+	                        if(parameter == it->mask)
+	                        {
+					return std::make_pair(true, parameter);
+				}
+	                }
+		}
+		return std::make_pair(false, parameter);
+        }
+
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
 		modelist* el;
