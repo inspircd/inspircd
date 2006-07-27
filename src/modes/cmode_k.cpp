@@ -20,6 +20,11 @@ std::pair<bool,std::string> ModeChannelKey::ModeSet(userrec* source, userrec* de
         }
 }       
 
+bool ModeChannelKey::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+{
+	/* When TS is equal, the alphabetically later channel key wins */
+	return (their_param < our_param);
+}
 
 ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {

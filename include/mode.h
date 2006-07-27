@@ -182,6 +182,19 @@ class ModeHandler : public Extensible
 	 */
 	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel);
 
+	/**
+	 * When a remote server needs to bounce a set of modes, it will call this method for every mode
+	 * in the mode string to determine if the mode is set or not.
+	 * @param source of the mode change, this will be NULL for a server mode
+	 * @param dest Target user of the mode change, if this is a user mode
+	 * @param channel Target channel of the mode change, if this is a channel mode
+	 * @param parameter The parameter given for the mode change, or an empty string
+	 * @returns The first value of the pair should be true if the mode is set with the given parameter.
+	 * In the case of permissions modes such as channelmode +o, this should return true if the user given
+	 * as the parameter has the given privilage on the given channel. The string value of the pair will hold
+	 * the current setting for this mode set locally, when the bool is true, or, the parameter given.
+	 * This allows the local server to enforce our locally set parameters back to a remote server.
+	 */
 	virtual std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
 };
 
@@ -347,6 +360,12 @@ class ModeParser : public classbase
 	 */
 	void Process(const char** parameters, int pcnt, userrec *user, bool servermode);
 
+	/**
+	 * Find the mode handler for a given mode and type
+	 * @param modeletter mode letter to search for
+	 * @param type of mode to search for, user or channel
+	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
+	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 };
 

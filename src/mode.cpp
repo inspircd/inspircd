@@ -292,13 +292,13 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			 * (e.g. are they a (half)op?
 			 */
 
-			if (cstatus(user, targetchannel) < STATUS_HOP)
+			if ((IS_LOCAL(user)) && (cstatus(user, targetchannel) < STATUS_HOP))
 			{
 				/* We don't have halfop */
 				log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");
 
 				/* Are we a uline or is it a servermode? */
-				if ((!is_uline(user->server)) && (!servermode) && (IS_LOCAL(user)))
+				if ((!is_uline(user->server)) && (!servermode))
 				{
 					/* Not enough permission:
 					 * NOT a uline and NOT a servermode,

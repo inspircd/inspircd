@@ -919,7 +919,6 @@ class TreeSocket : public InspSocket
 			{
 				/* Everything else is fine to append to the modelist */
 				modelist[n++] = params[q].c_str();
-				log(DEBUG,"Add param: %s",params[q].c_str());
 			}
 				
 		}
@@ -939,6 +938,182 @@ class TreeSocket : public InspSocket
 				ourTS = chan->age;
 			}
 		}
+
+		/* TS is equal: Merge the mode changes, use voooodoooooo on modes
+		 * with parameters.
+		 */
+		if (TS == ourTS)
+		{
+			log(DEBUG,"Entering TS equality check");
+			ModeHandler* mh = NULL;
+			unsigned long paramptr = 3;
+			std::string to_bounce = "";
+			std::string to_keep = "";
+			std::vector<std::string> params_to_keep;
+			std::string params_to_bounce = "";
+			bool adding = true;
+			char cur_change = 1;
+			char old_change = 0;
+			char old_bounce_change = 0;
+			/* Merge modes, basically do special stuff to mode with params */
+			for (std::string::iterator x = params[2].begin(); x != params[2].end(); x++)
+			{
+				switch (*x)
+				{
+					case '-':
+						adding = false;
+					break;
+					case '+':
+						adding = true;
+					break;
+					default:
+						if (adding)
+						{
+							/* We only care about whats being set,
+							 * not whats being unset
+							 */
+							mh = ServerInstance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+
+							if ((mh->GetNumParams(adding) > 0) && (!mh->IsListMode()))
+							{
+								/* We only want to do special things to
+								 * modes with parameters, we are going to rewrite
+								 * those parameters
+								 */
+								std::pair<bool, std::string> ret;
+								adding ? cur_change = '+' : cur_change = '-';
+
+								ret = mh->ModeSet(smode ? NULL : who, dst, chan, params[paramptr]);
+
+								/* The mode is set here, check which we should keep */
+								if (ret.first)
+								{
+									bool which_to_keep = mh->CheckTimeStamp(TS, ourTS, params[paramptr], ret.second, chan);
+
+									if (which_to_keep == true)
+									{
+										/* Keep ours, bounce theirs:
+										 * Send back ours to them and
+										 * drop their mode changs
+										 */
+										adding ? cur_change = '+' : cur_change = '-';
+										if (cur_change != old_bounce_change)
+											to_bounce += cur_change;
+										to_bounce += *x;
+										old_bounce_change = cur_change;
+
+										if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
+											params_to_bounce.append(" ").append(ret.second);
+									}
+									else
+									{
+										/* Keep theirs: Accept their mode change,
+										 * do nothing else
+										 */
+										adding ? cur_change = '+' : cur_change = '-';
+										if (cur_change != old_change)
+											to_keep += cur_change;
+										to_keep += *x;
+										old_change = cur_change;
+
+										if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
+											params_to_keep.push_back(params[paramptr]);
+									}
+								}
+								else
+								{
+									/* Mode isnt set here, we want it */
+									adding ? cur_change = '+' : cur_change = '-';
+									if (cur_change != old_change)
+										to_keep += cur_change;
+									to_keep += *x;
+									old_change = cur_change;
+
+									if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
+										params_to_keep.push_back(params[paramptr]);
+								}
+
+								paramptr++;
+							}
+							else
+							{
+								mh = ServerInstance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+
+								if (mh)
+								{
+									adding ? cur_change = '+' : cur_change = '-';
+	
+									/* Just keep this, safe to merge with no checks
+									 * it has no parameters
+									 */
+	
+									if (cur_change != old_change)
+										to_keep += cur_change;
+									to_keep += *x;
+									old_change = cur_change;
+	
+									if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
+									{
+										log(DEBUG,"Mode removal %d %d",adding, mh->GetNumParams(adding));
+										params_to_keep.push_back(params[paramptr++]);
+									}
+								}
+							}
+						}
+						else
+						{
+							mh = ServerInstance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+
+							if (mh)
+							{
+								/* Taking a mode away */
+								adding ? cur_change = '+' : cur_change = '-';
+
+								if (cur_change != old_change)
+									to_keep += cur_change;
+								to_keep += *x;
+								old_change = cur_change;
+
+								if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
+									params_to_keep.push_back(params[paramptr++]);
+							}
+						}
+					break;
+				}
+			}
+
+			if (to_bounce.length())
+			{
+				std::deque<std::string> newparams;
+				newparams.push_back(params[0]);
+				newparams.push_back(ConvToStr(ourTS));
+				newparams.push_back(to_bounce+params_to_bounce);
+				DoOneToOne(Srv->GetServerName(),"FMODE",newparams,sourceserv);
+			}
+
+			if (to_keep.length())
+			{
+				n = 0;
+				modelist[0] = params[0].c_str();
+				modelist[1] = to_keep.c_str();
+
+				for (unsigned int q = 2; (q < params.size()) && (q < 64); q++)
+						modelist[q] = params_to_keep[n++].c_str();
+
+                	        if (smode)
+				{
+					Srv->SendMode(modelist, n+2, who);
+				}
+				else
+				{
+					Srv->CallCommandHandler("MODE", modelist, n+2, who);
+				}
+
+				/* HOT POTATO! PASS IT ON! */
+				DoOneToAllButSender(source,"FMODE",params,sourceserv);
+			}
+		}
+		else
 		/* U-lined servers always win regardless of their TS */
 		if ((TS > ourTS) && (!Srv->IsUlined(source)))
 		{
@@ -3938,9 +4113,6 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text)
 	{
-		/* 1.1 Series InspIRCd Spanning Tree now uses FMODE for all user modes,
-		 * with a timestamp to prevent certain types of modehack
-		 */
 		if ((user->fd > -1) && (user->registered == 7))
 		{
 			if (target_type == TYPE_USER)
@@ -3948,18 +4120,16 @@ class ModuleSpanningTree : public Module
 				userrec* u = (userrec*)dest;
 				std::deque<std::string> params;
 				params.push_back(u->nick);
-				params.push_back(ConvToStr(u->age));
 				params.push_back(text);
-				DoOneToMany(user->nick,"FMODE",params);
+				DoOneToMany(user->nick,"MODE",params);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)dest;
 				std::deque<std::string> params;
 				params.push_back(c->name);
-				params.push_back(ConvToStr(c->age));
 				params.push_back(text);
-				DoOneToMany(user->nick,"FMODE",params);
+				DoOneToMany(user->nick,"MODE",params);
 			}
 		}
 	}

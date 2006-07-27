@@ -20,6 +20,12 @@ std::pair<bool,std::string> ModeChannelLimit::ModeSet(userrec* source, userrec* 
 	}
 }
 
+bool ModeChannelLimit::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+{
+	/* When TS is equal, the higher channel limit wins */
+	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
+}
+
 ModeAction ModeChannelLimit::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	if (adding)
