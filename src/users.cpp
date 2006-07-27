@@ -220,7 +220,7 @@ userrec::~userrec()
 		delete x;
 	}
 #ifdef THREADED_DNS
-	if ((!dns_done) && (registered >= 3))
+	if ((IS_LOCAL(this)) && (!dns_done) && (registered >= 3))
 	{
 		pthread_kill(this->dnsthread, SIGTERM);
 	}
