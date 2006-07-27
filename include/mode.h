@@ -346,6 +346,8 @@ class ModeParser : public classbase
 	 * @param servermode True if a server is setting the mode.
 	 */
 	void Process(const char** parameters, int pcnt, userrec *user, bool servermode);
+
+	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 };
 
 /**

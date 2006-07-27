@@ -560,6 +560,20 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 	return true;
 }
 
+ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
+{
+	unsigned char mask = 0;
+	unsigned char pos = 0;
+
+	if ((modeletter < 'A') || (modeletter > 'z'))
+		return NULL;
+
+	mt == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	pos = (modeletter-65) | mask;
+
+	return modehandlers[pos];
+}
+
 bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 {
 	unsigned char mask = 0;

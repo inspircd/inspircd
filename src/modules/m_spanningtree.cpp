@@ -836,14 +836,6 @@ class TreeSocket : public InspSocket
 		/* Now we've whacked the kids, whack self */
 		num_lost_servers++;
 		num_lost_users += Current->QuitUsers(from);
-		/*for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
-		{
-			if (!strcasecmp(u->second->server,Current->GetName().c_str()))
-			{
-				Goners->AddItem(u->second,from);
-				num_lost_users++;
-			}
-		}*/
 	}
 
 	/* This is a wrapper function for SquitServer above, which
@@ -881,85 +873,171 @@ class TreeSocket : public InspSocket
 		}
 	}
 
-	/* FMODE command */
+	/* FMODE command - server mode with timestamp checks */
 	bool ForceMode(std::string source, std::deque<std::string> &params)
 	{
+		/* Chances are this is a 1.0 FMODE without TS */
 		if (params.size() < 3)
 		{
 			this->WriteLine("ERROR :Version 1.0 FMODE sent to version 1.1 server");
 			return false;
 		}
-		userrec* who = new userrec();
+		userrec* who = new userrec(); /* Create dummy userrec */
 		who->fd = FD_MAGIC_NUMBER;
 		const char* modelist[64];
 		time_t TS = 0;
 		int n = 0;
 		memset(&modelist,0,sizeof(modelist));
-		for (unsigned int q = 0; q < params.size(); q++, n++)
+		for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
 		{
 			if (q == 1)
 			{
-				/* The timestamp */
+				/* The timestamp is in this position.
+				 * We don't want to pass that up to the
+				 * server->client protocol!
+				 */
 				TS = atoi(params[q].c_str());
 			}
-			modelist[n] = params[q].c_str();
+			else
+				/* Everything else is fine to append to the modelist */
+				modelist[n++] = params[q].c_str();
 		}
-                // Insert the TS value of the object, either userrec or chanrec
-		userrec* a = Srv->FindNick(params[0]);
+                /* Extract the TS value of the object, either userrec or chanrec */
+		userrec* dst = Srv->FindNick(params[0]);
+		chanrec* chan = NULL;
 		time_t ourTS = 0;
-		if (a)
+		if (dst)
 		{
-			ourTS = a->age;
+			ourTS = dst->age;
 		}
-		//classbase* a = reinterpret_cast<classbase*>(Srv->FindNick(params[0]));
 		else
 		{
-			chanrec* a = Srv->FindChannel(params[0]);
-			if (a)
+			chan = Srv->FindChannel(params[0]);
+			if (chan)
 			{
-				ourTS = a->age;
+				ourTS = chan->age;
 			}
 		}
 		/* U-lined servers always win regardless of their TS */
 		if ((TS > ourTS) && (!Srv->IsUlined(source)))
 		{
-			/* Bounce the mode back to its sender.
-			 * We use our higher TS, so the other end
+			/* Bounce the mode back to its sender.* We use our lower TS, so the other end
 			 * SHOULD accept it, if its clock is right.
-			 * If its clock is wrong well bully for you :p
+			 *
+			 * NOTE: We should check that we arent bouncing anything thats already set at this end.
+			 * If we are, bounce +ourmode to 'reinforce' it. This prevents desyncs.
+			 * e.g. They send +l 50, we have +l 10 set. rather than bounce -l 50, we bounce +l 10.
+			 *
+			 * Thanks to jilles for pointing out this one-hell-of-an-issue before i even finished
+			 * writing the code. It took me a while to come up with this solution.
+			 *
+			 * XXX: BE SURE YOU UNDERSTAND THIS CODE FULLY BEFORE YOU MESS WITH IT.
 			 */
-			params[1] = ConvToStr(ourTS);
-			/* Invert the mode string by changing + to -,
-			 * and - to + in the first param.
+
+			std::deque<std::string> newparams;	/* New parameter list we send back */
+			newparams.push_back(params[0]);		/* Target, user or channel */
+			newparams.push_back(ConvToStr(ourTS));	/* Timestamp value of the target */
+			newparams.push_back("");		/* This contains the mode string. For now
+								 * it's empty, we fill it below.
+								 */
+
+			/* Intelligent mode bouncing. Don't just invert, reinforce any modes which are already
+			 * set to avoid a desync here.
 			 */
+			std::string modebounce = "";
+			bool adding = true;
+			unsigned int t = 3;
+			ModeHandler* mh = NULL;
+			char cur_change = 1;
+			char old_change = 0;
 			for (std::string::iterator x = params[2].begin(); x != params[2].end(); x++)
 			{
+				/* Iterate over all mode chars in the sent set */
 				switch (*x)
 				{
+					/* Adding or subtracting modes? */
 					case '-':
-						*x = '+';
+						adding = false;
 					break;
 					case '+':
-						*x = '-';
+						adding = true;
+					break;
+					default:
+						/* Find the mode handler for this mode */
+						mh = ServerInstance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+
+						/* Got a mode handler?
+						 * This also prevents us bouncing modes we have no handler for.
+						 */
+						if (mh)
+						{
+							std::pair<bool, std::string> ret;
+							std::string p = "";
+
+							/* Does the mode require a parameter right now?
+							 * If it does, fetch it if we can
+							 */
+							if ((mh->GetNumParams(adding) > 0) && (t < params.size()))
+								p = params[t++];
+
+							/* Call the ModeSet method to determine if its set with the
+							 * given parameter here or not.
+							 */
+							ret = mh->ModeSet(NULL, dst, chan, p);
+
+							/* XXX: Really. Dont ask.
+							 * Determine from if its set combined with what the current
+							 * 'state' is (adding or not) as to wether we should 'invert'
+							 * or 'reinforce' the mode change
+							 */
+							(!ret.first ? (adding ? cur_change = '-' : cur_change = '+') : (!adding ? cur_change = '-' : cur_change = '+'));
+
+							/* Quickly determine if we have 'flipped' from + to -,
+							 * or - to +, to prevent unneccessary +/- chars in the
+							 * output string that waste bandwidth
+							 */
+							if (cur_change != old_change)
+								modebounce += cur_change;
+							old_change = cur_change;
+
+							/* Add the mode character to the output string */
+							modebounce += mh->GetModeChar();
+
+							/* We got a parameter back from ModeHandler::ModeSet,
+							 * are we supposed to be sending one out right now?
+							 */
+							if (ret.second.length())
+							{
+								if (mh->GetNumParams(cur_change == '+') > 0)
+									/* Yes we're supposed to be sending out
+									 * the parameter. Make sure it goes
+									 */
+									newparams.push_back(ret.second);
+							}
+
+						}
 					break;
 				}
 			}
-			DoOneToOne(source,"FMODE",params,source);
-			/* XXX: We should check that we arent bouncing anything thats already set at this end.
-			 * If we are, bounce +ourmode.
-			 *
-			 * E.G. They send +l 50, we have +l 10 set. rather than bounce -l 50, we bounce +l 10.
-			 */
-			log(DEBUG,"Mode bounced, our TS less than theirs");
+			
+			/* Update the parameters for FMODE with the new 'bounced' string */
+			newparams[2] = modebounce;
+			/* Only send it back the way it came, no need to send it anywhere else */
+			DoOneToOne(Srv->GetServerName(),"FMODE",newparams,source);
+			log(DEBUG,"FMODE bounced intelligently, our TS less than theirs and the other server is NOT a uline.");
 		}
 		else
 		{
+			/* The server was ulined, but something iffy is up with the TS.
+			 * Sound the alarm bells!
+			 */
 			if ((Srv->IsUlined(source)) && (TS > ourTS))
 			{
 				WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",source.c_str(),params[0].c_str());
 			}
 			/* Allow the mode */
-			Srv->SendMode(modelist,params.size(),who);
+			Srv->SendMode(modelist,n,who);
+			/* HOT POTATO! PASS IT ON! */
 			DoOneToAllButSender(source,"FMODE",params,source);
 		}
 		DELETE(who);

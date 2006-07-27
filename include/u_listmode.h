@@ -66,6 +66,7 @@ class ListModeBase : public ModeHandler
 
         std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
+		log(DEBUG,"ListMode: ModeSet()");
 		modelist* el;
 		channel->GetExt(infokey, el);
 		if (el)
@@ -74,10 +75,12 @@ class ListModeBase : public ModeHandler
 	                {
 	                        if(parameter == it->mask)
 	                        {
+					log(DEBUG,"Found item %s",parameter.c_str());
 					return std::make_pair(true, parameter);
 				}
 	                }
 		}
+		log(DEBUG,"Didnt find item %s",parameter.c_str());
 		return std::make_pair(false, parameter);
         }
 
