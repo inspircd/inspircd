@@ -23,11 +23,12 @@ std::pair<bool,std::string> ModeChannelKey::ModeSet(userrec* source, userrec* de
 
 ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	if (channel->modes[CM_KEY] != adding)
+	if ((channel->modes[CM_KEY] != adding) || (!IS_LOCAL(source)))
 	{
-		if ((channel->modes[CM_KEY]) && (strcasecmp(parameter.c_str(),channel->key)))
+		if (((channel->modes[CM_KEY]) && (strcasecmp(parameter.c_str(),channel->key))) && (IS_LOCAL(source)))
 		{
 			/* Key is currently set and the correct key wasnt given */
+			log(DEBUG,"Key Cond 2");
 			return MODEACTION_DENY;
 		}
 		else if ((!channel->modes[CM_KEY]) || ((adding) && (!IS_LOCAL(source))))
@@ -44,10 +45,12 @@ ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec*
 			channel->modes[CM_KEY] = adding;
 			return MODEACTION_ALLOW;
 		}
+		log(DEBUG,"Key Cond three");
 		return MODEACTION_DENY;
 	}
 	else
 	{
+		log(DEBUG,"Key Condition one");
 		return MODEACTION_DENY;
 	}
 }
