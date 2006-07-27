@@ -53,7 +53,10 @@ class cmd_samode : public command_t
 	 	 */
 		std::string result;
 		Srv->Log(DEBUG,"SAMODE: Being handled");
-		Srv->SendMode(parameters,pcnt,user);
+		userrec* n = new userrec();
+		n->fd = FD_MAGIC_NUMBER;
+		Srv->SendMode(parameters,pcnt,n);
+		delete n;
 		Srv->Log(DEBUG,"SAMODE: Modechange handled");
 		result = std::string(user->nick);
 		result.append(" used SAMODE");
