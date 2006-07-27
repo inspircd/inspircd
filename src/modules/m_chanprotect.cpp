@@ -79,7 +79,7 @@ class ChanFounder : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server))
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
 			if (adding)
 			{
@@ -182,7 +182,7 @@ class ChanProtect : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)))
+		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
 			if (adding)
 			{
