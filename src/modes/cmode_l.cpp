@@ -8,7 +8,7 @@ ModeChannelLimit::ModeChannelLimit() : ModeHandler('l', 1, 0, false, MODETYPE_CH
 {
 }
 
-std::pair<bool,std::string> ModeChannelLimit::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelLimit::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
 	if (channel->limit)
 	{

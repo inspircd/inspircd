@@ -55,6 +55,13 @@ enum ModeMasks {
 	MASK_CHANNEL = 0	/* A channel mode */
 };
 
+/**
+ * Used by ModeHandler::ModeSet() to return the state of a mode upon a channel or user.
+ * The pair contains an activity flag, true if the mode is set with the given parameter,
+ * and the parameter of the mode (or the parameter provided) in the std::string.
+ */
+typedef std::pair<bool,std::string> ModePair;
+
 /** Each mode is implemented by ONE ModeHandler class.
  * You must derive ModeHandler and add the child class to
  * the list of modes handled by the ircd, using
@@ -172,7 +179,8 @@ class ModeHandler : public Extensible
 	/**
 	 * If your mode needs special action during a server sync to determine which side wins when comparing timestamps,
 	 * override this function and use it to return true or false. The default implementation just returns true if
-	 * theirs < ours.
+	 * theirs < ours. This will only be called for non-listmodes with parameters, when adding the mode and where
+	 * theirs == ours (therefore the default implementation will always return false).
 	 * @param theirs The timestamp of the remote side
 	 * @param ours The timestamp of the local side
 	 * @param their_param Their parameter if the mode has a parameter
@@ -195,7 +203,7 @@ class ModeHandler : public Extensible
 	 * the current setting for this mode set locally, when the bool is true, or, the parameter given.
 	 * This allows the local server to enforce our locally set parameters back to a remote server.
 	 */
-	virtual std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
+	virtual ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
 };
 
 /**

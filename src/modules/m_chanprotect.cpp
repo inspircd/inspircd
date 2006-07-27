@@ -31,7 +31,7 @@ class ChanFounder : public ModeHandler
  public:
 	ChanFounder(Server* s) : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
-	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
 	        userrec* x = Find(parameter);
 	        if (x)
@@ -135,7 +135,7 @@ class ChanProtect : public ModeHandler
  public:
 	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
-        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
                 userrec* x = Find(parameter);
                 if (x)

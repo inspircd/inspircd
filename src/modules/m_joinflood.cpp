@@ -99,7 +99,7 @@ class JoinFlood : public ModeHandler
  public:
 	JoinFlood() : ModeHandler('j', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
                 joinfloodsettings* x;
                 if (channel->GetExt("joinflood",x))
@@ -107,6 +107,12 @@ class JoinFlood : public ModeHandler
                 else
                         return std::make_pair(false, parameter);
         } 
+
+        bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	{
+		/* When TS is equal, the alphabetically later one wins */
+		return (their_param < our_param);
+	}
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{

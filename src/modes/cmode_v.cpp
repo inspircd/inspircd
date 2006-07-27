@@ -26,7 +26,7 @@ ModeChannelVoice::ModeChannelVoice() : ModeHandler('v', 1, 1, true, MODETYPE_CHA
 {
 }
 
-std::pair<bool,std::string> ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
         userrec* x = Find(parameter);
         if (x)

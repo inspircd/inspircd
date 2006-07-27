@@ -8,7 +8,7 @@ ModeChannelKey::ModeChannelKey() : ModeHandler('k', 1, 1, false, MODETYPE_CHANNE
 {
 }
 
-std::pair<bool,std::string> ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {       
         if (channel->modes[CM_KEY])
         {

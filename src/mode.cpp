@@ -113,7 +113,7 @@ ModeAction ModeHandler::OnModeChange(userrec* source, userrec* dest, chanrec* ch
 	return MODEACTION_DENY;
 }
 
-std::pair<bool,std::string> ModeHandler::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeHandler::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
 	if (dest)
 	{

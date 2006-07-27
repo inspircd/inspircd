@@ -980,7 +980,7 @@ class TreeSocket : public InspSocket
 								 * modes with parameters, we are going to rewrite
 								 * those parameters
 								 */
-								std::pair<bool, std::string> ret;
+								ModePair ret;
 								adding ? cur_change = '+' : cur_change = '-';
 
 								ret = mh->ModeSet(smode ? NULL : who, dst, chan, params[paramptr]);
@@ -1167,7 +1167,7 @@ class TreeSocket : public InspSocket
 						 */
 						if (mh)
 						{
-							std::pair<bool, std::string> ret;
+							ModePair ret;
 							std::string p = "";
 
 							/* Does the mode require a parameter right now?

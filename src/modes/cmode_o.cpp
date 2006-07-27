@@ -26,7 +26,7 @@ ModeChannelOp::ModeChannelOp() : ModeHandler('o', 1, 1, true, MODETYPE_CHANNEL, 
 {
 }
 
-std::pair<bool,std::string> ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
         userrec* x = Find(parameter);
         if (x)
