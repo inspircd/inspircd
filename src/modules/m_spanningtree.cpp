@@ -882,8 +882,25 @@ class TreeSocket : public InspSocket
 			this->WriteLine("ERROR :Version 1.0 FMODE sent to version 1.1 server");
 			return false;
 		}
-		userrec* who = new userrec(); /* Create dummy userrec */
-		who->fd = FD_MAGIC_NUMBER;
+		
+		bool smode = false;
+		std::string sourceserv;
+
+		/* Are we dealing with an FMODE from a user, or from a server? */
+		userrec* who = Srv->FindNick(source);
+		if (who)
+		{
+			/* FMODE from a user, set sourceserv to the users server name */
+			sourceserv = who->server;
+		}
+		else
+		{
+			/* FMODE from a server, create a fake user to receive mode feedback */
+			who = new userrec();
+			who->fd = FD_MAGIC_NUMBER;
+			smode = true;		/* Setting this flag tells us we should free the userrec later */
+			sourceserv = source;	/* Set sourceserv to the actual source string */
+		}
 		const char* modelist[64];
 		time_t TS = 0;
 		int n = 0;
@@ -899,8 +916,12 @@ class TreeSocket : public InspSocket
 				TS = atoi(params[q].c_str());
 			}
 			else
+			{
 				/* Everything else is fine to append to the modelist */
 				modelist[n++] = params[q].c_str();
+				log(DEBUG,"Add param: %s",params[q].c_str());
+			}
+				
 		}
                 /* Extract the TS value of the object, either userrec or chanrec */
 		userrec* dst = Srv->FindNick(params[0]);
@@ -983,7 +1004,7 @@ class TreeSocket : public InspSocket
 							/* Call the ModeSet method to determine if its set with the
 							 * given parameter here or not.
 							 */
-							ret = mh->ModeSet(NULL, dst, chan, p);
+							ret = mh->ModeSet(smode ? NULL : who, dst, chan, p);
 
 							/* XXX: Really. Dont ask.
 							 * Determine from if its set combined with what the current
@@ -1023,24 +1044,32 @@ class TreeSocket : public InspSocket
 			/* Update the parameters for FMODE with the new 'bounced' string */
 			newparams[2] = modebounce;
 			/* Only send it back the way it came, no need to send it anywhere else */
-			DoOneToOne(Srv->GetServerName(),"FMODE",newparams,source);
+			DoOneToOne(Srv->GetServerName(),"FMODE",newparams,sourceserv);
 			log(DEBUG,"FMODE bounced intelligently, our TS less than theirs and the other server is NOT a uline.");
 		}
 		else
 		{
+			log(DEBUG,"Allow modes, TS lower for sender");
 			/* The server was ulined, but something iffy is up with the TS.
 			 * Sound the alarm bells!
 			 */
-			if ((Srv->IsUlined(source)) && (TS > ourTS))
+			if ((Srv->IsUlined(sourceserv)) && (TS > ourTS))
 			{
-				WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",source.c_str(),params[0].c_str());
+				WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
 			}
-			/* Allow the mode */
-			Srv->SendMode(modelist,n,who);
+			/* Allow the mode, route it to either server or user command handling */
+			if (smode)
+				Srv->SendMode(modelist,n,who);
+			else
+				Srv->CallCommandHandler("MODE", modelist, n, who);
+
 			/* HOT POTATO! PASS IT ON! */
-			DoOneToAllButSender(source,"FMODE",params,source);
+			DoOneToAllButSender(source,"FMODE",params,sourceserv);
 		}
-		DELETE(who);
+		/* Are we supposed to free the userrec? */
+		if (smode)
+			DELETE(who);
+
 		return true;
 	}
 
@@ -3909,6 +3938,9 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text)
 	{
+		/* 1.1 Series InspIRCd Spanning Tree now uses FMODE for all user modes,
+		 * with a timestamp to prevent certain types of modehack
+		 */
 		if ((user->fd > -1) && (user->registered == 7))
 		{
 			if (target_type == TYPE_USER)
@@ -3916,16 +3948,18 @@ class ModuleSpanningTree : public Module
 				userrec* u = (userrec*)dest;
 				std::deque<std::string> params;
 				params.push_back(u->nick);
+				params.push_back(ConvToStr(u->age));
 				params.push_back(text);
-				DoOneToMany(user->nick,"MODE",params);
+				DoOneToMany(user->nick,"FMODE",params);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)dest;
 				std::deque<std::string> params;
 				params.push_back(c->name);
+				params.push_back(ConvToStr(c->age));
 				params.push_back(text);
-				DoOneToMany(user->nick,"MODE",params);
+				DoOneToMany(user->nick,"FMODE",params);
 			}
 		}
 	}

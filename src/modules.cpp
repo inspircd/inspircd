@@ -472,7 +472,7 @@ void Server::AddCommand(command_t *f)
 
 void Server::SendMode(const char** parameters, int pcnt, userrec *user)
 {
-	//ServerInstance->ModeGrok->ServerMode(parameters,pcnt,user);
+	ServerInstance->ModeGrok->Process(parameters,pcnt,user,true);
 }
 
 void Server::Send(int Socket, const std::string &s)
