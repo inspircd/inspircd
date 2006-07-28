@@ -69,7 +69,7 @@ int common_channels(userrec *u, userrec *u2)
 	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
 	{
 		/* Fetch the channel from the user */
-		ucrec* user_channel = (ucrec*)(*i);
+		ucrec* user_channel = *i;
 
 		if (user_channel->channel)
 		{
