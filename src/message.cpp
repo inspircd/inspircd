@@ -62,7 +62,6 @@ extern ServerConfig* Config;
  */
 int common_channels(userrec *u, userrec *u2)
 {
-	/* TODO: We need to get rid of this arbitary '7' and make bitmask enums for it */
 	if ((!u) || (!u2) || (u->registered != REG_ALL) || (u2->registered != REG_ALL))
 		return 0;
 
