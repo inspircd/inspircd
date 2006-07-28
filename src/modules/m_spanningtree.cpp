@@ -2205,7 +2205,7 @@ class TreeSocket : public InspSocket
 					std::string nick_whoised = prefix;
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
-					if ((who_to_send_to) && (IS_LOCAL(who_to_send_to->fd)))
+					if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 						do_whois(who_to_send_to,u,signon,idle,nick_whoised.c_str());
 				}
 				else
@@ -3990,7 +3990,7 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
-		if ((source) && (IS_LOCAL(source->fd)))
+		if ((source) && (IS_LOCAL(source)))
 		{
 			std::deque<std::string> params;
 			params.push_back(chan->name);
