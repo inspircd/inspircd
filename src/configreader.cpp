@@ -568,6 +568,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"operspywhois",			&this->OperSpyWhois,		DT_BOOLEAN, NoValidation},
 		{"options",		"tempdir",			&this->TempDir,			DT_CHARPTR, ValidateTempDir},
 		{"options",		"nouserdns",			&this->NoUserDns,		DT_BOOLEAN, NoValidation},
+		{"options",		"syntaxhints",			&this->SyntaxHints,		DT_BOOLEAN, NoValidation},
 		{"pid",			"file",				&this->PID,			DT_CHARPTR, NoValidation},
 		{NULL}
 	};

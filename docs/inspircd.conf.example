@@ -564,6 +564,16 @@
 #                  temporarily copied before loading. If not defined, #
 #                  defaults to /tmp.                                  #
 #                                                                     #
+#  nouserdns     - If set to 'yes', 'true' or '1', no user dns        #
+#                  lookups will be performed for connecting users.    #
+#                  this can save a lot of resources on very busy irc  #
+#                  servers.                                           #
+#                                                                     #
+#  syntaxhints   - If et to 'yes', 'true' or '1', when a user does    #
+#                  not give enough parameters for a command, a syntax #
+#                  hint will be given (using the RPL_TEXT numeric)    #
+#                  as well as the standard ERR_NEEDMOREPARAMS.        #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -581,6 +591,8 @@
          hidewhois=""
          flatlinks="no"
          hideulines="no"
+	 nouserdns="no"
+	 syntaxhints="no"
          allowhalfop="yes">
 
 

@@ -348,6 +348,10 @@ class ServerConfig : public Extensible
 	 */
 	bool NoUserDns;
 
+	/** If set to true, provide syntax hints for unknown commands
+	 */
+	bool SyntaxHints;
+
 	ServerConfig();
 
 	/** Clears the include stack in preperation for
