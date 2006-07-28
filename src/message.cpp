@@ -312,8 +312,7 @@ char lst[MAXBUF];
 
 std::string chlist(userrec *user,userrec* source)
 {
-	/* Should this be a stringstream? Not sure if it would be faster as streams are more oriented at appending stuff, which is all we do */
-	std::ostringstream list;
+	std::string list;
 	
 	if (!user || !source)
 		return "";
@@ -336,11 +335,11 @@ std::string chlist(userrec *user,userrec* source)
 				 */
 				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modes[UM_INVISIBLE])) || (rec->channel->HasUser(source))))
 				{
-					list << cmode(user, rec->channel) << rec->channel->name << " ";
+					list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
 				}
 			//}
 		}
 	}
 	
-	return list.str();
+	return list;
 }
