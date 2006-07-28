@@ -96,7 +96,7 @@ class ModuleAlias : public Module
 			 * and if theyre not registered yet, we dont want
 			 * to know either
 			 */
-			if ((validated) || (user->registered != 7))
+			if ((validated) || (user->registered != REG_ALL))
 				return 0;
 			
 			for (unsigned int i = 0; i < Aliases.size(); i++)

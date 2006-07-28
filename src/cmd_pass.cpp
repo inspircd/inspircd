@@ -22,7 +22,7 @@
 void cmd_pass::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// Check to make sure they havnt registered -- Fix by FCS
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		WriteServ(user->fd,"462 %s :You may not reregister",user->nick);
 		return;

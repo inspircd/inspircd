@@ -52,7 +52,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	user_hash::iterator iter = clientlist.find(user->nick);
 	char reason[MAXBUF];
 
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		/* theres more to do here, but for now just close the socket */
 		if (pcnt == 1)
@@ -109,7 +109,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		clientlist.erase(iter);
 	}
 
-	if (user->registered == 7) {
+	if (user->registered == REG_ALL) {
 		purge_empty_chans(user);
 	}
 	if (user->fd > -1)

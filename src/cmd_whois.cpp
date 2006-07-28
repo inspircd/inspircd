@@ -43,7 +43,7 @@ const char* Spacify(char* n)
 void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
-	if (dest->registered == 7)
+	if (dest->registered == REG_ALL)
 	{
 		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))

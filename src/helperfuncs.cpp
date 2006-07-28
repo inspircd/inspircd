@@ -699,7 +699,7 @@ void WriteCommon(userrec *u, char* text, ...)
 		return;
 	}
 
-	if (u->registered != 7)
+	if (u->registered != REG_ALL)
 	{
 		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
 		return;
@@ -750,7 +750,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 		return;
 	}
 
-	if (u->registered != 7)
+	if (u->registered != REG_ALL)
 	{
 		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
 		return;
@@ -806,7 +806,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 		return;
 	}
 
-	if (u->registered != 7)
+	if (u->registered != REG_ALL)
 	{
 		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
 		return;
@@ -894,7 +894,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 		return;
 	}
  
-	if (u->registered != 7)
+	if (u->registered != REG_ALL)
 	{
 		log(DEFAULT,"*** BUG *** WriteCommon on an unregistered user");
 		return;
@@ -1425,7 +1425,7 @@ void send_error(char *s)
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		if (t->registered == 7)
+		if (t->registered == REG_ALL)
 		{
 		   	WriteServ(t->fd,"NOTICE %s :%s",t->nick,s);
 	   	}
@@ -1485,7 +1485,7 @@ int registered_usercount(void)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if (i->second->registered == 7) c++;
+		c += (i->second->registered == REG_ALL);
 	}
 
 	return c;
@@ -1497,8 +1497,7 @@ int usercount_invisible(void)
 
 	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
-		if ((i->second->registered == 7) && (i->second->modes[UM_INVISIBLE]))
-			c++;
+		c += ((i->second->registered == REG_ALL) && (i->second->modes[UM_INVISIBLE]));
 	}
 
 	return c;
@@ -1523,7 +1522,7 @@ int usercount_unknown(void)
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		if (t->registered != 7)
+		if (t->registered != REG_ALL)
 			c++;
 	}
 
@@ -1542,7 +1541,7 @@ long local_count()
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
-		if (t->registered == 7)
+		if (t->registered == REG_ALL)
 			c++;
 	}
 

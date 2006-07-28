@@ -242,7 +242,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
 				return;
 			}
-			if ((user->registered == 7) && (!*user->oper) && (cm->second->IsDisabled()))
+			if ((user->registered == REG_ALL) && (!*user->oper) && (cm->second->IsDisabled()))
 			{
 				/* command is disabled! */
 				WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command.c_str());
@@ -257,7 +257,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					WriteServ(user->fd,"461 %s %s :Not enough parameters", user->nick, command.c_str());
 				return;
 			}
-			if ((user->registered == 7) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
+			if ((user->registered == REG_ALL) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
 			{
 				/* ikky /stats counters */
 				cm->second->use_count++;

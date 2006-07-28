@@ -65,7 +65,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 				clientlist.erase(iter);
 			}
 
-			if (u->registered == 7)
+			if (u->registered == REG_ALL)
 			{
 				purge_empty_chans(u);
 			}

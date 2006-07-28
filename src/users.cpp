@@ -220,7 +220,7 @@ userrec::~userrec()
 		delete x;
 	}
 #ifdef THREADED_DNS
-	if ((IS_LOCAL(this)) && (!dns_done) && (registered >= 3))
+	if ((IS_LOCAL(this)) && (!dns_done) && (registered >= REG_NICKUSER))
 	{
 		pthread_kill(this->dnsthread, SIGTERM);
 	}
@@ -572,7 +572,7 @@ void kill_link(userrec *user,const char* r)
 	if (IS_LOCAL(user))
 		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
 
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		purge_empty_chans(user);
 		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
@@ -610,7 +610,7 @@ void kill_link(userrec *user,const char* r)
 	 * In the current implementation, we only show local quits, as we only show local connects. With 
 	 * the proposed implmentation of snomasks however, this will likely change in the (near?) future.
 	 */
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		if (IS_LOCAL(user))
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
@@ -742,7 +742,7 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	strcpy(_new->ident, "unknown");
 
-	_new->registered = 0;
+	_new->registered = REG_NONE;
 	_new->signon = TIME + Config->dns_timeout;
 	_new->lastping = 1;
 	_new->ip4 = ip4;
@@ -946,7 +946,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	 */
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
 	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
-	user->registered = 7;
+	user->registered = REG_ALL;
 	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,inet_ntoa(user->ip4));
 }
 
@@ -1011,7 +1011,7 @@ void force_nickchange(userrec* user,const char* newnick)
 			strlcpy(nick,newnick,MAXBUF-1);
 		}
 
-		if (user->registered == 7)
+		if (user->registered == REG_ALL)
 		{
 			const char* pars[1];
 			pars[0] = nick;

@@ -79,7 +79,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return;
-		if (user->registered == 7)
+		if (user->registered == REG_ALL)
 			WriteCommon(user,"NICK %s",parameters[0]);
 		strlcpy(user->nick, parameters[0], NICKMAX - 1);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
@@ -109,7 +109,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
@@ -134,9 +134,9 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	log(DEBUG,"new nick set: %s",user->nick);
 	
-	if (user->registered < 3)
+	if (user->registered < REG_NICKUSER)
 	{
-		user->registered = (user->registered | 2);
+		user->registered = (user->registered | REG_NICK);
 		// dont attempt to look up the dns until they pick a nick... because otherwise their pointer WILL change
 		// and unless we're lucky we'll get a duff one later on.
 		//user->dns_done = (!lookup_dns(user->nick));
@@ -165,13 +165,13 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 #endif
 		}
 	}
-	if (user->registered == 3)
+	if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
 		//ConnectUser(user,NULL);
 	}
-	if (user->registered == 7)
+	if (user->registered == REG_ALL)
 	{
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 	}

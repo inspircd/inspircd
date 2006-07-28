@@ -29,7 +29,7 @@ extern FactoryList factory;
 
 void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (user->registered < 3)
+	if (user->registered < REG_NICKUSER)
 	{
 		if (!isident(parameters[0])) {
 			// This kinda Sucks, According to the RFC thou, its either this,
@@ -43,7 +43,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 			 */
 			snprintf(user->ident, IDENTMAX+1, "~%s", parameters[0]);
 			strlcpy(user->fullname,parameters[3],MAXGECOS);
-			user->registered = (user->registered | 1);
+			user->registered = (user->registered | REG_USER);
 		}
 	}
 	else
@@ -52,7 +52,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 		return;
 	}
 	/* parameters 2 and 3 are local and remote hosts, ignored when sent by client connection */
-	if (user->registered == 3)
+	if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));

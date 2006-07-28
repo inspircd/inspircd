@@ -106,12 +106,12 @@ public:
 					usr = Find(u);
 					if (usr)
 					{
-						if (usr->registered > 3)
+						if (usr->registered > REG_NICKUSER)
 						{
 							usr->dns_done = true;
 							return true;
 						}
-						if ((hostname != "") && (usr->registered != 7))
+						if ((hostname != "") && (usr->registered != REG_ALL))
 						{
 							if ((std::string(inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
@@ -166,7 +166,7 @@ public:
 					if (usr)
 					{
 						user_fd_to_dns[usr->fd] = NULL;
-						if ((usr->registered > 3) || (hostname == ""))
+						if ((usr->registered > REG_NICKUSER) || (hostname == ""))
 						{
 							WriteServ(usr->fd,"NOTICE Auth :*** Could not resolve your hostname -- Using your IP address instead");
 							usr->dns_done = true;
@@ -243,7 +243,7 @@ void ZapThisDns(int fd)
 #ifdef THREADED_DNS
 /*	if (fd_ref_table[fd])
 	{
-       		if (fd_ref_table[fd]->registered >= 3)
+       		if (fd_ref_table[fd]->registered >= REG_NICKUSER)
 		{
 			log(DEBUG,"Joining thread for user %d",fd);
 			if (pthread_join(fd_ref_table[fd]->dnsthread, NULL))

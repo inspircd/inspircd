@@ -147,7 +147,7 @@ void ProcessUser(userrec* cu)
 			if (!current->AddBuffer(data))
 			{
 				// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
-				if (current->registered == 7)
+				if (current->registered == REG_ALL)
 				{
 					// Make sure they arn't flooding long lines.
 					if (TIME > current->reset_due)
@@ -184,7 +184,7 @@ void ProcessUser(userrec* cu)
 
 			if (current->recvq.length() > (unsigned)Config->NetBufferSize)
 			{
-				if (current->registered == 7)
+				if (current->registered == REG_ALL)
 				{
 					kill_link(current,"RecvQ exceeded");
 				}
@@ -218,7 +218,7 @@ void ProcessUser(userrec* cu)
 
 				if ((++floodlines > current->flood) && (current->flood != 0))
 				{
-					if (current->registered == 7)
+					if (current->registered == REG_ALL)
 					{
 						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
@@ -340,7 +340,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				 * registration timeout -- didnt send USER/NICK/HOST
 				 * in the time specified in their connection class.
 				 */
-				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != 7))
+				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
 				{
 					log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 					ZapThisDns(curr->fd);
@@ -352,7 +352,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
 				 * say this user is ok to proceed, fully connect them.
 				 */
-				if ((TIME > curr->signon) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
 				{
 					curr->dns_done = true;
 					ZapThisDns(curr->fd);
@@ -365,7 +365,7 @@ void DoBackgroundUserStuff(time_t TIME)
 					/* Somebody blatted this user in OnCheckReady (!) */
 					continue;
 	
-				if ((curr->dns_done) && (curr->registered == 3) && (AllModulesReportReady(curr)))
+				if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
 				{
 					log(DEBUG,"dns done, registered=3, and modules ready, OK");
 					FullConnectUser(curr,&GlobalGoners);
@@ -378,7 +378,7 @@ void DoBackgroundUserStuff(time_t TIME)
 					continue;
 		
 				// It's time to PING this user. Send them a ping.
-				if ((TIME > curr->nping) && (curr->registered == 7))
+				if ((TIME > curr->nping) && (curr->registered == REG_ALL))
 				{
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)

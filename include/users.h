@@ -52,6 +52,14 @@ enum UserModes {
 	UM_OPERATOR = 'o'-65,
 };
 
+enum RegistrationState {
+	REG_NONE = 0,		/* Has sent nothing */
+	REG_USER = 1,		/* Has sent USER */
+	REG_NICK = 2,		/* Has sent NICK */
+	REG_NICKUSER = 3, 	/* Bitwise combination of REG_NICK and REG_USER */
+	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
+};
+
 /** Holds a channel name to which a user has been invited.
  */
 class Invited : public classbase

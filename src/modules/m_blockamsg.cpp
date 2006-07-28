@@ -97,7 +97,7 @@ public:
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		// Don't do anything with unregistered users, or remote ones.
-		if(!user || (user->registered != 7) || !IS_LOCAL(user))
+		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
 			return 0;
 			
 		// We want case insensitive command comparison.
