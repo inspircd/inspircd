@@ -252,7 +252,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				/* If syntax is given, display this as the 461 reply */
 				if (cm->second->syntax.length())
-					WriteServ(user->fd,"461 %s %s :Syntax: %s %s", user->nick, command.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
+					WriteServ(user->fd,"461 %s %s :Not enough parameters. Syntax: %s %s", user->nick, command.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
 				else
 					WriteServ(user->fd,"461 %s %s :Not enough parameters", user->nick, command.c_str());
 				return;
