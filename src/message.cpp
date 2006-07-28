@@ -306,7 +306,7 @@ std::string chlist(userrec *user,userrec* source)
 			 * If the channel is NOT private/secret OR the user shares a common channel
 			 * If the user is an oper, and the <options:operspywhois> option is set.
 			 */
-			if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modes[UM_INVISIBLE])) || (rec->channel->HasUser(source))))
+			if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
 			{
 				list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
 			}
