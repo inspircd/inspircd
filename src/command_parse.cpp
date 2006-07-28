@@ -229,29 +229,16 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 		{
 			/* activity resets the ping pending timer */
 			user->nping = TIME + user->pingmax;
-			if (items < cm->second->min_params)
-			{
-				log(DEBUG,"not enough parameters: %s %s",user->nick,command.c_str());
-
-				/* If syntax is given, display this as the 461 reply */
-				if (cm->second->syntax.length())
-					WriteServ(user->fd,"461 %s %s :Syntax: %s %s", cm->second->command.c_str(), cm->second->syntax.c_str());
-				else
-					WriteServ(user->fd,"461 %s %s :Not enough parameters",user->nick,command.c_str());
-				return;
-			}
 			if (cm->second->flags_needed)
 			{
 				if (!user->IsModeSet(cm->second->flags_needed))
 				{
-					log(DEBUG,"permission denied: %s %s",user->nick,command.c_str());
 					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
 					return;
 				}
 			}
 			if ((cm->second->flags_needed) && (!user->HasPermission(command)))
 			{
-				log(DEBUG,"permission denied: %s %s",user->nick,command.c_str());
 				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
 				return;
 			}
@@ -259,6 +246,15 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				/* command is disabled! */
 				WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command.c_str());
+				return;
+			}
+			if (items < cm->second->min_params)
+			{
+				/* If syntax is given, display this as the 461 reply */
+				if (cm->second->syntax.length())
+					WriteServ(user->fd,"461 %s %s :Syntax: %s %s", user->nick, command.c_str(), cm->second->command.c_str(), cm->second->syntax.c_str());
+				else
+					WriteServ(user->fd,"461 %s %s :Not enough parameters", user->nick, command.c_str());
 				return;
 			}
 			if ((user->registered == 7) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
