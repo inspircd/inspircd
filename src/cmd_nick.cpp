@@ -103,7 +103,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			return;
 		}
 	}
-	if (isnick(parameters[0]) == 0)
+	if ((isnick(parameters[0]) == 0) && (IS_lOCAL(user)))
 	{
 		WriteServ(user->fd,"432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
 		return;
