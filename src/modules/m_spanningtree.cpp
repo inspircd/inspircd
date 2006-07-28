@@ -2959,7 +2959,7 @@ class TreeSocket : public InspSocket
 			/* XXX: Fixme: blocks for a very short amount of time,
 			 * we should cache these on rehash/startup
 			 */
-			if (CleanAndResolve(resolved_host,i->IPAddr.c_str(),true))
+			if (CleanAndResolve(resolved_host,i->IPAddr.c_str(),true,1))
 			{
 				if (std::string(resolved_host) == ip)
 				{
