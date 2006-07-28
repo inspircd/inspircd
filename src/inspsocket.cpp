@@ -204,7 +204,7 @@ bool InspSocket::BindAddr()
 				{
 					/* If they gave a hostname, bind to the IP it resolves to */
 					log(DEBUG,"Resolving host %s",IP.c_str());
-					if (CleanAndResolve(resolved_addr, IP.c_str(), true))
+					if (CleanAndResolve(resolved_addr, IP.c_str(), true, 1))
 					{
 						log(DEBUG,"Resolved host %s to %s",IP.c_str(),resolved_addr);
 						IP = resolved_addr;

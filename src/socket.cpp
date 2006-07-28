@@ -47,7 +47,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 	if (*addr && !inet_aton(addr,&addy))
 	{
 		/* If they gave a hostname, bind to the IP it resolves to */
-		if (CleanAndResolve(resolved_addr, addr, true))
+		if (CleanAndResolve(resolved_addr, addr, true, 1))
 		{
 			inet_aton(resolved_addr,&addy);
 			log(DEFAULT,"Resolved binding '%s' -> '%s'",addr,resolved_addr);

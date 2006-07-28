@@ -76,8 +76,7 @@ int common_channels(userrec *u, userrec *u2)
 			/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 			 * by replacing it with a map::find which *should* be more efficient
 			 */
-			CUList* channel_user_map = user_channel->channel->GetUsers();
-			if (channel_user_map->find(u2) != channel_user_map->end())
+			if (user_channel->channel->HasUser(u2))
 				return 1;
 		}
 	}
@@ -96,7 +95,7 @@ void NonBlocking(int s)
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
-int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward)
+int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward, unsigned long timeout)
 {
 	bool ok;
 	std::string ipaddr;
@@ -108,7 +107,7 @@ int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forwar
 		ok = d.ReverseLookup(unresolvedHost, false);
 	if (!ok)
 		return 0;
-	time_t T = time(NULL)+1;
+	time_t T = time(NULL)+timeout;
 	while ((!d.HasResult()) && (time(NULL)<T));
 	if (forward)
 		ipaddr = d.GetResultIP();
@@ -169,7 +168,7 @@ int isident(const char* n)
 		{
 			continue;
 		}
-		if (strchr(".-0123456789",*i))
+		if (((*i >= '0') && (*i <= '9')) || (*i == '-') || (*i == '.'))
 		{
 			continue;
 		}
@@ -188,13 +187,13 @@ int isnick(const char* n)
 	int p = 0;
 	for (char* i = (char*)n; *i; i++, p++)
 	{
-		/* can occur anywhere in a nickname */
+		/* "A"-"}" can occur anywhere in a nickname */
 		if ((*i >= 'A') && (*i <= '}'))
 		{
 			continue;
 		}
-		/* can occur anywhere BUT the first char of a nickname */
-		if ((strchr("-0123456789",*i)) && (i > n))
+		/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
+		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
 		{
 			continue;
 		}
@@ -290,34 +289,6 @@ int cstatus(userrec *user, chanrec *chan)
 	return STATUS_NORMAL;
 }
 
-void TidyBan(char *ban)
-{
-	if (!ban) {
-		log(DEFAULT,"*** BUG *** TidyBan was given an invalid parameter");
-		return;
-	}
-	
-	char temp[MAXBUF],NICK[MAXBUF],IDENT[MAXBUF],HOST[MAXBUF];
-
-	strlcpy(temp,ban,MAXBUF);
-
-	char* pos_of_pling = strchr(temp,'!');
-	char* pos_of_at = strchr(temp,'@');
-
-	pos_of_pling[0] = '\0';
-	pos_of_at[0] = '\0';
-	pos_of_pling++;
-	pos_of_at++;
-
-	strlcpy(NICK,temp,NICKMAX-1);
-	strlcpy(IDENT,pos_of_pling,IDENTMAX+1);
-	strlcpy(HOST,pos_of_at,63);
-
-	snprintf(ban,MAXBUF,"%s!%s@%s",NICK,IDENT,HOST);
-}
-
-char lst[MAXBUF];
-
 std::string chlist(userrec *user,userrec* source)
 {
 	std::string list;
@@ -330,24 +301,16 @@ std::string chlist(userrec *user,userrec* source)
 		ucrec* rec = *i;
 		
 		if(rec->channel && rec->channel->name)
-		{
-			/* XXX - Why does this check need to be here at all? :< */
-			/* Commenting this out until someone finds a case where we need it */
-			//if (lst.find(rec->channel->name) == std::string::npos)
-			//{
-			
-				/*
-				 * If the target is the same as the sender, let them see all their channels.
-				 * If the channel is NOT private/secret AND the user is not invisible.
-				 * If the user is an oper, and the <options:operspywhois> option is set.
-				 */
-				if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modes[UM_INVISIBLE])) || (rec->channel->HasUser(source))))
-				{
-					list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
-				}
-			//}
+		{	
+			/* If the target is the same as the sender, let them see all their channels.
+			 * If the channel is NOT private/secret OR the user shares a common channel
+			 * If the user is an oper, and the <options:operspywhois> option is set.
+			 */
+			if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET]) && !(user->modes[UM_INVISIBLE])) || (rec->channel->HasUser(source))))
+			{
+				list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
+			}
 		}
 	}
-	
 	return list;
 }

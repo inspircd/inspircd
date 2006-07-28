@@ -31,7 +31,7 @@
 int common_channels(userrec *u, userrec *u2);
 void Blocking(int s);
 void NonBlocking(int s);
-int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward);
+int CleanAndResolve(char *resolvedHost, const char *unresolvedHost, bool forward, unsigned long timeout);
 int c_count(userrec* u);
 void ChangeName(userrec* user, const char* gecos);
 void ChangeDisplayedHost(userrec* user, const char* host);
@@ -39,9 +39,7 @@ int isident(const char* n);
 int isnick(const char* n);
 const char* cmode(userrec *user, chanrec *chan);
 int cstatus(userrec *user, chanrec *chan);
-void TidyBan(char *ban);
 std::string chlist(userrec *user, userrec* source);
-void send_network_quit(const char* nick, const char* reason);
 int cflags(userrec *user, chanrec *chan);
 
 #endif
