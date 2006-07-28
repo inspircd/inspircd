@@ -49,28 +49,37 @@ extern time_t TIME;
 extern ServerConfig* Config;
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
- * (used by QUIT, NICK etc which arent channel specific notices) */
-
+ * (used by QUIT, NICK etc which arent channel specific notices)
+ *
+ * The old algorithm in 1.0 for this was relatively inefficient, iterating over
+ * the first users channels then the second users channels within the outer loop,
+ * therefore it was a maximum of x*y iterations (upon returning 0 and checking
+ * all possible iterations). However this new function instead checks against the
+ * channel's userlist in the inner loop which is a std::map<userrec*,userrec*>
+ * and saves us time as we already know what pointer value we are after.
+ * Don't quote me on the maths as i am not a mathematician or computer scientist,
+ * but i believe this algorithm is now x+(log y) maximum iterations instead.
+ */
 int common_channels(userrec *u, userrec *u2)
 {
+	/* TODO: We need to get rid of this arbitary '7' and make bitmask enums for it */
 	if ((!u) || (!u2) || (u->registered != 7) || (u2->registered != 7))
-	{
 		return 0;
-	}
+
+	/* Outer loop */
 	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
 	{
-		for (std::vector<ucrec*>::const_iterator z = u2->chans.begin(); z != u2->chans.end(); z++)
+		/* Fetch the channel from the user */
+		ucrec* user_channel = (ucrec*)(*i);
+
+		if (user_channel->channel)
 		{
-			if ((((ucrec*)(*i))->channel != NULL) && (((ucrec*)(*z))->channel != NULL))
-			{
-				if ((((ucrec*)(*i))->channel == ((ucrec*)(*z))->channel))
-				{
-					if ((c_count(u)) && (c_count(u2)))
-					{
-						return 1;
-					}
-				}
-			}
+			/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
+			 * by replacing it with a map::find which *should* be more efficient
+			 */
+			CUList* channel_user_map = user_channel->channel->GetUsers();
+			if (channel_user_map->find(u2) != channel_user_map->end())
+				return 1;
 		}
 	}
 	return 0;
