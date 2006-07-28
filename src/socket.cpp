@@ -203,7 +203,7 @@ bool InspSocket::BindAddr()
 					s.sin_family = AF_INET;
 					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
 					{
-						log(DEBUG,"Cant bind()");
+						log(DEBUG,"Cant bind(): %s", strerror(errno));
 						this->state = I_ERROR;
 						this->OnError(I_ERR_BIND);
 						this->fd = -1;
@@ -228,7 +228,7 @@ bool InspSocket::DoConnect()
 	log(DEBUG,"In DoConnect()");
 	if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		log(DEBUG,"Cant socket()");
+		log(DEBUG,"Cant socket(): %s", strerror(errno));
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
 		this->ClosePending = true;
