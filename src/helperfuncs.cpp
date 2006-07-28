@@ -720,7 +720,7 @@ void WriteCommon(userrec *u, char* text, ...)
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
 					WriteFrom_NoFormat(i->second->fd,u,textbuffer);
@@ -767,7 +767,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
 					WriteFrom_NoFormat(i->second->fd,u,text);
@@ -869,7 +869,7 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 			{
 				if (u != i->second)
 				{
-					if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
+					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 					{
 						already_sent[i->second->fd] = uniq_id;
 
@@ -912,7 +912,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 			{
 				if (u != i->second)
 				{
-					if ((i->second->fd > -1) && (already_sent[i->second->fd] != uniq_id))
+					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 					{
 						already_sent[i->second->fd] = uniq_id;
 						WriteFrom_NoFormat(i->second->fd,u,text);
