@@ -121,7 +121,7 @@ int c_count(userrec* u)
 {
 	int z = 0;
 	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
-		if (((ucrec*)(*i))->channel)
+		if ((*i)->channel)
 			z++;
 	return z;
 
@@ -217,17 +217,17 @@ const char* cmode(userrec *user, chanrec *chan)
 
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel == chan)
+		if ((*i)->channel == chan)
 		{
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_OP) > 0)
+			if (((*i)->uc_modes & UCMODE_OP) > 0)
 			{
 				return "@";
 			}
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_HOP) > 0)
+			if (((*i)->uc_modes & UCMODE_HOP) > 0)
 			{
 				return "%";
 			}
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_VOICE) > 0)
+			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
 			{
 				return "+";
 			}
@@ -244,9 +244,9 @@ int cflags(userrec *user, chanrec *chan)
 
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel == chan)
+		if ((*i)->channel == chan)
 		{
-			return ((ucrec*)(*i))->uc_modes;
+			return (*i)->uc_modes;
 		}
 	}
 	return 0;
@@ -269,17 +269,17 @@ int cstatus(userrec *user, chanrec *chan)
 
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel == chan)
+		if ((*i)->channel == chan)
 		{
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_OP) > 0)
+			if (((*i)->uc_modes & UCMODE_OP) > 0)
 			{
 				return STATUS_OP;
 			}
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_HOP) > 0)
+			if (((*i)->uc_modes & UCMODE_HOP) > 0)
 			{
 				return STATUS_HOP;
 			}
-			if ((((ucrec*)(*i))->uc_modes & UCMODE_VOICE) > 0)
+			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
 			{
 				return STATUS_VOICE;
 			}
