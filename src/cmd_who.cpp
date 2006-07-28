@@ -20,6 +20,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "wildcard.h"
 #include "commands/cmd_who.h"
 
 extern ServerConfig* Config;
@@ -44,6 +45,20 @@ static char *getlastchanname(userrec *u)
 	return "*";
 }
 
+bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_showrealhost)
+{
+	bool realhost = false;
+	bool realname = false;
+
+	if (opt_realname)
+		realname = match(user->fullname, matchtext);
+
+	if (opt_showrealhost)
+		realhost = match(user->host, matchtext);
+
+	return ((realname) || (realhost) || (match(user->dhost, matchtext)) || (match(user->nick, matchtext)) || (match(user->server, matchtext)));
+}
+
 void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	/*
@@ -53,12 +68,24 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	 * Currently, we support WHO #chan, WHO nick, WHO 0, WHO *, and the addition of a 'o' flag, as per RFC.
 	 */
 
+	/* WHO options */
 	bool opt_viewopersonly = false;
+	bool opt_showrealhost = false;
+	bool opt_unlimit = false;
+	bool opt_realname = false;
+
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
 	std::string initial = "352 " + std::string(user->nick) + " ";
 
-	if (pcnt == 2)
+	const char* matchtext = NULL;
+
+	/* Change '0' into '*' so the wildcard matcher can grok it */
+	matchtext = parameters[0];
+	if (!strcmp(matchtext,"0"))
+		matchtext = "*";
+
+	if (pcnt > 1)
 	{
 		/* parse flags */
 		const char *iter = parameters[1];
@@ -69,7 +96,18 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				case 'o':
 					opt_viewopersonly = true;
-					break;
+				break;
+				case 'h':
+					if (*user->oper)
+						opt_showrealhost = true;
+				break;
+				case 'u':
+					if (*user->oper)
+						opt_unlimit = true;
+				break;
+				case 'r':
+					opt_realname = true;
+				break;
 			}
 
 			*iter++;
@@ -78,7 +116,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 
 	/* who on a channel? */
-	ch = FindChan(parameters[0]);
+	ch = FindChan(matchtext);
 
 	if (ch)
 	{
@@ -91,11 +129,10 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			if (opt_viewopersonly && !*(i->second)->oper)
 				continue;
 
-
 			/* XXX - code duplication; this could be more efficient -- w00t */
 			std::string wholine = initial;
 
-			wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + i->second->dhost + " " + 
+			wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
 					i->second->server + " " + i->second->nick + " ";
 
 			/* away? */
@@ -120,51 +157,20 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		/* uhggle. who on .. something else. */
-		userrec *u = Find(parameters[0]);
+		/* Match against wildcard of nick, server or host */
 
-		if (u)
+		if (opt_viewopersonly)
 		{
-			/* who on a single user */
-			std::string wholine = initial;
-
-			wholine = wholine + getlastchanname(u) + " " + u->ident + " " + u->dhost + " " + 
-					u->server + " " + u->nick + " ";
-
-			/* away? */
-			if (*u->awaymsg)
+			/* Showing only opers */
+			for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 			{
-				wholine.append("G");
-			}
-			else
-			{
-				wholine.append("H");
-			}
+				userrec* oper = *i;
 
-			/* oper? */
-			if (*u->oper)
-			{
-				wholine.append("*");
-			}
-
-			wholine = wholine + cmode(u, ch) + " :0 " + u->fullname;
-			whoresults.push_back(wholine);
-		}
-
-		if (*parameters[0] == '*' || *parameters[0] == '0')
-		{
-			if (!opt_viewopersonly && !*user->oper)
-				return; /* No way, jose */
-
-			if (opt_viewopersonly)
-			{
-				for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost))
 				{
-					userrec* oper = (userrec*)*i;
-
 					std::string wholine = initial;
-
-					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + oper->dhost + " " + 
+	
+					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + (opt_showrealhost ? oper->host : oper->dhost) + " " + 
 							oper->server + " " + oper->nick + " ";
 
 					/* away? */
@@ -176,26 +182,29 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					{
 						wholine.append("H");
 					}
-
+	
 					/* oper? */
 					if (*oper->oper)
 					{
 						wholine.append("*");
 					}
-
+	
 					wholine = wholine + cmode(oper, ch) + " :0 " + oper->fullname;
 					whoresults.push_back(wholine);
 				}
 			}
-			else
+		}
+		else
+		{
+			for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 			{
-				for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost))
 				{
 					std::string wholine = initial;
-
-					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + i->second->dhost + " " + 
-							i->second->server + " " + i->second->nick + " ";
-
+	
+					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
+						i->second->server + " " + i->second->nick + " ";
+	
 					/* away? */
 					if (*(i->second)->awaymsg)
 					{
@@ -217,5 +226,17 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				}
 			}
 		}
+	}
+	/* Send the results out */
+	if ((whoresults.size() < (size_t)Config->MaxWhoResults) && (!opt_unlimit))
+	{
+		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
+			WriteServ_NoFormat(user->fd,n->c_str());
+		WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+	}
+	else
+	{
+		/* BZZT! Too many results. */
+		WriteServ(user->fd,"315 %s %s :Too many results",user->nick, parameters[0]);
 	}
 }

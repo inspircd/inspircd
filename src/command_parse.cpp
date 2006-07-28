@@ -236,11 +236,11 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
 					return;
 				}
-			}
-			if ((cm->second->flags_needed) && (!user->HasPermission(command)))
-			{
-				WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
-				return;
+				if (!user->HasPermission(command))
+				{
+					WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
+					return;
+				}
 			}
 			if ((user->registered == REG_ALL) && (!*user->oper) && (cm->second->IsDisabled()))
 			{

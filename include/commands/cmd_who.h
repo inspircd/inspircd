@@ -31,7 +31,7 @@
 class cmd_who : public command_t
 {
  public:
-        cmd_who () : command_t("WHO",0,1) { syntax = "<server>|<nickname>|<channel> [O|o]"; }
+        cmd_who () : command_t("WHO",0,1) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohur]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 
