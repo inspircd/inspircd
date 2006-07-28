@@ -36,6 +36,7 @@ class cmd_devoice : public command_t
 	cmd_devoice () : command_t("DEVOICE", 0, 1)
 	{
 		this->source = "m_devoice.so";
+		syntax = "<channel>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

@@ -24,7 +24,7 @@
 class cmd_admin : public command_t
 {
  public:
-        cmd_admin () : command_t("ADMIN",0,0) { }
+        cmd_admin () : command_t("ADMIN",0,0) { syntax = "[<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

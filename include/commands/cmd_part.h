@@ -31,7 +31,7 @@
 class cmd_part : public command_t
 {
  public:
-        cmd_part () : command_t("PART",0,1) { }
+        cmd_part () : command_t("PART",0,1) { syntax = "<channel>{,<channel>} [<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

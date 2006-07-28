@@ -31,7 +31,7 @@
 class cmd_motd : public command_t
 {
  public:
-        cmd_motd () : command_t("MOTD",0,0) { }
+        cmd_motd () : command_t("MOTD",0,0) { syntax = "[<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -31,7 +31,7 @@
 class cmd_away : public command_t
 {
  public:
-        cmd_away () : command_t("AWAY",0,0) { }
+        cmd_away () : command_t("AWAY",0,0) { syntax = "[<message>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

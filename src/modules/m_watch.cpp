@@ -45,6 +45,7 @@ class cmd_watch : public command_t
 	cmd_watch() : command_t("WATCH",0,0)
 	{
 		this->source = "m_watch.so";
+		syntax = "[C|L|S]|[+|-<nick>]";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

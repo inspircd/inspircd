@@ -35,6 +35,7 @@ class cmd_globops : public command_t
 	cmd_globops () : command_t("GLOBOPS",'o',1)
 	{
 		this->source = "m_globops.so";
+		syntax = "<any-text>";
 	}
 	
 	void Handle (const char** parameters, int pcnt, userrec *user)

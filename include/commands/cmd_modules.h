@@ -31,7 +31,7 @@
 class cmd_modules : public command_t
 {
  public:
-        cmd_modules () : command_t("MODULES",0,0) { }
+        cmd_modules () : command_t("MODULES",0,0) { syntax = "[debug]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -14,6 +14,7 @@ class cmd_chgident : public command_t
 	{
 		this->source = "m_chgident.so";
 		Srv = serv;
+		syntax = "<nick> <newident>";
 	}
 	
 	void Handle(const char** parameters, int pcnt, userrec *user)

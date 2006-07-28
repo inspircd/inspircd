@@ -33,6 +33,7 @@ class cmd_chghost : public command_t
 	cmd_chghost () : command_t("CHGHOST",'o',2)
 	{
 		this->source = "m_chghost.so";
+		syntax = "<nick> <newhost>";
 	}
 	 
 	void Handle(const char** parameters, int pcnt, userrec *user)

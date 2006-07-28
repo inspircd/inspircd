@@ -387,7 +387,7 @@ class cmd_mode : public command_t
 	/**
 	 * Standard constructor
 	 */
-	cmd_mode () : command_t("MODE",0,1) { }
+	cmd_mode () : command_t("MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
 	/**
 	 * Handle MODE
 	 */

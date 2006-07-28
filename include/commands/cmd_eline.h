@@ -31,7 +31,7 @@
 class cmd_eline : public command_t
 {
  public:
-        cmd_eline () : command_t("ELINE",'o',1) { }
+        cmd_eline () : command_t("ELINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

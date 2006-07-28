@@ -12,6 +12,7 @@ class cmd_setident : public command_t
 	cmd_setident() : command_t("SETIDENT", 'o', 1)
 	{
 		this->source = "m_setident.so";
+		syntax = "<new-ident>";
 	}
 
 	void Handle(const char** parameters, int pcnt, userrec *user)

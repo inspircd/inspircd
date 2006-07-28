@@ -122,6 +122,7 @@ class cmd_unpark : public command_t
 	cmd_unpark () : command_t("UNPARK", 0, 2)
 	{
 		this->source = "m_park.so";
+		syntax = "<nick> <key>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

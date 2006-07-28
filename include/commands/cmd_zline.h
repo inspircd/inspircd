@@ -31,7 +31,7 @@
 class cmd_zline : public command_t
 {
  public:
-        cmd_zline () : command_t("ZLINE",'o',1) { }
+        cmd_zline () : command_t("ZLINE",'o',1) { syntax = "<ipmask> [<duration> :<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

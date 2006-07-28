@@ -45,6 +45,7 @@ class cmd_tban : public command_t
 	cmd_tban () : command_t("TBAN", 0, 3)
 	{
 		this->source = "m_timedbans.so";
+		syntax = "<channel> <duration> <banmask>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

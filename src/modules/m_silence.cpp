@@ -39,6 +39,7 @@ class cmd_silence : public command_t
 	cmd_silence() : command_t("SILENCE", 0, 0)
 	{
 		this->source = "m_silence.so";
+		syntax = "{[+|-]<nick>}";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

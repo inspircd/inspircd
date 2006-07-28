@@ -33,6 +33,7 @@ class cmd_uninvite : public command_t
 	cmd_uninvite () : command_t("UNINVITE", 0, 2)
 	{
 		this->source = "m_uninvite.so";
+		syntax = "<nick> <channel>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

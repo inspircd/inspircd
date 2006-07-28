@@ -31,7 +31,7 @@
 class cmd_pass : public command_t
 {
  public:
-        cmd_pass () : command_t("PASS",0,1) { }
+        cmd_pass () : command_t("PASS",0,1) { syntax = "<password>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

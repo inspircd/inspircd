@@ -31,7 +31,7 @@
 class cmd_quit : public command_t
 {
  public:
-        cmd_quit () : command_t("QUIT",0,0) { }
+        cmd_quit () : command_t("QUIT",0,0) { syntax = "[<message>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

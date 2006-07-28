@@ -31,7 +31,7 @@
 class cmd_trace : public command_t
 {
  public:
-        cmd_trace () : command_t("TRACE",'o',0) { }
+        cmd_trace () : command_t("TRACE",'o',0) { syntax = "[<object>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -42,6 +42,7 @@ class cmd_saquit : public command_t
 	cmd_saquit () : command_t("SAQUIT",'o',2)
 	{
 		this->source = "m_saquit.so";
+		syntax = "<nick> <reason>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

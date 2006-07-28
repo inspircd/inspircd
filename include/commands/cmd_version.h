@@ -31,7 +31,7 @@
 class cmd_version : public command_t
 {
  public:
-        cmd_version () : command_t("VERSION",0,0) { }
+        cmd_version () : command_t("VERSION",0,0) { syntax = "[<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

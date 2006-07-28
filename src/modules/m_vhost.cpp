@@ -33,6 +33,7 @@ class cmd_vhost : public command_t
 	cmd_vhost() : command_t("VHOST", 0, 2)
 	{
 		this->source = "m_vhost.so";
+		syntax = "<username> <password>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

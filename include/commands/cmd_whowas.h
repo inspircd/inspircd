@@ -31,7 +31,7 @@
 class cmd_whowas : public command_t
 {
  public:
-        cmd_whowas () : command_t("WHOWAS",0,1) { }
+        cmd_whowas () : command_t("WHOWAS",0,1) { syntax = "<nick>{,<nick>}"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

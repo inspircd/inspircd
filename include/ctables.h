@@ -52,11 +52,16 @@ class command_t : public Extensible
 	/** True if the command is disabled to non-opers
 	 */
 	bool disabled;
+	/** Syntax string for the command, displayed if non-empty string.
+	 * This takes place of the text in the 'not enough parameters' numeric.
+	 */
+	std::string syntax;
 
 	command_t(const std::string &cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara), disabled(false)
 	{
 		use_count = total_bytes = 0;
 		source = "<core>";
+		syntax = "";
 	}
 
 	virtual void Handle(const char** parameters, int pcnt, userrec* user) = 0;

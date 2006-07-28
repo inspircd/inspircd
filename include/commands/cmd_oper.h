@@ -33,7 +33,7 @@ bool OneOfMatches(const char* host, const char* hostlist);
 class cmd_oper : public command_t
 {
  public:
-        cmd_oper () : command_t("OPER",0,2) { }
+        cmd_oper () : command_t("OPER",0,2) { syntax = "<username> <password>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

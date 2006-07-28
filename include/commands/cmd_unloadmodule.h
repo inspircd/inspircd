@@ -31,7 +31,7 @@
 class cmd_unloadmodule : public command_t
 {
  public:
-        cmd_unloadmodule () : command_t("UNLOADMODULE",'o',1) { }
+        cmd_unloadmodule () : command_t("UNLOADMODULE",'o',1) { syntax = "<modulename>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

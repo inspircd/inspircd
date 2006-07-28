@@ -49,6 +49,7 @@ class cmd_opermotd : public command_t
 	cmd_opermotd () : command_t("OPERMOTD", 'o', 0)
 	{
 		this->source = "m_opermotd.so";
+		syntax = "[<servername>]";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec* user)

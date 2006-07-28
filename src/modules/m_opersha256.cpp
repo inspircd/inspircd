@@ -230,6 +230,7 @@ public:
 	cmd_mksha256() : command_t("MKSHA256", 'o', 1)
 	{
 		this->source = "m_opersha256.so";
+		syntax = "<any-text>";
 	}
 
 	void Handle(const char** parameters, int pcnt, userrec *user)

@@ -37,6 +37,7 @@ class cmd_check : public command_t
 	cmd_check() : command_t("CHECK", 'o', 1)
 	{
 		this->source = "m_check.so";
+		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

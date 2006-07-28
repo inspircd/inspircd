@@ -32,6 +32,7 @@ class cmd_sanick : public command_t
 	cmd_sanick () : command_t("SANICK", 'o', 2)
 	{
 		this->source = "m_sanick.so";
+		syntax = "<nick> <new-nick>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

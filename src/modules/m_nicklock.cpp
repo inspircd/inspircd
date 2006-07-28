@@ -35,6 +35,7 @@ class cmd_nicklock : public command_t
 	cmd_nicklock () : command_t("NICKLOCK", 'o', 2)
 	{
 		this->source = "m_nicklock.so";
+		syntax = "<oldnick> <newnick>";
 	}
 
 	void Handle(const char** parameters, int pcnt, userrec *user)
@@ -70,6 +71,7 @@ class cmd_nickunlock : public command_t
 	cmd_nickunlock () : command_t("NICKUNLOCK", 'o', 1)
 	{
 		this->source = "m_nickunlock.so";
+		syntax = "<locked-nick>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

@@ -33,6 +33,7 @@ class cmd_setidle : public command_t
 	cmd_setidle () : command_t("SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
+		syntax = "<idle-seconds>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

@@ -33,6 +33,7 @@ class cmd_sapart : public command_t
 	cmd_sapart () : command_t("SAPART", 'o', 2)
 	{
 		this->source = "m_sapart.so";
+		syntax = "<nick> <channel>";
 	}
 	 
 	void Handle (const char** parameters, int pcnt, userrec *user)

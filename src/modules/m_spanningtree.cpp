@@ -555,6 +555,7 @@ class cmd_rconnect : public command_t
 	cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
 	{
 		this->source = "m_spanningtree.so";
+		syntax = "<remote-server-mask> <servermask>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

@@ -33,6 +33,7 @@ class cmd_gloadmodule : public command_t
 	cmd_gloadmodule () : command_t("GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
+		syntax = "<modulename>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
@@ -55,6 +56,7 @@ class cmd_gunloadmodule : public command_t
 	cmd_gunloadmodule () : command_t("GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
+		syntax = "<modulename>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

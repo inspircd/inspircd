@@ -66,6 +66,7 @@ class cmd_cban : public command_t
 	{
 		this->source = "m_cban.so";
 		this->Srv = Me;
+		syntax = "<channel> [<duration> :<reason>]";
 	}
 
 	void Handle(const char** parameters, int pcnt, userrec *user)

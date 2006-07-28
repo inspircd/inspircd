@@ -53,6 +53,7 @@ class cmd_remove : public command_t
 	cmd_remove () : command_t("REMOVE", 0, 2)
 	{
 		this->source = "m_remove.so";
+		syntax = "<nick> <channel> [<reason>]";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

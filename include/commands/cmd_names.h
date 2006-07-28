@@ -31,7 +31,7 @@
 class cmd_names : public command_t
 {
  public:
-        cmd_names () : command_t("NAMES",0,0) { }
+        cmd_names () : command_t("NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

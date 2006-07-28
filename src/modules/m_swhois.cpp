@@ -29,6 +29,7 @@ class cmd_swhois : public command_t
 	{
 		this->Srv = server;
 		this->source = "m_swhois.so";
+		syntax = "<nick> <swhois>";
 	}
 
 	void Handle(const char** parameters, int pcnt, userrec* user)

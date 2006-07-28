@@ -31,7 +31,7 @@
 class cmd_ping : public command_t
 {
  public:
-        cmd_ping () : command_t("PING",0,1) { }
+        cmd_ping () : command_t("PING",0,1) { syntax = "<servername> [:<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

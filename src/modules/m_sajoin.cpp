@@ -33,6 +33,7 @@ class cmd_sajoin : public command_t
 	cmd_sajoin() : command_t("SAJOIN", 'o', 2)
 	{
 		this->source = "m_sajoin.so";
+		syntax = "<nick> <channel>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

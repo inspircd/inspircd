@@ -274,6 +274,7 @@ class cmd_mkpasswd : public command_t
 	cmd_mkpasswd () : command_t("MKPASSWD", 'o', 1)
 	{
 		this->source = "m_opermd5.so";
+		syntax = "<any-text>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

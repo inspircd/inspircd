@@ -33,6 +33,7 @@ class cmd_sethost : public command_t
 	cmd_sethost() : command_t("SETHOST",'o',1)
 	{
 		this->source = "m_sethost.so";
+		syntax = "<new-hostname>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

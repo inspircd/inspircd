@@ -33,6 +33,7 @@ class cmd_setname : public command_t
 	cmd_setname () : command_t("SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
+		syntax = "<new-gecos>";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

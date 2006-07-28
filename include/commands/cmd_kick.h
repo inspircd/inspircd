@@ -31,7 +31,7 @@
 class cmd_kick : public command_t
 {
  public:
-        cmd_kick () : command_t("KICK",0,2) { }
+        cmd_kick () : command_t("KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -90,6 +90,7 @@ class cmd_spylist : public command_t
 	cmd_spylist () : command_t("SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
+		syntax = "";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
@@ -107,37 +108,38 @@ class cmd_spylist : public command_t
 class cmd_spynames : public command_t
 {
   public:
-	  cmd_spynames () : command_t("SPYNAMES", 'o', 0)
-	  {
-		  this->source = "m_spy.so";
-	  }
+	cmd_spynames () : command_t("SPYNAMES", 'o', 0)
+	{
+		this->source = "m_spy.so";
+		syntax = "{<channel>{,<channel>}}";
+	}
 
-	  void Handle (const char** parameters, int pcnt, userrec *user)
-	  {
-		  chanrec* c;
+	void Handle (const char** parameters, int pcnt, userrec *user)
+	{
+		chanrec* c;
 
-		  if (!pcnt)
-		  {
-			  WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
-			  return;
-		  }
+		if (!pcnt)
+		{
+			WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
+			return;
+		}
 
-		  if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
-			  return;
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
+			return;
 
-		  WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
+		WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
 
-		  c = FindChan(parameters[0]);
-		  if (c)
-		  {
-			  spy_userlist(user,c);
-			  WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
-		  }
-		  else
-		  {
-			  WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-		  }
-	  }
+		c = FindChan(parameters[0]);
+		if (c)
+		{
+			spy_userlist(user,c);
+			WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
+		}
+		else
+		{
+			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		}
+	}
 };
 
 class ModuleSpy : public Module

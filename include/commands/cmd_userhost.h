@@ -31,7 +31,7 @@
 class cmd_userhost : public command_t
 {
  public:
-        cmd_userhost () : command_t("USERHOST",0,1) { }
+        cmd_userhost () : command_t("USERHOST",0,1) { syntax = "<nick>{,<nick>}"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

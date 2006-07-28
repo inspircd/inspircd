@@ -44,6 +44,7 @@ class cmd_samode : public command_t
 	cmd_samode () : command_t("SAMODE", 'o', 2)
 	{
 		this->source = "m_samode.so";
+		syntax = "<target> <modes> {<mode-parameters>}";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)

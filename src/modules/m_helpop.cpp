@@ -64,6 +64,7 @@ class cmd_helpop : public command_t
 	 cmd_helpop () : command_t("HELPOP",0,1)
 	 {
 		 this->source = "m_helpop.so";
+		 syntax = "[?|!]<any-text>";
 	 }
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
