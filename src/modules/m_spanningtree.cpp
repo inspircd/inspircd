@@ -111,6 +111,9 @@ static Server* Srv;
 typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::StrHashComp> server_hash;
 server_hash serverlist;
 
+typedef nspace::hash_map<std::string, userrec*> uid_hash;
+typedef nspace::hash_map<std::string, char*> sid_hash;
+
 /* More forward declarations */
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
@@ -134,6 +137,53 @@ extern std::vector<GLine> pglines;
 extern std::vector<ZLine> pzlines;
 extern std::vector<QLine> pqlines;
 extern std::vector<ELine> pelines;
+
+class UserManager : public classbase
+{
+	uid_hash uids;
+	sid_hash sids;
+ public:
+	UserManager()
+	{
+		uids.clear();
+		sids.clear();
+	}
+
+	std::string UserToUID(userrec* user)
+	{
+		return "";
+	}
+
+	std::string UIDToUser(const std::string &UID)
+	{
+		return "";
+	}
+
+	std::string CreateAndAdd(userrec* user)
+	{
+		return "";
+	}
+
+	std::string CreateAndAdd(const std::string &servername)
+	{
+		return "";
+	}
+
+	std::string ServerToSID(const std::string &servername)
+	{
+		return "";
+	}
+
+	std::string SIDToServer(const std::string &SID)
+	{
+		return "";
+	}
+
+	userrec* FindByID(const std::string &UID)
+	{
+		return NULL;
+	}
+};
 
 /* Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
