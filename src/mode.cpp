@@ -454,6 +454,10 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		return;
 	}
 
+	// Empty mode string!
+	if (!*parameters[1])
+		return;
+
 	char outlist[MAXBUF];
 	char mlist[MAXBUF];
 	char *outpars[32];
