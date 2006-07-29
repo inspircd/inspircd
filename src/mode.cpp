@@ -454,10 +454,6 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 		return;
 	}
 
-	// Empty mode string!
-	if (!*parameters[1])
-		return;
-
 	char outlist[MAXBUF];
 	char mlist[MAXBUF];
 	char *outpars[32];
@@ -487,6 +483,10 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	mdir = (*modelist == '+');
 
 	log(DEBUG,"process_modes: modelist: %s",modelist);
+
+	/* Related to BUG #127, can cause stack corruption if we allow an empty modestring */
+	if (!*modelist)
+		return;
 
 	int len = tidied.length();
 	while (modelist[len-1] == ' ')
