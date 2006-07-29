@@ -60,13 +60,9 @@ class cmd_tban : public command_t
 					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban mask");
 					return;
 				}
-				for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 				{
-					irc::string listitem = i->mask.c_str();
-					irc::string target = parameters[2];
-					irc::string listchan = i->channel.c_str();
-					irc::string targetchan = parameters[0];
-					if ((listitem == target) && (listchan == targetchan))
+					if (!strcasecmp(i->data,parameters[2]))
 					{
 						Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
 						return;
@@ -90,11 +86,20 @@ class cmd_tban : public command_t
 				// use CallCommandHandler to make it so that the user sets the mode
 				// themselves
 				Srv->CallCommandHandler("MODE",setban,3,user);
-				T.channel = channelname;
-				T.mask = mask;
-				T.expire = expire;
-				TimedBanList.push_back(T);
-				Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"NOTICE "+std::string(channel->name)+" :"+std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
+				bool was_added = false;
+				/* Check if the ban was actually added (e.g. banlist was NOT full) */
+				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
+					if (!strcasecmp(i->data,mask.c_str()))
+						was_added = true;
+				/* FIX: If the ban wasnt added, dont try and add this! */
+				if (was_added)
+				{
+					T.channel = channelname;
+					T.mask = mask;
+					T.expire = expire;
+					TimedBanList.push_back(T);
+					Srv->SendChannelServerNotice(Srv->GetServerName(),channel,"NOTICE "+std::string(channel->name)+" :"+std::string(user->nick)+" added a timed ban on "+mask+" lasting for "+std::string(duration)+" seconds.");
+				}
 				return;
 			}
 			else WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
