@@ -177,6 +177,11 @@ class ModuleTimedBans : public Module
 						Srv->SendMode(setban,3,temp);
 						DELETE(temp);
 					}
+					else
+					{
+						/* Where the hell did our channel go?! */
+						TimedBanList.erase(i);
+					}
 					// we used to delete the item here, but we dont need to as the servermode above does it for us,
 					break;
 				}
