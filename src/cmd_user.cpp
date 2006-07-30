@@ -41,7 +41,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 			/* XXX - Should this IDENTMAX + 1 be IDENTMAX - 1? Ok, users.h has it defined as
 			 * char ident[IDENTMAX+2]; - WTF?
 			 */
-			snprintf(user->ident, IDENTMAX+1, "~%s", parameters[0]);
+			strlcpy(user->ident, parameters[0], IDENTMAX);
 			strlcpy(user->fullname,parameters[3],MAXGECOS);
 			user->registered = (user->registered | REG_USER);
 		}
