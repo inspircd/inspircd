@@ -20,7 +20,7 @@ using namespace std;
 
 #include <stdio.h>
 #include "inspircd_config.h"
-#ifndef HAS_STDINT
+#ifdef HAS_STDINT
 #include <stdint.h>
 #endif
 #include "users.h"
