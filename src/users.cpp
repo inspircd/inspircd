@@ -470,9 +470,11 @@ void kill_link(userrec *user,const char* r)
 		WriteCommonExcept(user,"QUIT :%s",reason);
 	}
 
+	log(DEBUG,"Flush write buf");
 	if (IS_LOCAL(user))
 		user->FlushWriteBuf();
 
+	log(DEBUG,"Call disconnect");
 	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
 	if (IS_LOCAL(user))
@@ -488,7 +490,9 @@ void kill_link(userrec *user,const char* r)
 				log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
 			}
 		}
+		log(DEBUG,"Del FD from socketengine");
 		ServerInstance->SE->DelFd(user->fd);
+		log(DEBUG,"Close user socket");
 		user->CloseSocket();
 	}
 
@@ -498,6 +502,7 @@ void kill_link(userrec *user,const char* r)
 		// fix by brain: only show local quits because we only show local connects (it just makes SENSE)
 		if (IS_LOCAL(user))
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
+		log(DEBUG,"Add whowas");
 		AddWhoWas(user);
 	}
 
@@ -506,6 +511,7 @@ void kill_link(userrec *user,const char* r)
 		log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
+			log(DEBUG,"Null fd %d",user->fd);
 			fd_ref_table[user->fd] = NULL;
 			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
 			{
@@ -513,6 +519,7 @@ void kill_link(userrec *user,const char* r)
 				log(DEBUG,"Delete local user");
 			}
 		}
+		log(DEBUG,"Erase clientlist entry");
 		clientlist.erase(iter);
 		delete user;
 	}
