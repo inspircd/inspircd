@@ -356,7 +356,7 @@ void DoBackgroundUserStuff(time_t TIME)
 		{
 			cfd = curr->fd;
 
-			if ((cfd > 0) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
+			if ((cfd > -1) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
 			{
 				/*
 				 * registration timeout -- didnt send USER/NICK/HOST
@@ -413,7 +413,7 @@ void DoBackgroundUserStuff(time_t TIME)
 			 * We can flush the write buffer as the last thing we do, because if they
 			 * match any of the above conditions its no use flushing their buffer anyway.
 			 */
-			if ((cfd > 0) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
+			if ((cfd > -1) && (cfd < MAX_DESCRIPTORS) && (fd_ref_table[cfd] == curr) && (curr))
 			{
 				curr->FlushWriteBuf();
 				if (*curr->GetWriteError())
