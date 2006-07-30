@@ -36,6 +36,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "typedefs.h"
+#include "configreader.h"
 #include "cull_list.h"
 
 extern ServerConfig *Config;
@@ -714,42 +715,47 @@ void apply_lines(const int What)
 	DELETE(Goners);
 }
 
-void stats_k(userrec* user)
+void stats_k(userrec* user, string_list &results)
 {
+	std::string sn = Config->ServerName;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		WriteServ(user->fd,"216 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 216 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		WriteServ(user->fd,"216 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 216 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_g(userrec* user)
+void stats_g(userrec* user, string_list &results)
 {
+	std::string sn = Config->ServerName;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_q(userrec* user)
+void stats_q(userrec* user, string_list &results)
 {
+	std::string sn = Config->ServerName;
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
-		WriteServ(user->fd,"217 %s :%s %d %d %s :%s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 217 "+user->nick+" :"+i->nick+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
-		WriteServ(user->fd,"217 %s :%s %d %d %s :%s",user->nick,i->nick,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 217 "+user->nick+" :"+i->nick+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_z(userrec* user)
+void stats_z(userrec* user, string_list &results)
 {
+	std::string sn = Config->ServerName;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->ipaddr+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->ipaddr,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->ipaddr+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_e(userrec* user)
+void stats_e(userrec* user, string_list &results)
 {
+	std::string sn = Config->ServerName;
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		WriteServ(user->fd,"223 %s :%s %d %d %s :%s",user->nick,i->hostmask,i->set_time,i->duration,i->source,i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }

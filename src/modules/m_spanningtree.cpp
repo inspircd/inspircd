@@ -30,6 +30,7 @@ using namespace std;
 #include "modules.h"
 #include "commands.h"
 #include "commands/cmd_whois.h"
+#include "commands/cmd_stats.h"
 #include "socket.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
@@ -1916,6 +1917,43 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
+	bool Stats(std::string prefix, std::deque<std::string> &params)
+	{
+		/* Get the reply to a STATS query if it matches this servername,
+		 * and send it back as a load of PUSH queries
+		 */
+		if (params.size() > 1)
+		{
+			if (Srv->MatchText(Srv->GetServerName(), params[1]))
+			{
+				/* It's for our server */
+				string_list results;
+				userrec* source = Srv->FindNick(prefix);
+				if (source)
+				{
+					std::deque<std::string> par;
+					par.push_back(prefix);
+					par.push_back("");
+					DoStats(*(params[0].c_str()), source, results);
+					for (size_t i = 0; i < results.size(); i++)
+					{
+						par[1] = "::" + results[i];
+						DoOneToOne(Srv->GetServerName(), "PUSH",par, source->server);
+					}
+				}
+			}
+			else
+			{
+				/* Pass it on */
+				userrec* source = Srv->FindNick(prefix);
+				if (source)
+					DoOneToOne(prefix, "STATS", params, params[1]);
+			}
+		}
+		return true;
+	}
+
+
 	/* Because the core won't let users or even SERVERS set +o,
 	 * we use the OPERTYPE command to do this.
 	 */
@@ -2280,15 +2318,7 @@ class TreeSocket : public InspSocket
 
 		if (IS_LOCAL(u))
 		{
-			// push the raw to the user
-			if (Srv->IsUlined(prefix))
-			{
-				::Write(u->fd,"%s",params[1].c_str());
-			}
-			else
-			{
-				log(DEBUG,"PUSH from non-ulined server dropped into the bit-bucket:  :%s PUSH %s :%s",prefix.c_str(),params[0].c_str(),params[1].c_str());
-			}
+			::Write(u->fd,"%s",params[1].c_str());
 		}
 		else
 		{
@@ -2729,6 +2759,10 @@ class TreeSocket : public InspSocket
 				else if (command == "FJOIN")
 				{
 					return this->ForceJoin(prefix,params);
+				}
+				else if (command == "STATS")
+				{
+					return this->Stats(prefix, params);
 				}
 				else if (command == "SERVER")
 				{
@@ -3430,6 +3464,26 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	int HandleStats(const char** parameters, int pcnt, userrec* user)
+	{
+		if (pcnt > 1)
+		{
+			/* Remote STATS, the server is within the 2nd parameter */
+			std::deque<std::string> params;
+			params.push_back(parameters[0]);
+			params.push_back(parameters[1]);
+			/* Send it out remotely, generate no reply yet */
+			TreeServer* s = FindServerMask(parameters[1]);
+			if (s)
+			{
+				params[1] = s->GetName();
+				DoOneToOne(user->nick, "STATS", params, s->GetName());
+			}
+			return 1;
+		}
+		return 0;
+	}
+
 	// Ok, prepare to be confused.
 	// After much mulling over how to approach this, it struck me that
 	// the 'usual' way of doing a /MAP isnt the best way. Instead of
@@ -3697,17 +3751,17 @@ class ModuleSpanningTree : public Module
 		return 1;
 	}
 
-	virtual int OnStats(char statschar, userrec* user)
+	virtual int OnStats(char statschar, userrec* user, string_list &results)
 	{
 		if (statschar == 'c')
 		{
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
-				WriteServ(user->fd,"213 %s C *@%s * %s %d 0 %c%c%c",user->nick,(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr).c_str(),LinkBlocks[i].Name.c_str(),LinkBlocks[i].Port,(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-'),(LinkBlocks[i].AutoConnect ? 'a' : '-'),'s');
-				WriteServ(user->fd,"244 %s H * * %s",user->nick,LinkBlocks[i].Name.c_str());
+				results.push_back(Srv->GetServerName()+" 213 "+user->nick+" C *@"+(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr)+" * "+LinkBlocks[i].Name.c_str()+" "+ConvToStr(LinkBlocks[i].Port)+" "+(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
+				results.push_back(Srv->GetServerName()+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
 			}
-			WriteServ(user->fd,"219 %s %c :End of /STATS report",user->nick,statschar);
-			WriteOpers("*** Notice: Stats '%c' requested by %s (%s@%s)",statschar,user->nick,user->ident,user->host);
+			results.push_back(Srv->GetServerName()+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+			WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
 		return 0;
@@ -3722,6 +3776,10 @@ class ModuleSpanningTree : public Module
 		if (command == "CONNECT")
 		{
 			return this->HandleConnect(parameters,pcnt,user);
+		}
+		else if (command == "STATS")
+		{
+			return this->HandleStats(parameters,pcnt,user);
 		}
 		else if (command == "SQUIT")
 		{

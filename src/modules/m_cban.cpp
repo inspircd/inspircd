@@ -142,7 +142,7 @@ class ModuleCBan : public Module
 		List[I_OnUserPreJoin] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnStats] = 1;
 	}
 	
-	virtual int OnStats(char symbol, userrec* user)
+	virtual int OnStats(char symbol, userrec* user, string_list &results)
 	{
 		ExpireBans();
 	
@@ -151,7 +151,7 @@ class ModuleCBan : public Module
 			for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 			{
 				unsigned long remaining = (iter->set_on + iter->length) - TIME;
-				WriteServ(user->fd, "210 %s %s %s %lu %lu %lu :%s", user->nick, iter->chname.c_str(), iter->set_by.c_str(), iter->set_on, iter->length, remaining, iter->reason.c_str());
+				results.push_back(Srv->GetServerName()+" 210 "+user->nick+" "+iter->chname.c_str()+" "+iter->set_by+" "+ConvToStr(iter->set_on)+" "+ConvToStr(iter->length)+" "+ConvToStr(remaining)+" :"+iter->reason);
 			}
 		}
 		

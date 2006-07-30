@@ -54,143 +54,149 @@ extern chan_hash chanlist;
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (pcnt != 1)
+	string_list values;
+	DoStats(*parameters[0], user, values);
+	for (size_t i = 0; i < values.size(); i++)
+		Write(user->fd, ":%s", values[i].c_str());
+}
+
+void DoStats(char statschar, userrec* user, string_list &results)
+{
+	std::string sn = Config->ServerName;
+
+	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,statschar)) && (!*user->oper))
 	{
+		results.push_back(sn+std::string(" 481 ")+user->nick+" :Permission denied - STATS "+statschar+" is oper-only");
 		return;
 	}
-
-	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,*parameters[0])) && (!*user->oper))
-	{
-		WriteServ(user->fd,"481 %s :Permission denied - STATS %c is oper-only",user->nick,*parameters[0]);
-		return;
-	}
-
-
+	
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnStats,OnStats(*parameters[0],user));
+	FOREACH_RESULT(I_OnStats,OnStats(statschar,user,results));
 	if (MOD_RESULT)
 		return;
 
-	if (*parameters[0] == 'c')
+	if (statschar == 'c')
 	{
 		/* This stats symbol must be handled by a linking module */
 	}
 	
-	if (*parameters[0] == 'i')
+	if (statschar == 'i')
 	{
 		int idx = 0;
 		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 		{
-			WriteServ(user->fd,"215 %s I * * * %d %d %s *",user->nick,MAXCLIENTS,idx,Config->ServerName);
+			results.push_back(sn+" 215 "+user->nick+" I * * * "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+Config->ServerName+" *");
 			idx++;
 		}
 	}
 	
-	if (*parameters[0] == 'y')
+	if (statschar == 'y')
 	{
 		int idx = 0;
 		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 		{
-			WriteServ(user->fd,"218 %s Y %d %d 0 %d %d",user->nick,idx,120,i->flood,i->registration_timeout);
+			results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" 120 0 "+ConvToStr(i->flood)+" "+ConvToStr(i->registration_timeout));
 			idx++;
 		}
 	}
 
-	if (*parameters[0] == 'U')
+	if (statschar == 'U')
 	{
 		char ulined[MAXBUF];
 		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "uline"); i++)
 		{
 			Config->ConfValue(Config->config_data, "uline","server", i, ulined, MAXBUF);
-			WriteServ(user->fd,"248 %s U %s",user->nick,ulined);
+			results.push_back(sn+" 248 "+user->nick+" U "+std::string(ulined));
 		}
 	}
 	
-	if (*parameters[0] == 'P')
+	if (statschar == 'P')
 	{
 		int idx = 0;
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 		{
 			if (*i->second->oper)
 			{
-				WriteServ(user->fd,"249 %s :%s (%s@%s) Idle: %d",user->nick,i->second->nick,i->second->ident,i->second->dhost,(TIME - i->second->idle_lastmsg));
+				results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+ConvToStr(TIME - i->second->idle_lastmsg));
 				idx++;
 			}
 		}
-		WriteServ(user->fd,"249 %s :%d OPER(s)",user->nick,idx);
+		results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(idx)+" OPER(s)");
 	}
- 	
-	if (*parameters[0] == 'k')
+ 
+	if (statschar == 'k')
 	{
-		stats_k(user);
-	}
-
-	if (*parameters[0] == 'g')
-	{
-		stats_g(user);
+		stats_k(user,results);
 	}
 
-	if (*parameters[0] == 'q')
+	if (statschar == 'g')
 	{
-		stats_q(user);
+		stats_g(user,results);
 	}
 
-	if (*parameters[0] == 'Z')
+	if (statschar == 'q')
 	{
-		stats_z(user);
+		stats_q(user,results);
 	}
 
-	if (*parameters[0] == 'e')
+	if (statschar == 'Z')
 	{
-		stats_e(user);
+		stats_z(user,results);
+	}
+
+	if (statschar == 'e')
+	{
+		stats_e(user,results);
 	}
 
 	/* stats m (list number of times each command has been used, plus bytecount) */
-	if (*parameters[0] == 'm')
+	if (statschar == 'm')
 	{
 		for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 		{
 			if (i->second->use_count)
 			{
 				/* RPL_STATSCOMMANDS */
-				WriteServ(user->fd,"212 %s %s %d %d",user->nick,i->second->command.c_str(),i->second->use_count,i->second->total_bytes);
+				results.push_back(sn+" 212 "+user->nick+" "+i->second->command+" "+ConvToStr(i->second->use_count)+" "+ConvToStr(i->second->total_bytes));
 			}
 		}
 			
 	}
 
 	/* stats z (debug and memory info) */
-	if (*parameters[0] == 'z')
+	if (statschar == 'z')
 	{
 		rusage R;
-		WriteServ(user->fd,"249 %s :Users(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,clientlist.size(),clientlist.size()*sizeof(userrec),clientlist.bucket_count());
-		WriteServ(user->fd,"249 %s :Channels(HASH_MAP) %d (%d bytes, %d buckets)",user->nick,chanlist.size(),chanlist.size()*sizeof(chanrec),chanlist.bucket_count());
-		WriteServ(user->fd,"249 %s :Commands(VECTOR) %d (%d bytes)",user->nick,ServerInstance->Parser->cmdlist.size(),ServerInstance->Parser->cmdlist.size()*sizeof(command_t));
-		WriteServ(user->fd,"249 %s :MOTD(VECTOR) %d, RULES(VECTOR) %d",user->nick,Config->MOTD.size(),Config->RULES.size());
-		WriteServ(user->fd,"249 %s :Modules(VECTOR) %d (%d)",user->nick,modules.size(),modules.size()*sizeof(Module));
-		WriteServ(user->fd,"249 %s :ClassFactories(VECTOR) %d (%d)",user->nick,factory.size(),factory.size()*sizeof(ircd_module));
+		results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(clientlist.size())+" ("+ConvToStr(clientlist.size()*sizeof(userrec))+" bytes, "+ConvToStr(clientlist.bucket_count())+" buckets)");
+		results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(chanlist.size())+" ("+ConvToStr(chanlist.size()*sizeof(chanrec))+" bytes, "+ConvToStr(chanlist.bucket_count())+" buckets)");
+		results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
+		results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(Config->RULES.size()));
+		results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(modules.size())+" ("+ConvToStr(modules.size()*sizeof(Module))+")");
+		results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(factory.size())+" ("+ConvToStr(factory.size()*sizeof(ircd_module))+")");
 		if (!getrusage(RUSAGE_SELF,&R))
 		{
-			WriteServ(user->fd,"249 %s :Total allocation: %luK (0x%lx)",user->nick,R.ru_maxrss,R.ru_maxrss);
-			WriteServ(user->fd,"249 %s :Signals:          %lu  (0x%lx)",user->nick,R.ru_nsignals,R.ru_nsignals);
-			WriteServ(user->fd,"249 %s :Page faults:      %lu  (0x%lx)",user->nick,R.ru_majflt,R.ru_majflt);
-			WriteServ(user->fd,"249 %s :Swaps:            %lu  (0x%lx)",user->nick,R.ru_nswap,R.ru_nswap);
-			WriteServ(user->fd,"249 %s :Context Switches: %lu  (0x%lx)",user->nick,R.ru_nvcsw+R.ru_nivcsw,R.ru_nvcsw+R.ru_nivcsw);
+			results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
+			results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));
+			results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(R.ru_majflt));
+			results.push_back(sn+" 249 "+user->nick+" :Swaps:            "+ConvToStr(R.ru_nswap));
+			results.push_back(sn+" 249 "+user->nick+" :Context Switches: "+ConvToStr(R.ru_nvcsw+R.ru_nivcsw));
 		}
 	}
 
-	if (*parameters[0] == 'T')
+	if (statschar == 'T')
 	{
-		WriteServ(user->fd,"249 %s :accepts %lu refused %lu",user->nick,ServerInstance->stats->statsAccept,ServerInstance->stats->statsRefused);
-		WriteServ(user->fd,"249 %s :unknown commands %lu",user->nick,ServerInstance->stats->statsUnknown);
-		WriteServ(user->fd,"249 %s :nick collisions %lu",user->nick,ServerInstance->stats->statsCollisions);
-		WriteServ(user->fd,"249 %s :dns requests %lu succeeded %lu failed %lu",user->nick,ServerInstance->stats->statsDns,ServerInstance->stats->statsDnsGood,ServerInstance->stats->statsDnsBad);
-		WriteServ(user->fd,"249 %s :connections %lu",user->nick,ServerInstance->stats->statsConnects);
-		WriteServ(user->fd,"249 %s :bytes sent %5.2fK recv %5.2fK",user->nick,ServerInstance->stats->statsSent / 1024,ServerInstance->stats->statsRecv / 1024);
+		results.push_back(sn+" 249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
+		results.push_back(sn+" 249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
+		results.push_back(sn+" 249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
+		results.push_back(sn+" 249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDns)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
+		results.push_back(sn+" 249 "+user->nick+" :connections "+ConvToStr(ServerInstance->stats->statsConnects));
+		char buffer[MAXBUF];
+		snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",user->nick,ServerInstance->stats->statsSent / 1024,ServerInstance->stats->statsRecv / 1024);
+		results.push_back(sn+buffer);
 	}
-	
+
 	/* stats o */
-	if (*parameters[0] == 'o')
+	if (statschar == 'o')
 	{
 		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
 		{
@@ -200,30 +206,30 @@ void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 			Config->ConfValue(Config->config_data, "oper","name", i, LoginName, MAXBUF);
 			Config->ConfValue(Config->config_data, "oper","host", i, HostName, MAXBUF);
 			Config->ConfValue(Config->config_data, "oper","type", i, OperType, MAXBUF);
-			WriteServ(user->fd,"243 %s O %s * %s %s 0",user->nick,HostName,LoginName,OperType);
+			results.push_back(sn+" 243 "+user->nick+" O "+HostName+" * "+LoginName+" "+OperType+" 0");
 		}
 	}
 	
 	/* stats l (show user I/O stats) */
-	if (*parameters[0] == 'l')
+	if (statschar == 'l')
 	{
-		WriteServ(user->fd,"211 %s :server:port nick bytes_in cmds_in bytes_out cmds_out",user->nick);
+		results.push_back(sn+" 211 "+user->nick+" :server:port nick bytes_in cmds_in bytes_out cmds_out");
 	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
 		{
 			if (isnick(i->second->nick))
 			{
-				WriteServ(user->fd,"211 %s :%s:%d %s %d %d %d %d",user->nick,i->second->server,i->second->port,i->second->nick,i->second->bytes_in,i->second->cmds_in,i->second->bytes_out,i->second->cmds_out);
+				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->port)+" "+i->second->nick+" "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
 			}
 			else
 			{
-				WriteServ(user->fd,"211 %s :%s:%d (unknown@%d) %d %d %d %d",user->nick,i->second->server,i->second->port,i->second->fd,i->second->bytes_in,i->second->cmds_in,i->second->bytes_out,i->second->cmds_out);
+				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->port)+" (unknown@"+ConvToStr(i->second->fd)+") "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
 			}
 			
 		}
 	}
 	
 	/* stats u (show server uptime) */
-	if (*parameters[0] == 'u')
+	if (statschar == 'u')
 	{
 		time_t current_time = 0;
 		current_time = TIME;
@@ -234,15 +240,21 @@ void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 		 * Craig suggested this, and it seemed a good idea so in it went */
 		if (stime->tm_year > 70)
 		{
-			WriteServ(user->fd,"242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick,(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick,(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			results.push_back(sn+buffer);
 		}
 		else
 		{
-			WriteServ(user->fd,"242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick,stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			char buffer[MAXBUF];
+			snprintf(buffer,MAXBUF,"242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick,stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			results.push_back(sn+buffer);
 		}
 	}
 
-	WriteServ(user->fd,"219 %s %s :End of /STATS report",user->nick,parameters[0]);
-	WriteOpers("*** Notice: Stats '%s' requested by %s (%s@%s)",parameters[0],user->nick,user->ident,user->host);
-	
+	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+	WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+
+	return;
 }
+

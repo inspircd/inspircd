@@ -152,11 +152,11 @@ char* matches_exception(const char* host);
 void expire_lines();
 void apply_lines(const int What);
 
-void stats_k(userrec* user);
-void stats_g(userrec* user);
-void stats_q(userrec* user);
-void stats_z(userrec* user);
-void stats_e(userrec* user);
+void stats_k(userrec* user, string_list &results);
+void stats_g(userrec* user, string_list &results);
+void stats_q(userrec* user, string_list &results);
+void stats_z(userrec* user, string_list &results);
+void stats_e(userrec* user, string_list &results);
 
 void gline_set_creation_time(const char* host, time_t create_time);
 void qline_set_creation_time(const char* nick, time_t create_time);
