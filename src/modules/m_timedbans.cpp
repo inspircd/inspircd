@@ -177,6 +177,11 @@ class ModuleTimedBans : public Module
 						Srv->SendMode(setban,3,temp);
 						delete temp;
 					}
+					else
+					{
+						/* Ban expired while nobody was on the channel */
+						TimedBanList.erase(i);
+					}
 					// we used to delete the item here, but we dont need to as the servermode above does it for us,
 					break;
 				}
