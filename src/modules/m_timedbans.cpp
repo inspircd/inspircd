@@ -175,6 +175,13 @@ class ModuleTimedBans : public Module
 						temp->fd = FD_MAGIC_NUMBER;
 						temp->server = "";
 						Srv->SendMode(setban,3,temp);
+                                                /* FIX: Send mode remotely*/
+                                                std::deque<std::string> n;
+                                                n.push_back(i->channel);
+                                                n.push_back("-b");
+                                                n.push_back(i->mask);
+                                                Event rmode((char *)&n, NULL, "send_mode");
+                                                rmode.Send();
 						DELETE(temp);
 					}
 					else
