@@ -34,12 +34,15 @@ extern char lowermap[255];
 // (unattributed to any author) all over the 'net.
 // For now, we'll just consider this public domain.
 
-int wildcmp(char *wild, char *string)
+bool match(const char *str, const char *mask)
 {
-	char *cp, *mp;
+	unsigned char *cp, *mp;
+	unsigned char* string = (unsigned char*)str;
+	unsigned char* wild = (unsigned char*)mask;
+
 	while ((*string) && (*wild != '*'))
 	{
-		if ((lowermap[(unsigned)*wild] != lowermap[(unsigned)*string]) && (*wild != '?'))
+		if ((lowermap[*wild] != lowermap[*string]) && (*wild != '?'))
 		{
 			return 0;
 		}
@@ -59,7 +62,7 @@ int wildcmp(char *wild, char *string)
 			cp = string+1;
 		}
 		else
-		if ((lowermap[(unsigned)*wild] == lowermap[(unsigned)*string]) || (*wild == '?'))
+		if ((lowermap[*wild] == lowermap[*string]) || (*wild == '?'))
 		{
 			wild++;
 			string++;
@@ -78,16 +81,5 @@ int wildcmp(char *wild, char *string)
 	}
 
 	return !*wild;
-}
-
-// This wrapper function is required to convert both
-// strings to 'scandanavian lowercase' and make copies
-// of them to a safe location. It also ensures we don't
-// bite off more than we can chew with the length of
-// the string.
-
-bool match(const char* literal, const char* mask)
-{
-	return wildcmp((char*)mask, (char*)literal);
 }
 
