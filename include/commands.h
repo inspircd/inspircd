@@ -27,6 +27,7 @@
 #include <vector>
 #include "users.h"
 #include "channels.h"
+#include "modules.h"
 
 bool is_uline(const char* server);
 long duration(const char* str);
