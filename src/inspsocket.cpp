@@ -99,7 +99,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		strlcpy(this->host,ahost.c_str(),MAXBUF);
 		this->port = aport;
 
-		if (insp_aton(host,&addy) < 0)
+		if (insp_aton(host,&addy) < 1)
 		{
 			log(DEBUG,"Attempting to resolve %s",this->host);
 			/* Its not an ip, spawn the resolver */
@@ -200,7 +200,7 @@ bool InspSocket::BindAddr()
 				insp_sockaddr s;
 				char resolved_addr[MAXBUF];
 				
-				if (insp_aton(IP.c_str(),&n) < 0)
+				if (insp_aton(IP.c_str(),&n) < 1)
 				{
 					/* If they gave a hostname, bind to the IP it resolves to */
 					log(DEBUG,"Resolving host %s",IP.c_str());
@@ -211,7 +211,7 @@ bool InspSocket::BindAddr()
 					}
 				}
 
-				if (insp_aton(IP.c_str(),&n) == 0)
+				if (insp_aton(IP.c_str(),&n) > 0)
 				{
 					log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
 #ifdef IPV6

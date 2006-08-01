@@ -203,8 +203,11 @@ void DNS::dns_init()
                                 i++;
                         if (i4 < 8)
                         {
-                                if (insp_aton(&buf[i],&addr) == 0)
+                                if (insp_aton(&buf[i],&addr) > 0)
+				{
+					log(DEBUG,"Add server %d, %s",i4,&buf[i]);
                                         memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+				}
                         }
                 }
         }
@@ -213,12 +216,18 @@ void DNS::dns_init()
 
 void DNS::dns_init_2(const char* dnsserver)
 {
+	log(DEBUG,"*************** DNS INIT 2 **************");
         insp_inaddr addr;
         i4 = 0;
         srand((unsigned int) TIME);
         memset(servers,'\0',sizeof(insp_inaddr) * 8);
-        if (insp_aton(dnsserver,&addr) == 0)
-            memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+	log(DEBUG,"ADD DNS: %s",dnsserver);
+        if (insp_aton(dnsserver,&addr) > 0)
+	{
+		unsigned char* n = (unsigned char*)&addr;
+		log(DEBUG,"***** Add server %d, %s: %d, %d, %d, %d",i4,dnsserver,n[0],n[1],n[2],n[3]);
+		memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+	}
 }
 
 
@@ -711,7 +720,7 @@ bool DNS::ReverseLookup(const std::string &ip, bool ins)
         if (ServerInstance && ServerInstance->stats)
                 ServerInstance->stats->statsDns++;
 	insp_inaddr binip;
-        if (insp_aton(ip.c_str(), &binip) < 0)
+        if (insp_aton(ip.c_str(), &binip) < 1)
         {
                 return false;
         }
