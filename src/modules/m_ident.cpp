@@ -33,8 +33,8 @@ class RFC1413 : public InspSocket
 {
  protected:
 	Server* Srv;		 // Server* class used for core communications
-	sockaddr_in sock_us;	 // our port number
-	sockaddr_in sock_them;	 // their port number
+	insp_sockaddr sock_us;	 // our port number
+	insp_sockaddr sock_them; // their port number
 	socklen_t uslen;	 // length of our port number
 	socklen_t themlen;	 // length of their port number
 	char ident_request[128]; // buffer used to make up the request string

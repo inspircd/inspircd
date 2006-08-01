@@ -702,7 +702,7 @@ void MaintainWhoWas(time_t TIME)
 }
 
 /* add a client connection to the sockets list */
-void AddClient(int socket, int port, bool iscached, in_addr ip4)
+void AddClient(int socket, int port, bool iscached, insp_inaddr ip4)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = clientlist.find(tempnick);

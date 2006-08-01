@@ -40,9 +40,9 @@ using namespace std;
 
 namespace nspace
 {
-        template<> struct hash<in_addr>
+        template<> struct hash<insp_inaddr>
         {
-                size_t operator()(const struct in_addr &a) const;
+                size_t operator()(const insp_inaddr &a) const;
         };
 
         template<> struct hash<std::string>
@@ -68,7 +68,7 @@ namespace irc
 	};
 
 
-	/** This class returns true if two in_addr structs match.
+	/** This class returns true if two insp_inaddr structs match.
 	 * Checking is done by copying both into a size_t then doing a
 	 * numeric comparison of the two.
 	 */
@@ -76,7 +76,7 @@ namespace irc
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-	        bool operator()(const in_addr &s1, const in_addr &s2) const;
+	        bool operator()(const insp_inaddr &s1, const insp_inaddr &s2) const;
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.

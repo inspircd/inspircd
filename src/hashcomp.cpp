@@ -52,14 +52,14 @@ extern const char lowermap[255];
  * be considered the lowercase of {, } and |.
  *
  * This file also contains hashing methods for hashing
- * in_addr structs, we use this if we want to cache IP
+ * insp_inaddr structs, we use this if we want to cache IP
  * addresses.
  *
  ******************************************************/
 
 using namespace std;
 
-size_t nspace::hash<in_addr>::operator()(const struct in_addr &a) const
+size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
 {
 	size_t q;
 	memcpy(&q,&a,sizeof(size_t));
@@ -85,7 +85,7 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 	return (lowermap[*n1] == lowermap[*n2]);
 }
 
-bool irc::InAddr_HashComp::operator()(const in_addr &s1, const in_addr &s2) const
+bool irc::InAddr_HashComp::operator()(const insp_inaddr &s1, const insp_inaddr &s2) const
 {
 	return (s1.s_addr == s1.s_addr);
 }

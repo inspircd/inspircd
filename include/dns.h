@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 struct dns_ip4list
 {
-	in_addr ip;
+	insp_inaddr ip;
 	dns_ip4list *next;
 };
 
@@ -51,24 +51,24 @@ enum ResolverError
 class DNS : public Extensible
 {
 private:
-	in_addr *binip;
+	insp_inaddr *binip;
 	char* result;
 	char localbuf[1024];
 	int t;
 	void dns_init();
 	int myfd;
 	void dns_init_2(const char* dnsserver);
-	in_addr *dns_aton4(const char * const ipstring);
-	char *dns_ntoa4(const in_addr * const ip);
+	insp_inaddr *dns_aton4(const char * const ipstring);
+	char *dns_ntoa4(const insp_inaddr * const ip);
 	int dns_getip4(const char * const name);
 	int dns_getip4list(const char * const name);
-	int dns_getname4(const in_addr * const ip);
+	int dns_getname4(const insp_inaddr * const ip);
 	char *dns_getresult(const int fd);
-	in_addr *dns_aton4_s(const char * const ipstring, in_addr * const ip);
-	char *dns_ntoa4_s(const in_addr * const ip, char * const result);
+	insp_inaddr *dns_aton4_s(const char * const ipstring, insp_inaddr * const ip);
+	char *dns_ntoa4_s(const insp_inaddr * const ip, char * const result);
 	char *dns_getresult_s(const int fd, char * const result);
-	in_addr *dns_aton4_r(const char * const ipstring);
-	char *dns_ntoa4_r(const in_addr * const ip);
+	insp_inaddr *dns_aton4_r(const char * const ipstring);
+	char *dns_ntoa4_r(const insp_inaddr * const ip);
 	char *dns_getresult_r(const int fd);
 public:
 	/** The default constructor uses dns addresses read from /etc/resolv.conf.

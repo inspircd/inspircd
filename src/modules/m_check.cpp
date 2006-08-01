@@ -158,7 +158,7 @@ class cmd_check : public command_t
 		else
 		{
 			/*  /check on an IP address, or something that doesn't exist */
-			struct sockaddr_in addr;
+			insp_sockaddr addr;
 			long x = 0;
 
 			if (inet_aton(parameters[0], &addr.sin_addr) == 0)

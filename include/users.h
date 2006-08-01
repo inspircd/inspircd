@@ -246,7 +246,7 @@ class userrec : public connection
 
 	/** IPV4 ip address
 	 */
-	in_addr ip4;
+	insp_inaddr ip4;
 
 	/* Write error string
 	 */
@@ -429,7 +429,7 @@ void kill_link(userrec *user,const char* r);
 void kill_link_silent(userrec *user,const char* r);
 void AddWhoWas(userrec* u);
 void MaintainWhoWas(time_t TIME);
-void AddClient(int socket, int port, bool iscached, in_addr ip4);
+void AddClient(int socket, int port, bool iscached, insp_inaddr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
 userrec* ReHashNick(const char* Old, const char* New);
 void force_nickchange(userrec* user,const char* newnick);

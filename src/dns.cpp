@@ -74,7 +74,7 @@ connlist connections;
 
 Resolver* dns_classes[MAX_DESCRIPTORS];
 
-struct in_addr servers4[8];
+insp_inaddr servers4[8];
 int i4;
 int initdone = 0;
 int lastcreate = -1;
@@ -183,7 +183,7 @@ void DNS::dns_init()
 {
 	FILE *f;
 	int i;
-	in_addr addr4;
+	insp_inaddr addr4;
 	char buf[1024];
 	if (initdone == 1)
 		return;
@@ -191,7 +191,7 @@ void DNS::dns_init()
 
 	initdone = 1;
 	srand((unsigned int) TIME);
-	memset(servers4,'\0',sizeof(in_addr) * 8);
+	memset(servers4,'\0',sizeof(insp_inaddr) * 8);
 	f = fopen("/etc/resolv.conf","r");
 	if (f == NULL)
 		return;
@@ -204,7 +204,7 @@ void DNS::dns_init()
 			if (i4 < 8)
 			{
 				if (dns_aton4_s(&buf[i],&addr4) != NULL)
-					memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
+					memcpy(&servers4[i4++],&addr4,sizeof(insp_inaddr));
 			}
 		}
 	}
@@ -213,19 +213,19 @@ void DNS::dns_init()
 
 void DNS::dns_init_2(const char* dnsserver)
 {
-	in_addr addr4;
+	insp_inaddr addr4;
 	i4 = 0;
 	srand((unsigned int) TIME);
-	memset(servers4,'\0',sizeof(in_addr) * 8);
+	memset(servers4,'\0',sizeof(insp_inaddr) * 8);
 	if (dns_aton4_s(dnsserver,&addr4) != NULL)
-	    memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
+	    memcpy(&servers4[i4++],&addr4,sizeof(insp_inaddr));
 }
 
 
 int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 {
 	int i;
-	sockaddr_in addr4;
+	insp_sockaddr addr4;
 	unsigned char payload[sizeof(s_header)];
 
 	dns_empty_header(payload,h,l);
@@ -274,7 +274,7 @@ s_connection *dns_add_query(s_header *h)
 	}
 	if (s->fd != -1)
 	{
-		sockaddr_in addr;
+		insp_sockaddr addr;
 		memset(&addr,0,sizeof(addr));
 		addr.sin_family = AF_INET;
 		addr.sin_port = 0;
@@ -343,15 +343,15 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 	return payloadpos + 4;
 }
 
-in_addr* DNS::dns_aton4(const char * const ipstring)
+insp_inaddr* DNS::dns_aton4(const char * const ipstring)
 {
-	static in_addr ip;
+	static insp_inaddr ip;
 	return dns_aton4_s(ipstring,&ip);
 }
 
-in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant): convert string to new 4part IP addr struct */
-	in_addr* ip;
-	ip = new in_addr;
+insp_inaddr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant): convert string to new 4part IP addr struct */
+	insp_inaddr* ip;
+	ip = new insp_inaddr;
 	if(dns_aton4_s(ipstring,ip) == NULL)
 	{
 		DELETE(ip);
@@ -360,7 +360,7 @@ in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant
 	return ip;
 }
 
-in_addr* DNS::dns_aton4_s(const char *ipstring, in_addr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
+insp_inaddr* DNS::dns_aton4_s(const char *ipstring, insp_inaddr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
 	inet_aton(ipstring,ip);
 	return ip;
 }
@@ -409,7 +409,7 @@ int DNS::dns_getip4list(const char *name) { /* build, add and send A query; retr
 	return s->fd;
 }
 
-int DNS::dns_getname4(const in_addr *ip) { /* build, add and send PTR query; retrieve result with dns_getresult() */
+int DNS::dns_getname4(const insp_inaddr *ip) { /* build, add and send PTR query; retrieve result with dns_getresult() */
 	char query[512];
 	s_header h;
 	s_connection * s;
@@ -434,12 +434,12 @@ int DNS::dns_getname4(const in_addr *ip) { /* build, add and send PTR query; ret
 	return s->fd;
 }
 
-char* DNS::dns_ntoa4(const in_addr * const ip) { /* numeric to ascii: convert 4part IP addr struct to static string */
+char* DNS::dns_ntoa4(const insp_inaddr * const ip) { /* numeric to ascii: convert 4part IP addr struct to static string */
 	static char r[256];
 	return dns_ntoa4_s(ip,r);
 }
 
-char* DNS::dns_ntoa4_s(const in_addr *ip, char *r) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
+char* DNS::dns_ntoa4_s(const insp_inaddr *ip, char *r) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
 	unsigned char *m;
 	m = (unsigned char *)&ip->s_addr;
 	sprintf(r,"%d.%d.%d.%d",m[0],m[1],m[2],m[3]);

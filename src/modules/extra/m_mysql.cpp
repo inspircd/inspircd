@@ -660,7 +660,7 @@ void* DispatcherThread(void* arg);
 
 class Notifier : public InspSocket
 {
-	sockaddr_in sock_us;
+	insp_sockaddr sock_us;
 	socklen_t uslen;
 	Server* Srv;
 
@@ -841,8 +841,8 @@ void* DispatcherThread(void* arg)
 
 	log(DEBUG,"Initialize QueueFD to %d",QueueFD);
 
-	sockaddr_in addr;
-	in_addr ia;
+	insp_sockaddr addr;
+	insp_inaddr ia;
 	inet_aton("127.0.0.1", &ia);
 	addr.sin_family = AF_INET;
 	addr.sin_addr = ia;
