@@ -44,7 +44,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 	if (*addr == '*')
 		*addr = 0;
 
-	if (*addr && !insp_aton(addr,&addy))
+	if (*addr && (insp_aton(addr,&addy) < 0))
 	{
 		/* If they gave a hostname, bind to the IP it resolves to */
 		if (CleanAndResolve(resolved_addr, addr, true, 1))
@@ -278,5 +278,5 @@ const char* insp_ntoa(insp_inaddr n)
 
 int insp_aton(const char* a, insp_inaddr* n)
 {
-	return (inet_pton(AF_FAMILY, a, &n) < 0);
+	return inet_pton(AF_FAMILY, a, &n);
 }

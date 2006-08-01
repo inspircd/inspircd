@@ -711,7 +711,7 @@ bool DNS::ReverseLookup(const std::string &ip, bool ins)
         if (ServerInstance && ServerInstance->stats)
                 ServerInstance->stats->statsDns++;
 	insp_inaddr binip;
-        if (insp_aton(ip.c_str(), &binip))
+        if (insp_aton(ip.c_str(), &binip) < 0)
         {
                 return false;
         }
