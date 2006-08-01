@@ -137,6 +137,48 @@ bool userrec::ProcessNoticeMasks(const char *sm)
 	return true;
 }
 
+void userrec::StartDNSLookup()
+{
+	log(DEBUG,"Commencing forward lookup");
+	res_reverse = new UserResolver(this, insp_ntoa(this->ip4), false);
+}
+
+void UserResolver::OnLookupComplete(const std::string &result)
+{
+	if ((!this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
+	{
+		log(DEBUG,"Commencing reverse lookup");
+		this->bound_user->stored_host = result;
+		bound_user->res_reverse = new UserResolver(this->bound_user, result, true);
+	}
+	else if ((this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
+	{
+		/* Both lookups completed */
+		if (insp_ntoa(this->bound_user->ip4) == result)
+		{
+			std::string hostname = this->bound_user->stored_host;
+			if (hostname.length() < 64)
+			{
+				WriteServ(this->bound_fd, "*** Found your hostname (%s)", this->bound_user->stored_host.c_str());
+				this->bound_user->dns_done = true;
+				strlcpy(this->bound_user->dhost, hostname.c_str(),64);
+				strlcpy(this->bound_user->host, hostname.c_str(),64);
+			}
+		}
+	}
+}
+
+void UserResolver::OnError(ResolverError e)
+{
+	if (fd_ref_table[this->bound_fd] == this->bound_user)
+	{
+		/* Error message here */
+		WriteServ(this->bound_fd, "*** Could not resolve your hostname, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+		this->bound_user->dns_done = true;
+	}
+}
+		
+
 bool userrec::IsNoticeMaskSet(unsigned char sm)
 {
 	return (snomasks[sm-65]);
@@ -198,6 +240,7 @@ userrec::userrec()
 	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";
+	res_forward = res_reverse = NULL;
 	chans.clear();
 	invites.clear();
 	chans.resize(MAXCHANS);

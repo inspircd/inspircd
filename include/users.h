@@ -29,6 +29,7 @@
 #include "inspstring.h"
 #include "connection.h"
 #include "hashcomp.h"
+#include "dns.h"
 #include "cull_list.h"
 
 enum ChanStatus {
@@ -66,6 +67,18 @@ class Invited : public classbase
 {
  public:
 	 irc::string channel;
+};
+
+class UserResolver : public Resolver
+{
+ private:
+	userrec* bound_user;
+	int bound_fd;
+ public:
+	UserResolver(userrec* user, std::string to_resolve, bool forward) : Resolver(to_resolve, forward), bound_user(user) { };
+
+	void OnLookupComplete(const std::string &result);
+	void OnError(ResolverError e);
 };
 
 
@@ -146,6 +159,13 @@ class userrec : public connection
 	 */
 	InvitedList invites;
  public:
+	/** Resolvers for looking up this users hostname
+	 */
+	UserResolver* res_forward;
+	UserResolver* res_reverse;
+	std::string stored_host;
+
+	void StartDNSLookup();
 	
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.

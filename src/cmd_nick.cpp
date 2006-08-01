@@ -149,7 +149,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			user->dns_done = (!lookup_dns(user->nick));
+			user->StartDNSLookup();
 			if (user->dns_done)
 				log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 		}

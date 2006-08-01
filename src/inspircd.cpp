@@ -827,7 +827,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 			case X_LISTEN:
 
-				log(DEBUG,"Type: X_LISTEN_MODULE: fd=%d",activefds[activefd]);
+				log(DEBUG,"Type: X_LISTEN: fd=%d",activefds[activefd]);
 
 				/* It's a listener */
 				uslen = sizeof(sock_us);
