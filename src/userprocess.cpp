@@ -343,7 +343,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
 				{
 					log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-					ZapThisDns(curr->fd);
+					//ZapThisDns(curr->fd);
 					GlobalGoners.AddItem(curr,"Registration timeout");
 					continue;
 				}
@@ -355,7 +355,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
 				{
 					curr->dns_done = true;
-					ZapThisDns(curr->fd);
+					//ZapThisDns(curr->fd);
 					ServerInstance->stats->statsDnsBad++;
 					FullConnectUser(curr,&GlobalGoners);
 					continue;
@@ -369,7 +369,7 @@ void DoBackgroundUserStuff(time_t TIME)
 				{
 					log(DEBUG,"dns done, registered=3, and modules ready, OK");
 					FullConnectUser(curr,&GlobalGoners);
-					ZapThisDns(curr->fd);
+					//ZapThisDns(curr->fd);
 					continue;
 				}
 
