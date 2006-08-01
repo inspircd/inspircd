@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -74,7 +74,11 @@ connlist connections;
 
 Resolver* dns_classes[MAX_DESCRIPTORS];
 
-insp_inaddr servers[8];
+#ifdef IPV6
+in6_addr servers4[8];
+#else
+in_addr servers4[8];
+#endif
 int i4;
 int initdone = 0;
 int lastcreate = -1;
@@ -183,7 +187,7 @@ void DNS::dns_init()
 {
 	FILE *f;
 	int i;
-	insp_inaddr addr;
+	in_addr addr4;
 	char buf[1024];
 	if (initdone == 1)
 		return;
@@ -191,7 +195,7 @@ void DNS::dns_init()
 
 	initdone = 1;
 	srand((unsigned int) TIME);
-	memset(servers,'\0',sizeof(insp_inaddr) * 8);
+	memset(servers4,'\0',sizeof(in_addr) * 8);
 	f = fopen("/etc/resolv.conf","r");
 	if (f == NULL)
 		return;
@@ -203,8 +207,8 @@ void DNS::dns_init()
 				i++;
 			if (i4 < 8)
 			{
-				if (dns_aton4_s(&buf[i],&addr) != NULL)
-					memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+				if (dns_aton4_s(&buf[i],&addr4) != NULL)
+					memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 			}
 		}
 	}
@@ -213,19 +217,19 @@ void DNS::dns_init()
 
 void DNS::dns_init_2(const char* dnsserver)
 {
-	insp_inaddr addr;
+	in_addr addr4;
 	i4 = 0;
 	srand((unsigned int) TIME);
-	memset(servers,'\0',sizeof(insp_inaddr) * 8);
-	if (dns_aton4_s(dnsserver,&addr) != NULL)
-	    memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+	memset(servers4,'\0',sizeof(in_addr) * 8);
+	if (dns_aton4_s(dnsserver,&addr4) != NULL)
+	    memcpy(&servers4[i4++],&addr4,sizeof(in_addr));
 }
 
 
 int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 {
 	int i;
-	insp_sockaddr addr;
+	sockaddr_in addr4;
 	unsigned char payload[sizeof(s_header)];
 
 	dns_empty_header(payload,h,l);
@@ -234,19 +238,12 @@ int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 	i = 0;
 
 	/* otherwise send via standard ipv4 boringness */
-	memset(&addr,0,sizeof(addr));
-#ifdef IPV6
-	memcpy(&addr.sin6_addr,&servers[i],sizeof(addr.sin6_addr));
-	addr.sin6_family = AF_FAMILY;
-	addr.sin6_port = htons(53);
-#else
-	memcpy(&addr.sin_addr.s_addr,&servers[i],sizeof(addr.sin_addr));
-	addr.sin_family = AF_FAMILY;
-	addr.sin_port = htons(53);
-#endif
-	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	memset(&addr4,0,sizeof(addr4));
+	memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
+	addr4.sin_family = AF_INET;
+	addr4.sin_port = htons(53);
+	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
 	{
-		log(DEBUG,"Error in sendto!");
 		return -1;
 	}
 
@@ -269,10 +266,9 @@ s_connection *dns_add_query(s_header *h)
 	h->nscount = 0;
 	h->arcount = 0;
 	s->want_list = 0;
-	s->fd = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
+	s->fd = socket(PF_INET, SOCK_DGRAM, 0);
 	if (s->fd != -1)
 	{
-		log(DEBUG,"Set query socket nonblock");
 		if (fcntl(s->fd, F_SETFL, O_NONBLOCK) != 0)
 		{
 			shutdown(s->fd,2);
@@ -282,26 +278,17 @@ s_connection *dns_add_query(s_header *h)
 	}
 	if (s->fd != -1)
 	{
-#ifdef IPV6
-		insp_sockaddr addr;
+		sockaddr_in addr;
 		memset(&addr,0,sizeof(addr));
-		addr.sin6_family = AF_FAMILY;
-		addr.sin6_port = 0;
-		memset(&addr.sin6_addr,255,sizeof(in6_addr));
-#else
-		insp_sockaddr addr;
-		memset(&addr,0,sizeof(addr));
-		addr.sin_family = AF_FAMILY;
+		addr.sin_family = AF_INET;
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = INADDR_ANY;
 		if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
-			log(DEBUG,"Cant bind with source port = 0");
 			shutdown(s->fd,2);
 			close(s->fd);
 			s->fd = -1;
 		}
-#endif
 	}
 	if (s->fd == -1)
 	{
@@ -360,15 +347,15 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 	return payloadpos + 4;
 }
 
-insp_inaddr* DNS::dns_aton4(const char * const ipstring)
+in_addr* DNS::dns_aton4(const char * const ipstring)
 {
-	static insp_inaddr ip;
+	static in_addr ip;
 	return dns_aton4_s(ipstring,&ip);
 }
 
-insp_inaddr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant): convert string to new 4part IP addr struct */
-	insp_inaddr* ip;
-	ip = new insp_inaddr;
+in_addr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reentrant): convert string to new 4part IP addr struct */
+	in_addr* ip;
+	ip = new in_addr;
 	if(dns_aton4_s(ipstring,ip) == NULL)
 	{
 		DELETE(ip);
@@ -377,8 +364,8 @@ insp_inaddr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reent
 	return ip;
 }
 
-insp_inaddr* DNS::dns_aton4_s(const char *ipstring, insp_inaddr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
-	insp_aton(ipstring,ip);
+in_addr* DNS::dns_aton4_s(const char *ipstring, in_addr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
+	inet_aton(ipstring,ip);
 	return ip;
 }
 
@@ -426,12 +413,7 @@ int DNS::dns_getip4list(const char *name) { /* build, add and send A query; retr
 	return s->fd;
 }
 
-int DNS::dns_getname4(const insp_inaddr *ip)
-{ /* build, add and send PTR query; retrieve result with dns_getresult() */
-#ifdef IPV6
-	return -1;
-#else
-	log(DEBUG,"DNS::dns_getname4");
+int DNS::dns_getname4(const in_addr *ip) { /* build, add and send PTR query; retrieve result with dns_getresult() */
 	char query[512];
 	s_header h;
 	s_connection * s;
@@ -454,7 +436,6 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 		return -1;
 
 	return s->fd;
-#endif
 }
 
 char* DNS::dns_getresult(const int cfd) { /* retrieve result of DNS query */
@@ -898,14 +879,14 @@ void* dns_task(void* arg)
 	userrec* u = (userrec*)arg;
 	int thisfd = u->fd;
 
-	log(DEBUG,"DNS thread for user %s on ip %s",u->nick,insp_ntoa(u->ip4));
+	log(DEBUG,"DNS thread for user %s",u->nick);
 	DNS dns1(Config->DNSServer);
 	DNS dns2(Config->DNSServer);
 	std::string host;
 	std::string ip;
 	int iterations = 0;
 
-	if (dns1.ReverseLookup(insp_ntoa(u->ip4),false))
+	if (dns1.ReverseLookup(inet_ntoa(u->ip4),false))
 	{
 		/* FIX: Dont make these infinite! */
 		while ((!dns1.HasResult()) && (++iterations < 20))
@@ -929,7 +910,7 @@ void* dns_task(void* arg)
 							if (dns2.GetFD() != -1)
 							{
 								ip = dns2.GetResultIP();
-								if (ip == std::string(insp_ntoa(u->ip4)))
+								if (ip == std::string(inet_ntoa(u->ip4)))
 								{
 									if (host.length() < 65)
 									{
@@ -1086,4 +1067,3 @@ void init_dns()
 {
 	memset(dns_classes,0,sizeof(dns_classes));
 }
-
