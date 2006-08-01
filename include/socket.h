@@ -38,12 +38,14 @@
 typedef struct sockaddr_in6 insp_sockaddr;
 typedef struct in6_addr     insp_inaddr;
 #define AF_FAMILY AF_INET6
+#define PF_PROTOCOL PF_INET6
 
 #else
 
 typedef struct sockaddr_in  insp_sockaddr;
 typedef struct in_addr      insp_inaddr;
 #define AF_FAMILY AF_INET
+#define PF_PROTOCOL PF_INET
 
 #endif
 

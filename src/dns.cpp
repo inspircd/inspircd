@@ -240,12 +240,13 @@ int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 	addr.sin6_family = AF_FAMILY;
 	addr.sin6_port = htons(53);
 #else
-	memcpy(&addr.sin_addr,&servers[i],sizeof(addr.sin_addr));
+	memcpy(&addr.sin_addr.s_addr,&servers[i],sizeof(addr.sin_addr));
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
 #endif
 	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
+		log(DEBUG,"Error in sendto!");
 		return -1;
 	}
 
@@ -268,9 +269,10 @@ s_connection *dns_add_query(s_header *h)
 	h->nscount = 0;
 	h->arcount = 0;
 	s->want_list = 0;
-	s->fd = socket(PF_INET, SOCK_DGRAM, 0);
+	s->fd = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
 	if (s->fd != -1)
 	{
+		log(DEBUG,"Set query socket nonblock");
 		if (fcntl(s->fd, F_SETFL, O_NONBLOCK) != 0)
 		{
 			shutdown(s->fd,2);
@@ -280,23 +282,26 @@ s_connection *dns_add_query(s_header *h)
 	}
 	if (s->fd != -1)
 	{
+#ifdef IPV6
 		insp_sockaddr addr;
 		memset(&addr,0,sizeof(addr));
-#ifdef IPV6
 		addr.sin6_family = AF_FAMILY;
 		addr.sin6_port = 0;
 		memset(&addr.sin6_addr,255,sizeof(in6_addr));
 #else
+		insp_sockaddr addr;
+		memset(&addr,0,sizeof(addr));
 		addr.sin_family = AF_FAMILY;
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = INADDR_ANY;
-#endif
 		if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
+			log(DEBUG,"Cant bind with source port = 0");
 			shutdown(s->fd,2);
 			close(s->fd);
 			s->fd = -1;
 		}
+#endif
 	}
 	if (s->fd == -1)
 	{
@@ -426,6 +431,7 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 #ifdef IPV6
 	return -1;
 #else
+	log(DEBUG,"DNS::dns_getname4");
 	char query[512];
 	s_header h;
 	s_connection * s;
@@ -892,7 +898,7 @@ void* dns_task(void* arg)
 	userrec* u = (userrec*)arg;
 	int thisfd = u->fd;
 
-	log(DEBUG,"DNS thread for user %s",u->nick);
+	log(DEBUG,"DNS thread for user %s on ip %s",u->nick,insp_ntoa(u->ip4));
 	DNS dns1(Config->DNSServer);
 	DNS dns2(Config->DNSServer);
 	std::string host;
