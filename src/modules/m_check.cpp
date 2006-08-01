@@ -182,14 +182,14 @@ class cmd_check : public command_t
 				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 				{
 #ifdef IPV6
-					/* TODO: Clone matching for IPV6 ips */
+					if (!memcmp(addr.sin6_addr.s6_addr, a->second->ip4.s6_addr, sizeof(in6_addr)))
 #else
 					if (addr.sin_addr.s_addr == a->second->ip4.s_addr)
+#endif
 					{
 						/* same IP. */
 						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 					}
-#endif
 				}
 			}
 
