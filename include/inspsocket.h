@@ -59,7 +59,6 @@ protected:
 	/**
 	 * The resolver for this socket
 	 */
-	DNS dns;
 
 	/**
 	 * The hostname connected to

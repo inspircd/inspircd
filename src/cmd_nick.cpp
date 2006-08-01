@@ -149,20 +149,9 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-#ifdef THREADED_DNS
-			// initialize their dns lookup thread
-			pthread_attr_t attribs;
-			pthread_attr_init(&attribs);
-			pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
-			if (pthread_create(&user->dnsthread, &attribs, dns_task, (void *)user) != 0)
-			{
-				log(DEBUG,"Failed to create DNS lookup thread for user %s: %s",user->nick, strerror(errno));
-			}
-#else
 			user->dns_done = (!lookup_dns(user->nick));
 			if (user->dns_done)
 				log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
-#endif
 		}
 	}
 	if (user->registered == REG_NICKUSER)

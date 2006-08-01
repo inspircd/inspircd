@@ -103,8 +103,9 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		{
 			log(DEBUG,"Attempting to resolve %s",this->host);
 			/* Its not an ip, spawn the resolver */
-			this->dns.SetNS(std::string(Config->DNSServer));
-			this->dns.ForwardLookupWithFD(host,fd);
+
+			/* TODO: Implement resolver with new Resolver class */
+
 			timeout_end = time(NULL) + maxtime;
 			timeout = false;
 			this->state = I_RESOLVING;
@@ -149,28 +150,7 @@ void InspSocket::SetQueues(int nfd)
 bool InspSocket::DoResolve()
 {
 	log(DEBUG,"In DoResolve(), trying to resolve IP");
-	if (this->dns.HasResult())
-	{
-		log(DEBUG,"Socket has result");
-		std::string res_ip = dns.GetResultIP();
-		if (res_ip != "")
-		{
-			log(DEBUG,"Socket result set to %s",res_ip.c_str());
-			strlcpy(this->IP,res_ip.c_str(),MAXBUF);
-			socket_ref[this->fd] = NULL;
-		}
-		else
-		{
-			log(DEBUG,"Socket DNS failure");
-			this->Close();
-			this->state = I_ERROR;
-			this->OnError(I_ERR_RESOLVE);
-			this->fd = -1;
-			this->ClosePending = true;
-			return false;
-		}
-		return this->DoConnect();
-	}
+
 	log(DEBUG,"No result for socket yet!");
 	return true;
 }

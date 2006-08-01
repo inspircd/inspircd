@@ -50,67 +50,18 @@ enum ResolverError
  */
 class DNS : public Extensible
 {
-private:
+ private:
 	insp_inaddr *binip;
-	char* result;
-	char localbuf[1024];
+	unsigned char* result;
+	unsigned char localbuf[1024];
 	int t;
-	void dns_init();
-	int myfd;
-	void dns_init_2(const char* dnsserver);
-	insp_inaddr *dns_aton4(const char * const ipstring);
-	int dns_getip4(const char * const name);
-	int dns_getip4list(const char * const name);
-	int dns_getname4(const insp_inaddr * const ip);
-	char *dns_getresult(const int fd);
-	insp_inaddr *dns_aton4_s(const char * const ipstring, insp_inaddr * const ip);
-	char *dns_getresult_s(const int fd, char * const result);
-	insp_inaddr *dns_aton4_r(const char * const ipstring);
-	char *dns_getresult_r(const int fd);
-public:
-	/** The default constructor uses dns addresses read from /etc/resolv.conf.
-	 * Please note that it will re-read /etc/resolv.conf for each copy of the
-	 * class you instantiate, causing disk access and slow lookups if you create
-	 * a lot of them. Consider passing the constructor a server address as a parameter
-	 * instead.
-	 */
+	int myid;
+ public:
+	int dns_getip4(const char* name);
+	int dns_getname4(const insp_inaddr* ip);
+	int dns_getresult();
 	DNS();
-	/** This constructor accepts a dns server address. The address must be in dotted
-	 * decimal form, e.g. 1.2.3.4.
-	 */
-	DNS(const std::string &dnsserver);
-	/** The destructor frees all used structures.
-	 */
 	~DNS();
-	/** This method will start the reverse lookup of an ip given in dotted decimal
-	 * format, e.g. 1.2.3.4, and returns true if the lookup was successfully
-	 * initiated.
-	 */
-	bool ReverseLookup(const std::string &ip, bool ins);
-	/** This method will start the forward lookup of a hostname, e.g. www.inspircd.org,
-	 * and returns true if the lookup was successfully initiated.
-	 */
-	bool ForwardLookup(const std::string &host, bool ins);
-	/** Used by modules to perform a dns lookup but have the socket engine poll a module, instead of the dns object directly.
-	 */
-	bool ForwardLookupWithFD(const std::string &host, int &fd);
-	/** This method will return true when the lookup is completed. It uses poll internally
-	 * to determine the status of the socket.
-	 */
-	bool HasResult();
-	/** This method will return true if the lookup's fd matches the one provided
-	 */
-	bool HasResult(int fd);
-	/** This method returns the result of your query as a string, depending upon wether you
-	 * called DNS::ReverseLookup() or DNS::ForwardLookup.
-	 */
-	std::string GetResult();
-	std::string GetResultIP();
-	/** This method returns the file handle used by the dns query socket or zero if the
-	 * query is invalid for some reason, e.g. the dns server not responding.
-	 */
-	int GetFD();
-	void SetNS(const std::string &dnsserver);
 };
 
 /**
@@ -146,7 +97,7 @@ class Resolver : public Extensible
 	/**
 	 * The file descriptor used for the DNS lookup
 	 */
-	int fd;
+	int myid;
 	/**
 	 * The output data, e.g. a hostname or an IP.
 	 */
@@ -197,7 +148,7 @@ class Resolver : public Extensible
 	 * to determine where in various tables to place a pointer to your class, but it
 	 * is safe to call and use this method.
 	 */
-	int GetFd();
+	int GetId();
 };
 
 /**
@@ -212,8 +163,6 @@ void dns_deal_with_classes(int fd);
  * Add a resolver class to our active table
  */
 bool dns_add_class(Resolver* r);
-
-void dns_close(int fd);
 
 #ifdef THREADED_DNS
 /** This is the handler function for multi-threaded DNS.

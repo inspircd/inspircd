@@ -97,24 +97,7 @@ void NonBlocking(int s)
 
 int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward, unsigned long timeout)
 {
-	bool ok;
-	std::string ipaddr;
-
-	DNS d(Config->DNSServer);
-	if (forward)
-		ok = d.ForwardLookup(unresolvedHost, false);
-	else
-		ok = d.ReverseLookup(unresolvedHost, false);
-	if (!ok)
-		return 0;
-	time_t T = time(NULL)+timeout;
-	while ((!d.HasResult()) && (time(NULL)<T));
-	if (forward)
-		ipaddr = d.GetResultIP();
-	else
-		ipaddr = d.GetResult();
-	strlcpy(resolvedHost,ipaddr.c_str(),MAXBUF);
-	return (ipaddr != "");
+	return 0;
 }
 
 int c_count(userrec* u)

@@ -45,9 +45,6 @@
 #include <fstream>
 #include <vector>
 #include <deque>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -238,7 +235,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	this->Start();
 	module_sockets.clear();
-	init_dns();
 	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
@@ -336,11 +332,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
-#ifdef THREADED_DNS
-	char dnsengine[] = "multithread";
-#else
-	char dnsengine[] = "singlethread";
-#endif
+	char dnsengine[] = "singlethread-object";
 	if (*Config->CustomVersion)
 	{
 		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
@@ -825,20 +817,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			break;
 
 			case X_ESTAB_DNS:
-				/* When we are using single-threaded dns,
-				 * the sockets for dns end up in our mainloop.
-				 * When we are using multi-threaded dns,
-				 * each thread has its own basic poll() loop
-				 * within it, making them 'fire and forget'
-				 * and independent of the mainloop.
-				 */
-#ifndef THREADED_DNS
-				log(DEBUG,"Type: X_ESTAB_DNS: fd=%d",activefds[activefd]);
-				dns_poll(activefds[activefd]);
-#endif
-			break;
-
-			case X_ESTAB_CLASSDNS:
 				/* Handles instances of the Resolver class,
 				 * a simple class extended by modules for
 				 * nonblocking resolving of addresses.
@@ -918,6 +896,8 @@ int InspIRCd::Run()
 {
 	/* Until THIS point, ServerInstance == NULL */
 	
+	init_dns();
+
 	LoadAllModules(this);
 
 	/* Just in case no modules were loaded - fix for bug #101 */
