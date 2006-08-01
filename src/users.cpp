@@ -145,6 +145,11 @@ void userrec::StartDNSLookup()
 	MyServer->AddResolver(res_reverse);
 }
 
+UserResolver::UserResolver(userrec* user, std::string to_resolve, bool forward) : Resolver(to_resolve, forward), bound_user(user)
+{
+	this->bound_fd = user->fd;
+}
+
 void UserResolver::OnLookupComplete(const std::string &result)
 {
 	if ((!this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
