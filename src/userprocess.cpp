@@ -173,9 +173,9 @@ void ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",(char*)inet_ntoa(current->ip4));
-					log(DEFAULT,"Excess flood from: %s",(char*)inet_ntoa(current->ip4));
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)inet_ntoa(current->ip4));
+					WriteOpers("*** Excess flood from %s",(char*)insp_ntoa(current->ip4));
+					log(DEFAULT,"Excess flood from: %s",(char*)insp_ntoa(current->ip4));
+					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -190,9 +190,9 @@ void ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",(char*)inet_ntoa(current->ip4));
-					log(DEFAULT,"Excess flood from: %s",(char*)inet_ntoa(current->ip4));
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)inet_ntoa(current->ip4));
+					WriteOpers("*** Excess flood from %s",(char*)insp_ntoa(current->ip4));
+					log(DEFAULT,"Excess flood from: %s",(char*)insp_ntoa(current->ip4));
+					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -226,7 +226,7 @@ void ProcessUser(userrec* cu)
 					}
 					else
 					{
-						add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)inet_ntoa(current->ip4));
+						add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
 						apply_lines(APPLY_ZLINES);
 					}
 

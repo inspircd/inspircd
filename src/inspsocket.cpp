@@ -99,7 +99,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		strlcpy(this->host,ahost.c_str(),MAXBUF);
 		this->port = aport;
 
-		if (!inet_aton(host,&addy))
+		if (!insp_aton(host,&addy))
 		{
 			log(DEBUG,"Attempting to resolve %s",this->host);
 			/* Its not an ip, spawn the resolver */
@@ -200,7 +200,7 @@ bool InspSocket::BindAddr()
 				insp_sockaddr s;
 				char resolved_addr[MAXBUF];
 				
-				if (!inet_aton(IP.c_str(),&n))
+				if (!insp_aton(IP.c_str(),&n))
 				{
 					/* If they gave a hostname, bind to the IP it resolves to */
 					log(DEBUG,"Resolving host %s",IP.c_str());
@@ -211,11 +211,16 @@ bool InspSocket::BindAddr()
 					}
 				}
 
-				if (inet_aton(IP.c_str(),&n))
+				if (insp_aton(IP.c_str(),&n))
 				{
 					log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
+#ifdef IPV6
+					s.sin6_addr = n;
+					s.sin6_family = AF_FAMILY;
+#else
 					s.sin_addr = n;
 					s.sin_family = AF_FAMILY;
+#endif
 					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
 					{
 						log(DEBUG,"Cant bind()");
@@ -254,10 +259,16 @@ bool InspSocket::DoConnect()
 		return false;
 
 	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
-	inet_aton(this->IP,&addy);
+	insp_aton(this->IP,&addy);
+#ifdef IPV6
+	addr.sin6_family = AF_FAMILY;
+	memcpy(&addy, &addr.sin6_addr, sizeof(insp_inaddr));
+	addr.sin6_port = htons(this->port);
+#else
 	addr.sin_family = AF_FAMILY;
 	addr.sin_addr = addy;
 	addr.sin_port = htons(this->port);
+#endif
 
 	int flags;
 	flags = fcntl(this->fd, F_GETFL, 0);
@@ -459,7 +470,11 @@ bool InspSocket::Poll()
 			length = sizeof (client);
 			incoming = accept (this->fd, (sockaddr*)&client,&length);
 			this->SetQueues(incoming);
-			this->OnIncomingConnection(incoming,inet_ntoa(client.sin_addr));
+#ifdef IPV6
+			this->OnIncomingConnection(incoming,(char*)insp_ntoa(client.sin6_addr));
+#else
+			this->OnIncomingConnection(incoming,(char*)insp_ntoa(client.sin_addr));
+#endif
 			return true;
 		break;
 		case I_CONNECTED:

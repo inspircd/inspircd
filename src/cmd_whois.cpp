@@ -48,7 +48,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
 		{
-			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, inet_ntoa(dest->ip4));
+			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, insp_ntoa(dest->ip4));
 		}
 		std::string cl = chlist(dest,user);
 		if (cl.length())

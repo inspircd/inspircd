@@ -43,7 +43,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)inet_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
+	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)insp_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
 		Srv->Log(DEBUG,"Ident: associated.");
 	}
@@ -149,7 +149,11 @@ class RFC1413 : public InspSocket
 			else
 			{
 				// send the request in the following format: theirsocket,oursocket
+#ifdef IPV6
+				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin6_port),ntohs(sock_us.sin6_port));
+#else
 				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+#endif
 				this->Write(ident_request);
 				Srv->Log(DEBUG,"Sent ident request, waiting for reply");
 				return true;

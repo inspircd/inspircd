@@ -1405,7 +1405,7 @@ ConnectClass GetClass(userrec *user)
 {
 	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
-		if ((match(inet_ntoa(user->ip4),i->host.c_str())) || (match(user->host,i->host.c_str())))
+		if ((match(insp_ntoa(user->ip4),i->host.c_str())) || (match(user->host,i->host.c_str())))
 		{
 			return *i;
 		}

@@ -113,7 +113,7 @@ public:
 						}
 						if ((hostname != "") && (usr->registered != REG_ALL))
 						{
-							if ((std::string(inet_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
+							if ((std::string(insp_ntoa(usr->ip4)) == ip) && (hostname.length() < 65))
 							{
 								if ((hostname.find_last_of(".in-addr.arpa") == hostname.length() - 1) && (hostname.find_last_of(".in-addr.arpa") != std::string::npos))
 								{

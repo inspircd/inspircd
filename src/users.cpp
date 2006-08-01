@@ -706,7 +706,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip4)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = clientlist.find(tempnick);
-	const char *ipaddr = inet_ntoa(ip4);
+	const char *ipaddr = insp_ntoa(ip4);
 	userrec* _new;
 	int j = 0;
 
@@ -832,8 +832,12 @@ long FindMatchingGlobal(userrec* user)
 	long x = 0;
 	for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 	{
+#ifdef IPV6
+		/* TODO: clone matching for ipv6 */
+#else
 		if (a->second->ip4.s_addr == user->ip4.s_addr)
 			x++;
+#endif
 	}
 	return x;
 }
@@ -843,9 +847,13 @@ long FindMatchingLocal(userrec* user)
 	long x = 0;
 	for (std::vector<userrec*>::const_iterator a = local_users.begin(); a != local_users.end(); a++)
 	{
-		userrec* comp = (userrec*)(*a);
+#ifdef IPV6
+		/* TODO clone matching for ipv6 */
+#else
+		userrec* comp = *a;
 		if (comp->ip4.s_addr == user->ip4.s_addr)
 			x++;
+#endif
 	}
 	return x;
 }
@@ -873,13 +881,13 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	if (FindMatchingLocal(user) > a.maxlocal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
-		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,inet_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,insp_ntoa(user->ip4));
 		return;
 	}
 	else if (FindMatchingGlobal(user) > a.maxglobal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
-		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,inet_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,insp_ntoa(user->ip4));
 		return;
 	}
 
@@ -947,7 +955,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
 	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
 	user->registered = REG_ALL;
-	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,inet_ntoa(user->ip4));
+	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,insp_ntoa(user->ip4));
 }
 
 /** ReHashNick()

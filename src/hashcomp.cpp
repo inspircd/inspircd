@@ -87,7 +87,14 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 
 bool irc::InAddr_HashComp::operator()(const insp_inaddr &s1, const insp_inaddr &s2) const
 {
+#ifdef IPV6
+	for (int n = 0; n < 16; n++)
+		if (s2.s6_addr[n] != s1.s6_addr[n])
+			return false;
+	return true;
+#else
 	return (s1.s_addr == s1.s_addr);
+#endif
 }
 
 /******************************************************

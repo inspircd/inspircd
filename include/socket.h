@@ -47,6 +47,9 @@ typedef struct in_addr      insp_inaddr;
 
 #endif
 
+const char* insp_ntoa(insp_inaddr n);
+int insp_aton(const char* a, insp_inaddr* n);
+
 int OpenTCPSocket(); 
 bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
 int BindPorts(bool bail);

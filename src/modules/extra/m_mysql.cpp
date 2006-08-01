@@ -667,7 +667,11 @@ class Notifier : public InspSocket
  public:
 
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
+#ifdef IPV6
+	Notifier(Server* S) : InspSocket("::1", 0, true, 3000), Srv(S)
+#else
 	Notifier(Server* S) : InspSocket("127.0.0.1", 0, true, 3000), Srv(S)
+#endif
 	{
 		uslen = sizeof(sock_us);
 		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
@@ -684,7 +688,11 @@ class Notifier : public InspSocket
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
 	int GetPort()
 	{
+#ifdef IPV6
+		return ntohs(sock_us.sin6_port);
+#else
 		return ntohs(sock_us.sin_port);
+#endif
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -842,11 +850,18 @@ void* DispatcherThread(void* arg)
 	log(DEBUG,"Initialize QueueFD to %d",QueueFD);
 
 	insp_sockaddr addr;
+
+#ifdef IPV6
+	insp_aton("::1", &addr.sin6_addr);
+	addr.sin6_family = AF_FAMILY;
+	addr.sin6_port = htons(MessagePipe->GetPort());
+#else
 	insp_inaddr ia;
-	inet_aton("127.0.0.1", &ia);
+	insp_aton("127.0.0.1", &ia);
 	addr.sin_family = AF_FAMILY;
 	addr.sin_addr = ia;
 	addr.sin_port = htons(MessagePipe->GetPort());
+#endif
 
 	if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
 	{

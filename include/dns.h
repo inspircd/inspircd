@@ -59,16 +59,13 @@ private:
 	int myfd;
 	void dns_init_2(const char* dnsserver);
 	insp_inaddr *dns_aton4(const char * const ipstring);
-	char *dns_ntoa4(const insp_inaddr * const ip);
 	int dns_getip4(const char * const name);
 	int dns_getip4list(const char * const name);
 	int dns_getname4(const insp_inaddr * const ip);
 	char *dns_getresult(const int fd);
 	insp_inaddr *dns_aton4_s(const char * const ipstring, insp_inaddr * const ip);
-	char *dns_ntoa4_s(const insp_inaddr * const ip, char * const result);
 	char *dns_getresult_s(const int fd, char * const result);
 	insp_inaddr *dns_aton4_r(const char * const ipstring);
-	char *dns_ntoa4_r(const insp_inaddr * const ip);
 	char *dns_getresult_r(const int fd);
 public:
 	/** The default constructor uses dns addresses read from /etc/resolv.conf.

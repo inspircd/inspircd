@@ -160,8 +160,11 @@ class cmd_check : public command_t
 			/*  /check on an IP address, or something that doesn't exist */
 			insp_sockaddr addr;
 			long x = 0;
-
-			if (inet_aton(parameters[0], &addr.sin_addr) == 0)
+#ifdef IPV6
+			if (insp_aton(parameters[0], &addr.sin6_addr) == 0)
+#else
+			if (insp_aton(parameters[0], &addr.sin_addr) == 0)
+#endif
 			{
 				/* hostname or other */
 				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
@@ -178,11 +181,15 @@ class cmd_check : public command_t
 				/* IP address */
 				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 				{
+#ifdef IPV6
+					/* TODO: Clone matching for IPV6 ips */
+#else
 					if (addr.sin_addr.s_addr == a->second->ip4.s_addr)
 					{
 						/* same IP. */
 						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 					}
+#endif
 				}
 			}
 

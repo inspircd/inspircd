@@ -44,14 +44,19 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 	if (*addr == '*')
 		*addr = 0;
 
-	if (*addr && !inet_aton(addr,&addy))
+	if (*addr && !insp_aton(addr,&addy))
 	{
 		/* If they gave a hostname, bind to the IP it resolves to */
 		if (CleanAndResolve(resolved_addr, addr, true, 1))
 		{
-			inet_aton(resolved_addr,&addy);
+			insp_aton(resolved_addr,&addy);
 			log(DEFAULT,"Resolved binding '%s' -> '%s'",addr,resolved_addr);
+#ifdef IPV6
+			/* Todo: Deal with resolution of IPV6 */
+			server.sin6_addr = addy;
+#else
 			server.sin_addr = addy;
+#endif
 			resolved = true;
 		}
 		else
@@ -60,19 +65,35 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 			return false;
 		}
 	}
+#ifdef IPV6
+	server.sin6_family = AF_FAMILY;
+#else
 	server.sin_family = AF_FAMILY;
+#endif
 	if (!resolved)
 	{
 		if (!*addr)
 		{
+#ifdef IPV6
+			memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+#else
 			server.sin_addr.s_addr = htonl(INADDR_ANY);
+#endif
 		}
 		else
 		{
+#ifdef IPV6
+			memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+#else
 			server.sin_addr = addy;
+#endif
 		}
 	}
+#ifdef IPV6
+	server.sin6_port = htons(port);
+#else
 	server.sin_port = htons(port);
+#endif
 	if (bind(sockfd,(struct sockaddr*)&server,sizeof(server)) < 0)
 	{
 		return false;
@@ -246,4 +267,16 @@ int BindPorts(bool bail)
 	}
 
 	return BoundPortCount;
+}
+
+const char* insp_ntoa(insp_inaddr n)
+{
+	static char buf[1024];
+	inet_ntop(AF_FAMILY, &n, buf, sizeof(buf));
+	return buf;
+}
+
+int insp_aton(const char* a, insp_inaddr* n)
+{
+	return (inet_pton(AF_FAMILY, a, &n) < 0);
 }

@@ -858,7 +858,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	
 				if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
 				{
+#ifdef IPV6
+					in_port = ntohs(sock_us.sin6_port);
+#else
 					in_port = ntohs(sock_us.sin_port);
+#endif
 					log(DEBUG,"Accepted socket %d",incomingSockfd);
 					/* Years and years ago, we used to resolve here
 					 * using gethostbyaddr(). That is sucky and we
@@ -869,7 +873,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 					{
 						try
 						{
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, inet_ntoa(client.sin_addr), in_port);
+#ifdef IPV6
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin6_addr), in_port);
+#else
+							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin_addr), in_port);
+#endif
 						}
 						catch (ModuleException& modexcept)
 						{
@@ -877,7 +885,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 						}
 					}
 					stats->statsAccept++;
+#ifdef IPV6
+					AddClient(incomingSockfd, in_port, false, client.sin6_addr);
+#else
 					AddClient(incomingSockfd, in_port, false, client.sin_addr);
+#endif
 					log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
 				}
 				else

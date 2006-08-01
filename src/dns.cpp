@@ -74,7 +74,7 @@ connlist connections;
 
 Resolver* dns_classes[MAX_DESCRIPTORS];
 
-insp_inaddr servers4[8];
+insp_inaddr servers[8];
 int i4;
 int initdone = 0;
 int lastcreate = -1;
@@ -191,7 +191,7 @@ void DNS::dns_init()
 
 	initdone = 1;
 	srand((unsigned int) TIME);
-	memset(servers4,'\0',sizeof(insp_inaddr) * 8);
+	memset(servers,'\0',sizeof(insp_inaddr) * 8);
 	f = fopen("/etc/resolv.conf","r");
 	if (f == NULL)
 		return;
@@ -204,7 +204,7 @@ void DNS::dns_init()
 			if (i4 < 8)
 			{
 				if (dns_aton4_s(&buf[i],&addr) != NULL)
-					memcpy(&servers4[i4++],&addr,sizeof(insp_inaddr));
+					memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
 			}
 		}
 	}
@@ -216,9 +216,9 @@ void DNS::dns_init_2(const char* dnsserver)
 	insp_inaddr addr;
 	i4 = 0;
 	srand((unsigned int) TIME);
-	memset(servers4,'\0',sizeof(insp_inaddr) * 8);
+	memset(servers,'\0',sizeof(insp_inaddr) * 8);
 	if (dns_aton4_s(dnsserver,&addr) != NULL)
-	    memcpy(&servers4[i4++],&addr,sizeof(insp_inaddr));
+	    memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
 }
 
 
@@ -235,9 +235,15 @@ int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 
 	/* otherwise send via standard ipv4 boringness */
 	memset(&addr,0,sizeof(addr));
-	memcpy(&addr.sin_addr,&servers4[i],sizeof(addr.sin_addr));
+#ifdef IPV6
+	memcpy(&addr.sin6_addr,&servers[i],sizeof(addr.sin6_addr));
+	addr.sin6_family = AF_FAMILY;
+	addr.sin6_port = htons(53);
+#else
+	memcpy(&addr.sin_addr,&servers[i],sizeof(addr.sin_addr));
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
+#endif
 	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		return -1;
@@ -276,9 +282,15 @@ s_connection *dns_add_query(s_header *h)
 	{
 		insp_sockaddr addr;
 		memset(&addr,0,sizeof(addr));
+#ifdef IPV6
+		addr.sin6_family = AF_FAMILY;
+		addr.sin6_port = 0;
+		memset(&addr.sin6_addr,255,sizeof(in6_addr));
+#else
 		addr.sin_family = AF_FAMILY;
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = INADDR_ANY;
+#endif
 		if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			shutdown(s->fd,2);
@@ -361,7 +373,7 @@ insp_inaddr* DNS::dns_aton4_r(const char *ipstring) { /* ascii to numeric (reent
 }
 
 insp_inaddr* DNS::dns_aton4_s(const char *ipstring, insp_inaddr *ip) { /* ascii to numeric (buffered): convert string to given 4part IP addr struct */
-	inet_aton(ipstring,ip);
+	insp_aton(ipstring,ip);
 	return ip;
 }
 
@@ -409,7 +421,11 @@ int DNS::dns_getip4list(const char *name) { /* build, add and send A query; retr
 	return s->fd;
 }
 
-int DNS::dns_getname4(const insp_inaddr *ip) { /* build, add and send PTR query; retrieve result with dns_getresult() */
+int DNS::dns_getname4(const insp_inaddr *ip)
+{ /* build, add and send PTR query; retrieve result with dns_getresult() */
+#ifdef IPV6
+	return -1;
+#else
 	char query[512];
 	s_header h;
 	s_connection * s;
@@ -432,18 +448,7 @@ int DNS::dns_getname4(const insp_inaddr *ip) { /* build, add and send PTR query;
 		return -1;
 
 	return s->fd;
-}
-
-char* DNS::dns_ntoa4(const insp_inaddr * const ip) { /* numeric to ascii: convert 4part IP addr struct to static string */
-	static char r[256];
-	return dns_ntoa4_s(ip,r);
-}
-
-char* DNS::dns_ntoa4_s(const insp_inaddr *ip, char *r) { /* numeric to ascii (buffered): convert 4part IP addr struct to given string */
-	unsigned char *m;
-	m = (unsigned char *)&ip->s_addr;
-	sprintf(r,"%d.%d.%d.%d",m[0],m[1],m[2],m[3]);
-	return r;
+#endif
 }
 
 char* DNS::dns_getresult(const int cfd) { /* retrieve result of DNS query */
@@ -894,7 +899,7 @@ void* dns_task(void* arg)
 	std::string ip;
 	int iterations = 0;
 
-	if (dns1.ReverseLookup(inet_ntoa(u->ip4),false))
+	if (dns1.ReverseLookup(insp_ntoa(u->ip4),false))
 	{
 		/* FIX: Dont make these infinite! */
 		while ((!dns1.HasResult()) && (++iterations < 20))
@@ -918,7 +923,7 @@ void* dns_task(void* arg)
 							if (dns2.GetFD() != -1)
 							{
 								ip = dns2.GetResultIP();
-								if (ip == std::string(inet_ntoa(u->ip4)))
+								if (ip == std::string(insp_ntoa(u->ip4)))
 								{
 									if (host.length() < 65)
 									{
