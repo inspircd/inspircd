@@ -69,16 +69,10 @@ typedef connlist::iterator connlist_iter;
 
 DNS* Res = NULL;
 
-/* As lookups are completed, they are pushed into this result_list */
-std::map<int, std::string> result_list;
 connlist connections;
-
 int master_socket = -1;
-
 Resolver* dns_classes[65536];
-
-insp_inaddr servers[8];
-int i4;
+insp_inaddr myserver;
 
 class s_rr_middle
 {
@@ -109,7 +103,6 @@ class s_connection
 	unsigned char	res[512];
 	unsigned int    _class;
 	QueryType       type;
-	int             want_list;
 
 	s_connection()
 	{
@@ -185,14 +178,13 @@ int s_connection::send_requests(const s_header *h, const int l)
 
 	dns_empty_header(payload,h,l);
 
-	/* otherwise send via standard ipv4 boringness */
 	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
-	memcpy(&addr.sin6_addr,&servers[0],sizeof(addr.sin6_addr));
+	memcpy(&addr.sin6_addr,&myserver,sizeof(addr.sin6_addr));
 	addr.sin6_family = AF_FAMILY;
 	addr.sin6_port = htons(53);
 #else
-	memcpy(&addr.sin_addr.s_addr,&servers[0],sizeof(addr.sin_addr));
+	memcpy(&addr.sin_addr.s_addr,&myserver,sizeof(addr.sin_addr));
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
 #endif
@@ -211,7 +203,6 @@ s_connection* dns_add_query(s_header *h, int &id)
 	id = rand() % 65536;
 	s_connection * s = new s_connection();
 
-	/* set header flags */
 	h->id[0] = s->id[0] = id >> 8;
 	h->id[1] = s->id[1] = id & 0xFF;
 	h->flags1 = 0 | FLAGS1_MASK_RD;
@@ -220,7 +211,7 @@ s_connection* dns_add_query(s_header *h, int &id)
 	h->ancount = 0;
 	h->nscount = 0;
 	h->arcount = 0;
-	s->want_list = 0;
+
 	if (connections.find(id) == connections.end())
 		connections[id] = s;
 	return s;
@@ -230,11 +221,10 @@ void create_socket()
 {
 	log(DEBUG,"---- BEGIN DNS INITIALIZATION, SERVER=%s ---",Config->DNSServer);
 	insp_inaddr addr;
-	i4 = 0;
 	srand((unsigned int) TIME);
-	memset(servers,'\0',sizeof(insp_inaddr) * 8);
+	memset(&myserver,0,sizeof(insp_inaddr));
 	if (insp_aton(Config->DNSServer,&addr) > 0)
-		memcpy(&servers[i4++],&addr,sizeof(insp_inaddr));
+		memcpy(&myserver,&addr,sizeof(insp_inaddr));
 
 	master_socket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
 	if (master_socket != -1)
@@ -373,10 +363,9 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 #endif
 }
 
-/* Return the next id which is ready.
- * result_list[id] will have been populated with the result string.
+/* Return the next id which is ready, and the result attached to it
  */
-int DNS::dns_getresult()
+DNSResult DNS::dns_getresult()
 {
 	/* retrieve result of DNS query (buffered) */
 	s_header h;
@@ -387,7 +376,7 @@ int DNS::dns_getresult()
 	length = recv(master_socket,buffer,sizeof(s_header),0);
 
 	if (length < 12)
-		return -1;
+		return std::make_pair(-1,"");
 
 	dns_fill_header(&h,buffer,length - 12);
 
@@ -400,7 +389,7 @@ int DNS::dns_getresult()
         if (n_iter == connections.end())
         {
                 log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",master_socket,this_id);
-                return -1;
+                return std::make_pair(-1,"");
         }
         else
         {
@@ -410,10 +399,11 @@ int DNS::dns_getresult()
                 connections.erase(n_iter);
         }
 	unsigned char* a = c->result_ready(h, length);
+	std::string resultstr;
 
 	if (a == NULL)
 	{
-		result_list[this_id] = "";
+		resultstr = "";
 	}
 	else
 	{
@@ -421,16 +411,16 @@ int DNS::dns_getresult()
 		{
 			char formatted[1024];
 			snprintf(formatted,1024,"%u.%u.%u.%u",a[0],a[1],a[2],a[3]);
-			result_list[this_id] = std::string(formatted);
+			resultstr = std::string(formatted);
 		}
 		else
 		{
-			result_list[this_id] = std::string((const char*)a);
+			resultstr = std::string((const char*)a);
 		}
 	}
 
 	delete c;
-	return this_id;
+	return std::make_pair(this_id,resultstr);
 }
 
 /** A result is ready, process it
@@ -564,54 +554,6 @@ unsigned char* s_connection::result_ready(s_header &h, int length)
 		break;
 		case DNS_QRY_A:
 			log(DEBUG,"DNS: got a result of type DNS_QRY_A");
-			if (this->want_list)
-			{
-				dns_ip4list *alist = (dns_ip4list *) res; /* we have to trust that this is aligned */
-				while ((char *)alist - (char *)res < 700)
-				{
-					if (rr.type != DNS_QRY_A)
-						break;
-					if (rr._class != 1)
-						break;
-					if (rr.rdlength != 4)
-					{
-						return NULL;
-					}
-					memcpy(&alist->ip,&h.payload[i],4);
-					if ((unsigned)++curanswer >= h.ancount)
-						break;
-					i += rr.rdlength;
-					q = 0;
-					while (q == 0 && i < length)
-					{
-						if (h.payload[i] > 63)
-						{
-							i += 2;
-							q = 1;
-						}
-						else
-						{
-							if (h.payload[i] == 0)
-							{
-								i++;
-								q = 1;
-							}
-							else i += h.payload[i] + 1;
-						}
-					}
-					if (length - i < 10)
-					{
-						return NULL;
-					}
-					dns_fill_rr(&rr,&h.payload[i]);
-					i += 10;
-					alist->next = (dns_ip4list *) dns_align(((char *) alist) + sizeof(dns_ip4list));
-					alist = alist->next;
-					alist->next = NULL;
-				}
-				alist->next = NULL;
-				break;
-			}
 			memcpy(res,&h.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
@@ -632,7 +574,7 @@ DNS::~DNS()
 {
 }
 
-Resolver::Resolver(const std::string &source, bool forward, const std::string &dnsserver = "") : input(source), fwd(forward), server(dnsserver)
+Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd(forward)
 {
 	if (forward)
 	{
@@ -651,13 +593,20 @@ Resolver::Resolver(const std::string &source, bool forward, const std::string &d
 	{
 		log(DEBUG,"Resolver::Resolver: Could not get an id!");
 		this->OnError(RESOLVER_NSDOWN);
-		ModuleException e("Resolver: Couldnt get an id to make a request");
-		throw e;
+		throw ModuleException("Resolver: Couldnt get an id to make a request");
 		/* We shouldnt get here really */
 		return;
 	}
 
 	log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
+}
+
+void Resolver::OnLookupComplete(const std::string &result)
+{
+}
+
+void Resolver::OnError(ResolverError e)
+{
 }
 
 Resolver::~Resolver()
@@ -670,13 +619,11 @@ int Resolver::GetId()
 	return this->myid;
 }
 
-bool Resolver::ProcessResult()
+bool Resolver::ProcessResult(const std::string &result)
 {
 	log(DEBUG,"Resolver::ProcessResult");
 
-	std::map<int, std::string>::iterator x = result_list.find(this->myid);
-
-	if (x == result_list.end())
+	if (!result.length())
 	{
 		log(DEBUG,"Resolver::OnError(RESOLVER_NXDOMAIN)");
 		this->OnError(RESOLVER_NXDOMAIN);
@@ -685,19 +632,10 @@ bool Resolver::ProcessResult()
 	else
 	{
 
-		log(DEBUG,"Resolver::OnLookupComplete(%s)",x->second.c_str());
-		this->OnLookupComplete(x->second);
-		result_list.erase(x);
+		log(DEBUG,"Resolver::OnLookupComplete(%s)",result.c_str());
+		this->OnLookupComplete(result);
 		return true;
 	}
-}
-
-void Resolver::OnLookupComplete(const std::string &result)
-{
-}
-
-void Resolver::OnError(ResolverError e)
-{
 }
 
 void dns_deal_with_classes(int fd)
@@ -705,13 +643,16 @@ void dns_deal_with_classes(int fd)
 	log(DEBUG,"dns_deal_with_classes(%d)",fd);
 	if (fd == master_socket)
 	{
-		int id = Res->dns_getresult();
-		if (id != -1)
+		DNSResult res = Res->dns_getresult();
+		if (res.first != -1)
 		{
-			log(DEBUG,"Result available, id=%d",id);
-			dns_classes[id]->ProcessResult();
-			delete dns_classes[id];
-			dns_classes[id] = NULL;
+			log(DEBUG,"Result available, id=%d",res.first);
+			if (dns_classes[res.first])
+			{
+				dns_classes[res.first]->ProcessResult(res.second);
+				delete dns_classes[res.first];
+				dns_classes[res.first] = NULL;
+			}
 		}
 	}
 }

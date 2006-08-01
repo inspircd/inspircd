@@ -56,7 +56,7 @@ class CGIResolver : public Resolver
 	bool notify;
  public:
 	CGIResolver(bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type)
-		: Resolver(source, forward, ""), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+		: Resolver(source, forward), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
