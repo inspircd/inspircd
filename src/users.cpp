@@ -833,7 +833,11 @@ long FindMatchingGlobal(userrec* user)
 	for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 	{
 #ifdef IPV6
-		/* TODO: clone matching for ipv6 */
+		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp
+		 * Let me know if you think of one.
+		  */
+		if (!memcmp(a->second->ip4.s6_addr, user->ip4.s6_addr, sizeof(in6_addr)))
+			x++;
 #else
 		if (a->second->ip4.s_addr == user->ip4.s_addr)
 			x++;
@@ -847,10 +851,12 @@ long FindMatchingLocal(userrec* user)
 	long x = 0;
 	for (std::vector<userrec*>::const_iterator a = local_users.begin(); a != local_users.end(); a++)
 	{
-#ifdef IPV6
-		/* TODO clone matching for ipv6 */
-#else
 		userrec* comp = *a;
+#ifdef IPV6
+		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
+		if (!memcmp(comp->ip4.s6_addr, user->ip4.s6_addr, sizeof(in6_addr)))
+			x++;
+#else
 		if (comp->ip4.s_addr == user->ip4.s_addr)
 			x++;
 #endif
