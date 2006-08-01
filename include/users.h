@@ -75,7 +75,10 @@ class UserResolver : public Resolver
 	userrec* bound_user;
 	int bound_fd;
  public:
-	UserResolver(userrec* user, std::string to_resolve, bool forward) : Resolver(to_resolve, forward), bound_user(user) { };
+	UserResolver(userrec* user, std::string to_resolve, bool forward) : Resolver(to_resolve, forward), bound_user(user)
+	{
+		this->bound_fd = user->fd;
+	}
 
 	void OnLookupComplete(const std::string &result);
 	void OnError(ResolverError e);

@@ -48,6 +48,7 @@ extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern ServerConfig *Config;
 extern user_hash clientlist;
+extern Server* MyServer;
 
 whowas_users whowas;
 
@@ -141,6 +142,7 @@ void userrec::StartDNSLookup()
 {
 	log(DEBUG,"Commencing forward lookup");
 	res_reverse = new UserResolver(this, insp_ntoa(this->ip4), false);
+	MyServer->AddResolver(res_reverse);
 }
 
 void UserResolver::OnLookupComplete(const std::string &result)
@@ -149,7 +151,8 @@ void UserResolver::OnLookupComplete(const std::string &result)
 	{
 		log(DEBUG,"Commencing reverse lookup");
 		this->bound_user->stored_host = result;
-		bound_user->res_reverse = new UserResolver(this->bound_user, result, true);
+		bound_user->res_forward = new UserResolver(this->bound_user, result, true);
+		MyServer->AddResolver(bound_user->res_forward);
 	}
 	else if ((this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
 	{
