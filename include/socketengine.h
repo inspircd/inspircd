@@ -35,13 +35,12 @@ const char X_LISTEN             = 1;
 const char X_ESTAB_CLIENT       = 2;
 const char X_ESTAB_MODULE       = 3;
 const char X_ESTAB_DNS          = 4;
-const char X_ESTAB_CLASSDNS	= 5;
 
 /**
  * To indicate that a socket is readable, we
  * mask its top bit with this X_READBIT value.
  * The socket engine can handle two types of
- * socket, readable and writeable (error sockets
+ * socket, readable and writeable (;error sockets
  * are dealt with when read() and write() return
  * negative or zero values).
  */
