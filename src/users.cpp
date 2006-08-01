@@ -21,10 +21,6 @@
 #include "users.h"
 #include "inspircd.h"
 #include <stdio.h>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#include <signal.h>
-#endif
 #include "inspstring.h"
 #include "commands.h"
 #include "helperfuncs.h"
@@ -165,13 +161,21 @@ void UserResolver::OnLookupComplete(const std::string &result)
 		if (insp_ntoa(this->bound_user->ip4) == result)
 		{
 			std::string hostname = this->bound_user->stored_host;
-			if (hostname.length() < 64)
+			if (hostname.length() < 65)
 			{
-				WriteServ(this->bound_fd, "*** Found your hostname (%s)", this->bound_user->stored_host.c_str());
+				WriteServ(this->bound_fd, "NOTICE Auth :*** Found your hostname (%s)", this->bound_user->stored_host.c_str());
 				this->bound_user->dns_done = true;
 				strlcpy(this->bound_user->dhost, hostname.c_str(),64);
 				strlcpy(this->bound_user->host, hostname.c_str(),64);
 			}
+			else
+			{
+				WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+			}
+		}
+		else
+		{
+			WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
 		}
 	}
 }
@@ -270,12 +274,6 @@ userrec::~userrec()
 		ucrec* x = (ucrec*)*n;
 		delete x;
 	}
-#ifdef THREADED_DNS
-	if ((IS_LOCAL(this)) && (!dns_done) && (registered >= REG_NICKUSER))
-	{
-		pthread_kill(this->dnsthread, SIGTERM);
-	}
-#endif
 }
 
 /* XXX - minor point, other *Host functions return a char *, this one creates it. Might be nice to be consistant? */

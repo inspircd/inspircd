@@ -29,9 +29,6 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
 #ifndef RUSAGE_SELF
 #define   RUSAGE_SELF     0
 #define   RUSAGE_CHILDREN     -1
@@ -47,7 +44,6 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"

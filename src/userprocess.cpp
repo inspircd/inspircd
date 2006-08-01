@@ -33,10 +33,6 @@ using namespace std;
 #include <sstream>
 #include <vector>
 #include <deque>
-#include <sched.h>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
 #include "users.h"
 #include "ctables.h"
 #include "globals.h"
@@ -48,7 +44,6 @@ using namespace std;
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"

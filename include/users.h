@@ -18,11 +18,6 @@
 #define __USERS_H__ 
 
 #include <string>
-
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
-
 #include "inspircd_config.h" 
 #include "socket.h"
 #include "channels.h"
@@ -69,9 +64,15 @@ class Invited : public classbase
 	 irc::string channel;
 };
 
+
+
+/** Derived from Resolver, and performs user forward/reverse lookups.
+ */
 class UserResolver : public Resolver
 {
  private:
+	/** User this class is 'attached' to.
+	 */
 	userrec* bound_user;
 	int bound_fd;
  public:
@@ -416,12 +417,6 @@ class userrec : public connection
 	/** Default destructor
 	 */
 	virtual ~userrec();
-
-#ifdef THREADED_DNS
-	/** Thread used for threaded lookups
-	 */
-	pthread_t dnsthread;
-#endif
 };
 
 /** Used to hold WHOWAS information

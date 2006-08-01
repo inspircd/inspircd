@@ -26,10 +26,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <sched.h>
-#ifdef THREADED_DNS
-#include <pthread.h>
-#endif
 #include "users.h"
 #include "globals.h"
 #include "modules.h"
@@ -40,7 +36,6 @@
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "dnsqueue.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "socketengine.h"

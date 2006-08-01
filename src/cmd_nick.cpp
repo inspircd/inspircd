@@ -23,7 +23,6 @@
 #include "modules.h"
 #include "commands.h"
 #include "xline.h"
-#include "dnsqueue.h"
 #include "dns.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
