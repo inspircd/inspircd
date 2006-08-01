@@ -183,7 +183,7 @@ void DNS::dns_init()
 {
 	FILE *f;
 	int i;
-	insp_inaddr addr4;
+	insp_inaddr addr;
 	char buf[1024];
 	if (initdone == 1)
 		return;
@@ -203,8 +203,8 @@ void DNS::dns_init()
 				i++;
 			if (i4 < 8)
 			{
-				if (dns_aton4_s(&buf[i],&addr4) != NULL)
-					memcpy(&servers4[i4++],&addr4,sizeof(insp_inaddr));
+				if (dns_aton4_s(&buf[i],&addr) != NULL)
+					memcpy(&servers4[i4++],&addr,sizeof(insp_inaddr));
 			}
 		}
 	}
@@ -213,19 +213,19 @@ void DNS::dns_init()
 
 void DNS::dns_init_2(const char* dnsserver)
 {
-	insp_inaddr addr4;
+	insp_inaddr addr;
 	i4 = 0;
 	srand((unsigned int) TIME);
 	memset(servers4,'\0',sizeof(insp_inaddr) * 8);
-	if (dns_aton4_s(dnsserver,&addr4) != NULL)
-	    memcpy(&servers4[i4++],&addr4,sizeof(insp_inaddr));
+	if (dns_aton4_s(dnsserver,&addr) != NULL)
+	    memcpy(&servers4[i4++],&addr,sizeof(insp_inaddr));
 }
 
 
 int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 {
 	int i;
-	insp_sockaddr addr4;
+	insp_sockaddr addr;
 	unsigned char payload[sizeof(s_header)];
 
 	dns_empty_header(payload,h,l);
@@ -234,11 +234,11 @@ int dns_send_requests(const s_header *h, const s_connection *s, const int l)
 	i = 0;
 
 	/* otherwise send via standard ipv4 boringness */
-	memset(&addr4,0,sizeof(addr4));
-	memcpy(&addr4.sin_addr,&servers4[i],sizeof(addr4.sin_addr));
-	addr4.sin_family = AF_INET;
-	addr4.sin_port = htons(53);
-	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr4, sizeof(addr4)) == -1)
+	memset(&addr,0,sizeof(addr));
+	memcpy(&addr.sin_addr,&servers4[i],sizeof(addr.sin_addr));
+	addr.sin_family = AF_FAMILY;
+	addr.sin_port = htons(53);
+	if (sendto(s->fd, payload, l + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		return -1;
 	}
@@ -276,7 +276,7 @@ s_connection *dns_add_query(s_header *h)
 	{
 		insp_sockaddr addr;
 		memset(&addr,0,sizeof(addr));
-		addr.sin_family = AF_INET;
+		addr.sin_family = AF_FAMILY;
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = INADDR_ANY;
 		if (bind(s->fd,(sockaddr *)&addr,sizeof(addr)) != 0)

@@ -60,7 +60,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 			return false;
 		}
 	}
-	server.sin_family = AF_INET;
+	server.sin_family = AF_FAMILY;
 	if (!resolved)
 	{
 		if (!*addr)
@@ -101,7 +101,7 @@ int OpenTCPSocket()
 	int on = 1;
 	struct linger linger = { 0 };
   
-	if ((sockfd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
+	if ((sockfd = socket (AF_FAMILY, SOCK_STREAM, 0)) < 0)
 	{
 		log(DEFAULT,"Error creating TCP socket: %s",strerror(errno));
 		return (ERROR);

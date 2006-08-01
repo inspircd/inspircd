@@ -215,7 +215,7 @@ bool InspSocket::BindAddr()
 				{
 					log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
 					s.sin_addr = n;
-					s.sin_family = AF_INET;
+					s.sin_family = AF_FAMILY;
 					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
 					{
 						log(DEBUG,"Cant bind()");
@@ -241,7 +241,7 @@ bool InspSocket::BindAddr()
 bool InspSocket::DoConnect()
 {
 	log(DEBUG,"In DoConnect()");
-	if ((this->fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((this->fd = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
 	{
 		log(DEBUG,"Cant socket()");
 		this->state = I_ERROR;
@@ -255,7 +255,7 @@ bool InspSocket::DoConnect()
 
 	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
 	inet_aton(this->IP,&addy);
-	addr.sin_family = AF_INET;
+	addr.sin_family = AF_FAMILY;
 	addr.sin_addr = addy;
 	addr.sin_port = htons(this->port);
 

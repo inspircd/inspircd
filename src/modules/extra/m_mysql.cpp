@@ -832,7 +832,7 @@ void* DispatcherThread(void* arg)
 
 	/* Connect back to the Notifier */
 
-	if ((QueueFD = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
 	{
 		/* crap, we're out of sockets... */
 		log(DEBUG,"QueueFD cant be created");
@@ -844,7 +844,7 @@ void* DispatcherThread(void* arg)
 	insp_sockaddr addr;
 	insp_inaddr ia;
 	inet_aton("127.0.0.1", &ia);
-	addr.sin_family = AF_INET;
+	addr.sin_family = AF_FAMILY;
 	addr.sin_addr = ia;
 	addr.sin_port = htons(MessagePipe->GetPort());
 
