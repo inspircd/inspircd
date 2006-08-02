@@ -3091,17 +3091,21 @@ class ServernameResolver : public Resolver
 		 * Passing a hostname directly to InspSocket causes it to
 		 * just bail and set its FD to -1.
 		 */
-		TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
-		if (newsocket->GetFd() > -1)
+		TreeServer* CheckDupe = FindServer(MyLink.Name.c_str());
+		if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 		{
-			/* We're all OK */
-			Srv->AddSocket(newsocket);
-		}
-		else
-		{
-			/* Something barfed, show the opers */
-			WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
-			delete newsocket;
+			TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
+			if (newsocket->GetFd() > -1)
+			{
+				/* We're all OK */
+				Srv->AddSocket(newsocket);
+			}
+			else
+			{
+				/* Something barfed, show the opers */
+				WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+				delete newsocket;
+			}
 		}
 	}
 
@@ -3718,6 +3722,7 @@ class ModuleSpanningTree : public Module
 
 					insp_inaddr binip;
 
+					/* Do we already have an IP? If so, no need to resolve it. */
 					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
 						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
@@ -3791,6 +3796,7 @@ class ModuleSpanningTree : public Module
 					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 					insp_inaddr binip;
 
+					/* Do we already have an IP? If so, no need to resolve it. */
 					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
 						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
