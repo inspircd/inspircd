@@ -670,6 +670,8 @@ void DNS::MarshallReads(int fd)
 				log(DEBUG,"Error available, id=%d",res.first);
 				if (Classes[res.first])
 				{
+					if (ServerInstance && ServerInstance->stats)
+						ServerInstance->stats->statsDnsBad++;
 					Classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
 					delete Classes[res.first];
 					Classes[res.first] = NULL;
@@ -682,11 +684,17 @@ void DNS::MarshallReads(int fd)
 				/* Marshall the result to the correct class */
 				if (Classes[res.first])
 				{
+					if (ServerInstance && ServerInstance->stats)
+						ServerInstance->stats->statsDnsGood++;
 					Classes[res.first]->OnLookupComplete(res.second);
 					delete Classes[res.first];
 					Classes[res.first] = NULL;
 				}
 			}
+
+			if (ServerInstance && ServerInstance->stats)
+				ServerInstance->stats->statsDns++;
+
 		}
 	}
 }
