@@ -50,12 +50,25 @@ extern ServerConfig* Config;
 extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
-enum QueryType { DNS_QRY_A = 1, DNS_QRY_PTR = 12 };
-enum QueryFlags1 { FLAGS1_MASK_RD = 0x01, FLAGS1_MASK_TC = 0x02, FLAGS1_MASK_AA = 0x04, FLAGS1_MASK_OPCODE = 0x78, FLAGS1_MASK_QR = 0x80 };
-enum QueryFlags2 { FLAGS2_MASK_RCODE = 0x0F, FLAGS2_MASK_Z = 0x70, FLAGS2_MASK_RA = 0x80 };
+enum QueryType
+{
+	DNS_QRY_A	= 1,
+	DNS_QRY_PTR	= 12
+};
+
+enum QueryFlags
+{
+	FLAGS_MASK_RD		= 0x01,
+	FLAGS_MASK_TC		= 0x02,
+	FLAGS_MASK_AA		= 0x04,
+	FLAGS_MASK_OPCODE	= 0x78,
+	FLAGS_MASK_QR		= 0x80,
+	FLAGS_MASK_RCODE	= 0x0F,
+	FLAGS_MASK_Z		= 0x70,
+	FLAGS_MASK_RA 		= 0x80
+};
 
 class dns_connection;
-
 typedef std::map<int,dns_connection*> connlist;
 typedef connlist::iterator connlist_iter;
 
@@ -70,7 +83,7 @@ class dns_rr_middle
 {
  public:
 	QueryType	type;
-	unsigned int	_class;
+	unsigned int	rr_class;
 	unsigned long	ttl;
 	unsigned int	rdlength;
 };
@@ -93,7 +106,7 @@ class dns_connection
  public:
 	unsigned char   id[2];
 	unsigned char*	res;
-	unsigned int    _class;
+	unsigned int    rr_class;
 	QueryType       type;
 
 	dns_connection()
@@ -121,12 +134,12 @@ class dns_connection
 inline void dns_fill_rr(dns_rr_middle* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
-	rr->_class = (input[2] << 8) + input[3];
+	rr->rr_class = (input[2] << 8) + input[3];
 	rr->ttl = (input[4] << 24) + (input[5] << 16) + (input[6] << 8) + input[7];
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-inline void dns_fill_header(dns_header *header, const unsigned char *input, const int l)
+inline void dns_fill_header(dns_header *header, const unsigned char *input, const int length)
 {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
@@ -136,10 +149,10 @@ inline void dns_fill_header(dns_header *header, const unsigned char *input, cons
 	header->ancount = (input[6] << 8) + input[7];
 	header->nscount = (input[8] << 8) + input[9];
 	header->arcount = (input[10] << 8) + input[11];
-	memcpy(header->payload,&input[12],l);
+	memcpy(header->payload,&input[12],length);
 }
 
-inline void dns_empty_header(unsigned char *output, const dns_header *header, const int l)
+inline void dns_empty_header(unsigned char *output, const dns_header *header, const int length)
 {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
@@ -153,19 +166,19 @@ inline void dns_empty_header(unsigned char *output, const dns_header *header, co
 	output[9] = header->nscount & 0xFF;
 	output[10] = header->arcount >> 8;
 	output[11] = header->arcount & 0xFF;
-	memcpy(&output[12],header->payload,l);
+	memcpy(&output[12],header->payload,length);
 }
 
 
-int dns_connection::send_requests(const dns_header *h, const int l, QueryType qt)
+int dns_connection::send_requests(const dns_header *h, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
 	unsigned char payload[sizeof(dns_header)];
 
-	this->_class = 1;
+	this->rr_class = 1;
 	this->type = qt;
 		
-	dns_empty_header(payload,h,l);
+	dns_empty_header(payload,h,length);
 
 	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
@@ -177,7 +190,7 @@ int dns_connection::send_requests(const dns_header *h, const int l, QueryType qt
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
 #endif
-	if (sendto(master_socket, payload, l + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	if (sendto(master_socket, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		log(DEBUG,"Error in sendto!");
 		return -1;
@@ -194,7 +207,7 @@ dns_connection* dns_add_query(dns_header *h, int &id)
 
 	h->id[0] = s->id[0] = id >> 8;
 	h->id[1] = s->id[1] = id & 0xFF;
-	h->flags1 = FLAGS1_MASK_RD;
+	h->flags1 = FLAGS_MASK_RD;
 	h->flags2 = 0;
 	h->qdcount = 1;
 	h->ancount = 0;
@@ -259,7 +272,7 @@ void create_socket()
 	}
 }
 
-int dns_build_query_payload(const char * const name, const unsigned short rr, const unsigned short _class, unsigned char * const payload)
+int dns_build_query_payload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
 {
 	short payloadpos;
 	const char * tempchr, * tempchr2;
@@ -293,7 +306,7 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 		return -1;
 	l = htons(rr);
 	memcpy(&payload[payloadpos],&l,2);
-	l = htons(_class);
+	l = htons(rr_class);
 	memcpy(&payload[payloadpos + 2],&l,2);
 	return payloadpos + 4;
 }
@@ -413,17 +426,17 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 	dns_rr_middle rr;
  	unsigned short p;
 					
-	if ((h.flags1 & FLAGS1_MASK_QR) == 0)
+	if ((h.flags1 & FLAGS_MASK_QR) == 0)
 	{
 		log(DEBUG,"DNS: didnt get a query result");
 		return NULL;
 	}
-	if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0)
+	if ((h.flags1 & FLAGS_MASK_OPCODE) != 0)
 	{
 		log(DEBUG,"DNS: got an OPCODE and didnt want one");
 		return NULL;
 	}
-	if ((h.flags2 & FLAGS2_MASK_RCODE) != 0)
+	if ((h.flags2 & FLAGS_MASK_RCODE) != 0)
 	{
 		log(DEBUG,"DNS lookup failed due to SERVFAIL");
 		return NULL;
@@ -486,7 +499,7 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 			i += rr.rdlength;
 			continue;
 		}
-		if (rr._class != this->_class)
+		if (rr.rr_class != this->rr_class)
 		{
 			curanswer++;
 			i += rr.rdlength;
