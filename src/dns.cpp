@@ -29,23 +29,15 @@ look very different to this! :-P
 using namespace std;
 
 #include <string>
-#include <stdlib.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/time.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <poll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <map>
-#include <algorithm>
 #include "dns.h"
 #include "inspircd.h"
 #include "helperfuncs.h"
@@ -62,9 +54,9 @@ enum QueryType { DNS_QRY_A = 1, DNS_QRY_PTR = 12 };
 enum QueryFlags1 { FLAGS1_MASK_RD = 0x01, FLAGS1_MASK_TC = 0x02, FLAGS1_MASK_AA = 0x04, FLAGS1_MASK_OPCODE = 0x78, FLAGS1_MASK_QR = 0x80 };
 enum QueryFlags2 { FLAGS2_MASK_RCODE = 0x0F, FLAGS2_MASK_Z = 0x70, FLAGS2_MASK_RA = 0x80 };
 
-class s_connection;
+class dns_connection;
 
-typedef std::map<int,s_connection*> connlist;
+typedef std::map<int,dns_connection*> connlist;
 typedef connlist::iterator connlist_iter;
 
 DNS* Res = NULL;
@@ -74,7 +66,7 @@ int master_socket = -1;
 Resolver* dns_classes[65536];
 insp_inaddr myserver;
 
-class s_rr_middle
+class dns_rr_middle
 {
  public:
 	QueryType	type;
@@ -83,7 +75,7 @@ class s_rr_middle
 	unsigned int	rdlength;
 };
 
-class s_header
+class dns_header
 {
  public:
 	unsigned char	id[2];
@@ -96,21 +88,27 @@ class s_header
 	unsigned char	payload[512];
 };
 
-class s_connection
+class dns_connection
 {
  public:
 	unsigned char   id[2];
-	unsigned char	res[512];
+	unsigned char*	res;
 	unsigned int    _class;
 	QueryType       type;
 
-	s_connection()
+	dns_connection()
 	{
+		res = new unsigned char[512];
 		*res = 0;
 	}
 
-	unsigned char*	result_ready(s_header &h, int length);
-	int		send_requests(const s_header *h, const int l, QueryType qt);
+	~dns_connection()
+	{
+		delete[] res;
+	}
+
+	unsigned char*	result_ready(dns_header &h, int length);
+	int		send_requests(const dns_header *h, const int l, QueryType qt);
 };
 
 /*
@@ -120,7 +118,7 @@ class s_connection
  * but of course, more impressive). Also made these inline.
  */
 
-inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input)
+inline void dns_fill_rr(dns_rr_middle* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->_class = (input[2] << 8) + input[3];
@@ -128,7 +126,7 @@ inline void dns_fill_rr(s_rr_middle* rr, const unsigned char *input)
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-inline void dns_fill_header(s_header *header, const unsigned char *input, const int l)
+inline void dns_fill_header(dns_header *header, const unsigned char *input, const int l)
 {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
@@ -141,7 +139,7 @@ inline void dns_fill_header(s_header *header, const unsigned char *input, const 
 	memcpy(header->payload,&input[12],l);
 }
 
-inline void dns_empty_header(unsigned char *output, const s_header *header, const int l)
+inline void dns_empty_header(unsigned char *output, const dns_header *header, const int l)
 {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
@@ -159,10 +157,10 @@ inline void dns_empty_header(unsigned char *output, const s_header *header, cons
 }
 
 
-int s_connection::send_requests(const s_header *h, const int l, QueryType qt)
+int dns_connection::send_requests(const dns_header *h, const int l, QueryType qt)
 {
 	insp_sockaddr addr;
-	unsigned char payload[sizeof(s_header)];
+	unsigned char payload[sizeof(dns_header)];
 
 	this->_class = 1;
 	this->type = qt;
@@ -188,15 +186,15 @@ int s_connection::send_requests(const s_header *h, const int l, QueryType qt)
 	return 0;
 }
 
-s_connection* dns_add_query(s_header *h, int &id)
+dns_connection* dns_add_query(dns_header *h, int &id)
 {
 
 	id = rand() % 65536;
-	s_connection * s = new s_connection();
+	dns_connection * s = new dns_connection();
 
 	h->id[0] = s->id[0] = id >> 8;
 	h->id[1] = s->id[1] = id & 0xFF;
-	h->flags1 = 0 | FLAGS1_MASK_RD;
+	h->flags1 = FLAGS1_MASK_RD;
 	h->flags2 = 0;
 	h->qdcount = 1;
 	h->ancount = 0;
@@ -302,10 +300,10 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 
 int DNS::dns_getip4(const char *name)
 {
-	s_header h;
+	dns_header h;
 	int id;
 	int length;
-	s_connection* req;
+	dns_connection* req;
 	
 	if ((length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
@@ -325,10 +323,10 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 	return -1;
 #else
 	char query[29];
-	s_header h;
+	dns_header h;
 	int id;
 	int length;
-	s_connection* req;
+	dns_connection* req;
 
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
@@ -352,12 +350,12 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 DNSResult DNS::dns_getresult()
 {
 	/* retrieve result of DNS query (buffered) */
-	s_header h;
-	s_connection *c;
+	dns_header h;
+	dns_connection *c;
 	int length;
-	unsigned char buffer[sizeof(s_header)];
+	unsigned char buffer[sizeof(dns_header)];
 
-	length = recv(master_socket,buffer,sizeof(s_header),0);
+	length = recv(master_socket,buffer,sizeof(dns_header),0);
 
 	if (length < 12)
 		return std::make_pair(-1,"");
@@ -378,7 +376,7 @@ DNSResult DNS::dns_getresult()
         else
         {
                 /* Remove the query from the list */
-                c = (s_connection*)n_iter->second;
+                c = (dns_connection*)n_iter->second;
                 /* We don't delete c here, because its done later when needed */
                 connections.erase(n_iter);
         }
@@ -409,10 +407,10 @@ DNSResult DNS::dns_getresult()
 
 /** A result is ready, process it
  */
-unsigned char* s_connection::result_ready(s_header &h, int length)
+unsigned char* dns_connection::result_ready(dns_header &h, int length)
 {
 	int i, q, curanswer, o;
-	s_rr_middle rr;
+	dns_rr_middle rr;
  	unsigned short p;
 					
 	if ((h.flags1 & FLAGS1_MASK_QR) == 0)
