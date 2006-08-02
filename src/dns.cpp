@@ -461,7 +461,7 @@ DNSInfo dns_connection::result_ready(dns_header &header, int length)
 		return std::make_pair((unsigned char*)NULL,"Unexpected value in DNS reply packet");
 
 	if (header.flags2 & FLAGS_MASK_RCODE)
-		return std::make_pair((unsigned char*)NULL,"Internal server error (SERVFAIL)");
+		return std::make_pair((unsigned char*)NULL,"Domain name not found");
 
 	if (header.ancount < 1)
 		return std::make_pair((unsigned char*)NULL,"No resource records returned");
