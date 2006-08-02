@@ -159,10 +159,12 @@ class DNS : public Extensible
 {
  private:
 
+	static const int MAX_REQUEST_ID = 65535;
+
 	requestlist requests;
 	insp_inaddr myserver;
 	static int MasterSocket;
-	Resolver* Classes[65536];
+	Resolver* Classes[MAX_REQUEST_ID];
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
