@@ -367,47 +367,66 @@ int DNS::dns_getname(const insp_inaddr *ip)
  */
 DNSResult DNS::dns_getresult()
 {
-	/* retrieve result of DNS query (buffered) */
+	/* Fetch dns query response and decide where it belongs */
 	dns_header header;
 	dns_connection *req;
 	int length;
 	unsigned char buffer[sizeof(dns_header)];
 
+	/* Attempt to read a header */
 	length = recv(master_socket,buffer,sizeof(dns_header),0);
 
+	/* Did we get the whole header? */
 	if (length < 12)
+		/* Nope - something screwed up. */
 		return std::make_pair(-1,"");
 
+	/* Put the read header info into a header class */
 	dns_fill_header(&header,buffer,length - 12);
 
-	// Get the id of this request
+	/* Get the id of this request.
+	 * Its a 16 bit value stored in two char's,
+	 * so we use logic shifts to create the value.
+	 */
 	unsigned long this_id = header.id[1] + (header.id[0] << 8);
 
-	// Do we have a pending request for it?
-
+	/* Do we have a pending request matching this id? */
         connlist_iter n_iter = connections.find(this_id);
         if (n_iter == connections.end())
         {
+		/* Somehow we got a DNS response for a request we never made... */
                 log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",master_socket,this_id);
                 return std::make_pair(-1,"");
         }
         else
         {
-		/* Remove the query from the list */
+		/* Remove the query from the list of pending queries */
 		req = (dns_connection*)n_iter->second;
-		/* We don't delete c here, because its done later when needed */
 		connections.erase(n_iter);
         }
+
+	/* Inform the dns_connection class that it has a result to be read.
+	 * When its finished it will return a DNSInfo which is a pair of
+	 * unsigned char* resource record data, and an error message.
+	 */
 	DNSInfo data = req->result_ready(header, length);
 	std::string resultstr;
 
+	/* Check if we got a result, if we didnt, its an error */
 	if (data.first == NULL)
 	{
+		/* An error.
+		 * Mask the ID with the value of ERROR_MASK, so that
+		 * the dns_deal_with_classes() function knows that its
+		 * an error response and needs to be treated uniquely.
+		 * Put the error message in the second field.
+		 */
 		delete req;
 		return std::make_pair(this_id | ERROR_MASK, data.second);
 	}
 	else
 	{
+		/* Forward lookups come back as binary data. We must format them into ascii */
 		if (req->type == DNS_QRY_A)
 		{
 			char formatted[16];
@@ -416,16 +435,17 @@ DNSResult DNS::dns_getresult()
 		}
 		else
 		{
+			/* Reverse lookups just come back as char* */
 			resultstr = std::string((const char*)data.first);
 		}
 
+		/* Build the reply with the id and hostname/ip in it */
 		delete req;
 		return std::make_pair(this_id,resultstr);
 	}
 }
 
-/** A result is ready, process it
- */
+/* A result is ready, process it */
 DNSInfo dns_connection::result_ready(dns_header &header, int length)
 {
 	int i = 0;
@@ -446,7 +466,9 @@ DNSInfo dns_connection::result_ready(dns_header &header, int length)
 	if (header.ancount < 1)
 		return std::make_pair((unsigned char*)NULL,"No resource records returned");
 
+	/* Subtract the length of the header from the length of the packet */
 	length -= 12;
+
 	while ((unsigned int)q < header.qdcount && i < length)
 	{
 		if (header.payload[i] > 63)
