@@ -113,18 +113,6 @@ class s_connection
 	int		send_requests(const s_header *h, const int l, QueryType qt);
 };
 
-
-
-void *dns_align(void *inp)
-{
-	char *p = (char*)inp;
-	int offby = ((char *)p - (char *)0) % (sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long));
-	if (offby != 0)
-		return p + ((sizeof(void *) > sizeof(long) ? sizeof(void *) : sizeof(long)) - offby);
-	else
-		return p;
-}
-
 /*
  * Optimized by brain, these were using integer division and modulus.
  * We can use logic shifts and logic AND to replace these even divisions
@@ -316,12 +304,13 @@ int DNS::dns_getip4(const char *name)
 {
 	s_header h;
 	int id;
+	int length;
+	s_connection* req;
 	
-	int length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload);
-	if (length == -1)
+	if ((length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
-	s_connection* req = dns_add_query(&h, id);
-	if (req == NULL)
+
+	if ((req = dns_add_query(&h, id)) == NULL)
 		return -1;
 
 	if (req->send_requests(&h,length,DNS_QRY_A) == -1)
@@ -338,17 +327,19 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 	char query[29];
 	s_header h;
 	int id;
+	int length;
+	s_connection* req;
 
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 
-	int length = dns_build_query_payload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload);
-	if (length == -1)
+	if ((length = dns_build_query_payload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
-	s_connection* req = dns_add_query(&h, id);
-	if (req == NULL)
+
+	if ((req = dns_add_query(&h, id)) == NULL)
 		return -1;
+
 	if (req->send_requests(&h,length,DNS_QRY_PTR) == -1)
 		return -1;
 
