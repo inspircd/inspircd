@@ -136,7 +136,7 @@ bool userrec::ProcessNoticeMasks(const char *sm)
 
 void userrec::StartDNSLookup()
 {
-	log(DEBUG,"Commencing forward lookup");
+	log(DEBUG,"Commencing reverse lookup");
 	res_reverse = new UserResolver(this, insp_ntoa(this->ip4), false);
 	MyServer->AddResolver(res_reverse);
 }
@@ -150,7 +150,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 {
 	if ((!this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
 	{
-		log(DEBUG,"Commencing reverse lookup");
+		log(DEBUG,"Commencing forward lookup");
 		this->bound_user->stored_host = result;
 		bound_user->res_forward = new UserResolver(this->bound_user, result, true);
 		MyServer->AddResolver(bound_user->res_forward);
@@ -185,11 +185,11 @@ void UserResolver::OnError(ResolverError e)
 	if (fd_ref_table[this->bound_fd] == this->bound_user)
 	{
 		/* Error message here */
-		WriteServ(this->bound_fd, "*** Could not resolve your hostname, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+		WriteServ(this->bound_fd, "NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
 		this->bound_user->dns_done = true;
 	}
 }
-		
+
 
 bool userrec::IsNoticeMaskSet(unsigned char sm)
 {
