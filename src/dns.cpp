@@ -314,15 +314,13 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 
 int DNS::dns_getip4(const char *name)
 {
-	/* build, add and send A query; retrieve result with dns_getresult() */
 	s_header h;
-	s_connection* req;
 	int id;
 	
 	int length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload);
 	if (length == -1)
 		return -1;
-	req = dns_add_query(&h, id);
+	s_connection* req = dns_add_query(&h, id);
 	if (req == NULL)
 		return -1;
 
@@ -333,25 +331,22 @@ int DNS::dns_getip4(const char *name)
 }
 
 int DNS::dns_getname4(const insp_inaddr *ip)
-{ /* build, add and send PTR query; retrieve result with dns_getresult() */
+{
 #ifdef IPV6
 	return -1;
 #else
-	log(DEBUG,"DNS::dns_getname4");
-	char query[512];
+	char query[29];
 	s_header h;
-	s_connection* req;
-	unsigned char *c;
 	int id;
 
-	c = (unsigned char *)&ip->s_addr;
+	unsigned char* c = (unsigned char*)&ip->s_addr;
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 
 	int length = dns_build_query_payload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload);
 	if (length == -1)
 		return -1;
-	req = dns_add_query(&h, id);
+	s_connection* req = dns_add_query(&h, id);
 	if (req == NULL)
 		return -1;
 	if (req->send_requests(&h,length,DNS_QRY_PTR) == -1)
