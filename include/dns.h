@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "base.h"
 
 typedef std::pair<int,std::string> DNSResult;
+typedef std::pair<unsigned char*, std::string> DNSInfo;
 
 /**
  * Error types that class Resolver can emit to its error method.
@@ -33,7 +34,8 @@ enum ResolverError
 	RESOLVER_NOERROR	=	0,
 	RESOLVER_NSDOWN		= 	1,
 	RESOLVER_NXDOMAIN	=	2,
-	RESOLVER_NOTREADY	=	3
+	RESOLVER_NOTREADY	=	3,
+	RESOLVER_BADIP		=	4
 };
 
 
@@ -45,8 +47,8 @@ enum ResolverError
 class DNS : public Extensible
 {
  public:
-	int dns_getip4(const char* name);
-	int dns_getname4(const insp_inaddr* ip);
+	int dns_getip(const char* name);
+	int dns_getname(const insp_inaddr* ip);
 	DNSResult dns_getresult();
 	DNS();
 	~DNS();
@@ -54,7 +56,7 @@ class DNS : public Extensible
 
 /**
  * The Resolver class is a high-level abstraction for resolving DNS entries.
- * It can do forward and reverse IPv4 lookups, and when IPv6 is supported, will
+ * It can do forward and reverse IPv4 lookups, and where IPv6 is supported, will
  * also be able to do those, transparent of protocols. Module developers must
  * extend this class via inheritence, and then insert a pointer to their derived
  * class into the core using Server::AddResolver(). Once you have done this,
@@ -111,19 +113,14 @@ class Resolver : public Extensible
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
 	 */
-	virtual void OnLookupComplete(const std::string &result);
+	virtual void OnLookupComplete(const std::string &result) = 0;
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.
 	 * @param e A ResolverError enum containing the error type which has occured.
+	 * @param errormessage The error text of the error that occured.
 	 */
-	virtual void OnError(ResolverError e);
-	/**
-	 * This method is called by the core when the object's file descriptor is ready
-	 * for reading, and will then dispatch a call to either OnLookupComplete or
-	 * OnError. You should never call this method yourself.
-	 */
-	bool ProcessResult(const std::string &result);
+	virtual void OnError(ResolverError e, const std::string &errormessage);
 	/**
 	 * Returns the id value of this class. This is primarily used by the core
 	 * to determine where in various tables to place a pointer to your class, but it

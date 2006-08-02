@@ -79,7 +79,7 @@ class UserResolver : public Resolver
 	UserResolver(userrec* user, std::string to_resolve, bool forward);
 
 	void OnLookupComplete(const std::string &result);
-	void OnError(ResolverError e);
+	void OnError(ResolverError e, const std::string &errormessage);
 };
 
 

@@ -3092,10 +3092,10 @@ class ServernameResolver : public Resolver
 		}
 	}
 
-	void OnError(ResolverError e)
+	void OnError(ResolverError e, const std::string &errormessage)
 	{
 		/* Ooops! */
-		WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname.",MyLink.Name.c_str());
+		WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -3114,9 +3114,9 @@ class SecurityIPResolver : public Resolver
 		ValidIPs.push_back(result);
 	}
 
-	void OnError(ResolverError e)
+	void OnError(ResolverError e, const std::string &errormessage)
 	{
-		log(DEBUG,"Could not resolve IP associated with Link '%s'!",MyLink.Name.c_str());
+		log(DEBUG,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -3347,8 +3347,15 @@ void ReadConfiguration(bool rebind)
 			insp_inaddr binip;
 			if (insp_aton(L.IPAddr.c_str(), &binip) < 1)
 			{
-				SecurityIPResolver* sr = new SecurityIPResolver(L.IPAddr, L);
-				Srv->AddResolver(sr);
+				try
+				{
+					SecurityIPResolver* sr = new SecurityIPResolver(L.IPAddr, L);
+					Srv->AddResolver(sr);
+				}
+				catch (ModuleException& e)
+				{
+					log(DEBUG,"Error in resolver: %s",e.GetReason());
+				}
 			}
 
 			LinkBlocks.push_back(L);
@@ -3752,8 +3759,15 @@ class ModuleSpanningTree : public Module
 					}
 					else
 					{
-						ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
-						Srv->AddResolver(snr);
+						try
+						{
+							ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+							Srv->AddResolver(snr);
+						}
+						catch (ModuleException& e)
+						{
+							log(DEBUG,"Error in resolver: %s",e.GetReason());
+						}
 					}
 
 				}
@@ -3826,8 +3840,15 @@ class ModuleSpanningTree : public Module
 					}
 					else
 					{
-						ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
-						Srv->AddResolver(snr);
+						try
+						{
+							ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+							Srv->AddResolver(snr);
+						}
+						catch (ModuleException& e)
+						{
+							log(DEBUG,"Error in resolver: %s",e.GetReason());
+						}
 					}
 					return 1;
 				}

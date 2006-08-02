@@ -72,7 +72,7 @@ class CGIResolver : public Resolver
 		}
 	}
 
-	virtual void OnError(ResolverError e)
+	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
 		if ((them) && (them == fd_ref_table[theirfd]))
 		{

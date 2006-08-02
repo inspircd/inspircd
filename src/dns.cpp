@@ -56,6 +56,11 @@ enum QueryType
 	DNS_QRY_PTR	= 12
 };
 
+enum QueryInfo
+{
+	ERROR_MASK	= 0x10000
+};
+
 enum QueryFlags
 {
 	FLAGS_MASK_RD		= 0x01,
@@ -120,8 +125,8 @@ class dns_connection
 		delete[] res;
 	}
 
-	unsigned char*	result_ready(dns_header &h, int length);
-	int		send_requests(const dns_header *header, const int length, QueryType qt);
+	DNSInfo	result_ready(dns_header &h, int length);
+	int	send_requests(const dns_header *header, const int length, QueryType qt);
 };
 
 /*
@@ -313,7 +318,7 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 	return payloadpos + 4;
 }
 
-int DNS::dns_getip4(const char *name)
+int DNS::dns_getip(const char *name)
 {
 	dns_header h;
 	int id;
@@ -331,7 +336,7 @@ int DNS::dns_getip4(const char *name)
 	return id;
 }
 
-int DNS::dns_getname4(const insp_inaddr *ip)
+int DNS::dns_getname(const insp_inaddr *ip)
 {
 #ifdef IPV6
 	return -1;
@@ -393,34 +398,35 @@ DNSResult DNS::dns_getresult()
 		/* We don't delete c here, because its done later when needed */
 		connections.erase(n_iter);
         }
-	unsigned char* data = req->result_ready(header, length);
+	DNSInfo data = req->result_ready(header, length);
 	std::string resultstr;
 
-	if (data == NULL)
+	if (data.first == NULL)
 	{
-		resultstr = "";
+		delete req;
+		return std::make_pair(this_id | ERROR_MASK, data.second);
 	}
 	else
 	{
 		if (req->type == DNS_QRY_A)
 		{
 			char formatted[16];
-			snprintf(formatted,16,"%u.%u.%u.%u",data[0],data[1],data[2],data[3]);
+			snprintf(formatted,16,"%u.%u.%u.%u",data.first[0],data.first[1],data.first[2],data.first[3]);
 			resultstr = formatted;
 		}
 		else
 		{
-			resultstr = std::string((const char*)data);
+			resultstr = std::string((const char*)data.first);
 		}
-	}
 
-	delete req;
-	return std::make_pair(this_id,resultstr);
+		delete req;
+		return std::make_pair(this_id,resultstr);
+	}
 }
 
 /** A result is ready, process it
  */
-unsigned char* dns_connection::result_ready(dns_header &header, int length)
+DNSInfo dns_connection::result_ready(dns_header &header, int length)
 {
 	int i = 0;
 	int q = 0;
@@ -429,25 +435,17 @@ unsigned char* dns_connection::result_ready(dns_header &header, int length)
  	unsigned short p;
 					
 	if (!(header.flags1 & FLAGS_MASK_QR))
-	{
-		log(DEBUG,"DNS: didnt get a query result");
-		return NULL;
-	}
+		return std::make_pair((unsigned char*)NULL,"Not a query result");
+
 	if (header.flags1 & FLAGS_MASK_OPCODE)
-	{
-		log(DEBUG,"DNS: got an OPCODE and didnt want one");
-		return NULL;
-	}
+		return std::make_pair((unsigned char*)NULL,"Unexpected value in DNS reply packet");
+
 	if (header.flags2 & FLAGS_MASK_RCODE)
-	{
-		log(DEBUG,"DNS lookup failed due to SERVFAIL");
-		return NULL;
-	}
+		return std::make_pair((unsigned char*)NULL,"Internal server error (SERVFAIL)");
+
 	if (header.ancount < 1)
-	{
-		log(DEBUG,"DNS: no answers!");
-		return NULL;
-	}
+		return std::make_pair((unsigned char*)NULL,"No resource records returned");
+
 	length -= 12;
 	while ((unsigned int)q < header.qdcount && i < length)
 	{
@@ -488,9 +486,8 @@ unsigned char* dns_connection::result_ready(dns_header &header, int length)
 			}
 		}
 		if (length - i < 10)
-		{
-			return NULL;
-		}
+			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
+
 		dns_fill_rr(&rr,&header.payload[i]);
 		i += 10;
 		if (rr.type != this->type)
@@ -508,23 +505,23 @@ unsigned char* dns_connection::result_ready(dns_header &header, int length)
 		break;
 	}
 	if ((unsigned int)curanswer == header.ancount)
-		return NULL;
+		return std::make_pair((unsigned char*)NULL,"No valid answers");
+
 	if (i + rr.rdlength > (unsigned int)length)
-		return NULL;
+		return std::make_pair((unsigned char*)NULL,"Resource record larger than stated");
+
 	if (rr.rdlength > 1023)
-		return NULL;
+		return std::make_pair((unsigned char*)NULL,"Resource record too large");
 
 	switch (rr.type)
 	{
 		case DNS_QRY_PTR:
-			log(DEBUG,"DNS: got a result of type DNS_QRY_PTR");
 			o = 0;
 			q = 0;
 			while (q == 0 && i < length && o + 256 < 1023)
 			{
 				if (header.payload[i] > 63)
 				{
-					log(DEBUG,"DNS: h.payload[i] > 63");
 					memcpy(&p,&header.payload[i],2);
 					i = ntohs(p) - 0xC000 - 12;
 				}
@@ -548,7 +545,6 @@ unsigned char* dns_connection::result_ready(dns_header &header, int length)
 			res[o] = '\0';
 		break;
 		case DNS_QRY_A:
-			log(DEBUG,"DNS: got a result of type DNS_QRY_A");
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
@@ -557,7 +553,7 @@ unsigned char* dns_connection::result_ready(dns_header &header, int length)
 			res[rr.rdlength] = '\0';
 			break;
 	}
-	return res;
+	return std::make_pair(res,"No error");;
 }
 
 DNS::DNS()
@@ -573,7 +569,7 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	if (forward)
 	{
 		log(DEBUG,"Resolver: Forward lookup on %s",source.c_str());
-		this->myid = Res->dns_getip4(source.c_str());
+		this->myid = Res->dns_getip(source.c_str());
 	}
 	else
 	{
@@ -582,13 +578,19 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	        if (insp_aton(source.c_str(), &binip) > 0)
 		{
 			/* Valid ip address */
-	        	this->myid = Res->dns_getname4(&binip);
+	        	this->myid = Res->dns_getname(&binip);
+		}
+		else
+		{
+			this->OnError(RESOLVER_BADIP, "Bad IP address for reverse lookup");
+			throw ModuleException("Resolver: Bad IP address");
+			return;
 		}
 	}
 	if (this->myid == -1)
 	{
 		log(DEBUG,"Resolver::Resolver: Could not get an id!");
-		this->OnError(RESOLVER_NSDOWN);
+		this->OnError(RESOLVER_NSDOWN, "Nameserver is down");
 		throw ModuleException("Resolver: Couldnt get an id to make a request");
 		/* We shouldnt get here really */
 		return;
@@ -597,11 +599,11 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
 }
 
-void Resolver::OnLookupComplete(const std::string &result)
-{
-}
+//void Resolver::OnLookupComplete(const std::string &result)
+//{
+//}
 
-void Resolver::OnError(ResolverError e)
+void Resolver::OnError(ResolverError e, const std::string &errormessage)
 {
 }
 
@@ -615,25 +617,6 @@ int Resolver::GetId()
 	return this->myid;
 }
 
-bool Resolver::ProcessResult(const std::string &result)
-{
-	log(DEBUG,"Resolver::ProcessResult");
-
-	if (!result.length())
-	{
-		log(DEBUG,"Resolver::OnError(RESOLVER_NXDOMAIN)");
-		this->OnError(RESOLVER_NXDOMAIN);
-		return false;
-	}
-	else
-	{
-
-		log(DEBUG,"Resolver::OnLookupComplete(%s)",result.c_str());
-		this->OnLookupComplete(result);
-		return true;
-	}
-}
-
 void dns_deal_with_classes(int fd)
 {
 	log(DEBUG,"dns_deal_with_classes(%d)",fd);
@@ -642,12 +625,27 @@ void dns_deal_with_classes(int fd)
 		DNSResult res = Res->dns_getresult();
 		if (res.first != -1)
 		{
-			log(DEBUG,"Result available, id=%d",res.first);
-			if (dns_classes[res.first])
+			if (res.first & ERROR_MASK)
 			{
-				dns_classes[res.first]->ProcessResult(res.second);
-				delete dns_classes[res.first];
-				dns_classes[res.first] = NULL;
+				res.first -= ERROR_MASK;
+
+				log(DEBUG,"Error available, id=%d",res.first);
+				if (dns_classes[res.first])
+				{
+					dns_classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
+					delete dns_classes[res.first];
+					dns_classes[res.first] = NULL;
+				}
+			}
+			else
+			{
+				log(DEBUG,"Result available, id=%d",res.first);
+				if (dns_classes[res.first])
+				{
+					dns_classes[res.first]->OnLookupComplete(res.second);
+					delete dns_classes[res.first];
+					dns_classes[res.first] = NULL;
+				}
 			}
 		}
 	}

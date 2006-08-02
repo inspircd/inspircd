@@ -35,9 +35,9 @@ class MyResolver : public Resolver
 		log(DEBUG,"*** RESOLVER COMPLETED LOOKUP, IP IS: '%s'",result.c_str());
 	}
 
-	virtual void OnError(ResolverError e)
+	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		log(DEBUG,"*** RESOLVER GOT ERROR: %d",e);
+		log(DEBUG,"*** RESOLVER GOT ERROR: %d: %s",e,errormessage.c_str());
 	}
 };
 
