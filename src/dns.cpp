@@ -202,8 +202,9 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
-	id = this->currid++;
-	this->currid &= 0xFFFF;
+	timeval n;
+	gettimeofday(&n,NULL);
+	id = (n.tv_usec ^ getpid() ^ geteuid() ^ (currid++)) & 0xFFFF;
 
 	DNSRequest* req = new DNSRequest(this->myserver);
 
