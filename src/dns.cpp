@@ -110,7 +110,7 @@ class s_connection
 	}
 
 	unsigned char*	result_ready(s_header &h, int length);
-	int		send_requests(const s_header *h, const int l);
+	int		send_requests(const s_header *h, const int l, QueryType qt);
 };
 
 
@@ -171,11 +171,14 @@ inline void dns_empty_header(unsigned char *output, const s_header *header, cons
 }
 
 
-int s_connection::send_requests(const s_header *h, const int l)
+int s_connection::send_requests(const s_header *h, const int l, QueryType qt)
 {
 	insp_sockaddr addr;
 	unsigned char payload[sizeof(s_header)];
 
+	this->_class = 1;
+	this->type = qt;
+		
 	dns_empty_header(payload,h,l);
 
 	memset(&addr,0,sizeof(addr));
@@ -323,9 +326,8 @@ int DNS::dns_getip4(const char *name)
 	s = dns_add_query(&h, id);
 	if (s == NULL)
 		return -1;
-	s->_class = 1;
-	s->type = DNS_QRY_A;
-	if (s->send_requests(&h,l) == -1)
+
+	if (s->send_requests(&h,l,DNS_QRY_A) == -1)
 		return -1;
 
 	return id;
@@ -354,9 +356,7 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 	s = dns_add_query(&h, id);
 	if (s == NULL)
 		return -1;
-	s->_class = 1;
-	s->type = DNS_QRY_PTR;
-	if (s->send_requests(&h,l) == -1)
+	if (s->send_requests(&h,l,DNS_QRY_PTR) == -1)
 		return -1;
 
 	return id;
