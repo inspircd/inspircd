@@ -135,14 +135,6 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
-/*
- * Optimized by brain, these were using integer division and modulus.
- * We can use logic shifts and logic AND to replace these even divisions
- * and multiplications, it should be a bit faster (probably not noticably,
- * but of course, more impressive). Also made these inline.
- */
-
-
 /* Fill a ResourceRecord class based on raw data input */
 inline void DNS::FillResourceRecord(ResourceRecord* rr, const unsigned char *input)
 {
@@ -244,25 +236,37 @@ int DNS::GetMasterSocket()
 /* Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS()
 {
-	log(DEBUG,"----- Initialize dns class ----- ");
-	memset(Classes,0,sizeof(Classes));
 	insp_inaddr addr;
+
+	/* Clear the Resolver class table */
+	memset(Classes,0,sizeof(Classes));
+
+	/* Seed random number generator, we use this to generate
+	 * dns packet id's
+	 */
 	srand((unsigned int)time(NULL));
+
+	/* Clear the namesever address */
 	memset(&myserver,0,sizeof(insp_inaddr));
+
+	/* Convert the nameserver address into an insp_inaddr */
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
 
+	/* Initialize mastersocket */
 	MasterSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
 	if (MasterSocket != -1)
 	{
-		log(DEBUG,"Set query socket nonblock");
+		/* Did it succeed? */
 		if (fcntl(MasterSocket, F_SETFL, O_NONBLOCK) != 0)
 		{
+			/* Couldn't make the socket nonblocking */
 			shutdown(MasterSocket,2);
 			close(MasterSocket);
 			MasterSocket = -1;
 		}
 	}
+	/* Have we got a socket and is it nonblocking? */
 	if (MasterSocket != -1)
 	{
 #ifdef IPV6
@@ -278,10 +282,11 @@ DNS::DNS()
 		addr.sin_port = 0;
 		addr.sin_addr.s_addr = INADDR_ANY;
 #endif
-		log(DEBUG,"Binding query port");
+		/* Bind the port */
 		if (bind(MasterSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
-			log(DEBUG,"Cant bind with source port = 0");
+			/* Failed to bind */
+			log(DEBUG,"Cant bind DNS::MasterSocket");
 			shutdown(MasterSocket,2);
 			close(MasterSocket);
 			MasterSocket = -1;
@@ -289,63 +294,61 @@ DNS::DNS()
 
 		if (MasterSocket >= 0)
 		{
-			log(DEBUG,"Attach query port to socket engine");
+			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 				ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS);
 		}
 	}
 }
 
+/* Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */
 int DNS::MakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
 {
-	short payloadpos;
-	const char * tempchr, * tempchr2;
-	unsigned short l;
-
-	payloadpos = 0;
-	tempchr2 = name;
+	short payloadpos = 0;
+	const char* tempchr, *tempchr2 = name;
+	unsigned short length;
 
 	/* split name up into labels, create query */
 	while ((tempchr = strchr(tempchr2,'.')) != NULL)
 	{
-		l = tempchr - tempchr2;
-		if (payloadpos + l + 1 > 507)
+		length = tempchr - tempchr2;
+		if (payloadpos + length + 1 > 507)
 			return -1;
-		payload[payloadpos++] = l;
-		memcpy(&payload[payloadpos],tempchr2,l);
-		payloadpos += l;
+		payload[payloadpos++] = length;
+		memcpy(&payload[payloadpos],tempchr2,length);
+		payloadpos += length;
 		tempchr2 = &tempchr[1];
 	}
-	l = strlen(tempchr2);
-	if (l)
+	length = strlen(tempchr2);
+	if (length)
 	{
-		if (payloadpos + l + 2 > 507)
+		if (payloadpos + length + 2 > 507)
 			return -1;
-		payload[payloadpos++] = l;
-		memcpy(&payload[payloadpos],tempchr2,l);
-		payloadpos += l;
+		payload[payloadpos++] = length;
+		memcpy(&payload[payloadpos],tempchr2,length);
+		payloadpos += length;
 		payload[payloadpos++] = 0;
 	}
 	if (payloadpos > 508)
 		return -1;
-	l = htons(rr);
-	memcpy(&payload[payloadpos],&l,2);
-	l = htons(rr_class);
-	memcpy(&payload[payloadpos + 2],&l,2);
+	length = htons(rr);
+	memcpy(&payload[payloadpos],&length,2);
+	length = htons(rr_class);
+	memcpy(&payload[payloadpos + 2],&length,2);
 	return payloadpos + 4;
 }
 
+/* Start lookup of an hostname to an IP address */
 int DNS::GetIP(const char *name)
 {
 	DNSHeader h;
 	int id;
 	int length;
-	DNSRequest* req;
 	
 	if ((length = this->MakePayload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = this->AddQuery(&h, id);
+	DNSRequest* req = this->AddQuery(&h, id);
 
 	if (req->SendRequests(&h,length,DNS_QRY_A) == -1)
 		return -1;
@@ -353,6 +356,7 @@ int DNS::GetIP(const char *name)
 	return id;
 }
 
+/* Start lookup of an IP address to a hostname */
 int DNS::GetName(const insp_inaddr *ip)
 {
 #ifdef IPV6
@@ -362,7 +366,6 @@ int DNS::GetName(const insp_inaddr *ip)
 	DNSHeader h;
 	int id;
 	int length;
-	DNSRequest* req;
 
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
@@ -371,7 +374,7 @@ int DNS::GetName(const insp_inaddr *ip)
 	if ((length = this->MakePayload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = this->AddQuery(&h, id);
+	DNSRequest* req = this->AddQuery(&h, id);
 
 	if (req->SendRequests(&h,length,DNS_QRY_PTR) == -1)
 		return -1;
@@ -380,18 +383,16 @@ int DNS::GetName(const insp_inaddr *ip)
 #endif
 }
 
-/* Return the next id which is ready, and the result attached to it
- */
+/* Return the next id which is ready, and the result attached to it */
 DNSResult DNS::GetResult()
 {
 	/* Fetch dns query response and decide where it belongs */
 	DNSHeader header;
 	DNSRequest *req;
-	int length;
 	unsigned char buffer[sizeof(DNSHeader)];
 
 	/* Attempt to read a header */
-	length = recv(MasterSocket,buffer,sizeof(DNSHeader),0);
+	int length = recv(MasterSocket,buffer,sizeof(DNSHeader),0);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -469,7 +470,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	int q = 0;
 	int curanswer, o;
 	ResourceRecord rr;
- 	unsigned short p;
+ 	unsigned short ptr;
 			
 	if (!(header.flags1 & FLAGS_MASK_QR))
 		return std::make_pair((unsigned char*)NULL,"Not a query result");
@@ -561,8 +562,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			{
 				if (header.payload[i] > 63)
 				{
-					memcpy(&p,&header.payload[i],2);
-					i = ntohs(p) - 0xC000 - 12;
+					memcpy(&ptr,&header.payload[i],2);
+					i = ntohs(ptr) - 0xC000 - 12;
 				}
 				else
 				{
