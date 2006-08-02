@@ -1,5 +1,22 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                     E-mail:
+ *              <brain@chatspike.net>
+ *              <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *          the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 /*
-dns.h - dns library declarations based on firedns Copyright (C) 2002 Ian Gulliver
+dns.h - dns library very very loosely based on
+firedns, Copyright (C) 2002 Ian Gulliver
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of version 2 of the GNU General Public License as
@@ -129,6 +146,7 @@ class DNS : public Extensible
  private:
 	insp_inaddr myserver;
 	static int MasterSocket;
+	Resolver* Classes[65536];
  public:
 	static int GetMasterSocket();
 	int GetIP(const char* name);
@@ -142,3 +160,4 @@ class DNS : public Extensible
 };
 
 #endif
+

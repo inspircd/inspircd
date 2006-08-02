@@ -77,13 +77,6 @@ enum QueryFlags
 };
 
 
-/* Lookup table of Resolver classes. Because the request ID can be between
- * 0 and 65535 of these, we have 65536 of them. This could be a map, saving
- * some ram, but that will also slow down DNS requests, and the DNS request
- * mechanism needs to be pretty fast.
- */
-Resolver* dns_classes[65536];
-
 /* Represents a dns resource record (rr) */
 class ResourceRecord
 {
@@ -261,7 +254,7 @@ int DNS::GetMasterSocket()
 DNS::DNS()
 {
 	log(DEBUG,"----- Initialize dns class ----- ");
-	memset(dns_classes,0,sizeof(dns_classes));
+	memset(Classes,0,sizeof(Classes));
 	insp_inaddr addr;
 	srand((unsigned int)time(NULL));
 	memset(&myserver,0,sizeof(insp_inaddr));
@@ -340,7 +333,7 @@ int DNSMakePayload(const char * const name, const unsigned short rr, const unsig
 		payload[payloadpos++] = l;
 		memcpy(&payload[payloadpos],tempchr2,l);
 		payloadpos += l;
-		payload[payloadpos++] = '\0';
+		payload[payloadpos++] = 0;
 	}
 	if (payloadpos > 508)
 		return -1;
@@ -588,7 +581,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 					}
 					else
 					{
-						res[o] = '\0';
+						res[o] = 0;
 						if (o != 0)
 							res[o++] = '.';
 						memcpy(&res[o],&header.payload[i + 1],header.payload[i]);
@@ -597,15 +590,15 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 					}
 				}
 			}
-			res[o] = '\0';
+			res[o] = 0;
 		break;
 		case DNS_QRY_A:
 			memcpy(res,&header.payload[i],rr.rdlength);
-			res[rr.rdlength] = '\0';
+			res[rr.rdlength] = 0;
 			break;
 		default:
 			memcpy(res,&header.payload[i],rr.rdlength);
-			res[rr.rdlength] = '\0';
+			res[rr.rdlength] = 0;
 			break;
 	}
 	return std::make_pair(res,"No error");;
@@ -679,21 +672,21 @@ void DNS::MarshallReads(int fd)
 				res.first -= ERROR_MASK;
 
 				log(DEBUG,"Error available, id=%d",res.first);
-				if (dns_classes[res.first])
+				if (Classes[res.first])
 				{
-					dns_classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
-					delete dns_classes[res.first];
-					dns_classes[res.first] = NULL;
+					Classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
+					delete Classes[res.first];
+					Classes[res.first] = NULL;
 				}
 			}
 			else
 			{
 				log(DEBUG,"Result available, id=%d",res.first);
-				if (dns_classes[res.first])
+				if (Classes[res.first])
 				{
-					dns_classes[res.first]->OnLookupComplete(res.second);
-					delete dns_classes[res.first];
-					dns_classes[res.first] = NULL;
+					Classes[res.first]->OnLookupComplete(res.second);
+					delete Classes[res.first];
+					Classes[res.first] = NULL;
 				}
 			}
 		}
@@ -704,9 +697,9 @@ bool DNS::AddResolverClass(Resolver* r)
 {
 	if ((r) && (r->GetId() > -1))
 	{
-		if (!dns_classes[r->GetId()])
+		if (!Classes[r->GetId()])
 		{
-			dns_classes[r->GetId()] = r;
+			Classes[r->GetId()] = r;
 			return true;
 		}
 		else
