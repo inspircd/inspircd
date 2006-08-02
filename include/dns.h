@@ -40,7 +40,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "socket.h"
 #include "base.h"
 
+/**
+ * Result status, used internally
+ */
 typedef std::pair<int,std::string> DNSResult;
+
+/**
+ * Information on a completed lookup, used internally
+ */
 typedef std::pair<unsigned char*, std::string> DNSInfo;
 
 /**
@@ -55,14 +62,29 @@ enum ResolverError
 	RESOLVER_BADIP		=	4
 };
 
+/**
+ * A DNS request
+ */
 class DNSRequest;
+
+/**
+ * A DNS packet header
+ */
 class DNSHeader;
+
+/**
+ * A DNS Resource Record (rr)
+ */
 class ResourceRecord;
 
-/* A set of requests keyed by request id */
+/**
+ * A set of requests keyed by request id
+ */
 typedef std::map<int,DNSRequest*> requestlist;
 
-/* An iterator into a set of requests */
+/**
+ * An iterator into a set of requests
+ */
 typedef requestlist::iterator requestlist_iter;
 
 /**
@@ -92,7 +114,7 @@ class Resolver : public Extensible
 	 */
 	std::string server;
 	/**
-	 * The ID allocated to your lookup. This is a pseud-random number
+	 * The ID allocated to your lookup. This is a pseudo-random number
 	 * between 0 and 65535, a value of -1 indicating a failure.
 	 * The core uses this to route results to the correct objects.
 	 */
@@ -143,7 +165,9 @@ class Resolver : public Extensible
 	int GetId();
 };
 
-/* Query and resource record types */
+/**
+ * Query and resource record types
+ */
 enum QueryType
 {
 	DNS_QUERY_A	= 1,	/* 'A' record: an IP address */
@@ -159,29 +183,101 @@ class DNS : public Extensible
 {
  private:
 
-	static const int MAX_REQUEST_ID = 65535;
+	/**
+	 * The maximum value of a dns request id,
+	 * 16 bits wide, 0xFFFF.
+	 */
+	static const int MAX_REQUEST_ID = 0xFFFF;
 
+	/**
+	 * Requests that are currently 'in flight
+	 */
 	requestlist requests;
+
+	/**
+	 * Server address being used currently
+	 */
 	insp_inaddr myserver;
+
+	/**
+	 * File descriptor being used to perform queries
+	 */
 	static int MasterSocket;
+
+	/**
+	 * A counter used to form part of the pseudo-random id
+	 */
 	int currid;
+
+	/**
+	 * Currently active Resolver classes
+	 */
 	Resolver* Classes[MAX_REQUEST_ID];
+
+	/**
+	 * Build a dns packet payload
+	 */
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
 
+	/**
+	 * Fill an rr (resource record) with data from input
+	 */
 	static void FillResourceRecord(ResourceRecord* rr, const unsigned char* input);
+	/**
+	 * Fill a header with data from input limited by a length
+	 */
 	static void FillHeader(DNSHeader *header, const unsigned char *input, const int length);
+	/**
+	 * Empty out a header into a data stream ready for transmission "on the wire"
+	 */
 	static void EmptyHeader(unsigned char *output, const DNSHeader *header, const int length);
+	/**
+	 * Get the master socket fd, used internally
+	 */
 	static int GetMasterSocket();
 
+	/**
+	 * Start the lookup of an ip from a hostname
+	 */
 	int GetIP(const char* name);
+
+	/**
+	 * Start the lookup of a hostname from an ip
+	 */
 	int GetName(const insp_inaddr* ip);
+
+	/**
+	 * Fetch the result string (an ip or host)
+	 * and/or an error message to go with it.
+	 */
 	DNSResult GetResult();
+
+	/**
+	 * Handle a SocketEngine read event
+	 */
 	void MarshallReads(int fd);
+
+	/**
+	 * Add a Resolver* to the list of active classes
+	 */
 	bool AddResolverClass(Resolver* r);
+
+	/**
+	 * Add a query to the list to be sent
+	 */
 	DNSRequest* AddQuery(DNSHeader *header, int &id);
+
+	/**
+	 * The constructor initialises the dns socket,
+	 * and clears the request lists.
+	 */
 	DNS();
+
+	/**
+	 * Destructor
+	 */
 	~DNS();
 };
 
