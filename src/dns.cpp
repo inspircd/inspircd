@@ -596,12 +596,14 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	return std::make_pair(res,"No error");;
 }
 
+/* Close the master socket */
 DNS::~DNS()
 {
 	shutdown(MasterSocket, 2);
 	close(MasterSocket);
 }
 
+/* High level abstraction of dns used by application at large */
 Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd(forward)
 {
 	if (forward)
@@ -639,30 +641,38 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 
 void Resolver::OnError(ResolverError e, const std::string &errormessage)
 {
+	/* Nothing in here */
 }
 
 Resolver::~Resolver()
 {
-	log(DEBUG,"Resolver::~Resolver");
+	/* Nothing here (yet) either */
 }
 
+/* Get the request id associated with this class */
 int Resolver::GetId()
 {
 	return this->myid;
 }
 
+/* Process a socket read event */
 void DNS::MarshallReads(int fd)
 {
-	log(DEBUG,"dns_deal_with_classes(%d)",fd);
+	/* We are only intrested in our single fd */
 	if (fd == GetMasterSocket())
 	{
+		/* Fetch the id and result of the next available packet */
 		DNSResult res = this->GetResult();
+		/* Is there a usable request id? */
 		if (res.first != -1)
 		{
+			/* Its an error reply */
 			if (res.first & ERROR_MASK)
 			{
+				/* Mask off the error bit */
 				res.first -= ERROR_MASK;
 
+				/* Marshall the error to the correct class */
 				log(DEBUG,"Error available, id=%d",res.first);
 				if (Classes[res.first])
 				{
@@ -673,7 +683,9 @@ void DNS::MarshallReads(int fd)
 			}
 			else
 			{
+				/* It is a non-error result */
 				log(DEBUG,"Result available, id=%d",res.first);
+				/* Marshall the result to the correct class */
 				if (Classes[res.first])
 				{
 					Classes[res.first]->OnLookupComplete(res.second);
@@ -685,23 +697,35 @@ void DNS::MarshallReads(int fd)
 	}
 }
 
+/* Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
+	/* Check the pointers validity and the id's validity */
 	if ((r) && (r->GetId() > -1))
 	{
+		/* Check the slot isnt already occupied -
+		 * This should NEVER happen unless we have
+		 * a severely broken DNS server somewhere
+		 */
 		if (!Classes[r->GetId()])
 		{
+			/* Set up the pointer to the class */
 			Classes[r->GetId()] = r;
 			return true;
 		}
 		else
+			/* Duplicate id */
 			return false;
 	}
 	else
 	{
-		delete r;
-		return true;
+		/* Pointer or id not valid.
+		 * Free the item and return
+		 */
+		if (r)
+			delete r;
+
+		return false;
 	}
 }
-
 
