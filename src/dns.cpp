@@ -71,8 +71,8 @@ enum QueryFlags
 	FLAGS_MASK_RA 		= 0x80
 };
 
-class dns_request;
-typedef std::map<int,dns_request*> connlist;
+class DNSRequest;
+typedef std::map<int,DNSRequest*> connlist;
 typedef connlist::iterator connlist_iter;
 
 DNS* Res = NULL;
@@ -82,7 +82,8 @@ int master_socket = -1;
 Resolver* dns_classes[65536];
 insp_inaddr myserver;
 
-class dns_rr_middle
+/* Represents a dns resource record (rr) */
+class ResourceRecord
 {
  public:
 	QueryType	type;
@@ -91,7 +92,10 @@ class dns_rr_middle
 	unsigned int	rdlength;
 };
 
-class dns_header
+/* Represents a dns request/reply header,
+ * and its payload as opaque data.
+ */
+class DNSHeader
 {
  public:
 	unsigned char	id[2];
@@ -104,7 +108,11 @@ class dns_header
 	unsigned char	payload[512];
 };
 
-class dns_request
+/* Represents a request 'on the wire' with
+ * routing information relating to where to
+ * call when we get a result
+ */
+class DNSRequest
 {
  public:
 	unsigned char   id[2];
@@ -112,19 +120,22 @@ class dns_request
 	unsigned int    rr_class;
 	QueryType       type;
 
-	dns_request()
+	DNSRequest()
 	{
 		res = new unsigned char[512];
 		*res = 0;
 	}
 
-	~dns_request()
+	~DNSRequest()
 	{
 		delete[] res;
 	}
 
-	DNSInfo	result_ready(dns_header &h, int length);
-	int	send_requests(const dns_header *header, const int length, QueryType qt);
+	/* Called when a result is ready to be processed which matches this id */
+	DNSInfo ResultIsReady(DNSHeader &h, int length);
+
+	/* Called when there are requests to be sent out */
+	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
 /*
@@ -134,7 +145,7 @@ class dns_request
  * but of course, more impressive). Also made these inline.
  */
 
-inline void dns_fill_rr(dns_rr_middle* rr, const unsigned char *input)
+inline void dns_fill_rr(ResourceRecord* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->rr_class = (input[2] << 8) + input[3];
@@ -142,7 +153,7 @@ inline void dns_fill_rr(dns_rr_middle* rr, const unsigned char *input)
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-inline void dns_fill_header(dns_header *header, const unsigned char *input, const int length)
+inline void dns_fill_header(DNSHeader *header, const unsigned char *input, const int length)
 {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
@@ -155,7 +166,7 @@ inline void dns_fill_header(dns_header *header, const unsigned char *input, cons
 	memcpy(header->payload,&input[12],length);
 }
 
-inline void dns_empty_header(unsigned char *output, const dns_header *header, const int length)
+inline void dns_empty_header(unsigned char *output, const DNSHeader *header, const int length)
 {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
@@ -173,10 +184,10 @@ inline void dns_empty_header(unsigned char *output, const dns_header *header, co
 }
 
 
-int dns_request::send_requests(const dns_header *header, const int length, QueryType qt)
+int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
-	unsigned char payload[sizeof(dns_header)];
+	unsigned char payload[sizeof(DNSHeader)];
 
 	this->rr_class = 1;
 	this->type = qt;
@@ -202,11 +213,11 @@ int dns_request::send_requests(const dns_header *header, const int length, Query
 	return 0;
 }
 
-dns_request* dns_add_query(dns_header *header, int &id)
+DNSRequest* DNSAddQuery(DNSHeader *header, int &id)
 {
 
 	id = rand() % 65536;
-	dns_request* req = new dns_request();
+	DNSRequest* req = new DNSRequest();
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -224,7 +235,7 @@ dns_request* dns_add_query(dns_header *header, int &id)
 	return req;
 }
 
-void create_socket()
+void DNSCreateSocket()
 {
 	log(DEBUG,"---- BEGIN DNS INITIALIZATION, SERVER=%s ---",Config->DNSServer);
 	insp_inaddr addr;
@@ -277,7 +288,7 @@ void create_socket()
 	}
 }
 
-int dns_build_query_payload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
+int DNSMakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
 {
 	short payloadpos;
 	const char * tempchr, * tempchr2;
@@ -318,17 +329,17 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 
 int DNS::GetIP(const char *name)
 {
-	dns_header h;
+	DNSHeader h;
 	int id;
 	int length;
-	dns_request* req;
+	DNSRequest* req;
 	
-	if ((length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = DNSMakePayload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = dns_add_query(&h, id);
+	req = DNSAddQuery(&h, id);
 
-	if (req->send_requests(&h,length,DNS_QRY_A) == -1)
+	if (req->SendRequests(&h,length,DNS_QRY_A) == -1)
 		return -1;
 
 	return id;
@@ -340,21 +351,21 @@ int DNS::GetName(const insp_inaddr *ip)
 	return -1;
 #else
 	char query[29];
-	dns_header h;
+	DNSHeader h;
 	int id;
 	int length;
-	dns_request* req;
+	DNSRequest* req;
 
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 
-	if ((length = dns_build_query_payload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = DNSMakePayload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = dns_add_query(&h, id);
+	req = DNSAddQuery(&h, id);
 
-	if (req->send_requests(&h,length,DNS_QRY_PTR) == -1)
+	if (req->SendRequests(&h,length,DNS_QRY_PTR) == -1)
 		return -1;
 
 	return id;
@@ -366,13 +377,13 @@ int DNS::GetName(const insp_inaddr *ip)
 DNSResult DNS::GetResult()
 {
 	/* Fetch dns query response and decide where it belongs */
-	dns_header header;
-	dns_request *req;
+	DNSHeader header;
+	DNSRequest *req;
 	int length;
-	unsigned char buffer[sizeof(dns_header)];
+	unsigned char buffer[sizeof(DNSHeader)];
 
 	/* Attempt to read a header */
-	length = recv(master_socket,buffer,sizeof(dns_header),0);
+	length = recv(master_socket,buffer,sizeof(DNSHeader),0);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -399,15 +410,15 @@ DNSResult DNS::GetResult()
         else
         {
 		/* Remove the query from the list of pending queries */
-		req = (dns_request*)n_iter->second;
+		req = (DNSRequest*)n_iter->second;
 		connections.erase(n_iter);
         }
 
-	/* Inform the dns_request class that it has a result to be read.
+	/* Inform the DNSRequest class that it has a result to be read.
 	 * When its finished it will return a DNSInfo which is a pair of
 	 * unsigned char* resource record data, and an error message.
 	 */
-	DNSInfo data = req->result_ready(header, length);
+	DNSInfo data = req->ResultIsReady(header, length);
 	std::string resultstr;
 
 	/* Check if we got a result, if we didnt, its an error */
@@ -444,12 +455,12 @@ DNSResult DNS::GetResult()
 }
 
 /* A result is ready, process it */
-DNSInfo dns_request::result_ready(dns_header &header, int length)
+DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 {
 	int i = 0;
 	int q = 0;
 	int curanswer, o;
-	dns_rr_middle rr;
+	ResourceRecord rr;
  	unsigned short p;
 			
 	if (!(header.flags1 & FLAGS_MASK_QR))
@@ -700,6 +711,6 @@ void init_dns()
 {
 	Res = new DNS();
 	memset(dns_classes,0,sizeof(dns_classes));
-	create_socket();
+	DNSCreateSocket();
 }
 
