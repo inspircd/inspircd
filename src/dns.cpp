@@ -47,6 +47,9 @@ using namespace std;
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 
+/* Master file descriptor */
+int DNS::MasterSocket;
+
 /* Query and resource record types */
 enum QueryType
 {
@@ -73,9 +76,6 @@ enum QueryFlags
 	FLAGS_MASK_RA 		= 0x80
 };
 
-/* Master file descriptor - all DNS requests go out over this socket.
- */
-int MasterDNSSocket = -1;
 
 /* Lookup table of Resolver classes. Because the request ID can be between
  * 0 and 65535 of these, we have 65536 of them. This could be a map, saving
@@ -221,7 +221,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
 #endif
-	if (sendto(MasterDNSSocket, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	if (sendto(DNS::GetMasterSocket(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		log(DEBUG,"Error in sendto!");
 		return -1;
@@ -252,6 +252,11 @@ DNSRequest* DNS::DNSAddQuery(DNSHeader *header, int &id)
 	return req;
 }
 
+int DNS::GetMasterSocket()
+{
+	return MasterSocket;
+}
+
 /* Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS()
 {
@@ -263,18 +268,18 @@ DNS::DNS()
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
 
-	MasterDNSSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
-	if (MasterDNSSocket != -1)
+	MasterSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
+	if (MasterSocket != -1)
 	{
 		log(DEBUG,"Set query socket nonblock");
-		if (fcntl(MasterDNSSocket, F_SETFL, O_NONBLOCK) != 0)
+		if (fcntl(MasterSocket, F_SETFL, O_NONBLOCK) != 0)
 		{
-			shutdown(MasterDNSSocket,2);
-			close(MasterDNSSocket);
-			MasterDNSSocket = -1;
+			shutdown(MasterSocket,2);
+			close(MasterSocket);
+			MasterSocket = -1;
 		}
 	}
-	if (MasterDNSSocket != -1)
+	if (MasterSocket != -1)
 	{
 #ifdef IPV6
 		insp_sockaddr addr;
@@ -290,19 +295,19 @@ DNS::DNS()
 		addr.sin_addr.s_addr = INADDR_ANY;
 #endif
 		log(DEBUG,"Binding query port");
-		if (bind(MasterDNSSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
+		if (bind(MasterSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			log(DEBUG,"Cant bind with source port = 0");
-			shutdown(MasterDNSSocket,2);
-			close(MasterDNSSocket);
-			MasterDNSSocket = -1;
+			shutdown(MasterSocket,2);
+			close(MasterSocket);
+			MasterSocket = -1;
 		}
 
-		if (MasterDNSSocket >= 0)
+		if (MasterSocket >= 0)
 		{
 			log(DEBUG,"Attach query port to socket engine");
 			if (ServerInstance && ServerInstance->SE)
-				ServerInstance->SE->AddFd(MasterDNSSocket,true,X_ESTAB_DNS);
+				ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS);
 		}
 	}
 }
@@ -402,7 +407,7 @@ DNSResult DNS::GetResult()
 	unsigned char buffer[sizeof(DNSHeader)];
 
 	/* Attempt to read a header */
-	length = recv(MasterDNSSocket,buffer,sizeof(DNSHeader),0);
+	length = recv(MasterSocket,buffer,sizeof(DNSHeader),0);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -423,7 +428,7 @@ DNSResult DNS::GetResult()
 	if (n_iter == requests.end())
 	{
 		/* Somehow we got a DNS response for a request we never made... */
-		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterDNSSocket,this_id);
+		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterSocket,this_id);
 		return std::make_pair(-1,"");
 	}
 	else
@@ -608,8 +613,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 
 DNS::~DNS()
 {
-	shutdown(MasterDNSSocket, 2);
-	close(MasterDNSSocket);
+	shutdown(MasterSocket, 2);
+	close(MasterSocket);
 }
 
 Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd(forward)
@@ -664,7 +669,7 @@ int Resolver::GetId()
 void DNS::MarshallReads(int fd)
 {
 	log(DEBUG,"dns_deal_with_classes(%d)",fd);
-	if (fd == MasterDNSSocket)
+	if (fd == GetMasterSocket())
 	{
 		DNSResult res = this->GetResult();
 		if (res.first != -1)

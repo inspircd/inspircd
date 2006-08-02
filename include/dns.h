@@ -128,7 +128,9 @@ class DNS : public Extensible
 {
  private:
 	insp_inaddr myserver;
+	static int MasterSocket;
  public:
+	static int GetMasterSocket();
 	int GetIP(const char* name);
 	int GetName(const insp_inaddr* ip);
 	DNSResult GetResult();
