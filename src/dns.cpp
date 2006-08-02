@@ -202,7 +202,9 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
-	id = rand() % 65536;
+	id = this->currid++;
+	this->currid &= 0xFFFF;
+
 	DNSRequest* req = new DNSRequest(this->myserver);
 
 	header->id[0] = req->id[0] = id >> 8;
@@ -234,10 +236,9 @@ DNS::DNS()
 	/* Clear the Resolver class table */
 	memset(Classes,0,sizeof(Classes));
 
-	/* Seed random number generator, we use this to generate
-	 * dns packet id's
+	/* Set the id of the next request to 0
 	 */
-	srand((unsigned int)time(NULL));
+	currid = 0;
 
 	/* Clear the namesever address */
 	memset(&myserver,0,sizeof(insp_inaddr));

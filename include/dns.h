@@ -164,6 +164,7 @@ class DNS : public Extensible
 	requestlist requests;
 	insp_inaddr myserver;
 	static int MasterSocket;
+	int currid;
 	Resolver* Classes[MAX_REQUEST_ID];
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
