@@ -43,89 +43,93 @@ using namespace std;
 #include "socketengine.h"
 #include "configreader.h"
 
+/* We need these */
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
-extern time_t TIME;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
+/* Query and resource record types */
 enum QueryType
 {
-	DNS_QRY_A	= 1,
-	DNS_QRY_PTR	= 12
+	DNS_QRY_A	= 1,	/* 'A' record: an IP address */
+	DNS_QRY_PTR	= 12	/* 'PTR' record: a hostname */
 };
 
+/* Masks to mask off the responses we get from the DNSRequest methods */
 enum QueryInfo
 {
-	ERROR_MASK	= 0x10000
+	ERROR_MASK	= 0x10000	/* Result is an error */
 };
 
+/* Flags which can be ORed into a request or reply for different meanings */
 enum QueryFlags
 {
-	FLAGS_MASK_RD		= 0x01,
+	FLAGS_MASK_RD		= 0x01,	/* Recursive */
 	FLAGS_MASK_TC		= 0x02,
-	FLAGS_MASK_AA		= 0x04,
+	FLAGS_MASK_AA		= 0x04,	/* Authoritative */
 	FLAGS_MASK_OPCODE	= 0x78,
 	FLAGS_MASK_QR		= 0x80,
-	FLAGS_MASK_RCODE	= 0x0F,
+	FLAGS_MASK_RCODE	= 0x0F,	/* Request */
 	FLAGS_MASK_Z		= 0x70,
 	FLAGS_MASK_RA 		= 0x80
 };
 
-class DNSRequest;
-typedef std::map<int,DNSRequest*> connlist;
-typedef connlist::iterator connlist_iter;
+/* Master file descriptor - all DNS requests go out over this socket.
+ */
+int MasterDNSSocket = -1;
 
-DNS* Res = NULL;
-
-connlist connections;
-int master_socket = -1;
+/* Lookup table of Resolver classes. Because the request ID can be between
+ * 0 and 65535 of these, we have 65536 of them. This could be a map, saving
+ * some ram, but that will also slow down DNS requests, and the DNS request
+ * mechanism needs to be pretty fast.
+ */
 Resolver* dns_classes[65536];
-insp_inaddr myserver;
 
 /* Represents a dns resource record (rr) */
 class ResourceRecord
 {
  public:
-	QueryType	type;
-	unsigned int	rr_class;
-	unsigned long	ttl;
-	unsigned int	rdlength;
+	QueryType	type;		/* Record type */
+	unsigned int	rr_class;	/* Record class */
+	unsigned long	ttl;		/* Time to live */
+	unsigned int	rdlength;	/* Record length */
 };
 
-/* Represents a dns request/reply header,
- * and its payload as opaque data.
+/* Represents a dns request/reply header, and its payload as opaque data.
  */
 class DNSHeader
 {
  public:
-	unsigned char	id[2];
-	unsigned int	flags1;
-	unsigned int	flags2;
+	unsigned char	id[2];		/* Request id */
+	unsigned int	flags1;		/* Flags */
+	unsigned int	flags2;		/* Flags */
 	unsigned int	qdcount;
-	unsigned int	ancount;
-	unsigned int	nscount;
+	unsigned int	ancount;	/* Answer count */
+	unsigned int	nscount;	/* Nameserver count */
 	unsigned int	arcount;
-	unsigned char	payload[512];
+	unsigned char	payload[512];	/* Packet payload */
 };
 
-/* Represents a request 'on the wire' with
- * routing information relating to where to
- * call when we get a result
+/* Represents a request 'on the wire' with routing information relating to
+ * where to call when we get a result
  */
 class DNSRequest
 {
  public:
-	unsigned char   id[2];
-	unsigned char*	res;
-	unsigned int    rr_class;
-	QueryType       type;
+	unsigned char   id[2];		/* Request id */
+	unsigned char*	res;		/* Result processing buffer */
+	unsigned int    rr_class;	/* Request class */
+	QueryType       type;		/* Request type */
+	insp_inaddr	myserver;	/* DNS server address*/
 
-	DNSRequest()
+	/* Allocate the processing buffer */
+	DNSRequest(insp_inaddr server)
 	{
 		res = new unsigned char[512];
 		*res = 0;
+		memcpy(&myserver, &server, sizeof(insp_inaddr));
 	}
 
+	/* Deallocate the processing buffer */
 	~DNSRequest()
 	{
 		delete[] res;
@@ -138,6 +142,15 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
+/* A set of requests keyed by request id */
+typedef std::map<int,DNSRequest*> requestlist;
+
+/* An iterator into a set of requests */
+typedef requestlist::iterator requestlist_iter;
+
+/* Declare our map */
+requestlist requests;
+
 /*
  * Optimized by brain, these were using integer division and modulus.
  * We can use logic shifts and logic AND to replace these even divisions
@@ -145,7 +158,9 @@ class DNSRequest
  * but of course, more impressive). Also made these inline.
  */
 
-inline void dns_fill_rr(ResourceRecord* rr, const unsigned char *input)
+
+/* Fill a ResourceRecord class based on raw data input */
+inline void DNSFillResourceRecord(ResourceRecord* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->rr_class = (input[2] << 8) + input[3];
@@ -153,7 +168,8 @@ inline void dns_fill_rr(ResourceRecord* rr, const unsigned char *input)
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-inline void dns_fill_header(DNSHeader *header, const unsigned char *input, const int length)
+/* Fill a DNSHeader class based on raw data input of a given length */
+inline void DNSFillHeader(DNSHeader *header, const unsigned char *input, const int length)
 {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
@@ -166,7 +182,8 @@ inline void dns_fill_header(DNSHeader *header, const unsigned char *input, const
 	memcpy(header->payload,&input[12],length);
 }
 
-inline void dns_empty_header(unsigned char *output, const DNSHeader *header, const int length)
+/* Empty a DNSHeader class out into raw data, ready for transmission */
+inline void DNSEmptyHeader(unsigned char *output, const DNSHeader *header, const int length)
 {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
@@ -183,7 +200,7 @@ inline void dns_empty_header(unsigned char *output, const DNSHeader *header, con
 	memcpy(&output[12],header->payload,length);
 }
 
-
+/* Send requests we have previously built down the UDP socket */
 int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
@@ -192,7 +209,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	this->rr_class = 1;
 	this->type = qt;
 		
-	dns_empty_header(payload,header,length);
+	DNSEmptyHeader(payload,header,length);
 
 	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
@@ -204,7 +221,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(53);
 #endif
-	if (sendto(master_socket, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	if (sendto(MasterDNSSocket, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
 		log(DEBUG,"Error in sendto!");
 		return -1;
@@ -213,11 +230,11 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	return 0;
 }
 
-DNSRequest* DNSAddQuery(DNSHeader *header, int &id)
+/* Add a query with a predefined header, and allocate an ID for it. */
+DNSRequest* DNS::DNSAddQuery(DNSHeader *header, int &id)
 {
-
 	id = rand() % 65536;
-	DNSRequest* req = new DNSRequest();
+	DNSRequest* req = new DNSRequest(this->myserver);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -228,34 +245,36 @@ DNSRequest* DNSAddQuery(DNSHeader *header, int &id)
 	header->nscount = 0;
 	header->arcount = 0;
 
-	if (connections.find(id) == connections.end())
-		connections[id] = req;
+	if (requests.find(id) == requests.end())
+		requests[id] = req;
 
 	/* According to the C++ spec, new never returns NULL. */
 	return req;
 }
 
-void DNSCreateSocket()
+/* Initialise the DNS UDP socket so that we can send requests */
+DNS::DNS()
 {
-	log(DEBUG,"---- BEGIN DNS INITIALIZATION, SERVER=%s ---",Config->DNSServer);
+	log(DEBUG,"----- Initialize dns class ----- ");
+	memset(dns_classes,0,sizeof(dns_classes));
 	insp_inaddr addr;
-	srand((unsigned int) TIME);
+	srand((unsigned int)time(NULL));
 	memset(&myserver,0,sizeof(insp_inaddr));
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
 
-	master_socket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
-	if (master_socket != -1)
+	MasterDNSSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
+	if (MasterDNSSocket != -1)
 	{
 		log(DEBUG,"Set query socket nonblock");
-		if (fcntl(master_socket, F_SETFL, O_NONBLOCK) != 0)
+		if (fcntl(MasterDNSSocket, F_SETFL, O_NONBLOCK) != 0)
 		{
-			shutdown(master_socket,2);
-			close(master_socket);
-			master_socket = -1;
+			shutdown(MasterDNSSocket,2);
+			close(MasterDNSSocket);
+			MasterDNSSocket = -1;
 		}
 	}
-	if (master_socket != -1)
+	if (MasterDNSSocket != -1)
 	{
 #ifdef IPV6
 		insp_sockaddr addr;
@@ -271,19 +290,19 @@ void DNSCreateSocket()
 		addr.sin_addr.s_addr = INADDR_ANY;
 #endif
 		log(DEBUG,"Binding query port");
-		if (bind(master_socket,(sockaddr *)&addr,sizeof(addr)) != 0)
+		if (bind(MasterDNSSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			log(DEBUG,"Cant bind with source port = 0");
-			shutdown(master_socket,2);
-			close(master_socket);
-			master_socket = -1;
+			shutdown(MasterDNSSocket,2);
+			close(MasterDNSSocket);
+			MasterDNSSocket = -1;
 		}
 
-		if (master_socket >= 0)
+		if (MasterDNSSocket >= 0)
 		{
 			log(DEBUG,"Attach query port to socket engine");
 			if (ServerInstance && ServerInstance->SE)
-				ServerInstance->SE->AddFd(master_socket,true,X_ESTAB_DNS);
+				ServerInstance->SE->AddFd(MasterDNSSocket,true,X_ESTAB_DNS);
 		}
 	}
 }
@@ -383,7 +402,7 @@ DNSResult DNS::GetResult()
 	unsigned char buffer[sizeof(DNSHeader)];
 
 	/* Attempt to read a header */
-	length = recv(master_socket,buffer,sizeof(DNSHeader),0);
+	length = recv(MasterDNSSocket,buffer,sizeof(DNSHeader),0);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -391,7 +410,7 @@ DNSResult DNS::GetResult()
 		return std::make_pair(-1,"");
 
 	/* Put the read header info into a header class */
-	dns_fill_header(&header,buffer,length - 12);
+	DNSFillHeader(&header,buffer,length - 12);
 
 	/* Get the id of this request.
 	 * Its a 16 bit value stored in two char's,
@@ -400,19 +419,19 @@ DNSResult DNS::GetResult()
 	unsigned long this_id = header.id[1] + (header.id[0] << 8);
 
 	/* Do we have a pending request matching this id? */
-        connlist_iter n_iter = connections.find(this_id);
-        if (n_iter == connections.end())
-        {
+	requestlist_iter n_iter = requests.find(this_id);
+	if (n_iter == requests.end())
+	{
 		/* Somehow we got a DNS response for a request we never made... */
-                log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",master_socket,this_id);
-                return std::make_pair(-1,"");
-        }
-        else
-        {
+		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterDNSSocket,this_id);
+		return std::make_pair(-1,"");
+	}
+	else
+	{
 		/* Remove the query from the list of pending queries */
 		req = (DNSRequest*)n_iter->second;
-		connections.erase(n_iter);
-        }
+		requests.erase(n_iter);
+	}
 
 	/* Inform the DNSRequest class that it has a result to be read.
 	 * When its finished it will return a DNSInfo which is a pair of
@@ -519,7 +538,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 		if (length - i < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
-		dns_fill_rr(&rr,&header.payload[i]);
+		DNSFillResourceRecord(&rr,&header.payload[i]);
 		i += 10;
 		if (rr.type != this->type)
 		{
@@ -587,12 +606,10 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	return std::make_pair(res,"No error");;
 }
 
-DNS::DNS()
-{
-}
-
 DNS::~DNS()
 {
+	shutdown(MasterDNSSocket, 2);
+	close(MasterDNSSocket);
 }
 
 Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd(forward)
@@ -600,7 +617,7 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	if (forward)
 	{
 		log(DEBUG,"Resolver: Forward lookup on %s",source.c_str());
-		this->myid = Res->GetIP(source.c_str());
+		this->myid = ServerInstance->Res->GetIP(source.c_str());
 	}
 	else
 	{
@@ -609,7 +626,7 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	        if (insp_aton(source.c_str(), &binip) > 0)
 		{
 			/* Valid ip address */
-	        	this->myid = Res->GetName(&binip);
+	        	this->myid = ServerInstance->Res->GetName(&binip);
 		}
 		else
 		{
@@ -630,10 +647,6 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
 }
 
-//void Resolver::OnLookupComplete(const std::string &result)
-//{
-//}
-
 void Resolver::OnError(ResolverError e, const std::string &errormessage)
 {
 }
@@ -648,12 +661,12 @@ int Resolver::GetId()
 	return this->myid;
 }
 
-void dns_deal_with_classes(int fd)
+void DNS::MarshallReads(int fd)
 {
 	log(DEBUG,"dns_deal_with_classes(%d)",fd);
-	if (fd == master_socket)
+	if (fd == MasterDNSSocket)
 	{
-		DNSResult res = Res->GetResult();
+		DNSResult res = this->GetResult();
 		if (res.first != -1)
 		{
 			if (res.first & ERROR_MASK)
@@ -682,35 +695,23 @@ void dns_deal_with_classes(int fd)
 	}
 }
 
-bool dns_add_class(Resolver* r)
+bool DNS::AddResolverClass(Resolver* r)
 {
-	log(DEBUG,"dns_add_class");
 	if ((r) && (r->GetId() > -1))
 	{
 		if (!dns_classes[r->GetId()])
 		{
-			log(DEBUG,"dns_add_class: added class");
 			dns_classes[r->GetId()] = r;
 			return true;
 		}
 		else
-		{
-			log(DEBUG,"Space occupied!");
 			return false;
-		}
 	}
 	else
 	{
-		log(DEBUG,"Bad class");
 		delete r;
 		return true;
 	}
 }
 
-void init_dns()
-{
-	Res = new DNS();
-	memset(dns_classes,0,sizeof(dns_classes));
-	DNSCreateSocket();
-}
 

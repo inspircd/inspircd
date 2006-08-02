@@ -817,11 +817,10 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 			case X_ESTAB_DNS:
 				/* Handles instances of the Resolver class,
-				 * a simple class extended by modules for
+				 * a simple class extended by modules and the core for
 				 * nonblocking resolving of addresses.
 				 */
-
-				dns_deal_with_classes(activefds[activefd]);
+				this->Res->MarshallReads(activefds[activefd]);
 			break;
 
 			case X_LISTEN:
@@ -895,7 +894,7 @@ int InspIRCd::Run()
 {
 	/* Until THIS point, ServerInstance == NULL */
 	
-	init_dns();
+	this->Res = new DNS();
 
 	LoadAllModules(this);
 

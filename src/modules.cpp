@@ -632,7 +632,7 @@ bool Server::DelModeWatcher(ModeWatcher* mw)
 
 bool Server::AddResolver(Resolver* r)
 {
-	return dns_add_class(r);
+	return ServerInstance->Res->AddResolverClass(r);
 }
 
 int Server::CountUsers(chanrec* c)

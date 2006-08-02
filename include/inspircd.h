@@ -103,6 +103,7 @@ class InspIRCd : public classbase
 	CommandParser* Parser;
 	SocketEngine* SE;
 	serverstats* stats;
+	DNS* Res;
 
 	std::string GetRevision();
 	std::string GetVersionString();
@@ -113,7 +114,6 @@ class InspIRCd : public classbase
 	InspIRCd(int argc, char** argv);
 	void DoOneIteration(bool process_module_sockets);
 	int Run();
-
 };
 
 /* Miscellaneous stuff here, moved from inspircd_io.h */

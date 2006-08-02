@@ -38,21 +38,8 @@ enum ResolverError
 	RESOLVER_BADIP		=	4
 };
 
-
-/** DNS is a singleton class used by the core to dispatch dns
- * requests to the dns server, and route incoming dns replies
- * back to Resolver objects, based upon the request ID. You
- * should never use this class yourself.
- */
-class DNS : public Extensible
-{
- public:
-	int GetIP(const char* name);
-	int GetName(const insp_inaddr* ip);
-	DNSResult GetResult();
-	DNS();
-	~DNS();
-};
+class DNSRequest;
+class DNSHeader;
 
 /**
  * The Resolver class is a high-level abstraction for resolving DNS entries.
@@ -132,19 +119,24 @@ class Resolver : public Extensible
 	int GetId();
 };
 
-/**
- * Clear the pointer table used for Resolver classes,
- * translate ServerConfig::DNSServer into an insp_inaddr,
- * establish binding on UDP socket for DNS requests.
+/** DNS is a singleton class used by the core to dispatch dns
+ * requests to the dns server, and route incoming dns replies
+ * back to Resolver objects, based upon the request ID. You
+ * should never use this class yourself.
  */
-void init_dns();
-/**
- * Deal with a Resolver class which has become readable
- */
-void dns_deal_with_classes(int fd);
-/**
- * Add a resolver class to our active table
- */
-bool dns_add_class(Resolver* r);
+class DNS : public Extensible
+{
+ private:
+	insp_inaddr myserver;
+ public:
+	int GetIP(const char* name);
+	int GetName(const insp_inaddr* ip);
+	DNSResult GetResult();
+	void MarshallReads(int fd);
+	bool AddResolverClass(Resolver* r);
+	DNSRequest* DNSAddQuery(DNSHeader *header, int &id);
+	DNS();
+	~DNS();
+};
 
 #endif
