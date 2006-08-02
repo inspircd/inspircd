@@ -16,14 +16,12 @@
 
 /*
 dns.cpp - Nonblocking DNS functions.
-Very loosely based on the firedns library,
-Copyright (C) 2002 Ian Gulliver.
-
-There have been so many modifications to this file
-to make it fit into InspIRCd and make it object
-orientated that you should not take this code as
-being what firedns really looks like. It used to
-look very different to this! :-P
+Very very loosely based on the firedns library,
+Copyright (C) 2002 Ian Gulliver. This file is no
+longer anything like firedns, there are many major
+differences between this code and the original.
+Please do not assume that firedns works like this,
+looks like this, walks like this or tastes like this.
 */
 
 using namespace std;
@@ -73,8 +71,8 @@ enum QueryFlags
 	FLAGS_MASK_RA 		= 0x80
 };
 
-class dns_connection;
-typedef std::map<int,dns_connection*> connlist;
+class dns_request;
+typedef std::map<int,dns_request*> connlist;
 typedef connlist::iterator connlist_iter;
 
 DNS* Res = NULL;
@@ -106,7 +104,7 @@ class dns_header
 	unsigned char	payload[512];
 };
 
-class dns_connection
+class dns_request
 {
  public:
 	unsigned char   id[2];
@@ -114,13 +112,13 @@ class dns_connection
 	unsigned int    rr_class;
 	QueryType       type;
 
-	dns_connection()
+	dns_request()
 	{
 		res = new unsigned char[512];
 		*res = 0;
 	}
 
-	~dns_connection()
+	~dns_request()
 	{
 		delete[] res;
 	}
@@ -175,7 +173,7 @@ inline void dns_empty_header(unsigned char *output, const dns_header *header, co
 }
 
 
-int dns_connection::send_requests(const dns_header *header, const int length, QueryType qt)
+int dns_request::send_requests(const dns_header *header, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
 	unsigned char payload[sizeof(dns_header)];
@@ -204,11 +202,11 @@ int dns_connection::send_requests(const dns_header *header, const int length, Qu
 	return 0;
 }
 
-dns_connection* dns_add_query(dns_header *header, int &id)
+dns_request* dns_add_query(dns_header *header, int &id)
 {
 
 	id = rand() % 65536;
-	dns_connection* req = new dns_connection();
+	dns_request* req = new dns_request();
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -318,12 +316,12 @@ int dns_build_query_payload(const char * const name, const unsigned short rr, co
 	return payloadpos + 4;
 }
 
-int DNS::dns_getip(const char *name)
+int DNS::GetIP(const char *name)
 {
 	dns_header h;
 	int id;
 	int length;
-	dns_connection* req;
+	dns_request* req;
 	
 	if ((length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
@@ -336,7 +334,7 @@ int DNS::dns_getip(const char *name)
 	return id;
 }
 
-int DNS::dns_getname(const insp_inaddr *ip)
+int DNS::GetName(const insp_inaddr *ip)
 {
 #ifdef IPV6
 	return -1;
@@ -345,7 +343,7 @@ int DNS::dns_getname(const insp_inaddr *ip)
 	dns_header h;
 	int id;
 	int length;
-	dns_connection* req;
+	dns_request* req;
 
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
@@ -365,11 +363,11 @@ int DNS::dns_getname(const insp_inaddr *ip)
 
 /* Return the next id which is ready, and the result attached to it
  */
-DNSResult DNS::dns_getresult()
+DNSResult DNS::GetResult()
 {
 	/* Fetch dns query response and decide where it belongs */
 	dns_header header;
-	dns_connection *req;
+	dns_request *req;
 	int length;
 	unsigned char buffer[sizeof(dns_header)];
 
@@ -401,11 +399,11 @@ DNSResult DNS::dns_getresult()
         else
         {
 		/* Remove the query from the list of pending queries */
-		req = (dns_connection*)n_iter->second;
+		req = (dns_request*)n_iter->second;
 		connections.erase(n_iter);
         }
 
-	/* Inform the dns_connection class that it has a result to be read.
+	/* Inform the dns_request class that it has a result to be read.
 	 * When its finished it will return a DNSInfo which is a pair of
 	 * unsigned char* resource record data, and an error message.
 	 */
@@ -446,14 +444,14 @@ DNSResult DNS::dns_getresult()
 }
 
 /* A result is ready, process it */
-DNSInfo dns_connection::result_ready(dns_header &header, int length)
+DNSInfo dns_request::result_ready(dns_header &header, int length)
 {
 	int i = 0;
 	int q = 0;
 	int curanswer, o;
 	dns_rr_middle rr;
  	unsigned short p;
-					
+			
 	if (!(header.flags1 & FLAGS_MASK_QR))
 		return std::make_pair((unsigned char*)NULL,"Not a query result");
 
@@ -591,7 +589,7 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	if (forward)
 	{
 		log(DEBUG,"Resolver: Forward lookup on %s",source.c_str());
-		this->myid = Res->dns_getip(source.c_str());
+		this->myid = Res->GetIP(source.c_str());
 	}
 	else
 	{
@@ -600,7 +598,7 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 	        if (insp_aton(source.c_str(), &binip) > 0)
 		{
 			/* Valid ip address */
-	        	this->myid = Res->dns_getname(&binip);
+	        	this->myid = Res->GetName(&binip);
 		}
 		else
 		{
@@ -644,7 +642,7 @@ void dns_deal_with_classes(int fd)
 	log(DEBUG,"dns_deal_with_classes(%d)",fd);
 	if (fd == master_socket)
 	{
-		DNSResult res = Res->dns_getresult();
+		DNSResult res = Res->GetResult();
 		if (res.first != -1)
 		{
 			if (res.first & ERROR_MASK)

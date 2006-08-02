@@ -47,9 +47,9 @@ enum ResolverError
 class DNS : public Extensible
 {
  public:
-	int dns_getip(const char* name);
-	int dns_getname(const insp_inaddr* ip);
-	DNSResult dns_getresult();
+	int GetIP(const char* name);
+	int GetName(const insp_inaddr* ip);
+	DNSResult GetResult();
 	DNS();
 	~DNS();
 };
