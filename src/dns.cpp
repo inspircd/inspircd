@@ -121,7 +121,7 @@ class dns_connection
 	}
 
 	unsigned char*	result_ready(dns_header &h, int length);
-	int		send_requests(const dns_header *h, const int l, QueryType qt);
+	int		send_requests(const dns_header *header, const int length, QueryType qt);
 };
 
 /*
@@ -170,7 +170,7 @@ inline void dns_empty_header(unsigned char *output, const dns_header *header, co
 }
 
 
-int dns_connection::send_requests(const dns_header *h, const int length, QueryType qt)
+int dns_connection::send_requests(const dns_header *header, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
 	unsigned char payload[sizeof(dns_header)];
@@ -178,7 +178,7 @@ int dns_connection::send_requests(const dns_header *h, const int length, QueryTy
 	this->rr_class = 1;
 	this->type = qt;
 		
-	dns_empty_header(payload,h,length);
+	dns_empty_header(payload,header,length);
 
 	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
@@ -199,24 +199,26 @@ int dns_connection::send_requests(const dns_header *h, const int length, QueryTy
 	return 0;
 }
 
-dns_connection* dns_add_query(dns_header *h, int &id)
+dns_connection* dns_add_query(dns_header *header, int &id)
 {
 
 	id = rand() % 65536;
-	dns_connection * s = new dns_connection();
+	dns_connection* req = new dns_connection();
 
-	h->id[0] = s->id[0] = id >> 8;
-	h->id[1] = s->id[1] = id & 0xFF;
-	h->flags1 = FLAGS_MASK_RD;
-	h->flags2 = 0;
-	h->qdcount = 1;
-	h->ancount = 0;
-	h->nscount = 0;
-	h->arcount = 0;
+	header->id[0] = req->id[0] = id >> 8;
+	header->id[1] = req->id[1] = id & 0xFF;
+	header->flags1 = FLAGS_MASK_RD;
+	header->flags2 = 0;
+	header->qdcount = 1;
+	header->ancount = 0;
+	header->nscount = 0;
+	header->arcount = 0;
 
 	if (connections.find(id) == connections.end())
-		connections[id] = s;
-	return s;
+		connections[id] = req;
+
+	/* According to the C++ spec, new never returns NULL. */
+	return req;
 }
 
 void create_socket()
@@ -321,8 +323,7 @@ int DNS::dns_getip4(const char *name)
 	if ((length = dns_build_query_payload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	if ((req = dns_add_query(&h, id)) == NULL)
-		return -1;
+	req = dns_add_query(&h, id);
 
 	if (req->send_requests(&h,length,DNS_QRY_A) == -1)
 		return -1;
@@ -348,8 +349,7 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 	if ((length = dns_build_query_payload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	if ((req = dns_add_query(&h, id)) == NULL)
-		return -1;
+	req = dns_add_query(&h, id);
 
 	if (req->send_requests(&h,length,DNS_QRY_PTR) == -1)
 		return -1;
@@ -363,8 +363,8 @@ int DNS::dns_getname4(const insp_inaddr *ip)
 DNSResult DNS::dns_getresult()
 {
 	/* retrieve result of DNS query (buffered) */
-	dns_header h;
-	dns_connection *c;
+	dns_header header;
+	dns_connection *req;
 	int length;
 	unsigned char buffer[sizeof(dns_header)];
 
@@ -373,10 +373,10 @@ DNSResult DNS::dns_getresult()
 	if (length < 12)
 		return std::make_pair(-1,"");
 
-	dns_fill_header(&h,buffer,length - 12);
+	dns_fill_header(&header,buffer,length - 12);
 
 	// Get the id of this request
-	unsigned long this_id = h.id[1] + (h.id[0] << 8);
+	unsigned long this_id = header.id[1] + (header.id[0] << 8);
 
 	// Do we have a pending request for it?
 
@@ -388,110 +388,110 @@ DNSResult DNS::dns_getresult()
         }
         else
         {
-                /* Remove the query from the list */
-                c = (dns_connection*)n_iter->second;
-                /* We don't delete c here, because its done later when needed */
-                connections.erase(n_iter);
+		/* Remove the query from the list */
+		req = (dns_connection*)n_iter->second;
+		/* We don't delete c here, because its done later when needed */
+		connections.erase(n_iter);
         }
-	unsigned char* a = c->result_ready(h, length);
+	unsigned char* data = req->result_ready(header, length);
 	std::string resultstr;
 
-	if (a == NULL)
+	if (data == NULL)
 	{
 		resultstr = "";
 	}
 	else
 	{
-		if (c->type == DNS_QRY_A)
+		if (req->type == DNS_QRY_A)
 		{
-			char formatted[1024];
-			snprintf(formatted,1024,"%u.%u.%u.%u",a[0],a[1],a[2],a[3]);
-			resultstr = std::string(formatted);
+			char formatted[16];
+			snprintf(formatted,16,"%u.%u.%u.%u",data[0],data[1],data[2],data[3]);
+			resultstr = formatted;
 		}
 		else
 		{
-			resultstr = std::string((const char*)a);
+			resultstr = std::string((const char*)data);
 		}
 	}
 
-	delete c;
+	delete req;
 	return std::make_pair(this_id,resultstr);
 }
 
 /** A result is ready, process it
  */
-unsigned char* dns_connection::result_ready(dns_header &h, int length)
+unsigned char* dns_connection::result_ready(dns_header &header, int length)
 {
-	int i, q, curanswer, o;
+	int i = 0;
+	int q = 0;
+	int curanswer, o;
 	dns_rr_middle rr;
  	unsigned short p;
 					
-	if ((h.flags1 & FLAGS_MASK_QR) == 0)
+	if (!(header.flags1 & FLAGS_MASK_QR))
 	{
 		log(DEBUG,"DNS: didnt get a query result");
 		return NULL;
 	}
-	if ((h.flags1 & FLAGS_MASK_OPCODE) != 0)
+	if (header.flags1 & FLAGS_MASK_OPCODE)
 	{
 		log(DEBUG,"DNS: got an OPCODE and didnt want one");
 		return NULL;
 	}
-	if ((h.flags2 & FLAGS_MASK_RCODE) != 0)
+	if (header.flags2 & FLAGS_MASK_RCODE)
 	{
 		log(DEBUG,"DNS lookup failed due to SERVFAIL");
 		return NULL;
 	}
-	if (h.ancount < 1)
+	if (header.ancount < 1)
 	{
 		log(DEBUG,"DNS: no answers!");
 		return NULL;
 	}
-	i = 0;
-	q = 0;
 	length -= 12;
-	while ((unsigned)q < h.qdcount && i < length)
+	while ((unsigned int)q < header.qdcount && i < length)
 	{
-		if (h.payload[i] > 63)
+		if (header.payload[i] > 63)
 		{
 			i += 6;
 			q++;
 		}
 		else
 		{
-			if (h.payload[i] == 0)
+			if (header.payload[i] == 0)
 			{
 				q++;
 				i += 5;
 			}
-			else i += h.payload[i] + 1;
+			else i += header.payload[i] + 1;
 		}
 	}
 	curanswer = 0;
-	while ((unsigned)curanswer < h.ancount)
+	while ((unsigned)curanswer < header.ancount)
 	{
 		q = 0;
 		while (q == 0 && i < length)
 		{
-			if (h.payload[i] > 63)
+			if (header.payload[i] > 63)
 			{
 				i += 2;
 				q = 1;
 			}
 			else
 			{
-				if (h.payload[i] == 0)
+				if (header.payload[i] == 0)
 				{
 					i++;
 					q = 1;
 				}
-				else i += h.payload[i] + 1; /* skip length and label */
+				else i += header.payload[i] + 1; /* skip length and label */
 			}
 		}
 		if (length - i < 10)
 		{
 			return NULL;
 		}
-		dns_fill_rr(&rr,&h.payload[i]);
+		dns_fill_rr(&rr,&header.payload[i]);
 		i += 10;
 		if (rr.type != this->type)
 		{
@@ -507,7 +507,7 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 		}
 		break;
 	}
-	if ((unsigned int)curanswer == h.ancount)
+	if ((unsigned int)curanswer == header.ancount)
 		return NULL;
 	if (i + rr.rdlength > (unsigned int)length)
 		return NULL;
@@ -522,15 +522,15 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 			q = 0;
 			while (q == 0 && i < length && o + 256 < 1023)
 			{
-				if (h.payload[i] > 63)
+				if (header.payload[i] > 63)
 				{
 					log(DEBUG,"DNS: h.payload[i] > 63");
-					memcpy(&p,&h.payload[i],2);
+					memcpy(&p,&header.payload[i],2);
 					i = ntohs(p) - 0xC000 - 12;
 				}
 				else
 				{
-					if (h.payload[i] == 0)
+					if (header.payload[i] == 0)
 					{
 						q = 1;
 					}
@@ -539,9 +539,9 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 						res[o] = '\0';
 						if (o != 0)
 							res[o++] = '.';
-						memcpy(&res[o],&h.payload[i + 1],h.payload[i]);
-						o += h.payload[i];
-						i += h.payload[i] + 1;
+						memcpy(&res[o],&header.payload[i + 1],header.payload[i]);
+						o += header.payload[i];
+						i += header.payload[i] + 1;
 					}
 				}
 			}
@@ -549,11 +549,11 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 		break;
 		case DNS_QRY_A:
 			log(DEBUG,"DNS: got a result of type DNS_QRY_A");
-			memcpy(res,&h.payload[i],rr.rdlength);
+			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
 		default:
-			memcpy(res,&h.payload[i],rr.rdlength);
+			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = '\0';
 			break;
 	}
@@ -562,7 +562,6 @@ unsigned char* dns_connection::result_ready(dns_header &h, int length)
 
 DNS::DNS()
 {
-	log(DEBUG,"Create blank DNS");
 }
 
 DNS::~DNS()
