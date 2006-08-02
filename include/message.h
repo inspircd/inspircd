@@ -31,7 +31,6 @@
 int common_channels(userrec *u, userrec *u2);
 void Blocking(int s);
 void NonBlocking(int s);
-int CleanAndResolve(char *resolvedHost, const char *unresolvedHost, bool forward, unsigned long timeout);
 int c_count(userrec* u);
 void ChangeName(userrec* user, const char* gecos);
 void ChangeDisplayedHost(userrec* user, const char* host);

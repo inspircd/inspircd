@@ -139,6 +139,8 @@ extern std::vector<ZLine> pzlines;
 extern std::vector<QLine> pqlines;
 extern std::vector<ELine> pelines;
 
+std::vector<std::string> ValidIPs;
+
 class UserManager : public classbase
 {
 	uid_hash uids;
@@ -3032,27 +3034,8 @@ class TreeSocket : public InspSocket
 		 * IPs for which we don't have a link block.
 		 */
 		bool found = false;
-		char resolved_host[MAXBUF];
 		vector<Link>::iterator i;
-		for (i = LinkBlocks.begin(); i != LinkBlocks.end(); i++)
-		{
-			if (i->IPAddr == ip)
-			{
-				found = true;
-				break;
-			}
-			/* XXX: Fixme: blocks for a very short amount of time,
-			 * we should cache these on rehash/startup
-			 */
-			if (CleanAndResolve(resolved_host,i->IPAddr.c_str(),true,1))
-			{
-				if (std::string(resolved_host) == ip)
-				{
-					found = true;
-					break;
-				}
-			}
-		}
+		found = (std::find(ValidIPs.begin(), ValidIPs.end(), ip) != ValidIPs.end());
 		if (!found)
 		{
 			WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
@@ -3116,6 +3099,26 @@ class ServernameResolver : public Resolver
 	}
 };
 
+class SecurityIPResolver : public Resolver
+{
+ private:
+	Link MyLink;
+ public:
+	SecurityIPResolver(const std::string &hostname, Link x) : Resolver(hostname, true), MyLink(x)
+	{
+	}
+
+	void OnLookupComplete(const std::string &result)
+	{
+		log(DEBUG,"Security IP cache: Adding IP address '%s' for Link '%s'",result.c_str(),MyLink.Name.c_str());
+		ValidIPs.push_back(result);
+	}
+
+	void OnError(ResolverError e)
+	{
+		log(DEBUG,"Could not resolve IP associated with Link '%s'!",MyLink.Name.c_str());
+	}
+};
 
 void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 {
@@ -3322,6 +3325,7 @@ void ReadConfiguration(bool rebind)
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	HideULines = Conf->ReadFlag("options","hideulines",0);
 	LinkBlocks.clear();
+	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
@@ -3337,6 +3341,16 @@ void ReadConfiguration(bool rebind)
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
 		{
+			ValidIPs.push_back(L.IPAddr);
+
+			/* Needs resolving */
+			insp_inaddr binip;
+			if (insp_aton(L.IPAddr.c_str(), &binip) < 1)
+			{
+				SecurityIPResolver* sr = new SecurityIPResolver(L.IPAddr, L);
+				Srv->AddResolver(sr);
+			}
+
 			LinkBlocks.push_back(L);
 			log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 		}

@@ -43,51 +43,26 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 
 	if (*addr == '*')
 		*addr = 0;
-
-	if (*addr && (insp_aton(addr,&addy) < 1))
-	{
-		/* If they gave a hostname, bind to the IP it resolves to */
-		if (CleanAndResolve(resolved_addr, addr, true, 1))
-		{
-			insp_aton(resolved_addr,&addy);
-			log(DEFAULT,"Resolved binding '%s' -> '%s'",addr,resolved_addr);
-#ifdef IPV6
-			/* Todo: Deal with resolution of IPV6 */
-			server.sin6_addr = addy;
-#else
-			server.sin_addr = addy;
-#endif
-			resolved = true;
-		}
-		else
-		{
-			log(DEFAULT,"WARNING: Could not resolve '%s' to an IP for binding to on port %d",addr,port);
-			return false;
-		}
-	}
 #ifdef IPV6
 	server.sin6_family = AF_FAMILY;
 #else
 	server.sin_family = AF_FAMILY;
 #endif
-	if (!resolved)
+	if (!*addr)
 	{
-		if (!*addr)
-		{
 #ifdef IPV6
-			memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+		memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
 #else
-			server.sin_addr.s_addr = htonl(INADDR_ANY);
+		server.sin_addr.s_addr = htonl(INADDR_ANY);
 #endif
-		}
-		else
-		{
+	}
+	else
+	{
 #ifdef IPV6
-			memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+		memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
 #else
-			server.sin_addr = addy;
+		server.sin_addr = addy;
 #endif
-		}
 	}
 #ifdef IPV6
 	server.sin6_port = htons(port);

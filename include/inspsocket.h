@@ -59,10 +59,6 @@ class InspSocket : public Extensible
         int fd;
 
 	/**
-	 * The resolver for this socket
-	 */
-
-	/**
 	 * The hostname connected to
 	 */
 	char host[MAXBUF];
@@ -184,15 +180,15 @@ class InspSocket : public Extensible
 	/**
 	 * This constructor is used to create a new
 	 * socket, either listening for connections, or an outbound connection to another host.
-	 * Note that if you specify a hostname in the 'host' parameter, then there will be an extra
-	 * step involved (a nonblocking DNS lookup) which will cause your connection to be established
-	 * slower than if it was an IP. Therefore, use an IP address where it is available instead.
-	 * @param host The hostname to connect to, or bind to
+	 * Note that if you specify a hostname in the 'ipaddr' parameter, this class will not
+	 * connect. You must resolve your hostnames before passing them to InspSocket. To do so,
+	 * you should use the nonblocking class 'Resolver'.
+	 * @param ipaddr The IP to connect to, or bind to
 	 * @param port The port number to connect to, or bind to
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
 	 */
-	InspSocket(const std::string &host, int port, bool listening, unsigned long maxtime);
+	InspSocket(const std::string &ipaddr, int port, bool listening, unsigned long maxtime);
 
 	/**
 	 * This method is called when an outbound

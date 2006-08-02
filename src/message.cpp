@@ -95,11 +95,6 @@ void NonBlocking(int s)
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
 
-int CleanAndResolve (char *resolvedHost, const char *unresolvedHost, bool forward, unsigned long timeout)
-{
-	return 0;
-}
-
 int c_count(userrec* u)
 {
 	int z = 0;

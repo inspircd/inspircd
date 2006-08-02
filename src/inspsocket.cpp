@@ -57,9 +57,9 @@ InspSocket::InspSocket(int newfd, const char* ip)
 	}
 }
 
-InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsigned long maxtime) : fd(-1)
+InspSocket::InspSocket(const std::string &ipaddr, int aport, bool listening, unsigned long maxtime) : fd(-1)
 {
-	strlcpy(host,ahost.c_str(),MAXBUF);
+	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->ClosePending = false;
 	if (listening) {
 		if ((this->fd = OpenTCPSocket()) == ERROR)
@@ -73,7 +73,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 		}
 		else
 		{
-			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ahost.c_str()))
+			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ipaddr.c_str()))
 			{
 				log(DEBUG,"BindSocket() error %s",strerror(errno));
 				this->Close();
@@ -98,7 +98,7 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 	}
 	else
 	{
-		strlcpy(this->host,ahost.c_str(),MAXBUF);
+		strlcpy(this->host,ipaddr.c_str(),MAXBUF);
 		this->port = aport;
 
 		if (insp_aton(host,&addy) < 1)
@@ -170,18 +170,6 @@ bool InspSocket::BindAddr()
 			if ((IP != "*") && (IP != "127.0.0.1") && (IP != ""))
 			{
 				insp_sockaddr s;
-				char resolved_addr[MAXBUF];
-				
-				if (insp_aton(IP.c_str(),&n) < 1)
-				{
-					/* If they gave a hostname, bind to the IP it resolves to */
-					log(DEBUG,"Resolving host %s",IP.c_str());
-					if (CleanAndResolve(resolved_addr, IP.c_str(), true, 1))
-					{
-						log(DEBUG,"Resolved host %s to %s",IP.c_str(),resolved_addr);
-						IP = resolved_addr;
-					}
-				}
 
 				if (insp_aton(IP.c_str(),&n) > 0)
 				{
