@@ -27,12 +27,14 @@
 /**
  * States which a socket may be in
  */
-enum InspSocketState { I_DISCONNECTED, I_RESOLVING, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
+enum InspSocketState { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
 
 /**
  * Error types which a socket may exhibit
  */
 enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE, I_ERR_WRITE };
+
+class InspSocket;
 
 /**
  * InspSocket is an extendable socket class which modules
@@ -47,7 +49,7 @@ enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I
  */
 class InspSocket : public Extensible
 {
-protected:
+ public:
 
 	std::deque<std::string> outbuffer;
 
@@ -162,8 +164,6 @@ protected:
 	bool WaitingForWriteEvent;
 
 	bool BindAddr();
-
-public:
 
 	/**
 	 * The default constructor does nothing
@@ -347,14 +347,6 @@ public:
 	 * used for this socket.
 	 */
 	virtual ~InspSocket();
-
-	/**
-	 * This method attempts to resolve the hostname,
-	 * if a hostname is given and not an IP,
-	 * before a connection can occur. This method is
-	 * asyncronous.
-	 */
-	virtual bool DoResolve();
 
 	/**
 	 * This method attempts to connect to a hostname.

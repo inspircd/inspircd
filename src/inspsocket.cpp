@@ -32,8 +32,10 @@
 extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
+extern Server* MyServer;
 
 InspSocket* socket_ref[MAX_DESCRIPTORS];
+
 
 InspSocket::InspSocket()
 {
@@ -101,15 +103,13 @@ InspSocket::InspSocket(const std::string &ahost, int aport, bool listening, unsi
 
 		if (insp_aton(host,&addy) < 1)
 		{
-			log(DEBUG,"Attempting to resolve %s",this->host);
-			/* Its not an ip, spawn the resolver */
-
-			/* TODO: Implement resolver with new Resolver class */
-
-			timeout_end = time(NULL) + maxtime;
-			timeout = false;
-			this->state = I_RESOLVING;
-			socket_ref[this->fd] = this;
+			log(DEBUG,"You cannot pass hostnames to InspSocket, resolve them first with Resolver!");
+			this->Close();
+			this->fd = -1;
+			this->state = I_ERROR;
+			this->OnError(I_ERR_RESOLVE);
+			this->ClosePending = true;
+			return;
 		}
 		else
 		{
@@ -145,14 +145,6 @@ void InspSocket::SetQueues(int nfd)
 	int recvbuf = 32768;
 	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
 	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
-}
-
-bool InspSocket::DoResolve()
-{
-	log(DEBUG,"In DoResolve(), trying to resolve IP");
-
-	log(DEBUG,"No result for socket yet!");
-	return true;
 }
 
 /* Most irc servers require you to specify the ip you want to bind to.
@@ -399,7 +391,7 @@ bool InspSocket::Timeout(time_t current)
 		return true;
 	}
 
-	if (((this->state == I_RESOLVING) || (this->state == I_CONNECTING)) && (current > timeout_end))
+	if ((this->state == I_CONNECTING) && (current > timeout_end))
 	{
 		log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
 		// for non-listening sockets, the timeout can occur
@@ -429,10 +421,6 @@ bool InspSocket::Poll()
 
 	switch (this->state)
 	{
-		case I_RESOLVING:
-			log(DEBUG,"State = I_RESOLVING, calling DoResolve()");
-			return this->DoResolve();
-		break;
 		case I_CONNECTING:
 			log(DEBUG,"State = I_CONNECTING");
 			this->SetState(I_CONNECTED);

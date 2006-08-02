@@ -186,6 +186,7 @@ class UserManager : public classbase
 	}
 };
 
+
 /* Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
  * have a class of type TreeSocket associated with it, for
@@ -3064,6 +3065,36 @@ class TreeSocket : public InspSocket
 	}
 };
 
+class ServernameResolver : public Resolver
+{       
+ private:
+        Link MyLink;
+ public:        
+        ServernameResolver(const std::string &hostname, Link x) : Resolver(hostname, true), MyLink(x)
+        {
+        }
+                
+        void OnLookupComplete(const std::string &result)
+        {
+                TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
+                if (newsocket->GetFd() > -1)
+                {
+                        Srv->AddSocket(newsocket);
+                }
+                else
+                {
+                        WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+                        delete newsocket;
+                }
+        }
+                
+        void OnError(ResolverError e)
+        {
+                WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname.",MyLink.Name.c_str());
+        }
+};
+
+
 void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 {
 	for (unsigned int c = 0; c < list.size(); c++)
@@ -3666,16 +3697,28 @@ class ModuleSpanningTree : public Module
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
 					WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
-					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
-					if (newsocket->GetFd() > -1)
+
+					insp_inaddr binip;
+
+					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
-						Srv->AddSocket(newsocket);
+						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
+						if (newsocket->GetFd() > -1)
+						{
+							Srv->AddSocket(newsocket);
+						}
+						else
+						{
+							WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							delete newsocket;
+						}
 					}
 					else
 					{
-						WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
-						DELETE(newsocket);
+						ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+						Srv->AddResolver(snr);
 					}
+
 				}
 			}
 		}
@@ -3728,15 +3771,25 @@ class ModuleSpanningTree : public Module
 				if (!CheckDupe)
 				{
 					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
-					TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
-					if (newsocket->GetFd() > -1)
+					insp_inaddr binip;
+
+					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
-						Srv->AddSocket(newsocket);
+						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
+						if (newsocket->GetFd() > -1)
+						{
+							Srv->AddSocket(newsocket);
+						}
+						else
+						{
+							WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							delete newsocket;
+						}
 					}
 					else
 					{
-						WriteServ(user->fd,"NOTICE %s :*** CONNECT: Error connecting \002%s\002: %s.",user->nick,x->Name.c_str(),strerror(errno));
-						DELETE(newsocket);
+						ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+						Srv->AddResolver(snr);
 					}
 					return 1;
 				}

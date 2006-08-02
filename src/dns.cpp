@@ -578,10 +578,12 @@ Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd
 {
 	if (forward)
 	{
+		log(DEBUG,"Resolver: Forward lookup on %s",source.c_str());
 		this->myid = Res->dns_getip4(source.c_str());
 	}
 	else
 	{
+		log(DEBUG,"Resolver: Reverse lookup on %s",source.c_str());
 		insp_inaddr binip;
 	        if (insp_aton(source.c_str(), &binip) > 0)
 		{
