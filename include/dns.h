@@ -125,9 +125,12 @@ class Resolver : public Extensible
 	 */
 	bool ProcessResult(const std::string &result);
 	/**
-	 * Returns the file descriptor of this class. This is primarily used by the core
+	 * Returns the id value of this class. This is primarily used by the core
 	 * to determine where in various tables to place a pointer to your class, but it
 	 * is safe to call and use this method.
+	 * As specified in RFC1035, each dns request has a 16 bit ID value, ranging
+	 * from 0 to 65535. If there is an issue and the core cannot send your request,
+	 * this method will return -1.
 	 */
 	int GetId();
 };
