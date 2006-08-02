@@ -28,21 +28,23 @@ extern ServerConfig* Config;
 extern time_t TIME;
 
 /** This will bind a socket to a port. It works for UDP/TCP.
- * If a hostname is given to bind to, the function will first
- * attempt to resolve the hostname, then bind to the IP the 
- * hostname resolves to. This is a blocking lookup blocking for
- * a maximum of one second before it times out, using the DNS
- * server specified in the configuration file.
+ * It can only bind to IP addresses, if you wish to bind to hostnames
+ * you should first resolve them using class 'Resolver'.
  */ 
 bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
 {
 	memset(&server,0,sizeof(server));
 	insp_inaddr addy;
-	bool resolved = false;
-	char resolved_addr[128];
 
 	if (*addr == '*')
 		*addr = 0;
+
+	if ((*addr) && (inet_aton(addr,&addy) < 1))
+	{
+		log(DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
+		return false;;
+	}
+
 #ifdef IPV6
 	server.sin6_family = AF_FAMILY;
 #else
