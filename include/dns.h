@@ -57,6 +57,13 @@ enum ResolverError
 
 class DNSRequest;
 class DNSHeader;
+class ResourceRecord;
+
+/* A set of requests keyed by request id */
+typedef std::map<int,DNSRequest*> requestlist;
+
+/* An iterator into a set of requests */
+typedef requestlist::iterator requestlist_iter;
 
 /**
  * The Resolver class is a high-level abstraction for resolving DNS entries.
@@ -144,17 +151,26 @@ class Resolver : public Extensible
 class DNS : public Extensible
 {
  private:
+
+	requestlist requests;
 	insp_inaddr myserver;
 	static int MasterSocket;
 	Resolver* Classes[65536];
+	int MakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload);
+
  public:
+
+	static void FillResourceRecord(ResourceRecord* rr, const unsigned char *input);
+	static void FillHeader(DNSHeader *header, const unsigned char *input, const int length);
+	static void EmptyHeader(unsigned char *output, const DNSHeader *header, const int length);
 	static int GetMasterSocket();
+
 	int GetIP(const char* name);
 	int GetName(const insp_inaddr* ip);
 	DNSResult GetResult();
 	void MarshallReads(int fd);
 	bool AddResolverClass(Resolver* r);
-	DNSRequest* DNSAddQuery(DNSHeader *header, int &id);
+	DNSRequest* AddQuery(DNSHeader *header, int &id);
 	DNS();
 	~DNS();
 };

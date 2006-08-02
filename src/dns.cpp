@@ -135,15 +135,6 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
-/* A set of requests keyed by request id */
-typedef std::map<int,DNSRequest*> requestlist;
-
-/* An iterator into a set of requests */
-typedef requestlist::iterator requestlist_iter;
-
-/* Declare our map */
-requestlist requests;
-
 /*
  * Optimized by brain, these were using integer division and modulus.
  * We can use logic shifts and logic AND to replace these even divisions
@@ -153,7 +144,7 @@ requestlist requests;
 
 
 /* Fill a ResourceRecord class based on raw data input */
-inline void DNSFillResourceRecord(ResourceRecord* rr, const unsigned char *input)
+inline void DNS::FillResourceRecord(ResourceRecord* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
 	rr->rr_class = (input[2] << 8) + input[3];
@@ -162,7 +153,7 @@ inline void DNSFillResourceRecord(ResourceRecord* rr, const unsigned char *input
 }
 
 /* Fill a DNSHeader class based on raw data input of a given length */
-inline void DNSFillHeader(DNSHeader *header, const unsigned char *input, const int length)
+inline void DNS::FillHeader(DNSHeader *header, const unsigned char *input, const int length)
 {
 	header->id[0] = input[0];
 	header->id[1] = input[1];
@@ -176,7 +167,7 @@ inline void DNSFillHeader(DNSHeader *header, const unsigned char *input, const i
 }
 
 /* Empty a DNSHeader class out into raw data, ready for transmission */
-inline void DNSEmptyHeader(unsigned char *output, const DNSHeader *header, const int length)
+inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, const int length)
 {
 	output[0] = header->id[0];
 	output[1] = header->id[1];
@@ -202,7 +193,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	this->rr_class = 1;
 	this->type = qt;
 		
-	DNSEmptyHeader(payload,header,length);
+	DNS::EmptyHeader(payload,header,length);
 
 	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
@@ -224,7 +215,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 }
 
 /* Add a query with a predefined header, and allocate an ID for it. */
-DNSRequest* DNS::DNSAddQuery(DNSHeader *header, int &id)
+DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
 	id = rand() % 65536;
 	DNSRequest* req = new DNSRequest(this->myserver);
@@ -305,7 +296,7 @@ DNS::DNS()
 	}
 }
 
-int DNSMakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
+int DNS::MakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
 {
 	short payloadpos;
 	const char * tempchr, * tempchr2;
@@ -351,10 +342,10 @@ int DNS::GetIP(const char *name)
 	int length;
 	DNSRequest* req;
 	
-	if ((length = DNSMakePayload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = this->MakePayload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = DNSAddQuery(&h, id);
+	req = this->AddQuery(&h, id);
 
 	if (req->SendRequests(&h,length,DNS_QRY_A) == -1)
 		return -1;
@@ -377,10 +368,10 @@ int DNS::GetName(const insp_inaddr *ip)
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 
-	if ((length = DNSMakePayload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = this->MakePayload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
 		return -1;
 
-	req = DNSAddQuery(&h, id);
+	req = this->AddQuery(&h, id);
 
 	if (req->SendRequests(&h,length,DNS_QRY_PTR) == -1)
 		return -1;
@@ -408,7 +399,7 @@ DNSResult DNS::GetResult()
 		return std::make_pair(-1,"");
 
 	/* Put the read header info into a header class */
-	DNSFillHeader(&header,buffer,length - 12);
+	DNS::FillHeader(&header,buffer,length - 12);
 
 	/* Get the id of this request.
 	 * Its a 16 bit value stored in two char's,
@@ -536,7 +527,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 		if (length - i < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
-		DNSFillResourceRecord(&rr,&header.payload[i]);
+		DNS::FillResourceRecord(&rr,&header.payload[i]);
 		i += 10;
 		if (rr.type != this->type)
 		{
