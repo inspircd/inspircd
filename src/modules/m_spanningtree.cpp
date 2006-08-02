@@ -3065,33 +3065,51 @@ class TreeSocket : public InspSocket
 	}
 };
 
+/** This class is used to resolve server hostnames during /connect and autoconnect.
+ * As of 1.1, the resolver system is seperated out from InspSocket, so we must do this
+ * resolver step first ourselves if we need it. This is totally nonblocking, and will
+ * callback to OnLookupComplete or OnError when completed. Once it has completed we
+ * will have an IP address which we can then use to continue our connection.
+ */
 class ServernameResolver : public Resolver
 {       
  private:
-        Link MyLink;
+	/** A copy of the Link tag info for what we're connecting to.
+	 * We take a copy, rather than using a pointer, just in case the
+	 * admin takes the tag away and rehashes while the domain is resolving.
+	 */
+	Link MyLink;
  public:        
-        ServernameResolver(const std::string &hostname, Link x) : Resolver(hostname, true), MyLink(x)
-        {
-        }
-                
-        void OnLookupComplete(const std::string &result)
-        {
-                TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
-                if (newsocket->GetFd() > -1)
-                {
-                        Srv->AddSocket(newsocket);
-                }
-                else
-                {
-                        WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
-                        delete newsocket;
-                }
-        }
-                
-        void OnError(ResolverError e)
-        {
-                WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname.",MyLink.Name.c_str());
-        }
+	ServernameResolver(const std::string &hostname, Link x) : Resolver(hostname, true), MyLink(x)
+	{
+		/* Nothing in here, folks */
+	}
+        
+	void OnLookupComplete(const std::string &result)
+	{
+		/* Initiate the connection, now that we have an IP to use.
+		 * Passing a hostname directly to InspSocket causes it to
+		 * just bail and set its FD to -1.
+		 */
+		TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
+		if (newsocket->GetFd() > -1)
+		{
+			/* We're all OK */
+			Srv->AddSocket(newsocket);
+		}
+		else
+		{
+			/* Something barfed, show the opers */
+			WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+			delete newsocket;
+		}
+	}
+
+	void OnError(ResolverError e)
+	{
+		/* Ooops! */
+		WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname.",MyLink.Name.c_str());
+	}
 };
 
 
