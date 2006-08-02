@@ -143,6 +143,13 @@ class Resolver : public Extensible
 	int GetId();
 };
 
+/* Query and resource record types */
+enum QueryType
+{
+	DNS_QUERY_A	= 1,	/* 'A' record: an IP address */
+	DNS_QUERY_PTR	= 12	/* 'PTR' record: a hostname */
+};
+
 /** DNS is a singleton class used by the core to dispatch dns
  * requests to the dns server, and route incoming dns replies
  * back to Resolver objects, based upon the request ID. You
@@ -156,11 +163,11 @@ class DNS : public Extensible
 	insp_inaddr myserver;
 	static int MasterSocket;
 	Resolver* Classes[65536];
-	int MakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload);
+	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
 
-	static void FillResourceRecord(ResourceRecord* rr, const unsigned char *input);
+	static void FillResourceRecord(ResourceRecord* rr, const unsigned char* input);
 	static void FillHeader(DNSHeader *header, const unsigned char *input, const int length);
 	static void EmptyHeader(unsigned char *output, const DNSHeader *header, const int length);
 	static int GetMasterSocket();

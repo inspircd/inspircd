@@ -50,13 +50,6 @@ extern ServerConfig* Config;
 /* Master file descriptor */
 int DNS::MasterSocket;
 
-/* Query and resource record types */
-enum QueryType
-{
-	DNS_QRY_A	= 1,	/* 'A' record: an IP address */
-	DNS_QRY_PTR	= 12	/* 'PTR' record: a hostname */
-};
-
 /* Masks to mask off the responses we get from the DNSRequest methods */
 enum QueryInfo
 {
@@ -302,7 +295,7 @@ DNS::DNS()
 }
 
 /* Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */
-int DNS::MakePayload(const char * const name, const unsigned short rr, const unsigned short rr_class, unsigned char * const payload)
+int DNS::MakePayload(const char * const name, const QueryType rr, const unsigned short rr_class, unsigned char * const payload)
 {
 	short payloadpos = 0;
 	const char* tempchr, *tempchr2 = name;
@@ -345,12 +338,12 @@ int DNS::GetIP(const char *name)
 	int id;
 	int length;
 	
-	if ((length = this->MakePayload(name,DNS_QRY_A,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = this->MakePayload(name, DNS_QUERY_A, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
 
 	DNSRequest* req = this->AddQuery(&h, id);
 
-	if (req->SendRequests(&h,length,DNS_QRY_A) == -1)
+	if (req->SendRequests(&h, length, DNS_QUERY_A) == -1)
 		return -1;
 
 	return id;
@@ -371,12 +364,12 @@ int DNS::GetName(const insp_inaddr *ip)
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 
-	if ((length = this->MakePayload(query,DNS_QRY_PTR,1,(unsigned char*)&h.payload)) == -1)
+	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
 
 	DNSRequest* req = this->AddQuery(&h, id);
 
-	if (req->SendRequests(&h,length,DNS_QRY_PTR) == -1)
+	if (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1)
 		return -1;
 
 	return id;
@@ -445,7 +438,7 @@ DNSResult DNS::GetResult()
 	else
 	{
 		/* Forward lookups come back as binary data. We must format them into ascii */
-		if (req->type == DNS_QRY_A)
+		if (req->type == DNS_QUERY_A)
 		{
 			char formatted[16];
 			snprintf(formatted,16,"%u.%u.%u.%u",data.first[0],data.first[1],data.first[2],data.first[3]);
@@ -555,7 +548,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 
 	switch (rr.type)
 	{
-		case DNS_QRY_PTR:
+		case DNS_QUERY_PTR:
 			o = 0;
 			q = 0;
 			while (q == 0 && i < length && o + 256 < 1023)
@@ -584,7 +577,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			}
 			res[o] = 0;
 		break;
-		case DNS_QRY_A:
+		case DNS_QUERY_A:
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = 0;
 			break;
