@@ -992,7 +992,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Config->Network,user->nick,user->ident,user->host);
 	WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,Config->ServerName,VERSION);
 	WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
-	WriteServ(user->fd,"004 %s %s %s iowghrasxRVSCWBG lvhopsmntikrcaqbegIOLQRSKVHGCNT vhobeIaqglk",user->nick,Config->ServerName,VERSION);
+	WriteServ(user->fd,"004 %s %s %s %s %s %s",user->nick,Config->ServerName,VERSION,ServerInstance->ModeGrok->UserModeList().c_str(),ServerInstance->ModeGrok->ChannelModeList().c_str(),+ServerInstance->ModeGrok->ParaModeList().c_str());
 	
 	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
 	// so i'd better split it :)

@@ -375,6 +375,12 @@ class ModeParser : public classbase
 	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
+
+	std::string UserModeList();
+
+	std::string ChannelModeList();
+
+	std::string ParaModeList();
 };
 
 /**

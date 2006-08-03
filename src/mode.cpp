@@ -574,6 +574,54 @@ ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 	return modehandlers[pos];
 }
 
+std::string ModeParser::UserModeList()
+{
+	char modestr[256];
+	int pointer = 0;
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_USER;
+
+		if (modehandlers[pos])
+			modestr[pointer++] = mode;
+	}
+	modestr[pointer++] = 0;
+	return modestr;
+}
+
+std::string ModeParser::ChannelModeList()
+{
+	char modestr[256];
+	int pointer = 0;
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+
+		if (modehandlers[pos])
+			modestr[pointer++] = mode;
+	}
+	modestr[pointer++] = 0;
+	return modestr;
+}
+
+std::string ModeParser::ParaModeList()
+{
+	char modestr[256];
+	int pointer = 0;
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+
+		if ((modehandlers[pos]) && (modehandlers[pos]->GetNumParams(true)))
+			modestr[pointer++] = mode;
+	}
+	modestr[pointer++] = 0;
+	return modestr;
+}
+
 bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 {
 	unsigned char mask = 0;
