@@ -255,7 +255,13 @@ DNS::DNS()
 
 	/* Convert the nameserver address into an insp_inaddr */
 	if (insp_aton(Config->DNSServer,&addr) > 0)
+	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
+	}
+	else
+	{
+		log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",Config->DNSServer);
+	}
 
 	/* Initialize mastersocket */
 	MasterSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
