@@ -111,7 +111,7 @@ const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 
 /**
  * Used internally to force PTR lookups to use a certain protocol scemantics,
- * e.g. x.x.x.x.in-addr.arpa for v4, and *.ip6.int for v6.
+ * e.g. x.x.x.x.in-addr.arpa for v4, and *.ip6.arpa for v6.
  */
 enum ForceProtocol
 {
@@ -170,8 +170,8 @@ class Resolver : public Extensible
 	 * wether InspIRCd is built with ipv6 support.
 	 * If you attempt to resolve a 'PTR' record using DNS_QUERY_PTR, and InspIRCd is
 	 * built with ipv6 support, the 'PTR' record will be formatted to ipv6 specs,
-	 * e.g. x.x.x.x.x....ip6.int. otherwise it will be formatted to ipv4 specs,
-	 * e.g. x.x.x.x.in-addr.arpa. This is automatic.
+	 * e.g. x.x.x.x.x....ip6.arpa. otherwise it will be formatted to ipv4 specs,
+	 * e.g. x.x.x.x.in-addr.arpa. This translation is automatic.
 	 * To get around this automatic behaviour, you must use one of the values
 	 * DNS_QUERY_PTR4 or DNS_QUERY_PTR6 to force ipv4 or ipv6 behaviour on the lookup,
 	 * irrespective of what protocol InspIRCd has been built for.
@@ -347,7 +347,7 @@ class DNS : public Extensible
 	unsigned long PRNG();
 
 	/**
-	 * Turn an in6_addr into a .ip6.int domain
+	 * Turn an in6_addr into a .ip6.arpa domain
 	 */
 	static void MakeIP6Int(char* query, const in6_addr *ip);
 };
