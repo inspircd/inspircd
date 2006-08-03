@@ -88,6 +88,25 @@ typedef std::map<int,DNSRequest*> requestlist;
 typedef requestlist::iterator requestlist_iter;
 
 /**
+ * Query and resource record types
+ */
+enum QueryType
+{
+	DNS_QUERY_A     = 1,    /* 'A' record: an ipv4 address */
+	DNS_QUERY_CNAME = 5,    /* 'CNAME' record: An alias */
+	DNS_QUERY_PTR   = 12,   /* 'PTR' record: a hostname */
+	DNS_QUERY_AAAA  = 28,    /* 'AAAA' record: an ipv6 address */
+};
+
+#ifdef IPV6
+const QueryType DNS_QUERY_FORWARD = DNS_QUERY_AAAA;
+const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
+#else
+const QueryType DNS_QUERY_FORWARD = DNS_QUERY_A;
+const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
+#endif
+
+/**
  * The Resolver class is a high-level abstraction for resolving DNS entries.
  * It can do forward and reverse IPv4 lookups, and where IPv6 is supported, will
  * also be able to do those, transparent of protocols. Module developers must
@@ -107,7 +126,7 @@ class Resolver : public Extensible
 	/**
 	 * True if a forward lookup is being performed, false if otherwise
 	 */
-	bool fwd;
+	QueryType querytype;
 	/**
 	 * The DNS erver being used for lookups. If this is an empty string,
 	 * the value of ServerConfig::DNSServer is used instead.
@@ -137,7 +156,7 @@ class Resolver : public Extensible
 	 * event a lookup could not be allocated, or a similar hard error occurs such as
 	 * the network being down.
 	 */
-	Resolver(const std::string &source, bool forward);
+	Resolver(const std::string &source, QueryType qt);
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -163,15 +182,6 @@ class Resolver : public Extensible
 	 * this method will return -1.
 	 */
 	int GetId();
-};
-
-/**
- * Query and resource record types
- */
-enum QueryType
-{
-	DNS_QUERY_A	= 1,	/* 'A' record: an IP address */
-	DNS_QUERY_PTR	= 12	/* 'PTR' record: a hostname */
 };
 
 /** DNS is a singleton class used by the core to dispatch dns
@@ -244,7 +254,7 @@ class DNS : public Extensible
 	static int GetMasterSocket();
 
 	/**
-	 * Start the lookup of an ip from a hostname
+	 * Start the lookup of an ipv4 from a hostname
 	 */
 	int GetIP(const char* name);
 
@@ -252,6 +262,16 @@ class DNS : public Extensible
 	 * Start the lookup of a hostname from an ip
 	 */
 	int GetName(const insp_inaddr* ip);
+
+	/**
+	 * Start lookup of an ipv6 from a hostname
+	 */
+	int GetIP6(const char *name);
+
+	/**
+	 * Start lookup of a CNAME from another hostname
+	 */
+	int GetCName(const char* alias);
 
 	/**
 	 * Fetch the result string (an ip or host)

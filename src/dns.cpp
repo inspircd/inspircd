@@ -360,6 +360,42 @@ int DNS::GetIP(const char *name)
 	return id;
 }
 
+/* Start lookup of an hostname to an IPv6 address */
+int DNS::GetIP6(const char *name)
+{
+	DNSHeader h;
+	int id;
+	int length;
+
+	if ((length = this->MakePayload(name, DNS_QUERY_AAAA, 1, (unsigned char*)&h.payload)) == -1)
+		return -1;
+
+	DNSRequest* req = this->AddQuery(&h, id);
+
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_AAAA) == -1))
+		return -1;
+
+	return id;
+}
+
+/* Start lookup of a cname to another name */
+int DNS::GetCName(const char *alias)
+{
+	DNSHeader h;
+	int id;
+	int length;
+
+	if ((length = this->MakePayload(alias, DNS_QUERY_CNAME, 1, (unsigned char*)&h.payload)) == -1)
+		return -1;
+
+	DNSRequest* req = this->AddQuery(&h, id);
+
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_CNAME) == -1))
+		return -1;
+
+	return id;
+}
+
 /* Start lookup of an IP address to a hostname */
 int DNS::GetName(const insp_inaddr *ip)
 {
@@ -471,17 +507,53 @@ DNSResult DNS::GetResult()
 	}
 	else
 	{
+		char formatted[128];
+
 		/* Forward lookups come back as binary data. We must format them into ascii */
-		if (req->type == DNS_QUERY_A)
+		switch (req->type)
 		{
-			char formatted[16];
-			snprintf(formatted,16,"%u.%u.%u.%u",data.first[0],data.first[1],data.first[2],data.first[3]);
-			resultstr = formatted;
-		}
-		else
-		{
-			/* Reverse lookups just come back as char* */
-			resultstr = std::string((const char*)data.first);
+			case DNS_QUERY_A:
+				snprintf(formatted,16,"%u.%u.%u.%u",data.first[0],data.first[1],data.first[2],data.first[3]);
+				resultstr = formatted;
+			break;
+
+			case DNS_QUERY_AAAA:
+			{
+				in6_addr* ip = (in6_addr*)&data.first;
+				
+				snprintf(formatted,40,"%x:%x:%x:%x:%x:%x:%x:%x",
+						ntohs(*((unsigned short *)&ip->s6_addr[0])),
+						ntohs(*((unsigned short *)&ip->s6_addr[2])),
+						ntohs(*((unsigned short *)&ip->s6_addr[4])),
+						ntohs(*((unsigned short *)&ip->s6_addr[6])),
+						ntohs(*((unsigned short *)&ip->s6_addr[8])),
+						ntohs(*((unsigned short *)&ip->s6_addr[10])),
+						ntohs(*((unsigned short *)&ip->s6_addr[12])),
+						ntohs(*((unsigned short *)&ip->s6_addr[14])));
+				char* c = strstr(formatted,":0:");
+				if (c != NULL)
+				{
+					memmove(c+1,c+2,strlen(c+2) + 1);
+					c += 2;
+					while (memcmp(c,"0:",2) == 0)
+						memmove(c,c+2,strlen(c+2) + 1);
+					if (memcmp(c,"0",2) == 0)
+						*c = 0;
+					if (memcmp(formatted,"0::",3) == 0)
+						memmove(formatted,formatted + 1, strlen(formatted + 1) + 1);
+				}
+				resultstr = formatted;
+			}
+			break;
+
+			case DNS_QUERY_CNAME:
+				/* Identical handling to PTR */
+
+			case DNS_QUERY_PTR:
+				/* Reverse lookups just come back as char* */
+				resultstr = std::string((const char*)data.first);
+			break;
+			
 		}
 
 		/* Build the reply with the id and hostname/ip in it */
@@ -582,6 +654,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 
 	switch (rr.type)
 	{
+		case DNS_QUERY_CNAME:
+			/* CNAME and PTR have the same processing code */
 		case DNS_QUERY_PTR:
 			o = 0;
 			q = 0;
@@ -611,14 +685,18 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			}
 			res[o] = 0;
 		break;
+		case DNS_QUERY_AAAA:
+			memcpy(res,&header.payload[i],rr.rdlength);
+			res[rr.rdlength] = 0;
+		break;
 		case DNS_QUERY_A:
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = 0;
-			break;
+		break;
 		default:
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = 0;
-			break;
+		break;
 	}
 	return std::make_pair(res,"No error");;
 }
@@ -631,28 +709,41 @@ DNS::~DNS()
 }
 
 /* High level abstraction of dns used by application at large */
-Resolver::Resolver(const std::string &source, bool forward) : input(source), fwd(forward)
+Resolver::Resolver(const std::string &source, QueryType qt) : input(source), querytype(qt)
 {
-	if (forward)
+	insp_inaddr binip;
+
+	switch (querytype)
 	{
-		log(DEBUG,"Resolver: Forward lookup on %s",source.c_str());
-		this->myid = ServerInstance->Res->GetIP(source.c_str());
-	}
-	else
-	{
-		log(DEBUG,"Resolver: Reverse lookup on %s",source.c_str());
-		insp_inaddr binip;
-	        if (insp_aton(source.c_str(), &binip) > 0)
-		{
-			/* Valid ip address */
-	        	this->myid = ServerInstance->Res->GetName(&binip);
-		}
-		else
-		{
-			this->OnError(RESOLVER_BADIP, "Bad IP address for reverse lookup");
-			throw ModuleException("Resolver: Bad IP address");
-			return;
-		}
+		case DNS_QUERY_A:
+			this->myid = ServerInstance->Res->GetIP(source.c_str());
+		break;
+
+		case DNS_QUERY_PTR:
+		        if (insp_aton(source.c_str(), &binip) > 0)
+			{
+				/* Valid ip address */
+		        	this->myid = ServerInstance->Res->GetName(&binip);
+			}
+			else
+			{
+				this->OnError(RESOLVER_BADIP, "Bad IP address for reverse lookup");
+				throw ModuleException("Resolver: Bad IP address");
+				return;
+			}
+		break;
+
+		case DNS_QUERY_AAAA:
+			this->myid = ServerInstance->Res->GetIP6(source.c_str());
+		break;
+
+		case DNS_QUERY_CNAME:
+			this->myid = ServerInstance->Res->GetCName(source.c_str());
+		break;
+
+		default:
+			this->myid = -1;
+		break;
 	}
 	if (this->myid == -1)
 	{
