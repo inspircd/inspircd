@@ -202,14 +202,14 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
+	/* Are there already the max number of requests on the go? */
 	if (requests.size() == DNS::MAX_REQUEST_ID + 1)
 		return NULL;
 	
+	/* Create an id */
 	id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	/* This id is already 'in flight', pick another.
-	 * -- Thanks jilles 
-	 */
+	/* If this id is already 'in flight', pick another. */
 	while (requests.find(id) != requests.end())
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
