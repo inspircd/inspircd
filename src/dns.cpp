@@ -202,7 +202,13 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
-	id = DNS::PRNG() & 0xFFFF;
+	id = this->PRNG() & 0xFFFF;
+
+	/* This id is already 'in flight', pick another.
+	 * -- Thanks jilles 
+	 */
+	while (requests.find(id) != requests.end())
+		id = this->PRNG() & 0xFFFF;
 
 	DNSRequest* req = new DNSRequest(this->myserver);
 
@@ -215,8 +221,10 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	header->nscount = 0;
 	header->arcount = 0;
 
-	if (requests.find(id) == requests.end())
-		requests[id] = req;
+	/* At this point we already know the id doesnt exist,
+	 * so there needs to be no second check for the ::end()
+	 */
+	requests[id] = req;
 
 	/* According to the C++ spec, new never returns NULL. */
 	return req;
