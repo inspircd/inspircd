@@ -202,6 +202,9 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
+	if (requests.size() == DNS::MAX_REQUEST_ID + 1)
+		return NULL;
+	
 	id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
 	/* This id is already 'in flight', pick another.
@@ -351,7 +354,7 @@ int DNS::GetIP(const char *name)
 
 	DNSRequest* req = this->AddQuery(&h, id);
 
-	if (req->SendRequests(&h, length, DNS_QUERY_A) == -1)
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_A) == -1))
 		return -1;
 
 	return id;
@@ -377,7 +380,7 @@ int DNS::GetName(const insp_inaddr *ip)
 
 	DNSRequest* req = this->AddQuery(&h, id);
 
-	if (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1)
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
 		return -1;
 
 	return id;
