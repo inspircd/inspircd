@@ -202,9 +202,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
-	timeval n;
-	gettimeofday(&n,NULL);
-	id = (n.tv_usec ^ getpid() ^ geteuid() ^ (currid++)) & 0xFFFF;
+	id = DNS::PRNG() & 0xFFFF;
 
 	DNSRequest* req = new DNSRequest(this->myserver);
 
@@ -730,5 +728,17 @@ bool DNS::AddResolverClass(Resolver* r)
 
 		return false;
 	}
+}
+
+unsigned long DNS::PRNG()
+{
+	unsigned long val = 0;
+	timeval n;
+	serverstats* s = ServerInstance->stats;
+	gettimeofday(&n,NULL);
+	val = (n.tv_usec ^ getpid() ^ geteuid() ^ (this->currid++)) ^ s->statsAccept + n.tv_sec;
+	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
+	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - s->BoundPortCount;
+	return val;
 }
 

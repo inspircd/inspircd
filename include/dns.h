@@ -279,6 +279,13 @@ class DNS : public Extensible
 	 * Destructor
 	 */
 	~DNS();
+
+	/** Portable random number generator, generates
+	 * its random number from the ircd stats counters,
+	 * effective user id, time of day and the rollover
+	 * counter (currid)
+	 */
+	unsigned long PRNG();
 };
 
 #endif
