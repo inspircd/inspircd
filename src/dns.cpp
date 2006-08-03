@@ -184,11 +184,11 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 #ifdef IPV6
 	memcpy(&addr.sin6_addr,&myserver,sizeof(addr.sin6_addr));
 	addr.sin6_family = AF_FAMILY;
-	addr.sin6_port = htons(53);
+	addr.sin6_port = htons(DNS::QUERY_PORT);
 #else
 	memcpy(&addr.sin_addr.s_addr,&myserver,sizeof(addr.sin_addr));
 	addr.sin_family = AF_FAMILY;
-	addr.sin_port = htons(53);
+	addr.sin_port = htons(DNS::QUERY_PORT);
 #endif
 	if (sendto(DNS::GetMasterSocket(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
@@ -202,13 +202,13 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
-	id = this->PRNG() & 0xFFFF;
+	id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
 	/* This id is already 'in flight', pick another.
 	 * -- Thanks jilles 
 	 */
 	while (requests.find(id) != requests.end())
-		id = this->PRNG() & 0xFFFF;
+		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
 	DNSRequest* req = new DNSRequest(this->myserver);
 
@@ -391,13 +391,36 @@ DNSResult DNS::GetResult()
 	DNSHeader header;
 	DNSRequest *req;
 	unsigned char buffer[sizeof(DNSHeader)];
+	sockaddr from;
+	socklen_t x = sizeof(from);
+	const char* ipaddr_from = "";
+	unsigned short int port_from = 0;
 
-	/* Attempt to read a header */
-	int length = recv(MasterSocket,buffer,sizeof(DNSHeader),0);
+	int length = recvfrom(MasterSocket,buffer,sizeof(DNSHeader),0,&from,&x);
 
 	/* Did we get the whole header? */
 	if (length < 12)
 		/* Nope - something screwed up. */
+		return std::make_pair(-1,"");
+
+	/* Check wether the reply came from a different DNS
+	 * server to the one we sent it to, or the source-port
+	 * is not 53.
+	 * A user could in theory still spoof dns packets anyway
+	 * but this is less trivial than just sending garbage
+	 * to the client, which is possible without this check.
+	 *
+	 * -- Thanks jilles for pointing this one out.
+	 */
+#ifdef IPV6
+	ipaddr_from = insp_ntoa(((sockaddr_in*)&from)->sin6_addr);
+	port_from = ntohs(((sockaddr_in*)&from)->sin6_port);
+#else
+	ipaddr_from = insp_ntoa(((sockaddr_in*)&from)->sin_addr);
+	port_from = ntohs(((sockaddr_in*)&from)->sin_port);
+#endif
+
+	if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
 		return std::make_pair(-1,"");
 
 	/* Put the read header info into a header class */

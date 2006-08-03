@@ -190,7 +190,7 @@ class DNS : public Extensible
 	static const int MAX_REQUEST_ID = 0xFFFF;
 
 	/**
-	 * Requests that are currently 'in flight
+	 * Requests that are currently 'in flight'
 	 */
 	requestlist requests;
 
@@ -220,6 +220,11 @@ class DNS : public Extensible
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
+	/**
+	 * The port number DNS requests are made on,
+	 * and replies have as a source-port number.
+	 */
+	static const int QUERY_PORT = 53;
 
 	/**
 	 * Fill an rr (resource record) with data from input
