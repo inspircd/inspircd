@@ -425,40 +425,19 @@ int DNS::GetName(const insp_inaddr *ip)
 
 void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 {
-	sprintf(query,"%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.ip6.int",
-			ip->s6_addr[15] & 0x0f,
-			(ip->s6_addr[15] & 0xf0) >> 4,
-			ip->s6_addr[14] & 0x0f,
-			(ip->s6_addr[14] & 0xf0) >> 4,
-			ip->s6_addr[13] & 0x0f,
-			(ip->s6_addr[13] & 0xf0) >> 4,
-			ip->s6_addr[12] & 0x0f,
-			(ip->s6_addr[12] & 0xf0) >> 4,
-			ip->s6_addr[11] & 0x0f,
-			(ip->s6_addr[11] & 0xf0) >> 4,
-			ip->s6_addr[10] & 0x0f,
-			(ip->s6_addr[10] & 0xf0) >> 4,
-			ip->s6_addr[9] & 0x0f,
-			(ip->s6_addr[9] & 0xf0) >> 4,
-			ip->s6_addr[8] & 0x0f,
-			(ip->s6_addr[8] & 0xf0) >> 4,
-			ip->s6_addr[7] & 0x0f,
-			(ip->s6_addr[7] & 0xf0) >> 4,
-			ip->s6_addr[6] & 0x0f,
-			(ip->s6_addr[6] & 0xf0) >> 4,
-			ip->s6_addr[5] & 0x0f,
-			(ip->s6_addr[5] & 0xf0) >> 4,
-			ip->s6_addr[4] & 0x0f,
-			(ip->s6_addr[4] & 0xf0) >> 4,
-			ip->s6_addr[3] & 0x0f,
-			(ip->s6_addr[3] & 0xf0) >> 4,
-			ip->s6_addr[2] & 0x0f,
-			(ip->s6_addr[2] & 0xf0) >> 4,
-			ip->s6_addr[1] & 0x0f,
-			(ip->s6_addr[1] & 0xf0) >> 4,
-			ip->s6_addr[0] & 0x0f,
-			(ip->s6_addr[0] & 0xf0) >> 4
-			);      
+	const char* hex = "0123456789abcdef";
+	int step = 31; /* 32 nibbles, 0..31 */
+	for (int index = 15; index > -1; (!(step-- % 2) ? index-- : index = index)) /* for() loop steps twice per byte */
+	{
+		if (step % 2)
+			/* low nibble */
+			*query++ = hex[ip->s6_addr[index] & 0x0F];
+		else
+			/* high nibble */
+			*query++ = hex[(ip->s6_addr[index] & 0xF0) >> 4];
+		*query++ = '.'; /* Seperator */
+	}
+	strcpy(query,"ip6.int"); /* Suffix the string */
 }
 
 /* Return the next id which is ready, and the result attached to it */
