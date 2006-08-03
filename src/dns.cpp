@@ -482,7 +482,7 @@ void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 			*query++ = hex[(ip->s6_addr[index] & 0xF0) >> 4];
 		*query++ = '.'; /* Seperator */
 	}
-	strcpy(query,"ip6.int"); /* Suffix the string */
+	strcpy(query,"ip6.arpa"); /* Suffix the string */
 }
 
 /* Return the next id which is ready, and the result attached to it */
