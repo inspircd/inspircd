@@ -192,7 +192,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 #endif
 	if (sendto(DNS::GetMasterSocket(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 	{
-		log(DEBUG,"Error in sendto!");
+		log(DEBUG,"Error in sendto! (%s)",strerror(errno));
 		return -1;
 	}
 
@@ -497,6 +497,9 @@ DNSResult DNS::GetResult()
 	unsigned short int port_from = 0;
 
 	int length = recvfrom(MasterSocket,buffer,sizeof(DNSHeader),0,&from,&x);
+
+	if (length < 0)
+		log(DEBUG,"Error in recvfrom()! (%s)",strerror(errno));
 
 	/* Did we get the whole header? */
 	if (length < 12)
