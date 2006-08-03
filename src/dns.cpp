@@ -519,17 +519,15 @@ DNSResult DNS::GetResult()
 
 			case DNS_QUERY_AAAA:
 			{
-				in6_addr* ip = (in6_addr*)&data.first;
-				
 				snprintf(formatted,40,"%x:%x:%x:%x:%x:%x:%x:%x",
-						ntohs(*((unsigned short *)&ip->s6_addr[0])),
-						ntohs(*((unsigned short *)&ip->s6_addr[2])),
-						ntohs(*((unsigned short *)&ip->s6_addr[4])),
-						ntohs(*((unsigned short *)&ip->s6_addr[6])),
-						ntohs(*((unsigned short *)&ip->s6_addr[8])),
-						ntohs(*((unsigned short *)&ip->s6_addr[10])),
-						ntohs(*((unsigned short *)&ip->s6_addr[12])),
-						ntohs(*((unsigned short *)&ip->s6_addr[14])));
+						(ntohs(data.first[0]) + ntohs(data.first[1] << 8)),
+						(ntohs(data.first[2]) + ntohs(data.first[3] << 8)),
+						(ntohs(data.first[4]) + ntohs(data.first[5] << 8)),
+						(ntohs(data.first[6]) + ntohs(data.first[7] << 8)),
+						(ntohs(data.first[8]) + ntohs(data.first[9] << 8)),
+						(ntohs(data.first[10]) + ntohs(data.first[11] << 8)),
+						(ntohs(data.first[12]) + ntohs(data.first[13] << 8)),
+						(ntohs(data.first[14]) + ntohs(data.first[15] << 8)));
 				char* c = strstr(formatted,":0:");
 				if (c != NULL)
 				{
