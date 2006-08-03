@@ -277,6 +277,10 @@ DNS::DNS()
 			MasterSocket = -1;
 		}
 	}
+	else
+	{
+		log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
+	}
 	/* Have we got a socket and is it nonblocking? */
 	if (MasterSocket != -1)
 	{
@@ -285,7 +289,7 @@ DNS::DNS()
 		memset(&addr,0,sizeof(addr));
 		addr.sin6_family = AF_FAMILY;
 		addr.sin6_port = 0;
-		memset(&addr.sin6_addr,255,sizeof(in6_addr));
+		addr.sin6_addr = in6addr_any;
 #else
 		insp_sockaddr addr;
 		memset(&addr,0,sizeof(addr));
