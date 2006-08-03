@@ -257,7 +257,7 @@ DNS::DNS()
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
-		log(DEBUG,"Added nameserver '%s'",Config->DNSServer);
+		log(DEBUG,"Added nameserver '%s'",inet_ntoa(myserver));
 	}
 	else
 	{
@@ -309,6 +309,7 @@ DNS::DNS()
 
 		if (MasterSocket >= 0)
 		{
+			log(DEBUG,"Add master socket %d",MasterSocket);
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 				ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS);
