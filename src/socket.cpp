@@ -39,7 +39,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 	if (*addr == '*')
 		*addr = 0;
 
-	if ((*addr) && (inet_aton(addr,&addy) < 1))
+	if ((*addr) && (insp_aton(addr,&addy) < 1))
 	{
 		log(DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
 		return false;;
