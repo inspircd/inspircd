@@ -257,7 +257,7 @@ DNS::DNS()
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
-		log(DEBUG,"Added nameserver '%s'",inet_ntoa(myserver));
+		log(DEBUG,"Added nameserver '%s'",Config->DNSServer);
 	}
 	else
 	{
@@ -864,6 +864,7 @@ int Resolver::GetId()
 /* Process a socket read event */
 void DNS::MarshallReads(int fd)
 {
+	log(DEBUG,"Marshall reads: %d %d",fd,GetMasterSocket());
 	/* We are only intrested in our single fd */
 	if (fd == GetMasterSocket())
 	{
