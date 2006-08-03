@@ -544,10 +544,16 @@ DNSResult DNS::GetResult()
 	port_from = ntohs(((sockaddr_in*)&from)->sin_port);
 #endif
 
-	if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
+	/* We cant perform this security check if you're using 4in6.
+	 * Tough luck to you, choose one or't other!
+	 */
+	if (strstr(Config->DNSServer,"::ffff:") != (char*)&Config->DNSServer)
 	{
-		log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, Config->DNSServer);
-		return std::make_pair(-1,"");
+		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
+		{
+			log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, Config->DNSServer);
+			return std::make_pair(-1,"");
+		}
 	}
 
 	/* Put the read header info into a header class */
