@@ -257,6 +257,11 @@ DNS::DNS()
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
+		if (strstr(Config->DNSServer,"::ffff:") == Config->DNSServer)
+		{
+			/* These dont come back looking like they did when they went in. Reformat them */
+			strcpy(Config->DNSServer,insp_ntoa(myserver));
+		}
 		log(DEBUG,"Added nameserver '%s'",Config->DNSServer);
 	}
 	else
