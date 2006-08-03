@@ -399,17 +399,52 @@ int DNS::GetCName(const char *alias)
 /* Start lookup of an IP address to a hostname */
 int DNS::GetName(const insp_inaddr *ip)
 {
-#ifdef IPV6
-	return -1;
-#else
 	char query[29];
 	DNSHeader h;
 	int id;
 	int length;
 
+#ifdef IPV6
+	/* XXX: This SUCKS. and i mean REALLY, REALLY sucks. Anyone who rewrites it pretty gets a cookie. */
+	sprintf(query,"%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.ip6.int",
+			ip->s6_addr[15] & 0x0f,
+			(ip->s6_addr[15] & 0xf0) >> 4,
+			ip->s6_addr[14] & 0x0f,
+			(ip->s6_addr[14] & 0xf0) >> 4,
+			ip->s6_addr[13] & 0x0f,
+			(ip->s6_addr[13] & 0xf0) >> 4,
+			ip->s6_addr[12] & 0x0f,
+			(ip->s6_addr[12] & 0xf0) >> 4,
+			ip->s6_addr[11] & 0x0f,
+			(ip->s6_addr[11] & 0xf0) >> 4,
+			ip->s6_addr[10] & 0x0f,
+			(ip->s6_addr[10] & 0xf0) >> 4,
+			ip->s6_addr[9] & 0x0f,
+			(ip->s6_addr[9] & 0xf0) >> 4,
+			ip->s6_addr[8] & 0x0f,
+			(ip->s6_addr[8] & 0xf0) >> 4,
+			ip->s6_addr[7] & 0x0f,
+			(ip->s6_addr[7] & 0xf0) >> 4,
+			ip->s6_addr[6] & 0x0f,
+			(ip->s6_addr[6] & 0xf0) >> 4,
+			ip->s6_addr[5] & 0x0f,
+			(ip->s6_addr[5] & 0xf0) >> 4,
+			ip->s6_addr[4] & 0x0f,
+			(ip->s6_addr[4] & 0xf0) >> 4,
+			ip->s6_addr[3] & 0x0f,
+			(ip->s6_addr[3] & 0xf0) >> 4,
+			ip->s6_addr[2] & 0x0f,
+			(ip->s6_addr[2] & 0xf0) >> 4,
+			ip->s6_addr[1] & 0x0f,
+			(ip->s6_addr[1] & 0xf0) >> 4,
+			ip->s6_addr[0] & 0x0f,
+			(ip->s6_addr[0] & 0xf0) >> 4
+			);
+#else
 	unsigned char* c = (unsigned char*)&ip->s_addr;
 
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
+#endif
 
 	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
@@ -420,7 +455,6 @@ int DNS::GetName(const insp_inaddr *ip)
 		return -1;
 
 	return id;
-#endif
 }
 
 /* Return the next id which is ready, and the result attached to it */
@@ -718,10 +752,10 @@ Resolver::Resolver(const std::string &source, QueryType qt) : input(source), que
 		break;
 
 		case DNS_QUERY_PTR:
-		        if (insp_aton(source.c_str(), &binip) > 0)
+			if (insp_aton(source.c_str(), &binip) > 0)
 			{
 				/* Valid ip address */
-		        	this->myid = ServerInstance->Res->GetName(&binip);
+				this->myid = ServerInstance->Res->GetName(&binip);
 			}
 			else
 			{

@@ -147,14 +147,21 @@ class Resolver : public Extensible
 	 * the object to go 'out of scope' and cause a segfault in the core if the result
 	 * arrives at a later time.
 	 * @param source The IP or hostname to resolve
-	 * @param forward Set to true to perform a forward lookup (hostname to ip) or false
-	 * to perform a reverse lookup (ip to hostname). Lookups on A records and PTR
-	 * records are supported. CNAME and MX are not supported by this resolver.
-	 * If InspIRCd is compiled with ipv6 support, lookups on AAAA records are preferred
-	 * and supported over A records.
+	 * @param qt The query type to perform. If you just want to perform a forward
+	 * or reverse lookup, and you don't care wether you get ipv4 or ipv6, then use
+	 * the constants DNS_QUERY_FORWARD and DNS_QUERY_REVERSE, which automatically
+	 * select from 'A' record or 'AAAA' record lookups. However, if you want to resolve
+	 * a specific record type, resolution of 'A', 'AAAA', 'PTR' and 'CNAME' records
+	 * is supported. Use one of the QueryType enum values to initiate this type of
+	 * lookup. Resolution of 'AAAA' ipv6 records is always supported, regardless of
+	 * wether InspIRCd is built with ipv6 support.
+	 * If you attempt to resolve a 'PTR' record and InspIRCd is built with ipv6 support,
+	 * the 'PTR' record will be formatted to ipv6 specs, e.g. x.x.x.x.x....ip6.int.
+	 * otherwise it will be formatted to ipv4 specs, e.g. x.x.x.x.in-addr.arpa.
 	 * @throw ModuleException This class may throw an instance of ModuleException, in the
 	 * event a lookup could not be allocated, or a similar hard error occurs such as
-	 * the network being down.
+	 * the network being down. This will also be thrown if an invalid IP address is
+	 * passed when resolving a 'PTR' record.
 	 */
 	Resolver(const std::string &source, QueryType qt);
 	/**
