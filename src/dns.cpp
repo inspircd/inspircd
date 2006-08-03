@@ -416,8 +416,8 @@ DNSResult DNS::GetResult()
 	 * -- Thanks jilles for pointing this one out.
 	 */
 #ifdef IPV6
-	ipaddr_from = insp_ntoa(((sockaddr_in*)&from)->sin6_addr);
-	port_from = ntohs(((sockaddr_in*)&from)->sin6_port);
+	ipaddr_from = insp_ntoa(((sockaddr_in6*)&from)->sin6_addr);
+	port_from = ntohs(((sockaddr_in6*)&from)->sin6_port);
 #else
 	ipaddr_from = insp_ntoa(((sockaddr_in*)&from)->sin_addr);
 	port_from = ntohs(((sockaddr_in*)&from)->sin_port);
