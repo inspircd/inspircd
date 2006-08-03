@@ -399,13 +399,32 @@ int DNS::GetCName(const char *alias)
 /* Start lookup of an IP address to a hostname */
 int DNS::GetName(const insp_inaddr *ip)
 {
-	char query[29];
+	char query[128];
 	DNSHeader h;
 	int id;
 	int length;
 
 #ifdef IPV6
-	/* XXX: This SUCKS. and i mean REALLY, REALLY sucks. Anyone who rewrites it pretty gets a cookie. */
+	DNS::MakeIP6Int(query, (in6_addr*)ip);
+#else
+	unsigned char* c = (unsigned char*)&ip->s_addr;
+
+	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
+#endif
+
+	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
+		return -1;
+
+	DNSRequest* req = this->AddQuery(&h, id);
+
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
+		return -1;
+
+	return id;
+}
+
+void DNS::MakeIP6Int(char* query, const in6_addr *ip)
+{
 	sprintf(query,"%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.%0x.ip6.int",
 			ip->s6_addr[15] & 0x0f,
 			(ip->s6_addr[15] & 0xf0) >> 4,
@@ -439,22 +458,7 @@ int DNS::GetName(const insp_inaddr *ip)
 			(ip->s6_addr[1] & 0xf0) >> 4,
 			ip->s6_addr[0] & 0x0f,
 			(ip->s6_addr[0] & 0xf0) >> 4
-			);
-#else
-	unsigned char* c = (unsigned char*)&ip->s_addr;
-
-	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
-#endif
-
-	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
-		return -1;
-
-	DNSRequest* req = this->AddQuery(&h, id);
-
-	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
-		return -1;
-
-	return id;
+			);      
 }
 
 /* Return the next id which is ready, and the result attached to it */

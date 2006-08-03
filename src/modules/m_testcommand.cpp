@@ -33,6 +33,18 @@ class MyV6Resolver : public Resolver
 	virtual void OnLookupComplete(const std::string &result)
 	{
 		log(DEBUG,"*** RESOLVER COMPLETED LOOKUP, IP IS: '%s'",result.c_str());
+
+		char query[128];
+		in6_addr n;
+		if (inet_pton(AF_INET6, result.c_str(), &n) > 0)
+		{
+			DNS::MakeIP6Int(query, &n);
+			log(DEBUG,"Translation: %s",query);
+		}
+		else
+		{
+			log(DEBUG,"Bad IPV6 IP: %s",result.c_str());
+		}
 	}
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)

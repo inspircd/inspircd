@@ -318,6 +318,11 @@ class DNS : public Extensible
 	 * counter (currid)
 	 */
 	unsigned long PRNG();
+
+	/**
+	 * Turn an in6_addr into a .ip6.int domain
+	 */
+	static void MakeIP6Int(char* query, const in6_addr *ip);
 };
 
 #endif
