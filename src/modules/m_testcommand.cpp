@@ -25,10 +25,10 @@ using namespace std;
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
-class MyResolver : public Resolver
+class MyV6Resolver : public Resolver
 {
  public:
-	MyResolver(const std::string &source, bool forward) : Resolver(source, forward) { }
+	MyV6Resolver(const std::string &source) : Resolver(source, DNS_QUERY_AAAA) { }
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
@@ -58,7 +58,7 @@ class cmd_woot : public command_t
 
 		try
 		{
-			MyResolver* r = new MyResolver("brainbox.ath.cx", true);
+			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se");
 			Srv->AddResolver(r);
 		}
 		catch (ModuleException& e)

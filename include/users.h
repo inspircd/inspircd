@@ -75,6 +75,7 @@ class UserResolver : public Resolver
 	 */
 	userrec* bound_user;
 	int bound_fd;
+	bool fwd;
  public:
 	UserResolver(userrec* user, std::string to_resolve, bool forward);
 
