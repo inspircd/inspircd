@@ -257,11 +257,16 @@ DNS::DNS()
 	if (insp_aton(Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
-		if (strstr(Config->DNSServer,"::ffff:") == (char*)&Config->DNSServer)
+		if ((strstr(Config->DNSServer,"::ffff:") == (char*)&Config->DNSServer) ||  (strstr(Config->DNSServer,"::FFFF:") == (char*)&Config->DNSServer))
 		{
-			/* These dont come back looking like they did when they went in. Reformat them */
-			log(DEBUG,"Munging dns server name");
-			strcpy(Config->DNSServer,insp_ntoa(myserver));
+			/* These dont come back looking like they did when they went in.
+			 * We're forced to turn some checks off.
+			 * If anyone knows how to fix this, let me know. --Brain
+			 */
+			log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
+			log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
+			log(DEFAULT,"         to a true IPv6 environment.");
+			this->ip6munge = true;
 		}
 		log(DEBUG,"Added nameserver '%s'",Config->DNSServer);
 	}
@@ -547,7 +552,7 @@ DNSResult DNS::GetResult()
 	/* We cant perform this security check if you're using 4in6.
 	 * Tough luck to you, choose one or't other!
 	 */
-	if (strstr(Config->DNSServer,"::ffff:") != (char*)&Config->DNSServer)
+	if (!ip6munge)
 	{
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
 		{
