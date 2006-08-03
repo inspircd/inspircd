@@ -27,24 +27,16 @@ using namespace std;
 
 class MyV6Resolver : public Resolver
 {
+	bool fw;
  public:
-	MyV6Resolver(const std::string &source) : Resolver(source, DNS_QUERY_AAAA) { }
+	MyV6Resolver(const std::string &source, bool forward) : Resolver(source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6)
+	{
+		fw = forward;
+	}
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
-		log(DEBUG,"*** RESOLVER COMPLETED LOOKUP, IP IS: '%s'",result.c_str());
-
-		char query[128];
-		in6_addr n;
-		if (inet_pton(AF_INET6, result.c_str(), &n) > 0)
-		{
-			DNS::MakeIP6Int(query, &n);
-			log(DEBUG,"Translation: %s",query);
-		}
-		else
-		{
-			log(DEBUG,"Bad IPV6 IP: %s",result.c_str());
-		}
+		log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s'",fw ? "FORWARD" : "REVERSE", result.c_str());
 	}
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
@@ -70,7 +62,9 @@ class cmd_woot : public command_t
 
 		try
 		{
-			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se");
+			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se", true);
+			Srv->AddResolver(r);
+			r = new MyV6Resolver("2001:6b0:1:ea:202:a5ff:fecd:13a6", false);
 			Srv->AddResolver(r);
 		}
 		catch (ModuleException& e)

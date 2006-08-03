@@ -92,10 +92,13 @@ typedef requestlist::iterator requestlist_iter;
  */
 enum QueryType
 {
-	DNS_QUERY_A     = 1,    /* 'A' record: an ipv4 address */
-	DNS_QUERY_CNAME = 5,    /* 'CNAME' record: An alias */
-	DNS_QUERY_PTR   = 12,   /* 'PTR' record: a hostname */
-	DNS_QUERY_AAAA  = 28,    /* 'AAAA' record: an ipv6 address */
+	DNS_QUERY_A     = 1,      /* 'A' record: an ipv4 address */
+	DNS_QUERY_CNAME = 5,      /* 'CNAME' record: An alias */
+	DNS_QUERY_PTR   = 12,     /* 'PTR' record: a hostname */
+	DNS_QUERY_AAAA  = 28,     /* 'AAAA' record: an ipv6 address */
+
+	DNS_QUERY_PTR4  = 0xFFFD, /* Force 'PTR' to use IPV4 scemantics */
+	DNS_QUERY_PTR6  = 0xFFFE, /* Force 'PTR' to use IPV6 scemantics */
 };
 
 #ifdef IPV6
@@ -105,6 +108,16 @@ const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 const QueryType DNS_QUERY_FORWARD = DNS_QUERY_A;
 const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 #endif
+
+/**
+ * Used internally to force PTR lookups to use a certain protocol scemantics,
+ * e.g. x.x.x.x.in-addr.arpa for v4, and *.ip6.int for v6.
+ */
+enum ForceProtocol
+{
+	PROTOCOL_IPV4 = 0,	/* Forced to use ipv4 */
+	PROTOCOL_IPV6 = 1	/* Forced to use ipv6 */
+};
 
 /**
  * The Resolver class is a high-level abstraction for resolving DNS entries.
@@ -155,9 +168,13 @@ class Resolver : public Extensible
 	 * is supported. Use one of the QueryType enum values to initiate this type of
 	 * lookup. Resolution of 'AAAA' ipv6 records is always supported, regardless of
 	 * wether InspIRCd is built with ipv6 support.
-	 * If you attempt to resolve a 'PTR' record and InspIRCd is built with ipv6 support,
-	 * the 'PTR' record will be formatted to ipv6 specs, e.g. x.x.x.x.x....ip6.int.
-	 * otherwise it will be formatted to ipv4 specs, e.g. x.x.x.x.in-addr.arpa.
+	 * If you attempt to resolve a 'PTR' record using DNS_QUERY_PTR, and InspIRCd is
+	 * built with ipv6 support, the 'PTR' record will be formatted to ipv6 specs,
+	 * e.g. x.x.x.x.x....ip6.int. otherwise it will be formatted to ipv4 specs,
+	 * e.g. x.x.x.x.in-addr.arpa. This is automatic.
+	 * To get around this automatic behaviour, you must use one of the values
+	 * DNS_QUERY_PTR4 or DNS_QUERY_PTR6 to force ipv4 or ipv6 behaviour on the lookup,
+	 * irrespective of what protocol InspIRCd has been built for.
 	 * @throw ModuleException This class may throw an instance of ModuleException, in the
 	 * event a lookup could not be allocated, or a similar hard error occurs such as
 	 * the network being down. This will also be thrown if an invalid IP address is
@@ -266,9 +283,19 @@ class DNS : public Extensible
 	int GetIP(const char* name);
 
 	/**
-	 * Start the lookup of a hostname from an ip
+	 * Start the lookup of a hostname from an ip,
+	 * always using the protocol inspircd is built for,
+	 * e.g. use ipv6 reverse lookup when built for ipv6,
+	 * or ipv4 lookup when built for ipv4.
 	 */
 	int GetName(const insp_inaddr* ip);
+
+	/**
+	 * Start lookup of a hostname from an ip, but
+	 * force a specific protocol to be used for the lookup
+	 * for example to perform an ipv6 reverse lookup.
+	 */
+	int GetNameForce(const char *ip, ForceProtocol fp);
 
 	/**
 	 * Start lookup of an ipv6 from a hostname

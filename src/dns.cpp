@@ -423,6 +423,51 @@ int DNS::GetName(const insp_inaddr *ip)
 	return id;
 }
 
+/* Start lookup of an IP address to a hostname */
+int DNS::GetNameForce(const char *ip, ForceProtocol fp)
+{
+	char query[128];
+	DNSHeader h;
+	int id;
+	int length;
+
+	if (fp == PROTOCOL_IPV6)
+	{
+		in6_addr i;
+		if (inet_pton(AF_INET6, ip, &i) > 0)
+		{
+			DNS::MakeIP6Int(query, &i);
+		}
+		else
+			/* Invalid IP address */
+			return -1;
+	}
+	else
+	{
+		in_addr i;
+		if (inet_aton(ip, &i))
+		{
+			unsigned char* c = (unsigned char*)&i.s_addr;
+			sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
+		}
+		else
+			/* Invalid IP address */
+			return -1;
+	}
+
+	log(DEBUG,"DNS::GetNameForce: %s %d",query, fp);
+
+	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
+		return -1;
+
+	DNSRequest* req = this->AddQuery(&h, id);
+
+	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
+		return -1;
+
+	return id;
+}
+
 void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 {
 	const char* hex = "0123456789abcdef";
@@ -567,6 +612,10 @@ DNSResult DNS::GetResult()
 			case DNS_QUERY_PTR:
 				/* Reverse lookups just come back as char* */
 				resultstr = std::string((const char*)data.first);
+			break;
+
+			default:
+				log(DEBUG,"WARNING: Somehow we made a request for a DNS_QUERY_PTR4 or DNS_QUERY_PTR6, but these arent real rr types!");
 			break;
 			
 		}
@@ -746,6 +795,16 @@ Resolver::Resolver(const std::string &source, QueryType qt) : input(source), que
 				throw ModuleException("Resolver: Bad IP address");
 				return;
 			}
+		break;
+
+		case DNS_QUERY_PTR4:
+			querytype = DNS_QUERY_PTR;
+			this->myid = ServerInstance->Res->GetNameForce(source.c_str(), PROTOCOL_IPV4);
+		break;
+
+		case DNS_QUERY_PTR6:
+			querytype = DNS_QUERY_PTR;
+			this->myid = ServerInstance->Res->GetNameForce(source.c_str(), PROTOCOL_IPV6);
 		break;
 
 		case DNS_QUERY_AAAA:
