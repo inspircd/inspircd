@@ -515,8 +515,11 @@ DNSResult DNS::GetResult()
 
 	/* Did we get the whole header? */
 	if (length < 12)
+	{
 		/* Nope - something screwed up. */
+		log(DEBUG,"Whole header not read!");
 		return std::make_pair(-1,"");
+	}
 
 	/* Check wether the reply came from a different DNS
 	 * server to the one we sent it to, or the source-port
@@ -536,7 +539,10 @@ DNSResult DNS::GetResult()
 #endif
 
 	if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
+	{
+		log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, Config->DNSServer);
 		return std::make_pair(-1,"");
+	}
 
 	/* Put the read header info into a header class */
 	DNS::FillHeader(&header,buffer,length - 12);
