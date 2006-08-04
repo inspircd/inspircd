@@ -1434,7 +1434,7 @@ class TreeSocket : public InspSocket
 							Srv->SendMode((const char**)mode_users,modectr,who);
 							if (ourTS != TS)
 							{
-								log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us,ourTS,TS);
+								log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
 								us->age = TS;
 							}
 						}
