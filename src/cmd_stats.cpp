@@ -240,13 +240,13 @@ void DoStats(char statschar, userrec* user, string_list &results)
 		if (stime->tm_year > 70)
 		{
 			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick,(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			snprintf(buffer,MAXBUF," 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick,(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
 			results.push_back(sn+buffer);
 		}
 		else
 		{
 			char buffer[MAXBUF];
-			snprintf(buffer,MAXBUF,"242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick,stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
+			snprintf(buffer,MAXBUF," 242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick,stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
 			results.push_back(sn+buffer);
 		}
 	}
