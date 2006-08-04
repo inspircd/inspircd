@@ -809,7 +809,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->registered = REG_NONE;
 	_new->signon = TIME + Config->dns_timeout;
 	_new->lastping = 1;
-	_new->SetSockAddr(AF_FAMILY, inet_ntoa(ip), port);
+	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -899,8 +899,8 @@ long FindMatchingGlobal(userrec* user)
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp
 		 * Let me know if you think of one.
 		  */
-		in6_addr* s1 = &(((sockaddr_in*)&a->second->ip)->sin6_addr);
-		in6_addr* s2 = &(((sockaddr_in*)&user->ip)->sin6_addr);
+		in6_addr* s1 = &(((sockaddr_in6*)&a->second->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in6*)&user->ip)->sin6_addr);
 		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
@@ -921,8 +921,8 @@ long FindMatchingLocal(userrec* user)
 		userrec* comp = *a;
 #ifdef IPV6
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
-		in6_addr* s1 = &(((sockaddr_in*)&comp->ip)->sin6_addr);
-		in6_addr* s2 = &(((sockaddr_in*)&user->ip)->sin6_addr);
+		in6_addr* s1 = &(((sockaddr_in6*)&comp->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in6*)&user->ip)->sin6_addr);
 		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
