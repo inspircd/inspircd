@@ -245,7 +245,7 @@ public:
 			strlcpy(user->dhost, user->password, 64);
 			
 #ifdef IPV6
-			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin6_addr))
+			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in6*)&user->ip)->sin6_addr))
 #else
 			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr))
 #endif
@@ -311,7 +311,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 #ifdef IPV6
-		insp_aton(newip, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin6_addr);
+		insp_aton(newip, (insp_inaddr*)&((sockaddr_in6*)&user->ip)->sin6_addr);
 #else
 		insp_aton(newip, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr);
 #endif
