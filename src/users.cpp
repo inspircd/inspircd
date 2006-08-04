@@ -178,7 +178,11 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			std::string hostname = this->bound_user->stored_host;
 			if (hostname.length() < 65)
 			{
-				WriteServ(this->bound_fd, "NOTICE Auth :*** Found your hostname (%s)", this->bound_user->stored_host.c_str());
+				/* Hostnames starting with : are not a good thing (tm) */
+				if (*(hostname.c_str()) == ':')
+					hostname = "0" + hostname;
+
+				WriteServ(this->bound_fd, "NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
 				this->bound_user->dns_done = true;
 				strlcpy(this->bound_user->dhost, hostname.c_str(),64);
 				strlcpy(this->bound_user->host, hostname.c_str(),64);
@@ -814,11 +818,6 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->fd = socket;
 	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
 
-	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	for (const char* temp = ipaddr; *temp && j < 64; temp++, j++)
-		_new->dhost[j] = _new->host[j] = *temp;
-	_new->dhost[j] = _new->host[j] = 0;
-
 	_new->server = FindServerNamePtr(Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	strcpy(_new->ident, "unknown");
@@ -831,6 +830,11 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
 	log(DEBUG,"Socket addresses set.");
 
+	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
+        for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)
+		_new->dhost[j] = _new->host[j] = *temp;
+	_new->dhost[j] = _new->host[j] = 0;
+			
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
