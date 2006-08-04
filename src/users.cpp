@@ -267,7 +267,9 @@ userrec::userrec()
 	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";
+	WriteError = "";
 	res_forward = res_reverse = NULL;
+	ip = NULL;
 	chans.clear();
 	invites.clear();
 	chans.resize(MAXCHANS);
@@ -288,6 +290,20 @@ userrec::~userrec()
 	{
 		ucrec* x = (ucrec*)*n;
 		delete x;
+	}
+
+	if (ip)
+	{
+		if (this->GetProtocolFamily() == AF_INET)
+		{
+			delete (sockaddr_in*)ip;
+		}
+#ifdef SUPPORT_IP6LINKS
+		else
+		{
+			delete (sockaddr_in6*)ip;
+		}
+#endif
 	}
 }
 
@@ -917,13 +933,13 @@ long FindMatchingLocal(userrec* user)
 		userrec* comp = *a;
 #ifdef IPV6
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
-		in6_addr* s1 = &(((sockaddr_in6*)&comp->ip)->sin6_addr);
-		in6_addr* s2 = &(((sockaddr_in6*)&user->ip)->sin6_addr);
+		in6_addr* s1 = (((sockaddr_in6*)&comp->ip)->sin6_addr);
+		in6_addr* s2 = (((sockaddr_in6*)&user->ip)->sin6_addr);
 		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
-		in_addr* s1 = &((sockaddr_in*)&comp->ip)->sin_addr;
-		in_addr* s2 = &((sockaddr_in*)&user->ip)->sin_addr;
+		in_addr* s1 = ((sockaddr_in*)&comp->ip)->sin_addr;
+		in_addr* s2 = ((sockaddr_in*)&user->ip)->sin_addr;
 		if (s1->s_addr == s2->s_addr)
 			x++;
 #endif
@@ -1111,20 +1127,22 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 		case AF_INET6:
 		{
 			log(DEBUG,"Set inet6 protocol address");
-			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			sockaddr_in6* sin = new sockaddr_in6;
 			sin->sin6_family = AF_INET6;
 			sin->sin6_port = port;
 			inet_pton(AF_INET6, ip, &sin->sin6_addr);
+			this->ip = (sockaddr*)sin;
 		}
 		break;
 #endif
 		case AF_INET:
 		{
 			log(DEBUG,"Set inet4 protocol address");
-			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			sockaddr_in* sin = new sockaddr_in;
 			sin->sin_family = AF_INET;
 			sin->sin_port = port;
 			inet_pton(AF_INET, ip, &sin->sin_addr);
+			this->ip = (sockaddr*)sin;
 		}
 		break;
 		default:

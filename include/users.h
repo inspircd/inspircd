@@ -268,7 +268,7 @@ class userrec : public connection
 
 	/** IPV4 ip address
 	 */
-	sockaddr ip;
+	sockaddr* ip;
 
 	/** Initialize the clients sockaddr
 	 */
