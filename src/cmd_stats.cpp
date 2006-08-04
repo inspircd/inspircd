@@ -50,6 +50,7 @@ extern FactoryList factory;
 extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
+extern std::vector<userrec*> local_users;
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -208,25 +209,21 @@ void DoStats(char statschar, userrec* user, string_list &results)
 			results.push_back(sn+" 243 "+user->nick+" O "+HostName+" * "+LoginName+" "+OperType+" 0");
 		}
 	}
-	
+
 	/* stats l (show user I/O stats) */
 	if (statschar == 'l')
 	{
-		results.push_back(sn+" 211 "+user->nick+" :server:port nick bytes_in cmds_in bytes_out cmds_out");
-	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+		results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_idle");
+	  	for (std::vector<userrec*>::iterator n = local_users.begin(); n != local_users.end(); n++)
 		{
-			if (isnick(i->second->nick))
+			userrec* i = *n;
+			if (isnick(i->nick))
 			{
-				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->GetPort())+" "+i->second->nick+" "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
+				results.push_back(sn+" 211 "+user->nick+" :"+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
 			}
-			else
-			{
-				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->GetPort())+" (unknown@"+ConvToStr(i->second->fd)+") "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
-			}
-			
 		}
 	}
-	
+
 	/* stats u (show server uptime) */
 	if (statschar == 'u')
 	{
