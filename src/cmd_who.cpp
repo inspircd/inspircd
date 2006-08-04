@@ -132,7 +132,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			/* XXX - code duplication; this could be more efficient -- w00t */
 			std::string wholine = initial;
 
-			wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
+			wholine = wholine + ch->name + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
 					i->second->server + " " + i->second->nick + " ";
 
 			/* away? */
