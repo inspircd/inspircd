@@ -277,6 +277,23 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 	log(DEBUG,"ModeParser::Process start");
 
+	/* Special case for displaying the list for listmodes,
+	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
+	 */
+	if ((targetchannel) && (pcnt == 2))
+	{
+		const char* mode = parameters[1];
+		if (*mode == '+')
+		mode++;
+		unsigned char handler_id = ((*mode) - 65) | MASK_CHANNEL;
+		ModeHandler* mh = modehandlers[handler_id];
+		if ((mh) && (mh->IsListMode()))
+		{
+			mh->DisplayList(user, targetchannel);
+		}
+		return;
+	}
+
 	if (pcnt == 1)
 	{
 		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0]);
@@ -321,24 +338,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			return;
 		}
 
-		/* Special case for displaying the list for listmodes,
-		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
-		 */
-		if ((type== MODETYPE_CHANNEL) && (pcnt == 2))
-		{
-			const char* mode = parameters[1];
-			if (*mode == '+')
-				mode++;
-
-			unsigned char handler_id = ((*mode) - 65) | mask;
-			ModeHandler* mh = modehandlers[handler_id];
-
-			if ((mh) && (mh->IsListMode()))
-			{
-				mh->DisplayList(user, targetchannel);
-			}
-		}
-		
 		std::string mode_sequence = parameters[1];
 		std::string parameter = "";
 		std::ostringstream parameter_list;
