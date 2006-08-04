@@ -1029,7 +1029,7 @@ class TreeSocket : public InspSocket
 							 */
 							mh = ServerInstance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
 
-							if ((mh->GetNumParams(adding) > 0) && (!mh->IsListMode()))
+							if ((mh) && (mh->GetNumParams(adding) > 0) && (!mh->IsListMode()))
 							{
 								/* We only want to do special things to
 								 * modes with parameters, we are going to rewrite
