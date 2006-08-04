@@ -1148,19 +1148,25 @@ class TreeSocket : public InspSocket
 
 			if (to_keep.length())
 			{
-				n = 0;
+				unsigned int n = 2;
+				unsigned int q = 0;
 				modelist[0] = params[0].c_str();
 				modelist[1] = to_keep.c_str();
 
-				for (unsigned int q = 2; (q < params.size()) && (q < 64); q++)
-						modelist[q] = params_to_keep[n++].c_str();
+				for (n = 2; (n < params.size()) && (n < 64); n++)
+				{
+					log(DEBUG,"Item %d of %d: %s",n, params.size(), params_to_keep[n].c_str());
+					modelist[q++] = params_to_keep[n].c_str();
+				}
 
                 	        if (smode)
 				{
+					log(DEBUG,"Send mode");
 					Srv->SendMode(modelist, n+2, who);
 				}
 				else
 				{
+					log(DEBUG,"Send mode client");
 					Srv->CallCommandHandler("MODE", modelist, n+2, who);
 				}
 
