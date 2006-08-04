@@ -198,16 +198,16 @@ public:
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,insp_ntoa(user->ip4));
+		log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,user->GetIPString());
 		
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 		{
-			log(DEBUG, "m_cgiirc.so: Matching %s against (%s or %s)", iter->hostmask.c_str(), user->host, insp_ntoa(user->ip4));
+			log(DEBUG, "m_cgiirc.so: Matching %s against (%s or %s)", iter->hostmask.c_str(), user->host, user->GetIPString());
 			
-			if(Srv->MatchText(user->host, iter->hostmask) || Srv->MatchText(insp_ntoa(user->ip4), iter->hostmask))
+			if(Srv->MatchText(user->host, iter->hostmask) || Srv->MatchText(user->GetIPString(), iter->hostmask))
 			{
 				// Deal with it...
-				log(DEBUG, "m_cgiirc.so: Handling CGI:IRC user: %s (%s) matched %s", user->GetFullRealHost(), insp_ntoa(user->ip4), iter->hostmask.c_str());
+				log(DEBUG, "m_cgiirc.so: Handling CGI:IRC user: %s (%s) matched %s", user->GetFullRealHost(), user->GetIPString(), iter->hostmask.c_str());
 				
 				if(iter->type == PASS)
 				{
@@ -240,11 +240,15 @@ public:
 		if(IsValidHost(user->password))
 		{
 			user->Extend("cgiirc_realhost", new std::string(user->host));
-			user->Extend("cgiirc_realip", new std::string(insp_ntoa(user->ip4)));
+			user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 			strlcpy(user->host, user->password, 64);
 			strlcpy(user->dhost, user->password, 64);
 			
-			if(insp_aton(user->password, &user->ip4))
+#ifdef IPV6
+			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin6_addr))
+#else
+			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr))
+#endif
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				log(DEBUG, "m_cgiirc.so: Got an IP in the user's password");
@@ -305,9 +309,13 @@ public:
 		snprintf(newip, 16, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 			
 		user->Extend("cgiirc_realhost", new std::string(user->host));
-		user->Extend("cgiirc_realip", new std::string(insp_ntoa(user->ip4)));
-		insp_aton(newip, &user->ip4);
-
+		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
+#ifdef IPV6
+		insp_aton(newip, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin6_addr);
+#else
+		insp_aton(newip, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr);
+#endif
+								
 		try
 		{
 			log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");

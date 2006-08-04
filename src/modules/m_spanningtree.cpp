@@ -1563,9 +1563,13 @@ class TreeSocket : public InspSocket
 		{
 			clientlist[tempnick]->modes[(*v)-65] = 1;
 		}
-		insp_aton(params[6].c_str(),&clientlist[tempnick]->ip4);
 
-		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host, insp_ntoa(clientlist[tempnick]->ip4));
+		if (params[6].find_first_of(":") != std::string::npos)
+			clientlist[tempnick]->SetSockAddr(AF_INET6, params[6].c_str(), 0);
+		else
+			clientlist[tempnick]->SetSockAddr(AF_INET, params[6].c_str(), 0);
+
+		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",clientlist[tempnick]->server,clientlist[tempnick]->nick,clientlist[tempnick]->ident,clientlist[tempnick]->host, clientlist[tempnick]->GetIPString());
 
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
@@ -1770,7 +1774,7 @@ class TreeSocket : public InspSocket
 		{
 			if (u->second->registered == REG_ALL)
 			{
-				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),insp_ntoa(u->second->ip4),u->second->fullname);
+				snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
 				this->WriteLine(data);
 				if (*u->second->oper)
 				{
@@ -4167,7 +4171,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(user->dhost);
 			params.push_back(user->ident);
 			params.push_back("+"+std::string(user->FormatModes()));
-			params.push_back((char*)insp_ntoa(user->ip4));
+			params.push_back(user->GetIPString());
 			params.push_back(":"+std::string(user->fullname));
 			DoOneToMany(Srv->GetServerName(),"NICK",params);
 

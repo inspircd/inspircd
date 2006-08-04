@@ -352,7 +352,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					{
 						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
 						{
-							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match((char*)insp_ntoa(user->ip4),i->data)))
+							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(user->GetIPString(),i->data)))
 							{
 								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
 								return NULL;

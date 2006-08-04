@@ -239,7 +239,7 @@ bool ip_matches_everyone(const std::string &ip, userrec* user)
 	
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
-		if (match(insp_ntoa(u->second->ip4),ip.c_str()))
+		if (match(u->second->GetIPString(),ip.c_str()))
 			matches++;
 	}
 	

@@ -217,11 +217,11 @@ void DoStats(char statschar, userrec* user, string_list &results)
 		{
 			if (isnick(i->second->nick))
 			{
-				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->port)+" "+i->second->nick+" "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
+				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->GetPort())+" "+i->second->nick+" "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
 			}
 			else
 			{
-				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->port)+" (unknown@"+ConvToStr(i->second->fd)+") "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
+				results.push_back(sn+" 211 "+user->nick+" :"+i->second->server+":"+ConvToStr(i->second->GetPort())+" (unknown@"+ConvToStr(i->second->fd)+") "+ConvToStr(i->second->bytes_in)+" "+ConvToStr(i->second->cmds_in)+" "+ConvToStr(i->second->bytes_out)+" "+ConvToStr(i->second->cmds_out));
 			}
 			
 		}

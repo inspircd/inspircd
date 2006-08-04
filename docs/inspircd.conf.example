@@ -108,6 +108,12 @@
 # <bind address="ip or host" port="port" type="clients">              #
 # <bind address="ip or host" port="port" type="servers">              #
 #                                                                     #
+# If InspIRCd is built for IPV6, and you wish to accept IPV4 clients, #
+# then you must specify your IPV6 clients in the following form:      #
+# ::ffff:1.2.3.4, where 1.2.3.4 is the IPV4 address to bind the       #
+# port on. If InspIRCd is built  for IPV4 connections (this is the    #
+# default) then you do not need to prefix your addresses like this.   #
+#                                                                     #
 
 <bind address="" port="6660" type="clients">
 <bind address="" port="7000" type="servers">
@@ -214,6 +220,7 @@
 <connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" localmax="3" globalmax="3">
 
 <connect deny="69.254.*">
+<connect deny="3ffe:*">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -354,6 +361,12 @@
 # that server to operoverride modes. This should only be used for     #
 # services and protected oper servers!                                #
 #                                                                     #
+# NOTE: If you have built InspIRCd with IPV6 support, and you want    #
+# to link to an IPV4 server, you must specify the IP address in the   #
+# form '::ffff:1.2.3.4' where 1.2.3.4 is the IP address of the target #
+# server. If you have built InspIRCd for IPV4 (this is the default)   #
+# you should not prefix your IP addresses in this fashion.            #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -414,8 +427,21 @@
 # resolving even though the DNS server appears to be up! Most ISP and #
 # hosting provider DNS servers support recursive lookups.             #
 #                                                                     #
+# NOTE: If you have built InspIRCd with IPV6 support, and you want    #
+# to use an IPV4 nameserver, you must specify the IP address in the   #
+# form '::ffff:1.2.3.4' where 1.2.3.4 is the IP address of the target #
+# server. If you have built InspIRCd for IPV4 (this is the default)   #
+# you should not prefix your IP addresses in this fashion.            #
+#                                                                     #
+# IF YOUR RESOLV.CONF CONTAINS ONLY IPV4 ADDRESSES, AND YOU ARE USING #
+# IPV6, YOU MUST DEFINE THE <DNS SERVER> TAG, AND USE THE ::FFFF      #
+# PREFIX NOTATION. IF YOU DO NOT, HOSTS WILL *NOT* RESOLVE.           #
+#                                                                     #
 
 <dns server="127.0.0.1" timeout="5">
+
+# An example of using IPV4 nameservers over IPV6
+#<dns server="::ffff:127.0.0.1" timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#  PID FILE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -449,8 +475,8 @@
 # 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
 # so for example disabling NICK will not cripple your network.        #
 #                                                                     #
-#         <disabled commands="TOPIC MODE">                            #
-#                                                                     #
+
+#<disabled commands="TOPIC MODE">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-  RTFM LINE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -471,6 +497,7 @@
 #  loglevel      - specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
 #                  default, sparse and none.                          #
+#                                                                     #
 #  allowhalfop   - allows the +h channel mode                         #
 #                                                                     #
 #  noservices    - If noservices is true, yes, or 1, then the first   #

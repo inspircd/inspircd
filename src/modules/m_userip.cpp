@@ -45,7 +45,7 @@ class cmd_userip : public command_t
 			userrec *u = Find(parameters[i]);
 			if (u)
 			{
-				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,(char*)insp_ntoa(u->ip4));
+				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,u->GetIPString());
 				strlcat(Return,junk,MAXBUF);
 			}
 		}

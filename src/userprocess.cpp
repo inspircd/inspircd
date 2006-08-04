@@ -79,14 +79,14 @@ void ProcessUser(userrec* cu)
 
 	log(DEBUG,"Processing user with fd %d",cu->fd);
 
-	if (Config->GetIOHook(cu->port))
+	if (Config->GetIOHook(cu->GetPort()))
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 
 		try
 		{
-			MOD_RESULT = Config->GetIOHook(cu->port)->OnRawSocketRead(cu->fd,data,65535,result2);
+			MOD_RESULT = Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
 			log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
@@ -168,9 +168,9 @@ void ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",(char*)insp_ntoa(current->ip4));
-					log(DEFAULT,"Excess flood from: %s",(char*)insp_ntoa(current->ip4));
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
+					WriteOpers("*** Excess flood from %s",current->GetIPString());
+					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -185,9 +185,9 @@ void ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",(char*)insp_ntoa(current->ip4));
-					log(DEFAULT,"Excess flood from: %s",(char*)insp_ntoa(current->ip4));
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
+					WriteOpers("*** Excess flood from %s",current->GetIPString());
+					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -221,7 +221,7 @@ void ProcessUser(userrec* cu)
 					}
 					else
 					{
-						add_zline(120,Config->ServerName,"Flood from unregistered connection",(char*)insp_ntoa(current->ip4));
+						add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 						apply_lines(APPLY_ZLINES);
 					}
 

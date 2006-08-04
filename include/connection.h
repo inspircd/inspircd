@@ -21,8 +21,6 @@
 #include "inspircd_config.h"
 #include "base.h"
 
-/** Please note: classes serverrec and userrec both inherit from class connection.
- */
 class connection : public Extensible
 {
  public:
@@ -30,7 +28,7 @@ class connection : public Extensible
 	 */
 	int fd;
 	
-	/** Hostname of connection. Not used if this is a serverrec
+	/** Hostname of connection
 	 */
 	char host[65];
 
@@ -50,16 +48,10 @@ class connection : public Extensible
 	 */
 	int cmds_out;
 
-	/** True if server/user has authenticated, false if otherwise
+	/** True if user has authenticated, false if otherwise
 	 */
 	bool haspassed;
 
-	/** Port number
-	 * For a userrec, this is the port they connected to the network on.
-	 * For a serverrec this is the current listening port of the serverrec object.
-	 */
-	int port;
-	
 	/** Used by userrec to indicate the registration status of the connection
 	 */
 	char registered;

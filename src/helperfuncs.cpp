@@ -165,11 +165,11 @@ void Write_NoFormat(int sock, const char *text)
 	{
 		bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
 
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -213,11 +213,11 @@ void Write(int sock, char *text, ...)
 		va_end(argsPtr);
 		bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
 
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -249,11 +249,11 @@ void WriteServ_NoFormat(int sock, const char* text)
 	{
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
 
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -313,11 +313,11 @@ void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
 	{
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
 
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -360,11 +360,11 @@ void WriteFrom(int sock, userrec *user,char* text, ...)
 		va_end(argsPtr);
 		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
 
-		if (Config->GetIOHook(fd_ref_table[sock]->port))
+		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(fd_ref_table[sock]->port)->OnRawSocketWrite(sock,tb,bytes);
+				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -1405,7 +1405,7 @@ ConnectClass GetClass(userrec *user)
 {
 	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
-		if ((match(insp_ntoa(user->ip4),i->host.c_str())) || (match(user->host,i->host.c_str())))
+		if ((match(user->GetIPString(),i->host.c_str())) || (match(user->host,i->host.c_str())))
 		{
 			return *i;
 		}

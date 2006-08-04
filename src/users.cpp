@@ -139,7 +139,7 @@ void userrec::StartDNSLookup()
 	log(DEBUG,"Commencing reverse lookup");
 	try
 	{
-		res_reverse = new UserResolver(this, insp_ntoa(this->ip4), false);
+		res_reverse = new UserResolver(this, this->GetIPString(), false);
 		MyServer->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
@@ -173,7 +173,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 	else if ((this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
 	{
 		/* Both lookups completed */
-		if (insp_ntoa(this->bound_user->ip4) == result)
+		if (this->bound_user->GetIPString() == result)
 		{
 			std::string hostname = this->bound_user->stored_host;
 			if (hostname.length() < 65)
@@ -185,12 +185,12 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			}
 			else
 			{
-				WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+				WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
 			}
 		}
 		else
 		{
-			WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+			WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
 		}
 	}
 }
@@ -200,7 +200,7 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 	if (fd_ref_table[this->bound_fd] == this->bound_user)
 	{
 		/* Error message here */
-		WriteServ(this->bound_fd, "NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", insp_ntoa(this->bound_user->ip4));
+		WriteServ(this->bound_fd, "NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
 		this->bound_user->dns_done = true;
 	}
 }
@@ -263,7 +263,7 @@ userrec::userrec()
 	server = (char*)FindServerNamePtr(Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
-	timeout = flood = port = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
 	recvq = "";
 	sendq = "";
@@ -650,11 +650,11 @@ void kill_link(userrec *user,const char* r)
 
 	if (IS_LOCAL(user))
 	{
-		if (Config->GetIOHook(user->port))
+		if (Config->GetIOHook(user->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(user->port)->OnRawSocketClose(user->fd);
+				Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -766,11 +766,11 @@ void MaintainWhoWas(time_t TIME)
 }
 
 /* add a client connection to the sockets list */
-void AddClient(int socket, int port, bool iscached, insp_inaddr ip4)
+void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = clientlist.find(tempnick);
-	const char *ipaddr = insp_ntoa(ip4);
+	const char *ipaddr = insp_ntoa(ip);
 	userrec* _new;
 	int j = 0;
 
@@ -809,8 +809,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip4)
 	_new->registered = REG_NONE;
 	_new->signon = TIME + Config->dns_timeout;
 	_new->lastping = 1;
-	_new->ip4 = ip4;
-	_new->port = port;
+	_new->SetSockAddr(AF_FAMILY, inet_ntoa(ip), port);
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -900,10 +899,14 @@ long FindMatchingGlobal(userrec* user)
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp
 		 * Let me know if you think of one.
 		  */
-		if (!memcmp(a->second->ip4.s6_addr, user->ip4.s6_addr, sizeof(in6_addr)))
+		in6_addr* s1 = &(((sockaddr_in*)&a->second->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in*)&user->ip)->sin6_addr);
+		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
-		if (a->second->ip4.s_addr == user->ip4.s_addr)
+		in_addr* s1 = &((sockaddr_in*)&a->second->ip)->sin_addr;
+		in_addr* s2 = &((sockaddr_in*)&user->ip)->sin_addr;
+		if (s1->s_addr == s2->s_addr)
 			x++;
 #endif
 	}
@@ -918,10 +921,14 @@ long FindMatchingLocal(userrec* user)
 		userrec* comp = *a;
 #ifdef IPV6
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
-		if (!memcmp(comp->ip4.s6_addr, user->ip4.s6_addr, sizeof(in6_addr)))
+		in6_addr* s1 = &(((sockaddr_in*)&comp->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in*)&user->ip)->sin6_addr);
+		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
-		if (comp->ip4.s_addr == user->ip4.s_addr)
+		in_addr* s1 = &((sockaddr_in*)&comp->ip)->sin_addr;
+		in_addr* s2 = &((sockaddr_in*)&user->ip)->sin_addr;
+		if (s1->s_addr == s2->s_addr)
 			x++;
 #endif
 	}
@@ -951,13 +958,13 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	if (FindMatchingLocal(user) > a.maxlocal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
-		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,insp_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,user->GetIPString());
 		return;
 	}
 	else if (FindMatchingGlobal(user) > a.maxglobal)
 	{
 		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
-		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,insp_ntoa(user->ip4));
+		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,user->GetIPString());
 		return;
 	}
 
@@ -1025,7 +1032,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
 	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
 	user->registered = REG_ALL;
-	WriteOpers("*** Client connecting on port %lu: %s!%s@%s [%s]",(unsigned long)user->port,user->nick,user->ident,user->host,insp_ntoa(user->ip4));
+	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->GetPort(),user->nick,user->ident,user->host,user->GetIPString());
 }
 
 /** ReHashNick()
@@ -1099,3 +1106,86 @@ void force_nickchange(userrec* user,const char* newnick)
 		}
 	}
 }
+
+void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
+{
+	switch (protocol_family)
+	{
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			sin->sin6_family = AF_INET6;
+			sin->sin6_port = port;
+			inet_pton(AF_INET6, ip, &sin->sin6_addr);
+		}
+		break;
+		case AF_INET:
+		{
+			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			sin->sin_family = AF_INET;
+			sin->sin_port = port;
+			inet_pton(AF_INET, ip, &sin->sin_addr);
+		}
+		break;
+		default:
+			log(DEBUG,"Ut oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
+		break;
+	}
+}
+
+int userrec::GetPort()
+{
+	switch (this->GetProtocolFamily())
+	{
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			return sin->sin6_port;
+		}
+		break;
+		case AF_INET:
+		{
+			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			return sin->sin_port;
+		}
+		break;
+		default:
+			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+		break;
+	}
+	return 0;
+}
+
+int userrec::GetProtocolFamily()
+{
+	sockaddr_in* sin = (sockaddr_in*)&this->ip;
+	return sin->sin_family;
+}
+
+const char* userrec::GetIPString()
+{
+	static char buf[1024];
+
+	switch (this->GetProtocolFamily())
+	{
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
+			return buf;
+		}
+		break;
+		case AF_INET:
+		{
+			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
+			return buf;
+		}
+		break;
+		default:
+			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+		break;
+	}
+	return "";
+}
+

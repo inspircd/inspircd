@@ -268,7 +268,23 @@ class userrec : public connection
 
 	/** IPV4 ip address
 	 */
-	insp_inaddr ip4;
+	sockaddr ip;
+
+	/** Initialize the clients sockaddr
+	 */
+	void SetSockAddr(int protocol_family, const char* ip, int port);
+
+	/** Get port number from sockaddr
+	 */
+	int GetPort();
+
+	/** Get protocol family from sockaddr
+	 */
+	int GetProtocolFamily();
+
+	/** Get IP string from sockaddr
+	 */
+	const char* GetIPString();
 
 	/* Write error string
 	 */

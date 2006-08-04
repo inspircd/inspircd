@@ -43,7 +43,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket((char*)insp_ntoa(user->ip4), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
+	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket(user->GetIPString(), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
 		Srv->Log(DEBUG,"Ident: associated.");
 	}

@@ -203,7 +203,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl", dummy) && isin(user->port, listenports))
+			if(user->GetExt("ssl", dummy) && isin(user->GetPort(), listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -461,7 +461,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->port, listenports)))
+		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
 		{
 			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}

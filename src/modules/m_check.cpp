@@ -86,7 +86,7 @@ class cmd_check : public command_t
 			if (IS_LOCAL(targuser))
 			{
 				/* port information is only held for a local user! */
-				Srv->SendTo(NULL, user, checkstr + " onport " + ConvToStr(targuser->port));
+				Srv->SendTo(NULL, user, checkstr + " onport " + ConvToStr(targuser->GetPort()));
 			}
 
 			chliststr = chlist(targuser, targuser);
@@ -158,38 +158,21 @@ class cmd_check : public command_t
 		else
 		{
 			/*  /check on an IP address, or something that doesn't exist */
-			insp_sockaddr addr;
 			long x = 0;
-#ifdef IPV6
-			if (insp_aton(parameters[0], &addr.sin6_addr) == 0)
-#else
-			if (insp_aton(parameters[0], &addr.sin_addr) == 0)
-#endif
+
+			/* hostname or other */
+			for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 			{
-				/* hostname or other */
-				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
 				{
-					if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
-					{
-						/* host or vhost matches mask */
-						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
-					}
+					/* host or vhost matches mask */
+					Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
-			}
-			else
-			{
 				/* IP address */
-				for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+				else if (match(a->second->GetIPString(), parameters[0]))
 				{
-#ifdef IPV6
-					if (!memcmp(addr.sin6_addr.s6_addr, a->second->ip4.s6_addr, sizeof(in6_addr)))
-#else
-					if (addr.sin_addr.s_addr == a->second->ip4.s_addr)
-#endif
-					{
-						/* same IP. */
-						Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
-					}
+					/* same IP. */
+					Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 			}
 
