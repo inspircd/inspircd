@@ -645,6 +645,14 @@ DNSResult DNS::GetResult()
 						memmove(formatted,formatted + 1, strlen(formatted + 1) + 1);
 				}
 				resultstr = formatted;
+
+				/* Special case. Sending ::1 around between servers
+				 * and to clients is dangerous, because the : on the
+				 * start makes the client or server interpret the IP
+				 * as the last parameter on the line with a value ":1".
+				 */
+				if (*formatted == ':')
+					resultstr = "0" + resultstr;
 			}
 			break;
 

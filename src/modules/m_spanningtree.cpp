@@ -1527,7 +1527,7 @@ class TreeSocket : public InspSocket
 			return true;
 		}
 		// NICK age nick host dhost ident +modes ip :gecos
-		//   0   123  4 56   7
+		//       0    1   2     3     4      5   6     7
 		time_t age = atoi(params[0].c_str());
 		
 		/* This used to have a pretty craq'y loop doing the same thing,

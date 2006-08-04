@@ -1153,6 +1153,9 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 
 int userrec::GetPort()
 {
+	if (this->ip == NULL)
+		return 0;
+
 	switch (this->GetProtocolFamily())
 	{
 #ifdef SUPPORT_IP6LINKS
@@ -1178,6 +1181,9 @@ int userrec::GetPort()
 
 int userrec::GetProtocolFamily()
 {
+	if (this->ip == NULL)
+		return 0;
+
 	sockaddr_in* sin = (sockaddr_in*)this->ip;
 	return sin->sin_family;
 }
@@ -1185,6 +1191,10 @@ int userrec::GetProtocolFamily()
 const char* userrec::GetIPString()
 {
 	static char buf[1024];
+	static char temp[1024];
+
+	if (this->ip == NULL)
+		return "";
 
 	switch (this->GetProtocolFamily())
 	{
@@ -1193,6 +1203,13 @@ const char* userrec::GetIPString()
 		{
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
+			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
+			if (*buf == ':')
+			{
+				strlcpy(&temp[1], buf, sizeof(temp));
+				*temp = '0';
+				return temp;
+			}
 			return buf;
 		}
 		break;

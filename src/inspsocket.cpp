@@ -215,14 +215,17 @@ bool InspSocket::DoConnect()
 		return false;
 	}
 
-	if (!this->BindAddr())
-		return false;
+	if ((strstr(this->IP,"::ffff:") != (char*)&this->IP) && (strstr(this->IP,"::FFFF:") != (char*)&this->IP))
+	{
+		if (!this->BindAddr())
+			return false;
+	}
 
 	log(DEBUG,"Part 2 DoConnect() %s",this->IP);
 	insp_aton(this->IP,&addy);
 #ifdef IPV6
 	addr.sin6_family = AF_FAMILY;
-	memcpy(&addy, &addr.sin6_addr, sizeof(insp_inaddr));
+	memcpy(&addr.sin6_addr, &addy, sizeof(insp_inaddr));
 	addr.sin6_port = htons(this->port);
 #else
 	addr.sin_family = AF_FAMILY;
