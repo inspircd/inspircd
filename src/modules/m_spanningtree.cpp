@@ -1475,7 +1475,7 @@ class TreeSocket : public InspSocket
 		/* there werent enough modes built up to flush it during FJOIN,
 		 * or, there are a number left over. flush them out.
 		 */
-		if ((modectr > 2) && (who))
+		if ((modectr > 2) && (who) && (us))
 		{
 			if (ourTS >= TS)
 			{
