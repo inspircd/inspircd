@@ -213,7 +213,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	/* stats l (show user I/O stats) */
 	if (statschar == 'l')
 	{
-		results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_idle");
+		results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 	  	for (std::vector<userrec*>::iterator n = local_users.begin(); n != local_users.end(); n++)
 		{
 			userrec* i = *n;
