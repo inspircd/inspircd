@@ -933,13 +933,13 @@ long FindMatchingLocal(userrec* user)
 		userrec* comp = *a;
 #ifdef IPV6
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
-		in6_addr* s1 = (((sockaddr_in6*)&comp->ip)->sin6_addr);
-		in6_addr* s2 = (((sockaddr_in6*)&user->ip)->sin6_addr);
+		in6_addr* s1 = &(((sockaddr_in6*)comp->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in6*)user->ip)->sin6_addr);
 		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
-		in_addr* s1 = ((sockaddr_in*)&comp->ip)->sin_addr;
-		in_addr* s2 = ((sockaddr_in*)&user->ip)->sin_addr;
+		in_addr* s1 = &((sockaddr_in*)comp->ip)->sin_addr;
+		in_addr* s2 = &((sockaddr_in*)user->ip)->sin_addr;
 		if (s1->s_addr == s2->s_addr)
 			x++;
 #endif
@@ -1158,14 +1158,14 @@ int userrec::GetPort()
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
-			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			return sin->sin6_port;
 		}
 		break;
 #endif
 		case AF_INET:
 		{
-			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			sockaddr_in* sin = (sockaddr_in*)this->ip;
 			return sin->sin_port;
 		}
 		break;
@@ -1178,7 +1178,7 @@ int userrec::GetPort()
 
 int userrec::GetProtocolFamily()
 {
-	sockaddr_in* sin = (sockaddr_in*)&this->ip;
+	sockaddr_in* sin = (sockaddr_in*)this->ip;
 	return sin->sin_family;
 }
 
@@ -1191,7 +1191,7 @@ const char* userrec::GetIPString()
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
-			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
+			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
 			return buf;
 		}
@@ -1199,7 +1199,7 @@ const char* userrec::GetIPString()
 #endif
 		case AF_INET:
 		{
-			sockaddr_in* sin = (sockaddr_in*)&this->ip;
+			sockaddr_in* sin = (sockaddr_in*)this->ip;
 			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
 			return buf;
 		}
