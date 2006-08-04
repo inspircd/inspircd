@@ -1155,7 +1155,7 @@ class TreeSocket : public InspSocket
 
 				for (n = 2; (n < params.size()) && (n < 64); n++)
 				{
-					log(DEBUG,"Item %d of %d: %s",n, params.size(), params_to_keep[n].c_str());
+					log(DEBUG,"Item %d of %d",n, params.size());
 					modelist[q++] = params_to_keep[n].c_str();
 				}
 
