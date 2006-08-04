@@ -809,7 +809,10 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->registered = REG_NONE;
 	_new->signon = TIME + Config->dns_timeout;
 	_new->lastping = 1;
+
+	log(DEBUG,"Setting socket addresses");
 	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
+	log(DEBUG,"Socket addresses set.");
 
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -887,6 +890,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
 	}
 
+	log(DEBUG,"Writing to client %d",_new->fd);
 	WriteServ(_new->fd,"NOTICE Auth :*** Looking up your hostname...");
 }
 
@@ -1105,6 +1109,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
+			log(DEBUG,"Set inet6 protocol address");
 			sockaddr_in6* sin = (sockaddr_in6*)&this->ip;
 			sin->sin6_family = AF_INET6;
 			sin->sin6_port = port;
@@ -1114,6 +1119,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #endif
 		case AF_INET:
 		{
+			log(DEBUG,"Set inet4 protocol address");
 			sockaddr_in* sin = (sockaddr_in*)&this->ip;
 			sin->sin_family = AF_INET;
 			sin->sin_port = port;

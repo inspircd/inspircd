@@ -862,15 +862,17 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 					}
 					stats->statsAccept++;
 #ifdef IPV6
+					log(DEBUG,"Add ipv6 client");
 					AddClient(incomingSockfd, in_port, false, client.sin6_addr);
 #else
+					log(DEBUG,"Add ipv4 client");
 					AddClient(incomingSockfd, in_port, false, client.sin_addr);
 #endif
-					log(DEBUG,"Adding client on port %lu fd=%lu",(unsigned long)in_port,(unsigned long)incomingSockfd);
+					log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
 				}
 				else
 				{
-					log(DEBUG,"Accept failed on fd %lu: %s",(unsigned long)incomingSockfd,strerror(errno));
+					log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
 					shutdown(incomingSockfd,2);
 					close(incomingSockfd);
 					stats->statsRefused++;
