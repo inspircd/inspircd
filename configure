@@ -38,8 +38,9 @@ $config{HAS_STDINT}         = "false";						# stdint.h check
 $config{HAS_EXECINFO}       = "0";						# execinfo.h Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
-$config{THREADED_DNS}       = "n";						# threaded dns (experimental)
+$config{THREADED_DNS}       = "n";						# threaded dns
 $config{IPV6}               = "n";						# IPv6 support (experimental)
+$config{SUPPORT_IP6LINKS}   = "y";						# IPv4 supporting IPv6 links (experimental)
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
@@ -360,8 +361,16 @@ if (!$chose_hiperf) {
 	print "not to enable one. Defaulting to select() engine.\n\n";
 }
 
-yesno(IPV6,"Would you like to enable experimental IPv6 support?");
+yesno(IPV6,"Would you like to build InspIRCd with IPv6 support?");
 print "\n";
+
+if ($config{IPV6} eq "y") {
+	print "You have chosen to build an \033[1;32mIPV6-only\033[0m server.\nTo accept IPV4 users, you must use the '::ffff:' notation of addresses.\n\n";
+	$config{SUPPORT_IP6LINKS} = "y";
+} else {
+	yesno(SUPPORT_IP6LINKS,"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers which are using '::ffff:' notation?\nIf you are using a recent operating\nsystem and are unsure, answer yes.");
+	print "\n";
+}
 
 if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
 	print "I have detected both GnuTLS and OpenSSL on your system.\n";
@@ -673,6 +682,7 @@ print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
 print "\033[0mIPv6 Support:\033[1;32m\t\t\t$config{IPV6}\033[0m\n";
+print "\033[0mIPv6 to IPv4 Links:\033[1;32m\t\t\$config{SUPPORT_IP6LINKS}\033[0m\n";
 print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
@@ -1013,8 +1023,11 @@ EOF
 		if ($config{THREADED_DNS} =~ /y/i) {
 			print FILEHANDLE "#define THREADED_DNS\n";
 		}
-		if ($config{IPV6} =~/y/i) {
+		if ($config{IPV6} =~ /y/i) {
 			print FILEHANDLE "#define IPV6\n";
+		}
+		if ($config{SUPPORT_IP6LINKS} =~ /y/i) {
+			print FILEHANDLE "#define SUPPORT_IP6LINKS\n";
 		}
 		my $use_hiperf = 0;
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {

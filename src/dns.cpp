@@ -453,7 +453,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 	DNSHeader h;
 	int id;
 	int length;
-
+#ifdef SUPPORT_IP6LINKS
 	if (fp == PROTOCOL_IPV6)
 	{
 		in6_addr i;
@@ -466,6 +466,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 			return -1;
 	}
 	else
+#endif
 	{
 		in_addr i;
 		if (inet_aton(ip, &i))
@@ -493,6 +494,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 
 void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 {
+#ifdef SUPPORT_IP6LINKS
 	const char* hex = "0123456789abcdef";
 	for (int index = 31; index >= 0; index--) /* for() loop steps twice per byte */
 	{
@@ -505,6 +507,9 @@ void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 		*query++ = '.'; /* Seperator */
 	}
 	strcpy(query,"ip6.arpa"); /* Suffix the string */
+#else
+	*query = 0;
+#endif
 }
 
 /* Return the next id which is ready, and the result attached to it */
