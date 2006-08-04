@@ -3567,6 +3567,10 @@ class ModuleSpanningTree : public Module
 				params[1] = s->GetName();
 				DoOneToOne(user->nick, "STATS", params, s->GetName());
 			}
+			else
+			{
+				WriteServ(user->fd, "402 %s %s :No such server", user->nick, parameters[0]);
+			}
 			return 1;
 		}
 		return 0;
