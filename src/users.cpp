@@ -917,13 +917,15 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 
 long FindMatchingGlobal(userrec* user)
 {
+	char u1[1024];
+	char u2[1024];
 	long x = 0;
 	for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
 	{
 		/* We have to match ip's as strings - we don't know what protocol
 		 * a remote user may be using
 		 */
-		if (!strcasecmp(a->second->GetIPString(), user->GetIPString()))
+		if (!strcasecmp(a->second->GetIPString(u1), user->GetIPString(u2)))
 				x++;
 	}
 	return x;
@@ -1225,6 +1227,49 @@ const char* userrec::GetIPString()
 			return buf;
 		}
 		break;
+		default:
+			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+		break;
+	}
+	return "";
+}
+
+const char* userrec::GetIPString(char* buf)
+{
+	static char temp[1024];
+
+	if (this->ip == NULL)
+	{
+		*buf = 0;
+		return buf;
+	}
+
+	switch (this->GetProtocolFamily())
+	{
+#ifdef SUPPORT_IP6LINKS
+		case AF_INET6:
+		{
+			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
+			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
+			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
+			if (*buf == ':')
+			{
+				strlcpy(&temp[1], buf, sizeof(temp));
+				*temp = '0';
+				strlcpy(buf, temp, sizeof(temp));
+			}
+			return buf;
+		}
+		break;
+#endif
+		case AF_INET:
+		{
+			sockaddr_in* sin = (sockaddr_in*)this->ip;
+			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
+			return buf;
+		}
+		break;
+
 		default:
 			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;

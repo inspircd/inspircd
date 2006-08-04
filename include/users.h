@@ -282,9 +282,13 @@ class userrec : public connection
 	 */
 	int GetProtocolFamily();
 
-	/** Get IP string from sockaddr
+	/** Get IP string from sockaddr, using static internal buffer
 	 */
 	const char* GetIPString();
+
+	/** Get IP string from sockaddr, using caller-specified buffer
+	 */
+	const char* GetIPString(char* buf);
 
 	/* Write error string
 	 */
