@@ -219,7 +219,21 @@ void DoStats(char statschar, userrec* user, string_list &results)
 			userrec* i = *n;
 			if (isnick(i->nick))
 			{
-				results.push_back(sn+" 211 "+user->nick+" :"+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
+				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
+			}
+		}
+	}
+
+	/* stats L (show user I/O stats with IP addresses) */
+	if (statschar == 'L')
+	{
+		results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
+		for (std::vector<userrec*>::iterator n = local_users.begin(); n != local_users.end(); n++)
+		{
+			userrec* i = *n;
+			if (isnick(i->nick))
+			{
+				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
 			}
 		}
 	}
