@@ -1153,10 +1153,10 @@ class TreeSocket : public InspSocket
 				modelist[0] = params[0].c_str();
 				modelist[1] = to_keep.c_str();
 
-				for (n = 2; (n < params.size()) && (n < 64); n++)
+				for (n = 2; (q < params.size()) && (n < 64); n++)
 				{
 					log(DEBUG,"Item %d of %d",n, params.size());
-					modelist[q++] = params_to_keep[n].c_str();
+					modelist[n] = params_to_keep[q++].c_str();
 				}
 
                 	        if (smode)
