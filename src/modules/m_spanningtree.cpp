@@ -1368,7 +1368,7 @@ class TreeSocket : public InspSocket
 		memset(&mode_users,0,sizeof(mode_users));
 		mode_users[0] = first;
 		mode_users[1] = modestring;
-		strcpy(first,"+");
+		strcpy(modestring,"+");
 		unsigned int modectr = 2;
 		
 		userrec* who = NULL;
@@ -1461,6 +1461,7 @@ class TreeSocket : public InspSocket
 									params.push_back(ConvToStr(us->age));
 								}
 								params.push_back(mode_users[x]);
+								
 							}
 							// tell everyone to bounce the modes. bad modes, bad!
 							DoOneToMany(Srv->GetServerName(),"FMODE",params);
