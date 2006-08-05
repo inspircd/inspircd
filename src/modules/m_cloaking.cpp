@@ -304,15 +304,19 @@ class CloakUser : public ModeHandler
 				 * are connecting via localhost) -- this doesnt matter much.
 				 */
 			
-				if (strchr(dest->host,'.'))
+				if (strchr(dest->host,'.') || strchr(dest->host,':'))
 				{
 					/* InspIRCd users have two hostnames; A displayed
 					 * hostname which can be modified by modules (e.g.
 					 * to create vhosts, implement chghost, etc) and a
 					 * 'real' hostname which you shouldnt write to.
 					 */
-				
-					std::string a = strstr(dest->host,".");
+
+					char* n = strstr(dest->host,".");
+					if (!n)
+						n = strstr(dest->host,":");
+
+					std::string a = n;
 					
 					char ra[64];
 					this->GenHash(dest->host,ra);
@@ -325,7 +329,7 @@ class CloakUser : public ModeHandler
 					 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 					 * vhost.
 					 */
-				
+
 					if ((insp_aton(dest->host,&testaddr) < 1) && (hostcloak.length() < 64))
 					{
 						// if they have a hostname, make something appropriate
