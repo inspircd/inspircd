@@ -85,7 +85,7 @@ void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 	prefix << ":" << Config->ServerName << " 319 " << user->nick << " " << dest->nick << " :";
 	line = prefix.str();
 	
-	for (start = 0; pos = cl.find(' ', start); start = pos+1)
+	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 	{
 		length = (pos == std::string::npos) ? cl.length() : pos;
 		
