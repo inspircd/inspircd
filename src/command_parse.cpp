@@ -26,6 +26,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include "users.h"
 #include "globals.h"
 #include "modules.h"
@@ -207,8 +208,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	while (((para[items] = tokens.GetToken()) != "") && (items < 127))
 		command_p[items] = para[items++].c_str();
 
-	for (std::string::iterator makeupper = command.begin(); makeupper != command.end(); makeupper++)
-		*makeupper = toupper(*makeupper);
+	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 		
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false));
