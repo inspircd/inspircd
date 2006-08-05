@@ -290,7 +290,13 @@ class CloakUser : public ModeHandler
 		/* Only opers can change other users modes */
 		if ((source != dest) && (!*source->oper))
 			return MODEACTION_DENY;
-		
+
+		/* For remote clients, we dont take any action, we just allow it.
+		 * The local server where they are will set their cloak instead.
+		 */
+		if (!IS_LOCAL(dest))
+			return MODEACTION_ALLOW;
+
 		if (adding)
 		{
 			if(!dest->IsModeSet('x'))
