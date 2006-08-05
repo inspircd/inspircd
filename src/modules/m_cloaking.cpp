@@ -352,6 +352,12 @@ class ModuleCloaking : public Module
   			// it into a userrec* or a chanrec* depending on the value of
   			// the 'type' parameter (MT_CLIENT or MT_CHANNEL)
   			userrec* dest = (userrec*)target;
+
+			// We must NOT take any action for remote users.
+			// At best, all this will do is send a bunch of
+			// 'fake direction' FHOST messages.
+			if (!IS_LOCAL(dest))
+				return 1;
   			
 			// we've now determined that this is our mode character...
 			// is the user adding the mode to their list or removing it?
