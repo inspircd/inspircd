@@ -940,13 +940,13 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-
-	unsigned char addr[] = {0xCC,0xAA,0xCC,0xAA};
-	unsigned char mask[] = {0xCC,0xAA,0xC0,0xAA};
-
-	printf("%d",MatchCIDRBits(addr, mask, 20));
-
-	exit(0);
+	/* This is a MatchCIDR() test suite -
+	printf("Should be 0: %d\n",MatchCIDR("127.0.0.1","1.2.3.4/8"));
+	printf("Should be 1: %d\n",MatchCIDR("127.0.0.1","127.0.0.0/8"));
+	printf("Should be 1: %d\n",MatchCIDR("127.0.0.1","127.0.0.0/18"));
+	printf("Should be 0: %d\n",MatchCIDR("3ffe::0","2fc9::0/16"));
+	printf("Should be 1: %d\n",MatchCIDR("3ffe:1:3::0", "3ffe:1::0/32"));
+	exit(0); */
 
 	try
 	{

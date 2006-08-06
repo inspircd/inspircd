@@ -17,4 +17,5 @@
 #include "inspircd_config.h"
 
 bool match(const char* str, const char* mask);
+bool match(const char *str, const char *mask, bool use_cidr_match);
 

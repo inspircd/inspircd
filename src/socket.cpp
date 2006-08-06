@@ -41,8 +41,8 @@ char inverted_bits[8] = { 0x00, /* 00000000 - 0 bits */
 
 bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
 {
-	unsigned int modulus = mask_bits  & 0x07; /* Number of whole bytes in the mask */
-	unsigned int divisor = mask_bits >> 0x04; /* Remaining bits in the mask after whole bytes are dealt with */
+	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
+	unsigned int divisor = mask_bits / 8; /* Remaining bits in the mask after whole bytes are dealt with */
 
 	/* First compare the whole bytes, if they dont match, return false */
 	if (memcmp(address, mask, divisor))
@@ -56,6 +56,66 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 
 	/* The address matches the mask, to mask_bits bits of mask */
 	return true;
+}
+
+bool MatchCIDR(const char* address, const char* cidr_mask)
+{
+	unsigned char addr_raw[16];
+	unsigned char mask_raw[16];
+	unsigned int bits = 0;
+	char* mask = strdup(cidr_mask);
+
+	in_addr  address_in4;
+	in_addr  mask_in4;
+
+	char* bits_chars = strchr(mask,'/');
+
+	if (bits_chars)
+	{
+		bits = atoi(bits_chars + 1);
+		*bits_chars = 0;
+	}
+
+#ifdef SUPPORT_IP6LINKS
+	in6_addr address_in6;
+	in6_addr mask_in6;
+
+	if (inet_pton(AF_INET6, address, &address_in6) > 0)
+	{
+		if (inet_pton(AF_INET6, mask, &mask_in6) > 0)
+		{
+			memcpy(&addr_raw, &address_in6.s6_addr, 16);
+			memcpy(&mask_raw, &mask_in6.s6_addr, 16);
+		}
+		else
+		{
+			free(mask);
+			return false;
+		}
+	}
+	else
+#endif
+	if (inet_pton(AF_INET, address, &address_in4) > 0)
+	{
+		if (inet_pton(AF_INET, mask, &mask_in4) > 0)
+		{
+			memcpy(&addr_raw, &address_in4.s_addr, 4);
+			memcpy(&mask_raw, &mask_in4.s_addr, 4);
+		}
+		else
+		{
+			free(mask);
+			return false;
+		}
+	}
+	else
+	{
+		free(mask);
+		return false;
+	}
+
+	free(mask);
+	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
 /** This will bind a socket to a port. It works for UDP/TCP.

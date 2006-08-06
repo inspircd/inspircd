@@ -844,7 +844,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 
 	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
-		if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str())))
+		if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str(),true)))
 		{
 			class_regtimeout = (unsigned long)i->registration_timeout;
 			class_flood = i->flood;

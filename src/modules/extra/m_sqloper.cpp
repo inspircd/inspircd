@@ -223,10 +223,10 @@ public:
 			std::string hostname(user->ident);
 			hostname.append("@").append(user->host);
 							
-			if((tname == type) && OneOfMatches(hostname.c_str(), pattern.c_str()))
+			if((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
 			{
 				/* Opertype and host match, looks like this is it. */
-				log(DEBUG, "Host (%s matched %s) and type (%s)", pattern.c_str(), hostname.c_str(), type.c_str());
+				log(DEBUG, "Host (%s matched %s OR %s) and type (%s)", pattern.c_str(), hostname.c_str(), user->GetIPString(), type.c_str());
 				
 				std::string operhost = Conf.ReadValue("type", "host", j);
 							

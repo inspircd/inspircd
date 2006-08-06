@@ -83,3 +83,10 @@ bool match(const char *str, const char *mask)
 	return !*wild;
 }
 
+/* Overloaded function that has the option of using cidr */
+bool match(const char *str, const char *mask, bool use_cidr_match)
+{
+	if (use_cidr_match && MatchCIDR(str, mask))
+		return true;
+	return match(str, mask);
+}

@@ -1405,7 +1405,7 @@ ConnectClass GetClass(userrec *user)
 {
 	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
 	{
-		if ((match(user->GetIPString(),i->host.c_str())) || (match(user->host,i->host.c_str())))
+		if ((match(user->GetIPString(),i->host.c_str(),true)) || (match(user->host,i->host.c_str())))
 		{
 			return *i;
 		}

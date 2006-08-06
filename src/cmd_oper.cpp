@@ -43,14 +43,14 @@ extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
 
-bool OneOfMatches(const char* host, const char* hostlist)
+bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 {
 	std::stringstream hl(hostlist);
 	std::string xhost;
 	while (hl >> xhost)
 	{
 		log(DEBUG,"Oper: Matching host %s",xhost.c_str());
-		if (match(host,xhost.c_str()))
+		if (match(host,xhost.c_str()) || match(ip,xhost.c_str(),true))
 		{
 			return true;
 		}
@@ -79,7 +79,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		Config->ConfValue(Config->config_data, "oper", "type", i, OperType, MAXBUF);
 		Config->ConfValue(Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
-		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,HostName)))
+		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,user->GetIPString(),HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < Config->ConfValueEnum(Config->config_data, "type"); j++)

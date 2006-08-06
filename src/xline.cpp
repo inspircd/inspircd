@@ -558,10 +558,10 @@ char* matches_zline(const char* ipaddr)
 	if ((zlines.empty()) && (pzlines.empty()))
 		return NULL;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		if (match(ipaddr,i->ipaddr))
+		if (match(ipaddr,i->ipaddr,true))
 			return i->reason;
 	for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-		if (match(ipaddr,i->ipaddr))
+		if (match(ipaddr,i->ipaddr,true))
 			return i->reason;
 	return NULL;
 }
