@@ -96,6 +96,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 		{
 			memcpy(&addr_raw, &address_in6.s6_addr, 16);
 			memcpy(&mask_raw, &mask_in6.s6_addr, 16);
+
+			if (mask > 128)
+				mask = 128;
 		}
 		else
 		{
@@ -111,6 +114,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 		{
 			memcpy(&addr_raw, &address_in4.s_addr, 4);
 			memcpy(&mask_raw, &mask_in4.s_addr, 4);
+
+			if (mask > 32)
+				mask = 32;
 		}
 		else
 		{
