@@ -97,9 +97,10 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 		 * of the @ symbol in each */
 		char* address_dupe = strdup(address);
 		char* cidr_dupe = strdup(cidr_mask);
-		
-		char* username_mask_pos = strchr(cidr_dupe, '@');
-		char* username_addr_pos = strchr(address_dupe, '@');
+	
+		/* Use strchr not strrchr, because its going to be nearer to the left */
+		char* username_mask_pos = strrchr(cidr_dupe, '@');
+		char* username_addr_pos = strrchr(address_dupe, '@');
 
 		/* Both strings have an @ symbol in them */
 		if (username_mask_pos && username_addr_pos)
@@ -142,7 +143,8 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 	in_addr  mask_in4;
 
 
-	char* bits_chars = strchr(mask,'/');
+	/* Use strrchr for this, its nearer to the right */
+	char* bits_chars = strrchr(mask,'/');
 
 	if (bits_chars)
 	{
