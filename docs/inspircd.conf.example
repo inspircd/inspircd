@@ -353,6 +353,13 @@
 #                 UNLESS the connection fails (e.g. due to a bad      #
 #                 password or servername)                             #
 #                                                                     #
+# allowmask     - When this is defined, it indicates a range of IP    #
+#                 addresses to allow for this link (in CIDR form).    #
+#                 e.g. if your server is going to connect to you from #
+#                 the range 1.2.3.1 through 1.2.3.255, put 1.2.3.0/24 #
+#                 into this value. If it is not defined, then only    #
+#                 the ipaddr field of the server shall be allowed.    #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
@@ -382,6 +389,7 @@
 <link name="hub.penguin.org"
         ipaddr="penguin.box.com"
         port="7000"
+	allowmask="69.58.44.0/24"
         autoconnect="300"
         sendpass="outgoing!password"
         recvpass="incoming!password">
@@ -389,6 +397,7 @@
 <link name="services.antarctic.com"
         ipaddr="localhost"
         port="7000"
+	allowmask="127.0.0.0/8"
         sendpass="penguins"
         recvpass="polarbears">
 
