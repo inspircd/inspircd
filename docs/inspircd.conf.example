@@ -168,6 +168,8 @@
 #       <connect allow="ip mask" localmax="3" globalmax="3">          #
 #       <connect deny="ip mask">                                      #
 #                                                                     #
+#   IP masks may be specified in CIDR format for IPV4 and IPV6.       #
+#                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
 #   is closed if USER/NICK/PASS are not given. This value is in secs  #
@@ -220,7 +222,7 @@
 <connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" localmax="3" globalmax="3">
 
 <connect deny="69.254.*">
-<connect deny="3ffe:*">
+<connect deny="3ffe::0/32">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -301,6 +303,8 @@
 #                                                                     #
 #  host      - host of client allowed to oper-up.                     #
 #              wildcards accepted, seperate multiple hosts with space #
+#              You may also specify CIDR ip addresses, however, if    #
+#              you do this, ident values are not allowed in the mask. #
 #                                                                     #
 #  type      - specified above, defines the kind of operator          #
 #                                                                     #
@@ -313,7 +317,7 @@
 
 <oper   name="katsklaw"
         password="s3cret"
-        host="ident@dialup15.isp.com *@localhost *@server.com"
+        host="ident@dialup15.isp.com *@localhost *@server.com 3ffe::0/16"
         type="NetAdmin">
 
 
@@ -915,7 +919,8 @@
 # Optional - If you choose to use the m_httpd.so module,  then you must
 # specify the port number and other details of your http server:
 #
-#<http ip="192.168.1.10" host="brainwave" port="32006" index="/home/brain/inspircd/http/index.html">
+#<http ip="192.168.1.10" host="brainwave" port="32006"
+#      index="/home/brain/inspircd/http/index.html">
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1308,6 +1313,7 @@
 # badip lines ban an ip range (same as a zline)                       #
 #                                                                     #
 # ipmask       -          The ip range to ban (wildcards possible)    #
+#                         CIDR is supported in <badip> and zline only #
 # reason       -          Reason to display when disconnected         #
 #                                                                     #
 # badnick lines ban a nick mask (same as a qline)                     #
