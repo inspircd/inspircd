@@ -89,7 +89,7 @@ class InspIRCd : public classbase
 	void BuildISupport();
 	void MoveTo(std::string modulename,int slot);
 	void Start();
-	void SetSignals();
+	void SetSignals(bool SEGVHandler);
 	bool DaemonSeed();
 	void MakeLowerMap();
 	void MoveToLast(std::string modulename);

@@ -155,13 +155,14 @@ void Rehash(int status)
 	FOREACH_MOD(I_OnRehash,OnRehash(""));
 }
 
-void InspIRCd::SetSignals()
+void InspIRCd::SetSignals(bool SEGVHandler)
 {
 	signal (SIGALRM, SIG_IGN);
 	signal (SIGHUP, Rehash);
 	signal (SIGPIPE, SIG_IGN);
 	signal (SIGTERM, Exit);
-	signal (SIGSEGV, Error);
+	if (SEGVHandler)
+		signal (SIGSEGV, Error);
 }
 
 bool InspIRCd::DaemonSeed()
@@ -232,6 +233,8 @@ void InspIRCd::MakeLowerMap()
 
 InspIRCd::InspIRCd(int argc, char** argv)
 {
+	bool SEGVHandler = false;
+
 	this->Start();
 	module_sockets.clear();
 	this->startup_time = time(NULL);
@@ -268,6 +271,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			{
 				printf("WARNING: The `-nolimit' option is deprecated, and now on by default. This behaviour may change in the future.\n");
 			}
+			else if (!strcmp(argv[i],"-notraceback"))
+			{
+				SEGVHandler = false;
+			}
 			else if (!strcmp(argv[i],"-logfile"))
 			{
 				if (argc > i+1)
@@ -292,7 +299,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->stats = new serverstats();
 	this->Parser = new CommandParser();
 	Config->ClearStack();
-	Config->Read(true,NULL);
+	Config->Read(true, NULL);
 	CheckRoot();
 	this->ModeGrok = new ModeParser();
 	AddServerName(Config->ServerName);
@@ -306,7 +313,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
 
 	printf("\n");
-	this->SetSignals();
+	this->SetSignals(SEGVHandler);
 	if (!Config->nofork)
 	{
 		if (!this->DaemonSeed())
