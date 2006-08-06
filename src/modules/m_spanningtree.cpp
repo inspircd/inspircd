@@ -3050,13 +3050,20 @@ class TreeSocket : public InspSocket
 		 * IPs for which we don't have a link block.
 		 */
 		bool found = false;
-		vector<Link>::iterator i;
+
 		found = (std::find(ValidIPs.begin(), ValidIPs.end(), ip) != ValidIPs.end());
 		if (!found)
 		{
-			WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
-			close(newsock);
-			return false;
+			for (vector<std::string>::iterator i = ValidIPs.begin(); i != ValidIPs.end(); i++)
+				if (MatchCIDR(ip, (*i).c_str()))
+					found = true;
+
+			if (!found)
+			{
+				WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
+				close(newsock);
+				return false;
+			}
 		}
 		TreeSocket* s = new TreeSocket(newsock, ip);
 		Srv->AddSocket(s);
@@ -3345,6 +3352,7 @@ void ReadConfiguration(bool rebind)
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
+		std::string Allow = Conf->ReadValue("link","allowmask",j);
 		L.Name = (Conf->ReadValue("link","name",j)).c_str();
 		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
 		L.Port = Conf->ReadInteger("link","port",j,true);
@@ -3358,6 +3366,9 @@ void ReadConfiguration(bool rebind)
 		if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
 		{
 			ValidIPs.push_back(L.IPAddr);
+
+			if (Allow.length())
+				ValidIPs.push_back(Allow);
 
 			/* Needs resolving */
 			insp_inaddr binip;

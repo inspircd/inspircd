@@ -45,6 +45,10 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
 	unsigned int divisor = mask_bits / 8; /* Remaining bits in the mask after whole bytes are dealt with */
 
+	/* We shouldnt match anything, /0 is always valid */
+	if (!mask_bits)
+		return true;
+
 	/* First compare the whole bytes, if they dont match, return false */
 	if (memcmp(address, mask, divisor))
 		return false;
@@ -97,8 +101,8 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 			memcpy(&addr_raw, &address_in6.s6_addr, 16);
 			memcpy(&mask_raw, &mask_in6.s6_addr, 16);
 
-			if (mask > 128)
-				mask = 128;
+			if (bits > 128)
+				bits = 128;
 		}
 		else
 		{
@@ -115,8 +119,8 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 			memcpy(&addr_raw, &address_in4.s_addr, 4);
 			memcpy(&mask_raw, &mask_in4.s_addr, 4);
 
-			if (mask > 32)
-				mask = 32;
+			if (bits > 32)
+				bits = 32;
 		}
 		else
 		{
