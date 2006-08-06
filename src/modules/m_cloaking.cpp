@@ -327,7 +327,7 @@ class CloakUser : public ModeHandler
 					char ra[64];
 					this->GenHash(dest->host,ra);
 					std::string b = "";
-					in_addr testaddr;
+					insp_inaddr testaddr;
 					std::string hostcloak = prefix + "-" + std::string(ra) + a;
 				
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
