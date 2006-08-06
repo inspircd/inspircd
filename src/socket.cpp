@@ -21,6 +21,7 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
+#include "wildcard.h"
 #include "message.h"
 
 extern InspIRCd* ServerInstance;
@@ -63,19 +64,62 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 	return true;
 }
 
+bool MatchCIDR(const char* address, const char* cidr_mask)
+{
+	return MatchCIDR(address, cidr_mask, false);
+}
+
 /* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
  * If you have a lot of hosts to match, youre probably better off building your mask once
  * and then using the lower level MatchCIDRBits directly.
  */
-bool MatchCIDR(const char* address, const char* cidr_mask)
+bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username)
 {
 	unsigned char addr_raw[16];
 	unsigned char mask_raw[16];
 	unsigned int bits = 0;
-	char* mask = strdup(cidr_mask);
+	char* mask = NULL;
+
+	/* The caller is trying to match ident@<mask>/bits.
+	 * Chop off the ident@ portion, use match() on it
+	 * seperately.
+	 */
+	if (match_with_username)
+	{
+		/* Duplicate the strings, and try to find the position
+		 * of the @ symbol in each */
+		char* address_dupe = strdup(address);
+		char* cidr_dupe = strdup(cidr_mask);
+		
+		char* username_mask_pos = strchr(cidr_dupe, '@');
+		char* username_addr_pos = strchr(address_dupe, '@');
+
+		if (username_mask_pos && username_addr_pos)
+		{
+			*username_mask_pos = *username_addr_pos = 0;
+
+			bool result = (match(address_dupe, cidr_dupe) && MatchCIDR(username_addr_pos + 1, username_mask_pos + 1));
+
+			free(address_dupe);
+			free(cidr_dupe);
+
+			return result;
+		}
+		else
+		{
+			free(address_dupe);
+			free(cidr_dupe);
+			mask = strdup(cidr_mask);
+		}
+	}
+	else
+	{
+		mask = strdup(cidr_mask);
+	}
 
 	in_addr  address_in4;
 	in_addr  mask_in4;
+
 
 	char* bits_chars = strchr(mask,'/');
 

@@ -86,7 +86,7 @@ bool match(const char *str, const char *mask)
 /* Overloaded function that has the option of using cidr */
 bool match(const char *str, const char *mask, bool use_cidr_match)
 {
-	if (use_cidr_match && MatchCIDR(str, mask))
+	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
 	return match(str, mask);
 }

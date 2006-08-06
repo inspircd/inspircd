@@ -51,6 +51,7 @@ typedef struct in_addr      insp_inaddr;
 
 bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
 bool MatchCIDR(const char* address, const char* cidr_mask);
+bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
 
 const char* insp_ntoa(insp_inaddr n);
 int insp_aton(const char* a, insp_inaddr* n);

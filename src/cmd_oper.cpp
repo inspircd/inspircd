@@ -66,11 +66,13 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	char TypeName[MAXBUF];
 	char HostName[MAXBUF];
 	char TheHost[MAXBUF];
+	char TheIP[MAXBUF];
 	int j;
 	bool found = false;
 	bool fail2 = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
+	snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
 
 	for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
 	{
@@ -79,7 +81,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		Config->ConfValue(Config->config_data, "oper", "type", i, OperType, MAXBUF);
 		Config->ConfValue(Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
-		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,user->GetIPString(),HostName)))
+		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < Config->ConfValueEnum(Config->config_data, "type"); j++)
