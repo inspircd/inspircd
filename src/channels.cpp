@@ -356,9 +356,9 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 						{
 							/* This allows CIDR ban matching
 							 * 
-							 *          Full masked host                        Full unmasked host                        IP with CIDR                    IP without CIDR
+							 *          Full masked host                        Full unmasked host                     IP with/without CIDR
 							 */
-							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)) || (match(mask, i->data, false)))
+							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
 							{
 								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
 								return NULL;

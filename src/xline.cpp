@@ -443,10 +443,10 @@ char* matches_gline(const char* host)
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		if (match(host,i->hostmask))
+		if (match(host,i->hostmask, true))
 			return i->reason;
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		if (match(host,i->hostmask))
+		if (match(host,i->hostmask, true))
 			return i->reason;
 	return NULL;
 }
@@ -458,10 +458,10 @@ char* matches_exception(const char* host)
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",host);
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
+		if ((match(host,i->hostmask)) || (match(host2,i->hostmask, true)))
 			return i->reason;
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		if ((match(host,i->hostmask)) || (match(host2,i->hostmask)))
+		if ((match(host,i->hostmask)) || (match(host2,i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
@@ -558,10 +558,10 @@ char* matches_zline(const char* ipaddr)
 	if ((zlines.empty()) && (pzlines.empty()))
 		return NULL;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-		if (match(ipaddr,i->ipaddr,true))
+		if (match(ipaddr,i->ipaddr, true))
 			return i->reason;
 	for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
-		if (match(ipaddr,i->ipaddr,true))
+		if (match(ipaddr,i->ipaddr, true))
 			return i->reason;
 	return NULL;
 }
@@ -573,10 +573,10 @@ char* matches_kline(const char* host)
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		if (match(host,i->hostmask))
+		if (match(host,i->hostmask, true))
 			return i->reason;
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		if (match(host,i->hostmask))
+		if (match(host,i->hostmask, true))
 			return i->reason;
 	return NULL;
 }
