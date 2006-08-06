@@ -28,7 +28,11 @@ extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
 
-/* Used when comparing CIDR masks for the modulus bits left over */
+/* Used when comparing CIDR masks for the modulus bits left over.
+ * A lot of ircd's seem to do this:
+ * ((-1) << (8 - (mask % 8)))
+ * But imho, it sucks in comparison to a nice neat lookup table.
+ */
 const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used */
 				0x80, /* 10000000 - 1 bits */
 				0xC0, /* 11000000 - 2 bits */
