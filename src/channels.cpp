@@ -349,7 +349,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					MOD_RESULT = 0;
 					FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, Ptr));
 					char mask[MAXBUF];
-					sprintf(mask,"%s@%s",user->ident, user->GetIPString());
+					sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
 					if (!MOD_RESULT)
 					{
 						for (BanList::iterator i = Ptr->bans.begin(); i != Ptr->bans.end(); i++)
