@@ -49,10 +49,6 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
 	unsigned int divisor = mask_bits / 8; /* Remaining bits in the mask after whole bytes are dealt with */
 
-	/* We shouldnt match anything, /0 is always valid */
-	if (!mask_bits)
-		return true;
-
 	/* First compare the whole bytes, if they dont match, return false */
 	if (memcmp(address, mask, divisor))
 		return false;
