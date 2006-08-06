@@ -39,6 +39,7 @@ char inverted_bits[8] = { 0x00, /* 00000000 - 0 bits */
 			  0xFE  /* 11111110 - 7 bits */
 };
 
+/* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
 bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
 {
 	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
@@ -58,6 +59,10 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 	return true;
 }
 
+/* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
+ * If you have a lot of hosts to match, youre probably better off building your mask once
+ * and then using the lower level MatchCIDRBits directly.
+ */
 bool MatchCIDR(const char* address, const char* cidr_mask)
 {
 	unsigned char addr_raw[16];
@@ -74,6 +79,11 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 	{
 		bits = atoi(bits_chars + 1);
 		*bits_chars = 0;
+	}
+	else
+	{
+		/* No 'number of bits' field! */
+		return false;
 	}
 
 #ifdef SUPPORT_IP6LINKS
