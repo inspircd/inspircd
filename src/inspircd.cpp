@@ -287,6 +287,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 					printf("ERROR: The -logfile parameter must be followed by a log file name and path.\n");
 					Exit(ERROR);
 				}
+				i++;
+			}
+			else
+			{
+				printf("Usage: %s [-nofork] [-nolog] [-debug] [-wait] [-nolimit] [-notraceback] [-logfile <filename>]\n",argv[0]);
+				Exit(ERROR);
 			}
 		}
 	}
