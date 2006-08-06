@@ -1445,6 +1445,7 @@ class TreeSocket : public InspSocket
 							{
 								log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
 								us->age = TS;
+								ourTS = TS;
 							}
 						}
 						else
@@ -1485,6 +1486,7 @@ class TreeSocket : public InspSocket
 				{
 					log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
 					us->age = TS;
+					ourTS = TS;
 				}
 			}
 			else
