@@ -64,6 +64,7 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 	return true;
 }
 
+/* Match CIDR, but dont attempt to match() against leading *!*@ sections */
 bool MatchCIDR(const char* address, const char* cidr_mask)
 {
 	return MatchCIDR(address, cidr_mask, false);
@@ -72,6 +73,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
 /* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
  * If you have a lot of hosts to match, youre probably better off building your mask once
  * and then using the lower level MatchCIDRBits directly.
+ *
+ * This will also attempt to match any leading usernames or nicknames on the mask, using
+ * match(), when match_with_username is true.
  */
 bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username)
 {
@@ -94,19 +98,30 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 		char* username_mask_pos = strchr(cidr_dupe, '@');
 		char* username_addr_pos = strchr(address_dupe, '@');
 
+		/* Both strings have an @ symbol in them */
 		if (username_mask_pos && username_addr_pos)
 		{
+			/* Zero out the location of the @ symbol */
 			*username_mask_pos = *username_addr_pos = 0;
 
-			bool result = (match(address_dupe, cidr_dupe) && MatchCIDR(username_addr_pos + 1, username_mask_pos + 1));
+			/* Try and match() the strings before the @
+			 * symbols, and recursively call MatchCIDR without
+			 * username matching enabled to match the host part.
+			 */
+			bool result = (match(address_dupe, cidr_dupe) && MatchCIDR(username_addr_pos + 1, username_mask_pos + 1, false));
 
+			/* Free the stuff we created */
 			free(address_dupe);
 			free(cidr_dupe);
 
+			/* Return a result */
 			return result;
 		}
 		else
 		{
+			/* One or both didnt have an @ in,
+			 * just match as CIDR
+			 */
 			free(address_dupe);
 			free(cidr_dupe);
 			mask = strdup(cidr_mask);
@@ -114,6 +129,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 	}
 	else
 	{
+		/* Make a copy of the cidr mask string,
+		 * we're going to change it
+		 */
 		mask = strdup(cidr_mask);
 	}
 
@@ -150,6 +168,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 		}
 		else
 		{
+			/* The address was valid ipv6, but the mask
+			 * that goes with it wasnt.
+			 */
 			free(mask);
 			return false;
 		}
@@ -168,16 +189,21 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 		}
 		else
 		{
+			/* The address was valid ipv4,
+			 * but the mask that went with it wasnt.
+			 */
 			free(mask);
 			return false;
 		}
 	}
 	else
 	{
+		/* The address was neither ipv4 or ipv6 */
 		free(mask);
 		return false;
 	}
 
+	/* Low-level-match the bits in the raw data */
 	free(mask);
 	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
