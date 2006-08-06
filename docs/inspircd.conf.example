@@ -1312,7 +1312,7 @@
 # badip lines ban an ip range (same as a zline)                       #
 #                                                                     #
 # ipmask       -          The ip range to ban (wildcards possible)    #
-#                         CIDR is supported in <badip> and zline only #
+#                         CIDR is supported in the IP mask.           #
 # reason       -          Reason to display when disconnected         #
 #                                                                     #
 # badnick lines ban a nick mask (same as a qline)                     #
@@ -1323,11 +1323,13 @@
 # badhost lines ban a user@host mask (same as a kline)                #
 #                                                                     #
 # host         -          ident@hostname (wildcards possible)         #
+#                         If you specify an IP, CIDR is supported.    #
 # reason       -          Reason to display on disconnection          #
 #                                                                     #
 # exception lines define a hostmask that is excempt from [kzg]lines   #
 #                                                                     #
 # host         -          ident@hostname (wildcards possible)         #
+#                         If you specify an IP, CIDR is supported.    #
 # reason       -          Reason, shown only in /stats e              #
 #                                                                     #
 
@@ -1340,6 +1342,7 @@
 
 <badhost host="*@hundredz.n.hundredz.o.1337.kiddies.com" reason="Too many 1337 kiddiots">
 <badhost host="*@localhost" reason="No irc from localhost!">
+<badhost host="*@172.32.0.0/16" reason="This subnet is bad.">
 
 <exception host="*@ircop.host.com" reason="Opers hostname">
 
