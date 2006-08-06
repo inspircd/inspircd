@@ -64,6 +64,7 @@ install: all
 	@-install -v -m 0700 src/libIRCDsnomasks.so $(LIBPATH)
 	@-install -v -m 0700 src/inspircd $(BINPATH)
 	@-install -v -m 0700 inspircd $(BASE) 2>/dev/null
+	@-cp .gdbargs $(BASE)
 	@-cp conf/inspircd.quotes.example $(CONPATH)
 	@-cp conf/inspircd.rules.example $(CONPATH)
 	@-cp conf/key.pem $(CONPATH)
