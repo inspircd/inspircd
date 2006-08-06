@@ -290,8 +290,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		if ((mh) && (mh->IsListMode()))
 		{
 			mh->DisplayList(user, targetchannel);
+			return;
 		}
-		return;
 	}
 
 	if (pcnt == 1)
