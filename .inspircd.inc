@@ -15,6 +15,7 @@
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 
+my $basepath = "@BASE_DIR@";
 my $confpath = "@CONFIG_DIR@/";
 my $binpath = "@BINARY_DIR@";
 my $libpath = "@LIBRARY_DIR@";
@@ -99,7 +100,7 @@ sub debug {
 	checkgdb();
 		
 	# If we are still alive here.. Try starting the IRCd..
-	system("gdb --command=.gdbargs --args $binpath/$executable -nofork -debug -nolog");
+	system("gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug -nolog");
 }
 
 sub screendebug
@@ -114,7 +115,7 @@ sub screendebug
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	system("screen -m -d gdb --command=.gdbargs --args $binpath/$executable -nofork -debug -nolog");
+	system("screen -m -d gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug -nolog");
 }
 
 sub valdebug
