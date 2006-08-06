@@ -303,8 +303,7 @@
 #                                                                     #
 #  host      - host of client allowed to oper-up.                     #
 #              wildcards accepted, seperate multiple hosts with space #
-#              You may also specify CIDR ip addresses, however, if    #
-#              you do this, ident values are not allowed in the mask. #
+#              You may also specify CIDR ip addresses.                #
 #                                                                     #
 #  type      - specified above, defines the kind of operator          #
 #                                                                     #
@@ -317,7 +316,7 @@
 
 <oper   name="katsklaw"
         password="s3cret"
-        host="ident@dialup15.isp.com *@localhost *@server.com 3ffe::0/16"
+        host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
         type="NetAdmin">
 
 
