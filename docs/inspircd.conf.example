@@ -907,6 +907,28 @@
 #<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# httpd module: Provides http server support for InspIRCd
+#<module name="m_httpd.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-  HTTPD   CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#
+# Optional - If you choose to use the m_httpd.so module,  then you must
+# specify the port number and other details of your http server:
+#
+#<http ip="192.168.1.10" host="brainwave" port="32006" index="/home/brain/inspircd/http/index.html">
+#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# http stats module: Provides basic stats pages over HTTP
+# Required m_httpd.so
+#<module name="m_http_stats.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- HTTPD STATS CONFIGURATION -#-#-#-#-#-#-#-#-#-#
+#
+# No extra configuration yet.
+#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ident: Provides RFC 1413 ident lookup support
 #<module name="m_ident.so">
 #
