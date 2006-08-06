@@ -29,15 +29,14 @@ extern ServerConfig* Config;
 extern time_t TIME;
 
 /* Used when comparing CIDR masks for the modulus bits left over */
-
-char inverted_bits[8] = { 0x00, /* 00000000 - 0 bits */
-			  0x80, /* 10000000 - 1 bits */
-			  0xC0, /* 11000000 - 2 bits */
-			  0xE0, /* 11100000 - 3 bits */
-			  0xF0, /* 11110000 - 4 bits */
-			  0xF8, /* 11111000 - 5 bits */
-			  0xFC, /* 11111100 - 6 bits */
-			  0xFE  /* 11111110 - 7 bits */
+const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used */
+				0x80, /* 10000000 - 1 bits */
+				0xC0, /* 11000000 - 2 bits */
+				0xE0, /* 11100000 - 3 bits */
+				0xF0, /* 11110000 - 4 bits */
+				0xF8, /* 11111000 - 5 bits */
+				0xFC, /* 11111100 - 6 bits */
+				0xFE  /* 11111110 - 7 bits */
 };
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
