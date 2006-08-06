@@ -27,6 +27,32 @@ extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
 
+/* Used when comparing CIDR masks for the modulus bits left over */
+
+char inverted_bits[8] = { 0x80, /* 10000000 - 1 bits */
+			  0xC0, /* 11000000 - 2 bits */
+			  0xE0, /* 11100000 - 3 bits */
+			  0xF0, /* 11110000 - 4 bits */
+			  0xF8, /* 11111000 - 5 bits */
+			  0xFC, /* 11111100 - 6 bits */
+			  0xFE, /* 11111110 - 7 bits */
+			  0xFF, /* 11111111 - 8 bits */
+};
+
+bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
+{
+	unsigned int modulus = mask_bits % 8;
+	unsigned int divisor = mask_bits / 8;
+
+	if (memcmp(address, mask, divisor))
+			return false;
+	if (modulus)
+		if ((address[divisor] & inverted_bits[modulus]) != address[divisor])
+			return false;
+
+	return true;
+}
+
 /** This will bind a socket to a port. It works for UDP/TCP.
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
