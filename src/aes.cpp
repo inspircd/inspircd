@@ -14,8 +14,9 @@
  * ---------------------------------------------------
  */
 
-// Based on existing implementations of the industry standard AES algorithms
-// in the public domain.
+/* Based on existing implementations of the industry
+ * standard AES algorithms in the public domain.
+ */
 
 #include <cstring>
 #include "aes.h"
@@ -932,24 +933,31 @@ const int AES::sm_shifts[3][4][2] =
 	{ {0, 0}, {1, 7}, {3, 5}, {4, 4} }
 };
 
-//Null chain
+/**
+ * Null chain
+ */
 char const* AES::sm_chain0 = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
-//CONSTRUCTOR
+/**
+ * CONSTRUCTOR
+ */
 AES::AES() : m_bKeyInit(false)
 {
 }
 
-//DESTRUCTOR
+/**
+ * DESTRUCTOR
+ */
 AES::~AES()
 {
 }
 
-//Expand a user-supplied key material into a session key.
-// key        - The 128/192/256-bit user-key to use.
-// chain      - initial chain block for CBC and CFB modes.
-// keylength  - 16, 24 or 32 bytes
-// blockSize  - The block size in bytes of this Rijndael (16, 24 or 32 bytes).
+/** Expand a user-supplied key material into a session key.
+ * @param key The 128/192/256-bit user-key to use.
+ * @param chain initial chain block for CBC and CFB modes.
+ * @param keylength 16, 24 or 32 bytes
+ * @param blockSize The block size in bytes of this Rijndael (16, 24 or 32 bytes).
+ */
 void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSize)
 {
 	if (NULL == key)
@@ -960,10 +968,10 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 		return;
 	m_keylength = keylength;
 	m_blockSize = blockSize;
-	//Initialize the chain
+	/* Initialize the chain */
 	memcpy(m_chain0, chain, m_blockSize);
 	memcpy(m_chain, chain, m_blockSize);
-	//Calculate Number of Rounds
+	/* Calculate Number of Rounds */
 	switch (m_keylength)
 	{
 		case 16:
@@ -974,7 +982,7 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 			m_iROUNDS = (m_blockSize != 32) ? 12 : 14;
 			break;
 
-		default: // 32 bytes = 256 bits
+		default: /* 32 bytes = 256 bits */
 			m_iROUNDS = 14;
 	}
 	int BC = m_blockSize / 4;
@@ -991,7 +999,7 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 	}
 	int ROUND_KEY_COUNT = (m_iROUNDS + 1) * BC;
 	int KC = m_keylength/4;
-	//Copy user material bytes into temporary ints
+	/* Copy user material bytes into temporary ints */
 	int* pi = tk;
 	char const* pc = key;
 	for (i=0; i<KC; i++)
@@ -1001,7 +1009,7 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 		*pi |= (unsigned char)*(pc++) << 8;
 		*(pi++) |= (unsigned char)*(pc++);
 	}
-	//Copy values into round key arrays
+	/* Copy values into round key arrays */
 	int t = 0;
 	for (j=0; (j<KC)&&(t<ROUND_KEY_COUNT); j++,t++)
 	{
@@ -1011,7 +1019,7 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 	int tt, rconpointer = 0;
 	while (t < ROUND_KEY_COUNT)
 	{
-		//Extrapolate using phi (the round key evolution function)
+		/* Extrapolate using phi (the round key evolution function) */
 		tt = tk[KC-1];
 		tk[0] ^= (sm_S[(tt >> 16) & 0xFF] & 0xFF) << 24 ^
 			(sm_S[(tt >>  8) & 0xFF] & 0xFF) << 16 ^
@@ -1033,14 +1041,14 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 			for (j = KC/2, i=j+1; i<KC; )
 				tk[i++] ^= tk[j++];
 		}
-		//Copy values into round key arrays
+		/* Copy values into round key arrays */
 		for (j=0; (j<KC) && (t<ROUND_KEY_COUNT); j++, t++)
 		{
 			m_Ke[t/BC][t%BC] = tk[j];
 			m_Kd[m_iROUNDS - (t/BC)][t%BC] = tk[j];
 		}
 	}
-	//Inverse MixColumn where needed
+	/* Inverse MixColumn where needed */
 	for (int r=1; r<m_iROUNDS; r++)
 		for (j=0; j<BC; j++)
 		{
@@ -1053,10 +1061,10 @@ void AES::MakeKey(char const* key, char const* chain, int keylength, int blockSi
 	m_bKeyInit = true;
 }
 
-//Convenience method to encrypt exactly one block of plaintext, assuming
-//Rijndael's default block size (128-bit).
-// in         - The plaintext
-// result     - The ciphertext generated from a plaintext using the key
+/** Convenience method to encrypt exactly one block of plaintext, assuming Rijndael's default block size (128-bit).
+ * @param in The plaintext
+ * @returns The ciphertext generated from a plaintext using the key
+ */
 void AES::DefEncryptBlock(char const* in, char* result)
 {
 	if (m_bKeyInit == false)
@@ -1079,7 +1087,7 @@ void AES::DefEncryptBlock(char const* in, char* result)
 	t3 |= ((unsigned char)*(in++) << 8);
 	(t3 |= (unsigned char)*(in++)) ^= Ker[3];
 	int a0, a1, a2, a3;
-	//Apply Round Transforms
+	/* Apply round transforms */
 	for (int r = 1; r < m_iROUNDS; r++)
 	{
 		Ker = m_Ke[r];
@@ -1104,7 +1112,7 @@ void AES::DefEncryptBlock(char const* in, char* result)
 		t2 = a2;
 		t3 = a3;
 	}
-	//Last Round is special
+	/* Last round is special */
 	Ker = m_Ke[m_iROUNDS];
 	int tt = Ker[0];
 	result[0] = sm_S[(t0 >> 24) & 0xFF] ^ (tt >> 24);
@@ -1128,10 +1136,10 @@ void AES::DefEncryptBlock(char const* in, char* result)
 	result[15] = sm_S[t2 & 0xFF] ^ tt;
 }
 
-//Convenience method to decrypt exactly one block of plaintext, assuming
-//Rijndael's default block size (128-bit).
-// in         - The ciphertext.
-// result     - The plaintext generated from a ciphertext using the session key.
+/** Convenience method to decrypt exactly one block of plaintext, assuming Rijndael's default block size (128-bit).
+ * @param in The ciphertext.
+ * @return The plaintext generated from a ciphertext using the session key.
+ */
 void AES::DefDecryptBlock(char const* in, char* result)
 {
 	if (m_bKeyInit == false)
@@ -1154,7 +1162,7 @@ void AES::DefDecryptBlock(char const* in, char* result)
 	t3 |= ((unsigned char)*(in++) << 8);
 	(t3 |= (unsigned char)*(in++)) ^= Kdr[3];
 	int a0, a1, a2, a3;
-	for (int r = 1; r < m_iROUNDS; r++) // apply round transforms
+	for (int r = 1; r < m_iROUNDS; r++) /* apply round transforms */
 	{
 		Kdr = m_Kd[r];
 		a0 = (sm_T5[(t0 >> 24) & 0xFF] ^
@@ -1178,7 +1186,7 @@ void AES::DefDecryptBlock(char const* in, char* result)
 		t2 = a2;
 		t3 = a3;
 	}
-	//Last Round is special
+	/* Last round is special */
 	Kdr = m_Kd[m_iROUNDS];
 	int tt = Kdr[0];
 	result[ 0] = sm_Si[(t0 >> 24) & 0xFF] ^ (tt >> 24);
@@ -1202,9 +1210,10 @@ void AES::DefDecryptBlock(char const* in, char* result)
 	result[15] = sm_Si[ t0 & 0xFF] ^ tt;
 }
 
-//Encrypt exactly one block of plaintext.
-// in           - The plaintext.
-// result       - The ciphertext generated from a plaintext using the key.
+/** Encrypt exactly one block of plaintext.
+ * @param in The plaintext.
+ * @return The ciphertext generated from a plaintext using the key.
+ */
 void AES::EncryptBlock(char const* in, char* result)
 {
 	if (m_bKeyInit == false)
@@ -1219,7 +1228,7 @@ void AES::EncryptBlock(char const* in, char* result)
 	int s1 = sm_shifts[SC][1][0];
 	int s2 = sm_shifts[SC][2][0];
 	int s3 = sm_shifts[SC][3][0];
-	//Temporary Work Arrays
+	/* Temporary work arrays */
 	int i;
 	int tt;
 	int* pi = t;
@@ -1230,7 +1239,7 @@ void AES::EncryptBlock(char const* in, char* result)
 		*pi |= ((unsigned char)*(in++) << 8);
 		(*(pi++) |= (unsigned char)*(in++)) ^= m_Ke[0][i];
 	}
-	//Apply Round Transforms
+	/* Apply round transforms */
 	for (int r=1; r<m_iROUNDS; r++)
 	{
 		for (i=0; i<BC; i++)
@@ -1241,7 +1250,7 @@ void AES::EncryptBlock(char const* in, char* result)
 		memcpy(t, a, 4*BC);
 	}
 	int j;
-	//Last Round is Special
+	/* Last round is special */
 	for (i=0,j=0; i<BC; i++)
 	{
 		tt = m_Ke[m_iROUNDS][i];
@@ -1252,9 +1261,10 @@ void AES::EncryptBlock(char const* in, char* result)
 	}
 }
 
-//Decrypt exactly one block of ciphertext.
-// in         - The ciphertext.
-// result     - The plaintext generated from a ciphertext using the session key.
+/** Decrypt exactly one block of ciphertext.
+ * @param inThe ciphertext.
+ * @return The plaintext generated from a ciphertext using the session key.
+ */
 void AES::DecryptBlock(char const* in, char* result)
 {
 	if (m_bKeyInit == false)
@@ -1269,7 +1279,7 @@ void AES::DecryptBlock(char const* in, char* result)
 	int s1 = sm_shifts[SC][1][1];
 	int s2 = sm_shifts[SC][2][1];
 	int s3 = sm_shifts[SC][3][1];
-	//Temporary Work Arrays
+	/* Temporary work arrays */
 	int i;
 	int tt;
 	int* pi = t;
@@ -1280,7 +1290,7 @@ void AES::DecryptBlock(char const* in, char* result)
 		*pi |= ((unsigned char)*(in++) << 8);
 		(*(pi++) |= (unsigned char)*(in++)) ^= m_Kd[0][i];
 	}
-	//Apply Round Transforms
+	/* Apply round transforms */
 	for (int r=1; r<m_iROUNDS; r++)
 	{
 		for (i=0; i<BC; i++)
@@ -1291,7 +1301,7 @@ void AES::DecryptBlock(char const* in, char* result)
 		memcpy(t, a, 4*BC);
 	}
 	int j;
-	//Last Round is Special
+	/* Last round is special */
 	for (i=0,j=0; i<BC; i++)
 	{
 		tt = m_Kd[m_iROUNDS][i];
@@ -1306,13 +1316,13 @@ void AES::Encrypt(char const* in, char* result, size_t n, int iMode)
 {
 	if (m_bKeyInit == false)
 		return;
-	//n should be > 0 and multiple of m_blockSize
+	/* n should be > 0 and multiple of m_blockSize */
 	if (n == 0 || n%m_blockSize!=0)
 		return;
 	unsigned int i;
 	char const* pin;
 	char* presult;
-	if (CBC == iMode) //CBC mode, using the Chain
+	if (CBC == iMode) /* CBC mode, using the chain */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
@@ -1323,7 +1333,7 @@ void AES::Encrypt(char const* in, char* result, size_t n, int iMode)
 			presult += m_blockSize;
 		}
 	}
-	else if (CFB == iMode) //CFB mode, using the Chain
+	else if (CFB == iMode) /* CFB mode, using the chain */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
@@ -1334,7 +1344,7 @@ void AES::Encrypt(char const* in, char* result, size_t n, int iMode)
 			presult += m_blockSize;
 		}
 	}
-	else //ECB mode, not using the Chain
+	else /* ECB mode, not using the chain */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
@@ -1349,13 +1359,13 @@ void AES::Decrypt(char const* in, char* result, size_t n, int iMode)
 {
 	if (m_bKeyInit == false)
 		return;
-	//n should be > 0 and multiple of m_blockSize
+	/* n should be > 0 and multiple of m_blockSize */
 	if (n == 0 || n%m_blockSize!=0)
 		return;
 	unsigned int i;
 	char const* pin;
 	char* presult;
-	if (CBC == iMode) //CBC mode, using the Chain
+	if (CBC == iMode) /* CBC mode, using the chain */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
@@ -1366,19 +1376,18 @@ void AES::Decrypt(char const* in, char* result, size_t n, int iMode)
 			presult += m_blockSize;
 		}
 	}
-	else if (CFB == iMode) //CFB mode, using the Chain, not using Decrypt()
+	else if (CFB == iMode) /* CFB mode, using the chain, not using Decrypt() */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
 			EncryptBlock(m_chain, presult);
-			//memcpy(presult, pin, m_blockSize);
 			Xor(presult, pin);
 			memcpy(m_chain, pin, m_blockSize);
 			pin += m_blockSize;
 			presult += m_blockSize;
 		}
 	}
-	else //ECB mode, not using the Chain
+	else /* ECB mode, not using the Chain */
 	{
 		for (i=0,pin=in,presult=result; i<n/m_blockSize; i++)
 		{
@@ -1408,7 +1417,7 @@ static const char base64val[] = {
 #define DECODE64(c)  (c < 128 ? base64val[c] : BAD)
 
 void to64frombits(unsigned char *out, const unsigned char *in, int inlen)
-/* raw bytes in quasi-big-endian order to base 64 string (NUL-terminated) */
+/* Raw bytes to base 64 string (NUL-terminated) */
 {
     for (; inlen >= 3; inlen -= 3)
     {
@@ -1434,7 +1443,7 @@ void to64frombits(unsigned char *out, const unsigned char *in, int inlen)
 }
 
 int from64tobits(char *out, const char *in, int maxlen)
-/* base 64 to raw bytes in quasi-big-endian order, returning count of bytes */
+/* base 64 to raw bytes, returning count of bytes */
 /* maxlen limits output buffer size, set to zero to ignore */
 {
     int len = 0;
