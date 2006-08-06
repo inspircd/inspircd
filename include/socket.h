@@ -49,6 +49,8 @@ typedef struct in_addr      insp_inaddr;
 
 #endif
 
+bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
+
 const char* insp_ntoa(insp_inaddr n);
 int insp_aton(const char* a, insp_inaddr* n);
 

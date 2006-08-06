@@ -940,61 +940,14 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-	/* TEST SUITE FOR TOKENSTREAM
-	 *
-	 * Expected output:
-	 * 
-	 * String: 'PRIVMSG #test FOO BAR'
-	 * Token 0 = 'PRIVMSG'
-	 * Token 1 = '#test'
-	 * Token 2 = 'FOO'
-	 * Token 3 = 'BAR'
-	 * String: 'PRIVMSG #test :FOO BAR BAZ'
-	 * Token 0 = 'PRIVMSG'
-	 * Token 1 = '#test'
-	 * Token 2 = 'FOO BAR BAZ'
-	 * String: ':PRIVMSG #test :FOO BAR BAZ'
-	 * Token 0 = ':PRIVMSG'
-	 * String: 'AAAAAAA'
-	 * Token 0 = 'AAAAAAA'
-	 * String: ''
-	 * NumItems = 0
-	 *
-	std::string a = "PRIVMSG #test FOO BAR";
-	printf("String: '%s'\n",a.c_str());
-	irc::tokenstream test(a);
-	printf("Token 0 = '%s'\n",test.GetToken().c_str());
-	printf("Token 1 = '%s'\n",test.GetToken().c_str());
-	printf("Token 2 = '%s'\n",test.GetToken().c_str());
-	printf("Token 3 = '%s'\n",test.GetToken().c_str());
-	printf("Token 4 = '%s'\n",test.GetToken().c_str());
 
-	std::string b = "PRIVMSG #test :FOO BAR BAZ";
-	printf("String: '%s'\n",b.c_str());
-	irc::tokenstream test2(b);
-	printf("Token 0 = '%s'\n",test2.GetToken().c_str());
-	printf("Token 1 = '%s'\n",test2.GetToken().c_str());
-	printf("Token 2 = '%s'\n",test2.GetToken().c_str());
-	printf("Token 3 = '%s'\n",test2.GetToken().c_str());
+	unsigned char addr[] = {0xCC,0xAA,0xCC,0xAA};
+	unsigned char mask[] = {0xCC,0xAA,0xC0,0xAA};
 
-	std::string c = ":PRIVMSG #test :FOO BAR BAZ";
-	printf("String: '%s'\n",c.c_str());
-	irc::tokenstream test3(c);
-	printf("Token 0 = '%s'\n",test3.GetToken().c_str());
-
-	c = "AAAAAAA";
-	printf("String: '%s'\n",c.c_str());
-	irc::tokenstream test4(c);
-	printf("Token 0 = '%s'\n",test4.GetToken().c_str());
-	printf("Token 1 = '%s'\n",test4.GetToken().c_str());
-
-	c = "";
-	printf("String: '%s'\n",c.c_str());
-	irc::tokenstream test5(c);
-	printf("Token 0 = '%s'\n",test5.GetToken().c_str());
+	printf("%d",MatchCIDRBits(addr, mask, 20));
 
 	exit(0);
-	*/
+
 	try
 	{
 		ServerInstance = new InspIRCd(argc, argv);
