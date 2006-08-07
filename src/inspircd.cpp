@@ -589,7 +589,6 @@ bool InspIRCd::LoadModule(const char* filename)
 		try
 		{
 			ircd_module* a = new ircd_module(modfile);
-			log(DEBUG,"ircd_module constructor success, MODCOUNT %d",MODCOUNT);
 			factory[MODCOUNT+1] = a;
 			if (factory[MODCOUNT+1]->LastError())
 			{
@@ -597,10 +596,8 @@ bool InspIRCd::LoadModule(const char* filename)
 				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
 				return false;
 			}
-			log(DEBUG,"No last error");
 			if ((int)factory[MODCOUNT+1]->factory != -1)
 			{
-				log(DEBUG,"Factory ptr: %0x",&factory[MODCOUNT+1]->factory);
 				Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
 				modules[MODCOUNT+1] = m;
 				/* save the module and the module's classfactory, if

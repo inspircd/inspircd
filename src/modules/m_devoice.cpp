@@ -63,7 +63,6 @@ class ModuleDeVoice : public Module
  public:
 	ModuleDeVoice(Server* Me) : Module::Module(Me)
 	{
-		log(DEBUG,"ModuleDeVoice constructor");
 		Srv = Me;
 		mycommand = new cmd_devoice();
 		Srv->AddCommand(mycommand);
@@ -93,7 +92,6 @@ class ModuleDeVoiceFactory : public ModuleFactory
 	
 	virtual Module * CreateModule(Server* Me)
 	{
-		log(DEBUG,"ModuleDevoiceFactory::CreateModule()");
 		return new ModuleDeVoice(Me);
 	}
 	

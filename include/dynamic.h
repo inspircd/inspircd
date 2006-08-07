@@ -22,6 +22,8 @@ typedef void * (initfunc) (void);
 
 #include "inspircd_config.h"
 
+extern void do_log(int, const char*, ...);
+
 class DLLManager
 {
  public:
@@ -61,21 +63,21 @@ class DLLFactoryBase : public DLLManager
 #endif
 };
 
-
 template <class T> class DLLFactory : public DLLFactoryBase
 {
  public:
 	DLLFactory(const char *fname, const char *func_name=0) : DLLFactoryBase(fname,func_name)
 	{
 		if (factory_func)
-			factory = (T*)factory_func();
+			factory = reinterpret_cast<T*>(factory_func());
 		else
-			factory = 0;
+			factory = reinterpret_cast<T*>(-1);
 	}
 	
 	~DLLFactory()
 	{
-		delete factory;
+		if (factory)
+			delete factory;
 	}
 
 	T *factory;

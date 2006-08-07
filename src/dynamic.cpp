@@ -64,7 +64,7 @@ DLLManager::DLLManager(const char *fname)
 	// a little safer if the ircd is running at the time as the
 	// shared libraries are mmap()ed and not doing this causes
 	// segfaults.
-	/*FILE* x = fopen(fname,"rb");
+	FILE* x = fopen(fname,"rb");
 	if (!x)
 	{
 		err = strerror(errno);
@@ -102,7 +102,7 @@ DLLManager::DLLManager(const char *fname)
 	if (close(fd) == -1)
 		err = strerror(errno);
 	if (fclose(x) == EOF)
-		err = strerror(errno);*/
+		err = strerror(errno);
 
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
@@ -112,7 +112,7 @@ DLLManager::DLLManager(const char *fname)
 		return;
 	}
 
-	/*log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
+	log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
 
 	// We can delete the tempfile once it's loaded, leaving just the inode.
 	if (!err && !Config->debugging)
@@ -120,7 +120,7 @@ DLLManager::DLLManager(const char *fname)
 		log(DEBUG,"Deleteting %s",tmpfile_template);
 		if (unlink(tmpfile_template) == -1)
 			err = strerror(errno);
-	}*/
+	}
 #endif
 }
 
@@ -165,19 +165,14 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	{
 		log(DEBUG,"Found symbol %s", sym_name);
 		dlerror(); // clear value
-		*v = dlsym(h, "init_module");
+		*v = dlsym(h, sym_name);
 		err = dlerror();
-
-		log(DEBUG,"%s",err);
 		if (!*v || err)
 			return false;
-
-		log(DEBUG,"%0x %0x",dlsym(h, "init_module"), *v);
 	}
 	
 	if (err)
 	{
-		log(DEBUG,"Not found symbol");
 		return false;
 	}
 	else
@@ -188,7 +183,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 
 #endif
 
-DLLFactoryBase::DLLFactoryBase(const char* fname, const char* factory) : DLLManager(fname)
+DLLFactoryBase::DLLFactoryBase(const char* fname, const char* symbol) : DLLManager(fname)
 {
 	// try get the factory function if there is no error yet
 	factory_func = 0;
@@ -196,9 +191,9 @@ DLLFactoryBase::DLLFactoryBase(const char* fname, const char* factory) : DLLMana
 	if (!LastError())
 	{
 #ifdef STATIC_LINK
-		if (!GetSymbol( factory_func, factory ? factory : "init_module" ))
+		if (!GetSymbol( factory_func, symbol ? symbol : "init_module"))
 #else
-		if (!GetSymbol( (void **)&factory_func, factory ? factory : "init_module" ))
+		if (!GetSymbol( (void **)&factory_func, symbol ? symbol : "init_module"))
 #endif
 		{
 			throw ModuleException("Missing init_module() entrypoint!");
