@@ -24,6 +24,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
 
+extern chan_hash chanlist;
+
 class Redirect : public ModeHandler
 {
 	Server* Srv;
@@ -63,9 +65,20 @@ class Redirect : public ModeHandler
 				/* Fix by brain: Dont let a channel be linked to *itself* either */
 				if ((c == channel) || (c->IsModeSet('L')))
 				{
-					WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed. Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
+					WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
 					parameter = "";
 					return MODEACTION_DENY;
+				}
+				else
+				{
+					for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+					{
+						if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
+						{
+							WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
+							return MODEACTION_DENY;
+						}
+					}
 				}
 			}
 
