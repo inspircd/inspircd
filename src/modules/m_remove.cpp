@@ -1,9 +1,7 @@
 /* Support for a dancer-style /remove command, an alternative to /kick to try and avoid auto-rejoin-on-kick scripts */
 /* Written by Om, 25-03-05 */
 
-using namespace std;
-
-#include <stdio.h>
+#include <sstream>
 #include <string>
 #include "users.h"
 #include "channels.h"
@@ -18,119 +16,175 @@ using namespace std;
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
-static Server *Srv;
-
-/* This little function just converts a chanmode character (~ & @ & +) into an integer (5 4 3 2 1) */
-/* XXX - this could be handy in the core, so it can be used elsewhere */
-int chartolevel(std::string &privs)
+class RemoveBase
 {
-	const char* n = privs.c_str();
-
-	switch (*n)
+ private: 
+	Server* Srv;
+	bool& supportnokicks;
+ 
+ protected:
+	RemoveBase(Server* Me, bool& snk)
+	: Srv(Me), supportnokicks(snk)
 	{
-		case '~':
-			return 5;
-		break;
-		case '&':
-			return 4;
-		break;
-		case '@':
-			return 3;
-		break;
-		case '%':
-			return 2;
-		break;
-		default:
-			return 1;
-		break;
+	}		
+ 
+	enum ModeLevel { PEON = 0, HALFOP = 1, OP = 2, ADMIN = 3, OWNER = 4, ULINE = 5 };	 
+ 
+	/* This little function just converts a chanmode character (U ~ & @ & +) into an integer (5 4 3 2 1 0) */
+	/* XXX - this could be handy in the core, so it can be used elsewhere */
+	ModeLevel chartolevel(const std::string &privs)
+	{
+		if(privs.empty())
+		{
+			return PEON;
+		}
+	
+		switch (privs[0])
+		{
+			case 'U':
+				/* Ulined */
+				return ULINE;
+			case '~':
+				/* Owner */
+				return OWNER;
+			case '&':
+				/* Admin */
+				return ADMIN;
+			case '@':
+				/* Operator */
+				return OP;
+			case '%':
+				/* Halfop */
+				return HALFOP;
+			default:
+				/* Peon */
+				return PEON;
+		}
 	}
-	return 1;
-}
-
-class cmd_remove : public command_t
-{
- public:
-	cmd_remove () : command_t("REMOVE", 0, 2)
+	
+	void Handle (const char** parameters, int pcnt, userrec *user, bool neworder)
 	{
-		this->source = "m_remove.so";
-		syntax = "<nick> <channel> [<reason>]";
-	}
-
-	void Handle (const char** parameters, int pcnt, userrec *user)
-	{
+		const char* channame;
+		const char* username;
 		userrec* target;
 		chanrec* channel;
-		int tlevel, ulevel;
-		char* dummy;
-		std::string tprivs, uprivs, reason;
+		ModeLevel tlevel;
+		ModeLevel ulevel;
+		std::ostringstream reason;
+		std::string protectkey;
+		std::string founderkey;
+		bool hasnokicks;
 		
+		/* Set these to the parameters needed, the new version of this module switches it's parameters around
+		 * supplying a new command with the new order while keeping the old /remove with the older order.
+		 * /remove <nick> <channel> [reason ...]
+		 * /fpart <channel> <nick> [reason ...]
+		 */
+		channame = parameters[ neworder ? 0 : 1];
+		username = parameters[ neworder ? 1 : 0];
 		
 		/* Look up the user we're meant to be removing from the channel */
-		target = Srv->FindNick(parameters[0]);
+		target = Srv->FindNick(username);
 		
 		/* And the channel we're meant to be removing them from */
-		channel = Srv->FindChannel(parameters[1]);
+		channel = Srv->FindChannel(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, !target ? parameters[0] : parameters[1]);
+			WriteServ(user->fd,"401 %s %s :No such nick/channel", user->nick, !target ? username : channame);
 			return;
 		}
 
 		if (!channel->HasUser(target))
 		{
-			Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** The user "+target->nick+" is not on channel "+channel->name);
+			WriteServ(user->fd, "NOTICE %s :*** The user %s is not on channel %s", user->nick, target->nick, channel->name);
 			return;
 		}	
-
-		/* And see if the person calling the command has access to use it on the channel */
-		uprivs = Srv->ChanMode(user, channel);
 		
-		/* Check what privs the person being removed has */
-		tprivs = Srv->ChanMode(target, channel);
-
-		if(pcnt > 2)
-			reason = "Removed by " + std::string(user->nick) + ":";
-		else
-			reason = "Removed by " + std::string(user->nick);
+		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set.
+		 * Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
+		protectkey = "cm_protect_" + std::string(channel->name);
+		founderkey = "cm_founder_" + std::string(channel->name);
 		
-		/* This turns all the parameters after the first two into a single string, so the part reason can be multi-word */
-		for (int n = 2; n < pcnt; n++)
+		if (Srv->IsUlined(user->server) || Srv->IsUlined(user->nick))
 		{
-			reason += " ";
-			reason += parameters[n];
+			log(DEBUG, "Setting ulevel to U");
+			ulevel = chartolevel("U");
+		}
+		if (user->GetExt(founderkey))
+		{
+			log(DEBUG, "Setting ulevel to ~");
+			ulevel = chartolevel("~");
+		}
+		else if (user->GetExt(protectkey))
+		{
+			log(DEBUG, "Setting ulevel to &");
+			ulevel = chartolevel("&");
+		}
+		else
+		{
+			log(DEBUG, "Setting ulevel to %s", Srv->ChanMode(user, channel).c_str());
+			ulevel = chartolevel(Srv->ChanMode(user, channel));
+		}
+			
+		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
+		if (Srv->IsUlined(target->server) || Srv->IsUlined(target->nick))
+		{
+			log(DEBUG, "Setting tlevel to U");
+			tlevel = chartolevel("U");
+		}
+		else if (target->GetExt(founderkey))
+		{
+			log(DEBUG, "Setting tlevel to ~");
+			tlevel = chartolevel("~");
+		}
+		else if (target->GetExt(protectkey))
+		{
+			log(DEBUG, "Setting tlevel to &");
+			tlevel = chartolevel("&");
+		}
+		else
+		{
+			log(DEBUG, "Setting tlevel to %s", Srv->ChanMode(target, channel).c_str());
+			tlevel = chartolevel(Srv->ChanMode(target, channel));
 		}
 		
-		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set. */
-		/* Then we change the @|%|+ to & if they are +a, or ~ if they are +q */
-
-		std::string protect = "cm_protect_" + std::string(channel->name);
-		std::string founder = "cm_founder_"+std::string(channel->name);
+		hasnokicks = (Srv->FindModule("m_nokicks.so") && channel->IsModeSet('Q'));
 		
-		if (user->GetExt(protect, dummy))
-			uprivs = "&";
-		if (user->GetExt(founder, dummy))
-			uprivs = "~";
-			
-		/* Now it's the same idea, except for the target */
-		if (target->GetExt(protect, dummy))
-			tprivs = "&";
-		if (target->GetExt(founder, dummy))
-			tprivs = "~";
-			
-		tlevel = chartolevel(tprivs);
-		ulevel = chartolevel(uprivs);
-		
-		/* If the user calling the command is either an admin, owner, operator or a half-operator on the channel */
-		if (ulevel > 1)
+		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
+		if(!supportnokicks || !hasnokicks || (ulevel == ULINE))
 		{
-			/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
-			if ((ulevel >= tlevel && tlevel != 5) && (!Srv->IsUlined(target->server)))
+			/* We'll let everyone remove their level and below, eg:
+			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
+			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
+			 * Nobody may remove a founder.
+			 */
+			if ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER))
 			{
-				Srv->PartUserFromChannel(target, channel->name, reason);
-				WriteServ(user->fd, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
-				WriteServ(target->fd, "NOTICE %s :*** %s removed you from %s with the message:%s", target->nick, user->nick, channel->name, reason.c_str());
+				std::string reasonparam;
+				
+				/* If a reason is given, use it */
+				if(pcnt > 2)
+				{
+					 reason <<  ":";
+					
+					/* Use all the remaining parameters as the reason */
+					for(int i = 2; i < pcnt; i++)
+					{
+						reason << " " << parameters[i];
+					}
+					
+					reasonparam = reason.str();
+					reason.clear();
+				}
+
+				/* Build up the part reason string. */
+				reason << "Removed by " << user->nick << reasonparam;
+						
+				Srv->PartUserFromChannel(target, channel->name, reason.str());
+				WriteChannelWithServ(Srv->GetServerName().c_str(), channel, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
+				WriteServ(target->fd, "NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
 			}
 			else
 			{
@@ -139,40 +193,85 @@ class cmd_remove : public command_t
 		}
 		else
 		{
-			WriteServ(user->fd, "NOTICE %s :*** You do not have access to use /remove on %s", user->nick, channel->name);
+			/* m_nokicks.so was loaded and +Q was set, block! */
+			WriteServ(user->fd, "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick, channel->name, target->nick);
 		}
 	}
+};
+
+class cmd_remove : public command_t, public RemoveBase
+{
+ public:
+	cmd_remove(Server* Srv, bool& snk) : command_t("REMOVE", 0, 2), RemoveBase(Srv, snk)
+	{
+		this->source = "m_remove.so";
+		syntax = "<nick> <channel> [<reason>]";
+	}
+	
+	void Handle (const char** parameters, int pcnt, userrec *user)
+	{
+		RemoveBase::Handle(parameters, pcnt, user, false);
+	}
+};
+
+class cmd_fpart : public command_t, public RemoveBase
+{
+ public:
+	cmd_fpart(Server* Srv, bool snk) : command_t("FPART", 0, 2), RemoveBase(Srv, snk)
+	{
+		this->source = "m_remove.so";
+		syntax = "<channel> <nick> [<reason>]";
+	}
+
+	void Handle (const char** parameters, int pcnt, userrec *user)
+	{
+		RemoveBase::Handle(parameters, pcnt, user, true);
+	}	
 };
 
 class ModuleRemove : public Module
 {
 	cmd_remove* mycommand;
+	cmd_fpart* mycommand2;
+	bool supportnokicks;
+	
  public:
 	ModuleRemove(Server* Me)
-		: Module::Module(Me)
+	: Module::Module(Me)
 	{
-		Srv = Me;
-		mycommand = new cmd_remove();
-		Srv->AddCommand(mycommand);
+		mycommand = new cmd_remove(Me, supportnokicks);
+		mycommand2 = new cmd_fpart(Me, supportnokicks);
+		Me->AddCommand(mycommand);
+		Me->AddCommand(mycommand2);
+		OnRehash("");
 	}
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = 1;
+		List[I_On005Numeric] = List[I_OnRehash] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
 	{
-		output = output + std::string(" REMOVE");
+		output.append(" REMOVE");
+	}
+	
+	virtual void OnRehash(const std::string&)
+	{
+		ConfigReader conf;
+		
+		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
 	}
 	
 	virtual ~ModuleRemove()
 	{
+		delete mycommand;
+		delete mycommand2;
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,1,0,VF_VENDOR);
 	}
 	
 };
