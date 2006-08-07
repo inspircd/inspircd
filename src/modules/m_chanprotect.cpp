@@ -61,9 +61,12 @@ class ChanFounder : public ModeHandler
 	{
 		userrec* theuser = Srv->FindNick(parameter);
 
+		log(DEBUG,"ChanFounder::OnModeChange");
+
 		// cant find the user given as the parameter, eat the mode change.
 		if (!theuser)
 		{
+			log(DEBUG,"No such user in ChanFounder");
 			parameter = "";
 			return MODEACTION_DENY;
 		}
@@ -71,6 +74,7 @@ class ChanFounder : public ModeHandler
 		// given user isnt even on the channel, eat the mode change
 		if (!channel->HasUser(theuser))
 		{
+			log(DEBUG,"Channel doesn't have user in ChanFounder");
 			parameter = "";
 			return MODEACTION_DENY;
 		}
@@ -81,13 +85,20 @@ class ChanFounder : public ModeHandler
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
+			log(DEBUG,"Allowing remote mode change in ChanFounder");
 			if (adding)
 			{
 				if (!theuser->GetExt(founder,dummyptr))
 				{
-					theuser->Extend(founder,fakevalue);
+					log(DEBUG,"Does not have the ext item in ChanFounder");
+					if (!theuser->Extend(founder,fakevalue))
+						log(DEBUG,"COULD NOT EXTEND!!!");
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
+					if (theuser->GetExt(founder, dummyptr))
+						log(DEBUG,"Extended!");
+					else
+						log(DEBUG,"Not extended :(");
 					return MODEACTION_ALLOW;
 				}
 			}
@@ -321,6 +332,7 @@ class ModuleChanProtect : public Module
 		// etc of protected users. There are many types of access check, we're going to handle
 		// a relatively small number of them relevent to our module using a switch statement.
 	
+		log(DEBUG,"chanprotect OnAccessCheck %d",access_type);
 		// don't allow action if:
 		// (A) Theyre founder (no matter what)
 		// (B) Theyre protected, and you're not
@@ -342,10 +354,16 @@ class ModuleChanProtect : public Module
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
+				log(DEBUG,"OnAccessCheck AC_DEOP");
 				if (dest->GetExt(founder,dummyptr))
 				{
+					log(DEBUG,"Has %s",founder.c_str());
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
+				}
+				else
+				{
+					log(DEBUG,"Doesnt have %s",founder.c_str());
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
@@ -356,6 +374,7 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
+				log(DEBUG,"OnAccessCheck AC_KICK");
 				if (dest->GetExt(founder,dummyptr))
 				{
 					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");

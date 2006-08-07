@@ -79,7 +79,7 @@ public:
 		 */
 		return this->Extension_Items.insert(std::make_pair(key, (char*)p)).second;
 	}
-	
+
 	/** Extend an Extensible class.
 	 *
 	 * @param key The key parameter is an arbitary string which identifies the extension data
