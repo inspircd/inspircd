@@ -63,20 +63,23 @@ class Redirect : public ModeHandler
 			if (c)
 			{
 				/* Fix by brain: Dont let a channel be linked to *itself* either */
-				if ((c == channel) || (c->IsModeSet('L')))
+				if (IS_LOCAL(source))
 				{
-					WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
-					parameter = "";
-					return MODEACTION_DENY;
-				}
-				else
-				{
-					for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+					if ((c == channel) || (c->IsModeSet('L')))
 					{
-						if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
+						WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
+						parameter = "";
+						return MODEACTION_DENY;
+					}
+					else
+					{
+						for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 						{
-							WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
-							return MODEACTION_DENY;
+							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
+							{
+								WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
+								return MODEACTION_DENY;
+							}
 						}
 					}
 				}
