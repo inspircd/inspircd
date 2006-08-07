@@ -35,7 +35,7 @@ using namespace std;
 
 extern ServerConfig* Config;
 
-DLLManager::DLLManager(char *fname)
+DLLManager::DLLManager(const char *fname)
 {
 	err = NULL;
 
@@ -67,7 +67,7 @@ DLLManager::DLLManager(char *fname)
 	FILE* x = fopen(fname,"rb");
 	if (!x)
 	{
-		err = "Module file not found or cannot access, game over man!";
+		err = strerror(errno);
 		return;
 	}
 	char tmpfile_template[255];
@@ -97,12 +97,23 @@ DLLManager::DLLManager(char *fname)
 	// Try to open the library now and get any error message.
 	
 	h = dlopen(tmpfile_template, RTLD_NOW );
-	err = (char*)dlerror();
-	close(fd);
-	fclose(x);
+
+	if (!h)
+	{
+		err = dlerror();
+		return;
+	}
+	if (close(fd) == -1)
+		err = strerror(errno);
+	if (fclose(x) == EOF)
+		err = strerror(errno);
+
 	// We can delete the tempfile once it's loaded, leaving just the inode.
-	if (!Config->debugging)
-		unlink(tmpfile_template);
+	if (!err && !Config->debugging)
+	{
+		if (unlink(tmpfile_template) == -1)
+			err = strerror(errno);
+	}
 #endif
 }
 
@@ -119,7 +130,7 @@ DLLManager::~DLLManager()
 
 #ifdef STATIC_LINK
 
-bool DLLManager::GetSymbol(initfunc* &v, char *sym_name)
+bool DLLManager::GetSymbol(initfunc* &v, const char *sym_name)
 {
 	log(DEBUG,"Symbol search...");
 	for (int j = 0; modsyms[j].name; j++)
@@ -138,19 +149,16 @@ bool DLLManager::GetSymbol(initfunc* &v, char *sym_name)
 
 #else
 
-bool DLLManager::GetSymbol(void **v, char *sym_name)
+bool DLLManager::GetSymbol(void** v, const char* sym_name)
 {
 	// try extract a symbol from the library
 	// get any error message is there is any
 	
-	if(h != 0)
+	if (h)
 	{
-		*v = dlsym( h, sym_name );
-		err = (char*)dlerror();
-		if( err == 0 )
-			return true;
-	    	else
-			return false;
+		*v = dlsym(h, sym_name);
+		err = dlerror();
+		return !err;
 	}
 	else
 	{	
@@ -160,18 +168,17 @@ bool DLLManager::GetSymbol(void **v, char *sym_name)
 
 #endif
 
-DLLFactoryBase::DLLFactoryBase(char *fname, char *factory) : DLLManager(fname)
+DLLFactoryBase::DLLFactoryBase(const char* fname, const char* factory) : DLLManager(fname)
 {
 	// try get the factory function if there is no error yet
-	
 	factory_func = 0;
 	
-	if(LastError() == 0)
+	if (!LastError())
 	{
 #ifdef STATIC_LINK
-		GetSymbol( factory_func, factory ? factory : (char*)"init_module" );
+		GetSymbol( factory_func, factory ? factory : "init_module" );
 #else
-		GetSymbol( (void **)&factory_func, factory ? factory : (char*)"init_module" );
+		GetSymbol( (void **)&factory_func, factory ? factory : "init_module" );
 #endif
 	}
 }
