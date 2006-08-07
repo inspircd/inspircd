@@ -1274,6 +1274,11 @@
 #<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Test line module: Adds the /TLINE command, used to test how many
+# users a /GLINE or /ZLINE etc would match.
+#<module name="m_tline.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Uninvite module: Adds the /UNINVITE command which lets users remove
 # pending invites from channels without waiting for the user to join.
 #<module name="m_uninvite.so">
