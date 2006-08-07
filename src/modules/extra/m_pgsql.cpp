@@ -44,7 +44,8 @@
  * I can access the socket engine :\
  */
 extern InspIRCd* ServerInstance;
-InspSocket* socket_ref[MAX_DESCRIPTORS];
+extern InspSocket* socket_ref[MAX_DESCRIPTORS];
+extern time_t TIME;
 
 /* Forward declare, so we can have the typedef neatly at the top */
 class SQLConn;
@@ -56,9 +57,61 @@ typedef std::map<std::string, SQLConn*> ConnMap;
 /* CREAD,	Connecting and wants read event
  * CWRITE,	Connecting and wants write event
  * WREAD,	Connected/Working and wants read event
- * WWRITE, 	Connected/Working and wants write event
+ * WWRITE,	Connected/Working and wants write event
+ * RREAD,	Resetting and wants read event
+ * RWRITE,	Resetting and wants write event
  */
-enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE };
+enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
+
+/** SQLhost, simple structure to store information about a SQL-connection-to-be
+ * We use this struct simply to make it neater passing around host information
+ * when we're creating connections and resolving hosts.
+ * Rather than giving SQLresolver a parameter for every field here so it can in
+ * turn call SQLConn's constructor with them all, both can simply use a SQLhost.
+ */
+class SQLhost
+{
+ public:
+	std::string		id;		/* Database handle id */
+ 	std::string 	host;	/* Database server hostname */
+	unsigned int	port;	/* Database server port */
+	std::string 	name;	/* Database name */
+	std::string 	user;	/* Database username */
+	std::string 	pass;	/* Database password */
+	bool			ssl;	/* If we should require SSL */
+ 
+	SQLhost()
+	{
+	}		
+
+	SQLhost(const std::string& i, const std::string& h, unsigned int p, const std::string& n, const std::string& u, const std::string& pa, bool s)
+	: id(i), host(h), port(p), name(n), user(u), pass(pa), ssl(s)
+	{
+	}
+};
+
+class SQLresolver : public Resolver
+{
+ private:
+	SQLhost host;
+	ModulePgSQL* mod;
+ public:
+	SQLresolver(ModulePgSQL* m, Server* srv, const SQLhost& hi)
+	: Resolver(hi.host, DNS_QUERY_FORWARD), host(hi), mod(m)
+	{
+	}
+
+	virtual void OnLookupComplete(const std::string &result);
+
+	virtual void OnError(ResolverError e, const std::string &errormessage)
+	{
+		log(DEBUG, "DNS lookup failed (%s), dying horribly", errormessage.c_str());
+	}
+
+	virtual ~SQLresolver()
+	{
+	}
+};
 
 /** QueryQueue, a queue of queries waiting to be executed.
  * This maintains two queues internally, one for 'priority'
@@ -415,16 +468,15 @@ private:
 	SQLstatus		status;	/* PgSQL database connection status */
 	bool			qinprog;/* If there is currently a query in progress */
 	QueryQueue		queue;	/* Queue of queries waiting to be executed on this connection */
+	time_t			idle;	/* Time we last heard from the database */
 
 public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(ModulePgSQL* self, Server* srv, const std::string &h, unsigned int p, const std::string &d, const std::string &u, const std::string &pwd, bool s);
+	SQLConn(ModulePgSQL* self, Server* srv, const SQLhost& hostinfo);
 
 	~SQLConn();
-
-	bool DoResolve();
 
 	bool DoConnect();
 
@@ -433,6 +485,8 @@ public:
 	bool DoPoll();
 	
 	bool DoConnectedPoll();
+
+	bool DoResetPoll();
 	
 	void ShowStatus();	
 	
@@ -443,6 +497,8 @@ public:
 	virtual bool OnConnected();
 	
 	bool DoEvent();
+	
+	bool Reconnect();
 	
 	std::string MkInfoStr();
 	
@@ -499,20 +555,50 @@ public:
 
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
-			std::string id;
-			SQLConn* newconn;
+			SQLhost host;			
+			int ipvalid;
+			insp_inaddr blargle;
 			
-			id = conf.ReadValue("database", "id", i);
-			newconn = new SQLConn(this, Srv,
-										conf.ReadValue("database", "hostname", i),
-										conf.ReadInteger("database", "port", i, true),
-										conf.ReadValue("database", "name", i),
-										conf.ReadValue("database", "username", i),
-										conf.ReadValue("database", "password", i),
-										conf.ReadFlag("database", "ssl", i));
+			host.id		= conf.ReadValue("database", "id", i);
+			host.host	= conf.ReadValue("database", "hostname", i);
+			host.port	= conf.ReadInteger("database", "port", i, true);
+			host.name	= conf.ReadValue("database", "name", i);
+			host.user	= conf.ReadValue("database", "username", i);
+			host.pass	= conf.ReadValue("database", "password", i);
+			host.ssl	= conf.ReadFlag("database", "ssl", i);
 			
-			connections.insert(std::make_pair(id, newconn));
+			ipvalid = insp_aton(host.host.c_str(), &blargle);
+			
+			if(ipvalid > 0)
+			{
+				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
+				this->AddConn(host);
+			}
+			else if(ipvalid == 0)
+			{
+				/* Conversion failed, assume it's a host */
+				SQLresolver* resolver;
+				
+				resolver = new SQLresolver(this, Srv, host);
+				
+				Srv->AddResolver(resolver);
+			}
+			else
+			{
+				/* Invalid address family, die horribly. */
+				log(DEBUG, "insp_aton failed returning -1, oh noes.");
+			}
 		}	
+	}
+	
+	void AddConn(const SQLhost& hi)
+	{
+		SQLConn* newconn;
+				
+		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
+		newconn = new SQLConn(this, Srv, hi);
+				
+		connections.insert(std::make_pair(hi.id, newconn));
 	}
 	
 	virtual char* OnRequest(Request* request)
@@ -577,8 +663,8 @@ public:
 	}	
 };
 
-SQLConn::SQLConn(ModulePgSQL* self, Server* srv, const std::string &h, unsigned int p, const std::string &d, const std::string &u, const std::string &pwd, bool s)
-: InspSocket::InspSocket(), us(self), Srv(srv), dbhost(h), dbport(p), dbname(d), dbuser(u), dbpass(pwd), ssl(s), sql(NULL), status(CWRITE), qinprog(false)
+SQLConn::SQLConn(ModulePgSQL* self, Server* srv, const SQLhost& hi)
+: InspSocket::InspSocket(), us(self), Srv(srv), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
 {
 	log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
 
@@ -586,75 +672,24 @@ SQLConn::SQLConn(ModulePgSQL* self, Server* srv, const std::string &h, unsigned 
 	 * just copied this over from the InspSocket constructor.
 	 */
 	strlcpy(this->host, dbhost.c_str(), MAXBUF);
+	strlcpy(this->IP, dbhost.c_str(), MAXBUF);
 	this->port = dbport;
+	idle = TIME;
 	
 	this->ClosePending = false;
+			
+	log(DEBUG,"No need to resolve %s", this->host);
 	
-	if(!inet_aton(this->host, &this->addy))
+		
+	if(!this->DoConnect())
 	{
-		/* Its not an ip, spawn the resolver.
-		 * PgSQL doesn't do nonblocking DNS 
-		 * lookups, so we do it for it.
-		 */
-		
-		log(DEBUG,"Attempting to resolve %s", this->host);
-		
-		this->dns.SetNS(Srv->GetConfig()->DNSServer);
-		this->dns.ForwardLookupWithFD(this->host, fd);
-		
-		this->state = I_RESOLVING;
-		socket_ref[this->fd] = this;
-		
-		return;
-	}
-	else
-	{
-		log(DEBUG,"No need to resolve %s", this->host);
-		strlcpy(this->IP, this->host, MAXBUF);
-		
-		if(!this->DoConnect())
-		{
-			throw ModuleException("Connect failed");
-		}
+		throw ModuleException("Connect failed");
 	}
 }
 
 SQLConn::~SQLConn()
 {
 	Close();
-}
-
-bool SQLConn::DoResolve()
-{	
-	log(DEBUG, "Checking for DNS lookup result");
-	
-	if(this->dns.HasResult())
-	{
-		std::string res_ip = dns.GetResultIP();
-		
-		if(res_ip.length())
-		{
-			log(DEBUG, "Got result: %s", res_ip.c_str());
-			
-			strlcpy(this->IP, res_ip.c_str(), MAXBUF);
-			dbhost = res_ip;
-			
-			socket_ref[this->fd] = NULL;
-			
-			return this->DoConnect();
-		}
-		else
-		{
-			log(DEBUG, "DNS lookup failed, dying horribly");
-			Close();
-			return false;
-		}
-	}
-	else
-	{
-		log(DEBUG, "No result for lookup yet!");
-		return true;
-	}
 }
 
 bool SQLConn::DoConnect()
@@ -740,7 +775,7 @@ bool SQLConn::DoPoll()
 		case PGRES_POLLING_READING:
 			log(DEBUG, "PGconnectPoll: PGRES_POLLING_READING");
 			status = CREAD;
-			break;
+			return true;
 		case PGRES_POLLING_FAILED:
 			log(DEBUG, "PGconnectPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
 			return false;
@@ -750,10 +785,8 @@ bool SQLConn::DoPoll()
 			return DoConnectedPoll();
 		default:
 			log(DEBUG, "PGconnectPoll: wtf?");
-			break;
+			return true;
 	}
-	
-	return true;
 }
 
 bool SQLConn::DoConnectedPoll()
@@ -768,6 +801,11 @@ bool SQLConn::DoConnectedPoll()
 	if(PQconsumeInput(sql))
 	{
 		log(DEBUG, "PQconsumeInput succeeded");
+		
+		/* We just read stuff from the server, that counts as it being alive
+		 * so update the idle-since time :p
+		 */
+		idle = TIME;
 			
 		if(PQisBusy(sql))
 		{
@@ -836,12 +874,50 @@ bool SQLConn::DoConnectedPoll()
 			queue.pop();				
 			DoConnectedPoll();
 		}
+		else
+		{
+			log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
+		}
 		
 		return true;
 	}
-	
-	log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-	return false;
+	else
+	{
+		/* I think we'll assume this means the server died...it might not,
+		 * but I think that any error serious enough we actually get here
+		 * deserves to reconnect [/excuse]
+		 * Returning true so the core doesn't try and close the connection.
+		 */
+		log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
+		Reconnect();
+		return true;
+	}
+}
+
+bool SQLConn::DoResetPoll()
+{
+	switch(PQresetPoll(sql))
+	{
+		case PGRES_POLLING_WRITING:
+			log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
+			WantWrite();
+			status = CWRITE;
+			return DoPoll();
+		case PGRES_POLLING_READING:
+			log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
+			status = CREAD;
+			return true;
+		case PGRES_POLLING_FAILED:
+			log(DEBUG, "PGresetPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
+			return false;
+		case PGRES_POLLING_OK:
+			log(DEBUG, "PGresetPoll: PGRES_POLLING_OK");
+			status = WWRITE;
+			return DoConnectedPoll();
+		default:
+			log(DEBUG, "PGresetPoll: wtf?");
+			return true;
+	}
 }
 
 void SQLConn::ShowStatus()
@@ -900,6 +976,26 @@ bool SQLConn::OnConnected()
 	return DoEvent();
 }
 
+bool SQLConn::Reconnect()
+{
+	log(DEBUG, "Initiating reconnect");
+	
+	if(PQresetStart(sql))
+	{
+		/* Successfully initiatied database reconnect,
+		 * set flags so PQresetPoll() will be called appropriately
+		 */
+		status = RWRITE;
+		qinprog = false;
+		return true;
+	}
+	else
+	{
+		log(DEBUG, "Failed to initiate reconnect...fun");
+		return false;
+	}	
+}
+
 bool SQLConn::DoEvent()
 {
 	bool ret;
@@ -907,6 +1003,10 @@ bool SQLConn::DoEvent()
 	if((status == CREAD) || (status == CWRITE))
 	{
 		ret = DoPoll();
+	}
+	else if((status == RREAD) || (status == RWRITE))
+	{
+		ret = DoResetPoll();
 	}
 	else
 	{
@@ -1094,6 +1194,12 @@ SQLerror SQLConn::Query(const SQLrequest &req)
 void SQLConn::OnUnloadModule(Module* mod)
 {
 	queue.PurgeModule(mod);
+}
+
+void SQLresolver::OnLookupComplete(const std::string &result)
+{
+	host.host = result;
+	mod->AddConn(host);
 }
 
 class ModulePgSQLFactory : public ModuleFactory
