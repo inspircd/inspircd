@@ -100,7 +100,7 @@ class ModuleDeVoiceFactory : public ModuleFactory
 };
 
 
-extern "C" void * crud_u_like( void )
+extern "C" void * init_module( void )
 {
 	return new ModuleDeVoiceFactory;
 }
