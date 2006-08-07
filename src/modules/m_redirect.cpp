@@ -63,7 +63,7 @@ class Redirect : public ModeHandler
 				/* Fix by brain: Dont let a channel be linked to *itself* either */
 				if ((c == channel) || (c->IsModeSet('L')))
 				{
-					WriteServ(source->fd,"690 %s :Circular redirection, mode +L to %s not allowed.",source->nick,parameter.c_str());
+					WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed. Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
 					parameter = "";
 					return MODEACTION_DENY;
 				}
