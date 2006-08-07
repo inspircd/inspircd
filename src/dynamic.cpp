@@ -37,6 +37,8 @@ extern ServerConfig* Config;
 
 DLLManager::DLLManager(char *fname)
 {
+	err = NULL;
+
 	if (!strstr(fname,".so"))
 	{
 		err = "This doesn't look like a module file to me...";
@@ -58,17 +60,6 @@ DLLManager::DLLManager(char *fname)
 	}
 	err = "Module is not statically compiled into the ircd";
 #else
-#ifdef IS_CYGWIN
-	// Cygwin behaviour is handled slightly differently
-	// With the advent of dynamic modules. Because Windows
-	// wont let you overwrite a file which is currently in
-	// Use, we can safely attempt to load the module from its
-	// Current location :)
-
-	h = dlopen(fname, RTLD_NOW );
-	err = (char*)dlerror();
-
-#else
 	// Copy the library to a temp location, this makes recompiles
 	// a little safer if the ircd is running at the time as the
 	// shared libraries are mmap()ed and not doing this causes
@@ -83,22 +74,35 @@ DLLManager::DLLManager(char *fname)
 	char buffer[65536];
 	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",Config->TempDir,getpid());
 	int fd = mkstemp(tmpfile_template);
+	if (fd == -1)
+	{
+		fclose(x);
+		err = strerror(errno);
+		return;
+	}
 	while (!feof(x))
 	{
 		int n = fread(buffer, 1, 65535, x);
 		if (n)
-			write(fd,buffer,n);
+		{
+			int written = write(fd,buffer,n);
+			if (written != n)
+			{
+				fclose(x);
+				err = strerror(errno);
+				return;
+			}
+		}
 	}
-	
 	// Try to open the library now and get any error message.
 	
 	h = dlopen(tmpfile_template, RTLD_NOW );
 	err = (char*)dlerror();
 	close(fd);
+	fclose(x);
 	// We can delete the tempfile once it's loaded, leaving just the inode.
 	if (!Config->debugging)
 		unlink(tmpfile_template);
-#endif
 #endif
 }
 

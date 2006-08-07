@@ -35,7 +35,7 @@ class DLLManager
 	bool GetSymbol( void **, char *sym_name );
 #endif
 
-	char *LastError() 
+	char* LastError() 
 	{
 		 return err;
 	}
