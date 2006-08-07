@@ -28,7 +28,7 @@
 #include "users.h"
 #include "channels.h"
 
-bool OneOfMatches(const char* host, const char* hostlist);
+bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 
 class cmd_oper : public command_t
 {
