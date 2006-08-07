@@ -50,6 +50,9 @@ bool SelectEngine::AddFd(int fd, bool readable, char type)
 
 	fds[fd] = fd;
 
+	if (ref[fd])
+		return false;
+
 	ref[fd] = type;
 	if (readable)
 	{

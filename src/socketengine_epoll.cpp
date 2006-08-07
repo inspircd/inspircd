@@ -55,7 +55,11 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 		log(DEFAULT,"ERROR: System out of file descriptors!");
 		return false;
 	}
+	if (ref[fd])
+		return false;
+
 	ref[fd] = type;
+
 	if (readable)
 	{
 		log(DEBUG,"Set readbit");

@@ -58,6 +58,9 @@ bool KQueueEngine::AddFd(int fd, bool readable, char type)
 		return false;
 	}
 
+	if (ref[fd])
+		return false;
+
 	ref[fd] = type;
 	if (readable)
 	{

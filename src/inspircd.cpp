@@ -917,7 +917,13 @@ int InspIRCd::Run()
 	this->BuildISupport();
 
 	printf("\nInspIRCd is now running!\n");
-	
+
+	if (!stats->BoundPortCount)
+	{
+		printf("\nI couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
+		Exit(ERROR);
+	}
+
 	if (!Config->nofork)
 	{
 		fclose(stdout);
@@ -928,8 +934,12 @@ int InspIRCd::Run()
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
+	log(DEBUG,"%d listeners",stats->BoundPortCount);
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
+	{
+		log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
 		SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
+	}
 
 	this->WritePID(Config->PID);
 
