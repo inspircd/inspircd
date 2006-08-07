@@ -67,7 +67,7 @@ template <class T> class DLLFactory : public DLLFactoryBase
  public:
 	DLLFactory(const char *fname, const char *func_name=0) : DLLFactoryBase(fname,func_name)
 	{
-		if (factory_func)
+		if (!err && factory_func)
 			factory = (T*)factory_func();
 		else
 			factory = 0;

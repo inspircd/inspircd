@@ -64,12 +64,13 @@ DLLManager::DLLManager(const char *fname)
 	// a little safer if the ircd is running at the time as the
 	// shared libraries are mmap()ed and not doing this causes
 	// segfaults.
-	FILE* x = fopen(fname,"rb");
+	/*FILE* x = fopen(fname,"rb");
 	if (!x)
 	{
 		err = strerror(errno);
 		return;
 	}
+	log(DEBUG,"Opened module file %s",fname);
 	char tmpfile_template[255];
 	char buffer[65536];
 	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",Config->TempDir,getpid());
@@ -80,6 +81,7 @@ DLLManager::DLLManager(const char *fname)
 		err = strerror(errno);
 		return;
 	}
+	log(DEBUG,"Copying %s to %s",fname, tmpfile_template);
 	while (!feof(x))
 	{
 		int n = fread(buffer, 1, 65535, x);
@@ -94,26 +96,31 @@ DLLManager::DLLManager(const char *fname)
 			}
 		}
 	}
+	log(DEBUG,"Copied entire file.");
 	// Try to open the library now and get any error message.
-	
-	h = dlopen(tmpfile_template, RTLD_NOW );
 
-	if (!h)
-	{
-		err = dlerror();
-		return;
-	}
 	if (close(fd) == -1)
 		err = strerror(errno);
 	if (fclose(x) == EOF)
-		err = strerror(errno);
+		err = strerror(errno);*/
+
+	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
+	if (!h)
+	{
+		log(DEBUG,"dlerror occured!");
+		err = dlerror();
+		return;
+	}
+
+	/*log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
 
 	// We can delete the tempfile once it's loaded, leaving just the inode.
 	if (!err && !Config->debugging)
 	{
+		log(DEBUG,"Deleteting %s",tmpfile_template);
 		if (unlink(tmpfile_template) == -1)
 			err = strerror(errno);
-	}
+	}*/
 #endif
 }
 
@@ -121,8 +128,8 @@ DLLManager::~DLLManager()
 {
 #ifndef STATIC_LINK
 	// close the library if it isn't null
-	if (h != 0)
-	dlclose(h);
+	if (h)
+		dlclose(h);
 #endif
 }
 
@@ -156,13 +163,26 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	
 	if (h)
 	{
-		*v = dlsym(h, sym_name);
+		log(DEBUG,"Found symbol %s", sym_name);
+		dlerror(); // clear value
+		*v = dlsym(h, "init_module");
 		err = dlerror();
-		return !err;
+
+		log(DEBUG,"%s",err);
+		if (!*v || err)
+			return false;
+
+		log(DEBUG,"%0x %0x",dlsym(h, "init_module"), *v);
+	}
+	
+	if (err)
+	{
+		log(DEBUG,"Not found symbol");
+		return false;
 	}
 	else
 	{	
-		return false;
+		return true;
 	}
 }
 
@@ -176,14 +196,17 @@ DLLFactoryBase::DLLFactoryBase(const char* fname, const char* factory) : DLLMana
 	if (!LastError())
 	{
 #ifdef STATIC_LINK
-		GetSymbol( factory_func, factory ? factory : "init_module" );
+		if (!GetSymbol( factory_func, factory ? factory : "init_module" ))
 #else
-		GetSymbol( (void **)&factory_func, factory ? factory : "init_module" );
+		if (!GetSymbol( (void **)&factory_func, factory ? factory : "init_module" ))
 #endif
+		{
+			throw ModuleException("Missing init_module() entrypoint!");
+		}
 	}
 }
-
 
 DLLFactoryBase::~DLLFactoryBase()
 {
 }
+

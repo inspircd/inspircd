@@ -26,6 +26,7 @@ using namespace std;
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"
+#include "helperfuncs.h"
 #include "modules.h"
 
 static Server *Srv;
@@ -62,6 +63,7 @@ class ModuleDeVoice : public Module
  public:
 	ModuleDeVoice(Server* Me) : Module::Module(Me)
 	{
+		log(DEBUG,"ModuleDeVoice constructor");
 		Srv = Me;
 		mycommand = new cmd_devoice();
 		Srv->AddCommand(mycommand);
@@ -91,13 +93,14 @@ class ModuleDeVoiceFactory : public ModuleFactory
 	
 	virtual Module * CreateModule(Server* Me)
 	{
+		log(DEBUG,"ModuleDevoiceFactory::CreateModule()");
 		return new ModuleDeVoice(Me);
 	}
 	
 };
 
 
-extern "C" void * module_init( void )
+extern "C" void * crud_u_like( void )
 {
 	return new ModuleDeVoiceFactory;
 }
