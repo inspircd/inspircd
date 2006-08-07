@@ -108,7 +108,7 @@ DLLManager::DLLManager(const char *fname)
 	if (!h)
 	{
 		log(DEBUG,"dlerror occured!");
-		err = dlerror();
+		err = (char*)dlerror();
 		return;
 	}
 
@@ -166,7 +166,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 		log(DEBUG,"Found symbol %s", sym_name);
 		dlerror(); // clear value
 		*v = dlsym(h, sym_name);
-		err = dlerror();
+		err = (char*)dlerror();
 		if (!*v || err)
 			return false;
 	}
