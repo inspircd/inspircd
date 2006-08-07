@@ -431,12 +431,12 @@ bool InspIRCd::UnloadModule(const char* filename)
 			}
 
 			// found the module
+			log(DEBUG,"Removing dependent commands...");
+			Parser->RemoveCommands(filename);
 			log(DEBUG,"Deleting module...");
 			erase_module(j);
 			log(DEBUG,"Erasing module entry...");
 			erase_factory(j);
-			log(DEBUG,"Removing dependent commands...");
-			Parser->RemoveCommands(filename);
 			log(DEFAULT,"Module %s unloaded",filename);
 			MODCOUNT--;
 			BuildISupport();
