@@ -419,15 +419,6 @@ int BindPorts(bool bail)
 			}
 		}
 	}
-
-	/* if we didn't bind to anything then abort */
-	if (!BoundPortCount)
-	{
-		log(DEFAULT,"No ports bound, bailing!");
-		printf("\nERROR: Could not bind any of %d ports! Please check your configuration.\n\n", PortCount);
-		return 0;
-	}
-
 	return BoundPortCount;
 }
 
