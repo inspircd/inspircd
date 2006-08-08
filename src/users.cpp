@@ -698,7 +698,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 	{
 		if (IS_LOCAL(user))
 			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
-		AddWhoWas(user);
+		user->AddToWhoWas();
 	}
 
 	if (iter != clientlist.end())
@@ -737,29 +737,29 @@ WhoWasGroup::~WhoWasGroup()
 }
 
 /* adds or updates an entry in the whowas list */
-void AddWhoWas(userrec* u)
+void userrec::AddToWhoWas()
 {
-	whowas_users::iterator iter = whowas.find(u->nick);
-	
+	whowas_users::iterator iter = whowas.find(this->nick);
+
 	if (iter == whowas.end())
 	{
 		whowas_set* n = new whowas_set;
-		WhoWasGroup *a = new WhoWasGroup(u);
+		WhoWasGroup *a = new WhoWasGroup(this);
 		n->push_back(a);
-		whowas[u->nick] = n;
+		whowas[this->nick] = n;
 	}
 	else
 	{
 		whowas_set* group = (whowas_set*)iter->second;
-		
+
 		if (group->size() > 10)
 		{
 			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();
 		}
-		
-		WhoWasGroup *a = new WhoWasGroup(u);
+
+		WhoWasGroup *a = new WhoWasGroup(this);
 		group->push_back(a);
 	}
 }

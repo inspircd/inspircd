@@ -439,6 +439,8 @@ class userrec : public connection
 	 */
 	static void QuitUser(userrec *user, const std::string &r);
 
+	void AddToWhoWas();
+
 	/** Default destructor
 	 */
 	virtual ~userrec();
@@ -466,7 +468,6 @@ typedef std::map<irc::string,whowas_set*> whowas_users;
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
 //void kill_link(userrec *user,const char* r);
-void AddWhoWas(userrec* u);
 void MaintainWhoWas(time_t TIME);
 void AddClient(int socket, int port, bool iscached, insp_inaddr ip4);
 void FullConnectUser(userrec* user, CullList* Goners);
