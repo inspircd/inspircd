@@ -735,7 +735,12 @@ bool SQLConn::DoConnect()
 	}
 	
 	this->state = I_CONNECTING;
-	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+	if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	{
+		log(DEBUG, "A PQsocket cant be added to the socket engine!");
+		Close();
+		return false;
+	}
 	socket_ref[this->fd] = this;
 	
 	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
