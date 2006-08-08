@@ -47,5 +47,5 @@ void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 
-	WriteServ(user->fd,"403 %s %s :Invalid channel name",user->nick, parameters[0]);
+	user->WriteServ("403 %s %s :Invalid channel name",user->nick, parameters[0]);
 }

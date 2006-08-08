@@ -99,7 +99,7 @@ class cmd_helpop : public command_t
 	
 					if(output != "")
 					{
-						Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+						user->WriteServ("290 "+std::string(user->nick)+" :"+output);
 					}
 				}
 			}
@@ -117,7 +117,7 @@ class cmd_helpop : public command_t
 	   				output = helpop->ReadValue("nohelpo", std::string(a), 0);
 					if (output != "")
 					{
-						Srv->SendTo(NULL,user,"290 "+std::string(user->nick)+" :"+output);
+						user->WriteServ("290 "+std::string(user->nick)+" :"+output);
 					}
 	  			}
 				// Forward.
@@ -154,7 +154,7 @@ bool do_helpop(const char** parameters, int pcnt, userrec *src)
 		output = helpop->ReadValue(search, a, 0);
 		if (output != "")
 		{
-			Srv->SendTo(NULL,src,"290 "+std::string(src->nick)+" :"+output);
+			src->WriteServ("290 "+std::string(src->nick)+" :"+output);
 			nlines++;
 		}
 	}
@@ -249,7 +249,7 @@ class ModuleHelpop : public Module
 		{
 			if (dst->IsModeSet('h'))
 			{
-				Srv->SendTo(NULL,src,"310 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is available for help.");
+				src->WriteServ("310 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is available for help.");
 			}
 		}
 

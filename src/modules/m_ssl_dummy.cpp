@@ -51,7 +51,7 @@ class ModuleSSLDummy : public Module
 	{
 		if(dest->GetExt("ssl", dummy))
 		{
-			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
+			source->WriteServ("320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
 	}
 	

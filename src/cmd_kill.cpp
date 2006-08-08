@@ -76,7 +76,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			// local kill
 			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
-			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
+			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
 			userrec::QuitUser(u, killreason);
@@ -84,6 +84,6 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, parameters[0]);
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, parameters[0]);
 	}
 }

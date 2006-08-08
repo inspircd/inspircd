@@ -75,12 +75,12 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
 				{
-					WriteServ(user->fd,"404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
+					user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 					return;
 				}
 				if ((chan->modes[CM_MODERATED]) && (cstatus(user,chan)<STATUS_VOICE))
 				{
-					WriteServ(user->fd,"404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
+					user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 					return;
 				}
 			}
@@ -95,7 +95,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 
 			if (temp == "")
 			{
-				WriteServ(user->fd,"412 %s No text to send", user->nick);
+				user->WriteServ("412 %s No text to send", user->nick);
 				return;
 			}
 			
@@ -105,7 +105,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			/* no such nick/channel */
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 		return;
 	}
@@ -116,7 +116,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		if ((IS_LOCAL(user)) && (*dest->awaymsg))
 		{
 			/* auto respond with aweh msg */
-			WriteServ(user->fd,"301 %s %s :%s",user->nick,dest->nick,dest->awaymsg);
+			user->WriteServ("301 %s %s :%s",user->nick,dest->nick,dest->awaymsg);
 		}
 
 		int MOD_RESULT = 0;
@@ -131,7 +131,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		if (dest->fd > -1)
 		{
 			// direct write, same server
-			WriteTo(user, dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
+			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
 
 		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1],0));
@@ -139,6 +139,6 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
 }

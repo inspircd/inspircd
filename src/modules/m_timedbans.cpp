@@ -58,14 +58,14 @@ class cmd_tban : public command_t
 			{
 				if (!Srv->IsValidMask(parameters[2]))
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban mask");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
 					return;
 				}
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 				{
 					if (!strcasecmp(i->data,parameters[2]))
 					{
-						Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
 						return;
 					}
 				}
@@ -74,7 +74,7 @@ class cmd_tban : public command_t
 				unsigned long expire = Srv->CalcDuration(parameters[1]) + time(NULL);
 				if (Srv->CalcDuration(parameters[1]) < 1)
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid ban time");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
 					return;
 				}
 				char duration[MAXBUF];
@@ -102,10 +102,10 @@ class cmd_tban : public command_t
 				}
 				return;
 			}
-			else WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
+			else user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
 			return;
 		}
-		WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
+		user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
 	}
 };
 

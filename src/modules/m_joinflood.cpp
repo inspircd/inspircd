@@ -143,7 +143,7 @@ class JoinFlood : public ModeHandler
 				int nsecs = atoi(secs);
 				if ((njoins<1) || (nsecs<1))
 				{
-					WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+					source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
 					parameter = "";
 					return MODEACTION_DENY;
 				}
@@ -162,7 +162,7 @@ class JoinFlood : public ModeHandler
 			}
 			else
 			{
-				WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+				source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
 				return MODEACTION_DENY;
 			}
 		}
@@ -206,7 +206,7 @@ class ModuleJoinFlood : public Module
 			{
 				if (f->islocked())
 				{
-					WriteServ(user->fd,"609 %s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick,chan->name);
+					user->WriteServ("609 %s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick,chan->name);
 					return 1;
 				}
 			}

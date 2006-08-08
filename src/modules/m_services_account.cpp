@@ -141,7 +141,7 @@ class ModuleServicesAccount : public Module
 
 		if (account)
 		{
-			WriteServ(source->fd, "330 %s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
+			source->WriteServ("330 %s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
 		}
 	}
 
@@ -169,7 +169,7 @@ class ModuleServicesAccount : public Module
 				}
 
 				// user messaging a +M channel and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
+				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
 				return 1;
 			}
 		}
@@ -186,7 +186,7 @@ class ModuleServicesAccount : public Module
 				}
 
 				// user messaging a +R user and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need to be identified to a registered account to message this user");
+				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need to be identified to a registered account to message this user");
 				return 1;
 			}
 		}
@@ -215,7 +215,7 @@ class ModuleServicesAccount : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need to be identified to a registered account to join this channel");
+					user->WriteServ("477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need to be identified to a registered account to join this channel");
 					return 1;
 				}
 			}

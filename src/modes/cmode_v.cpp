@@ -81,7 +81,7 @@ std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *c
 			{
 				if ((status < STATUS_HOP) && (!is_uline(user->server)))
 				{
-					WriteServ(user->fd,"482 %s %s :You're not a channel (half)operator",user->nick, chan->name);
+					user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, chan->name);
 					return "";
 				}
 			}
@@ -109,7 +109,7 @@ std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *c
 			{
 				if ((status < STATUS_HOP) && (!is_uline(user->server)))
 				{
-					WriteServ(user->fd,"482 %s %s :You are not a channel (half)operator",user->nick, chan->name);
+					user->WriteServ("482 %s %s :You are not a channel (half)operator",user->nick, chan->name);
 					return "";
 				}
 			}

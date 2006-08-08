@@ -444,35 +444,6 @@ void Server::SendMode(const char** parameters, int pcnt, userrec *user)
 	ServerInstance->ModeGrok->Process(parameters,pcnt,user,true);
 }
 
-void Server::Send(int Socket, const std::string &s)
-{
-	Write_NoFormat(Socket,s.c_str());
-}
-
-void Server::SendServ(int Socket, const std::string &s)
-{
-	WriteServ_NoFormat(Socket,s.c_str());
-}
-
-void Server::SendFrom(int Socket, userrec* User, const std::string &s)
-{
-	WriteFrom_NoFormat(Socket,User,s.c_str());
-}
-
-void Server::SendTo(userrec* Source, userrec* Dest, const std::string &s)
-{
-	if (!Source)
-	{
-		// if source is NULL, then the message originates from the local server
-		WriteServ_NoFormat(Dest->fd,s.c_str());
-	}
-	else
-	{
-		// otherwise it comes from the user specified
-		WriteTo_NoFormat(Source,Dest,s.c_str());
-	}
-}
-
 bool Server::CommonChannels(userrec* u1, userrec* u2)
 {
 	return (common_channels(u1,u2) != 0);
@@ -486,12 +457,12 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 	{
 		if (CompleteLine.length() + Word.length() + 3 > 500)
 		{
-			WriteServ_NoFormat(User->fd,CompleteLine.c_str());
+			User->WriteServ(CompleteLine);
 			CompleteLine = LinePrefix;
 		}
 		CompleteLine = CompleteLine + Word + " ";
 	}
-	WriteServ_NoFormat(User->fd,CompleteLine.c_str());
+	User->WriteServ(CompleteLine);
 }
 
 void Server::SendCommon(userrec* User, const std::string &text, bool IncludeSender)
@@ -595,7 +566,7 @@ int Server::CountUsers(chanrec* c)
 bool Server::UserToPseudo(userrec* user, const std::string &message)
 {
 	unsigned int old_fd = user->fd;
-	Write(old_fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
+	user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
 	user->FlushWriteBuf();
 	user->ClearBuffer();
 	user->fd = FD_MAGIC_NUMBER;
@@ -632,20 +603,20 @@ bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &me
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
 	fd_ref_table[zombie->fd] = zombie;
-	Write(zombie->fd,":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
+	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
 	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
 	{
 		if (((ucrec*)(*i))->channel != NULL)
 		{
 				chanrec* Ptr = ((ucrec*)(*i))->channel;
-				WriteFrom(zombie->fd,zombie,"JOIN %s",Ptr->name);
+				zombie->WriteFrom(zombie,"JOIN %s",Ptr->name);
 				if (Ptr->topicset)
 				{
-					WriteServ(zombie->fd,"332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
-					WriteServ(zombie->fd,"333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+					zombie->WriteServ("332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
+					zombie->WriteServ("333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
 				}
 				userlist(zombie,Ptr);
-				WriteServ(zombie->fd,"366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
+				zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
 		}
 	}
 	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->fd != FD_MAGIC_NUMBER))
@@ -867,11 +838,11 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 	
 		if (user)
 		{
-			WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
 			
 			while(start < errors.length())
 			{
-				WriteServ(user->fd, "NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+				user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
 				start += 510 - prefixlen;
 			}
 		}

@@ -22,7 +22,7 @@ class cmd_setident : public command_t
 			if(((parameters[0][x] >= 'A') && (parameters[0][x] <= '}')) || strchr(".-0123456789", parameters[0][x]))
 				continue;
 			
-			WriteServ(user->fd, "NOTICE %s :*** Invalid characters in ident", user->nick);
+			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 			return;
 		}
 		

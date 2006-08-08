@@ -40,7 +40,7 @@ class cmd_setidle : public command_t
 	{
 		if (atoi(parameters[0]) < 1)
 		{
-			WriteServ(user->fd,"948 %s :Invalid idle time.",user->nick);
+			user->WriteServ("948 %s :Invalid idle time.",user->nick);
 			return;
 		}
 		user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
@@ -48,7 +48,7 @@ class cmd_setidle : public command_t
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
 		Srv->SendOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
-		WriteServ(user->fd,"944 %s :Idle time set.",user->nick);
+		user->WriteServ("944 %s :Idle time set.",user->nick);
 	}
 };
 

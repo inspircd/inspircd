@@ -28,13 +28,13 @@ void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (!u || !c)
 	{
-		WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
 		return;
 	}
 
 	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!is_uline(user->server)))
 	{
-		WriteServ(user->fd, "442 %s %s :You're not on that channel!", user->nick, parameters[0]);
+		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick, parameters[0]);
 		return;
 	}
 

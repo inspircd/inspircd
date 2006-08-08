@@ -286,7 +286,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 						if (!key)
 						{
 							log(DEBUG,"chanrec::JoinUser(): no key given in JOIN");
-							WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
+							user->WriteServ("475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 							return NULL;
 						}
 						else
@@ -294,7 +294,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 							if (strcmp(key,Ptr->key))
 							{
 								log(DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
-								WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
+								user->WriteServ("475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 								return NULL;
 							}
 						}
@@ -314,7 +314,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 						}
 						else
 						{
-							WriteServ(user->fd,"473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
+							user->WriteServ("473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
 							return NULL;
 						}
 					}
@@ -328,7 +328,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 					{
 						if (usercount(Ptr) >= Ptr->limit)
 						{
-							WriteServ(user->fd,"471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
+							user->WriteServ("471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
 							return NULL;
 						}
 					}
@@ -349,7 +349,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 							 */
 							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
 							{
-								WriteServ(user->fd,"474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+								user->WriteServ("474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
 								return NULL;
 							}
 						}
@@ -396,7 +396,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 		}
 	}
 
-	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
+	user->WriteServ("405 %s %s :You are on too many channels",user->nick, cname);
 
 	if (created == 2)
 	{
@@ -455,11 +455,11 @@ chanrec* chanrec::ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 		log(DEBUG,"Sent JOIN to client");
 		if (Ptr->topicset)
 		{
-			WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-			WriteServ(user->fd,"333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
+			user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
+			user->WriteServ("333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 		}
 		userlist(user,Ptr);
-		WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
+		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	}
 	FOREACH_MOD(I_OnUserJoin,OnUserJoin(user,Ptr));
 	return Ptr;
@@ -565,12 +565,12 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	{
 		if (!this->HasUser(user))
 		{
-			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
+			src->WriteServ("441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
 			return this->GetUserCounter();
 		}
 		if ((is_uline(user->server)) && (!is_uline(src->server)))
 		{
-			WriteServ(src->fd,"482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
+			src->WriteServ("482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
 			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
@@ -597,11 +597,11 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 				{
 					if (them == STATUS_HOP)
 					{
-						WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, this->name);
+						src->WriteServ("482 %s %s :You must be a channel operator",src->nick, this->name);
 					}
 					else
 					{
-						WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, this->name);
+						src->WriteServ("482 %s %s :You must be at least a half-operator",src->nick, this->name);
 					}
 					return this->GetUserCounter();
 				}
@@ -665,7 +665,7 @@ void chanrec::WriteChannel(userrec* user, const std::string &text)
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (i->second->fd != FD_MAGIC_NUMBER)
-			WriteTo_NoFormat(user,i->second,text.c_str());
+			user->WriteTo(i->second,text);
 	}
 }
 
@@ -691,7 +691,7 @@ void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (IS_LOCAL(i->second))
-			WriteServ_NoFormat(i->second->fd,text.c_str());
+			i->second->WriteServ(text);
 	}
 }
 
@@ -738,7 +738,7 @@ void chanrec::WriteAllExceptSender(userrec* user, char status, const std::string
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if ((IS_LOCAL(i->second)) && (user != i->second))
-			WriteFrom_NoFormat(i->second->fd,user,text.c_str());
+			i->second->WriteFrom(user,text);
 	}
 }
 

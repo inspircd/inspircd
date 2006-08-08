@@ -21,5 +21,5 @@
 
 void cmd_users::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"445 %s :USERS has been disabled (depreciated command)",user->nick);
+	user->WriteServ("445 %s :USERS has been disabled (depreciated command)",user->nick);
 }

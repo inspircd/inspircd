@@ -84,7 +84,7 @@ class cmd_cban : public command_t
 				if (parameters[0] == iter->chname)
 				{
 					unsigned long remaining = (iter->set_on + iter->length) - TIME;
-					WriteServ(user->fd, "386 %s %s :Removed CBAN with %lu seconds left before expiry (%s)", user->nick, iter->chname.c_str(), remaining, iter->reason.c_str());
+					user->WriteServ( "386 %s %s :Removed CBAN with %lu seconds left before expiry (%s)", user->nick, iter->chname.c_str(), remaining, iter->reason.c_str());
 					cbans.erase(iter);
 					break;
 				}
@@ -107,18 +107,18 @@ class cmd_cban : public command_t
 				
 				if(length > 0)
 				{
-					WriteServ(user->fd, "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
+					user->WriteServ( "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
 					WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
-					WriteServ(user->fd, "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteServ( "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], reason.c_str());
 					WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
 			{
-				WriteServ(user->fd, "403 %s %s :Invalid channel name", user->nick, parameters[0]);
+				user->WriteServ( "403 %s %s :Invalid channel name", user->nick, parameters[0]);
 			}
 		}
 	}
@@ -168,7 +168,7 @@ class ModuleCBan : public Module
 			if(iter->chname == cname && !user->modes[UM_OPERATOR])
 			{
 				// Channel is banned.
-				WriteServ(user->fd, "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, iter->reason.c_str());
+				user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, iter->reason.c_str());
 				WriteOpers("*** %s tried to join %s which is CBANed (%s)", user->nick, cname, iter->reason.c_str());
 				return 1;
 			}

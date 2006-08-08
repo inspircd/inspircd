@@ -34,6 +34,6 @@ void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 	snprintf(tms,26,"%s",asctime(timeinfo));
 	tms[24] = 0;
 
-	WriteServ(user->fd,"391 %s %s :%s",user->nick,Config->ServerName,tms);
+	user->WriteServ("391 %s %s :%s",user->nick,Config->ServerName,tms);
   
 }

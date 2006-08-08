@@ -29,7 +29,7 @@ extern FactoryList factory;
 
 void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"382 %s %s :Rehashing",user->nick,CleanFilename(CONFIG_FILE));
+	user->WriteServ("382 %s %s :Rehashing",user->nick,CleanFilename(CONFIG_FILE));
 	std::string parameter = "";
 	if (pcnt)
 	{

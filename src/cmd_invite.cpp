@@ -41,11 +41,11 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (!c)
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
 			}
 			else
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 
 			return;
@@ -55,20 +55,20 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (cstatus(user,c) < STATUS_HOP)
 			{
-				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
+				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 				return;
 			}
 		}
 
 		if (c->HasUser(u))
 	 	{
-	 		WriteServ(user->fd,"443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
+	 		user->WriteServ("443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
 	 		return;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
-			WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, c->name);
+			user->WriteServ("442 %s %s :You're not on that channel!",user->nick, c->name);
 	  		return;
 		}
 
@@ -81,8 +81,8 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 
 		irc::string xname(c->name);
 		u->InviteTo(xname);
-		WriteFrom(u->fd,user,"INVITE %s :%s",u->nick,c->name);
-		WriteServ(user->fd,"341 %s %s %s",user->nick,u->nick,c->name);
+		u->WriteFrom(user,"INVITE %s :%s",u->nick,c->name);
+		user->WriteServ("341 %s %s %s",user->nick,u->nick,c->name);
 		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c));
 	}
 	else
@@ -92,8 +92,8 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			WriteServ(user->fd,"346 %s :%s",user->nick,i->channel.c_str());
+			user->WriteServ("346 %s :%s",user->nick,i->channel.c_str());
 		}
-		WriteServ(user->fd,"347 %s :End of INVITE list",user->nick);
+		user->WriteServ("347 %s :End of INVITE list",user->nick);
 	}
 }

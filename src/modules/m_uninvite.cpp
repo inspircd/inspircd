@@ -45,11 +45,11 @@ class cmd_uninvite : public command_t
 		{	
 			if (!c)
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
 			}
 			else
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 				
 			return; 
@@ -59,7 +59,7 @@ class cmd_uninvite : public command_t
 		{
 			if (cstatus(user,c) < STATUS_HOP)
 			{
-				WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
+				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 				return;
 			}
 		}
@@ -68,18 +68,18 @@ class cmd_uninvite : public command_t
 
 		if (!u->IsInvited(xname))
 		{
-			WriteServ(user->fd,"491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
+			user->WriteServ("491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
 			return;
 		}
 		if (!c->HasUser(user))
 		{
-			WriteServ(user->fd,"492 %s %s :You're not on that channel!",user->nick, c->name);
+			user->WriteServ("492 %s %s :You're not on that channel!",user->nick, c->name);
 			return;
 		}
 
 		u->RemoveInvite(xname);
-		WriteServ(user->fd,"494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
-		WriteServ(u->fd,"493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
+		user->WriteServ("494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
+		u->WriteServ("493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
 		c->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
 	}
 };

@@ -32,11 +32,7 @@ typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 void WriteOpers(char* text, ...);
-void log(int level, char *text, ...);
-void Write(int sock,char *text, ...);
-void WriteServ(int sock, char* text, ...);
-void WriteFrom(int sock, userrec *user,char* text, ...);
-void WriteTo(userrec *source, userrec *dest,char *data, ...);
+void do_log(int level, char *text, ...);
 int common_channels(userrec *u, userrec *u2);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);

@@ -133,7 +133,7 @@ class ModuleHostChange : public Module
 				}
 				if (newhost != "")
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your virtual host: " + newhost);
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your virtual host: " + newhost);
 					Srv->ChangeHost(user,newhost);
 					return;
 				}

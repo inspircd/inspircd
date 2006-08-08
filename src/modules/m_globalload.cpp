@@ -41,11 +41,11 @@ class cmd_gloadmodule : public command_t
 		if (ServerInstance->LoadModule(parameters[0]))
 		{
 			WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
-			WriteServ(user->fd,"975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 		}
 		else
 		{
-			WriteServ(user->fd,"974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 		}
 	}
 };
@@ -64,11 +64,11 @@ class cmd_gunloadmodule : public command_t
 		if (ServerInstance->UnloadModule(parameters[0]))
 		{
 			WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
-			WriteServ(user->fd,"973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+			user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 		}
 		else
 		{
-			WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 		}
 	}
 };

@@ -237,7 +237,7 @@ public:
 	{
 		char buffer[SHA256_BLOCK_SIZE + 1];
 		SHA256(parameters[0], buffer, strlen(parameters[0]));
-		WriteServ(user->fd, "NOTICE %s :SHA256 hashed password for %s is %s", user->nick, parameters[0], buffer);
+		user->WriteServ( "NOTICE %s :SHA256 hashed password for %s is %s", user->nick, parameters[0], buffer);
 	}
 };
 

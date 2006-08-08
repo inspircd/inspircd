@@ -55,10 +55,10 @@ class cmd_silence : public command_t
 			{
 				for (silencelist::const_iterator c = sl->begin(); c < sl->end(); c++)
 				{
-					WriteServ(user->fd,"271 %s %s %s!*@*",user->nick, user->nick,c->c_str());
+					user->WriteServ("271 %s %s %s!*@*",user->nick, user->nick,c->c_str());
 				}
 			}
-			WriteServ(user->fd,"272 %s :End of Silence List",user->nick);
+			user->WriteServ("272 %s :End of Silence List",user->nick);
 		}
 		else if (pcnt > 0)
 		{
@@ -84,7 +84,7 @@ class cmd_silence : public command_t
 							if (listitem == target)
 		       					{
 		       						sl->erase(i);
-								WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
+								user->WriteServ("950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
 								// we have modified the vector from within a loop, we must now bail out
 							       	return;
 	       						}
@@ -118,12 +118,12 @@ class cmd_silence : public command_t
 					irc::string target = nick;
 					if (listitem == target)
 					{
-						WriteServ(user->fd,"952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
+						user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
 						return;
 					}
 				}
 				sl->push_back(std::string(nick));
-				WriteServ(user->fd,"951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
+				user->WriteServ("951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
 				return;
 			}
 		}

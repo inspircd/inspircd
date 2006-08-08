@@ -30,7 +30,7 @@ void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 
 	if (i == whowas.end())
 	{
-		WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
+		user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
 	}
 	else
 	{
@@ -50,22 +50,22 @@ void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 				strlcpy(b,asctime(timeinfo),MAXBUF);
 				b[24] = 0;
 
-				WriteServ(user->fd,"314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
+				user->WriteServ("314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
 				
 				if(*user->oper)
-					WriteServ(user->fd,"379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
+					user->WriteServ("379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
 				
 				if(*Config->HideWhoisServer && !(*user->oper))
-					WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], Config->HideWhoisServer, b);
+					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], Config->HideWhoisServer, b);
 				else
-					WriteServ(user->fd,"312 %s %s %s :%s",user->nick,parameters[0], u->server, b);
+					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], u->server, b);
 			}
 		}
 		else
 		{
-			WriteServ(user->fd,"406 %s %s :There was no such nickname",user->nick,parameters[0]);
+			user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
 		}
 	}
 	
-	WriteServ(user->fd,"369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+	user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 }

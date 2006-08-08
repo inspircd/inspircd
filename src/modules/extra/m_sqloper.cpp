@@ -179,7 +179,7 @@ public:
 						 * "insufficient awesomeness" (invalid credentials) error
 						 */
 						
-						WriteServ(user->fd, "491 %s :Invalid oper credentials", user->nick);
+						user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
 						WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 					}
@@ -192,7 +192,7 @@ public:
 					 */
 					log(DEBUG, "Query failed: %s", res->error.Str());
 
-					WriteServ(user->fd, "491 %s :Invalid oper credentials", user->nick);
+					user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
 					WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 				}
@@ -236,7 +236,7 @@ public:
 				strlcpy(user->oper, type.c_str(), NICKMAX-1);
 				
 				WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
-				WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
+				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
 				if (!user->modes[UM_OPERATOR])
 					user->Oper();

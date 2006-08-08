@@ -100,7 +100,7 @@ public:
 						if (iter->first == user)					
 						{
 							log(DEBUG, "m_kicknorejoin.so: and we have the right user");
-							WriteServ(user->fd, "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick, chan->name);
+							user->WriteServ( "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick, chan->name);
 							return 1;
 						}
 					}

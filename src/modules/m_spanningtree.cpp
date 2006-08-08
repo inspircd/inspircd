@@ -614,7 +614,7 @@ class cmd_rconnect : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		WriteServ(user->fd,"NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
+		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
 		/* Is this aimed at our server? */
 		if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
 		{
@@ -2081,7 +2081,7 @@ class TreeSocket : public InspSocket
 			std::string reason = params[1];
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
-			::Write(who->fd, ":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
+			who->Write(":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
 			userrec::QuitUser(who,reason);
 		}
 		return true;
@@ -2115,7 +2115,7 @@ class TreeSocket : public InspSocket
 
 				if (u)
 				{
-					WriteServ(u->fd,"PONG %s %s",params[0].c_str(),params[1].c_str());
+					u->WriteServ("PONG %s %s",params[0].c_str(),params[1].c_str());
 				}
 			}
 			else
@@ -2341,7 +2341,7 @@ class TreeSocket : public InspSocket
 
 		if (IS_LOCAL(u))
 		{
-			::Write(u->fd,"%s",params[1].c_str());
+			u->Write(params[1]);
 		}
 		else
 		{
@@ -2391,7 +2391,7 @@ class TreeSocket : public InspSocket
 				char tms[26];
 				snprintf(tms,26,"%s",asctime(timeinfo));
 				tms[24] = 0;
-			WriteServ(u->fd,"391 %s %s :%s",u->nick,prefix.c_str(),tms);
+			u->WriteServ("391 %s %s :%s",u->nick,prefix.c_str(),tms);
 			}
 			else
 			{
@@ -3472,7 +3472,7 @@ class ModuleSpanningTree : public Module
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
 		if ((HideULines) && (Srv->IsUlined(Current->GetName())) && (!*user->oper))
 			return;
-		WriteServ(user->fd,"364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? Srv->GetServerName().c_str() : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
+		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? Srv->GetServerName().c_str() : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
 
 	int CountLocalServs()
@@ -3488,7 +3488,7 @@ class ModuleSpanningTree : public Module
 	void HandleLinks(const char** parameters, int pcnt, userrec* user)
 	{
 		ShowLinks(TreeRoot,user,0);
-		WriteServ(user->fd,"365 %s * :End of /LINKS list.",user->nick);
+		user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
 		return;
 	}
 
@@ -3502,16 +3502,16 @@ class ModuleSpanningTree : public Module
 		if (n_users > max_global)
 			max_global = n_users;
 
-		WriteServ(user->fd,"251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-usercount_invisible(),usercount_invisible(),this->CountServs());
+		user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-usercount_invisible(),usercount_invisible(),this->CountServs());
 		if (usercount_opers())
-			WriteServ(user->fd,"252 %s %d :operator(s) online",user->nick,usercount_opers());
+			user->WriteServ("252 %s %d :operator(s) online",user->nick,usercount_opers());
 		if (usercount_unknown())
-			WriteServ(user->fd,"253 %s %d :unknown connections",user->nick,usercount_unknown());
+			user->WriteServ("253 %s %d :unknown connections",user->nick,usercount_unknown());
 		if (chancount())
-			WriteServ(user->fd,"254 %s %d :channels formed",user->nick,chancount());
-		WriteServ(user->fd,"254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
-		WriteServ(user->fd,"265 %s :Current Local Users: %d  Max: %d",user->nick,local_count(),max_local);
-		WriteServ(user->fd,"266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
+			user->WriteServ("254 %s %d :channels formed",user->nick,chancount());
+		user->WriteServ("254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
+		user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,local_count(),max_local);
+		user->WriteServ("266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
 		return;
 	}
 
@@ -3588,7 +3588,7 @@ class ModuleSpanningTree : public Module
 			}
 			else
 			{
-				WriteServ(user->fd, "402 %s %s :No such server", user->nick, parameters[0]);
+				user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
 			}
 			return 1;
 		}
@@ -3652,11 +3652,11 @@ class ModuleSpanningTree : public Module
 		// dump the whole lot to the user. This is the easy bit, honest.
 		for (int t = 0; t < line; t++)
 		{
-			WriteServ(user->fd,"006 %s :%s",user->nick,&matrix[t][0]);
+			user->WriteServ("006 %s :%s",user->nick,&matrix[t][0]);
 		}
 		float avg_users = totusers / totservers;
-		WriteServ(user->fd,"270 %s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
-	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
+		user->WriteServ("270 %s :%.0f server%s and %.0f user%s, average %.2f users per server",user->nick,totservers,(totservers > 1 ? "s" : ""),totusers,(totusers > 1 ? "s" : ""),avg_users);
+	user->WriteServ("007 %s :End of /MAP",user->nick);
 		return;
 	}
 
@@ -3667,7 +3667,7 @@ class ModuleSpanningTree : public Module
 		{
 			if (s == TreeRoot)
 			{
-				 WriteServ(user->fd,"NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+				 user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
 				return 1;
 			}
 			TreeSocket* sock = s->GetSocket();
@@ -3680,12 +3680,12 @@ class ModuleSpanningTree : public Module
 			}
 			else
 			{
-				WriteServ(user->fd,"NOTICE %s :*** SQUIT: The server \002%s\002 is not directly connected.",user->nick,parameters[0]);
+				user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 is not directly connected.",user->nick,parameters[0]);
 			}
 		}
 		else
 		{
-			 WriteServ(user->fd,"NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0]);
+			 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0]);
 		}
 		return 1;
 	}
@@ -3708,7 +3708,7 @@ class ModuleSpanningTree : public Module
 			}
 			else
 			{
-				WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+				user->WriteServ("402 %s %s :No such server",user->nick,parameters[0]);
 			}
 		}
 		return 1;
@@ -3728,8 +3728,8 @@ class ModuleSpanningTree : public Module
 			}
 			else if (!remote)
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[1]);
-				WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[1]);
+				user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, parameters[1]);
 				return 1;
 			}
 		}
@@ -3819,7 +3819,7 @@ class ModuleSpanningTree : public Module
 		if (found)
 		{
 			std::string Version = found->GetVersion();
-			WriteServ(user->fd,"351 %s :%s",user->nick,Version.c_str());
+			user->WriteServ("351 %s :%s",user->nick,Version.c_str());
 			if (found == TreeRoot)
 			{
 				std::stringstream out(Config->data005);
@@ -3835,7 +3835,7 @@ class ModuleSpanningTree : public Module
 
 					if ((token_counter >= 13) || (out.eof() == true))
 					{
-						WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+						user->WriteServ("005 %s %s:are supported by this server",user->nick,line5.c_str());
 						line5 = "";
 						token_counter = 0;
 					}
@@ -3844,7 +3844,7 @@ class ModuleSpanningTree : public Module
 		}
 		else
 		{
-			WriteServ(user->fd,"402 %s %s :No such server",user->nick,parameters[0]);
+			user->WriteServ("402 %s %s :No such server",user->nick,parameters[0]);
 		}
 		return 1;
 	}
@@ -3858,7 +3858,7 @@ class ModuleSpanningTree : public Module
 				TreeServer* CheckDupe = FindServer(x->Name.c_str());
 				if (!CheckDupe)
 				{
-					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
+					user->WriteServ("NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 					insp_inaddr binip;
 
 					/* Do we already have an IP? If so, no need to resolve it. */
@@ -3891,12 +3891,12 @@ class ModuleSpanningTree : public Module
 				}
 				else
 				{
-					WriteServ(user->fd,"NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
+					user->WriteServ("NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
 					return 1;
 				}
 			}
 		}
-		WriteServ(user->fd,"NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
+		user->WriteServ("NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
 		return 1;
 	}
 

@@ -25,5 +25,5 @@ extern ServerConfig* Config;
 
 void cmd_ping::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd,"PONG %s :%s",Config->ServerName,parameters[0]);
+	user->WriteServ("PONG %s :%s",Config->ServerName,parameters[0]);
 }

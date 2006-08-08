@@ -1327,40 +1327,6 @@ class Server : public Extensible
 	 */
 	virtual void Log(int level, const std::string &s);
 
-	/** Sends a line of text down a TCP/IP socket.
-	 * This method writes a line of text to an established socket, cutting it to 510 characters
-	 * plus a carriage return and linefeed if required.
-	 */
-	virtual void Send(int Socket, const std::string &s);
-
-	/** Sends text from the server to a socket.
-	 * This method writes a line of text to an established socket, with the servername prepended
-	 * as used by numerics (see RFC 1459)
-	 */
-	virtual void SendServ(int Socket, const std::string &s);
-
-	/** Sends text from a user to a socket.
-	 * This method writes a line of text to an established socket, with the given user's nick/ident
-	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
-	 */
-	virtual void SendFrom(int Socket, userrec* User, const std::string &s);
-
-	/** Sends text from a user to another user.
-	 * This method writes a line of text to a user, with a user's nick/ident
-	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459)
-	 * If you specify NULL as the source, then the data will originate from the
-	 * local server, e.g. instead of:
-	 *
-	 * :user!ident@host TEXT
-	 *
-	 * The format will become:
-	 *
-	 * :localserver TEXT
-	 *
-	 * Which is useful for numerics and server notices to single users, etc.
-	 */
-	virtual void SendTo(userrec* Source, userrec* Dest, const std::string &s);
-
 	/** Returns true if two users share a common channel.
 	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
 	 * method.

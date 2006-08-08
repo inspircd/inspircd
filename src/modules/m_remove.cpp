@@ -92,13 +92,13 @@ class RemoveBase
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel", user->nick, !target ? username : channame);
+			user->WriteServ("401 %s %s :No such nick/channel", user->nick, !target ? username : channame);
 			return;
 		}
 
 		if (!channel->HasUser(target))
 		{
-			WriteServ(user->fd, "NOTICE %s :*** The user %s is not on channel %s", user->nick, target->nick, channel->name);
+			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick, target->nick, channel->name);
 			return;
 		}	
 		
@@ -183,20 +183,20 @@ class RemoveBase
 				reason << "Removed by " << user->nick << reasonparam;
 
 				channel->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
-				WriteServ(target->fd, "NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
+				target->WriteServ("NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
 
 				if (!channel->PartUser(target, reason.str().c_str()))
 					delete channel;
 			}
 			else
 			{
-				WriteServ(user->fd, "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick, target->nick, channel->name);
+				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick, target->nick, channel->name);
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			WriteServ(user->fd, "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick, channel->name, target->nick);
+			user->WriteServ( "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick, channel->name, target->nick);
 		}
 	}
 };

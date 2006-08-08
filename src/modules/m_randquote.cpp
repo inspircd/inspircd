@@ -51,12 +51,12 @@ class cmd_randquote : public command_t
 			fsize = quotes->FileSize();
 			str = quotes->GetLine(rand() % fsize);
 			sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-			Srv->SendServ(user->fd, buf);
+			user->WriteServ(std::string(buf));
 		}
 		else
 		{
 			sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
-			Srv->SendServ(user->fd, buf);
+			user->WriteServ(std::string(buf));
 		}
 		return;
 	}

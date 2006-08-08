@@ -28,18 +28,18 @@ void ShowOperMOTD(userrec* user)
 {
 	if(!opermotd->FileSize())
 	{
-		Srv->SendServ(user->fd,std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
+		user->WriteServ(std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
 		return;
 	}
 
-	Srv->SendServ(user->fd,std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
+	user->WriteServ(std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
 
 	for(int i=0; i != opermotd->FileSize(); i++)
 	{
-		Srv->SendServ(user->fd,std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
+		user->WriteServ(std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
 	}
 
-	Srv->SendServ(user->fd,std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
+	user->WriteServ(std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
 
 }
 

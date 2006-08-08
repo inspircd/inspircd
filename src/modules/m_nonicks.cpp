@@ -103,7 +103,7 @@ class ModuleNoNickChange : public Module
 					{
 						// don't allow the nickchange, theyre on at least one channel with +N set
 						// and theyre not an oper
-						WriteServ(user->fd,"447 %s :Can't change nickname while on %s (+N is set)",user->nick,curr->name);
+						user->WriteServ("447 %s :Can't change nickname while on %s (+N is set)",user->nick,curr->name);
 						return 1;
 					}
 				}

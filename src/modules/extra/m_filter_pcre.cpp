@@ -135,7 +135,7 @@ class ModuleFilterPCRE : public Module
 					Srv->SendOpers(std::string("Filter: ")+std::string(user->nick)+
     							std::string(" had their notice filtered, target was ")+
     							target+": "+reason);
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+
+					user->WriteServ("NOTICE "+std::string(user->nick)+
     							" :Your notice has been filtered and opers notified: "+reason);
     				}
 				Srv->Log(DEFAULT,std::string("Filter: ")+std::string(user->nick)+

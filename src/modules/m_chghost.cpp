@@ -46,14 +46,14 @@ class cmd_chghost : public command_t
 			{
 				if (((*x < '0') || (*x > '9')) && (*x != '-'))
 				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 					return;
 				}
 			}
 		}
 		if ((parameters[1] - x) > 63)
 		{
-			WriteServ(user->fd,"NOTICE %s :*** CHGHOST: Host too long",user->nick);
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long",user->nick);
 			return;
 		}
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));

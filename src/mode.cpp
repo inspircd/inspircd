@@ -171,7 +171,7 @@ userrec* ModeParser::SanityChecks(userrec *user,const char *dest,chanrec *chan,i
 	d = Find(dest);
 	if (!d)
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, dest);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, dest);
 		return NULL;
 	}
 	return d;
@@ -250,20 +250,20 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	if (targetchannel)
 	{
 		/* Display channel's current mode string */
-		WriteServ(user->fd,"324 %s %s +%s",user->nick, targetchannel->name, chanmodes(targetchannel, targetchannel->HasUser(user)));
-		WriteServ(user->fd,"329 %s %s %d", user->nick, targetchannel->name, targetchannel->created);
+		user->WriteServ("324 %s %s +%s",user->nick, targetchannel->name, chanmodes(targetchannel, targetchannel->HasUser(user)));
+		user->WriteServ("329 %s %s %d", user->nick, targetchannel->name, targetchannel->created);
 		return;
 	}
 	else if (targetuser)
 	{
 		/* Display user's current mode string */
-		WriteServ(user->fd,"221 %s :+%s",targetuser->nick,targetuser->FormatModes());
-		WriteServ(user->fd, "008 %s :+%s", targetuser->nick, targetuser->FormatNoticeMasks());
+		user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
+		user->WriteServ("008 %s :+%s", targetuser->nick, targetuser->FormatNoticeMasks());
 		return;
 	}
 
 	/* No such nick/channel */
-	WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, text);
+	user->WriteServ("401 %s %s :No such nick/channel",user->nick, text);
 	return;
 }
 
@@ -321,7 +321,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					 * NOT a uline and NOT a servermode,
 					 * OR, NOT halfop or above.
 					 */
-					WriteServ(user->fd,"482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
+					user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
 					return;
 				}
 			}
@@ -334,7 +334,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		else
 		{
 			/* No such nick/channel */
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			return;
 		}
 
@@ -455,7 +455,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					else
 					{
 						/* No mode handler? Unknown mode character then. */
-						WriteServ(user->fd,"472 %s %c :is unknown mode char to me",user->nick, modechar);
+						user->WriteServ("472 %s %c :is unknown mode char to me",user->nick, modechar);
 					}
 				break;
 			}
@@ -471,7 +471,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				}
 				else
 				{
-					WriteServ(targetuser->fd,"MODE %s %s",targetuser->nick,output_sequence.c_str());
+					targetuser->WriteServ("MODE %s %s",targetuser->nick,output_sequence.c_str());
 				}
 			}
 			else
@@ -484,7 +484,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				}
 				else
 				{
-					WriteTo(user,targetuser,"MODE %s %s",targetuser->nick,output_sequence.c_str());
+					user->WriteTo(targetuser,"MODE %s %s",targetuser->nick,output_sequence.c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
 				}
 			}

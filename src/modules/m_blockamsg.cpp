@@ -143,7 +143,7 @@ public:
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					userrec::QuitUser(user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
-					WriteServ(user->fd, "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
+					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
 									
 				return 1;
 			}

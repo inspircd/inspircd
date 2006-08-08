@@ -47,13 +47,13 @@ class cmd_vhost : public command_t
 			{
 				if (mask != "")
 				{
-					Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
 					Srv->ChangeHost(user,mask);
 					return;
 				}
 			}
 		}
-		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :Invalid username or password.");
+		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
 	}
 };
 

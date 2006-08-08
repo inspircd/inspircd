@@ -78,7 +78,7 @@ class cmd_park : public command_t
 					othersessions++;
 		if (othersessions >= ConcurrentParks)
 		{
-			Srv->SendServ(user->fd,"927 "+std::string(user->nick)+" :You are already parked up to the maximum number of allowed times.");
+			user->WriteServ("927 "+std::string(user->nick)+" :You are already parked up to the maximum number of allowed times.");
 		}
 		else
 		{
@@ -112,7 +112,7 @@ class cmd_parkstats : public command_t
 	{
 		char status[MAXBUF];
 		snprintf(status,MAXBUF,"NOTICE %s :There are a total of %lu parked clients on this server, with a maximum of %lu parked sessions allowed per user.",user->nick,(unsigned long)pinfo.size(),(unsigned long)ConcurrentParks);
-		Srv->SendServ(user->fd,status);
+		user->WriteServ(std::string(status));
 	}
 };
 
@@ -146,7 +146,7 @@ class cmd_unpark : public command_t
 		userrec* unpark = Srv->FindNick(std::string(parameters[0]));
 		if (!unpark)
 		{
-			WriteServ(user->fd,"942 %s %s :Invalid user specified.",user->nick, parameters[0]);
+			user->WriteServ("942 %s %s :Invalid user specified.",user->nick, parameters[0]);
 			return;
 		}
 		awaylog* awy;
@@ -155,7 +155,7 @@ class cmd_unpark : public command_t
 		unpark->GetExt("park_key", key);
 		if (!awy)
 		{
-			WriteServ(user->fd,"943 %s %s :This user is not parked.",user->nick, unpark->nick);
+			user->WriteServ("943 %s %s :This user is not parked.",user->nick, unpark->nick);
 			return;
 		}
 		if (*key == atoi(parameters[1]))
@@ -171,20 +171,20 @@ class cmd_unpark : public command_t
 				}
 			}
 			// remove all their old modes
-			WriteServ(user->fd,"MODE %s -%s",user->nick,user->FormatModes());
+			user->WriteServ("MODE %s -%s",user->nick,user->FormatModes());
 			// now, map them to the parked user, while nobody can see :p
 			Srv->PseudoToUser(user,unpark,"Unparked to "+std::string(parameters[0]));
 			// set all their new modes
-			WriteServ(unpark->fd,"MODE %s +%s",unpark->nick,unpark->FormatModes());
+			unpark->WriteServ("MODE %s +%s",unpark->nick,unpark->FormatModes());
 			// spool their away log to them
-			WriteServ(unpark->fd,"NOTICE %s :*** You are now unparked. You have successfully taken back the nickname and privilages of %s.",unpark->nick,unpark->nick);
+			unpark->WriteServ("NOTICE %s :*** You are now unparked. You have successfully taken back the nickname and privilages of %s.",unpark->nick,unpark->nick);
 			for (awaylog::iterator i = awy->begin(); i != awy->end(); i++)
 			{
 				char timebuf[MAXBUF];
 				tm *timeinfo = localtime(&i->tm);
 				strlcpy(timebuf,asctime(timeinfo),MAXBUF);
 				timebuf[strlen(timebuf)-1] = '\0';
-				WriteServ(unpark->fd,"NOTICE %s :From %s at %s: \2%s\2",unpark->nick,i->from.c_str(),timebuf,i->text.c_str());
+				unpark->WriteServ("NOTICE %s :From %s at %s: \2%s\2",unpark->nick,i->from.c_str(),timebuf,i->text.c_str());
 			}
 			DELETE(awy);
 			DELETE(key);
@@ -201,7 +201,7 @@ class cmd_unpark : public command_t
 		}
 		else
 		{
-			Srv->SendServ(user->fd,"928 "+std::string(user->nick)+" :Incorrect park key.");
+			user->WriteServ("928 "+std::string(user->nick)+" :Incorrect park key.");
 		}
 	}
 };
@@ -284,9 +284,9 @@ class ModulePark : public Module
 				am.from = user->GetFullHost();
 				am.tm = time(NULL);
 				awy->push_back(am);
-				Srv->SendServ(user->fd,"930 "+std::string(user->nick)+" :User "+std::string(dest->nick)+" is parked. Your message has been stored.");
+				user->WriteServ("930 "+std::string(user->nick)+" :User "+std::string(dest->nick)+" is parked. Your message has been stored.");
 			}
-			else Srv->SendServ(user->fd,"929 "+std::string(user->nick)+" :User "+std::string(dest->nick)+" is parked, but their message queue is full. Message not saved.");
+			else user->WriteServ("929 "+std::string(user->nick)+" :User "+std::string(dest->nick)+" is parked, but their message queue is full. Message not saved.");
 		}
 	}
 
@@ -348,7 +348,7 @@ class ModulePark : public Module
 	{
 		char* dummy;
 		if (dst->GetExt("park_awaylog", dummy))
-			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a parked client");
+			src->WriteServ("335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a parked client");
 	}
 	
 	virtual Version GetVersion()

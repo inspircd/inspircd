@@ -26,7 +26,7 @@ void cmd_commands::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
-		WriteServ(user->fd,"902 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
+		user->WriteServ("902 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
 	}
-	WriteServ(user->fd,"903 %s :End of COMMANDS list",user->nick);
+	user->WriteServ("903 %s :End of COMMANDS list",user->nick);
 }

@@ -93,18 +93,18 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		if (matches_qline(parameters[0]))
 		{
 			WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,matches_qline(parameters[0]));
-			WriteServ(user->fd,"432 %s %s :Invalid nickname: %s",user->nick,parameters[0],matches_qline(parameters[0]));
+			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0],matches_qline(parameters[0]));
 			return;
 		}
 		if ((Find(parameters[0])) && (Find(parameters[0]) != user))
 		{
-			WriteServ(user->fd,"433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
+			user->WriteServ("433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
 			return;
 		}
 	}
 	if ((isnick(parameters[0]) == 0) && (IS_LOCAL(user)))
 	{
-		WriteServ(user->fd,"432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
+		user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
 		return;
 	}
 

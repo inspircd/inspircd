@@ -34,7 +34,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!isident(parameters[0])) {
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
-			WriteServ(user->fd,"461 %s USER :Not enough parameters",user->nick);
+			user->WriteServ("461 %s USER :Not enough parameters",user->nick);
 		}
 		else {
 			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
@@ -48,7 +48,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd,"462 %s :You may not reregister",user->nick);
+		user->WriteServ("462 %s :You may not reregister",user->nick);
 		return;
 	}
 	/* parameters 2 and 3 are local and remote hosts, ignored when sent by client connection */

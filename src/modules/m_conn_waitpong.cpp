@@ -68,10 +68,10 @@ class ModuleWaitPong : public Module
 	{
 		char* pingrpl = RandString(10);
 		
-		Write(user->fd, "PING :%s", pingrpl);
+		user->Write("PING :%s", pingrpl);
 		
 		if(sendsnotice)
-			WriteServ(user->fd, "NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
+			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
 			
 		user->Extend("waitpong_pingstr", pingrpl);
 	}

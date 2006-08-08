@@ -149,284 +149,6 @@ void readfile(file_cache &F, const char* fname)
 	log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
 }
 
-/** Write_NoFormat()
- *  Writes a given string in `text' to the socket on fd `sock' - only if the socket
- *  is a valid entry in the local FD table.
- */
-void Write_NoFormat(int sock, const char *text)
-{
-	char tb[MAXBUF];
-	int bytes;
-
-	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if (fd_ref_table[sock])
-	{
-		bytes = snprintf(tb,MAXBUF,"%s\r\n",text);
-
-		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-}
-
-/** Write()
- *  Same as Write_NoFormat(), but formatted printf() style first.
- */
-void Write(int sock, char *text, ...)
-{
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-	char tb[MAXBUF];
-	int bytes;
-
-	if ((sock < 0) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if (!text)
-	{
-		log(DEFAULT,"*** BUG *** Write was given an invalid parameter");
-		return;
-	}
-
-	if (fd_ref_table[sock])
-	{
-
-		va_start(argsPtr, text);
-		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		va_end(argsPtr);
-		bytes = snprintf(tb,MAXBUF,"%s\r\n",textbuffer);
-
-		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}						
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-}
-
-/** WriteServ_NoFormat()
- *  Same as Write_NoFormat(), except prefixes `text' with `:server.name '.
- */
-void WriteServ_NoFormat(int sock, const char* text)
-{
-	char tb[MAXBUF];
-	int bytes;
-
-	if ((sock < 0) || (!text) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if (fd_ref_table[sock])
-	{
-		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",Config->ServerName,text);
-
-		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-}
-
-/** WriteServ()
- *  Same as Write(), except `text' is prefixed with `:server.name '.
- */
-void WriteServ(int sock, char* text, ...)
-{
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-
-	if ((sock < 0) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if (!text)
-	{
-		log(DEFAULT,"*** BUG *** WriteServ was given an invalid parameter");
-		return;
-	}
-
-	if (!fd_ref_table[sock])
-		return;
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-	
-	WriteServ_NoFormat(sock, textbuffer);
-}
-
-/** WriteFrom_NoFormat()
- * Write `text' to a socket with fd `sock' prefixed with `:n!u@h' - taken from
- * the nick, user, and host of `user'.
- */
-void WriteFrom_NoFormat(int sock, userrec *user, const char* text)
-{
-	char tb[MAXBUF];
-	int bytes;
-
-	if ((sock < 0) || (!text) || (!user) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if (fd_ref_table[sock])
-	{
-		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),text);
-
-		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-}
-
-/* write text from an originating user to originating user */
-
-void WriteFrom(int sock, userrec *user,char* text, ...)
-{
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-	char tb[MAXBUF];
-	int bytes;
-
-	if ((sock < 0) || (sock > MAX_DESCRIPTORS))
-		return;
-
-	if ((!text) || (!user))
-	{
-		log(DEFAULT,"*** BUG *** WriteFrom was given an invalid parameter");
-		return;
-	}
-
-	if (fd_ref_table[sock])
-	{
-
-		va_start(argsPtr, text);
-		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		va_end(argsPtr);
-		bytes = snprintf(tb,MAXBUF,":%s %s\r\n",user->GetFullHost(),textbuffer);
-
-		if (Config->GetIOHook(fd_ref_table[sock]->GetPort()))
-		{
-			try
-			{
-				Config->GetIOHook(fd_ref_table[sock]->GetPort())->OnRawSocketWrite(sock,tb,bytes);
-			}
-			catch (ModuleException& modexcept)
-			{
-				log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
-			}
-		}
-		else
-		{
-			fd_ref_table[sock]->AddWriteBuf(tb);
-		}
-
-		ServerInstance->stats->statsSent += bytes;
-	}
-	else
-		log(DEFAULT,"ERROR! attempted write to a user with no fd_ref_table entry!!!");
-}
-
-/* write text to an destination user from a source user (e.g. user privmsg) */
-
-void WriteTo(userrec *source, userrec *dest,char *data, ...)
-{
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	if ((!dest) || (!data))
-	{
-		log(DEFAULT,"*** BUG *** WriteTo was given an invalid parameter");
-		return;
-	}
-
-	if (!IS_LOCAL(dest))
-		return;
-
-	va_start(argsPtr, data);
-	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
-	va_end(argsPtr);
-
-	// if no source given send it from the server.
-	if (!source)
-	{
-		WriteServ_NoFormat(dest->fd,textbuffer);
-	}
-	else
-	{
-		WriteFrom_NoFormat(dest->fd,source,textbuffer);
-	}
-}
-
-void WriteTo_NoFormat(userrec *source, userrec *dest, const char *data)
-{
-	if ((!dest) || (!data))
-		return;
-
-	if (!source)
-	{
-		WriteServ_NoFormat(dest->fd,data);
-	}
-	else
-	{
-		WriteFrom_NoFormat(dest->fd,source,data);
-	}
-}
 
 std::string GetServerDescription(const char* servername)
 {
@@ -484,7 +206,7 @@ void WriteCommon(userrec *u, char* text, ...)
 				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
-					WriteFrom_NoFormat(i->second->fd,u,textbuffer);
+					i->second->WriteFrom(u,std::string(textbuffer));
 					sent_to_at_least_one = true;
 				}
 			}
@@ -497,7 +219,7 @@ void WriteCommon(userrec *u, char* text, ...)
 	 */
 	if (!sent_to_at_least_one)
 	{
-		WriteFrom_NoFormat(u->fd,u,textbuffer);
+		u->WriteFrom(u,std::string(textbuffer));
 	}
 }
 
@@ -531,7 +253,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
-					WriteFrom_NoFormat(i->second->fd,u,text);
+					i->second->WriteFrom(u,std::string(text));
 					sent_to_at_least_one = true;
 				}
 			}
@@ -544,7 +266,7 @@ void WriteCommon_NoFormat(userrec *u, const char* text)
 	 */
 	if (!sent_to_at_least_one)
 	{
-		WriteFrom_NoFormat(u->fd,u,text);
+		u->WriteFrom(u,std::string(text));
 	}
 }
 
@@ -636,10 +358,10 @@ void WriteCommonExcept(userrec *u, char* text, ...)
 
 						if (quit_munge)
 						{
-							WriteFrom_NoFormat(i->second->fd,u,*i->second->oper ? oper_quit : textbuffer);
+							i->second->WriteFrom(u,*i->second->oper ? std::string(oper_quit) : std::string(textbuffer));
 						}
 						else
-							WriteFrom_NoFormat(i->second->fd,u,textbuffer);
+							i->second->WriteFrom(u,std::string(textbuffer));
 					}
 				}
 			}
@@ -676,7 +398,7 @@ void WriteCommonExcept_NoFormat(userrec *u, const char* text)
 					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 					{
 						already_sent[i->second->fd] = uniq_id;
-						WriteFrom_NoFormat(i->second->fd,u,text);
+						i->second->WriteFrom(u,text);
 					}
 				}
 			}
@@ -727,7 +449,7 @@ void WriteOpers_NoFormat(const char* text)
 			if (a->modes[UM_SERVERNOTICE])
 			{
 				// send server notices to all with +s
-				WriteServ(a->fd,"NOTICE %s :%s",a->nick,text);
+				a->WriteServ("NOTICE %s :%s",a->nick,text);
 			}
 		}
 	}
@@ -749,8 +471,8 @@ void ServerNoticeAll(char* text, ...)
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		userrec* t = (userrec*)(*i);
-		WriteServ_NoFormat(t->fd,formatbuffer);
+		userrec* t = *i;
+		t->WriteServ(std::string(formatbuffer));
 	}
 }
 
@@ -770,8 +492,8 @@ void ServerPrivmsgAll(char* text, ...)
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		userrec* t = (userrec*)(*i);
-		WriteServ_NoFormat(t->fd,formatbuffer);
+		userrec* t = *i;
+		t->WriteServ(std::string(formatbuffer));
 	}
 }
 
@@ -826,7 +548,7 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 
 		if (send_to_user)
 		{
-			WriteServ(t->fd,"NOTICE %s :%s",t->nick,textbuffer);
+			t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
 		}
 	}
 }
@@ -851,8 +573,8 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		userrec* t = (userrec*)(*i);
-		WriteFrom_NoFormat(t->fd,source,formatbuffer);
+		userrec* t = *i;
+		t->WriteFrom(source,std::string(formatbuffer));
 	}
 }
 
@@ -881,7 +603,7 @@ void WriteWallOps(userrec *source, bool local_only, char* text, ...)
 
 		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
 		{
-			WriteTo_NoFormat(source,t,formatbuffer);
+			source->WriteTo(t,std::string(formatbuffer));
 		}
 	}
 }
@@ -1111,7 +833,7 @@ void userlist(userrec *user,chanrec *c)
 		if (curlen > (480-NICKMAX))
 		{
 			/* list overflowed into multiple numerics */
-			WriteServ_NoFormat(user->fd,list);
+			user->WriteServ(list);
 
 			/* reset our lengths */
 			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
@@ -1125,7 +847,7 @@ void userlist(userrec *user,chanrec *c)
 	/* if whats left in the list isnt empty, send it */
 	if (numusers)
 	{
-		WriteServ_NoFormat(user->fd,list);
+		user->WriteServ(list);
 	}
 }
 
@@ -1187,12 +909,12 @@ void send_error(char *s)
 		userrec* t = (userrec*)(*i);
 		if (t->registered == REG_ALL)
 		{
-		   	WriteServ(t->fd,"NOTICE %s :%s",t->nick,s);
+		   	t->WriteServ("NOTICE %s :%s",t->nick,s);
 	   	}
 		else
 		{
 			// fix - unregistered connections receive ERROR, not NOTICE
-			Write(t->fd,"ERROR :%s",s);
+			t->Write("ERROR :%s",s);
 		}
 	}
 }
@@ -1312,30 +1034,30 @@ void ShowMOTD(userrec *user)
 {
 	if (!Config->MOTD.size())
 	{
-		WriteServ(user->fd,"422 %s :Message of the day file is missing.",user->nick);
+		user->WriteServ("422 %s :Message of the day file is missing.",user->nick);
 		return;
 	}
-	WriteServ(user->fd,"375 %s :%s message of the day", user->nick, Config->ServerName);
+	user->WriteServ("375 %s :%s message of the day", user->nick, Config->ServerName);
 
 	for (unsigned int i = 0; i < Config->MOTD.size(); i++)
-		WriteServ(user->fd,"372 %s :- %s",user->nick,Config->MOTD[i].c_str());
+		user->WriteServ("372 %s :- %s",user->nick,Config->MOTD[i].c_str());
 
-	WriteServ(user->fd,"376 %s :End of message of the day.", user->nick);
+	user->WriteServ("376 %s :End of message of the day.", user->nick);
 }
 
 void ShowRULES(userrec *user)
 {
 	if (!Config->RULES.size())
 	{
-		WriteServ(user->fd,"NOTICE %s :Rules file is missing.",user->nick);
+		user->WriteServ("NOTICE %s :Rules file is missing.",user->nick);
 		return;
 	}
-	WriteServ(user->fd,"NOTICE %s :%s rules",user->nick,Config->ServerName);
+	user->WriteServ("NOTICE %s :%s rules",user->nick,Config->ServerName);
 
 	for (unsigned int i = 0; i < Config->RULES.size(); i++)
-		WriteServ(user->fd,"NOTICE %s :%s",user->nick,Config->RULES[i].c_str());
+		user->WriteServ("NOTICE %s :%s",user->nick,Config->RULES[i].c_str());
 
-	WriteServ(user->fd,"NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
+	user->WriteServ("NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
 }
 
 // this returns 1 when all modules are satisfied that the user should be allowed onto the irc server

@@ -27,10 +27,10 @@ void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->UnloadModule(parameters[0]))
 	{
 		WriteOpers("*** MODULE UNLOADED: %s",parameters[0]);
-		WriteServ(user->fd,"973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+		user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 	}
 	else
 	{
-		WriteServ(user->fd,"972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+		user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 	}
 }

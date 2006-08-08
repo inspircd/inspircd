@@ -55,7 +55,7 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"NOTICE %s :*** Q-Line %s not found in list, try /stats q.",user->nick,parameters[0]);
+			user->WriteServ("NOTICE %s :*** Q-Line %s not found in list, try /stats q.",user->nick,parameters[0]);
 		}
 	}
 }

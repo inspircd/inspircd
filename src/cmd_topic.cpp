@@ -40,22 +40,22 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if ((Ptr->modes[CM_SECRET]) && (!Ptr->HasUser(user)))
 			{
-				WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, Ptr->name);
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, Ptr->name);
 				return;
 			}
 			if (Ptr->topicset)
 			{
-				WriteServ(user->fd,"332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
-				WriteServ(user->fd,"333 %s %s %s %d", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
+				user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
+				user->WriteServ("333 %s %s %s %d", user->nick, Ptr->name, Ptr->setby, Ptr->topicset);
 			}
 			else
 			{
-				WriteServ(user->fd,"331 %s %s :No topic is set.", user->nick, Ptr->name);
+				user->WriteServ("331 %s %s :No topic is set.", user->nick, Ptr->name);
 			}
 		}
 		else
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 		return;
 	}
@@ -68,12 +68,12 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (!Ptr->HasUser(user))
 				{
-					WriteServ(user->fd,"442 %s %s :You're not on that channel!",user->nick, Ptr->name);
+					user->WriteServ("442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
 				}
 				if ((Ptr->modes[CM_TOPICLOCK]) && (cstatus(user,Ptr)<STATUS_HOP))
 				{
-					WriteServ(user->fd,"482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
+					user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;
 				}
 			}
@@ -99,7 +99,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 	}
 }

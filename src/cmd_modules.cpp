@@ -76,7 +76,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (match(Config->module_names[i].c_str(),parameters[1]))
 				{
-					WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
 					for (int it = 0; itab[it];)
 					{
 						char data[MAXBUF];
@@ -95,25 +95,25 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 							}
 						}
 						if (*dlist)
-							WriteServ(user->fd,"900 %s :%s [ %s]",user->nick,CleanFilename(modulename),dlist);
+							user->WriteServ("900 %s :%s [ %s]",user->nick,CleanFilename(modulename),dlist);
 					}
-					WriteServ(user->fd,"900 %s :=== DEBUG: Implementation counts ===",user->nick);
+					user->WriteServ("900 %s :=== DEBUG: Implementation counts ===",user->nick);
 					for (int it = 0; itab[it]; it++)
 					{
 						if (Config->global_implementation[it])
-							WriteServ(user->fd,"900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
+							user->WriteServ("900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
 					}
 				}
 			}
 			else
 			{
-				WriteServ(user->fd,"900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
 			}
 		}
 		else
 		{
-			WriteServ(user->fd,"900 %s :%s",user->nick,CleanFilename(modulename));
+			user->WriteServ("900 %s :%s",user->nick,CleanFilename(modulename));
 		}
 	}
-	WriteServ(user->fd,"901 %s :End of MODULES list",user->nick);
+	user->WriteServ("901 %s :End of MODULES list",user->nick);
 }

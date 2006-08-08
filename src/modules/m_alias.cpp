@@ -108,7 +108,7 @@ class ModuleAlias : public Module
 						u = Srv->FindNick(Aliases[i].requires);
 						if (!u)
 						{
-							Srv->SendServ(user->fd,"401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is currently unavailable. Please try again later.");
+							user->WriteServ("401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is currently unavailable. Please try again later.");
 							return 1;
 						}
 					}
@@ -117,7 +117,7 @@ class ModuleAlias : public Module
 						if (!Srv->IsUlined(u->server))
 						{
 							Srv->SendOpers("*** NOTICE -- Service "+Aliases[i].requires+" required by alias "+std::string(Aliases[i].text.c_str())+" is not on a u-lined server, possibly underhanded antics detected!"); 
-							Srv->SendServ(user->fd,"401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
+							user->WriteServ("401 "+std::string(user->nick)+" "+Aliases[i].requires+" :is an imposter! Please inform an IRC operator as soon as possible.");
 							return 1;
 						}
 					}

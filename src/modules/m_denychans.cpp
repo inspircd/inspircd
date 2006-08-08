@@ -72,7 +72,7 @@ class ModuleDenyChannels : public Module
 				else
 				{
 					std::string reason = Conf->ReadValue("badchan","reason",j);
-					WriteServ(user->fd,"926 %s %s :Channel %s is forbidden: %s",user->nick,cname,cname,reason.c_str());
+					user->WriteServ("926 %s %s :Channel %s is forbidden: %s",user->nick,cname,cname,reason.c_str());
 					return 1;
 				}
 			}

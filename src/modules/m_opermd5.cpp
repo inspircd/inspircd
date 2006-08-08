@@ -281,7 +281,7 @@ class cmd_mkpasswd : public command_t
 	{
 		char buffer[MAXBUF];
 		GenHash(parameters[0],buffer);
-		WriteServ(user->fd,"NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0],buffer);
+		user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0],buffer);
 	}
 };
 

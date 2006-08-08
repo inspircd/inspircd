@@ -90,7 +90,7 @@ public:
 					}
 				}
 				
-				WriteServ(user->fd, "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
+				user->WriteServ( "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
 				return 1;
 			}
 		}

@@ -110,8 +110,8 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		{
 			if (user)
 			{
-				WriteServ(user->fd,"There were errors in your configuration:");
-				WriteServ(user->fd,"You have more than one <%s> tag, this is not permitted.\n",tag);
+				user->WriteServ("There were errors in your configuration:");
+				user->WriteServ("You have more than one <%s> tag, this is not permitted.\n",tag);
 			}
 			else
 			{
@@ -132,8 +132,8 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		{
 			if (user)
 			{
-				WriteServ(user->fd,"There were errors in your configuration:");
-				WriteServ(user->fd,"You have not defined a <%s> tag, this is required.",tag);
+				user->WriteServ("There were errors in your configuration:");
+				user->WriteServ("You have not defined a <%s> tag, this is required.",tag);
 			}
 			else
 			{
@@ -683,11 +683,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 	
 			if (user)
 			{
-				WriteServ(user->fd,"NOTICE %s :There were errors in the configuration file:",user->nick);
+				user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
 				
 				while(start < errors.length())
 				{
-					WriteServ(user->fd, "NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+					user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
 					start += 510 - prefixlen;
 				}
 			}
@@ -811,14 +811,14 @@ void ServerConfig::Read(bool bail, userrec* user)
 					WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (user)
-						WriteServ(user->fd,"973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
+						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
 
 					rem++;
 				}
 				else
 				{
 					if (user)
-						WriteServ(user->fd,"972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
+						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
 				}
 			}
 
@@ -830,14 +830,14 @@ void ServerConfig::Read(bool bail, userrec* user)
 				WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
 
 				if (user)
-					WriteServ(user->fd,"975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
 
 				add++;
 			}
 			else
 			{
 				if (user)
-					WriteServ(user->fd,"974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+					user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
 			}
 		}
 

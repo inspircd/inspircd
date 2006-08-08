@@ -31,16 +31,16 @@ void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (*i->second->oper)
 				{
-					WriteServ(user->fd,"205 %s :Oper 0 %s",user->nick,i->second->nick);
+					user->WriteServ("205 %s :Oper 0 %s",user->nick,i->second->nick);
 				}
 				else
 				{
-					WriteServ(user->fd,"204 %s :User 0 %s",user->nick,i->second->nick);
+					user->WriteServ("204 %s :User 0 %s",user->nick,i->second->nick);
 				}
 			}
 			else
 			{
-				WriteServ(user->fd,"203 %s :???? 0 [%s]",user->nick,i->second->host);
+				user->WriteServ("203 %s :???? 0 [%s]",user->nick,i->second->host);
 			}
 		}
 	}

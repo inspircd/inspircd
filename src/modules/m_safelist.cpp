@@ -95,7 +95,7 @@ class ListTimer : public InspTimer
 				{
 					log(DEBUG,"Channel %ld",ld->list_position);
 					if (!ld->list_position)
-						WriteServ(u->fd,"321 %s Channel :Users Name",u->nick);
+						u->WriteServ("321 %s Channel :Users Name",u->nick);
 					chan = Srv->GetChannelIndex(ld->list_position);
 					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
@@ -108,7 +108,7 @@ class ListTimer : public InspTimer
 							/* Increment total plus linefeed */
 							amount_sent += counter + 4 + Srv->GetServerName().length();
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
-							WriteServ_NoFormat(u->fd,buffer);
+							u->WriteServ(std::string(buffer));
 						}
 					}
 					else
@@ -118,7 +118,7 @@ class ListTimer : public InspTimer
 							if (!ld->list_ended)
 							{
 								ld->list_ended = true;
-								WriteServ(u->fd,"323 %s :End of channel list.",u->nick);
+								u->WriteServ("323 %s :End of channel list.",u->nick);
 							}
 						}
 					}
@@ -201,7 +201,7 @@ class ModuleSafeList : public Module
 		{
 			if (TIME < (*last_list_time)+60)
 			{
-				WriteServ(user->fd,"NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
+				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
 				return 1;
 			}
 

@@ -40,7 +40,7 @@ class cmd_sethost : public command_t
 	{
 		if (strlen(parameters[0]) > 64)
 		{
-			WriteServ(user->fd,"NOTICE %s :*** SETHOST: Host too long",user->nick);
+			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
 			return;
 		}
 		for (unsigned int x = 0; x < strlen(parameters[0]); x++)
@@ -49,7 +49,7 @@ class cmd_sethost : public command_t
 			{
 				if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
 				{
-					Srv->SendTo(NULL,user,"NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 					return;
 				}
 			}

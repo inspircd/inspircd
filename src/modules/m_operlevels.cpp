@@ -74,8 +74,8 @@ class ModuleOperLevels : public Module
 				if (dest_level > source_level)
 				{
 					WriteOpers("Oper %s (level %d) attempted to /kill a higher oper: %s (level %d): Reason: %s",source->nick,source_level,dest->nick,dest_level,reason.c_str());
-					WriteServ(dest->fd,"NOTICE %s :Oper %s attempted to /kill you!",dest->nick,source->nick);
-					WriteServ(source->fd,"481 %s :Permission Denied- Oper %s is a higher level than you",source->nick,dest->nick);
+					dest->WriteServ("NOTICE %s :Oper %s attempted to /kill you!",dest->nick,source->nick);
+					source->WriteServ("481 %s :Permission Denied- Oper %s is a higher level than you",source->nick,dest->nick);
 					return 1;
 				}
 			}

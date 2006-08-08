@@ -48,7 +48,7 @@ class cmd_nicklock : public command_t
 		{
 			if (source->GetExt("nick_locked", dummy))
 			{
-				WriteServ(user->fd,"946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
+				user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
 				return;
 			}
 			if (Srv->IsNick(std::string(parameters[1])))
@@ -81,7 +81,7 @@ class cmd_nickunlock : public command_t
 		if (source)
 		{
 			source->Shrink("nick_locked");
-			WriteServ(user->fd,"945 %s %s :Nickname now unlocked.",user->nick,source->nick);
+			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,source->nick);
 			Srv->SendOpers(std::string(user->nick)+" used NICKUNLOCK on "+std::string(parameters[0]));
 		}
 	}
@@ -122,7 +122,7 @@ class ModuleNickLock : public Module
 	{
 		if (user->GetExt("nick_locked", n))
 		{
-			WriteServ(user->fd,"447 %s :You cannot change your nickname (your nick is locked)",user->nick);
+			user->WriteServ("447 %s :You cannot change your nickname (your nick is locked)",user->nick);
 			return 1;
 		}
 		return 0;

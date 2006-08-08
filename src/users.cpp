@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -20,7 +20,7 @@
 #include "connection.h"
 #include "users.h"
 #include "inspircd.h"
-#include <stdio.h>
+#include <stdarg.h>
 #include "inspstring.h"
 #include "commands.h"
 #include "helperfuncs.h"
@@ -182,19 +182,19 @@ void UserResolver::OnLookupComplete(const std::string &result)
 				if (*(hostname.c_str()) == ':')
 					hostname = "0" + hostname;
 
-				WriteServ(this->bound_fd, "NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
+				this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
 				this->bound_user->dns_done = true;
 				strlcpy(this->bound_user->dhost, hostname.c_str(),64);
 				strlcpy(this->bound_user->host, hostname.c_str(),64);
 			}
 			else
 			{
-				WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
+				this->bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
 			}
 		}
 		else
 		{
-			WriteServ(this->bound_fd, "NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
+			this->bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
 		}
 	}
 }
@@ -204,7 +204,7 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 	if (fd_ref_table[this->bound_fd] == this->bound_user)
 	{
 		/* Error message here */
-		WriteServ(this->bound_fd, "NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
+		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
 		this->bound_user->dns_done = true;
 	}
 }
@@ -618,7 +618,7 @@ const char* userrec::GetWriteError()
 void userrec::Oper(const std::string &opertype)
 {
 	this->modes[UM_OPERATOR] = 1;
-	WriteServ(this->fd, "MODE %s :+o", this->nick);
+	this->WriteServ("MODE %s :+o", this->nick);
 	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
 	log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 	strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
@@ -664,7 +664,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 		reason.resize(MAXQUIT - 1);
 	
 	if (IS_LOCAL(user))
-		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
+		user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
 
 	if (user->registered == REG_ALL)
 	{
@@ -844,7 +844,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	log(DEBUG,"Socket addresses set.");
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-        for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)
+	for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)
 		_new->dhost[j] = _new->host[j] = *temp;
 	_new->dhost[j] = _new->host[j] = 0;
 			
@@ -928,7 +928,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		}
 	}
 
-	WriteServ(_new->fd,"NOTICE Auth :*** Looking up your hostname...");
+	_new->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 }
 
 long userrec::GlobalCloneCount()
@@ -1029,11 +1029,11 @@ void userrec::FullConnect(CullList* Goners)
 	}
 
 
-	WriteServ(this->fd,"NOTICE Auth :Welcome to \002%s\002!",Config->Network);
-	WriteServ(this->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, Config->Network, this->nick, this->ident, this->host);
-	WriteServ(this->fd,"002 %s :Your host is %s, running version %s",this->nick,Config->ServerName,VERSION);
-	WriteServ(this->fd,"003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	WriteServ(this->fd,"004 %s %s %s %s %s %s", this->nick, Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
+	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",Config->Network);
+	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, Config->Network, this->nick, this->ident, this->host);
+	this->WriteServ("002 %s :Your host is %s, running version %s",this->nick,Config->ServerName,VERSION);
+	this->WriteServ("003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
+	this->WriteServ("004 %s %s %s %s %s %s", this->nick, Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
 
 	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
 	// so i'd better split it :)
@@ -1050,7 +1050,7 @@ void userrec::FullConnect(CullList* Goners)
 		
 		if ((token_counter >= 13) || (out.eof() == true))
 		{
-			WriteServ(this->fd,"005 %s %s:are supported by this server", this->nick, line5.c_str());
+			this->WriteServ("005 %s %s:are supported by this server", this->nick, line5.c_str());
 			line5 = "";
 			token_counter = 0;
 		}
@@ -1275,4 +1275,116 @@ const char* userrec::GetIPString(char* buf)
 	}
 	return "";
 }
+
+
+void userrec::Write(const std::string &text)
+{
+	char tb[MAXBUF];
+	int bytes;
+
+	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
+		return;
+
+	bytes = snprintf(tb,MAXBUF,"%s\r\n",text.c_str());
+
+	if (Config->GetIOHook(this->GetPort()))
+	{
+		try
+		{
+			Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd,tb,bytes);
+		}
+		catch (ModuleException& modexcept)
+		{
+			log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+		}
+	}
+	else
+	{
+		this->AddWriteBuf(tb);
+	}
+	ServerInstance->stats->statsSent += bytes;
+}
+
+/** Write()
+ */
+void userrec::Write(const char *text, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->Write(std::string(textbuffer));
+}
+
+void userrec::WriteServ(const std::string& text)
+{
+	char textbuffer[MAXBUF];
+
+	snprintf(textbuffer,MAXBUF,":%s %s",Config->ServerName,text.c_str());
+	this->Write(std::string(textbuffer));
+}
+
+/** WriteServ()
+ *  Same as Write(), except `text' is prefixed with `:server.name '.
+ */
+void userrec::WriteServ(const char* text, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteServ(std::string(textbuffer));
+}
+
+
+void userrec::WriteFrom(userrec *user, const std::string &text)
+{
+	char tb[MAXBUF];
+
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	
+	this->Write(std::string(tb));
+}
+
+
+/* write text from an originating user to originating user */
+
+void userrec::WriteFrom(userrec *user, const char* text, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteFrom(user, std::string(textbuffer));
+}
+
+
+/* write text to an destination user from a source user (e.g. user privmsg) */
+
+void userrec::WriteTo(userrec *dest, const char *data, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, data);
+	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteTo(dest, std::string(textbuffer));
+}
+
+void userrec::WriteTo(userrec *dest, const std::string &data)
+{
+	dest->WriteFrom(this, data);
+}
+
 

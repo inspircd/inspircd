@@ -142,7 +142,7 @@ class MsgFlood : public ModeHandler
 				int nsecs = atoi(secs);
 				if ((nlines<1) || (nsecs<1))
 				{
-					WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+					source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
 					parameter = "";
 					return MODEACTION_DENY;
 				}
@@ -161,7 +161,7 @@ class MsgFlood : public ModeHandler
 			}
 			else
 			{
-				WriteServ(source->fd,"608 %s %s :Invalid flood parameter",source->nick,channel->name);
+				source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
 				parameter = "";
 				return MODEACTION_DENY;
 			}

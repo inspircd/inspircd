@@ -54,7 +54,7 @@ class Redirect : public ModeHandler
 
 			if (!IsValidChannelName(parameter.c_str()))
 			{
-				WriteServ(source->fd,"403 %s %s :Invalid channel name",source->nick, parameter.c_str());
+				source->WriteServ("403 %s %s :Invalid channel name",source->nick, parameter.c_str());
 				parameter = "";
 				return MODEACTION_DENY;
 			}
@@ -67,7 +67,7 @@ class Redirect : public ModeHandler
 				{
 					if ((c == channel) || (c->IsModeSet('L')))
 					{
-						WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
+						source->WriteServ("690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
 						parameter = "";
 						return MODEACTION_DENY;
 					}
@@ -77,7 +77,7 @@ class Redirect : public ModeHandler
 						{
 							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
 							{
-								WriteServ(source->fd,"690 %s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
+								source->WriteServ("690 %s :Circular or chained +L to %s not allowed (Already forwarded here from %s). Angry monkeys dispatched.",source->nick,parameter.c_str(),i->second->name);
 								return MODEACTION_DENY;
 							}
 						}
@@ -137,7 +137,7 @@ class ModuleRedirect : public Module
 				if (Srv->CountUsers(chan) >= chan->limit)
 				{
 					std::string channel = chan->GetModeParameter('L');
-					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
+					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
 					chanrec::JoinUser(user, channel.c_str(), false);
 					return 1;
 				}

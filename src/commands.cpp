@@ -91,7 +91,7 @@ void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 		
 		if (line.length() + length - start > 510)
 		{
-			Write_NoFormat(user->fd, line.c_str());
+			user->Write(line);
 			line = prefix.str();
 		}
 		
@@ -108,7 +108,7 @@ void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 	
 	if (line.length())
 	{
-		Write_NoFormat(user->fd, line.c_str());
+		user->Write(line);
 	}
 }
 

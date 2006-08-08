@@ -39,5 +39,5 @@ void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 
-	WriteServ(user->fd, retbuf);
+	user->WriteServ( retbuf);
 }

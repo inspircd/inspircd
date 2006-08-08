@@ -45,10 +45,10 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
 	if (dest->registered == REG_ALL)
 	{
-		WriteServ(user->fd,"311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
+		user->WriteServ("311 %s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
 		{
-			WriteServ(user->fd,"378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
+			user->WriteServ("378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
 		}
 		std::string cl = chlist(dest,user);
 		if (cl.length())
@@ -59,24 +59,24 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 			}
 			else
 			{
-				WriteServ(user->fd,"319 %s %s :%s",user->nick, dest->nick, cl.c_str());
+				user->WriteServ("319 %s %s :%s",user->nick, dest->nick, cl.c_str());
 			}
 		}
 		if (*Config->HideWhoisServer && !(*user->oper))
 		{
-			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, Config->HideWhoisServer, Config->Network);
+			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, Config->HideWhoisServer, Config->Network);
 		}
 		else
 		{
-			WriteServ(user->fd,"312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
+			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
 		}
 		if (*dest->awaymsg)
 		{
-			WriteServ(user->fd,"301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
+			user->WriteServ("301 %s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
 		if (*dest->oper)
 		{
-			WriteServ(user->fd,"313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), Config->Network);
+			user->WriteServ("313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{
@@ -85,19 +85,19 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		if (!strcasecmp(user->server,dest->server))
 		{
 			// idle time and signon line can only be sent if youre on the same server (according to RFC)
-			WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
+			user->WriteServ("317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
 		}
 		else
 		{
 			if ((idle) || (signon))
-				WriteServ(user->fd,"317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+				user->WriteServ("317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
-		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
 	else
 	{
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, nick);
-		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, nick);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, nick);
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, nick);
 	}
 }
 
@@ -115,7 +115,7 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		/* no such nick/channel */
-		WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
-		WriteServ(user->fd,"318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 	}
 }

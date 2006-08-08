@@ -162,7 +162,7 @@ void ProcessUser(userrec* cu)
 					}
 					else
 					{
-						WriteServ(currfd, "NOTICE %s :Your previous line was too long and was not delivered (Over 512chars) Please shorten it.", current->nick);
+						current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over 512chars) Please shorten it.", current->nick);
 						current->recvq = "";
 					}
 				}
@@ -366,7 +366,7 @@ void DoBackgroundUserStuff(time_t TIME)
 					curr->nping = TIME+curr->pingmax;
 					continue;
 				}
-				Write(curr->fd,"PING :%s",Config->ServerName);
+				curr->Write("PING :%s",Config->ServerName);
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}

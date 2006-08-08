@@ -463,7 +463,7 @@ class ModuleSSLGnuTLS : public Module
 		// Bugfix, only send this numeric for *our* SSL users
 		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
 		{
-			WriteServ(source->fd, "320 %s %s :is using a secure connection", source->nick, dest->nick);
+			source->WriteServ("320 %s %s :is using a secure connection", source->nick, dest->nick);
 		}
 	}
 	

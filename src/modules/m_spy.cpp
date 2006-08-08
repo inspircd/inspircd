@@ -71,14 +71,14 @@ void spy_userlist(userrec *user,chanrec *c)
 		{
 			/* list overflowed into
 			 * multiple numerics */
-			WriteServ_NoFormat(user->fd,list);
+			user->WriteServ(std::string(list));
 			snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 		}
 	}
 	/* if whats left in the list isnt empty, send it */
 	if (list[strlen(list)-1] != ':')
 	{
-		WriteServ_NoFormat(user->fd,list);
+		user->WriteServ(std::string(list));
 	}
 }
 
@@ -96,12 +96,12 @@ class cmd_spylist : public command_t
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
-		WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
+		user->WriteServ("321 %s Channel :Users Name",user->nick);
 		for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 		{
-			WriteServ(user->fd,"322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount(i->second),chanmodes(i->second,true),i->second->topic);
+			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,usercount(i->second),chanmodes(i->second,true),i->second->topic);
 		}
-		WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
+		user->WriteServ("323 %s :End of channel list.",user->nick);
 	}
 };
 
@@ -120,7 +120,7 @@ class cmd_spynames : public command_t
 
 		if (!pcnt)
 		{
-			WriteServ(user->fd,"366 %s * :End of /NAMES list.",user->nick);
+			user->WriteServ("366 %s * :End of /NAMES list.",user->nick);
 			return;
 		}
 
@@ -133,11 +133,11 @@ class cmd_spynames : public command_t
 		if (c)
 		{
 			spy_userlist(user,c);
-			WriteServ(user->fd,"366 %s %s :End of /NAMES list.", user->nick, c->name);
+			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
 		}
 		else
 		{
-			WriteServ(user->fd,"401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 	}
 };

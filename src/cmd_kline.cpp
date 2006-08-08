@@ -67,7 +67,7 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
+			user->WriteServ("NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
 		}
 	}
 }

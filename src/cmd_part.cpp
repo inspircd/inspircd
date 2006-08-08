@@ -37,6 +37,6 @@ void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteServ(user->fd, "401 %s %s :No such channel", user->nick, parameters[0]);
+		user->WriteServ( "401 %s %s :No such channel", user->nick, parameters[0]);
 	}
 }

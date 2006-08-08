@@ -60,11 +60,11 @@ class cmd_watch : public command_t
 					userrec* targ = Srv->FindNick(a->target);
 					if (targ)
 					{
-						WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
+						user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
 					}
 				}
 			}
-			WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+			user->WriteServ("607 %s :End of WATCH list",user->nick);
 		}
 		else if (pcnt > 0)
 		{
@@ -101,11 +101,11 @@ class cmd_watch : public command_t
 							userrec* targ = Srv->FindNick(a->target);
 							if (targ)
 							{
-								WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
+								user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
 							}
 						}
 					}
-					WriteServ(user->fd,"607 %s :End of WATCH list",user->nick);
+					user->WriteServ("607 %s :End of WATCH list",user->nick);
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
@@ -121,8 +121,8 @@ class cmd_watch : public command_t
 					char* l = (char*)list.c_str();
 					if (*l == ' ')
 						l++;
-					WriteServ(user->fd,"606 %s :%s",user->nick,l);
-					WriteServ(user->fd,"607 %s :End of WATCH S",user->nick);
+					user->WriteServ("606 %s :%s",user->nick,l);
+					user->WriteServ("607 %s :End of WATCH S",user->nick);
 				}
 				else if (nick[0] == '-')
 				{
@@ -138,11 +138,11 @@ class cmd_watch : public command_t
 							userrec* a = Srv->FindNick(b->target);
 							if (a)
 							{
-								WriteServ(user->fd,"602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
+								user->WriteServ("602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
 							}
 							else
 							{
-								 WriteServ(user->fd,"602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
+								 user->WriteServ("602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
 							}
 							if (n1 == n2)
 							{
@@ -182,11 +182,11 @@ class cmd_watch : public command_t
 		       			userrec* a = Srv->FindNick(nick);
 		       			if (a)
 		       			{
-		       				WriteServ(user->fd,"604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
+		       				user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
 					}
 					else
 					{
-						WriteServ(user->fd,"605 %s %s * * 0 :is offline",user->nick,nick);
+						user->WriteServ("605 %s %s * * 0 :is offline",user->nick,nick);
 					}
 				}
 			}
@@ -224,7 +224,7 @@ class Modulewatch : public Module
 			if (n1 == n2)
 			{
 				log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,a->watcher->nick);
-				WriteServ(a->watcher->fd,"601 %s %s %s %s %lu :went offline",a->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
+				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
 			}
 		}
 		bool done = false;
@@ -256,7 +256,7 @@ class Modulewatch : public Module
 			if (n1 == n2)
 			{
 				log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,a->watcher->nick);
-				WriteServ(a->watcher->fd,"600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}
 	}
@@ -274,13 +274,13 @@ class Modulewatch : public Module
 			if (n1 == n2)
 			{
 				log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),a->watcher->nick);
-				WriteServ(a->watcher->fd,"601 %s %s %s %s %lu :went offline",a->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
+				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
 			}
 			else if (n1 == n3)
 			{
 				// changed from a nick not on notify to one that is
 				log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,a->watcher->nick);
-				WriteServ(a->watcher->fd,"600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}
 	}	

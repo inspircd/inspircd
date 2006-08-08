@@ -557,6 +557,24 @@ class userrec : public connection
 	 */
 	long LocalCloneCount();
 
+	/** TO this user
+	 */
+	void Write(const std::string &text);
+	void Write(const char *text, ...);
+	/** FROM server to this user
+	 */
+	void WriteServ(const std::string& text);
+	void WriteServ(const char* text, ...);
+	/** FROM another user TO this user
+	 */
+	void WriteFrom(userrec *user, const std::string &text);
+	void WriteFrom(userrec *user, const char* text, ...);
+	/** TO another user FROM this user
+	 */
+	void WriteTo(userrec *dest, const std::string &data);
+	void WriteTo(userrec *dest, const char *data, ...);
+
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

@@ -57,7 +57,7 @@ void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 	string_list values;
 	DoStats(*parameters[0], user, values);
 	for (size_t i = 0; i < values.size(); i++)
-		Write(user->fd, ":%s", values[i].c_str());
+		user->Write(":%s", values[i].c_str());
 }
 
 void DoStats(char statschar, userrec* user, string_list &results)

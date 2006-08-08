@@ -92,10 +92,10 @@ class ListModeBase : public ModeHandler
 		{
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				WriteServ(user->fd, "%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
+				user->WriteServ( "%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
 		}
-		WriteServ(user->fd, "%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+		user->WriteServ( "%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
 	virtual void DoRehash()
@@ -211,7 +211,7 @@ class ListModeBase : public ModeHandler
 			/* List is full, give subclass a chance to send a custom message */
 			if(!TellListTooLong(source, channel, parameter))
 			{
-				WriteServ(source->fd, "478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
+				source->WriteServ("478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
 			}
 			
 			parameter = "";

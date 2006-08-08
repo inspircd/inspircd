@@ -55,7 +55,7 @@ class RFC1413 : public InspSocket
 		if (u && (fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
-			Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
 		}
 	}
 
@@ -87,7 +87,7 @@ class RFC1413 : public InspSocket
 								{
 									strlcpy(u->ident,section,IDENTMAX);
 									Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
-									Srv->SendServ(u->fd,"NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+									u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
 								}
 							}
 							return false;
@@ -208,7 +208,7 @@ class ModuleIdent : public Module
 		 * is derived from InspSocket, and inserting it into the socket engine using the
 		 * Server::AddSocket() call.
 		 */
-		Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
+		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(user, IdentTimeout, Srv);
 		if (ident->GetState() != I_ERROR)
 		{
@@ -217,7 +217,7 @@ class ModuleIdent : public Module
 		}
 		else
 		{
-			Srv->SendServ(user->fd,"NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
 			DELETE(ident);
 		}
 	}

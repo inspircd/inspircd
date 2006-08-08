@@ -231,12 +231,12 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	if ((whoresults.size() < (size_t)Config->MaxWhoResults) && (!opt_unlimit))
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
-			WriteServ_NoFormat(user->fd,n->c_str());
-		WriteServ(user->fd,"315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+			user->WriteServ(*n);
+		user->WriteServ("315 %s %s :End of /WHO list.",user->nick, parameters[0]);
 	}
 	else
 	{
 		/* BZZT! Too many results. */
-		WriteServ(user->fd,"315 %s %s :Too many results",user->nick, parameters[0]);
+		user->WriteServ("315 %s %s :Too many results",user->nick, parameters[0]);
 	}
 }

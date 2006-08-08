@@ -57,7 +57,7 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,parameters[0]);
+			user->WriteServ("NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick,parameters[0]);
 		}
 	}
 

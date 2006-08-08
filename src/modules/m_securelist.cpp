@@ -63,12 +63,12 @@ class ModuleSecureList : public Module
  
 		if ((command == "LIST") && (TIME < (user->signon+60)) && (!*user->oper))
 		{
-			WriteServ(user->fd,"NOTICE %s :*** You cannot list within the first minute of connecting. Please try again later.",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot list within the first minute of connecting. Please try again later.",user->nick);
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */
-			WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
-			WriteServ(user->fd,"323 %s :End of channel list.",user->nick);
+			user->WriteServ("321 %s Channel :Users Name",user->nick);
+			user->WriteServ("323 %s :End of channel list.",user->nick);
 			return 1;
 		}
 		return 0;

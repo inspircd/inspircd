@@ -31,7 +31,7 @@ void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 	std::string line5 = "";
 	int token_counter = 0;
 
-	WriteServ(user->fd,"351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
+	user->WriteServ("351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
 
 	while (!out.eof())
 	{
@@ -41,7 +41,7 @@ void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if ((token_counter >= 13) || (out.eof() == true))
 		{
-			WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+			user->WriteServ("005 %s %s:are supported by this server",user->nick,line5.c_str());
 			line5 = "";
 			token_counter = 0;
 		}

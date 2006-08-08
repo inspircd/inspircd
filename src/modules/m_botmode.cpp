@@ -89,7 +89,7 @@ class ModuleBotMode : public Module
 	{
 		if (dst->IsModeSet('B'))
 		{
-			Srv->SendTo(NULL,src,"335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+Srv->GetNetworkName());
+			src->WriteServ("335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+Srv->GetNetworkName());
 		}
 	}
 

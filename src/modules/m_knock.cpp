@@ -42,7 +42,7 @@ class cmd_knock : public command_t
 
 		if (!c)
 		{
-			WriteServ(user->fd,"401 %s %s :No such channel",user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
 			return;
 		}
 
@@ -50,7 +50,7 @@ class cmd_knock : public command_t
 
 		if (c->IsModeSet('K'))
 		{
-			WriteServ(user->fd,"480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
+			user->WriteServ("480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
 			return;
 		}
 
@@ -63,12 +63,12 @@ class cmd_knock : public command_t
 		if (c->modes[CM_INVITEONLY])
 		{
 			c->WriteChannelWithServ((char*)Srv->GetServerName().c_str(),  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
-			WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
+			user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
 			return;
 		}
 		else
 		{
-			WriteServ(user->fd,"480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
+			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
 			return;
 		}
 	}

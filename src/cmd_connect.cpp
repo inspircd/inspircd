@@ -24,5 +24,5 @@
  */
 void cmd_connect::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	WriteServ(user->fd, "NOTICE %s :You are a nub. Load a linking module.", user->nick);
+	user->WriteServ( "NOTICE %s :You are a nub. Load a linking module.", user->nick);
 }

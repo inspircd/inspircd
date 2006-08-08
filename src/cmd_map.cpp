@@ -28,6 +28,6 @@ void cmd_map::Handle (const char** parameters, int pcnt, userrec *user)
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something
 	// better.
-	WriteServ(user->fd,"006 %s :%s",user->nick,Config->ServerName);
-	WriteServ(user->fd,"007 %s :End of /MAP",user->nick);
+	user->WriteServ("006 %s :%s",user->nick,Config->ServerName);
+	user->WriteServ("007 %s :End of /MAP",user->nick);
 }

@@ -46,7 +46,7 @@ class Channel_r : public ModeHandler
 		else
 		{
 			log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",source->nick,source->server);
-			Srv->SendServ(source->fd,"500 "+std::string(source->nick)+" :Only a server may modify the +r channel mode");
+			source->WriteServ("500 "+std::string(source->nick)+" :Only a server may modify the +r channel mode");
 			return MODEACTION_DENY;
 		}
 	}
@@ -69,7 +69,7 @@ class User_r : public ModeHandler
 		else
 		{
 			log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",source->nick, source->server);
-			Srv->SendServ(source->fd,"500 "+std::string(source->nick)+" :Only a server may modify the +r user mode");
+			source->WriteServ("500 "+std::string(source->nick)+" :Only a server may modify the +r user mode");
 			return MODEACTION_DENY;
 		}
 	}
@@ -196,7 +196,7 @@ class ModuleServices : public Module
 		if (dest->IsModeSet('r'))
 		{
 			/* user is registered */
-			WriteServ(source->fd, "307 %s %s :is a registered nick", source->nick, dest->nick);
+			source->WriteServ("307 %s %s :is a registered nick", source->nick, dest->nick);
 		}
 	}
 
@@ -232,7 +232,7 @@ class ModuleServices : public Module
 					return 0;
 				}
 				// user messaging a +M channel and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need a registered nickname to speak on this channel");
+				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(c->name)+" :You need a registered nickname to speak on this channel");
 				return 1;
 			}
 		}
@@ -247,7 +247,7 @@ class ModuleServices : public Module
 					return 0;
 				}
 				// user messaging a +R user and is not registered
-				Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need a registered nickname to message this user");
+				user->WriteServ("477 "+std::string(user->nick)+" "+std::string(u->nick)+" :You need a registered nickname to message this user");
 				return 1;
 			}
 		}
@@ -273,7 +273,7 @@ class ModuleServices : public Module
 						return 0;
 					}
 					// joining a +R channel and not identified
-					Srv->SendServ(user->fd,"477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need a registered nickname to join this channel");
+					user->WriteServ("477 "+std::string(user->nick)+" "+std::string(chan->name)+" :You need a registered nickname to join this channel");
 					return 1;
 				}
 			}

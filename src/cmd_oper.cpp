@@ -96,7 +96,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 						ChangeDisplayedHost(user,HostName);
 					if (!isnick(TypeName))
 					{
-						WriteServ(user->fd,"491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
+						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return;
@@ -114,7 +114,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/* correct oper credentials */
 		WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
-		WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
+		user->WriteServ("381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 		if (!user->modes[UM_OPERATOR])
 			user->Oper(OperType);
 	}
@@ -122,13 +122,13 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!fail2)
 		{
-			WriteServ(user->fd,"491 %s :Invalid oper credentials",user->nick);
+			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
 			WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
 			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
 		}
 		else
 		{
-			WriteServ(user->fd,"491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
+			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
 			WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
 			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
 		}

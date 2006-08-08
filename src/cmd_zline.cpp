@@ -35,7 +35,7 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (strchr(parameters[0],'@'))
 		{
-			WriteServ(user->fd,"NOTICE %s :*** You cannot include a username in a zline, a zline must ban only an IP mask",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot include a username in a zline, a zline must ban only an IP mask",user->nick);
 			return;
 		}
 		if (ip_matches_everyone(parameters[0],user))
@@ -61,7 +61,7 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			WriteServ(user->fd,"NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,parameters[0]);
+			user->WriteServ("NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,parameters[0]);
 		}
 	}
 }

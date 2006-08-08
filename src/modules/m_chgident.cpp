@@ -25,7 +25,7 @@ class cmd_chgident : public command_t
 		{
 			if(!isident(parameters[1]))
 			{
-				WriteServ(user->fd, "NOTICE %s :*** Invalid characters in ident", user->nick);
+				user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 				return;
 			}
 		
@@ -34,7 +34,7 @@ class cmd_chgident : public command_t
 		}
 		else
 		{
-			WriteServ(user->fd, "401 %s %s :No such nick/channel", user->nick, parameters[0]);
+			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
 		}
 	}
 };

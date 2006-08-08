@@ -44,5 +44,5 @@ void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 			strlcat(Return,junk,MAXBUF);
 		}
 	}
-	WriteServ(user->fd,Return);
+	user->WriteServ(Return);
 }

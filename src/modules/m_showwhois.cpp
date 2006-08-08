@@ -75,7 +75,7 @@ class ModuleShowwhois : public Module
 	{
 		if ((dest->IsModeSet('W')) && (source != dest))
 		{
-			WriteServ(dest->fd,"NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
+			dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
 		}
 	}
 

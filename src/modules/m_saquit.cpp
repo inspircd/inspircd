@@ -52,7 +52,7 @@ class cmd_saquit : public command_t
 		{
 			if (Srv->IsUlined(dest->server))
 			{
-				WriteServ(user->fd,"990 %s :Cannot use an SA command on a u-lined client",user->nick);
+				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
 			}
 			std::string line = "";

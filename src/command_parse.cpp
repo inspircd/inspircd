@@ -228,27 +228,27 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				if (!user->IsModeSet(cm->second->flags_needed))
 				{
-					WriteServ(user->fd,"481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
+					user->WriteServ("481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
 					return;
 				}
 				if (!user->HasPermission(command))
 				{
-					WriteServ(user->fd,"481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
+					user->WriteServ("481 %s :Permission Denied- Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
 					return;
 				}
 			}
 			if ((user->registered == REG_ALL) && (!*user->oper) && (cm->second->IsDisabled()))
 			{
 				/* command is disabled! */
-				WriteServ(user->fd,"421 %s %s :This command has been disabled.",user->nick,command.c_str());
+				user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
 				return;
 			}
 			if (items < cm->second->min_params)
 			{
-				WriteServ(user->fd,"461 %s %s :Not enough parameters.", user->nick, command.c_str());
+				user->WriteServ("461 %s %s :Not enough parameters.", user->nick, command.c_str());
 				/* If syntax is given, display this as the 461 reply */
 				if ((Config->SyntaxHints) && (cm->second->syntax.length()))
-					WriteServ(user->fd,"304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
+					user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
 				return;
 			}
 			if ((user->registered == REG_ALL) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
@@ -273,7 +273,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			}
 			else
 			{
-				WriteServ(user->fd,"451 %s :You have not registered",command.c_str());
+				user->WriteServ("451 %s :You have not registered",command.c_str());
 				return;
 			}
 		}
@@ -281,7 +281,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	else if (user)
 	{
 		ServerInstance->stats->statsUnknown++;
-		WriteServ(user->fd,"421 %s %s :Unknown command",user->nick,command.c_str());
+		user->WriteServ("421 %s %s :Unknown command",user->nick,command.c_str());
 	}
 }
 

@@ -63,30 +63,30 @@ class cmd_check : public command_t
 		 *  :server.name 304 target :CHECK END
 		 */
 
-		Srv->SendTo(NULL, user, checkstr + " START " + parameters[0]);
+		user->WriteServ(checkstr + " START " + parameters[0]);
 
 		if (targuser)
 		{
 			/* /check on a user */
-			Srv->SendTo(NULL, user, checkstr + " nuh " + targuser->GetFullHost());
-			Srv->SendTo(NULL, user, checkstr + " realnuh " + targuser->GetFullRealHost());
-			Srv->SendTo(NULL, user, checkstr + " realname " + targuser->fullname);
-			Srv->SendTo(NULL, user, checkstr + " modes +" + targuser->FormatModes());
-			Srv->SendTo(NULL, user, checkstr + " server " + targuser->server);
+			user->WriteServ(checkstr + " nuh " + targuser->GetFullHost());
+			user->WriteServ(checkstr + " realnuh " + targuser->GetFullRealHost());
+			user->WriteServ(checkstr + " realname " + targuser->fullname);
+			user->WriteServ(checkstr + " modes +" + targuser->FormatModes());
+			user->WriteServ(checkstr + " server " + targuser->server);
 			if (targuser->awaymsg[0] != 0)
 			{
 				/* user is away */
-				Srv->SendTo(NULL, user, checkstr + " awaymsg " + targuser->awaymsg);
+				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 			if (targuser->oper[0] != 0)
 			{
 				/* user is an oper of type ____ */
-				Srv->SendTo(NULL, user, checkstr + " opertype " + targuser->oper);
+				user->WriteServ(checkstr + " opertype " + targuser->oper);
 			}
 			if (IS_LOCAL(targuser))
 			{
 				/* port information is only held for a local user! */
-				Srv->SendTo(NULL, user, checkstr + " onport " + ConvToStr(targuser->GetPort()));
+				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetPort()));
 			}
 
 			chliststr = chlist(targuser, targuser);
@@ -102,20 +102,20 @@ class cmd_check : public command_t
 
 			mytime = gmtime(&creation_time);
 			strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-			Srv->SendTo(NULL, user, checkstr + " created " + timebuf);
+			user->WriteServ(checkstr + " created " + timebuf);
 
 			if (targchan->topic[0] != 0)
 			{
 				/* there is a topic, assume topic related information exists */
-				Srv->SendTo(NULL, user, checkstr + " topic " + targchan->topic);
-				Srv->SendTo(NULL, user, checkstr + " topic_setby " + targchan->setby);
+				user->WriteServ(checkstr + " topic " + targchan->topic);
+				user->WriteServ(checkstr + " topic_setby " + targchan->setby);
 				mytime = gmtime(&topic_time);
 				strftime(timebuf, 59, "%Y/%m/%d - %H:%M:%S", mytime);
-				Srv->SendTo(NULL, user, checkstr + " topic_setat " + timebuf);
+				user->WriteServ(checkstr + " topic_setat " + timebuf);
 			}
 
-			Srv->SendTo(NULL, user, checkstr + " modes " + chanmodes(targchan, true));
-			Srv->SendTo(NULL, user, checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
+			user->WriteServ(checkstr + " modes " + chanmodes(targchan, true));
+			user->WriteServ(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 			
 			/* now the ugly bit, spool current members of a channel. :| */
 
@@ -152,7 +152,7 @@ class cmd_check : public command_t
 				sprintf(tmpbuf, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
 				strcat(ptr, tmpbuf);
 				
-				Srv->SendTo(NULL, user, checkstr + " member " + ptr);
+				user->WriteServ(checkstr + " member " + ptr);
 			}
 		}
 		else
@@ -166,20 +166,20 @@ class cmd_check : public command_t
 				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
 				{
 					/* host or vhost matches mask */
-					Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
 				else if (match(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					Srv->SendTo(NULL, user, checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 			}
 
-			Srv->SendTo(NULL, user, checkstr + " matches " + ConvToStr(x));
+			user->WriteServ(checkstr + " matches " + ConvToStr(x));
 		}
 
-		Srv->SendTo(NULL, user, checkstr + " END " + std::string(parameters[0]));
+		user->WriteServ(checkstr + " END " + std::string(parameters[0]));
 	}
 };
 

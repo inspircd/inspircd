@@ -49,7 +49,7 @@ class cmd_userip : public command_t
 				strlcat(Return,junk,MAXBUF);
 			}
 		}
-		WriteServ(user->fd,Return);
+		user->WriteServ(Return);
 	}
 };
 

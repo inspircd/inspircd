@@ -24,7 +24,7 @@ class SSLMode : public ModeHandler
 				{
 					if(!userlist[i]->GetExt("ssl", dummy))
 					{
-						WriteServ(source->fd, "490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
+						source->WriteServ("490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
 						return MODEACTION_DENY;
 					}
 				}
@@ -86,7 +86,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				WriteServ(user->fd, "489 %s %s :Cannot join channel (+z)", user->nick, cname);
+				user->WriteServ( "489 %s %s :Cannot join channel (+z)", user->nick, cname);
 				return 1;
 			}
 		}

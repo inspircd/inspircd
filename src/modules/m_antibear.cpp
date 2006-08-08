@@ -50,8 +50,8 @@ class ModuleAntiBear : public Module
 	
 	virtual void OnUserRegister(userrec* user)
 	{
-		WriteServ(user->fd,"439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
-		WriteServ(user->fd,"931 %s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);
+		user->WriteServ("439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
+		user->WriteServ("931 %s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);
 	}
 };
 

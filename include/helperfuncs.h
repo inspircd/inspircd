@@ -48,18 +48,10 @@
 void do_log(int level, const char *text, ...);
 void readfile(file_cache &F, const char* fname);
 
-void Write(int sock,char *text, ...);
-void WriteServ(int sock, char* text, ...);
-void WriteFrom(int sock, userrec *user,char* text, ...);
-void WriteTo(userrec *source, userrec *dest,char *data, ...);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteOpers(const char* text, ...);
 
-void Write_NoFormat(int sock,const char *text);
-void WriteServ_NoFormat(int sock, const char* text);
-void WriteFrom_NoFormat(int sock, userrec *user,const char* text);
-void WriteTo_NoFormat(userrec *source, userrec *dest,const char *data);
 void WriteCommon_NoFormat(userrec *u, const char* text);
 void WriteCommonExcept_NoFormat(userrec *u, const char* text);
 void WriteOpers_NoFormat(const char* text);

@@ -57,7 +57,7 @@ class ModuleRestrictMsg : public Module
 				// anything else, blocked.
 				return 0;
 			}
-			WriteServ(user->fd,"531 %s %s :You are not permitted to send private messages to this user",user->nick,u->nick);
+			user->WriteServ("531 %s %s :You are not permitted to send private messages to this user",user->nick,u->nick);
 			return 1;
 		}
 		// however, we must allow channel messages...

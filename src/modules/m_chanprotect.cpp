@@ -117,7 +117,7 @@ class ChanFounder : public ModeHandler
 		else
 		{
 			// whoops, someones being naughty!
-			WriteServ(source->fd,"468 %s %s :Only servers may set channel mode +q",source->nick, channel->name);
+			source->WriteServ("468 %s %s :Only servers may set channel mode +q",source->nick, channel->name);
 			parameter = "";
 			return MODEACTION_DENY;
 		}
@@ -131,10 +131,10 @@ class ChanFounder : public ModeHandler
 		{
 			if (cl[i]->GetExt(founder, dummyptr))
 			{
-				WriteServ(user->fd,"386 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				user->WriteServ("386 %s %s %s",user->nick, channel->name,cl[i]->nick);
 			}
 		}
-		WriteServ(user->fd,"387 %s %s :End of channel founder list",user->nick, channel->name);
+		user->WriteServ("387 %s %s :End of channel founder list",user->nick, channel->name);
 	}
 
 };
@@ -220,7 +220,7 @@ class ChanProtect : public ModeHandler
 		else
 		{
 			// bzzzt, wrong answer!
-			WriteServ(source->fd,"482 %s %s :You are not a channel founder",source->nick, channel->name);
+			source->WriteServ("482 %s %s :You are not a channel founder",source->nick, channel->name);
 			return MODEACTION_DENY;
 		}
 	}
@@ -233,10 +233,10 @@ class ChanProtect : public ModeHandler
 		{
 			if (cl[i]->GetExt(protect,dummyptr))
 			{
-				WriteServ(user->fd,"388 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				user->WriteServ("388 %s %s %s",user->nick, channel->name,cl[i]->nick);
 			}
 		}
-		WriteServ(user->fd,"389 %s %s :End of channel protected user list",user->nick, channel->name);
+		user->WriteServ("389 %s %s :End of channel protected user list",user->nick, channel->name);
 	}
 
 };
@@ -317,7 +317,7 @@ class ModuleChanProtect : public Module
 				// Change requested by katsklaw... when the first in is set to get founder,
 				// to make it clearer that +q has been given, send that one user the +q notice
 				// so that their client's syncronization and their sanity are left intact.
-				WriteServ(user->fd,"MODE %s +q %s",channel->name,user->nick);
+				user->WriteServ("MODE %s +q %s",channel->name,user->nick);
 				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
 				{
 					Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
@@ -358,7 +358,7 @@ class ModuleChanProtect : public Module
 				if (dest->GetExt(founder,dummyptr))
 				{
 					log(DEBUG,"Has %s",founder.c_str());
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				else
@@ -367,7 +367,7 @@ class ModuleChanProtect : public Module
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -377,12 +377,12 @@ class ModuleChanProtect : public Module
 				log(DEBUG,"OnAccessCheck AC_KICK");
 				if (dest->GetExt(founder,dummyptr))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -391,12 +391,12 @@ class ModuleChanProtect : public Module
 			case AC_DEHALFOP:
 				if (dest->GetExt(founder,dummyptr))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't de-halfop "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;
@@ -405,12 +405,12 @@ class ModuleChanProtect : public Module
 			case AC_DEVOICE:
 				if (dest->GetExt(founder,dummyptr))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
-					Srv->SendServ(source->fd,"484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
+					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't devoice "+std::string(dest->nick)+" as they're protected (+a)");
 					return ACR_DENY;
 				}
 			break;

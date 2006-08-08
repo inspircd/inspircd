@@ -42,7 +42,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 			
 			if (IS_LOCAL(a) && (a->modes[UM_SERVERNOTICE]))
 			{
-				WriteServ(a->fd, "NOTICE %s :*** DIE command from %s!%s@%s, terminating...", a->nick, a->nick, a->ident, a->host);
+				a->WriteServ("NOTICE %s :*** DIE command from %s!%s@%s, terminating...", a->nick, a->nick, a->ident, a->host);
 				a->FlushWriteBuf();
 			}
 		}

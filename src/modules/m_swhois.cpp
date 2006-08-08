@@ -105,7 +105,7 @@ class ModuleSWhois : public Module
 		dest->GetExt("swhois", swhois);
 		if (swhois)
 		{
-			WriteServ(source->fd,"320 %s %s :%s",source->nick,dest->nick,swhois->c_str());
+			source->WriteServ("320 %s %s :%s",source->nick,dest->nick,swhois->c_str());
 		}
 	}
 
