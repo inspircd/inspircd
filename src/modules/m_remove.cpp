@@ -126,9 +126,10 @@ class cmd_remove : public command_t
 				/* For now, we'll let everyone remove their level and below, eg ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1) */
 				if ((ulevel >= tlevel && tlevel != 5) && (!Srv->IsUlined(target->server)))
 				{
-					Srv->PartUserFromChannel(target,std::string(parameters[1]), "Removed by "+std::string(user->nick)+":"+result);
 					Srv->SendTo(NULL,user,"NOTICE "+std::string(channel->name)+" : "+std::string(user->nick)+" removed "+std::string(target->nick)+ " from the channel");
 					Srv->SendTo(NULL,target,"NOTICE "+std::string(target->nick)+" :*** "+std::string(user->nick)+" removed you from "+std::string(channel->name)+" with the message:"+std::string(result));
+					/* Fix by brain: If the user removes themselves, theres nobody to send those notices to, so this must come last! */
+					Srv->PartUserFromChannel(target,std::string(parameters[1]), "Removed by "+std::string(user->nick)+":"+result);
 				}
 				else
 				{
