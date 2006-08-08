@@ -580,34 +580,51 @@ class userrec : public connection
 	void WriteServ(const char* text, ...);
 
 	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
+	 * @param user The user to prepend the :nick!user@host of
 	 * @param text A std::string to send to the user
 	 */
 	void WriteFrom(userrec *user, const std::string &text);
 
 	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
+	 * @param user The user to prepend the :nick!user@host of
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
 	void WriteFrom(userrec *user, const char* text, ...);
 
 	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	 * @param dest The user to route the message to
 	 * @param text A std::string to send to the user
-	 * @param ... POD-type format arguments
 	 */
 	void WriteTo(userrec *dest, const std::string &data);
 
 	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	 * @param dest The user to route the message to
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
 	void WriteTo(userrec *dest, const char *data, ...);
 
+	/** Write to all users that can see this user (including this user in the list), appending CR/LF
+	 * @param text A std::string to send to the users
+	 */
 	void WriteCommon(const std::string &text);
 
+	/** Write to all users that can see this user (including this user in the list), appending CR/LF
+	 * @param text The format string for text to send to the users
+	 * @param ... POD-type format arguments
+	 */
 	void WriteCommon(char* text, ...);
 
+	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
+	 * @param text The format string for text to send to the users
+	 * @param ... POD-type format arguments
+	 */
 	void WriteCommonExcept(char* text, ...);
 
+	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
+	 * @param text A std::string to send to the users
+	 */
 	void WriteCommonExcept(const std::string &text);
 
 	/** Default destructor
