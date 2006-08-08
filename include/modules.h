@@ -1507,18 +1507,6 @@ class Server : public Extensible
 	 */
 	virtual void ChangeUserNick(userrec* user, const std::string &nickname);
 	
-	/** Forces a user to quit with the specified reason.
-	 * To the user, it will appear as if they typed /QUIT themselves, except for the fact that this function
-	 * may bypass the quit prefix specified in the config file.
-	 *
-	 * WARNING!
-	 *
-	 * Once you call this function, userrec* user will immediately become INVALID. You MUST NOT write to, or
-	 * read from this pointer after calling the QuitUser method UNDER ANY CIRCUMSTANCES! The best course of
-	 * action after calling this method is to immediately bail from your handler.
-	 */
-	virtual void QuitUser(userrec* user, const std::string &reason);
-	
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
 	 * Returns true if the literal successfully matches the pattern, false if otherwise.

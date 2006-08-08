@@ -94,7 +94,7 @@ class ModuleWaitPong : public Module
 				else
 				{
 					if(killonbadreply)
-						Srv->QuitUser(user, "Incorrect ping reply for registration");
+						userrec::QuitUser(user, "Incorrect ping reply for registration");
 					return 1;
 				}
 			}

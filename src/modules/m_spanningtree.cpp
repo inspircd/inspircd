@@ -330,7 +330,7 @@ class TreeServer : public classbase
 			userrec* a = (userrec*)*n;
 			log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
 			if (!IS_LOCAL(a))
-				kill_link(a,reason_s);
+				userrec::QuitUser(a,reason_s);
 		}
 		return time_to_die.size();
 	}
@@ -2078,7 +2078,7 @@ class TreeSocket : public InspSocket
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
 			::Write(who->fd, ":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
-			Srv->QuitUser(who,reason);
+			userrec::QuitUser(who,reason);
 		}
 		return true;
 	}
@@ -2965,11 +2965,11 @@ class TreeSocket : public InspSocket
 								p.push_back(prefix);
 								p.push_back("Nickname collision");
 								DoOneToMany(Srv->GetServerName(),"KILL",p);
-								Srv->QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
+								userrec::QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 								userrec* y = Srv->FindNick(prefix);
 								if (y)
 								{
-									Srv->QuitUser(y,"Nickname collision");
+									userrec::QuitUser(y,"Nickname collision");
 								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 							}

@@ -157,7 +157,7 @@ void ProcessUser(userrec* cu)
 					{
 						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						kill_link(current,"Excess flood");
+						userrec::QuitUser(current,"Excess flood");
 						return;
 					}
 					else
@@ -181,7 +181,7 @@ void ProcessUser(userrec* cu)
 			{
 				if (current->registered == REG_ALL)
 				{
-					kill_link(current,"RecvQ exceeded");
+					userrec::QuitUser(current,"RecvQ exceeded");
 				}
 				else
 				{
@@ -207,7 +207,7 @@ void ProcessUser(userrec* cu)
 				{
 					log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-					kill_link(current,"Excess flood");
+					userrec::QuitUser(current,"Excess flood");
 					return;
 				}
 
@@ -217,7 +217,7 @@ void ProcessUser(userrec* cu)
 					{
 						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						kill_link(current,"Excess flood");
+						userrec::QuitUser(current,"Excess flood");
 					}
 					else
 					{
@@ -262,7 +262,7 @@ void ProcessUser(userrec* cu)
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
 			log(DEBUG,"killing: %s",cu->nick);
-			kill_link(cu,strerror(errno));
+			userrec::QuitUser(cu,strerror(errno));
 			return;
 		}
 	}
@@ -275,7 +275,7 @@ void ProcessUser(userrec* cu)
 	else if (result == 0)
 	{
 		log(DEBUG,"InspIRCd: Exited: %s",cu->nick);
-		kill_link(cu,"Client exited");
+		userrec::QuitUser(cu,"Client exited");
 		log(DEBUG,"Bailing from client exit");
 		return;
 	}

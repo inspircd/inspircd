@@ -634,7 +634,7 @@ void DeleteOper(userrec* user)
 	}
 }
 
-void kill_link(userrec *user,const char* r)
+void userrec::QuitUser(userrec *user,const std::string &quitreason)
 {
 	user_hash::iterator iter = clientlist.find(user->nick);
 
@@ -648,20 +648,19 @@ void kill_link(userrec *user,const char* r)
  *	if (iter == clientlist.end())
  *		return;
  */
+	std::string reason = quitreason;
 
-	char reason[MAXBUF];
-
-	strlcpy(reason,r,MAXQUIT-1);
-	log(DEBUG,"kill_link: %s %d '%s'",user->nick,user->fd,reason);
+	if (reason.length() > MAXQUIT - 1)
+		reason.resize(MAXQUIT - 1);
 	
 	if (IS_LOCAL(user))
-		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason);
+		Write(user->fd,"ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
 
 	if (user->registered == REG_ALL)
 	{
 		purge_empty_chans(user);
 		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
-		WriteCommonExcept(user,"QUIT :%s",reason);
+		WriteCommonExcept(user,"QUIT :%s",reason.c_str());
 	}
 
 	if (IS_LOCAL(user))
@@ -698,7 +697,7 @@ void kill_link(userrec *user,const char* r)
 	if (user->registered == REG_ALL)
 	{
 		if (IS_LOCAL(user))
-			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason);
+			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
 		AddWhoWas(user);
 	}
 
@@ -709,10 +708,7 @@ void kill_link(userrec *user,const char* r)
 		{
 			fd_ref_table[user->fd] = NULL;
 			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-			{
 				local_users.erase(find(local_users.begin(),local_users.end(),user));
-				log(DEBUG,"Delete local user");
-			}
 		}
 		clientlist.erase(iter);
 		DELETE(user);
@@ -868,13 +864,13 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 
 	if (local_users.size() > Config->SoftLimit)
 	{
-		kill_link(_new,"No more connections allowed");
+		userrec::QuitUser(_new,"No more connections allowed");
 		return;
 	}
 
 	if (local_users.size() >= MAXCLIENTS)
 	{
-		kill_link(_new,"No more connections allowed");
+		userrec::QuitUser(_new,"No more connections allowed");
 		return;
 	}
 
@@ -890,7 +886,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	 */
 	if ((unsigned)socket >= MAX_DESCRIPTORS)
 	{
-		kill_link(_new,"Server is full");
+		userrec::QuitUser(_new,"Server is full");
 		return;
 	}
 	char* e = matches_exception(ipaddr);
@@ -901,7 +897,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
-			kill_link(_new,reason);
+			userrec::QuitUser(_new,reason);
 			return;
 		}
 	}
@@ -910,7 +906,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	{
 		if (!ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
 		{
-			kill_link(_new, "Internal error handling connection");
+			userrec::QuitUser(_new, "Internal error handling connection");
 			return;
 		}
 	}
@@ -1099,14 +1095,14 @@ void force_nickchange(userrec* user,const char* newnick)
 	if (MOD_RESULT)
 	{
 		ServerInstance->stats->statsCollisions++;
-		kill_link(user,"Nickname collision");
+		userrec::QuitUser(user,"Nickname collision");
 		return;
 	}
 	
 	if (matches_qline(newnick))
 	{
 		ServerInstance->stats->statsCollisions++;
-		kill_link(user,"Nickname collision");
+		userrec::QuitUser(user,"Nickname collision");
 		return;
 	}
 

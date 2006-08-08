@@ -94,7 +94,7 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			Srv->QuitUser(user,killreason);
+			userrec::QuitUser(user,killreason);
 		}
 	}
 
@@ -202,7 +202,7 @@ public:
 	{
 		if(user->GetExt("sqlauth_failed"))
 		{
-			Srv->QuitUser(user,killreason);
+			userrec::QuitUser(user,killreason);
 			return false;
 		}
 		

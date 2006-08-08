@@ -144,7 +144,7 @@ class ModuleFilterPCRE : public Module
 
 				if (do_action == "kill")
 				{
-					Srv->QuitUser(user,reason);
+					userrec::QuitUser(user,reason);
 				}
 				return 1;
 			}

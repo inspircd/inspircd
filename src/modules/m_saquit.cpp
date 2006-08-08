@@ -63,7 +63,7 @@ class cmd_saquit : public command_t
 			line = line + std::string(parameters[pcnt-1]);
 		
 			Srv->SendOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
-			Srv->QuitUser(dest, line);
+			userrec::QuitUser(dest, line);
 		}
 	}
 };

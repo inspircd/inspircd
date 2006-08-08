@@ -94,7 +94,7 @@ public:
 				Srv->SendOpers("*** Connection throttle deactivated");
 				return;
 			}
-			Srv->QuitUser(user, quitmsg);
+			userrec::QuitUser(user, quitmsg);
 			return;
 		}
 
@@ -104,7 +104,7 @@ public:
 			{
 				throttled = 1;
 				Srv->SendOpers("*** Connection throttle activated");
-				Srv->QuitUser(user, quitmsg);
+				userrec::QuitUser(user, quitmsg);
 				return;
 			}
 		}

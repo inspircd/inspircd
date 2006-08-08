@@ -79,7 +79,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			WriteTo(user, u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
-			kill_link(u, killreason);
+			userrec::QuitUser(u, killreason);
 		}
 	}
 	else

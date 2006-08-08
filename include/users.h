@@ -435,6 +435,10 @@ class userrec : public connection
 	 */
 	void CloseSocket();
 
+	/** Disconnect a user gracefully
+	 */
+	static void QuitUser(userrec *user, const std::string &r);
+
 	/** Default destructor
 	 */
 	virtual ~userrec();
@@ -461,8 +465,7 @@ typedef std::map<irc::string,whowas_set*> whowas_users;
 
 void AddOper(userrec* user);
 void DeleteOper(userrec* user);
-void kill_link(userrec *user,const char* r);
-void kill_link_silent(userrec *user,const char* r);
+//void kill_link(userrec *user,const char* r);
 void AddWhoWas(userrec* u);
 void MaintainWhoWas(time_t TIME);
 void AddClient(int socket, int port, bool iscached, insp_inaddr ip4);

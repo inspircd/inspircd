@@ -116,7 +116,7 @@ class ModuleFilter : public Module
 
 				if (f->action == "kill")
 				{
-					Srv->QuitUser(user,f->reason);
+					userrec::QuitUser(user,f->reason);
 				}
 				return 1;
 			}

@@ -414,11 +414,6 @@ void Server::ChangeUserNick(userrec* user, const std::string &nickname)
 	force_nickchange(user,nickname.c_str());
 }
 
-void Server::QuitUser(userrec* user, const std::string &reason)
-{
-	kill_link(user,reason.c_str());
-}
-
 bool Server::IsUlined(const std::string &server)
 {
 	return is_uline(server.c_str());
@@ -633,7 +628,7 @@ bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &me
 	std::string oldnick = alive->nick;
 	std::string oldhost = alive->host;
 	std::string oldident = alive->ident;
-	kill_link(alive,message.c_str());
+	userrec::QuitUser(alive,message.c_str());
 	if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
 	{
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));
