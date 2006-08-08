@@ -263,6 +263,15 @@ class chanrec : public Extensible
 	 */
 	long ServerKickUser(userrec* user, const char* reason, bool triggerevents);
 
+	/* Part a user from this channel with the given reason.
+	 * If the reason field is NULL, no reason will be sent.
+	 * @param user The user who is parting (must be on this channel)
+	 * @param reason The (optional) part reason
+	 * @return The number of users left on the channel. If this is zero
+	 * when the method returns, you MUST delete the chanrec immediately!
+	 */
+	long PartUser(userrec *user, const char* reason = NULL);
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }
@@ -304,7 +313,7 @@ class ucrec : public classbase
 };
 
 chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override);
-chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
+//chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
 //void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
 //void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
 

@@ -181,10 +181,12 @@ class RemoveBase
 
 				/* Build up the part reason string. */
 				reason << "Removed by " << user->nick << reasonparam;
-						
-				Srv->PartUserFromChannel(target, channel->name, reason.str());
+
 				WriteChannelWithServ(Srv->GetServerName().c_str(), channel, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
 				WriteServ(target->fd, "NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
+
+				if (!channel->PartUser(target, reason.str().c_str()))
+					delete channel;
 			}
 			else
 			{

@@ -163,9 +163,11 @@ class cmd_unpark : public command_t
 			// first part the user from all chans theyre on, so things dont get messy
 			for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 			{
-				if (((ucrec*)(*i))->channel != NULL)
+				chanrec* chan = (*i)->channel;
+				if (chan != NULL)
 				{
-					Srv->PartUserFromChannel(user,((ucrec*)(*i))->channel->name,"Unparking");
+					if (!chan->PartUser(user, "Unparking"))
+						delete chan;
 				}
 			}
 			// remove all their old modes

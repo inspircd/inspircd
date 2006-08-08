@@ -26,13 +26,17 @@ void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
+
+	chanrec* c = FindChan(parameters[0]);
 	
-	if (pcnt > 1)
+	if (c)
 	{
-		del_channel(user,parameters[0],parameters[1],false);
+		if (!c->PartUser(user, pcnt > 1 ? parameters[0] : NULL))
+			/* Arse, who stole our channel! :/ */
+			delete c;
 	}
 	else
 	{
-		del_channel(user,parameters[0],NULL,false);
+		WriteServ(user->fd, "401 %s %s :No such channel", user->nick, parameters[0]);
 	}
 }

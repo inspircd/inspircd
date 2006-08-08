@@ -1520,13 +1520,6 @@ class Server : public Extensible
 	 */
 	virtual chanrec* JoinUserToChannel(userrec* user, const std::string &cname, const std::string &key);
 	
-	/** Forces a user to part a channel.
-	 * This is similar to svspart and can be used to implement redirection, etc.
-	 * Although the return value of this function is a pointer to a channel record, the returned data is
-	 * undefined and should not be read or written to. This behaviour may be changed in a future version.
-	 */
-	virtual chanrec* PartUserFromChannel(userrec* user, const std::string &cname, const std::string &reason);
-	
 	/** Forces a user nickchange.
 	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
 	 * If you specify an invalid nickname, the nick change will be dropped and the target user will receive

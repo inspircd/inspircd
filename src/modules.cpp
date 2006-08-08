@@ -405,11 +405,6 @@ chanrec* Server::JoinUserToChannel(userrec* user, const std::string &cname, cons
 	return add_channel(user,cname.c_str(),key.c_str(),false);
 }
 
-chanrec* Server::PartUserFromChannel(userrec* user, const std::string &cname, const std::string &reason)
-{
-	return del_channel(user,cname.c_str(),reason.c_str(),false);
-}
-
 chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;

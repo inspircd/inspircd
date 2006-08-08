@@ -479,68 +479,50 @@ chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 	return Ptr;
 }
 
-/*
- *remove a channel from a users record, and remove the record from memory
+/* chanrec::PartUser
+ * remove a channel from a users record, and remove the record from the hash
  * if the channel has become empty
  */
-
-chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local)
+long chanrec::PartUser(userrec *user, const char* reason)
 {
-	if ((!user) || (!cname))
-	{
-		log(DEFAULT,"*** BUG *** del_channel was given an invalid parameter");
-		return NULL;
-	}
-
-	chanrec* Ptr = FindChan(cname);
-
-	if (!Ptr)
-		return NULL;
-
-	log(DEBUG,"del_channel: removing: %s %s",user->nick,Ptr->name);
+	if (!user)
+		return this->GetUserCounter();
 
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if (user->chans[i]->channel == Ptr)
+		if (user->chans[i]->channel == this)
 		{
 			if (reason)
 			{
-				FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr,reason));
-				WriteChannel(Ptr,user,"PART %s :%s",Ptr->name, reason);
+				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason));
+				WriteChannel(this, user, "PART %s :%s", this->name, reason);
 			}
 			else
 			{
-				FOREACH_MOD(I_OnUserPart,OnUserPart(user,Ptr,""));
-				WriteChannel(Ptr,user,"PART :%s",Ptr->name);
+				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, ""));
+				WriteChannel(this, user, "PART :%s", this->name);
 			}
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
-			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
 	}
 
-	Ptr->DelUser(user);
-
-	/* if there are no users left on the channel */
-	if (!usercount(Ptr))
+	if (!this->DelUser(user)) /* if there are no users left on the channel... */
 	{
-		chan_hash::iterator iter = chanlist.find(Ptr->name);
-
-		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
-
+		chan_hash::iterator iter = chanlist.find(this->name);
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			DELETE(Ptr);
+			log(DEBUG,"del_channel: destroyed: %s", this->name);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
 			chanlist.erase(iter);
 		}
+		return 0;
 	}
 
-	return NULL;
+	return this->GetUserCounter();
 }
 
 long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggerevents)
