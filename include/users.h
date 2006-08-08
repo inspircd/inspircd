@@ -449,6 +449,9 @@ class userrec : public connection
 
 	void UnOper();
 
+long GlobalCloneCount();
+long LocalCloneCount();
+
 	/** Default destructor
 	 */
 	virtual ~userrec();
@@ -482,8 +485,5 @@ bool InitClasses(const char* tag);
 bool DoType(const char* tag, char** entries, void** values, int* types);
 bool DoClass(const char* tag, char** entries, void** values, int* types);
 bool DoneClassesAndTypes(const char* tag);
-
-long FindMatchingGlobal(userrec* user);
-long FindMatchingLocal(userrec* user);
 
 #endif

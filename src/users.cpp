@@ -924,7 +924,7 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	WriteServ(_new->fd,"NOTICE Auth :*** Looking up your hostname...");
 }
 
-long FindMatchingGlobal(userrec* user)
+long userrec::GlobalCloneCount()
 {
 	char u1[1024];
 	char u2[1024];
@@ -934,13 +934,13 @@ long FindMatchingGlobal(userrec* user)
 		/* We have to match ip's as strings - we don't know what protocol
 		 * a remote user may be using
 		 */
-		if (!strcasecmp(a->second->GetIPString(u1), user->GetIPString(u2)))
+		if (!strcasecmp(a->second->GetIPString(u1), this->GetIPString(u2)))
 				x++;
 	}
 	return x;
 }
 
-long FindMatchingLocal(userrec* user)
+long userrec::LocalCloneCount()
 {
 	long x = 0;
 	for (std::vector<userrec*>::const_iterator a = local_users.begin(); a != local_users.end(); a++)
@@ -949,12 +949,12 @@ long FindMatchingLocal(userrec* user)
 #ifdef IPV6
 		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
 		in6_addr* s1 = &(((sockaddr_in6*)comp->ip)->sin6_addr);
-		in6_addr* s2 = &(((sockaddr_in6*)user->ip)->sin6_addr);
+		in6_addr* s2 = &(((sockaddr_in6*)this->ip)->sin6_addr);
 		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
 			x++;
 #else
 		in_addr* s1 = &((sockaddr_in*)comp->ip)->sin_addr;
-		in_addr* s2 = &((sockaddr_in*)user->ip)->sin_addr;
+		in_addr* s2 = &((sockaddr_in*)this->ip)->sin_addr;
 		if (s1->s_addr == s2->s_addr)
 			x++;
 #endif
@@ -981,13 +981,13 @@ void userrec::FullConnect(CullList* Goners)
 		return;
 	}
 	
-	if (FindMatchingLocal(this) > a.maxlocal)
+	if (this->LocalCloneCount() > a.maxlocal)
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (local)");
 		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a.maxlocal, this->GetIPString());
 		return;
 	}
-	else if (FindMatchingGlobal(this) > a.maxglobal)
+	else if (this->GlobalCloneCount() > a.maxglobal)
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (global)");
 		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal, this->GetIPString());
