@@ -202,6 +202,10 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 /* Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
+	/* Is the DNS connection down? */
+	if (MasterSocket == -1)
+		return NULL;
+
 	/* Are there already the max number of requests on the go? */
 	if (requests.size() == DNS::MAX_REQUEST_ID + 1)
 		return NULL;
@@ -323,7 +327,15 @@ DNS::DNS()
 			log(DEBUG,"Add master socket %d",MasterSocket);
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
-				ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS);
+			{
+				if (!ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS))
+				{
+					log(DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
+					shutdown(MasterSocket,2);
+					close(MasterSocket);
+					MasterSocket = -1;
+				}
+			}
 		}
 	}
 }

@@ -908,10 +908,13 @@ void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 
 	if (socket > -1)
 	{
-		ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+		if (!ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
+		{
+			kill_link(_new, "Internal error handling connection");
+			return;
+		}
 	}
 
-	log(DEBUG,"Writing to client %d",_new->fd);
 	WriteServ(_new->fd,"NOTICE Auth :*** Looking up your hostname...");
 }
 

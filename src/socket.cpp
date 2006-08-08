@@ -359,8 +359,14 @@ int BindPorts(bool bail)
 						/* Associate the new open port with a slot in the socket engine */
 						if (Config->openSockfd[count] > -1)
 						{
-							ServerInstance->SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
-							BoundPortCount++;
+							if (!ServerInstance->SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
+							{
+								log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
+								shutdown(Config->openSockfd[count],2);
+								close(Config->openSockfd[count]);
+							}
+							else
+								BoundPortCount++;
 						}
 					}
 				}

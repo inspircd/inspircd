@@ -52,7 +52,7 @@ InspSocket::InspSocket(int newfd, const char* ip)
 	this->ClosePending = false;
 	if (this->fd > -1)
 	{
-		ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+		this->ClosePending = (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE));
 		socket_ref[this->fd] = this;
 	}
 }
@@ -88,7 +88,13 @@ InspSocket::InspSocket(const std::string &ipaddr, int aport, bool listening, uns
 				this->state = I_LISTENING;
 				if (this->fd > -1)
 				{
-					ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+					if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+					{
+						this->Close();
+						this->state = I_ERROR;
+						this->OnError(I_ERR_NOMOREFDS);
+						this->ClosePending = true;
+					}
 					socket_ref[this->fd] = this;
 				}
 				log(DEBUG,"New socket now in I_LISTENING state");
@@ -135,7 +141,14 @@ void InspSocket::WantWrite()
 	 */
 	this->WaitingForWriteEvent = true;
 	ServerInstance->SE->DelFd(this->fd);
-	ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+	if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	{
+		this->Close();
+		this->fd = -1;
+		this->state = I_ERROR;
+		this->OnError(I_ERR_NOMOREFDS);
+		this->ClosePending = true;
+	}
 }
 
 void InspSocket::SetQueues(int nfd)
@@ -253,7 +266,15 @@ bool InspSocket::DoConnect()
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
-		ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE);
+		if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+		{
+			this->OnError(I_ERR_NOMOREFDS);
+			this->Close();
+			this->fd = -1;
+			this->state = I_ERROR;
+			this->ClosePending = true;
+			return false;
+		}
 		socket_ref[this->fd] = this;
 		this->SetQueues(this->fd);
 	}
@@ -421,7 +442,8 @@ bool InspSocket::Poll()
 			if (this->fd > -1)
 			{
 				ServerInstance->SE->DelFd(this->fd);
-				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+				if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+					return false;
 			}
 			return this->OnConnected();
 		break;
@@ -442,7 +464,9 @@ bool InspSocket::Poll()
 			{
 				/* Switch back to read events */
 				ServerInstance->SE->DelFd(this->fd);
-				ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE);
+				if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+					return false;
+
 				/* Trigger the write event */
 				n = this->OnWriteReady();
 			}

@@ -908,7 +908,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 int InspIRCd::Run()
 {
 	/* Until THIS point, ServerInstance == NULL */
-	
+
 	this->Res = new DNS();
 
 	LoadAllModules(this);
@@ -916,19 +916,10 @@ int InspIRCd::Run()
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
-	printf("\nInspIRCd is now running!\n");
-
 	if (!stats->BoundPortCount)
 	{
 		printf("\nI couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Exit(ERROR);
-	}
-
-	if (!Config->nofork)
-	{
-		fclose(stdout);
-		fclose(stderr);
-		fclose(stdin);
 	}
 
 	/* Add the listening sockets used for client inbound connections
@@ -938,8 +929,21 @@ int InspIRCd::Run()
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
 		log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
-		SE->AddFd(Config->openSockfd[count],true,X_LISTEN);
+		if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
+		{
+			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
+			Exit(ERROR);
+		}
 	}
+
+	if (!Config->nofork)
+	{
+		fclose(stdout);
+		fclose(stderr);
+		fclose(stdin);
+	}
+
+	printf("\nInspIRCd is now running!\n");
 
 	this->WritePID(Config->PID);
 
