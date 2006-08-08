@@ -86,7 +86,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,"Client exited"));
 
 		}
-		AddWhoWas(user);
+		user->AddToWhoWas();
 	}
 
 	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
