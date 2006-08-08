@@ -46,8 +46,14 @@ class chanrec;
 class HostItem : public classbase
 {
  public:
+	/** Time the item was added
+	 */
 	time_t set_time;
+	/** Who added the item
+	 */
 	char set_by[NICKMAX];
+	/** The actual item data
+	 */
 	char data[MAXBUF];
 
 	HostItem() { /* stub */ }
@@ -91,6 +97,9 @@ typedef std::map<userrec*,userrec*> CUList;
 /** Shorthand for CUList::iterator
  */
 typedef CUList::iterator CUListIter;
+
+/** Shorthand for CUList::const_iterator
+ */
 typedef CUList::const_iterator CUListConstIter;
 
 /** A list of custom modes parameters on a channel
@@ -99,7 +108,7 @@ typedef std::map<char,char*> CustomModeList;
 
 
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
- * needs to come AFTER struct chanrec */
+ */
 enum UserChannelModes {
 	UCMODE_OP      = 1,
 	UCMODE_VOICE   = 2,
@@ -149,7 +158,8 @@ class chanrec : public Extensible
  public:
 	/** The channels name.
 	 */
-	char name[CHANMAX]; /* channel name */
+	char name[CHANMAX];
+
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a hash where
 	 * each item in it represents if a mode is set. For example
@@ -164,8 +174,17 @@ class chanrec : public Extensible
 	 * the halfops and another for the voices.
 	 */
 	CUList internal_userlist;
+
+	/** Opped users
+	 */
 	CUList internal_op_userlist;
+
+	/** Halfopped users
+	 */
 	CUList internal_halfop_userlist;
+
+	/** Voiced users
+	 */
 	CUList internal_voice_userlist;
 
 	/** Parameters for custom modes
@@ -197,11 +216,7 @@ class chanrec : public Extensible
 	 * If this value is an empty string, there is no channel key in place.
 	 */
 	char key[32];
-	
-	/** Contains a bitmask of the CM_* builtin (RFC) binary mode symbols
-	 */
-	//char binarymodes;
-	
+
 	/** The list of all bans set on the channel.
 	 */
 	BanList bans;
@@ -254,17 +269,41 @@ class chanrec : public Extensible
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
 	void AddUser(userrec* user);
+
+	/** Add a user pointer to the internal reference list of opped users
+	 * @param user The user to add
+	 */
 	void AddOppedUser(userrec* user);
+
+	/** Add a user pointer to the internal reference list of halfopped users
+	 * @param user The user to add
+	 */
 	void AddHalfoppedUser(userrec* user);
+
+	/** Add a user pointer to the internal reference list of voiced users
+	 * @param user The user to add
+	 */
 	void AddVoicedUser(userrec* user);
 
         /** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
-	 * @return number of users left on the channel
+	 * @return number of users left on the channel after deletion of the user
          */
 	unsigned long DelUser(userrec* user);
+
+	/** Delete a user pointer to the internal reference list of opped users
+	 * @param user The user to delete
+	 */
 	void DelOppedUser(userrec* user);
+
+	/** Delete a user pointer to the internal reference list of halfopped users
+	 * @param user The user to delete
+	 */
 	void DelHalfoppedUser(userrec* user);
+
+	/** Delete a user pointer to the internal reference list of voiced users
+	 * @param user The user to delete
+	 */
 	void DelVoicedUser(userrec* user);
 
 	/** Obtain the internal reference list
@@ -277,15 +316,30 @@ class chanrec : public Extensible
 	 * @return This function returns pointer to a map of userrec pointers (CUList*).
 	 */
 	CUList* GetUsers();
+
+	/** Obtain the internal reference list of opped users
+	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 */
 	CUList* GetOppedUsers();
+
+	/** Obtain the internal reference list of halfopped users
+	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 */
 	CUList* GetHalfoppedUsers();
+
+	/** Obtain the internal reference list of voiced users
+	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 */
 	CUList* GetVoicedUsers();
 
 	/** Returns true if the user given is on the given channel.
+	 * @param The user to look for
+	 * @return True if the user is on this channel
 	 */
 	bool HasUser(userrec* user);
 
 	/** Creates a channel record and initialises it with default values
+	 * @throw Nothing at present.
 	 */
 	chanrec();
 
@@ -327,11 +381,45 @@ class chanrec : public Extensible
 	 */
 	static chanrec* JoinUser(userrec *user, const char* cn, bool override, const char* key = "");
 
+	/** Write to a channel, from a user, using va_args for text
+	 * @param user User whos details to prefix the line with
+	 * @param text A printf-style format string which builds the output line without prefix
+	 * @param ... Zero or more POD types
+	 */
 	void WriteChannel(userrec* user, char* text, ...);
+
+	/** Write to a channel, from a user, using std::string for text
+	 * @param user User whos details to prefix the line with
+	 * @param text A std::string containing the output line without prefix
+	 */
 	void WriteChannel(userrec* user, const std::string &text);
+
+	/** Write to a channel, from a server, using va_args for text
+	 * @param ServName Server name to prefix the line with
+	 * @param text A printf-style format string which builds the output line without prefi
+	 * @param ... Zero or more POD type
+	 */
 	void WriteChannelWithServ(const char* ServName, const char* text, ...);
+
+	/** Write to a channel, from a server, using std::string for text
+	 * @param ServName Server name to prefix the line with
+	 * @param text A std::string containing the output line without prefix
+	 */
 	void WriteChannelWithServ(const char* ServName, const std::string &text);
+
+	/** Write to all users on a channel except a specific user, using va_args for text
+	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
+	 * @param text A printf-style format string which builds the output line without prefi
+	 * @param ... Zero or more POD type
+	 */
 	void WriteAllExceptSender(userrec* user, char status, char* text, ...);
+
+	/** Write to all users on a channel except a specific user, using std::string for text
+	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
+	 * @param text A std::string containing the output line without prefix
+	 */
 	void WriteAllExceptSender(userrec* user, char status, const std::string& text);
 
 	/** Destructor for chanrec
