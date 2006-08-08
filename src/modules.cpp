@@ -409,10 +409,6 @@ chanuserlist Server::GetUsers(chanrec* chan)
 		userl.push_back(i->second);
 	return userl;
 }
-void Server::ChangeUserNick(userrec* user, const std::string &nickname)
-{
-	force_nickchange(user,nickname.c_str());
-}
 
 bool Server::IsUlined(const std::string &server)
 {

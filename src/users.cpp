@@ -962,43 +962,42 @@ long FindMatchingLocal(userrec* user)
 	return x;
 }
 
-void FullConnectUser(userrec* user, CullList* Goners)
+void userrec::FullConnect(CullList* Goners)
 {
 	ServerInstance->stats->statsConnects++;
-	user->idle_lastmsg = TIME;
-	log(DEBUG,"ConnectUser: %s",user->nick);
+	this->idle_lastmsg = TIME;
 
-	ConnectClass a = GetClass(user);
-	
+	ConnectClass a = GetClass(this);
+
 	if (a.type == CC_DENY)
 	{
-		Goners->AddItem(user,"Unauthorised connection");
+		Goners->AddItem(this,"Unauthorised connection");
 		return;
 	}
 	
-	if ((*(a.pass.c_str())) && (!user->haspassed))
+	if ((*(a.pass.c_str())) && (!this->haspassed))
 	{
-		Goners->AddItem(user,"Invalid password");
+		Goners->AddItem(this,"Invalid password");
 		return;
 	}
 	
-	if (FindMatchingLocal(user) > a.maxlocal)
+	if (FindMatchingLocal(this) > a.maxlocal)
 	{
-		Goners->AddItem(user,"No more connections allowed from your host via this connect class (local)");
-		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s",a.maxlocal,user->GetIPString());
+		Goners->AddItem(this, "No more connections allowed from your host via this connect class (local)");
+		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a.maxlocal, this->GetIPString());
 		return;
 	}
-	else if (FindMatchingGlobal(user) > a.maxglobal)
+	else if (FindMatchingGlobal(this) > a.maxglobal)
 	{
-		Goners->AddItem(user,"No more connections allowed from your host via this connect class (global)");
-		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal,user->GetIPString());
+		Goners->AddItem(this, "No more connections allowed from your host via this connect class (global)");
+		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal, this->GetIPString());
 		return;
 	}
 
 	char match_against[MAXBUF];
-	snprintf(match_against,MAXBUF,"%s@%s",user->ident,user->host);
+	snprintf(match_against,MAXBUF,"%s@%s", this->ident, this->host);
 	char* e = matches_exception(match_against);
-	
+
 	if (!e)
 	{
 		char* r = matches_gline(match_against);
@@ -1007,7 +1006,7 @@ void FullConnectUser(userrec* user, CullList* Goners)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"G-Lined: %s",r);
-			Goners->AddItem(user,reason);
+			Goners->AddItem(this, reason);
 			return;
 		}
 		
@@ -1017,18 +1016,18 @@ void FullConnectUser(userrec* user, CullList* Goners)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"K-Lined: %s",r);
-			Goners->AddItem(user,reason);
+			Goners->AddItem(this, reason);
 			return;
 		}
 	}
 
 
-	WriteServ(user->fd,"NOTICE Auth :Welcome to \002%s\002!",Config->Network);
-	WriteServ(user->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",user->nick,Config->Network,user->nick,user->ident,user->host);
-	WriteServ(user->fd,"002 %s :Your host is %s, running version %s",user->nick,Config->ServerName,VERSION);
-	WriteServ(user->fd,"003 %s :This server was created %s %s",user->nick,__TIME__,__DATE__);
-	WriteServ(user->fd,"004 %s %s %s %s %s %s",user->nick,Config->ServerName,VERSION,ServerInstance->ModeGrok->UserModeList().c_str(),ServerInstance->ModeGrok->ChannelModeList().c_str(),+ServerInstance->ModeGrok->ParaModeList().c_str());
-	
+	WriteServ(this->fd,"NOTICE Auth :Welcome to \002%s\002!",Config->Network);
+	WriteServ(this->fd,"001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, Config->Network, this->nick, this->ident, this->host);
+	WriteServ(this->fd,"002 %s :Your host is %s, running version %s",this->nick,Config->ServerName,VERSION);
+	WriteServ(this->fd,"003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
+	WriteServ(this->fd,"004 %s %s %s %s %s %s", this->nick, Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
+
 	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
 	// so i'd better split it :)
 	std::stringstream out(Config->data005);
@@ -1044,94 +1043,78 @@ void FullConnectUser(userrec* user, CullList* Goners)
 		
 		if ((token_counter >= 13) || (out.eof() == true))
 		{
-			WriteServ(user->fd,"005 %s %s:are supported by this server",user->nick,line5.c_str());
+			WriteServ(this->fd,"005 %s %s:are supported by this server", this->nick, line5.c_str());
 			line5 = "";
 			token_counter = 0;
 		}
 	}
 	
-	ShowMOTD(user);
+	ShowMOTD(this);
 
 	/*
 	 * fix 3 by brain, move registered = 7 below these so that spurious modes and host
 	 * changes dont go out onto the network and produce 'fake direction'.
 	 */
-	FOREACH_MOD(I_OnUserConnect,OnUserConnect(user));
-	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(user));
-	user->registered = REG_ALL;
-	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]",user->GetPort(),user->nick,user->ident,user->host,user->GetIPString());
+	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
+	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(this));
+	this->registered = REG_ALL;
+	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
 }
 
-/** ReHashNick()
+/** userrec::UpdateNick()
  * re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved
  */
-userrec* ReHashNick(const char* Old, const char* New)
+userrec* userrec::UpdateNickHash(const char* New)
 {
 	//user_hash::iterator newnick;
-	user_hash::iterator oldnick = clientlist.find(Old);
+	user_hash::iterator oldnick = clientlist.find(this->nick);
 
-	log(DEBUG,"ReHashNick: %s %s",Old,New);
-
-	if (!strcasecmp(Old,New))
-	{
-		log(DEBUG,"old nick is new nick, skipping");
+	if (!strcasecmp(this->nick,New))
 		return oldnick->second;
-	}
 
 	if (oldnick == clientlist.end())
 		return NULL; /* doesnt exist */
 
-	log(DEBUG,"ReHashNick: Found hashed nick %s",Old);
-
 	userrec* olduser = oldnick->second;
 	clientlist[New] = olduser;
 	clientlist.erase(oldnick);
-
-	log(DEBUG,"ReHashNick: Nick rehashed as %s",New);
-
 	return clientlist[New];
 }
 
-void force_nickchange(userrec* user,const char* newnick)
+bool userrec::ForceNickChange(const char* newnick)
 {
 	char nick[MAXBUF];
 	int MOD_RESULT = 0;
 
 	*nick = 0;
 
-	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,newnick));
+	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
 	
 	if (MOD_RESULT)
 	{
 		ServerInstance->stats->statsCollisions++;
-		userrec::QuitUser(user,"Nickname collision");
-		return;
+		return false;
 	}
 	
 	if (matches_qline(newnick))
 	{
 		ServerInstance->stats->statsCollisions++;
-		userrec::QuitUser(user,"Nickname collision");
-		return;
+		return false;
 	}
 
-	if (user)
+	if (newnick)
 	{
-		if (newnick)
-		{
-			strlcpy(nick,newnick,MAXBUF-1);
-		}
-
-		if (user->registered == REG_ALL)
-		{
-			const char* pars[1];
-			pars[0] = nick;
-			std::string cmd = "NICK";
-
-			ServerInstance->Parser->CallHandler(cmd,pars,1,user);
-		}
+		strlcpy(this->nick, newnick, NICKMAX - 1);
 	}
+	if (this->registered == REG_ALL)
+	{
+		const char* pars[1];
+		pars[0] = nick;
+		std::string cmd = "NICK";
+		ServerInstance->Parser->CallHandler(cmd, pars, 1, this);
+	}
+	return true;
 }
 
 void userrec::SetSockAddr(int protocol_family, const char* ip, int port)

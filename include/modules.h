@@ -1499,13 +1499,6 @@ class Server : public Extensible
   	 * user must have both modes set to receive the message.
   	 */
   	virtual void SendToModeMask(const std::string &modes, int flags, const std::string &text);
-
-	/** Forces a user nickchange.
-	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
-	 * If you specify an invalid nickname, the nick change will be dropped and the target user will receive
-	 * the error numeric for it.
-	 */
-	virtual void ChangeUserNick(userrec* user, const std::string &nickname);
 	
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com

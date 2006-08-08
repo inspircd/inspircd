@@ -2014,7 +2014,11 @@ class TreeSocket : public InspSocket
 				/* This is not required as one is sent in OnUserPostNick below
 				 */
 				//DoOneToMany(u->nick,"NICK",par);
-				Srv->ChangeUserNick(u,params[1]);
+				if (!u->ForceNickChange(params[1].c_str()))
+				{
+					userrec::QuitUser(u, "Nickname collision");
+					return true;
+				}
 				u->age = atoi(params[2].c_str());
 			}
 		}

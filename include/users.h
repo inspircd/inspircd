@@ -443,6 +443,10 @@ class userrec : public connection
 
 	void Oper(const std::string &opertype);
 
+	void FullConnect(CullList* Goners);
+	userrec* UpdateNickHash(const char* New);
+	bool ForceNickChange(const char* newnick);
+
 	void UnOper();
 
 	/** Default destructor
@@ -471,9 +475,6 @@ typedef std::map<irc::string,whowas_set*> whowas_users;
 
 void MaintainWhoWas(time_t TIME);
 void AddClient(int socket, int port, bool iscached, insp_inaddr ip4);
-void FullConnectUser(userrec* user, CullList* Goners);
-userrec* ReHashNick(const char* Old, const char* New);
-void force_nickchange(userrec* user,const char* newnick);
 
 /* Configuration callbacks */
 bool InitTypes(const char* tag);

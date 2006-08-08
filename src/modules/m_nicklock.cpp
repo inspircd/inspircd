@@ -55,11 +55,12 @@ class cmd_nicklock : public command_t
 			{
 				// give them a lock flag
 				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
-				Srv->ChangeUserNick(source,std::string(parameters[1]));
-				// only attempt to set their lockflag after we know the change succeeded
-				source = Srv->FindNick(std::string(parameters[1]));
-				if (source)
-					source->Extend("nick_locked", "ON");
+				if (!source->ForceNickChange(parameters[1]))
+				{
+					userrec::QuitUser(source, "Nickname collision");
+					return;
+				}
+				source->Extend("nick_locked", "ON");
 			}
 		}
 	}

@@ -345,13 +345,13 @@ void DoBackgroundUserStuff(time_t TIME)
 				curr->dns_done = true;
 				//ZapThisDns(curr->fd);
 				ServerInstance->stats->statsDnsBad++;
-				FullConnectUser(curr,&GlobalGoners);
+				curr->FullConnect(&GlobalGoners);
 				continue;
 			}
 			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
 			{
 				log(DEBUG,"dns done, registered=3, and modules ready, OK");
-				FullConnectUser(curr,&GlobalGoners);
+				curr->FullConnect(&GlobalGoners);
 				//ZapThisDns(curr->fd);
 				continue;
 			}

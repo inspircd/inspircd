@@ -50,7 +50,12 @@ class cmd_sanick : public command_t
 				// FIX by brain: Cant use source->nick here because if it traverses a server link then
 				// source->nick becomes invalid as the object data moves in memory.
 				Srv->SendOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
-				Srv->ChangeUserNick(source,std::string(parameters[1]));
+				if (!source->ForceNickChange(parameters[1]))
+				{
+					/* We couldnt change the nick */
+					userrec::QuitUser(source, "Nickname collision");
+					return;
+				}
 			}
 		}
 	}

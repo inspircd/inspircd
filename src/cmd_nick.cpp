@@ -124,7 +124,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	strlcpy(oldnick, user->nick, NICKMAX - 1);
 
 	/* change the nick of the user in the users_hash */
-	user = ReHashNick(user->nick, parameters[0]);
+	user = user->UpdateNickHash(parameters[0]);
 	/* actually change the nick within the record */
 	if (!user) return;
 	if (!user->nick) return;
