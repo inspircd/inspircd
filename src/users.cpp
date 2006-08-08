@@ -1281,19 +1281,17 @@ const char* userrec::GetIPString(char* buf)
 
 void userrec::Write(const std::string &text)
 {
-	char tb[MAXBUF];
-	int bytes;
-
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
 		return;
 
-	bytes = snprintf(tb,MAXBUF,"%s\r\n",text.c_str());
+	static std::string crlf = text;
+	crlf.append("\r\n");
 
 	if (Config->GetIOHook(this->GetPort()))
 	{
 		try
 		{
-			Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd,tb,bytes);
+			Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, crlf.data(), crlf.length());
 		}
 		catch (ModuleException& modexcept)
 		{
@@ -1302,9 +1300,9 @@ void userrec::Write(const std::string &text)
 	}
 	else
 	{
-		this->AddWriteBuf(tb);
+		this->AddWriteBuf(crlf);
 	}
-	ServerInstance->stats->statsSent += bytes;
+	ServerInstance->stats->statsSent += crlf.length();
 }
 
 /** Write()

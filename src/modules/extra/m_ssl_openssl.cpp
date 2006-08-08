@@ -381,7 +381,7 @@ class ModuleSSLOpenSSL : public Module
 		return -1;
 	}
 	
-	virtual int OnRawSocketWrite(int fd, char* buffer, int count)
+	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{		
 		issl_session* session = &sessions[fd];
 

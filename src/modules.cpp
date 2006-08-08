@@ -197,7 +197,7 @@ void		Module::OnGlobalConnect(userrec* user) { };
 int		Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
 int		Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
 void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { };
-int		Module::OnRawSocketWrite(int fd, char* buffer, int count) { return 0; };
+int		Module::OnRawSocketWrite(int fd, const char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
 int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status) { };

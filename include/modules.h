@@ -1192,7 +1192,7 @@ class Module : public Extensible
 	 * @param Number of characters to write
 	 * @return Number of characters actually written or 0 if you didn't handle the operation
 	 */
-	virtual int OnRawSocketWrite(int fd, char* buffer, int count);
+	virtual int OnRawSocketWrite(int fd, const char* buffer, int count);
 
 	/** Called immediately before any socket is closed. When this event is called, shutdown()
 	 * has not yet been called on the socket.
