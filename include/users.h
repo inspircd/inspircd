@@ -557,23 +557,50 @@ class userrec : public connection
 	 */
 	long LocalCloneCount();
 
-	/** TO this user
+	/** Write text to this user, appending CR/LF.
+	 * @param text A std::string to send to the user
 	 */
 	void Write(const std::string &text);
+
+	/** Write text to this user, appending CR/LF.
+	 * @param text The format string for text to send to the user
+	 * @param ... POD-type format arguments
+	 */
 	void Write(const char *text, ...);
-	/** FROM server to this user
+
+	/** Write text to this user, appending CR/LF and prepending :server.name
+	 * @param text A std::string to send to the user
 	 */
 	void WriteServ(const std::string& text);
+
+	/** Write text to this user, appending CR/LF and prepending :server.name
+	 * @param text The format string for text to send to the user
+	 * @param ... POD-type format arguments
+	 */
 	void WriteServ(const char* text, ...);
-	/** FROM another user TO this user
+
+	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
+	 * @param text A std::string to send to the user
 	 */
 	void WriteFrom(userrec *user, const std::string &text);
+
+	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
+	 * @param text The format string for text to send to the user
+	 * @param ... POD-type format arguments
+	 */
 	void WriteFrom(userrec *user, const char* text, ...);
-	/** TO another user FROM this user
+
+	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	 * @param text A std::string to send to the user
+	 * @param ... POD-type format arguments
 	 */
 	void WriteTo(userrec *dest, const std::string &data);
-	void WriteTo(userrec *dest, const char *data, ...);
 
+	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	 * @param text The format string for text to send to the user
+	 * @param ... POD-type format arguments
+	 */
+	void WriteTo(userrec *dest, const char *data, ...);
 
 	/** Default destructor
 	 */
