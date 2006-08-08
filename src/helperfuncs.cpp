@@ -335,35 +335,6 @@ void NoticeAll(userrec *source, bool local_only, char* text, ...)
 }
 
 
-void WriteWallOps(userrec *source, bool local_only, char* text, ...)
-{
-	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
-	va_list argsPtr;
-
-	if ((!text) || (!source))
-	{
-		log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
-		return;
-	}
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	snprintf(formatbuffer,MAXBUF,"WALLOPS :%s",textbuffer);
-
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-	{
-		userrec* t = (userrec*)(*i);
-
-		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
-		{
-			source->WriteTo(t,std::string(formatbuffer));
-		}
-	}
-}
-
 /* convert a string to lowercase. Note following special circumstances
  * taken from RFC 1459. Many "official" server branches still hold to this
  * rule so i will too;

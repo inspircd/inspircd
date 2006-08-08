@@ -1390,7 +1390,7 @@ void userrec::WriteTo(userrec *dest, const std::string &data)
 }
 
 
-void userrec::WriteCommon(char* text, ...)
+void userrec::WriteCommon(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1448,7 +1448,7 @@ void userrec::WriteCommon(const std::string &text)
  * channel, NOT including the source user e.g. for use in QUIT
  */
 
-void userrec::WriteCommonExcept(char* text, ...)
+void userrec::WriteCommonExcept(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1536,4 +1536,33 @@ void userrec::WriteCommonExcept(const std::string &text)
 	}
 
 }
+
+void userrec::WriteWallOps(const std::string &text)
+{
+	/* Does nothing if theyre not opered */
+	if ((!*this->oper) && (IS_LOCAL(this)))
+		return;
+
+	std::string wallop = "WALLOPS :";
+	wallop.append(text);
+
+	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	{
+		userrec* t = *i;
+		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
+			this->WriteTo(t,wallop);
+	}
+}
+
+void userrec::WriteWallOps(const char* text, ...)
+{       
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);		
+					
+	this->WriteWallOps(std::string(textbuffer));
+}				       
 

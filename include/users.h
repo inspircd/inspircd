@@ -614,18 +614,22 @@ class userrec : public connection
 	 * @param text The format string for text to send to the users
 	 * @param ... POD-type format arguments
 	 */
-	void WriteCommon(char* text, ...);
+	void WriteCommon(const char* text, ...);
 
 	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
 	 * @param text The format string for text to send to the users
 	 * @param ... POD-type format arguments
 	 */
-	void WriteCommonExcept(char* text, ...);
+	void WriteCommonExcept(const char* text, ...);
 
 	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
 	 * @param text A std::string to send to the users
 	 */
 	void WriteCommonExcept(const std::string &text);
+
+	void userrec::WriteWallOps(const char* text, ...);
+
+	void userrec::WriteWallOps(const std::string &text);
 
 	/** Default destructor
 	 */

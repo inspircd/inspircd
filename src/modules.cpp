@@ -465,11 +465,6 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 	User->WriteServ(CompleteLine);
 }
 
-void Server::SendWallops(userrec* User, const std::string &text)
-{
-	WriteWallOps(User,false,"%s",text.c_str());
-}
-
 void Server::ChangeHost(userrec* user, const std::string &host)
 {
 	ChangeDisplayedHost(user,host.c_str());

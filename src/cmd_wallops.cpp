@@ -27,6 +27,6 @@ extern ServerConfig* Config;
 
 void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	WriteWallOps(user,false,"%s",parameters[0]);
+	user->WriteWallOps(std::string(parameters[0]));
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
 }

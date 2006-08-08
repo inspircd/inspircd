@@ -56,7 +56,6 @@ void WriteMode(const char* modes, int flags, const char* text, ...);
 void NoticeAll(userrec *source, bool local_only, char* text, ...);
 void ServerNoticeAll(char* text, ...);
 void ServerPrivmsgAll(char* text, ...);
-void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 void strlower(char *n);
 userrec* Find(const std::string &nick);
 userrec* Find(const char* nick);

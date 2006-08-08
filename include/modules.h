@@ -1333,12 +1333,6 @@ class Server : public Extensible
 	 */
 	virtual bool CommonChannels(userrec* u1, userrec* u2);
 
-	/** Sends a WALLOPS message.
-	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
-	 * specified user.
-	 */
-	virtual void SendWallops(userrec* User, const std::string &text);
-
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */
