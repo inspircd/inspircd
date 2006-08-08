@@ -1284,7 +1284,7 @@ void userrec::Write(const std::string &text)
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
 		return;
 
-	static std::string crlf = text;
+	std::string crlf = text;
 	crlf.append("\r\n");
 
 	if (Config->GetIOHook(this->GetPort()))
