@@ -54,7 +54,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			// remote kill
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", Config->ServerName, user->nick, parameters[1]);
-			WriteCommonExcept(u, "QUIT :%s", killreason);
+			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
 			user_hash::iterator iter = clientlist.find(u->nick);

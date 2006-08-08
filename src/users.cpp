@@ -45,11 +45,10 @@ extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern ServerConfig *Config;
 extern user_hash clientlist;
 extern Server* MyServer;
-
-irc::whowas::whowas_users whowas;
-
 extern std::vector<userrec*> local_users;
 
+irc::whowas::whowas_users whowas;
+static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 std::vector<userrec*> all_opers;
 
 typedef std::map<irc::string,char*> opertype_t;
@@ -57,6 +56,9 @@ typedef opertype_t operclass_t;
 
 opertype_t opertypes;
 operclass_t operclass;
+
+/* XXX: Used for speeding up WriteCommon operations */
+unsigned long uniq_id = 0;
 
 bool InitTypes(const char* tag)
 {
@@ -670,7 +672,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 	{
 		purge_empty_chans(user);
 		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
-		WriteCommonExcept(user,"QUIT :%s",reason.c_str());
+		user->WriteCommonExcept("QUIT :%s",reason.c_str());
 	}
 
 	if (IS_LOCAL(user))
@@ -1387,4 +1389,151 @@ void userrec::WriteTo(userrec *dest, const std::string &data)
 	dest->WriteFrom(this, data);
 }
 
+
+void userrec::WriteCommon(char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	if (this->registered != REG_ALL)
+		return;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteCommon(std::string(textbuffer));
+}
+
+void userrec::WriteCommon(const std::string &text)
+{
+	bool sent_to_at_least_one = false;
+
+	if (this->registered != REG_ALL)
+		return;
+
+	uniq_id++;
+
+	for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
+	{
+		ucrec *n = *v;
+		if (n->channel)
+		{
+			CUList *ulist= n->channel->GetUsers();
+
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				{
+					already_sent[i->second->fd] = uniq_id;
+					i->second->WriteFrom(this, std::string(text));
+					sent_to_at_least_one = true;
+				}
+			}
+		}
+	}
+
+	/*
+	 * if the user was not in any channels, no users will receive the text. Make sure the user
+	 * receives their OWN message for WriteCommon
+	 */
+	if (!sent_to_at_least_one)
+	{
+		this->WriteFrom(this,std::string(text));
+	}
+}
+
+
+/* write a formatted string to all users who share at least one common
+ * channel, NOT including the source user e.g. for use in QUIT
+ */
+
+void userrec::WriteCommonExcept(char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteCommonExcept(std::string(textbuffer));
+}
+
+void userrec::WriteCommonExcept(const std::string &text)
+{
+	bool quit_munge = true;
+	char oper_quit[MAXBUF];
+	char textbuffer[MAXBUF];
+
+	strlcpy(textbuffer, text.c_str(), MAXBUF);
+
+	if (this->registered != REG_ALL)
+		return;
+
+	uniq_id++;
+
+	/* TODO: We need some form of WriteCommonExcept that will send two lines, one line to
+	 * opers and the other line to non-opers, then all this hidebans and hidesplits gunk
+	 * can go byebye.
+	 */
+	if (Config->HideSplits)
+	{
+		char* check = textbuffer + 6;
+
+		if (!strncasecmp(textbuffer, "QUIT :",6))
+		{
+			std::stringstream split(check);
+			std::string server_one;
+			std::string server_two;
+
+			split >> server_one;
+			split >> server_two;
+
+			if ((FindServerName(server_one)) && (FindServerName(server_two)))
+			{
+				strlcpy(oper_quit,textbuffer,MAXQUIT);
+				strlcpy(check,"*.net *.split",MAXQUIT);
+				quit_munge = true;
+			}
+		}
+	}
+
+	if ((Config->HideBans) && (!quit_munge))
+	{
+		if ((!strncasecmp(textbuffer, "QUIT :G-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :K-Lined:",14))
+		|| (!strncasecmp(textbuffer, "QUIT :Q-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :Z-Lined:",14)))
+		{
+			char* check = textbuffer + 13;
+			strlcpy(oper_quit,textbuffer,MAXQUIT);
+			*check = 0;  // We don't need to strlcpy, we just chop it from the :
+			quit_munge = true;
+		}
+	}
+
+	for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
+	{
+		ucrec* n = *v;
+		if (n->channel)
+		{
+			CUList *ulist= n->channel->GetUsers();
+
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				if (this != i->second)
+				{
+					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+					{
+						already_sent[i->second->fd] = uniq_id;
+						if (quit_munge)
+							i->second->WriteFrom(this, *i->second->oper ? std::string(oper_quit) : std::string(textbuffer));
+						else
+							i->second->WriteFrom(this, std::string(textbuffer));
+					}
+				}
+			}
+		}
+	}
+
+}
 

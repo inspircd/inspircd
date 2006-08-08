@@ -1333,15 +1333,6 @@ class Server : public Extensible
 	 */
 	virtual bool CommonChannels(userrec* u1, userrec* u2);
 
-	/** Sends text from a user to one or more channels (mulicast).
-	 * This method writes a line of text to all users which share a common channel with a given	
-	 * user, with the user's nick/ident/host combination prepended, as used in PRIVMSG etc
-	 * commands (see RFC 1459). If the IncludeSender flag is set, then the text is also sent
-	 * back to the user from which it originated, as seen in NICK (see RFC 1459). Otherwise, it
-	 * is only sent to the other recipients, as seen in QUIT.
-	 */
-	virtual void SendCommon(userrec* User, const std::string &text, bool IncludeSender);
-
 	/** Sends a WALLOPS message.
 	 * This method writes a WALLOPS message to all users with the +w flag, originating from the
 	 * specified user.

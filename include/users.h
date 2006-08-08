@@ -602,6 +602,14 @@ class userrec : public connection
 	 */
 	void WriteTo(userrec *dest, const char *data, ...);
 
+	void WriteCommon(const std::string &text);
+
+	void WriteCommon(char* text, ...);
+
+	void WriteCommonExcept(char* text, ...);
+
+	void WriteCommonExcept(const std::string &text);
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

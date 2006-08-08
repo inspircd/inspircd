@@ -34,8 +34,6 @@ typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 void WriteOpers(char* text, ...);
 void do_log(int level, char *text, ...);
 int common_channels(userrec *u, userrec *u2);
-void WriteCommon(userrec *u, char* text, ...);
-void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteWallOps(userrec *source, bool local_only, char* text, ...);
 int isnick(const char *n);
 chanrec* FindChan(const char* chan);

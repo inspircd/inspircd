@@ -465,18 +465,6 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 	User->WriteServ(CompleteLine);
 }
 
-void Server::SendCommon(userrec* User, const std::string &text, bool IncludeSender)
-{
-	if (IncludeSender)
-	{
-		WriteCommon_NoFormat(User,text.c_str());
-	}
-	else
-	{
-		WriteCommonExcept_NoFormat(User,text.c_str());
-	}
-}
-
 void Server::SendWallops(userrec* User, const std::string &text)
 {
 	WriteWallOps(User,false,"%s",text.c_str());

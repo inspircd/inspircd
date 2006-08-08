@@ -48,12 +48,7 @@
 void do_log(int level, const char *text, ...);
 void readfile(file_cache &F, const char* fname);
 
-void WriteCommon(userrec *u, char* text, ...);
-void WriteCommonExcept(userrec *u, char* text, ...);
 void WriteOpers(const char* text, ...);
-
-void WriteCommon_NoFormat(userrec *u, const char* text);
-void WriteCommonExcept_NoFormat(userrec *u, const char* text);
 void WriteOpers_NoFormat(const char* text);
 
 std::string GetServerDescription(const char* servername);

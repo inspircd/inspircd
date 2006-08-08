@@ -79,7 +79,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		if (MOD_RESULT)
 			return;
 		if (user->registered == REG_ALL)
-			WriteCommon(user,"NICK %s",parameters[0]);
+			user->WriteCommon("NICK %s",parameters[0]);
 		strlcpy(user->nick, parameters[0], NICKMAX - 1);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return;
@@ -117,7 +117,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			return;
 		}
 
-		WriteCommon(user,"NICK %s",parameters[0]);
+		user->WriteCommon("NICK %s",parameters[0]);
 		
 	}
 
