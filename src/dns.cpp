@@ -705,7 +705,7 @@ bool DNS::ReverseLookup(const std::string &ip)
 	log(DEBUG,"DNS: ReverseLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
 	if (ServerInstance && ServerInstance->SE)
-		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+		return (ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS));
 #endif
 	return true;
 }
@@ -722,7 +722,7 @@ bool DNS::ForwardLookup(const std::string &host)
 	log(DEBUG,"DNS: ForwardLookup, fd=%d",this->myfd);
 #ifndef THREADED_DNS
 	if (ServerInstance && ServerInstance->SE)
-		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS);
+		return (ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_DNS));
 #endif
 	return true;
 }
@@ -739,7 +739,7 @@ bool DNS::ForwardLookupWithFD(const std::string &host, int &fd)
 	}
 	log(DEBUG,"DNS: ForwardLookupWithFD, fd=%d",this->myfd);
 	if (ServerInstance && ServerInstance->SE)
-		ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_MODULE);
+		return (ServerInstance->SE->AddFd(this->myfd,true,X_ESTAB_MODULE));
 	return true;
 }
 

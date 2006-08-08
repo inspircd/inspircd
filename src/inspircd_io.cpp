@@ -1605,17 +1605,25 @@ int BindPorts(bool bail)
 				if ((openSockfd[count] = OpenTCPSocket()) == ERROR)
 				{
 					log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[count],Config->addrs[count],Config->ports[count]);
-					return ERROR;
-				}
-				if (!BindSocket(openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
-				{
-					log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 				}
 				else
 				{
-					/* Associate the new open port with a slot in the socket engine */
-					ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN);
-					BoundPortCount++;
+					if (!BindSocket(openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
+					{
+						log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+					}
+					else
+					{
+						/* Associate the new open port with a slot in the socket engine */
+						if (!ServerInstance->SE->AddFd(openSockfd[count],true,X_LISTEN))
+						{
+							log(DEFAULT,"Could not add socket to socket engine!");
+							shutdown(openSockfd[count],2);
+							close(openSockfd[count]);
+						}
+						else
+							BoundPortCount++;
+					}
 				}
 			}
 			return InitialPortCount + BoundPortCount;
@@ -1658,26 +1666,19 @@ int BindPorts(bool bail)
 		if ((openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
 		{
 			log(DEBUG,"Bad fd %d binding port [%s:%d]",openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
-			return ERROR;
-		}
-
-		if (!BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
-		{
-			log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 		}
 		else
 		{
-			/* well we at least bound to one socket so we'll continue */
-			BoundPortCount++;
+			if (!BindSocket(openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
+			{
+				log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+			}
+			else
+			{
+				/* well we at least bound to one socket so we'll continue */
+				BoundPortCount++;
+			}
 		}
-	}
-
-	/* if we didn't bind to anything then abort */
-	if (!BoundPortCount)
-	{
-		log(DEFAULT,"No ports bound, bailing!");
-		printf("\nERROR: Could not bind any of %d ports! Please check your configuration.\n\n", PortCount);
-		return ERROR;
 	}
 
 	return BoundPortCount;

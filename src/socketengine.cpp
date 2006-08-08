@@ -88,6 +88,9 @@ bool SocketEngine::AddFd(int fd, bool readable, char type)
 #ifdef USE_SELECT
 	fds[fd] = fd;
 #endif
+	if (ref[fd])
+		return false;
+
 	ref[fd] = type;
 	if (readable)
 	{

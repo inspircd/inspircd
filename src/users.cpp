@@ -700,7 +700,11 @@ void AddClient(int socket, int port, bool iscached, in_addr ip4)
 		}
 	}
 
-	ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT);
+	if (!ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
+	{
+		kill_link(clientlist[tempnick],"Internal error during connection");
+		return;
+	}
 
 	WriteServ(clientlist[tempnick]->fd,"NOTICE Auth :*** Looking up your hostname...");
 }

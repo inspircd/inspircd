@@ -206,6 +206,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	CheckDie();
 	stats->BoundPortCount = BindPorts(true);
 
+	if (!stats->BoundPortCount)
+	{
+		printf("\nERROR: Could not bind to any ports. Are you sure you didn't start InspIRCd twice by mistake?\n");
+		Exit(ERROR);
+	}
+
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
 
@@ -804,26 +810,31 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 int InspIRCd::Run()
 {
 	/* Until THIS point, ServerInstance == NULL */
-	
 	LoadAllModules(this);
 
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
+	/* Add the listening sockets used for client inbound connections
+	 * to the socket engine
+	 */
+	for (int count = 0; count < stats->BoundPortCount; count++)
+	{
+		if (!SE->AddFd(openSockfd[count],true,X_LISTEN))
+		{
+			printf("EH?! Can't add listening port to socket engine. Aborting.");
+			Exit(0);
+		}
+	}
+
 	printf("\nInspIRCd is now running!\n");
-	
+
 	if (!Config->nofork)
 	{
 		fclose(stdout);
 		fclose(stderr);
 		fclose(stdin);
 	}
-
-	/* Add the listening sockets used for client inbound connections
-	 * to the socket engine
-	 */
-	for (int count = 0; count < stats->BoundPortCount; count++)
-		SE->AddFd(openSockfd[count],true,X_LISTEN);
 
 	WritePID(Config->PID);
 
