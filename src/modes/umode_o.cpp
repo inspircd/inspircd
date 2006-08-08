@@ -24,8 +24,7 @@ ModeAction ModeUserOperator::OnModeChange(userrec* source, userrec* dest, chanre
 	 * verifying as an oper and getting an opertype assigned
 	 * to your userrec!
 	 */
-	dest->modes[UM_OPERATOR] = 0;
-	/* Remove their opertype when they oper down */
-	*dest->oper = 0;
+	dest->UnOper();
+
 	return MODEACTION_ALLOW;
 }

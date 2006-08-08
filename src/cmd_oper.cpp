@@ -101,7 +101,6 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return;
 					}
-					strlcpy(user->oper,TypeName,NICKMAX-1);
 					found = true;
 					fail2 = false;
 					break;
@@ -117,14 +116,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
 		WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 		if (!user->modes[UM_OPERATOR])
-		{
-			user->modes[UM_OPERATOR] = 1;
-			WriteServ(user->fd,"MODE %s :+o",user->nick);
-			FOREACH_MOD(I_OnOper,OnOper(user,OperType));
-			log(DEFAULT,"OPER: %s!%s@%s opered as type: %s",user->nick,user->ident,user->host,OperType);
-			AddOper(user);
-			FOREACH_MOD(I_OnPostOper,OnPostOper(user,OperType));
-		}
+			user->Oper(OperType);
 	}
 	else
 	{

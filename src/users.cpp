@@ -615,21 +615,31 @@ const char* userrec::GetWriteError()
 	return this->WriteError.c_str();
 }
 
-void AddOper(userrec* user)
+void userrec::Oper(const std::string &opertype)
 {
-	log(DEBUG,"Oper added to optimization list");
-	all_opers.push_back(user);
+	this->modes[UM_OPERATOR] = 1;
+	WriteServ(this->fd, "MODE %s :+o", this->nick);
+	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
+	log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
+	strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
+	all_opers.push_back(this);
+	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
 }
 
-void DeleteOper(userrec* user)
+void userrec::UnOper()
 {
-	for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
+	if (*this->oper)
 	{
-		if (*a == user)
+		*this->oper = 0;
+		this->modes[UM_OPERATOR] = 0;
+		for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
 		{
-			log(DEBUG,"Oper removed from optimization list");
-			all_opers.erase(a);
-			return;
+			if (*a == this)
+			{
+				log(DEBUG,"Oper removed from optimization list");
+				all_opers.erase(a);
+				return;
+			}
 		}
 	}
 }

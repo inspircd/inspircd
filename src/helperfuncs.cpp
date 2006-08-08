@@ -1001,8 +1001,7 @@ void purge_empty_chans(userrec* u)
 		}
 	}
 
-	if (*u->oper)
-		DeleteOper(u);
+	u->UnOper();
 }
 
 

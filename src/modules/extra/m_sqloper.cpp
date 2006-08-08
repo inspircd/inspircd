@@ -46,7 +46,7 @@ public:
 	{
 		SQLutils = Srv->FindFeature("SQLutils");
 		
-		if(SQLutils)
+		if (SQLutils)
 		{
 			log(DEBUG, "Successfully got SQLutils pointer");
 		}
@@ -75,7 +75,7 @@ public:
 	{
 		if (validated && (command == "OPER"))
 		{
-			if(LookupOper(user, parameters[0], parameters[1]))
+			if (LookupOper(user, parameters[0], parameters[1]))
 			{	
 				/* Returning true here just means the query is in progress, or on it's way to being
 				 * in progress. Nothing about the /oper actually being successful..
@@ -93,11 +93,11 @@ public:
 		
 		target = Srv->FindFeature("SQL");
 		
-		if(target)
+		if (target)
 		{
 			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password=md5('?')", username, password);
 			
-			if(req.Send())
+			if (req.Send())
 			{
 				/* When we get the query response from the service provider we will be given an ID to play with,
 				 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
@@ -128,7 +128,7 @@ public:
 	
 	virtual char* OnRequest(Request* request)
 	{
-		if(strcmp(SQLRESID, request->GetId()) == 0)
+		if (strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			SQLresult* res;
 		
@@ -139,14 +139,14 @@ public:
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 			
-			if(user)
+			if (user)
 			{
-				if(res->error.Id() == NO_ERROR)
+				if (res->error.Id() == NO_ERROR)
 				{				
 					log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
 					log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
 			
-					if(res->Rows())
+					if (res->Rows())
 					{
 						/* We got a row in the result, this means there was a record for the oper..
 						 * now we just need to check if their host matches, and if it does then
@@ -161,11 +161,11 @@ public:
 						 * are no more rows to return.
 						 */
 						
-						for(SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
+						for (SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
 						{
 							log(DEBUG, "Trying to oper user %s with username = '%s', passhash = '%s', hostname = '%s', type = '%s'", user->nick, row["username"].d.c_str(), row["password"].d.c_str(), row["hostname"].d.c_str(), row["type"].d.c_str());
 							
-							if(OperUser(user, row["username"].d, row["password"].d, row["hostname"].d, row["type"].d))
+							if (OperUser(user, row["username"].d, row["password"].d, row["hostname"].d, row["type"].d))
 							{
 								/* If/when one of the rows matches, stop checking and return */
 								return SQLSUCCESS;
@@ -223,14 +223,14 @@ public:
 			std::string hostname(user->ident);
 			hostname.append("@").append(user->host);
 							
-			if((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
+			if ((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
 			{
 				/* Opertype and host match, looks like this is it. */
 				log(DEBUG, "Host (%s matched %s OR %s) and type (%s)", pattern.c_str(), hostname.c_str(), user->GetIPString(), type.c_str());
 				
 				std::string operhost = Conf.ReadValue("type", "host", j);
 							
-				if(operhost.size())
+				if (operhost.size())
 					Srv->ChangeHost(user, operhost);
 								
 				strlcpy(user->oper, type.c_str(), NICKMAX-1);
@@ -238,15 +238,8 @@ public:
 				WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				WriteServ(user->fd,"381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
-				if(!user->modes[UM_OPERATOR])
-				{
-					user->modes[UM_OPERATOR] = 1;
-					WriteServ(user->fd,"MODE %s :+o",user->nick);
-					FOREACH_MOD(I_OnOper,OnOper(user, type));
-					AddOper(user);
-					FOREACH_MOD(I_OnPostOper,OnPostOper(user, type));
-					log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", user->nick, user->ident, user->host, type.c_str());
-				}
+				if (!user->modes[UM_OPERATOR])
+					user->Oper();
 								
 				return true;
 			}
