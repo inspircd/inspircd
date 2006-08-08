@@ -746,7 +746,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 		if ((TIME % 3600) == 0)
 		{
-			MaintainWhoWas(TIME);
+			irc::whowas::MaintainWhoWas(TIME);
 		}
 	}
 
@@ -879,7 +879,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 					AddClient(incomingSockfd, in_port, false, client.sin6_addr);
 #else
 					log(DEBUG,"Add ipv4 client");
-					AddClient(incomingSockfd, in_port, false, client.sin_addr);
+					userrec::AddClient(incomingSockfd, in_port, false, client.sin_addr);
 #endif
 					log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
 				}

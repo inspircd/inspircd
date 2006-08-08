@@ -46,7 +46,7 @@ extern ServerConfig *Config;
 extern user_hash clientlist;
 extern Server* MyServer;
 
-whowas_users whowas;
+irc::whowas::whowas_users whowas;
 
 extern std::vector<userrec*> local_users;
 
@@ -725,75 +725,82 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 	}
 }
 
-WhoWasGroup::WhoWasGroup(userrec* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
+namespace irc
 {
-	this->host = strdup(user->host);
-	this->dhost = strdup(user->dhost);
-	this->ident = strdup(user->ident);
-	this->server = user->server;
-	this->gecos = strdup(user->fullname);
-}
+	namespace whowas
+	{
 
-WhoWasGroup::~WhoWasGroup()
-{
-	if (host)
-		free(host);
-	if (dhost)
-		free(dhost);
-	if (ident)
-		free(ident);
-	if (gecos)
-		free(gecos);
-}
+		WhoWasGroup::WhoWasGroup(userrec* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
+		{
+			this->host = strdup(user->host);
+			this->dhost = strdup(user->dhost);
+			this->ident = strdup(user->ident);
+			this->server = user->server;
+			this->gecos = strdup(user->fullname);
+		}
+
+		WhoWasGroup::~WhoWasGroup()
+		{
+			if (host)
+				free(host);
+			if (dhost)
+				free(dhost);
+			if (ident)
+				free(ident);
+			if (gecos)
+				free(gecos);
+		}
+
+		/* every hour, run this function which removes all entries over 3 days */
+		void MaintainWhoWas(time_t TIME)
+		{
+			for (whowas_users::iterator iter = ::whowas.begin(); iter != ::whowas.end(); iter++)
+			{
+				whowas_set* n = (whowas_set*)iter->second;
+				if (n->size())
+				{
+					while ((n->begin() != n->end()) && ((*n->begin())->signon < TIME - 259200)) // 3 days
+					{
+						WhoWasGroup *a = *(n->begin());
+						DELETE(a);
+						n->erase(n->begin());
+					}
+				}
+			}
+		}
+	};
+};
 
 /* adds or updates an entry in the whowas list */
 void userrec::AddToWhoWas()
 {
-	whowas_users::iterator iter = whowas.find(this->nick);
+	irc::whowas::whowas_users::iterator iter = whowas.find(this->nick);
 
 	if (iter == whowas.end())
 	{
-		whowas_set* n = new whowas_set;
-		WhoWasGroup *a = new WhoWasGroup(this);
+		irc::whowas::whowas_set* n = new irc::whowas::whowas_set;
+		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
 		n->push_back(a);
 		whowas[this->nick] = n;
 	}
 	else
 	{
-		whowas_set* group = (whowas_set*)iter->second;
+		irc::whowas::whowas_set* group = (irc::whowas::whowas_set*)iter->second;
 
 		if (group->size() > 10)
 		{
-			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
+			irc::whowas::WhoWasGroup *a = (irc::whowas::WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();
 		}
 
-		WhoWasGroup *a = new WhoWasGroup(this);
+		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
 		group->push_back(a);
 	}
 }
 
-/* every hour, run this function which removes all entries over 3 days */
-void MaintainWhoWas(time_t TIME)
-{
-	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
-	{
-		whowas_set* n = (whowas_set*)iter->second;
-		if (n->size())
-		{
-			while ((n->begin() != n->end()) && ((*n->begin())->signon < TIME - 259200)) // 3 days
-			{
-				WhoWasGroup *a = *(n->begin());
-				DELETE(a);
-				n->erase(n->begin());
-			}
-		}
-	}
-}
-
 /* add a client connection to the sockets list */
-void AddClient(int socket, int port, bool iscached, insp_inaddr ip)
+void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = clientlist.find(tempnick);

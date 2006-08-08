@@ -22,11 +22,11 @@
 #include "commands/cmd_whowas.h"
 
 extern ServerConfig* Config;
-extern whowas_users whowas;
+extern irc::whowas::whowas_users whowas;
 
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
-	whowas_users::iterator i = whowas.find(parameters[0]);
+	irc::whowas::whowas_users::iterator i = whowas.find(parameters[0]);
 
 	if (i == whowas.end())
 	{
@@ -34,12 +34,12 @@ void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 	}
 	else
 	{
-		whowas_set* grp = i->second;
+		irc::whowas::whowas_set* grp = i->second;
 		if (grp->size())
 		{
-			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
+			for (irc::whowas::whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
 			{
-				WhoWasGroup* u = *ux;
+				irc::whowas::WhoWasGroup* u = *ux;
 				time_t rawtime = u->signon;
 				tm *timeinfo;
 				char b[MAXBUF];

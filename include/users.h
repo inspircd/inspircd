@@ -447,10 +447,12 @@ class userrec : public connection
 	userrec* UpdateNickHash(const char* New);
 	bool ForceNickChange(const char* newnick);
 
+	static void AddClient(int socket, int port, bool iscached, insp_inaddr ip);
+
 	void UnOper();
 
-long GlobalCloneCount();
-long LocalCloneCount();
+	long GlobalCloneCount();
+	long LocalCloneCount();
 
 	/** Default destructor
 	 */
@@ -459,25 +461,32 @@ long LocalCloneCount();
 
 /** Used to hold WHOWAS information
  */
-class WhoWasGroup : public classbase
+
+namespace irc
 {
- public:
-	char* host;
-	char* dhost;
-	char* ident;
-	const char* server;
-	char* gecos;
-	time_t signon;
+	namespace whowas
+	{
 
-	WhoWasGroup(userrec* user);
-	~WhoWasGroup();
+		class WhoWasGroup : public classbase
+		{
+		 public:
+			char* host;
+			char* dhost;
+			char* ident;
+			const char* server;
+			char* gecos;
+			time_t signon;
+	
+			WhoWasGroup(userrec* user);
+			~WhoWasGroup();
+		};
+	
+		typedef std::deque<WhoWasGroup*> whowas_set;
+		typedef std::map<irc::string,whowas_set*> whowas_users;
+	
+		void MaintainWhoWas(time_t TIME);
+	};
 };
-
-typedef std::deque<WhoWasGroup*> whowas_set;
-typedef std::map<irc::string,whowas_set*> whowas_users;
-
-void MaintainWhoWas(time_t TIME);
-void AddClient(int socket, int port, bool iscached, insp_inaddr ip4);
 
 /* Configuration callbacks */
 bool InitTypes(const char* tag);
