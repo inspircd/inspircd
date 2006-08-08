@@ -2896,7 +2896,7 @@ class TreeSocket : public InspSocket
 						chanrec* chan = Srv->FindChannel(params[0]);
 						if (user && chan)
 						{
-							server_kick_channel(user,chan,(char*)params[2].c_str(),false);
+							chan->ServerKickUser(user, params[2].c_str(), false);
 						}
 					}
 					if (this->InboundServerName != "")

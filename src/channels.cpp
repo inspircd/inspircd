@@ -543,141 +543,131 @@ chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool 
 	return NULL;
 }
 
-void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents)
+long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggerevents)
 {
-	if ((!user) || (!Ptr) || (!reason))
-	{
-		return;
-	}
+	if (!user || !reason)
+		return this->GetUserCounter();
 
 	if (IS_LOCAL(user))
 	{
-		if (!Ptr->HasUser(user))
+		if (!this->HasUser(user))
 		{
 			/* Not on channel */
-			return;
+			return this->GetUserCounter();
 		}
 	}
-	
+
 	if (triggerevents)
 	{
-		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL,user,Ptr,reason));
+		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL,user,this,reason));
 	}
 
 	for (unsigned int i =0; i < user->chans.size(); i++)
 	{
-		if ((user->chans[i]->channel) && (user->chans[i]->channel == Ptr))
+		if (user->chans[i]->channel == this)
 		{
-			WriteChannelWithServ(Config->ServerName,Ptr,"KICK %s %s :%s",Ptr->name, user->nick, reason);
+			WriteChannelWithServ(Config->ServerName,this,"KICK %s %s :%s",this->name, user->nick, reason);
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
 			break;
 		}
 	}
 
-	Ptr->DelUser(user);
-
-	if (!usercount(Ptr))
+	if (!this->DelUser(user))
 	{
-		chan_hash::iterator iter = chanlist.find(Ptr->name);
-		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
+		chan_hash::iterator iter = chanlist.find(this->name);
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			DELETE(Ptr);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
 			chanlist.erase(iter);
 		}
+		return 0;
 	}
+
+	return this->GetUserCounter();
 }
 
-void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason)
+long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 {
-	if ((!src) || (!user) || (!Ptr) || (!reason))
-	{
-		log(DEFAULT,"*** BUG *** kick_channel was given an invalid parameter");
-		return;
-	}
-
-	log(DEBUG,"kick_channel: removing: %s %s %s",user->nick,Ptr->name,src->nick);
+	if (!src || !user || !reason)
+		return this->GetUserCounter();
 
 	if (IS_LOCAL(src))
 	{
-		if (!Ptr->HasUser(user))
+		if (!this->HasUser(user))
 		{
-			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, Ptr->name);
-			return;
+			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
+			return this->GetUserCounter();
 		}
                 if ((is_uline(user->server)) && (!is_uline(src->server)))
 		{
-			WriteServ(src->fd,"482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, Ptr->name);
-			return;
+			WriteServ(src->fd,"482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
+			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
 
 		if (!is_uline(src->server))
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,Ptr,reason));
+			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,this,reason));
 			if (MOD_RESULT == 1)
-				return;
+				return this->GetUserCounter();
 		}
 		/* Set to -1 by OnUserPreKick if explicit allow was set */
 		if (MOD_RESULT != -1)
 		{
-			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,Ptr,AC_KICK));
+			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,this,AC_KICK));
 			if ((MOD_RESULT == ACR_DENY) && (!is_uline(src->server)))
-				return;
+				return this->GetUserCounter();
 	
 			if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
 			{
-   			 	if ((cstatus(src,Ptr) < STATUS_HOP) || (cstatus(src,Ptr) < cstatus(user,Ptr)))
+				int them = cstatus(src, this);
+				int us = cstatus(user, this);
+   			 	if ((them < STATUS_HOP) || (them < us))
 				{
-					if (cstatus(src,Ptr) == STATUS_HOP)
+					if (them == STATUS_HOP)
 					{
-						WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, Ptr->name);
+						WriteServ(src->fd,"482 %s %s :You must be a channel operator",src->nick, this->name);
 					}
 					else
 					{
-						WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, Ptr->name);
+						WriteServ(src->fd,"482 %s %s :You must be at least a half-operator",src->nick, this->name);
 					}
-		
-					return;
+					return this->GetUserCounter();
 				}
 			}
 		}
 	}
 
-	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,Ptr,reason));
+	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,this,reason));
 			
 	for (UserChanList::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
 	{
 		/* zap it from the channel list of the user */
-		if ((*i)->channel && ((*i)->channel == Ptr))
+		if ((*i)->channel == this)
 		{
-			WriteChannel(Ptr,src,"KICK %s %s :%s",Ptr->name, user->nick, reason);
+			WriteChannel(this,src,"KICK %s %s :%s",this->name, user->nick, reason);
 			(*i)->uc_modes = 0;
 			(*i)->channel = NULL;
-			log(DEBUG,"del_channel: unlinked: %s %s",user->nick,Ptr->name);
 			break;
 		}
 	}
 
-	if (!Ptr->DelUser(user))
+	if (!this->DelUser(user))
 	/* if there are no users left on the channel */
 	{
-		chan_hash::iterator iter = chanlist.find(Ptr->name);
-
-		log(DEBUG,"del_channel: destroying channel: %s",Ptr->name);
+		chan_hash::iterator iter = chanlist.find(this->name);
 
 		/* kill the record */
 		if (iter != chanlist.end())
 		{
-			log(DEBUG,"del_channel: destroyed: %s",Ptr->name);
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(Ptr));
-			DELETE(Ptr);
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
 			chanlist.erase(iter);
 		}
+		return 0;
 	}
+
+	return this->GetUserCounter();
 }

@@ -428,11 +428,11 @@ void Server::KickUser(userrec* source, userrec* target, chanrec* chan, const std
 {
 	if (source)
 	{
-		kick_channel(source,target,chan,(char*)reason.c_str());
+		chan->KickUser(source, target, reason.c_str());
 	}
 	else
 	{
-		server_kick_channel(target,chan,(char*)reason.c_str(),true);
+		chan->ServerKickUser(target, reason.c_str(), true);
 	}
 }
 

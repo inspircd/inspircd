@@ -245,6 +245,24 @@ class chanrec : public Extensible
 	 */
 	chanrec();
 
+	/* Make src kick user from this channel with the given reason.
+	 * @param src The source of the kick
+	 * @param user The user being kicked (must be on this channel)
+	 * @param reason The reason for the kick
+	 * @return The number of users left on the channel. If this is zero
+	 * when the method returns, you MUST delete the chanrec immediately!
+	 */
+	long KickUser(userrec *src, userrec *user, const char* reason);
+
+	/* Make the server kick user from this channel with the given reason.
+	 *  @param user The user being kicked (must be on this channel)
+	 *  @param reason The reason for the kick
+	 *  @param triggerevents True if you wish this kick to trigger module events
+	 *  @return The number of users left on the channel. If this is zero
+	 *  when the method returns, you MUST delete the chanrec immediately!
+	 */
+	long ServerKickUser(userrec* user, const char* reason, bool triggerevents);
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }
@@ -287,7 +305,7 @@ class ucrec : public classbase
 
 chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override);
 chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
-void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
-void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
+//void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
+//void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
 
 #endif

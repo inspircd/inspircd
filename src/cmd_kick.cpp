@@ -24,7 +24,7 @@ void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];
 	chanrec* c = FindChan(parameters[0]);
-	userrec* u   = Find(parameters[1]);
+	userrec* u = Find(parameters[1]);
 
 	if (!u || !c)
 	{
@@ -47,5 +47,7 @@ void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 		strlcpy(reason, user->nick, MAXKICK - 1);
 	}
 
-	kick_channel(user, u, c, reason);
+	if (!c->KickUser(user, u, reason))
+		/* Nobody left here, delete the chanrec */
+		delete c;
 }
