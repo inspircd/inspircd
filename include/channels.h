@@ -38,6 +38,7 @@ enum ChannelModes {
 };
 
 class userrec;
+class chanrec;
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
@@ -96,12 +97,55 @@ typedef CUList::const_iterator CUListConstIter;
  */
 typedef std::map<char,char*> CustomModeList;
 
+
+/** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
+ * needs to come AFTER struct chanrec */
+enum UserChannelModes {
+	UCMODE_OP      = 1,
+	UCMODE_VOICE   = 2,
+	UCMODE_HOP     = 4
+};
+
+/** Holds a user's modes on a channel
+ * This class associates a users privilages with a channel by creating a pointer link between
+ * a userrec and chanrec class. The uc_modes member holds a bitmask of which privilages the user
+ * has on the channel, such as op, voice, etc.
+ */
+class ucrec : public classbase
+{
+ public:
+	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.
+	 * If this value is zero, the user has no privilages upon the channel.
+	 */
+	char uc_modes;
+
+	/** Points to the channel record where the given modes apply.
+	 * If the record is not in use, this value will be NULL.
+	 */
+	chanrec *channel;
+
+	/** Constructor for ucrec
+	 */
+	ucrec() : uc_modes(0), channel(NULL) { /* stub */ }
+
+	/** Destructor for ucrec
+	 */
+	virtual ~ucrec() { /* stub */ }
+};
+
+
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
 class chanrec : public Extensible
 {
+ private:
+
+	/** Connect a chanrec to a userrec
+	 */
+	static chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
+
  public:
 	/** The channels name.
 	 */
@@ -245,7 +289,7 @@ class chanrec : public Extensible
 	 */
 	chanrec();
 
-	/* Make src kick user from this channel with the given reason.
+	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
@@ -254,16 +298,16 @@ class chanrec : public Extensible
 	 */
 	long KickUser(userrec *src, userrec *user, const char* reason);
 
-	/* Make the server kick user from this channel with the given reason.
-	 *  @param user The user being kicked (must be on this channel)
-	 *  @param reason The reason for the kick
-	 *  @param triggerevents True if you wish this kick to trigger module events
-	 *  @return The number of users left on the channel. If this is zero
-	 *  when the method returns, you MUST delete the chanrec immediately!
+	/** Make the server kick user from this channel with the given reason.
+	 * @param user The user being kicked (must be on this channel)
+	 * @param reason The reason for the kick
+	 * @param triggerevents True if you wish this kick to trigger module events
+	 * @return The number of users left on the channel. If this is zero
+	 * when the method returns, you MUST delete the chanrec immediately!
 	 */
 	long ServerKickUser(userrec* user, const char* reason, bool triggerevents);
 
-	/* Part a user from this channel with the given reason.
+	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
 	 * @param reason The (optional) part reason
@@ -272,49 +316,20 @@ class chanrec : public Extensible
 	 */
 	long PartUser(userrec *user, const char* reason = NULL);
 
+	/* Join a user to a channel. May be a channel that doesnt exist yet.
+	 * @param user The user to join to the channel.
+	 * @param cn The channel name to join to. Does not have to exist.
+	 * @param key The key of the channel, if given
+	 * @param override If true, override all join restrictions such as +bkil
+	 * @return A pointer to the chanrec the user was joined to. A new chanrec may have
+	 * been created if the channel did not exist before the user was joined to it.
+	 * If the user could not be joined to a channel, the return value may be NULL.
+	 */
+	static chanrec* JoinUser(userrec *user, const char* cn, bool override, const char* key = "");
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }
 };
-
-/** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
- * needs to come AFTER struct chanrec */
-enum UserChannelModes {
-	UCMODE_OP      = 1,
-	UCMODE_VOICE   = 2,
-	UCMODE_HOP     = 4
-};
- 
-/** Holds a user's modes on a channel
- * This class associates a users privilages with a channel by creating a pointer link between
- * a userrec and chanrec class. The uc_modes member holds a bitmask of which privilages the user
- * has on the channel, such as op, voice, etc.
- */
-class ucrec : public classbase
-{
- public:
-	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.
-	 * If this value is zero, the user has no privilages upon the channel.
-	 */
-	char uc_modes;
-	
-	/** Points to the channel record where the given modes apply.
-	 * If the record is not in use, this value will be NULL.
-	 */
-	chanrec *channel;
-
-	/** Constructor for ucrec
-	 */
-	ucrec() : uc_modes(0), channel(NULL) { /* stub */ }
-
-	/** Destructor for ucrec
-	 */
-	virtual ~ucrec() { /* stub */ }
-};
-
-chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override);
-//chanrec* del_channel(userrec *user, const char* cname, const char* reason, bool local);
-//void kick_channel(userrec *src,userrec *user, chanrec *Ptr, char* reason);
-//void server_kick_channel(userrec* user, chanrec* Ptr, char* reason, bool triggerevents);
 
 #endif

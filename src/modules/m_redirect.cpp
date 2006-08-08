@@ -138,7 +138,7 @@ class ModuleRedirect : public Module
 				{
 					std::string channel = chan->GetModeParameter('L');
 					WriteServ(user->fd,"470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
-					Srv->JoinUserToChannel(user,channel.c_str(),"");
+					chanrec::JoinUser(user, channel.c_str(), false);
 					return 1;
 				}
 			}

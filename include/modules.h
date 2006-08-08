@@ -1513,13 +1513,6 @@ class Server : public Extensible
   	 */
   	virtual void SendToModeMask(const std::string &modes, int flags, const std::string &text);
 
-	/** Forces a user to join a channel.
-	 * This is similar to svsjoin and can be used to implement redirection, etc.
-	 * On success, the return value is a valid pointer to a chanrec* of the channel the user was joined to.
-	 * On failure, the result is NULL.
-	 */
-	virtual chanrec* JoinUserToChannel(userrec* user, const std::string &cname, const std::string &key);
-	
 	/** Forces a user nickchange.
 	 * This command works similarly to SVSNICK, and can be used to implement Q-lines etc.
 	 * If you specify an invalid nickname, the nick change will be dropped and the target user will receive

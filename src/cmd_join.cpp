@@ -31,7 +31,7 @@ void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (IsValidChannelName(parameters[0]))
 		{
-			add_channel(user, parameters[0], parameters[1], false);
+			chanrec::JoinUser(user, parameters[0], false, parameters[1]);
 			return;
 		}
 	}
@@ -42,7 +42,7 @@ void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (IsValidChannelName(parameters[0]))
 		{
-			add_channel(user, parameters[0], "", false);
+			chanrec::JoinUser(user, parameters[0], false);
 			return;
 		}
 	}

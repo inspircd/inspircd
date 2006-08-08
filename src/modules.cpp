@@ -400,11 +400,6 @@ void Server::SendToModeMask(const std::string &modes, int flags, const std::stri
 	WriteMode(modes.c_str(),flags,"%s",text.c_str());
 }
 
-chanrec* Server::JoinUserToChannel(userrec* user, const std::string &cname, const std::string &key)
-{
-	return add_channel(user,cname.c_str(),key.c_str(),false);
-}
-
 chanuserlist Server::GetUsers(chanrec* chan)
 {
 	chanuserlist userl;

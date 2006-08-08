@@ -1430,7 +1430,7 @@ class TreeSocket : public InspSocket
 				who = Srv->FindNick(usr);
 				if (who)
 				{
-					Srv->JoinUserToChannel(who,channel,key);
+					chanrec::JoinUser(who, channel.c_str(), true, key);
 					if (modectr >= (MAXMODES-1))
 					{
 						/* theres a mode for this user. push them onto the mode queue, and flush it
@@ -2030,7 +2030,7 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			Srv->JoinUserToChannel(u,params[1],"");
+			chanrec::JoinUser(u, params[1].c_str(), false);
 			DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 		}
 		return true;

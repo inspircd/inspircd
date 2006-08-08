@@ -46,9 +46,6 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern chan_hash chanlist;
 
-
-chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
-
 chanrec::chanrec()
 {
 	*name = *topic = *setby = *key = 0;
@@ -219,22 +216,15 @@ CUList* chanrec::GetVoicedUsers()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
  */
-
-chanrec* add_channel(userrec *user, const char* cn, const char* key, bool override)
+chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const char* key)
 {
-	if ((!user) || (!cn))
-	{
-		log(DEFAULT,"*** BUG *** add_channel was given an invalid parameter");
-		return 0;
-	}
+	if (!user || !cn)
+		return NULL;
 
 	int created = 0;
 	char cname[MAXBUF];
 	int MOD_RESULT = 0;
 	strlcpy(cname,cn,CHANMAX);
-	log(DEBUG,"cname='%s' cn='%s'",cname,cn);
-
-	log(DEBUG,"add_channel: %s %s",user->nick,cname);
 
 	chanrec* Ptr = FindChan(cname);
 
@@ -258,7 +248,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		strlcpy(chanlist[cname]->setby, user->nick,NICKMAX-1);
 		chanlist[cname]->topicset = 0;
 		Ptr = chanlist[cname];
-		log(DEBUG,"add_channel: created: %s",cname);
+		log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		/*
 		 * set created to 2 to indicate user
 		 * is the first in the channel
@@ -294,7 +284,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					{
 						if (!key)
 						{
-							log(DEBUG,"add_channel: no key given in JOIN");
+							log(DEBUG,"chanrec::JoinUser(): no key given in JOIN");
 							WriteServ(user->fd,"475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 							return NULL;
 						}
@@ -302,7 +292,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 						{
 							if (strcmp(key,Ptr->key))
 							{
-								log(DEBUG,"add_channel: bad key given in JOIN");
+								log(DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
 								WriteServ(user->fd,"475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 								return NULL;
 							}
@@ -316,7 +306,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 					FOREACH_RESULT(I_OnCheckInvite,OnCheckInvite(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						log(DEBUG,"add_channel: channel is +i");
 						if (user->IsInvited(xname))
 						{
 							/* user was invited to channel */
@@ -345,7 +334,6 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 				}
 				if (Ptr->bans.size())
 				{
-					log(DEBUG,"add_channel: about to walk banlist");
 					MOD_RESULT = 0;
 					FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, Ptr));
 					char mask[MAXBUF];
@@ -370,18 +358,16 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		}
 		else
 		{
-			log(DEBUG,"Overridden checks");
+			log(DEBUG,"chanrec::JoinUser(): Overridden checks");
 		}
 		created = 1;
 	}
-
-	log(DEBUG,"Passed channel checks");
 
 	for (UserChanList::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
 	{
 		if ((*index)->channel == NULL)
 		{
-			return ForceChan(Ptr, *index, user, created);
+			return chanrec::ForceChan(Ptr, *index, user, created);
 		}
 	}
 
@@ -393,7 +379,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	if (!IS_LOCAL(user)) /* was a check on fd < 0 */
 	{
 		ucrec* a = new ucrec();
-		chanrec* c = ForceChan(Ptr,a,user,created);
+		chanrec* c = chanrec::ForceChan(Ptr,a,user,created);
 		user->chans.push_back(a);
 		return c;
 	}
@@ -403,13 +389,12 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 		if (user->chans.size() < OPERMAXCHANS)
 		{
 			ucrec* a = new ucrec();
-			chanrec* c = ForceChan(Ptr,a,user,created);
+			chanrec* c = chanrec::ForceChan(Ptr,a,user,created);
 			user->chans.push_back(a);
 			return c;
 		}
 	}
 
-	log(DEBUG,"add_channel: user channel max exceeded: %s %s",user->nick,cname);
 	WriteServ(user->fd,"405 %s %s :You are on too many channels",user->nick, cname);
 
 	if (created == 2)
@@ -446,7 +431,7 @@ chanrec* add_channel(userrec *user, const char* cn, const char* key, bool overri
 	return NULL;
 }
 
-chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
+chanrec* chanrec::ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 {
 	if (created == 2)
 	{

@@ -72,9 +72,7 @@ class ModuleOperjoin : public Module
 				std::vector<std::string> operChans;
 				tokenize(operChan,operChans);
 				for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
-				{
-					Srv->JoinUserToChannel(user,(*it),"");
-				}
+					chanrec::JoinUser(user, it->c_str(), false);
 			}
 
 		}

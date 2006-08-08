@@ -54,7 +54,7 @@ class cmd_sajoin : public command_t
 			}
 
 			Srv->SendOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
-			Srv->JoinUserToChannel(dest,std::string(parameters[1]),std::string(dest->nick));
+			chanrec::JoinUser(dest, parameters[1], true);
 		}
 	}
 };
