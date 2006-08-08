@@ -414,22 +414,6 @@ void Server::ChangeUserNick(userrec* user, const std::string &nickname)
 	force_nickchange(user,nickname.c_str());
 }
 
-void Server::KickUser(userrec* source, userrec* target, chanrec* chan, const std::string &reason)
-{
-	if (source)
-	{
-		if (!chan->KickUser(source, target, reason.c_str()))
-			/* No users left? */
-			delete chan;
-	}
-	else
-	{
-		if (!chan->ServerKickUser(target, reason.c_str(), true))
-			/* No users left? */
-			delete chan;
-	}
-}
-
 void Server::QuitUser(userrec* user, const std::string &reason)
 {
 	kill_link(user,reason.c_str());
@@ -495,23 +479,6 @@ void Server::SendTo(userrec* Source, userrec* Dest, const std::string &s)
 	{
 		// otherwise it comes from the user specified
 		WriteTo_NoFormat(Source,Dest,s.c_str());
-	}
-}
-
-void Server::SendChannelServerNotice(const std::string &ServName, chanrec* Channel, const std::string &text)
-{
-	WriteChannelWithServ_NoFormat((char*)ServName.c_str(), Channel, text.c_str());
-}
-
-void Server::SendChannel(userrec* User, chanrec* Channel, const std::string &s, bool IncludeSender)
-{
-	if (IncludeSender)
-	{
-		WriteChannel_NoFormat(Channel,User,s.c_str());
-	}
-	else
-	{
-		ChanExceptSender_NoFormat(Channel,User,0,s.c_str());
 	}
 }
 

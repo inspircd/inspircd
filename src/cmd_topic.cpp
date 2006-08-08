@@ -91,7 +91,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 			strlcpy(Ptr->topic,topic,MAXTOPIC-1);
 			strlcpy(Ptr->setby,user->nick,NICKMAX-1);
 			Ptr->topicset = TIME;
-			WriteChannel(Ptr,user,"TOPIC %s :%s",Ptr->name, Ptr->topic);
+			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
 			if (IS_LOCAL(user))
 			{
 				FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(user,Ptr,topic));
@@ -103,3 +103,4 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 }
+

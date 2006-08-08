@@ -1338,11 +1338,11 @@ class TreeSocket : public InspSocket
 					userrec* user = Srv->FindNick(source);
 					if (!user)
 					{
-						WriteChannelWithServ(source.c_str(), c, "TOPIC %s :%s", c->name, c->topic);
+						c->WriteChannelWithServ(source.c_str(), "TOPIC %s :%s", c->name, c->topic);
 					}
 					else
 					{
-						WriteChannel(c, user, "TOPIC %s :%s", c->name, c->topic);
+						c->WriteChannel(user, "TOPIC %s :%s", c->name, c->topic);
 						nsource = user->server;
 					}
 					/* all done, send it on its way */

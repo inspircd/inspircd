@@ -62,7 +62,7 @@ class cmd_knock : public command_t
 
 		if (c->modes[CM_INVITEONLY])
 		{
-			WriteChannelWithServ((char*)Srv->GetServerName().c_str(),c,"NOTICE %s :User %s is KNOCKing on %s (%s)",c->name,user->nick,c->name,line.c_str());
+			c->WriteChannelWithServ((char*)Srv->GetServerName().c_str(),  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
 			WriteServ(user->fd,"NOTICE %s :KNOCKing on %s",user->nick,c->name);
 			return;
 		}

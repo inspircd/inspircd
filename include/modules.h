@@ -1339,11 +1339,6 @@ class Server : public Extensible
 	 */
 	virtual void SendServ(int Socket, const std::string &s);
 
-	/** Writes text to a channel, but from a server, including all.
-	 * This can be used to send server notices to a group of users.
-	 */
-	virtual void SendChannelServerNotice(const std::string &ServName, chanrec* Channel, const std::string &text);
-
 	/** Sends text from a user to a socket.
 	 * This method writes a line of text to an established socket, with the given user's nick/ident
 	 * /host combination prepended, as used in PRIVSG etc commands (see RFC 1459)
@@ -1365,14 +1360,6 @@ class Server : public Extensible
 	 * Which is useful for numerics and server notices to single users, etc.
 	 */
 	virtual void SendTo(userrec* Source, userrec* Dest, const std::string &s);
-
-	/** Sends text from a user to a channel (mulicast).
-	 * This method writes a line of text to a channel, with the given user's nick/ident
-	 * /host combination prepended, as used in PRIVMSG etc commands (see RFC 1459). If the
-	 * IncludeSender flag is set, then the text is also sent back to the user from which
-	 * it originated, as seen in MODE (see RFC 1459).
-	 */
-	virtual void SendChannel(userrec* User, chanrec* Channel, const std::string &s, bool IncludeSender);
 
 	/** Returns true if two users share a common channel.
 	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
@@ -1531,15 +1518,6 @@ class Server : public Extensible
 	 * action after calling this method is to immediately bail from your handler.
 	 */
 	virtual void QuitUser(userrec* user, const std::string &reason);
-
-	/** Makes a user kick another user, with the specified reason.
-	 * If source is NULL, the server will peform the kick.
-	 * @param The person or server (if NULL) performing the KICK
-	 * @param target The person being kicked
-	 * @param chan The channel to kick from
-	 * @param reason The kick reason
-	 */
-	virtual void KickUser(userrec* source, userrec* target, chanrec* chan, const std::string &reason);
 	
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com

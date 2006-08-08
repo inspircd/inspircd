@@ -327,6 +327,13 @@ class chanrec : public Extensible
 	 */
 	static chanrec* JoinUser(userrec *user, const char* cn, bool override, const char* key = "");
 
+	void WriteChannel(userrec* user, char* text, ...);
+	void WriteChannel(userrec* user, const std::string &text);
+	void WriteChannelWithServ(const char* ServName, const char* text, ...);
+	void WriteChannelWithServ(const char* ServName, const std::string &text);
+	void WriteAllExceptSender(userrec* user, char status, char* text, ...);
+	void WriteAllExceptSender(userrec* user, char status, const std::string& text);
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }

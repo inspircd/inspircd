@@ -21,6 +21,7 @@ using namespace std;
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <stdarg.h>
 #include "configreader.h"
 #include "inspircd.h"
 #include "hash_map.h"
@@ -344,7 +345,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 						{
 							/* This allows CIDR ban matching
 							 * 
-							 *          Full masked host                        Full unmasked host                     IP with/without CIDR
+							 *	  Full masked host			Full unmasked host		     IP with/without CIDR
 							 */
 							if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
 							{
@@ -446,7 +447,7 @@ chanrec* chanrec::ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 
 	a->channel = Ptr;
 	Ptr->AddUser(user);
-	WriteChannel(Ptr,user,"JOIN :%s",Ptr->name);
+	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
 
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))
@@ -481,12 +482,12 @@ long chanrec::PartUser(userrec *user, const char* reason)
 			if (reason)
 			{
 				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason));
-				WriteChannel(this, user, "PART %s :%s", this->name, reason);
+				this->WriteChannel(user, "PART %s :%s", this->name, reason);
 			}
 			else
 			{
 				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, ""));
-				WriteChannel(this, user, "PART :%s", this->name);
+				this->WriteChannel(user, "PART :%s", this->name);
 			}
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
@@ -533,7 +534,7 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 	{
 		if (user->chans[i]->channel == this)
 		{
-			WriteChannelWithServ(Config->ServerName,this,"KICK %s %s :%s",this->name, user->nick, reason);
+			this->WriteChannelWithServ(Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
 			break;
@@ -567,7 +568,7 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 			WriteServ(src->fd,"441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
 			return this->GetUserCounter();
 		}
-                if ((is_uline(user->server)) && (!is_uline(src->server)))
+		if ((is_uline(user->server)) && (!is_uline(src->server)))
 		{
 			WriteServ(src->fd,"482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
 			return this->GetUserCounter();
@@ -615,7 +616,7 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 		/* zap it from the channel list of the user */
 		if ((*i)->channel == this)
 		{
-			WriteChannel(this,src,"KICK %s %s :%s",this->name, user->nick, reason);
+			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
 			(*i)->uc_modes = 0;
 			(*i)->channel = NULL;
 			break;
@@ -638,3 +639,106 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 
 	return this->GetUserCounter();
 }
+
+void chanrec::WriteChannel(userrec* user, char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	if (!user || !text)
+		return;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteChannel(user, std::string(textbuffer));
+}
+
+void chanrec::WriteChannel(userrec* user, const std::string &text)
+{
+	CUList *ulist = this->GetUsers();
+
+	if (!user)
+		return;
+
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		if (i->second->fd != FD_MAGIC_NUMBER)
+			WriteTo_NoFormat(user,i->second,text.c_str());
+	}
+}
+
+void chanrec::WriteChannelWithServ(const char* ServName, const char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	if (!text)
+		return;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteChannelWithServ(ServName, std::string(textbuffer));
+}
+
+void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text)
+{
+	CUList *ulist = this->GetUsers();
+
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		if (IS_LOCAL(i->second))
+			WriteServ_NoFormat(i->second->fd,text.c_str());
+	}
+}
+
+/* write formatted text from a source user to all users on a channel except
+ * for the sender (for privmsg etc) */
+void chanrec::WriteAllExceptSender(userrec* user, char status, char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	if (!user || !text)
+		return;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteAllExceptSender(user, status, std::string(textbuffer));
+}
+
+void chanrec::WriteAllExceptSender(userrec* user, char status, const std::string& text)
+{
+	CUList *ulist;
+
+	if (!user)
+		return;
+
+	switch (status)
+	{
+		case '@':
+			ulist = this->GetOppedUsers();
+			break;
+		case '%':
+			ulist = this->GetHalfoppedUsers();
+			break;
+		case '+':
+			ulist = this->GetVoicedUsers();
+			break;
+		default:
+			ulist = this->GetUsers();
+			break;
+	}
+
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		if ((IS_LOCAL(i->second)) && (user != i->second))
+			WriteFrom_NoFormat(i->second->fd,user,text.c_str());
+	}
+}
+

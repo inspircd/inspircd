@@ -224,7 +224,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				WriteChannelWithServ((char*)Srv->GetServerName().c_str(), channel, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.",channel->name,f->joins,f->secs);
+				channel->WriteChannelWithServ((char*)Srv->GetServerName().c_str(), "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name, f->joins, f->secs);
 			}
 		}
 	}

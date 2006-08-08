@@ -228,7 +228,7 @@ class ModuleMsgFlood : public Module
 						Event rmode((char *)&n, NULL, "send_mode");
 						rmode.Send();
 					}
-					Srv->KickUser(NULL, user, dest, "Channel flood triggered (mode +f)");
+					dest->ServerKickUser(user, "Channel flood triggered (mode +f)", true);
 				}
 			}
 		}

@@ -209,7 +209,7 @@ class ModuleOverride : public Module
 						if (!user->IsInvited(x))
 						{
 							/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
-							WriteChannelWithServ((char*)Srv->GetServerName().c_str(), chan, "NOTICE %s :%s invited himself into the channel",cname,user->nick);
+							chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s invited himself into the channel", cname, user->nick);
 						}
 					}
 					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
@@ -219,7 +219,7 @@ class ModuleOverride : public Module
 				if ((chan->key[0]) && (CanOverride(user,"KEY")))
 				{
 					if (NoisyOverride)
-						WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s bypassed the channel key",cname,user->nick);
+						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s bypassed the channel key", cname, user->nick);
 					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
 				}
@@ -227,7 +227,7 @@ class ModuleOverride : public Module
 				if ((chan->limit > 0) && (Srv->CountUsers(chan) >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
 					if (NoisyOverride)
-						WriteChannelWithServ((char*)Srv->GetServerName().c_str(),chan,"NOTICE %s :%s passed through your channel limit",cname,user->nick);
+						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s passed through your channel limit", cname, user->nick);
 					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
 				}

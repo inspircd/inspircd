@@ -37,8 +37,6 @@ void Write(int sock,char *text, ...);
 void WriteServ(int sock, char* text, ...);
 void WriteFrom(int sock, userrec *user,char* text, ...);
 void WriteTo(userrec *source, userrec *dest,char *data, ...);
-void WriteChannel(chanrec* Ptr, userrec* user, char* text, ...);
-void ChanExceptSender(chanrec* Ptr, userrec* user, char* text, ...);
 int common_channels(userrec *u, userrec *u2);
 void WriteCommon(userrec *u, char* text, ...);
 void WriteCommonExcept(userrec *u, char* text, ...);

@@ -102,7 +102,7 @@ void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 				return;
 			}
 
-			ChanExceptSender(chan, user, status, "NOTICE %s :%s", chan->name, parameters[1]);
+			chan->WriteAllExceptSender(user, status, "NOTICE %s :%s", chan->name, parameters[1]);
 
 			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status));
 		}
