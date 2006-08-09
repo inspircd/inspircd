@@ -1125,7 +1125,6 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 						len = PQescapeStringConn(queryend, req.query.p.front().c_str(), req.query.p.front().length());
 						error = 0;
 #endif
-						
 						if(error)
 						{
 							log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
