@@ -16,7 +16,7 @@
 #include "modes/cmode_v.h"
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;

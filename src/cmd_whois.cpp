@@ -23,7 +23,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whois.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -62,9 +62,9 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 				user->WriteServ("319 %s %s :%s",user->nick, dest->nick, cl.c_str());
 			}
 		}
-		if (*Config->HideWhoisServer && !(*user->oper))
+		if (*ServerInstance->Config->HideWhoisServer && !(*user->oper))
 		{
-			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, Config->HideWhoisServer, Config->Network);
+			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 		}
 		else
 		{
@@ -76,7 +76,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		if (*dest->oper)
 		{
-			user->WriteServ("313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), Config->Network);
+			user->WriteServ("313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), ServerInstance->Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{

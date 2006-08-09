@@ -20,12 +20,12 @@
 #include "helperfuncs.h"
 #include "commands/cmd_admin.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 void cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("256 %s :Administrative info for %s",user->nick,Config->ServerName);
-	user->WriteServ("257 %s :Name     - %s",user->nick,Config->AdminName);
-	user->WriteServ("258 %s :Nickname - %s",user->nick,Config->AdminNick);
-	user->WriteServ("258 %s :E-Mail   - %s",user->nick,Config->AdminEmail);
+	user->WriteServ("256 %s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
+	user->WriteServ("257 %s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
+	user->WriteServ("258 %s :Nickname - %s",user->nick,ServerInstance->Config->AdminNick);
+	user->WriteServ("258 %s :E-Mail   - %s",user->nick,ServerInstance->Config->AdminEmail);
 }

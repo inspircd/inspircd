@@ -22,10 +22,10 @@
 #include "helperfuncs.h"
 #include "commands/cmd_links.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 void cmd_links::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("364 %s %s %s :0 %s",user->nick,Config->ServerName,Config->ServerName,Config->ServerDesc);
+	user->WriteServ("364 %s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
 	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
 }

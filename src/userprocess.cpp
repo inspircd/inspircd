@@ -63,7 +63,6 @@ extern std::vector<userrec*> local_users;
 extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig *Config;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 char data[65536];
 
@@ -79,14 +78,14 @@ void ProcessUser(userrec* cu)
 
 	log(DEBUG,"Processing user with fd %d",cu->fd);
 
-	if (Config->GetIOHook(cu->GetPort()))
+	if (ServerInstance->Config->GetIOHook(cu->GetPort()))
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 
 		try
 		{
-			MOD_RESULT = Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
+			MOD_RESULT = ServerInstance->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
 			log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
@@ -170,14 +169,14 @@ void ProcessUser(userrec* cu)
 				{
 					WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
 				return;
 			}
 
-			if (current->recvq.length() > (unsigned)Config->NetBufferSize)
+			if (current->recvq.length() > (unsigned)ServerInstance->Config->NetBufferSize)
 			{
 				if (current->registered == REG_ALL)
 				{
@@ -187,7 +186,7 @@ void ProcessUser(userrec* cu)
 				{
 					WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -221,7 +220,7 @@ void ProcessUser(userrec* cu)
 					}
 					else
 					{
-						add_zline(120,Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+						add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 						apply_lines(APPLY_ZLINES);
 					}
 
@@ -366,7 +365,7 @@ void DoBackgroundUserStuff(time_t TIME)
 					curr->nping = TIME+curr->pingmax;
 					continue;
 				}
-				curr->Write("PING :%s",Config->ServerName);
+				curr->Write("PING :%s",ServerInstance->Config->ServerName);
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}

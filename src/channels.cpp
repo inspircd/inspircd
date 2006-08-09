@@ -39,7 +39,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "typedefs.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
@@ -534,7 +534,7 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 	{
 		if (user->chans[i]->channel == this)
 		{
-			this->WriteChannelWithServ(Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
+			this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
 			break;

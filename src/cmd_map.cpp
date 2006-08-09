@@ -21,13 +21,13 @@
 #include "helperfuncs.h"
 #include "commands/cmd_map.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 void cmd_map::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something
 	// better.
-	user->WriteServ("006 %s :%s",user->nick,Config->ServerName);
+	user->WriteServ("006 %s :%s",user->nick,ServerInstance->Config->ServerName);
 	user->WriteServ("007 %s :End of /MAP",user->nick);
 }

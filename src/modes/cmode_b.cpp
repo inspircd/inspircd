@@ -15,7 +15,7 @@
 #include "modes/cmode_b.h"
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -105,7 +105,7 @@ std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *cha
 	}
 	else
 	{
-		strlcpy(b.set_by,Config->ServerName,NICKMAX-1);
+		strlcpy(b.set_by,ServerInstance->Config->ServerName,NICKMAX-1);
 	}
 	chan->bans.push_back(b);
 	return dest;

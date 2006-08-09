@@ -18,6 +18,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
 

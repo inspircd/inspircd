@@ -22,7 +22,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_rehash.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -38,7 +38,7 @@ void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
-		Config->Read(false,user);
+		ServerInstance->Config->Read(false,user);
 	}
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
 }

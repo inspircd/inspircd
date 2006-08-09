@@ -19,6 +19,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
 

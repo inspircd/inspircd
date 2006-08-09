@@ -23,6 +23,7 @@ using namespace std;
 #include <string>
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 

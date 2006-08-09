@@ -20,10 +20,10 @@
 #include "helperfuncs.h"
 #include "commands/cmd_ping.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 
 void cmd_ping::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("PONG %s :%s",Config->ServerName,parameters[0]);
+	user->WriteServ("PONG %s :%s",ServerInstance->Config->ServerName,parameters[0]);
 }

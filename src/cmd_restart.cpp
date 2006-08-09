@@ -20,19 +20,19 @@
 #include "helperfuncs.h"
 #include "commands/cmd_restart.h"
 
-extern ServerConfig* Config;;
+extern InspIRCd* ServerInstance;;
 
 void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char *argv[32];
 	log(DEFAULT,"Restart: %s",user->nick);
-	if (!strcmp(parameters[0],Config->restartpass))
+	if (!strcmp(parameters[0],ServerInstance->Config->restartpass))
 	{
 		WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
 
-		argv[0] = Config->MyExecutable;
+		argv[0] = ServerInstance->Config->MyExecutable;
 		argv[1] = "-wait";
-		if (Config->nofork)
+		if (ServerInstance->Config->nofork)
 		{
 			argv[2] = "-nofork";
 		}
@@ -52,7 +52,7 @@ void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		sleep(2);
 		
-		execv(Config->MyExecutable,argv);
+		execv(ServerInstance->Config->MyExecutable,argv);
 
 		exit(0);
 	}

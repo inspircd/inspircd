@@ -23,6 +23,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 

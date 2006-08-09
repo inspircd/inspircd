@@ -31,7 +31,7 @@
 #include "wildcard.h"
 #include "commands/cmd_modules.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -53,7 +53,7 @@ char* itab[] = {
 
 void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 {
-  	for (unsigned int i = 0; i < Config->module_names.size(); i++)
+  	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{
 		Version V = modules[i]->GetVersion();
 		char modulename[MAXBUF];
@@ -69,12 +69,12 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			strlcat(flagstate,", service provider",MAXBUF);
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
-		strlcpy(modulename,Config->module_names[i].c_str(),256);
+		strlcpy(modulename,ServerInstance->Config->module_names[i].c_str(),256);
 		if (*user->oper)
 		{
 			if ((pcnt >= 2) && (!strcasecmp(parameters[0],"debug")))
 			{
-				if (match(Config->module_names[i].c_str(),parameters[1]))
+				if (match(ServerInstance->Config->module_names[i].c_str(),parameters[1]))
 				{
 					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
 					for (int it = 0; itab[it];)
@@ -86,9 +86,9 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 						{
 							if (itab[it])
 							{
-								if (Config->implement_lists[i][it])
+								if (ServerInstance->Config->implement_lists[i][it])
 								{
-									snprintf(data,MAXBUF,"%s=>%c ",itab[it],(Config->implement_lists[i][it] ? '1' : '0'));
+									snprintf(data,MAXBUF,"%s=>%c ",itab[it],(ServerInstance->Config->implement_lists[i][it] ? '1' : '0'));
 									strncat(dlist,data,MAXBUF);
 								}
 								it++;
@@ -100,8 +100,8 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 					user->WriteServ("900 %s :=== DEBUG: Implementation counts ===",user->nick);
 					for (int it = 0; itab[it]; it++)
 					{
-						if (Config->global_implementation[it])
-							user->WriteServ("900 %s :%s: %d times",user->nick, itab[it],(int)Config->global_implementation[it]);
+						if (ServerInstance->Config->global_implementation[it])
+							user->WriteServ("900 %s :%s: %d times",user->nick, itab[it],(int)ServerInstance->Config->global_implementation[it]);
 					}
 				}
 			}

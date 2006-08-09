@@ -24,6 +24,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "m_sqlv2.h"
 
 /* VERSION 2 API: With nonblocking (threaded) requests */

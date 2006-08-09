@@ -26,7 +26,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_privmsg.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -53,7 +53,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		parameters[1] = (char*)temp.c_str();
 		// notice to server mask
 		const char* servermask = parameters[0] + 1;
-		if (match(Config->ServerName,servermask))
+		if (match(ServerInstance->Config->ServerName,servermask))
 		{
 			ServerPrivmsgAll("%s",parameters[1]);
 		}

@@ -30,7 +30,6 @@
 
 /* Required for the FOREACH_MOD alias (OnOper event) */
 extern int MODCOUNT;
-extern ServerConfig* Config;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 

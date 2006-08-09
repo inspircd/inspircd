@@ -22,7 +22,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "message.h"
 #include <vector>
- 
+#include "inspircd.h"
+
 extern time_t TIME;
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */

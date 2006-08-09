@@ -32,7 +32,6 @@ extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 
 extern int MODCOUNT;
 
@@ -128,8 +127,8 @@ class ModuleHttpStats : public Module
 				data << "<table>";
 				for (int i = 0; i <= MODCOUNT; i++)
 				{
-					if (Config->module_names[i] != "")
-						data << "<tr><td>" << Config->module_names[i] << "</td></tr>";
+					if (ServerInstance->Config->module_names[i] != "")
+						data << "<tr><td>" << ServerInstance->Config->module_names[i] << "</td></tr>";
 				}
 				data << "</table>";
 				data << "</div>";

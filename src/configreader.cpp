@@ -27,7 +27,6 @@
 #include "userprocess.h"
 #include "xline.h"
 
-extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
@@ -97,7 +96,7 @@ bool ServerConfig::DelIOHook(int port)
 
 bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
-	int count = ConfValueEnum(Config->config_data, tag);
+	int count = ConfValueEnum(this->config_data, tag);
 	
 	if (count > 1)
 	{
@@ -284,20 +283,20 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 
 bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
 {
-	if ((!Config->NetBufferSize) || (Config->NetBufferSize > 65535) || (Config->NetBufferSize < 1024))
+	if ((!ServerInstance->Config->NetBufferSize) || (ServerInstance->Config->NetBufferSize > 65535) || (ServerInstance->Config->NetBufferSize < 1024))
 	{
 		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-		Config->NetBufferSize = 10240;
+		ServerInstance->Config->NetBufferSize = 10240;
 	}
 	return true;
 }
 
 bool ValidateMaxWho(const char* tag, const char* value, void* data)
 {
-	if ((!Config->MaxWhoResults) || (Config->MaxWhoResults > 65535) || (Config->MaxWhoResults < 1))
+	if ((!ServerInstance->Config->MaxWhoResults) || (ServerInstance->Config->MaxWhoResults > 65535) || (ServerInstance->Config->MaxWhoResults < 1))
 	{
 		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-		Config->MaxWhoResults = 128;
+		ServerInstance->Config->MaxWhoResults = 128;
 	}
 	return true;
 }
@@ -305,32 +304,32 @@ bool ValidateMaxWho(const char* tag, const char* value, void* data)
 bool ValidateLogLevel(const char* tag, const char* value, void* data)
 {
 	const char* dbg = (const char*)data;
-	Config->LogLevel = DEFAULT;
+	ServerInstance->Config->LogLevel = DEFAULT;
 	if (!strcmp(dbg,"debug"))
 	{
-		Config->LogLevel = DEBUG;
-		Config->debugging = 1;
+		ServerInstance->Config->LogLevel = DEBUG;
+		ServerInstance->Config->debugging = 1;
 	}
 	else if (!strcmp(dbg,"verbose"))
-		Config->LogLevel = VERBOSE;
+		ServerInstance->Config->LogLevel = VERBOSE;
 	else if (!strcmp(dbg,"default"))
-		Config->LogLevel = DEFAULT;
+		ServerInstance->Config->LogLevel = DEFAULT;
 	else if (!strcmp(dbg,"sparse"))
-		Config->LogLevel = SPARSE;
+		ServerInstance->Config->LogLevel = SPARSE;
 	else if (!strcmp(dbg,"none"))
-		Config->LogLevel = NONE;
+		ServerInstance->Config->LogLevel = NONE;
 	return true;
 }
 
 bool ValidateMotd(const char* tag, const char* value, void* data)
 {
-	readfile(Config->MOTD,Config->motd);
+	readfile(ServerInstance->Config->MOTD,ServerInstance->Config->motd);
 	return true;
 }
 
 bool ValidateRules(const char* tag, const char* value, void* data)
 {
-	readfile(Config->RULES,Config->rules);
+	readfile(ServerInstance->Config->RULES,ServerInstance->Config->rules);
 	return true;
 }
 
@@ -339,7 +338,7 @@ bool ValidateRules(const char* tag, const char* value, void* data)
 bool InitConnect(const char* tag)
 {
 	log(DEFAULT,"Reading connect classes...");
-	Config->Classes.clear();
+	ServerInstance->Config->Classes.clear();
 	return true;
 }
 
@@ -393,13 +392,13 @@ bool DoConnect(const char* tag, char** entries, void** values, int* types)
 			c.registration_timeout = 90;
 		if (c.pingtime == 0)
 			c.pingtime = 120;
-		Config->Classes.push_back(c);
+		ServerInstance->Config->Classes.push_back(c);
 	}
 	else
 	{
 		c.host = deny;
 		c.type = CC_DENY;
-		Config->Classes.push_back(c);
+		ServerInstance->Config->Classes.push_back(c);
 		log(DEBUG,"Read connect class type DENY, host=%s",deny);
 	}
 
@@ -418,7 +417,7 @@ bool DoneConnect(const char* tag)
  */
 bool InitULine(const char* tag)
 {
-	Config->ulines.clear();
+	ServerInstance->Config->ulines.clear();
 	return true;
 }
 
@@ -428,7 +427,7 @@ bool DoULine(const char* tag, char** entries, void** values, int* types)
 {
 	char* server = (char*)values[0];
 	log(DEBUG,"Read ULINE '%s'",server);
-	Config->ulines.push_back(server);
+	ServerInstance->Config->ulines.push_back(server);
 	return true;
 }
 
@@ -447,7 +446,7 @@ bool InitModule(const char* tag)
 	new_module_names.clear();
 	added_modules.clear();
 	removed_modules.clear();
-	for (std::vector<std::string>::iterator t = Config->module_names.begin(); t != Config->module_names.end(); t++)
+	for (std::vector<std::string>::iterator t = ServerInstance->Config->module_names.begin(); t != ServerInstance->Config->module_names.end(); t++)
 	{
 		old_module_names.push_back(*t);
 	}
@@ -502,7 +501,7 @@ bool DoneModule(const char* tag)
  */
 bool InitMaxBans(const char* tag)
 {
-	Config->maxbans.clear();
+	ServerInstance->Config->maxbans.clear();
 	return true;
 }
 
@@ -512,7 +511,7 @@ bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
 {
 	char* channel = (char*)values[0];
 	int* limit = (int*)values[1];
-	Config->maxbans[channel] = *limit;
+	ServerInstance->Config->maxbans[channel] = *limit;
 	return true;
 }
 
@@ -643,7 +642,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	if (this->LoadConf(newconfig, CONFIG_FILE, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
-		Config->config_data = newconfig;
+		this->config_data = newconfig;
 		
 /* 		int c = 1;
 		std::string last;
@@ -678,8 +677,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 			unsigned int prefixlen;
 			
 			start = 0;
-			/* ":Config->ServerName NOTICE user->nick :" */
-			prefixlen = strlen(Config->ServerName) + strlen(user->nick) + 11;
+			/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
+			prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
 	
 			if (user)
 			{
@@ -793,7 +792,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		delete[] data[n];
 
 	// write once here, to try it out and make sure its ok
-	ServerInstance->WritePID(Config->PID);
+	ServerInstance->WritePID(this->PID);
 
 	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 

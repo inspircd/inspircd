@@ -23,6 +23,7 @@ using namespace std;
 #include "channels.h"
 #include "helperfuncs.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for user parking/unparking */
 

@@ -42,7 +42,7 @@
 #include "command_parse.h"
 #include "commands/cmd_stats.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -62,9 +62,9 @@ void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 
 void DoStats(char statschar, userrec* user, string_list &results)
 {
-	std::string sn = Config->ServerName;
+	std::string sn = ServerInstance->Config->ServerName;
 
-	if ((*Config->OperOnlyStats) && (strchr(Config->OperOnlyStats,statschar)) && (!*user->oper))
+	if ((*ServerInstance->Config->OperOnlyStats) && (strchr(ServerInstance->Config->OperOnlyStats,statschar)) && (!*user->oper))
 	{
 		results.push_back(sn+std::string(" 481 ")+user->nick+" :Permission denied - STATS "+statschar+" is oper-only");
 		return;
@@ -83,9 +83,9 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'i')
 	{
 		int idx = 0;
-		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
+		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
-			results.push_back(sn+" 215 "+user->nick+" I * * * "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+Config->ServerName+" *");
+			results.push_back(sn+" 215 "+user->nick+" I * * * "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
 			idx++;
 		}
 	}
@@ -93,7 +93,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'y')
 	{
 		int idx = 0;
-		for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
+		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" 120 0 "+ConvToStr(i->flood)+" "+ConvToStr(i->registration_timeout));
 			idx++;
@@ -103,9 +103,9 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'U')
 	{
 		char ulined[MAXBUF];
-		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "uline"); i++)
+		for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "uline"); i++)
 		{
-			Config->ConfValue(Config->config_data, "uline","server", i, ulined, MAXBUF);
+			ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "uline","server", i, ulined, MAXBUF);
 			results.push_back(sn+" 248 "+user->nick+" U "+std::string(ulined));
 		}
 	}
@@ -170,7 +170,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 		results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(clientlist.size())+" ("+ConvToStr(clientlist.size()*sizeof(userrec))+" bytes, "+ConvToStr(clientlist.bucket_count())+" buckets)");
 		results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(chanlist.size())+" ("+ConvToStr(chanlist.size()*sizeof(chanrec))+" bytes, "+ConvToStr(chanlist.bucket_count())+" buckets)");
 		results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
-		results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(Config->RULES.size()));
+		results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
 		results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(modules.size())+" ("+ConvToStr(modules.size()*sizeof(Module))+")");
 		results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(factory.size())+" ("+ConvToStr(factory.size()*sizeof(ircd_module))+")");
 		if (!getrusage(RUSAGE_SELF,&R))
@@ -198,14 +198,14 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	/* stats o */
 	if (statschar == 'o')
 	{
-		for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
+		for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
 		{
 			char LoginName[MAXBUF];
 			char HostName[MAXBUF];
 			char OperType[MAXBUF];
-			Config->ConfValue(Config->config_data, "oper","name", i, LoginName, MAXBUF);
-			Config->ConfValue(Config->config_data, "oper","host", i, HostName, MAXBUF);
-			Config->ConfValue(Config->config_data, "oper","type", i, OperType, MAXBUF);
+			ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","name", i, LoginName, MAXBUF);
+			ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","host", i, HostName, MAXBUF);
+			ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper","type", i, OperType, MAXBUF);
 			results.push_back(sn+" 243 "+user->nick+" O "+HostName+" * "+LoginName+" "+OperType+" 0");
 		}
 	}
@@ -263,7 +263,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	}
 
 	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-	WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+	WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 
 	return;
 }

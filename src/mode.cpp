@@ -69,8 +69,8 @@ using namespace std;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 
 extern time_t TIME;
 
@@ -467,7 +467,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			{
 				if (type == MODETYPE_CHANNEL)
 				{
-					targetchannel->WriteChannelWithServ(Config->ServerName, "MODE %s %s%s", targetchannel->name, output_sequence.c_str(), parameter_list.str().c_str());
+					targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s %s%s", targetchannel->name, output_sequence.c_str(), parameter_list.str().c_str());
 				}
 				else
 				{

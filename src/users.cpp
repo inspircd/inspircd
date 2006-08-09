@@ -33,16 +33,12 @@
 #include "cull_list.h"
 
 extern InspIRCd* ServerInstance;
-extern int WHOWAS_STALE;
-extern int WHOWAS_MAX;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
-extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-extern ServerConfig *Config;
 extern user_hash clientlist;
 extern Server* MyServer;
 extern std::vector<userrec*> local_users;
@@ -266,7 +262,7 @@ userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
-	server = (char*)FindServerNamePtr(Config->ServerName);
+	server = (char*)FindServerNamePtr(ServerInstance->Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
@@ -682,11 +678,11 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 
 	if (IS_LOCAL(user))
 	{
-		if (Config->GetIOHook(user->GetPort()))
+		if (ServerInstance->Config->GetIOHook(user->GetPort()))
 		{
 			try
 			{
-				Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
+				ServerInstance->Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -833,12 +829,12 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->fd = socket;
 	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
 
-	_new->server = FindServerNamePtr(Config->ServerName);
+	_new->server = FindServerNamePtr(ServerInstance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	strcpy(_new->ident, "unknown");
 
 	_new->registered = REG_NONE;
-	_new->signon = TIME + Config->dns_timeout;
+	_new->signon = TIME + ServerInstance->Config->dns_timeout;
 	_new->lastping = 1;
 
 	log(DEBUG,"Setting socket addresses");
@@ -857,7 +853,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	long class_sqmax = 262144;      // 256kb
 	long class_rqmax = 4096;	// 4k
 
-	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
+	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 	{
 		if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str(),true)))
 		{
@@ -871,7 +867,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		}
 	}
 
-	_new->nping = TIME + _new->pingmax + Config->dns_timeout;
+	_new->nping = TIME + _new->pingmax + ServerInstance->Config->dns_timeout;
 	_new->timeout = TIME+class_regtimeout;
 	_new->flood = class_flood;
 	_new->threshold = class_threshold;
@@ -881,7 +877,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	fd_ref_table[socket] = _new;
 	local_users.push_back(_new);
 
-	if (local_users.size() > Config->SoftLimit)
+	if (local_users.size() > ServerInstance->Config->SoftLimit)
 	{
 		userrec::QuitUser(_new,"No more connections allowed");
 		return;
@@ -1031,15 +1027,15 @@ void userrec::FullConnect(CullList* Goners)
 	}
 
 
-	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",Config->Network);
-	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, Config->Network, this->nick, this->ident, this->host);
-	this->WriteServ("002 %s :Your host is %s, running version %s",this->nick,Config->ServerName,VERSION);
+	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
+	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
+	this->WriteServ("002 %s :Your host is %s, running version %s",this->nick,ServerInstance->Config->ServerName,VERSION);
 	this->WriteServ("003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	this->WriteServ("004 %s %s %s %s %s %s", this->nick, Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
+	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
 
 	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
 	// so i'd better split it :)
-	std::stringstream out(Config->data005);
+	std::stringstream out(ServerInstance->Config->data005);
 	std::string token = "";
 	std::string line5 = "";
 	int token_counter = 0;
@@ -1287,11 +1283,11 @@ void userrec::Write(const std::string &text)
 	std::string crlf = text;
 	crlf.append("\r\n");
 
-	if (Config->GetIOHook(this->GetPort()))
+	if (ServerInstance->Config->GetIOHook(this->GetPort()))
 	{
 		try
 		{
-			Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, crlf.data(), crlf.length());
+			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, crlf.data(), crlf.length());
 		}
 		catch (ModuleException& modexcept)
 		{
@@ -1323,7 +1319,7 @@ void userrec::WriteServ(const std::string& text)
 {
 	char textbuffer[MAXBUF];
 
-	snprintf(textbuffer,MAXBUF,":%s %s",Config->ServerName,text.c_str());
+	snprintf(textbuffer,MAXBUF,":%s %s",ServerInstance->Config->ServerName,text.c_str());
 	this->Write(std::string(textbuffer));
 }
 
@@ -1475,7 +1471,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 	 * opers and the other line to non-opers, then all this hidebans and hidesplits gunk
 	 * can go byebye.
 	 */
-	if (Config->HideSplits)
+	if (ServerInstance->Config->HideSplits)
 	{
 		char* check = textbuffer + 6;
 
@@ -1497,7 +1493,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 		}
 	}
 
-	if ((Config->HideBans) && (!quit_munge))
+	if ((ServerInstance->Config->HideBans) && (!quit_munge))
 	{
 		if ((!strncasecmp(textbuffer, "QUIT :G-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :K-Lined:",14))
 		|| (!strncasecmp(textbuffer, "QUIT :Q-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :Z-Lined:",14)))

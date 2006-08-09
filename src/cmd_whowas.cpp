@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whowas.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern irc::whowas::whowas_users whowas;
 
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
@@ -55,8 +55,8 @@ void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 				if(*user->oper)
 					user->WriteServ("379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
 				
-				if(*Config->HideWhoisServer && !(*user->oper))
-					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], Config->HideWhoisServer, b);
+				if(*ServerInstance->Config->HideWhoisServer && !(*user->oper))
+					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], ServerInstance->Config->HideWhoisServer, b);
 				else
 					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], u->server, b);
 			}

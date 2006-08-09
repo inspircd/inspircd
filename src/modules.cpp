@@ -45,7 +45,6 @@
 #include "command_parse.h"
 #include "dns.h"
 
-extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -263,9 +262,9 @@ void Server::RemoveSocket(InspSocket* sock)
 
 long Server::PriorityAfter(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < ServerInstance->Config->module_names.size(); j++)
 	{
-		if (Config->module_names[j] == modulename)
+		if (ServerInstance->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_AFTER);
 		}
@@ -275,9 +274,9 @@ long Server::PriorityAfter(const std::string &modulename)
 
 long Server::PriorityBefore(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < ServerInstance->Config->module_names.size(); j++)
 	{
-		if (Config->module_names[j] == modulename)
+		if (ServerInstance->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_BEFORE);
 		}
@@ -323,7 +322,7 @@ const std::string& Server::GetModuleName(Module* m)
 	{
 		if (modules[i] == m)
 		{
-			return Config->module_names[i];
+			return ServerInstance->Config->module_names[i];
 		}
 	}
 	return nothing; /* As above */
@@ -332,12 +331,12 @@ const std::string& Server::GetModuleName(Module* m)
 void Server::RehashServer()
 {
 	WriteOpers("*** Rehashing config file");
-	Config->Read(false,NULL);
+	ServerInstance->Config->Read(false,NULL);
 }
 
 ServerConfig* Server::GetConfig()
 {
-	return Config;
+	return ServerInstance->Config;
 }
 
 std::string Server::GetVersion()
@@ -477,22 +476,22 @@ std::string Server::ChanMode(userrec* User, chanrec* Chan)
 
 std::string Server::GetServerName()
 {
-	return Config->ServerName;
+	return ServerInstance->Config->ServerName;
 }
 
 std::string Server::GetNetworkName()
 {
-	return Config->Network;
+	return ServerInstance->Config->Network;
 }
 
 std::string Server::GetServerDescription()
 {
-	return Config->ServerDesc;
+	return ServerInstance->Config->ServerDesc;
 }
 
 Admin Server::GetAdmin()
 {
-	return Admin(Config->AdminName,Config->AdminEmail,Config->AdminNick);
+	return Admin(ServerInstance->Config->AdminName,ServerInstance->Config->AdminEmail,ServerInstance->Config->AdminNick);
 }
 
 
@@ -679,7 +678,7 @@ Module* Server::FindModule(const std::string &name)
 {
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
-		if (Config->module_names[i] == name)
+		if (ServerInstance->Config->module_names[i] == name)
 		{
 			return modules[i];
 		}
@@ -689,7 +688,7 @@ Module* Server::FindModule(const std::string &name)
 
 ConfigReader::ConfigReader()
 {
-	// Config->ClearStack();
+	// ServerInstance->Config->ClearStack();
 	
 	/* Is there any reason to load the entire config file again here?
 	 * it's needed if they specify another config file, but using the
@@ -698,11 +697,11 @@ ConfigReader::ConfigReader()
 	//~ this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
 	
-	//~ this->readerror = Config->LoadConf(CONFIG_FILE, this->cache,this->errorlog);
+	//~ this->readerror = ServerInstance->Config->LoadConf(CONFIG_FILE, this->cache,this->errorlog);
 	//~ if (!this->readerror)
 		//~ this->error = CONF_FILE_NOT_FOUND;
 	
-	this->data = &Config->config_data;
+	this->data = &ServerInstance->Config->config_data;
 	this->privatehash = false;
 }
 
@@ -720,12 +719,12 @@ ConfigReader::~ConfigReader()
 
 ConfigReader::ConfigReader(const std::string &filename)
 {
-	Config->ClearStack();
+	ServerInstance->Config->ClearStack();
 	
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	this->readerror = Config->LoadConf(*this->data, filename, *this->errorlog);
+	this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
 };
@@ -735,7 +734,7 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
 	std::string result;
 	
-	if (!Config->ConfValue(*this->data, tag, name, index, result))
+	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return "";
@@ -746,14 +745,14 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
 {
-	return Config->ConfValueBool(*this->data, tag, name, index);
+	return ServerInstance->Config->ConfValueBool(*this->data, tag, name, index);
 }
 
 long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
 {
 	int result;
 	
-	if(!Config->ConfValueInteger(*this->data, tag, name, index, result))
+	if(!ServerInstance->Config->ConfValueInteger(*this->data, tag, name, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
@@ -791,8 +790,8 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 		unsigned int prefixlen;
 		
 		start = 0;
-		/* ":Config->ServerName NOTICE user->nick :" */
-		prefixlen = strlen(Config->ServerName) + strlen(user->nick) + 11;
+		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
+		prefixlen = strlen(ServerInstance->Config->ServerName) + strlen(user->nick) + 11;
 	
 		if (user)
 		{
@@ -822,12 +821,12 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 
 int ConfigReader::Enumerate(const std::string &tag)
 {
-	return Config->ConfValueEnum(*this->data, tag);
+	return ServerInstance->Config->ConfValueEnum(*this->data, tag);
 }
 
 int ConfigReader::EnumerateValues(const std::string &tag, int index)
 {
-	return Config->ConfVarEnum(*this->data, tag, index);
+	return ServerInstance->Config->ConfVarEnum(*this->data, tag, index);
 }
 
 bool ConfigReader::Verify()

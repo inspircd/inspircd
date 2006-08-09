@@ -25,6 +25,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 static Server *Srv;
 	 

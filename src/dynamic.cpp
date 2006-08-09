@@ -33,7 +33,7 @@ using namespace std;
 #include <sys/types.h>
 #include <stdio.h>
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 DLLManager::DLLManager(const char *fname)
 {
@@ -73,7 +73,7 @@ DLLManager::DLLManager(const char *fname)
 	log(DEBUG,"Opened module file %s",fname);
 	char tmpfile_template[255];
 	char buffer[65536];
-	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",Config->TempDir,getpid());
+	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",ServerInstance->Config->TempDir,getpid());
 	int fd = mkstemp(tmpfile_template);
 	if (fd == -1)
 	{
@@ -115,7 +115,7 @@ DLLManager::DLLManager(const char *fname)
 	log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
 
 	// We can delete the tempfile once it's loaded, leaving just the inode.
-	if (!err && !Config->debugging)
+	if (!err && !ServerInstance->Config->debugging)
 	{
 		log(DEBUG,"Deleteting %s",tmpfile_template);
 		if (unlink(tmpfile_template) == -1)

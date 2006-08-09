@@ -35,7 +35,7 @@
 #include "socketengine.h"
 #include "commands/cmd_quit.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -66,16 +66,16 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			 */
 			if (user->fd > -1)
 			{
-				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,Config->PrefixQuit,parameters[0]);
-				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,Config->PrefixQuit,parameters[0]);
-				user->WriteCommonExcept("QUIT :%s%s",Config->PrefixQuit,parameters[0]);
+				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
+				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
+				user->WriteCommonExcept("QUIT :%s%s",ServerInstance->Config->PrefixQuit,parameters[0]);
 			}
 			else
 			{
 				WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s",parameters[0]);
 			}
-			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(Config->PrefixQuit)+std::string(parameters[0])));
+			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(ServerInstance->Config->PrefixQuit)+std::string(parameters[0])));
 
 		}
 		else

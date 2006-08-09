@@ -50,7 +50,6 @@
 #include "typedefs.h"
 #include "command_parse.h"
 
-extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 
 extern int MODCOUNT;
@@ -82,7 +81,7 @@ void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 	std::ostringstream prefix;
 	std::string::size_type start, pos, length;
 	
-	prefix << ":" << Config->ServerName << " 319 " << user->nick << " " << dest->nick << " :";
+	prefix << ":" << ServerInstance->Config->ServerName << " 319 " << user->nick << " " << dest->nick << " :";
 	line = prefix.str();
 	
 	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
@@ -120,7 +119,7 @@ bool is_uline(const char* server)
 	if (!*server)
 		return true;
 
-	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
+	return (find(ServerInstance->Config->ulines.begin(),ServerInstance->Config->ulines.end(),server) != ServerInstance->Config->ulines.end());
 }
 
 int operstrcmp(const char* data,const char* input)
@@ -203,10 +202,10 @@ bool host_matches_everyone(const std::string &mask, userrec* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
+	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
+	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","hostmasks", 0))
 		return false;
 	
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
@@ -231,10 +230,10 @@ bool ip_matches_everyone(const std::string &ip, userrec* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
+	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","ipmasks",0))
 		return false;
 	
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
@@ -257,10 +256,10 @@ bool nick_matches_everyone(const std::string &nick, userrec* user)
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
+	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","nickmasks",0))
 		return false;
 
 	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)

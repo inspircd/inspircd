@@ -19,6 +19,7 @@
 #include "modules.h"
 #include "hashcomp.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Implements config tags which allow blocking of joins to channels */
 

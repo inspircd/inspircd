@@ -5,6 +5,7 @@ using namespace std;
 #include "modules.h"
 #include <string>
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 

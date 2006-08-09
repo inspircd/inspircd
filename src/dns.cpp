@@ -45,7 +45,6 @@ using namespace std;
 
 /* We need these */
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 
 /* Master file descriptor */
 int DNS::MasterSocket;
@@ -258,10 +257,10 @@ DNS::DNS()
 	memset(&myserver,0,sizeof(insp_inaddr));
 
 	/* Convert the nameserver address into an insp_inaddr */
-	if (insp_aton(Config->DNSServer,&addr) > 0)
+	if (insp_aton(ServerInstance->Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
-		if ((strstr(Config->DNSServer,"::ffff:") == (char*)&Config->DNSServer) ||  (strstr(Config->DNSServer,"::FFFF:") == (char*)&Config->DNSServer))
+		if ((strstr(ServerInstance->Config->DNSServer,"::ffff:") == (char*)&ServerInstance->Config->DNSServer) ||  (strstr(ServerInstance->Config->DNSServer,"::FFFF:") == (char*)&ServerInstance->Config->DNSServer))
 		{
 			/* These dont come back looking like they did when they went in.
 			 * We're forced to turn some checks off.
@@ -272,11 +271,11 @@ DNS::DNS()
 			log(DEFAULT,"         to a true IPv6 environment.");
 			this->ip6munge = true;
 		}
-		log(DEBUG,"Added nameserver '%s'",Config->DNSServer);
+		log(DEBUG,"Added nameserver '%s'",ServerInstance->Config->DNSServer);
 	}
 	else
 	{
-		log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",Config->DNSServer);
+		log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",ServerInstance->Config->DNSServer);
 	}
 
 	/* Initialize mastersocket */
@@ -571,9 +570,9 @@ DNSResult DNS::GetResult()
 	 */
 	if (!ip6munge)
 	{
-		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, Config->DNSServer)))
+		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
-			log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, Config->DNSServer);
+			log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, ServerInstance->Config->DNSServer);
 			return std::make_pair(-1,"");
 		}
 	}

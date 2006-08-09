@@ -68,7 +68,6 @@ using namespace std;
 class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 
-extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -820,14 +819,13 @@ class TreeSocket : public InspSocket
 
 	std::string MyCapabilities()
 	{
-		ServerConfig* Config = Srv->GetConfig();
 		std::vector<std::string> modlist;
 		std::string capabilities = "";
 
 		for (int i = 0; i <= MODCOUNT; i++)
 		{
 			if ((modules[i]->GetVersion().Flags & VF_STATIC) || (modules[i]->GetVersion().Flags & VF_COMMON))
-				modlist.push_back(Config->module_names[i]);
+				modlist.push_back(ServerInstance->Config->module_names[i]);
 		}
 		sort(modlist.begin(),modlist.end());
 		for (unsigned int i = 0; i < modlist.size(); i++)
@@ -3822,7 +3820,7 @@ class ModuleSpanningTree : public Module
 			user->WriteServ("351 %s :%s",user->nick,Version.c_str());
 			if (found == TreeRoot)
 			{
-				std::stringstream out(Config->data005);
+				std::stringstream out(ServerInstance->Config->data005);
 				std::string token = "";
 				std::string line5 = "";
 				int token_counter = 0;
@@ -3910,7 +3908,7 @@ class ModuleSpanningTree : public Module
 				results.push_back(Srv->GetServerName()+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
 			}
 			results.push_back(Srv->GetServerName()+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-			WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+			WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
 		return 0;

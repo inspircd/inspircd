@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_time.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
 void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
@@ -34,6 +34,6 @@ void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 	snprintf(tms,26,"%s",asctime(timeinfo));
 	tms[24] = 0;
 
-	user->WriteServ("391 %s %s :%s",user->nick,Config->ServerName,tms);
+	user->WriteServ("391 %s %s :%s",user->nick,ServerInstance->Config->ServerName,tms);
   
 }

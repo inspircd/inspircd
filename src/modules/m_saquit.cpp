@@ -31,6 +31,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 

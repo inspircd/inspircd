@@ -23,14 +23,14 @@
 #include "helperfuncs.h"
 #include "commands/cmd_die.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern std::vector<userrec*> all_opers;
 
 void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (!strcmp(parameters[0],Config->diepass))
+	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
 	{
-		log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, Config->DieDelay);
+		log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, ServerInstance->Config->DieDelay);
 		
 		/* This would just be WriteOpers(), but as we just sleep() and then die then the write buffers never get flushed.
 		 * so we iterate the oper list, writing the message and immediately trying to flush their write buffer.
@@ -47,7 +47,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 		}
 		
-		sleep(Config->DieDelay);
+		sleep(ServerInstance->Config->DieDelay);
 		Exit(ERROR);
 	}
 	else

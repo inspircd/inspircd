@@ -16,7 +16,7 @@
 #include "modes/cmode_h.h"
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -48,7 +48,7 @@ ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanr
 	/* If halfops are not enabled in the conf, we don't execute
 	 * anything in this class at all.
 	 */
-	if (!Config->AllowHalfop)
+	if (!ServerInstance->Config->AllowHalfop)
 	{
 		parameter = "";
 		return MODEACTION_DENY;

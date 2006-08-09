@@ -93,9 +93,9 @@ typedef std::map<std::string,Module*> featurelist;
  * loaded modules in a readable simple way, e.g.:
  * 'FOREACH_MOD(I_OnXonnwxr,OnConnect(user));'
  */
-#define FOREACH_MOD(y,x) if (Config->global_implementation[y] > 0) { \
+#define FOREACH_MOD(y,x) if (ServerInstance->Config->global_implementation[y] > 0) { \
 	for (int _i = 0; _i <= MODCOUNT; _i++) { \
-	if (Config->implement_lists[_i][y]) \
+	if (ServerInstance->Config->implement_lists[_i][y]) \
 		try \
 		{ \
 			modules[_i]->x ; \
@@ -112,10 +112,10 @@ typedef std::map<std::string,Module*> featurelist;
  * The first module to return a nonzero result is the value to be accepted,
  * and any modules after are ignored.
  */
-#define FOREACH_RESULT(y,x) { if (Config->global_implementation[y] > 0) { \
+#define FOREACH_RESULT(y,x) { if (ServerInstance->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
 			for (int _i = 0; _i <= MODCOUNT; _i++) { \
-			if (Config->implement_lists[_i][y]) {\
+			if (ServerInstance->Config->implement_lists[_i][y]) {\
 				try \
 				{ \
 					int res = modules[_i]->x ; \

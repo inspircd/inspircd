@@ -46,7 +46,7 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 
 /* verify that a user's ident and nickname is valid */
 
@@ -200,7 +200,7 @@ std::string chlist(userrec *user,userrec* source)
 			 * If the channel is NOT private/secret OR the user shares a common channel
 			 * If the user is an oper, and the <options:operspywhois> option is set.
 			 */
-			if ((source == user) || (*source->oper && Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
+			if ((source == user) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
 			{
 				list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
 			}

@@ -53,11 +53,9 @@ extern InspIRCd* ServerInstance;
 
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<InspSocket*> module_sockets;
 extern std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
-extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 extern time_t TIME;
 
 // This table references users by file descriptor.
@@ -66,7 +64,6 @@ extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 extern Server* MyServer;
-extern ServerConfig *Config;
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
@@ -85,7 +82,7 @@ cmd_pass* command_pass;
  * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
  * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
- * Both will only parse until they reach Config->MaxTargets number of targets, to stop abuse via spam.
+ * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
 int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
@@ -106,7 +103,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 * which called us, for every parameter pair until there are
 	 * no more left to parse.
 	 */
-	while (((item = items1.GetToken()) != "") && (max++ < Config->MaxTargets))
+	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
 		std::string extrastuff = items2.GetToken();
 		parameters[splithere] = item.c_str();
@@ -133,7 +130,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 * Each token we parse out, call the command handler that called us
 	 * with it
 	 */
-	while (((item = items1.GetToken()) != "") && (max++ < Config->MaxTargets))
+	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
 		parameters[splithere] = item.c_str();
 		CommandObj->Handle(parameters,pcnt,user);
@@ -247,7 +244,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				user->WriteServ("461 %s %s :Not enough parameters.", user->nick, command.c_str());
 				/* If syntax is given, display this as the 461 reply */
-				if ((Config->SyntaxHints) && (cm->second->syntax.length()))
+				if ((ServerInstance->Config->SyntaxHints) && (cm->second->syntax.length()))
 					user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
 				return;
 			}

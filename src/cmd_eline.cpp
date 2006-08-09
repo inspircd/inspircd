@@ -25,7 +25,7 @@
 #include "commands/cmd_eline.h"
 
 extern int MODCOUNT;
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 

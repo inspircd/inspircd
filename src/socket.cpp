@@ -25,7 +25,6 @@
 #include "message.h"
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 extern time_t TIME;
 
 /* Used when comparing CIDR masks for the modulus bits left over.
@@ -273,7 +272,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 	else
 	{
 		log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
-		if (listen(sockfd, Config->MaxConn) == -1)
+		if (listen(sockfd, ServerInstance->Config->MaxConn) == -1)
 		{
 			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
 			return false;
@@ -312,6 +311,7 @@ int OpenTCPSocket()
 
 bool HasPort(int port, char* addr)
 {
+	ServerConfig* Config = ServerInstance->Config;
 	for (unsigned long count = 0; count < ServerInstance->stats->BoundPortCount; count++)
 	{
 		if ((port == Config->ports[count]) && (!strcasecmp(Config->addrs[count],addr)))
@@ -328,6 +328,7 @@ int BindPorts(bool bail)
 	insp_sockaddr client, server;
 	int clientportcount = 0;
 	int BoundPortCount = 0;
+	ServerConfig* Config = ServerInstance->Config;
 
 	if (!bail)
 	{

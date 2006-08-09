@@ -30,7 +30,6 @@
 
 
 extern InspIRCd* ServerInstance;
-extern ServerConfig* Config;
 extern time_t TIME;
 extern Server* MyServer;
 

@@ -22,6 +22,7 @@ using namespace std;
 #include "modules.h"
 #include "inspsocket.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */

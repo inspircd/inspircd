@@ -9,7 +9,6 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 #include "ctables.h"
-#include "inspircd.h"
 #include "modules.h"
 #include "globals.h"
 

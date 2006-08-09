@@ -23,7 +23,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_away.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;

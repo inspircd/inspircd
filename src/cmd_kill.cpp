@@ -24,7 +24,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_kill.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -53,7 +53,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			// remote kill
 			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", Config->ServerName, user->nick, parameters[1]);
+			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", ServerInstance->Config->ServerName, user->nick, parameters[1]);
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
@@ -75,8 +75,8 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			// local kill
-			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
-			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, Config->ServerName, user->dhost, user->nick, parameters[1]);
+			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
+			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
 			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
 			userrec::QuitUser(u, killreason);

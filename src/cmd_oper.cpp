@@ -37,7 +37,7 @@
 #include "command_parse.h"
 #include "commands/cmd_oper.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -74,24 +74,24 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
 
-	for (int i = 0; i < Config->ConfValueEnum(Config->config_data, "oper"); i++)
+	for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
 	{
-		Config->ConfValue(Config->config_data, "oper", "name", i, LoginName, MAXBUF);
-		Config->ConfValue(Config->config_data, "oper", "password", i, Password, MAXBUF);
-		Config->ConfValue(Config->config_data, "oper", "type", i, OperType, MAXBUF);
-		Config->ConfValue(Config->config_data, "oper", "host", i, HostName, MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "name", i, LoginName, MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "password", i, Password, MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
 		if ((!strcmp(LoginName,parameters[0])) && (!operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
 		{
 			fail2 = true;
-			for (j =0; j < Config->ConfValueEnum(Config->config_data, "type"); j++)
+			for (j =0; j < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "type"); j++)
 			{
-				Config->ConfValue(Config->config_data, "type","name", j, TypeName, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","name", j, TypeName, MAXBUF);
 
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					Config->ConfValue(Config->config_data, "type","host", j, HostName, MAXBUF);
+					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
 					if (*HostName)
 						user->ChangeDisplayedHost(HostName);
 					if (!isnick(TypeName))

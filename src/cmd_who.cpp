@@ -23,7 +23,7 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
@@ -228,7 +228,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 	/* Send the results out */
-	if ((whoresults.size() < (size_t)Config->MaxWhoResults) && (!opt_unlimit))
+	if ((whoresults.size() < (size_t)ServerInstance->Config->MaxWhoResults) && (!opt_unlimit))
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 			user->WriteServ(*n);

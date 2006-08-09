@@ -23,7 +23,7 @@
 #include "commands/cmd_topic.h"
 #include "helperfuncs.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern time_t TIME;
 extern ModuleList modules;

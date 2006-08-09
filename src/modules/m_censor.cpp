@@ -22,6 +22,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 typedef std::map<irc::string,irc::string> censor_t;
 

@@ -25,6 +25,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
 

@@ -103,6 +103,7 @@ class InspIRCd : public classbase
 	CommandParser* Parser;
 	SocketEngine* SE;
 	serverstats* stats;
+	ServerConfig* Config;
 	DNS* Res;
 
 	std::string GetRevision();

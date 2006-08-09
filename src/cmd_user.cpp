@@ -22,7 +22,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_user.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;

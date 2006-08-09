@@ -16,13 +16,11 @@
 
 using namespace std;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fstream>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 static Server *Srv;
 static FileReader *quotes = NULL;

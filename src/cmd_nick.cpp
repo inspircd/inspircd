@@ -28,7 +28,7 @@
 #include "hashcomp.h"
 #include "commands/cmd_nick.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -142,7 +142,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		//if (user->dns_done)
 		//	log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 
-		if (Config->NoUserDns)
+		if (ServerInstance->Config->NoUserDns)
 		{
 			user->dns_done = true;
 		}

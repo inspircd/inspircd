@@ -26,7 +26,6 @@ using namespace std;
 #include <stdio.h>
 #include "users.h"
 #include "channels.h"
-#include "helperfuncs.h"
 #include "modules.h"
 
 static Server *Srv;

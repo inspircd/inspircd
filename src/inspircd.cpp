@@ -89,7 +89,6 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 // by an integer, meaning there is no need for a scan/search operation.
 userrec* fd_ref_table[MAX_DESCRIPTORS];
 Server* MyServer = new Server;
-ServerConfig *Config = new ServerConfig;
 user_hash clientlist;
 chan_hash chanlist;
 servernamelist servernames;
@@ -123,8 +122,8 @@ bool FindServerName(const std::string &servername)
 
 void Exit(int status)
 {
-	if (Config->log_file)
-		fclose(Config->log_file);
+	if (ServerInstance->Config->log_file)
+		fclose(ServerInstance->Config->log_file);
 	send_error("Server shutdown.");
 	exit (status);
 }
@@ -140,8 +139,8 @@ void InspIRCd::Start()
 
 void Killed(int status)
 {
-	if (Config->log_file)
-		fclose(Config->log_file);
+	if (ServerInstance->Config->log_file)
+		fclose(ServerInstance->Config->log_file);
 	send_error("Server terminated.");
 	exit(status);
 }
@@ -149,9 +148,9 @@ void Killed(int status)
 void Rehash(int status)
 {
 	WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
-	fclose(Config->log_file);
+	fclose(ServerInstance->Config->log_file);
 	OpenLog(NULL,0);
-	Config->Read(false,NULL);
+	ServerInstance->Config->Read(false,NULL);
 	FOREACH_MOD(I_OnRehash,OnRehash(""));
 }
 
@@ -234,7 +233,8 @@ void InspIRCd::MakeLowerMap()
 InspIRCd::InspIRCd(int argc, char** argv)
 {
 	bool SEGVHandler = false;
-
+	this->Config = new ServerConfig;
+	ServerInstance = this;
 	this->Start();
 	module_sockets.clear();
 	this->startup_time = time(NULL);
@@ -907,8 +907,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 int InspIRCd::Run()
 {
-	/* Until THIS point, ServerInstance == NULL */
-
 	this->Res = new DNS();
 
 	LoadAllModules(this);

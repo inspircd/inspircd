@@ -24,7 +24,6 @@
 #include "helperfuncs.h"
 #include "snomasks.h"
 
-extern ServerConfig* Config;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;

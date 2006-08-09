@@ -7,6 +7,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 

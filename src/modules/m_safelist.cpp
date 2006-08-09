@@ -22,7 +22,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "message.h"
 #include <vector>
- 
+#include "inspircd.h"
+
 extern time_t TIME;
 
 class ListData : public classbase

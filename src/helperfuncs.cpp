@@ -46,7 +46,6 @@
 
 extern int MODCOUNT;
 extern ModuleList modules;
-extern ServerConfig *Config;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
@@ -71,8 +70,11 @@ void do_log(int level, const char *text, ...)
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
 
+	if (!ServerInstance || !ServerInstance->Config)
+		return;
+
 	/* If we were given -debug we output all messages, regardless of configured loglevel */
-	if ((level < Config->LogLevel) && !Config->forcedebug)
+	if ((level < ServerInstance->Config->LogLevel) && !ServerInstance->Config->forcedebug)
 		return;
 
 	if (TIME != LAST)
@@ -84,20 +86,20 @@ void do_log(int level, const char *text, ...)
 		LAST = TIME;
 	}
 
-	if (Config->log_file)
+	if (ServerInstance->Config->log_file)
 	{
 		va_start(argsPtr, text);
 		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 		va_end(argsPtr);
 
-		if (Config->writelog)
+		if (ServerInstance->Config->writelog)
 		{
-			fprintf(Config->log_file,"%s %s\n",TIMESTR,textbuffer);
-			fflush(Config->log_file);
+			fprintf(ServerInstance->Config->log_file,"%s %s\n",TIMESTR,textbuffer);
+			fflush(ServerInstance->Config->log_file);
 		}
 	}
 	
-	if (Config->nofork)
+	if (ServerInstance->Config->nofork)
 	{
 		printf("%s %s\n", TIMESTR, textbuffer);
 	}
@@ -159,7 +161,7 @@ std::string GetServerDescription(const char* servername)
 	else
 	{
 		// not a remote server that can be found, it must be me.
-		return Config->ServerDesc;
+		return ServerInstance->Config->ServerDesc;
 	}
 }
 
@@ -223,7 +225,7 @@ void ServerNoticeAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",ServerInstance->Config->ServerName,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -244,7 +246,7 @@ void ServerPrivmsgAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
+	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",ServerInstance->Config->ServerName,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -406,7 +408,7 @@ chanrec* FindChan(const char* chan)
 long GetMaxBans(char* name)
 {
 	std::string x;
-	for (std::map<std::string,int>::iterator n = Config->maxbans.begin(); n != Config->maxbans.end(); n++)
+	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
 	{
 		x = n->first;
 		if (match(name,x.c_str()))
@@ -612,7 +614,7 @@ int usercount(chanrec *c)
  */
 ConnectClass GetClass(userrec *user)
 {
-	for (ClassVector::iterator i = Config->Classes.begin(); i != Config->Classes.end(); i++)
+	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 	{
 		if ((match(user->GetIPString(),i->host.c_str(),true)) || (match(user->host,i->host.c_str())))
 		{
@@ -620,7 +622,7 @@ ConnectClass GetClass(userrec *user)
 		}
 	}
 
-	return *(Config->Classes.begin());
+	return *(ServerInstance->Config->Classes.begin());
 }
 
 /*
@@ -759,32 +761,32 @@ long local_count()
 
 void ShowMOTD(userrec *user)
 {
-	if (!Config->MOTD.size())
+	if (!ServerInstance->Config->MOTD.size())
 	{
 		user->WriteServ("422 %s :Message of the day file is missing.",user->nick);
 		return;
 	}
-	user->WriteServ("375 %s :%s message of the day", user->nick, Config->ServerName);
+	user->WriteServ("375 %s :%s message of the day", user->nick, ServerInstance->Config->ServerName);
 
-	for (unsigned int i = 0; i < Config->MOTD.size(); i++)
-		user->WriteServ("372 %s :- %s",user->nick,Config->MOTD[i].c_str());
+	for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
+		user->WriteServ("372 %s :- %s",user->nick,ServerInstance->Config->MOTD[i].c_str());
 
 	user->WriteServ("376 %s :End of message of the day.", user->nick);
 }
 
 void ShowRULES(userrec *user)
 {
-	if (!Config->RULES.size())
+	if (!ServerInstance->Config->RULES.size())
 	{
 		user->WriteServ("NOTICE %s :Rules file is missing.",user->nick);
 		return;
 	}
-	user->WriteServ("NOTICE %s :%s rules",user->nick,Config->ServerName);
+	user->WriteServ("NOTICE %s :%s rules",user->nick,ServerInstance->Config->ServerName);
 
-	for (unsigned int i = 0; i < Config->RULES.size(); i++)
-		user->WriteServ("NOTICE %s :%s",user->nick,Config->RULES[i].c_str());
+	for (unsigned int i = 0; i < ServerInstance->Config->RULES.size(); i++)
+		user->WriteServ("NOTICE %s :%s",user->nick,ServerInstance->Config->RULES[i].c_str());
 
-	user->WriteServ("NOTICE %s :End of %s rules.",user->nick,Config->ServerName);
+	user->WriteServ("NOTICE %s :End of %s rules.",user->nick,ServerInstance->Config->ServerName);
 }
 
 // this returns 1 when all modules are satisfied that the user should be allowed onto the irc server
@@ -792,12 +794,12 @@ void ShowRULES(userrec *user)
 // registration timeout maximum seconds)
 bool AllModulesReportReady(userrec* user)
 {
-	if (!Config->global_implementation[I_OnCheckReady])
+	if (!ServerInstance->Config->global_implementation[I_OnCheckReady])
 		return true;
 
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
-		if (Config->implement_lists[i][I_OnCheckReady])
+		if (ServerInstance->Config->implement_lists[i][I_OnCheckReady])
 		{
 			int res = modules[i]->OnCheckReady(user);
 			if (!res)
@@ -1020,29 +1022,29 @@ void OpenLog(char** argv, int argc)
 {
 	if (!*LOG_FILE)
 	{
-		if (Config->logpath == "")
+		if (ServerInstance->Config->logpath == "")
 		{
-			Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+			ServerInstance->Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
 		}
 	}
 	else
 	{
-		Config->log_file = fopen(LOG_FILE,"a+");
+		ServerInstance->Config->log_file = fopen(LOG_FILE,"a+");
 
-		if (!Config->log_file)
+		if (!ServerInstance->Config->log_file)
 		{
-			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
+			printf("ERROR: Could not write to logfile %s, bailing!\n\n",ServerInstance->Config->logpath.c_str());
 			Exit(ERROR);
 		}
 		
 		return;
 	}
 
-	Config->log_file = fopen(Config->logpath.c_str(),"a+");
+	ServerInstance->Config->log_file = fopen(ServerInstance->Config->logpath.c_str(),"a+");
 
-	if (!Config->log_file)
+	if (!ServerInstance->Config->log_file)
 	{
-		printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
+		printf("ERROR: Could not write to logfile %s, bailing!\n\n",ServerInstance->Config->logpath.c_str());
 		Exit(ERROR);
 	}
 }
@@ -1059,10 +1061,10 @@ void CheckRoot()
 
 void CheckDie()
 {
-	if (*Config->DieValue)
+	if (*ServerInstance->Config->DieValue)
 	{
-		printf("WARNING: %s\n\n",Config->DieValue);
-		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
+		printf("WARNING: %s\n\n",ServerInstance->Config->DieValue);
+		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",ServerInstance->Config->DieValue);
 		Exit(ERROR);
 	}
 }
@@ -1071,12 +1073,12 @@ void CheckDie()
 void LoadAllModules(InspIRCd* ServerInstance)
 {
 	char configToken[MAXBUF];
-	Config->module_names.clear();
+	ServerInstance->Config->module_names.clear();
 	MODCOUNT = -1;
 
-	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
+	for (int count = 0; count < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "module"); count++)
 	{
-		Config->ConfValue(Config->config_data, "module","name",count,configToken,MAXBUF);
+		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "module","name",count,configToken,MAXBUF);
 		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 		
 		if (!ServerInstance->LoadModule(configToken))		

@@ -25,6 +25,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "u_listmode.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 

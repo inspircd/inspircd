@@ -20,6 +20,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 // Global Vars
 static ConfigReader *helpop;

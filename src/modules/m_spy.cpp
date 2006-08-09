@@ -48,7 +48,6 @@ using namespace std;
 
 static Server *Srv;
 
-extern ServerConfig* Config;
 extern InspIRCd* ServerInstance;
 extern chan_hash chanlist;
 

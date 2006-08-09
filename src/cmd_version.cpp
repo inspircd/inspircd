@@ -21,12 +21,12 @@
 #include "helperfuncs.h"
 #include "commands/cmd_version.h"
 
-extern ServerConfig* Config;
+extern InspIRCd* ServerInstance;
 extern InspIRCd* ServerInstance;
 
 void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	std::stringstream out(Config->data005);
+	std::stringstream out(ServerInstance->Config->data005);
 	std::string token = "";
 	std::string line5 = "";
 	int token_counter = 0;

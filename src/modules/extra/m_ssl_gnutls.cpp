@@ -11,10 +11,13 @@
 #include "helperfuncs.h"
 #include "socket.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `libgnutls-config --cflags` */
 /* $LinkerFlags: `libgnutls-config --libs` `perl ../gnutls_rpath.pl` */
+
+extern InspIRCd* ServerInstance;
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
@@ -41,7 +44,6 @@ public:
 class ModuleSSLGnuTLS : public Module
 {
 	Server* Srv;
-	ServerConfig* SrvConf;
 	ConfigReader* Conf;
 
 	char* dummy;
@@ -68,10 +70,9 @@ class ModuleSSLGnuTLS : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		SrvConf = Srv->GetConfig();
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
-		inbufsize = SrvConf->NetBufferSize;
+		inbufsize = ServerInstance->Config->NetBufferSize;
 		
 		gnutls_global_init(); // This must be called once in the program
 
@@ -98,7 +99,7 @@ class ModuleSSLGnuTLS : public Module
 		
 		for(unsigned int i = 0; i < listenports.size(); i++)
 		{
-			SrvConf->DelIOHook(listenports[i]);
+			ServerInstance->Config->DelIOHook(listenports[i]);
 		}
 		
 		listenports.clear();
@@ -110,7 +111,7 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				unsigned int port = Conf->ReadInteger("bind", "port", i, true);
-				if(SrvConf->AddIOHook(port, this))
+				if (ServerInstance->Config->AddIOHook(port, this))
 				{
 					// We keep a record of which ports we're listening on with SSL
 					listenports.push_back(port);
@@ -222,7 +223,7 @@ class ModuleSSLGnuTLS : public Module
 			log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)
-				SrvConf->DelIOHook(listenports[i]);
+				ServerInstance->Config->DelIOHook(listenports[i]);
 		}
 	}
 	

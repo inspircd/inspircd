@@ -23,6 +23,7 @@ using namespace std;
 #include <string>
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 static bool kludgeme = false;
 
