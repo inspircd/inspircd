@@ -82,10 +82,6 @@ socklen_t length;
 
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
-// This table references users by file descriptor.
-// its an array to make it VERY fast, as all lookups are referenced
-// by an integer, meaning there is no need for a scan/search operation.
-userrec* fd_ref_table[MAX_DESCRIPTORS];
 Server* MyServer = new Server;
 user_hash clientlist;
 chan_hash chanlist;
@@ -708,18 +704,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		expire_lines();
 		if (process_module_sockets)
 		{
-			/* Fix by brain - the addition of DoOneIteration means that this
-			 * can end up getting called recursively in the following pattern:
-			 *
-			 * m_spanningtree DoPingChecks
-			 * (server pings out and is squit)
-			 * (squit causes call to DoOneIteration)
-			 * DoOneIteration enters here
-			 * calls DoBackground timer
-			 * enters m_spanningtree DoPingChecks... see step 1.
-			 *
-			 * This should do the job and fix the bug.
-			 */
 			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 		}
 		TickMissedTimers(TIME);
@@ -734,7 +718,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	if (iterations++ == 15)
 	{
 		iterations = 0;
-		DoBackgroundUserStuff(TIME);
+		this->DoBackgroundUserStuff(TIME);
 	}
  
 	/* Once a second, do the background processing */
@@ -754,7 +738,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * hit at all.   
 	 */ 
 	if (process_module_sockets)
-		DoSocketTimeouts(TIME,this);
+		this->DoSocketTimeouts(TIME);
 	 
 	TickTimers(TIME);
 	 
@@ -783,9 +767,9 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			case X_ESTAB_CLIENT:
 
 				log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
-				cu = fd_ref_table[activefds[activefd]];
+				cu = this->fd_ref_table[activefds[activefd]];
 				if (cu)
-					ProcessUser(cu);  
+					this->ProcessUser(cu);
 	
 			break;
 	

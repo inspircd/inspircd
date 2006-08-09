@@ -97,6 +97,10 @@ class InspIRCd : public classbase
 	void MoveAfter(std::string modulename, std::string after);
 	void MoveBefore(std::string modulename, std::string before);
 
+	void ProcessUser(userrec* cu);
+	void DoSocketTimeouts(time_t TIME);
+	void DoBackgroundUserStuff(time_t TIME);
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
@@ -105,7 +109,8 @@ class InspIRCd : public classbase
 	serverstats* stats;
 	ServerConfig* Config;
 	std::vector<InspSocket*> module_sockets;
-	InspSocket* socket_ref[MAX_DESCRIPTORS];
+	InspSocket* socket_ref[MAX_DESCRIPTORS];	/* XXX: This should probably be made private, with inline accessors */
+	userrec* fd_ref_table[MAX_DESCRIPTORS];		/* XXX: Ditto */
 	DNS* Res;
 
 	std::string GetRevision();

@@ -36,7 +36,6 @@
 #include "commands/cmd_quit.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -44,7 +43,6 @@ extern time_t TIME;
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> local_users;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -112,6 +110,6 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		purge_empty_chans(user);
 	}
 	if (user->fd > -1)
-		fd_ref_table[user->fd] = NULL;
+		ServerInstance->fd_ref_table[user->fd] = NULL;
 	DELETE(user);
 }

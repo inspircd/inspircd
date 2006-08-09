@@ -8,8 +8,8 @@ void CheckDie();
 void LoadAllModules(InspIRCd* ServerInstance);
 void CheckRoot();
 void OpenLog(char** argv, int argc);
-void DoBackgroundUserStuff(time_t TIME);
+/*void DoBackgroundUserStuff(time_t TIME);
 void ProcessUser(userrec* cu);
-void DoSocketTimeouts(time_t TIME, InspIRCd* SI);
+void DoSocketTimeouts(time_t TIME, InspIRCd* SI);*/
 
 #endif

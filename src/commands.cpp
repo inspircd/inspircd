@@ -69,12 +69,6 @@ extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 extern std::vector<userrec*> local_users;
 
-// This table references users by file descriptor.
-// its an array to make it VERY fast, as all lookups are referenced
-// by an integer, meaning there is no need for a scan/search operation.
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-
-
 void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 {
 	std::string line;

@@ -38,7 +38,6 @@ extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
 extern time_t TIME;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern user_hash clientlist;
 extern Server* MyServer;
 extern std::vector<userrec*> local_users;
@@ -154,7 +153,7 @@ UserResolver::UserResolver(userrec* user, std::string to_resolve, bool forward) 
 
 void UserResolver::OnLookupComplete(const std::string &result)
 {
-	if ((!this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
+	if ((!this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
 	{
 		log(DEBUG,"Commencing forward lookup");
 		this->bound_user->stored_host = result;
@@ -168,7 +167,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			log(DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
-	else if ((this->fwd) && (fd_ref_table[this->bound_fd] == this->bound_user))
+	else if ((this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
 	{
 		/* Both lookups completed */
 		if (this->bound_user->GetIPString() == result)
@@ -199,7 +198,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
-	if (fd_ref_table[this->bound_fd] == this->bound_user)
+	if (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user)
 	{
 		/* Error message here */
 		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
@@ -714,7 +713,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 		log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
-			fd_ref_table[user->fd] = NULL;
+			ServerInstance->fd_ref_table[user->fd] = NULL;
 			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
 				local_users.erase(find(local_users.begin(),local_users.end(),user));
 		}
@@ -874,7 +873,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->sendqmax = class_sqmax;
 	_new->recvqmax = class_rqmax;
 
-	fd_ref_table[socket] = _new;
+	ServerInstance->fd_ref_table[socket] = _new;
 	local_users.push_back(_new);
 
 	if (local_users.size() > ServerInstance->Config->SoftLimit)

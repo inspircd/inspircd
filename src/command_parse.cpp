@@ -58,11 +58,6 @@ extern std::vector<userrec*> local_users;
 extern int MODCOUNT;
 extern time_t TIME;
 
-// This table references users by file descriptor.
-// its an array to make it VERY fast, as all lookups are referenced
-// by an integer, meaning there is no need for a scan/search operation.
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-
 extern Server* MyServer;
 
 extern user_hash clientlist;

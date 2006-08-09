@@ -51,7 +51,6 @@ extern ModuleList modules;
 extern FactoryList factory;
 extern std::vector<userrec*> local_users;
 extern time_t TIME;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern user_hash clientlist;
 extern chan_hash chanlist;
 extern command_table cmdlist;
@@ -460,7 +459,7 @@ userrec* Server::FindNick(const std::string &nick)
 
 userrec* Server::FindDescriptor(int socket)
 {
-	return (socket < 65536 ? fd_ref_table[socket] : NULL);
+	return (socket < 65536 ? ServerInstance->fd_ref_table[socket] : NULL);
 }
 
 chanrec* Server::FindChannel(const std::string &channel)
@@ -558,7 +557,7 @@ bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &me
 		log(DEBUG,"Delete local user");
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
-	fd_ref_table[zombie->fd] = zombie;
+	ServerInstance->fd_ref_table[zombie->fd] = zombie;
 	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
 	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
 	{

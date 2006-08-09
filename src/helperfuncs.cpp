@@ -49,7 +49,6 @@ extern ModuleList modules;
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 extern std::vector<userrec*> all_opers;
 extern user_hash clientlist;
 extern chan_hash chanlist;

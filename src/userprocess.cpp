@@ -59,14 +59,12 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
-extern InspIRCd* ServerInstance;
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 char data[65536];
 
 extern user_hash clientlist;
 extern chan_hash chanlist;
 
-void ProcessUser(userrec* cu)
+void InspIRCd::ProcessUser(userrec* cu)
 {
 	int result = EAGAIN;
 
@@ -75,14 +73,14 @@ void ProcessUser(userrec* cu)
 
 	log(DEBUG,"Processing user with fd %d",cu->fd);
 
-	if (ServerInstance->Config->GetIOHook(cu->GetPort()))
+	if (this->Config->GetIOHook(cu->GetPort()))
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 
 		try
 		{
-			MOD_RESULT = ServerInstance->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
+			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
 			log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
@@ -112,7 +110,7 @@ void ProcessUser(userrec* cu)
 		int currfd;
 		int floodlines = 0;
 
-		ServerInstance->stats->statsRecv += result;
+		this->stats->statsRecv += result;
 		/*
 		 * perform a check on the raw buffer as an array (not a string!) to remove
 		 * character 0 which is illegal in the RFC - replace them with spaces.
@@ -166,14 +164,14 @@ void ProcessUser(userrec* cu)
 				{
 					WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
 				return;
 			}
 
-			if (current->recvq.length() > (unsigned)ServerInstance->Config->NetBufferSize)
+			if (current->recvq.length() > (unsigned)this->Config->NetBufferSize)
 			{
 				if (current->registered == REG_ALL)
 				{
@@ -183,7 +181,7 @@ void ProcessUser(userrec* cu)
 				{
 					WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
 				}
 
@@ -217,7 +215,7 @@ void ProcessUser(userrec* cu)
 					}
 					else
 					{
-						add_zline(120,ServerInstance->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+						add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 						apply_lines(APPLY_ZLINES);
 					}
 
@@ -231,17 +229,17 @@ void ProcessUser(userrec* cu)
 				if (single_line.length() > 512)
 					single_line.resize(512);
 
-				userrec* old_comp = fd_ref_table[currfd];
+				userrec* old_comp = this->fd_ref_table[currfd];
 
-				ServerInstance->Parser->ProcessBuffer(single_line,current);
+				this->Parser->ProcessBuffer(single_line,current);
 				/*
 				 * look for the user's record in case it's changed... if theyve quit,
 				 * we cant do anything more with their buffer, so bail.
 				 * there used to be an ugly, slow loop here. Now we have a reference
 				 * table, life is much easier (and FASTER)
 				 */
-				userrec* new_comp = fd_ref_table[currfd];
-				if ((currfd < 0) || (!fd_ref_table[currfd]) || (old_comp != new_comp))
+				userrec* new_comp = this->fd_ref_table[currfd];
+				if ((currfd < 0) || (!this->fd_ref_table[currfd]) || (old_comp != new_comp))
 				{
 					return;
 				}
@@ -277,26 +275,26 @@ void ProcessUser(userrec* cu)
 	}
 }
 
-void DoSocketTimeouts(time_t TIME, InspIRCd* SI)
+void InspIRCd::DoSocketTimeouts(time_t TIME)
 {
-	unsigned int numsockets = SI->module_sockets.size();
-	SocketEngine* SE = SI->SE;
+	unsigned int numsockets = this->module_sockets.size();
+	SocketEngine* SE = this->SE;
 
-	for (std::vector<InspSocket*>::iterator a = SI->module_sockets.begin(); a < SI->module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
 	{
 		InspSocket* s = (InspSocket*)*a;
-		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (SI->socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
+		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (this->socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
 		{
 			log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			SI->socket_ref[s->GetFd()] = NULL;
+			this->socket_ref[s->GetFd()] = NULL;
 			SE->DelFd(s->GetFd());
-			SI->module_sockets.erase(a);
+			this->module_sockets.erase(a);
 			s->Close();
 			DELETE(s);
 			break;
 		}
 
-		if (SI->module_sockets.size() != numsockets)
+		if (this->module_sockets.size() != numsockets)
 			break;
 	}
 }
@@ -307,7 +305,7 @@ void DoSocketTimeouts(time_t TIME, InspIRCd* SI)
  * stuff like ping checks, registration timeouts, etc. This function is
  * also responsible for checking if InspSocket derived classes are timed out.
  */
-void DoBackgroundUserStuff(time_t TIME)
+void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 {
 	CullList GlobalGoners;
 
@@ -340,7 +338,7 @@ void DoBackgroundUserStuff(time_t TIME)
 			{
 				curr->dns_done = true;
 				//ZapThisDns(curr->fd);
-				ServerInstance->stats->statsDnsBad++;
+				this->stats->statsDnsBad++;
 				curr->FullConnect(&GlobalGoners);
 				continue;
 			}
@@ -362,7 +360,7 @@ void DoBackgroundUserStuff(time_t TIME)
 					curr->nping = TIME+curr->pingmax;
 					continue;
 				}
-				curr->Write("PING :%s",ServerInstance->Config->ServerName);
+				curr->Write("PING :%s",this->Config->ServerName);
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}
