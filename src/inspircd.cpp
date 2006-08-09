@@ -65,7 +65,7 @@
 #include "typedefs.h"
 #include "command_parse.h"
 
-InspIRCd* ServerInstance;
+InspIRCd* ServerInstance = NULL;
 
 extern ModuleList modules;
 extern FactoryList factory;
@@ -885,6 +885,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 int InspIRCd::Run()
 {
 	this->Res = new DNS(this);
+
+	log(DEBUG,"RES: %08x",this->Res);
 
 	LoadAllModules(this);
 

@@ -69,6 +69,7 @@ class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 
 extern InspIRCd* ServerInstance;
+
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -3081,7 +3082,7 @@ class ServernameResolver : public Resolver
 	 */
 	Link MyLink;
  public:        
-	ServernameResolver(const std::string &hostname, Link x) : Resolver(ServerInstance, hostname, DNS_QUERY_FORWARD), MyLink(x)
+	ServernameResolver(InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x)
 	{
 		/* Nothing in here, folks */
 	}
@@ -3122,7 +3123,7 @@ class SecurityIPResolver : public Resolver
  private:
 	Link MyLink;
  public:
-	SecurityIPResolver(const std::string &hostname, Link x) : Resolver(ServerInstance, hostname, DNS_QUERY_FORWARD), MyLink(x)
+	SecurityIPResolver(InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x)
 	{
 	}
 
@@ -3371,7 +3372,7 @@ void ReadConfiguration(bool rebind)
 			{
 				try
 				{
-					SecurityIPResolver* sr = new SecurityIPResolver(L.IPAddr, L);
+					SecurityIPResolver* sr = new SecurityIPResolver(ServerInstance, L.IPAddr, L);
 					Srv->AddResolver(sr);
 				}
 				catch (ModuleException& e)
@@ -3787,7 +3788,7 @@ class ModuleSpanningTree : public Module
 					{
 						try
 						{
-							ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+							ServernameResolver* snr = new ServernameResolver(ServerInstance,x->IPAddr, *x);
 							Srv->AddResolver(snr);
 						}
 						catch (ModuleException& e)
@@ -3868,7 +3869,7 @@ class ModuleSpanningTree : public Module
 					{
 						try
 						{
-							ServernameResolver* snr = new ServernameResolver(x->IPAddr, *x);
+							ServernameResolver* snr = new ServernameResolver(ServerInstance, x->IPAddr, *x);
 							Srv->AddResolver(snr);
 						}
 						catch (ModuleException& e)

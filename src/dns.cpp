@@ -241,6 +241,8 @@ int DNS::GetMasterSocket()
 /* Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
+
 	insp_inaddr addr;
 
 	/* Clear the Resolver class table */
@@ -833,6 +835,8 @@ DNS::~DNS()
 /* High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
 {
+	log(DEBUG,"Instance: %08x %08x %08x",Instance, ServerInstance, ServerInstance->Res);
+
 	insp_inaddr binip;
 
 	switch (querytype)
