@@ -325,7 +325,7 @@ class TreeServer : public classbase
 			userrec* a = (userrec*)*n;
 			log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
 			if (!IS_LOCAL(a))
-				userrec::QuitUser(a,reason_s);
+				userrec::QuitUser(ServerInstance,a,reason_s);
 		}
 		return time_to_die.size();
 	}
@@ -945,7 +945,7 @@ class TreeSocket : public InspSocket
 		else
 		{
 			/* FMODE from a server, create a fake user to receive mode feedback */
-			who = new userrec();
+			who = new userrec(ServerInstance);
 			who->fd = FD_MAGIC_NUMBER;
 			smode = true;		/* Setting this flag tells us we should free the userrec later */
 			sourceserv = source;	/* Set sourceserv to the actual source string */
@@ -1424,7 +1424,7 @@ class TreeSocket : public InspSocket
 				who = Srv->FindNick(usr);
 				if (who)
 				{
-					chanrec::JoinUser(who, channel.c_str(), true, key);
+					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, key);
 					if (modectr >= (MAXMODES-1))
 					{
 						/* theres a mode for this user. push them onto the mode queue, and flush it
@@ -1554,7 +1554,7 @@ class TreeSocket : public InspSocket
 			return true;
 		}
 
-		userrec* _new = new userrec();
+		userrec* _new = new userrec(this->Instance);
 		this->Instance->clientlist[tempnick] = _new;
 		_new->fd = FD_MAGIC_NUMBER;
 		strlcpy(_new->nick, tempnick,NICKMAX-1);
@@ -2005,7 +2005,7 @@ class TreeSocket : public InspSocket
 				//DoOneToMany(u->nick,"NICK",par);
 				if (!u->ForceNickChange(params[1].c_str()))
 				{
-					userrec::QuitUser(u, "Nickname collision");
+					userrec::QuitUser(this->Instance, u, "Nickname collision");
 					return true;
 				}
 				u->age = atoi(params[2].c_str());
@@ -2023,7 +2023,7 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			chanrec::JoinUser(u, params[1].c_str(), false);
+			chanrec::JoinUser(this->Instance, u, params[1].c_str(), false);
 			DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 		}
 		return true;
@@ -2071,7 +2071,7 @@ class TreeSocket : public InspSocket
 			params[1] = ":" + params[1];
 			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
 			who->Write(":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
-			userrec::QuitUser(who,reason);
+			userrec::QuitUser(this->Instance,who,reason);
 		}
 		return true;
 	}
@@ -2958,11 +2958,11 @@ class TreeSocket : public InspSocket
 								p.push_back(prefix);
 								p.push_back("Nickname collision");
 								DoOneToMany(Srv->GetServerName(),"KILL",p);
-								userrec::QuitUser(x,"Nickname collision ("+prefix+" -> "+params[0]+")");
+								userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 								userrec* y = Srv->FindNick(prefix);
 								if (y)
 								{
-									userrec::QuitUser(y,"Nickname collision");
+									userrec::QuitUser(this->Instance,y,"Nickname collision");
 								}
 								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 							}

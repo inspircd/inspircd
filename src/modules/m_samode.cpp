@@ -38,6 +38,7 @@ using namespace std;
 #include "inspircd.h"
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 	 
 class cmd_samode : public command_t
 {
@@ -55,7 +56,7 @@ class cmd_samode : public command_t
 	 	 */
 		std::string result;
 		Srv->Log(DEBUG,"SAMODE: Being handled");
-		userrec* n = new userrec();
+		userrec* n = new userrec(ServerInstance);
 		n->fd = FD_MAGIC_NUMBER;
 		Srv->SendMode(parameters,pcnt,n);
 		delete n;

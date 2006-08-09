@@ -538,7 +538,7 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 	std::string oldnick = alive->nick;
 	std::string oldhost = alive->host;
 	std::string oldident = alive->ident;
-	userrec::QuitUser(alive,message.c_str());
+	userrec::QuitUser(this,alive,message.c_str());
 	if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
 	{
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));

@@ -28,7 +28,8 @@ using namespace std;
 #include "inspircd.h"
 
 static Server *Srv;
-	 
+extern InspIRCd* ServerInstance;
+
 class TimedBan : public classbase
 {
  public:
@@ -172,7 +173,7 @@ class ModuleTimedBans : public Module
 						// back to, so we create it a fake user that isnt in the user
 						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
 						// falls into the abyss :p
-						userrec* temp = new userrec;
+						userrec* temp = new userrec(ServerInstance);
 						temp->fd = FD_MAGIC_NUMBER;
 						temp->server = "";
 						Srv->SendMode(setban,3,temp);

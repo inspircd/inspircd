@@ -10,6 +10,8 @@ using namespace std;
 
 /* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
 
+extern InspIRCd* ServerInstance;
+
 class ModuleOperjoin : public Module
 {
 	private:
@@ -73,7 +75,7 @@ class ModuleOperjoin : public Module
 				std::vector<std::string> operChans;
 				tokenize(operChan,operChans);
 				for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
-					chanrec::JoinUser(user, it->c_str(), false);
+					chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
 			}
 
 		}

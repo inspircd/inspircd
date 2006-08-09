@@ -9,6 +9,8 @@
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
 
+extern InspIRCd* ServerInstance;
+
 char* RandString(unsigned int length)
 {
 	unsigned char* tmp = new unsigned char[(length/4)*3];
@@ -95,7 +97,7 @@ class ModuleWaitPong : public Module
 				else
 				{
 					if(killonbadreply)
-						userrec::QuitUser(user, "Incorrect ping reply for registration");
+						userrec::QuitUser(ServerInstance, user, "Incorrect ping reply for registration");
 					return 1;
 				}
 			}

@@ -328,7 +328,7 @@ class ModulePark : public Module
 					// and then corrupt the pointer!
 					pinfo.erase(j);
 					if (thisnick)
-						userrec::QuitUser(thisnick,"PARK timeout");
+						userrec::QuitUser(ServerInstance,thisnick,"PARK timeout");
 					go_again = true;
 					break;
 				}

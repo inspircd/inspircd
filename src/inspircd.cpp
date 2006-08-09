@@ -853,10 +853,10 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 					stats->statsAccept++;
 #ifdef IPV6
 					log(DEBUG,"Add ipv6 client");
-					AddClient(incomingSockfd, in_port, false, client.sin6_addr);
+					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin6_addr);
 #else
 					log(DEBUG,"Add ipv4 client");
-					userrec::AddClient(incomingSockfd, in_port, false, client.sin_addr);
+					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin_addr);
 #endif
 					log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
 				}

@@ -30,6 +30,7 @@
 /* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
 
 extern time_t TIME;
+extern InspIRCd* ServerInstance;
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 
@@ -142,7 +143,7 @@ public:
 					WriteOpers("*** %s had an /amsg or /ame denied", user->nick);
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
-					userrec::QuitUser(user, "Global message (/amsg or /ame) detected");
+					userrec::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
 									

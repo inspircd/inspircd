@@ -36,6 +36,7 @@ using namespace std;
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_saquit : public command_t
 {
@@ -64,7 +65,7 @@ class cmd_saquit : public command_t
 			line = line + std::string(parameters[pcnt-1]);
 		
 			Srv->SendOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
-			userrec::QuitUser(dest, line);
+			userrec::QuitUser(ServerInstance, dest, line);
 		}
 	}
 };

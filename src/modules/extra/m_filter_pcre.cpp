@@ -29,6 +29,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspircd.h"
 
+extern InspIRCd* ServerInstance;
+
 class FilterPCREException : public ModuleException
 {
  public:
@@ -145,7 +147,7 @@ class ModuleFilterPCRE : public Module
 
 				if (do_action == "kill")
 				{
-					userrec::QuitUser(user,reason);
+					userrec::QuitUser(ServerInstance,user,reason);
 				}
 				return 1;
 			}

@@ -25,6 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for SANICK command */
 
+extern InspIRCd* ServerInstance;
 static Server *Srv;
 
 class cmd_sanick : public command_t
@@ -54,7 +55,7 @@ class cmd_sanick : public command_t
 				if (!source->ForceNickChange(parameters[1]))
 				{
 					/* We couldnt change the nick */
-					userrec::QuitUser(source, "Nickname collision");
+					userrec::QuitUser(ServerInstance, source, "Nickname collision");
 					return;
 				}
 			}

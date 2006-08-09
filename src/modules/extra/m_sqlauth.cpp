@@ -27,6 +27,8 @@
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 
+extern InspIRCd* ServerInstance;
+
 class ModuleSQLAuth : public Module
 {
 	Server* Srv;
@@ -94,7 +96,7 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			userrec::QuitUser(user,killreason);
+			userrec::QuitUser(ServerInstance,user,killreason);
 		}
 	}
 
@@ -202,7 +204,7 @@ public:
 	{
 		if(user->GetExt("sqlauth_failed"))
 		{
-			userrec::QuitUser(user,killreason);
+			userrec::QuitUser(ServerInstance,user,killreason);
 			return false;
 		}
 		

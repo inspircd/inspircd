@@ -39,14 +39,12 @@ using namespace std;
 #include "helperfuncs.h"
 #include "typedefs.h"
 
-extern InspIRCd* ServerInstance;
-
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 
-chanrec::chanrec()
+chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	*name = *topic = *setby = *key = 0;
 	created = topicset = limit = 0;
@@ -216,7 +214,7 @@ CUList* chanrec::GetVoicedUsers()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
  */
-chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const char* key)
+chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bool override, const char* key)
 {
 	if (!user || !cn)
 		return NULL;
@@ -233,14 +231,14 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 		if (user->fd > -1)
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname));
 			if (MOD_RESULT == 1)
 				return NULL;
 		}
 
 		/* create a new one */
-		Ptr = new chanrec();
-		ServerInstance->chanlist[cname] = Ptr;
+		Ptr = new chanrec(Instance);
+		Instance->chanlist[cname] = Ptr;
 
 		strlcpy(Ptr->name, cname,CHANMAX);
 		Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
@@ -269,7 +267,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 		if (IS_LOCAL(user)) /* was a check on fd > -1 */
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT(I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname));
 			if (MOD_RESULT == 1)
 			{
 				return NULL;
@@ -279,7 +277,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 				if (*Ptr->key)
 				{
 					MOD_RESULT = 0;
-					FOREACH_RESULT(I_OnCheckKey,OnCheckKey(user, Ptr, key ? key : ""));
+					FOREACH_RESULT_I(Instance,I_OnCheckKey,OnCheckKey(user, Ptr, key ? key : ""));
 					if (!MOD_RESULT)
 					{
 						if (!key)
@@ -303,7 +301,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 				{
 					MOD_RESULT = 0;
 					irc::string xname(Ptr->name);
-					FOREACH_RESULT(I_OnCheckInvite,OnCheckInvite(user, Ptr));
+					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
 					if (!MOD_RESULT)
 					{
 						if (user->IsInvited(xname))
@@ -322,7 +320,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 				if (Ptr->limit)
 				{
 					MOD_RESULT = 0;
-					FOREACH_RESULT(I_OnCheckLimit,OnCheckLimit(user, Ptr));
+					FOREACH_RESULT_I(Instance,I_OnCheckLimit,OnCheckLimit(user, Ptr));
 					if (!MOD_RESULT)
 					{
 						if (Ptr->GetUserCounter() >= Ptr->limit)
@@ -335,7 +333,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 				if (Ptr->bans.size())
 				{
 					MOD_RESULT = 0;
-					FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, Ptr));
+					FOREACH_RESULT_I(Instance,I_OnCheckBan,OnCheckBan(user, Ptr));
 					char mask[MAXBUF];
 					sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
 					if (!MOD_RESULT)
@@ -367,7 +365,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 	{
 		if ((*index)->channel == NULL)
 		{
-			return chanrec::ForceChan(Ptr, *index, user, created);
+			return chanrec::ForceChan(Instance, Ptr, *index, user, created);
 		}
 	}
 
@@ -379,7 +377,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 	if (!IS_LOCAL(user)) /* was a check on fd < 0 */
 	{
 		ucrec* a = new ucrec();
-		chanrec* c = chanrec::ForceChan(Ptr,a,user,created);
+		chanrec* c = chanrec::ForceChan(Instance, Ptr,a,user,created);
 		user->chans.push_back(a);
 		return c;
 	}
@@ -389,7 +387,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 		if (user->chans.size() < OPERMAXCHANS)
 		{
 			ucrec* a = new ucrec();
-			chanrec* c = chanrec::ForceChan(Ptr,a,user,created);
+			chanrec* c = chanrec::ForceChan(Instance, Ptr,a,user,created);
 			user->chans.push_back(a);
 			return c;
 		}
@@ -401,12 +399,12 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 	{
 		log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
-		chan_hash::iterator n = ServerInstance->chanlist.find(cname);
-		if (n != ServerInstance->chanlist.end())
+		chan_hash::iterator n = Instance->chanlist.find(cname);
+		if (n != Instance->chanlist.end())
 		{
 			Ptr->DelUser(user);
 			DELETE(Ptr);
-			ServerInstance->chanlist.erase(n);
+			Instance->chanlist.erase(n);
 			for (unsigned int index =0; index < user->chans.size(); index++)
 			{
 				if (user->chans[index]->channel == Ptr)
@@ -431,7 +429,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 	return NULL;
 }
 
-chanrec* chanrec::ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
+chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, int created)
 {
 	if (created == 2)
 	{
@@ -460,7 +458,7 @@ chanrec* chanrec::ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created)
 		userlist(user,Ptr);
 		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	}
-	FOREACH_MOD(I_OnUserJoin,OnUserJoin(user,Ptr));
+	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user,Ptr));
 	return Ptr;
 }
 

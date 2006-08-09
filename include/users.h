@@ -66,6 +66,8 @@ class Invited : public classbase
 
 
 
+class InspIRCd;
+
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
 class UserResolver : public Resolver
@@ -76,8 +78,9 @@ class UserResolver : public Resolver
 	userrec* bound_user;
 	int bound_fd;
 	bool fwd;
+	InspIRCd* ServerInstance;
  public:
-	UserResolver(userrec* user, std::string to_resolve, bool forward);
+	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward);
 
 	void OnLookupComplete(const std::string &result);
 	void OnError(ResolverError e, const std::string &errormessage);
@@ -156,6 +159,9 @@ typedef std::vector<ucrec*> UserChanList;
 class userrec : public connection
 {
  private:
+	/** Pointer to creator
+	 */
+	InspIRCd* ServerInstance;
 
 	/** A list of channels the user has a pending invite to.
 	 */
@@ -324,7 +330,7 @@ class userrec : public connection
 	/** Default constructor
 	 * @throw Nothing at present
 	 */
-	userrec();
+	userrec(InspIRCd* Instance);
 	
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -500,7 +506,7 @@ class userrec : public connection
 	 * @param user The user to remove
 	 * @param r The quit reason
 	 */
-	static void QuitUser(userrec *user, const std::string &r);
+	static void QuitUser(InspIRCd* Instance, userrec *user, const std::string &r);
 
 	/** Add the user to WHOWAS system
 	 */
@@ -542,7 +548,7 @@ class userrec : public connection
 	 * This will create a new userrec, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.
 	 */
-	static void AddClient(int socket, int port, bool iscached, insp_inaddr ip);
+	static void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip);
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type

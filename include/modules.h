@@ -103,6 +103,19 @@ typedef std::map<std::string,Module*> featurelist;
 	} \
   }
 
+#define FOREACH_MOD_I(z,y,x) if (z->Config->global_implementation[y] > 0) { \
+	for (int _i = 0; _i <= MODCOUNT; _i++) { \
+		if (z->Config->implement_lists[_i][y]) \
+		try \
+		{ \
+			modules[_i]->x ; \
+		} \
+		catch (ModuleException& modexcept) \
+		{ \
+			log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
+		} \
+	} \
+}
 /**
  *  This define is similar to the one above but returns a result in MOD_RESULT.
  * The first module to return a nonzero result is the value to be accepted,
@@ -111,7 +124,7 @@ typedef std::map<std::string,Module*> featurelist;
 #define FOREACH_RESULT(y,x) { if (ServerInstance->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
 			for (int _i = 0; _i <= MODCOUNT; _i++) { \
-			if (ServerInstance->Config->implement_lists[_i][y]) {\
+			if (ServerInstance->Config->implement_lists[_i][y]) { \
 				try \
 				{ \
 					int res = modules[_i]->x ; \
@@ -128,6 +141,27 @@ typedef std::map<std::string,Module*> featurelist;
 		} \
 	} \
  }
+
+#define FOREACH_RESULT_I(z,y,x) { if (z->Config->global_implementation[y] > 0) { \
+			MOD_RESULT = 0; \
+			for (int _i = 0; _i <= MODCOUNT; _i++) { \
+			if (z->Config->implement_lists[_i][y]) { \
+				try \
+				{ \
+					int res = modules[_i]->x ; \
+					if (res != 0) { \
+						MOD_RESULT = res; \
+						break; \
+					} \
+				} \
+				catch (ModuleException& modexcept) \
+				{ \
+					log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+				} \
+			} \
+		} \
+	} \
+}
 
 #define FD_MAGIC_NUMBER -42
 

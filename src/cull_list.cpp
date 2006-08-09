@@ -132,7 +132,7 @@ int CullList::Apply()
 	{
 		std::vector<CullItem>::iterator a = list.begin();
 
-		userrec::QuitUser(a->GetUser(), a->GetReason().c_str());
+		userrec::QuitUser(ServerInstance, a->GetUser(), a->GetReason().c_str());
 		list.erase(list.begin());
 	}
 	return n;

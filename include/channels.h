@@ -142,6 +142,8 @@ class ucrec : public classbase
 	virtual ~ucrec() { /* stub */ }
 };
 
+class InspIRCd;
+
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
@@ -151,9 +153,13 @@ class chanrec : public Extensible
 {
  private:
 
+	/** Pointer to creator object
+	 */
+	InspIRCd* ServerInstance;
+
 	/** Connect a chanrec to a userrec
 	 */
-	static chanrec* ForceChan(chanrec* Ptr,ucrec *a,userrec* user, int created);
+	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, int created);
 
  public:
 	/** The channels name.
@@ -341,7 +347,7 @@ class chanrec : public Extensible
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
 	 */
-	chanrec();
+	chanrec(InspIRCd* Instance);
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
@@ -379,7 +385,7 @@ class chanrec : public Extensible
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
-	static chanrec* JoinUser(userrec *user, const char* cn, bool override, const char* key = "");
+	static chanrec* JoinUser(InspIRCd* ServerInstance, userrec *user, const char* cn, bool override, const char* key = "");
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with

@@ -27,6 +27,7 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style SAJOIN command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_sajoin : public command_t
 {
@@ -55,7 +56,7 @@ class cmd_sajoin : public command_t
 			}
 
 			Srv->SendOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
-			chanrec::JoinUser(dest, parameters[1], true);
+			chanrec::JoinUser(ServerInstance, dest, parameters[1], true);
 		}
 	}
 };

@@ -32,10 +32,8 @@
 #include "xline.h"
 #include "cull_list.h"
 
-extern InspIRCd* ServerInstance;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
 extern time_t TIME;
 extern Server* MyServer;
@@ -134,7 +132,7 @@ void userrec::StartDNSLookup()
 	log(DEBUG,"Commencing reverse lookup");
 	try
 	{
-		res_reverse = new UserResolver(this, this->GetIPString(), false);
+		res_reverse = new UserResolver(ServerInstance, this, this->GetIPString(), false);
 		MyServer->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
@@ -143,7 +141,8 @@ void userrec::StartDNSLookup()
 	}
 }
 
-UserResolver::UserResolver(userrec* user, std::string to_resolve, bool forward) : Resolver(to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
+UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward) :
+	Resolver(to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user), ServerInstance(Instance)
 {
 	this->fwd = forward;
 	this->bound_fd = user->fd;
@@ -157,7 +156,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 		this->bound_user->stored_host = result;
 		try
 		{
-			bound_user->res_forward = new UserResolver(this->bound_user, result, true);
+			bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, true);
 			MyServer->AddResolver(bound_user->res_forward);
 		}
 		catch (ModuleException& e)
@@ -255,11 +254,11 @@ const char* userrec::FormatModes()
 	return data;
 }
 
-userrec::userrec()
+userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
-	server = (char*)ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
+	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
@@ -639,9 +638,9 @@ void userrec::UnOper()
 	}
 }
 
-void userrec::QuitUser(userrec *user,const std::string &quitreason)
+void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quitreason)
 {
-	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
+	user_hash::iterator iter = Instance->clientlist.find(user->nick);
 
 /*
  * I'm pretty sure returning here is causing a desync when part of the net thinks a user is gone,
@@ -664,22 +663,22 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 	if (user->registered == REG_ALL)
 	{
 		purge_empty_chans(user);
-		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,reason));
+		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
 		user->WriteCommonExcept("QUIT :%s",reason.c_str());
 	}
 
 	if (IS_LOCAL(user))
 		user->FlushWriteBuf();
 
-	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
+	FOREACH_MOD_I(Instance,I_OnUserDisconnect,OnUserDisconnect(user));
 
 	if (IS_LOCAL(user))
 	{
-		if (ServerInstance->Config->GetIOHook(user->GetPort()))
+		if (Instance->Config->GetIOHook(user->GetPort()))
 		{
 			try
 			{
-				ServerInstance->Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
+				Instance->Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
 			}
 			catch (ModuleException& modexcept)
 			{
@@ -687,7 +686,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 			}
 		}
 		
-		ServerInstance->SE->DelFd(user->fd);
+		Instance->SE->DelFd(user->fd);
 		user->CloseSocket();
 	}
 
@@ -706,16 +705,16 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 		user->AddToWhoWas();
 	}
 
-	if (iter != ServerInstance->clientlist.end())
+	if (iter != Instance->clientlist.end())
 	{
 		log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
-			ServerInstance->fd_ref_table[user->fd] = NULL;
-			if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
-				ServerInstance->local_users.erase(find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user));
+			Instance->fd_ref_table[user->fd] = NULL;
+			if (find(Instance->local_users.begin(),Instance->local_users.end(),user) != Instance->local_users.end())
+				Instance->local_users.erase(find(Instance->local_users.begin(),Instance->local_users.end(),user));
 		}
-		ServerInstance->clientlist.erase(iter);
+		Instance->clientlist.erase(iter);
 		DELETE(user);
 	}
 }
@@ -795,10 +794,10 @@ void userrec::AddToWhoWas()
 }
 
 /* add a client connection to the sockets list */
-void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
+void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
-	user_hash::iterator iter = ServerInstance->clientlist.find(tempnick);
+	user_hash::iterator iter = Instance->clientlist.find(tempnick);
 	const char *ipaddr = insp_ntoa(ip);
 	userrec* _new;
 	int j = 0;
@@ -812,26 +811,26 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	 * this was probably the cause of 'server ignores me when i hammer it with reconnects'
 	 * issue in earlier alphas/betas
 	 */
-	if (iter != ServerInstance->clientlist.end())
+	if (iter != Instance->clientlist.end())
 	{
 		userrec* goner = iter->second;
 		DELETE(goner);
-		ServerInstance->clientlist.erase(iter);
+		Instance->clientlist.erase(iter);
 	}
 
 	log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
-	_new = new userrec();
-	ServerInstance->clientlist[tempnick] = _new;
+	_new = new userrec(Instance);
+	Instance->clientlist[tempnick] = _new;
 	_new->fd = socket;
 	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
 
-	_new->server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
+	_new->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	strcpy(_new->ident, "unknown");
 
 	_new->registered = REG_NONE;
-	_new->signon = TIME + ServerInstance->Config->dns_timeout;
+	_new->signon = TIME + Instance->Config->dns_timeout;
 	_new->lastping = 1;
 
 	log(DEBUG,"Setting socket addresses");
@@ -850,7 +849,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	long class_sqmax = 262144;      // 256kb
 	long class_rqmax = 4096;	// 4k
 
-	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+	for (ClassVector::iterator i = Instance->Config->Classes.begin(); i != Instance->Config->Classes.end(); i++)
 	{
 		if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str(),true)))
 		{
@@ -864,25 +863,25 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		}
 	}
 
-	_new->nping = TIME + _new->pingmax + ServerInstance->Config->dns_timeout;
+	_new->nping = TIME + _new->pingmax + Instance->Config->dns_timeout;
 	_new->timeout = TIME+class_regtimeout;
 	_new->flood = class_flood;
 	_new->threshold = class_threshold;
 	_new->sendqmax = class_sqmax;
 	_new->recvqmax = class_rqmax;
 
-	ServerInstance->fd_ref_table[socket] = _new;
-	ServerInstance->local_users.push_back(_new);
+	Instance->fd_ref_table[socket] = _new;
+	Instance->local_users.push_back(_new);
 
-	if (ServerInstance->local_users.size() > ServerInstance->Config->SoftLimit)
+	if (Instance->local_users.size() > Instance->Config->SoftLimit)
 	{
-		userrec::QuitUser(_new,"No more connections allowed");
+		userrec::QuitUser(Instance, _new,"No more connections allowed");
 		return;
 	}
 
-	if (ServerInstance->local_users.size() >= MAXCLIENTS)
+	if (Instance->local_users.size() >= MAXCLIENTS)
 	{
-		userrec::QuitUser(_new,"No more connections allowed");
+		userrec::QuitUser(Instance, _new,"No more connections allowed");
 		return;
 	}
 
@@ -898,7 +897,7 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	 */
 	if ((unsigned)socket >= MAX_DESCRIPTORS)
 	{
-		userrec::QuitUser(_new,"Server is full");
+		userrec::QuitUser(Instance, _new,"Server is full");
 		return;
 	}
 	char* e = matches_exception(ipaddr);
@@ -909,16 +908,16 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
-			userrec::QuitUser(_new,reason);
+			userrec::QuitUser(Instance, _new,reason);
 			return;
 		}
 	}
 
 	if (socket > -1)
 	{
-		if (!ServerInstance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
+		if (!Instance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
 		{
-			userrec::QuitUser(_new, "Internal error handling connection");
+			userrec::QuitUser(Instance, _new, "Internal error handling connection");
 			return;
 		}
 	}

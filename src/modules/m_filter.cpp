@@ -30,6 +30,8 @@ using namespace std;
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 
+extern InspIRCd* ServerInstance;
+
 class Filter : public classbase
 {
  public:
@@ -117,7 +119,7 @@ class ModuleFilter : public Module
 
 				if (f->action == "kill")
 				{
-					userrec::QuitUser(user,f->reason);
+					userrec::QuitUser(ServerInstance,user,f->reason);
 				}
 				return 1;
 			}

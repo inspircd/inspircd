@@ -20,11 +20,15 @@ using namespace std;
 
 #include "users.h"
 #include "modules.h"
+#include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Connection throttle */
 
 int conns = 0, throttled = 0;
 extern time_t TIME;
+
+extern InspIRCd* ServerInstance;
 
 class ModuleConnFlood : public Module
 {
@@ -94,7 +98,7 @@ public:
 				Srv->SendOpers("*** Connection throttle deactivated");
 				return;
 			}
-			userrec::QuitUser(user, quitmsg);
+			userrec::QuitUser(ServerInstance, user, quitmsg);
 			return;
 		}
 
@@ -104,7 +108,7 @@ public:
 			{
 				throttled = 1;
 				Srv->SendOpers("*** Connection throttle activated");
-				userrec::QuitUser(user, quitmsg);
+				userrec::QuitUser(ServerInstance, user, quitmsg);
 				return;
 			}
 		}

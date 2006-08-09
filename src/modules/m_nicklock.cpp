@@ -27,6 +27,7 @@ using namespace std;
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_nicklock : public command_t
 {
@@ -57,7 +58,7 @@ class cmd_nicklock : public command_t
 				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
 				if (!source->ForceNickChange(parameters[1]))
 				{
-					userrec::QuitUser(source, "Nickname collision");
+					userrec::QuitUser(ServerInstance, source, "Nickname collision");
 					return;
 				}
 				source->Extend("nick_locked", "ON");
