@@ -444,11 +444,6 @@ void Server::SendMode(const char** parameters, int pcnt, userrec *user)
 	ServerInstance->ModeGrok->Process(parameters,pcnt,user,true);
 }
 
-bool Server::CommonChannels(userrec* u1, userrec* u2)
-{
-	return (common_channels(u1,u2) != 0);
-}
-
 void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
 {
 	std::string CompleteLine = LinePrefix;

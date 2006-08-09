@@ -28,7 +28,6 @@
 #include "users.h"
 #include "channels.h"
 
-int common_channels(userrec *u, userrec *u2);
 void Blocking(int s);
 void NonBlocking(int s);
 int c_count(userrec* u);

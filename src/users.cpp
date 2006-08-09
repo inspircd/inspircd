@@ -1564,3 +1564,37 @@ void userrec::WriteWallOps(const char* text, ...)
 	this->WriteWallOps(std::string(textbuffer));
 }				       
 
+/* return 0 or 1 depending if users u and u2 share one or more common channels
+ * (used by QUIT, NICK etc which arent channel specific notices)
+ *
+ * The old algorithm in 1.0 for this was relatively inefficient, iterating over
+ * the first users channels then the second users channels within the outer loop,
+ * therefore it was a maximum of x*y iterations (upon returning 0 and checking
+ * all possible iterations). However this new function instead checks against the
+ * channel's userlist in the inner loop which is a std::map<userrec*,userrec*>
+ * and saves us time as we already know what pointer value we are after.
+ * Don't quote me on the maths as i am not a mathematician or computer scientist,
+ * but i believe this algorithm is now x+(log y) maximum iterations instead.
+ */
+bool userrec::SharesChannelWith(userrec *other)
+{
+        if ((!other) || (this->registered != REG_ALL) || (other->registered != REG_ALL))
+                return false;
+
+        /* Outer loop */
+        for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+        {
+                /* Fetch the channel from the user */
+                ucrec* user_channel = *i;
+
+                if (user_channel->channel)
+                {
+                        /* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
+                         * by replacing it with a map::find which *should* be more efficient
+                         */
+                        if (user_channel->channel->HasUser(other))
+                                return true;
+                }
+        }
+        return false;
+}

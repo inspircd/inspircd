@@ -1327,12 +1327,6 @@ class Server : public Extensible
 	 */
 	virtual void Log(int level, const std::string &s);
 
-	/** Returns true if two users share a common channel.
-	 * This method is used internally by the NICK and QUIT commands, and the Server::SendCommon
-	 * method.
-	 */
-	virtual bool CommonChannels(userrec* u1, userrec* u2);
-
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */

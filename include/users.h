@@ -627,9 +627,11 @@ class userrec : public connection
 	 */
 	void WriteCommonExcept(const std::string &text);
 
-	void userrec::WriteWallOps(const char* text, ...);
+	void WriteWallOps(const char* text, ...);
 
-	void userrec::WriteWallOps(const std::string &text);
+	void WriteWallOps(const std::string &text);
+
+	bool SharesChannelWith(userrec *other);
 
 	/** Default destructor
 	 */
