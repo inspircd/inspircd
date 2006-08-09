@@ -230,15 +230,13 @@ public:
 				std::string operhost = Conf.ReadValue("type", "host", j);
 							
 				if (operhost.size())
-					user->ChangeDisplayedHost(operhost);
+					user->ChangeDisplayedHost(operhost.c_str());
 								
-				strlcpy(user->oper, type.c_str(), NICKMAX-1);
-				
 				WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
 				if (!user->modes[UM_OPERATOR])
-					user->Oper();
+					user->Oper(type);
 								
 				return true;
 			}
