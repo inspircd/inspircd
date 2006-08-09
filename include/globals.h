@@ -32,7 +32,6 @@ typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 void WriteOpers(char* text, ...);
-void do_log(int level, char *text, ...);
 int isnick(const char *n);
 chanrec* FindChan(const char* chan);
 void readfile(file_cache &F, const char* fname);
