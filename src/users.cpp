@@ -132,7 +132,8 @@ void userrec::StartDNSLookup()
 	log(DEBUG,"Commencing reverse lookup");
 	try
 	{
-		res_reverse = new UserResolver(ServerInstance, this, this->GetIPString(), false);
+		log(DEBUG,"Passing instance: %08x",this->ServerInstance);
+		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), false);
 		MyServer->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
@@ -142,7 +143,7 @@ void userrec::StartDNSLookup()
 }
 
 UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward) :
-	Resolver(ServerInstance, to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
+	Resolver(Instance, to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
 {
 	this->fwd = forward;
 	this->bound_fd = user->fd;
@@ -256,6 +257,7 @@ const char* userrec::FormatModes()
 
 userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	log(DEBUG,"userrec::userrec(): Instance: %08x",ServerInstance);
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);

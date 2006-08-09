@@ -835,7 +835,7 @@ DNS::~DNS()
 /* High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
 {
-	log(DEBUG,"Instance: %08x %08x %08x",Instance, ServerInstance, ServerInstance->Res);
+	log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
 
 	insp_inaddr binip;
 
