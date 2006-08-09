@@ -56,6 +56,9 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 const char* insp_ntoa(insp_inaddr n);
 int insp_aton(const char* a, insp_inaddr* n);
 
+void Blocking(int s);
+void NonBlocking(int s);
+
 int OpenTCPSocket(); 
 bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
 int BindPorts(bool bail);

@@ -48,18 +48,6 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern ServerConfig* Config;
 
-void Blocking(int s)
-{
-	int flags = fcntl(s, F_GETFL, 0);
-	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
-}
-
-void NonBlocking(int s)
-{
-	int flags = fcntl(s, F_GETFL, 0);
-	fcntl(s, F_SETFL, flags | O_NONBLOCK);
-}
-
 int c_count(userrec* u)
 {
 	int z = 0;

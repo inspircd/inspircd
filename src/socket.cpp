@@ -209,6 +209,19 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
+inline void Blocking(int s)
+{
+	int flags = fcntl(s, F_GETFL, 0);
+	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
+}
+
+inline void NonBlocking(int s)
+{
+	int flags = fcntl(s, F_GETFL, 0);
+	fcntl(s, F_SETFL, flags | O_NONBLOCK);
+}
+
+
 /** This will bind a socket to a port. It works for UDP/TCP.
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.

@@ -28,8 +28,6 @@
 #include "users.h"
 #include "channels.h"
 
-void Blocking(int s);
-void NonBlocking(int s);
 int c_count(userrec* u);
 void ChangeName(userrec* user, const char* gecos);
 void ChangeDisplayedHost(userrec* user, const char* host);
