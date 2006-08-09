@@ -400,16 +400,6 @@ void Server::SendToModeMask(const std::string &modes, int flags, const std::stri
 	WriteMode(modes.c_str(),flags,"%s",text.c_str());
 }
 
-chanuserlist Server::GetUsers(chanrec* chan)
-{
-	chanuserlist userl;
-	userl.clear();
-	CUList *list = chan->GetUsers();
-  	for (CUList::iterator i = list->begin(); i != list->end(); i++)
-		userl.push_back(i->second);
-	return userl;
-}
-
 bool Server::IsUlined(const std::string &server)
 {
 	return is_uline(server.c_str());
@@ -458,16 +448,6 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 		CompleteLine = CompleteLine + Word + " ";
 	}
 	User->WriteServ(CompleteLine);
-}
-
-void Server::ChangeHost(userrec* user, const std::string &host)
-{
-	ChangeDisplayedHost(user,host.c_str());
-}
-
-void Server::ChangeGECOS(userrec* user, const std::string &gecos)
-{
-	ChangeName(user,gecos.c_str());
 }
 
 bool Server::IsNick(const std::string &nick)

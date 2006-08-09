@@ -231,7 +231,7 @@ public:
 				std::string operhost = Conf.ReadValue("type", "host", j);
 							
 				if (operhost.size())
-					Srv->ChangeHost(user, operhost);
+					user->ChangeDisplayedHost(operhost);
 								
 				strlcpy(user->oper, type.c_str(), NICKMAX-1);
 				

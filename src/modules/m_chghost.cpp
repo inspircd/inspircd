@@ -59,8 +59,7 @@ class cmd_chghost : public command_t
 		userrec* dest = Srv->FindNick(std::string(parameters[0]));
 		if (dest)
 		{
-			Srv->ChangeHost(dest,parameters[1]);
-			if (!Srv->IsUlined(user->server))
+			if ((dest->ChangeDisplayedHost(parameters[1])) && (!Srv->IsUlined(user->server)))
 			{
 				// fix by brain - ulines set hosts silently
 				Srv->SendOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+std::string(dest->nick)+" become "+std::string(parameters[1]));

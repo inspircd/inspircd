@@ -1578,23 +1578,65 @@ void userrec::WriteWallOps(const char* text, ...)
  */
 bool userrec::SharesChannelWith(userrec *other)
 {
-        if ((!other) || (this->registered != REG_ALL) || (other->registered != REG_ALL))
-                return false;
+	if ((!other) || (this->registered != REG_ALL) || (other->registered != REG_ALL))
+		return false;
 
-        /* Outer loop */
-        for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
-        {
-                /* Fetch the channel from the user */
-                ucrec* user_channel = *i;
+	/* Outer loop */
+	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+	{
+		/* Fetch the channel from the user */
+		ucrec* user_channel = *i;
 
-                if (user_channel->channel)
-                {
-                        /* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
-                         * by replacing it with a map::find which *should* be more efficient
-                         */
-                        if (user_channel->channel->HasUser(other))
-                                return true;
-                }
-        }
-        return false;
+		if (user_channel->channel)
+		{
+			/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
+			 * by replacing it with a map::find which *should* be more efficient
+			 */
+			if (user_channel->channel->HasUser(other))
+				return true;
+		}
+	}
+	return false;
 }
+
+int userrec::CountChannels()
+{
+	int z = 0;
+	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+		if ((*i)->channel)
+			z++;
+	return z;
+}
+
+bool userrec::ChangeName(const char* gecos)
+{
+	if (IS_LOCAL(this))
+	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(I_OnChangeLocalUserGECOS,OnChangeLocalUserGECOS(this,gecos));
+		if (MOD_RESULT)
+			return false;
+		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
+	}
+	strlcpy(this->fullname,gecos,MAXGECOS+1);
+	return true;
+}
+
+bool userrec::ChangeDisplayedHost(const char* host)
+{
+	if (IS_LOCAL(this))
+	{
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(this,host));
+		if (MOD_RESULT)
+			return false;
+		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
+	}
+	strlcpy(this->dhost,host,63);
+
+	if (IS_LOCAL(this))
+		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);
+
+	return true;
+}
+

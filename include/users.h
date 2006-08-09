@@ -633,6 +633,12 @@ class userrec : public connection
 
 	bool SharesChannelWith(userrec *other);
 
+	bool ChangeDisplayedHost(const char* host);
+
+	bool ChangeName(const char* gecos);
+
+	int CountChannels();
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

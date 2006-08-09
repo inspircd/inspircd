@@ -84,11 +84,6 @@ class Module;
 typedef std::deque<std::string> file_cache;
 typedef file_cache string_list;
 
-/** Holds a list of users in a channel
- */
-typedef std::deque<userrec*> chanuserlist;
-
-
 /** Holds a list of 'published features' for modules.
  */
 typedef std::map<std::string,Module*> featurelist;
@@ -1472,20 +1467,6 @@ class Server : public Extensible
 	 */
 	virtual bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 	
-	/** Change displayed hostname of a user.
-	 * You should always call this method to change a user's host rather than writing directly to the
-	 * dhost member of userrec, as any change applied via this method will be propogated to any
-	 * linked servers.
-	 */	
-	virtual void ChangeHost(userrec* user, const std::string &host);
-	
-	/** Change GECOS (fullname) of a user.
-	 * You should always call this method to change a user's GECOS rather than writing directly to the
-	 * fullname member of userrec, as any change applied via this method will be propogated to any
-	 * linked servers.
-	 */	
-	virtual void ChangeGECOS(userrec* user, const std::string &gecos);
-	
 	/** Returns true if the servername you give is ulined.
 	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
 	 * change modes of clients which are on remote servers and set modes of channels where there are
@@ -1493,11 +1474,6 @@ class Server : public Extensible
 	 */
 	virtual bool IsUlined(const std::string &server);
 	
-	/** Fetches the userlist of a channel. This function must be here and not a member of userrec or
-	 * chanrec due to include constraints.
-	 */
-	virtual chanuserlist GetUsers(chanrec* chan);
-
 	/** Remove a user's connection to the irc server, but leave their client in existence in the
 	 * user hash. When you call this function, the user's file descriptor will be replaced with the
 	 * value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will

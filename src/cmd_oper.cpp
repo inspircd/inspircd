@@ -93,7 +93,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					/* found this oper's opertype */
 					Config->ConfValue(Config->config_data, "type","host", j, HostName, MAXBUF);
 					if (*HostName)
-						ChangeDisplayedHost(user,HostName);
+						user->ChangeDisplayedHost(HostName);
 					if (!isnick(TypeName))
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);

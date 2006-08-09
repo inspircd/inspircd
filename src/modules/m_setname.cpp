@@ -44,7 +44,7 @@ class cmd_setname : public command_t
 			line = line + std::string(parameters[i]) + " ";
 		}
 		line = line + std::string(parameters[pcnt-1]);
-		Srv->ChangeGECOS(user,line);
+		user->ChangeName(line.c_str());
 	}
 };
 

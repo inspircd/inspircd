@@ -54,8 +54,8 @@ class cmd_sethost : public command_t
 				}
 			}
 		}
-		Srv->ChangeHost(user,parameters[0]);
-		Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
+		if (user->ChangeDisplayedHost(parameters[0]))
+			Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
 	}
 };
 

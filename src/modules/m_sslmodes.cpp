@@ -19,13 +19,16 @@ class SSLMode : public ModeHandler
 		{
 			if (!channel->IsModeSet('z'))
 			{
-				chanuserlist userlist = Srv->GetUsers(channel);
-				for(unsigned int i = 0; i < userlist.size(); i++)
+				if (IS_LOCAL(source))
 				{
-					if(!userlist[i]->GetExt("ssl", dummy))
+					CUList* userlist = channel->GetUsers();
+					for(CUList::iterator i = userlist->begin(); i != userlist->end(); i++)
 					{
-						source->WriteServ("490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
-						return MODEACTION_DENY;
+						if(!i->second->GetExt("ssl", dummy))
+						{
+							source->WriteServ("490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
+							return MODEACTION_DENY;
+						}
 					}
 				}
 				channel->SetMode('z',true);

@@ -134,7 +134,8 @@ class ModuleHostChange : public Module
 				if (newhost != "")
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your virtual host: " + newhost);
-					Srv->ChangeHost(user,newhost);
+					if (!user->ChangeDisplayedHost(newhost.c_str()))
+						user->WriteServ("NOTICE "+std::string(user->nick)+" :Could not set your virtual host: " + newhost);
 					return;
 				}
 			}

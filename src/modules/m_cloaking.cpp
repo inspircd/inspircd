@@ -347,7 +347,7 @@ class CloakUser : public ModeHandler
 						b = std::string(ra) + "." + prefix + ".cloak";
 					}
 					Srv->Log(DEBUG,"cloak: allocated "+b);
-					Srv->ChangeHost(dest,b);
+					dest->ChangeDisplayedHost(b.c_str());
 				}
 				
 				dest->SetMode('x',true);
@@ -361,7 +361,7 @@ class CloakUser : public ModeHandler
   				/* User is removing the mode, so just restore their real host
   				 * and make it match the displayed one.
 				 */
-				Srv->ChangeHost(dest,dest->host);
+				dest->ChangeDisplayedHost(dest->host);
 				dest->SetMode('x',false);
 				return MODEACTION_ALLOW;
 			}

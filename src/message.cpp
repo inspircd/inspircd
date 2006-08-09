@@ -48,43 +48,6 @@ extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern ServerConfig* Config;
 
-int c_count(userrec* u)
-{
-	int z = 0;
-	for (std::vector<ucrec*>::const_iterator i = u->chans.begin(); i != u->chans.end(); i++)
-		if ((*i)->channel)
-			z++;
-	return z;
-
-}
-
-void ChangeName(userrec* user, const char* gecos)
-{
-	if (user->fd > -1)
-	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnChangeLocalUserGECOS,OnChangeLocalUserGECOS(user,gecos));
-		if (MOD_RESULT)
-			return;
-		FOREACH_MOD(I_OnChangeName,OnChangeName(user,gecos));
-	}
-	strlcpy(user->fullname,gecos,MAXGECOS+1);
-}
-
-void ChangeDisplayedHost(userrec* user, const char* host)
-{
-	if (user->fd > -1)
-	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnChangeLocalUserHost,OnChangeLocalUserHost(user,host));
-		if (MOD_RESULT)
-			return;
-		FOREACH_MOD(I_OnChangeHost,OnChangeHost(user,host));
-	}
-	strlcpy(user->dhost,host,63);
-	user->WriteServ("396 %s %s :is now your hidden host",user->nick,user->dhost);
-}
-
 /* verify that a user's ident and nickname is valid */
 
 int isident(const char* n)

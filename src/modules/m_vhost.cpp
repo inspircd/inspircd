@@ -48,7 +48,7 @@ class cmd_vhost : public command_t
 				if (mask != "")
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
-					Srv->ChangeHost(user,mask);
+					user->ChangeDisplayedHost(mask.c_str());
 					return;
 				}
 			}

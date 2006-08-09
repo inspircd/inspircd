@@ -2189,7 +2189,7 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			Srv->ChangeHost(u,params[0]);
+			u->ChangeDisplayedHost(params[0].c_str());
 			DoOneToAllButSender(prefix,"FHOST",params,u->server);
 		}
 		return true;
@@ -2261,7 +2261,7 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			Srv->ChangeGECOS(u,params[0]);
+			u->ChangeName(params[0].c_str());
 			params[0] = ":" + params[0];
 			DoOneToAllButSender(prefix,"FNAME",params,u->server);
 		}

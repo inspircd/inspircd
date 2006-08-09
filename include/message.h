@@ -28,9 +28,6 @@
 #include "users.h"
 #include "channels.h"
 
-int c_count(userrec* u);
-void ChangeName(userrec* user, const char* gecos);
-void ChangeDisplayedHost(userrec* user, const char* host);
 int isident(const char* n);
 int isnick(const char* n);
 const char* cmode(userrec *user, chanrec *chan);

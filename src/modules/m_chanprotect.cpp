@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -33,9 +33,9 @@ class ChanFounder : public ModeHandler
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
-	        userrec* x = Find(parameter);
-	        if (x)
-	        {
+		userrec* x = Find(parameter);
+		if (x)
+		{
 			if (!channel->HasUser(x))
 			{
 				return std::make_pair(false, parameter);
@@ -44,15 +44,15 @@ class ChanFounder : public ModeHandler
 			{
 				std::string founder = "cm_founder_"+std::string(channel->name);
 				if (x->GetExt(founder,dummyptr))
-		                {
-		                        return std::make_pair(true, x->nick);
-		                }
-		                else
-		                {
-		                        return std::make_pair(false, parameter);
-		                }
+				{
+					return std::make_pair(true, x->nick);
+				}
+				else
+				{
+					return std::make_pair(false, parameter);
+				}
 			}
-	        }
+		}
 		return std::make_pair(false, parameter);
 	}
 
@@ -125,13 +125,13 @@ class ChanFounder : public ModeHandler
 
 	void DisplayList(userrec* user, chanrec* channel)
 	{
-		chanuserlist cl = Srv->GetUsers(channel);
+		CUList* cl = channel->GetUsers();
 		std::string founder = "cm_founder_"+std::string(channel->name);
-		for (unsigned int i = 0; i < cl.size(); i++)
+		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (cl[i]->GetExt(founder, dummyptr))
+			if (i->second->GetExt(founder, dummyptr))
 			{
-				user->WriteServ("386 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				user->WriteServ("386 %s %s %s",user->nick, channel->name,i->second->nick);
 			}
 		}
 		user->WriteServ("387 %s %s :End of channel founder list",user->nick, channel->name);
@@ -146,30 +146,30 @@ class ChanProtect : public ModeHandler
  public:
 	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
-        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
-                userrec* x = Find(parameter);
-                if (x)
-                {
-                        if (!channel->HasUser(x))
-                        {
-                                return std::make_pair(false, parameter);
-                        }
-                        else
-                        {
-                                std::string founder = "cm_protect_"+std::string(channel->name);
-                                if (x->GetExt(founder,dummyptr))
-                                {
-                                        return std::make_pair(true, x->nick);
-                                }
-                                else
-                                {
-                                        return std::make_pair(false, parameter);
-                                }
-                        }
-                }
-                return std::make_pair(false, parameter);
-        }
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+		userrec* x = Find(parameter);
+		if (x)
+		{
+			if (!channel->HasUser(x))
+			{
+				return std::make_pair(false, parameter);
+			}
+			else
+			{
+				std::string founder = "cm_protect_"+std::string(channel->name);
+				if (x->GetExt(founder,dummyptr))
+				{
+					return std::make_pair(true, x->nick);
+				}
+				else
+				{
+					return std::make_pair(false, parameter);
+				}
+			}
+		}
+		return std::make_pair(false, parameter);
+	}
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -227,13 +227,13 @@ class ChanProtect : public ModeHandler
 
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
-		chanuserlist cl = Srv->GetUsers(channel);
+		CUList* cl = channel->GetUsers();
 		std::string protect = "cm_protect_"+std::string(channel->name);
-		for (unsigned int i = 0; i < cl.size(); i++)
+		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (cl[i]->GetExt(protect,dummyptr))
+			if (i->second->GetExt(protect,dummyptr))
 			{
-				user->WriteServ("388 %s %s %s",user->nick, channel->name,cl[i]->nick);
+				user->WriteServ("388 %s %s %s",user->nick, channel->name,i->second->nick);
 			}
 		}
 		user->WriteServ("389 %s %s :End of channel protected user list",user->nick, channel->name);
@@ -436,19 +436,19 @@ class ModuleChanProtect : public Module
 		// this is called when the server is linking into a net and wants to sync channel data.
 		// we should send our mode changes for the channel here to ensure that other servers
 		// know whos +q/+a on the channel.
-		chanuserlist cl = Srv->GetUsers(chan);
+		CUList* cl = chan->GetUsers();
 		string_list commands;
 		std::string founder = "cm_founder_"+std::string(chan->name);
 		std::string protect = "cm_protect_"+std::string(chan->name);
-		for (unsigned int i = 0; i < cl.size(); i++)
+		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (cl[i]->GetExt(founder,dummyptr))
+			if (i->second->GetExt(founder,dummyptr))
 			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(cl[i]->nick));
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(i->second->nick));
 			}
-			if (cl[i]->GetExt(protect,dummyptr))
+			if (i->second->GetExt(protect,dummyptr))
 			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(cl[i]->nick));
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(i->second->nick));
 			}
 		}
 	}
