@@ -325,7 +325,7 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 					FOREACH_RESULT(I_OnCheckLimit,OnCheckLimit(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						if (usercount(Ptr) >= Ptr->limit)
+						if (Ptr->GetUserCounter() >= Ptr->limit)
 						{
 							user->WriteServ("471 %s %s :Cannot join channel (Channel is full)",user->nick, Ptr->name);
 							return NULL;

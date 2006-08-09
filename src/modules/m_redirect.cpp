@@ -135,7 +135,7 @@ class ModuleRedirect : public Module
 		{
 			if (chan->IsModeSet('L'))
 			{
-				if (Srv->CountUsers(chan) >= chan->limit)
+				if (chan->GetUserCounter() >= chan->limit)
 				{
 					std::string channel = chan->GetModeParameter('L');
 					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());

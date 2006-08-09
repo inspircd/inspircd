@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_restart.h"
 
-extern InspIRCd* ServerInstance;;
+extern InspIRCd* ServerInstance;
 
 void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -43,7 +43,7 @@ void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 		argv[3] = NULL;
 		
 		// close ALL file descriptors
-		send_error("Server restarting.");
+		ServerInstance->SendError("Server restarting.");
 		sleep(1);
 		for (int i = 0; i < MAX_DESCRIPTORS; i++)
 		{

@@ -225,7 +225,7 @@ class ModuleOverride : public Module
 					return -1;
 				}
 					
-				if ((chan->limit > 0) && (Srv->CountUsers(chan) >=  chan->limit) && (CanOverride(user,"LIMIT")))
+				if ((chan->limit > 0) && (chan->GetUserCounter() >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s passed through your channel limit", cname, user->nick);

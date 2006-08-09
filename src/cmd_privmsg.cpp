@@ -27,7 +27,6 @@
 #include "commands/cmd_privmsg.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -55,7 +54,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		const char* servermask = parameters[0] + 1;
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
-			ServerPrivmsgAll("%s",parameters[1]);
+			ServerInstance->ServerPrivmsgAll("%s",parameters[1]);
 		}
 		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
 		return;

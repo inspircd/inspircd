@@ -39,7 +39,6 @@ extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
 extern time_t TIME;
 extern Server* MyServer;
-extern std::vector<userrec*> local_users;
 
 irc::whowas::whowas_users whowas;
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
@@ -713,8 +712,8 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 		if (IS_LOCAL(user))
 		{
 			ServerInstance->fd_ref_table[user->fd] = NULL;
-			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-				local_users.erase(find(local_users.begin(),local_users.end(),user));
+			if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
+				ServerInstance->local_users.erase(find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user));
 		}
 		ServerInstance->clientlist.erase(iter);
 		DELETE(user);
@@ -873,15 +872,15 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	_new->recvqmax = class_rqmax;
 
 	ServerInstance->fd_ref_table[socket] = _new;
-	local_users.push_back(_new);
+	ServerInstance->local_users.push_back(_new);
 
-	if (local_users.size() > ServerInstance->Config->SoftLimit)
+	if (ServerInstance->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
 		userrec::QuitUser(_new,"No more connections allowed");
 		return;
 	}
 
-	if (local_users.size() >= MAXCLIENTS)
+	if (ServerInstance->local_users.size() >= MAXCLIENTS)
 	{
 		userrec::QuitUser(_new,"No more connections allowed");
 		return;
@@ -946,7 +945,7 @@ long userrec::GlobalCloneCount()
 long userrec::LocalCloneCount()
 {
 	long x = 0;
-	for (std::vector<userrec*>::const_iterator a = local_users.begin(); a != local_users.end(); a++)
+	for (std::vector<userrec*>::const_iterator a = ServerInstance->local_users.begin(); a != ServerInstance->local_users.end(); a++)
 	{
 		userrec* comp = *a;
 #ifdef IPV6
@@ -1538,7 +1537,7 @@ void userrec::WriteWallOps(const std::string &text)
 	std::string wallop = "WALLOPS :";
 	wallop.append(text);
 
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
 		userrec* t = *i;
 		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
@@ -1632,5 +1631,24 @@ bool userrec::ChangeDisplayedHost(const char* host)
 		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);
 
 	return true;
+}
+
+void userrec::NoticeAll(char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	char formatbuffer[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	snprintf(formatbuffer,MAXBUF,"NOTICE $* :%s",textbuffer);
+
+	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	{
+		userrec* t = *i;
+		t->WriteFrom(this, std::string(formatbuffer));
+	}
 }
 

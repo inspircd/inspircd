@@ -26,6 +26,8 @@ using namespace std;
 static ConfigReader *helpop;
 static Server *Srv;
 
+extern InspIRCd* ServerInstance;
+
 bool do_helpop(const char**, int, userrec*);
 void sendtohelpop(userrec*, int, const char**);
 
@@ -177,7 +179,7 @@ void sendtohelpop(userrec *src, int pcnt, const char **params)
 	{
 		line = line + std::string(params[i]) + " ";
 	}
-	Srv->SendToModeMask("oh",WM_AND,line);
+	ServerInstance->WriteMode("oh",WM_AND,line.c_str());
 }
 
 class HelpopException : public ModuleException

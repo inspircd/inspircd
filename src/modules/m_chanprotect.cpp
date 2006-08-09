@@ -308,7 +308,7 @@ class ModuleChanProtect : public Module
 		// the config option for it is set
 		if (FirstInGetsFounder)
 		{
-			if (Srv->CountUsers(channel) == 1)
+			if (channel->GetUserCounter() == 1)
 			{
 				// we're using Extensible::Extend to add data into user objects.
 				// this way is best as it adds data thats accessible to other modules

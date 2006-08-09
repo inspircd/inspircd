@@ -83,6 +83,7 @@ class InspIRCd : public classbase
  private:
 	char MODERR[MAXBUF];
 	bool expire_run;
+	servernamelist servernames;
  
 	void EraseFactory(int j);
 	void EraseModule(int j);
@@ -111,15 +112,31 @@ class InspIRCd : public classbase
 	std::vector<InspSocket*> module_sockets;
 	InspSocket* socket_ref[MAX_DESCRIPTORS];	/* XXX: This should probably be made private, with inline accessors */
 	userrec* fd_ref_table[MAX_DESCRIPTORS];		/* XXX: Ditto */
-	user_hash clientlist;				/* XXX: Ditto */
-	chan_hash chanlist;				/* XXX: Ditto */
-	servernamelist servernames;			/* XXX: Ditto */
+	user_hash clientlist;
+	chan_hash chanlist;
+	std::vector<userrec*> local_users;
 	DNS* Res;
 
 	void AddServerName(const std::string &servername);
 	const char* FindServerNamePtr(const std::string &servername);
 	bool FindServerName(const std::string &servername);
 
+	bool UserToPseudo(userrec* user, const std::string &message);
+	bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
+
+	void ServerNoticeAll(char* text, ...);
+	void ServerPrivmsgAll(char* text, ...);
+	void WriteMode(const char* modes, int flags, const char* text, ...);
+
+	int usercnt();
+	int registered_usercount();
+	int usercount_invisible();
+	int usercount_opers();
+	int usercount_unknown();
+	long chancount();
+	long local_count();
+
+	void SendError(const char *s);
 
 	std::string GetRevision();
 	std::string GetVersionString();

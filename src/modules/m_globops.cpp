@@ -28,6 +28,7 @@ using namespace std;
 /* $ModDesc: Provides support for GLOBOPS and user mode +g */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_globops : public command_t
 {
@@ -45,7 +46,7 @@ class cmd_globops : public command_t
 		{
 			line = line + std::string(parameters[i]) + " ";
 		}
-		Srv->SendToModeMask("og",WM_AND,line);
+		ServerInstance->WriteMode("og",WM_AND,line.c_str());
 	}
 };
 

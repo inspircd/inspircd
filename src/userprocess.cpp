@@ -58,7 +58,6 @@ extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 extern time_t OLDTIME;
-extern std::vector<userrec*> local_users;
 char data[65536];
 
 void InspIRCd::ProcessUser(userrec* cu)
@@ -307,12 +306,12 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 	CullList GlobalGoners;
 
 	/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
-	for (unsigned long count2 = 0; count2 != local_users.size(); count2++)
+	for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
 	{
-		if (count2 >= local_users.size())
+		if (count2 >= this->local_users.size())
 			break;
 
-		userrec* curr = local_users[count2];
+		userrec* curr = this->local_users[count2];
 
 		if (curr)
 		{

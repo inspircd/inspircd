@@ -64,7 +64,6 @@ const long duration_w = duration_d * 7;
 const long duration_y = duration_w * 52;
 
 extern std::vector<userrec*> all_opers;
-extern std::vector<userrec*> local_users;
 
 void split_chlist(userrec* user, userrec* dest, const std::string &cl)
 {

@@ -639,6 +639,8 @@ class userrec : public connection
 
 	int CountChannels();
 
+	void NoticeAll(char* text, ...);
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

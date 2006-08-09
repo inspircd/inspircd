@@ -48,7 +48,6 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
-extern std::vector<userrec*> local_users;
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -212,7 +211,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'l')
 	{
 		results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-	  	for (std::vector<userrec*>::iterator n = local_users.begin(); n != local_users.end(); n++)
+	  	for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 		{
 			userrec* i = *n;
 			if (isnick(i->nick))
@@ -226,7 +225,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'L')
 	{
 		results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-		for (std::vector<userrec*>::iterator n = local_users.begin(); n != local_users.end(); n++)
+		for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 		{
 			userrec* i = *n;
 			if (isnick(i->nick))

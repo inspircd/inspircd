@@ -16,7 +16,6 @@
 
 #include <stdarg.h>
 #include "inspircd_config.h"
-#include "inspircd.h"
 #include "configreader.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -43,6 +42,7 @@
 #include "helperfuncs.h"
 #include "hashcomp.h"
 #include "typedefs.h"
+#include "inspircd.h"
 
 extern int MODCOUNT;
 extern ModuleList modules;
@@ -52,8 +52,6 @@ extern char lowermap[255];
 extern std::vector<userrec*> all_opers;
 
 char LOG_FILE[MAXBUF];
-
-extern std::vector<userrec*> local_users;
 
 static char TIMESTR[26];
 static time_t LAST = 0;
@@ -169,7 +167,7 @@ void WriteOpers_NoFormat(const char* text)
 	}
 }
 
-void ServerNoticeAll(char* text, ...)
+void InspIRCd::ServerNoticeAll(char* text, ...)
 {
 	if (!text)
 		return;
@@ -190,7 +188,7 @@ void ServerNoticeAll(char* text, ...)
 	}
 }
 
-void ServerPrivmsgAll(char* text, ...)
+void InspIRCd::ServerPrivmsgAll(char* text, ...)
 {
 	if (!text)
 		return;
@@ -211,7 +209,7 @@ void ServerPrivmsgAll(char* text, ...)
 	}
 }
 
-void WriteMode(const char* modes, int flags, const char* text, ...)
+void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	int modelen;
@@ -266,32 +264,6 @@ void WriteMode(const char* modes, int flags, const char* text, ...)
 		}
 	}
 }
-
-void NoticeAll(userrec *source, bool local_only, char* text, ...)
-{
-	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
-	va_list argsPtr;
-
-	if ((!text) || (!source))
-	{
-		log(DEFAULT,"*** BUG *** NoticeAll was given an invalid parameter");
-		return;
-	}
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	snprintf(formatbuffer,MAXBUF,"NOTICE $* :%s",textbuffer);
-
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-	{
-		userrec* t = *i;
-		t->WriteFrom(source,std::string(formatbuffer));
-	}
-}
-
 
 /* convert a string to lowercase. Note following special circumstances
  * taken from RFC 1459. Many "official" server branches still hold to this
@@ -557,12 +529,6 @@ int usercount_i(chanrec *c)
 	return count;
 }
 
-int usercount(chanrec *c)
-{
-	return (c ? c->GetUserCounter() : 0);
-}
-
-
 /* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
  * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
  * then their ip will be taken as 'priority' anyway, so for example,
@@ -585,11 +551,9 @@ ConnectClass GetClass(userrec *user)
  * sends out an error notice to all connected clients (not to be used
  * lightly!)
  */
-void send_error(char *s)
+void InspIRCd::SendError(const char *s)
 {
-	log(DEBUG,"send_error: %s",s);
-
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 	{
 		userrec* t = (userrec*)(*i);
 		if (t->registered == REG_ALL)
@@ -630,7 +594,7 @@ void Error(int status)
 #else
 	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
 #endif
-	send_error("Somebody screwed up... Whoops. IRC Server terminating.");
+	ServerInstance->SendError("Somebody screwed up... Whoops. IRC Server terminating.");
 	signal(SIGSEGV, SIG_DFL);
 	if (raise(SIGSEGV) == -1)
 	{
@@ -640,17 +604,17 @@ void Error(int status)
 }
 
 // this function counts all users connected, wether they are registered or NOT.
-int usercnt(void)
+int InspIRCd::usercnt()
 {
-	return ServerInstance->clientlist.size();
+	return clientlist.size();
 }
 
 // this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
-int registered_usercount(void)
+int InspIRCd::registered_usercount()
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		c += (i->second->registered == REG_ALL);
 	}
@@ -658,11 +622,11 @@ int registered_usercount(void)
 	return c;
 }
 
-int usercount_invisible(void)
+int InspIRCd::usercount_invisible()
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		c += ((i->second->registered == REG_ALL) && (i->second->modes[UM_INVISIBLE]));
 	}
@@ -670,11 +634,11 @@ int usercount_invisible(void)
 	return c;
 }
 
-int usercount_opers(void)
+int InspIRCd::usercount_opers()
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
 	{
 		if (*(i->second->oper))
 			c++;
@@ -682,7 +646,7 @@ int usercount_opers(void)
 	return c;
 }
 
-int usercount_unknown(void)
+int InspIRCd::usercount_unknown()
 {
 	int c = 0;
 
@@ -696,12 +660,12 @@ int usercount_unknown(void)
 	return c;
 }
 
-long chancount(void)
+long InspIRCd::chancount()
 {
-	return ServerInstance->chanlist.size();
+	return chanlist.size();
 }
 
-long local_count()
+long InspIRCd::local_count()
 {
 	int c = 0;
 

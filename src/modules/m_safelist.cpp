@@ -102,7 +102,7 @@ class ListTimer : public InspTimer
 					bool has_user = (chan && chan->HasUser(u));
 					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 					{
-						long users = usercount(chan);
+						long users = chan->GetUserCounter();
 						if (users)
 						{
 							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chanmodes(chan,has_user),chan->topic);

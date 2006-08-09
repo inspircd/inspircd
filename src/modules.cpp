@@ -15,7 +15,7 @@
  */
 
 #include "inspircd_config.h"
-#include "inspircd.h"
+//#include "inspircd.h"
 #include "configreader.h"
 #include <unistd.h>
 #include <sys/errno.h>
@@ -44,12 +44,12 @@
 #include "modules.h"
 #include "command_parse.h"
 #include "dns.h"
+#include "inspircd.h"
 
 extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
-extern std::vector<userrec*> local_users;
 extern time_t TIME;
 extern command_table cmdlist;
 
@@ -390,11 +390,6 @@ bool Server::MatchText(const std::string &sliteral, const std::string &spattern)
 	return match(sliteral.c_str(),spattern.c_str());
 }
 
-void Server::SendToModeMask(const std::string &modes, int flags, const std::string &text)
-{
-	WriteMode(modes.c_str(),flags,"%s",text.c_str());
-}
-
 bool Server::IsUlined(const std::string &server)
 {
 	return is_uline(server.c_str());
@@ -511,12 +506,7 @@ bool Server::AddResolver(Resolver* r)
 	return ServerInstance->Res->AddResolverClass(r);
 }
 
-int Server::CountUsers(chanrec* c)
-{
-	return usercount(c);
-}
-
-bool Server::UserToPseudo(userrec* user, const std::string &message)
+bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 {
 	unsigned int old_fd = user->fd;
 	user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
@@ -536,7 +526,7 @@ bool Server::UserToPseudo(userrec* user, const std::string &message)
 	return true;
 }
 
-bool Server::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
+bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
 {
 	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;

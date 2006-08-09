@@ -70,8 +70,6 @@ InspIRCd* ServerInstance;
 extern ModuleList modules;
 extern FactoryList factory;
 
-std::vector<userrec*> local_users;
-
 extern int MODCOUNT;
 extern char LOG_FILE[MAXBUF];
 
@@ -115,7 +113,7 @@ void Exit(int status)
 {
 	if (ServerInstance->Config->log_file)
 		fclose(ServerInstance->Config->log_file);
-	send_error("Server shutdown.");
+	ServerInstance->SendError("Server shutdown.");
 	exit (status);
 }
 
@@ -132,7 +130,7 @@ void Killed(int status)
 {
 	if (ServerInstance->Config->log_file)
 		fclose(ServerInstance->Config->log_file);
-	send_error("Server terminated.");
+	ServerInstance->SendError("Server terminated.");
 	exit(status);
 }
 
@@ -961,7 +959,7 @@ int main(int argc, char** argv)
 	catch (std::bad_alloc)
 	{
 		log(DEFAULT,"You are out of memory! (got exception std::bad_alloc!)");
-		send_error("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
+		ServerInstance->SendError("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
 		printf("Out of memory! (got exception std::bad_alloc!");
 	}
 	return 0;

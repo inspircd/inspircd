@@ -1323,11 +1323,6 @@ class Server : public Extensible
 	 */
 	virtual bool IsNick(const std::string &nick);
 
-	/** Returns a count of the number of users on a channel.
-	 * This will NEVER be 0, as if the chanrec exists, it will have at least one user in the channel.
-	 */
-	virtual int CountUsers(chanrec* c);
-
 	/** Adds an InspTimer which will trigger at a future time
 	 */
 	virtual void AddTimer(InspTimer* T);
@@ -1421,21 +1416,7 @@ class Server : public Extensible
 	 */
 
   	virtual void SendMode(const char **parameters, int pcnt, userrec *user);
-  	
-  	/** Sends to all users matching a mode mask
-  	 * You must specify one or more usermodes as the first parameter. These can be RFC specified modes such as +i,
-  	 * or module provided modes, including ones provided by your own module.
-  	 * In the second parameter you must place a flag value which indicates wether the modes you have given will be
-  	 * logically ANDed or OR'ed. You may use one of either WM_AND or WM_OR.
-  	 * for example, if you were to use:
-  	 *
-  	 * Serv->SendToModeMask("xi", WM_OR, "m00");
-  	 *
-  	 * Then the text 'm00' will be sent to all users with EITHER mode x or i. Conversely if you used WM_AND, the
-  	 * user must have both modes set to receive the message.
-  	 */
-  	virtual void SendToModeMask(const std::string &modes, int flags, const std::string &text);
-	
+
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
 	 * Returns true if the literal successfully matches the pattern, false if otherwise.
@@ -1470,22 +1451,6 @@ class Server : public Extensible
 	 */
 	virtual bool IsUlined(const std::string &server);
 	
-	/** Remove a user's connection to the irc server, but leave their client in existence in the
-	 * user hash. When you call this function, the user's file descriptor will be replaced with the
-	 * value of FD_MAGIC_NUMBER and their old file descriptor will be closed. This idle client will
-	 * remain until it is restored with a valid file descriptor, or is removed from IRC by an operator
-	 * After this call, the pointer to user will be invalid.
-	 */
-	virtual bool UserToPseudo(userrec* user, const std::string &message);
-
-	/** This user takes one user, and switches their file descriptor with another user, so that one user
-	 * "becomes" the other. The user in 'alive' is booted off the server with the given message. The user
-	 * referred to by 'zombie' should have previously been locked with Server::UserToPseudo, otherwise
-	 * stale sockets and file descriptor leaks can occur. After this call, the pointer to alive will be
-	 * invalid, and the pointer to zombie will be equivalent in effect to the old pointer to alive.
-	 */
-	virtual bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
-
 	/** Adds a G-line
 	 * The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
 	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert

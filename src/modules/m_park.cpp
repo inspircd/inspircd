@@ -25,6 +25,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
+extern InspIRCd* ServerInstance;
+
 /* $ModDesc: Provides support for user parking/unparking */
 
 class parking : public classbase
@@ -88,7 +90,7 @@ class cmd_park : public command_t
 			unsigned long* key = new unsigned long;
 			*key = abs(random() * 12345);
 			snprintf(msg,MAXBUF,"You are now parked. To unpark use /UNPARK %s %lu",user->nick, *key);
-			Srv->UserToPseudo(user,std::string(msg));
+			ServerInstance->UserToPseudo(user,std::string(msg));
 			aw = new awaylog;
 			user->Extend("park_awaylog", aw);
 			user->Extend("park_key", key);
@@ -174,7 +176,7 @@ class cmd_unpark : public command_t
 			// remove all their old modes
 			user->WriteServ("MODE %s -%s",user->nick,user->FormatModes());
 			// now, map them to the parked user, while nobody can see :p
-			Srv->PseudoToUser(user,unpark,"Unparked to "+std::string(parameters[0]));
+			ServerInstance->PseudoToUser(user,unpark,"Unparked to "+std::string(parameters[0]));
 			// set all their new modes
 			unpark->WriteServ("MODE %s +%s",unpark->nick,unpark->FormatModes());
 			// spool their away log to them

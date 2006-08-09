@@ -3483,23 +3483,23 @@ class ModuleSpanningTree : public Module
 
 	void HandleLusers(const char** parameters, int pcnt, userrec* user)
 	{
-		unsigned int n_users = usercnt();
+		unsigned int n_users = ServerInstance->usercnt();
 
 		/* Only update these when someone wants to see them, more efficient */
-		if ((unsigned int)local_count() > max_local)
-			max_local = local_count();
+		if ((unsigned int)ServerInstance->local_count() > max_local)
+			max_local = ServerInstance->local_count();
 		if (n_users > max_global)
 			max_global = n_users;
 
-		user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-usercount_invisible(),usercount_invisible(),this->CountServs());
-		if (usercount_opers())
-			user->WriteServ("252 %s %d :operator(s) online",user->nick,usercount_opers());
-		if (usercount_unknown())
-			user->WriteServ("253 %s %d :unknown connections",user->nick,usercount_unknown());
-		if (chancount())
-			user->WriteServ("254 %s %d :channels formed",user->nick,chancount());
-		user->WriteServ("254 %s :I have %d clients and %d servers",user->nick,local_count(),this->CountLocalServs());
-		user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,local_count(),max_local);
+		user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-ServerInstance->usercount_invisible(),ServerInstance->usercount_invisible(),this->CountServs());
+		if (ServerInstance->usercount_opers())
+			user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->usercount_opers());
+		if (ServerInstance->usercount_unknown())
+			user->WriteServ("253 %s %d :unknown connections",user->nick,ServerInstance->usercount_unknown());
+		if (ServerInstance->chancount())
+			user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->chancount());
+		user->WriteServ("254 %s :I have %d clients and %d servers",user->nick,ServerInstance->local_count(),this->CountLocalServs());
+		user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->local_count(),max_local);
 		user->WriteServ("266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
 		return;
 	}

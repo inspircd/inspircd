@@ -40,7 +40,6 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
-extern std::vector<userrec*> local_users;
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -91,10 +90,10 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	if (user->fd > -1)
 	{
 		ServerInstance->SE->DelFd(user->fd);
-		if (find(local_users.begin(),local_users.end(),user) != local_users.end())
+		if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
 		{
 			log(DEBUG,"Delete local user");
-			local_users.erase(find(local_users.begin(),local_users.end(),user));
+			ServerInstance->local_users.erase(find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user));
 		}
 		user->CloseSocket();
 	}

@@ -44,7 +44,6 @@ extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<userrec*> local_users;
 
 /* Version two, now with optimized expiry!
  *
@@ -665,7 +664,7 @@ void apply_lines(const int What)
 
 	CullList* Goners = new CullList();
 	char* check = NULL;
-	for (std::vector<userrec*>::const_iterator u2 = local_users.begin(); u2 != local_users.end(); u2++)
+	for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		userrec* u = (userrec*)(*u2);
 		u->MakeHost(host);

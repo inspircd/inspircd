@@ -30,7 +30,6 @@
 #include "commands/cmd_notice.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
@@ -57,7 +56,7 @@ void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
                 const char* servermask = parameters[0] + 1;
                 if (match(ServerInstance->Config->ServerName,servermask))
                 {
-                        NoticeAll(user, true, "%s",parameters[1]);
+                        user->NoticeAll("%s",parameters[1]);
                 }
                 FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
                 return;
