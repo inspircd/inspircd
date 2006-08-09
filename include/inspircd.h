@@ -43,7 +43,7 @@
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
-#define DELETE(x) { do_log(DEBUG,"%s:%d: delete()",__FILE__,__LINE__); if (x) { delete x; x = NULL; } else log(DEBUG,"Attempt to delete NULL pointer!"); }
+#define DELETE(x) { InspIRCd::Log(DEBUG,"%s:%d: delete()",__FILE__,__LINE__); if (x) { delete x; x = NULL; } else InspIRCd::Log(DEBUG,"Attempt to delete NULL pointer!"); }
 
 template<typename T> inline std::string ConvToStr(const T &in)
 {
@@ -114,6 +114,8 @@ class InspIRCd : public classbase
 	bool UnloadModule(const char* filename);
 	InspIRCd(int argc, char** argv);
 	void DoOneIteration(bool process_module_sockets);
+	static void Log(int level, const char* text, ...);
+	static void Log(int level, const std::string &text);
 	int Run();
 };
 

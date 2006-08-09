@@ -25,6 +25,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "dns.h"
+#include "inspircd.h"
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 

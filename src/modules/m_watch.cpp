@@ -24,6 +24,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the /watch command */
 

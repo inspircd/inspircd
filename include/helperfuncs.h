@@ -43,7 +43,7 @@
  */
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x) 
-#define log(l, x, args...) do_log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
+#define log(l, x, args...) InspIRCd::Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
 
 void do_log(int level, const char *text, ...);
 void readfile(file_cache &F, const char* fname);

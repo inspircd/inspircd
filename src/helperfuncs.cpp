@@ -65,11 +65,20 @@ static time_t LAST = 0;
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
  *  is greater than the configured loglevel.
  */
-void do_log(int level, const char *text, ...)
+void InspIRCd::Log(int level, const char* text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
 
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	InspIRCd::Log(level, std::string(textbuffer));
+}
+
+void InspIRCd::Log(int level, const std::string &text)
+{
 	if (!ServerInstance || !ServerInstance->Config)
 		return;
 
@@ -86,22 +95,15 @@ void do_log(int level, const char *text, ...)
 		LAST = TIME;
 	}
 
-	if (ServerInstance->Config->log_file)
+	if (ServerInstance->Config->log_file && ServerInstance->Config->writelog)
 	{
-		va_start(argsPtr, text);
-		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		va_end(argsPtr);
-
-		if (ServerInstance->Config->writelog)
-		{
-			fprintf(ServerInstance->Config->log_file,"%s %s\n",TIMESTR,textbuffer);
-			fflush(ServerInstance->Config->log_file);
-		}
+		fprintf(ServerInstance->Config->log_file,"%s %s\n",TIMESTR,text.c_str());
+		fflush(ServerInstance->Config->log_file);
 	}
-	
+
 	if (ServerInstance->Config->nofork)
 	{
-		printf("%s %s\n", TIMESTR, textbuffer);
+		printf("%s %s\n", TIMESTR, text.c_str());
 	}
 }
 

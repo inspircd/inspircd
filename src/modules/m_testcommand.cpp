@@ -22,6 +22,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "dns.h"
+#include "inspircd.h"
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
