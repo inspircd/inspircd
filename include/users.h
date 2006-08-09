@@ -78,7 +78,6 @@ class UserResolver : public Resolver
 	userrec* bound_user;
 	int bound_fd;
 	bool fwd;
-	InspIRCd* ServerInstance;
  public:
 	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward);
 

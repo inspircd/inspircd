@@ -96,7 +96,7 @@ class SQLresolver : public Resolver
 	ModulePgSQL* mod;
  public:
 	SQLresolver(ModulePgSQL* m, Server* srv, const SQLhost& hi)
-	: Resolver(hi.host, DNS_QUERY_FORWARD), host(hi), mod(m)
+	: Resolver(ServerInstance, hi.host, DNS_QUERY_FORWARD), host(hi), mod(m)
 	{
 	}
 

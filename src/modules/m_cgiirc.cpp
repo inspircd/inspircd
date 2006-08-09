@@ -29,9 +29,7 @@
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-
-/* We need this for checking our user hasnt /quit before we finish our lookup */
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
+extern InspIRCd* ServerInstance;
 
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST };
 
@@ -57,12 +55,12 @@ class CGIResolver : public Resolver
 	bool notify;
  public:
 	CGIResolver(bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type)
-		: Resolver(source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+		: Resolver(ServerInstance, source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
 		/* Check the user still exists */
-		if ((them) && (them == fd_ref_table[theirfd]))
+		if ((them) && (them == ServerInstance->fd_ref_table[theirfd]))
 		{
 			if (notify)
 				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
@@ -75,7 +73,7 @@ class CGIResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		if ((them) && (them == fd_ref_table[theirfd]))
+		if ((them) && (them == ServerInstance->fd_ref_table[theirfd]))
 		{
 			if (notify)
 				WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick, them->host,typ.c_str());

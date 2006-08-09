@@ -884,7 +884,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 int InspIRCd::Run()
 {
-	this->Res = new DNS();
+	this->Res = new DNS(this);
 
 	LoadAllModules(this);
 

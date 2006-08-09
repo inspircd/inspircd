@@ -43,9 +43,6 @@ using namespace std;
 #include "socketengine.h"
 #include "configreader.h"
 
-/* We need these */
-extern InspIRCd* ServerInstance;
-
 /* Master file descriptor */
 int DNS::MasterSocket;
 
@@ -242,7 +239,7 @@ int DNS::GetMasterSocket()
 }
 
 /* Initialise the DNS UDP socket so that we can send requests */
-DNS::DNS()
+DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	insp_inaddr addr;
 
@@ -834,7 +831,7 @@ DNS::~DNS()
 }
 
 /* High level abstraction of dns used by application at large */
-Resolver::Resolver(const std::string &source, QueryType qt) : input(source), querytype(qt)
+Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
 {
 	insp_inaddr binip;
 

@@ -40,6 +40,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "socket.h"
 #include "base.h"
 
+class InspIRCd;
+
 /**
  * Result status, used internally
  */
@@ -133,6 +135,10 @@ class Resolver : public Extensible
 {
  protected:
 	/**
+	 * Pointer to creator
+	 */
+	InspIRCd* ServerInstance;
+	/**
 	 * The input data, either a host or an IP address
 	 */
 	std::string input;
@@ -180,7 +186,7 @@ class Resolver : public Extensible
 	 * the network being down. This will also be thrown if an invalid IP address is
 	 * passed when resolving a 'PTR' record.
 	 */
-	Resolver(const std::string &source, QueryType qt);
+	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt);
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -216,6 +222,8 @@ class Resolver : public Extensible
 class DNS : public Extensible
 {
  private:
+
+	InspIRCd* ServerInstance;
 
 	/**
 	 * The maximum value of a dns request id,
@@ -340,7 +348,7 @@ class DNS : public Extensible
 	 * The constructor initialises the dns socket,
 	 * and clears the request lists.
 	 */
-	DNS();
+	DNS(InspIRCd* Instance);
 
 	/**
 	 * Destructor

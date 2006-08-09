@@ -3081,7 +3081,7 @@ class ServernameResolver : public Resolver
 	 */
 	Link MyLink;
  public:        
-	ServernameResolver(const std::string &hostname, Link x) : Resolver(hostname, DNS_QUERY_FORWARD), MyLink(x)
+	ServernameResolver(const std::string &hostname, Link x) : Resolver(ServerInstance, hostname, DNS_QUERY_FORWARD), MyLink(x)
 	{
 		/* Nothing in here, folks */
 	}
@@ -3122,7 +3122,7 @@ class SecurityIPResolver : public Resolver
  private:
 	Link MyLink;
  public:
-	SecurityIPResolver(const std::string &hostname, Link x) : Resolver(hostname, DNS_QUERY_FORWARD), MyLink(x)
+	SecurityIPResolver(const std::string &hostname, Link x) : Resolver(ServerInstance, hostname, DNS_QUERY_FORWARD), MyLink(x)
 	{
 	}
 

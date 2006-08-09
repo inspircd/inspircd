@@ -142,7 +142,7 @@ void userrec::StartDNSLookup()
 }
 
 UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward) :
-	Resolver(to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user), ServerInstance(Instance)
+	Resolver(ServerInstance, to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
 {
 	this->fwd = forward;
 	this->bound_fd = user->fd;

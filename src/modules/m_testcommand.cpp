@@ -26,11 +26,13 @@ using namespace std;
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
+extern InspIRCd* ServerInstance;
+
 class MyV6Resolver : public Resolver
 {
 	bool fw;
  public:
-	MyV6Resolver(const std::string &source, bool forward) : Resolver(source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6)
+	MyV6Resolver(const std::string &source, bool forward) : Resolver(ServerInstance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6)
 	{
 		fw = forward;
 	}
