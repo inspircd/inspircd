@@ -50,8 +50,6 @@ extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern char lowermap[255];
 extern std::vector<userrec*> all_opers;
-extern user_hash clientlist;
-extern chan_hash chanlist;
 
 char LOG_FILE[MAXBUF];
 
@@ -317,9 +315,9 @@ void strlower(char *n)
 
 userrec* Find(const std::string &nick)
 {
-	user_hash::iterator iter = clientlist.find(nick);
+	user_hash::iterator iter = ServerInstance->clientlist.find(nick);
 
-	if (iter == clientlist.end())
+	if (iter == ServerInstance->clientlist.end())
 		/* Couldn't find it */
 		return NULL;
 
@@ -333,9 +331,9 @@ userrec* Find(const char* nick)
 	if (!nick)
 		return NULL;
 
-	iter = clientlist.find(nick);
+	iter = ServerInstance->clientlist.find(nick);
 	
-	if (iter == clientlist.end())
+	if (iter == ServerInstance->clientlist.end())
 		return NULL;
 
 	return iter->second;
@@ -353,9 +351,9 @@ chanrec* FindChan(const char* chan)
 		return NULL;
 	}
 
-	iter = chanlist.find(chan);
+	iter = ServerInstance->chanlist.find(chan);
 
-	if (iter == chanlist.end())
+	if (iter == ServerInstance->chanlist.end())
 		/* Couldn't find it */
 		return NULL;
 
@@ -401,12 +399,12 @@ void purge_empty_chans(userrec* u)
 	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
 	{
 		chanrec* thischan = (chanrec*)*n;
-		chan_hash::iterator i2 = chanlist.find(thischan->name);
-		if (i2 != chanlist.end())
+		chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
+		if (i2 != ServerInstance->chanlist.end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
 			DELETE(i2->second);
-			chanlist.erase(i2);
+			ServerInstance->chanlist.erase(i2);
 		}
 	}
 
@@ -644,7 +642,7 @@ void Error(int status)
 // this function counts all users connected, wether they are registered or NOT.
 int usercnt(void)
 {
-	return clientlist.size();
+	return ServerInstance->clientlist.size();
 }
 
 // this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
@@ -652,7 +650,7 @@ int registered_usercount(void)
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 	{
 		c += (i->second->registered == REG_ALL);
 	}
@@ -664,7 +662,7 @@ int usercount_invisible(void)
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 	{
 		c += ((i->second->registered == REG_ALL) && (i->second->modes[UM_INVISIBLE]));
 	}
@@ -676,7 +674,7 @@ int usercount_opers(void)
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::const_iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 	{
 		if (*(i->second->oper))
 			c++;
@@ -700,7 +698,7 @@ int usercount_unknown(void)
 
 long chancount(void)
 {
-	return chanlist.size();
+	return ServerInstance->chanlist.size();
 }
 
 long local_count()

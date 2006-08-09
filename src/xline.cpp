@@ -44,7 +44,6 @@ extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern user_hash clientlist;
 extern std::vector<userrec*> local_users;
 
 /* Version two, now with optimized expiry!

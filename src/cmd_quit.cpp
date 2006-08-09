@@ -40,13 +40,11 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
 extern std::vector<userrec*> local_users;
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user_hash::iterator iter = clientlist.find(user->nick);
+	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
 	char reason[MAXBUF];
 
 	if (user->registered == REG_ALL)
@@ -101,9 +99,9 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		user->CloseSocket();
 	}
 	
-	if (iter != clientlist.end())
+	if (iter != ServerInstance->clientlist.end())
 	{
-		clientlist.erase(iter);
+		ServerInstance->clientlist.erase(iter);
 	}
 
 	if (user->registered == REG_ALL) {

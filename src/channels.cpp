@@ -45,7 +45,6 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern time_t TIME;
-extern chan_hash chanlist;
 
 chanrec::chanrec()
 {
@@ -240,15 +239,15 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 		}
 
 		/* create a new one */
-		chanlist[cname] = new chanrec();
-		strlcpy(chanlist[cname]->name, cname,CHANMAX);
-		chanlist[cname]->modes[CM_TOPICLOCK] = chanlist[cname]->modes[CM_NOEXTERNAL] = 1;
-		//chanlist[cname]->binarymodes = CM_TOPICLOCK | CM_NOEXTERNAL;
-		chanlist[cname]->created = TIME;
-		*chanlist[cname]->topic = 0;
-		strlcpy(chanlist[cname]->setby, user->nick,NICKMAX-1);
-		chanlist[cname]->topicset = 0;
-		Ptr = chanlist[cname];
+		Ptr = new chanrec();
+		ServerInstance->chanlist[cname] = Ptr;
+
+		strlcpy(Ptr->name, cname,CHANMAX);
+		Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
+		Ptr->created = TIME;
+		*Ptr->topic = 0;
+		strlcpy(Ptr->setby, user->nick,NICKMAX-1);
+		Ptr->topicset = 0;
 		log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		/*
 		 * set created to 2 to indicate user
@@ -402,12 +401,12 @@ chanrec* chanrec::JoinUser(userrec *user, const char* cn, bool override, const c
 	{
 		log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
-		chan_hash::iterator n = chanlist.find(cname);
-		if (n != chanlist.end())
+		chan_hash::iterator n = ServerInstance->chanlist.find(cname);
+		if (n != ServerInstance->chanlist.end())
 		{
 			Ptr->DelUser(user);
 			DELETE(Ptr);
-			chanlist.erase(n);
+			ServerInstance->chanlist.erase(n);
 			for (unsigned int index =0; index < user->chans.size(); index++)
 			{
 				if (user->chans[index]->channel == Ptr)
@@ -497,13 +496,13 @@ long chanrec::PartUser(userrec *user, const char* reason)
 
 	if (!this->DelUser(user)) /* if there are no users left on the channel... */
 	{
-		chan_hash::iterator iter = chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
 		/* kill the record */
-		if (iter != chanlist.end())
+		if (iter != ServerInstance->chanlist.end())
 		{
 			log(DEBUG,"del_channel: destroyed: %s", this->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			chanlist.erase(iter);
+			ServerInstance->chanlist.erase(iter);
 		}
 		return 0;
 	}
@@ -543,12 +542,12 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 
 	if (!this->DelUser(user))
 	{
-		chan_hash::iterator iter = chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
 		/* kill the record */
-		if (iter != chanlist.end())
+		if (iter != ServerInstance->chanlist.end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			chanlist.erase(iter);
+			ServerInstance->chanlist.erase(iter);
 		}
 		return 0;
 	}
@@ -626,13 +625,13 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	if (!this->DelUser(user))
 	/* if there are no users left on the channel */
 	{
-		chan_hash::iterator iter = chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
 
 		/* kill the record */
-		if (iter != chanlist.end())
+		if (iter != ServerInstance->chanlist.end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			chanlist.erase(iter);
+			ServerInstance->chanlist.erase(iter);
 		}
 		return 0;
 	}

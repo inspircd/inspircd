@@ -28,8 +28,6 @@ using namespace std;
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
 
-extern user_hash clientlist;
-extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 extern InspIRCd* ServerInstance;
 
@@ -115,8 +113,8 @@ class ModuleHttpStats : public Module
 				data << "<div class='totals'>";
 				data << "<h2>Totals</h2>";
 				data << "<table>";
-				data << "<tr><td>Users</td><td>" << clientlist.size() << "</td></tr>";
-				data << "<tr><td>Channels</td><td>" << chanlist.size() << "</td></tr>";
+				data << "<tr><td>Users</td><td>" << ServerInstance->clientlist.size() << "</td></tr>";
+				data << "<tr><td>Channels</td><td>" << ServerInstance->chanlist.size() << "</td></tr>";
 				data << "<tr><td>Opers</td><td>" << all_opers.size() << "</td></tr>";
 				data << "<tr><td>Sockets</td><td>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</td></tr>";
 				data << "</table>";

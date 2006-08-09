@@ -60,7 +60,6 @@ extern time_t TIME;
 
 extern Server* MyServer;
 
-extern user_hash clientlist;
 extern chan_hash chanlist;
 
 /* Special commands which may occur without registration of the user */

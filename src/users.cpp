@@ -38,7 +38,6 @@ extern std::vector<ircd_module*> factory;
 extern std::vector<InspSocket*> module_sockets;
 extern int MODCOUNT;
 extern time_t TIME;
-extern user_hash clientlist;
 extern Server* MyServer;
 extern std::vector<userrec*> local_users;
 
@@ -261,7 +260,7 @@ userrec::userrec()
 {
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
-	server = (char*)FindServerNamePtr(ServerInstance->Config->ServerName);
+	server = (char*)ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
 	reset_due = TIME;
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
@@ -643,7 +642,7 @@ void userrec::UnOper()
 
 void userrec::QuitUser(userrec *user,const std::string &quitreason)
 {
-	user_hash::iterator iter = clientlist.find(user->nick);
+	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
 
 /*
  * I'm pretty sure returning here is causing a desync when part of the net thinks a user is gone,
@@ -708,7 +707,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 		user->AddToWhoWas();
 	}
 
-	if (iter != clientlist.end())
+	if (iter != ServerInstance->clientlist.end())
 	{
 		log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
@@ -717,7 +716,7 @@ void userrec::QuitUser(userrec *user,const std::string &quitreason)
 			if (find(local_users.begin(),local_users.end(),user) != local_users.end())
 				local_users.erase(find(local_users.begin(),local_users.end(),user));
 		}
-		clientlist.erase(iter);
+		ServerInstance->clientlist.erase(iter);
 		DELETE(user);
 	}
 }
@@ -800,7 +799,7 @@ void userrec::AddToWhoWas()
 void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
-	user_hash::iterator iter = clientlist.find(tempnick);
+	user_hash::iterator iter = ServerInstance->clientlist.find(tempnick);
 	const char *ipaddr = insp_ntoa(ip);
 	userrec* _new;
 	int j = 0;
@@ -814,21 +813,21 @@ void userrec::AddClient(int socket, int port, bool iscached, insp_inaddr ip)
 	 * this was probably the cause of 'server ignores me when i hammer it with reconnects'
 	 * issue in earlier alphas/betas
 	 */
-	if (iter != clientlist.end())
+	if (iter != ServerInstance->clientlist.end())
 	{
 		userrec* goner = iter->second;
 		DELETE(goner);
-		clientlist.erase(iter);
+		ServerInstance->clientlist.erase(iter);
 	}
 
 	log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
 	_new = new userrec();
-	clientlist[tempnick] = _new;
+	ServerInstance->clientlist[tempnick] = _new;
 	_new->fd = socket;
 	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
 
-	_new->server = FindServerNamePtr(ServerInstance->Config->ServerName);
+	_new->server = ServerInstance->FindServerNamePtr(ServerInstance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
 	strcpy(_new->ident, "unknown");
 
@@ -933,7 +932,7 @@ long userrec::GlobalCloneCount()
 	char u1[1024];
 	char u2[1024];
 	long x = 0;
-	for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+	for (user_hash::const_iterator a = ServerInstance->clientlist.begin(); a != ServerInstance->clientlist.end(); a++)
 	{
 		/* We have to match ip's as strings - we don't know what protocol
 		 * a remote user may be using
@@ -1072,18 +1071,18 @@ void userrec::FullConnect(CullList* Goners)
 userrec* userrec::UpdateNickHash(const char* New)
 {
 	//user_hash::iterator newnick;
-	user_hash::iterator oldnick = clientlist.find(this->nick);
+	user_hash::iterator oldnick = ServerInstance->clientlist.find(this->nick);
 
 	if (!strcasecmp(this->nick,New))
 		return oldnick->second;
 
-	if (oldnick == clientlist.end())
+	if (oldnick == ServerInstance->clientlist.end())
 		return NULL; /* doesnt exist */
 
 	userrec* olduser = oldnick->second;
-	clientlist[New] = olduser;
-	clientlist.erase(oldnick);
-	return clientlist[New];
+	ServerInstance->clientlist[New] = olduser;
+	ServerInstance->clientlist.erase(oldnick);
+	return ServerInstance->clientlist[New];
 }
 
 bool userrec::ForceNickChange(const char* newnick)
@@ -1483,7 +1482,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 			split >> server_one;
 			split >> server_two;
 
-			if ((FindServerName(server_one)) && (FindServerName(server_two)))
+			if ((ServerInstance->FindServerName(server_one)) && (ServerInstance->FindServerName(server_two)))
 			{
 				strlcpy(oper_quit,textbuffer,MAXQUIT);
 				strlcpy(check,"*.net *.split",MAXQUIT);

@@ -23,11 +23,11 @@ using namespace std;
 #include "commands.h"
 #include "inspircd.h"
 #include "helperfuncs.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
-extern user_hash clientlist;
-extern bool match(const char *, const char *);
+extern InspIRCd* ServerInstance;
 
 static Server *Srv;
 
@@ -161,7 +161,7 @@ class cmd_check : public command_t
 			long x = 0;
 
 			/* hostname or other */
-			for (user_hash::const_iterator a = clientlist.begin(); a != clientlist.end(); a++)
+			for (user_hash::const_iterator a = ServerInstance->clientlist.begin(); a != ServerInstance->clientlist.end(); a++)
 			{
 				if (match(a->second->host, parameters[0]) || match(a->second->dhost, parameters[0]))
 				{

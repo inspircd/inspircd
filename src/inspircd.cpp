@@ -83,12 +83,9 @@ socklen_t length;
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 Server* MyServer = new Server;
-user_hash clientlist;
-chan_hash chanlist;
-servernamelist servernames;
 char lowermap[255];
 
-void AddServerName(const std::string &servername)
+void InspIRCd::AddServerName(const std::string &servername)
 {
 	log(DEBUG,"Adding server name: %s",servername.c_str());
 	
@@ -96,7 +93,7 @@ void AddServerName(const std::string &servername)
 		servernames.push_back(servername); /* Wasn't already there. */
 }
 
-const char* FindServerNamePtr(const std::string &servername)
+const char* InspIRCd::FindServerNamePtr(const std::string &servername)
 {
 	servernamelist::iterator iter = find(servernames.begin(), servernames.end(), servername);
 	
@@ -109,7 +106,7 @@ const char* FindServerNamePtr(const std::string &servername)
 	return iter->c_str();
 }
 
-bool FindServerName(const std::string &servername)
+bool InspIRCd::FindServerName(const std::string &servername)
 {
 	return (find(servernames.begin(), servernames.end(), servername) != servernames.end());
 }
@@ -503,11 +500,11 @@ bool InspIRCd::UnloadModule(const char* filename)
 				return false;
 			}
 			/* Give the module a chance to tidy out all its metadata */
-			for (chan_hash::iterator c = chanlist.begin(); c != chanlist.end(); c++)
+			for (chan_hash::iterator c = this->chanlist.begin(); c != this->chanlist.end(); c++)
 			{
 				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
 			}
-			for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+			for (user_hash::iterator u = this->clientlist.begin(); u != this->clientlist.end(); u++)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}

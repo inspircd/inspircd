@@ -51,8 +51,6 @@ extern ModuleList modules;
 extern FactoryList factory;
 extern std::vector<userrec*> local_users;
 extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
 extern command_table cmdlist;
 
 class Server;
@@ -356,7 +354,7 @@ void Server::DelSocket(InspSocket* sock)
 
 long Server::GetChannelCount()
 {
-	return (long)chanlist.size();
+	return (long)ServerInstance->chanlist.size();
 }
 
 /* This is ugly, yes, but hash_map's arent designed to be
@@ -369,7 +367,7 @@ long Server::GetChannelCount()
 chanrec* Server::GetChannelIndex(long index)
 {
 	int target = 0;
-	for (chan_hash::iterator n = chanlist.begin(); n != chanlist.end(); n++, target++)
+	for (chan_hash::iterator n = ServerInstance->chanlist.begin(); n != ServerInstance->chanlist.end(); n++, target++)
 	{
 		if (index == target)
 			return n->second;

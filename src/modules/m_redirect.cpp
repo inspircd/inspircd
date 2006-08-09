@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
 
-extern chan_hash chanlist;
+extern InspIRCd* ServerInstance;
 
 class Redirect : public ModeHandler
 {
@@ -74,7 +74,7 @@ class Redirect : public ModeHandler
 					}
 					else
 					{
-						for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+						for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
 						{
 							if ((i->second != channel) && (i->second->IsModeSet('L')) && (irc::string(i->second->GetModeParameter('L').c_str()) == irc::string(channel->name)))
 							{

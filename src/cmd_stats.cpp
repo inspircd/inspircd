@@ -48,8 +48,6 @@ extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
 extern time_t TIME;
-extern user_hash clientlist;
-extern chan_hash chanlist;
 extern std::vector<userrec*> local_users;
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
@@ -113,7 +111,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'P')
 	{
 		int idx = 0;
-	  	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	  	for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 		{
 			if (*i->second->oper)
 			{
@@ -167,8 +165,8 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	if (statschar == 'z')
 	{
 		rusage R;
-		results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(clientlist.size())+" ("+ConvToStr(clientlist.size()*sizeof(userrec))+" bytes, "+ConvToStr(clientlist.bucket_count())+" buckets)");
-		results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(chanlist.size())+" ("+ConvToStr(chanlist.size()*sizeof(chanrec))+" bytes, "+ConvToStr(chanlist.bucket_count())+" buckets)");
+		results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist.size())+" ("+ConvToStr(ServerInstance->clientlist.size()*sizeof(userrec))+" bytes, "+ConvToStr(ServerInstance->clientlist.bucket_count())+" buckets)");
+		results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist.size())+" ("+ConvToStr(ServerInstance->chanlist.size()*sizeof(chanrec))+" bytes, "+ConvToStr(ServerInstance->chanlist.bucket_count())+" buckets)");
 		results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
 		results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
 		results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(modules.size())+" ("+ConvToStr(modules.size()*sizeof(Module))+")");

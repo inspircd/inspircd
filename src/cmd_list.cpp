@@ -18,14 +18,15 @@
 #include "ctables.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "commands/cmd_list.h"
 
-extern chan_hash chanlist;
+extern InspIRCd* ServerInstance;
 
 void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("321 %s Channel :Users Name",user->nick);
-	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+	for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
 	{
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = i->second->HasUser(user);

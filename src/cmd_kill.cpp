@@ -28,7 +28,6 @@ extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern user_hash clientlist;
 
 void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -57,12 +56,12 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
-			user_hash::iterator iter = clientlist.find(u->nick);
+			user_hash::iterator iter = ServerInstance->clientlist.find(u->nick);
 
-			if (iter != clientlist.end())
+			if (iter != ServerInstance->clientlist.end())
 			{
 				log(DEBUG,"deleting user hash value %d", iter->second);
-				clientlist.erase(iter);
+				ServerInstance->clientlist.erase(iter);
 			}
 
 			if (u->registered == REG_ALL)

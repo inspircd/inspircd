@@ -24,7 +24,6 @@
 #include "commands/cmd_who.h"
 
 extern InspIRCd* ServerInstance;
-extern user_hash clientlist;
 extern chan_hash chanlist;
 extern std::vector<userrec*> all_opers;
 
@@ -196,7 +195,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+			for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 			{
 				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost))
 				{

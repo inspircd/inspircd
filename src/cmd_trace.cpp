@@ -17,13 +17,14 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "commands/cmd_trace.h"
 
-extern user_hash clientlist;
+extern InspIRCd* ServerInstance;
 
 void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 	{
 		if (i->second)
 		{

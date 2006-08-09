@@ -40,7 +40,6 @@ using namespace std;
 #include "cull_list.h"
 
 extern InspIRCd* ServerInstance;
-extern user_hash clientlist;
 
 /*
  * In current implementation of CullList, this isn't used. It did odd things with a lot of sockets.
@@ -52,7 +51,7 @@ bool CullList::IsValid(userrec* user)
 	if (es != exempt.end())
 		esignon = es->second;
 
-	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	for (user_hash::iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
 	{
 		/*
 		 * BUGFIX

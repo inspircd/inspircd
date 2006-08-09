@@ -111,7 +111,15 @@ class InspIRCd : public classbase
 	std::vector<InspSocket*> module_sockets;
 	InspSocket* socket_ref[MAX_DESCRIPTORS];	/* XXX: This should probably be made private, with inline accessors */
 	userrec* fd_ref_table[MAX_DESCRIPTORS];		/* XXX: Ditto */
+	user_hash clientlist;				/* XXX: Ditto */
+	chan_hash chanlist;				/* XXX: Ditto */
+	servernamelist servernames;			/* XXX: Ditto */
 	DNS* Res;
+
+	void AddServerName(const std::string &servername);
+	const char* FindServerNamePtr(const std::string &servername);
+	bool FindServerName(const std::string &servername);
+
 
 	std::string GetRevision();
 	std::string GetVersionString();
@@ -128,10 +136,5 @@ class InspIRCd : public classbase
 
 /* Miscellaneous stuff here, moved from inspircd_io.h */
 void Exit(int status);
-
-/* userrec optimization stuff */
-void AddServerName(const std::string &servername);
-const char* FindServerNamePtr(const std::string &servername);
-bool FindServerName(const std::string &servername);
 
 #endif

@@ -22,12 +22,13 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "wildcard.h"
+#include "inspircd.h"
 #include "dns.h"
 
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
 static Server *Srv;
-extern user_hash clientlist;
+extern InspIRCd* ServerInstance;
 	 
 class cmd_tline : public command_t
 {
@@ -45,7 +46,7 @@ class cmd_tline : public command_t
 		float n_match_host = 0;
 		float n_match_ip = 0;
 
-		for (user_hash::const_iterator u = clientlist.begin(); u != clientlist.end(); u++)
+		for (user_hash::const_iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
 		{
 			n_counted++;
 			if (match(u->second->GetFullRealHost(),parameters[0]))

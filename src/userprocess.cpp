@@ -61,9 +61,6 @@ extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
 char data[65536];
 
-extern user_hash clientlist;
-extern chan_hash chanlist;
-
 void InspIRCd::ProcessUser(userrec* cu)
 {
 	int result = EAGAIN;
