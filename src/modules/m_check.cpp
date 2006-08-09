@@ -89,7 +89,7 @@ class cmd_check : public command_t
 				user->WriteServ(checkstr + " onport " + ConvToStr(targuser->GetPort()));
 			}
 
-			chliststr = chlist(targuser, targuser);
+			chliststr = targuser->ChannelList(targuser);
 			std::stringstream dump(chliststr);
 
 			Srv->DumpText(user,checkstr + " onchans ", dump);

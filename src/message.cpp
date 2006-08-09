@@ -183,28 +183,3 @@ int cstatus(userrec *user, chanrec *chan)
 	return STATUS_NORMAL;
 }
 
-std::string chlist(userrec *user,userrec* source)
-{
-	std::string list;
-	
-	if (!user || !source)
-		return "";
-	
-	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
-	{
-		ucrec* rec = *i;
-		
-		if(rec->channel && rec->channel->name)
-		{	
-			/* If the target is the same as the sender, let them see all their channels.
-			 * If the channel is NOT private/secret OR the user shares a common channel
-			 * If the user is an oper, and the <options:operspywhois> option is set.
-			 */
-			if ((source == user) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
-			{
-				list.append(cmode(user, rec->channel)).append(rec->channel->name).append(" ");
-			}
-		}
-	}
-	return list;
-}

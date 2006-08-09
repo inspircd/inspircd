@@ -646,6 +646,10 @@ class userrec : public connection
 
 	void NoticeAll(char* text, ...);
 
+	std::string ChannelList(userrec* source);
+
+	void SplitChanList(userrec* dest, const std::string &cl);
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

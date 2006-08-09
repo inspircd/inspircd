@@ -50,12 +50,12 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		{
 			user->WriteServ("378 %s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
 		}
-		std::string cl = chlist(dest,user);
+		std::string cl = dest->ChannelList(user);
 		if (cl.length())
 		{
 			if (cl.length() > 400)
 			{
-				split_chlist(user,dest,cl);
+				user->SplitChanList(dest,cl);
 			}
 			else
 			{

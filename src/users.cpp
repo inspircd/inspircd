@@ -1651,3 +1651,63 @@ void userrec::NoticeAll(char* text, ...)
 	}
 }
 
+
+std::string userrec::ChannelList(userrec* source)
+{
+	std::string list;
+	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+	{
+		ucrec* rec = *i;
+
+		if(rec->channel && rec->channel->name)
+		{
+			/* If the target is the same as the sender, let them see all their channels.
+			 * If the channel is NOT private/secret OR the user shares a common channel
+			 * If the user is an oper, and the <options:operspywhois> option is set.
+			 */
+			if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
+			{
+				list.append(cmode(this, rec->channel)).append(rec->channel->name).append(" ");
+			}
+		}
+	}
+	return list;
+}
+
+void userrec::SplitChanList(userrec* dest, const std::string &cl)
+{
+	std::string line;
+	std::ostringstream prefix;
+	std::string::size_type start, pos, length;
+
+	prefix << ":" << ServerInstance->Config->ServerName << " 319 " << this->nick << " " << dest->nick << " :";
+	line = prefix.str();
+
+	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
+	{
+		length = (pos == std::string::npos) ? cl.length() : pos;
+
+		if (line.length() + length - start > 510)
+		{
+			this->Write(line);
+			line = prefix.str();
+		}
+
+		if(pos == std::string::npos)
+		{
+			line += cl.substr(start, length - start);
+			break;
+		}
+		else
+		{
+			line += cl.substr(start, length - start + 1);
+		}
+	}
+
+	if (line.length())
+	{
+		this->Write(line);
+	}
+}
+
+
