@@ -34,6 +34,5 @@ typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 void WriteOpers(char* text, ...);
 int isnick(const char *n);
 chanrec* FindChan(const char* chan);
-void readfile(file_cache &F, const char* fname);
 
 #endif
