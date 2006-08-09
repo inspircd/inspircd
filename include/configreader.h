@@ -26,9 +26,11 @@
 #include "globals.h"
 #include "modules.h"
 
-typedef bool (*Validator)(const char*, const char*, void*);
-typedef bool (*MultiValidator)(const char*, char**, void**, int*);
-typedef bool (*MultiNotify)(const char*);
+class ServerConfig;
+
+typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, void*);
+typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, void**, int*);
+typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
 
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
@@ -364,6 +366,10 @@ class ServerConfig : public Extensible
 	 * should be used only by the core.
 	 */
 	void Read(bool bail, userrec* user);
+
+	/** Read a file into a file_cache object
+	 */
+	bool ReadFile(file_cache &F, const char* fname);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.

@@ -56,7 +56,7 @@ operclass_t operclass;
 /* XXX: Used for speeding up WriteCommon operations */
 unsigned long uniq_id = 0;
 
-bool InitTypes(const char* tag)
+bool InitTypes(ServerConfig* conf, const char* tag)
 {
 	for (opertype_t::iterator n = opertypes.begin(); n != opertypes.end(); n++)
 	{
@@ -68,7 +68,7 @@ bool InitTypes(const char* tag)
 	return true;
 }
 
-bool InitClasses(const char* tag)
+bool InitClasses(ServerConfig* conf, const char* tag)
 {
 	for (operclass_t::iterator n = operclass.begin(); n != operclass.end(); n++)
 	{
@@ -80,7 +80,7 @@ bool InitClasses(const char* tag)
 	return true;
 }
 
-bool DoType(const char* tag, char** entries, void** values, int* types)
+bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* TypeName = (char*)values[0];
 	char* Classes = (char*)values[1];
@@ -90,7 +90,7 @@ bool DoType(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoClass(const char* tag, char** entries, void** values, int* types)
+bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* ClassName = (char*)values[0];
 	char* CommandList = (char*)values[1];
@@ -100,7 +100,7 @@ bool DoClass(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoneClassesAndTypes(const char* tag)
+bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
 {
 	return true;
 }

@@ -27,13 +27,16 @@
 #include <deque>
 #include <sstream>
 
-/** Flags for use with log()
+/** Debug levels for use with InspIRCd::Log()
  */
-#define DEBUG 10
-#define VERBOSE 20
-#define DEFAULT 30
-#define SPARSE 40
-#define NONE 50
+enum DebugLevel
+{
+	DEBUG = 10,
+	VERBOSE = 20,
+	DEFAULT = 30,
+	SPARSE = 40,
+	NONE = 50,
+};
 
 /* I'm not entirely happy with this, the ## before 'args' is a g++ extension.
  * The problem is that if you #define log(l, x, args...) and then call it
@@ -44,8 +47,6 @@
 #define STRINGIFY2(x) #x
 #define STRINGIFY(x) STRINGIFY2(x) 
 #define log(l, x, args...) InspIRCd::Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
-
-void readfile(file_cache &F, const char* fname);
 
 void WriteOpers(const char* text, ...);
 void WriteOpers_NoFormat(const char* text);

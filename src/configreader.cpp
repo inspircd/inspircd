@@ -145,13 +145,13 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	return true;
 }
 
-bool NoValidation(const char* tag, const char* value, void* data)
+bool NoValidation(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	log(DEBUG,"No validation for <%s:%s>",tag,value);
 	return true;
 }
 
-bool ValidateTempDir(const char* tag, const char* value, void* data)
+bool ValidateTempDir(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
 	if (!*x)
@@ -159,7 +159,7 @@ bool ValidateTempDir(const char* tag, const char* value, void* data)
 	return true;
 }
  
-bool ValidateMaxTargets(const char* tag, const char* value, void* data)
+bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;
 	if ((*x < 0) || (*x > 31))
@@ -170,7 +170,7 @@ bool ValidateMaxTargets(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateSoftLimit(const char* tag, const char* value, void* data)
+bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;	
 	if ((*x < 1) || (*x > MAXCLIENTS))
@@ -181,7 +181,7 @@ bool ValidateSoftLimit(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateMaxConn(const char* tag, const char* value, void* data)
+bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;	
 	if (*x > SOMAXCONN)
@@ -191,7 +191,7 @@ bool ValidateMaxConn(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateDnsTimeout(const char* tag, const char* value, void* data)
+bool ValidateDnsTimeout(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	int* x = (int*)data;
 	if (!*x)
@@ -221,7 +221,7 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	return true;
 }
 
-bool ValidateDnsServer(const char* tag, const char* value, void* data)
+bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
 	if (!*x)
@@ -260,7 +260,7 @@ bool ValidateDnsServer(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateModPath(const char* tag, const char* value, void* data)
+bool ValidateModPath(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;	
 	if (!*x)
@@ -269,7 +269,7 @@ bool ValidateModPath(const char* tag, const char* value, void* data)
 }
 
 
-bool ValidateServerName(const char* tag, const char* value, void* data)
+bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	char* x = (char*)data;
 	if (!strchr(x,'.'))
@@ -281,7 +281,7 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
+bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	if ((!ServerInstance->Config->NetBufferSize) || (ServerInstance->Config->NetBufferSize > 65535) || (ServerInstance->Config->NetBufferSize < 1024))
 	{
@@ -291,7 +291,7 @@ bool ValidateNetBufferSize(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateMaxWho(const char* tag, const char* value, void* data)
+bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	if ((!ServerInstance->Config->MaxWhoResults) || (ServerInstance->Config->MaxWhoResults > 65535) || (ServerInstance->Config->MaxWhoResults < 1))
 	{
@@ -301,7 +301,7 @@ bool ValidateMaxWho(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateLogLevel(const char* tag, const char* value, void* data)
+bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	const char* dbg = (const char*)data;
 	ServerInstance->Config->LogLevel = DEFAULT;
@@ -321,21 +321,21 @@ bool ValidateLogLevel(const char* tag, const char* value, void* data)
 	return true;
 }
 
-bool ValidateMotd(const char* tag, const char* value, void* data)
+bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	readfile(ServerInstance->Config->MOTD,ServerInstance->Config->motd);
+	conf->ReadFile(ServerInstance->Config->MOTD,ServerInstance->Config->motd);
 	return true;
 }
 
-bool ValidateRules(const char* tag, const char* value, void* data)
+bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	readfile(ServerInstance->Config->RULES,ServerInstance->Config->rules);
+	conf->ReadFile(ServerInstance->Config->RULES,ServerInstance->Config->rules);
 	return true;
 }
 
 /* Callback called before processing the first <connect> tag
  */
-bool InitConnect(const char* tag)
+bool InitConnect(ServerConfig* conf, const char* tag)
 {
 	log(DEFAULT,"Reading connect classes...");
 	ServerInstance->Config->Classes.clear();
@@ -344,7 +344,7 @@ bool InitConnect(const char* tag)
 
 /* Callback called to process a single <connect> tag
  */
-bool DoConnect(const char* tag, char** entries, void** values, int* types)
+bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	ConnectClass c;
 	char* allow = (char*)values[0]; /* Yeah, there are a lot of values. Live with it. */
@@ -407,7 +407,7 @@ bool DoConnect(const char* tag, char** entries, void** values, int* types)
 
 /* Callback called when there are no more <connect> tags
  */
-bool DoneConnect(const char* tag)
+bool DoneConnect(ServerConfig* conf, const char* tag)
 {
 	log(DEBUG,"DoneConnect called for tag: %s",tag);
 	return true;
@@ -415,7 +415,7 @@ bool DoneConnect(const char* tag)
 
 /* Callback called before processing the first <uline> tag
  */
-bool InitULine(const char* tag)
+bool InitULine(ServerConfig* conf, const char* tag)
 {
 	ServerInstance->Config->ulines.clear();
 	return true;
@@ -423,7 +423,7 @@ bool InitULine(const char* tag)
 
 /* Callback called to process a single <uline> tag
  */
-bool DoULine(const char* tag, char** entries, void** values, int* types)
+bool DoULine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* server = (char*)values[0];
 	log(DEBUG,"Read ULINE '%s'",server);
@@ -433,14 +433,14 @@ bool DoULine(const char* tag, char** entries, void** values, int* types)
 
 /* Callback called when there are no more <uline> tags
  */
-bool DoneULine(const char* tag)
+bool DoneULine(ServerConfig* conf, const char* tag)
 {
 	return true;
 }
 
 /* Callback called before processing the first <module> tag
  */
-bool InitModule(const char* tag)
+bool InitModule(ServerConfig* conf, const char* tag)
 {
 	old_module_names.clear();
 	new_module_names.clear();
@@ -455,7 +455,7 @@ bool InitModule(const char* tag)
 
 /* Callback called to process a single <module> tag
  */
-bool DoModule(const char* tag, char** entries, void** values, int* types)
+bool DoModule(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* modname = (char*)values[0];
 	new_module_names.push_back(modname);
@@ -464,7 +464,7 @@ bool DoModule(const char* tag, char** entries, void** values, int* types)
 
 /* Callback called when there are no more <module> tags
  */
-bool DoneModule(const char* tag)
+bool DoneModule(ServerConfig* conf, const char* tag)
 {
 	// now create a list of new modules that are due to be loaded
 	// and a seperate list of modules which are due to be unloaded
@@ -499,7 +499,7 @@ bool DoneModule(const char* tag)
 
 /* Callback called before processing the first <banlist> tag
  */
-bool InitMaxBans(const char* tag)
+bool InitMaxBans(ServerConfig* conf, const char* tag)
 {
 	ServerInstance->Config->maxbans.clear();
 	return true;
@@ -507,7 +507,7 @@ bool InitMaxBans(const char* tag)
 
 /* Callback called to process a single <banlist> tag
  */
-bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
+bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* channel = (char*)values[0];
 	int* limit = (int*)values[1];
@@ -517,7 +517,7 @@ bool DoMaxBans(const char* tag, char** entries, void** values, int* types)
 
 /* Callback called when there are no more <banlist> tags.
  */
-bool DoneMaxBans(const char* tag)
+bool DoneMaxBans(ServerConfig* conf, const char* tag)
 {
 	return true;
 }
@@ -737,7 +737,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			break;
 		}
 
-		Values[Index].validation_function(Values[Index].tag, Values[Index].value, Values[Index].val);
+		Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
 
 	/* Claim memory for use when reading multiple tags
@@ -753,7 +753,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	/* XXX - Make this use ConfValueInteger and so on */
 	for (int Index = 0; MultiValues[Index].tag; Index++)
 	{
-		MultiValues[Index].init_function(MultiValues[Index].tag);
+		MultiValues[Index].init_function(this, MultiValues[Index].tag);
 
 		int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
 
@@ -780,10 +780,10 @@ void ServerConfig::Read(bool bail, userrec* user)
 					break;
 				}
 			}
-			MultiValues[Index].validation_function(MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
+			MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
 		}
 
-		MultiValues[Index].finish_function(MultiValues[Index].tag);
+		MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 	}
 
 	/* Free any memory we claimed
@@ -1286,3 +1286,40 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 	
 	return 0;
 }
+
+/** Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
+ */
+bool ServerConfig::ReadFile(file_cache &F, const char* fname)
+{
+        FILE* file;
+        char linebuf[MAXBUF];
+
+        F.clear();
+        file =  fopen(fname,"r");
+
+        if (file)
+        {
+                while (!feof(file))
+                {
+                        fgets(linebuf,sizeof(linebuf),file);
+                        linebuf[strlen(linebuf)-1]='\0';
+
+                        if (!*linebuf)
+                        {
+                                strcpy(linebuf," ");
+                        }
+
+                        if (!feof(file))
+                        {
+                                F.push_back(linebuf);
+                        }
+                }
+
+                fclose(file);
+        }
+        else
+		return false;
+
+	return true;
+}
+

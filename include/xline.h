@@ -123,13 +123,15 @@ class QLine : public XLine
 	bool is_global;
 };
 
-bool InitXLine(const char* tag);
-bool DoneXLine(const char* tag);
+class ServerConfig;
 
-bool DoZLine(const char* tag, char** entries, void** values, int* types);
-bool DoQLine(const char* tag, char** entries, void** values, int* types);
-bool DoKLine(const char* tag, char** entries, void** values, int* types);
-bool DoELine(const char* tag, char** entries, void** values, int* types);
+bool InitXLine(ServerConfig* conf, const char* tag);
+bool DoneXLine(ServerConfig* conf, const char* tag);
+
+bool DoZLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
+bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
+bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
+bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
 
 bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
 bool add_qline(long duration, const char* source, const char* reason, const char* nickname);

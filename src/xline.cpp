@@ -97,18 +97,18 @@ bool KSortComparison ( const KLine one, const KLine two );
 // this way these days, such as qlines against 
 // services nicks, etc.
 
-bool InitXLine(const char* tag)
+bool InitXLine(ServerConfig* conf, const char* tag)
 {
 	return true;
 }
 
-bool DoneXLine(const char* tag)
+bool DoneXLine(ServerConfig* conf, const char* tag)
 {
 	apply_lines(APPLY_ALL);
 	return true;
 }
 
-bool DoZLine(const char* tag, char** entries, void** values, int* types)
+bool DoZLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* ipmask = (char*)values[1];
@@ -118,7 +118,7 @@ bool DoZLine(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoQLine(const char* tag, char** entries, void** values, int* types)
+bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* nick = (char*)values[1];
@@ -128,7 +128,7 @@ bool DoQLine(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoKLine(const char* tag, char** entries, void** values, int* types)
+bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];
@@ -138,7 +138,7 @@ bool DoKLine(const char* tag, char** entries, void** values, int* types)
 	return true;
 }
 
-bool DoELine(const char* tag, char** entries, void** values, int* types)
+bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];

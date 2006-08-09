@@ -838,7 +838,7 @@ bool ConfigReader::Verify()
 FileReader::FileReader(const std::string &filename)
 {
 	file_cache c;
-	readfile(c,filename.c_str());
+	ServerInstance->Config->ReadFile(c,filename.c_str());
 	this->fc = c;
 	this->CalcSize();
 }
@@ -874,7 +874,7 @@ void FileReader::CalcSize()
 void FileReader::LoadFile(const std::string &filename)
 {
 	file_cache c;
-	readfile(c,filename.c_str());
+	ServerInstance->Config->ReadFile(c,filename.c_str());
 	this->fc = c;
 	this->CalcSize();
 }

@@ -18,10 +18,6 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
-/** log levels
- */
-enum DebugLevels { DEBUG, VERBOSE, DEFAULT, SPARSE, NONE };
-
 /** Used with OnAccessCheck() method of modules
  */
 enum AccessControlType {

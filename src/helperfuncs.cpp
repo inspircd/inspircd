@@ -61,7 +61,7 @@ extern std::vector<userrec*> local_users;
 static char TIMESTR[26];
 static time_t LAST = 0;
 
-/** log()
+/** Log()
  *  Write a line of text `text' to the logfile (and stdout, if in nofork) if the level `level'
  *  is greater than the configured loglevel.
  */
@@ -106,49 +106,6 @@ void InspIRCd::Log(int level, const std::string &text)
 		printf("%s %s\n", TIMESTR, text.c_str());
 	}
 }
-
-/** readfile()
- *  Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
- *
- *  XXX - we may want to consider returning a file_cache or pointer to one, less confusing.
- */
-void readfile(file_cache &F, const char* fname)
-{
-	FILE* file;
-	char linebuf[MAXBUF];
-
-	log(DEBUG,"readfile: loading %s",fname);
-	F.clear();
-	file =  fopen(fname,"r");
-
-	if (file)
-	{
-		while (!feof(file))
-		{
-			fgets(linebuf,sizeof(linebuf),file);
-			linebuf[strlen(linebuf)-1]='\0';
-
-			if (!*linebuf)
-			{
-				strcpy(linebuf,"  ");
-			}
-
-			if (!feof(file))
-			{
-				F.push_back(linebuf);
-			}
-		}
-
-		fclose(file);
-	}
-	else
-	{
-		log(DEBUG,"readfile: failed to load file: %s",fname);
-	}
-
-	log(DEBUG,"readfile: loaded %s, %lu lines",fname,(unsigned long)F.size());
-}
-
 
 std::string GetServerDescription(const char* servername)
 {
