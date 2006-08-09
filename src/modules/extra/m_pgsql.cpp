@@ -595,7 +595,7 @@ public:
 		SQLConn* newconn;
 				
 		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-		newconn = new SQLConn(this, Srv, hi);
+		newconn = new SQLConn(ServerInstance, this, Srv, hi);
 				
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
