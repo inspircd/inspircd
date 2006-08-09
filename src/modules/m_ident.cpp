@@ -23,6 +23,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
+extern InspIRCd* ServerInstance;
+
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
 /* $ModDesc: Provides support for RFC 1413 ident lookups */
@@ -43,7 +45,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(userrec* user, int maxtime, Server* S) : InspSocket(user->GetIPString(), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
+	RFC1413(InspIRCd* SI, userrec* user, int maxtime, Server* S) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
 		Srv->Log(DEBUG,"Ident: associated.");
 	}
@@ -209,7 +211,7 @@ class ModuleIdent : public Module
 		 * Server::AddSocket() call.
 		 */
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
-		RFC1413* ident = new RFC1413(user, IdentTimeout, Srv);
+		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout, Srv);
 		if (ident->GetState() != I_ERROR)
 		{
 			user->Extend("ident_data", (char*)ident);

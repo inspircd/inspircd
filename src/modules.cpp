@@ -49,7 +49,6 @@ extern InspIRCd* ServerInstance;
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
-extern std::vector<InspSocket*> module_sockets;
 extern std::vector<userrec*> local_users;
 extern time_t TIME;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
@@ -247,12 +246,12 @@ Server::~Server()
 
 void Server::AddSocket(InspSocket* sock)
 {
-	module_sockets.push_back(sock);
+	ServerInstance->module_sockets.push_back(sock);
 }
 
 void Server::RemoveSocket(InspSocket* sock)
 {
-	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
 	{
 		InspSocket* s = (InspSocket*)*a;
 		if (s == sock)
@@ -346,11 +345,11 @@ std::string Server::GetVersion()
 
 void Server::DelSocket(InspSocket* sock)
 {
-	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
 	{
 		if (*a == sock)
 		{
-			module_sockets.erase(a);
+			ServerInstance->module_sockets.erase(a);
 			return;
 		}
 	}

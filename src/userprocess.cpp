@@ -56,12 +56,9 @@ extern struct sockaddr_in client,server;
 extern socklen_t length;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
-extern std::vector<InspSocket*> module_sockets;
 extern time_t TIME;
 extern time_t OLDTIME;
 extern std::vector<userrec*> local_users;
-extern InspSocket* socket_ref[MAX_DESCRIPTORS];
-
 extern InspIRCd* ServerInstance;
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 char data[65536];
@@ -280,26 +277,26 @@ void ProcessUser(userrec* cu)
 	}
 }
 
-void DoSocketTimeouts(time_t TIME)
+void DoSocketTimeouts(time_t TIME, InspIRCd* SI)
 {
-	unsigned int numsockets = module_sockets.size();
-	SocketEngine* SE = ServerInstance->SE;
+	unsigned int numsockets = SI->module_sockets.size();
+	SocketEngine* SE = SI->SE;
 
-	for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = SI->module_sockets.begin(); a < SI->module_sockets.end(); a++)
 	{
 		InspSocket* s = (InspSocket*)*a;
-		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
+		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (SI->socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
 		{
 			log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			socket_ref[s->GetFd()] = NULL;
+			SI->socket_ref[s->GetFd()] = NULL;
 			SE->DelFd(s->GetFd());
-			module_sockets.erase(a);
+			SI->module_sockets.erase(a);
 			s->Close();
 			DELETE(s);
 			break;
 		}
 
-		if (module_sockets.size() != numsockets)
+		if (SI->module_sockets.size() != numsockets)
 			break;
 	}
 }

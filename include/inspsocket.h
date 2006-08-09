@@ -35,6 +35,7 @@ enum InspSocketState { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I
 enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE, I_ERR_WRITE, I_ERR_NOMOREFDS };
 
 class InspSocket;
+class InspIRCd;
 
 /**
  * InspSocket is an extendable socket class which modules
@@ -50,6 +51,7 @@ class InspSocket;
 class InspSocket : public Extensible
 {
  public:
+	InspIRCd* Instance;
 
 	std::deque<std::string> outbuffer;
 
@@ -165,7 +167,7 @@ class InspSocket : public Extensible
 	 * The default constructor does nothing
 	 * and should not be used.
 	 */
-	InspSocket();
+	InspSocket(InspIRCd* SI);
 
 	/**
 	 * This constructor is used to associate
@@ -175,7 +177,7 @@ class InspSocket : public Extensible
 	 * will be set with the given IP address
 	 * and placed in CONNECTED state.
 	 */
-	InspSocket(int newfd, const char* ip);
+	InspSocket(InspIRCd* SI, int newfd, const char* ip);
 
 	/**
 	 * This constructor is used to create a new
@@ -188,7 +190,7 @@ class InspSocket : public Extensible
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
 	 */
-	InspSocket(const std::string &ipaddr, int port, bool listening, unsigned long maxtime);
+	InspSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime);
 
 	/**
 	 * This method is called when an outbound

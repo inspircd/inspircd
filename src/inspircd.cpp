@@ -70,7 +70,6 @@ InspIRCd* ServerInstance;
 extern ModuleList modules;
 extern FactoryList factory;
 
-std::vector<InspSocket*> module_sockets;
 std::vector<userrec*> local_users;
 
 extern int MODCOUNT;
@@ -81,7 +80,6 @@ int iterations = 0;
 insp_sockaddr client, server;
 socklen_t length;
 
-extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
 // This table references users by file descriptor.
@@ -236,7 +234,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config = new ServerConfig;
 	ServerInstance = this;
 	this->Start();
-	module_sockets.clear();
+	this->module_sockets.clear();
 	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
@@ -756,7 +754,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * hit at all.   
 	 */ 
 	if (process_module_sockets)
-		DoSocketTimeouts(TIME);  
+		DoSocketTimeouts(TIME,this);
 	 
 	TickTimers(TIME);
 	 
@@ -802,13 +800,13 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 				 * Modules are encouraged to inherit their sockets from
 				 * InspSocket so we can process them neatly like this.
 				 */
-				s = socket_ref[activefds[activefd]]; 
+				s = this->socket_ref[activefds[activefd]]; 
 	      
 				if ((s) && (!s->Poll()))
 				{
 					log(DEBUG,"Socket poll returned false, close and bail");
 					SE->DelFd(s->GetFd());
-					socket_ref[activefds[activefd]] = NULL;
+					this->socket_ref[activefds[activefd]] = NULL;
 					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
 					{
 						s_del = *a;

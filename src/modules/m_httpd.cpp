@@ -29,6 +29,8 @@ using namespace std;
 
 class ModuleHttp;
 
+extern InspIRCd* ServerInstance;
+
 static Server *Srv;
 static ModuleHttp* HttpModule;
 extern time_t TIME;
@@ -49,13 +51,13 @@ class HttpSocket : public InspSocket
 
  public:
 
-	HttpSocket(std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(host, port, listening, maxtime), index(index_page)
+	HttpSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page)
 	{
 		log(DEBUG,"HttpSocket constructor");
 		InternalState = HTTP_LISTEN;
 	}
 
-	HttpSocket(int newfd, char* ip, FileReader* ind) : InspSocket(newfd, ip), index(ind)
+	HttpSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
@@ -64,7 +66,7 @@ class HttpSocket : public InspSocket
 	{
 		if (InternalState == HTTP_LISTEN)
 		{
-			HttpSocket* s = new HttpSocket(newsock, ip, index);
+			HttpSocket* s = new HttpSocket(this->Instance, newsock, ip, index);
 			Srv->AddSocket(s);
 		}
 		return true;
@@ -276,7 +278,7 @@ class ModuleHttp : public Module
 
 	void CreateListener()
 	{
-		http = new HttpSocket(this->bindip, this->port, true, 0, &index);
+		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, &index);
 		if ((http) && (http->GetState() == I_LISTENING))
 		{
 			Srv->AddSocket(http);

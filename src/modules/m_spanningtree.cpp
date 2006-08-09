@@ -663,8 +663,8 @@ class TreeSocket : public InspSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime)
-		: InspSocket(host, port, listening, maxtime)
+	TreeSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime)
+		: InspSocket(SI, host, port, listening, maxtime)
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
@@ -672,8 +672,8 @@ class TreeSocket : public InspSocket
 		this->ctx_out = NULL;
 	}
 
-	TreeSocket(std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
-		: InspSocket(host, port, listening, maxtime)
+	TreeSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
+		: InspSocket(SI, host, port, listening, maxtime)
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
@@ -685,8 +685,8 @@ class TreeSocket : public InspSocket
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(int newfd, char* ip)
-		: InspSocket(newfd, ip)
+	TreeSocket(InspIRCd* SI, int newfd, char* ip)
+		: InspSocket(SI, newfd, ip)
 	{
 		this->LinkState = WAIT_AUTH_1;
 		this->ctx_in = NULL;
@@ -3069,7 +3069,7 @@ class TreeSocket : public InspSocket
 				return false;
 			}
 		}
-		TreeSocket* s = new TreeSocket(newsock, ip);
+		TreeSocket* s = new TreeSocket(this->Instance, newsock, ip);
 		Srv->AddSocket(s);
 		return true;
 	}
@@ -3104,7 +3104,7 @@ class ServernameResolver : public Resolver
 		TreeServer* CheckDupe = FindServer(MyLink.Name.c_str());
 		if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 		{
-			TreeSocket* newsocket = new TreeSocket(result,MyLink.Port,false,10,MyLink.Name.c_str());
+			TreeSocket* newsocket = new TreeSocket(ServerInstance, result,MyLink.Port,false,10,MyLink.Name.c_str());
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
@@ -3334,7 +3334,7 @@ void ReadConfiguration(bool rebind)
 				{
 					IP = "";
 				}
-				TreeSocket* listener = new TreeSocket(IP.c_str(),Port,true,10);
+				TreeSocket* listener = new TreeSocket(ServerInstance, IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
 					Srv->AddSocket(listener);
@@ -3781,7 +3781,7 @@ class ModuleSpanningTree : public Module
 					/* Do we already have an IP? If so, no need to resolve it. */
 					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
-						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
+						TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
 							Srv->AddSocket(newsocket);
@@ -3862,7 +3862,7 @@ class ModuleSpanningTree : public Module
 					/* Do we already have an IP? If so, no need to resolve it. */
 					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 					{
-						TreeSocket* newsocket = new TreeSocket(x->IPAddr,x->Port,false,10,x->Name.c_str());
+						TreeSocket* newsocket = new TreeSocket(ServerInstance,x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
 							Srv->AddSocket(newsocket);

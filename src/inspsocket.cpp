@@ -21,43 +21,42 @@
 #include <stdexcept>
 #include "inspircd_config.h"
 #include "socket.h"
-#include "inspircd.h"
 #include "configreader.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
 #include "message.h"
+#include "inspircd.h"
 
 
-extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern Server* MyServer;
 
-InspSocket* socket_ref[MAX_DESCRIPTORS];
-
-
-InspSocket::InspSocket()
+InspSocket::InspSocket(InspIRCd* SI)
 {
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
 	this->ClosePending = false;
+	this->Instance = SI;
 }
 
-InspSocket::InspSocket(int newfd, const char* ip)
+InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 {
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
 	this->ClosePending = false;
+	this->Instance = SI;
 	if (this->fd > -1)
 	{
-		this->ClosePending = (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE));
-		socket_ref[this->fd] = this;
+		this->ClosePending = (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE));
+		this->Instance->socket_ref[this->fd] = this;
 	}
 }
 
-InspSocket::InspSocket(const std::string &ipaddr, int aport, bool listening, unsigned long maxtime) : fd(-1)
+InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime) : fd(-1)
 {
+	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->ClosePending = false;
 	if (listening) {
@@ -87,14 +86,14 @@ InspSocket::InspSocket(const std::string &ipaddr, int aport, bool listening, uns
 				this->state = I_LISTENING;
 				if (this->fd > -1)
 				{
-					if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+					if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
 					{
 						this->Close();
 						this->state = I_ERROR;
 						this->OnError(I_ERR_NOMOREFDS);
 						this->ClosePending = true;
 					}
-					socket_ref[this->fd] = this;
+					this->Instance->socket_ref[this->fd] = this;
 				}
 				log(DEBUG,"New socket now in I_LISTENING state");
 				return;
@@ -139,8 +138,8 @@ void InspSocket::WantWrite()
 	 * This behaviour may be fixed in a later version.
 	 */
 	this->WaitingForWriteEvent = true;
-	ServerInstance->SE->DelFd(this->fd);
-	if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	this->Instance->SE->DelFd(this->fd);
+	if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
 	{
 		this->Close();
 		this->fd = -1;
@@ -265,7 +264,7 @@ bool InspSocket::DoConnect()
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
-		if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+		if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
 		{
 			this->OnError(I_ERR_NOMOREFDS);
 			this->Close();
@@ -274,7 +273,7 @@ bool InspSocket::DoConnect()
 			this->ClosePending = true;
 			return false;
 		}
-		socket_ref[this->fd] = this;
+		this->Instance->socket_ref[this->fd] = this;
 		this->SetQueues(this->fd);
 	}
 	log(DEBUG,"Returning true from InspSocket::DoConnect");
@@ -289,7 +288,7 @@ void InspSocket::Close()
 		this->OnClose();
 		shutdown(this->fd,2);
 		close(this->fd);
-		socket_ref[this->fd] = NULL;
+		this->Instance->socket_ref[this->fd] = NULL;
 		this->ClosePending = true;
 		this->fd = -1;
 	}
@@ -390,7 +389,7 @@ bool InspSocket::FlushWriteBuffer()
 
 bool InspSocket::Timeout(time_t current)
 {
-	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+	if (!this->Instance->socket_ref[this->fd] || !this->Instance->SE->HasFd(this->fd))
 	{
 		log(DEBUG,"No FD or socket ref");
 		return false;
@@ -421,7 +420,7 @@ bool InspSocket::Timeout(time_t current)
 
 bool InspSocket::Poll()
 {
-	if (!socket_ref[this->fd] || !ServerInstance->SE->HasFd(this->fd))
+	if (!this->Instance->socket_ref[this->fd] || !this->Instance->SE->HasFd(this->fd))
 		return false;
 
 	int incoming = -1;
@@ -440,8 +439,8 @@ bool InspSocket::Poll()
 			 */
 			if (this->fd > -1)
 			{
-				ServerInstance->SE->DelFd(this->fd);
-				if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+				this->Instance->SE->DelFd(this->fd);
+				if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
 					return false;
 			}
 			return this->OnConnected();
@@ -462,8 +461,8 @@ bool InspSocket::Poll()
 			if (this->WaitingForWriteEvent)
 			{
 				/* Switch back to read events */
-				ServerInstance->SE->DelFd(this->fd);
-				if (!ServerInstance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+				this->Instance->SE->DelFd(this->fd);
+				if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
 					return false;
 
 				/* Trigger the write event */

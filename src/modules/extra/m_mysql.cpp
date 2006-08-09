@@ -669,9 +669,9 @@ class Notifier : public InspSocket
 
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	Notifier(Server* S) : InspSocket("::1", 0, true, 3000), Srv(S)
+	Notifier(InspIRCd* SI, Server* S) : InspSocket(SI, "::1", 0, true, 3000), Srv(S)
 #else
-	Notifier(Server* S) : InspSocket("127.0.0.1", 0, true, 3000), Srv(S)
+	Notifier(InspIRCd* SI, Server* S) : InspSocket(SI, "127.0.0.1", 0, true, 3000), Srv(S)
 #endif
 	{
 		uslen = sizeof(sock_us);
@@ -681,7 +681,7 @@ class Notifier : public InspSocket
 		}
 	}
 
-	Notifier(int newfd, char* ip, Server* S) : InspSocket(newfd, ip), Srv(S)
+	Notifier(InspIRCd* SI, int newfd, char* ip, Server* S) : InspSocket(SI, newfd, ip), Srv(S)
 	{
 		log(DEBUG,"Constructor of new socket");
 	}
@@ -699,7 +699,7 @@ class Notifier : public InspSocket
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		log(DEBUG,"Inbound connection on fd %d!",newsock);
-		Notifier* n = new Notifier(newsock, ip, Srv);
+		Notifier* n = new Notifier(this->Instance, newsock, ip, Srv);
 		Srv->AddSocket(n);
 		return true;
 	}
@@ -797,7 +797,7 @@ class ModuleSQL : public Module
 		currid = 0;
 		SQLModule = this;
 
-		MessagePipe = new Notifier(Srv);
+		MessagePipe = new Notifier(ServerInstance, Srv);
 		Srv->AddSocket(MessagePipe);
 		log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
 		

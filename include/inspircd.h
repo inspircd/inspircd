@@ -104,6 +104,8 @@ class InspIRCd : public classbase
 	SocketEngine* SE;
 	serverstats* stats;
 	ServerConfig* Config;
+	std::vector<InspSocket*> module_sockets;
+	InspSocket* socket_ref[MAX_DESCRIPTORS];
 	DNS* Res;
 
 	std::string GetRevision();

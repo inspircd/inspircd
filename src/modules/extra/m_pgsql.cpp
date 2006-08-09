@@ -44,7 +44,6 @@
  * I can access the socket engine :\
  */
 extern InspIRCd* ServerInstance;
-extern InspSocket* socket_ref[MAX_DESCRIPTORS];
 extern time_t TIME;
 
 /* Forward declare, so we can have the typedef neatly at the top */
@@ -474,7 +473,7 @@ public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(ModulePgSQL* self, Server* srv, const SQLhost& hostinfo);
+	SQLConn(InspIRCd* SI, ModulePgSQL* self, Server* srv, const SQLhost& hostinfo);
 
 	~SQLConn();
 
@@ -663,8 +662,8 @@ public:
 	}	
 };
 
-SQLConn::SQLConn(ModulePgSQL* self, Server* srv, const SQLhost& hi)
-: InspSocket::InspSocket(), us(self), Srv(srv), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
+SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, Server* srv, const SQLhost& hi)
+: InspSocket::InspSocket(SI), us(self), Srv(srv), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
 {
 	log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
 
@@ -741,7 +740,7 @@ bool SQLConn::DoConnect()
 		Close();
 		return false;
 	}
-	socket_ref[this->fd] = this;
+	Instance->socket_ref[this->fd] = this;
 	
 	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
 	
@@ -753,7 +752,7 @@ void SQLConn::Close()
 	log(DEBUG,"SQLConn::Close");
 	
 	if(this->fd > 01)
-		socket_ref[this->fd] = NULL;
+		Instance->socket_ref[this->fd] = NULL;
 	this->fd = -1;
 	this->state = I_ERROR;
 	this->OnError(I_ERR_SOCKET);
