@@ -91,9 +91,9 @@ class ModuleCgiIRC : public Module
 	bool NotifyOpers;
 	CGIHostlist Hosts;
 public:
-	ModuleCgiIRC(Server* Me) : Module::Module(Me)
+	ModuleCgiIRC(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		OnRehash("");
 	}
 
@@ -429,7 +429,7 @@ class ModuleCgiIRCFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleCgiIRC(Me);
 	}

@@ -22,6 +22,7 @@ using namespace std;
 #include "modules.h"
 #include <string>
 #include "helperfuncs.h"
+#include "commands.h"
 #include "hashcomp.h"
 #include "inspircd.h"
 
@@ -35,12 +36,12 @@ class Channel_r : public ModeHandler
 {
 	Server* Srv;
  public:
-	Channel_r(InspIRCd* Instance, Server* srv) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false), Srv(srv) { }
+	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
 			log(DEBUG,"Allowing cmode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			channel->SetMode('r',adding);
@@ -59,11 +60,11 @@ class User_r : public ModeHandler
 {
 	Server* Srv;
  public:
-	User_r(InspIRCd* Instance, Server* srv) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false), Srv(srv) { }
+	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		if ((kludgeme) || (Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((kludgeme) || (is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
 			log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			dest->SetMode('r',adding);
@@ -171,14 +172,14 @@ class ModuleServices : public Module
 	User_r* m4;
 	User_R* m5;
  public:
-	ModuleServices(Server* Me)
+	ModuleServices(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
-		m1 = new Channel_r(ServerInstance, Me);
+		
+		m1 = new Channel_r(ServerInstance);
 		m2 = new Channel_R(ServerInstance);
 		m3 = new Channel_M(ServerInstance);
-		m4 = new User_r(ServerInstance, Me);
+		m4 = new User_r(ServerInstance);
 		m5 = new User_R(ServerInstance);
 		Srv->AddMode(m1, 'r');
 		Srv->AddMode(m2, 'R');
@@ -229,7 +230,7 @@ class ModuleServices : public Module
 			chanrec* c = (chanrec*)dest;
 			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
+				if ((is_uline(user->nick)) || (is_uline(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -244,7 +245,7 @@ class ModuleServices : public Module
 			userrec* u = (userrec*)dest;
 			if ((u->IsModeSet('R')) && (user->IsModeSet('r')))
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
+				if ((is_uline(user->nick)) || (is_uline(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -270,7 +271,7 @@ class ModuleServices : public Module
 			{
 				if (user->IsModeSet('r'))
 				{
-					if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
+					if ((is_uline(user->nick)) || (is_uline(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;
@@ -311,7 +312,7 @@ class ModuleServicesFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleServices(Me);
 	}

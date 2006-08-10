@@ -37,8 +37,8 @@ class ModuleSQLOper : public Module
 	std::string databaseid;
 
 public:
-	ModuleSQLOper(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleSQLOper(InspIRCd* Me)
+		: Module::Module(Me)
 	{
 		SQLutils = ServerInstance->FindFeature("SQLutils");
 		
@@ -264,7 +264,7 @@ class ModuleSQLOperFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSQLOper(Me);
 	}

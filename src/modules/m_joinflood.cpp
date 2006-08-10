@@ -193,10 +193,10 @@ class ModuleJoinFlood : public Module
 	
  public:
  
-	ModuleJoinFlood(Server* Me)
+	ModuleJoinFlood(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		jf = new JoinFlood(ServerInstance);
 		Srv->AddMode(jf, 'j');
 	}
@@ -276,7 +276,7 @@ class ModuleJoinFloodFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleJoinFlood(Me);
 	}

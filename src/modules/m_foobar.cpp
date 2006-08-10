@@ -38,12 +38,12 @@ class ModuleFoobar : public Module
  
 	 Server *Srv;
  public:
-	ModuleFoobar(Server* Me)
+	ModuleFoobar(InspIRCd* Me)
 		: Module::Module(Me)
 	{
 		// The constructor just makes a copy of the server class
 	
-		Srv = Me;
+		
 	}
 	
 	virtual ~ModuleFoobar()
@@ -116,7 +116,7 @@ class ModuleFoobarFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleFoobar(Me);
 	}

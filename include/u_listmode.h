@@ -9,6 +9,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "wildcard.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for easily creating listmodes, stores the time set, the user, and a parameter. */
@@ -48,7 +49,6 @@ typedef std::vector<ListLimit> limitlist;
 class ListModeBase : public ModeHandler
 {
  protected:
-	Server* Srv;
 	std::string infokey;
 	std::string listnumeric;
 	std::string endoflistnumeric;
@@ -58,8 +58,8 @@ class ListModeBase : public ModeHandler
 	limitlist chanlimits;
  
  public:
-	ListModeBase(InspIRCd* Instance, Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
- 	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
+	ListModeBase(InspIRCd* Instance, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
+ 	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
@@ -173,7 +173,7 @@ class ListModeBase : public ModeHandler
 
 			for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); it++)
 			{
-				if (Srv->MatchText(channel->name, it->mask))
+				if (match(channel->name, it->mask.c_str()))
 				{
 					// We have a pattern matching the channel...
 					maxsize = el->size();

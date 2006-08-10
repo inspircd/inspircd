@@ -61,10 +61,10 @@ class ModuleOperChans : public Module
 	Server* Srv;
 	OperChans* oc;
  public:
-	ModuleOperChans(Server* Me)
+	ModuleOperChans(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;		
+				
 		oc = new OperChans(ServerInstance);
 		Srv->AddMode(oc, 'O');
 	}
@@ -118,7 +118,7 @@ class ModuleOperChansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleOperChans(Me);
 	}

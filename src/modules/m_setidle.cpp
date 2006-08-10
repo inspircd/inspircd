@@ -59,10 +59,10 @@ class ModuleSetIdle : public Module
 {
 	cmd_setidle*	mycommand;
  public:
-	ModuleSetIdle(Server* Me)
+	ModuleSetIdle(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_setidle();
 		Srv->AddCommand(mycommand);
 	}
@@ -91,7 +91,7 @@ class ModuleSetIdleFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSetIdle(Me);
 	}

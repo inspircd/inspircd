@@ -54,7 +54,7 @@ class ModuleFilterPCRE : public Module
 	int erroffset;
  
  public:
-	ModuleFilterPCRE(Server* Me)
+	ModuleFilterPCRE(InspIRCd* Me)
 		: Module::Module(Me)
 	{
 		// read the configuration file on startup.
@@ -62,7 +62,7 @@ class ModuleFilterPCRE : public Module
 		// main config file, then append your <keyword> tags to the bottom
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
-		Srv = Me;
+		
 		Conf = new ConfigReader;
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		MyConf = new ConfigReader(filterfile);
@@ -214,7 +214,7 @@ class ModuleFilterPCREFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleFilterPCRE(Me);
 	}

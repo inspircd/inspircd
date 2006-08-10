@@ -81,10 +81,10 @@ class ModuleTestCommand : public Module
 {
 	cmd_woot* newcommand;
  public:
-	ModuleTestCommand(Server* Me)
+	ModuleTestCommand(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		// Create a new command:
 		// command will be called /WOOT, and will
 		// call handle_woot when triggered, the
@@ -126,7 +126,7 @@ class ModuleTestCommandFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleTestCommand(Me);
 	}

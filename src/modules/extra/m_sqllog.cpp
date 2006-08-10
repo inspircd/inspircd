@@ -285,9 +285,9 @@ class ModuleSQLLog : public Module
 		return (SQLModule);
 	}
 
-	ModuleSQLLog(Server* Me) : Module::Module(Me)
+	ModuleSQLLog(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		ReadConfig();
 		MyMod = this;
 		active_queries.clear();
@@ -422,7 +422,7 @@ class ModuleSQLLogFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSQLLog(Me);
 	}

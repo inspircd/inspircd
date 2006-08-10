@@ -19,6 +19,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
+#include "commands.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
 
@@ -28,11 +29,9 @@ const char* fakevalue = "on";
 
 class ChanFounder : public ModeHandler
 {
-	Server* Srv;
 	char* dummyptr;
-
  public:
-	ChanFounder(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
+	ChanFounder(InspIRCd* Instance) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -86,7 +85,7 @@ class ChanFounder : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
+		if ((is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
 			log(DEBUG,"Allowing remote mode change in ChanFounder");
 			if (adding)
@@ -144,10 +143,9 @@ class ChanFounder : public ModeHandler
 
 class ChanProtect : public ModeHandler
 {
-	Server* Srv;
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
+	ChanProtect(InspIRCd* Instance) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false) { }
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -196,7 +194,7 @@ class ChanProtect : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
+		if ((is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
 			if (adding)
 			{
@@ -254,13 +252,13 @@ class ModuleChanProtect : public Module
 	
  public:
  
-	ModuleChanProtect(Server* Me) : Module::Module(Me), Srv(Me)
+	ModuleChanProtect(InspIRCd* Me) : Module::Module(Me)
 	{	
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance, Me);
-		cf = new ChanFounder(ServerInstance, Me);
-		
+		cp = new ChanProtect(ServerInstance);
+		cf = new ChanFounder(ServerInstance);
+
 		Srv->AddMode(cp, 'a');
 		Srv->AddMode(cf, 'q');
 		
@@ -470,7 +468,7 @@ class ModuleChanProtectFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleChanProtect(Me);
 	}

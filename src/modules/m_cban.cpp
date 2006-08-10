@@ -24,6 +24,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "commands.h"
 #include "configreader.h"
 #include "inspircd.h"
 
@@ -63,13 +64,13 @@ cbanlist cbans;
 class cmd_cban : public command_t
 {
  private:
-	Server *Srv;
+	InspIRCd* ServerInstance;
 
  public:
-	cmd_cban(Server* Me) : command_t("CBAN", 'o', 1)
+	cmd_cban(InspIRCd* Me) : command_t("CBAN", 'o', 1), ServerInstance(Me)
 	{
 		this->source = "m_cban.so";
-		this->Srv = Me;
+		this->
 		syntax = "<channel> [<duration> :<reason>]";
 	}
 
@@ -102,7 +103,7 @@ class cmd_cban : public command_t
 				// parameters[0] = #channel
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Tortoise abuser
-				long length = Srv->CalcDuration(parameters[1]);
+				long length = duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
 				cbans.push_back(CBan(parameters[0], user->nick, TIME, length, reason));
@@ -134,10 +135,10 @@ class ModuleCBan : public Module
 	Server* Srv;
 
  public:
-	ModuleCBan(Server* Me) : Module::Module(Me)
+	ModuleCBan(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
-		mycommand = new cmd_cban(Srv);
+		
+		mycommand = new cmd_cban(Me);
 		Srv->AddCommand(mycommand);
 	}
 
@@ -271,7 +272,7 @@ class ModuleCBanFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleCBan(Me);
 	}

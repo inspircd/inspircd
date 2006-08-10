@@ -46,8 +46,8 @@ private:
 	IdChanMap idchan;
 
 public:
-	ModuleSQLutils(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleSQLutils(InspIRCd* Me)
+	: Module::Module(Me)
 	{
 		log(DEBUG, "%s 'SQLutils' feature", ServerInstance->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
 	}
@@ -287,7 +287,7 @@ class ModuleSQLutilsFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSQLutils(Me);
 	}

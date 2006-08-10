@@ -285,9 +285,9 @@ class ModuleHttp : public Module
 		}
 	}
 
-	ModuleHttp(Server* Me) : Module::Module(Me)
+	ModuleHttp(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		ReadConfig();
 		CreateListener();
 	}
@@ -334,7 +334,7 @@ class ModuleHttpFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		HttpModule = new ModuleHttp(Me);
 		return HttpModule;

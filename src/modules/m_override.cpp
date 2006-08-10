@@ -34,14 +34,14 @@ class ModuleOverride : public Module
 	bool NoisyOverride;
  public:
  
-	ModuleOverride(Server* Me)
+	ModuleOverride(InspIRCd* Me)
 		: Module::Module(Me)
 	{
 	
 		// here we initialise our module. Use new to create new instances of the required
 		// classes.
 		
-		Srv = Me;
+		
 		
 		// read our config options (main config file)
 		OnRehash("");
@@ -268,7 +268,7 @@ class ModuleOverrideFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleOverride(Me);
 	}

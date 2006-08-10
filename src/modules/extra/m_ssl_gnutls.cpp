@@ -66,10 +66,10 @@ class ModuleSSLGnuTLS : public Module
 	
  public:
 	
-	ModuleSSLGnuTLS(Server* Me)
+	ModuleSSLGnuTLS(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 
 		culllist = new CullList(ServerInstance);
 		
@@ -605,7 +605,7 @@ class ModuleSSLGnuTLSFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSSLGnuTLS(Me);
 	}

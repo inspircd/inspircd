@@ -64,10 +64,10 @@ class ModuleNoNickChange : public Module
 	NoNicks* nn;
 	
  public:
-	ModuleNoNickChange(Server* Me)
+	ModuleNoNickChange(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		nn = new NoNicks(ServerInstance);
 		Srv->AddMode(nn, 'N');
 	}
@@ -130,7 +130,7 @@ class ModuleNoNickChangeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleNoNickChange(Me);
 	}

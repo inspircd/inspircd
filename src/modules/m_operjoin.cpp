@@ -39,10 +39,10 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin(Server* Me)
+		ModuleOperjoin(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			Srv = Me;
+			
 			conf = new ConfigReader;
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 		}
@@ -93,7 +93,7 @@ class ModuleOperjoinFactory : public ModuleFactory
 		{
 		}
 
-		virtual Module * CreateModule(Server* Me)
+		virtual Module * CreateModule(InspIRCd* Me)
 		{
 			return new ModuleOperjoin(Me);
 		}

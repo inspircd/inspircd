@@ -292,10 +292,10 @@ class ModuleOperMD5 : public Module
 	cmd_mkpasswd* mycommand;
  public:
 
-	ModuleOperMD5(Server* Me)
+	ModuleOperMD5(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_mkpasswd();
 		Srv->AddCommand(mycommand);
 	}
@@ -342,7 +342,7 @@ class ModuleOperMD5Factory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleOperMD5(Me);
 	}

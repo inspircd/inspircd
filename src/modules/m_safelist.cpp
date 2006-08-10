@@ -53,13 +53,13 @@ class ListTimer : public InspTimer
 {
  private:
 
-	Server* Srv;
 	char buffer[MAXBUF];
 	chanrec *chan;
+	Server* Srv;
 
  public:
 
-	ListTimer(long interval, Server* Me) : InspTimer(interval,TIME), Srv(Me)
+	ListTimer(long interval) : InspTimer(interval,TIME)
 	{
 	}
 
@@ -133,7 +133,7 @@ class ListTimer : public InspTimer
 			}
 		}
 
-		ListTimer* MyTimer = new ListTimer(1,Srv);
+		ListTimer* MyTimer = new ListTimer(1);
 		ServerInstance->Timers->AddTimer(MyTimer);
 	}
 };
@@ -144,11 +144,9 @@ class ModuleSafeList : public Module
 	 Server *Srv;
 	 ListTimer* MyTimer;
  public:
-	ModuleSafeList(Server* Me) : Module::Module(Me)
+	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
-
-		MyTimer = new ListTimer(1,Srv);
+		MyTimer = new ListTimer(1);
 		ServerInstance->Timers->AddTimer(MyTimer);
 	}
  
@@ -285,7 +283,7 @@ class ModuleSafeListFactory : public ModuleFactory
 	{
 	}
  
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSafeList(Me);
 	}

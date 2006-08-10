@@ -356,14 +356,16 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
  */
 class Module : public Extensible
 {
+ protected:
+	InspIRCd* ServerInstance;
  public:
 
 	/** Default constructor
 	 * Creates a module class.
-	 * @param Me An instance of the Server class which can be saved for future use
+	 * @param Me An instance of the InspIRCd class which will be saved into ServerInstance for your use
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
-	Module(Server* Me);
+	Module(InspIRCd* Me);
 
 	/** Default destructor
 	 * destroys a module class
@@ -1628,7 +1630,7 @@ class ModuleFactory : public classbase
 	 * Your inherited class of ModuleFactory must return a pointer to your Module class
 	 * using this method.
 	 */
-	virtual Module * CreateModule(Server* Me) = 0;
+	virtual Module * CreateModule(InspIRCd* Me) = 0;
 };
 
 

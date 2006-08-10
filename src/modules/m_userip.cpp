@@ -59,10 +59,10 @@ class ModuleUserIP : public Module
 {
 	cmd_userip* mycommand;
  public:
-	ModuleUserIP(Server* Me)
+	ModuleUserIP(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_userip();
 		Srv->AddCommand(mycommand);
 	}
@@ -101,7 +101,7 @@ class ModuleUserIPFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleUserIP(Me);
 	}

@@ -84,10 +84,10 @@ class ModuleGlobops : public Module
 	cmd_globops* mycommand;
 	ModeGlobops* mg;
  public:
-	ModuleGlobops(Server* Me)
+	ModuleGlobops(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mg = new ModeGlobops(ServerInstance);
 		Srv->AddMode(mg, 'g');
 		mycommand = new cmd_globops();
@@ -121,7 +121,7 @@ class ModuleGlobopsFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleGlobops(Me);
 	}

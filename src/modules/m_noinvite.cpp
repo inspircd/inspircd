@@ -62,9 +62,9 @@ class ModuleNoInvite : public Module
 	
 	public:
  
-		ModuleNoInvite(Server* Me) : Module::Module(Me)
+		ModuleNoInvite(InspIRCd* Me) : Module::Module(Me)
 		{
-			Srv = Me;
+			
 			ni = new NoInvite(ServerInstance);
 			Srv->AddMode(ni, 'V');
 		}
@@ -113,7 +113,7 @@ class ModuleNoInviteFactory : public ModuleFactory
 		{
 		}
 	
-		virtual Module * CreateModule(Server* Me)
+		virtual Module * CreateModule(InspIRCd* Me)
 		{
 			return new ModuleNoInvite(Me);
 		}

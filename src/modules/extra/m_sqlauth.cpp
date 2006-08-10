@@ -45,8 +45,8 @@ class ModuleSQLAuth : public Module
 	bool verbose;
 	
 public:
-	ModuleSQLAuth(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleSQLAuth(InspIRCd* Me)
+		: Module::Module(Me)
 	{
 		SQLutils = ServerInstance->FindFeature("SQLutils");
 		
@@ -233,7 +233,7 @@ class ModuleSQLAuthFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSQLAuth(Me);
 	}

@@ -789,10 +789,10 @@ class ModuleSQL : public Module
 		return NULL;
 	}
 
-	ModuleSQL(Server* Me)
+	ModuleSQL(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader();
 		currid = 0;
 		SQLModule = this;
@@ -922,7 +922,7 @@ class ModuleSQLFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSQL(Me);
 	}

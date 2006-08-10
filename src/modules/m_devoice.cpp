@@ -60,9 +60,9 @@ class ModuleDeVoice : public Module
 {
 	cmd_devoice *mycommand;
  public:
-	ModuleDeVoice(Server* Me) : Module::Module(Me)
+	ModuleDeVoice(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_devoice();
 		Srv->AddCommand(mycommand);
 	}
@@ -89,7 +89,7 @@ class ModuleDeVoiceFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleDeVoice(Me);
 	}

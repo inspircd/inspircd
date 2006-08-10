@@ -75,10 +75,10 @@ class ModuleKickNoRejoin : public Module
 	
 public:
  
-	ModuleKickNoRejoin(Server* Me)
+	ModuleKickNoRejoin(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		kr = new KickRejoin(ServerInstance);
 		Srv->AddMode(kr, 'J');
 	}
@@ -194,7 +194,7 @@ class ModuleKickNoRejoinFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleKickNoRejoin(Me);
 	}

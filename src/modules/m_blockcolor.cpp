@@ -62,9 +62,9 @@ class ModuleBlockColour : public Module
 	BlockColor *bc;
  public:
  
-	ModuleBlockColour(Server* Me) : Module::Module(Me)
+	ModuleBlockColour(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		bc = new BlockColor(ServerInstance);
 		Srv->AddMode(bc, 'c');
 	}
@@ -136,7 +136,7 @@ class ModuleBlockColourFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleBlockColour(Me);
 	}

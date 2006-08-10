@@ -56,7 +56,7 @@ class ModuleFilter : public Module
  filter_t filters;
  
  public:
-	ModuleFilter(Server* Me)
+	ModuleFilter(InspIRCd* Me)
 		: Module::Module(Me)
 	{
 		// read the configuration file on startup.
@@ -64,7 +64,7 @@ class ModuleFilter : public Module
 		// main config file, then append your <keyword> tags to the bottom
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
-		Srv = Me;
+		
 		OnRehash("");
 	}
 	
@@ -179,7 +179,7 @@ class ModuleFilterFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleFilter(Me);
 	}

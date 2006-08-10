@@ -67,10 +67,10 @@ class ModuleAlias : public Module
 
 	public:
 	
-		ModuleAlias(Server* Me)
+		ModuleAlias(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			Srv = Me;
+			
 			MyConf = new ConfigReader;
 			ReadAliases();
 		}
@@ -172,7 +172,7 @@ class ModuleAliasFactory : public ModuleFactory
 		{
 		}
 	
-		virtual Module * CreateModule(Server* Me)
+		virtual Module * CreateModule(InspIRCd* Me)
 		{
 			return new ModuleAlias(Me);
 		}

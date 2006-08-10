@@ -79,9 +79,9 @@ class ModuleGlobalLoad : public Module
 	cmd_gunloadmodule *mycommand2;
 	Server *Srv;
  public:
-	ModuleGlobalLoad(Server* Me) : Module::Module(Me)
+	ModuleGlobalLoad(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_gloadmodule();
 		mycommand2 = new cmd_gunloadmodule();
 		Srv->AddCommand(mycommand);
@@ -110,7 +110,7 @@ class ModuleGlobalLoadFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleGlobalLoad(Me);
 	}

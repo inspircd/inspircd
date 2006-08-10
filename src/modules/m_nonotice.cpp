@@ -61,10 +61,10 @@ class ModuleNoNotice : public Module
 	NoNotice* nt;
  public:
  
-	ModuleNoNotice(Server* Me)
+	ModuleNoNotice(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		nt = new NoNotice(ServerInstance);
 		Srv->AddMode(nt, 'T');
 	}
@@ -124,7 +124,7 @@ class ModuleNoNoticeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleNoNotice(Me);
 	}

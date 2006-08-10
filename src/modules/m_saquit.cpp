@@ -74,10 +74,10 @@ class ModuleSaquit : public Module
 {
 	cmd_saquit*	mycommand;
  public:
-	ModuleSaquit(Server* Me)
+	ModuleSaquit(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_saquit();
 		Srv->AddCommand(mycommand);
 	}
@@ -106,7 +106,7 @@ class ModuleSaquitFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSaquit(Me);
 	}

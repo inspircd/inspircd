@@ -101,10 +101,10 @@ class ModuleStripColor : public Module
  UserStripColor *usc;
  
  public:
-	ModuleStripColor(Server* Me)
+	ModuleStripColor(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 
 		usc = new UserStripColor(ServerInstance);
 		csc = new ChannelStripColor(ServerInstance);
@@ -230,7 +230,7 @@ class ModuleStripColorFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleStripColor(Me);
 	}

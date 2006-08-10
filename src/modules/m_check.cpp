@@ -188,9 +188,9 @@ class ModuleCheck : public Module
  private:
 	cmd_check *mycommand;
  public:
-	ModuleCheck(Server* Me) : Module::Module(Me)
+	ModuleCheck(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_check();
 		Srv->AddCommand(mycommand);
 	}
@@ -224,7 +224,7 @@ class ModuleCheckFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleCheck(Me);
 	}

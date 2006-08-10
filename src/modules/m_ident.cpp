@@ -188,10 +188,10 @@ class ModuleIdent : public Module
 		DELETE(Conf);
 	}
 
-	ModuleIdent(Server* Me)
+	ModuleIdent(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		ReadSettings();
 	}
 
@@ -296,7 +296,7 @@ class ModuleIdentFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleIdent(Me);
 	}

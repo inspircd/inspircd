@@ -52,9 +52,9 @@ class ModuleBlockAmsg : public Module
 	int ForgetDelay;
 	BlockAction action;
 public:
-	ModuleBlockAmsg(Server* Me) : Module::Module(Me)
+	ModuleBlockAmsg(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		this->OnRehash("");
 	}
 
@@ -194,7 +194,7 @@ class ModuleBlockAmsgFactory : public ModuleFactory
 		{
 		}
 	
-		virtual Module * CreateModule(Server* Me)
+		virtual Module * CreateModule(InspIRCd* Me)
 		{
 			return new ModuleBlockAmsg(Me);
 		}

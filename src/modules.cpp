@@ -130,7 +130,7 @@ std::string Event::GetEventID()
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
-		Module::Module(Server* Me) { }
+		Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 		Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, const std::string& message) { }

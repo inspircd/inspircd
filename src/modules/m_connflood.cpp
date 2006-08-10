@@ -41,9 +41,9 @@ private:
 	Server *Srv;
 
 public:
-	ModuleConnFlood(Server* Me) : Module::Module(Me)
+	ModuleConnFlood(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		InitConf();
 	}
 
@@ -138,7 +138,7 @@ public:
 	{
 	}
     
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleConnFlood(Me);
 	}

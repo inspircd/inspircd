@@ -16,8 +16,8 @@ private:
 	Server* Srv;
 
 public:
-	ModuleTestClient(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleTestClient(InspIRCd* Me)
+		: Module::Module(Me)
 	{
 	}
 
@@ -109,7 +109,7 @@ class ModuleTestClientFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleTestClient(Me);
 	}

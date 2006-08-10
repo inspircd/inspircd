@@ -34,9 +34,9 @@ class ModuleSecureList : public Module
  private:
 	 Server *Srv;
  public:
-	ModuleSecureList(Server* Me) : Module::Module(Me)
+	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
  
 	virtual ~ModuleSecureList()
@@ -103,7 +103,7 @@ class ModuleSecureListFactory : public ModuleFactory
 	{
 	}
  
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSecureList(Me);
 	}

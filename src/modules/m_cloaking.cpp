@@ -285,7 +285,7 @@ class CloakUser : public ModeHandler
 	}
 	
  public:
-	CloakUser(InspIRCd* Instance, Server* Me) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Srv(Me) { }
+	CloakUser(InspIRCd* Instance) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -402,11 +402,11 @@ class ModuleCloaking : public Module
  	CloakUser* cu;
 
  public:
-	ModuleCloaking(Server* Me)
-	: Module::Module(Me), Srv(Me)
+	ModuleCloaking(InspIRCd* Me)
+		: Module::Module(Me)
 	{
 		/* Create new mode handler object */
-		cu = new CloakUser(ServerInstance, Srv);
+		cu = new CloakUser(ServerInstance);
 
 		/* Register it with the core */		
 		Srv->AddMode(cu, 'x');
@@ -465,7 +465,7 @@ class ModuleCloakingFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleCloaking(Me);
 	}

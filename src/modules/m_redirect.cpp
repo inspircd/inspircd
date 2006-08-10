@@ -29,9 +29,8 @@ extern InspIRCd* ServerInstance;
 
 class Redirect : public ModeHandler
 {
-	Server* Srv;
  public:
-	Redirect(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
+	Redirect(InspIRCd* Instance) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
         ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
@@ -111,11 +110,11 @@ class ModuleRedirect : public Module
 	
  public:
  
-	ModuleRedirect(Server* Me)
+	ModuleRedirect(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
-		re = new Redirect(ServerInstance, Me);
+		
+		re = new Redirect(ServerInstance);
 		Srv->AddMode(re, 'L');
 	}
 	
@@ -170,7 +169,7 @@ class ModuleRedirectFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleRedirect(Me);
 	}

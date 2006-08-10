@@ -202,10 +202,10 @@ class Modulewatch : public Module
 	cmd_watch* mycommand;
  public:
 
-	Modulewatch(Server* Me)
+	Modulewatch(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_watch();
 		Srv->AddCommand(mycommand);
 	}
@@ -315,7 +315,7 @@ class ModulewatchFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new Modulewatch(Me);
 	}

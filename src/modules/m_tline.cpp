@@ -77,10 +77,10 @@ class ModuleTLine : public Module
 {
 	cmd_tline* newcommand;
  public:
-	ModuleTLine(Server* Me)
+	ModuleTLine(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		newcommand = new cmd_tline();
 		Srv->AddCommand(newcommand);
 	}
@@ -111,7 +111,7 @@ class ModuleTLineFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleTLine(Me);
 	}

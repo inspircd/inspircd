@@ -52,9 +52,9 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois(Server* Me) : Module::Module(Me)
+	ModuleShowwhois(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		sw = new SeeWhois(ServerInstance);
 		Srv->AddMode(sw, 'W');
 	}
@@ -95,7 +95,7 @@ class ModuleShowwhoisFactory : public ModuleFactory
 		{
 		}
 
-		virtual Module* CreateModule(Server* Me)
+		virtual Module* CreateModule(InspIRCd* Me)
 		{
 			return new ModuleShowwhois(Me);
 		}

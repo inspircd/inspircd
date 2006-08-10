@@ -35,10 +35,10 @@ class ModuleConnLUSERS : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleConnLUSERS(Server* Me)
+	ModuleConnLUSERS(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
 	
 	virtual ~ModuleConnLUSERS()
@@ -92,7 +92,7 @@ class ModuleConnLUSERSFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleConnLUSERS(Me);
 	}

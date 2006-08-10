@@ -75,10 +75,10 @@ class ModuleChgHost : public Module
 {
 	cmd_chghost* mycommand;
  public:
-	ModuleChgHost(Server* Me)
+	ModuleChgHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_chghost();
 		Srv->AddCommand(mycommand);
 	}
@@ -111,7 +111,7 @@ class ModuleChgHostFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleChgHost(Me);
 	}

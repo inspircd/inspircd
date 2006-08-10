@@ -81,10 +81,10 @@ class ModuleSSLOpenSSL : public Module
 	
  public:
 	
-	ModuleSSLOpenSSL(Server* Me)
+	ModuleSSLOpenSSL(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 
 		culllist = new CullList(ServerInstance);
 		
@@ -670,7 +670,7 @@ class ModuleSSLOpenSSLFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSSLOpenSSL(Me);
 	}

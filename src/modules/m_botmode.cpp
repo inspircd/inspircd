@@ -66,10 +66,10 @@ class ModuleBotMode : public Module
 	Server *Srv;
 	BotMode* bm;
  public:
-	ModuleBotMode(Server* Me)
+	ModuleBotMode(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		bm = new BotMode(ServerInstance);
 		Srv->AddMode(bm, 'B');
 	}
@@ -112,7 +112,7 @@ class ModuleBotModeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleBotMode(Me);
 	}

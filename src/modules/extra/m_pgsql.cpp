@@ -519,8 +519,8 @@ private:
 	char* sqlsuccess;
 
 public:
-	ModulePgSQL(Server* Me)
-	: Module::Module(Me), Srv(Me), currid(0)
+	ModulePgSQL(InspIRCd* Me)
+	: Module::Module(Me), currid(0)
 	{
 		log(DEBUG, "%s 'SQL' feature", ServerInstance->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
 		
@@ -1216,7 +1216,7 @@ class ModulePgSQLFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModulePgSQL(Me);
 	}

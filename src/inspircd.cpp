@@ -582,7 +582,7 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 			if ((long)factory[this->ModCount+1]->factory != -1)
 			{
-				Module* m = factory[this->ModCount+1]->factory->CreateModule(MyServer);
+				Module* m = factory[this->ModCount+1]->factory->CreateModule(this);
 				modules[this->ModCount+1] = m;
 				/* save the module and the module's classfactory, if
 				 * this isnt done, random crashes can occur :/ */

@@ -23,7 +23,7 @@ extern InspIRCd* ServerInstance;
 class BanException : public ListModeBase
 {
  public:
-	BanException(InspIRCd* Instance, Server* serv) : ListModeBase(Instance, serv, 'e', "End of Channel Exception List", "348", "349", true) { }
+	BanException(InspIRCd* Instance) : ListModeBase(Instance, 'e', "End of Channel Exception List", "348", "349", true) { }
 };
 
 
@@ -33,11 +33,10 @@ class ModuleBanException : public Module
 	Server* Srv;
 
 public:
-	ModuleBanException(Server* serv)
-	: Module::Module(serv)
+	ModuleBanException(InspIRCd* Me)
+	: Module::Module(Me)
 	{
-		be = new BanException(ServerInstance, serv);
-		Srv = serv;
+		be = new BanException(ServerInstance);
 		Srv->AddMode(be, 'e');
 	}
 	
@@ -115,11 +114,10 @@ class ModuleBanExceptionFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module* CreateModule(Server* serv)
+	virtual Module* CreateModule(InspIRCd* Me)
 	{
-		return new ModuleBanException(serv);
+		return new ModuleBanException(Me);
 	}
-	
 };
 
 

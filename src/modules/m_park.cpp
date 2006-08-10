@@ -226,10 +226,10 @@ class ModulePark : public Module
 		DELETE(Conf);
 	}
 
-	ModulePark(Server* Me)
+	ModulePark(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		pinfo.clear();
 		this->ReadSettings();
 		cmd1 = new cmd_park();
@@ -374,7 +374,7 @@ class ModuleParkFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModulePark(Me);
 	}

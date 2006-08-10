@@ -116,10 +116,10 @@ class ModuleTimedBans : public Module
 {
 	cmd_tban* mycommand;
  public:
-	ModuleTimedBans(Server* Me)
+	ModuleTimedBans(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_tban();
 		Srv->AddCommand(mycommand);
 		TimedBanList.clear();
@@ -217,7 +217,7 @@ class ModuleTimedBansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleTimedBans(Me);
 	}

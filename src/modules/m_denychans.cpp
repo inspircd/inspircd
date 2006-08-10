@@ -31,9 +31,9 @@ class ModuleDenyChannels : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleDenyChannels(Server* Me) : Module::Module(Me)
+	ModuleDenyChannels(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader;
 	}
 	
@@ -95,7 +95,7 @@ class ModuleDenyChannelsFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleDenyChannels(Me);
 	}

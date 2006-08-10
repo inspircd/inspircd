@@ -8,6 +8,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "configreader.h"
+#include "commands.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel */
@@ -23,12 +24,10 @@ extern InspIRCd* ServerInstance;
 class RemoveBase
 {
  private: 
-	Server* Srv;
 	bool& supportnokicks;
  
  protected:
-	RemoveBase(Server* Me, bool& snk)
-	: Srv(Me), supportnokicks(snk)
+	RemoveBase(bool& snk) : supportnokicks(snk)
 	{
 	}		
  
@@ -111,7 +110,7 @@ class RemoveBase
 		protectkey = "cm_protect_" + std::string(channel->name);
 		founderkey = "cm_founder_" + std::string(channel->name);
 		
-		if (Srv->IsUlined(user->server) || Srv->IsUlined(user->nick))
+		if (is_uline(user->server) || is_uline(user->nick))
 		{
 			log(DEBUG, "Setting ulevel to U");
 			ulevel = chartolevel("U");
@@ -133,7 +132,7 @@ class RemoveBase
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
-		if (Srv->IsUlined(target->server) || Srv->IsUlined(target->nick))
+		if (is_uline(target->server) || is_uline(target->nick))
 		{
 			log(DEBUG, "Setting tlevel to U");
 			tlevel = chartolevel("U");
@@ -208,7 +207,7 @@ class RemoveBase
 class cmd_remove : public command_t, public RemoveBase
 {
  public:
-	cmd_remove(Server* Srv, bool& snk) : command_t("REMOVE", 0, 2), RemoveBase(Srv, snk)
+	cmd_remove(bool& snk) : command_t("REMOVE", 0, 2), RemoveBase(snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -223,7 +222,7 @@ class cmd_remove : public command_t, public RemoveBase
 class cmd_fpart : public command_t, public RemoveBase
 {
  public:
-	cmd_fpart(Server* Srv, bool snk) : command_t("FPART", 0, 2), RemoveBase(Srv, snk)
+	cmd_fpart(bool& snk) : command_t("FPART", 0, 2), RemoveBase(snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";
@@ -232,7 +231,7 @@ class cmd_fpart : public command_t, public RemoveBase
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		RemoveBase::Handle(parameters, pcnt, user, true);
-	}	
+	}
 };
 
 class ModuleRemove : public Module
@@ -240,15 +239,16 @@ class ModuleRemove : public Module
 	cmd_remove* mycommand;
 	cmd_fpart* mycommand2;
 	bool supportnokicks;
+	Server* Srv;
 	
  public:
-	ModuleRemove(Server* Me)
+	ModuleRemove(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		mycommand = new cmd_remove(Me, supportnokicks);
-		mycommand2 = new cmd_fpart(Me, supportnokicks);
-		Me->AddCommand(mycommand);
-		Me->AddCommand(mycommand2);
+		mycommand = new cmd_remove(supportnokicks);
+		mycommand2 = new cmd_fpart(supportnokicks);
+		Srv->AddCommand(mycommand);
+		Srv->AddCommand(mycommand2);
 		OnRehash("");
 	}
 
@@ -295,7 +295,7 @@ class ModuleRemoveFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleRemove(Me);
 	}

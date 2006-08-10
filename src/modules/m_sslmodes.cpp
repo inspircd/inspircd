@@ -60,10 +60,10 @@ class ModuleSSLModes : public Module
 	SSLMode* sslm;
 	
  public:
-	ModuleSSLModes(Server* Me)
+	ModuleSSLModes(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 
 		sslm = new SSLMode(ServerInstance);
 		Srv->AddMode(sslm, 'z');
@@ -122,7 +122,7 @@ class ModuleSSLModesFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module* CreateModule(Server* Me)
+	virtual Module* CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSSLModes(Me);
 	}

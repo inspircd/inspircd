@@ -138,10 +138,10 @@ class ModuleSilence : public Module
 	cmd_silence* mycommand;
  public:
  
-	ModuleSilence(Server* Me)
+	ModuleSilence(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_silence();
 		Srv->AddCommand(mycommand);
 	}
@@ -224,7 +224,7 @@ class ModuleSilenceFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSilence(Me);
 	}

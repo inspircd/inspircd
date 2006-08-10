@@ -30,9 +30,9 @@ class ModuleOperLog : public Module
  private:
 	 Server *Srv;
  public:
-	ModuleOperLog(Server* Me) : Module::Module(Me)
+	ModuleOperLog(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
  
 	virtual ~ModuleOperLog()
@@ -90,7 +90,7 @@ class ModuleOperLogFactory : public ModuleFactory
 	{
 	}
  
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleOperLog(Me);
 	}

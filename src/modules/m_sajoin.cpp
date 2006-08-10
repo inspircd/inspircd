@@ -65,10 +65,10 @@ class ModuleSajoin : public Module
 {
 	cmd_sajoin*	mycommand;
  public:
-	ModuleSajoin(Server* Me)
+	ModuleSajoin(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_sajoin();
 		Srv->AddCommand(mycommand);
 	}
@@ -97,7 +97,7 @@ class ModuleSajoinFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSajoin(Me);
 	}

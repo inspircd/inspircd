@@ -27,9 +27,9 @@ class ModuleSSLDummy : public Module
 	char* dummy;
  public:
 	
-	ModuleSSLDummy(Server* Me)	: Module::Module(Me)
+	ModuleSSLDummy(InspIRCd* Me)	: Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
 	
 	virtual ~ModuleSSLDummy()
@@ -96,7 +96,7 @@ class ModuleSSLDummyFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSSLDummy(Me);
 	}

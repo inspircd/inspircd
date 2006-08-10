@@ -32,10 +32,10 @@ class ModuleModesOnOper : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleModesOnOper(Server* Me)
+	ModuleModesOnOper(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader;
 	}
 
@@ -100,7 +100,7 @@ class ModuleModesOnOperFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleModesOnOper(Me);
 	}

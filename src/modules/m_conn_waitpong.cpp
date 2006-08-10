@@ -38,10 +38,10 @@ class ModuleWaitPong : public Module
 	bool killonbadreply;
 
  public:
-	ModuleWaitPong(Server* Me)
+	ModuleWaitPong(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		OnRehash("");
 	}
 	
@@ -162,7 +162,7 @@ class ModuleWaitPongFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleWaitPong(Me);
 	}

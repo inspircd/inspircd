@@ -24,7 +24,7 @@ class InspIRCd* ServerInstance;
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(InspIRCd* Instance, Server* serv) : ListModeBase(Instance, serv, 'I', "End of Channel Invite Exception List", "346", "347", true) { }
+	InviteException(InspIRCd* Instance) : ListModeBase(Instance, 'I', "End of Channel Invite Exception List", "346", "347", true) { }
 };
 
 class ModuleInviteException : public Module
@@ -33,10 +33,9 @@ class ModuleInviteException : public Module
 	Server* Srv;
 
 public:
-	ModuleInviteException(Server* serv) : Module(serv)
+	ModuleInviteException(InspIRCd* Me) : Module(Me)
 	{
-		ie = new InviteException(ServerInstance, serv);
-		Srv = serv;
+		ie = new InviteException(ServerInstance);
 		Srv->AddMode(ie, 'I');
 	}
 	
@@ -62,7 +61,7 @@ public:
 			{
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if(Srv->MatchText(user->GetFullRealHost(), it->mask) || Srv->MatchText(user->GetFullHost(), it->mask))
+					if(match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()))
 					{
 						// They match an entry on the list, so let them in.
 						return 1;
@@ -113,9 +112,9 @@ class ModuleInviteExceptionFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* serv)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
-		return new ModuleInviteException(serv);
+		return new ModuleInviteException(Me);
 	}
 	
 };

@@ -53,9 +53,9 @@ class ModuleHttpStats : public Module
 		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
 	}
 
-	ModuleHttpStats(Server* Me) : Module::Module(Me)
+	ModuleHttpStats(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		ReadConfig();
 		this->changed = false;
 	}
@@ -263,7 +263,7 @@ class ModuleHttpStatsFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleHttpStats(Me);
 	}

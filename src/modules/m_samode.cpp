@@ -76,10 +76,10 @@ class ModuleSaMode : public Module
 {
 	cmd_samode*	mycommand;
  public:
-	ModuleSaMode(Server* Me)
+	ModuleSaMode(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_samode();
 		Srv->AddCommand(mycommand);
 	}
@@ -106,7 +106,7 @@ class ModuleSaModeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSaMode(Me);
 	}

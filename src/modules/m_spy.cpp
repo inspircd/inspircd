@@ -145,9 +145,9 @@ class ModuleSpy : public Module
 	cmd_spylist *mycommand;
 	cmd_spynames *mycommand2;
  public:
-	ModuleSpy(Server* Me) : Module::Module(Me)
+	ModuleSpy(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_spylist();
 		mycommand2 = new cmd_spynames();
 		Srv->AddCommand(mycommand);
@@ -176,7 +176,7 @@ class ModuleSpyFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSpy(Me);
 	}

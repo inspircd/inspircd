@@ -53,10 +53,10 @@ class ModuleSetName : public Module
 {
 	cmd_setname*	mycommand;
  public:
-	ModuleSetName(Server* Me)
+	ModuleSetName(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_setname();
 		Srv->AddCommand(mycommand);
 	}
@@ -85,7 +85,7 @@ class ModuleSetNameFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSetName(Me);
 	}

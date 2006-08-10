@@ -96,10 +96,10 @@ class ModuleNickLock : public Module
 	cmd_nickunlock*	cmd2;
 	char* n;
  public:
-	ModuleNickLock(Server* Me)
+	ModuleNickLock(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		cmd1 = new cmd_nicklock();
 		cmd2 = new cmd_nickunlock();
 		Srv->AddCommand(cmd1);
@@ -158,7 +158,7 @@ class ModuleNickLockFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleNickLock(Me);
 	}

@@ -82,9 +82,9 @@ class ModuleSWhois : public Module
 	ConfigReader* Conf;
 	
  public:
-	ModuleSWhois(Server* Me) : Module::Module(Me)
+	ModuleSWhois(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader();
 		mycommand = new cmd_swhois(Srv);
 		Srv->AddCommand(mycommand);
@@ -236,7 +236,7 @@ class ModuleSWhoisFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSWhois(Me);
 	}

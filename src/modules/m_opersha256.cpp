@@ -247,9 +247,9 @@ class ModuleOperSHA256 : public Module
 	cmd_mksha256 *mksha256cmd;
 public:
 
-	ModuleOperSHA256(Server *Me) : Module::Module(Me)
+	ModuleOperSHA256(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mksha256cmd = new cmd_mksha256();
 		Srv->AddCommand(mksha256cmd);
 	}
@@ -295,7 +295,7 @@ public:
 	{
 	}
 
-	virtual Module *CreateModule(Server* Me)
+	virtual Module *CreateModule(InspIRCd* Me)
 	{
 		return new ModuleOperSHA256(Me);
 	}

@@ -64,9 +64,9 @@ class ModuleVHost : public Module
 	cmd_vhost* mycommand;
 	 
  public:
-	ModuleVHost(Server* Me) : Module::Module(Me)
+	ModuleVHost(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader;
 		mycommand = new cmd_vhost();
 		Srv->AddCommand(mycommand);
@@ -110,7 +110,7 @@ class ModuleVHostFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleVHost(Me);
 	}

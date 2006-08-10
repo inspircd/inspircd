@@ -79,10 +79,10 @@ class ModuleRandQuote : public Module
 	cmd_randquote* mycommand;
 	ConfigReader *conf;
  public:
-	ModuleRandQuote(Server* Me)
+	ModuleRandQuote(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		conf = new ConfigReader;
 		// Sort the Randomizer thingie..
 		srand(time(NULL));
@@ -148,7 +148,7 @@ class ModuleRandQuoteFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleRandQuote(Me);
 	}

@@ -39,9 +39,9 @@ class ModuleSetIdent : public Module
 	cmd_setident*	mycommand;
 	
  public:
-	ModuleSetIdent(Server* Me) : Module::Module(Me)
+	ModuleSetIdent(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_setident();
 		Srv->AddCommand(mycommand);
 	}
@@ -70,7 +70,7 @@ class ModuleSetIdentFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSetIdent(Me);
 	}

@@ -61,10 +61,10 @@ class ModuleSapart : public Module
 {
 	cmd_sapart*	mycommand;
  public:
-	ModuleSapart(Server* Me)
+	ModuleSapart(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_sapart();
 		Srv->AddCommand(mycommand);
 	}
@@ -93,7 +93,7 @@ class ModuleSapartFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSapart(Me);
 	}

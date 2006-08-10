@@ -3420,10 +3420,10 @@ class ModuleSpanningTree : public Module
 
  public:
 
-	ModuleSpanningTree(Server* Me)
+	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
 	{
-		Srv = Me;
+		
 		Bindings.clear();
 
 		// Create the root of the tree
@@ -4519,7 +4519,7 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		TreeProtocolModule = new ModuleSpanningTree(Me);
 		return TreeProtocolModule;

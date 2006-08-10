@@ -201,11 +201,9 @@ class ModuleHelpop : public Module
 		Helpop* ho;
 
 	public:
-		ModuleHelpop(Server* Me)
+		ModuleHelpop(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			Srv  = Me;
-
 			ReadConfig();
 			ho = new Helpop(ServerInstance);
 			Srv->AddMode(ho, 'h');
@@ -281,7 +279,7 @@ class ModuleHelpopFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleHelpop(Me);
 	}

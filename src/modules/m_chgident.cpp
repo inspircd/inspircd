@@ -10,12 +10,10 @@ extern InspIRCd* ServerInstance;
 
 class cmd_chgident : public command_t
 {
-	Server* Srv;
  public:
-	cmd_chgident(Server* serv) : command_t("CHGIDENT", 'o', 2)
+	cmd_chgident() : command_t("CHGIDENT", 'o', 2)
 	{
 		this->source = "m_chgident.so";
-		Srv = serv;
 		syntax = "<nick> <newident>";
 	}
 	
@@ -45,12 +43,13 @@ class cmd_chgident : public command_t
 class ModuleChgIdent : public Module
 {
 	cmd_chgident* mycommand;
+	Server* Srv;
 	
 public:
-	ModuleChgIdent(Server* Me) : Module::Module(Me)
+	ModuleChgIdent(InspIRCd* Me) : Module::Module(Me)
 	{
-		mycommand = new cmd_chgident(Me);
-		Me->AddCommand(mycommand);
+		mycommand = new cmd_chgident();
+		Srv->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleChgIdent()
@@ -77,7 +76,7 @@ class ModuleChgIdentFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleChgIdent(Me);
 	}

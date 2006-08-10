@@ -63,10 +63,10 @@ class ModuleOpermotd : public Module
 {
 		cmd_opermotd* mycommand;
 	public:
-		ModuleOpermotd(Server* Me)
+		ModuleOpermotd(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			Srv = Me;
+			
 			mycommand = new cmd_opermotd();
 			Srv->AddCommand(mycommand);
 			opermotd = new FileReader();
@@ -110,7 +110,7 @@ class ModuleOpermotdFactory : public ModuleFactory
 		{
 		}
 
-		virtual Module* CreateModule(Server* Me)
+		virtual Module* CreateModule(InspIRCd* Me)
 		{
 			return new ModuleOpermotd(Me);
 		}

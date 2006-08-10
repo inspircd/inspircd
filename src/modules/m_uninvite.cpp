@@ -92,9 +92,9 @@ class ModuleUninvite : public Module
 
  public:
 
-	ModuleUninvite(Server* Me) : Module::Module(Me)
+	ModuleUninvite(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_uninvite();
 		Srv->AddCommand(mycommand);
 	}
@@ -122,7 +122,7 @@ class ModuleUninviteFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleUninvite(Me);
 	}

@@ -27,10 +27,10 @@ class ModuleAntiBottler : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleAntiBottler(Server* Me)
+	ModuleAntiBottler(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
 
 	void Implements(char* List)
@@ -110,7 +110,7 @@ class ModuleAntiBottlerFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleAntiBottler(Me);
 	}

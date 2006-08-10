@@ -45,10 +45,10 @@ class ModuleHostChange : public Module
 	std::string MySuffix;
 	 
  public:
-	ModuleHostChange(Server* Me)
+	ModuleHostChange(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		Conf = new ConfigReader;
 		OnRehash("");
 	}
@@ -158,7 +158,7 @@ class ModuleHostChangeFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleHostChange(Me);
 	}

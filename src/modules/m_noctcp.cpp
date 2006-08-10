@@ -62,10 +62,10 @@ class ModuleNoCTCP : public Module
 	
  public:
  
-	ModuleNoCTCP(Server* Me)
+	ModuleNoCTCP(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		nc = new NoCTCP(ServerInstance);
 		Srv->AddMode(nc, 'C');
 	}
@@ -128,7 +128,7 @@ class ModuleNoCTCPFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleNoCTCP(Me);
 	}

@@ -33,10 +33,10 @@ class ModuleRestrictMsg : public Module
 	Server *Srv;
  public:
  
-	ModuleRestrictMsg(Server* Me)
+	ModuleRestrictMsg(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
 
 	void Implements(char* List)
@@ -92,7 +92,7 @@ class ModuleRestrictMsgFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleRestrictMsg(Me);
 	}

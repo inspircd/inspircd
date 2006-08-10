@@ -110,9 +110,9 @@ class ModuleKnock : public Module
 	cmd_knock* mycommand;
 	Knock* kn;
  public:
-	ModuleKnock(Server* Me) : Module::Module(Me)
+	ModuleKnock(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		kn = new Knock(ServerInstance);
 		Srv->AddMode(kn, 'K');
 		mycommand = new cmd_knock();
@@ -153,7 +153,7 @@ class ModuleKnockFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleKnock(Me);
 	}

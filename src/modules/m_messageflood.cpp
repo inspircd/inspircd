@@ -191,10 +191,10 @@ class ModuleMsgFlood : public Module
 	
  public:
  
-	ModuleMsgFlood(Server* Me)
+	ModuleMsgFlood(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mf = new MsgFlood(ServerInstance);
 		Srv->AddMode(mf, 'f');
 	}
@@ -296,7 +296,7 @@ class ModuleMsgFloodFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleMsgFlood(Me);
 	}

@@ -47,10 +47,10 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
-	ModuleRestrictChans(Server* Me)
+	ModuleRestrictChans(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		ReadConfig();
 	}
 
@@ -102,7 +102,7 @@ class ModuleRestrictChansFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleRestrictChans(Me);
 	}

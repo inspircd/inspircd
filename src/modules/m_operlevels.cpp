@@ -21,11 +21,11 @@ class ModuleOperLevels : public Module
 
 	public:
 
-		ModuleOperLevels(Server* Me)
+		ModuleOperLevels(InspIRCd* Me)
 			: Module::Module(Me)
 		{
 
-			Srv = Me;
+			
 			conf = new ConfigReader;
 		}
 
@@ -98,7 +98,7 @@ class ModuleOperLevelsFactory : public ModuleFactory
 	{
 	}
 
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		log(DEBUG,"CreateModule");
 		return new ModuleOperLevels(Me);

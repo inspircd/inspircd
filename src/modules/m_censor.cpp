@@ -108,7 +108,7 @@ class ModuleCensor : public Module
 	CensorChannel *cc;
  
  public:
-	ModuleCensor(Server* Me)
+	ModuleCensor(InspIRCd* Me)
 		: Module::Module(Me)
 	{
 		/*
@@ -123,7 +123,7 @@ class ModuleCensor : public Module
 		 *
 		 * XXX - These module pre-date the include directive which exists since beta 5 -- Brain
 		 */
-		Srv = Me;
+		
 		OnRehash("");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
@@ -244,7 +244,7 @@ class ModuleCensorFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleCensor(Me);
 	}

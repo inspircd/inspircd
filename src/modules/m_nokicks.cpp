@@ -62,10 +62,10 @@ class ModuleNoKicks : public Module
 	
  public:
  
-	ModuleNoKicks(Server* Me)
+	ModuleNoKicks(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		nk = new NoKicks(ServerInstance);
 		Srv->AddMode(nk, 'Q');
 	}
@@ -125,7 +125,7 @@ class ModuleNoKicksFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleNoKicks(Me);
 	}

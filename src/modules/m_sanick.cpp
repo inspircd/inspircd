@@ -68,10 +68,10 @@ class ModuleSanick : public Module
 {
 	cmd_sanick*	mycommand;
  public:
-	ModuleSanick(Server* Me)
+	ModuleSanick(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_sanick();
 		Srv->AddCommand(mycommand);
 	}
@@ -100,7 +100,7 @@ class ModuleSanickFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSanick(Me);
 	}

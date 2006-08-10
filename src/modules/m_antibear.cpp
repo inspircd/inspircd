@@ -29,9 +29,9 @@ class ModuleAntiBear : public Module
 	 
 	 Server *Srv;
  public:
-	ModuleAntiBear(Server* Me) : Module::Module(Me)
+	ModuleAntiBear(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 	}
 	
 	virtual ~ModuleAntiBear()
@@ -66,7 +66,7 @@ class ModuleAntiBearFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleAntiBear(Me);
 	}

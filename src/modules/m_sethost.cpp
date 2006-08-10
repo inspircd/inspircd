@@ -66,10 +66,10 @@ class ModuleSetHost : public Module
 {
 	cmd_sethost*	mycommand;
  public:
-	ModuleSetHost(Server* Me)
+	ModuleSetHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
+		
 		mycommand = new cmd_sethost();
 		Srv->AddCommand(mycommand);
 	}
@@ -98,7 +98,7 @@ class ModuleSetHostFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSetHost(Me);
 	}

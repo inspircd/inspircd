@@ -60,9 +60,9 @@ class ModuleBlockCAPS : public Module
 	BlockCaps* bc;
 public:
 	
-	ModuleBlockCAPS(Server* Me) : Module::Module(Me)
+	ModuleBlockCAPS(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		bc = new BlockCaps(ServerInstance);
 		Srv->AddMode(bc, 'P');
 	}
@@ -129,7 +129,7 @@ class ModuleBlockCAPSFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleBlockCAPS(Me);
 	}

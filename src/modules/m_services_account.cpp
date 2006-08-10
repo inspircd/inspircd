@@ -120,9 +120,9 @@ class ModuleServicesAccount : public Module
 	AChannel_M* m2;
 	AUser_R* m3;
  public:
-	ModuleServicesAccount(Server* Me) : Module::Module(Me)
+	ModuleServicesAccount(InspIRCd* Me) : Module::Module(Me)
 	{
-		Srv = Me;
+		
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
@@ -338,7 +338,7 @@ class ModuleServicesAccountFactory : public ModuleFactory
 	{
 	}
 	
-	virtual Module * CreateModule(Server* Me)
+	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleServicesAccount(Me);
 	}
