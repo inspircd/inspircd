@@ -53,8 +53,8 @@ class cmd_check : public command_t
 
 		checkstr = "304 " + std::string(user->nick) + " :CHECK";
 
-		targuser = Srv->FindNick(std::string(parameters[0]));
-		targchan = Srv->FindChannel(std::string(parameters[0]));
+		targuser = ServerInstance->FindNick(parameters[0]);
+		targchan = ServerInstance->FindChan(parameters[0]);
 
 		/*
 		 * Syntax of a /check reply:
@@ -114,7 +114,7 @@ class cmd_check : public command_t
 				user->WriteServ(checkstr + " topic_setat " + timebuf);
 			}
 
-			user->WriteServ(checkstr + " modes " + chanmodes(targchan, true));
+			user->WriteServ(checkstr + " modes " + targchan->ChanModes(true));
 			user->WriteServ(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 			
 			/* now the ugly bit, spool current members of a channel. :| */

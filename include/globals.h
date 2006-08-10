@@ -31,8 +31,6 @@ typedef std::pair< std::string, std::string > KeyVal;
 typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
-void WriteOpers(char* text, ...);
 int isnick(const char *n);
-chanrec* FindChan(const char* chan);
 
 #endif

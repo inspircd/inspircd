@@ -168,7 +168,7 @@ userrec* ModeParser::SanityChecks(userrec *user,const char *dest,chanrec *chan,i
 	{
 		return NULL;
 	}
-	d = Find(dest);
+	d = ServerInstance->FindNick(dest);
 	if (!d)
 	{
 		user->WriteServ("401 %s %s :No such nick/channel",user->nick, dest);
@@ -250,7 +250,7 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	if (targetchannel)
 	{
 		/* Display channel's current mode string */
-		user->WriteServ("324 %s %s +%s",user->nick, targetchannel->name, chanmodes(targetchannel, targetchannel->HasUser(user)));
+		user->WriteServ("324 %s %s +%s",user->nick, targetchannel->name, targetchannel->ChanModes(targetchannel->HasUser(user)));
 		user->WriteServ("329 %s %s %d", user->nick, targetchannel->name, targetchannel->created);
 		return;
 	}
@@ -272,8 +272,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
 	unsigned char mask = 0;
-	chanrec* targetchannel = FindChan(parameters[0]);
-	userrec* targetuser  = Find(parameters[0]);
+	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
+	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
 	log(DEBUG,"ModeParser::Process start");
 

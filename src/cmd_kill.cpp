@@ -31,7 +31,7 @@ extern std::vector<ircd_module*> factory;
 
 void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	userrec *u = Find(parameters[0]);
+	userrec *u = ServerInstance->FindNick(parameters[0]);
 	char killreason[MAXBUF];
 	int MOD_RESULT = 0;
 
@@ -51,7 +51,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			ServerInstance->WriteOpers("*** Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", ServerInstance->Config->ServerName, user->nick, parameters[1]);
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
@@ -66,7 +66,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 
 			if (u->registered == REG_ALL)
 			{
-				purge_empty_chans(u);
+				u->PurgeEmptyChannels();
 			}
 
 			DELETE(u);
@@ -76,7 +76,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			// local kill
 			log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
 			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
-			WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			ServerInstance->WriteOpers("*** Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
 			userrec::QuitUser(ServerInstance, u, killreason);
 		}

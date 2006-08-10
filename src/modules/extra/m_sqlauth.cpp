@@ -130,7 +130,7 @@ public:
 				log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 			
 				if (verbose)
-					WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
+					ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
 			
 				return false;
 			}
@@ -170,14 +170,14 @@ public:
 					else if (verbose)
 					{
 						/* No rows in result, this means there was no record matching the user */
-						WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
+						ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
 						user->Extend("sqlauth_failed");
 					}
 				}
 				else if (verbose)
 				{
 					log(DEBUG, "Query failed: %s", res->error.Str());
-					WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					user->Extend("sqlauth_failed");
 				}
 			}

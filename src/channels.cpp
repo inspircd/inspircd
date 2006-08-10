@@ -224,7 +224,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	int MOD_RESULT = 0;
 	strlcpy(cname,cn,CHANMAX);
 
-	chanrec* Ptr = FindChan(cname);
+	chanrec* Ptr = Instance->FindChan(cname);
 
 	if (!Ptr)
 	{
@@ -455,7 +455,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 			user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);
 			user->WriteServ("333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 		}
-		userlist(user,Ptr);
+		Ptr->UserList(user);
 		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	}
 	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user,Ptr));
@@ -738,4 +738,146 @@ void chanrec::WriteAllExceptSender(userrec* user, char status, const std::string
 			i->second->WriteFrom(user,text);
 	}
 }
+
+/*
+ * return a count of the users on a specific channel accounting for
+ * invisible users who won't increase the count. e.g. for /LIST
+ */
+int chanrec::CountInvisible()
+{
+	int count = 0;
+	CUList *ulist= this->GetUsers();
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		if (!(i->second->modes[UM_INVISIBLE]))
+			count++;
+	}
+
+	return count;
+}
+
+char* chanrec::ChanModes(bool showkey)
+{
+	static char scratch[MAXBUF];
+	static char sparam[MAXBUF];
+	char* offset = scratch;
+	std::string extparam = "";
+
+	*scratch = '\0';
+	*sparam = '\0';
+
+	/* This was still iterating up to 190, chanrec::custom_modes is only 64 elements -- Om */
+	for(int n = 0; n < 64; n++)
+	{
+		if(this->modes[n])
+		{
+			*offset++ = n + 65;
+			extparam = "";
+			switch (n)
+			{
+				case CM_KEY:
+					extparam = (showkey ? this->key : "<key>");
+				break;
+				case CM_LIMIT:
+					extparam = ConvToStr(this->limit);
+				break;
+				case CM_NOEXTERNAL:
+				case CM_TOPICLOCK:
+				case CM_INVITEONLY:
+				case CM_MODERATED:
+				case CM_SECRET:
+				case CM_PRIVATE:
+					/* We know these have no parameters */
+				break;
+				default:
+					extparam = this->GetModeParameter(n + 65);
+				break;
+			}
+			if (extparam != "")
+			{
+				charlcat(sparam,' ',MAXBUF);
+				strlcat(sparam,extparam.c_str(),MAXBUF);
+			}
+		}
+	}
+
+	/* Null terminate scratch */
+	*offset = '\0';
+	strlcat(scratch,sparam,MAXBUF);
+	return scratch;
+}
+
+/* compile a userlist of a channel into a string, each nick seperated by
+ * spaces and op, voice etc status shown as @ and +, and send it to 'user'
+ */
+void chanrec::UserList(userrec *user)
+{
+	char list[MAXBUF];
+	size_t dlen, curlen;
+
+	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
+
+	int numusers = 0;
+	char* ptr = list + dlen;
+
+	CUList *ulist= this->GetUsers();
+
+	/* Improvement by Brain - this doesnt change in value, so why was it inside
+	 * the loop?
+	 */
+	bool has_user = this->HasUser(user);
+
+	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+	{
+		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
+		{
+			/*
+			 * user is +i, and source not on the channel, does not show
+			 * nick in NAMES list
+			 */
+			continue;
+		}
+
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", cmode(i->second, this), i->second->nick);
+
+		curlen += ptrlen;
+		ptr += ptrlen;
+
+		numusers++;
+
+		if (curlen > (480-NICKMAX))
+		{
+			/* list overflowed into multiple numerics */
+			user->WriteServ(list);
+
+			/* reset our lengths */
+			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
+			ptr = list + dlen;
+
+			ptrlen = 0;
+			numusers = 0;
+		}
+	}
+
+	/* if whats left in the list isnt empty, send it */
+	if (numusers)
+	{
+		user->WriteServ(list);
+	}
+}
+
+long chanrec::GetMaxBans()
+{
+	std::string x;
+	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
+	{
+		x = n->first;
+		if (match(this->name,x.c_str()))
+		{
+			return n->second;
+		}
+	}
+	return 64;
+}
+
 

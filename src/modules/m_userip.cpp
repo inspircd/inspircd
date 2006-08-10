@@ -22,10 +22,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for USERIP command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_userip : public command_t
 {
@@ -42,7 +44,7 @@ class cmd_userip : public command_t
 		snprintf(Return,MAXBUF,"340 %s :",user->nick);
 		for (int i = 0; i < pcnt; i++)
 		{
-			userrec *u = Find(parameters[i]);
+			userrec *u = ServerInstance->FindNick(parameters[i]);
 			if (u)
 			{
 				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,u->GetIPString());

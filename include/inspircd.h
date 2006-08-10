@@ -122,6 +122,17 @@ class InspIRCd : public classbase
 	const char* FindServerNamePtr(const std::string &servername);
 	bool FindServerName(const std::string &servername);
 
+	std::string GetServerDescription(const char* servername);
+
+	void WriteOpers(const char* text, ...);
+	void WriteOpers(const std::string &text);
+	
+	userrec* FindNick(const std::string &nick);
+	userrec* FindNick(const char* nick);
+
+	chanrec* FindChan(const std::string &chan);
+	chanrec* FindChan(const char* chan);
+
 	bool UserToPseudo(userrec* user, const std::string &message);
 	bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
 

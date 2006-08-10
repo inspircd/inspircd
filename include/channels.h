@@ -428,6 +428,14 @@ class chanrec : public Extensible
 	 */
 	void WriteAllExceptSender(userrec* user, char status, const std::string& text);
 
+	long GetMaxBans();
+
+	char* ChanModes(bool showkey);
+
+	void UserList(userrec *user);
+
+	int CountInvisible();
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }

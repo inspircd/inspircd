@@ -28,6 +28,8 @@
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
+extern InspIRCd* ServerInstance;
+
 class CBan : public classbase
 {
 public:
@@ -109,12 +111,12 @@ class cmd_cban : public command_t
 				if(length > 0)
 				{
 					user->WriteServ( "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
-					WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
+					ServerInstance->WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
 					user->WriteServ( "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], reason.c_str());
-					WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
+					ServerInstance->WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
@@ -170,7 +172,7 @@ class ModuleCBan : public Module
 			{
 				// Channel is banned.
 				user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick, cname, iter->reason.c_str());
-				WriteOpers("*** %s tried to join %s which is CBANed (%s)", user->nick, cname, iter->reason.c_str());
+				ServerInstance->WriteOpers("*** %s tried to join %s which is CBANed (%s)", user->nick, cname, iter->reason.c_str());
 				return 1;
 			}
 		}
@@ -245,7 +247,7 @@ void ExpireBans()
 				if (iter->set_on + iter->length <= TIME)
 				{
 					log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
-					WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
+					ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
 					cbans.erase(iter);
 					go_again = true;
 				}

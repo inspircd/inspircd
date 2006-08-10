@@ -52,7 +52,7 @@ class cmd_tban : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		chanrec* channel = Srv->FindChannel(parameters[0]);
+		chanrec* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)
 		{
 			std::string cm = Srv->ChanMode(user,channel);
@@ -159,7 +159,7 @@ class ModuleTimedBans : public Module
 			{
 				if (curtime > i->expire)
 				{
-					chanrec* cr = Srv->FindChannel(i->channel);
+					chanrec* cr = ServerInstance->FindChan(i->channel);
 					again = true;
 					if (cr)
 					{

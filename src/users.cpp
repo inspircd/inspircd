@@ -497,7 +497,7 @@ bool userrec::AddBuffer(const std::string &a)
 	if (recvq.length() > (unsigned)this->recvqmax)
 	{
 		this->SetWriteError("RecvQ exceeded");
-		WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
+		ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
 		return false;
 	}
 
@@ -554,7 +554,7 @@ void userrec::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
+		ServerInstance->WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		return;
 	}
 	
@@ -664,7 +664,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 
 	if (user->registered == REG_ALL)
 	{
-		purge_empty_chans(user);
+		user->PurgeEmptyChannels();
 		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
 		user->WriteCommonExcept("QUIT :%s",reason.c_str());
 	}
@@ -693,7 +693,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 	}
 
 	/*
-	 * this must come before the WriteOpers so that it doesnt try to fill their buffer with anything
+	 * this must come before the ServerInstance->WriteOpers so that it doesnt try to fill their buffer with anything
 	 * if they were an oper with +s.
 	 *
 	 * XXX -
@@ -703,7 +703,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 	if (user->registered == REG_ALL)
 	{
 		if (IS_LOCAL(user))
-			WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
+			Instance->WriteOpers("*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
 		user->AddToWhoWas();
 	}
 
@@ -970,7 +970,7 @@ void userrec::FullConnect(CullList* Goners)
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = TIME;
 
-	ConnectClass a = GetClass(this);
+	ConnectClass a = this->GetClass();
 
 	if (a.type == CC_DENY)
 	{
@@ -987,13 +987,13 @@ void userrec::FullConnect(CullList* Goners)
 	if (this->LocalCloneCount() > a.maxlocal)
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (local)");
-		WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a.maxlocal, this->GetIPString());
+		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a.maxlocal, this->GetIPString());
 		return;
 	}
 	else if (this->GlobalCloneCount() > a.maxglobal)
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (global)");
-		WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal, this->GetIPString());
+		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal, this->GetIPString());
 		return;
 	}
 
@@ -1061,7 +1061,7 @@ void userrec::FullConnect(CullList* Goners)
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
 	FOREACH_MOD(I_OnGlobalConnect,OnGlobalConnect(this));
 	this->registered = REG_ALL;
-	WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
+	ServerInstance->WriteOpers("*** Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
 }
 
 /** userrec::UpdateNick()
@@ -1712,4 +1712,54 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	}
 }
 
+
+/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
+ * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
+ * then their ip will be taken as 'priority' anyway, so for example,
+ * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
+ */
+ConnectClass& userrec::GetClass()
+{
+        for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+        {
+                if ((match(this->GetIPString(),i->host.c_str(),true)) || (match(this->host,i->host.c_str())))
+                        return *i;
+        }
+
+        return *(ServerInstance->Config->Classes.begin());
+}
+
+void userrec::PurgeEmptyChannels()
+{
+        std::vector<chanrec*> to_delete;
+
+        // firstly decrement the count on each channel
+        for (std::vector<ucrec*>::iterator f = this->chans.begin(); f != this->chans.end(); f++)
+        {
+                ucrec* uc = *f;
+                if (uc->channel)
+                {
+                        if (uc->channel->DelUser(this) == 0)
+                        {
+                                /* No users left in here, mark it for deletion */
+                                to_delete.push_back(uc->channel);
+                                uc->channel = NULL;
+                        }
+                }
+        }
+
+        for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
+        {
+                chanrec* thischan = *n;
+                chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
+                if (i2 != ServerInstance->chanlist.end())
+                {
+                        FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
+                        DELETE(i2->second);
+                        ServerInstance->chanlist.erase(i2);
+                }
+        }
+
+        this->UnOper();
+}
 

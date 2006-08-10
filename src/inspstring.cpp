@@ -74,7 +74,7 @@ size_t strlcpy(char *dst, const char *src, size_t siz)
     do
     {
       if ((*d++ = *s++) == 0)
-        break;
+	break;
     } while (--n != 0);
   }
 
@@ -90,3 +90,40 @@ size_t strlcpy(char *dst, const char *src, size_t siz)
   return(s - src - 1); /* count does not include NUL */
 }
 #endif
+
+int charlcat(char* x,char y,int z)
+{
+	char* x__n = x;
+	int v = 0;
+
+	while(*x__n++)
+		v++;
+
+	if (v < z - 1)
+	{
+		*--x__n = y;
+		*++x__n = 0;
+	}
+
+	return v;
+}
+
+bool charremove(char* mp, char remove)
+{
+	char* mptr = mp;
+	bool shift_down = false;
+
+	while (*mptr)
+	{
+		if (*mptr == remove)
+		shift_down = true;
+
+		if (shift_down)
+			*mptr = *(mptr+1);
+
+		mptr++;
+	}
+
+	return shift_down;
+}
+

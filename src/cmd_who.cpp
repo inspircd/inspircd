@@ -115,7 +115,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 
 	/* who on a channel? */
-	ch = FindChan(matchtext);
+	ch = ServerInstance->FindChan(matchtext);
 
 	if (ch)
 	{

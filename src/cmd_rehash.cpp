@@ -37,7 +37,7 @@ void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
+		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
 		ServerInstance->Config->Read(false,user);
 	}
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));

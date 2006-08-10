@@ -48,20 +48,7 @@ enum DebugLevel
 #define STRINGIFY(x) STRINGIFY2(x) 
 #define log(l, x, args...) InspIRCd::Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
 
-void WriteOpers(const char* text, ...);
-void WriteOpers_NoFormat(const char* text);
-
-std::string GetServerDescription(const char* servername);
 void strlower(char *n);
-userrec* Find(const std::string &nick);
-userrec* Find(const char* nick);
-chanrec* FindChan(const char* chan);
-int usercount_i(chanrec *c);
-long GetMaxBans(char* name);
-void purge_empty_chans(userrec* u);
-char* chanmodes(chanrec *chan, bool showkey);
-void userlist(userrec *user,chanrec *c);
-ConnectClass GetClass(userrec *user);
 void Error(int status);
 void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);
@@ -72,8 +59,5 @@ char* CleanFilename(char* name);
 std::string GetFullProgDir(char** argv, int argc);
 int InsertMode(std::string &output, const char* modes, unsigned short section);
 bool IsValidChannelName(const char *);
-
-int charlcat(char* x,char y,int z);
-bool charremove(char* mp, char remove);
 
 #endif

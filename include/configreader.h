@@ -27,6 +27,7 @@
 #include "modules.h"
 
 class ServerConfig;
+class InspIRCd;
 
 typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, void*);
 typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, void**, int*);
@@ -61,6 +62,8 @@ struct MultiConfig
 class ServerConfig : public Extensible
 {
   private:
+	InspIRCd* ServerInstance;
+
 	/** This variable holds the names of all
 	 * files included from the main one. This
 	 * is used to make sure that no files are
@@ -354,7 +357,7 @@ class ServerConfig : public Extensible
 	 */
 	bool SyntaxHints;
 
-	ServerConfig();
+	ServerConfig(InspIRCd* Instance);
 
 	/** Clears the include stack in preperation for
 	 * a Read() call.

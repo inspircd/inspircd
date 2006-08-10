@@ -16,7 +16,7 @@
 #include "modes/cmode_h.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
+
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -28,17 +28,17 @@ ModeChannelHalfOp::ModeChannelHalfOp() : ModeHandler('h', 1, 1, true, MODETYPE_C
 
 ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
-	userrec* x = Find(parameter);
+	userrec* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-	        if (cstatus(x, channel) == STATUS_HOP)
-	        {
-	                return std::make_pair(true, x->nick);
-	        }
-	        else
-	        {
-	                return std::make_pair(false, parameter);
-	        }
+		if (cstatus(x, channel) == STATUS_HOP)
+		{
+			return std::make_pair(true, x->nick);
+		}
+		else
+		{
+			return std::make_pair(false, parameter);
+		}
 	}
 	return std::make_pair(false, parameter);
 }

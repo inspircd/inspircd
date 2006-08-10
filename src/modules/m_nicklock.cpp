@@ -23,6 +23,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
@@ -41,7 +42,7 @@ class cmd_nicklock : public command_t
 
 	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* source = Srv->FindNick(std::string(parameters[0]));
+		userrec* source = ServerInstance->FindNick(parameters[0]);
 		irc::string server;
 		irc::string me;
 
@@ -55,7 +56,7 @@ class cmd_nicklock : public command_t
 			if (Srv->IsNick(std::string(parameters[1])))
 			{
 				// give them a lock flag
-				Srv->SendOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+std::string(parameters[0])+" to "+parameters[1]);
+				ServerInstance->WriteOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
 				if (!source->ForceNickChange(parameters[1]))
 				{
 					userrec::QuitUser(ServerInstance, source, "Nickname collision");
@@ -78,12 +79,12 @@ class cmd_nickunlock : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* source = Srv->FindNick(std::string(parameters[0]));
+		userrec* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
 		{
 			source->Shrink("nick_locked");
 			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,source->nick);
-			Srv->SendOpers(std::string(user->nick)+" used NICKUNLOCK on "+std::string(parameters[0]));
+			ServerInstance->WriteOpers(std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
 		}
 	}
 };

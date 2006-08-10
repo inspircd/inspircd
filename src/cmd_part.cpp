@@ -27,7 +27,7 @@ void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
 
-	chanrec* c = FindChan(parameters[0]);
+	chanrec* c = ServerInstance->FindChan(parameters[0]);
 	
 	if (c)
 	{

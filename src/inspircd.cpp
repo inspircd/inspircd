@@ -142,7 +142,7 @@ void Killed(int status)
 
 void Rehash(int status)
 {
-	WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
+	ServerInstance->WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
 	fclose(ServerInstance->Config->log_file);
 	OpenLog(NULL,0);
 	ServerInstance->Config->Read(false,NULL);
@@ -228,8 +228,8 @@ void InspIRCd::MakeLowerMap()
 InspIRCd::InspIRCd(int argc, char** argv)
 {
 	bool SEGVHandler = false;
-	this->Config = new ServerConfig;
 	ServerInstance = this;
+	this->Config = new ServerConfig(this);
 	this->Start();
 	this->module_sockets.clear();
 	this->startup_time = time(NULL);
@@ -304,7 +304,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->Read(true, NULL);
 	CheckRoot();
 	this->ModeGrok = new ModeParser();
-	AddServerName(Config->ServerName);
+	this->AddServerName(Config->ServerName);
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 	stats->BoundPortCount = BindPorts(true);

@@ -18,13 +18,16 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "commands/cmd_kick.h"
+
+extern InspIRCd* ServerInstance;
 
 void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];
-	chanrec* c = FindChan(parameters[0]);
-	userrec* u = Find(parameters[1]);
+	chanrec* c = ServerInstance->FindChan(parameters[0]);
+	userrec* u = ServerInstance->FindNick(parameters[1]);
 
 	if (!u || !c)
 	{

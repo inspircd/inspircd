@@ -35,7 +35,7 @@ void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
 
-	c = FindChan(parameters[0]);
+	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
 	{
 		if ((c->modes[CM_SECRET]) && (!c->HasUser(user)))
@@ -43,7 +43,7 @@ void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 		      user->WriteServ("401 %s %s :No such nick/channel",user->nick, c->name);
 		      return;
 		}
-		userlist(user,c);
+		c->UserList(user);
 		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
 	}
 	else

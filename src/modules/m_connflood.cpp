@@ -95,7 +95,7 @@ public:
 			{
 				/* expire throttle */
 				throttled = 0;
-				Srv->SendOpers("*** Connection throttle deactivated");
+				ServerInstance->WriteOpers("*** Connection throttle deactivated");
 				return;
 			}
 			userrec::QuitUser(ServerInstance, user, quitmsg);
@@ -107,7 +107,7 @@ public:
 			if (conns >= maxconns)
 			{
 				throttled = 1;
-				Srv->SendOpers("*** Connection throttle activated");
+				ServerInstance->WriteOpers("*** Connection throttle activated");
 				userrec::QuitUser(ServerInstance, user, quitmsg);
 				return;
 			}

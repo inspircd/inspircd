@@ -62,12 +62,12 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			if (user->fd > -1)
 			{
 				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
-				WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
+				ServerInstance->WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s%s",ServerInstance->Config->PrefixQuit,parameters[0]);
 			}
 			else
 			{
-				WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
+				ServerInstance->WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s",parameters[0]);
 			}
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(ServerInstance->Config->PrefixQuit)+std::string(parameters[0])));
@@ -76,7 +76,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			user->Write("ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
-			WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
+			ServerInstance->WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			user->WriteCommonExcept("QUIT :Client exited");
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,"Client exited"));
 
@@ -104,7 +104,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 
 	if (user->registered == REG_ALL) {
-		purge_empty_chans(user);
+		user->PurgeEmptyChannels();
 	}
 	if (user->fd > -1)
 		ServerInstance->fd_ref_table[user->fd] = NULL;

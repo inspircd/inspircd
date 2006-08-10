@@ -107,7 +107,7 @@ class ListTimer : public InspTimer
 						long users = chan->GetUserCounter();
 						if (users)
 						{
-							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chanmodes(chan,has_user),chan->topic);
+							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chan->ChanModes(has_user),chan->topic);
 							/* Increment total plus linefeed */
 							amount_sent += counter + 4 + Srv->GetServerName().length();
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);

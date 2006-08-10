@@ -22,10 +22,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Allows opers to set their idle time */
 
 static Server *Srv = NULL;
+extern InspIRCd* ServerInstance;
 
 class cmd_setidle : public command_t
 {
@@ -47,7 +49,7 @@ class cmd_setidle : public command_t
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		Srv->SendOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
+		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
 	}
 };

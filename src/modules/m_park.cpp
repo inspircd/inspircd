@@ -146,7 +146,7 @@ class cmd_unpark : public command_t
 		 *
 		 * And there you have it, easy huh (NOT)...
 		 */
-		userrec* unpark = Srv->FindNick(std::string(parameters[0]));
+		userrec* unpark = ServerInstance->FindNick(parameters[0]);
 		if (!unpark)
 		{
 			user->WriteServ("942 %s %s :Invalid user specified.",user->nick, parameters[0]);
@@ -322,7 +322,7 @@ class ModulePark : public Module
 			{
 				if (time(NULL) >= (j->parktime+ParkMaxTime))
 				{
-					userrec* thisnick = Srv->FindNick(j->nick);
+					userrec* thisnick = ServerInstance->FindNick(j->nick);
 					// THIS MUST COME BEFORE THE QuitUser - QuitUser can
 					// create a recursive call to OnUserQuit in this module
 					// and then corrupt the pointer!

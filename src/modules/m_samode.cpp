@@ -68,7 +68,7 @@ class cmd_samode : public command_t
 			result.append(" ");
 			result.append(parameters[n]);
 		}
-		Srv->SendOpers(result);
+		ServerInstance->WriteOpers(result);
 	}
 };
 

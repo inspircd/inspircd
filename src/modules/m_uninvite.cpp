@@ -24,8 +24,10 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "message.h"
+#include "inspircd.h"
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 	 
 class cmd_uninvite : public command_t
 {
@@ -38,8 +40,8 @@ class cmd_uninvite : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* u = Find(parameters[0]);
-		chanrec* c = FindChan(parameters[1]);
+		userrec* u = ServerInstance->FindNick(parameters[0]);
+		chanrec* c = ServerInstance->FindChan(parameters[1]);
 			 
 		if ((!c) || (!u))
 		{	

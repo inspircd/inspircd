@@ -140,7 +140,7 @@ public:
 			{
 				// Block it...
 				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
-					WriteOpers("*** %s had an /amsg or /ame denied", user->nick);
+					ServerInstance->WriteOpers("*** %s had an /amsg or /ame denied", user->nick);
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					userrec::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");

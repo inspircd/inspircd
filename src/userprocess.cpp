@@ -19,7 +19,6 @@
 using namespace std;
 
 #include "inspircd_config.h"
-#include "inspircd.h"
 #include "configreader.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -48,6 +47,7 @@ using namespace std;
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "userprocess.h"
+#include "inspircd.h"
 #include "typedefs.h"
 #include "command_parse.h"
 #include "cull_list.h"
@@ -146,7 +146,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					if (current->lines_in > current->flood)
 					{
 						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+						this->WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						userrec::QuitUser(this, current,"Excess flood");
 						return;
 					}
@@ -158,7 +158,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",current->GetIPString());
+					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
 					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);
@@ -175,7 +175,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				}
 				else
 				{
-					WriteOpers("*** Excess flood from %s",current->GetIPString());
+					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
 					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					apply_lines(APPLY_ZLINES);

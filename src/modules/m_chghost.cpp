@@ -22,10 +22,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the CHGHOST command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_chghost : public command_t
 {
@@ -56,13 +58,13 @@ class cmd_chghost : public command_t
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long",user->nick);
 			return;
 		}
-		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
 			if ((dest->ChangeDisplayedHost(parameters[1])) && (!Srv->IsUlined(user->server)))
 			{
 				// fix by brain - ulines set hosts silently
-				Srv->SendOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+std::string(dest->nick)+" become "+std::string(parameters[1]));
+				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+parameters[1]);
 			}
 		}
 	}

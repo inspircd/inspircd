@@ -40,7 +40,7 @@ class cmd_sajoin : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
 			if (Srv->IsUlined(dest->server))
@@ -55,7 +55,7 @@ class cmd_sajoin : public command_t
 				return;
 			}
 
-			Srv->SendOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+			ServerInstance->WriteOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 			chanrec::JoinUser(ServerInstance, dest, parameters[1], true);
 		}
 	}

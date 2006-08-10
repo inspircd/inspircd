@@ -650,6 +650,10 @@ class userrec : public connection
 
 	void SplitChanList(userrec* dest, const std::string &cl);
 
+	void PurgeEmptyChannels();
+
+	ConnectClass& GetClass();
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

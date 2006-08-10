@@ -1,10 +1,12 @@
 #include "users.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the SETIDENT command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_setident : public command_t
 {
@@ -26,7 +28,7 @@ class cmd_setident : public command_t
 			return;
 		}
 		
-		WriteOpers("%s used SETIDENT to change their ident from '%s' to '%s'", user->nick, user->ident, parameters[0]);
+		ServerInstance->WriteOpers("%s used SETIDENT to change their ident from '%s' to '%s'", user->nick, user->ident, parameters[0]);
 		strlcpy(user->ident, parameters[0], IDENTMAX+2);
 	}
 };

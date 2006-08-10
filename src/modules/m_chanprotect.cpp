@@ -22,6 +22,8 @@
 
 /* $ModDesc: Provides channel modes +a and +q */
 
+extern InspIRCd* ServerInstance;
+
 const char* fakevalue = "on";
 
 class ChanFounder : public ModeHandler
@@ -34,7 +36,7 @@ class ChanFounder : public ModeHandler
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
-		userrec* x = Find(parameter);
+		userrec* x = ServerInstance->FindNick(parameter);
 		if (x)
 		{
 			if (!channel->HasUser(x))
@@ -60,7 +62,7 @@ class ChanFounder : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = Srv->FindNick(parameter);
+		userrec* theuser = ServerInstance->FindNick(parameter);
 
 		log(DEBUG,"ChanFounder::OnModeChange");
 
@@ -149,7 +151,7 @@ class ChanProtect : public ModeHandler
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
-		userrec* x = Find(parameter);
+		userrec* x = ServerInstance->FindNick(parameter);
 		if (x)
 		{
 			if (!channel->HasUser(x))
@@ -174,7 +176,7 @@ class ChanProtect : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = Srv->FindNick(parameter);
+		userrec* theuser = ServerInstance->FindNick(parameter);
 
 		// cant find the user given as the parameter, eat the mode change.
 		if (!theuser)

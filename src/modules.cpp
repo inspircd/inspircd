@@ -326,7 +326,7 @@ const std::string& Server::GetModuleName(Module* m)
 
 void Server::RehashServer()
 {
-	WriteOpers("*** Rehashing config file");
+	ServerInstance->WriteOpers("*** Rehashing config file");
 	ServerInstance->Config->Read(false,NULL);
 }
 
@@ -373,11 +373,6 @@ chanrec* Server::GetChannelIndex(long index)
 			return n->second;
 	}
 	return NULL;
-}
-
-void Server::SendOpers(const std::string &s)
-{
-	WriteOpers("%s",s.c_str());
 }
 
 bool Server::MatchText(const std::string &sliteral, const std::string &spattern)
@@ -440,19 +435,9 @@ bool Server::IsNick(const std::string &nick)
 	return (isnick(nick.c_str()) != 0);
 }
 
-userrec* Server::FindNick(const std::string &nick)
-{
-	return Find(nick);
-}
-
 userrec* Server::FindDescriptor(int socket)
 {
 	return (socket < 65536 ? ServerInstance->fd_ref_table[socket] : NULL);
-}
-
-chanrec* Server::FindChannel(const std::string &channel)
-{
-	return FindChan(channel.c_str());
 }
 
 std::string Server::ChanMode(userrec* User, chanrec* Chan)
@@ -553,7 +538,7 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 					zombie->WriteServ("332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
 					zombie->WriteServ("333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
 				}
-				userlist(zombie,Ptr);
+				Ptr->UserList(zombie);
 				zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
 		}
 	}
@@ -786,11 +771,11 @@ void ConfigReader::DumpErrors(bool bail, userrec* user)
 		}
 		else
 		{
-			WriteOpers("There were errors in the configuration file:");
+			ServerInstance->WriteOpers("There were errors in the configuration file:");
 			
 			while(start < errors.length())
 			{
-				WriteOpers(errors.substr(start, 360).c_str());
+				ServerInstance->WriteOpers(errors.substr(start, 360).c_str());
 				start += 360;
 			}
 		}

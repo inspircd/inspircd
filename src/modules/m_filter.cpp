@@ -107,11 +107,8 @@ class ModuleFilter : public Module
 
 				if (f->action == "block")
 	      			{	
-					Srv->SendOpers(std::string("FILTER: ")+std::string(user->nick)+
-    							std::string(" had their notice filtered, target was ")+
-    							target+": "+f->reason);
-					user->WriteServ("NOTICE "+std::string(user->nick)+
-    							" :Your notice has been filtered and opers notified: "+f->reason);
+					ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their notice filtered, target was "+target+": "+f->reason);
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+f->reason);
     				}
 				Srv->Log(DEFAULT,std::string("FILTER: ")+std::string(user->nick)+
     						std::string(" had their notice filtered, target was ")+

@@ -19,7 +19,10 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "commands/cmd_ison.h"
+
+extern InspIRCd* ServerInstance;
 
 void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -30,7 +33,7 @@ void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 
 	for (int i = 0; i < pcnt; i++)
 	{
-		u = Find(parameters[i]);
+		u = ServerInstance->FindNick(parameters[i]);
 
 		if (u)
 		{

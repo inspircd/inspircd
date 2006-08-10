@@ -22,6 +22,8 @@
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 
+extern InspIRCd* ServerInstance;
+
 class cmd_swhois : public command_t
 {
 	Server* Srv;
@@ -35,7 +37,7 @@ class cmd_swhois : public command_t
 
 	void Handle(const char** parameters, int pcnt, userrec* user)
 	{
-		userrec* dest = Srv->FindNick(std::string(parameters[0]));
+		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if(dest)
 		{
 			std::string line;
@@ -56,7 +58,7 @@ class cmd_swhois : public command_t
 				
 				if (!Srv->IsUlined(user->server))
 					// Ulines set SWHOISes silently
-					WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+					ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 				
 				dest->Shrink("swhois");
 				DELETE(text);
@@ -64,7 +66,7 @@ class cmd_swhois : public command_t
 			else if(!Srv->IsUlined(user->server))
 			{
 				// Ulines set SWHOISes silently
-				WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
+				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
 			}
 			
 			text = new std::string(line);

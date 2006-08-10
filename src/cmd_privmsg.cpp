@@ -67,7 +67,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	if (parameters[0][0] == '#')
 	{
-		chan = FindChan(parameters[0]);
+		chan = ServerInstance->FindChan(parameters[0]);
 		if (chan)
 		{
 			if (IS_LOCAL(user))
@@ -109,7 +109,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		return;
 	}
 
-	dest = Find(parameters[0]);
+	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
 		if ((IS_LOCAL(user)) && (*dest->awaymsg))

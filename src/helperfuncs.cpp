@@ -102,7 +102,7 @@ void InspIRCd::Log(int level, const std::string &text)
 	}
 }
 
-std::string GetServerDescription(const char* servername)
+std::string InspIRCd::GetServerDescription(const char* servername)
 {
 	std::string description = "";
 
@@ -115,7 +115,7 @@ std::string GetServerDescription(const char* servername)
 	else
 	{
 		// not a remote server that can be found, it must be me.
-		return ServerInstance->Config->ServerDesc;
+		return Config->ServerDesc;
 	}
 }
 
@@ -126,43 +126,27 @@ std::string GetServerDescription(const char* servername)
  * uses the oper list, which means if you have 2000 users but only 5 opers,
  * it iterates 5 times.
  */
-void WriteOpers(const char* text, ...)
+void InspIRCd::WriteOpers(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
-
-	if (!text)
-	{
-		log(DEFAULT,"*** BUG *** WriteOpers was given an invalid parameter");
-		return;
-	}
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	WriteOpers_NoFormat(textbuffer);
+	this->WriteOpers(std::string(textbuffer));
 }
 
-void WriteOpers_NoFormat(const char* text)
+void InspIRCd::WriteOpers(const std::string &text)
 {
-	if (!text)
-	{
-		log(DEFAULT,"*** BUG *** WriteOpers_NoFormat was given an invalid parameter");
-		return;
-	}
-
 	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
 	{
 		userrec* a = *i;
-
-		if (IS_LOCAL(a))
+		if (IS_LOCAL(a) && a->modes[UM_SERVERNOTICE])
 		{
-			if (a->modes[UM_SERVERNOTICE])
-			{
-				// send server notices to all with +s
-				a->WriteServ("NOTICE %s :%s",a->nick,text);
-			}
+			// send server notices to all with +s
+			a->WriteServ("NOTICE %s :%s",a->nick,text.c_str());
 		}
 	}
 }
@@ -285,27 +269,27 @@ void strlower(char *n)
 
 /* Find a user record by nickname and return a pointer to it */
 
-userrec* Find(const std::string &nick)
+userrec* InspIRCd::FindNick(const std::string &nick)
 {
-	user_hash::iterator iter = ServerInstance->clientlist.find(nick);
+	user_hash::iterator iter = clientlist.find(nick);
 
-	if (iter == ServerInstance->clientlist.end())
+	if (iter == clientlist.end())
 		/* Couldn't find it */
 		return NULL;
 
 	return iter->second;
 }
 
-userrec* Find(const char* nick)
+userrec* InspIRCd::FindNick(const char* nick)
 {
 	user_hash::iterator iter;
 
 	if (!nick)
 		return NULL;
 
-	iter = ServerInstance->clientlist.find(nick);
+	iter = clientlist.find(nick);
 	
-	if (iter == ServerInstance->clientlist.end())
+	if (iter == clientlist.end())
 		return NULL;
 
 	return iter->second;
@@ -313,239 +297,33 @@ userrec* Find(const char* nick)
 
 /* find a channel record by channel name and return a pointer to it */
 
-chanrec* FindChan(const char* chan)
+chanrec* InspIRCd::FindChan(const char* chan)
 {
 	chan_hash::iterator iter;
 
 	if (!chan)
-	{
-		log(DEFAULT,"*** BUG *** Findchan was given an invalid parameter");
 		return NULL;
-	}
 
-	iter = ServerInstance->chanlist.find(chan);
+	iter = chanlist.find(chan);
 
-	if (iter == ServerInstance->chanlist.end())
+	if (iter == chanlist.end())
 		/* Couldn't find it */
 		return NULL;
 
 	return iter->second;
 }
 
-
-long GetMaxBans(char* name)
+chanrec* InspIRCd::FindChan(const std::string &chan)
 {
-	std::string x;
-	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
-	{
-		x = n->first;
-		if (match(name,x.c_str()))
-		{
-			return n->second;
-		}
-	}
-	return 64;
+	chan_hash::iterator iter = chanlist.find(chan);
+
+	if (iter == chanlist.end())
+		/* Couldn't find it */
+		return NULL;
+
+	return iter->second;
 }
 
-void purge_empty_chans(userrec* u)
-{
-	std::vector<chanrec*> to_delete;
-
-	// firstly decrement the count on each channel
-	for (std::vector<ucrec*>::iterator f = u->chans.begin(); f != u->chans.end(); f++)
-	{
-		ucrec* uc = (ucrec*)(*f);
-		if (uc->channel)
-		{
-			if (uc->channel->DelUser(u) == 0)
-			{
-				/* No users left in here, mark it for deletion */
-				to_delete.push_back(uc->channel);
-				uc->channel = NULL;
-			}
-		}
-	}
-
-	log(DEBUG,"purge_empty_chans: %d channels to delete",to_delete.size());
-
-	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
-	{
-		chanrec* thischan = (chanrec*)*n;
-		chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
-		if (i2 != ServerInstance->chanlist.end())
-		{
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-			DELETE(i2->second);
-			ServerInstance->chanlist.erase(i2);
-		}
-	}
-
-	u->UnOper();
-}
-
-
-char* chanmodes(chanrec *chan, bool showkey)
-{
-	static char scratch[MAXBUF];
-	static char sparam[MAXBUF];
-	char* offset = scratch;
-	std::string extparam = "";
-
-	if (!chan)
-	{
-		log(DEFAULT,"*** BUG *** chanmodes was given an invalid parameter");
-		*scratch = '\0';
-		return scratch;
-	}
-
-	*scratch = '\0';
-	*sparam = '\0';
-
-	/* This was still iterating up to 190, chanrec::custom_modes is only 64 elements -- Om */
-	for(int n = 0; n < 64; n++)
-	{
-		if(chan->modes[n])
-		{
-			*offset++ = n+65;
-			extparam = "";
-			switch (n)
-			{
-				case CM_KEY:
-					extparam = (showkey ? chan->key : "<key>");
-				break;
-				case CM_LIMIT:
-					extparam = ConvToStr(chan->limit);
-				break;
-				case CM_NOEXTERNAL:
-				case CM_TOPICLOCK:
-				case CM_INVITEONLY:
-				case CM_MODERATED:
-				case CM_SECRET:
-				case CM_PRIVATE:
-					/* We know these have no parameters */
-				break;
-				default:
-					extparam = chan->GetModeParameter(n+65);
-				break;
-			}
-			if (extparam != "")
-			{
-				charlcat(sparam,' ',MAXBUF);
-				strlcat(sparam,extparam.c_str(),MAXBUF);
-			}
-		}
-	}
-
-	/* Null terminate scratch */
-	*offset = '\0';
-	strlcat(scratch,sparam,MAXBUF);
-	return scratch;
-}
-
-
-/* compile a userlist of a channel into a string, each nick seperated by
- * spaces and op, voice etc status shown as @ and + */
-
-void userlist(userrec *user,chanrec *c)
-{
-	if ((!c) || (!user))
-	{
-		log(DEFAULT,"*** BUG *** userlist was given an invalid parameter");
-		return;
-	}
-
-	char list[MAXBUF];
-	size_t dlen, curlen;
-
-	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-
-	int numusers = 0;
-	char* ptr = list + dlen;
-
-	CUList *ulist= c->GetUsers();
-
-	/* Improvement by Brain - this doesnt change in value, so why was it inside
-	 * the loop?
-	 */
-	bool has_user = c->HasUser(user);
-
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-	{
-		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
-		{
-			/*
-			 * user is +i, and source not on the channel, does not show
-			 * nick in NAMES list
-			 */
-			continue;
-		}
-
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", cmode(i->second, c), i->second->nick);
-
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
-
-		if (curlen > (480-NICKMAX))
-		{
-			/* list overflowed into multiple numerics */
-			user->WriteServ(list);
-
-			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
-			ptr = list + dlen;
-
-			ptrlen = 0;
-			numusers = 0;
-		}
-	}
-
-	/* if whats left in the list isnt empty, send it */
-	if (numusers)
-	{
-		user->WriteServ(list);
-	}
-}
-
-/*
- * return a count of the users on a specific channel accounting for
- * invisible users who won't increase the count. e.g. for /LIST
- */
-int usercount_i(chanrec *c)
-{
-	int count = 0;
-
-	if (!c)
-		return 0;
-
-	CUList *ulist= c->GetUsers();
-	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-	{
-		if (!(i->second->modes[UM_INVISIBLE]))
-			count++;
-	}
-
-	return count;
-}
-
-/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
- * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
- * then their ip will be taken as 'priority' anyway, so for example,
- * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
- */
-ConnectClass GetClass(userrec *user)
-{
-	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
-	{
-		if ((match(user->GetIPString(),i->host.c_str(),true)) || (match(user->host,i->host.c_str())))
-		{
-			return *i;
-		}
-	}
-
-	return *(ServerInstance->Config->Classes.begin());
-}
 
 /*
  * sends out an error notice to all connected clients (not to be used
@@ -590,7 +368,7 @@ void Error(int status)
 		log(DEFAULT,"[%d] %s", i, strings[i]);
 	}
 	free(strings);
-	WriteOpers("*** SIGSEGV: Please see the ircd.log for backtrace and report the error to http://www.inspircd.org/bugtrack/");
+	ServerInstance->WriteOpers("*** SIGSEGV: Please see the ircd.log for backtrace and report the error to http://www.inspircd.org/bugtrack/");
 #else
 	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
 #endif
@@ -900,42 +678,6 @@ bool IsValidChannelName(const char *chname)
 	}
 
 	return true;
-}
-
-inline int charlcat(char* x,char y,int z)
-{
-	char* x__n = x;
-	int v = 0;
-
-	while(*x__n++)
-		v++;
-
-	if (v < z - 1)
-	{
-		*--x__n = y;
-		*++x__n = 0;
-	}
-
-	return v;
-}
-
-bool charremove(char* mp, char remove)
-{
-	char* mptr = mp;
-	bool shift_down = false;
-
-	while (*mptr)
-	{
-		if (*mptr == remove)
-		shift_down = true;
-
-		if (shift_down)
-			*mptr = *(mptr+1);
-
-		mptr++;
-	}
-
-	return shift_down;
 }
 
 void OpenLog(char** argv, int argc)

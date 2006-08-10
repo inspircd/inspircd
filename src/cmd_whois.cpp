@@ -24,7 +24,7 @@
 #include "commands/cmd_whois.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
+
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -68,7 +68,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 		}
 		else
 		{
-			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, dest->server, GetServerDescription(dest->server).c_str());
+			user->WriteServ("312 %s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
 		}
 		if (*dest->awaymsg)
 		{
@@ -107,7 +107,7 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
 
-	dest = Find(parameters[0]);
+	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
 		do_whois(user,dest,0,0,parameters[0]);
@@ -119,3 +119,4 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
 	}
 }
+

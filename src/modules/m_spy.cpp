@@ -94,11 +94,11 @@ class cmd_spylist : public command_t
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
+		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
 		for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 		{
-			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),chanmodes(i->second,true),i->second->topic);
+			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),i->second->ChanModes(true),i->second->topic);
 		}
 		user->WriteServ("323 %s :End of channel list.",user->nick);
 	}
@@ -126,9 +126,9 @@ class cmd_spynames : public command_t
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
 			return;
 
-		WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
+		ServerInstance->WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
 
-		c = FindChan(parameters[0]);
+		c = ServerInstance->FindChan(parameters[0]);
 		if (c)
 		{
 			spy_userlist(user,c);

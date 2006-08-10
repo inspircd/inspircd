@@ -16,7 +16,7 @@
 #include "modes/cmode_v.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
+
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -28,18 +28,18 @@ ModeChannelVoice::ModeChannelVoice() : ModeHandler('v', 1, 1, true, MODETYPE_CHA
 
 ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
-        userrec* x = Find(parameter);
-        if (x)
-        {
-                if (cstatus(x, channel) == STATUS_VOICE)
-                {
-                        return std::make_pair(true, x->nick);
-                }
-                else
-                {
-                        return std::make_pair(false, parameter);
-                }
-        }
+	userrec* x = ServerInstance->FindNick(parameter);
+	if (x)
+	{
+		if (cstatus(x, channel) == STATUS_VOICE)
+		{
+			return std::make_pair(true, x->nick);
+		}
+		else
+		{
+			return std::make_pair(false, parameter);
+		}
+	}
 	return std::make_pair(false, parameter);
 }
 

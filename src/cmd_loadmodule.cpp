@@ -26,7 +26,7 @@ void cmd_loadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->LoadModule(parameters[0]))
 	{
-		WriteOpers("*** NEW MODULE: %s",parameters[0]);
+		ServerInstance->WriteOpers("*** NEW MODULE: %s",parameters[0]);
 		user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 	}
 	else

@@ -29,6 +29,7 @@ using namespace std;
 /* $ModDesc: Provides support for the /watch command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class watchentry : public classbase
 {
@@ -58,7 +59,7 @@ class cmd_watch : public command_t
 				watchentry* a = (watchentry*)(*q);
 				if (a->watcher == user)
 				{
-					userrec* targ = Srv->FindNick(a->target);
+					userrec* targ = ServerInstance->FindNick(a->target);
 					if (targ)
 					{
 						user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
@@ -99,7 +100,7 @@ class cmd_watch : public command_t
 						watchentry* a = (watchentry*)(*q);
 						if (a->watcher == user)
 						{
-							userrec* targ = Srv->FindNick(a->target);
+							userrec* targ = ServerInstance->FindNick(a->target);
 							if (targ)
 							{
 								user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
@@ -136,7 +137,7 @@ class cmd_watch : public command_t
 						if (b->watcher == user)
 						{
 							irc::string n2 = b->target.c_str();
-							userrec* a = Srv->FindNick(b->target);
+							userrec* a = ServerInstance->FindNick(b->target);
 							if (a)
 							{
 								user->WriteServ("602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
@@ -180,7 +181,7 @@ class cmd_watch : public command_t
 						watches.push_back(w);
 						log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
 					}
-		       			userrec* a = Srv->FindNick(nick);
+		       			userrec* a = ServerInstance->FindNick(nick);
 		       			if (a)
 		       			{
 		       				user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);

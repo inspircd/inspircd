@@ -22,6 +22,8 @@
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
+extern InspIRCd* ServerInstance;
+
 typedef std::map<std::string,std::string> override_t;
 
 class ModuleOverride : public Module
@@ -93,7 +95,7 @@ class ModuleOverride : public Module
 		{
 			if (((Srv->ChanMode(source,chan) == "%") && (Srv->ChanMode(user,chan) == "@")) || (Srv->ChanMode(source,chan) == ""))
 			{
-				Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
 			return -1;
@@ -117,7 +119,7 @@ class ModuleOverride : public Module
 						case AC_DEOP:
 							if (CanOverride(source,"MODEDEOP"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -128,7 +130,7 @@ class ModuleOverride : public Module
 						case AC_OP:
 							if (CanOverride(source,"MODEOP"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -139,7 +141,7 @@ class ModuleOverride : public Module
 						case AC_VOICE:
 							if (CanOverride(source,"MODEVOICE"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -150,7 +152,7 @@ class ModuleOverride : public Module
 						case AC_DEVOICE:
 							if (CanOverride(source,"MODEDEVOICE"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -161,7 +163,7 @@ class ModuleOverride : public Module
 						case AC_HALFOP:
 							if (CanOverride(source,"MODEHALFOP"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -172,7 +174,7 @@ class ModuleOverride : public Module
 						case AC_DEHALFOP:
 							if (CanOverride(source,"MODEDEHALFOP"))
 							{
-								Srv->SendOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -213,7 +215,7 @@ class ModuleOverride : public Module
 							chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s invited himself into the channel", cname, user->nick);
 						}
 					}
-					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
+					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
 					return -1;
 				}
 				
@@ -221,7 +223,7 @@ class ModuleOverride : public Module
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s bypassed the channel key", cname, user->nick);
-					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
+					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
 				}
 					
@@ -229,7 +231,7 @@ class ModuleOverride : public Module
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s passed through your channel limit", cname, user->nick);
-					Srv->SendOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
+					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
 				}
 

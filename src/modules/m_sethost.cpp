@@ -22,10 +22,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the SETHOST command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_sethost : public command_t
 {
@@ -55,7 +57,7 @@ class cmd_sethost : public command_t
 			}
 		}
 		if (user->ChangeDisplayedHost(parameters[0]))
-			Srv->SendOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
+			ServerInstance->WriteOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
 	}
 };
 

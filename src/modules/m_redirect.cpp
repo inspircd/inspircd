@@ -60,7 +60,7 @@ class Redirect : public ModeHandler
 				return MODEACTION_DENY;
 			}
 
-			c = Srv->FindChannel(parameter);
+			c = ServerInstance->FindChan(parameter);
 			if (c)
 			{
 				/* Fix by brain: Dont let a channel be linked to *itself* either */

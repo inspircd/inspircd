@@ -44,11 +44,11 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
-			WriteOpers("*** %s added permanent Z-line for %s.",user->nick,parameters[0]);
+			ServerInstance->WriteOpers("*** %s added permanent Z-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			WriteOpers("*** %s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
+			ServerInstance->WriteOpers("*** %s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
 		apply_lines(APPLY_ZLINES);
 	}
@@ -57,7 +57,7 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (del_zline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelZLine,OnDelZLine(user, parameters[0]));
-			WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);
+			ServerInstance->WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);
 		}
 		else
 		{

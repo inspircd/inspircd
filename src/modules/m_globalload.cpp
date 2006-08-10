@@ -40,7 +40,7 @@ class cmd_gloadmodule : public command_t
 	{
 		if (ServerInstance->LoadModule(parameters[0]))
 		{
-			WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
+			ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 		}
 		else
@@ -63,7 +63,7 @@ class cmd_gunloadmodule : public command_t
 	{
 		if (ServerInstance->UnloadModule(parameters[0]))
 		{
-			WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
+			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 		}
 		else

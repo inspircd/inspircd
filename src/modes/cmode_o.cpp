@@ -16,7 +16,7 @@
 #include "modes/cmode_o.h"
 
 extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
+
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 extern int MODCOUNT;
@@ -28,18 +28,18 @@ ModeChannelOp::ModeChannelOp() : ModeHandler('o', 1, 1, true, MODETYPE_CHANNEL, 
 
 ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 {
-        userrec* x = Find(parameter);
-        if (x)
-        {
-                if (cstatus(x, channel) == STATUS_OP)
-                {
-                        return std::make_pair(true, x->nick);
-                }
-                else
-                {
-                        return std::make_pair(false, parameter);
-                }
-        }
+	userrec* x = ServerInstance->FindNick(parameter);
+	if (x)
+	{
+		if (cstatus(x, channel) == STATUS_OP)
+		{
+			return std::make_pair(true, x->nick);
+		}
+		else
+		{
+			return std::make_pair(false, parameter);
+		}
+	}
 	return std::make_pair(false, parameter);
 }
 

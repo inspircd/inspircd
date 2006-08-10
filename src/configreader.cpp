@@ -27,7 +27,6 @@
 #include "userprocess.h"
 #include "xline.h"
 
-extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
 extern int MODCOUNT;
@@ -38,7 +37,7 @@ using irc::sockets::BindPorts;
 
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
-ServerConfig::ServerConfig()
+ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->ClearStack();
 	*TempDir = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
@@ -116,8 +115,8 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 			}
 			else
 			{
-				WriteOpers("There were errors in the configuration file:");
-				WriteOpers("You have more than one <%s> tag, this is not permitted.\n",tag);
+				ServerInstance->WriteOpers("There were errors in the configuration file:");
+				ServerInstance->WriteOpers("You have more than one <%s> tag, this is not permitted.\n",tag);
 			}
 		}
 		return false;
@@ -138,8 +137,8 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 			}
 			else
 			{
-				WriteOpers("There were errors in the configuration file:");
-				WriteOpers("You have not defined a <%s> tag, this is required.",tag);
+				ServerInstance->WriteOpers("There were errors in the configuration file:");
+				ServerInstance->WriteOpers("You have not defined a <%s> tag, this is required.",tag);
 			}
 		}
 		return false;
@@ -285,20 +284,20 @@ bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, 
 
 bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	if ((!ServerInstance->Config->NetBufferSize) || (ServerInstance->Config->NetBufferSize > 65535) || (ServerInstance->Config->NetBufferSize < 1024))
+	if ((!conf->NetBufferSize) || (conf->NetBufferSize > 65535) || (conf->NetBufferSize < 1024))
 	{
 		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-		ServerInstance->Config->NetBufferSize = 10240;
+		conf->NetBufferSize = 10240;
 	}
 	return true;
 }
 
 bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	if ((!ServerInstance->Config->MaxWhoResults) || (ServerInstance->Config->MaxWhoResults > 65535) || (ServerInstance->Config->MaxWhoResults < 1))
+	if ((!conf->MaxWhoResults) || (conf->MaxWhoResults > 65535) || (conf->MaxWhoResults < 1))
 	{
 		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-		ServerInstance->Config->MaxWhoResults = 128;
+		conf->MaxWhoResults = 128;
 	}
 	return true;
 }
@@ -306,32 +305,32 @@ bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void
 bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
 	const char* dbg = (const char*)data;
-	ServerInstance->Config->LogLevel = DEFAULT;
+	conf->LogLevel = DEFAULT;
 	if (!strcmp(dbg,"debug"))
 	{
-		ServerInstance->Config->LogLevel = DEBUG;
-		ServerInstance->Config->debugging = 1;
+		conf->LogLevel = DEBUG;
+		conf->debugging = 1;
 	}
 	else if (!strcmp(dbg,"verbose"))
-		ServerInstance->Config->LogLevel = VERBOSE;
+		conf->LogLevel = VERBOSE;
 	else if (!strcmp(dbg,"default"))
-		ServerInstance->Config->LogLevel = DEFAULT;
+		conf->LogLevel = DEFAULT;
 	else if (!strcmp(dbg,"sparse"))
-		ServerInstance->Config->LogLevel = SPARSE;
+		conf->LogLevel = SPARSE;
 	else if (!strcmp(dbg,"none"))
-		ServerInstance->Config->LogLevel = NONE;
+		conf->LogLevel = NONE;
 	return true;
 }
 
 bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	conf->ReadFile(ServerInstance->Config->MOTD,ServerInstance->Config->motd);
+	conf->ReadFile(conf->MOTD,conf->motd);
 	return true;
 }
 
 bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	conf->ReadFile(ServerInstance->Config->RULES,ServerInstance->Config->rules);
+	conf->ReadFile(conf->RULES,conf->rules);
 	return true;
 }
 
@@ -340,7 +339,7 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void*
 bool InitConnect(ServerConfig* conf, const char* tag)
 {
 	log(DEFAULT,"Reading connect classes...");
-	ServerInstance->Config->Classes.clear();
+	conf->Classes.clear();
 	return true;
 }
 
@@ -394,13 +393,13 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
 			c.registration_timeout = 90;
 		if (c.pingtime == 0)
 			c.pingtime = 120;
-		ServerInstance->Config->Classes.push_back(c);
+		conf->Classes.push_back(c);
 	}
 	else
 	{
 		c.host = deny;
 		c.type = CC_DENY;
-		ServerInstance->Config->Classes.push_back(c);
+		conf->Classes.push_back(c);
 		log(DEBUG,"Read connect class type DENY, host=%s",deny);
 	}
 
@@ -419,7 +418,7 @@ bool DoneConnect(ServerConfig* conf, const char* tag)
  */
 bool InitULine(ServerConfig* conf, const char* tag)
 {
-	ServerInstance->Config->ulines.clear();
+	conf->ulines.clear();
 	return true;
 }
 
@@ -429,7 +428,7 @@ bool DoULine(ServerConfig* conf, const char* tag, char** entries, void** values,
 {
 	char* server = (char*)values[0];
 	log(DEBUG,"Read ULINE '%s'",server);
-	ServerInstance->Config->ulines.push_back(server);
+	conf->ulines.push_back(server);
 	return true;
 }
 
@@ -448,7 +447,7 @@ bool InitModule(ServerConfig* conf, const char* tag)
 	new_module_names.clear();
 	added_modules.clear();
 	removed_modules.clear();
-	for (std::vector<std::string>::iterator t = ServerInstance->Config->module_names.begin(); t != ServerInstance->Config->module_names.end(); t++)
+	for (std::vector<std::string>::iterator t = conf->module_names.begin(); t != conf->module_names.end(); t++)
 	{
 		old_module_names.push_back(*t);
 	}
@@ -503,7 +502,7 @@ bool DoneModule(ServerConfig* conf, const char* tag)
  */
 bool InitMaxBans(ServerConfig* conf, const char* tag)
 {
-	ServerInstance->Config->maxbans.clear();
+	conf->maxbans.clear();
 	return true;
 }
 
@@ -513,7 +512,7 @@ bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, void** value
 {
 	char* channel = (char*)values[0];
 	int* limit = (int*)values[1];
-	ServerInstance->Config->maxbans[channel] = *limit;
+	conf->maxbans[channel] = *limit;
 	return true;
 }
 
@@ -694,11 +693,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 			}
 			else
 			{
-				WriteOpers("There were errors in the configuration file:");
+				ServerInstance->WriteOpers("There were errors in the configuration file:");
 				
 				while(start < errors.length())
 				{
-					WriteOpers(errors.substr(start, 360).c_str());
+					ServerInstance->WriteOpers(errors.substr(start, 360).c_str());
 					start += 360;
 				}
 			}
@@ -809,7 +808,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			{
 				if (ServerInstance->UnloadModule(removing->c_str()))
 				{
-					WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
+					ServerInstance->WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
 					if (user)
 						user->WriteServ("973 %s %s :Module %s successfully unloaded.",user->nick, removing->c_str(), removing->c_str());
@@ -828,7 +827,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{
 			if (ServerInstance->LoadModule(adding->c_str()))
 			{
-				WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+				ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
 
 				if (user)
 					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());

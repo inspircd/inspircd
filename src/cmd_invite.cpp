@@ -34,8 +34,8 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (pcnt == 2)
 	{
-		userrec* u = Find(parameters[0]);
-		chanrec* c = FindChan(parameters[1]);
+		userrec* u = ServerInstance->FindNick(parameters[0]);
+		chanrec* c = ServerInstance->FindChan(parameters[1]);
 
 		if ((!c) || (!u))
 		{

@@ -34,7 +34,7 @@ void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			long users = i->second->GetUserCounter();
 			if (users)
-				user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,chanmodes(i->second,n),i->second->topic);
+				user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,users,i->second->ChanModes(n),i->second->topic);
 		}
 	}
 	user->WriteServ("323 %s :End of channel list.",user->nick);

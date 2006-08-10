@@ -53,6 +53,6 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
-		WriteOpers("*** Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		ServerInstance->WriteOpers("*** Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
 	}
 }

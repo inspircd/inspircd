@@ -35,7 +35,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (pcnt == 1)
 	{
-		Ptr = FindChan(parameters[0]);
+		Ptr = ServerInstance->FindChan(parameters[0]);
 		if (Ptr)
 		{
 			if ((Ptr->modes[CM_SECRET]) && (!Ptr->HasUser(user)))
@@ -61,7 +61,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else if (pcnt>1)
 	{
-		Ptr = FindChan(parameters[0]);
+		Ptr = ServerInstance->FindChan(parameters[0]);
 		if (Ptr)
 		{
 			if (IS_LOCAL(user))

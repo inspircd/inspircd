@@ -28,7 +28,7 @@ void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 	log(DEFAULT,"Restart: %s",user->nick);
 	if (!strcmp(parameters[0],ServerInstance->Config->restartpass))
 	{
-		WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
+		ServerInstance->WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
 
 		argv[0] = ServerInstance->Config->MyExecutable;
 		argv[1] = "-wait";
@@ -58,6 +58,6 @@ void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		WriteOpers("*** Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		ServerInstance->WriteOpers("*** Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
 	}
 }

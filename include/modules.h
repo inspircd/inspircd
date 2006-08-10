@@ -1297,11 +1297,6 @@ class Server : public Extensible
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
 	long PriorityAfter(const std::string &modulename);
-	
-	/** Sends text to all opers.
-	 * This method sends a server notice to all opers with the usermode +s.
-	 */
-	virtual void SendOpers(const std::string &s);
 
 	/** Returns the version string of this server
 	 */
@@ -1357,20 +1352,10 @@ class Server : public Extensible
 	 */
 	virtual bool IsNick(const std::string &nick);
 
-	/** Attempts to look up a nick and return a pointer to it.
-	 * This function will return NULL if the nick does not exist.
-	 */
-	virtual userrec* FindNick(const std::string &nick);
-
 	/** Attempts to look up a nick using the file descriptor associated with that nick.
 	 * This function will return NULL if the file descriptor is not associated with a valid user.
 	 */
 	virtual userrec* FindDescriptor(int socket);
-
-	/** Attempts to look up a channel and return a pointer to it.
-	 * This function will return NULL if the channel does not exist.
-	 */
-	virtual chanrec* FindChannel(const std::string &channel);
 
 	/** Attempts to look up a user's privilages on a channel.
 	 * This function will return a string containing either @, %, +, or an empty string,

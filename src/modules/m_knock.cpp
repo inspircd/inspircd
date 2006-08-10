@@ -27,6 +27,7 @@ using namespace std;
 /* $ModDesc: Provides support for /KNOCK and mode +K */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_knock : public command_t
 {
@@ -39,7 +40,7 @@ class cmd_knock : public command_t
 	
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		chanrec* c = Srv->FindChannel(parameters[0]);
+		chanrec* c = ServerInstance->FindChan(parameters[0]);
 
 		if (!c)
 		{

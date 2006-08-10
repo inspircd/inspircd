@@ -92,11 +92,11 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		if (matches_qline(parameters[0]))
 		{
-			WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,matches_qline(parameters[0]));
+			ServerInstance->WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,matches_qline(parameters[0]));
 			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0],matches_qline(parameters[0]));
 			return;
 		}
-		if ((Find(parameters[0])) && (Find(parameters[0]) != user))
+		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user))
 		{
 			user->WriteServ("433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
 			return;

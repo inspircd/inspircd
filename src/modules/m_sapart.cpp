@@ -27,6 +27,7 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style SAPART command */
 
 static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_sapart : public command_t
 {
@@ -39,8 +40,8 @@ class cmd_sapart : public command_t
 	 
 	void Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* dest = Srv->FindNick(parameters[0]);
-		chanrec* channel = Srv->FindChannel(parameters[1]);
+		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		chanrec* channel = ServerInstance->FindChan(parameters[1]);
 		if (dest && channel)
 		{
 			if (Srv->IsUlined(dest->server))
@@ -48,7 +49,7 @@ class cmd_sapart : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
 			}
-			Srv->SendOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+			ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 			if (!channel->PartUser(dest, dest->nick))
 				delete channel;
 		}

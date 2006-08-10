@@ -3,8 +3,11 @@
 #include "modules.h"
 #include "message.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the CHGIDENT command */
+
+extern InspIRCd* ServerInstance;
 
 class cmd_chgident : public command_t
 {
@@ -19,8 +22,8 @@ class cmd_chgident : public command_t
 	
 	void Handle(const char** parameters, int pcnt, userrec *user)
 	{
-		userrec* dest = Srv->FindNick(std::string(parameters[0]));
-		
+		userrec* dest = ServerInstance->FindNick(parameters[0]);
+
 		if(dest)
 		{
 			if(!isident(parameters[1]))
@@ -29,7 +32,7 @@ class cmd_chgident : public command_t
 				return;
 			}
 		
-			WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
+			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
 			strlcpy(dest->ident, parameters[1], IDENTMAX+2);
 		}
 		else

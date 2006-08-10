@@ -617,7 +617,7 @@ class cmd_rconnect : public command_t
 		if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
 		{
 			/* Yes, initiate the given connect */
-			WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
+			ServerInstance->WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
 			const char* para[1];
 			para[0] = parameters[1];
 			Creator->OnPreCommand("CONNECT", para, 1, user, true);
@@ -713,12 +713,12 @@ class TreeSocket : public InspSocket
 		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
 		{
-			WriteOpers("*** \2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
+			ServerInstance->WriteOpers("*** \2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
 			log(DEBUG,"Key length not 16, 24 or 32 characters!");
 		}
 		else
 		{
-			WriteOpers("*** \2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
+			ServerInstance->WriteOpers("*** \2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
 			ctx_in->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 			ctx_out->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
@@ -741,13 +741,13 @@ class TreeSocket : public InspSocket
 			{
 				if (x->Name == this->myhost)
 				{
-					Srv->SendOpers("*** Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
+					ServerInstance->WriteOpers("*** Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
 					this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
 						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
 						{
-							WriteOpers("\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
+							ServerInstance->WriteOpers("\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
 						}
 						else
 						{
@@ -766,7 +766,7 @@ class TreeSocket : public InspSocket
 		 * If that happens the connection hangs here until it's closed. Unlikely
 		 * and rather harmless.
 		 */
-		Srv->SendOpers("*** Connection to \2"+myhost+"\2 lost link tag(!)");
+		ServerInstance->WriteOpers("*** Connection to \2"+myhost+"\2 lost link tag(!)");
 		return true;
 	}
 	
@@ -778,7 +778,7 @@ class TreeSocket : public InspSocket
 		 */
 		if (e == I_ERR_CONNECT)
 		{
-			Srv->SendOpers("*** Connection failed: Connection refused");
+			ServerInstance->WriteOpers("*** Connection failed: Connection refused");
 		}
 	}
 
@@ -857,10 +857,10 @@ class TreeSocket : public InspSocket
 				quitserver = this->InboundServerName;
 			}
 
-			WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!",quitserver.c_str());
-			WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
-			WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
-			WriteOpers("*** These lists must match exactly on both servers. Please correct these errors, and try again.");
+			ServerInstance->WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!",quitserver.c_str());
+			ServerInstance->WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
+			ServerInstance->WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
+			ServerInstance->WriteOpers("*** These lists must match exactly on both servers. Please correct these errors, and try again.");
 			this->WriteLine("ERROR :CAPAB mismatch; My capabilities: '"+this->MyCapabilities()+"'");
 			return false;
 		}
@@ -904,11 +904,11 @@ class TreeSocket : public InspSocket
 			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 			if (Current->GetParent() == TreeRoot)
 			{
-				Srv->SendOpers("Server \002"+Current->GetName()+"\002 split: "+reason);
+				ServerInstance->WriteOpers("Server \002"+Current->GetName()+"\002 split: "+reason);
 			}
 			else
 			{
-				Srv->SendOpers("Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+				ServerInstance->WriteOpers("Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 			}
 			num_lost_servers = 0;
 			num_lost_users = 0;
@@ -917,7 +917,7 @@ class TreeSocket : public InspSocket
 			Current->Tidy();
 			Current->GetParent()->DelChild(Current);
 			DELETE(Current);
-			WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+			ServerInstance->WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 		}
 		else
 		{
@@ -939,7 +939,7 @@ class TreeSocket : public InspSocket
 		std::string sourceserv;
 
 		/* Are we dealing with an FMODE from a user, or from a server? */
-		userrec* who = Srv->FindNick(source);
+		userrec* who = ServerInstance->FindNick(source);
 		if (who)
 		{
 			/* FMODE from a user, set sourceserv to the users server name */
@@ -975,7 +975,7 @@ class TreeSocket : public InspSocket
 				
 		}
                 /* Extract the TS value of the object, either userrec or chanrec */
-		userrec* dst = Srv->FindNick(params[0]);
+		userrec* dst = ServerInstance->FindNick(params[0]);
 		chanrec* chan = NULL;
 		time_t ourTS = 0;
 		if (dst)
@@ -984,7 +984,7 @@ class TreeSocket : public InspSocket
 		}
 		else
 		{
-			chan = Srv->FindChannel(params[0]);
+			chan = ServerInstance->FindChan(params[0]);
 			if (chan)
 			{
 				ourTS = chan->age;
@@ -1291,7 +1291,7 @@ class TreeSocket : public InspSocket
 			 */
 			if ((Srv->IsUlined(sourceserv)) && (TS > ourTS))
 			{
-				WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
+				ServerInstance->WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
 			}
 			/* Allow the mode, route it to either server or user command handling */
 			if (smode)
@@ -1317,7 +1317,7 @@ class TreeSocket : public InspSocket
 		time_t ts = atoi(params[1].c_str());
 		std::string nsource = source;
 
-		chanrec* c = Srv->FindChannel(params[0]);
+		chanrec* c = ServerInstance->FindChan(params[0]);
 		if (c)
 		{
 			if ((ts >= c->topicset) || (!*c->topic))
@@ -1332,7 +1332,7 @@ class TreeSocket : public InspSocket
 				 */
 				if (oldtopic != params[3])
 				{
-					userrec* user = Srv->FindNick(source);
+					userrec* user = ServerInstance->FindNick(source);
 					if (!user)
 					{
 						c->WriteChannelWithServ(source.c_str(), "TOPIC %s :%s", c->name, c->topic);
@@ -1373,7 +1373,7 @@ class TreeSocket : public InspSocket
 		time_t TS = atoi(params[1].c_str());
 		char* key = "";
 		
-		chanrec* chan = Srv->FindChannel(channel);
+		chanrec* chan = ServerInstance->FindChan(channel);
 		if (chan)
 		{
 			key = chan->key;
@@ -1384,7 +1384,7 @@ class TreeSocket : public InspSocket
 		 * channel will let the other side apply their modes.
 		 */
 		time_t ourTS = time(NULL)+600;
-		chanrec* us = Srv->FindChannel(channel);
+		chanrec* us = ServerInstance->FindChan(channel);
 		if (us)
 		{
 			ourTS = us->age;
@@ -1424,7 +1424,7 @@ class TreeSocket : public InspSocket
 						strlcat(modestring,"v",MAXBUF);
 					break;
 				}
-				who = Srv->FindNick(usr);
+				who = ServerInstance->FindNick(usr);
 				if (who)
 				{
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, key);
@@ -1509,7 +1509,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() >= 2)
 		{
-			chanrec* c = Srv->FindChannel(params[0]);
+			chanrec* c = ServerInstance->FindChan(params[0]);
 			if (c)
 			{
 				time_t theirTS = atoi(params[1].c_str());
@@ -1577,7 +1577,7 @@ class TreeSocket : public InspSocket
 		else
 			_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
 
-		WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
+		ServerInstance->WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
 
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);
@@ -1693,7 +1693,7 @@ class TreeSocket : public InspSocket
                 }
 		/* XXX: Send each channel mode and its params -- we'll need a method for this in ModeHandler? */
                 //FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
-		this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+chanmodes(c,true)+modes+" "+params);
+		this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true)+modes+" "+params);
 	}
 
 	/* Send G, Q, Z and E lines */
@@ -1814,7 +1814,7 @@ class TreeSocket : public InspSocket
 		std::string endburst = "ENDBURST";
 		// Because by the end of the netburst, it  could be gone!
 		std::string name = s->GetName();
-		Srv->SendOpers("*** Bursting to \2"+name+"\2.");
+		ServerInstance->WriteOpers("*** Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
 		/* send our version string */
 		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
@@ -1827,7 +1827,7 @@ class TreeSocket : public InspSocket
 		this->SendXLines(s);		
 		FOREACH_MOD(I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		this->WriteLine(endburst);
-		Srv->SendOpers("*** Finished bursting to \2"+name+"\2.");
+		ServerInstance->WriteOpers("*** Finished bursting to \2"+name+"\2.");
 	}
 
 	/* This function is called when we receive data from a remote
@@ -1923,7 +1923,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return false;
-		WriteOpers("*** ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
+		ServerInstance->WriteOpers("*** ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 		/* we will return false to cause the socket to close. */
 		return false;
 	}
@@ -1939,7 +1939,7 @@ class TreeSocket : public InspSocket
 			{
 				/* It's for our server */
 				string_list results;
-				userrec* source = Srv->FindNick(prefix);
+				userrec* source = ServerInstance->FindNick(prefix);
 				if (source)
 				{
 					std::deque<std::string> par;
@@ -1956,7 +1956,7 @@ class TreeSocket : public InspSocket
 			else
 			{
 				/* Pass it on */
-				userrec* source = Srv->FindNick(prefix);
+				userrec* source = ServerInstance->FindNick(prefix);
 				if (source)
 					DoOneToOne(prefix, "STATS", params, params[1]);
 			}
@@ -1976,7 +1976,7 @@ class TreeSocket : public InspSocket
 			return true;
 		}
 		std::string opertype = params[0];
-		userrec* u = Srv->FindNick(prefix);
+		userrec* u = ServerInstance->FindNick(prefix);
 		if (u)
 		{
 			u->modes[UM_OPERATOR] = 1;
@@ -1994,7 +1994,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 3)
 			return true;
 
-		userrec* u = Srv->FindNick(params[0]);
+		userrec* u = ServerInstance->FindNick(params[0]);
 
 		if (u)
 		{
@@ -2022,7 +2022,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 2)
 			return true;
 
-		userrec* u = Srv->FindNick(params[0]);
+		userrec* u = ServerInstance->FindNick(params[0]);
 
 		if (u)
 		{
@@ -2041,7 +2041,7 @@ class TreeSocket : public InspSocket
 
 		if (Srv->MatchText(Srv->GetServerName(),servermask))
 		{
-			Srv->SendOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
+			ServerInstance->WriteOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
 			Srv->RehashServer();
 			ReadConfiguration(false);
 		}
@@ -2055,8 +2055,8 @@ class TreeSocket : public InspSocket
 			return true;
 
 		std::string nick = params[0];
-		userrec* u = Srv->FindNick(prefix);
-		userrec* who = Srv->FindNick(nick);
+		userrec* u = ServerInstance->FindNick(prefix);
+		userrec* who = ServerInstance->FindNick(nick);
 
 		if (who)
 		{
@@ -2103,7 +2103,7 @@ class TreeSocket : public InspSocket
 				 * dump the PONG reply back to their fd. If its a server, do nowt.
 				 * Services might want to send these s->s, but we dont need to yet.
 				 */
-				userrec* u = Srv->FindNick(prefix);
+				userrec* u = ServerInstance->FindNick(prefix);
 
 				if (u)
 				{
@@ -2135,7 +2135,7 @@ class TreeSocket : public InspSocket
 			}
 			else if (*(params[0].c_str()) == '#')
 			{
-				chanrec* c = Srv->FindChannel(params[0]);
+				chanrec* c = ServerInstance->FindChan(params[0]);
 				if (c)
 				{
 					FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
@@ -2143,7 +2143,7 @@ class TreeSocket : public InspSocket
 			}
 			else if (*(params[0].c_str()) != '#')
 			{
-				userrec* u = Srv->FindNick(params[0]);
+				userrec* u = ServerInstance->FindNick(params[0]);
 				if (u)
 				{
 					FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(TYPE_USER,u,params[1],params[2]));
@@ -2177,7 +2177,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 1)
 			return true;
 
-		userrec* u = Srv->FindNick(prefix);
+		userrec* u = ServerInstance->FindNick(prefix);
 
 		if (u)
 		{
@@ -2217,7 +2217,7 @@ class TreeSocket : public InspSocket
 			break;
 			default:
 				/* Just in case... */
-				Srv->SendOpers("*** \2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
+				ServerInstance->WriteOpers("*** \2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
 				propogate = false;
 			break;
 		}
@@ -2227,11 +2227,11 @@ class TreeSocket : public InspSocket
 		{
 			if (atoi(params[4].c_str()))
 			{
-				WriteOpers("*** %s Added %cLINE on %s to expire in %lu seconds (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),atoi(params[4].c_str()),params[5].c_str());
+				ServerInstance->WriteOpers("*** %s Added %cLINE on %s to expire in %lu seconds (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),atoi(params[4].c_str()),params[5].c_str());
 			}
 			else
 			{
-				WriteOpers("*** %s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
+				ServerInstance->WriteOpers("*** %s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
 			}
 			params[5] = ":" + params[5];
 			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
@@ -2249,7 +2249,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 1)
 			return true;
 
-		userrec* u = Srv->FindNick(prefix);
+		userrec* u = ServerInstance->FindNick(prefix);
 
 		if (u)
 		{
@@ -2266,7 +2266,7 @@ class TreeSocket : public InspSocket
 			return true;
 
 		log(DEBUG,"In IDLE command");
-		userrec* u = Srv->FindNick(prefix);
+		userrec* u = ServerInstance->FindNick(prefix);
 
 		if (u)
 		{
@@ -2274,10 +2274,10 @@ class TreeSocket : public InspSocket
 			// an incoming request
 			if (params.size() == 1)
 			{
-				userrec* x = Srv->FindNick(params[0]);
+				userrec* x = ServerInstance->FindNick(params[0]);
 				if ((x) && (IS_LOCAL(x)))
 				{
-					userrec* x = Srv->FindNick(params[0]);
+					userrec* x = ServerInstance->FindNick(params[0]);
 					log(DEBUG,"Got IDLE");
 					char signon[MAXBUF];
 					char idle[MAXBUF];
@@ -2300,7 +2300,7 @@ class TreeSocket : public InspSocket
 			else if (params.size() == 3)
 			{
 				std::string who_did_the_whois = params[0];
-				userrec* who_to_send_to = Srv->FindNick(who_did_the_whois);
+				userrec* who_to_send_to = ServerInstance->FindNick(who_did_the_whois);
 				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 				{
 					log(DEBUG,"Got final IDLE");
@@ -2326,7 +2326,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 2)
 			return true;
 
-		userrec* u = Srv->FindNick(params[0]);
+		userrec* u = ServerInstance->FindNick(params[0]);
 
 		if (!u)
 			return true;
@@ -2353,7 +2353,7 @@ class TreeSocket : public InspSocket
 			// someone querying our time?
 			if (Srv->GetServerName() == params[0])
 			{
-				userrec* u = Srv->FindNick(params[1]);
+				userrec* u = ServerInstance->FindNick(params[1]);
 				if (u)
 				{
 					char curtime[256];
@@ -2366,7 +2366,7 @@ class TreeSocket : public InspSocket
 			else
 			{
 				// not us, pass it on
-				userrec* u = Srv->FindNick(params[1]);
+				userrec* u = ServerInstance->FindNick(params[1]);
 				if (u)
 					DoOneToOne(prefix,"TIME",params,params[0]);
 			}
@@ -2374,7 +2374,7 @@ class TreeSocket : public InspSocket
 		else if (params.size() == 3)
 		{
 			// a response to a previous TIME
-			userrec* u = Srv->FindNick(params[1]);
+			userrec* u = ServerInstance->FindNick(params[1]);
 			if ((u) && (IS_LOCAL(u)))
 			{
 			time_t rawtime = atol(params[2].c_str());
@@ -2444,14 +2444,14 @@ class TreeSocket : public InspSocket
 		if (CheckDupe)
 		{
 			this->WriteLine("ERROR :Server "+servername+" already exists!");
-			Srv->SendOpers("*** Server connection from \2"+servername+"\2 denied, already exists");
+			ServerInstance->WriteOpers("*** Server connection from \2"+servername+"\2 denied, already exists");
 			return false;
 		}
 		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		params[3] = ":" + params[3];
 		DoOneToAllButSender(prefix,"SERVER",params,prefix);
-		Srv->SendOpers("*** Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
+		ServerInstance->WriteOpers("*** Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 		return true;
 	}
 
@@ -2468,7 +2468,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
+			ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2480,7 +2480,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				// Begin the sync here. this kickstarts the
@@ -2501,7 +2501,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
+		ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2518,7 +2518,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
+			ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2530,7 +2530,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				/* If the config says this link is encrypted, but the remote side
@@ -2540,10 +2540,10 @@ class TreeSocket : public InspSocket
 				if ((x->EncryptionKey != "") && (!this->ctx_in))
 				{
 					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
-					Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
+					ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
-				Srv->SendOpers("*** Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+				ServerInstance->WriteOpers("*** Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 				this->InboundServerName = sname;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
@@ -2555,7 +2555,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		Srv->SendOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
+		ServerInstance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2608,7 +2608,7 @@ class TreeSocket : public InspSocket
 		}
 		else if ((this->ctx_in) && (command == "AES"))
 		{
-			WriteOpers("*** \2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
+			ServerInstance->WriteOpers("*** \2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
 		}
 
 		switch (this->LinkState)
@@ -2676,13 +2676,13 @@ class TreeSocket : public InspSocket
 						long delta = THEM-time(NULL);
 						if ((delta < -600) || (delta > 600))
 						{
-							WriteOpers("*** \2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
+							ServerInstance->WriteOpers("*** \2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
 							this->WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 							return false;
 						}
 						else if ((delta < -60) || (delta > 60))
 						{
-							WriteOpers("*** \2WARNING\2: Your clocks are out by %d seconds, please consider synching your clocks.",abs(delta));
+							ServerInstance->WriteOpers("*** \2WARNING\2: Your clocks are out by %d seconds, please consider synching your clocks.",abs(delta));
 						}
 					}
 					this->LinkState = CONNECTED;
@@ -2734,7 +2734,7 @@ class TreeSocket : public InspSocket
 				if (prefix != "")
 				{
 					std::string direction = prefix;
-					userrec* t = Srv->FindNick(prefix);
+					userrec* t = ServerInstance->FindNick(prefix);
 					if (t)
 					{
 						direction = t->server;
@@ -2888,8 +2888,8 @@ class TreeSocket : public InspSocket
 					std::string sourceserv = this->myhost;
 					if (params.size() == 3)
 					{
-						userrec* user = Srv->FindNick(params[1]);
-						chanrec* chan = Srv->FindChannel(params[0]);
+						userrec* user = ServerInstance->FindNick(params[1]);
+						chanrec* chan = ServerInstance->FindChan(params[0]);
 						if (user && chan)
 						{
 							if (!chan->ServerKickUser(user, params[2].c_str(), false))
@@ -2928,7 +2928,7 @@ class TreeSocket : public InspSocket
 					{
 						sourceserv = this->InboundServerName;
 					}
-					WriteOpers("*** Received end of netburst from \2%s\2",sourceserv.c_str());
+					ServerInstance->WriteOpers("*** Received end of netburst from \2%s\2",sourceserv.c_str());
 					return true;
 				}
 				else
@@ -2936,7 +2936,7 @@ class TreeSocket : public InspSocket
 					// not a special inter-server command.
 					// Emulate the actual user doing the command,
 					// this saves us having a huge ugly parser.
-					userrec* who = Srv->FindNick(prefix);
+					userrec* who = ServerInstance->FindNick(prefix);
 					std::string sourceserv = this->myhost;
 					if (this->InboundServerName != "")
 					{
@@ -2950,7 +2950,7 @@ class TreeSocket : public InspSocket
 							 * already exist here. If it does, kill their copy,
 							 * and our copy.
 							 */
-							userrec* x = Srv->FindNick(params[0]);
+							userrec* x = ServerInstance->FindNick(params[0]);
 							if ((x) && (x != who))
 							{
 								std::deque<std::string> p;
@@ -2962,7 +2962,7 @@ class TreeSocket : public InspSocket
 								p.push_back("Nickname collision");
 								DoOneToMany(Srv->GetServerName(),"KILL",p);
 								userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
-								userrec* y = Srv->FindNick(prefix);
+								userrec* y = ServerInstance->FindNick(prefix);
 								if (y)
 								{
 									userrec::QuitUser(this->Instance,y,"Nickname collision");
@@ -3019,7 +3019,7 @@ class TreeSocket : public InspSocket
 	{
 		if (this->LinkState == CONNECTING)
 		{
-			Srv->SendOpers("*** CONNECT: Connection to \002"+myhost+"\002 timed out.");
+			ServerInstance->WriteOpers("*** CONNECT: Connection to \002"+myhost+"\002 timed out.");
 		}
 	}
 
@@ -3038,7 +3038,7 @@ class TreeSocket : public InspSocket
 		{
 			Squit(s,"Remote host closed the connection");
 		}
-		WriteOpers("Server '\2%s\2' closed the connection.",quitserver.c_str());
+		ServerInstance->WriteOpers("Server '\2%s\2' closed the connection.",quitserver.c_str());
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -3058,7 +3058,7 @@ class TreeSocket : public InspSocket
 
 			if (!found)
 			{
-				WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
+				ServerInstance->WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
 				close(newsock);
 				return false;
 			}
@@ -3107,7 +3107,7 @@ class ServernameResolver : public Resolver
 			else
 			{
 				/* Something barfed, show the opers */
-				WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+				ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 				delete newsocket;
 			}
 		}
@@ -3116,7 +3116,7 @@ class ServernameResolver : public Resolver
 	void OnError(ResolverError e, const std::string &errormessage)
 	{
 		/* Ooops! */
-		WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
+		ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -3184,7 +3184,7 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 			if ((*(params[0].c_str()) != '#') && (*(params[0].c_str()) != '$'))
 			{
 				// special routing for private messages/notices
-				userrec* d = Srv->FindNick(params[0]);
+				userrec* d = ServerInstance->FindNick(params[0]);
 				if (d)
 				{
 					std::deque<std::string> par;
@@ -3205,7 +3205,7 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 			else
 			{
 				log(DEBUG,"Channel privmsg going to chan %s",params[0].c_str());
-				chanrec* c = Srv->FindChannel(params[0]);
+				chanrec* c = ServerInstance->FindChan(params[0]);
 				if (c)
 				{
 					std::deque<TreeServer*> list;
@@ -3666,7 +3666,7 @@ class ModuleSpanningTree : public Module
 			if (sock)
 			{
 				log(DEBUG,"Splitting server %s",s->GetName().c_str());
-				WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
 				Srv->RemoveSocket(sock);
 			}
@@ -3710,7 +3710,7 @@ class ModuleSpanningTree : public Module
 	{
 		if ((IS_LOCAL(user)) && (pcnt > 1))
 		{
-			userrec* remote = Srv->FindNick(parameters[1]);
+			userrec* remote = ServerInstance->FindNick(parameters[1]);
 			if ((remote) && (remote->fd < 0))
 			{
 				std::deque<std::string> params;
@@ -3746,7 +3746,7 @@ class ModuleSpanningTree : public Module
 					else
 					{
 						// they didnt answer, boot them
-						WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
+						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
 						Srv->RemoveSocket(sock);
 						return;
@@ -3768,7 +3768,7 @@ class ModuleSpanningTree : public Module
 				if (!CheckDupe)
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
-					WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
+					ServerInstance->WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
 
 					insp_inaddr binip;
 
@@ -3782,7 +3782,7 @@ class ModuleSpanningTree : public Module
 						}
 						else
 						{
-							WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							ServerInstance->WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 							delete newsocket;
 						}
 					}
@@ -3863,7 +3863,7 @@ class ModuleSpanningTree : public Module
 						}
 						else
 						{
-							WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 							delete newsocket;
 						}
 					}
@@ -3902,7 +3902,7 @@ class ModuleSpanningTree : public Module
 				results.push_back(Srv->GetServerName()+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
 			}
 			results.push_back(Srv->GetServerName()+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-			WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+			ServerInstance->WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
 		return 0;
@@ -4275,7 +4275,7 @@ class ModuleSpanningTree : public Module
 			// check for self
 			if (Srv->MatchText(Srv->GetServerName(),parameter))
 			{
-				Srv->SendOpers("*** Remote rehash initiated from server \002"+Srv->GetServerName()+"\002.");
+				ServerInstance->WriteOpers("*** Remote rehash initiated from server \002"+Srv->GetServerName()+"\002.");
 				Srv->RehashServer();
 			}
 		}
@@ -4461,14 +4461,14 @@ class ModuleSpanningTree : public Module
 				return;
 			// Insert the TS value of the object, either userrec or chanrec
 			time_t ourTS = 0;
-			userrec* a = Srv->FindNick((*params)[0]);
+			userrec* a = ServerInstance->FindNick((*params)[0]);
 			if (a)
 			{
 				ourTS = a->age;
 			}
 			else
 			{
-				chanrec* a = Srv->FindChannel((*params)[0]);
+				chanrec* a = ServerInstance->FindChan((*params)[0]);
 				if (a)
 				{
 					ourTS = a->age;

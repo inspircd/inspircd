@@ -18,7 +18,10 @@
 #include "users.h"
 #include "commands.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include "commands/cmd_userhost.h"
+
+extern InspIRCd* ServerInstance;
 
 void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -27,7 +30,7 @@ void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 	
 	for (int i = 0; i < pcnt; i++)
 	{
-		userrec *u = Find(parameters[i]);
+		userrec *u = ServerInstance->FindNick(parameters[i]);
 		if(u)
 		{
 			if(*u->oper)

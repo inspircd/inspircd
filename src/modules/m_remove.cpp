@@ -17,6 +17,8 @@
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
+extern InspIRCd* ServerInstance;
+
 class RemoveBase
 {
  private: 
@@ -85,10 +87,10 @@ class RemoveBase
 		username = parameters[ neworder ? 1 : 0];
 		
 		/* Look up the user we're meant to be removing from the channel */
-		target = Srv->FindNick(username);
+		target = ServerInstance->FindNick(username);
 		
 		/* And the channel we're meant to be removing them from */
-		channel = Srv->FindChannel(channame);
+		channel = ServerInstance->FindChan(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)

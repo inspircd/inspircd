@@ -145,7 +145,7 @@ class ModuleHttpStats : public Module
 				int n = 0;
 				for (SortedIter a = so->begin(); ((a != so->end()) && (n < 25)); a++, n++)
 				{
-					chanrec* c = Srv->FindChannel(a->second.c_str());
+					chanrec* c = ServerInstance->FindChan(a->second.c_str());
 					if (c)
 					{
 						data << "<tr><td>" << a->first << "</td><td>" << a->second << "</td>";

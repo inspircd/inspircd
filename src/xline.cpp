@@ -617,35 +617,35 @@ void expire_lines()
 	while ((glines.size()) && (current > (glines.begin()->duration + glines.begin()->set_time)))
 	{
 		std::vector<GLine>::iterator i = glines.begin();
-		WriteOpers("*** Expiring timed G-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
+		ServerInstance->WriteOpers("*** Expiring timed G-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
 		glines.erase(i);
 	}
 
 	while ((elines.size()) && (current > (elines.begin()->duration + elines.begin()->set_time)))
 	{
 		std::vector<ELine>::iterator i = elines.begin();
-		WriteOpers("*** Expiring timed E-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
+		ServerInstance->WriteOpers("*** Expiring timed E-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
 		elines.erase(i);
 	}
 
 	while ((zlines.size()) && (current > (zlines.begin()->duration + zlines.begin()->set_time)))
 	{
 		std::vector<ZLine>::iterator i = zlines.begin();
-		WriteOpers("*** Expiring timed Z-Line %s (set by %s %d seconds ago)",i->ipaddr,i->source,i->duration);
+		ServerInstance->WriteOpers("*** Expiring timed Z-Line %s (set by %s %d seconds ago)",i->ipaddr,i->source,i->duration);
 		zlines.erase(i);
 	}
 
 	while ((klines.size()) && (current > (klines.begin()->duration + klines.begin()->set_time)))
 	{
 		std::vector<KLine>::iterator i = klines.begin();
-		WriteOpers("*** Expiring timed K-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
+		ServerInstance->WriteOpers("*** Expiring timed K-Line %s (set by %s %d seconds ago)",i->hostmask,i->source,i->duration);
 		klines.erase(i);
 	}
 
 	while ((qlines.size()) && (current > (qlines.begin()->duration + qlines.begin()->set_time)))
 	{
 		std::vector<QLine>::iterator i = qlines.begin();
-		WriteOpers("*** Expiring timed Q-Line %s (set by %s %d seconds ago)",i->nick,i->source,i->duration);
+		ServerInstance->WriteOpers("*** Expiring timed Q-Line %s (set by %s %d seconds ago)",i->nick,i->source,i->duration);
 		qlines.erase(i);
 	}
 	
