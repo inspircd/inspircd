@@ -53,8 +53,7 @@ using namespace std;
 
 extern struct sockaddr_in client,server;
 extern socklen_t length;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
+
 extern time_t TIME;
 extern time_t OLDTIME;
 char data[65536];

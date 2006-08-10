@@ -71,10 +71,6 @@ static ModuleSpanningTree* TreeProtocolModule;
 
 extern InspIRCd* ServerInstance;
 
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern int MODCOUNT;
-
 /* Any socket can have one of five states at any one time.
  * The LISTENER state indicates a socket which is listening
  * for connections. It cannot receive data itself, only incoming
@@ -820,9 +816,9 @@ class TreeSocket : public InspSocket
 		std::vector<std::string> modlist;
 		std::string capabilities = "";
 
-		for (int i = 0; i <= MODCOUNT; i++)
+		for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
 		{
-			if ((modules[i]->GetVersion().Flags & VF_STATIC) || (modules[i]->GetVersion().Flags & VF_COMMON))
+			if ((ServerInstance->modules[i]->GetVersion().Flags & VF_STATIC) || (ServerInstance->modules[i]->GetVersion().Flags & VF_COMMON))
 				modlist.push_back(ServerInstance->Config->module_names[i]);
 		}
 		sort(modlist.begin(),modlist.end());

@@ -25,9 +25,6 @@
 #include "commands/cmd_kill.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 
 void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {

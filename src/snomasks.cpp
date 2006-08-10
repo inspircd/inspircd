@@ -24,7 +24,3 @@
 #include "helperfuncs.h"
 #include "snomasks.h"
 
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-

@@ -31,9 +31,6 @@
 #include "xline.h"
 #include "cull_list.h"
 
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern int MODCOUNT;
 extern time_t TIME;
 extern Server* MyServer;
 

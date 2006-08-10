@@ -46,15 +46,10 @@
 #include "inspircd.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
 extern time_t TIME;
 extern command_table cmdlist;
 
 class Server;
-
-featurelist Features;
 
 // version is a simple class for holding a modules version number
 
@@ -298,9 +293,9 @@ Module* InspIRCd::FindFeature(const std::string &FeatureName)
 const std::string& InspIRCd::GetModuleName(Module* m)
 {
 	static std::string nothing = ""; /* Prevent compiler warning */
-	for (int i = 0; i <= MODCOUNT; i++)
+	for (int i = 0; i <= this->GetModuleCount(); i++)
 	{
-		if (modules[i] == m)
+		if (this->modules[i] == m)
 		{
 			return this->Config->module_names[i];
 		}
@@ -324,11 +319,6 @@ void Server::DelSocket(InspSocket* sock)
 			return;
 		}
 	}
-}
-
-long Server::GetChannelCount()
-{
-	return (long)ServerInstance->chanlist.size();
 }
 
 /* This is ugly, yes, but hash_map's arent designed to be
@@ -578,13 +568,13 @@ bool Server::IsValidMask(const std::string &mask)
 	return true;
 }
 
-Module* Server::FindModule(const std::string &name)
+Module* InspIRCd::FindModule(const std::string &name)
 {
-	for (int i = 0; i <= MODCOUNT; i++)
+	for (int i = 0; i <= this->GetModuleCount(); i++)
 	{
-		if (ServerInstance->Config->module_names[i] == name)
+		if (this->Config->module_names[i] == name)
 		{
-			return modules[i];
+			return this->modules[i];
 		}
 	}
 	return NULL;
@@ -806,7 +796,3 @@ int FileReader::FileSize()
 }
 
 
-std::vector<Module*> modules(255);
-std::vector<ircd_module*> factory(255);
-
-int MODCOUNT  = -1;

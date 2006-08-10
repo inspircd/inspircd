@@ -28,10 +28,6 @@
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
-/* Required for the FOREACH_MOD alias (OnOper event) */
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 extern InspIRCd* ServerInstance;
 
 class ModuleSQLOper : public Module

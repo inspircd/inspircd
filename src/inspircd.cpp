@@ -72,12 +72,6 @@ using irc::sockets::insp_sockaddr;
 
 InspIRCd* ServerInstance = NULL;
 
-extern ModuleList modules;
-extern FactoryList factory;
-
-extern int MODCOUNT;
-extern char LOG_FILE[MAXBUF];
-
 int iterations = 0;
 
 insp_sockaddr client, server;
@@ -216,10 +210,14 @@ void InspIRCd::MakeLowerMap()
 	lowermap[(unsigned)'\\'] = '|';
 }
 
-InspIRCd::InspIRCd(int argc, char** argv)
+InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 {
 	bool SEGVHandler = false;
 	ServerInstance = this;
+
+	modules.resize(255);
+	factory.resize(255);
+
 	this->Config = new ServerConfig(this);
 	this->Start();
 	this->module_sockets.clear();
@@ -233,7 +231,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
-	*LOG_FILE = 0;
+	*this->LogFileName = 0;
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++)
 		{
@@ -265,8 +263,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			{
 				if (argc > i+1)
 				{
-					strlcpy(LOG_FILE,argv[i+1],MAXBUF);
-					printf("LOG: Setting logfile to %s\n",LOG_FILE);
+					strlcpy(LogFileName,argv[i+1],MAXBUF);
+					printf("LOG: Setting logfile to %s\n",LogFileName);
 				}
 				else
 				{
@@ -366,7 +364,7 @@ void InspIRCd::EraseFactory(int j)
 void InspIRCd::EraseModule(int j)
 {
 	int v1 = 0;
-	for (std::vector<Module*>::iterator m = modules.begin(); m!= modules.end(); m++)
+	for (ModuleList::iterator m = modules.begin(); m!= modules.end(); m++)
 	{
 		if (v1 == j)
 		{
@@ -397,7 +395,7 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 	{
 		if (Config->module_names[v] == modulename)
 		{
-			// found an instance, swap it with the item at MODCOUNT
+			// found an instance, swap it with the item at the end
 			v2 = v;
 			break;
 		}
@@ -468,7 +466,7 @@ void InspIRCd::MoveToFirst(std::string modulename)
 
 void InspIRCd::MoveToLast(std::string modulename)
 {
-	MoveTo(modulename,MODCOUNT);
+	MoveTo(modulename,this->GetModuleCount());
 }
 
 void InspIRCd::BuildISupport()
@@ -530,7 +528,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 			log(DEBUG,"Erasing module entry...");
 			this->EraseFactory(j);
 			log(DEFAULT,"Module %s unloaded",filename);
-			MODCOUNT--;
+			this->ModCount--;
 			BuildISupport();
 			return true;
 		}
@@ -576,29 +574,29 @@ bool InspIRCd::LoadModule(const char* filename)
 		try
 		{
 			ircd_module* a = new ircd_module(modfile);
-			factory[MODCOUNT+1] = a;
-			if (factory[MODCOUNT+1]->LastError())
+			factory[this->ModCount+1] = a;
+			if (factory[this->ModCount+1]->LastError())
 			{
-				log(DEFAULT,"Unable to load %s: %s",modfile,factory[MODCOUNT+1]->LastError());
-				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
+				log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
+				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[this->ModCount+1]->LastError());
 				return false;
 			}
-			if ((long)factory[MODCOUNT+1]->factory != -1)
+			if ((long)factory[this->ModCount+1]->factory != -1)
 			{
-				Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
-				modules[MODCOUNT+1] = m;
+				Module* m = factory[this->ModCount+1]->factory->CreateModule(MyServer);
+				modules[this->ModCount+1] = m;
 				/* save the module and the module's classfactory, if
 				 * this isnt done, random crashes can occur :/ */
 				Config->module_names.push_back(filename);
 
-				char* x = &Config->implement_lists[MODCOUNT+1][0];
+				char* x = &Config->implement_lists[this->ModCount+1][0];
 				for(int t = 0; t < 255; t++)
 					x[t] = 0;
 
-				modules[MODCOUNT+1]->Implements(x);
+				modules[this->ModCount+1]->Implements(x);
 
 				for(int t = 0; t < 255; t++)
-					Config->global_implementation[t] += Config->implement_lists[MODCOUNT+1][t];
+					Config->global_implementation[t] += Config->implement_lists[this->ModCount+1][t];
 			}
 			else
 			{
@@ -622,8 +620,8 @@ bool InspIRCd::LoadModule(const char* filename)
 		return false;
 	}
 #endif
-	MODCOUNT++;
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[MODCOUNT],filename_str));
+	this->ModCount++;
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
 	// now work out which modules, if any, want to move to the back of the queue,
 	// and if they do, move them there.
 	std::vector<std::string> put_to_back;
@@ -1026,7 +1024,7 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 	if (!Config->global_implementation[I_OnCheckReady])
 		return true;
 
-	for (int i = 0; i <= MODCOUNT; i++)
+	for (int i = 0; i <= this->GetModuleCount(); i++)
 	{
 		if (Config->implement_lists[i][I_OnCheckReady])
 		{
@@ -1038,4 +1036,8 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 	return true;
 }
 
+int InspIRCd::GetModuleCount()
+{
+	return this->ModCount;
+}
 

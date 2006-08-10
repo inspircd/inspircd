@@ -43,14 +43,8 @@
 #include "typedefs.h"
 #include "inspircd.h"
 
-extern int MODCOUNT;
-extern ModuleList modules;
-
 extern time_t TIME;
-extern char lowermap[255];
 extern std::vector<userrec*> all_opers;
-
-char LOG_FILE[MAXBUF];
 
 static char TIMESTR[26];
 static time_t LAST = 0;
@@ -473,7 +467,7 @@ bool InspIRCd::IsChannel(const char *chname)
 
 void InspIRCd::OpenLog(char** argv, int argc)
 {
-	if (!*LOG_FILE)
+	if (!*this->LogFileName)
 	{
 		if (Config->logpath == "")
 		{
@@ -482,7 +476,7 @@ void InspIRCd::OpenLog(char** argv, int argc)
 	}
 	else
 	{
-		Config->log_file = fopen(LOG_FILE,"a+");
+		Config->log_file = fopen(this->LogFileName,"a+");
 
 		if (!Config->log_file)
 		{
@@ -526,7 +520,7 @@ void InspIRCd::LoadAllModules()
 {
 	char configToken[MAXBUF];
 	Config->module_names.clear();
-	MODCOUNT = -1;
+	this->ModCount = -1;
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
 	{
@@ -540,6 +534,7 @@ void InspIRCd::LoadAllModules()
 			Exit(ERROR);
 		}
 	}
-	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
+	printf("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");
+	log(DEFAULT,"Total loaded modules: %d", this->ModCount+1);
 }
 

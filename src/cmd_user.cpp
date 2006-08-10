@@ -23,10 +23,6 @@
 
 extern InspIRCd* ServerInstance;
 
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
-
 void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (user->registered < REG_NICKUSER)

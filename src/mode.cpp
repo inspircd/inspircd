@@ -65,10 +65,6 @@ using namespace std;
 /* +n (notice mask - our implementation of snomasks) */
 #include "modes/umode_n.h"
 
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-
 extern InspIRCd* ServerInstance;
 
 extern time_t TIME;

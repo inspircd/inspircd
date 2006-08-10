@@ -31,8 +31,6 @@ using namespace std;
 extern std::vector<userrec*> all_opers;
 extern InspIRCd* ServerInstance;
 
-extern int MODCOUNT;
-
 typedef std::map<irc::string,int> StatsHash;
 typedef StatsHash::iterator StatsIter;
 
@@ -123,7 +121,7 @@ class ModuleHttpStats : public Module
 				data << "<div class='modules'>";
 				data << "<h2>Modules</h2>";
 				data << "<table>";
-				for (int i = 0; i <= MODCOUNT; i++)
+				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
 				{
 					if (ServerInstance->Config->module_names[i] != "")
 						data << "<tr><td>" << ServerInstance->Config->module_names[i] << "</td></tr>";

@@ -35,9 +35,6 @@
 #include "commands/cmd_quit.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
 extern time_t TIME;
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)

@@ -50,15 +50,9 @@
 
 extern InspIRCd* ServerInstance;
 
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-
-extern int MODCOUNT;
 extern time_t TIME;
 
 extern Server* MyServer;
-
-extern chan_hash chanlist;
 
 /* Special commands which may occur without registration of the user */
 cmd_user* command_user;

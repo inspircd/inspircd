@@ -19,8 +19,11 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
 /* $ModDesc: Sends the /LUSERS on connect */
+
+extern InspIRCd* ServerInstance;
 
 // This has to be the simplest module ever.
 // The RFC doesnt specify that you should send the /LUSERS numerics
@@ -60,7 +63,7 @@ class ModuleConnLUSERS : public Module
 		// protocol module. Yes, at some point there will
 		// be a way to get the current protocol module's name
 		// from the core and probably a pointer to its class.
-		Module* Proto = Srv->FindModule("m_spanningtree.so");
+		Module* Proto = ServerInstance->FindModule("m_spanningtree.so");
 		if (Proto)
 		{
 			Proto->OnPreCommand("LUSERS", NULL, 0, user, true);

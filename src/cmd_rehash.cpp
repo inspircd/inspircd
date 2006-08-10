@@ -22,9 +22,6 @@
 #include "commands/cmd_rehash.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
 
 void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {

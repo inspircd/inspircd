@@ -104,6 +104,11 @@ class InspIRCd : public classbase
 
 	bool AllModulesReportReady(userrec* user);
 
+	int ModCount;
+	char LogFileName[MAXBUF];
+
+	featurelist Features;
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
@@ -119,6 +124,13 @@ class InspIRCd : public classbase
 	std::vector<userrec*> local_users;
 	DNS* Res;
 	TimerManager* Timers;
+
+	ModuleList modules;
+	FactoryList factory;
+
+	int GetModuleCount();
+
+	Module* FindModule(const std::string &name);
 
 	void AddServerName(const std::string &servername);
 	const char* FindServerNamePtr(const std::string &servername);

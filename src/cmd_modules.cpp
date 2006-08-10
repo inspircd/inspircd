@@ -32,9 +32,6 @@
 #include "commands/cmd_modules.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 
 char* itab[] = {
 	"OnUserConnect", "OnUserQuit", "OnUserDisconnect", "OnUserJoin", "OnUserPart", "OnRehash", "OnServerRaw",
@@ -55,7 +52,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 {
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{
-		Version V = modules[i]->GetVersion();
+		Version V = ServerInstance->modules[i]->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
 		*flagstate = 0;
@@ -76,7 +73,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (match(ServerInstance->Config->module_names[i].c_str(),parameters[1]))
 				{
-					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 					for (int it = 0; itab[it];)
 					{
 						char data[MAXBUF];
@@ -107,7 +104,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 			}
 		}
 		else

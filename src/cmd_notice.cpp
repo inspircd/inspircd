@@ -29,9 +29,6 @@
 #include "commands/cmd_notice.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 extern time_t TIME;
 
 void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)

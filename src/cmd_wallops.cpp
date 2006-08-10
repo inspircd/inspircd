@@ -20,9 +20,6 @@
 #include "helperfuncs.h"
 #include "commands/cmd_wallops.h"
 
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 extern InspIRCd* ServerInstance;
 
 void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)

@@ -26,9 +26,6 @@
 #include "commands/cmd_privmsg.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
 extern time_t TIME;
 
 void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)

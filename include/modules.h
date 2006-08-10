@@ -90,11 +90,11 @@ typedef std::map<std::string,Module*> featurelist;
  * 'FOREACH_MOD(I_OnXonnwxr,OnConnect(user));'
  */
 #define FOREACH_MOD(y,x) if (ServerInstance->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= MODCOUNT; _i++) { \
+	for (int _i = 0; _i <= ServerInstance->GetModuleCount(); _i++) { \
 	if (ServerInstance->Config->implement_lists[_i][y]) \
 		try \
 		{ \
-			modules[_i]->x ; \
+			ServerInstance->modules[_i]->x ; \
 		} \
 		catch (ModuleException& modexcept) \
 		{ \
@@ -104,11 +104,11 @@ typedef std::map<std::string,Module*> featurelist;
   }
 
 #define FOREACH_MOD_I(z,y,x) if (z->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= MODCOUNT; _i++) { \
+	for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
 		if (z->Config->implement_lists[_i][y]) \
 		try \
 		{ \
-			modules[_i]->x ; \
+			z->modules[_i]->x ; \
 		} \
 		catch (ModuleException& modexcept) \
 		{ \
@@ -123,11 +123,11 @@ typedef std::map<std::string,Module*> featurelist;
  */
 #define FOREACH_RESULT(y,x) { if (ServerInstance->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= MODCOUNT; _i++) { \
+			for (int _i = 0; _i <= ServerInstance->GetModuleCount(); _i++) { \
 			if (ServerInstance->Config->implement_lists[_i][y]) { \
 				try \
 				{ \
-					int res = modules[_i]->x ; \
+					int res = ServerInstance->modules[_i]->x ; \
 					if (res != 0) { \
 						MOD_RESULT = res; \
 						break; \
@@ -144,11 +144,11 @@ typedef std::map<std::string,Module*> featurelist;
 
 #define FOREACH_RESULT_I(z,y,x) { if (z->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= MODCOUNT; _i++) { \
+			for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
 			if (z->Config->implement_lists[_i][y]) { \
 				try \
 				{ \
-					int res = modules[_i]->x ; \
+					int res = z->modules[_i]->x ; \
 					if (res != 0) { \
 						MOD_RESULT = res; \
 						break; \
@@ -1414,12 +1414,6 @@ class Server : public Extensible
 	 */
 	bool IsValidMask(const std::string &mask);
 
-	/** This function finds a module by name.
-	 * You must provide the filename of the module. If the module cannot be found (is not loaded)
-	 * the function will return NULL.
-	 */
-	Module* FindModule(const std::string &name);
-
 	/** Adds a class derived from InspSocket to the server's socket engine.
 	 */
 	void AddSocket(InspSocket* sock);
@@ -1437,10 +1431,6 @@ class Server : public Extensible
 	 * obvious reasons!
 	 */
 	void RehashServer();
-
-	/** This method returns the total number of channels on the network.
-	 */
-	long GetChannelCount();
 
 	/** This method returns a channel whos index is greater than or equal to 0 and less than the number returned by Server::GetChannelCount().
 	 * This is slower (by factors of dozens) than requesting a channel by name with Server::FindChannel(), however there are times when

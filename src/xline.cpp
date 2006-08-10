@@ -40,10 +40,6 @@ using namespace std;
 
 extern InspIRCd* ServerInstance;
 
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-
 /* Version two, now with optimized expiry!
  *
  * Because the old way was horrendously slow, the new way of expiring xlines is very

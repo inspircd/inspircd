@@ -24,10 +24,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_eline.h"
 
-extern int MODCOUNT;
 extern InspIRCd* ServerInstance;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 
 void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 {

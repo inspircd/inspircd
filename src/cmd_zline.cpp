@@ -25,9 +25,6 @@
 #include "commands/cmd_zline.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern ModuleList modules;
-extern FactoryList factory;
 
 void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {

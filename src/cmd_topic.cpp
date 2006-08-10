@@ -23,10 +23,7 @@
 #include "helperfuncs.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
 extern time_t TIME;
-extern ModuleList modules;
-extern FactoryList factory;
 
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {

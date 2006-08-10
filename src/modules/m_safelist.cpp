@@ -75,13 +75,14 @@ class ListTimer : public InspTimer
 				/*
 				 * What we do here:
 				 *  - Get where they are up to
-				 *  - If it's > GetChannelCount, erase them from the iterator, set go_again to true
+				 *  - If it's more than total number of channels, erase
+				 *    them from the iterator, set go_again to true
 				 *  - If not, spool more channels
 				 */
 				userrec* u = (userrec*)(*iter);
 				ListData* ld;
 				u->GetExt("safelist_cache", ld);
-				if (ld->list_position > Srv->GetChannelCount())
+				if ((size_t)ld->list_position > ServerInstance->chanlist.size())
 				{
 					u->Shrink("safelist_cache");
 					DELETE(ld);

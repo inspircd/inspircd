@@ -23,9 +23,6 @@
 #include "commands/cmd_invite.h"
 
 extern InspIRCd* ServerInstance;
-extern int MODCOUNT;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
 
 void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {
