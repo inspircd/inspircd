@@ -967,7 +967,7 @@ int main(int argc, char** argv)
 			ServerInstance->Run();
 			DELETE(ServerInstance);
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			log(SPARSE,"You are out of memory! (got exception std::bad_alloc!)");
 			ServerInstance->SendError("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
