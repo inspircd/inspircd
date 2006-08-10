@@ -47,7 +47,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspircd.h"
 
-static Server *Srv;
+
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
@@ -251,7 +251,7 @@ public:
 	{
 		
 		mksha256cmd = new cmd_mksha256();
-		Srv->AddCommand(mksha256cmd);
+		ServerInstance->AddCommand(mksha256cmd);
 	}
 
 	virtual ~ModuleOperSHA256()

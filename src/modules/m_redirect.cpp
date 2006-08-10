@@ -105,7 +105,7 @@ class Redirect : public ModeHandler
 
 class ModuleRedirect : public Module
 {
-	Server *Srv;
+	
 	Redirect* re;
 	
  public:
@@ -115,7 +115,7 @@ class ModuleRedirect : public Module
 	{
 		
 		re = new Redirect(ServerInstance);
-		Srv->AddMode(re, 'L');
+		ServerInstance->AddMode(re, 'L');
 	}
 	
 	void Implements(char* List)

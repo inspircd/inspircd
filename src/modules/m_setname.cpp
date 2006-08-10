@@ -22,10 +22,11 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: Provides support for the SETNAME command */
 
-static Server *Srv;
+extern InspIRCd* ServerInstance;
 
 class cmd_setname : public command_t
 {
@@ -58,7 +59,7 @@ class ModuleSetName : public Module
 	{
 		
 		mycommand = new cmd_setname();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetName()

@@ -12,7 +12,7 @@ using namespace std;
 /* $ModDesc: Shows a message to opers after oper-up, adds /opermotd */
 
 static FileReader* opermotd;
-static Server* Srv;
+
 
 void LoadOperMOTD()
 {
@@ -68,7 +68,7 @@ class ModuleOpermotd : public Module
 		{
 			
 			mycommand = new cmd_opermotd();
-			Srv->AddCommand(mycommand);
+			ServerInstance->AddCommand(mycommand);
 			opermotd = new FileReader();
 			LoadOperMOTD();
 		}

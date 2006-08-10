@@ -43,13 +43,13 @@ class cmd_chgident : public command_t
 class ModuleChgIdent : public Module
 {
 	cmd_chgident* mycommand;
-	Server* Srv;
+	
 	
 public:
 	ModuleChgIdent(InspIRCd* Me) : Module::Module(Me)
 	{
 		mycommand = new cmd_chgident();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleChgIdent()

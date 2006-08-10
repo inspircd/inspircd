@@ -97,7 +97,7 @@ class TreeSocket;
  */
 TreeServer *TreeRoot;
 
-static Server* Srv;
+
 
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
@@ -582,7 +582,7 @@ TreeServer* FindServerMask(std::string ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
-		if (Srv->MatchText(i->first.c_str(),ServerName))
+		if (ServerInstance->MatchText(i->first.c_str(),ServerName))
 			return i->second;
 	}
 	return NULL;
@@ -609,7 +609,7 @@ class cmd_rconnect : public command_t
 	{
 		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
 		/* Is this aimed at our server? */
-		if (Srv->MatchText(ServerInstance->Config->ServerName,parameters[0]))
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
 			/* Yes, initiate the given connect */
 			ServerInstance->WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
@@ -1157,12 +1157,12 @@ class TreeSocket : public InspSocket
                 	        if (smode)
 				{
 					log(DEBUG,"Send mode");
-					Srv->SendMode(modelist, n+2, who);
+					ServerInstance->SendMode(modelist, n+2, who);
 				}
 				else
 				{
 					log(DEBUG,"Send mode client");
-					Srv->CallCommandHandler("MODE", modelist, n+2, who);
+					ServerInstance->CallCommandHandler("MODE", modelist, n+2, who);
 				}
 
 				/* HOT POTATO! PASS IT ON! */
@@ -1171,7 +1171,7 @@ class TreeSocket : public InspSocket
 		}
 		else
 		/* U-lined servers always win regardless of their TS */
-		if ((TS > ourTS) && (!Srv->IsUlined(source)))
+		if ((TS > ourTS) && (!ServerInstance->IsUlined(source)))
 		{
 			/* Bounce the mode back to its sender.* We use our lower TS, so the other end
 			 * SHOULD accept it, if its clock is right.
@@ -1284,15 +1284,15 @@ class TreeSocket : public InspSocket
 			/* The server was ulined, but something iffy is up with the TS.
 			 * Sound the alarm bells!
 			 */
-			if ((Srv->IsUlined(sourceserv)) && (TS > ourTS))
+			if ((ServerInstance->IsUlined(sourceserv)) && (TS > ourTS))
 			{
 				ServerInstance->WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
 			}
 			/* Allow the mode, route it to either server or user command handling */
 			if (smode)
-				Srv->SendMode(modelist,n,who);
+				ServerInstance->SendMode(modelist,n,who);
 			else
-				Srv->CallCommandHandler("MODE", modelist, n, who);
+				ServerInstance->CallCommandHandler("MODE", modelist, n, who);
 
 			/* HOT POTATO! PASS IT ON! */
 			DoOneToAllButSender(source,"FMODE",params,sourceserv);
@@ -1428,11 +1428,11 @@ class TreeSocket : public InspSocket
 						/* theres a mode for this user. push them onto the mode queue, and flush it
 						 * if there are more than MAXMODES to go.
 						 */
-						if ((ourTS >= TS) || (Srv->IsUlined(who->server)))
+						if ((ourTS >= TS) || (ServerInstance->IsUlined(who->server)))
 						{
 							/* We also always let u-lined clients win, no matter what the TS value */
 							log(DEBUG,"Our our channel newer than theirs, accepting their modes");
-							Srv->SendMode((const char**)mode_users,modectr,who);
+							ServerInstance->SendMode((const char**)mode_users,modectr,who);
 							if (ourTS != TS)
 							{
 								log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
@@ -1473,7 +1473,7 @@ class TreeSocket : public InspSocket
 			if (ourTS >= TS)
 			{
 				log(DEBUG,"Our our channel newer than theirs, accepting their modes");
-				Srv->SendMode((const char**)mode_users,modectr,who);
+				ServerInstance->SendMode((const char**)mode_users,modectr,who);
 				if (ourTS != TS)
 				{
 					log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
@@ -1930,7 +1930,7 @@ class TreeSocket : public InspSocket
 		 */
 		if (params.size() > 1)
 		{
-			if (Srv->MatchText(ServerInstance->Config->ServerName, params[1]))
+			if (ServerInstance->MatchText(ServerInstance->Config->ServerName, params[1]))
 			{
 				/* It's for our server */
 				string_list results;
@@ -2034,10 +2034,10 @@ class TreeSocket : public InspSocket
 
 		std::string servermask = params[0];
 
-		if (Srv->MatchText(ServerInstance->Config->ServerName,servermask))
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,servermask))
 		{
 			ServerInstance->WriteOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
-			Srv->RehashServer();
+			ServerInstance->RehashServer();
 			ReadConfiguration(false);
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
@@ -2972,7 +2972,7 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = params[q].c_str();
 						}
-						if (!Srv->CallCommandHandler(command.c_str(), strparams, params.size(), who))
+						if (!ServerInstance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 						{
 							this->WriteLine("ERROR :Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
 							return false;
@@ -3059,7 +3059,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		TreeSocket* s = new TreeSocket(this->Instance, newsock, ip);
-		Srv->AddSocket(s);
+		ServerInstance->AddSocket(s);
 		return true;
 	}
 };
@@ -3097,7 +3097,7 @@ class ServernameResolver : public Resolver
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
-				Srv->AddSocket(newsocket);
+				ServerInstance->AddSocket(newsocket);
 			}
 			else
 			{
@@ -3326,7 +3326,7 @@ void ReadConfiguration(bool rebind)
 				TreeSocket* listener = new TreeSocket(ServerInstance, IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
-					Srv->AddSocket(listener);
+					ServerInstance->AddSocket(listener);
 					Bindings.push_back(listener);
 				}
 				else
@@ -3370,7 +3370,7 @@ void ReadConfiguration(bool rebind)
 				try
 				{
 					SecurityIPResolver* sr = new SecurityIPResolver(ServerInstance, L.IPAddr, L);
-					Srv->AddResolver(sr);
+					ServerInstance->AddResolver(sr);
 				}
 				catch (ModuleException& e)
 				{
@@ -3432,7 +3432,7 @@ class ModuleSpanningTree : public Module
 		ReadConfiguration(true);
 
 		command_rconnect = new cmd_rconnect(this);
-		Srv->AddCommand(command_rconnect);
+		ServerInstance->AddCommand(command_rconnect);
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
@@ -3444,7 +3444,7 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (Srv->IsUlined(Current->GetChild(q)->GetName())))
+			if ((HideULines) && (ServerInstance->IsUlined(Current->GetChild(q)->GetName())))
 			{
 				if (*user->oper)
 				{
@@ -3457,7 +3457,7 @@ class ModuleSpanningTree : public Module
 			}
 		}
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-		if ((HideULines) && (Srv->IsUlined(Current->GetName())) && (!*user->oper))
+		if ((HideULines) && (ServerInstance->IsUlined(Current->GetName())) && (!*user->oper))
 			return;
 		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
@@ -3543,7 +3543,7 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				if ((HideULines) && (Srv->IsUlined(Current->GetChild(q)->GetName())))
+				if ((HideULines) && (ServerInstance->IsUlined(Current->GetChild(q)->GetName())))
 				{
 					if (*user->oper)
 					{
@@ -3663,7 +3663,7 @@ class ModuleSpanningTree : public Module
 				log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
-				Srv->RemoveSocket(sock);
+				ServerInstance->RemoveSocket(sock);
 			}
 			else
 			{
@@ -3743,7 +3743,7 @@ class ModuleSpanningTree : public Module
 						// they didnt answer, boot them
 						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
-						Srv->RemoveSocket(sock);
+						ServerInstance->RemoveSocket(sock);
 						return;
 					}
 				}
@@ -3773,7 +3773,7 @@ class ModuleSpanningTree : public Module
 						TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
-							Srv->AddSocket(newsocket);
+							ServerInstance->AddSocket(newsocket);
 						}
 						else
 						{
@@ -3786,7 +3786,7 @@ class ModuleSpanningTree : public Module
 						try
 						{
 							ServernameResolver* snr = new ServernameResolver(ServerInstance,x->IPAddr, *x);
-							Srv->AddResolver(snr);
+							ServerInstance->AddResolver(snr);
 						}
 						catch (ModuleException& e)
 						{
@@ -3840,7 +3840,7 @@ class ModuleSpanningTree : public Module
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
 		{
-			if (Srv->MatchText(x->Name.c_str(),parameters[0]))
+			if (ServerInstance->MatchText(x->Name.c_str(),parameters[0]))
 			{
 				TreeServer* CheckDupe = FindServer(x->Name.c_str());
 				if (!CheckDupe)
@@ -3854,7 +3854,7 @@ class ModuleSpanningTree : public Module
 						TreeSocket* newsocket = new TreeSocket(ServerInstance,x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
-							Srv->AddSocket(newsocket);
+							ServerInstance->AddSocket(newsocket);
 						}
 						else
 						{
@@ -3867,7 +3867,7 @@ class ModuleSpanningTree : public Module
 						try
 						{
 							ServernameResolver* snr = new ServernameResolver(ServerInstance, x->IPAddr, *x);
-							Srv->AddResolver(snr);
+							ServerInstance->AddResolver(snr);
 						}
 						catch (ModuleException& e)
 						{
@@ -3953,7 +3953,7 @@ class ModuleSpanningTree : public Module
 			this->HandleVersion(parameters,pcnt,user);
 			return 1;
 		}
-		else if (Srv->IsValidModuleCommand(command, pcnt, user))
+		else if (ServerInstance->IsValidModuleCommand(command, pcnt, user))
 		{
 			// this bit of code cleverly routes all module commands
 			// to all remote severs *automatically* so that modules
@@ -4268,10 +4268,10 @@ class ModuleSpanningTree : public Module
 			params.push_back(parameter);
 			DoOneToMany(ServerInstance->Config->ServerName,"REHASH",params);
 			// check for self
-			if (Srv->MatchText(ServerInstance->Config->ServerName,parameter))
+			if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
 			{
 				ServerInstance->WriteOpers("*** Remote rehash initiated from server \002%s\002",ServerInstance->Config->ServerName);
-				Srv->RehashServer();
+				ServerInstance->RehashServer();
 			}
 		}
 		ReadConfiguration(false);

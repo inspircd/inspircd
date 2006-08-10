@@ -57,7 +57,7 @@ class NoInvite : public ModeHandler
 
 class ModuleNoInvite : public Module
 {
-	Server *Srv;
+	
 	NoInvite *ni;
 	
 	public:
@@ -66,7 +66,7 @@ class ModuleNoInvite : public Module
 		{
 			
 			ni = new NoInvite(ServerInstance);
-			Srv->AddMode(ni, 'V');
+			ServerInstance->AddMode(ni, 'V');
 		}
 
 		void Implements(char* List)

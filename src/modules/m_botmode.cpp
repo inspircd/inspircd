@@ -63,7 +63,7 @@ class BotMode : public ModeHandler
 
 class ModuleBotMode : public Module
 {
-	Server *Srv;
+	
 	BotMode* bm;
  public:
 	ModuleBotMode(InspIRCd* Me)
@@ -71,7 +71,7 @@ class ModuleBotMode : public Module
 	{
 		
 		bm = new BotMode(ServerInstance);
-		Srv->AddMode(bm, 'B');
+		ServerInstance->AddMode(bm, 'B');
 	}
 
 	void Implements(char* List)

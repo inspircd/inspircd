@@ -28,7 +28,7 @@ class ModuleModesOnOper : public Module
 {
  private:
 
-	Server *Srv;
+	
 	ConfigReader *Conf;
 
  public:
@@ -79,7 +79,7 @@ class ModuleModesOnOper : public Module
 					const char* modes[2];
 					modes[0] = user->nick;
 					modes[1] = ThisOpersModes.c_str();
-					Srv->SendMode(modes,2,user);
+					ServerInstance->SendMode(modes,2,user);
 				}
 				break;
 			}

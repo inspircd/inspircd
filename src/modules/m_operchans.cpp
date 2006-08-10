@@ -58,7 +58,7 @@ class OperChans : public ModeHandler
 
 class ModuleOperChans : public Module
 {
-	Server* Srv;
+	
 	OperChans* oc;
  public:
 	ModuleOperChans(InspIRCd* Me)
@@ -66,7 +66,7 @@ class ModuleOperChans : public Module
 	{
 				
 		oc = new OperChans(ServerInstance);
-		Srv->AddMode(oc, 'O');
+		ServerInstance->AddMode(oc, 'O');
 	}
 
 	void Implements(char* List)

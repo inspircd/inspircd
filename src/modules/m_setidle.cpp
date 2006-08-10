@@ -26,7 +26,6 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set their idle time */
 
-static Server *Srv = NULL;
 extern InspIRCd* ServerInstance;
 
 class cmd_setidle : public command_t
@@ -64,7 +63,7 @@ class ModuleSetIdle : public Module
 	{
 		
 		mycommand = new cmd_setidle();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetIdle()

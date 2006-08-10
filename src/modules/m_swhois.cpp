@@ -26,11 +26,10 @@ extern InspIRCd* ServerInstance;
 
 class cmd_swhois : public command_t
 {
-	Server* Srv;
+	
  public:
-	cmd_swhois(Server* server) : command_t("SWHOIS",'o',2)
+	cmd_swhois() : command_t("SWHOIS",'o',2)
 	{
-		this->Srv = server;
 		this->source = "m_swhois.so";
 		syntax = "<nick> <swhois>";
 	}
@@ -56,14 +55,14 @@ class cmd_swhois : public command_t
 			{
 				// We already had it set...
 				
-				if (!Srv->IsUlined(user->server))
+				if (!ServerInstance->IsUlined(user->server))
 					// Ulines set SWHOISes silently
 					ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 				
 				dest->Shrink("swhois");
 				DELETE(text);
 			}
-			else if(!Srv->IsUlined(user->server))
+			else if(!ServerInstance->IsUlined(user->server))
 			{
 				// Ulines set SWHOISes silently
 				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
@@ -78,7 +77,7 @@ class cmd_swhois : public command_t
 class ModuleSWhois : public Module
 {
 	cmd_swhois* mycommand;
-	Server* Srv;
+	
 	ConfigReader* Conf;
 	
  public:
@@ -86,8 +85,8 @@ class ModuleSWhois : public Module
 	{
 		
 		Conf = new ConfigReader();
-		mycommand = new cmd_swhois(Srv);
-		Srv->AddCommand(mycommand);
+		mycommand = new cmd_swhois();
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void OnRehash(const std::string &parameter)

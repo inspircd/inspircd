@@ -33,7 +33,7 @@ class ModuleConnLUSERS : public Module
 {
  private:
 	 
-	 Server *Srv;
+	 
  public:
 	ModuleConnLUSERS(InspIRCd* Me)
 		: Module::Module(Me)
@@ -70,7 +70,7 @@ class ModuleConnLUSERS : public Module
 		}
 		else
 		{
-			Srv->CallCommandHandler("LUSERS", NULL, 0, user);
+			ServerInstance->CallCommandHandler("LUSERS", NULL, 0, user);
 		}
 	}
 };

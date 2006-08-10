@@ -27,7 +27,7 @@ class ModuleDenyChannels : public Module
 {
  private:
 
-	Server *Srv;
+	
 	ConfigReader *Conf;
 
  public:

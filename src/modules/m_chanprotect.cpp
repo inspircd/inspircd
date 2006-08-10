@@ -244,7 +244,7 @@ class ChanProtect : public ModeHandler
 
 class ModuleChanProtect : public Module
 {
-	Server *Srv;
+	
 	bool FirstInGetsFounder;
 	ChanProtect* cp;
 	ChanFounder* cf;
@@ -259,8 +259,8 @@ class ModuleChanProtect : public Module
 		cp = new ChanProtect(ServerInstance);
 		cf = new ChanFounder(ServerInstance);
 
-		Srv->AddMode(cp, 'a');
-		Srv->AddMode(cf, 'q');
+		ServerInstance->AddMode(cp, 'a');
+		ServerInstance->AddMode(cf, 'q');
 		
 		/* Load config stuff */
 		OnRehash("");
@@ -343,7 +343,7 @@ class ModuleChanProtect : public Module
 		
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
-		if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!strcmp(source->server,"")))
+		if ((ServerInstance->IsUlined(source->nick)) || (ServerInstance->IsUlined(source->server)) || (!strcmp(source->server,"")))
 		{
 			return ACR_ALLOW;
 		}

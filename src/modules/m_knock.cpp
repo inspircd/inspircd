@@ -27,7 +27,6 @@ using namespace std;
 
 /* $ModDesc: Provides support for /KNOCK and mode +K */
 
-static Server *Srv;
 extern InspIRCd* ServerInstance;
 
 class cmd_knock : public command_t
@@ -114,9 +113,9 @@ class ModuleKnock : public Module
 	{
 		
 		kn = new Knock(ServerInstance);
-		Srv->AddMode(kn, 'K');
+		ServerInstance->AddMode(kn, 'K');
 		mycommand = new cmd_knock();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

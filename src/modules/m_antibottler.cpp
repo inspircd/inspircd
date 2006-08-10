@@ -23,9 +23,6 @@ using namespace std;
 
 class ModuleAntiBottler : public Module
 {
- private:
-	 
-	 Server *Srv;
  public:
 	ModuleAntiBottler(InspIRCd* Me)
 		: Module::Module(Me)

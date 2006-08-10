@@ -29,7 +29,7 @@ typedef std::map<std::string,std::string> override_t;
 
 class ModuleOverride : public Module
 {
-	Server *Srv;
+	
 	override_t overrides;
 	bool NoisyOverride;
  public:
@@ -108,7 +108,7 @@ class ModuleOverride : public Module
 	{
 		if (*source->oper)
 		{
-			if ((Srv) && (source) && (channel))
+			if (source && channel)
 			{
 				// Fix by brain - allow the change if they arent on channel - rely on boolean short-circuit
 				// to not check the other items in the statement if they arent on the channel

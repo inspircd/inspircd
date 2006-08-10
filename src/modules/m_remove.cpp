@@ -239,7 +239,7 @@ class ModuleRemove : public Module
 	cmd_remove* mycommand;
 	cmd_fpart* mycommand2;
 	bool supportnokicks;
-	Server* Srv;
+	
 	
  public:
 	ModuleRemove(InspIRCd* Me)
@@ -247,8 +247,8 @@ class ModuleRemove : public Module
 	{
 		mycommand = new cmd_remove(supportnokicks);
 		mycommand2 = new cmd_fpart(supportnokicks);
-		Srv->AddCommand(mycommand);
-		Srv->AddCommand(mycommand2);
+		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand2);
 		OnRehash("");
 	}
 

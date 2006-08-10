@@ -45,7 +45,7 @@ using namespace std;
 
 #define nspace __gnu_cxx
 
-static Server *Srv;
+
 
 extern InspIRCd* ServerInstance;
 extern chan_hash chanlist;
@@ -150,8 +150,8 @@ class ModuleSpy : public Module
 		
 		mycommand = new cmd_spylist();
 		mycommand2 = new cmd_spynames();
-		Srv->AddCommand(mycommand);
-		Srv->AddCommand(mycommand2);
+		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand2);
 	}
 	
 	virtual ~ModuleSpy()

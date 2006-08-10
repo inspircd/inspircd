@@ -28,7 +28,7 @@ using namespace std;
 
 class ModuleRestrictChans : public Module
 {
-	Server* Srv;
+	
 
 	std::map<irc::string,int> allowchans;
 

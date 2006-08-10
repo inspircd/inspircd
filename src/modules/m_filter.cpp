@@ -52,7 +52,7 @@ class FilterException : public ModuleException
 
 class ModuleFilter : public Module
 {
- Server *Srv;
+ 
  filter_t filters;
  
  public:
@@ -89,7 +89,7 @@ class ModuleFilter : public Module
 		std::string text2 = text+" ";
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
-			if ((Srv->MatchText(text2,index->first)) || (Srv->MatchText(text,index->first)))
+			if ((ServerInstance->MatchText(text2,index->first)) || (ServerInstance->MatchText(text,index->first)))
 			{
 				Filter* f = (Filter*)index->second;
 				std::string target = "";

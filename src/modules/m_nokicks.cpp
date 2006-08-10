@@ -57,7 +57,7 @@ class NoKicks : public ModeHandler
 
 class ModuleNoKicks : public Module
 {
-	Server *Srv;
+	
 	NoKicks* nk;
 	
  public:
@@ -67,7 +67,7 @@ class ModuleNoKicks : public Module
 	{
 		
 		nk = new NoKicks(ServerInstance);
-		Srv->AddMode(nk, 'Q');
+		ServerInstance->AddMode(nk, 'Q');
 	}
 
 	void Implements(char* List)
@@ -86,7 +86,7 @@ class ModuleNoKicks : public Module
 		{
 			if (channel->IsModeSet('Q'))
 			{
-				if ((Srv->IsUlined(source->nick)) || (Srv->IsUlined(source->server)) || (!strcmp(source->server,"")))
+				if ((ServerInstance->IsUlined(source->nick)) || (ServerInstance->IsUlined(source->server)) || (!strcmp(source->server,"")))
 				{
 					// ulines can still kick with +Q in place
 					return ACR_ALLOW;

@@ -38,7 +38,7 @@ private:
 	std::string quitmsg;
 
 	ConfigReader* conf;
-	Server *Srv;
+	
 
 public:
 	ModuleConnFlood(InspIRCd* Me) : Module::Module(Me)

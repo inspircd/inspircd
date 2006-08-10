@@ -23,7 +23,7 @@
 
 class ModuleSSLDummy : public Module
 {
-	Server* Srv;
+	
 	char* dummy;
  public:
 	

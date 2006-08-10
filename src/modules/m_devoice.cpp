@@ -27,8 +27,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "inspircd.h"
 
-static Server *Srv;
+extern InspIRCd* ServerInstance;
 	 
 class cmd_devoice : public command_t
 {
@@ -52,7 +53,7 @@ class cmd_devoice : public command_t
 		modes[1] = "-v";
 		modes[2] = user->nick;
 
-		Srv->SendMode(modes,3,user);
+		ServerInstance->SendMode(modes,3,user);
 	}
 };
 
@@ -64,7 +65,7 @@ class ModuleDeVoice : public Module
 	{
 		
 		mycommand = new cmd_devoice();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleDeVoice()

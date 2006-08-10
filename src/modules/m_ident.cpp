@@ -34,7 +34,7 @@ extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 class RFC1413 : public InspSocket
 {
  protected:
-	Server* Srv;		 // Server* class used for core communications
+			 // Server* class used for core communications
 	insp_sockaddr sock_us;	 // our port number
 	insp_sockaddr sock_them; // their port number
 	socklen_t uslen;	 // length of our port number
@@ -45,7 +45,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(InspIRCd* SI, userrec* user, int maxtime, Server* S) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
+	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user), ufd(user->fd)
 	{
 		log(DEBUG,"Ident: associated.");
 	}
@@ -175,7 +175,7 @@ class ModuleIdent : public Module
 {
 
 	ConfigReader* Conf;
-	Server* Srv;
+	
 	int IdentTimeout;
 
  public:
@@ -214,11 +214,11 @@ class ModuleIdent : public Module
 		 * Server::AddSocket() call.
 		 */
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
-		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout, Srv);
+		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout);
 		if (ident->GetState() != I_ERROR)
 		{
 			user->Extend("ident_data", (char*)ident);
-			Srv->AddSocket(ident);
+			ServerInstance->AddSocket(ident);
 		}
 		else
 		{
@@ -251,7 +251,7 @@ class ModuleIdent : public Module
 				// a user which has now vanished! To prevent this, set ident::u
 				// to NULL and check it so that we dont write users who have gone away.
 				ident->u = NULL;
-				Srv->RemoveSocket(ident);
+				ServerInstance->RemoveSocket(ident);
 			}
 		}
 	}
@@ -270,7 +270,7 @@ class ModuleIdent : public Module
 		if (user->GetExt("ident_data", ident))
 		{
 			ident->u = NULL;
-			Srv->RemoveSocket(ident);
+			ServerInstance->RemoveSocket(ident);
 		}
 	}
 	

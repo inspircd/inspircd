@@ -27,7 +27,6 @@ using namespace std;
 
 /* $ModDesc: Provides support for GLOBOPS and user mode +g */
 
-static Server *Srv;
 extern InspIRCd* ServerInstance;
 
 class cmd_globops : public command_t
@@ -89,9 +88,9 @@ class ModuleGlobops : public Module
 	{
 		
 		mg = new ModeGlobops(ServerInstance);
-		Srv->AddMode(mg, 'g');
+		ServerInstance->AddMode(mg, 'g');
 		mycommand = new cmd_globops();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleGlobops()

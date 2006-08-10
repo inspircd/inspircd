@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the SETHOST command */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class cmd_sethost : public command_t
@@ -71,7 +71,7 @@ class ModuleSetHost : public Module
 	{
 		
 		mycommand = new cmd_sethost();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetHost()

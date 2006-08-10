@@ -28,7 +28,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the /watch command */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class watchentry : public classbase
@@ -207,7 +207,7 @@ class Modulewatch : public Module
 	{
 		
 		mycommand = new cmd_watch();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

@@ -17,7 +17,7 @@ class ModuleOperjoin : public Module
 	private:
 		std::string operChan;
 		ConfigReader* conf;
-		Server* Srv;
+		
 
 		int tokenize(const string &str, std::vector<std::string> &tokens)
 		{

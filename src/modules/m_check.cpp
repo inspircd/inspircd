@@ -28,8 +28,6 @@ using namespace std;
 
 extern InspIRCd* ServerInstance;
 
-static Server *Srv;
-
 class cmd_check : public command_t
 {
  public:
@@ -91,7 +89,7 @@ class cmd_check : public command_t
 			chliststr = targuser->ChannelList(targuser);
 			std::stringstream dump(chliststr);
 
-			Srv->DumpText(user,checkstr + " onchans ", dump);
+			ServerInstance->DumpText(user,checkstr + " onchans ", dump);
 		}
 		else if (targchan)
 		{
@@ -192,7 +190,7 @@ class ModuleCheck : public Module
 	{
 		
 		mycommand = new cmd_check();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleCheck()

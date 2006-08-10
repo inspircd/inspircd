@@ -186,7 +186,7 @@ class MsgFlood : public ModeHandler
 
 class ModuleMsgFlood : public Module
 {
-	Server *Srv;
+	
 	MsgFlood* mf;
 	
  public:
@@ -196,7 +196,7 @@ class ModuleMsgFlood : public Module
 	{
 		
 		mf = new MsgFlood(ServerInstance);
-		Srv->AddMode(mf, 'f');
+		ServerInstance->AddMode(mf, 'f');
 	}
 	
 	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
@@ -217,7 +217,7 @@ class ModuleMsgFlood : public Module
 						parameters[0] = dest->name;
 						parameters[1] = "+b";
 						parameters[2] = user->MakeWildHost();
-						Srv->SendMode(parameters,3,user);
+						ServerInstance->SendMode(parameters,3,user);
 						std::deque<std::string> n;
 						/* Propogate the ban to other servers.
 						 * We dont know what protocol we may be using,

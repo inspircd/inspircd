@@ -22,7 +22,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspircd.h"
 
-static Server *Srv;
+
 static FileReader *quotes = NULL;
 
 std::string q_file = "";
@@ -109,7 +109,7 @@ class ModuleRandQuote : public Module
 		{
 			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
 			mycommand = new cmd_randquote();
-			Srv->AddCommand(mycommand);
+			ServerInstance->AddCommand(mycommand);
 		}
 	}
 

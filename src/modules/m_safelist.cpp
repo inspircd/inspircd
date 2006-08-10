@@ -55,7 +55,7 @@ class ListTimer : public InspTimer
 
 	char buffer[MAXBUF];
 	chanrec *chan;
-	Server* Srv;
+	
 
  public:
 
@@ -100,7 +100,7 @@ class ListTimer : public InspTimer
 					log(DEBUG,"Channel %ld",ld->list_position);
 					if (!ld->list_position)
 						u->WriteServ("321 %s Channel :Users Name",u->nick);
-					chan = Srv->GetChannelIndex(ld->list_position);
+					chan = ServerInstance->GetChannelIndex(ld->list_position);
 					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
 					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
@@ -141,7 +141,7 @@ class ListTimer : public InspTimer
 class ModuleSafeList : public Module
 {
  private:
-	 Server *Srv;
+	 
 	 ListTimer* MyTimer;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)

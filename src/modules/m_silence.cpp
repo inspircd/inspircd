@@ -134,7 +134,7 @@ class cmd_silence : public command_t
 
 class ModuleSilence : public Module
 {
-	Server *Srv;
+	
 	cmd_silence* mycommand;
  public:
  
@@ -143,7 +143,7 @@ class ModuleSilence : public Module
 	{
 		
 		mycommand = new cmd_silence();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

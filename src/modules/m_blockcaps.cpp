@@ -56,7 +56,7 @@ class BlockCaps : public ModeHandler
 
 class ModuleBlockCAPS : public Module
 {
-	Server *Srv;
+	
 	BlockCaps* bc;
 public:
 	
@@ -64,7 +64,7 @@ public:
 	{
 		
 		bc = new BlockCaps(ServerInstance);
-		Srv->AddMode(bc, 'P');
+		ServerInstance->AddMode(bc, 'P');
 	}
 
 	void Implements(char* List)

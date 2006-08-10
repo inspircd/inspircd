@@ -66,7 +66,7 @@ class ChanFilter : public ListModeBase
 
 class ModuleChanFilter : public Module
 {
-	Server *Srv;
+	
 	ChanFilter* cf;
 	
  public:
@@ -75,7 +75,7 @@ class ModuleChanFilter : public Module
 		: Module::Module(Me)
 	{
 		cf = new ChanFilter(ServerInstance);
-		Srv->AddMode(cf, 'g');
+		ServerInstance->AddMode(cf, 'g');
 	}
 
 	void Implements(char* List) 

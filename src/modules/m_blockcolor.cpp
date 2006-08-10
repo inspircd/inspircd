@@ -58,7 +58,7 @@ class BlockColor : public ModeHandler
 
 class ModuleBlockColour : public Module
 {
-	Server *Srv;
+	
 	BlockColor *bc;
  public:
  
@@ -66,7 +66,7 @@ class ModuleBlockColour : public Module
 	{
 		
 		bc = new BlockColor(ServerInstance);
-		Srv->AddMode(bc, 'c');
+		ServerInstance->AddMode(bc, 'c');
 	}
 
 	void Implements(char* List)

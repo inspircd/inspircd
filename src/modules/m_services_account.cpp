@@ -115,7 +115,7 @@ class AChannel_M : public ModeHandler
 
 class ModuleServicesAccount : public Module
 {
-	Server *Srv; 
+	 
 	AChannel_R* m1;
 	AChannel_M* m2;
 	AUser_R* m3;
@@ -126,9 +126,9 @@ class ModuleServicesAccount : public Module
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
-		Srv->AddMode(m1, 'R');
-		Srv->AddMode(m2, 'M');
-		Srv->AddMode(m3, 'R');
+		ServerInstance->AddMode(m1, 'R');
+		ServerInstance->AddMode(m2, 'M');
+		ServerInstance->AddMode(m3, 'R');
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -165,7 +165,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -182,7 +182,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((u->modes['R'-65]) && (!account))
 			{
-				if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
+				if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -212,7 +212,7 @@ class ModuleServicesAccount : public Module
 			{
 				if (!account)
 				{
-					if ((Srv->IsUlined(user->nick)) || (Srv->IsUlined(user->server)))
+					if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;

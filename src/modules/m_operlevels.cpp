@@ -16,7 +16,7 @@ class ModuleOperLevels : public Module
 
 	private:
 
-		Server* Srv;
+		
 		ConfigReader* conf;
 
 	public:

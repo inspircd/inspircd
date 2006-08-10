@@ -31,7 +31,7 @@ char* RandString(unsigned int length)
 
 class ModuleWaitPong : public Module
 {
-	Server* Srv;
+	
 	ConfigReader* Conf;
 	
 	bool sendsnotice;

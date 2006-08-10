@@ -34,7 +34,7 @@ extern InspIRCd* ServerInstance;
 
 class Channel_r : public ModeHandler
 {
-	Server* Srv;
+	
  public:
 	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
@@ -58,7 +58,7 @@ class Channel_r : public ModeHandler
 
 class User_r : public ModeHandler
 {
-	Server* Srv;
+	
  public:
 	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
@@ -165,7 +165,7 @@ class Channel_M : public ModeHandler
 
 class ModuleServices : public Module
 {
-	Server *Srv;
+	
 	Channel_r* m1;
 	Channel_R* m2;
 	Channel_M* m3;
@@ -181,11 +181,11 @@ class ModuleServices : public Module
 		m3 = new Channel_M(ServerInstance);
 		m4 = new User_r(ServerInstance);
 		m5 = new User_R(ServerInstance);
-		Srv->AddMode(m1, 'r');
-		Srv->AddMode(m2, 'R');
-		Srv->AddMode(m3, 'M');
-		Srv->AddMode(m4, 'r');
-		Srv->AddMode(m5, 'R');
+		ServerInstance->AddMode(m1, 'r');
+		ServerInstance->AddMode(m2, 'R');
+		ServerInstance->AddMode(m3, 'M');
+		ServerInstance->AddMode(m4, 'r');
+		ServerInstance->AddMode(m5, 'R');
 		kludgeme = false;
 	}
 
@@ -218,7 +218,7 @@ class ModuleServices : public Module
 			modechange[0] = user->nick;
 			modechange[1] = "-r";
 			kludgeme = true;
-			Srv->SendMode(modechange,2,user);
+			ServerInstance->SendMode(modechange,2,user);
 			kludgeme = false;
 		}
 	}

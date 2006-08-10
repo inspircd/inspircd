@@ -49,7 +49,7 @@ class parkedinfo : public parking
 	time_t parktime;
 };
 
-static Server *Srv;
+
 typedef std::vector<awaymsg> awaylog;
 typedef std::vector<parkedinfo> parkinfo;
 parkinfo pinfo;
@@ -235,9 +235,9 @@ class ModulePark : public Module
 		cmd1 = new cmd_park();
 		cmd2 = new cmd_unpark();
 		cmd3 = new cmd_parkstats();
-		Srv->AddCommand(cmd1);
-		Srv->AddCommand(cmd2);
-		Srv->AddCommand(cmd3);
+		ServerInstance->AddCommand(cmd1);
+		ServerInstance->AddCommand(cmd2);
+		ServerInstance->AddCommand(cmd3);
 	}
 
 	virtual ~ModulePark()

@@ -26,7 +26,6 @@ using namespace std;
 
 /* $ModDesc: Provides support for the CHGHOST command */
 
-static Server *Srv;
 extern InspIRCd* ServerInstance;
 
 class cmd_chghost : public command_t
@@ -61,7 +60,7 @@ class cmd_chghost : public command_t
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
-			if ((dest->ChangeDisplayedHost(parameters[1])) && (!Srv->IsUlined(user->server)))
+			if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->IsUlined(user->server)))
 			{
 				// fix by brain - ulines set hosts silently
 				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+parameters[1]);
@@ -80,7 +79,7 @@ class ModuleChgHost : public Module
 	{
 		
 		mycommand = new cmd_chghost();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

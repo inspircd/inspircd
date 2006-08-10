@@ -28,7 +28,7 @@ using namespace std;
 class ModuleOperLog : public Module
 {
  private:
-	 Server *Srv;
+	 
  public:
 	ModuleOperLog(InspIRCd* Me) : Module::Module(Me)
 	{

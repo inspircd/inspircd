@@ -188,7 +188,7 @@ class JoinFlood : public ModeHandler
 
 class ModuleJoinFlood : public Module
 {
-	Server *Srv;
+	
 	JoinFlood* jf;
 	
  public:
@@ -198,7 +198,7 @@ class ModuleJoinFlood : public Module
 	{
 		
 		jf = new JoinFlood(ServerInstance);
-		Srv->AddMode(jf, 'j');
+		ServerInstance->AddMode(jf, 'j');
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

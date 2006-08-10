@@ -30,7 +30,7 @@ using namespace std;
 
 class ModuleRestrictMsg : public Module
 {
-	Server *Srv;
+	
  public:
  
 	ModuleRestrictMsg(InspIRCd* Me)

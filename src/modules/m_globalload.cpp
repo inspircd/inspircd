@@ -77,15 +77,15 @@ class ModuleGlobalLoad : public Module
 {
 	cmd_gloadmodule *mycommand;
 	cmd_gunloadmodule *mycommand2;
-	Server *Srv;
+	
  public:
 	ModuleGlobalLoad(InspIRCd* Me) : Module::Module(Me)
 	{
 		
 		mycommand = new cmd_gloadmodule();
 		mycommand2 = new cmd_gunloadmodule();
-		Srv->AddCommand(mycommand);
-		Srv->AddCommand(mycommand2);
+		ServerInstance->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand2);
 	}
 	
 	virtual ~ModuleGlobalLoad()

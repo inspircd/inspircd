@@ -56,7 +56,7 @@ class SSLMode : public ModeHandler
 
 class ModuleSSLModes : public Module
 {
-	Server *Srv;
+	
 	SSLMode* sslm;
 	
  public:
@@ -66,7 +66,7 @@ class ModuleSSLModes : public Module
 		
 
 		sslm = new SSLMode(ServerInstance);
-		Srv->AddMode(sslm, 'z');
+		ServerInstance->AddMode(sslm, 'z');
 	}
 
 	void Implements(char* List)

@@ -24,7 +24,6 @@ using namespace std;
 
 // Global Vars
 static ConfigReader *helpop;
-static Server *Srv;
 
 extern InspIRCd* ServerInstance;
 
@@ -206,9 +205,9 @@ class ModuleHelpop : public Module
 		{
 			ReadConfig();
 			ho = new Helpop(ServerInstance);
-			Srv->AddMode(ho, 'h');
+			ServerInstance->AddMode(ho, 'h');
 			mycommand = new cmd_helpop();
-			Srv->AddCommand(mycommand);
+			ServerInstance->AddCommand(mycommand);
 		}
 
 		virtual void ReadConfig()

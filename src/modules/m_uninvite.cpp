@@ -26,7 +26,7 @@ using namespace std;
 #include "configreader.h"
 #include "inspircd.h"
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 	 
 class cmd_uninvite : public command_t
@@ -96,7 +96,7 @@ class ModuleUninvite : public Module
 	{
 		
 		mycommand = new cmd_uninvite();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleUninvite()

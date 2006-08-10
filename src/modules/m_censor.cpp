@@ -102,7 +102,7 @@ class CensorChannel : public ModeHandler
 class ModuleCensor : public Module
 {
 
-	Server *Srv;
+	
 	censor_t censors;
 	CensorUser *cu;
 	CensorChannel *cc;
@@ -127,8 +127,8 @@ class ModuleCensor : public Module
 		OnRehash("");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
-		Srv->AddMode(cu, 'G');
-		Srv->AddMode(cc, 'G');
+		ServerInstance->AddMode(cu, 'G');
+		ServerInstance->AddMode(cc, 'G');
 	}
 
 	void Implements(char* List)

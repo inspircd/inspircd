@@ -48,7 +48,7 @@ class MyV6Resolver : public Resolver
 	}
 };
 
-static Server *Srv;
+
 	 
 class cmd_woot : public command_t
 {
@@ -66,9 +66,9 @@ class cmd_woot : public command_t
 		try
 		{
 			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se", true);
-			Srv->AddResolver(r);
+			ServerInstance->AddResolver(r);
 			r = new MyV6Resolver("2001:6b0:1:ea:202:a5ff:fecd:13a6", false);
-			Srv->AddResolver(r);
+			ServerInstance->AddResolver(r);
 		}
 		catch (ModuleException& e)
 		{
@@ -92,7 +92,7 @@ class ModuleTestCommand : public Module
 		// anyone can issue the command, and the
 		// command takes only one parameter.
 		newcommand = new cmd_woot();
-		Srv->AddCommand(newcommand);
+		ServerInstance->AddCommand(newcommand);
 	}
 
 	void Implements(char* List)

@@ -28,7 +28,7 @@ using namespace std;
 #include "configreader.h"
 #include "inspircd.h"
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class TimedBan : public classbase
@@ -59,7 +59,7 @@ class cmd_tban : public command_t
 			int cm = channel->GetStatus(user);
 			if ((cm == STATUS_HOP) || (cm == STATUS_OP))
 			{
-				if (!Srv->IsValidMask(parameters[2]))
+				if (!ServerInstance->IsValidMask(parameters[2]))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
 					return;
@@ -74,14 +74,14 @@ class cmd_tban : public command_t
 				}
 				TimedBan T;
 				std::string channelname = parameters[0];
-				unsigned long expire = Srv->CalcDuration(parameters[1]) + time(NULL);
-				if (Srv->CalcDuration(parameters[1]) < 1)
+				unsigned long expire = ServerInstance->CalcDuration(parameters[1]) + time(NULL);
+				if (ServerInstance->CalcDuration(parameters[1]) < 1)
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
 					return;
 				}
 				char duration[MAXBUF];
-				snprintf(duration,MAXBUF,"%lu",Srv->CalcDuration(parameters[1]));
+				snprintf(duration,MAXBUF,"%lu",ServerInstance->CalcDuration(parameters[1]));
 				std::string mask = parameters[2];
 				const char *setban[32];
 				setban[0] = parameters[0];
@@ -89,7 +89,7 @@ class cmd_tban : public command_t
 				setban[2] = parameters[2];
 				// use CallCommandHandler to make it so that the user sets the mode
 				// themselves
-				Srv->CallCommandHandler("MODE",setban,3,user);
+				ServerInstance->CallCommandHandler("MODE",setban,3,user);
 				/* Check if the ban was actually added (e.g. banlist was NOT full) */
 				bool was_added = false;
 				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
@@ -121,7 +121,7 @@ class ModuleTimedBans : public Module
 	{
 		
 		mycommand = new cmd_tban();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
 	}
 	
@@ -177,7 +177,7 @@ class ModuleTimedBans : public Module
 						userrec* temp = new userrec(ServerInstance);
 						temp->fd = FD_MAGIC_NUMBER;
 						temp->server = "";
-						Srv->SendMode(setban,3,temp);
+						ServerInstance->SendMode(setban,3,temp);
                                                 /* FIX: Send mode remotely*/
                                                 std::deque<std::string> n;
                                                 n.push_back(i->channel);

@@ -70,7 +70,7 @@ class KickRejoin : public ModeHandler
 
 class ModuleKickNoRejoin : public Module
 {
-	Server *Srv;
+	
 	KickRejoin* kr;
 	
 public:
@@ -80,7 +80,7 @@ public:
 	{
 		
 		kr = new KickRejoin(ServerInstance);
-		Srv->AddMode(kr, 'J');
+		ServerInstance->AddMode(kr, 'J');
 	}
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

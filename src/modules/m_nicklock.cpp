@@ -27,7 +27,6 @@ using namespace std;
 
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
-static Server *Srv;
 extern InspIRCd* ServerInstance;
 
 class cmd_nicklock : public command_t
@@ -102,8 +101,8 @@ class ModuleNickLock : public Module
 		
 		cmd1 = new cmd_nicklock();
 		cmd2 = new cmd_nickunlock();
-		Srv->AddCommand(cmd1);
-		Srv->AddCommand(cmd2);
+		ServerInstance->AddCommand(cmd1);
+		ServerInstance->AddCommand(cmd2);
 	}
 	
 	virtual ~ModuleNickLock()

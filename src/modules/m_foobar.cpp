@@ -36,7 +36,7 @@ class ModuleFoobar : public Module
 	 // encapsulate the exports from the core of the ircd.
 	 // such methods include Debug, SendChannel, etc.
  
-	 Server *Srv;
+	 
  public:
 	ModuleFoobar(InspIRCd* Me)
 		: Module::Module(Me)

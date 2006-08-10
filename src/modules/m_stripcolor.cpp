@@ -95,7 +95,7 @@ class UserStripColor : public ModeHandler
 
 class ModuleStripColor : public Module
 {
- Server *Srv;
+ 
  ConfigReader *Conf, *MyConf;
  ChannelStripColor *csc;
  UserStripColor *usc;
@@ -109,8 +109,8 @@ class ModuleStripColor : public Module
 		usc = new UserStripColor(ServerInstance);
 		csc = new ChannelStripColor(ServerInstance);
 
-		Srv->AddMode(usc, 'S');
-		Srv->AddMode(csc, 'S');
+		ServerInstance->AddMode(usc, 'S');
+		ServerInstance->AddMode(csc, 'S');
 	}
 
 	void Implements(char* List)

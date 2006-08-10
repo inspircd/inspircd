@@ -47,7 +47,7 @@ class SeeWhois : public ModeHandler
 
 class ModuleShowwhois : public Module
 {
-	Server* Srv;
+	
 	SeeWhois* sw;
 
  public:
@@ -56,7 +56,7 @@ class ModuleShowwhois : public Module
 	{
 		
 		sw = new SeeWhois(ServerInstance);
-		Srv->AddMode(sw, 'W');
+		ServerInstance->AddMode(sw, 'W');
 	}
 
 	~ModuleShowwhois()

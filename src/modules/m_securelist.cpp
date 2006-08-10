@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class ModuleSecureList : public Module
 {
  private:
-	 Server *Srv;
+	 
  public:
 	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
 	{

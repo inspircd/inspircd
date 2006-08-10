@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for USERIP command */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class cmd_userip : public command_t
@@ -64,7 +64,7 @@ class ModuleUserIP : public Module
 	{
 		
 		mycommand = new cmd_userip();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

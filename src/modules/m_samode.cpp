@@ -37,7 +37,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 	 
 class cmd_samode : public command_t
@@ -58,7 +58,7 @@ class cmd_samode : public command_t
 		log(DEBUG,"SAMODE: Being handled");
 		userrec* n = new userrec(ServerInstance);
 		n->fd = FD_MAGIC_NUMBER;
-		Srv->SendMode(parameters,pcnt,n);
+		ServerInstance->SendMode(parameters,pcnt,n);
 		delete n;
 		log(DEBUG,"SAMODE: Modechange handled");
 		result = std::string(user->nick);
@@ -81,7 +81,7 @@ class ModuleSaMode : public Module
 	{
 		
 		mycommand = new cmd_samode();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSaMode()

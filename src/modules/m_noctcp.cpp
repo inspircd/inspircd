@@ -57,7 +57,7 @@ class NoCTCP : public ModeHandler
 
 class ModuleNoCTCP : public Module
 {
-	Server *Srv;
+	
 	NoCTCP* nc;
 	
  public:
@@ -67,7 +67,7 @@ class ModuleNoCTCP : public Module
 	{
 		
 		nc = new NoCTCP(ServerInstance);
-		Srv->AddMode(nc, 'C');
+		ServerInstance->AddMode(nc, 'C');
 	}
 
 	void Implements(char* List)

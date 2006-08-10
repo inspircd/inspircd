@@ -57,7 +57,7 @@ class NoNotice : public ModeHandler
 
 class ModuleNoNotice : public Module
 {
-	Server *Srv;
+	
 	NoNotice* nt;
  public:
  
@@ -66,7 +66,7 @@ class ModuleNoNotice : public Module
 	{
 		
 		nt = new NoNotice(ServerInstance);
-		Srv->AddMode(nt, 'T');
+		ServerInstance->AddMode(nt, 'T');
 	}
 
 	void Implements(char* List)
@@ -81,7 +81,7 @@ class ModuleNoNotice : public Module
 			chanrec* c = (chanrec*)dest;
 			if (c->IsModeSet('T'))
 			{
-				if ((Srv->IsUlined(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
+				if ((ServerInstance->IsUlined(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
 				{
 					// ops and halfops can still /NOTICE the channel
 					return 0;

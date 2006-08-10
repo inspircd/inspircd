@@ -60,7 +60,7 @@ class NoNicks : public ModeHandler
 
 class ModuleNoNickChange : public Module
 {
-	Server *Srv;
+	
 	NoNicks* nn;
 	
  public:
@@ -69,7 +69,7 @@ class ModuleNoNickChange : public Module
 	{
 		
 		nn = new NoNicks(ServerInstance);
-		Srv->AddMode(nn, 'N');
+		ServerInstance->AddMode(nn, 'N');
 	}
 	
 	virtual ~ModuleNoNickChange()

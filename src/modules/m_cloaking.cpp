@@ -70,7 +70,7 @@ class xMD5Context : public classbase
 
 class CloakUser : public ModeHandler
 {
-	Server* Srv;
+	
 	std::string prefix;
 	word32 key1;
 	word32 key2;
@@ -398,7 +398,7 @@ class CloakUser : public ModeHandler
 class ModuleCloaking : public Module
 {
  private:
-	Server *Srv;
+	
  	CloakUser* cu;
 
  public:
@@ -409,7 +409,7 @@ class ModuleCloaking : public Module
 		cu = new CloakUser(ServerInstance);
 
 		/* Register it with the core */		
-		Srv->AddMode(cu, 'x');
+		ServerInstance->AddMode(cu, 'x');
 
 		OnRehash("");
 	}
@@ -447,7 +447,7 @@ class ModuleCloaking : public Module
 		const char* modes[2];		// only two parameters
 		modes[0] = user->nick;		// first parameter is the nick
 		modes[1] = "+x";		// second parameter is the mode
-		Srv->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +x"
+		ServerInstance->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +x"
 	}
 
 };

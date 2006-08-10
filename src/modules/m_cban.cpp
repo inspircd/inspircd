@@ -132,14 +132,14 @@ class cmd_cban : public command_t
 class ModuleCBan : public Module
 {
 	cmd_cban* mycommand;
-	Server* Srv;
+	
 
  public:
 	ModuleCBan(InspIRCd* Me) : Module::Module(Me)
 	{
 		
 		mycommand = new cmd_cban(Me);
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)

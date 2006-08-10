@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style SAJOIN command */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class cmd_sajoin : public command_t
@@ -43,7 +43,7 @@ class cmd_sajoin : public command_t
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
-			if (Srv->IsUlined(dest->server))
+			if (ServerInstance->IsUlined(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
@@ -70,7 +70,7 @@ class ModuleSajoin : public Module
 	{
 		
 		mycommand = new cmd_sajoin();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSajoin()

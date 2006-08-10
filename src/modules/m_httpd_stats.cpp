@@ -41,7 +41,7 @@ static SortedList* so = new SortedList();
 
 class ModuleHttpStats : public Module
 {
-	Server* Srv;
+	
 	std::string stylesheet;
 	bool changed;
 

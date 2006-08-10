@@ -26,7 +26,7 @@ using namespace std;
 /* $ModDesc: Provides support for SANICK command */
 
 extern InspIRCd* ServerInstance;
-static Server *Srv;
+
 
 class cmd_sanick : public command_t
 {
@@ -42,7 +42,7 @@ class cmd_sanick : public command_t
 		userrec* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
 		{
-			if (Srv->IsUlined(source->server))
+			if (ServerInstance->IsUlined(source->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
@@ -73,7 +73,7 @@ class ModuleSanick : public Module
 	{
 		
 		mycommand = new cmd_sanick();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSanick()

@@ -30,14 +30,14 @@ class BanException : public ListModeBase
 class ModuleBanException : public Module
 {
 	BanException* be;
-	Server* Srv;
+	
 
 public:
 	ModuleBanException(InspIRCd* Me)
 	: Module::Module(Me)
 	{
 		be = new BanException(ServerInstance);
-		Srv->AddMode(be, 'e');
+		ServerInstance->AddMode(be, 'e');
 	}
 	
 	virtual void Implements(char* List)
@@ -62,7 +62,7 @@ public:
 			if(list)
 			{
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
-					if(Srv->MatchText(user->GetFullRealHost(), it->mask) || Srv->MatchText(user->GetFullHost(), it->mask))
+					if(ServerInstance->MatchText(user->GetFullRealHost(), it->mask) || ServerInstance->MatchText(user->GetFullHost(), it->mask))
 						// They match an entry on the list, so let them in.
 						return 1;
 				return 0;

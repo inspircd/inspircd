@@ -39,7 +39,7 @@ class ModuleHostChange : public Module
 {
  private:
 
-	Server *Srv;
+	
 	ConfigReader *Conf;
 	hostchanges_t hostchanges;
 	std::string MySuffix;
@@ -101,7 +101,7 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			if (Srv->MatchText(std::string(user->ident)+"@"+std::string(user->host),i->first))
+			if (ServerInstance->MatchText(std::string(user->ident)+"@"+std::string(user->host),i->first))
 			{
 				Host* h = (Host*)i->second;
 				// host of new user matches a hostchange tag's mask

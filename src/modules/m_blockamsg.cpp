@@ -48,7 +48,7 @@ public:
 
 class ModuleBlockAmsg : public Module
 {
-	Server* Srv;
+	
 	int ForgetDelay;
 	BlockAction action;
 public:

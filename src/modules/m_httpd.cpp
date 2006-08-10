@@ -31,7 +31,6 @@ class ModuleHttp;
 
 extern InspIRCd* ServerInstance;
 
-static Server *Srv;
 static ModuleHttp* HttpModule;
 extern time_t TIME;
 static bool claimed;
@@ -67,7 +66,7 @@ class HttpSocket : public InspSocket
 		if (InternalState == HTTP_LISTEN)
 		{
 			HttpSocket* s = new HttpSocket(this->Instance, newsock, ip, index);
-			Srv->AddSocket(s);
+			ServerInstance->AddSocket(s);
 		}
 		return true;
 	}
@@ -281,7 +280,7 @@ class ModuleHttp : public Module
 		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, &index);
 		if ((http) && (http->GetState() == I_LISTENING))
 		{
-			Srv->AddSocket(http);
+			ServerInstance->AddSocket(http);
 		}
 	}
 
@@ -313,7 +312,7 @@ class ModuleHttp : public Module
 
 	virtual ~ModuleHttp()
 	{
-		Srv->DelSocket(http);
+		ServerInstance->DelSocket(http);
 	}
 
 	virtual Version GetVersion()

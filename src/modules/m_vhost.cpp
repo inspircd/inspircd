@@ -25,7 +25,7 @@ using namespace std;
 /* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
 
 static ConfigReader *Conf;
-static Server* Srv;
+
 
 class cmd_vhost : public command_t
 {
@@ -69,7 +69,7 @@ class ModuleVHost : public Module
 		
 		Conf = new ConfigReader;
 		mycommand = new cmd_vhost();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleVHost()

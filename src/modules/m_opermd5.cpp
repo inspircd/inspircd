@@ -288,7 +288,7 @@ class cmd_mkpasswd : public command_t
 
 class ModuleOperMD5 : public Module
 {
-	Server* Srv;
+	
 	cmd_mkpasswd* mycommand;
  public:
 
@@ -297,7 +297,7 @@ class ModuleOperMD5 : public Module
 	{
 		
 		mycommand = new cmd_mkpasswd();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleOperMD5()

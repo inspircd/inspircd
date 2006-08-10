@@ -87,7 +87,7 @@ class CGIResolver : public Resolver
 
 class ModuleCgiIRC : public Module
 {
-	Server *Srv;
+	
 	bool NotifyOpers;
 	CGIHostlist Hosts;
 public:
@@ -203,7 +203,7 @@ public:
 		{
 			log(DEBUG, "m_cgiirc.so: Matching %s against (%s or %s)", iter->hostmask.c_str(), user->host, user->GetIPString());
 			
-			if(Srv->MatchText(user->host, iter->hostmask) || Srv->MatchText(user->GetIPString(), iter->hostmask))
+			if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
 			{
 				// Deal with it...
 				log(DEBUG, "m_cgiirc.so: Handling CGI:IRC user: %s (%s) matched %s", user->GetFullRealHost(), user->GetIPString(), iter->hostmask.c_str());
@@ -263,7 +263,7 @@ public:
 				try
 				{
 					CGIResolver* r = new CGIResolver(NotifyOpers, user->password, false, user, user->fd, "PASS");
-					Srv->AddResolver(r);
+					ServerInstance->AddResolver(r);
 				}
 				catch (ModuleException& e)
 				{
@@ -319,7 +319,7 @@ public:
 		{
 			log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");
 			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->fd, "IDENT");
-			Srv->AddResolver(r);
+			ServerInstance->AddResolver(r);
 		}
 		catch (ModuleException& e)
 		{

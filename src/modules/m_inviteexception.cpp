@@ -30,13 +30,13 @@ class InviteException : public ListModeBase
 class ModuleInviteException : public Module
 {
 	InviteException* ie;
-	Server* Srv;
+	
 
 public:
 	ModuleInviteException(InspIRCd* Me) : Module(Me)
 	{
 		ie = new InviteException(ServerInstance);
-		Srv->AddMode(ie, 'I');
+		ServerInstance->AddMode(ie, 'I');
 	}
 	
 	virtual void Implements(char* List)

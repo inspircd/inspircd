@@ -5,7 +5,7 @@
 
 /* $ModDesc: Provides support for the SETIDENT command */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 
 class cmd_setident : public command_t
@@ -43,7 +43,7 @@ class ModuleSetIdent : public Module
 	{
 		
 		mycommand = new cmd_setident();
-		Srv->AddCommand(mycommand);
+		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleSetIdent()

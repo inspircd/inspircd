@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
-static Server *Srv;
+
 extern InspIRCd* ServerInstance;
 	 
 class cmd_tline : public command_t
@@ -82,7 +82,7 @@ class ModuleTLine : public Module
 	{
 		
 		newcommand = new cmd_tline();
-		Srv->AddCommand(newcommand);
+		ServerInstance->AddCommand(newcommand);
 	}
 
 	void Implements(char* List)
