@@ -22,7 +22,6 @@
 #include "helperfuncs.h"
 #include "socketengine.h"
 #include "wildcard.h"
-#include "message.h"
 
 extern InspIRCd* ServerInstance;
 extern time_t TIME;

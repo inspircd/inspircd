@@ -209,6 +209,9 @@ class InspIRCd : public classbase
 
 	const std::string& GetModuleName(Module* m);
 
+	bool IsNick(const char* n);
+	bool IsIdent(const char* n);
+
 	std::string GetRevision();
 	std::string GetVersionString();
 	void WritePID(const std::string &filename);

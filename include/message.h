@@ -14,21 +14,5 @@
  * ---------------------------------------------------
  */
 
-#ifndef __MESSAGE_H
-#define __MESSAGE_H
+#warning "message.h is deprecated and may be removed from a future version"
 
-// include the common header files
-
-#include <typeinfo>
-#include <iostream>
-#include <string>
-#include <deque>
-#include <sstream>
-#include <vector>
-#include "users.h"
-#include "channels.h"
-
-int isident(const char* n);
-int isnick(const char* n);
-
-#endif

@@ -31,7 +31,6 @@
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "mode.h"
 #include "xline.h"
 #include "commands.h"
@@ -398,11 +397,6 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 		CompleteLine = CompleteLine + Word + " ";
 	}
 	User->WriteServ(CompleteLine);
-}
-
-bool Server::IsNick(const std::string &nick)
-{
-	return (isnick(nick.c_str()) != 0);
 }
 
 userrec* Server::FindDescriptor(int socket)

@@ -8,7 +8,6 @@
 #include "channels.h"
 #include "users.h"
 #include "helperfuncs.h"
-#include "message.h"
 #include "modules.h"
 #include "inspstring.h"
 #include "hashcomp.h"

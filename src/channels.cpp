@@ -32,7 +32,6 @@ using namespace std;
 #include "dynamic.h"
 #include "commands.h"
 #include "wildcard.h"
-#include "message.h"
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"

@@ -27,7 +27,6 @@
 #include "typedefs.h"
 #include "socketengine.h"
 #include "hashcomp.h"
-#include "message.h"
 #include "wildcard.h"
 #include "xline.h"
 #include "cull_list.h"

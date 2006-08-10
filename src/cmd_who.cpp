@@ -16,7 +16,6 @@
 
 #include "configreader.h"
 #include "users.h"
-#include "message.h"
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"

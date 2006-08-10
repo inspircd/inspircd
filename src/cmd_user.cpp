@@ -17,12 +17,12 @@
 #include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
-#include "message.h"
 #include "commands.h"
 #include "helperfuncs.h"
 #include "commands/cmd_user.h"
 
 extern InspIRCd* ServerInstance;
+
 extern int MODCOUNT;
 extern ModuleList modules;
 extern FactoryList factory;
@@ -31,7 +31,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (user->registered < REG_NICKUSER)
 	{
-		if (!isident(parameters[0])) {
+		if (!ServerInstance->IsIdent(parameters[0])) {
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
 			user->WriteServ("461 %s USER :Not enough parameters",user->nick);

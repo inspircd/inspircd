@@ -22,7 +22,6 @@
 #include "hash_map.h"
 #include "users.h"
 #include "modules.h"
-#include "message.h"
 #include "wildcard.h"
 #include "commands.h"
 #include "helperfuncs.h"

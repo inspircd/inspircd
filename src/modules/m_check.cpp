@@ -19,7 +19,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "message.h"
 #include "commands.h"
 #include "inspircd.h"
 #include "helperfuncs.h"

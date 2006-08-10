@@ -38,7 +38,6 @@ using namespace std;
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "mode.h"
 #include "commands.h"
 #include "xline.h"

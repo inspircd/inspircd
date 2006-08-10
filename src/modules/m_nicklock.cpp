@@ -53,7 +53,7 @@ class cmd_nicklock : public command_t
 				user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
 				return;
 			}
-			if (Srv->IsNick(std::string(parameters[1])))
+			if (ServerInstance->IsNick(parameters[1]))
 			{
 				// give them a lock flag
 				ServerInstance->WriteOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);

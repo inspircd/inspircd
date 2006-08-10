@@ -1250,11 +1250,6 @@ class Module : public Extensible
 class Server : public Extensible
 {
  public:
-	/** Returns true if a nick is valid.
-	 * Nicks for unregistered connections will return false.
-	 */
-	bool IsNick(const std::string &nick);
-
 	/** Attempts to look up a nick using the file descriptor associated with that nick.
 	 * This function will return NULL if the file descriptor is not associated with a valid user.
 	 */

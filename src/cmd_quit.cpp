@@ -25,7 +25,6 @@
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "commands.h"
 #include "mode.h"
 #include "xline.h"

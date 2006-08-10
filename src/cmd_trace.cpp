@@ -28,7 +28,7 @@ void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (i->second)
 		{
-			if (isnick(i->second->nick))
+			if (ServerInstance->IsNick(i->second->nick))
 			{
 				if (*i->second->oper)
 				{

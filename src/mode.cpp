@@ -24,7 +24,6 @@ using namespace std;
 #include "connection.h"
 #include "users.h"
 #include "modules.h"
-#include "message.h"
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "commands.h"

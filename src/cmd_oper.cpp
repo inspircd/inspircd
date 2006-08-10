@@ -25,7 +25,6 @@
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "commands.h"
 #include "mode.h"
 #include "xline.h"
@@ -94,7 +93,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
 					if (*HostName)
 						user->ChangeDisplayedHost(HostName);
-					if (!isnick(TypeName))
+					if (!ServerInstance->IsNick(TypeName))
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						ServerInstance->WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);

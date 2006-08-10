@@ -31,6 +31,4 @@ typedef std::pair< std::string, std::string > KeyVal;
 typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
-int isnick(const char *n);
-
 #endif

@@ -1,7 +1,6 @@
 #include <string>
 #include "users.h"
 #include "modules.h"
-#include "message.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
 
@@ -26,7 +25,7 @@ class cmd_chgident : public command_t
 
 		if(dest)
 		{
-			if(!isident(parameters[1]))
+			if(!ServerInstance->IsIdent(parameters[1]))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 				return;

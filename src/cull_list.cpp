@@ -29,7 +29,6 @@ using namespace std;
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"

@@ -36,7 +36,6 @@ using namespace std;
 #include "inspircd.h"
 #include "inspstring.h"
 #include "hashcomp.h"
-#include "message.h"
 #include "xline.h"
 #include "typedefs.h"
 #include "cull_list.h"

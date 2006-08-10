@@ -31,7 +31,6 @@
 #include "modules.h"
 #include "dynamic.h"
 #include "wildcard.h"
-#include "message.h"
 #include "commands.h"
 #include "mode.h"
 #include "xline.h"
@@ -214,7 +213,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 	  	for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 		{
 			userrec* i = *n;
-			if (isnick(i->nick))
+			if (ServerInstance->IsNick(i->nick))
 			{
 				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
 			}
@@ -228,7 +227,7 @@ void DoStats(char statschar, userrec* user, string_list &results)
 		for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 		{
 			userrec* i = *n;
-			if (isnick(i->nick))
+			if (ServerInstance->IsNick(i->nick))
 			{
 				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
 			}

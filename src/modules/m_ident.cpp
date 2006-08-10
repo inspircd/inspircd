@@ -87,9 +87,12 @@ class RFC1413 : public InspSocket
 							{
 								if (u && (fd_ref_table[ufd] == u))
 								{
-									strlcpy(u->ident,section,IDENTMAX);
-									log(DEBUG,"IDENT SET: "+std::string(u->ident));
-									u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+									if (ServerInstance->IsIdent(section))
+									{
+										strlcpy(u->ident,section,IDENTMAX);
+										log(DEBUG,"IDENT SET: "+std::string(u->ident));
+										u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
+									}
 								}
 							}
 							return false;

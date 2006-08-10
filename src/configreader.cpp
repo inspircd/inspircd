@@ -20,7 +20,6 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include "message.h"
 #include "inspircd.h"
 #include "inspstring.h"
 #include "helperfuncs.h"

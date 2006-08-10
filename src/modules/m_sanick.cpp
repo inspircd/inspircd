@@ -47,7 +47,7 @@ class cmd_sanick : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
 			}
-			if (Srv->IsNick(std::string(parameters[1])))
+			if (ServerInstance->IsNick(parameters[1]))
 			{
 				// FIX by brain: Cant use source->nick here because if it traverses a server link then
 				// source->nick becomes invalid as the object data moves in memory.

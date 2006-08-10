@@ -20,7 +20,6 @@
 #include "modules.h"
 #include "commands.h"
 #include "helperfuncs.h"
-#include "message.h"
 #include "commands/cmd_invite.h"
 
 extern InspIRCd* ServerInstance;

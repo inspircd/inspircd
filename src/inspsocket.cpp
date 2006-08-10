@@ -25,7 +25,6 @@
 #include "inspstring.h"
 #include "helperfuncs.h"
 #include "socketengine.h"
-#include "message.h"
 #include "inspircd.h"
 
 using irc::sockets::BindSocket;

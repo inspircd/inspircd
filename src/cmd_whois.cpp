@@ -15,7 +15,6 @@
  */
 
 #include "inspircd.h"
-#include "message.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
