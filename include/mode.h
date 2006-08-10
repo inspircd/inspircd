@@ -381,6 +381,8 @@ class ModeParser : public classbase
 	std::string ChannelModeList();
 
 	std::string ParaModeList();
+
+	bool InsertMode(std::string &output, const char* mode, unsigned short section);
 };
 
 /**

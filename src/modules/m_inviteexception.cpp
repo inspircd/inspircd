@@ -19,6 +19,8 @@
  * ignoring if +i is set on the channel
  */
 
+class InspIRCd* ServerInstance;
+
 class InviteException : public ListModeBase
 {
  public:
@@ -47,7 +49,7 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" INVEX=I");
-		InsertMode(output, "I", 1);
+		ServerInstance->ModeGrok->InsertMode(output, "I", 1);
 	}
 	 
 	virtual int OnCheckInvite(userrec* user, chanrec* chan)

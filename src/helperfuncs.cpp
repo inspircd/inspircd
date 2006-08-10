@@ -507,30 +507,6 @@ bool AllModulesReportReady(userrec* user)
 	return true;
 }
 
-int InsertMode(std::string &output, const char* mode, unsigned short section)
-{
-	unsigned short currsection = 1;
-	unsigned int pos = output.find("CHANMODES=", 0) + 10; // +10 for the length of "CHANMODES="
-	
-	if(section > 4 || section == 0)
-	{
-		log(DEBUG, "InsertMode: CHANMODES doesn't have a section %dh :/", section);
-		return 0;
-	}
-	
-	for(; pos < output.size(); pos++)
-	{
-		if(section == currsection)
-			break;
-			
-		if(output[pos] == ',')
-			currsection++;
-	}
-	
-	output.insert(pos, mode);
-	return 1;
-}
-
 bool IsValidChannelName(const char *chname)
 {
 	char *c;

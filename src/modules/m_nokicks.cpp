@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +Q */
 
+extern InspIRCd* ServerInstance;
+
 class NoKicks : public ModeHandler
 {
  public:
@@ -75,7 +77,7 @@ class ModuleNoKicks : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"Q",4);
+		ServerInstance->ModeGrok->InsertMode(output,"Q",4);
 	}
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)

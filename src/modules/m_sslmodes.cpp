@@ -8,6 +8,8 @@
 
 static char* dummy;
 
+extern InspIRCd* ServerInstance;
+
 class SSLMode : public ModeHandler
 {
 	Server* Srv;
@@ -75,7 +77,7 @@ class ModuleSSLModes : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "z", 4);
+		ServerInstance->ModeGrok->InsertMode(output, "z", 4);
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

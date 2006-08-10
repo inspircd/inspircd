@@ -10,6 +10,8 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
+extern InspIRCd* ServerInstance;
+
 inline int strtoint(const std::string &str)
 {
 	std::istringstream ss(str);
@@ -166,7 +168,7 @@ public:
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "J", 3);
+		ServerInstance->ModeGrok->InsertMode(output, "J", 3);
 	}
 
 	virtual ~ModuleKickNoRejoin()

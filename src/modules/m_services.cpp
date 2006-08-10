@@ -29,6 +29,8 @@ static bool kludgeme = false;
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
 
+extern InspIRCd* ServerInstance;
+
 class Channel_r : public ModeHandler
 {
 	Server* Srv;
@@ -188,7 +190,7 @@ class ModuleServices : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "rRM", 4);
+		ServerInstance->ModeGrok->InsertMode(output, "rRM", 4);
 	}
 
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */

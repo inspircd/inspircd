@@ -27,6 +27,8 @@ using namespace std;
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
+extern InspIRCd* ServerInstance;
+
 class AChannel_R : public ModeHandler
 {
  public:
@@ -131,7 +133,7 @@ class ModuleServicesAccount : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "RM", 4);
+		ServerInstance->ModeGrok->InsertMode(output, "RM", 4);
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

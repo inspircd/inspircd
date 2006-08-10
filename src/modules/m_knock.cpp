@@ -126,7 +126,7 @@ class ModuleKnock : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"K",4);
+		ServerInstance->ModeGrok->InsertMode(output,"K",4);
 	}
 
 	virtual ~ModuleKnock()

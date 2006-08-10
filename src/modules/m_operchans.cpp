@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for oper-only chans via the +O channel mode */
 
+extern InspIRCd* ServerInstance;
+
 class OperChans : public ModeHandler
 {
  public:
@@ -75,7 +77,7 @@ class ModuleOperChans : public Module
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"O",4);
+		ServerInstance->ModeGrok->InsertMode(output,"O",4);
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

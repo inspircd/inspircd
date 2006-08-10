@@ -250,7 +250,7 @@ class ModuleJoinFlood : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "j", 3);
+		ServerInstance->ModeGrok->InsertMode(output, "j", 3);
 	}
 
 	virtual ~ModuleJoinFlood()

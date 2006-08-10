@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
+extern InspIRCd* ServerInstance;
+
 class NoCTCP : public ModeHandler
 {
  public:
@@ -75,7 +77,7 @@ class ModuleNoCTCP : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"C",4);
+		ServerInstance->ModeGrok->InsertMode(output,"C",4);
 	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)

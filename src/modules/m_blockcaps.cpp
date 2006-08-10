@@ -20,8 +20,11 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
+#include "mode.h"
 
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
+
+extern InspIRCd* ServerInstance;
 
 class BlockCaps : public ModeHandler
 {
@@ -71,7 +74,7 @@ public:
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "P", 4);
+		ServerInstance->ModeGrok->InsertMode(output, "P", 4);
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)

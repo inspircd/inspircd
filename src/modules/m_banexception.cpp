@@ -18,6 +18,8 @@
 // The +e channel mode takes a nick!ident@host, glob patterns allowed,
 // and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
 
+extern InspIRCd* ServerInstance;
+
 class BanException : public ListModeBase
 {
  public:
@@ -48,7 +50,7 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
-		InsertMode(output, "e", 1);
+		ServerInstance->ModeGrok->InsertMode(output, "e", 1);
 	}
 
 	virtual int OnCheckBan(userrec* user, chanrec* chan)

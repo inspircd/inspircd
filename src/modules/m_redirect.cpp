@@ -126,7 +126,7 @@ class ModuleRedirect : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "L", 3);
+		ServerInstance->ModeGrok->InsertMode(output, "L", 3);
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

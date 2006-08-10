@@ -53,7 +53,6 @@ void Error(int status);
 void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);
 bool AllModulesReportReady(userrec* user);
-int InsertMode(std::string &output, const char* modes, unsigned short section);
 bool IsValidChannelName(const char *);
 
 #endif

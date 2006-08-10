@@ -26,6 +26,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
+extern InspIRCd* ServerInstance;
+
 class BlockColor : public ModeHandler
 {
  public:
@@ -74,7 +76,7 @@ class ModuleBlockColour : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"c",4);
+		ServerInstance->ModeGrok->InsertMode(output,"c",4);
 	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)

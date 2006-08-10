@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +T */
 
+extern InspIRCd* ServerInstance;
+
 class NoNotice : public ModeHandler
 {
  public:
@@ -96,7 +98,7 @@ class ModuleNoNotice : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"T",4);
+		ServerInstance->ModeGrok->InsertMode(output,"T",4);
 	}
 
 	virtual ~ModuleNoNotice()

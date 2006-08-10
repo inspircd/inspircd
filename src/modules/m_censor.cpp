@@ -28,6 +28,8 @@ typedef std::map<irc::string,irc::string> censor_t;
 
 /* $ModDesc: Provides user and channel +G mode */
 
+extern InspIRCd* ServerInstance;
+
 class CensorException : public ModuleException
 {
  public:
@@ -137,7 +139,7 @@ class ModuleCensor : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"G",4);
+		ServerInstance->ModeGrok->InsertMode(output,"G",4);
 	}
  
 	virtual ~ModuleCensor()

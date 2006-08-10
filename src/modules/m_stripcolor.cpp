@@ -26,6 +26,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
 
+extern InspIRCd* ServerInstance;
+
 class ChannelStripColor : public ModeHandler
 {
  public:
@@ -118,7 +120,7 @@ class ModuleStripColor : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"S",4);
+		ServerInstance->ModeGrok->InsertMode(output,"S",4);
 	}
  	
 	virtual ~ModuleStripColor()

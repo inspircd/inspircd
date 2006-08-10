@@ -29,6 +29,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
+extern InspIRCd* ServerInstance;
+
 class ChanFilter : public ListModeBase
 {
  public:
@@ -84,7 +86,7 @@ class ModuleChanFilter : public Module
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output,"g",1);
+		ServerInstance->ModeGrok->InsertMode(output,"g",1);
 	}
 
 	virtual void OnChannelDelete(chanrec* chan)

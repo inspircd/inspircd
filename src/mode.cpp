@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *	              	 E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		      	 E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -697,5 +697,29 @@ ModeParser::ModeParser()
 	this->AddMode(new ModeUserInvisible, 'i');
 	this->AddMode(new ModeUserOperator, 'o');
 	this->AddMode(new ModeUserServerNoticeMask, 'n');
+}
+
+bool ModeParser::InsertMode(std::string &output, const char* mode, unsigned short section)
+{
+	unsigned short currsection = 1;
+	unsigned int pos = output.find("CHANMODES=", 0) + 10; // +10 for the length of "CHANMODES="
+
+	if(section > 4 || section == 0)
+	{
+		log(DEBUG, "InsertMode: CHANMODES doesn't have a section %dh :/", section);
+		return false;
+	}
+
+	for(; pos < output.size(); pos++)
+	{
+		if(section == currsection)
+			break;
+
+		if(output[pos] == ',')
+			currsection++;
+	}
+
+	output.insert(pos, mode);
+	return true;
 }
 

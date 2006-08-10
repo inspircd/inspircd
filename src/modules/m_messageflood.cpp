@@ -26,6 +26,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 
+extern InspIRCd* ServerInstance;
+
 class floodsettings : public classbase
 {
  public:
@@ -268,7 +270,7 @@ class ModuleMsgFlood : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		InsertMode(output, "f", 3);
+		ServerInstance->ModeGrok->InsertMode(output, "f", 3);
 	}
 
 	virtual ~ModuleMsgFlood()
