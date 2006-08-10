@@ -1023,6 +1023,9 @@ EOF
 			print FILEHANDLE "#define IS_CYGWIN\n";
 			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE	1024\n#endif\n";
 		}
+		if ($config{OSNAME} eq "MINGW32") {
+			print FILEHANDLE "#define IS_MINGW\n";
+		}
 		if ($config{OSNAME} eq "CYG-STATIC") {
 			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
 		}
