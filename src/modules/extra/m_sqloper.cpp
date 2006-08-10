@@ -32,6 +32,7 @@
 extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
+extern InspIRCd* ServerInstance;
 
 class ModuleSQLOper : public Module
 {
@@ -179,7 +180,7 @@ public:
 						 */
 						
 						user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-						WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
+						ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 					}
 				}
@@ -192,7 +193,7 @@ public:
 					log(DEBUG, "Query failed: %s", res->error.Str());
 
 					user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-					WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 				}
 			}
@@ -232,7 +233,7 @@ public:
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
 								
-				WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
+				ServerInstance->WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
 				if (!user->modes[UM_OPERATOR])
