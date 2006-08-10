@@ -12,7 +12,9 @@
 #
 ########################################
 
-chomp($topdir = `pwd`);
+use Cwd;
+
+chomp($topdir = getcwd());
 $this = resolve_directory($topdir);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
 %config = ();                                                   		# Initiate Configuration Hash..
