@@ -31,6 +31,8 @@
 
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */
 
+extern InspIRCd* ServerInstance;
+
 typedef std::map<unsigned long, userrec*> IdUserMap;
 typedef std::map<unsigned long, chanrec*> IdChanMap;
 typedef std::list<unsigned long> AssocIdList;
@@ -47,7 +49,7 @@ public:
 	ModuleSQLutils(Server* Me)
 	: Module::Module(Me), Srv(Me)
 	{
-		log(DEBUG, "%s 'SQLutils' feature", Srv->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
+		log(DEBUG, "%s 'SQLutils' feature", ServerInstance->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
 	}
 
 	void Implements(char* List)

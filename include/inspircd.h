@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -149,6 +149,65 @@ class InspIRCd : public classbase
 	long local_count();
 
 	void SendError(const char *s);
+
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly BEFORE 'modulename'. For more information
+	 * please see Module::Prioritize().
+	 * @param modulename The module your module wants to be before in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityBefore(const std::string &modulename);
+
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly AFTER 'modulename'. For more information please
+	 * see Module::Prioritize().
+	 * @param modulename The module your module wants to be after in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityAfter(const std::string &modulename);
+
+	/** Publish a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using InspIRCd::FindModule, or by feature, using this
+	 * function. A feature is an arbitary string which identifies something this
+	 * module can do. For example, if your module provides SSL support, but other
+	 * modules provide SSL support too, all the modules supporting SSL should
+	 * publish an identical 'SSL' feature. This way, any module requiring use
+	 * of SSL functions can just look up the 'SSL' feature using FindFeature,
+	 * then use the module pointer they are given.
+	 * @param FeatureName The case sensitive feature name to make available
+	 * @param Mod a pointer to your module class
+	 * @returns True on success, false if the feature is already published by
+	 * another module.
+	 */
+	bool PublishFeature(const std::string &FeatureName, Module* Mod);
+
+	/** Unpublish a 'feature'.
+	 * When your module exits, it must call this method for every feature it
+	 * is providing so that the feature table is cleaned up.
+	 * @param FeatureName the feature to remove
+	 */
+	bool UnpublishFeature(const std::string &FeatureName);
+
+	/** Find a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using InspIRCd::FindModule, or by feature, using the
+	 * InspIRCd::PublishFeature method. A feature is an arbitary string which
+	 * identifies something this module can do. For example, if your module
+	 * provides SSL support, but other modules provide SSL support too, all
+	 * the modules supporting SSL should publish an identical 'SSL' feature.
+	 * To find a module capable of providing the feature you want, simply
+	 * call this method with the feature name you are looking for.
+	 * @param FeatureName The feature name you wish to obtain the module for
+	 * @returns A pointer to a valid module class on success, NULL on failure.
+	 */
+	Module* FindFeature(const std::string &FeatureName);
+
+	const std::string& GetModuleName(Module* m);
 
 	std::string GetRevision();
 	std::string GetVersionString();

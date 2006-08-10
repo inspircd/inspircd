@@ -8,6 +8,8 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
+extern InspIRCd* ServerInstance;
+
 class ModuleTestClient : public Module
 {
 private:
@@ -31,7 +33,7 @@ public:
 	
 	virtual void OnBackgroundTimer(time_t foo)
 	{
-		Module* target = Srv->FindFeature("SQL");
+		Module* target = ServerInstance->FindFeature("SQL");
 		
 		if(target)
 		{

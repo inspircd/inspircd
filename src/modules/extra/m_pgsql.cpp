@@ -522,7 +522,7 @@ public:
 	ModulePgSQL(Server* Me)
 	: Module::Module(Me), Srv(Me), currid(0)
 	{
-		log(DEBUG, "%s 'SQL' feature", Srv->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
+		log(DEBUG, "%s 'SQL' feature", ServerInstance->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
 		
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
 		

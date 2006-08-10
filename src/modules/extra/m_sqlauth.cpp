@@ -48,7 +48,7 @@ public:
 	ModuleSQLAuth(Server* Me)
 	: Module::Module(Me), Srv(Me)
 	{
-		SQLutils = Srv->FindFeature("SQLutils");
+		SQLutils = ServerInstance->FindFeature("SQLutils");
 		
 		if(SQLutils)
 		{
@@ -104,7 +104,7 @@ public:
 	{
 		Module* target;
 		
-		target = Srv->FindFeature("SQL");
+		target = ServerInstance->FindFeature("SQL");
 		
 		if(target)
 		{

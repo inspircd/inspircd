@@ -808,7 +808,7 @@ class ModuleSQL : public Module
 		{
 			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
 		}
-		if (!Srv->PublishFeature("SQL", this))
+		if (!ServerInstance->PublishFeature("SQL", this))
 		{
 			/* Tell worker thread to exit NOW */
 			giveup = true;

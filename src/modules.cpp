@@ -241,11 +241,11 @@ void Server::RemoveSocket(InspSocket* sock)
 	}
 }
 
-long Server::PriorityAfter(const std::string &modulename)
+long InspIRCd::PriorityAfter(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < ServerInstance->Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < this->Config->module_names.size(); j++)
 	{
-		if (ServerInstance->Config->module_names[j] == modulename)
+		if (this->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_AFTER);
 		}
@@ -253,11 +253,11 @@ long Server::PriorityAfter(const std::string &modulename)
 	return PRIORITY_DONTCARE;
 }
 
-long Server::PriorityBefore(const std::string &modulename)
+long InspIRCd::PriorityBefore(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < ServerInstance->Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < this->Config->module_names.size(); j++)
 	{
-		if (ServerInstance->Config->module_names[j] == modulename)
+		if (this->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_BEFORE);
 		}
@@ -265,7 +265,7 @@ long Server::PriorityBefore(const std::string &modulename)
 	return PRIORITY_DONTCARE;
 }
 
-bool Server::PublishFeature(const std::string &FeatureName, Module* Mod)
+bool InspIRCd::PublishFeature(const std::string &FeatureName, Module* Mod)
 {
 	if (Features.find(FeatureName) == Features.end())
 	{
@@ -275,7 +275,7 @@ bool Server::PublishFeature(const std::string &FeatureName, Module* Mod)
 	return false;
 }
 
-bool Server::UnpublishFeature(const std::string &FeatureName)
+bool InspIRCd::UnpublishFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 	
@@ -286,7 +286,7 @@ bool Server::UnpublishFeature(const std::string &FeatureName)
 	return true;
 }
 
-Module* Server::FindFeature(const std::string &FeatureName)
+Module* InspIRCd::FindFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 
@@ -296,14 +296,14 @@ Module* Server::FindFeature(const std::string &FeatureName)
 	return iter->second;
 }
 
-const std::string& Server::GetModuleName(Module* m)
+const std::string& InspIRCd::GetModuleName(Module* m)
 {
 	static std::string nothing = ""; /* Prevent compiler warning */
 	for (int i = 0; i <= MODCOUNT; i++)
 	{
 		if (modules[i] == m)
 		{
-			return ServerInstance->Config->module_names[i];
+			return this->Config->module_names[i];
 		}
 	}
 	return nothing; /* As above */

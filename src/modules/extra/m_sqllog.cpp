@@ -279,7 +279,7 @@ class ModuleSQLLog : public Module
 		Conf = new ConfigReader();
 		dbid = Conf->ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 		DELETE(Conf);
-		SQLModule = Srv->FindFeature("SQL");
+		SQLModule = ServerInstance->FindFeature("SQL");
 		if (!SQLModule)
 			log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
 		return (SQLModule);

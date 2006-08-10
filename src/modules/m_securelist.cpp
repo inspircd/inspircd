@@ -27,6 +27,8 @@ using namespace std;
 extern time_t TIME;
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
+
+extern InspIRCd* ServerInstance;
  
 class ModuleSecureList : public Module
 {
@@ -82,7 +84,7 @@ class ModuleSecureList : public Module
 
 	virtual Priority Prioritize()
 	{
-		return (Priority)Srv->PriorityBefore("m_safelist.so");
+		return (Priority)ServerInstance->PriorityBefore("m_safelist.so");
 	}
 
 };

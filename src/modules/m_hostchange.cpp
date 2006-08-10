@@ -24,6 +24,8 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
+extern InspIRCd* ServerInstance;
+
 class Host : public classbase
 {
  public:
@@ -58,7 +60,7 @@ class ModuleHostChange : public Module
 
 	Priority Prioritize()
 	{
-		return (Priority)Srv->PriorityAfter("m_cloaking.so");
+		return (Priority)ServerInstance->PriorityAfter("m_cloaking.so");
 	}
 
 	void Implements(char* List)
