@@ -23,8 +23,6 @@
 #include "commands/cmd_who.h"
 
 extern InspIRCd* ServerInstance;
-extern chan_hash chanlist;
-extern std::vector<userrec*> all_opers;
 
 /* get the last 'visible' chan of a user */
 static char *getlastchanname(userrec *u)
@@ -160,7 +158,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
-			for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+			for (std::vector<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 			{
 				userrec* oper = *i;
 

@@ -36,7 +36,6 @@ extern Server* MyServer;
 
 irc::whowas::whowas_users whowas;
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
-std::vector<userrec*> all_opers;
 
 typedef std::map<irc::string,char*> opertype_t;
 typedef opertype_t operclass_t;
@@ -614,7 +613,7 @@ void userrec::Oper(const std::string &opertype)
 	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
 	log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 	strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
-	all_opers.push_back(this);
+	ServerInstance->all_opers.push_back(this);
 	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
 }
 
@@ -624,12 +623,12 @@ void userrec::UnOper()
 	{
 		*this->oper = 0;
 		this->modes[UM_OPERATOR] = 0;
-		for (std::vector<userrec*>::iterator a = all_opers.begin(); a < all_opers.end(); a++)
+		for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
 		{
 			if (*a == this)
 			{
 				log(DEBUG,"Oper removed from optimization list");
-				all_opers.erase(a);
+				ServerInstance->all_opers.erase(a);
 				return;
 			}
 		}

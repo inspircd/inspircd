@@ -122,6 +122,7 @@ class InspIRCd : public classbase
 	user_hash clientlist;
 	chan_hash chanlist;
 	std::vector<userrec*> local_users;
+	std::vector<userrec*> all_opers;
 	DNS* Res;
 	TimerManager* Timers;
 

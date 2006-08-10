@@ -44,7 +44,6 @@
 #include "inspircd.h"
 
 extern time_t TIME;
-extern std::vector<userrec*> all_opers;
 
 static char TIMESTR[26];
 static time_t LAST = 0;
@@ -135,7 +134,7 @@ void InspIRCd::WriteOpers(const char* text, ...)
 
 void InspIRCd::WriteOpers(const std::string &text)
 {
-	for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+	for (std::vector<userrec*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
 	{
 		userrec* a = *i;
 		if (IS_LOCAL(a) && a->modes[UM_SERVERNOTICE])

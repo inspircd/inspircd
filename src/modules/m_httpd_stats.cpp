@@ -28,7 +28,6 @@ using namespace std;
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
 
-extern std::vector<userrec*> all_opers;
 extern InspIRCd* ServerInstance;
 
 typedef std::map<irc::string,int> StatsHash;
@@ -113,7 +112,7 @@ class ModuleHttpStats : public Module
 				data << "<table>";
 				data << "<tr><td>Users</td><td>" << ServerInstance->clientlist.size() << "</td></tr>";
 				data << "<tr><td>Channels</td><td>" << ServerInstance->chanlist.size() << "</td></tr>";
-				data << "<tr><td>Opers</td><td>" << all_opers.size() << "</td></tr>";
+				data << "<tr><td>Opers</td><td>" << ServerInstance->all_opers.size() << "</td></tr>";
 				data << "<tr><td>Sockets</td><td>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</td></tr>";
 				data << "</table>";
 				data << "</div>";

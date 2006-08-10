@@ -24,7 +24,6 @@
 #include "commands/cmd_die.h"
 
 extern InspIRCd* ServerInstance;
-extern std::vector<userrec*> all_opers;
 
 void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -36,7 +35,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 		 * so we iterate the oper list, writing the message and immediately trying to flush their write buffer.
 		 */
 		
-		for (std::vector<userrec*>::iterator i = all_opers.begin(); i != all_opers.end(); i++)
+		for (std::vector<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 		{
 			userrec* a = *i;
 			

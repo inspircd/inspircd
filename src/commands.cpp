@@ -59,44 +59,6 @@ const long duration_d = duration_h * 24;
 const long duration_w = duration_d * 7;
 const long duration_y = duration_w * 52;
 
-extern std::vector<userrec*> all_opers;
-
-void split_chlist(userrec* user, userrec* dest, const std::string &cl)
-{
-	std::string line;
-	std::ostringstream prefix;
-	std::string::size_type start, pos, length;
-	
-	prefix << ":" << ServerInstance->Config->ServerName << " 319 " << user->nick << " " << dest->nick << " :";
-	line = prefix.str();
-	
-	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
-	{
-		length = (pos == std::string::npos) ? cl.length() : pos;
-		
-		if (line.length() + length - start > 510)
-		{
-			user->Write(line);
-			line = prefix.str();
-		}
-		
-		if(pos == std::string::npos)
-		{
-			line += cl.substr(start, length - start);
-			break;
-		}
-		else
-		{
-			line += cl.substr(start, length - start + 1);
-		}
-	}
-	
-	if (line.length())
-	{
-		user->Write(line);
-	}
-}
-
 /* XXX - these really belong in helperfuncs perhaps -- w00t */
 bool is_uline(const char* server)
 {
