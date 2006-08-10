@@ -19,12 +19,9 @@
 
 // include the common header files
 
-#include <typeinfo>
-#include <iostream>
 #include <string>
 #include <deque>
 #include "users.h"
-#include "channels.h"
 
 typedef std::deque<std::string> file_cache;
 typedef std::pair< std::string, std::string > KeyVal;

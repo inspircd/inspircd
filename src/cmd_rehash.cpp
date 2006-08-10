@@ -19,7 +19,6 @@
 #include "users.h"
 #include "modules.h"
 #include "commands.h"
-#include "helperfuncs.h"
 #include "commands/cmd_rehash.h"
 
 extern InspIRCd* ServerInstance;
@@ -29,7 +28,7 @@ extern FactoryList factory;
 
 void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("382 %s %s :Rehashing",user->nick,CleanFilename(CONFIG_FILE));
+	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 	std::string parameter = "";
 	if (pcnt)
 	{
@@ -37,7 +36,7 @@ void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,CleanFilename(CONFIG_FILE));
+		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 		ServerInstance->Config->Read(false,user);
 	}
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));

@@ -507,121 +507,6 @@ bool AllModulesReportReady(userrec* user)
 	return true;
 }
 
-/* Make Sure Modules Are Avaliable!
- * (BugFix By Craig.. See? I do work! :p)
- * Modified by brain, requires const char*
- * to work with other API functions
- */
-
-/* XXX - Needed? */
-bool FileExists (const char* file)
-{
-	FILE *input;
-	if ((input = fopen (file, "r")) == NULL)
-	{
-		return(false);
-	}
-	else
-	{
-		fclose (input);
-		return(true);
-	}
-}
-
-char* CleanFilename(char* name)
-{
-	char* p = name + strlen(name);
-	while ((p != name) && (*p != '/')) p--;
-	return (p != name ? ++p : p);
-}
-
-bool DirValid(char* dirandfile)
-{
-	char work[MAXBUF];
-	char buffer[MAXBUF];
-	char otherdir[MAXBUF];
-	int p;
-
-	strlcpy(work, dirandfile, MAXBUF);
-	p = strlen(work);
-
-	// we just want the dir
-	while (*work)
-	{
-		if (work[p] == '/')
-		{
-			work[p] = '\0';
-			break;
-		}
-
-		work[p--] = '\0';
-	}
-
-	// Get the current working directory
-	if (getcwd(buffer, MAXBUF ) == NULL )
-		return false;
-
-	chdir(work);
-
-	if (getcwd(otherdir, MAXBUF ) == NULL )
-		return false;
-
-	chdir(buffer);
-
-	size_t t = strlen(work);
-
-	if (strlen(otherdir) >= t)
-	{
-		otherdir[t] = '\0';
-
-		if (!strcmp(otherdir,work))
-		{
-			return true;
-		}
-
-		return false;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-std::string GetFullProgDir(char** argv, int argc)
-{
-	char work[MAXBUF];
-	char buffer[MAXBUF];
-	char otherdir[MAXBUF];
-	int p;
-
-	strlcpy(work,argv[0],MAXBUF);
-	p = strlen(work);
-
-	// we just want the dir
-	while (*work)
-	{
-		if (work[p] == '/')
-		{
-			work[p] = '\0';
-			break;
-		}
-
-		work[p--] = '\0';
-	}
-
-	// Get the current working directory
-	if (getcwd(buffer, MAXBUF) == NULL)
-		return "";
-
-	chdir(work);
-
-	if (getcwd(otherdir, MAXBUF) == NULL)
-		return "";
-
-	chdir(buffer);
-	return otherdir;
-}
-
 int InsertMode(std::string &output, const char* mode, unsigned short section)
 {
 	unsigned short currsection = 1;
@@ -685,7 +570,7 @@ void OpenLog(char** argv, int argc)
 	{
 		if (ServerInstance->Config->logpath == "")
 		{
-			ServerInstance->Config->logpath = GetFullProgDir(argv,argc) + "/ircd.log";
+			ServerInstance->Config->logpath = ServerConfig::GetFullProgDir(argv,argc) + "/ircd.log";
 		}
 	}
 	else

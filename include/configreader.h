@@ -405,6 +405,12 @@ class ServerConfig : public Extensible
 	Module* GetIOHook(int port);
 	bool AddIOHook(int port, Module* iomod);
 	bool DelIOHook(int port);
+
+	static std::string GetFullProgDir(char** argv, int argc);
+	static bool DirValid(const char* dirandfile);
+	static char* CleanFilename(char* name);
+	static bool FileExists(const char* file);
+	
 };
 
 bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);

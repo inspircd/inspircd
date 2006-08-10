@@ -76,7 +76,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (match(ServerInstance->Config->module_names[i].c_str(),parameters[1]))
 				{
-					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 					for (int it = 0; itab[it];)
 					{
 						char data[MAXBUF];
@@ -95,7 +95,7 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 							}
 						}
 						if (*dlist)
-							user->WriteServ("900 %s :%s [ %s]",user->nick,CleanFilename(modulename),dlist);
+							user->WriteServ("900 %s :%s [ %s]",user->nick,ServerConfig::CleanFilename(modulename),dlist);
 					}
 					user->WriteServ("900 %s :=== DEBUG: Implementation counts ===",user->nick);
 					for (int it = 0; itab[it]; it++)
@@ -107,12 +107,12 @@ void cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,CleanFilename(modulename),flagstate+2);
+				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 			}
 		}
 		else
 		{
-			user->WriteServ("900 %s :%s",user->nick,CleanFilename(modulename));
+			user->WriteServ("900 %s :%s",user->nick,ServerConfig::CleanFilename(modulename));
 		}
 	}
 	user->WriteServ("901 %s :End of MODULES list",user->nick);

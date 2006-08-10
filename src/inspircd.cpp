@@ -141,7 +141,7 @@ void Killed(int status)
 
 void Rehash(int status)
 {
-	ServerInstance->WriteOpers("Rehashing config file %s due to SIGHUP",CleanFilename(CONFIG_FILE));
+	ServerInstance->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
 	fclose(ServerInstance->Config->log_file);
 	OpenLog(NULL,0);
 	ServerInstance->Config->Read(false,NULL);
@@ -234,7 +234,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->startup_time = time(NULL);
 	srand(time(NULL));
 	log(DEBUG,"*** InspIRCd starting up!");
-	if (!FileExists(CONFIG_FILE))
+	if (!ServerConfig::FileExists(CONFIG_FILE))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
 		log(DEFAULT,"main: no config");
@@ -559,7 +559,7 @@ bool InspIRCd::LoadModule(const char* filename)
 	std::string filename_str = filename;
 #ifndef STATIC_LINK
 #ifndef IS_CYGWIN
-	if (!DirValid(modfile))
+	if (!ServerConfig::DirValid(modfile))
 	{
 		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
@@ -569,7 +569,7 @@ bool InspIRCd::LoadModule(const char* filename)
 #endif
 	log(DEBUG,"Loading module: %s",modfile);
 #ifndef STATIC_LINK
-	if (FileExists(modfile))
+	if (ServerConfig::FileExists(modfile))
 	{
 #endif
 		for (unsigned int j = 0; j < Config->module_names.size(); j++)

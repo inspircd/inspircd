@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -1291,35 +1291,145 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
  */
 bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 {
-        FILE* file;
-        char linebuf[MAXBUF];
+	FILE* file;
+	char linebuf[MAXBUF];
 
-        F.clear();
-        file =  fopen(fname,"r");
+	F.clear();
+	file =  fopen(fname,"r");
 
-        if (file)
-        {
-                while (!feof(file))
-                {
-                        fgets(linebuf,sizeof(linebuf),file);
-                        linebuf[strlen(linebuf)-1]='\0';
+	if (file)
+	{
+		while (!feof(file))
+		{
+			fgets(linebuf,sizeof(linebuf),file);
+			linebuf[strlen(linebuf)-1]='\0';
 
-                        if (!*linebuf)
-                        {
-                                strcpy(linebuf," ");
-                        }
+			if (!*linebuf)
+			{
+				strcpy(linebuf," ");
+			}
 
-                        if (!feof(file))
-                        {
-                                F.push_back(linebuf);
-                        }
-                }
+			if (!feof(file))
+			{
+				F.push_back(linebuf);
+			}
+		}
 
-                fclose(file);
-        }
-        else
+		fclose(file);
+	}
+	else
 		return false;
 
 	return true;
 }
+
+bool ServerConfig::FileExists(const char* file)
+{
+	FILE *input;
+	if ((input = fopen (file, "r")) == NULL)
+	{
+		return false;
+	}
+	else
+	{
+		fclose(input);
+		return true;
+	}
+}
+
+char* ServerConfig::CleanFilename(char* name)
+{
+	char* p = name + strlen(name);
+	while ((p != name) && (*p != '/')) p--;
+	return (p != name ? ++p : p);
+}
+
+
+bool ServerConfig::DirValid(const char* dirandfile)
+{
+	char work[MAXBUF];
+	char buffer[MAXBUF];
+	char otherdir[MAXBUF];
+	int p;
+
+	strlcpy(work, dirandfile, MAXBUF);
+	p = strlen(work);
+
+	// we just want the dir
+	while (*work)
+	{
+		if (work[p] == '/')
+		{
+			work[p] = '\0';
+			break;
+		}
+
+		work[p--] = '\0';
+	}
+
+	// Get the current working directory
+	if (getcwd(buffer, MAXBUF ) == NULL )
+		return false;
+
+	chdir(work);
+
+	if (getcwd(otherdir, MAXBUF ) == NULL )
+		return false;
+
+	chdir(buffer);
+
+	size_t t = strlen(work);
+
+	if (strlen(otherdir) >= t)
+	{
+		otherdir[t] = '\0';
+
+		if (!strcmp(otherdir,work))
+		{
+			return true;
+		}
+
+		return false;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+std::string ServerConfig::GetFullProgDir(char** argv, int argc)
+{
+	char work[MAXBUF];
+	char buffer[MAXBUF];
+	char otherdir[MAXBUF];
+	int p;
+
+	strlcpy(work,argv[0],MAXBUF);
+	p = strlen(work);
+
+	// we just want the dir
+	while (*work)
+	{
+		if (work[p] == '/')
+		{
+			work[p] = '\0';
+			break;
+		}
+
+		work[p--] = '\0';
+	}
+
+	// Get the current working directory
+	if (getcwd(buffer, MAXBUF) == NULL)
+		return "";
+
+	chdir(work);
+
+	if (getcwd(otherdir, MAXBUF) == NULL)
+		return "";
+
+	chdir(buffer);
+	return otherdir;
+}
+
 
