@@ -182,18 +182,6 @@ class Version : public classbase
 	 Version(int major, int minor, int revision, int build, int flags);
 };
 
-/** Holds /ADMIN data
- *  This class contains the admin details of the local server. It is constructed by class Server,
- *  and has three read-only values, Name, Email and Nick that contain the specified values for the
- *  server where the module is running.
- */
-class Admin : public classbase
-{
- public:
-	 const std::string Name, Email, Nick;
-	 Admin(std::string name, std::string email, std::string nick);
-};
-
 /** The ModuleMessage class is the base class of Request and Event
  * This class is used to represent a basic data structure which is passed
  * between modules for safe inter-module communications.
@@ -1340,21 +1328,6 @@ class Server : public Extensible
 	/** Returns the server name of the server where the module is loaded.
 	 */
 	std::string GetServerName();
-
-	/** Returns the network name, global to all linked servers.
-	 */
-	std::string GetNetworkName();
-
-	/** Returns the server description string of the local server
-	 */
-	std::string GetServerDescription();
-
-	/** Returns the information of the server as returned by the /ADMIN command.
-	 * See the Admin class for further information of the return value. The members
-	 * Admin::Nick, Admin::Email and Admin::Name contain the information for the
-	 * server where the module is loaded.
-	 */
-	Admin GetAdmin();
 
 	bool AddMode(ModeHandler* mh, const unsigned char modechar);
 

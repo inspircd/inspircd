@@ -35,6 +35,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
+#include "configreader.h"
 #include "inspircd.h"
 #include "users.h"
 #include "channels.h"
@@ -42,6 +43,7 @@
 
 /* $ModDesc: Provides masking of user hostnames */
 
+extern InspIRCd* ServerInstance;
 
 /* The four core functions - F1 is optimized somewhat */
 
@@ -382,7 +384,7 @@ class CloakUser : public ModeHandler
 		prefix = Conf.ReadValue("cloak","prefix",0);
 		if (prefix == "")
 		{
-			prefix = Srv->GetNetworkName();
+			prefix = ServerInstance->Config->Network;
 		}
 		if (!key1 && !key2 && !key3 && !key4)
 		{

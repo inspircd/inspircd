@@ -756,7 +756,7 @@ class TreeSocket : public InspSocket
 						}
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
+					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
 					return true;
 				}
 			}
@@ -2548,7 +2548,7 @@ class TreeSocket : public InspSocket
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
 				// along with the sendpass from this block.
-				this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+Srv->GetServerDescription());
+				this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
 				// move to the next state, we are now waiting for THEM.
 				this->LinkState = WAIT_AUTH_2;
 				return true;
@@ -3432,7 +3432,7 @@ class ModuleSpanningTree : public Module
 		Bindings.clear();
 
 		// Create the root of the tree
-		TreeRoot = new TreeServer(Srv->GetServerName(),Srv->GetServerDescription());
+		TreeRoot = new TreeServer(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 
 		ReadConfiguration(true);
 

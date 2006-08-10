@@ -21,9 +21,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "helperfuncs.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style umode +B */
+
+extern InspIRCd* ServerInstance;
 
 class BotMode : public ModeHandler
 {
@@ -89,7 +93,7 @@ class ModuleBotMode : public Module
 	{
 		if (dst->IsModeSet('B'))
 		{
-			src->WriteServ("335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+Srv->GetNetworkName());
+			src->WriteServ("335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+ServerInstance->Config->Network);
 		}
 	}
 

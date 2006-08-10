@@ -106,9 +106,9 @@ class ModuleHttpStats : public Module
 
 				data << "<head>";
 				data << "<link rel='stylesheet' href='" << this->stylesheet << "' type='text/css' />";
-				data << "<title>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</title>";
+				data << "<title>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << ServerInstance->Config->ServerDesc << ")</title>";
 				data << "</head><body>";
-				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << Srv->GetServerDescription() << ")</h1>";
+				data << "<h1>InspIRCd server statisitics for " << Srv->GetServerName() << " (" << ServerInstance->Config->ServerDesc << ")</h1>";
 
 				data << "<div class='totals'>";
 				data << "<h2>Totals</h2>";

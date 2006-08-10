@@ -64,13 +64,6 @@ Version::Version(int major, int minor, int revision, int build, int flags)
 {
 }
 
-// admin is a simple class for holding a server's administrative info
-
-Admin::Admin(std::string name, std::string email, std::string nick)
-: Name(name), Email(email), Nick(nick)
-{
-}
-
 Request::Request(char* anydata, Module* src, Module* dst)
 : data(anydata), source(src), dest(dst)
 {
@@ -426,22 +419,6 @@ std::string Server::GetServerName()
 {
 	return ServerInstance->Config->ServerName;
 }
-
-std::string Server::GetNetworkName()
-{
-	return ServerInstance->Config->Network;
-}
-
-std::string Server::GetServerDescription()
-{
-	return ServerInstance->Config->ServerDesc;
-}
-
-Admin Server::GetAdmin()
-{
-	return Admin(ServerInstance->Config->AdminName,ServerInstance->Config->AdminEmail,ServerInstance->Config->AdminNick);
-}
-
 
 bool Server::AddMode(ModeHandler* mh, const unsigned char mode)
 {
