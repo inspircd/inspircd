@@ -24,7 +24,7 @@ class InspIRCd* ServerInstance;
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(Server* serv) : ListModeBase(serv, 'I', "End of Channel Invite Exception List", "346", "347", true) { }
+	InviteException(InspIRCd* Instance, Server* serv) : ListModeBase(Instance, serv, 'I', "End of Channel Invite Exception List", "346", "347", true) { }
 };
 
 class ModuleInviteException : public Module
@@ -35,7 +35,7 @@ class ModuleInviteException : public Module
 public:
 	ModuleInviteException(Server* serv) : Module(serv)
 	{
-		ie = new InviteException(serv);
+		ie = new InviteException(ServerInstance, serv);
 		Srv = serv;
 		Srv->AddMode(ie, 'I');
 	}

@@ -22,10 +22,12 @@ typedef void * (initfunc) (void);
 
 #include "inspircd_config.h"
 
+class InspIRCd;
+
 class DLLManager
 {
  public:
-	DLLManager(const char *fname);
+	DLLManager(InspIRCd* ServerInstance, const char *fname);
 	virtual ~DLLManager();
 
 
@@ -52,7 +54,7 @@ class DLLManager
 class DLLFactoryBase : public DLLManager
 {
  public:
-	DLLFactoryBase(const char *fname, const char *func_name = 0);
+	DLLFactoryBase(InspIRCd* Instance, const char *fname, const char *func_name = 0);
 	virtual ~DLLFactoryBase();
 #ifdef STATIC_LINK
 	initfunc *factory_func;
@@ -64,7 +66,7 @@ class DLLFactoryBase : public DLLManager
 template <class T> class DLLFactory : public DLLFactoryBase
 {
  public:
-	DLLFactory(const char *fname, const char *func_name=0) : DLLFactoryBase(fname,func_name)
+	DLLFactory(InspIRCd* Instance, const char *fname, const char *func_name=0) : DLLFactoryBase(Instance, fname, func_name)
 	{
 		if (factory_func)
 			factory = reinterpret_cast<T*>(factory_func());

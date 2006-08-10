@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/umode_w.h"
 
-ModeUserWallops::ModeUserWallops() : ModeHandler('w', 0, 0, false, MODETYPE_USER, false)
+ModeUserWallops::ModeUserWallops(InspIRCd* Instance) : ModeHandler(Instance, 'w', 0, 0, false, MODETYPE_USER, false)
 {
 }
 

@@ -31,7 +31,7 @@ class Redirect : public ModeHandler
 {
 	Server* Srv;
  public:
-	Redirect(Server* s) : ModeHandler('L', 1, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
+	Redirect(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
 
         ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
@@ -115,7 +115,7 @@ class ModuleRedirect : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		re = new Redirect(Me);
+		re = new Redirect(ServerInstance, Me);
 		Srv->AddMode(re, 'L');
 	}
 	

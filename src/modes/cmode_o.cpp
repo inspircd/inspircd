@@ -14,14 +14,9 @@
 #include "hashcomp.h"
 #include "modes/cmode_o.h"
 
-extern InspIRCd* ServerInstance;
-
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern int MODCOUNT;
 extern time_t TIME;
 
-ModeChannelOp::ModeChannelOp() : ModeHandler('o', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(Instance, 'o', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }
 
@@ -65,7 +60,7 @@ ModeAction ModeChannelOp::OnModeChange(userrec* source, userrec* dest, chanrec* 
 
 std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,int status)
 {
-	userrec *d = ModeParser::SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -86,14 +81,14 @@ std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,in
 			}
 		}
 
-		return ModeParser::Grant(d,chan,UCMODE_OP);
+		return ServerInstance->ModeGrok->Grant(d,chan,UCMODE_OP);
 	}
 	return "";
 }
 
 std::string ModeChannelOp::DelOp(userrec *user,const char *dest,chanrec *chan,int status)
 {
-	userrec *d = ModeParser::SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -117,7 +112,7 @@ std::string ModeChannelOp::DelOp(userrec *user,const char *dest,chanrec *chan,in
 			}
 		}
 
-		return ModeParser::Revoke(d,chan,UCMODE_OP);
+		return ServerInstance->ModeGrok->Revoke(d,chan,UCMODE_OP);
 	}
 	return "";
 }

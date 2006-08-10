@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/umode_i.h"
 
-ModeUserInvisible::ModeUserInvisible() : ModeHandler('i', 0, 0, false, MODETYPE_USER, false)
+ModeUserInvisible::ModeUserInvisible(InspIRCd* Instance) : ModeHandler(Instance, 'i', 0, 0, false, MODETYPE_USER, false)
 {
 }
 

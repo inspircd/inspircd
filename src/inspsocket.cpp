@@ -27,7 +27,6 @@
 #include "socketengine.h"
 #include "inspircd.h"
 
-using irc::sockets::BindSocket;
 using irc::sockets::OpenTCPSocket;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
@@ -74,7 +73,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		}
 		else
 		{
-			if (!BindSocket(this->fd,this->client,this->server,aport,(char*)ipaddr.c_str()))
+			if (!SI->BindSocket(this->fd,this->client,this->server,aport,(char*)ipaddr.c_str()))
 			{
 				log(DEBUG,"BindSocket() error %s",strerror(errno));
 				this->Close();

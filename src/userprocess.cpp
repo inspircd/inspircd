@@ -301,7 +301,7 @@ void InspIRCd::DoSocketTimeouts(time_t TIME)
  */
 void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 {
-	CullList GlobalGoners;
+	CullList GlobalGoners(this);
 
 	/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
 	for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)

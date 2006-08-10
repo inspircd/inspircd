@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/cmode_t.h"
 
-ModeChannelTopicOps::ModeChannelTopicOps() : ModeHandler('t', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelTopicOps::ModeChannelTopicOps(InspIRCd* Instance) : ModeHandler(Instance, 't', 0, 0, false, MODETYPE_CHANNEL, false)
 {
 }
 

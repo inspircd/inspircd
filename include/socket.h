@@ -65,8 +65,6 @@ namespace irc
 		void NonBlocking(int s);
 
 		int OpenTCPSocket(); 
-		bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
-		int BindPorts(bool bail);
 	};
 };
 

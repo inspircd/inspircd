@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/cmode_m.h"
 
-ModeChannelModerated::ModeChannelModerated() : ModeHandler('m', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelModerated::ModeChannelModerated(InspIRCd* Instance) : ModeHandler(Instance, 'm', 0, 0, false, MODETYPE_CHANNEL, false)
 {
 }
 

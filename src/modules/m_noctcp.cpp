@@ -30,7 +30,7 @@ extern InspIRCd* ServerInstance;
 class NoCTCP : public ModeHandler
 {
  public:
-	NoCTCP() : ModeHandler('C', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoCTCP(InspIRCd* Instance) : ModeHandler(Instance, 'C', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -66,7 +66,7 @@ class ModuleNoCTCP : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		nc = new NoCTCP();
+		nc = new NoCTCP(ServerInstance);
 		Srv->AddMode(nc, 'C');
 	}
 

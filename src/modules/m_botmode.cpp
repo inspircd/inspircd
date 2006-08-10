@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class BotMode : public ModeHandler
 {
  public:
-	BotMode() : ModeHandler('B', 0, 0, false, MODETYPE_USER, false) { }
+	BotMode(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -70,7 +70,7 @@ class ModuleBotMode : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		bm = new BotMode();
+		bm = new BotMode(ServerInstance);
 		Srv->AddMode(bm, 'B');
 	}
 

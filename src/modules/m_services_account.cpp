@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class AChannel_R : public ModeHandler
 {
  public:
-	AChannel_R() : ModeHandler('R', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	AChannel_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -60,7 +60,7 @@ class AChannel_R : public ModeHandler
 class AUser_R : public ModeHandler
 {
  public:
-	AUser_R() : ModeHandler('R', 0, 0, false, MODETYPE_USER, false) { }
+	AUser_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -88,7 +88,7 @@ class AUser_R : public ModeHandler
 class AChannel_M : public ModeHandler
 {
  public:
-	AChannel_M() : ModeHandler('M', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	AChannel_M(InspIRCd* Instance) : ModeHandler(Instance, 'M', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -123,9 +123,9 @@ class ModuleServicesAccount : public Module
 	ModuleServicesAccount(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		m1 = new AChannel_R();
-		m2 = new AChannel_M();
-		m3 = new AUser_R();
+		m1 = new AChannel_R(ServerInstance);
+		m2 = new AChannel_M(ServerInstance);
+		m3 = new AUser_R(ServerInstance);
 		Srv->AddMode(m1, 'R');
 		Srv->AddMode(m2, 'M');
 		Srv->AddMode(m3, 'R');

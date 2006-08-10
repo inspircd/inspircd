@@ -30,7 +30,7 @@ extern InspIRCd* ServerInstance;
 class NoNotice : public ModeHandler
 {
  public:
-	NoNotice() : ModeHandler('T', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoNotice(InspIRCd* Instance) : ModeHandler(Instance, 'T', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -65,7 +65,7 @@ class ModuleNoNotice : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		nt = new NoNotice();
+		nt = new NoNotice(ServerInstance);
 		Srv->AddMode(nt, 'T');
 	}
 

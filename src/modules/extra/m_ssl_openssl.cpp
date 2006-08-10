@@ -62,7 +62,7 @@ class ModuleSSLOpenSSL : public Module
 	Server* Srv;
 	ConfigReader* Conf;
 	
-	CullList culllist;
+	CullList* culllist;
 	
 	std::vector<int> listenports;
 	
@@ -85,6 +85,8 @@ class ModuleSSLOpenSSL : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
+
+		culllist = new CullList(ServerInstance);
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -220,6 +222,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual ~ModuleSSLOpenSSL()
 	{
 		SSL_CTX_free(ctx);
+		delete culllist;
 	}
 	
 	virtual void OnCleanup(int target_type, void* item)
@@ -233,7 +236,7 @@ class ModuleSSLOpenSSL : public Module
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				log(DEBUG, "m_ssl_openssl.so: Adding user %s to cull list", user->nick);
-				culllist.AddItem(user, "SSL module unloading");
+				culllist->AddItem(user, "SSL module unloading");
 			}
 		}
 	}
@@ -243,7 +246,7 @@ class ModuleSSLOpenSSL : public Module
 		if(mod == this)
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
-			int numusers = culllist.Apply();
+			int numusers = culllist->Apply();
 			log(DEBUG, "m_ssl_openssl.so: Killed %d users for unload of OpenSSL SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)

@@ -30,7 +30,7 @@ extern InspIRCd* ServerInstance;
 class NoKicks : public ModeHandler
 {
  public:
-	NoKicks() : ModeHandler('Q', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoKicks(InspIRCd* Instance) : ModeHandler(Instance, 'Q', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -66,7 +66,7 @@ class ModuleNoKicks : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		nk = new NoKicks();
+		nk = new NoKicks(ServerInstance);
 		Srv->AddMode(nk, 'Q');
 	}
 

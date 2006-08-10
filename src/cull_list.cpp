@@ -38,8 +38,6 @@ using namespace std;
 #include "typedefs.h"
 #include "cull_list.h"
 
-extern InspIRCd* ServerInstance;
-
 /*
  * In current implementation of CullList, this isn't used. It did odd things with a lot of sockets.
  */
@@ -98,7 +96,7 @@ std::string& CullItem::GetReason()
 	return this->reason;
 }
 
-CullList::CullList()
+CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	list.clear();
 	exempt.clear();

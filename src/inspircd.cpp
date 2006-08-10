@@ -64,7 +64,6 @@
 #include "typedefs.h"
 #include "command_parse.h"
 
-using irc::sockets::BindPorts;
 using irc::sockets::NonBlocking;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
@@ -287,12 +286,12 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 
 	OpenLog(argv, argc);
 	this->stats = new serverstats();
-	this->Parser = new CommandParser();
+	this->Parser = new CommandParser(this);
 	this->Timers = new TimerManager();
 	Config->ClearStack();
 	Config->Read(true, NULL);
 	CheckRoot();
-	this->ModeGrok = new ModeParser();
+	this->ModeGrok = new ModeParser(this);
 	this->AddServerName(Config->ServerName);
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
@@ -573,7 +572,7 @@ bool InspIRCd::LoadModule(const char* filename)
 		}
 		try
 		{
-			ircd_module* a = new ircd_module(modfile);
+			ircd_module* a = new ircd_module(this, modfile);
 			factory[this->ModCount+1] = a;
 			if (factory[this->ModCount+1]->LastError())
 			{

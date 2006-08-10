@@ -13,14 +13,9 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-extern InspIRCd* ServerInstance;
-extern InspIRCd* ServerInstance;
-extern std::vector<Module*> modules;
-extern std::vector<ircd_module*> factory;
-extern int MODCOUNT;
 extern time_t TIME;
 
-ModeChannelBan::ModeChannelBan() : ModeHandler('b', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, 'b', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }
 

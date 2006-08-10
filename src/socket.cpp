@@ -227,7 +227,7 @@ inline void irc::sockets::NonBlocking(int s)
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
  */ 
-bool irc::sockets::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
+bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
 {
 	memset(&server,0,sizeof(server));
 	insp_inaddr addy;
@@ -274,7 +274,7 @@ bool irc::sockets::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr se
 	else
 	{
 		log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
-		if (listen(sockfd, ServerInstance->Config->MaxConn) == -1)
+		if (listen(sockfd, Config->MaxConn) == -1)
 		{
 			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
 			return false;
@@ -312,10 +312,9 @@ int irc::sockets::OpenTCPSocket()
 }
 
 /* XXX: Probably belongs in class InspIRCd */
-bool HasPort(int port, char* addr)
+bool InspIRCd::HasPort(int port, char* addr)
 {
-	ServerConfig* Config = ServerInstance->Config;
-	for (unsigned long count = 0; count < ServerInstance->stats->BoundPortCount; count++)
+	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
 		if ((port == Config->ports[count]) && (!strcasecmp(Config->addrs[count],addr)))
 		{
@@ -326,17 +325,16 @@ bool HasPort(int port, char* addr)
 }
 
 /* XXX: Probably belongs in class InspIRCd */
-int irc::sockets::BindPorts(bool bail)
+int InspIRCd::BindPorts(bool bail)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	insp_sockaddr client, server;
 	int clientportcount = 0;
 	int BoundPortCount = 0;
-	ServerConfig* Config = ServerInstance->Config;
 
 	if (!bail)
 	{
-		int InitialPortCount = ServerInstance->stats->BoundPortCount;
+		int InitialPortCount = stats->BoundPortCount;
 		log(DEBUG,"Initial port count: %d",InitialPortCount);
 
 		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
@@ -377,7 +375,7 @@ int irc::sockets::BindPorts(bool bail)
 						/* Associate the new open port with a slot in the socket engine */
 						if (Config->openSockfd[count] > -1)
 						{
-							if (!ServerInstance->SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
+							if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
 							{
 								log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
 								shutdown(Config->openSockfd[count],2);

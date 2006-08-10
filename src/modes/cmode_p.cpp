@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/cmode_p.h"
 
-ModeChannelPrivate::ModeChannelPrivate() : ModeHandler('p', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelPrivate::ModeChannelPrivate(InspIRCd* Instance) : ModeHandler(Instance, 'p', 0, 0, false, MODETYPE_CHANNEL, false)
 {
 }
 

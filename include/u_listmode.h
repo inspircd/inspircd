@@ -58,8 +58,8 @@ class ListModeBase : public ModeHandler
 	limitlist chanlimits;
  
  public:
-	ListModeBase(Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
- 	: ModeHandler(modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
+	ListModeBase(InspIRCd* Instance, Server* serv, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
+ 	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), Srv(serv), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";

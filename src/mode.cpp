@@ -65,12 +65,12 @@ using namespace std;
 /* +n (notice mask - our implementation of snomasks) */
 #include "modes/umode_n.h"
 
-extern InspIRCd* ServerInstance;
-
 extern time_t TIME;
 
-ModeHandler::ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
-	: mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
+extern InspIRCd* ServerInstance;
+
+ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
+	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
 {
 }
 
@@ -129,7 +129,7 @@ bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &
 	return (ours < theirs);
 }
 
-ModeWatcher::ModeWatcher(char modeletter, ModeType type) : mode(modeletter), m_type(type)
+ModeWatcher::ModeWatcher(InspIRCd* Instance, char modeletter, ModeType type) : ServerInstance(Instance), mode(modeletter), m_type(type)
 {
 }
 
@@ -661,7 +661,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	return true;
 }
 
-ModeParser::ModeParser()
+ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	/* Clear mode list */
 	memset(modehandlers, 0, sizeof(modehandlers));
@@ -670,29 +670,29 @@ ModeParser::ModeParser()
 	/* Initialise the RFC mode letters */
 
 	/* Start with channel simple modes, no params */
-	this->AddMode(new ModeChannelSecret, 's');
-	this->AddMode(new ModeChannelPrivate, 'p');
-	this->AddMode(new ModeChannelModerated, 'm');
-	this->AddMode(new ModeChannelTopicOps, 't');
-	this->AddMode(new ModeChannelNoExternal, 'n');
-	this->AddMode(new ModeChannelInviteOnly, 'i');
+	this->AddMode(new ModeChannelSecret(Instance), 's');
+	this->AddMode(new ModeChannelPrivate(Instance), 'p');
+	this->AddMode(new ModeChannelModerated(Instance), 'm');
+	this->AddMode(new ModeChannelTopicOps(Instance), 't');
+	this->AddMode(new ModeChannelNoExternal(Instance), 'n');
+	this->AddMode(new ModeChannelInviteOnly(Instance), 'i');
 
 	/* Cannel modes with params */
-	this->AddMode(new ModeChannelKey, 'k');
-	this->AddMode(new ModeChannelLimit, 'l');
+	this->AddMode(new ModeChannelKey(Instance), 'k');
+	this->AddMode(new ModeChannelLimit(Instance), 'l');
 
 	/* Channel listmodes */
-	this->AddMode(new ModeChannelBan, 'b');
-	this->AddMode(new ModeChannelOp, 'o');
-	this->AddMode(new ModeChannelHalfOp, 'h');
-	this->AddMode(new ModeChannelVoice, 'v');
+	this->AddMode(new ModeChannelBan(Instance), 'b');
+	this->AddMode(new ModeChannelOp(Instance), 'o');
+	this->AddMode(new ModeChannelHalfOp(Instance), 'h');
+	this->AddMode(new ModeChannelVoice(Instance), 'v');
 
 	/* Now for usermodes */
-	this->AddMode(new ModeUserServerNotice, 's');
-	this->AddMode(new ModeUserWallops, 'w');
-	this->AddMode(new ModeUserInvisible, 'i');
-	this->AddMode(new ModeUserOperator, 'o');
-	this->AddMode(new ModeUserServerNoticeMask, 'n');
+	this->AddMode(new ModeUserServerNotice(Instance), 's');
+	this->AddMode(new ModeUserWallops(Instance), 'w');
+	this->AddMode(new ModeUserInvisible(Instance), 'i');
+	this->AddMode(new ModeUserOperator(Instance), 'o');
+	this->AddMode(new ModeUserServerNoticeMask(Instance), 'n');
 }
 
 bool ModeParser::InsertMode(std::string &output, const char* mode, unsigned short section)

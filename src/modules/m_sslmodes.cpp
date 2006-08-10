@@ -12,9 +12,8 @@ extern InspIRCd* ServerInstance;
 
 class SSLMode : public ModeHandler
 {
-	Server* Srv;
  public:
-	SSLMode(Server* s) : ModeHandler('z', 0, 0, false, MODETYPE_CHANNEL, false), Srv(s) { }
+	SSLMode(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -66,7 +65,7 @@ class ModuleSSLModes : public Module
 	{
 		Srv = Me;
 
-		sslm = new SSLMode(Me);
+		sslm = new SSLMode(ServerInstance);
 		Srv->AddMode(sslm, 'z');
 	}
 

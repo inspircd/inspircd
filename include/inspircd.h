@@ -133,6 +133,10 @@ class InspIRCd : public classbase
 
 	Module* FindModule(const std::string &name);
 
+	int BindPorts(bool bail);
+	bool HasPort(int port, char* addr);
+	bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
+
 	void AddServerName(const std::string &servername);
 	const char* FindServerNamePtr(const std::string &servername);
 	bool FindServerName(const std::string &servername);

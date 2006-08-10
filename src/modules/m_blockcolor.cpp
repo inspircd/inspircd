@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class BlockColor : public ModeHandler
 {
  public:
-	BlockColor() : ModeHandler('c', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	BlockColor(InspIRCd* Instance) : ModeHandler(Instance, 'c', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -65,7 +65,7 @@ class ModuleBlockColour : public Module
 	ModuleBlockColour(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		bc = new BlockColor();
+		bc = new BlockColor(ServerInstance);
 		Srv->AddMode(bc, 'c');
 	}
 

@@ -48,11 +48,7 @@
 
 #define nspace __gnu_cxx
 
-extern InspIRCd* ServerInstance;
-
 extern time_t TIME;
-
-extern Server* MyServer;
 
 /* Special commands which may occur without registration of the user */
 cmd_user* command_user;
@@ -323,7 +319,7 @@ bool CommandParser::CreateCommand(command_t *f)
 	else return false;
 }
 
-CommandParser::CommandParser()
+CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->SetupCommandTable();
 }

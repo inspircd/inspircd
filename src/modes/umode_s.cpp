@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/umode_s.h"
 
-ModeUserServerNotice::ModeUserServerNotice() : ModeHandler('s', 0, 0, false, MODETYPE_USER, false)
+ModeUserServerNotice::ModeUserServerNotice(InspIRCd* Instance) : ModeHandler(Instance, 's', 0, 0, false, MODETYPE_USER, false)
 {
 }
 

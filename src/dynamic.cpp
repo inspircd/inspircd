@@ -29,13 +29,12 @@ using namespace std;
 
 #include "inspstring.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
 
-extern InspIRCd* ServerInstance;
-
-DLLManager::DLLManager(const char *fname)
+DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 {
 	err = NULL;
 
@@ -183,7 +182,7 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 
 #endif
 
-DLLFactoryBase::DLLFactoryBase(const char* fname, const char* symbol) : DLLManager(fname)
+DLLFactoryBase::DLLFactoryBase(InspIRCd* Instance, const char* fname, const char* symbol) : DLLManager(Instance, fname)
 {
 	// try get the factory function if there is no error yet
 	factory_func = 0;

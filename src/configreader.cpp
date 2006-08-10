@@ -28,8 +28,6 @@
 
 extern time_t TIME;
 
-using irc::sockets::BindPorts;
-
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
@@ -796,7 +794,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	if (!bail)
 	{
-		ServerInstance->stats->BoundPortCount = BindPorts(false);
+		ServerInstance->stats->BoundPortCount = ServerInstance->BindPorts(false);
 
 		if (!removed_modules.empty())
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)

@@ -80,7 +80,7 @@ class cmd_knock : public command_t
 class Knock : public ModeHandler
 {
  public:
-	Knock() : ModeHandler('K', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	Knock(InspIRCd* Instance) : ModeHandler(Instance, 'K', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -113,7 +113,7 @@ class ModuleKnock : public Module
 	ModuleKnock(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		kn = new Knock();
+		kn = new Knock(ServerInstance);
 		Srv->AddMode(kn, 'K');
 		mycommand = new cmd_knock();
 		Srv->AddCommand(mycommand);

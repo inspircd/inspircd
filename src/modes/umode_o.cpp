@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/umode_o.h"
 
-ModeUserOperator::ModeUserOperator() : ModeHandler('o', 0, 0, false, MODETYPE_USER, true)
+ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, 'o', 0, 0, false, MODETYPE_USER, true)
 {
 }
 

@@ -42,7 +42,7 @@ class CensorException : public ModuleException
 class CensorUser : public ModeHandler
 {
  public:
-	CensorUser() : ModeHandler('G', 0, 0, false, MODETYPE_USER, false) { }
+	CensorUser(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -74,7 +74,7 @@ class CensorUser : public ModeHandler
 class CensorChannel : public ModeHandler
 {
  public:
-	CensorChannel() : ModeHandler('G', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	CensorChannel(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -125,8 +125,8 @@ class ModuleCensor : public Module
 		 */
 		Srv = Me;
 		OnRehash("");
-		cu = new CensorUser;
-		cc = new CensorChannel;
+		cu = new CensorUser(ServerInstance);
+		cc = new CensorChannel(ServerInstance);
 		Srv->AddMode(cu, 'G');
 		Srv->AddMode(cc, 'G');
 	}

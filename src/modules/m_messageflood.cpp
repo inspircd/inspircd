@@ -89,7 +89,7 @@ class floodsettings : public classbase
 class MsgFlood : public ModeHandler
 {
  public:
-	MsgFlood() : ModeHandler('f', 1, 0, false, MODETYPE_CHANNEL, false) { }
+	MsgFlood(InspIRCd* Instance) : ModeHandler(Instance, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
         ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
@@ -195,7 +195,7 @@ class ModuleMsgFlood : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		mf = new MsgFlood();
+		mf = new MsgFlood(ServerInstance);
 		Srv->AddMode(mf, 'f');
 	}
 	

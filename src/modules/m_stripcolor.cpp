@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class ChannelStripColor : public ModeHandler
 {
  public:
-	ChannelStripColor() : ModeHandler('S', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	ChannelStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -63,7 +63,7 @@ class ChannelStripColor : public ModeHandler
 class UserStripColor : public ModeHandler
 {
  public:
-	UserStripColor() : ModeHandler('S', 0, 0, false, MODETYPE_USER, false) { }
+	UserStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -106,8 +106,8 @@ class ModuleStripColor : public Module
 	{
 		Srv = Me;
 
-		usc = new UserStripColor();
-		csc = new ChannelStripColor();
+		usc = new UserStripColor(ServerInstance);
+		csc = new ChannelStripColor(ServerInstance);
 
 		Srv->AddMode(usc, 'S');
 		Srv->AddMode(csc, 'S');

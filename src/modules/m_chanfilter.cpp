@@ -34,7 +34,7 @@ extern InspIRCd* ServerInstance;
 class ChanFilter : public ListModeBase
 {
  public:
-	ChanFilter(Server* serv) : ListModeBase(serv, 'g', "End of channel spamfilter list", "941", "940", false, "chanfilter") { }
+	ChanFilter(InspIRCd* Instance, Server* serv) : ListModeBase(Instance, serv, 'g', "End of channel spamfilter list", "941", "940", false, "chanfilter") { }
 	
 	virtual bool ValidateParam(userrec* user, chanrec* chan, std::string &word)
 	{
@@ -74,7 +74,7 @@ class ModuleChanFilter : public Module
 	ModuleChanFilter(Server* Me)
 	: Module::Module(Me), Srv(Me)
 	{
-		cf = new ChanFilter(Srv);
+		cf = new ChanFilter(ServerInstance, Srv);
 		Srv->AddMode(cf, 'g');
 	}
 

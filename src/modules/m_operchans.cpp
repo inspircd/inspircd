@@ -31,7 +31,7 @@ class OperChans : public ModeHandler
 {
  public:
 	/* This is an oper-only mode */
-	OperChans() : ModeHandler('O', 0, 0, false, MODETYPE_CHANNEL, true) { }
+	OperChans(InspIRCd* Instance) : ModeHandler(Instance, 'O', 0, 0, false, MODETYPE_CHANNEL, true) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -64,9 +64,8 @@ class ModuleOperChans : public Module
 	ModuleOperChans(Server* Me)
 		: Module::Module(Me)
 	{
-		Srv = Me;
-		// Add a mode +O for channels with no parameters		
-		oc = new OperChans();
+		Srv = Me;		
+		oc = new OperChans(ServerInstance);
 		Srv->AddMode(oc, 'O');
 	}
 

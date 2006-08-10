@@ -23,17 +23,21 @@
 #include "users.h"
 #include "ctables.h"
 #include "typedefs.h"
- 
+
+class InspIRCd;
+
 class CommandParser : public classbase
 {
  private:
+	InspIRCd* ServerInstance;
+
 	int ProcessParameters(char **command_p,char *parameters);
 	void ProcessCommand(userrec *user, std::string &cmd);
 	void SetupCommandTable();
  public:
 	command_table cmdlist;
 
-	CommandParser();
+	CommandParser(InspIRCd* Instance);
 	bool CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
 	bool IsValidCommand(const std::string &commandname, int pcnt, userrec * user);
 	int LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);

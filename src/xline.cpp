@@ -657,7 +657,7 @@ void apply_lines(const int What)
 	(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
 		return;
 
-	CullList* Goners = new CullList();
+	CullList* Goners = new CullList(ServerInstance);
 	char* check = NULL;
 	for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{

@@ -29,7 +29,7 @@ extern InspIRCd* ServerInstance;
 class BlockCaps : public ModeHandler
 {
  public:
-	BlockCaps() : ModeHandler('P', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	BlockCaps(InspIRCd* Instance) : ModeHandler(Instance, 'P', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -63,7 +63,7 @@ public:
 	ModuleBlockCAPS(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		bc = new BlockCaps;
+		bc = new BlockCaps(ServerInstance);
 		Srv->AddMode(bc, 'P');
 	}
 

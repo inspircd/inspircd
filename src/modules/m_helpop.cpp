@@ -36,7 +36,7 @@ void sendtohelpop(userrec*, int, const char**);
 class Helpop : public ModeHandler
 {
  public:
-	Helpop() : ModeHandler('h', 0, 0, false, MODETYPE_USER, true) { }
+	Helpop(InspIRCd* Instance) : ModeHandler(Instance, 'h', 0, 0, false, MODETYPE_USER, true) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -207,7 +207,7 @@ class ModuleHelpop : public Module
 			Srv  = Me;
 
 			ReadConfig();
-			ho = new Helpop();
+			ho = new Helpop(ServerInstance);
 			Srv->AddMode(ho, 'h');
 			mycommand = new cmd_helpop();
 			Srv->AddCommand(mycommand);

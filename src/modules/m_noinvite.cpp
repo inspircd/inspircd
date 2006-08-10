@@ -30,7 +30,7 @@ extern InspIRCd* ServerInstance;
 class NoInvite : public ModeHandler
 {
  public:
-	NoInvite() : ModeHandler('V', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoInvite(InspIRCd* Instance) : ModeHandler(Instance, 'V', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -65,7 +65,7 @@ class ModuleNoInvite : public Module
 		ModuleNoInvite(Server* Me) : Module::Module(Me)
 		{
 			Srv = Me;
-			ni = new NoInvite();
+			ni = new NoInvite(ServerInstance);
 			Srv->AddMode(ni, 'V');
 		}
 

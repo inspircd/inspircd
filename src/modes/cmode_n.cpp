@@ -4,7 +4,7 @@
 #include "users.h"
 #include "modes/cmode_n.h"
 
-ModeChannelNoExternal::ModeChannelNoExternal() : ModeHandler('n', 0, 0, false, MODETYPE_CHANNEL, false)
+ModeChannelNoExternal::ModeChannelNoExternal(InspIRCd* Instance) : ModeHandler(Instance, 'n', 0, 0, false, MODETYPE_CHANNEL, false)
 {
 }
 

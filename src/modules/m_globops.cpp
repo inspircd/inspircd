@@ -53,7 +53,7 @@ class cmd_globops : public command_t
 class ModeGlobops : public ModeHandler
 {
  public:
-	ModeGlobops() : ModeHandler('g', 0, 0, false, MODETYPE_USER, true) { }
+	ModeGlobops(InspIRCd* Instance) : ModeHandler(Instance, 'g', 0, 0, false, MODETYPE_USER, true) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -88,7 +88,7 @@ class ModuleGlobops : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		mg = new ModeGlobops();
+		mg = new ModeGlobops(ServerInstance);
 		Srv->AddMode(mg, 'g');
 		mycommand = new cmd_globops();
 		Srv->AddCommand(mycommand);

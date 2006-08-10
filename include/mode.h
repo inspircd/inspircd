@@ -28,6 +28,8 @@
 #include "channels.h"
 #include "ctables.h"
 
+class InspIRCd;
+
 /**
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.
@@ -79,6 +81,7 @@ typedef std::pair<bool,std::string> ModePair;
 class ModeHandler : public Extensible
 {
  protected:
+	InspIRCd* ServerInstance;
 	/**
 	 * The mode letter you're implementing.
 	 */
@@ -125,7 +128,7 @@ class ModeHandler : public Extensible
 	 * @param ModeType Set this to MODETYPE_USER for a usermode, or MODETYPE_CHANNEL for a channelmode.
 	 * @param operonly Set this to true if only opers should be allowed to set or unset the mode.
 	 */
-	ModeHandler(char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly);
+	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly);
 	/**
 	 * The default destructor does nothing
 	 */
@@ -215,6 +218,7 @@ class ModeHandler : public Extensible
 class ModeWatcher : public Extensible
 {
  protected:
+	InspIRCd* ServerInstance;
 	/**
 	 * The mode letter this class is watching
 	 */
@@ -228,7 +232,7 @@ class ModeWatcher : public Extensible
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(char modeletter, ModeType type);
+	ModeWatcher(InspIRCd* Instance, char modeletter, ModeType type);
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -277,6 +281,7 @@ typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 class ModeParser : public classbase
 {
  private:
+	InspIRCd* ServerInstance;
 	/**
 	 * Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
@@ -301,21 +306,21 @@ class ModeParser : public classbase
 	/**
 	 * The constructor initializes all the RFC basic modes by using ModeParserAddMode().
 	 */
-	ModeParser();
+	ModeParser(InspIRCd* Instance);
 
 	/**
 	 * Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
 	 */
-	static userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
+	userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
 	/**
 	 * Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
-	static const char* Grant(userrec *d,chanrec *chan,int MASK);
+	const char* Grant(userrec *d,chanrec *chan,int MASK);
 	/**
 	 * Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
-	static const char* Revoke(userrec *d,chanrec *chan,int MASK);
+	const char* Revoke(userrec *d,chanrec *chan,int MASK);
 	/**
 	 * Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.

@@ -35,7 +35,7 @@ class Channel_r : public ModeHandler
 {
 	Server* Srv;
  public:
-	Channel_r(Server* srv) : ModeHandler('r', 0, 0, false, MODETYPE_CHANNEL, false), Srv(srv) { }
+	Channel_r(InspIRCd* Instance, Server* srv) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false), Srv(srv) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -59,7 +59,7 @@ class User_r : public ModeHandler
 {
 	Server* Srv;
  public:
-	User_r(Server* srv) : ModeHandler('r', 0, 0, false, MODETYPE_USER, false), Srv(srv) { }
+	User_r(InspIRCd* Instance, Server* srv) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false), Srv(srv) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -81,7 +81,7 @@ class User_r : public ModeHandler
 class Channel_R : public ModeHandler
 {
  public:
-	Channel_R() : ModeHandler('R', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	Channel_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -109,7 +109,7 @@ class Channel_R : public ModeHandler
 class User_R : public ModeHandler
 {
  public:
-	User_R() : ModeHandler('R', 0, 0, false, MODETYPE_USER, false) { }
+	User_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_USER, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -137,7 +137,7 @@ class User_R : public ModeHandler
 class Channel_M : public ModeHandler
 {
  public:
-	Channel_M() : ModeHandler('M', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	Channel_M(InspIRCd* Instance) : ModeHandler(Instance, 'M', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -175,11 +175,11 @@ class ModuleServices : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		m1 = new Channel_r(Me);
-		m2 = new Channel_R();
-		m3 = new Channel_M();
-		m4 = new User_r(Me);
-		m5 = new User_R();
+		m1 = new Channel_r(ServerInstance, Me);
+		m2 = new Channel_R(ServerInstance);
+		m3 = new Channel_M(ServerInstance);
+		m4 = new User_r(ServerInstance, Me);
+		m5 = new User_R(ServerInstance);
 		Srv->AddMode(m1, 'r');
 		Srv->AddMode(m2, 'R');
 		Srv->AddMode(m3, 'M');

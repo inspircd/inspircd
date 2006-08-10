@@ -11,10 +11,12 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 
+extern InspIRCd* ServerInstance;
+
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois() : ModeHandler('W', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	SeeWhois(InspIRCd* Instance) : ModeHandler(Instance, 'W', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -53,7 +55,7 @@ class ModuleShowwhois : public Module
 	ModuleShowwhois(Server* Me) : Module::Module(Me)
 	{
 		Srv = Me;
-		sw = new SeeWhois();
+		sw = new SeeWhois(ServerInstance);
 		Srv->AddMode(sw, 'W');
 	}
 

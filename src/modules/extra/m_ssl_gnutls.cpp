@@ -48,7 +48,7 @@ class ModuleSSLGnuTLS : public Module
 
 	char* dummy;
 	
-	CullList culllist;
+	CullList* culllist;
 	
 	std::vector<int> listenports;
 	
@@ -70,6 +70,8 @@ class ModuleSSLGnuTLS : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
+
+		culllist = new CullList(ServerInstance);
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -196,6 +198,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
 		gnutls_global_deinit();
+		delete culllist;
 	}
 	
 	virtual void OnCleanup(int target_type, void* item)
@@ -209,7 +212,7 @@ class ModuleSSLGnuTLS : public Module
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
-				culllist.AddItem(user, "SSL module unloading");
+				culllist->AddItem(user, "SSL module unloading");
 			}
 		}
 	}
@@ -219,7 +222,7 @@ class ModuleSSLGnuTLS : public Module
 		if(mod == this)
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
-			int numusers = culllist.Apply();
+			int numusers = culllist->Apply();
 			log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)

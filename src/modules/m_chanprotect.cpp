@@ -32,7 +32,7 @@ class ChanFounder : public ModeHandler
 	char* dummyptr;
 
  public:
-	ChanFounder(Server* s) : ModeHandler('q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
+	ChanFounder(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -147,7 +147,7 @@ class ChanProtect : public ModeHandler
 	Server* Srv;
 	char* dummyptr;
  public:
-	ChanProtect(Server* s) : ModeHandler('a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
+	ChanProtect(InspIRCd* Instance, Server* s) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false), Srv(s) { }
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -258,8 +258,8 @@ class ModuleChanProtect : public Module
 	{	
 		/* Initialise module variables */
 
-		cp = new ChanProtect(Me);
-		cf = new ChanFounder(Me);
+		cp = new ChanProtect(ServerInstance, Me);
+		cf = new ChanFounder(ServerInstance, Me);
 		
 		Srv->AddMode(cp, 'a');
 		Srv->AddMode(cf, 'q');

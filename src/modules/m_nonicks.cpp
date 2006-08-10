@@ -33,7 +33,7 @@ extern InspIRCd* ServerInstance;
 class NoNicks : public ModeHandler
 {
  public:
-	NoNicks() : ModeHandler('N', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	NoNicks(InspIRCd* Instance) : ModeHandler(Instance, 'N', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
@@ -68,7 +68,7 @@ class ModuleNoNickChange : public Module
 		: Module::Module(Me)
 	{
 		Srv = Me;
-		nn = new NoNicks();
+		nn = new NoNicks(ServerInstance);
 		Srv->AddMode(nn, 'N');
 	}
 	

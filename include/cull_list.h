@@ -28,6 +28,8 @@
 #include "users.h"
 #include "channels.h"
 
+class InspIRCd;
+
 /** The CullItem class holds a user and their quitmessage,
  * and is used internally by the CullList class to compile
  * a list of users which are to be culled when a long
@@ -79,6 +81,9 @@ class CullItem : public classbase
 class CullList : public classbase
 {
  private:
+	 /** Creator of this CullList
+	  */
+	 InspIRCd* ServerInstance;
 	 /** Holds a list of users being quit.
 	  * See the information for CullItem for
 	  * more information.
@@ -101,8 +106,9 @@ class CullList : public classbase
 	 /** Constructor.
 	  * Clears the CullList::list and CullList::exempt
 	  * items.
+	  * @param Instance Creator of this CullList object
 	  */
-         CullList();
+         CullList(InspIRCd* Instance);
 	 /** Adds a user to the cull list for later
 	  * removal via QUIT.
 	  * @param user The user to add
