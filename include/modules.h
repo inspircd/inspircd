@@ -1325,44 +1325,44 @@ class Server : public Extensible
 	 * This method writes a line of text to the log. If the level given is lower than the
 	 * level given in the configuration, this command has no effect.
 	 */
-	virtual void Log(int level, const std::string &s);
+	void Log(int level, const std::string &s);
 
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */
-	virtual bool IsNick(const std::string &nick);
+	bool IsNick(const std::string &nick);
 
 	/** Attempts to look up a nick using the file descriptor associated with that nick.
 	 * This function will return NULL if the file descriptor is not associated with a valid user.
 	 */
-	virtual userrec* FindDescriptor(int socket);
+	userrec* FindDescriptor(int socket);
 
 	/** Returns the server name of the server where the module is loaded.
 	 */
-	virtual std::string GetServerName();
+	std::string GetServerName();
 
 	/** Returns the network name, global to all linked servers.
 	 */
-	virtual std::string GetNetworkName();
+	std::string GetNetworkName();
 
 	/** Returns the server description string of the local server
 	 */
-	virtual std::string GetServerDescription();
+	std::string GetServerDescription();
 
 	/** Returns the information of the server as returned by the /ADMIN command.
 	 * See the Admin class for further information of the return value. The members
 	 * Admin::Nick, Admin::Email and Admin::Name contain the information for the
 	 * server where the module is loaded.
 	 */
-	virtual Admin GetAdmin();
+	Admin GetAdmin();
 
-	virtual bool AddMode(ModeHandler* mh, const unsigned char modechar);
+	bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
-	virtual bool AddModeWatcher(ModeWatcher* mw);
+	bool AddModeWatcher(ModeWatcher* mw);
 
-	virtual bool DelModeWatcher(ModeWatcher* mw);
+	bool DelModeWatcher(ModeWatcher* mw);
 
-	virtual bool AddResolver(Resolver* r);
+	bool AddResolver(Resolver* r);
 
 	/** Adds a command to the command table.
 	 * This allows modules to add extra commands into the command table. You must place a function within your
@@ -1381,7 +1381,7 @@ class Server : public Extensible
 	 * extension) e.g. "m_blarp.so". If you place the wrong identifier here, you can cause crashes if your module
 	 * is unloaded.
 	 */
-	virtual void AddCommand(command_t *f);
+	void AddCommand(command_t *f);
 	 
  	/** Sends a servermode.
  	 * you must format the parameters array with the target, modes and parameters for those modes.
@@ -1403,14 +1403,13 @@ class Server : public Extensible
 	 * You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave
 	 * your server in an unstable state!
 	 */
-
-  	virtual void SendMode(const char **parameters, int pcnt, userrec *user);
+  	void SendMode(const char **parameters, int pcnt, userrec *user);
 
 	/**  Matches text against a glob pattern.
 	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
 	 * Returns true if the literal successfully matches the pattern, false if otherwise.
 	 */
-	virtual bool MatchText(const std::string &sliteral, const std::string &spattern);
+	bool MatchText(const std::string &sliteral, const std::string &spattern);
 	
 	/** Calls the handler for a command, either implemented by the core or by another module.
 	 * You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN,
@@ -1424,21 +1423,21 @@ class Server : public Extensible
 	 * used for privilage checks, etc.
 	 * @return True if the command exists
 	 */
-	virtual bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
+	bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
 
 	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
 	 * of paramters the command requires, the user specified is allowed to execute the command, AND
 	 * if the command is implemented by a module (not the core). This has a few specific uses, usually
 	 * within network protocols (see src/modules/m_spanningtree.cpp)
 	 */
-	virtual bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
+	bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 	
 	/** Returns true if the servername you give is ulined.
 	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
 	 * change modes of clients which are on remote servers and set modes of channels where there are
 	 * no channel operators for that channel on the ulined server, amongst other things.
 	 */
-	virtual bool IsUlined(const std::string &server);
+	bool IsUlined(const std::string &server);
 	
 	/** Adds a G-line
 	 * The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1447,7 +1446,7 @@ class Server : public Extensible
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Adds a Q-line
 	 * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1456,7 +1455,7 @@ class Server : public Extensible
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
+	void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
 
 	/** Adds a Z-line
 	 * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
@@ -1465,7 +1464,7 @@ class Server : public Extensible
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
+	void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
 
 	/** Adds a K-line
 	 * The K-line is enforced as soon as it is added.
@@ -1474,7 +1473,7 @@ class Server : public Extensible
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Adds a E-line
 	 * The E-line is enforced as soon as it is added.
@@ -1483,73 +1482,73 @@ class Server : public Extensible
 	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
 	 * name.
 	 */
-	virtual void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Deletes a G-Line from all servers
 	 */
-	virtual bool DelGLine(const std::string &hostmask);
+	bool DelGLine(const std::string &hostmask);
 
 	/** Deletes a Q-Line from all servers
 	 */
-	virtual bool DelQLine(const std::string &nickname);
+	bool DelQLine(const std::string &nickname);
 
 	/** Deletes a Z-Line from all servers
 	 */
-	virtual bool DelZLine(const std::string &ipaddr);
+	bool DelZLine(const std::string &ipaddr);
 
 	/** Deletes a local K-Line
 	 */
-	virtual bool DelKLine(const std::string &hostmask);
+	bool DelKLine(const std::string &hostmask);
 
 	/** Deletes a local E-Line
 	 */
-	virtual bool DelELine(const std::string &hostmask);
+	bool DelELine(const std::string &hostmask);
 
 	/** Calculates a duration
 	 * This method will take a string containing a formatted duration (e.g. "1w2d") and return its value
 	 * as a total number of seconds. This is the same function used internally by /GLINE etc to set
 	 * the ban times.
 	 */
-	virtual long CalcDuration(const std::string &duration);
+	long CalcDuration(const std::string &duration);
 
 	/** Returns true if a nick!ident@host string is correctly formatted, false if otherwise.
 	 */
-	virtual bool IsValidMask(const std::string &mask);
+	bool IsValidMask(const std::string &mask);
 
 	/** This function finds a module by name.
 	 * You must provide the filename of the module. If the module cannot be found (is not loaded)
 	 * the function will return NULL.
 	 */
-	virtual Module* FindModule(const std::string &name);
+	Module* FindModule(const std::string &name);
 
 	/** Adds a class derived from InspSocket to the server's socket engine.
 	 */
-	virtual void AddSocket(InspSocket* sock);
+	void AddSocket(InspSocket* sock);
 
 	/** Forcibly removes a class derived from InspSocket from the servers socket engine.
 	 */
-	virtual void RemoveSocket(InspSocket* sock);
+	void RemoveSocket(InspSocket* sock);
 
 	/** Deletes a class derived from InspSocket from the server's socket engine.
 	 */
-	virtual void DelSocket(InspSocket* sock);
+	void DelSocket(InspSocket* sock);
 
 	/** Causes the local server to rehash immediately.
 	 * WARNING: Do not call this method from within your rehash method, for
 	 * obvious reasons!
 	 */
-	virtual void RehashServer();
+	void RehashServer();
 
 	/** This method returns the total number of channels on the network.
 	 */
-	virtual long GetChannelCount();
+	long GetChannelCount();
 
 	/** This method returns a channel whos index is greater than or equal to 0 and less than the number returned by Server::GetChannelCount().
 	 * This is slower (by factors of dozens) than requesting a channel by name with Server::FindChannel(), however there are times when
 	 * you wish to safely iterate the channel list, saving your position, with large amounts of time in between, which is what this function
 	 * is useful for.
 	 */
-	virtual chanrec* GetChannelIndex(long index);
+	chanrec* GetChannelIndex(long index);
 
 	/** Dumps text (in a stringstream) to a user. The stringstream should not contain linefeeds, as it will be split
 	 * automatically by the function into safe amounts. The line prefix given is prepended onto each line (e.g. a servername
