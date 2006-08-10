@@ -78,7 +78,6 @@ socklen_t length;
 
 time_t TIME = time(NULL), OLDTIME = time(NULL);
 
-Server* MyServer = new Server;
 char lowermap[255];
 
 void InspIRCd::AddServerName(const std::string &servername)

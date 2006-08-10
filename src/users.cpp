@@ -32,7 +32,6 @@
 #include "cull_list.h"
 
 extern time_t TIME;
-extern Server* MyServer;
 
 irc::whowas::whowas_users whowas;
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
@@ -129,7 +128,7 @@ void userrec::StartDNSLookup()
 	{
 		log(DEBUG,"Passing instance: %08x",this->ServerInstance);
 		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), false);
-		MyServer->AddResolver(res_reverse);
+		this->ServerInstance->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
 	{
@@ -153,7 +152,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 		try
 		{
 			bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, true);
-			MyServer->AddResolver(bound_user->res_forward);
+			this->ServerInstance->AddResolver(bound_user->res_forward);
 		}
 		catch (ModuleException& e)
 		{

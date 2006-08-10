@@ -32,7 +32,6 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
 extern time_t TIME;
-extern Server* MyServer;
 
 InspSocket::InspSocket(InspIRCd* SI)
 {

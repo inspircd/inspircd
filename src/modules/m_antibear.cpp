@@ -26,8 +26,7 @@ using namespace std;
 class ModuleAntiBear : public Module
 {
  private:
-	 
-	 Server *Srv;
+
  public:
 	ModuleAntiBear(InspIRCd* Me) : Module::Module(Me)
 	{

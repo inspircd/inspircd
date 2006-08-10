@@ -220,14 +220,14 @@ void		Module::OnCancelAway(userrec* user) { };
  * exports in the core
  */
 
-void Server::AddSocket(InspSocket* sock)
+void InspIRCd::AddSocket(InspSocket* sock)
 {
-	ServerInstance->module_sockets.push_back(sock);
+	this->module_sockets.push_back(sock);
 }
 
-void Server::RemoveSocket(InspSocket* sock)
+void InspIRCd::RemoveSocket(InspSocket* sock)
 {
-	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
 	{
 		InspSocket* s = (InspSocket*)*a;
 		if (s == sock)
@@ -303,19 +303,19 @@ const std::string& InspIRCd::GetModuleName(Module* m)
 	return nothing; /* As above */
 }
 
-void Server::RehashServer()
+void InspIRCd::RehashServer()
 {
-	ServerInstance->WriteOpers("*** Rehashing config file");
-	ServerInstance->Config->Read(false,NULL);
+	this->WriteOpers("*** Rehashing config file");
+	this->Config->Read(false,NULL);
 }
 
-void Server::DelSocket(InspSocket* sock)
+void InspIRCd::DelSocket(InspSocket* sock)
 {
-	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)
+	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
 	{
 		if (*a == sock)
 		{
-			ServerInstance->module_sockets.erase(a);
+			this->module_sockets.erase(a);
 			return;
 		}
 	}
@@ -328,10 +328,10 @@ void Server::DelSocket(InspSocket* sock)
  * m_safelist possible, initially).
  */
 
-chanrec* Server::GetChannelIndex(long index)
+chanrec* InspIRCd::GetChannelIndex(long index)
 {
 	int target = 0;
-	for (chan_hash::iterator n = ServerInstance->chanlist.begin(); n != ServerInstance->chanlist.end(); n++, target++)
+	for (chan_hash::iterator n = this->chanlist.begin(); n != this->chanlist.end(); n++, target++)
 	{
 		if (index == target)
 			return n->second;
@@ -339,41 +339,41 @@ chanrec* Server::GetChannelIndex(long index)
 	return NULL;
 }
 
-bool Server::MatchText(const std::string &sliteral, const std::string &spattern)
+bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spattern)
 {
 	return match(sliteral.c_str(),spattern.c_str());
 }
 
-bool Server::IsUlined(const std::string &server)
+bool InspIRCd::IsUlined(const std::string &server)
 {
 	return is_uline(server.c_str());
 }
 
-bool Server::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
+bool InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
 {
-	return ServerInstance->Parser->CallHandler(commandname,parameters,pcnt,user);
+	return this->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
-bool Server::IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user)
+bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user)
 {
-	return ServerInstance->Parser->IsValidCommand(commandname, pcnt, user);
+	return this->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
-void Server::AddCommand(command_t *f)
+void InspIRCd::AddCommand(command_t *f)
 {
-	if (!ServerInstance->Parser->CreateCommand(f))
+	if (!this->Parser->CreateCommand(f))
 	{
 		ModuleException err("Command "+std::string(f->command)+" already exists.");
 		throw (err);
 	}
 }
 
-void Server::SendMode(const char** parameters, int pcnt, userrec *user)
+void InspIRCd::SendMode(const char** parameters, int pcnt, userrec *user)
 {
-	ServerInstance->ModeGrok->Process(parameters,pcnt,user,true);
+	this->ModeGrok->Process(parameters,pcnt,user,true);
 }
 
-void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
+void InspIRCd::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
 {
 	std::string CompleteLine = LinePrefix;
 	std::string Word = "";
@@ -389,29 +389,29 @@ void Server::DumpText(userrec* User, const std::string &LinePrefix, stringstream
 	User->WriteServ(CompleteLine);
 }
 
-userrec* Server::FindDescriptor(int socket)
+userrec* InspIRCd::FindDescriptor(int socket)
 {
-	return (socket < 65536 ? ServerInstance->fd_ref_table[socket] : NULL);
+	return ((socket < MAX_DESCRIPTORS && socket > -1) ? this->fd_ref_table[socket] : NULL);
 }
 
-bool Server::AddMode(ModeHandler* mh, const unsigned char mode)
+bool InspIRCd::AddMode(ModeHandler* mh, const unsigned char mode)
 {
-	return ServerInstance->ModeGrok->AddMode(mh,mode);
+	return this->ModeGrok->AddMode(mh,mode);
 }
 
-bool Server::AddModeWatcher(ModeWatcher* mw)
+bool InspIRCd::AddModeWatcher(ModeWatcher* mw)
 {
-	return ServerInstance->ModeGrok->AddModeWatcher(mw);
+	return this->ModeGrok->AddModeWatcher(mw);
 }
 
-bool Server::DelModeWatcher(ModeWatcher* mw)
+bool InspIRCd::DelModeWatcher(ModeWatcher* mw)
 {
-	return ServerInstance->ModeGrok->DelModeWatcher(mw);
+	return this->ModeGrok->DelModeWatcher(mw);
 }
 
-bool Server::AddResolver(Resolver* r)
+bool InspIRCd::AddResolver(Resolver* r)
 {
-	return ServerInstance->Res->AddResolverClass(r);
+	return this->Res->AddResolverClass(r);
 }
 
 bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
@@ -428,7 +428,7 @@ bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 		log(DEBUG,"Delete local user");
 	}
 
-	ServerInstance->SE->DelFd(old_fd);
+	this->SE->DelFd(old_fd);
 	shutdown(old_fd,2);
 	close(old_fd);
 	return true;
@@ -453,7 +453,7 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 		log(DEBUG,"Delete local user");
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
-	ServerInstance->fd_ref_table[zombie->fd] = zombie;
+	this->fd_ref_table[zombie->fd] = zombie;
 	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
 	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
 	{
@@ -476,70 +476,70 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 	return true;
 }
 
-void Server::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
+void InspIRCd::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 	apply_lines(APPLY_GLINES);
 }
 
-void Server::AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname)
+void InspIRCd::AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname)
 {
 	add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
 	apply_lines(APPLY_QLINES);
 }
 
-void Server::AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr)
+void InspIRCd::AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr)
 {
 	add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
 	apply_lines(APPLY_ZLINES);
 }
 
-void Server::AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
+void InspIRCd::AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 	apply_lines(APPLY_KLINES);
 }
 
-void Server::AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
+void InspIRCd::AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 }
 
-bool Server::DelGLine(const std::string &hostmask)
+bool InspIRCd::DelGLine(const std::string &hostmask)
 {
 	return del_gline(hostmask.c_str());
 }
 
-bool Server::DelQLine(const std::string &nickname)
+bool InspIRCd::DelQLine(const std::string &nickname)
 {
 	return del_qline(nickname.c_str());
 }
 
-bool Server::DelZLine(const std::string &ipaddr)
+bool InspIRCd::DelZLine(const std::string &ipaddr)
 {
 	return del_zline(ipaddr.c_str());
 }
 
-bool Server::DelKLine(const std::string &hostmask)
+bool InspIRCd::DelKLine(const std::string &hostmask)
 {
 	return del_kline(hostmask.c_str());
 }
 
-bool Server::DelELine(const std::string &hostmask)
+bool InspIRCd::DelELine(const std::string &hostmask)
 {
 	return del_eline(hostmask.c_str());
 }
 
-long Server::CalcDuration(const std::string &delta)
+long InspIRCd::CalcDuration(const std::string &delta)
 {
 	return duration(delta.c_str());
 }
 
 /*
  * XXX why on *earth* is this in modules.cpp...? I think
- * perhaps we need a server.cpp for Server:: stuff where possible. -- w00t
+ * perhaps we need a server.cpp for InspIRCd:: stuff where possible. -- w00t
  */
-bool Server::IsValidMask(const std::string &mask)
+bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	char* dest = (char*)mask.c_str();
 	if (strchr(dest,'!')==0)
@@ -582,18 +582,11 @@ Module* InspIRCd::FindModule(const std::string &name)
 
 ConfigReader::ConfigReader()
 {
-	// ServerInstance->Config->ClearStack();
-	
 	/* Is there any reason to load the entire config file again here?
 	 * it's needed if they specify another config file, but using the
 	 * default one we can just use the global config data - pre-parsed!
 	 */
-	//~ this->cache = new std::stringstream(std::stringstream::in | std::stringstream::out);
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	
-	//~ this->readerror = ServerInstance->Config->LoadConf(CONFIG_FILE, this->cache,this->errorlog);
-	//~ if (!this->readerror)
-		//~ this->error = CONF_FILE_NOT_FOUND;
 	
 	this->data = &ServerInstance->Config->config_data;
 	this->privatehash = false;
@@ -602,8 +595,6 @@ ConfigReader::ConfigReader()
 
 ConfigReader::~ConfigReader()
 {
-	//~ if (this->cache)
-		//~ delete this->cache;
 	if (this->errorlog)
 		DELETE(this->errorlog);
 	if(this->privatehash)

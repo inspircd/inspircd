@@ -69,7 +69,6 @@ enum TargetTypeFlags {
 #include "mode.h"
 #include "dns.h"
 
-class Server;
 class ServerConfig;
 
 // Forward-delacare module for ModuleMessage etc
@@ -402,9 +401,9 @@ class Module : public Extensible
 	 *
 	 * PRIORITY_DONTCARE - To leave your module as it is (this is the default value, if you do not implement this function)
 	 *
-	 * The result of Server::PriorityBefore() - To move your module before another named module
+	 * The result of InspIRCd::PriorityBefore() - To move your module before another named module
 	 *
-	 * The result of Server::PriorityLast() - To move your module after another named module
+	 * The result of InspIRCd::PriorityLast() - To move your module after another named module
 	 *
 	 * For a good working example of this method call, please see src/modules/m_spanningtree.cpp
 	 * and src/modules/m_hostchange.so which make use of it. It is highly recommended that unless
@@ -995,7 +994,7 @@ class Module : public Extensible
 	 * command being executed. If you do this, no output is created by the core, and it is
 	 * down to your module to produce any output neccessary.
 	 * Note that unless you return 1, you should not destroy any structures (e.g. by using
-	 * Server::QuitUser) otherwise when the command's handler function executes after your
+	 * InspIRCd::QuitUser) otherwise when the command's handler function executes after your
 	 * method returns, it will be passed an invalid pointer to the user object and crash!)
 	 * @param command The command being executed
 	 * @param parameters An array of array of characters containing the parameters for the command
@@ -1241,211 +1240,6 @@ class Module : public Extensible
 	/** Called when a user cancels their away state.
 	 */
 	virtual void OnCancelAway(userrec* user);
-};
-
-
-/** Allows server output and query functions
- * This class contains methods which allow a module to query the state of the irc server, and produce
- * output to users and other servers. All modules should instantiate at least one copy of this class,
- * and use its member functions to perform their tasks.
- */
-class Server : public Extensible
-{
- public:
-	/** Attempts to look up a nick using the file descriptor associated with that nick.
-	 * This function will return NULL if the file descriptor is not associated with a valid user.
-	 */
-	userrec* FindDescriptor(int socket);
-
-	bool AddMode(ModeHandler* mh, const unsigned char modechar);
-
-	bool AddModeWatcher(ModeWatcher* mw);
-
-	bool DelModeWatcher(ModeWatcher* mw);
-
-	bool AddResolver(Resolver* r);
-
-	/** Adds a command to the command table.
-	 * This allows modules to add extra commands into the command table. You must place a function within your
-	 * module which is is of type handlerfunc:
-	 * 
-	 * typedef void (handlerfunc) (char**, int, userrec*);
-	 * ...
-	 * void handle_kill(char **parameters, int pcnt, userrec *user)
-	 *
-	 * When the command is typed, the parameters will be placed into the parameters array (similar to argv) and
-	 * the parameter count will be placed into pcnt (similar to argv). There will never be any less parameters
-	 * than the 'minparams' value you specified when creating the command. The *user parameter is the class of
-	 * the user which caused the command to trigger, who will always have the flag you specified in 'flags' when
-	 * creating the initial command. For example to create an oper only command create the commands with flags='o'.
-	 * The source parameter is used for resource tracking, and should contain the name of your module (with file
-	 * extension) e.g. "m_blarp.so". If you place the wrong identifier here, you can cause crashes if your module
-	 * is unloaded.
-	 */
-	void AddCommand(command_t *f);
-	 
- 	/** Sends a servermode.
- 	 * you must format the parameters array with the target, modes and parameters for those modes.
- 	 *
- 	 * For example:
- 	 *
- 	 * char *modes[3];
- 	 *
-	 * modes[0] = ChannelName;
-	 *
-	 * modes[1] = "+o";
-	 *
-	 * modes[2] = user->nick;
-	 *
-	 * Srv->SendMode(modes,3,user);
-	 *
-	 * The modes will originate from the server where the command was issued, however responses (e.g. numerics)
-	 * will be sent to the user you provide as the third parameter.
-	 * You must be sure to get the number of parameters correct in the pcnt parameter otherwise you could leave
-	 * your server in an unstable state!
-	 */
-  	void SendMode(const char **parameters, int pcnt, userrec *user);
-
-	/**  Matches text against a glob pattern.
-	 * Uses the ircd's internal matching function to match string against a globbing pattern, e.g. *!*@*.com
-	 * Returns true if the literal successfully matches the pattern, false if otherwise.
-	 */
-	bool MatchText(const std::string &sliteral, const std::string &spattern);
-	
-	/** Calls the handler for a command, either implemented by the core or by another module.
-	 * You can use this function to trigger other commands in the ircd, such as PRIVMSG, JOIN,
-	 * KICK etc, or even as a method of callback. By defining command names that are untypeable
-	 * for users on irc (e.g. those which contain a \r or \n) you may use them as callback identifiers.
-	 * The first parameter to this method is the name of the command handler you wish to call, e.g.
-	 * PRIVMSG. This will be a command handler previously registered by the core or wih AddCommand().
-	 * The second parameter is an array of parameters, and the third parameter is a count of parameters
-	 * in the array. If you do not pass enough parameters to meet the minimum needed by the handler, the
-	 * functiom will silently ignore it. The final parameter is the user executing the command handler,
-	 * used for privilage checks, etc.
-	 * @return True if the command exists
-	 */
-	bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
-
-	/** This function returns true if the commandname exists, pcnt is equal to or greater than the number
-	 * of paramters the command requires, the user specified is allowed to execute the command, AND
-	 * if the command is implemented by a module (not the core). This has a few specific uses, usually
-	 * within network protocols (see src/modules/m_spanningtree.cpp)
-	 */
-	bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
-	
-	/** Returns true if the servername you give is ulined.
-	 * ULined servers have extra privilages. They are allowed to change nicknames on remote servers,
-	 * change modes of clients which are on remote servers and set modes of channels where there are
-	 * no channel operators for that channel on the ulined server, amongst other things.
-	 */
-	bool IsUlined(const std::string &server);
-	
-	/** Adds a G-line
-	 * The G-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
-	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-	 * name.
-	 */
-	void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
-
-	/** Adds a Q-line
-	 * The Q-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
-	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-	 * name.
-	 */
-	void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
-
-	/** Adds a Z-line
-	 * The Z-line is propogated to all of the servers in the mesh and enforced as soon as it is added.
-	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-	 * name.
-	 */
-	void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
-
-	/** Adds a K-line
-	 * The K-line is enforced as soon as it is added.
-	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-	 * name.
-	 */
-	void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
-
-	/** Adds a E-line
-	 * The E-line is enforced as soon as it is added.
-	 * The duration must be in seconds, however you can use the Server::CalcDuration method to convert
-	 * durations into the 1w2d3h3m6s format used by /GLINE etc. The source is an arbitary string used
-	 * to indicate who or what sent the data, usually this is the nickname of a person, or a server
-	 * name.
-	 */
-	void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
-
-	/** Deletes a G-Line from all servers
-	 */
-	bool DelGLine(const std::string &hostmask);
-
-	/** Deletes a Q-Line from all servers
-	 */
-	bool DelQLine(const std::string &nickname);
-
-	/** Deletes a Z-Line from all servers
-	 */
-	bool DelZLine(const std::string &ipaddr);
-
-	/** Deletes a local K-Line
-	 */
-	bool DelKLine(const std::string &hostmask);
-
-	/** Deletes a local E-Line
-	 */
-	bool DelELine(const std::string &hostmask);
-
-	/** Calculates a duration
-	 * This method will take a string containing a formatted duration (e.g. "1w2d") and return its value
-	 * as a total number of seconds. This is the same function used internally by /GLINE etc to set
-	 * the ban times.
-	 */
-	long CalcDuration(const std::string &duration);
-
-	/** Returns true if a nick!ident@host string is correctly formatted, false if otherwise.
-	 */
-	bool IsValidMask(const std::string &mask);
-
-	/** Adds a class derived from InspSocket to the server's socket engine.
-	 */
-	void AddSocket(InspSocket* sock);
-
-	/** Forcibly removes a class derived from InspSocket from the servers socket engine.
-	 */
-	void RemoveSocket(InspSocket* sock);
-
-	/** Deletes a class derived from InspSocket from the server's socket engine.
-	 */
-	void DelSocket(InspSocket* sock);
-
-	/** Causes the local server to rehash immediately.
-	 * WARNING: Do not call this method from within your rehash method, for
-	 * obvious reasons!
-	 */
-	void RehashServer();
-
-	/** This method returns a channel whos index is greater than or equal to 0 and less than the number returned by Server::GetChannelCount().
-	 * This is slower (by factors of dozens) than requesting a channel by name with Server::FindChannel(), however there are times when
-	 * you wish to safely iterate the channel list, saving your position, with large amounts of time in between, which is what this function
-	 * is useful for.
-	 */
-	chanrec* GetChannelIndex(long index);
-
-	/** Dumps text (in a stringstream) to a user. The stringstream should not contain linefeeds, as it will be split
-	 * automatically by the function into safe amounts. The line prefix given is prepended onto each line (e.g. a servername
-	 * and a numeric).
-	 */
-	void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 };
 
 

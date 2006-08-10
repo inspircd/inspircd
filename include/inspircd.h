@@ -242,6 +242,64 @@ class InspIRCd : public classbase
 	bool IsNick(const char* n);
 	bool IsIdent(const char* n);
 
+        userrec* FindDescriptor(int socket);
+
+        bool AddMode(ModeHandler* mh, const unsigned char modechar);
+
+        bool AddModeWatcher(ModeWatcher* mw);
+
+        bool DelModeWatcher(ModeWatcher* mw);
+
+        bool AddResolver(Resolver* r);
+
+        void AddCommand(command_t *f);
+
+        void SendMode(const char **parameters, int pcnt, userrec *user);
+
+        bool MatchText(const std::string &sliteral, const std::string &spattern);
+
+        bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
+
+        bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
+
+        bool IsUlined(const std::string &server);
+
+        void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+
+        void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
+
+        void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
+
+        void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+
+        void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+
+        bool DelGLine(const std::string &hostmask);
+
+        bool DelQLine(const std::string &nickname);
+
+        bool DelZLine(const std::string &ipaddr);
+
+        bool DelKLine(const std::string &hostmask);
+
+        bool DelELine(const std::string &hostmask);
+
+        long CalcDuration(const std::string &duration);
+
+        bool IsValidMask(const std::string &mask);
+
+        void AddSocket(InspSocket* sock);
+
+        void RemoveSocket(InspSocket* sock);
+
+        void DelSocket(InspSocket* sock);
+
+        void RehashServer();
+
+        chanrec* GetChannelIndex(long index);
+
+        void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
+
 	std::string GetRevision();
 	std::string GetVersionString();
 	void WritePID(const std::string &filename);
