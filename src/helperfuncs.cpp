@@ -45,7 +45,7 @@
 
 extern int MODCOUNT;
 extern ModuleList modules;
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 extern char lowermap[255];
 extern std::vector<userrec*> all_opers;
@@ -73,6 +73,8 @@ void InspIRCd::Log(int level, const char* text, ...)
 
 void InspIRCd::Log(int level, const std::string &text)
 {
+	extern InspIRCd* ServerInstance;
+
 	if (!ServerInstance || !ServerInstance->Config)
 		return;
 
@@ -105,7 +107,7 @@ std::string InspIRCd::GetServerDescription(const char* servername)
 {
 	std::string description = "";
 
-	FOREACH_MOD(I_OnGetServerDescription,OnGetServerDescription(servername,description));
+	FOREACH_MOD_I(this,I_OnGetServerDescription,OnGetServerDescription(servername,description));
 
 	if (description != "")
 	{
@@ -162,7 +164,7 @@ void InspIRCd::ServerNoticeAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",ServerInstance->Config->ServerName,textbuffer);
+	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -183,7 +185,7 @@ void InspIRCd::ServerPrivmsgAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",ServerInstance->Config->ServerName,textbuffer);
+	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
 
 	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
@@ -327,7 +329,7 @@ void InspIRCd::SendError(const char *s)
 	}
 }
 
-void Error(int status)
+void InspIRCd::Error(int status)
 {
 	void *array[300];
 	size_t size;
@@ -349,11 +351,9 @@ void Error(int status)
 		log(DEFAULT,"[%d] %s", i, strings[i]);
 	}
 	free(strings);
-	ServerInstance->WriteOpers("*** SIGSEGV: Please see the ircd.log for backtrace and report the error to http://www.inspircd.org/bugtrack/");
 #else
 	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
 #endif
-	ServerInstance->SendError("Somebody screwed up... Whoops. IRC Server terminating.");
 	signal(SIGSEGV, SIG_DFL);
 	if (raise(SIGSEGV) == -1)
 	{
@@ -438,37 +438,7 @@ long InspIRCd::local_count()
 	return c;
 }
 
-void ShowMOTD(userrec *user)
-{
-	if (!ServerInstance->Config->MOTD.size())
-	{
-		user->WriteServ("422 %s :Message of the day file is missing.",user->nick);
-		return;
-	}
-	user->WriteServ("375 %s :%s message of the day", user->nick, ServerInstance->Config->ServerName);
-
-	for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
-		user->WriteServ("372 %s :- %s",user->nick,ServerInstance->Config->MOTD[i].c_str());
-
-	user->WriteServ("376 %s :End of message of the day.", user->nick);
-}
-
-void ShowRULES(userrec *user)
-{
-	if (!ServerInstance->Config->RULES.size())
-	{
-		user->WriteServ("NOTICE %s :Rules file is missing.",user->nick);
-		return;
-	}
-	user->WriteServ("NOTICE %s :%s rules",user->nick,ServerInstance->Config->ServerName);
-
-	for (unsigned int i = 0; i < ServerInstance->Config->RULES.size(); i++)
-		user->WriteServ("NOTICE %s :%s",user->nick,ServerInstance->Config->RULES[i].c_str());
-
-	user->WriteServ("NOTICE %s :End of %s rules.",user->nick,ServerInstance->Config->ServerName);
-}
-
-bool IsValidChannelName(const char *chname)
+bool InspIRCd::IsChannel(const char *chname)
 {
 	char *c;
 
@@ -501,38 +471,37 @@ bool IsValidChannelName(const char *chname)
 	return true;
 }
 
-void OpenLog(char** argv, int argc)
+void InspIRCd::OpenLog(char** argv, int argc)
 {
 	if (!*LOG_FILE)
 	{
-		if (ServerInstance->Config->logpath == "")
+		if (Config->logpath == "")
 		{
-			ServerInstance->Config->logpath = ServerConfig::GetFullProgDir(argv,argc) + "/ircd.log";
+			Config->logpath = ServerConfig::GetFullProgDir(argv,argc) + "/ircd.log";
 		}
 	}
 	else
 	{
-		ServerInstance->Config->log_file = fopen(LOG_FILE,"a+");
+		Config->log_file = fopen(LOG_FILE,"a+");
 
-		if (!ServerInstance->Config->log_file)
+		if (!Config->log_file)
 		{
-			printf("ERROR: Could not write to logfile %s, bailing!\n\n",ServerInstance->Config->logpath.c_str());
+			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
 			Exit(ERROR);
 		}
-		
 		return;
 	}
 
-	ServerInstance->Config->log_file = fopen(ServerInstance->Config->logpath.c_str(),"a+");
+	Config->log_file = fopen(Config->logpath.c_str(),"a+");
 
-	if (!ServerInstance->Config->log_file)
+	if (!Config->log_file)
 	{
-		printf("ERROR: Could not write to logfile %s, bailing!\n\n",ServerInstance->Config->logpath.c_str());
+		printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
 		Exit(ERROR);
 	}
 }
 
-void CheckRoot()
+void InspIRCd::CheckRoot()
 {
 	if (geteuid() == 0)
 	{
@@ -542,35 +511,35 @@ void CheckRoot()
 	}
 }
 
-void CheckDie()
+void InspIRCd::CheckDie()
 {
-	if (*ServerInstance->Config->DieValue)
+	if (*Config->DieValue)
 	{
-		printf("WARNING: %s\n\n",ServerInstance->Config->DieValue);
-		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",ServerInstance->Config->DieValue);
+		printf("WARNING: %s\n\n",Config->DieValue);
+		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
 		Exit(ERROR);
 	}
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */
-void LoadAllModules(InspIRCd* ServerInstance)
+void InspIRCd::LoadAllModules()
 {
 	char configToken[MAXBUF];
-	ServerInstance->Config->module_names.clear();
+	Config->module_names.clear();
 	MODCOUNT = -1;
 
-	for (int count = 0; count < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "module"); count++)
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
 	{
-		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "module","name",count,configToken,MAXBUF);
+		Config->ConfValue(Config->config_data, "module","name",count,configToken,MAXBUF);
 		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 		
-		if (!ServerInstance->LoadModule(configToken))		
+		if (!this->LoadModule(configToken))		
 		{
 			log(DEFAULT,"Exiting due to a module loader error.");
-			printf("\nThere was an error loading a module: %s\n\n",ServerInstance->ModuleError());
-			Exit(0);
+			printf("\nThere was an error loading a module: %s\n\n",this->ModuleError());
+			Exit(ERROR);
 		}
 	}
-	
 	log(DEFAULT,"Total loaded modules: %lu",(unsigned long)MODCOUNT+1);
 }
+

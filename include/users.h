@@ -251,9 +251,9 @@ class userrec : public connection
 	 */
 	char oper[NICKMAX];
 
-        /** True when DNS lookups are completed.
-         */
-        bool dns_done;
+	/** True when DNS lookups are completed.
+	 */
+	bool dns_done;
 
 	/** Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag
 	 */
@@ -653,6 +653,10 @@ class userrec : public connection
 	void PurgeEmptyChannels();
 
 	ConnectClass& GetClass();
+
+	void ShowMOTD();
+
+	void ShowRULES();
 
 	/** Default destructor
 	 */

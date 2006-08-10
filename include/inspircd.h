@@ -135,12 +135,23 @@ class InspIRCd : public classbase
 	chanrec* FindChan(const std::string &chan);
 	chanrec* FindChan(const char* chan);
 
+	void LoadAllModules();
+	void CheckDie();
+	void CheckRoot();
+	void OpenLog(char** argv, int argc);
+
 	bool UserToPseudo(userrec* user, const std::string &message);
 	bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
 
 	void ServerNoticeAll(char* text, ...);
 	void ServerPrivmsgAll(char* text, ...);
 	void WriteMode(const char* modes, int flags, const char* text, ...);
+
+	bool IsChannel(const char *chname);
+
+	static void Error(int status);
+	static void Rehash(int status);
+	static void Exit(int status);
 
 	int usercnt();
 	int registered_usercount();
@@ -226,8 +237,5 @@ class InspIRCd : public classbase
 	static void Log(int level, const std::string &text);
 	int Run();
 };
-
-/* Miscellaneous stuff here, moved from inspircd_io.h */
-void Exit(int status);
 
 #endif

@@ -1051,7 +1051,7 @@ void userrec::FullConnect(CullList* Goners)
 		}
 	}
 	
-	ShowMOTD(this);
+	this->ShowMOTD();
 
 	/*
 	 * fix 3 by brain, move registered = 7 below these so that spurious modes and host
@@ -1719,46 +1719,76 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
  */
 ConnectClass& userrec::GetClass()
 {
-        for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
-        {
-                if ((match(this->GetIPString(),i->host.c_str(),true)) || (match(this->host,i->host.c_str())))
-                        return *i;
-        }
+	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+	{
+		if ((match(this->GetIPString(),i->host.c_str(),true)) || (match(this->host,i->host.c_str())))
+			return *i;
+	}
 
-        return *(ServerInstance->Config->Classes.begin());
+	return *(ServerInstance->Config->Classes.begin());
 }
 
 void userrec::PurgeEmptyChannels()
 {
-        std::vector<chanrec*> to_delete;
+	std::vector<chanrec*> to_delete;
 
-        // firstly decrement the count on each channel
-        for (std::vector<ucrec*>::iterator f = this->chans.begin(); f != this->chans.end(); f++)
-        {
-                ucrec* uc = *f;
-                if (uc->channel)
-                {
-                        if (uc->channel->DelUser(this) == 0)
-                        {
-                                /* No users left in here, mark it for deletion */
-                                to_delete.push_back(uc->channel);
-                                uc->channel = NULL;
-                        }
-                }
-        }
+	// firstly decrement the count on each channel
+	for (std::vector<ucrec*>::iterator f = this->chans.begin(); f != this->chans.end(); f++)
+	{
+		ucrec* uc = *f;
+		if (uc->channel)
+		{
+			if (uc->channel->DelUser(this) == 0)
+			{
+				/* No users left in here, mark it for deletion */
+				to_delete.push_back(uc->channel);
+				uc->channel = NULL;
+			}
+		}
+	}
 
-        for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
-        {
-                chanrec* thischan = *n;
-                chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
-                if (i2 != ServerInstance->chanlist.end())
-                {
-                        FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-                        DELETE(i2->second);
-                        ServerInstance->chanlist.erase(i2);
-                }
-        }
+	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
+	{
+		chanrec* thischan = *n;
+		chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
+		if (i2 != ServerInstance->chanlist.end())
+		{
+			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
+			DELETE(i2->second);
+			ServerInstance->chanlist.erase(i2);
+		}
+	}
 
-        this->UnOper();
+	this->UnOper();
+}
+
+void userrec::ShowMOTD()
+{
+	if (!ServerInstance->Config->MOTD.size())
+	{
+		this->WriteServ("422 %s :Message of the day file is missing.",this->nick);
+		return;
+	}
+	this->WriteServ("375 %s :%s message of the day", this->nick, ServerInstance->Config->ServerName);
+
+	for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
+		this->WriteServ("372 %s :- %s",this->nick,ServerInstance->Config->MOTD[i].c_str());
+
+	this->WriteServ("376 %s :End of message of the day.", this->nick);
+}
+
+void userrec::ShowRULES()
+{
+	if (!ServerInstance->Config->RULES.size())
+	{
+		this->WriteServ("NOTICE %s :Rules file is missing.",this->nick);
+		return;
+	}
+	this->WriteServ("NOTICE %s :%s rules",this->nick,ServerInstance->Config->ServerName);
+
+	for (unsigned int i = 0; i < ServerInstance->Config->RULES.size(); i++)
+		this->WriteServ("NOTICE %s :%s",this->nick,ServerInstance->Config->RULES[i].c_str());
+
+	this->WriteServ("NOTICE %s :End of %s rules.",this->nick,ServerInstance->Config->ServerName);
 }
 

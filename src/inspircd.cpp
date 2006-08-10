@@ -114,7 +114,7 @@ bool InspIRCd::FindServerName(const std::string &servername)
 	return (find(servernames.begin(), servernames.end(), servername) != servernames.end());
 }
 
-void Exit(int status)
+void InspIRCd::Exit(int status)
 {
 	if (ServerInstance->Config->log_file)
 		fclose(ServerInstance->Config->log_file);
@@ -131,19 +131,11 @@ void InspIRCd::Start()
 	printf("Name concept:\t\t\033[1;32mLord_Zathras\033[0m\n\n");
 }
 
-void Killed(int status)
-{
-	if (ServerInstance->Config->log_file)
-		fclose(ServerInstance->Config->log_file);
-	ServerInstance->SendError("Server terminated.");
-	exit(status);
-}
-
-void Rehash(int status)
+void InspIRCd::Rehash(int status)
 {
 	ServerInstance->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
 	fclose(ServerInstance->Config->log_file);
-	OpenLog(NULL,0);
+	ServerInstance->OpenLog(NULL,0);
 	ServerInstance->Config->Read(false,NULL);
 	FOREACH_MOD(I_OnRehash,OnRehash(""));
 }
@@ -151,11 +143,11 @@ void Rehash(int status)
 void InspIRCd::SetSignals(bool SEGVHandler)
 {
 	signal (SIGALRM, SIG_IGN);
-	signal (SIGHUP, Rehash);
+	signal (SIGHUP, InspIRCd::Rehash);
 	signal (SIGPIPE, SIG_IGN);
-	signal (SIGTERM, Exit);
+	signal (SIGTERM, InspIRCd::Exit);
 	if (SEGVHandler)
-		signal (SIGSEGV, Error);
+		signal (SIGSEGV, InspIRCd::Error);
 }
 
 bool InspIRCd::DaemonSeed()
@@ -939,7 +931,7 @@ int InspIRCd::Run()
 
 	log(DEBUG,"RES: %08x",this->Res);
 
-	LoadAllModules(this);
+	this->LoadAllModules();
 
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();

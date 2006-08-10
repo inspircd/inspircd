@@ -97,7 +97,7 @@ class cmd_cban : public command_t
 		else if (pcnt >= 2)
 		{
 			/* full form to add a CBAN */
-			if (IsValidChannelName(parameters[0]))
+			if (ServerInstance->IsChannel(parameters[0]))
 			{
 				// parameters[0] = #channel
 				// parameters[1] = 1h3m2s

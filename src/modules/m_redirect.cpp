@@ -53,7 +53,7 @@ class Redirect : public ModeHandler
 		{
 			chanrec* c = NULL;
 
-			if (!IsValidChannelName(parameter.c_str()))
+			if (!ServerInstance->IsChannel(parameter.c_str()))
 			{
 				source->WriteServ("403 %s %s :Invalid channel name",source->nick, parameter.c_str());
 				parameter = "";

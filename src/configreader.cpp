@@ -103,7 +103,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		if (bail)
 		{
 			printf("There were errors in your configuration:\nYou have more than one <%s> tag, this is not permitted.\n",tag);
-			Exit(0);
+			InspIRCd::Exit(ERROR);
 		}
 		else
 		{
@@ -125,7 +125,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		if (bail)
 		{
 			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.\n",tag);
-			Exit(0);
+			InspIRCd::Exit(ERROR);
 		}
 		else
 		{
@@ -668,7 +668,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{
 			/* Unneeded because of the log() aboive? */
 			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
-			Exit(0);
+			InspIRCd::Exit(ERROR);
 		}
 		else
 		{

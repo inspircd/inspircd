@@ -21,5 +21,5 @@
 
 void cmd_rules::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	ShowRULES(user);
+	user->ShowRULES();
 }

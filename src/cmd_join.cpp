@@ -29,7 +29,7 @@ void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0, 1))
 			return;
 
-		if (IsValidChannelName(parameters[0]))
+		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			chanrec::JoinUser(ServerInstance, user, parameters[0], false, parameters[1]);
 			return;
@@ -40,7 +40,7 @@ void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 			return;
 
-		if (IsValidChannelName(parameters[0]))
+		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			chanrec::JoinUser(ServerInstance, user, parameters[0], false);
 			return;

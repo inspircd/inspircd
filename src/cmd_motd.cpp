@@ -21,5 +21,5 @@
 
 void cmd_motd::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	ShowMOTD(user);
+	user->ShowMOTD();
 }

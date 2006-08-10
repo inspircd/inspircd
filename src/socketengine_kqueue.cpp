@@ -34,7 +34,7 @@ KQueueEngine::KQueueEngine()
 		log(SPARSE,"ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		printf("ERROR: this is a fatal error, exiting now.");
-		Exit(0);
+		InspIRCd::Exit(ERROR);
 	}
 	CurrentSetSize = 0;
 }

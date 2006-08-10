@@ -48,7 +48,7 @@ class cmd_sajoin : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;
 			}
-			if (!IsValidChannelName(parameters[1]))
+			if (!ServerInstance->IsChannel(parameters[1]))
 			{
 				/* we didn't need to check this for each character ;) */
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
