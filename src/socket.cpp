@@ -27,6 +27,9 @@
 extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
+using namespace std;
+using namespace irc::sockets;
+
 /* Used when comparing CIDR masks for the modulus bits left over.
  * A lot of ircd's seem to do this:
  * ((-1) << (8 - (mask % 8)))
@@ -43,7 +46,7 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 };
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
-bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
+bool irc::sockets::MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
 {
 	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
 	unsigned int divisor = mask_bits / 8; /* Remaining bits in the mask after whole bytes are dealt with */
@@ -63,7 +66,7 @@ bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mas
 }
 
 /* Match CIDR, but dont attempt to match() against leading *!*@ sections */
-bool MatchCIDR(const char* address, const char* cidr_mask)
+bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask)
 {
 	return MatchCIDR(address, cidr_mask, false);
 }
@@ -75,7 +78,7 @@ bool MatchCIDR(const char* address, const char* cidr_mask)
  * This will also attempt to match any leading usernames or nicknames on the mask, using
  * match(), when match_with_username is true.
  */
-bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username)
+bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username)
 {
 	unsigned char addr_raw[16];
 	unsigned char mask_raw[16];
@@ -208,13 +211,13 @@ bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_usern
 	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
-inline void Blocking(int s)
+inline void irc::sockets::Blocking(int s)
 {
 	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 }
 
-inline void NonBlocking(int s)
+inline void irc::sockets::NonBlocking(int s)
 {
 	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
@@ -225,7 +228,7 @@ inline void NonBlocking(int s)
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
  */ 
-bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
+bool irc::sockets::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr)
 {
 	memset(&server,0,sizeof(server));
 	insp_inaddr addy;
@@ -287,7 +290,7 @@ bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port
 
 
 // Open a TCP Socket
-int OpenTCPSocket()
+int irc::sockets::OpenTCPSocket()
 {
 	int sockfd;
 	int on = 1;
@@ -309,6 +312,7 @@ int OpenTCPSocket()
 	}
 }
 
+/* XXX: Probably belongs in class InspIRCd */
 bool HasPort(int port, char* addr)
 {
 	ServerConfig* Config = ServerInstance->Config;
@@ -322,7 +326,8 @@ bool HasPort(int port, char* addr)
 	return false;
 }
 
-int BindPorts(bool bail)
+/* XXX: Probably belongs in class InspIRCd */
+int irc::sockets::BindPorts(bool bail)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	insp_sockaddr client, server;
@@ -442,14 +447,14 @@ int BindPorts(bool bail)
 	return BoundPortCount;
 }
 
-const char* insp_ntoa(insp_inaddr n)
+const char* irc::sockets::insp_ntoa(insp_inaddr n)
 {
 	static char buf[1024];
 	inet_ntop(AF_FAMILY, &n, buf, sizeof(buf));
 	return buf;
 }
 
-int insp_aton(const char* a, insp_inaddr* n)
+int irc::sockets::insp_aton(const char* a, insp_inaddr* n)
 {
 	return inet_pton(AF_FAMILY, a, n);
 }

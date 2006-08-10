@@ -65,6 +65,12 @@
 #include "typedefs.h"
 #include "command_parse.h"
 
+using irc::sockets::BindPorts;
+using irc::sockets::NonBlocking;
+using irc::sockets::insp_ntoa;
+using irc::sockets::insp_inaddr;
+using irc::sockets::insp_sockaddr;
+
 InspIRCd* ServerInstance = NULL;
 
 extern ModuleList modules;

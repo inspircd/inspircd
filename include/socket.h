@@ -32,35 +32,42 @@
 
 #include "inspircd_config.h"
 
-/* macros to the relevant system address description structs */
+namespace irc
+{
+	namespace sockets
+	{
+
+	/* macros to the relevant system address description structs */
 #ifdef IPV6
 
-typedef struct sockaddr_in6 insp_sockaddr;
-typedef struct in6_addr     insp_inaddr;
+		typedef struct sockaddr_in6 insp_sockaddr;
+		typedef struct in6_addr     insp_inaddr;
 #define AF_FAMILY AF_INET6
 #define PF_PROTOCOL PF_INET6
 
 #else
 
-typedef struct sockaddr_in  insp_sockaddr;
-typedef struct in_addr      insp_inaddr;
+		typedef struct sockaddr_in  insp_sockaddr;
+		typedef struct in_addr      insp_inaddr;
 #define AF_FAMILY AF_INET
 #define PF_PROTOCOL PF_INET
 
 #endif
 
-bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
-bool MatchCIDR(const char* address, const char* cidr_mask);
-bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
+		bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
+		bool MatchCIDR(const char* address, const char* cidr_mask);
+		bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
 
-const char* insp_ntoa(insp_inaddr n);
-int insp_aton(const char* a, insp_inaddr* n);
+		const char* insp_ntoa(insp_inaddr n);
+		int insp_aton(const char* a, insp_inaddr* n);
 
-void Blocking(int s);
-void NonBlocking(int s);
+		void Blocking(int s);
+		void NonBlocking(int s);
 
-int OpenTCPSocket(); 
-bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
-int BindPorts(bool bail);
+		int OpenTCPSocket(); 
+		bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
+		int BindPorts(bool bail);
+	};
+};
 
 #endif

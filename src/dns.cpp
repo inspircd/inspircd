@@ -42,6 +42,13 @@ using namespace std;
 #include "inspircd_config.h"
 #include "socketengine.h"
 #include "configreader.h"
+#include "socket.h"
+
+using namespace std;
+using irc::sockets::insp_sockaddr;
+using irc::sockets::insp_inaddr;
+using irc::sockets::insp_ntoa;
+using irc::sockets::insp_aton;
 
 /* Master file descriptor */
 int DNS::MasterSocket;

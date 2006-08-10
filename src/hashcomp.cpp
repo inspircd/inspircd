@@ -58,6 +58,7 @@ extern const char lowermap[255];
  ******************************************************/
 
 using namespace std;
+using namespace irc::sockets;
 
 size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
 {

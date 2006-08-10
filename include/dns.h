@@ -40,6 +40,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "socket.h"
 #include "base.h"
 
+using namespace std;
+using irc::sockets::insp_aton;
+using irc::sockets::insp_ntoa;
+using irc::sockets::insp_sockaddr;
+using irc::sockets::insp_inaddr;
+
 class InspIRCd;
 
 /**

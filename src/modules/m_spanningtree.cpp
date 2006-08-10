@@ -65,6 +65,8 @@ using namespace std;
  * we can resort to recursion to walk the tree structure.
  */
 
+using irc::sockets::MatchCIDR;
+
 class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
 

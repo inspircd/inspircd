@@ -34,6 +34,8 @@ extern int MODCOUNT;
 extern std::vector<Module*> modules;
 extern std::vector<ircd_module*> factory;
 
+using irc::sockets::BindPorts;
+
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
 ServerConfig::ServerConfig()

@@ -37,6 +37,9 @@
  *******************************************************/
  
 using namespace std;
+using irc::sockets::insp_aton;
+using irc::sockets::insp_ntoa;
+using irc::sockets::insp_inaddr;
 
 namespace nspace
 {

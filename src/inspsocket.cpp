@@ -28,6 +28,10 @@
 #include "message.h"
 #include "inspircd.h"
 
+using irc::sockets::BindSocket;
+using irc::sockets::OpenTCPSocket;
+using irc::sockets::insp_inaddr;
+using irc::sockets::insp_sockaddr;
 
 extern time_t TIME;
 extern Server* MyServer;

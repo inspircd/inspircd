@@ -22,6 +22,8 @@ using namespace std;
 #include "helperfuncs.h"
 #include "inspstring.h"
 
+using irc::sockets::MatchCIDR;
+
 extern char lowermap[255];
 
 // Wed 27 Apr 2005 - Brain

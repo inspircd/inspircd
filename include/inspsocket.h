@@ -37,6 +37,11 @@ enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I
 class InspSocket;
 class InspIRCd;
 
+using irc::sockets::insp_sockaddr;
+using irc::sockets::insp_inaddr;
+using irc::sockets::insp_ntoa;
+using irc::sockets::insp_aton;
+
 /**
  * InspSocket is an extendable socket class which modules
  * can use for TCP socket support. It is fully integrated
