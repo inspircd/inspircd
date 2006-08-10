@@ -116,7 +116,7 @@ class ModuleFilterPCRE : public Module
 		{
 			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{
-				std::string target = "";
+				const char* target;
 				std::string reason = MyConf->ReadValue("keyword","reason",index);
 				std::string do_action = MyConf->ReadValue("keyword","action",index);
 
@@ -126,24 +126,25 @@ class ModuleFilterPCRE : public Module
 				if (target_type == TYPE_USER)
 				{
 					userrec* t = (userrec*)dest;
-					target = std::string(t->nick);
+					target = t->nick;
 				}
 				else if (target_type == TYPE_CHANNEL)
 				{
 					chanrec* t = (chanrec*)dest;
-					target = std::string(t->name);
+					target = t->name;
 				}
+				else
+				{
+					target = "";
+				}
+				
 				if (do_action == "block")
-	      			{	
-					Srv->SendOpers(std::string("Filter: ")+std::string(user->nick)+
-    							std::string(" had their notice filtered, target was ")+
-    							target+": "+reason);
-					user->WriteServ("NOTICE "+std::string(user->nick)+
-    							" :Your notice has been filtered and opers notified: "+reason);
-    				}
-				Srv->Log(DEFAULT,std::string("Filter: ")+std::string(user->nick)+
-    						std::string(" had their notice filtered, target was ")+
-    						target+": "+reason+" Action: "+do_action);
+				{	
+					ServerInstance->WriteOpers("Filter: %s had their notice filtered, target was %s: %s", user->nick, target, reason.c_str());
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+reason);
+    			}
+				
+				log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, reason.c_str(), do_action.c_str());
 
 				if (do_action == "kill")
 				{
@@ -225,4 +226,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleFilterPCREFactory;
 }
-
