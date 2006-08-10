@@ -961,15 +961,22 @@ int main(int argc, char** argv)
 
 	try
 	{
-		ServerInstance = new InspIRCd(argc, argv);
-		ServerInstance->Run();
-		DELETE(ServerInstance);
+		try
+		{
+			ServerInstance = new InspIRCd(argc, argv);
+			ServerInstance->Run();
+			DELETE(ServerInstance);
+		}
+		catch (std::bad_alloc)
+		{
+			log(SPARSE,"You are out of memory! (got exception std::bad_alloc!)");
+			ServerInstance->SendError("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
+		}
 	}
-	catch (std::bad_alloc)
+	catch (...)
 	{
-		log(DEFAULT,"You are out of memory! (got exception std::bad_alloc!)");
-		ServerInstance->SendError("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
-		printf("Out of memory! (got exception std::bad_alloc!");
+		log(SPARSE,"Uncaught exception, aborting.");
+		ServerInstance->SendError("Server terminating due to uncaught exception.");
 	}
 	return 0;
 }
