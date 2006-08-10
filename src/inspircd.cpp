@@ -1024,3 +1024,26 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
+
+/* this returns true when all modules are satisfied that the user should be allowed onto the irc server
+ * (until this returns true, a user will block in the waiting state, waiting to connect up to the
+ * registration timeout maximum seconds)
+ */
+bool InspIRCd::AllModulesReportReady(userrec* user)
+{
+	if (!Config->global_implementation[I_OnCheckReady])
+		return true;
+
+	for (int i = 0; i <= MODCOUNT; i++)
+	{
+		if (Config->implement_lists[i][I_OnCheckReady])
+		{
+			int res = modules[i]->OnCheckReady(user);
+			if (!res)
+				return false;
+		}
+	}
+	return true;
+}
+
+

@@ -51,7 +51,6 @@ enum DebugLevel
 void Error(int status);
 void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);
-bool AllModulesReportReady(userrec* user);
 bool IsValidChannelName(const char *);
 
 #endif

@@ -102,6 +102,8 @@ class InspIRCd : public classbase
 	void DoSocketTimeouts(time_t TIME);
 	void DoBackgroundUserStuff(time_t TIME);
 
+	bool AllModulesReportReady(userrec* user);
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
