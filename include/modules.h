@@ -1272,12 +1272,6 @@ class Server : public Extensible
 	 */
 	virtual ~Server();
 
-	/** Obtains a pointer to the server's ServerConfig object.
-	 * The ServerConfig object contains most of the configuration data
-	 * of the IRC server, as read from the config file by the core.
-	 */
-	ServerConfig* GetConfig();
-
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
 	 * Module::Prioritize(), this specifies that the module wishes
@@ -1297,10 +1291,6 @@ class Server : public Extensible
 	 * @returns a priority ID which the core uses to relocate the module in the list
 	 */
 	long PriorityAfter(const std::string &modulename);
-
-	/** Returns the version string of this server
-	 */
-	std::string GetVersion();
 
 	/** Publish a 'feature'.
 	 * There are two ways for a module to find another module it depends on.

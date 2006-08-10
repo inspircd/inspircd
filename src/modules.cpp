@@ -330,16 +330,6 @@ void Server::RehashServer()
 	ServerInstance->Config->Read(false,NULL);
 }
 
-ServerConfig* Server::GetConfig()
-{
-	return ServerInstance->Config;
-}
-
-std::string Server::GetVersion()
-{
-	return ServerInstance->GetVersionString();
-}
-
 void Server::DelSocket(InspSocket* sock)
 {
 	for (std::vector<InspSocket*>::iterator a = ServerInstance->module_sockets.begin(); a < ServerInstance->module_sockets.end(); a++)

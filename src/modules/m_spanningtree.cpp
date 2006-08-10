@@ -228,7 +228,7 @@ class TreeServer : public classbase
 		ServerDesc = "";
 		VersionString = "";
 		UserCount = OperCount = 0;
-		VersionString = Srv->GetVersion();
+		VersionString = ServerInstance->GetVersionString();
 	}
 
 	/* We use this constructor only to create the 'root' item, TreeRoot, which
@@ -240,7 +240,7 @@ class TreeServer : public classbase
 		Parent = NULL;
 		VersionString = "";
 		UserCount = OperCount = 0;
-		VersionString = Srv->GetVersion();
+		VersionString = ServerInstance->GetVersionString();
 		Route = NULL;
 		Socket = NULL; /* Fix by brain */
 		AddHashEntry();
@@ -1817,7 +1817,7 @@ class TreeSocket : public InspSocket
 		ServerInstance->WriteOpers("*** Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
 		/* send our version string */
-		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+Srv->GetVersion());
+		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+this->Instance->GetVersionString());
 		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
 		/* Send users and their oper status */
