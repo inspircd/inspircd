@@ -48,7 +48,6 @@ enum DebugLevel
 #define STRINGIFY(x) STRINGIFY2(x) 
 #define log(l, x, args...) InspIRCd::Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
 
-void strlower(char *n);
 void Error(int status);
 void ShowMOTD(userrec *user);
 void ShowRULES(userrec *user);

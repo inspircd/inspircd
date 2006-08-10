@@ -149,7 +149,8 @@ bool do_helpop(const char** parameters, int pcnt, userrec *src)
  		strlcpy(search,parameters[0],MAXBUF);
    	}
 
-	strlower(search);
+	for (char* n = search; *n; n++)
+		*n = tolower(*n);
 
 	for (int i = 1; output != ""; i++)
 	{

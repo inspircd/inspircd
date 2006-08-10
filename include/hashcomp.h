@@ -43,6 +43,8 @@ using irc::sockets::insp_inaddr;
 
 namespace nspace
 {
+	void strlower(char *n);
+
         template<> struct hash<insp_inaddr>
         {
                 size_t operator()(const insp_inaddr &a) const;

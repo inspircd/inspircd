@@ -60,6 +60,24 @@ extern const char lowermap[255];
 using namespace std;
 using namespace irc::sockets;
 
+/* convert a string to lowercase. Note following special circumstances
+ * taken from RFC 1459. Many "official" server branches still hold to this
+ * rule so i will too;
+ *
+ *  Because of IRC's scandanavian origin, the characters {}| are
+ *  considered to be the lower case equivalents of the characters []\,
+ *  respectively. This is a critical issue when determining the
+ *  equivalence of two nicknames.
+ */
+void nspace::strlower(char *n)
+{
+        if (n)
+        {
+                for (char* t = n; *t; t++)
+                        *t = lowermap[(unsigned char)*t];
+        }
+}
+
 size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
 {
 	size_t q;

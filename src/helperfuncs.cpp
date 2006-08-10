@@ -248,24 +248,6 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 }
 
-/* convert a string to lowercase. Note following special circumstances
- * taken from RFC 1459. Many "official" server branches still hold to this
- * rule so i will too;
- *
- *  Because of IRC's scandanavian origin, the characters {}| are
- *  considered to be the lower case equivalents of the characters []\,
- *  respectively. This is a critical issue when determining the
- *  equivalence of two nicknames.
- */
-void strlower(char *n)
-{
-	if (n)
-	{
-		for (char* t = n; *t; t++)
-			*t = lowermap[(unsigned char)*t];
-	}
-}
-
 /* Find a user record by nickname and return a pointer to it */
 
 userrec* InspIRCd::FindNick(const std::string &nick)
