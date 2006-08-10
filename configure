@@ -72,15 +72,22 @@ if ($config{GCCVER} eq "") {
 # Keep my dynamic module experiments here for later
 # concideration!
 
-if ($config{OSNAME} =~ /CYGWIN/) {
+if ($config{OSNAME} =~ /CYGWIN/)
+{
 	$config{OSNAME} = "CYG-STATIC";
 }
-
-if ((!$config{OSNAME}) || ($config{OSNAME} eq "")) {
+elsif($config{OSNAME} =~ /^MINGW32/)
+{
+	$config{OSNAME} = "MINGW32";
+}
+elsif ((!$config{OSNAME}) || ($config{OSNAME} eq ""))
+{
 	chomp($config{OSNAME} = `/usr/bin/uname`);
-	if ((!$config{OSNAME}) || ($config{OSNAME} eq "")){
+	
+	if((!$config{OSNAME}) || ($config{OSNAME} eq ""))
+	{
 		$config{OSNAME} = "Unknown";
-	}
+	}	
 }
 
 if (!$config{MAX_CLIENT_T}) { 
@@ -830,17 +837,20 @@ sub dir_check {
 			# Convert it to a full path..
 			$var = resolve_directory($ENV{HOME} . "/" . $1);
 		}
-		if (substr($var,0,1) ne "/")
+		elsif ((($config{OSNAME} == "MINGW32") and ($var !~ /^[A-Z]{1}:\\.*/)) and (substr($var,0,1) ne "/"))
 		{
 			# Assume relative Path was given.. fill in the rest.
 			$var = $this . "/$var";
 		}
+		
 		$var = resolve_directory($var); 
 		if (! -e $var) {
 			print "$var does not exist. Create it?\n[\033[1;32my\033[0m] ";
 			chomp($tmp = <STDIN>);
 			if (($tmp eq "") || ($tmp =~ /^y/i)) {
 				# Attempt to Create the Dir..
+				
+				print("mkdir -p \"$var\" >> /dev/null 2>&1");
 				$chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
 				if ($chk != 0) {
 					print "Unable to create directory. ($var)\n\n";
@@ -944,6 +954,7 @@ sub getrevision {
 		return "0";
 	}
 	my $data = `svn info`;
+	
 	if ($data eq "") {
 		$no_svn = 1;
 		$rev = "0";
