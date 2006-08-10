@@ -592,7 +592,7 @@ bool InspIRCd::LoadModule(const char* filename)
 				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[MODCOUNT+1]->LastError());
 				return false;
 			}
-			if ((int)factory[MODCOUNT+1]->factory != -1)
+			if ((long)factory[MODCOUNT+1]->factory != -1)
 			{
 				Module* m = factory[MODCOUNT+1]->factory->CreateModule(MyServer);
 				modules[MODCOUNT+1] = m;
