@@ -24,6 +24,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "message.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 static Server *Srv;
@@ -82,7 +83,7 @@ class cmd_uninvite : public command_t
 		u->RemoveInvite(xname);
 		user->WriteServ("494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
 		u->WriteServ("493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
-		c->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
+		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
 	}
 };
 

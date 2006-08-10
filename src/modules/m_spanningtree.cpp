@@ -614,7 +614,7 @@ class cmd_rconnect : public command_t
 	{
 		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
 		/* Is this aimed at our server? */
-		if (Srv->MatchText(Srv->GetServerName(),parameters[0]))
+		if (Srv->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
 			/* Yes, initiate the given connect */
 			ServerInstance->WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
@@ -751,12 +751,12 @@ class TreeSocket : public InspSocket
 						}
 						else
 						{
-							this->WriteLine("AES "+Srv->GetServerName());
+							this->WriteLine(std::string("AES ")+ServerInstance->Config->ServerName);
 							this->InitAES(x->EncryptionKey,x->Name.c_str());
 						}
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-					this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
+					this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
 					return true;
 				}
 			}
@@ -1140,7 +1140,7 @@ class TreeSocket : public InspSocket
 				newparams.push_back(params[0]);
 				newparams.push_back(ConvToStr(ourTS));
 				newparams.push_back(to_bounce+params_to_bounce);
-				DoOneToOne(Srv->GetServerName(),"FMODE",newparams,sourceserv);
+				DoOneToOne(ServerInstance->Config->ServerName,"FMODE",newparams,sourceserv);
 			}
 
 			if (to_keep.length())
@@ -1280,7 +1280,7 @@ class TreeSocket : public InspSocket
 			/* Update the parameters for FMODE with the new 'bounced' string */
 			newparams[2] = modebounce;
 			/* Only send it back the way it came, no need to send it anywhere else */
-			DoOneToOne(Srv->GetServerName(),"FMODE",newparams,sourceserv);
+			DoOneToOne(ServerInstance->Config->ServerName,"FMODE",newparams,sourceserv);
 			log(DEBUG,"FMODE bounced intelligently, our TS less than theirs and the other server is NOT a uline.");
 		}
 		else
@@ -1462,7 +1462,7 @@ class TreeSocket : public InspSocket
 								
 							}
 							// tell everyone to bounce the modes. bad modes, bad!
-							DoOneToMany(Srv->GetServerName(),"FMODE",params);
+							DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
 						}
 						strcpy(mode_users[1],"+");
 						modectr = 2;
@@ -1499,7 +1499,7 @@ class TreeSocket : public InspSocket
 					}
 					params.push_back(mode_users[x]);
 				}
-				DoOneToMany(Srv->GetServerName(),"FMODE",params);
+				DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
 			}
 		}
 		return true;
@@ -1521,7 +1521,7 @@ class TreeSocket : public InspSocket
 				}
 			}
 		}
-		DoOneToAllButSender(Srv->GetServerName(),"SYNCTS",params,source);
+		DoOneToAllButSender(ServerInstance->Config->ServerName,"SYNCTS",params,source);
 		return true;
 	}
 
@@ -1532,7 +1532,7 @@ class TreeSocket : public InspSocket
 			return true;
 		if (params.size() > 8)
 		{
-			this->WriteLine(":"+Srv->GetServerName()+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
+			this->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
 			return true;
 		}
 		// NICK age nick host dhost ident +modes ip :gecos
@@ -1553,7 +1553,7 @@ class TreeSocket : public InspSocket
 		{
 			// nick collision
 			log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,params[4].c_str(),params[2].c_str(),(unsigned long)age,(unsigned long)iter->second->age);
-			this->WriteLine(":"+Srv->GetServerName()+" KILL "+tempnick+" :Nickname collision");
+			this->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" KILL "+tempnick+" :Nickname collision");
 			return true;
 		}
 
@@ -1601,10 +1601,10 @@ class TreeSocket : public InspSocket
 	{
 		log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
-		std::string individual_halfops = ":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age);
+		std::string individual_halfops = std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
 		
 		size_t dlen, curlen;
-		dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+		dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",ServerInstance->Config->ServerName,c->name,(unsigned long)c->age);
 		int numusers = 0;
 		char* ptr = list + dlen;
 
@@ -1650,7 +1650,7 @@ class TreeSocket : public InspSocket
 			if (curlen > (480-NICKMAX))
 			{
 				this->WriteLine(list);
-				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
+				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",ServerInstance->Config->ServerName,c->name,(unsigned long)c->age);
 				ptr = list + dlen;
 				ptrlen = 0;
 				numusers = 0;
@@ -1658,13 +1658,13 @@ class TreeSocket : public InspSocket
 				{
 					modes.append("v");
 					params.append(specific_voice[y]->nick).append(" ");
-					//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
+					//this->WriteLine(":"+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
 				}
 				for (unsigned int y = 0; y < specific_halfop.size(); y++)
 				{
 					modes.append("h");
 					params.append(specific_halfop[y]->nick).append(" ");
-					//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
+					//this->WriteLine(":"+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
 				}
 			}
 		}
@@ -1675,13 +1675,13 @@ class TreeSocket : public InspSocket
 			{
 				modes.append("v");
 				params.append(specific_voice[y]->nick).append(" ");
-				//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
+				//this->WriteLine(":"+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +v "+specific_voice[y]->nick);
 			}
 			for (unsigned int y = 0; y < specific_halfop.size(); y++)
 			{
 				modes.append("h");
 				params.append(specific_halfop[y]->nick).append(" ");
-				//this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
+				//this->WriteLine(":"+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +h "+specific_halfop[y]->nick);
 			}
 		}
 		//std::string modes = "";
@@ -1693,14 +1693,14 @@ class TreeSocket : public InspSocket
                 }
 		/* XXX: Send each channel mode and its params -- we'll need a method for this in ModeHandler? */
                 //FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
-		this->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true)+modes+" "+params);
+		this->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true)+modes+" "+params);
 	}
 
 	/* Send G, Q, Z and E lines */
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
-		std::string n = Srv->GetServerName();
+		std::string n = ServerInstance->Config->ServerName;
 		const char* sn = n.c_str();
 		int iterations = 0;
 		/* Yes, these arent too nice looking, but they get the job done */
@@ -1752,7 +1752,7 @@ class TreeSocket : public InspSocket
 		char data[MAXBUF];
 		std::deque<std::string> list;
 		int iterations = 0;
-		std::string n = Srv->GetServerName();
+		std::string n = ServerInstance->Config->ServerName;
 		const char* sn = n.c_str();
 		for (chan_hash::iterator c = this->Instance->chanlist.begin(); c != this->Instance->chanlist.end(); c++, iterations++)
 		{
@@ -1817,7 +1817,7 @@ class TreeSocket : public InspSocket
 		ServerInstance->WriteOpers("*** Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
 		/* send our version string */
-		this->WriteLine(":"+Srv->GetServerName()+" VERSION :"+this->Instance->GetVersionString());
+		this->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" VERSION :"+this->Instance->GetVersionString());
 		/* Send server tree */
 		this->SendServers(TreeRoot,s,1);
 		/* Send users and their oper status */
@@ -1935,7 +1935,7 @@ class TreeSocket : public InspSocket
 		 */
 		if (params.size() > 1)
 		{
-			if (Srv->MatchText(Srv->GetServerName(), params[1]))
+			if (Srv->MatchText(ServerInstance->Config->ServerName, params[1]))
 			{
 				/* It's for our server */
 				string_list results;
@@ -1949,7 +1949,7 @@ class TreeSocket : public InspSocket
 					for (size_t i = 0; i < results.size(); i++)
 					{
 						par[1] = "::" + results[i];
-						DoOneToOne(Srv->GetServerName(), "PUSH",par, source->server);
+						DoOneToOne(ServerInstance->Config->ServerName, "PUSH",par, source->server);
 					}
 				}
 			}
@@ -2039,7 +2039,7 @@ class TreeSocket : public InspSocket
 
 		std::string servermask = params[0];
 
-		if (Srv->MatchText(Srv->GetServerName(),servermask))
+		if (Srv->MatchText(ServerInstance->Config->ServerName,servermask))
 		{
 			ServerInstance->WriteOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
 			Srv->RehashServer();
@@ -2095,7 +2095,7 @@ class TreeSocket : public InspSocket
 		else
 		{
 			std::string forwardto = params[1];
-			if (forwardto == Srv->GetServerName())
+			if (forwardto == ServerInstance->Config->ServerName)
 			{
 				/*
 				 * this is a PONG for us
@@ -2351,7 +2351,7 @@ class TreeSocket : public InspSocket
 		if (params.size() == 2)
 		{
 			// someone querying our time?
-			if (Srv->GetServerName() == params[0])
+			if (ServerInstance->Config->ServerName == params[0])
 			{
 				userrec* u = ServerInstance->FindNick(params[1]);
 				if (u)
@@ -2360,7 +2360,7 @@ class TreeSocket : public InspSocket
 					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
 					params.push_back(curtime);
 					params[0] = prefix;
-					DoOneToOne(Srv->GetServerName(),"TIME",params,params[0]);
+					DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,params[0]);
 				}
 			}
 			else
@@ -2402,13 +2402,13 @@ class TreeSocket : public InspSocket
 		if (params.size() == 1)
 		{
 			std::string stufftobounce = params[0];
-			this->WriteLine(":"+Srv->GetServerName()+" PONG "+stufftobounce);
+			this->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PONG "+stufftobounce);
 			return true;
 		}
 		else
 		{
 			std::string forwardto = params[1];
-			if (forwardto == Srv->GetServerName())
+			if (forwardto == ServerInstance->Config->ServerName)
 			{
 				// this is a ping for us, send back PONG to the requesting server
 				params[1] = params[0];
@@ -2548,7 +2548,7 @@ class TreeSocket : public InspSocket
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
 				// along with the sendpass from this block.
-				this->WriteLine("SERVER "+Srv->GetServerName()+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+x->SendPass+" 0 :"+ServerInstance->Config->ServerDesc);
 				// move to the next state, we are now waiting for THEM.
 				this->LinkState = WAIT_AUTH_2;
 				return true;
@@ -2956,11 +2956,11 @@ class TreeSocket : public InspSocket
 								std::deque<std::string> p;
 								p.push_back(params[0]);
 								p.push_back("Nickname collision ("+prefix+" -> "+params[0]+")");
-								DoOneToMany(Srv->GetServerName(),"KILL",p);
+								DoOneToMany(ServerInstance->Config->ServerName,"KILL",p);
 								p.clear();
 								p.push_back(prefix);
 								p.push_back("Nickname collision");
-								DoOneToMany(Srv->GetServerName(),"KILL",p);
+								DoOneToMany(ServerInstance->Config->ServerName,"KILL",p);
 								userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 								userrec* y = ServerInstance->FindNick(prefix);
 								if (y)
@@ -2988,7 +2988,7 @@ class TreeSocket : public InspSocket
 						// its not a user. Its either a server, or somethings screwed up.
 						if (IsServer(prefix))
 						{
-							target = Srv->GetServerName();
+							target = ServerInstance->Config->ServerName;
 						}
 						else
 						{
@@ -3464,7 +3464,7 @@ class ModuleSpanningTree : public Module
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
 		if ((HideULines) && (Srv->IsUlined(Current->GetName())) && (!*user->oper))
 			return;
-		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? Srv->GetServerName().c_str() : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
+		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
 
 	int CountLocalServs()
@@ -3696,7 +3696,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.push_back(found->GetName());
 				params.push_back(user->nick);
-				DoOneToOne(Srv->GetServerName(),"TIME",params,found->GetName());
+				DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,found->GetName());
 			}
 			else
 			{
@@ -3740,7 +3740,7 @@ class ModuleSpanningTree : public Module
 				{
 					if (serv->AnsweredLastPing())
 					{
-						sock->WriteLine(":"+Srv->GetServerName()+" PING "+serv->GetName());
+						sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
 						serv->SetNextPingTime(curtime + 120);
 					}
 					else
@@ -3898,10 +3898,10 @@ class ModuleSpanningTree : public Module
 		{
 			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
 			{
-				results.push_back(Srv->GetServerName()+" 213 "+user->nick+" C *@"+(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr)+" * "+LinkBlocks[i].Name.c_str()+" "+ConvToStr(LinkBlocks[i].Port)+" "+(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
-				results.push_back(Srv->GetServerName()+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" C *@"+(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr)+" * "+LinkBlocks[i].Name.c_str()+" "+ConvToStr(LinkBlocks[i].Port)+" "+(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
 			}
-			results.push_back(Srv->GetServerName()+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+			results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 			ServerInstance->WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
@@ -4146,7 +4146,7 @@ class ModuleSpanningTree : public Module
 				params.push_back(channel->name);
 				params.push_back(ts);
 				params.push_back("@"+std::string(user->nick));
-				DoOneToMany(Srv->GetServerName(),"FJOIN",params);
+				DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 			}
 		}
 	}
@@ -4198,7 +4198,7 @@ class ModuleSpanningTree : public Module
 			params.push_back("+"+std::string(user->FormatModes()));
 			params.push_back(user->GetIPString());
 			params.push_back(":"+std::string(user->fullname));
-			DoOneToMany(Srv->GetServerName(),"NICK",params);
+			DoOneToMany(ServerInstance->Config->ServerName,"NICK",params);
 
 			// User is Local, change needs to be reflected!
 			TreeServer* SourceServer = FindServer(user->server);
@@ -4253,7 +4253,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(chan->name);
 			params.push_back(user->nick);
 			params.push_back(":"+reason);
-			DoOneToMany(Srv->GetServerName(),"KICK",params);
+			DoOneToMany(ServerInstance->Config->ServerName,"KICK",params);
 		}
 	}
 
@@ -4271,11 +4271,11 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(parameter);
-			DoOneToMany(Srv->GetServerName(),"REHASH",params);
+			DoOneToMany(ServerInstance->Config->ServerName,"REHASH",params);
 			// check for self
-			if (Srv->MatchText(Srv->GetServerName(),parameter))
+			if (Srv->MatchText(ServerInstance->Config->ServerName,parameter))
 			{
-				ServerInstance->WriteOpers("*** Remote rehash initiated from server \002"+Srv->GetServerName()+"\002.");
+				ServerInstance->WriteOpers("*** Remote rehash initiated from server \002%s\002",ServerInstance->Config->ServerName);
 				Srv->RehashServer();
 			}
 		}
@@ -4412,12 +4412,12 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+u->nick+" "+ConvToStr(u->age)+" "+modeline);
+				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->nick+" "+ConvToStr(u->age)+" "+modeline);
 			}
 			else
 			{
 				chanrec* c = (chanrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+modeline);
+				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+modeline);
 			}
 		}
 	}
@@ -4430,16 +4430,16 @@ class ModuleSpanningTree : public Module
 			if (target_type == TYPE_USER)
 			{
 				userrec* u = (userrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+u->nick+" "+extname+" :"+extdata);
+				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+u->nick+" "+extname+" :"+extdata);
 			}
 			else if (target_type == TYPE_OTHER)
 			{
-				s->WriteLine(":"+Srv->GetServerName()+" METADATA * "+extname+" :"+extdata);
+				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA * "+extname+" :"+extdata);
 			}
 			else if (target_type == TYPE_CHANNEL)
 			{
 				chanrec* c = (chanrec*)target;
-				s->WriteLine(":"+Srv->GetServerName()+" METADATA "+c->name+" "+extname+" :"+extdata);
+				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+c->name+" "+extname+" :"+extdata);
 			}
 		}
 	}
@@ -4452,7 +4452,7 @@ class ModuleSpanningTree : public Module
 			if (params->size() < 3)
 				return;
 			(*params)[2] = ":" + (*params)[2];
-			DoOneToMany(Srv->GetServerName(),"METADATA",*params);
+			DoOneToMany(ServerInstance->Config->ServerName,"METADATA",*params);
 		}
 		else if (event->GetEventID() == "send_mode")
 		{
@@ -4475,7 +4475,7 @@ class ModuleSpanningTree : public Module
 				}
 			}
 			params->insert(params->begin() + 1,ConvToStr(ourTS));
-			DoOneToMany(Srv->GetServerName(),"FMODE",*params);
+			DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 		}
 	}
 

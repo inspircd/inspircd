@@ -1325,10 +1325,6 @@ class Server : public Extensible
 	 */
 	userrec* FindDescriptor(int socket);
 
-	/** Returns the server name of the server where the module is loaded.
-	 */
-	std::string GetServerName();
-
 	bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
 	bool AddModeWatcher(ModeWatcher* mw);

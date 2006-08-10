@@ -18,6 +18,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
@@ -212,7 +213,7 @@ class ModuleOverride : public Module
 						if (!user->IsInvited(x))
 						{
 							/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
-							chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s invited himself into the channel", cname, user->nick);
+							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s invited himself into the channel", cname, user->nick);
 						}
 					}
 					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
@@ -222,7 +223,7 @@ class ModuleOverride : public Module
 				if ((chan->key[0]) && (CanOverride(user,"KEY")))
 				{
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s bypassed the channel key", cname, user->nick);
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s bypassed the channel key", cname, user->nick);
 					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
 				}
@@ -230,7 +231,7 @@ class ModuleOverride : public Module
 				if ((chan->limit > 0) && (chan->GetUserCounter() >=  chan->limit) && (CanOverride(user,"LIMIT")))
 				{
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s passed through your channel limit", cname, user->nick);
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s passed through your channel limit", cname, user->nick);
 					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
 				}

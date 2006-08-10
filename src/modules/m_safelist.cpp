@@ -22,6 +22,7 @@ using namespace std;
 #include "helperfuncs.h"
 #include "message.h"
 #include <vector>
+#include "configreader.h"
 #include "inspircd.h"
 
 extern time_t TIME;
@@ -109,7 +110,7 @@ class ListTimer : public InspTimer
 						{
 							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chan->ChanModes(has_user),chan->topic);
 							/* Increment total plus linefeed */
-							amount_sent += counter + 4 + Srv->GetServerName().length();
+							amount_sent += counter + 4 + strlen(ServerInstance->Config->ServerName);
 							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
 							u->WriteServ(std::string(buffer));
 						}

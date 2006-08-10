@@ -415,11 +415,6 @@ userrec* Server::FindDescriptor(int socket)
 	return (socket < 65536 ? ServerInstance->fd_ref_table[socket] : NULL);
 }
 
-std::string Server::GetServerName()
-{
-	return ServerInstance->Config->ServerName;
-}
-
 bool Server::AddMode(ModeHandler* mh, const unsigned char mode)
 {
 	return ServerInstance->ModeGrok->AddMode(mh,mode);

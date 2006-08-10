@@ -31,6 +31,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "configreader.h"
 #include "inspircd.h"
 #include "m_sqlv2.h"
 
@@ -39,6 +40,8 @@ static Module* SQLModule;
 static Module* MyMod;
 static std::string dbid;
 extern time_t TIME;
+
+extern InspIRCd* ServerInstance;
 
 enum LogTypes { LT_OPER = 1, LT_KILL, LT_SERVLINK, LT_XLINE, LT_CONNECT, LT_DISCONNECT, LT_FLOOD, LT_LOADMODULE };
 
@@ -394,7 +397,7 @@ class ModuleSQLLog : public Module
 
 	virtual void OnLoadModule(Module* mod, const std::string &name)
 	{
-		AddLogEntry(LT_LOADMODULE,name,Srv->GetServerName(),Srv->GetServerName());
+		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName);
 	}
 
 	virtual ~ModuleSQLLog()

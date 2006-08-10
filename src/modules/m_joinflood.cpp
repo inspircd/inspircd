@@ -22,9 +22,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +j (join flood protection) */
+
+extern InspIRCd* ServerInstance;
 
 class joinfloodsettings : public classbase
 {
@@ -225,7 +228,7 @@ class ModuleJoinFlood : public Module
 			{
 				f->clear();
 				f->lock();
-				channel->WriteChannelWithServ((char*)Srv->GetServerName().c_str(), "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name, f->joins, f->secs);
+				channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName, "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", channel->name, f->joins, f->secs);
 			}
 		}
 	}

@@ -22,6 +22,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for /KNOCK and mode +K */
@@ -64,7 +65,7 @@ class cmd_knock : public command_t
 
 		if (c->modes[CM_INVITEONLY])
 		{
-			c->WriteChannelWithServ((char*)Srv->GetServerName().c_str(),  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
+			c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
 			user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
 			return;
 		}

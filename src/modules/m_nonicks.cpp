@@ -23,9 +23,12 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+
+extern InspIRCd* ServerInstance;
 
 class NoNicks : public ModeHandler
 {
@@ -92,7 +95,7 @@ class ModuleNoNickChange : public Module
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
 		irc::string server = user->server;
-		irc::string me = Srv->GetServerName().c_str();
+		irc::string me = ServerInstance->Config->ServerName;
 		if (server == me)
 		{
 			for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)

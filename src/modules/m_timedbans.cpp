@@ -25,6 +25,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 static Server *Srv;
@@ -100,7 +101,7 @@ class cmd_tban : public command_t
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :%s added a timed ban on %s lasting for %s seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %s seconds.", channel->name, user->nick, mask.c_str(), duration);
 				}
 				return;
 			}
@@ -163,7 +164,7 @@ class ModuleTimedBans : public Module
 					again = true;
 					if (cr)
 					{
-						cr->WriteChannelWithServ(Srv->GetServerName().c_str(), "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
+						cr->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
 						const char *setban[3];
 						setban[0] = i->channel.c_str();
 						setban[1] = "-b";

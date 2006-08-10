@@ -24,6 +24,7 @@
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
@@ -154,7 +155,7 @@ class ModuleCBan : public Module
 			for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 			{
 				unsigned long remaining = (iter->set_on + iter->length) - TIME;
-				results.push_back(Srv->GetServerName()+" 210 "+user->nick+" "+iter->chname.c_str()+" "+iter->set_by+" "+ConvToStr(iter->set_on)+" "+ConvToStr(iter->length)+" "+ConvToStr(remaining)+" :"+iter->reason);
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+iter->chname.c_str()+" "+iter->set_by+" "+ConvToStr(iter->set_on)+" "+ConvToStr(iter->length)+" "+ConvToStr(remaining)+" :"+iter->reason);
 			}
 		}
 		
