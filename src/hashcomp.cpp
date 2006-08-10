@@ -91,8 +91,8 @@ size_t nspace::hash<string>::operator()(const string &s) const
 	size_t t = 0;
 	static struct hash<const char *> strhash;
 
-	for (const char* x = s.c_str(); *x; x++, t++)	/* Faster to do it this way than */
-		a[t] = lowermap[(unsigned char)*x];	/* Seperate strlcpy and strlower */
+	for (const char* x = s.c_str(); *x; x++)	/* Faster to do it this way than */
+		a[t++] = lowermap[(unsigned char)*x];	/* Seperate strlcpy and strlower */
 
 	a[t] = 0;
 
