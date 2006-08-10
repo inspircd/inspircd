@@ -909,13 +909,21 @@ sub getosflags {
 			$config{STATIC_LINK} = "yes";
 		}
 	}
-	if ($config{OSNAME} =~ /SunOS/) {
+	
+	if ($config{OSNAME} =~ /SunOS/)
+	{
 		# solaris/sunos needs these
 		# socket = bsd sockets api
 		# nsl = dns stuff
 		# rt = POSIX realtime extensions
 		# resolv = inet_aton only (why isnt this in nsl?!)
 		$config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
+	}
+	
+	if($config{OSNAME} eq "MINGW32")
+	{
+		# All code is position-independent on windows
+		$config{FLAGS} =~ s/-fPIC //;
 	}
 }
 
