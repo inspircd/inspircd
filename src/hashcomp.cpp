@@ -87,10 +87,15 @@ size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
 
 size_t nspace::hash<string>::operator()(const string &s) const
 {
-	char a[MAXBUF];
+	char a[s.length()];
+	size_t t = 0;
 	static struct hash<const char *> strhash;
-	strlcpy(a,s.c_str(),MAXBUF);
-	strlower(a);
+
+	for (const char* x = s.c_str(); *x; x++, t++)	/* Faster to do it this way than */
+		a[t] = lowermap[(unsigned char)*x];	/* Seperate strlcpy and strlower */
+
+	a[t] = 0;
+
 	return strhash(a);
 }
 
