@@ -233,14 +233,6 @@ void		Module::OnCancelAway(userrec* user) { };
  * exports in the core
  */
 
-Server::Server()
-{
-}
-
-Server::~Server()
-{
-}
-
 void Server::AddSocket(InspSocket* sock)
 {
 	ServerInstance->module_sockets.push_back(sock);

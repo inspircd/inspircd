@@ -1262,16 +1262,6 @@ class Module : public Extensible
 class Server : public Extensible
 {
  public:
-	/** Default constructor.
-	 * Creates a Server object.
-	 */
-	Server();
-
-	/** Default destructor.
-	 * Destroys a Server object.
-	 */
-	virtual ~Server();
-
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
 	 * Module::Prioritize(), this specifies that the module wishes
