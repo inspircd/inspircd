@@ -588,8 +588,8 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	
 			if ((MOD_RESULT == ACR_DEFAULT) || (!is_uline(src->server)))
 			{
-				int them = cstatus(src, this);
-				int us = cstatus(user, this);
+				int them = this->GetStatus(src);
+				int us = this->GetStatus(user);
    			 	if ((them < STATUS_HOP) || (them < us))
 				{
 					if (them == STATUS_HOP)
@@ -838,7 +838,7 @@ void chanrec::UserList(userrec *user)
 			continue;
 		}
 
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", cmode(i->second, this), i->second->nick);
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetStatusChar(i->second), i->second->nick);
 
 		curlen += ptrlen;
 		ptr += ptrlen;
@@ -878,6 +878,77 @@ long chanrec::GetMaxBans()
 		}
 	}
 	return 64;
+}
+
+
+/* returns the status character for a given user on a channel, e.g. @ for op,
+ * % for halfop etc. If the user has several modes set, the highest mode
+ * the user has must be returned. */
+
+const char* chanrec::GetStatusChar(userrec *user)
+{
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	{
+		if ((*i)->channel == this)
+		{
+			if (((*i)->uc_modes & UCMODE_OP) > 0)
+			{
+				return "@";
+			}
+			if (((*i)->uc_modes & UCMODE_HOP) > 0)
+			{
+				return "%";
+			}
+			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
+			{
+				return "+";
+			}
+			return "";
+		}
+	}
+	return "";
+}
+
+
+int chanrec::GetStatusFlags(userrec *user)
+{
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	{
+		if ((*i)->channel == this)
+		{
+			return (*i)->uc_modes;
+		}
+	}
+	return 0;
+}
+
+
+
+int chanrec::GetStatus(userrec *user)
+{
+	if (is_uline(user->server))
+		return STATUS_OP;
+
+	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	{
+		if ((*i)->channel == this)
+		{
+			if (((*i)->uc_modes & UCMODE_OP) > 0)
+			{
+				return STATUS_OP;
+			}
+			if (((*i)->uc_modes & UCMODE_HOP) > 0)
+			{
+				return STATUS_HOP;
+			}
+			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
+			{
+				return STATUS_VOICE;
+			}
+			return STATUS_NORMAL;
+		}
+	}
+	return STATUS_NORMAL;
 }
 
 

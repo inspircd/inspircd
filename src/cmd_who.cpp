@@ -150,7 +150,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				wholine.append("*");
 			}
 
-			wholine = wholine + cmode(i->second, ch) + " :0 " + i->second->fullname;
+			wholine = wholine + ch->GetStatusChar(i->second) + " :0 " + i->second->fullname;
 			whoresults.push_back(wholine);
 		}
 	}
@@ -188,7 +188,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 						wholine.append("*");
 					}
 	
-					wholine = wholine + cmode(oper, ch) + " :0 " + oper->fullname;
+					wholine = wholine + ch->GetStatusChar(oper) + " :0 " + oper->fullname;
 					whoresults.push_back(wholine);
 				}
 			}
@@ -220,7 +220,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 						wholine.append("*");
 					}
 
-					wholine = wholine + cmode(i->second, ch) + " :0 " + i->second->fullname;
+					wholine = wholine + ch->GetStatusChar(i->second) + " :0 " + i->second->fullname;
 					whoresults.push_back(wholine);
 				}
 			}

@@ -55,8 +55,8 @@ class cmd_tban : public command_t
 		chanrec* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)
 		{
-			std::string cm = Srv->ChanMode(user,channel);
-			if ((cm == "%") || (cm == "@"))
+			int cm = channel->GetStatus(user);
+			if ((cm == STATUS_HOP) || (cm == STATUS_OP))
 			{
 				if (!Srv->IsValidMask(parameters[2]))
 				{

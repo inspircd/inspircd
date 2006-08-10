@@ -31,7 +31,7 @@ ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* chan
 	userrec* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (cstatus(x, channel) == STATUS_VOICE)
+		if (channel->GetStatus(x) == STATUS_VOICE)
 		{
 			return std::make_pair(true, x->nick);
 		}
@@ -45,7 +45,7 @@ ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* chan
 
 ModeAction ModeChannelVoice::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	int status = cstatus(source, channel);
+	int status = channel->GetStatus(source);
 
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)

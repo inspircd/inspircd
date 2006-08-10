@@ -309,7 +309,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			 * (e.g. are they a (half)op?
 			 */
 
-			if ((IS_LOCAL(user)) && (cstatus(user, targetchannel) < STATUS_HOP))
+			if ((IS_LOCAL(user)) && (targetchannel->GetStatus(user) < STATUS_HOP))
 			{
 				/* We don't have halfop */
 				log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");

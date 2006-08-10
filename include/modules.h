@@ -1347,12 +1347,6 @@ class Server : public Extensible
 	 */
 	virtual userrec* FindDescriptor(int socket);
 
-	/** Attempts to look up a user's privilages on a channel.
-	 * This function will return a string containing either @, %, +, or an empty string,
-	 * representing the user's privilages upon the channel you specify.
-	 */
-	virtual std::string ChanMode(userrec* User, chanrec* Chan);
-
 	/** Returns the server name of the server where the module is loaded.
 	 */
 	virtual std::string GetServerName();

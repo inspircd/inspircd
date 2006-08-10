@@ -59,7 +59,7 @@ class cmd_uninvite : public command_t
 
 		if (c->modes[CM_INVITEONLY])
 		{
-			if (cstatus(user,c) < STATUS_HOP)
+			if (c->GetStatus(user) < STATUS_HOP)
 			{
 				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 				return;

@@ -53,7 +53,7 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if ((c->modes[CM_INVITEONLY]) && (IS_LOCAL(user)))
 		{
-			if (cstatus(user,c) < STATUS_HOP)
+			if (c->GetStatus(user) < STATUS_HOP)
 			{
 				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
 				return;

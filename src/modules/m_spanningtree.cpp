@@ -1616,7 +1616,7 @@ class TreeSocket : public InspSocket
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			int x = cflags(i->second,c);
+			int x = c->GetStatusFlags(i->second);
 			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
 			{
 				specific_halfop.push_back(i->second);

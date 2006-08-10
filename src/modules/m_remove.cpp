@@ -127,8 +127,8 @@ class RemoveBase
 		}
 		else
 		{
-			log(DEBUG, "Setting ulevel to %s", Srv->ChanMode(user, channel).c_str());
-			ulevel = chartolevel(Srv->ChanMode(user, channel));
+			log(DEBUG, "Setting ulevel to %s", channel->GetStatusChar(user));
+			ulevel = chartolevel(channel->GetStatusChar(user));
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
@@ -149,8 +149,8 @@ class RemoveBase
 		}
 		else
 		{
-			log(DEBUG, "Setting tlevel to %s", Srv->ChanMode(target, channel).c_str());
-			tlevel = chartolevel(Srv->ChanMode(target, channel));
+			log(DEBUG, "Setting tlevel to %s", channel->GetStatusChar(target));
+			tlevel = chartolevel(channel->GetStatusChar(target));
 		}
 		
 		hasnokicks = (Srv->FindModule("m_nokicks.so") && channel->IsModeSet('Q'));

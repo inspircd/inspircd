@@ -93,7 +93,7 @@ class ModuleOverride : public Module
 	{
 		if ((*source->oper) && (CanOverride(source,"KICK")))
 		{
-			if (((Srv->ChanMode(source,chan) == "%") && (Srv->ChanMode(user,chan) == "@")) || (Srv->ChanMode(source,chan) == ""))
+			if (((chan->GetStatus(source) == STATUS_HOP) && (chan->GetStatus(user) == STATUS_OP)) || (chan->GetStatus(source) < STATUS_VOICE))
 			{
 				ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
@@ -111,8 +111,8 @@ class ModuleOverride : public Module
 			{
 				// Fix by brain - allow the change if they arent on channel - rely on boolean short-circuit
 				// to not check the other items in the statement if they arent on the channel
-				std::string mode = Srv->ChanMode(source,channel);
-				if ((!channel->HasUser(source)) || ((mode != "%") && (mode != "@")))
+				int mode = channel->GetStatus(source);
+				if ((!channel->HasUser(source)) || ((mode != STATUS_HOP) && (mode != STATUS_OP)))
 				{
 					switch (access_type)
 					{

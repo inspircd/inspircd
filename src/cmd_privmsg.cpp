@@ -77,7 +77,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 					user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 					return;
 				}
-				if ((chan->modes[CM_MODERATED]) && (cstatus(user,chan)<STATUS_VOICE))
+				if ((chan->modes[CM_MODERATED]) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
 					user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 					return;

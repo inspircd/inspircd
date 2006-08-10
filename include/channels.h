@@ -436,6 +436,12 @@ class chanrec : public Extensible
 
 	int CountInvisible();
 
+	int GetStatus(userrec *user);
+
+	int GetStatusFlags(userrec *user);
+
+	const char* GetStatusChar(userrec *user);
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }

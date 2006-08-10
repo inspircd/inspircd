@@ -30,8 +30,5 @@
 
 int isident(const char* n);
 int isnick(const char* n);
-const char* cmode(userrec *user, chanrec *chan);
-int cstatus(userrec *user, chanrec *chan);
-int cflags(userrec *user, chanrec *chan);
 
 #endif

@@ -27,7 +27,7 @@ ModeChannelBan::ModeChannelBan() : ModeHandler('b', 1, 1, true, MODETYPE_CHANNEL
 
 ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
-	int status = cstatus(source, channel);
+	int status = channel->GetStatus(source);
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{

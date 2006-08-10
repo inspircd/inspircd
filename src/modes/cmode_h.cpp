@@ -31,7 +31,7 @@ ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* cha
 	userrec* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (cstatus(x, channel) == STATUS_HOP)
+		if (channel->GetStatus(x) == STATUS_HOP)
 		{
 			return std::make_pair(true, x->nick);
 		}
@@ -54,7 +54,7 @@ ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanr
 		return MODEACTION_DENY;
 	}
 
-	int status = cstatus(source, channel);
+	int status = channel->GetStatus(source);
 
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)

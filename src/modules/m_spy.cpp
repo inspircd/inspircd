@@ -63,7 +63,7 @@ void spy_userlist(userrec *user,chanrec *c)
 	CUList *ulist= c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		strlcat(list,cmode(i->second,c),MAXBUF);
+		strlcat(list,c->GetStatusChar(i->second),MAXBUF);
 		strlcat(list,i->second->nick,MAXBUF);
 		strlcat(list," ",MAXBUF);
 		if (strlen(list)>(480-NICKMAX))

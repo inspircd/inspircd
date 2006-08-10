@@ -71,7 +71,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 					user->WriteServ("442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return;
 				}
-				if ((Ptr->modes[CM_TOPICLOCK]) && (cstatus(user,Ptr)<STATUS_HOP))
+				if ((Ptr->modes[CM_TOPICLOCK]) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
 					user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
 					return;

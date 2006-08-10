@@ -430,11 +430,6 @@ userrec* Server::FindDescriptor(int socket)
 	return (socket < 65536 ? ServerInstance->fd_ref_table[socket] : NULL);
 }
 
-std::string Server::ChanMode(userrec* User, chanrec* Chan)
-{
-	return cmode(User,Chan);
-}
-
 std::string Server::GetServerName()
 {
 	return ServerInstance->Config->ServerName;
