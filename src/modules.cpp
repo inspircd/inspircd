@@ -375,11 +375,6 @@ chanrec* Server::GetChannelIndex(long index)
 	return NULL;
 }
 
-void Server::AddTimer(InspTimer* T)
-{
-	::AddTimer(T);
-}
-
 void Server::SendOpers(const std::string &s)
 {
 	WriteOpers("%s",s.c_str());

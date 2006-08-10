@@ -22,8 +22,6 @@ typedef void * (initfunc) (void);
 
 #include "inspircd_config.h"
 
-extern void do_log(int, const char*, ...);
-
 class DLLManager
 {
  public:

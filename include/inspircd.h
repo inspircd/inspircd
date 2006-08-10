@@ -116,6 +116,7 @@ class InspIRCd : public classbase
 	chan_hash chanlist;
 	std::vector<userrec*> local_users;
 	DNS* Res;
+	TimerManager* Timers;
 
 	void AddServerName(const std::string &servername);
 	const char* FindServerNamePtr(const std::string &servername);

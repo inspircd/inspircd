@@ -1357,10 +1357,6 @@ class Server : public Extensible
 	 */
 	virtual bool IsNick(const std::string &nick);
 
-	/** Adds an InspTimer which will trigger at a future time
-	 */
-	virtual void AddTimer(InspTimer* T);
-
 	/** Attempts to look up a nick and return a pointer to it.
 	 * This function will return NULL if the nick does not exist.
 	 */

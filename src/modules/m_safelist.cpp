@@ -26,6 +26,8 @@ using namespace std;
 
 extern time_t TIME;
 
+extern InspIRCd* ServerInstance;
+
 class ListData : public classbase
 {
  public:
@@ -131,7 +133,7 @@ class ListTimer : public InspTimer
 		}
 
 		ListTimer* MyTimer = new ListTimer(1,Srv);
-		Srv->AddTimer(MyTimer);
+		ServerInstance->Timers->AddTimer(MyTimer);
 	}
 };
 
@@ -146,7 +148,7 @@ class ModuleSafeList : public Module
 		Srv = Me;
 
 		MyTimer = new ListTimer(1,Srv);
-		Srv->AddTimer(MyTimer);
+		ServerInstance->Timers->AddTimer(MyTimer);
 	}
  
 	virtual ~ModuleSafeList()

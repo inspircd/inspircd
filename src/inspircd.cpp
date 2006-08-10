@@ -293,6 +293,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	OpenLog(argv, argc);
 	this->stats = new serverstats();
 	this->Parser = new CommandParser();
+	this->Timers = new TimerManager();
 	Config->ClearStack();
 	Config->Read(true, NULL);
 	CheckRoot();
@@ -701,7 +702,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		{
 			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 		}
-		TickMissedTimers(TIME);
+		Timers->TickMissedTimers(TIME);
 		expire_run = true;
 		return;
 	}   
@@ -735,7 +736,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	if (process_module_sockets)
 		this->DoSocketTimeouts(TIME);
 	 
-	TickTimers(TIME);
+	Timers->TickTimers(TIME);
 	 
 	/* Call the socket engine to wait on the active
 	 * file descriptors. The socket engine has everything's

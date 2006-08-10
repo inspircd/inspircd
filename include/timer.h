@@ -54,8 +54,21 @@ class InspTimer : public Extensible
 	virtual void Tick(time_t TIME) = 0;
 };
 
-void TickTimers(time_t TIME);
-void AddTimer(InspTimer* T);
-void TickMissedTimers(time_t TIME);
+class TimerManager : public Extensible
+{
+ protected:
+
+	typedef std::vector<InspTimer*> timergroup;
+	typedef std::map<time_t, timergroup*> timerlist;
+
+ private:
+
+	timerlist Timers;
+
+ public:
+	void TickTimers(time_t TIME);
+	void AddTimer(InspTimer* T);
+	void TickMissedTimers(time_t TIME);
+};
 
 #endif

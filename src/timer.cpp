@@ -22,12 +22,7 @@
 #include "helperfuncs.h"
 #include "timer.h"
 
-typedef std::vector<InspTimer*> timergroup;
-typedef std::map<time_t, timergroup*> timerlist;
-
-timerlist Timers;
-
-void TickTimers(time_t TIME)
+void TimerManager::TickTimers(time_t TIME)
 {
 	timerlist::iterator found = Timers.find(TIME);
 
@@ -57,7 +52,7 @@ void TickTimers(time_t TIME)
  * If you move your clock BACK, and your timers move further ahead as a result,
  * then tough titty you'll just have to wait.
  */
-void TickMissedTimers(time_t TIME)
+void TimerManager::TickMissedTimers(time_t TIME)
 {
 	for (time_t n = TIME-1; n > TIME-120; n--)
 	{
@@ -78,7 +73,7 @@ void TickMissedTimers(time_t TIME)
 	}
 }
 
-void AddTimer(InspTimer* T)
+void TimerManager::AddTimer(InspTimer* T)
 {
 	timergroup* x = NULL;
 
@@ -96,3 +91,4 @@ void AddTimer(InspTimer* T)
 
 	x->push_back(T);
 }
+
