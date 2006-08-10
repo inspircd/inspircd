@@ -55,12 +55,12 @@ class cmd_samode : public command_t
 		 * Handles an SAMODE request. Notifies all +s users.
 	 	 */
 		std::string result;
-		Srv->Log(DEBUG,"SAMODE: Being handled");
+		log(DEBUG,"SAMODE: Being handled");
 		userrec* n = new userrec(ServerInstance);
 		n->fd = FD_MAGIC_NUMBER;
 		Srv->SendMode(parameters,pcnt,n);
 		delete n;
-		Srv->Log(DEBUG,"SAMODE: Modechange handled");
+		log(DEBUG,"SAMODE: Modechange handled");
 		result = std::string(user->nick);
 		result.append(" used SAMODE");
 	  	for (int n = 0; n < pcnt; n++)

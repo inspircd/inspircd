@@ -1309,12 +1309,6 @@ class Server : public Extensible
 
 	const std::string& GetModuleName(Module* m);
 
-	/** Writes a log string.
-	 * This method writes a line of text to the log. If the level given is lower than the
-	 * level given in the configuration, this command has no effect.
-	 */
-	void Log(int level, const std::string &s);
-
 	/** Returns true if a nick is valid.
 	 * Nicks for unregistered connections will return false.
 	 */

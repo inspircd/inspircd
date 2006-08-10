@@ -367,9 +367,6 @@ class ModuleSSLOpenSSL : public Module
 						session->inbufoffset = 0;
 					}
 				
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: Passing %d bytes up to insp:", count);
-					Srv->Log(DEBUG, std::string(buffer, readresult));
-				
 					return 1;
 				}
 				else
@@ -436,9 +433,6 @@ class ModuleSSLOpenSSL : public Module
 	
 	int DoWrite(issl_session* session)
 	{
-		log(DEBUG, "m_ssl_openssl.so: DoWrite: Trying to write %d bytes:", session->outbuf.size());
-		Srv->Log(DEBUG, session->outbuf);
-			
 		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
 		
 		if(ret == 0)

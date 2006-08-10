@@ -57,7 +57,6 @@ public:
 		{
 			modelist* list;
 			chan->GetExt(be->GetInfoKey(), list);
-			Srv->Log(DEBUG, std::string(user->nick)+" is trying to join "+std::string(chan->name)+", checking for ban exceptions");
 			
 			if(list)
 			{

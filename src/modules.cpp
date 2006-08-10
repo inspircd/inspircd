@@ -370,11 +370,6 @@ bool Server::IsValidModuleCommand(const std::string &commandname, int pcnt, user
 	return ServerInstance->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
-void Server::Log(int level, const std::string &s)
-{
-	log(level,"%s",s.c_str());
-}
-
 void Server::AddCommand(command_t *f)
 {
 	if (!ServerInstance->Parser->CreateCommand(f))

@@ -603,11 +603,11 @@ void ConnectDatabases(Server* Srv)
 		i->second->SetEnable(true);
 		if (i->second->Connect())
 		{
-			Srv->Log(DEFAULT,"SQL: Successfully connected database "+i->second->GetHost());
+			log(DEFAULT,"SQL: Successfully connected database "+i->second->GetHost());
 		}
 		else
 		{
-			Srv->Log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
+			log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
 		}
 	}
@@ -616,9 +616,9 @@ void ConnectDatabases(Server* Srv)
 
 void LoadDatabases(ConfigReader* ThisConf, Server* Srv)
 {
-	Srv->Log(DEFAULT,"SQL: Loading database settings");
+	log(DEFAULT,"SQL: Loading database settings");
 	Connections.clear();
-	Srv->Log(DEBUG,"Cleared connections");
+	log(DEBUG,"Cleared connections");
 	for (int j =0; j < ThisConf->Enumerate("database"); j++)
 	{
 		std::string db = ThisConf->ReadValue("database","name",j);
@@ -626,13 +626,13 @@ void LoadDatabases(ConfigReader* ThisConf, Server* Srv)
 		std::string pass = ThisConf->ReadValue("database","password",j);
 		std::string host = ThisConf->ReadValue("database","hostname",j);
 		std::string id = ThisConf->ReadValue("database","id",j);
-		Srv->Log(DEBUG,"Read database settings");
+		log(DEBUG,"Read database settings");
 		if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
 		{
 			SQLConnection* ThisSQL = new SQLConnection(host,user,pass,db,id);
-			Srv->Log(DEFAULT,"Loaded database: "+ThisSQL->GetHost());
+			log(DEFAULT,"Loaded database: "+ThisSQL->GetHost());
 			Connections[id] = ThisSQL;
-			Srv->Log(DEBUG,"Pushed back connection");
+			log(DEBUG,"Pushed back connection");
 		}
 	}
 	ConnectDatabases(Srv);

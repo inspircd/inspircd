@@ -47,7 +47,7 @@ class RFC1413 : public InspSocket
 
 	RFC1413(InspIRCd* SI, userrec* user, int maxtime, Server* S) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), Srv(S), u(user), ufd(user->fd)
 	{
-		Srv->Log(DEBUG,"Ident: associated.");
+		log(DEBUG,"Ident: associated.");
 	}
 
 	virtual void OnTimeout()
@@ -88,7 +88,7 @@ class RFC1413 : public InspSocket
 								if (u && (fd_ref_table[ufd] == u))
 								{
 									strlcpy(u->ident,section,IDENTMAX);
-									Srv->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
+									log(DEBUG,"IDENT SET: "+std::string(u->ident));
 									u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
 								}
 							}
@@ -145,7 +145,7 @@ class RFC1413 : public InspSocket
 			themlen = sizeof(sock_them);
 			if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
 			{
-				Srv->Log(DEBUG,"Ident: failed to get socket names, bailing");
+				log(DEBUG,"Ident: failed to get socket names, bailing");
 				return false;
 			}
 			else
@@ -157,7 +157,7 @@ class RFC1413 : public InspSocket
 				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
 #endif
 				this->Write(ident_request);
-				Srv->Log(DEBUG,"Sent ident request, waiting for reply");
+				log(DEBUG,"Sent ident request, waiting for reply");
 				return true;
 			}
 		}

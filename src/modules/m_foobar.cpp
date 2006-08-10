@@ -20,6 +20,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
 /* $ModDesc: A dummy module for testing */
 
@@ -67,7 +68,7 @@ class ModuleFoobar : public Module
 		// method called when a user connects
 	
 		std::string b = user->nick;
-		Srv->Log(DEBUG,"Foobar: User connecting: " + b);
+		log(DEBUG,"Foobar: User connecting: "+b);
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
@@ -75,7 +76,7 @@ class ModuleFoobar : public Module
 		// method called when a user disconnects
 	
 		std::string b = user->nick;
-		Srv->Log(DEBUG,"Foobar: User quitting: " + b);
+		log(DEBUG,"Foobar: User quitting: "+b);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
@@ -84,7 +85,7 @@ class ModuleFoobar : public Module
 	
 		std::string c = channel->name;
 		std::string b = user->nick;
-		Srv->Log(DEBUG,"Foobar: User " + b + " joined " + c);
+		log(DEBUG,"Foobar: User "+b+" joined "+c);
 	}
 
 	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
@@ -93,7 +94,7 @@ class ModuleFoobar : public Module
 	
 		std::string c = channel->name;
 		std::string b = user->nick;
-		Srv->Log(DEBUG,"Foobar: User " + b + " parted " + c);
+		log(DEBUG,"Foobar: User "+b+" parted "+c);
 	}
 
 };

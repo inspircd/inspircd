@@ -369,9 +369,6 @@ class ModuleSSLGnuTLS : public Module
 					// As above
 					readresult = length;
 				}
-			
-				log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Passing %d bytes up to insp:", length);
-				Srv->Log(DEBUG, std::string(buffer, readresult));
 			}
 		}
 		else if(session->status == ISSL_CLOSING)
@@ -421,10 +418,7 @@ class ModuleSSLGnuTLS : public Module
 		count = session->outbuf.size();
 
 		if(session->status == ISSL_HANDSHAKEN)
-		{
-			log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Trying to write %d bytes:", count);
-			Srv->Log(DEBUG, session->outbuf);
-			
+		{	
 			int ret = gnutls_record_send(session->sess, sendbuffer, count);
 		
 			if(ret == 0)

@@ -281,7 +281,7 @@ class ModuleSQLLog : public Module
 		DELETE(Conf);
 		SQLModule = Srv->FindFeature("SQL");
 		if (!SQLModule)
-			Srv->Log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
+			log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
 		return (SQLModule);
 	}
 

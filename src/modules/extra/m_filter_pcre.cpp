@@ -71,7 +71,7 @@ class ModuleFilterPCRE : public Module
 			FilterPCREException e;
 			throw(e);
 		}
-		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
+		log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
 
 		filters.clear();
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
@@ -172,7 +172,7 @@ class ModuleFilterPCRE : public Module
 			// bail if the user forgot to create a config file
 			throw(e);
 		}
-		Srv->Log(DEFAULT,std::string("m_filter_pcre: read configuration from ")+filterfile);
+		log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
 
 		filters.clear();
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)

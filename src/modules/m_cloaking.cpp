@@ -348,7 +348,7 @@ class CloakUser : public ModeHandler
 						// else, they have an ip
 						b = std::string(ra) + "." + prefix + ".cloak";
 					}
-					Srv->Log(DEBUG,"cloak: allocated "+b);
+					log(DEBUG,"cloak: allocated "+b);
 					dest->ChangeDisplayedHost(b.c_str());
 				}
 				

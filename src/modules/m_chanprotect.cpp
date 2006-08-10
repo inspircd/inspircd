@@ -323,7 +323,7 @@ class ModuleChanProtect : public Module
 				user->WriteServ("MODE %s +q %s",channel->name,user->nick);
 				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
 				{
-					Srv->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
+					log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
 				}
 			}
 		}

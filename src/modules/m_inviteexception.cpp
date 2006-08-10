@@ -56,7 +56,6 @@ public:
 		{
 			modelist* list;
 			chan->GetExt(ie->GetInfoKey(), list);
-			Srv->Log(DEBUG, std::string(user->nick)+" is trying to join "+std::string(chan->name)+", checking for invite exceptions");
 			if (list)
 			{
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
