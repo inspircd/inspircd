@@ -54,20 +54,39 @@ class InspTimer : public Extensible
 	virtual void Tick(time_t TIME) = 0;
 };
 
+
+/** This class manages sets of InspTimers, and triggers them at their defined times.
+ * This will ensure timers are not missed, as well as removing timers that have
+ * expired and allowing the addition of new ones.
+ */
 class TimerManager : public Extensible
 {
  protected:
-
+	/** A group of timers all set to trigger at the same time
+	 */
 	typedef std::vector<InspTimer*> timergroup;
+	/** A map of timergroups, each group has a specific trigger time
+	 */
 	typedef std::map<time_t, timergroup*> timerlist;
 
  private:
 
+	/** The current timer set, a map of timergroups
+	 */
 	timerlist Timers;
 
  public:
+	/** Tick all pending InspTimers
+	 * @param TIME the current system time
+	 */
 	void TickTimers(time_t TIME);
+	/** Add an InspTimer
+	 * @param T an InspTimer derived class to add
+	 */
 	void AddTimer(InspTimer* T);
+	/** Tick any timers that have been missed due to lag
+	 * @param TIME the current system time
+	 */
 	void TickMissedTimers(time_t TIME);
 };
 
