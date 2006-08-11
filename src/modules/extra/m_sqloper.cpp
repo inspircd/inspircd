@@ -28,19 +28,17 @@
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
-extern InspIRCd* ServerInstance;
-
 class ModuleSQLOper : public Module
 {
-	Server* Srv;
+	InspIRCd* Srv;
 	Module* SQLutils;
 	std::string databaseid;
 
 public:
 	ModuleSQLOper(InspIRCd* Me)
-		: Module::Module(Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		SQLutils = ServerInstance->FindFeature("SQLutils");
+		SQLutils = Srv->FindFeature("SQLutils");
 		
 		if (SQLutils)
 		{
@@ -57,7 +55,7 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(Srv);
 		
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
 	}
@@ -87,7 +85,7 @@ public:
 	{
 		Module* target;
 		
-		target = ServerInstance->FindFeature("SQL");
+		target = Srv->FindFeature("SQL");
 		
 		if (target)
 		{
@@ -176,7 +174,7 @@ public:
 						 */
 						
 						user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-						ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
+						Srv->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
 						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 					}
 				}
@@ -189,7 +187,7 @@ public:
 					log(DEBUG, "Query failed: %s", res->error.Str());
 
 					user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-					ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					Srv->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 				}
 			}
@@ -208,7 +206,7 @@ public:
 
 	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(Srv);
 		
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{
@@ -229,7 +227,7 @@ public:
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
 								
-				ServerInstance->WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
+				Srv->WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
 				if (!user->modes[UM_OPERATOR])
