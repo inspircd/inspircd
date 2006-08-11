@@ -24,8 +24,6 @@ using namespace std;
 
 using irc::sockets::MatchCIDR;
 
-extern char lowermap[255];
-
 // Wed 27 Apr 2005 - Brain
 // I've taken our our old wildcard routine -
 // although comprehensive, it was topheavy and very
@@ -41,6 +39,7 @@ bool match(const char *str, const char *mask)
 	unsigned char *cp, *mp;
 	unsigned char* string = (unsigned char*)str;
 	unsigned char* wild = (unsigned char*)mask;
+	extern char lowermap[255];
 
 	while ((*string) && (*wild != '*'))
 	{

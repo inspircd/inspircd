@@ -192,20 +192,6 @@ std::string InspIRCd::GetRevision()
 	return REVISION;
 }
 
-void InspIRCd::MakeLowerMap()
-{
-	// initialize the lowercase mapping table
-	for (unsigned int cn = 0; cn < 256; cn++)
-		lowermap[cn] = cn;
-	// lowercase the uppercase chars
-	for (unsigned int cn = 65; cn < 91; cn++)
-		lowermap[cn] = tolower(cn);
-	// now replace the specific chars for scandanavian comparison
-	lowermap[(unsigned)'['] = '{';
-	lowermap[(unsigned)']'] = '}';
-	lowermap[(unsigned)'\\'] = '|';
-}
-
 InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 {
 	bool SEGVHandler = false;

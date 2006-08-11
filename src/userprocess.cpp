@@ -51,8 +51,8 @@ using namespace std;
 #include "command_parse.h"
 #include "cull_list.h"
 
-extern struct sockaddr_in client,server;
-extern socklen_t length;
+//extern struct sockaddr_in client,server;
+//extern socklen_t length;
 
 char data[65536];
 

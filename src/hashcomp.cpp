@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -25,8 +25,7 @@ using namespace std;
 
 #define nspace __gnu_cxx
 
-// from helperfuncs.cpp
-extern const char lowermap[255];
+char lowermap[255];
 
 /******************************************************
  *
@@ -71,11 +70,11 @@ using namespace irc::sockets;
  */
 void nspace::strlower(char *n)
 {
-        if (n)
-        {
-                for (char* t = n; *t; t++)
-                        *t = lowermap[(unsigned char)*t];
-        }
+	if (n)
+	{
+		for (char* t = n; *t; t++)
+			*t = lowermap[(unsigned char)*t];
+	}
 }
 
 size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
@@ -283,3 +282,18 @@ const std::string irc::commasepstream::GetToken()
 irc::commasepstream::~commasepstream()
 {
 }
+
+void InspIRCd::MakeLowerMap()
+{       
+	// initialize the lowercase mapping table
+	for (unsigned char cn = 0; cn < 255; cn++)
+		lowermap[cn] = cn;
+	// lowercase the uppercase chars
+	for (unsigned char cn = 65; cn < 91; cn++)
+		lowermap[cn] = tolower(cn);
+	// now replace the specific chars for scandanavian comparison
+	lowermap[(unsigned char)'['] = '{';
+	lowermap[(unsigned char)']'] = '}';
+	lowermap[(unsigned char)'\\'] = '|';
+}
+

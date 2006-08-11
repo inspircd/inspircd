@@ -21,14 +21,11 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whowas.h"
 
-
-extern irc::whowas::whowas_users whowas;
-
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
-	irc::whowas::whowas_users::iterator i = whowas.find(parameters[0]);
+	irc::whowas::whowas_users::iterator i = ServerInstance->whowas.find(parameters[0]);
 
-	if (i == whowas.end())
+	if (i == ServerInstance->whowas.end())
 	{
 		user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
 	}
