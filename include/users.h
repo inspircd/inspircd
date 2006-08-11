@@ -632,30 +632,65 @@ class userrec : public connection
 	 */
 	void WriteCommonExcept(const std::string &text);
 
+	/** Write a WALLOPS message from this user to all local opers.
+	 * If this user is not opered, the function will return without doing anything.
+	 */
 	void WriteWallOps(const char* text, ...);
 
+	/** Write a WALLOPS message from this user to all local opers.
+	 * If this user is not opered, the function will return without doing anything.
+	 */
 	void WriteWallOps(const std::string &text);
 
+	/** Return true if the user shares at least one channel with another user
+	 */
 	bool SharesChannelWith(userrec *other);
 
+	/** Change the displayed host of a user.
+	 * ALWAYS use this function, rather than writing userrec::dhost directly,
+	 * as this triggers module events allowing the change to be syncronized to
+	 * remote servers.
+	 */
 	bool ChangeDisplayedHost(const char* host);
 
+	/** Change a users realname field.
+	 * ALWAYS use this function, rather than writing userrec::fullname directly,
+	 * as this triggers module events allowing the change to be syncronized to
+	 * remote servers.
+	 */
 	bool ChangeName(const char* gecos);
 
+	/** Return the total number of channels this user is on.
+	 */
 	int CountChannels();
 
+	/** Send a notice to all local users from this user
+	 */
 	void NoticeAll(char* text, ...);
 
+	/** Compile a channel list for this user, and send it to the user 'source'
+	 */
 	std::string ChannelList(userrec* source);
 
+	/** Split the channel list in cl which came from dest, and spool it to this user
+	 */
 	void SplitChanList(userrec* dest, const std::string &cl);
 
+	/** Remove this user from all channels they are on, and delete any that are now empty.
+	 * This is used by QUIT, and will not send part messages!
+	 */
 	void PurgeEmptyChannels();
 
+	/** Get the connect class which matches this user's host or IP address
+	 */
 	ConnectClass& GetClass();
 
+	/** Show the message of the day to this user
+	 */
 	void ShowMOTD();
 
+	/** Show the server RULES file to this user
+	 */
 	void ShowRULES();
 
 	/** Default destructor
