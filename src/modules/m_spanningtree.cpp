@@ -97,8 +97,6 @@ class TreeSocket;
  */
 TreeServer *TreeRoot;
 
-
-
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
@@ -119,18 +117,6 @@ void ReadConfiguration(bool rebind);
 bool FlatLinks;
 /* Hide U-Lined servers in /MAP and /LINKS */
 bool HideULines;
-
-/* Imported from xline.cpp for use during netburst */
-extern std::vector<KLine> klines;
-extern std::vector<GLine> glines;
-extern std::vector<ZLine> zlines;
-extern std::vector<QLine> qlines;
-extern std::vector<ELine> elines;
-extern std::vector<KLine> pklines;
-extern std::vector<GLine> pglines;
-extern std::vector<ZLine> pzlines;
-extern std::vector<QLine> pqlines;
-extern std::vector<ELine> pelines;
 
 std::vector<std::string> ValidIPs;
 
@@ -1694,42 +1680,42 @@ class TreeSocket : public InspSocket
 		const char* sn = n.c_str();
 		int iterations = 0;
 		/* Yes, these arent too nice looking, but they get the job done */
-		for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++, iterations++)
+		for (std::vector<ZLine>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++, iterations++)
+		for (std::vector<QLine>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++, iterations++)
+		for (std::vector<GLine>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++, iterations++)
+		for (std::vector<ELine>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<ZLine>::iterator i = pzlines.begin(); i != pzlines.end(); i++, iterations++)
+		for (std::vector<ZLine>::iterator i = Instance->XLines->pzlines.begin(); i != Instance->XLines->pzlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,i->ipaddr,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<QLine>::iterator i = pqlines.begin(); i != pqlines.end(); i++, iterations++)
+		for (std::vector<QLine>::iterator i = Instance->XLines->pqlines.begin(); i != Instance->XLines->pqlines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,i->nick,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++, iterations++)
+		for (std::vector<GLine>::iterator i = Instance->XLines->pglines.begin(); i != Instance->XLines->pglines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
 		}
-		for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++, iterations++)
+		for (std::vector<ELine>::iterator i = Instance->XLines->pelines.begin(); i != Instance->XLines->pelines.end(); i++, iterations++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,i->hostmask,i->source,(unsigned long)i->set_time,(unsigned long)i->duration,i->reason);
 			this->WriteLine(data);
