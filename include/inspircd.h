@@ -134,7 +134,7 @@ class InspIRCd : public classbase
 
  public:
 	time_t startup_time;
-	ModeParser* ModeGrok;
+	ModeParser* Modes;
 	CommandParser* Parser;
 	SocketEngine* SE;
 	serverstats* stats;
@@ -197,13 +197,13 @@ class InspIRCd : public classbase
 	static void Rehash(int status);
 	static void Exit(int status);
 
-	int usercnt();
-	int registered_usercount();
-	int usercount_invisible();
-	int usercount_opers();
-	int usercount_unknown();
-	long chancount();
-	long local_count();
+	int UserCount();
+	int RegisteredUserCount();
+	int InvisibleUserCount();
+	int OperCount();
+	int UnregisteredUserCount();
+	long ChannelCount();
+	long LocalUserCount();
 
 	void SendError(const char *s);
 
@@ -323,12 +323,12 @@ class InspIRCd : public classbase
 
         void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 
-	bool nick_matches_everyone(const std::string &nick, userrec* user);
-	bool ip_matches_everyone(const std::string &ip, userrec* user);
-	bool host_matches_everyone(const std::string &mask, userrec* user);
-	long duration(const char* str);
-	int operstrcmp(const char* data,const char* input);
-	bool is_uline(const char* server);
+	bool NickMatchesEveryone(const std::string &nick, userrec* user);
+	bool IPMatchesEveryone(const std::string &ip, userrec* user);
+	bool HostMatchesEveryone(const std::string &mask, userrec* user);
+	long Duration(const char* str);
+	int OperPassCompare(const char* data,const char* input);
+	bool ULine(const char* server);
 
 	std::string GetRevision();
 	std::string GetVersionString();

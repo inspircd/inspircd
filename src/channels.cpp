@@ -558,14 +558,14 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 			src->WriteServ("441 %s %s %s :They are not on that channel",src->nick, user->nick, this->name);
 			return this->GetUserCounter();
 		}
-		if ((ServerInstance->is_uline(user->server)) && (!ServerInstance->is_uline(src->server)))
+		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
 		{
 			src->WriteServ("482 %s %s :Only a u-line may kick a u-line from a channel.",src->nick, this->name);
 			return this->GetUserCounter();
 		}
 		int MOD_RESULT = 0;
 
-		if (!ServerInstance->is_uline(src->server))
+		if (!ServerInstance->ULine(src->server))
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT(I_OnUserPreKick,OnUserPreKick(src,user,this,reason));
@@ -576,10 +576,10 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 		if (MOD_RESULT != -1)
 		{
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(src,user,this,AC_KICK));
-			if ((MOD_RESULT == ACR_DENY) && (!ServerInstance->is_uline(src->server)))
+			if ((MOD_RESULT == ACR_DENY) && (!ServerInstance->ULine(src->server)))
 				return this->GetUserCounter();
 	
-			if ((MOD_RESULT == ACR_DEFAULT) || (!ServerInstance->is_uline(src->server)))
+			if ((MOD_RESULT == ACR_DEFAULT) || (!ServerInstance->ULine(src->server)))
 			{
 				int them = this->GetStatus(src);
 				int us = this->GetStatus(user);
@@ -919,7 +919,7 @@ int chanrec::GetStatusFlags(userrec *user)
 
 int chanrec::GetStatus(userrec *user)
 {
-	if (ServerInstance->is_uline(user->server))
+	if (ServerInstance->ULine(user->server))
 		return STATUS_OP;
 
 	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)

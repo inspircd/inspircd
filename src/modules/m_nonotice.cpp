@@ -81,7 +81,7 @@ class ModuleNoNotice : public Module
 			chanrec* c = (chanrec*)dest;
 			if (c->IsModeSet('T'))
 			{
-				if ((ServerInstance->is_uline(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
+				if ((ServerInstance->ULine(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
 				{
 					// ops and halfops can still /NOTICE the channel
 					return 0;
@@ -98,7 +98,7 @@ class ModuleNoNotice : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"T",4);
+		ServerInstance->Modes->InsertMode(output,"T",4);
 	}
 
 	virtual ~ModuleNoNotice()

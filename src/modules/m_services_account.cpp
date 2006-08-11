@@ -133,7 +133,7 @@ class ModuleServicesAccount : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output, "RM", 4);
+		ServerInstance->Modes->InsertMode(output, "RM", 4);
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
@@ -165,7 +165,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -182,7 +182,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((u->modes['R'-65]) && (!account))
 			{
-				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -212,7 +212,7 @@ class ModuleServicesAccount : public Module
 			{
 				if (!account)
 				{
-					if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
+					if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;

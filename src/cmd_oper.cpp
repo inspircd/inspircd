@@ -73,7 +73,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
-		if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->operstrcmp(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
+		if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
 		{
 			fail2 = true;
 			for (j =0; j < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "type"); j++)

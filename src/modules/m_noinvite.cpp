@@ -76,7 +76,7 @@ class ModuleNoInvite : public Module
 
 		virtual void On005Numeric(std::string &output)
 		{
-			ServerInstance->ModeGrok->InsertMode(output,"V",4);
+			ServerInstance->Modes->InsertMode(output,"V",4);
 		}
 
 

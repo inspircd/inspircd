@@ -139,7 +139,7 @@ class ModuleCensor : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"G",4);
+		ServerInstance->Modes->InsertMode(output,"G",4);
 	}
  
 	virtual ~ModuleCensor()

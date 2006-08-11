@@ -120,7 +120,7 @@ class ModuleStripColor : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"S",4);
+		ServerInstance->Modes->InsertMode(output,"S",4);
 	}
  	
 	virtual ~ModuleStripColor()

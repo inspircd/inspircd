@@ -191,7 +191,7 @@ std::string InspIRCd::GetRevision()
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), ModCount(-1)
+	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
 	bool SEGVHandler = false;
 	ServerInstance = this;
@@ -274,7 +274,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->ClearStack();
 	Config->Read(true, NULL);
 	this->CheckRoot();
-	this->ModeGrok = new ModeParser(this);
+	this->Modes = new ModeParser(this);
 	this->AddServerName(Config->ServerName);	
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);

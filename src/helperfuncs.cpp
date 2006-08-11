@@ -320,13 +320,13 @@ void InspIRCd::SendError(const char *s)
 }
 
 // this function counts all users connected, wether they are registered or NOT.
-int InspIRCd::usercnt()
+int InspIRCd::UserCount()
 {
 	return clientlist.size();
 }
 
 // this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
-int InspIRCd::registered_usercount()
+int InspIRCd::RegisteredUserCount()
 {
 	int c = 0;
 
@@ -338,7 +338,7 @@ int InspIRCd::registered_usercount()
 	return c;
 }
 
-int InspIRCd::usercount_invisible()
+int InspIRCd::InvisibleUserCount()
 {
 	int c = 0;
 
@@ -350,7 +350,7 @@ int InspIRCd::usercount_invisible()
 	return c;
 }
 
-int InspIRCd::usercount_opers()
+int InspIRCd::OperCount()
 {
 	int c = 0;
 
@@ -362,7 +362,7 @@ int InspIRCd::usercount_opers()
 	return c;
 }
 
-int InspIRCd::usercount_unknown()
+int InspIRCd::UnregisteredUserCount()
 {
 	int c = 0;
 
@@ -376,12 +376,12 @@ int InspIRCd::usercount_unknown()
 	return c;
 }
 
-long InspIRCd::chancount()
+long InspIRCd::ChannelCount()
 {
 	return chanlist.size();
 }
 
-long InspIRCd::local_count()
+long InspIRCd::LocalUserCount()
 {
 	int c = 0;
 

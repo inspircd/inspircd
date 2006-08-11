@@ -1007,7 +1007,7 @@ class TreeSocket : public InspSocket
 							/* We only care about whats being set,
 							 * not whats being unset
 							 */
-							mh = this->Instance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+							mh = this->Instance->Modes->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
 
 							if ((mh) && (mh->GetNumParams(adding) > 0) && (!mh->IsListMode()))
 							{
@@ -1072,7 +1072,7 @@ class TreeSocket : public InspSocket
 							}
 							else
 							{
-								mh = this->Instance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+								mh = this->Instance->Modes->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
 
 								if (mh)
 								{
@@ -1097,7 +1097,7 @@ class TreeSocket : public InspSocket
 						}
 						else
 						{
-							mh = this->Instance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+							mh = this->Instance->Modes->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
 
 							if (mh)
 							{
@@ -1159,7 +1159,7 @@ class TreeSocket : public InspSocket
 		}
 		else
 		/* U-lined servers always win regardless of their TS */
-		if ((TS > ourTS) && (!this->Instance->is_uline(source.c_str())))
+		if ((TS > ourTS) && (!this->Instance->ULine(source.c_str())))
 		{
 			/* Bounce the mode back to its sender.* We use our lower TS, so the other end
 			 * SHOULD accept it, if its clock is right.
@@ -1204,7 +1204,7 @@ class TreeSocket : public InspSocket
 					break;
 					default:
 						/* Find the mode handler for this mode */
-						mh = this->Instance->ModeGrok->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
+						mh = this->Instance->Modes->FindMode(*x, chan ? MODETYPE_CHANNEL : MODETYPE_USER);
 
 						/* Got a mode handler?
 						 * This also prevents us bouncing modes we have no handler for.
@@ -1272,7 +1272,7 @@ class TreeSocket : public InspSocket
 			/* The server was ulined, but something iffy is up with the TS.
 			 * Sound the alarm bells!
 			 */
-			if ((this->Instance->is_uline(sourceserv.c_str())) && (TS > ourTS))
+			if ((this->Instance->ULine(sourceserv.c_str())) && (TS > ourTS))
 			{
 				this->Instance->WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
 			}
@@ -1416,7 +1416,7 @@ class TreeSocket : public InspSocket
 						/* theres a mode for this user. push them onto the mode queue, and flush it
 						 * if there are more than MAXMODES to go.
 						 */
-						if ((ourTS >= TS) || (this->Instance->is_uline(who->server)))
+						if ((ourTS >= TS) || (this->Instance->ULine(who->server)))
 						{
 							/* We also always let u-lined clients win, no matter what the TS value */
 							ServerInstance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
@@ -3427,7 +3427,7 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (ServerInstance->is_uline(Current->GetChild(q)->GetName().c_str())))
+			if ((HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
 			{
 				if (*user->oper)
 				{
@@ -3440,7 +3440,7 @@ class ModuleSpanningTree : public Module
 			}
 		}
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-		if ((HideULines) && (ServerInstance->is_uline(Current->GetName().c_str())) && (!*user->oper))
+		if ((HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!*user->oper))
 			return;
 		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
@@ -3464,23 +3464,23 @@ class ModuleSpanningTree : public Module
 
 	void HandleLusers(const char** parameters, int pcnt, userrec* user)
 	{
-		unsigned int n_users = ServerInstance->usercnt();
+		unsigned int n_users = ServerInstance->UserCount();
 
 		/* Only update these when someone wants to see them, more efficient */
-		if ((unsigned int)ServerInstance->local_count() > max_local)
-			max_local = ServerInstance->local_count();
+		if ((unsigned int)ServerInstance->LocalUserCount() > max_local)
+			max_local = ServerInstance->LocalUserCount();
 		if (n_users > max_global)
 			max_global = n_users;
 
-		user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-ServerInstance->usercount_invisible(),ServerInstance->usercount_invisible(),this->CountServs());
-		if (ServerInstance->usercount_opers())
-			user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->usercount_opers());
-		if (ServerInstance->usercount_unknown())
-			user->WriteServ("253 %s %d :unknown connections",user->nick,ServerInstance->usercount_unknown());
-		if (ServerInstance->chancount())
-			user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->chancount());
-		user->WriteServ("254 %s :I have %d clients and %d servers",user->nick,ServerInstance->local_count(),this->CountLocalServs());
-		user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->local_count(),max_local);
+		user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-ServerInstance->InvisibleUserCount(),ServerInstance->InvisibleUserCount(),this->CountServs());
+		if (ServerInstance->OperCount())
+			user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->OperCount());
+		if (ServerInstance->UnregisteredUserCount())
+			user->WriteServ("253 %s %d :unknown connections",user->nick,ServerInstance->UnregisteredUserCount());
+		if (ServerInstance->ChannelCount())
+			user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->ChannelCount());
+		user->WriteServ("254 %s :I have %d clients and %d servers",user->nick,ServerInstance->LocalUserCount(),this->CountLocalServs());
+		user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->LocalUserCount(),max_local);
 		user->WriteServ("266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
 		return;
 	}
@@ -3526,7 +3526,7 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				if ((HideULines) && (ServerInstance->is_uline(Current->GetChild(q)->GetName().c_str())))
+				if ((HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
 				{
 					if (*user->oper)
 					{

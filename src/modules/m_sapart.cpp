@@ -44,7 +44,7 @@ class cmd_sapart : public command_t
 		chanrec* channel = ServerInstance->FindChan(parameters[1]);
 		if (dest && channel)
 		{
-			if (ServerInstance->is_uline(dest->server))
+			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;

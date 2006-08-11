@@ -76,7 +76,7 @@ class ModuleSSLModes : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output, "z", 4);
+		ServerInstance->Modes->InsertMode(output, "z", 4);
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)

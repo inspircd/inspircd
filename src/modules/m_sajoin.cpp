@@ -43,7 +43,7 @@ class cmd_sajoin : public command_t
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
-			if (ServerInstance->is_uline(dest->server))
+			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;

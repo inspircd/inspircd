@@ -41,7 +41,7 @@ class Channel_r : public ModeHandler
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
 			ServerInstance->Log(DEBUG,"Allowing cmode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			channel->SetMode('r',adding);
@@ -64,7 +64,7 @@ class User_r : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		if ((kludgeme) || (ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
+		if ((kludgeme) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
 			ServerInstance->Log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			dest->SetMode('r',adding);
@@ -191,7 +191,7 @@ class ModuleServices : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output, "rRM", 4);
+		ServerInstance->Modes->InsertMode(output, "rRM", 4);
 	}
 
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
@@ -230,7 +230,7 @@ class ModuleServices : public Module
 			chanrec* c = (chanrec*)dest;
 			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
-				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -245,7 +245,7 @@ class ModuleServices : public Module
 			userrec* u = (userrec*)dest;
 			if ((u->IsModeSet('R')) && (user->IsModeSet('r')))
 			{
-				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -271,7 +271,7 @@ class ModuleServices : public Module
 			{
 				if (user->IsModeSet('r'))
 				{
-					if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
+					if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;

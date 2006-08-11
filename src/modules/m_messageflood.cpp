@@ -265,7 +265,7 @@ class ModuleMsgFlood : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output, "f", 3);
+		ServerInstance->Modes->InsertMode(output, "f", 3);
 	}
 
 	virtual ~ModuleMsgFlood()

@@ -74,7 +74,7 @@ public:
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output, "P", 4);
+		ServerInstance->Modes->InsertMode(output, "P", 4);
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)

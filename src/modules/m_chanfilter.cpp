@@ -86,7 +86,7 @@ class ModuleChanFilter : public Module
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"g",1);
+		ServerInstance->Modes->InsertMode(output,"g",1);
 	}
 
 	virtual void OnChannelDelete(chanrec* chan)

@@ -58,7 +58,7 @@ ModeAction ModeChannelVoice::OnModeChange(userrec* source, userrec* dest, chanre
 
 std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *chan,int status)
 {
-	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -71,7 +71,7 @@ std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *c
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!ServerInstance->is_uline(user->server)))
+				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, chan->name);
 					return "";
@@ -79,14 +79,14 @@ std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *c
 			}
 		}
 
-		return ServerInstance->ModeGrok->Grant(d,chan,UCMODE_VOICE);
+		return ServerInstance->Modes->Grant(d,chan,UCMODE_VOICE);
 	}
 	return "";
 }
 
 std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *chan,int status)
 {
-	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -99,7 +99,7 @@ std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *c
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!ServerInstance->is_uline(user->server)))
+				if ((status < STATUS_HOP) && (!ServerInstance->ULine(user->server)))
 				{
 					user->WriteServ("482 %s %s :You are not a channel (half)operator",user->nick, chan->name);
 					return "";
@@ -107,7 +107,7 @@ std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *c
 			}
 		}
 
-		return ServerInstance->ModeGrok->Revoke(d,chan,UCMODE_VOICE);
+		return ServerInstance->Modes->Revoke(d,chan,UCMODE_VOICE);
 	}
 	return "";
 }

@@ -48,7 +48,7 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" INVEX=I");
-		ServerInstance->ModeGrok->InsertMode(output, "I", 1);
+		ServerInstance->Modes->InsertMode(output, "I", 1);
 	}
 	 
 	virtual int OnCheckInvite(userrec* user, chanrec* chan)

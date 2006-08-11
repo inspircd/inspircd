@@ -30,19 +30,19 @@ void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		if (ServerInstance->host_matches_everyone(parameters[0],user))
+		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
 			return;
 
-		ServerInstance->XLines->add_gline(ServerInstance->duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD(I_OnAddGLine,OnAddGLine(ServerInstance->duration(parameters[1]), user, parameters[2], parameters[0]));
+		ServerInstance->XLines->add_gline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD(I_OnAddGLine,OnAddGLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 
-		if (!ServerInstance->duration(parameters[1]))
+		if (!ServerInstance->Duration(parameters[1]))
 		{
 			ServerInstance->WriteOpers("*** %s added permanent G-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->duration(parameters[1]));
+			ServerInstance->WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 
 		ServerInstance->XLines->apply_lines(APPLY_GLINES);

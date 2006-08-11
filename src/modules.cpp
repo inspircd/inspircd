@@ -359,7 +359,7 @@ void InspIRCd::AddCommand(command_t *f)
 
 void InspIRCd::SendMode(const char** parameters, int pcnt, userrec *user)
 {
-	this->ModeGrok->Process(parameters,pcnt,user,true);
+	this->Modes->Process(parameters,pcnt,user,true);
 }
 
 void InspIRCd::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
@@ -385,17 +385,17 @@ userrec* InspIRCd::FindDescriptor(int socket)
 
 bool InspIRCd::AddMode(ModeHandler* mh, const unsigned char mode)
 {
-	return this->ModeGrok->AddMode(mh,mode);
+	return this->Modes->AddMode(mh,mode);
 }
 
 bool InspIRCd::AddModeWatcher(ModeWatcher* mw)
 {
-	return this->ModeGrok->AddModeWatcher(mw);
+	return this->Modes->AddModeWatcher(mw);
 }
 
 bool InspIRCd::DelModeWatcher(ModeWatcher* mw)
 {
-	return this->ModeGrok->DelModeWatcher(mw);
+	return this->Modes->DelModeWatcher(mw);
 }
 
 bool InspIRCd::AddResolver(Resolver* r)

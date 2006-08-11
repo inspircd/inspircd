@@ -50,7 +50,7 @@
 #include "command_parse.h"
 
 /* XXX - these really belong in helperfuncs perhaps -- w00t */
-bool InspIRCd::is_uline(const char* server)
+bool InspIRCd::ULine(const char* server)
 {
 	if (!server)
 		return false;
@@ -60,11 +60,11 @@ bool InspIRCd::is_uline(const char* server)
 	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
 }
 
-int InspIRCd::operstrcmp(const char* data,const char* input)
+int InspIRCd::OperPassCompare(const char* data,const char* input)
 {
 	int MOD_RESULT = 0;
 	FOREACH_RESULT_I(this,I_OnOperCompare,OnOperCompare(data,input))
-	Log(DEBUG,"operstrcmp: %d",MOD_RESULT);
+	Log(DEBUG,"OperPassCompare: %d",MOD_RESULT);
 	if (MOD_RESULT == 1)
 		return 0;
 	if (MOD_RESULT == -1)
@@ -73,7 +73,7 @@ int InspIRCd::operstrcmp(const char* data,const char* input)
 	return strcmp(data,input);
 }
 
-long InspIRCd::duration(const char* str)
+long InspIRCd::Duration(const char* str)
 {
 	char n_field[MAXBUF];
 	long total = 0;
@@ -83,7 +83,7 @@ long InspIRCd::duration(const char* str)
 	{
 		std::string n = str;
 		n += 's';
-		return duration(n.c_str());
+		return Duration(n.c_str());
 	}
 	
 	for (char* i = (char*)str; *i; i++)
@@ -134,7 +134,7 @@ long InspIRCd::duration(const char* str)
 
 /* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
 
-bool InspIRCd::host_matches_everyone(const std::string &mask, userrec* user)
+bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 {
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
@@ -163,7 +163,7 @@ bool InspIRCd::host_matches_everyone(const std::string &mask, userrec* user)
 	return false;
 }
 
-bool InspIRCd::ip_matches_everyone(const std::string &ip, userrec* user)
+bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;
@@ -189,7 +189,7 @@ bool InspIRCd::ip_matches_everyone(const std::string &ip, userrec* user)
 	return false;
 }
 
-bool InspIRCd::nick_matches_everyone(const std::string &nick, userrec* user)
+bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;

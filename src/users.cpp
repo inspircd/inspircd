@@ -1021,7 +1021,7 @@ void userrec::FullConnect(CullList* Goners)
 	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
 	this->WriteServ("002 %s :Your host is %s, running version %s",this->nick,ServerInstance->Config->ServerName,VERSION);
 	this->WriteServ("003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
-	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->ModeGrok->UserModeList().c_str(), ServerInstance->ModeGrok->ChannelModeList().c_str(), ServerInstance->ModeGrok->ParaModeList().c_str());
+	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
 	// so i'd better split it :)

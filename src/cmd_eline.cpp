@@ -30,19 +30,19 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		if (ServerInstance->host_matches_everyone(parameters[0],user))
+		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
 			return;
 
-		ServerInstance->XLines->add_eline(ServerInstance->duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD(I_OnAddELine,OnAddELine(ServerInstance->duration(parameters[1]), user, parameters[2], parameters[0]));
+		ServerInstance->XLines->add_eline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD(I_OnAddELine,OnAddELine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 
-		if (!ServerInstance->duration(parameters[1]))
+		if (!ServerInstance->Duration(parameters[1]))
 		{
 			ServerInstance->WriteOpers("*** %s added permanent E-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->duration(parameters[1]));
+			ServerInstance->WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 	}
 	else

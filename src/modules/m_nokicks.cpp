@@ -77,7 +77,7 @@ class ModuleNoKicks : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"Q",4);
+		ServerInstance->Modes->InsertMode(output,"Q",4);
 	}
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
@@ -86,7 +86,7 @@ class ModuleNoKicks : public Module
 		{
 			if (channel->IsModeSet('Q'))
 			{
-				if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server))
+				if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
 				{
 					// ulines can still kick with +Q in place
 					return ACR_ALLOW;

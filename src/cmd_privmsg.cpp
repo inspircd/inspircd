@@ -35,7 +35,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;
 
-	if ((parameters[0][0] == '$') && ((*user->oper) || (ServerInstance->is_uline(user->server))))
+	if ((parameters[0][0] == '$') && ((*user->oper) || (ServerInstance->ULine(user->server))))
 	{
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];

@@ -27,17 +27,17 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		if (ServerInstance->nick_matches_everyone(parameters[0],user))
+		if (ServerInstance->NickMatchesEveryone(parameters[0],user))
 			return;
-		ServerInstance->XLines->add_qline(ServerInstance->duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD(I_OnAddQLine,OnAddQLine(ServerInstance->duration(parameters[1]), user, parameters[2], parameters[0]));
-		if (!ServerInstance->duration(parameters[1]))
+		ServerInstance->XLines->add_qline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		FOREACH_MOD(I_OnAddQLine,OnAddQLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
+		if (!ServerInstance->Duration(parameters[1]))
 		{
 			ServerInstance->WriteOpers("*** %s added permanent Q-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->duration(parameters[1]));
+			ServerInstance->WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 		ServerInstance->XLines->apply_lines(APPLY_QLINES);
 	}

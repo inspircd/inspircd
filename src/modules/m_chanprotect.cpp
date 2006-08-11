@@ -85,7 +85,7 @@ class ChanFounder : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
+		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
 			ServerInstance->Log(DEBUG,"Allowing remote mode change in ChanFounder");
 			if (adding)
@@ -194,7 +194,7 @@ class ChanProtect : public ModeHandler
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
+		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
 			if (adding)
 			{
@@ -273,7 +273,7 @@ class ModuleChanProtect : public Module
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->ModeGrok->InsertMode(output,"qa",1);
+		ServerInstance->Modes->InsertMode(output,"qa",1);
 	}
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
@@ -343,7 +343,7 @@ class ModuleChanProtect : public Module
 		
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
-		if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server))
+		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
 		{
 			return ACR_ALLOW;
 		}

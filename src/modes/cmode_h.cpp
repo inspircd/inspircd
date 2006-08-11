@@ -67,7 +67,7 @@ ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanr
 
 std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec *chan,int status)
 {
-	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -80,7 +80,7 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server)))
+				if ((status < STATUS_OP) && (!ServerInstance->ULine(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return "";
@@ -88,14 +88,14 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 			}
 		}
 
-		return ServerInstance->ModeGrok->Grant(d,chan,UCMODE_HOP);
+		return ServerInstance->Modes->Grant(d,chan,UCMODE_HOP);
 	}
 	return "";
 }
 
 std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec *chan,int status)
 {
-	userrec *d = ServerInstance->ModeGrok->SanityChecks(user,dest,chan,status);
+	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -108,7 +108,7 @@ std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec 
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server))))
+				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->ULine(user->server))))
 				{
 					user->WriteServ("482 %s %s :You are not a channel operator",user->nick, chan->name);
 					return "";
@@ -116,7 +116,7 @@ std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec 
 			}
 		}
 
-		return ServerInstance->ModeGrok->Revoke(d,chan,UCMODE_HOP);
+		return ServerInstance->Modes->Revoke(d,chan,UCMODE_HOP);
 	}
 	return "";
 }
