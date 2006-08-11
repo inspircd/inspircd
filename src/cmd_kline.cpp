@@ -38,7 +38,7 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (host_matches_everyone(parameters[0],user))
 			return;
 
-		add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		ServerInstance->XLines->add_kline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddKLine,OnAddKLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 
 		if (!duration(parameters[1]))
@@ -50,11 +50,11 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 			ServerInstance->WriteOpers("*** %s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
 
-		apply_lines(APPLY_KLINES);
+		ServerInstance->XLines->apply_lines(APPLY_KLINES);
 	}
 	else
 	{
-		if (del_kline(parameters[0]))
+		if (ServerInstance->XLines->del_kline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelKLine,OnDelKLine(user, parameters[0]));
 			ServerInstance->WriteOpers("*** %s Removed K-line on %s.",user->nick,parameters[0]);

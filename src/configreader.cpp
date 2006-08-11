@@ -1424,4 +1424,8 @@ std::string ServerConfig::GetFullProgDir(char** argv, int argc)
 	return otherdir;
 }
 
+InspIRCd* ServerConfig::GetInstance()
+{
+	return ServerInstance;
+}
 

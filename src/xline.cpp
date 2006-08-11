@@ -38,8 +38,6 @@ using namespace std;
 #include "configreader.h"
 #include "cull_list.h"
 
-extern InspIRCd* ServerInstance;
-
 /* Version two, now with optimized expiry!
  *
  * Because the old way was horrendously slow, the new way of expiring xlines is very
@@ -58,34 +56,6 @@ extern InspIRCd* ServerInstance;
  *     -- Brain
  */
 
-/* Lists for temporary lines with an expiry time */
-
-std::vector<KLine> klines;
-std::vector<GLine> glines;
-std::vector<ZLine> zlines;
-std::vector<QLine> qlines;
-std::vector<ELine> elines;
-
-/* Seperate lists for perm XLines that isnt checked by expiry functions */
-
-std::vector<KLine> pklines;
-std::vector<GLine> pglines;
-std::vector<ZLine> pzlines;
-std::vector<QLine> pqlines;
-std::vector<ELine> pelines;
-
-
-bool GSortComparison ( const GLine one, const GLine two );
-bool ZSortComparison ( const ZLine one, const ZLine two );
-bool ESortComparison ( const ELine one, const ELine two );
-bool QSortComparison ( const QLine one, const QLine two );
-bool KSortComparison ( const KLine one, const KLine two );
-
-// Reads the default bans from the config file.
-// only a very small number of bans are defined
-// this way these days, such as qlines against 
-// services nicks, etc.
-
 bool InitXLine(ServerConfig* conf, const char* tag)
 {
 	return true;
@@ -93,7 +63,7 @@ bool InitXLine(ServerConfig* conf, const char* tag)
 
 bool DoneXLine(ServerConfig* conf, const char* tag)
 {
-	apply_lines(APPLY_ALL);
+	conf->GetInstance()->XLines->apply_lines(APPLY_ALL);
 	return true;
 }
 
@@ -102,7 +72,7 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* reason = (char*)values[0];
 	char* ipmask = (char*)values[1];
 	
-	add_zline(0,"<Config>",reason,ipmask);
+	conf->GetInstance()->XLines->add_zline(0,"<Config>",reason,ipmask);
 	log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
 	return true;
 }
@@ -112,7 +82,7 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* reason = (char*)values[0];
 	char* nick = (char*)values[1];
 	
-	add_qline(0,"<Config>",reason,nick);
+	conf->GetInstance()->XLines->add_qline(0,"<Config>",reason,nick);
 	log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
 	return true;
 }
@@ -122,7 +92,7 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];
 	
-	add_kline(0,"<Config>",reason,host);
+	conf->GetInstance()->XLines->add_kline(0,"<Config>",reason,host);
 	log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
 	return true;
 }
@@ -132,14 +102,14 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* reason = (char*)values[0];
 	char* host = (char*)values[1];
 	
-	add_eline(0,"<Config>",reason,host);
+	conf->GetInstance()->XLines->add_eline(0,"<Config>",reason,host);
 	log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
 	return true;
 }
 
 // adds a g:line
 
-bool add_gline(long duration, const char* source,const char* reason,const char* hostmask)
+bool XLineManager::add_gline(long duration, const char* source,const char* reason,const char* hostmask)
 {
 	bool ret = del_gline(hostmask);
 	
@@ -154,7 +124,7 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 	if (duration)
 	{
 		glines.push_back(item);
-		sort(glines.begin(), glines.end(),GSortComparison);
+		sort(glines.begin(), glines.end(),XLineManager::GSortComparison);
 	}
 	else
 	{
@@ -166,7 +136,7 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 
 // adds an e:line (exception to bans)
 
-bool add_eline(long duration, const char* source, const char* reason, const char* hostmask)
+bool XLineManager::add_eline(long duration, const char* source, const char* reason, const char* hostmask)
 {
 	bool ret = del_eline(hostmask);
 	ELine item;
@@ -179,7 +149,7 @@ bool add_eline(long duration, const char* source, const char* reason, const char
 	if (duration)
 	{
 		elines.push_back(item);
-		sort(elines.begin(), elines.end(),ESortComparison);
+		sort(elines.begin(), elines.end(),XLineManager::ESortComparison);
 	}
 	else
 	{
@@ -190,7 +160,7 @@ bool add_eline(long duration, const char* source, const char* reason, const char
 
 // adds a q:line
 
-bool add_qline(long duration, const char* source, const char* reason, const char* nickname)
+bool XLineManager::add_qline(long duration, const char* source, const char* reason, const char* nickname)
 {
 	bool ret = del_qline(nickname);
 	QLine item;
@@ -204,7 +174,7 @@ bool add_qline(long duration, const char* source, const char* reason, const char
 	if (duration)
 	{
 		qlines.push_back(item);
-		sort(qlines.begin(), qlines.end(),QSortComparison);
+		sort(qlines.begin(), qlines.end(),XLineManager::QSortComparison);
 	}
 	else
 	{
@@ -215,7 +185,7 @@ bool add_qline(long duration, const char* source, const char* reason, const char
 
 // adds a z:line
 
-bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
+bool XLineManager::add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
 {
 	bool ret = del_zline(ipaddr);
 	ZLine item;
@@ -235,7 +205,7 @@ bool add_zline(long duration, const char* source, const char* reason, const char
 	if (duration)
 	{
 		zlines.push_back(item);
-		sort(zlines.begin(), zlines.end(),ZSortComparison);
+		sort(zlines.begin(), zlines.end(),XLineManager::ZSortComparison);
 	}
 	else
 	{
@@ -246,7 +216,7 @@ bool add_zline(long duration, const char* source, const char* reason, const char
 
 // adds a k:line
 
-bool add_kline(long duration, const char* source, const char* reason, const char* hostmask)
+bool XLineManager::add_kline(long duration, const char* source, const char* reason, const char* hostmask)
 {
 	bool ret = del_kline(hostmask);
 	KLine item;
@@ -259,7 +229,7 @@ bool add_kline(long duration, const char* source, const char* reason, const char
 	if (duration)
 	{
 		klines.push_back(item);
-		sort(klines.begin(), klines.end(),KSortComparison);
+		sort(klines.begin(), klines.end(),XLineManager::KSortComparison);
 	}
 	else
 	{
@@ -270,7 +240,7 @@ bool add_kline(long duration, const char* source, const char* reason, const char
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool del_gline(const char* hostmask)
+bool XLineManager::del_gline(const char* hostmask)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
@@ -293,7 +263,7 @@ bool del_gline(const char* hostmask)
 
 // deletes a e:line, returns true if the line existed and was removed
 
-bool del_eline(const char* hostmask)
+bool XLineManager::del_eline(const char* hostmask)
 {
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
@@ -316,7 +286,7 @@ bool del_eline(const char* hostmask)
 
 // deletes a q:line, returns true if the line existed and was removed
 
-bool del_qline(const char* nickname)
+bool XLineManager::del_qline(const char* nickname)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -337,7 +307,7 @@ bool del_qline(const char* nickname)
 	return false;
 }
 
-bool qline_make_global(const char* nickname)
+bool XLineManager::qline_make_global(const char* nickname)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -350,7 +320,7 @@ bool qline_make_global(const char* nickname)
 	return false;
 }
 
-bool zline_make_global(const char* ipaddr)
+bool XLineManager::zline_make_global(const char* ipaddr)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -365,7 +335,7 @@ bool zline_make_global(const char* ipaddr)
 
 // deletes a z:line, returns true if the line existed and was removed
 
-bool del_zline(const char* ipaddr)
+bool XLineManager::del_zline(const char* ipaddr)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -388,7 +358,7 @@ bool del_zline(const char* ipaddr)
 
 // deletes a k:line, returns true if the line existed and was removed
 
-bool del_kline(const char* hostmask)
+bool XLineManager::del_kline(const char* hostmask)
 {
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
@@ -411,7 +381,7 @@ bool del_kline(const char* hostmask)
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
-char* matches_qline(const char* nick)
+char* XLineManager::matches_qline(const char* nick)
 {
 	if ((qlines.empty()) && (pqlines.empty()))
 		return NULL;
@@ -426,7 +396,7 @@ char* matches_qline(const char* nick)
 
 // returns a pointer to the reason if a host matches a gline, NULL if it didnt match
 
-char* matches_gline(const char* host)
+char* XLineManager::matches_gline(const char* host)
 {
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
@@ -439,7 +409,7 @@ char* matches_gline(const char* host)
 	return NULL;
 }
 
-char* matches_exception(const char* host)
+char* XLineManager::matches_exception(const char* host)
 {
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
@@ -455,7 +425,7 @@ char* matches_exception(const char* host)
 }
 
 
-void gline_set_creation_time(const char* host, time_t create_time)
+void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 {
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
@@ -476,7 +446,7 @@ void gline_set_creation_time(const char* host, time_t create_time)
 	return ;	
 }
 
-void eline_set_creation_time(const char* host, time_t create_time)
+void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 {
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
@@ -497,7 +467,7 @@ void eline_set_creation_time(const char* host, time_t create_time)
 	return;
 }
 
-void qline_set_creation_time(const char* nick, time_t create_time)
+void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
 {
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -518,7 +488,7 @@ void qline_set_creation_time(const char* nick, time_t create_time)
 	return;
 }
 
-void zline_set_creation_time(const char* ip, time_t create_time)
+void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 {
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -541,7 +511,7 @@ void zline_set_creation_time(const char* ip, time_t create_time)
 
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
-char* matches_zline(const char* ipaddr)
+char* XLineManager::matches_zline(const char* ipaddr)
 {
 	if ((zlines.empty()) && (pzlines.empty()))
 		return NULL;
@@ -556,7 +526,7 @@ char* matches_zline(const char* ipaddr)
 
 // returns a pointer to the reason if a host matches a kline, NULL if it didnt match
 
-char* matches_kline(const char* host)
+char* XLineManager::matches_kline(const char* host)
 {
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
@@ -569,34 +539,34 @@ char* matches_kline(const char* host)
 	return NULL;
 }
 
-bool GSortComparison ( const GLine one, const GLine two )
+bool XLineManager::GSortComparison ( const GLine one, const GLine two )
 {
 	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
-bool ESortComparison ( const ELine one, const ELine two )
+bool XLineManager::ESortComparison ( const ELine one, const ELine two )
 {
 	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
-bool ZSortComparison ( const ZLine one, const ZLine two )
+bool XLineManager::ZSortComparison ( const ZLine one, const ZLine two )
 {
 	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
-bool KSortComparison ( const KLine one, const KLine two )
+bool XLineManager::KSortComparison ( const KLine one, const KLine two )
 {
 	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
-bool QSortComparison ( const QLine one, const QLine two )
+bool XLineManager::QSortComparison ( const QLine one, const QLine two )
 {
 	return (one.duration + one.set_time) < (two.duration + two.set_time);
 }
 
 // removes lines that have expired
 
-void expire_lines()
+void XLineManager::expire_lines()
 {
 	time_t current = ServerInstance->Time();
 
@@ -644,7 +614,7 @@ void expire_lines()
 
 // applies lines, removing clients and changing nicks etc as applicable
 
-void apply_lines(const int What)
+void XLineManager::apply_lines(const int What)
 {
 	char reason[MAXBUF];
 	char host[MAXBUF];
@@ -703,7 +673,7 @@ void apply_lines(const int What)
 	DELETE(Goners);
 }
 
-void stats_k(userrec* user, string_list &results)
+void XLineManager::stats_k(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
@@ -712,7 +682,7 @@ void stats_k(userrec* user, string_list &results)
 		results.push_back(sn+" 216 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_g(userrec* user, string_list &results)
+void XLineManager::stats_g(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
@@ -721,7 +691,7 @@ void stats_g(userrec* user, string_list &results)
 		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_q(userrec* user, string_list &results)
+void XLineManager::stats_q(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
@@ -730,7 +700,7 @@ void stats_q(userrec* user, string_list &results)
 		results.push_back(sn+" 217 "+user->nick+" :"+i->nick+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_z(userrec* user, string_list &results)
+void XLineManager::stats_z(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
@@ -739,11 +709,15 @@ void stats_z(userrec* user, string_list &results)
 		results.push_back(sn+" 223 "+user->nick+" :"+i->ipaddr+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
-void stats_e(userrec* user, string_list &results)
+void XLineManager::stats_e(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+}
+
+XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
+{
 }

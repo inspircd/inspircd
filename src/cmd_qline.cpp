@@ -23,15 +23,13 @@
 #include "helperfuncs.h"
 #include "commands/cmd_qline.h"
 
-
-
 void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
 		if (nick_matches_everyone(parameters[0],user))
 			return;
-		add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		ServerInstance->XLines->add_qline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddQLine,OnAddQLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
@@ -41,11 +39,11 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			ServerInstance->WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
-		apply_lines(APPLY_QLINES);
+		ServerInstance->XLines->apply_lines(APPLY_QLINES);
 	}
 	else
 	{
-		if (del_qline(parameters[0]))
+		if (ServerInstance->XLines->del_qline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelQLine,OnDelQLine(user, parameters[0]));
 			ServerInstance->WriteOpers("*** %s Removed Q-line on %s.",user->nick,parameters[0]);

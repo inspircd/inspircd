@@ -894,10 +894,10 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		userrec::QuitUser(Instance, _new,"Server is full");
 		return;
 	}
-	char* e = matches_exception(ipaddr);
+	char* e = Instance->XLines->matches_exception(ipaddr);
 	if (!e)
 	{
-		char* r = matches_zline(ipaddr);
+		char* r = Instance->XLines->matches_zline(ipaddr);
 		if (r)
 		{
 			char reason[MAXBUF];
@@ -991,11 +991,11 @@ void userrec::FullConnect(CullList* Goners)
 
 	char match_against[MAXBUF];
 	snprintf(match_against,MAXBUF,"%s@%s", this->ident, this->host);
-	char* e = matches_exception(match_against);
+	char* e = ServerInstance->XLines->matches_exception(match_against);
 
 	if (!e)
 	{
-		char* r = matches_gline(match_against);
+		char* r = ServerInstance->XLines->matches_gline(match_against);
 		
 		if (r)
 		{
@@ -1005,7 +1005,7 @@ void userrec::FullConnect(CullList* Goners)
 			return;
 		}
 		
-		r = matches_kline(match_against);
+		r = ServerInstance->XLines->matches_kline(match_against);
 		
 		if (r)
 		{
@@ -1092,7 +1092,7 @@ bool userrec::ForceNickChange(const char* newnick)
 		return false;
 	}
 	
-	if (matches_qline(newnick))
+	if (ServerInstance->XLines->matches_qline(newnick))
 	{
 		ServerInstance->stats->statsCollisions++;
 		return false;

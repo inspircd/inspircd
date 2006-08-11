@@ -115,27 +115,27 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
  
 	if (statschar == 'k')
 	{
-		stats_k(user,results);
+		ServerInstance->XLines->stats_k(user,results);
 	}
 
 	if (statschar == 'g')
 	{
-		stats_g(user,results);
+		ServerInstance->XLines->stats_g(user,results);
 	}
 
 	if (statschar == 'q')
 	{
-		stats_q(user,results);
+		ServerInstance->XLines->stats_q(user,results);
 	}
 
 	if (statschar == 'Z')
 	{
-		stats_z(user,results);
+		ServerInstance->XLines->stats_z(user,results);
 	}
 
 	if (statschar == 'e')
 	{
-		stats_e(user,results);
+		ServerInstance->XLines->stats_e(user,results);
 	}
 
 	/* stats m (list number of times each command has been used, plus bytecount) */

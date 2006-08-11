@@ -472,56 +472,56 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 
 void InspIRCd::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
-	add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
-	apply_lines(APPLY_GLINES);
+	XLines->add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+	XLines->apply_lines(APPLY_GLINES);
 }
 
 void InspIRCd::AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname)
 {
-	add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
-	apply_lines(APPLY_QLINES);
+	XLines->add_qline(duration, source.c_str(), reason.c_str(), nickname.c_str());
+	XLines->apply_lines(APPLY_QLINES);
 }
 
 void InspIRCd::AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr)
 {
-	add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
-	apply_lines(APPLY_ZLINES);
+	XLines->add_zline(duration, source.c_str(), reason.c_str(), ipaddr.c_str());
+	XLines->apply_lines(APPLY_ZLINES);
 }
 
 void InspIRCd::AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
-	add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
-	apply_lines(APPLY_KLINES);
+	XLines->add_kline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+	XLines->apply_lines(APPLY_KLINES);
 }
 
 void InspIRCd::AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
-	add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
+	XLines->add_eline(duration, source.c_str(), reason.c_str(), hostmask.c_str());
 }
 
 bool InspIRCd::DelGLine(const std::string &hostmask)
 {
-	return del_gline(hostmask.c_str());
+	return XLines->del_gline(hostmask.c_str());
 }
 
 bool InspIRCd::DelQLine(const std::string &nickname)
 {
-	return del_qline(nickname.c_str());
+	return XLines->del_qline(nickname.c_str());
 }
 
 bool InspIRCd::DelZLine(const std::string &ipaddr)
 {
-	return del_zline(ipaddr.c_str());
+	return XLines->del_zline(ipaddr.c_str());
 }
 
 bool InspIRCd::DelKLine(const std::string &hostmask)
 {
-	return del_kline(hostmask.c_str());
+	return XLines->del_kline(hostmask.c_str());
 }
 
 bool InspIRCd::DelELine(const std::string &hostmask)
 {
-	return del_eline(hostmask.c_str());
+	return XLines->del_eline(hostmask.c_str());
 }
 
 long InspIRCd::CalcDuration(const std::string &delta)

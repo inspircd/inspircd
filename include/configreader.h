@@ -84,6 +84,8 @@ class ServerConfig : public Extensible
 	bool CheckOnce(char* tag, bool bail, userrec* user);
   
   public:
+
+	InspIRCd* GetInstance();
 	  
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.

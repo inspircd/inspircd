@@ -151,8 +151,8 @@ void InspIRCd::ProcessUser(userrec* cu)
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-					apply_lines(APPLY_ZLINES);
+					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					XLines->apply_lines(APPLY_ZLINES);
 				}
 
 				return;
@@ -168,8 +168,8 @@ void InspIRCd::ProcessUser(userrec* cu)
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
 					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
-					add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-					apply_lines(APPLY_ZLINES);
+					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+					XLines->apply_lines(APPLY_ZLINES);
 				}
 
 				return;
@@ -202,8 +202,8 @@ void InspIRCd::ProcessUser(userrec* cu)
 					}
 					else
 					{
-						add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-						apply_lines(APPLY_ZLINES);
+						XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+						XLines->apply_lines(APPLY_ZLINES);
 					}
 
 					return;

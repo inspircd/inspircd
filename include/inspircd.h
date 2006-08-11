@@ -77,6 +77,7 @@ class serverstats : public classbase
 	}
 };
 
+class XLineManager;
 
 class InspIRCd : public classbase
 {
@@ -132,6 +133,7 @@ class InspIRCd : public classbase
 	DNS* Res;
 	TimerManager* Timers;
 	command_table cmdlist;
+	XLineManager* XLines;
 
 	ModuleList modules;
 	FactoryList factory;

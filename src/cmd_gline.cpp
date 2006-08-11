@@ -33,7 +33,7 @@ void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (host_matches_everyone(parameters[0],user))
 			return;
 
-		add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		ServerInstance->XLines->add_gline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddGLine,OnAddGLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 
 		if (!duration(parameters[1]))
@@ -45,11 +45,11 @@ void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 			ServerInstance->WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
 
-		apply_lines(APPLY_GLINES);
+		ServerInstance->XLines->apply_lines(APPLY_GLINES);
 	}
 	else
 	{
-		if (del_gline(parameters[0]))
+		if (ServerInstance->XLines->del_gline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelGLine,OnDelGLine(user, parameters[0]));
 			ServerInstance->WriteOpers("*** %s Removed G-line on %s.",user->nick,parameters[0]);

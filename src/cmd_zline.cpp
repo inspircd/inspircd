@@ -37,7 +37,7 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		if (ip_matches_everyone(parameters[0],user))
 			return;
-		add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
+		ServerInstance->XLines->add_zline(duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!duration(parameters[1]))
 		{
@@ -47,11 +47,11 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			ServerInstance->WriteOpers("*** %s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],duration(parameters[1]));
 		}
-		apply_lines(APPLY_ZLINES);
+		ServerInstance->XLines->apply_lines(APPLY_ZLINES);
 	}
 	else
 	{
-		if (del_zline(parameters[0]))
+		if (ServerInstance->XLines->del_zline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelZLine,OnDelZLine(user, parameters[0]));
 			ServerInstance->WriteOpers("*** %s Removed Z-line on %s.",user->nick,parameters[0]);

@@ -124,6 +124,7 @@ class QLine : public XLine
 };
 
 class ServerConfig;
+class InspIRCd;
 
 bool InitXLine(ServerConfig* conf, const char* tag);
 bool DoneXLine(ServerConfig* conf, const char* tag);
@@ -133,39 +134,67 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values,
 bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
 bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
 
-bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
-bool add_qline(long duration, const char* source, const char* reason, const char* nickname);
-bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
-bool add_kline(long duration, const char* source, const char* reason, const char* hostmask);
-bool add_eline(long duration, const char* source, const char* reason, const char* hostmask);
+class XLineManager
+{
+ protected:
+	InspIRCd* ServerInstance;
 
-bool del_gline(const char* hostmask);
-bool del_qline(const char* nickname);
-bool del_zline(const char* ipaddr);
-bool del_kline(const char* hostmask);
-bool del_eline(const char* hostmask);
+	static bool XLineManager::GSortComparison ( const GLine one, const GLine two );
+	static bool XLineManager::ESortComparison ( const ELine one, const ELine two );
+	static bool XLineManager::ZSortComparison ( const ZLine one, const ZLine two );
+	static bool XLineManager::KSortComparison ( const KLine one, const KLine two );
+	static bool XLineManager::QSortComparison ( const QLine one, const QLine two );
+ public:
+	/* Lists for temporary lines with an expiry time */
+	std::vector<KLine> klines;
+	std::vector<GLine> glines;
+	std::vector<ZLine> zlines;
+	std::vector<QLine> qlines;
+	std::vector<ELine> elines;
 
-char* matches_qline(const char* nick);
-char* matches_gline(const char* host);
-char* matches_zline(const char* ipaddr);
-char* matches_kline(const char* host);
-char* matches_exception(const char* host);
+	/* Seperate lists for perm XLines that isnt checked by expiry functions */
+	std::vector<KLine> pklines;
+	std::vector<GLine> pglines;
+	std::vector<ZLine> pzlines;
+	std::vector<QLine> pqlines;
+	std::vector<ELine> pelines;
+	 
+	XLineManager(InspIRCd* Instance);
 
-void expire_lines();
-void apply_lines(const int What);
+	bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
+	bool add_qline(long duration, const char* source, const char* reason, const char* nickname);
+	bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
+	bool add_kline(long duration, const char* source, const char* reason, const char* hostmask);
+	bool add_eline(long duration, const char* source, const char* reason, const char* hostmask);
 
-void stats_k(userrec* user, string_list &results);
-void stats_g(userrec* user, string_list &results);
-void stats_q(userrec* user, string_list &results);
-void stats_z(userrec* user, string_list &results);
-void stats_e(userrec* user, string_list &results);
+	bool del_gline(const char* hostmask);
+	bool del_qline(const char* nickname);
+	bool del_zline(const char* ipaddr);
+	bool del_kline(const char* hostmask);
+	bool del_eline(const char* hostmask);
 
-void gline_set_creation_time(const char* host, time_t create_time);
-void qline_set_creation_time(const char* nick, time_t create_time);
-void zline_set_creation_time(const char* ip, time_t create_time);
-void eline_set_creation_time(const char* host, time_t create_time);
+	char* matches_qline(const char* nick);
+	char* matches_gline(const char* host);
+	char* matches_zline(const char* ipaddr);
+	char* matches_kline(const char* host);
+	char* matches_exception(const char* host);
+
+	void expire_lines();
+	void apply_lines(const int What);
+
+	void stats_k(userrec* user, string_list &results);
+	void stats_g(userrec* user, string_list &results);
+	void stats_q(userrec* user, string_list &results);
+	void stats_z(userrec* user, string_list &results);
+	void stats_e(userrec* user, string_list &results);
+
+	void gline_set_creation_time(const char* host, time_t create_time);
+	void qline_set_creation_time(const char* nick, time_t create_time);
+	void zline_set_creation_time(const char* ip, time_t create_time);
+	void eline_set_creation_time(const char* host, time_t create_time);
 	
-bool zline_make_global(const char* ipaddr);
-bool qline_make_global(const char* nickname);
+	bool zline_make_global(const char* ipaddr);
+	bool qline_make_global(const char* nickname);
+};
 
 #endif

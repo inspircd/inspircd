@@ -273,9 +273,10 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 	this->Timers = new TimerManager();
 	Config->ClearStack();
 	Config->Read(true, NULL);
-	CheckRoot();
+	this->CheckRoot();
 	this->ModeGrok = new ModeParser(this);
 	this->AddServerName(Config->ServerName);
+	this->XLines = new XLineManager(this);
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 	stats->BoundPortCount = BindPorts(true);
@@ -674,7 +675,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 */
 	if (((TIME % 5) == 0) && (!expire_run))
 	{
-		expire_lines();
+		XLines->expire_lines();
 		if (process_module_sockets)
 		{
 			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
