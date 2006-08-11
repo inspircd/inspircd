@@ -1083,7 +1083,9 @@ class Module : public Extensible
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
 	 * @param symbol the symbol provided to /STATS
 	 * @param user the user issuing the /STATS command
-	 * @param results A string_list to append results into
+	 * @param results A string_list to append results into. You should put all your results
+	 * into this string_list, rather than displaying them directly, so that your handler will
+	 * work when remote STATS queries are received.
 	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
 	virtual int OnStats(char symbol, userrec* user, string_list &results);
