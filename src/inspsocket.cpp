@@ -170,7 +170,7 @@ void InspSocket::SetQueues(int nfd)
 bool InspSocket::BindAddr()
 {
 	insp_inaddr n;
-	ConfigReader Conf;
+	ConfigReader Conf(this->Instance);
 
 	log(DEBUG,"In InspSocket::BindAddr()");
 	for (int j =0; j < Conf.Enumerate("bind"); j++)

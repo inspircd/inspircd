@@ -229,7 +229,7 @@ class ModuleMsgFlood : public Module
 						n.push_back("+b");
 						n.push_back(user->MakeWildHost());
 						Event rmode((char *)&n, NULL, "send_mode");
-						rmode.Send();
+						rmode.Send(ServerInstance);
 					}
 					dest->ServerKickUser(user, "Channel flood triggered (mode +f)", true);
 				}

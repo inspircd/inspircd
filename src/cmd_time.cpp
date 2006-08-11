@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_time.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)

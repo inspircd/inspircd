@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_join.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 {

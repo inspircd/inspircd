@@ -24,7 +24,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_kill.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {

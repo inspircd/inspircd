@@ -83,7 +83,7 @@ class ModuleRandQuote : public Module
 		: Module::Module(Me)
 	{
 		
-		conf = new ConfigReader;
+		conf = new ConfigReader(ServerInstance);
 		// Sort the Randomizer thingie..
 		srand(time(NULL));
 
@@ -99,7 +99,7 @@ class ModuleRandQuote : public Module
 			throw(e);
 		}
 
-		quotes = new FileReader(q_file);
+		quotes = new FileReader(ServerInstance, q_file);
 		if(!quotes->Exists())
 		{
 			RandquoteException e("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");

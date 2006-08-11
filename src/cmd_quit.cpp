@@ -34,7 +34,7 @@
 #include "socketengine.h"
 #include "commands/cmd_quit.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)

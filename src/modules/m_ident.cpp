@@ -181,7 +181,7 @@ class ModuleIdent : public Module
  public:
 	void ReadSettings()
 	{
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		IdentTimeout = Conf->ReadInteger("ident","timeout",0,true);
 		if (!IdentTimeout)
 			IdentTimeout = 1;

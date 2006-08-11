@@ -22,7 +22,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_links.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_links::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -41,19 +41,19 @@
 #include "command_parse.h"
 #include "commands/cmd_stats.h"
 
-extern InspIRCd* ServerInstance;
+
 
 extern time_t TIME;
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	string_list values;
-	DoStats(*parameters[0], user, values);
+	DoStats(this->ServerInstance, *parameters[0], user, values);
 	for (size_t i = 0; i < values.size(); i++)
 		user->Write(":%s", values[i].c_str());
 }
 
-void DoStats(char statschar, userrec* user, string_list &results)
+void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 

@@ -28,7 +28,7 @@
 #include "hashcomp.h"
 #include "commands/cmd_nick.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)

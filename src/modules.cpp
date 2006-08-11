@@ -45,7 +45,6 @@
 #include "dns.h"
 #include "inspircd.h"
 
-extern InspIRCd* ServerInstance;
 extern time_t TIME;
 extern command_table cmdlist;
 
@@ -116,7 +115,7 @@ Module* Event::GetSource()
 	return this->source;
 }
 
-char* Event::Send()
+char* Event::Send(InspIRCd* ServerInstance)
 {
 	FOREACH_MOD(I_OnEvent,OnEvent(this));
 	return NULL;
@@ -438,7 +437,7 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 {
 	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;
-	FOREACH_MOD(I_OnUserQuit,OnUserQuit(alive,message));
+	FOREACH_MOD_I(this,I_OnUserQuit,OnUserQuit(alive,message));
 	alive->fd = FD_MAGIC_NUMBER;
 	alive->FlushWriteBuf();
 	alive->ClearBuffer();
@@ -580,7 +579,7 @@ Module* InspIRCd::FindModule(const std::string &name)
 	return NULL;
 }
 
-ConfigReader::ConfigReader()
+ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	/* Is there any reason to load the entire config file again here?
 	 * it's needed if they specify another config file, but using the
@@ -602,10 +601,10 @@ ConfigReader::~ConfigReader()
 }
 
 
-ConfigReader::ConfigReader(const std::string &filename)
+ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
 {
 	ServerInstance->Config->ClearStack();
-	
+
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
@@ -720,7 +719,7 @@ bool ConfigReader::Verify()
 }
 
 
-FileReader::FileReader(const std::string &filename)
+FileReader::FileReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
 {
 	file_cache c;
 	ServerInstance->Config->ReadFile(c,filename.c_str());
@@ -728,7 +727,7 @@ FileReader::FileReader(const std::string &filename)
 	this->CalcSize();
 }
 
-FileReader::FileReader()
+FileReader::FileReader(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 

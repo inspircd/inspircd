@@ -374,7 +374,7 @@ class CloakUser : public ModeHandler
 	
 	void DoRehash()
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(ServerInstance);
 		key1 = key2 = key3 = key4 = 0;
 		key1 = Conf.ReadInteger("cloak","key1",0,false);
 		key2 = Conf.ReadInteger("cloak","key2",0,false);

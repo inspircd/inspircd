@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_wallops.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {

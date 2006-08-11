@@ -43,7 +43,7 @@ class ModuleOperjoin : public Module
 			: Module::Module(Me)
 		{
 			
-			conf = new ConfigReader;
+			conf = new ConfigReader(ServerInstance);
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 		}
 
@@ -55,7 +55,7 @@ class ModuleOperjoin : public Module
 		virtual void OnRehash(const std::string &parameter)
 		{
 			DELETE(conf);
-			conf = new ConfigReader;
+			conf = new ConfigReader(ServerInstance);
 		}
 
 		virtual ~ModuleOperjoin()

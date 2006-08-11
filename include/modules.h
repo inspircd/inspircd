@@ -188,9 +188,6 @@ class Version : public classbase
 class ModuleMessage : public classbase
 {
  public:
-	/** This class is pure virtual and must be inherited.
-	 */
-	virtual char* Send() = 0;
 	virtual ~ModuleMessage() {};
 };
 
@@ -294,7 +291,7 @@ class Event : public ModuleMessage
 	 * The return result of an Event::Send() will always be NULL as
 	 * no replies are expected.
 	 */
-	char* Send();
+	char* Send(InspIRCd* ServerInstance);
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
@@ -1258,6 +1255,7 @@ class Module : public Extensible
 class ConfigReader : public classbase
 {
   protected:
+	InspIRCd* ServerInstance;
 	/** The contents of the configuration file
 	 * This protected member should never be accessed by a module (and cannot be accessed unless the
 	 * core is changed). It will contain a pointer to the configuration file data with unneeded data
@@ -1276,11 +1274,11 @@ class ConfigReader : public classbase
 	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
 	 * as specified when running ./configure.
 	 */
-	ConfigReader(); 		// default constructor reads ircd.conf
+	ConfigReader(InspIRCd* Instance);
 	/** Overloaded constructor.
 	 * This constructor initialises the ConfigReader class to read a user-specified config file
 	 */
-	ConfigReader(const std::string &filename);	// read a module-specific config
+	ConfigReader(InspIRCd* Instance, const std::string &filename);
 	/** Default destructor.
 	 * This method destroys the ConfigReader class.
 	 */
@@ -1347,6 +1345,7 @@ class ConfigReader : public classbase
  */
 class FileReader : public classbase
 {
+	InspIRCd* ServerInstance;
 	/** The file contents
 	 */
 	file_cache fc;
@@ -1360,14 +1359,14 @@ class FileReader : public classbase
 	 * This method does not load any file into memory, you must use the LoadFile method
 	 * after constructing the class this way.
 	 */
-	FileReader();
+	FileReader(InspIRCd* Instance);
 
 	/** Secondary constructor.
 	 * This method initialises the class with a file loaded into it ready for GetLine and
 	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
 	 * returns 0.
 	 */
-	FileReader(const std::string &filename);
+	FileReader(InspIRCd* Instance, const std::string &filename);
 
 	/** Default destructor.
 	 * This deletes the memory allocated to the file.

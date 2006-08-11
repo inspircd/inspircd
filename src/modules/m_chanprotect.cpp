@@ -297,7 +297,7 @@ class ModuleChanProtect : public Module
 		 * object was kept between rehashes...now we just
 		 * stack-allocate it locally.
 		 */
-		ConfigReader Conf;
+		ConfigReader Conf(ServerInstance);
 		
 		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
 	}

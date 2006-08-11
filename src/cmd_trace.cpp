@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "commands/cmd_trace.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 {

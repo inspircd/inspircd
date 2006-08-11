@@ -36,7 +36,7 @@ class ModuleModesOnOper : public Module
 		: Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 	}
 
 	void Implements(char* List)
@@ -47,7 +47,7 @@ class ModuleModesOnOper : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		DELETE(Conf);
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 	}
 	
 	virtual ~ModuleModesOnOper()

@@ -21,7 +21,7 @@
 #include "commands.h"
 #include "commands/cmd_rehash.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {

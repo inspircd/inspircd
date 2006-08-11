@@ -219,7 +219,7 @@ class ModulePark : public Module
  public:
 	virtual void ReadSettings()
 	{
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		ParkMaxTime = Conf->ReadInteger("park","maxtime",0,true);
 		ConcurrentParks = Conf->ReadInteger("park","maxperip",0,true);
 		ParkMaxMsgs = Conf->ReadInteger("park","maxmessages",0,true);

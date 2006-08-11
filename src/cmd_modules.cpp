@@ -31,7 +31,7 @@
 #include "wildcard.h"
 #include "commands/cmd_modules.h"
 
-extern InspIRCd* ServerInstance;
+
 
 char* itab[] = {
 	"OnUserConnect", "OnUserQuit", "OnUserDisconnect", "OnUserJoin", "OnUserPart", "OnRehash", "OnServerRaw",

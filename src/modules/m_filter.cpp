@@ -126,10 +126,10 @@ class ModuleFilter : public Module
 	{
 		// reload our config file on rehash - we must destroy and re-allocate the classes
 		// to call the constructor again and re-read our data.
-		ConfigReader* Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader(ServerInstance);
 		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class
-		ConfigReader* MyConf = new ConfigReader(filterfile);
+		ConfigReader* MyConf = new ConfigReader(ServerInstance, filterfile);
 		if ((filterfile == "") || (!MyConf->Verify()))
 		{
 			// bail if the user forgot to create a config file

@@ -184,7 +184,7 @@ class ModuleTimedBans : public Module
                                                 n.push_back("-b");
                                                 n.push_back(i->mask);
                                                 Event rmode((char *)&n, NULL, "send_mode");
-                                                rmode.Send();
+                                                rmode.Send(ServerInstance);
 						DELETE(temp);
 					}
 					else

@@ -23,7 +23,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_qline.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 {

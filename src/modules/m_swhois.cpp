@@ -84,7 +84,7 @@ class ModuleSWhois : public Module
 	ModuleSWhois(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader();
+		Conf = new ConfigReader(ServerInstance);
 		mycommand = new cmd_swhois(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
@@ -92,7 +92,7 @@ class ModuleSWhois : public Module
 	void OnRehash(const std::string &parameter)
 	{
 		DELETE(Conf);
-		Conf = new ConfigReader();
+		Conf = new ConfigReader(ServerInstance);
 	}
 
 	void Implements(char* List)

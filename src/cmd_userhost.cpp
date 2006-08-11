@@ -21,7 +21,7 @@
 #include "inspircd.h"
 #include "commands/cmd_userhost.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {

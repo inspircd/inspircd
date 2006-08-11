@@ -67,7 +67,7 @@ class ModuleVHost : public Module
 	ModuleVHost(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		mycommand = new cmd_vhost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
@@ -85,7 +85,7 @@ class ModuleVHost : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		DELETE(Conf);
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 	}
 	
 	virtual Version GetVersion()

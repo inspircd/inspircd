@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_restart.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {

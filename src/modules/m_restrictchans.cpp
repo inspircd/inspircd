@@ -34,7 +34,7 @@ class ModuleRestrictChans : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader* MyConf = new ConfigReader();
+		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		allowchans.clear();
 		for (int i = 0; i < MyConf->Enumerate("allowchannel"); i++)
 		{

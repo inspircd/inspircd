@@ -71,7 +71,7 @@ class ModuleAlias : public Module
 		: Module::Module(Me)
 	{
 		
-		MyConf = new ConfigReader;
+		MyConf = new ConfigReader(ServerInstance);
 		ReadAliases();
 	}
 
@@ -149,7 +149,7 @@ class ModuleAlias : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		DELETE(MyConf);
-		MyConf = new ConfigReader;
+		MyConf = new ConfigReader(ServerInstance);
 	
 		ReadAliases();
  	}

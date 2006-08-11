@@ -34,13 +34,13 @@ class ModuleDenyChannels : public Module
 	ModuleDenyChannels(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 	}
 	
 	virtual void OnRehash(const std::string &param)
 	{
 		DELETE(Conf);
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 	}
 	
 	virtual ~ModuleDenyChannels()

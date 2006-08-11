@@ -210,7 +210,7 @@ class ModuleHelpop : public Module
 
 		virtual void ReadConfig()
 		{
-			conf = new ConfigReader;
+			conf = new ConfigReader(ServerInstance);
 			h_file = conf->ReadValue("helpop", "file", 0);
 
 			if (h_file == "")
@@ -220,7 +220,7 @@ class ModuleHelpop : public Module
 				throw(e);
 			}
 
-			helpop = new ConfigReader(h_file);
+			helpop = new ConfigReader(ServerInstance, h_file);
 			if ((helpop->ReadValue("nohelp",  "line1", 0) == "") ||
 				(helpop->ReadValue("nohelpo", "line1", 0) == "") ||
 				(helpop->ReadValue("start",   "line1", 0) == ""))

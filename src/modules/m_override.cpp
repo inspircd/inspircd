@@ -50,7 +50,7 @@ class ModuleOverride : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
-		ConfigReader* Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader(ServerInstance);
 		
 		// re-read our config options on a rehash
 		NoisyOverride = Conf->ReadFlag("override","noisy",0);

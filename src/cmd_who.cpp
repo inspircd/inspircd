@@ -22,7 +22,7 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-extern InspIRCd* ServerInstance;
+
 
 /* get the last 'visible' chan of a user */
 static char *getlastchanname(userrec *u)

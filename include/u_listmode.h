@@ -101,7 +101,7 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoRehash()
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(ServerInstance);
 
 		chanlimits.clear();
 

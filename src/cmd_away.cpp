@@ -23,7 +23,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_away.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_away::Handle (const char** parameters, int pcnt, userrec *user)
 {

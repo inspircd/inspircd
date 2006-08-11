@@ -74,7 +74,7 @@ public:
 	
 	virtual void OnRehash(const std::string &parameter)
 	{
-		ConfigReader* Conf = new ConfigReader;
+		ConfigReader* Conf = new ConfigReader(ServerInstance);
 		
 		ForgetDelay = Conf->ReadInteger("blockamsg", "delay", 0, false);
 		if(Conf->GetError() == CONF_VALUE_NOT_FOUND)

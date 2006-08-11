@@ -47,7 +47,7 @@ class ModuleWaitPong : public Module
 	
 	virtual void OnRehash(const std::string &param)
 	{
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		
 		sendsnotice = Conf->ReadFlag("waitpong", "sendsnotice", 0);
 		

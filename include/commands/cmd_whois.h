@@ -28,7 +28,7 @@
 #include "users.h"
 #include "channels.h"
 
-void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick);
+void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick);
 
 class cmd_whois : public command_t
 {

@@ -22,7 +22,7 @@
 #include "inspircd.h"
 #include "commands/cmd_ison.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {

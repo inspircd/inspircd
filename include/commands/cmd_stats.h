@@ -28,7 +28,7 @@
 #include "users.h"
 #include "channels.h"
 
-void DoStats(char statschar, userrec* user, string_list &results);
+void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &results);
 
 class cmd_stats : public command_t
 {

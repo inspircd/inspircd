@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_user.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {

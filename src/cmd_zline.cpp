@@ -24,7 +24,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_zline.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {

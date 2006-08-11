@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whowas.h"
 
-extern InspIRCd* ServerInstance;
+
 extern irc::whowas::whowas_users whowas;
 
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)

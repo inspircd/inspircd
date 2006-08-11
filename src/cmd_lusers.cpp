@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "commands/cmd_lusers.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
 {

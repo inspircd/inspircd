@@ -36,7 +36,7 @@
 #include "command_parse.h"
 #include "commands/cmd_oper.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)

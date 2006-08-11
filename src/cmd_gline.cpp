@@ -24,7 +24,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_eline.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {

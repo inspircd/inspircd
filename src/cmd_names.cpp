@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_names.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -220,7 +220,7 @@ class HttpSocket : public InspSocket
 						claimed = false;
 						HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
 						Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-						e.Send();
+						e.Send(this->Instance);
 
 						if (!claimed)
 						{
@@ -258,7 +258,7 @@ class ModuleHttp : public Module
 	std::string bindip;
 	std::string indexfile;
 
-	FileReader index;
+	FileReader* index;
 
 	HttpSocket* http;
 
@@ -266,18 +266,23 @@ class ModuleHttp : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader c;
+		ConfigReader c(ServerInstance);
 		this->host = c.ReadValue("http", "host", 0);
 		this->bindip = c.ReadValue("http", "ip", 0);
 		this->port = c.ReadInteger("http", "port", 0, true);
 		this->indexfile = c.ReadValue("http", "index", 0);
 
-		index.LoadFile(this->indexfile);
+		if (index)
+		{
+			delete index;
+			index = NULL;
+		}
+		index = new FileReader(ServerInstance, this->indexfile);
 	}
 
 	void CreateListener()
 	{
-		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, &index);
+		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, index);
 		if ((http) && (http->GetState() == I_LISTENING))
 		{
 			ServerInstance->AddSocket(http);
@@ -286,7 +291,7 @@ class ModuleHttp : public Module
 
 	ModuleHttp(InspIRCd* Me) : Module::Module(Me)
 	{
-		
+		index = NULL;
 		ReadConfig();
 		CreateListener();
 	}

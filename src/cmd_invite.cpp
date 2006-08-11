@@ -22,7 +22,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_invite.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {

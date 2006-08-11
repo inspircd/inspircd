@@ -263,8 +263,7 @@ class ModuleRemove : public Module
 	
 	virtual void OnRehash(const std::string&)
 	{
-		ConfigReader conf;
-		
+		ConfigReader conf(ServerInstance);
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
 	}
 	

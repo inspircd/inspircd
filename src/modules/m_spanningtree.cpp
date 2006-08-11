@@ -1935,7 +1935,7 @@ class TreeSocket : public InspSocket
 					std::deque<std::string> par;
 					par.push_back(prefix);
 					par.push_back("");
-					DoStats(*(params[0].c_str()), source, results);
+					DoStats(this->Instance, *(params[0].c_str()), source, results);
 					for (size_t i = 0; i < results.size(); i++)
 					{
 						par[1] = "::" + results[i];
@@ -2299,7 +2299,7 @@ class TreeSocket : public InspSocket
 					unsigned long signon = atoi(params[1].c_str());
 					unsigned long idle = atoi(params[2].c_str());
 					if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
-						do_whois(who_to_send_to,u,signon,idle,nick_whoised.c_str());
+						do_whois(this->Instance,who_to_send_to,u,signon,idle,nick_whoised.c_str());
 				}
 				else
 				{
@@ -3073,12 +3073,12 @@ class ServernameResolver : public Resolver
 	 * admin takes the tag away and rehashes while the domain is resolving.
 	 */
 	Link MyLink;
- public:        
+ public: 
 	ServernameResolver(InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x)
 	{
 		/* Nothing in here, folks */
 	}
-        
+
 	void OnLookupComplete(const std::string &result)
 	{
 		/* Initiate the connection, now that we have an IP to use.
@@ -3304,7 +3304,7 @@ std::vector<TreeSocket*> Bindings;
 
 void ReadConfiguration(bool rebind)
 {
-	Conf = new ConfigReader;
+	Conf = new ConfigReader(ServerInstance);
 	if (rebind)
 	{
 		for (int j =0; j < Conf->Enumerate("bind"); j++)

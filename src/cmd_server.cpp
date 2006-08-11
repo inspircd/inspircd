@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "commands/cmd_server.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_server::Handle (const char** parameters, int pcnt, userrec *user)
 {

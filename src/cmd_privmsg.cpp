@@ -25,7 +25,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_privmsg.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)

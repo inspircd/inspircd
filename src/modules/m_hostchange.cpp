@@ -49,7 +49,7 @@ class ModuleHostChange : public Module
 		: Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		OnRehash("");
 	}
 	
@@ -71,7 +71,7 @@ class ModuleHostChange : public Module
 	virtual void OnRehash(const std::string &parameter)
 	{
 		DELETE(Conf);
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		MySuffix = Conf->ReadValue("host","suffix",0);
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{

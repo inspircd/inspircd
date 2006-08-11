@@ -13,18 +13,6 @@ using namespace std;
 
 static FileReader* opermotd;
 
-
-void LoadOperMOTD()
-{
-	ConfigReader* conf = new ConfigReader;
-	std::string filename;
-
-	filename = conf->ReadValue("opermotd","file",0);
-
-	opermotd->LoadFile(filename);
-	DELETE(conf);
-}
-
 void ShowOperMOTD(userrec* user)
 {
 	if(!opermotd->FileSize())
@@ -32,22 +20,18 @@ void ShowOperMOTD(userrec* user)
 		user->WriteServ(std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
 		return;
 	}
-
 	user->WriteServ(std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
-
 	for(int i=0; i != opermotd->FileSize(); i++)
 	{
 		user->WriteServ(std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
 	}
-
 	user->WriteServ(std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
-
 }
 
 class cmd_opermotd : public command_t
 {
  public:
- cmd_opermotd (InspIRCd* Instance) : command_t(Instance,"OPERMOTD", 'o', 0)
+	cmd_opermotd (InspIRCd* Instance) : command_t(Instance,"OPERMOTD", 'o', 0)
 	{
 		this->source = "m_opermotd.so";
 		syntax = "[<servername>]";
@@ -59,62 +43,76 @@ class cmd_opermotd : public command_t
 	}
 };
 
+
 class ModuleOpermotd : public Module
 {
-		cmd_opermotd* mycommand;
-	public:
-		ModuleOpermotd(InspIRCd* Me)
-			: Module::Module(Me)
-		{
-			
-			mycommand = new cmd_opermotd(ServerInstance);
-			ServerInstance->AddCommand(mycommand);
-			opermotd = new FileReader();
-			LoadOperMOTD();
-		}
+	cmd_opermotd* mycommand;
+ public:
 
-		virtual ~ModuleOpermotd()
+	void LoadOperMOTD()
+	{
+		ConfigReader* conf = new ConfigReader(ServerInstance);
+		std::string filename;
+		filename = conf->ReadValue("opermotd","file",0);
+		if (opermotd)
 		{
+			delete opermotd;
+			opermotd = NULL;
 		}
+		opermotd = new FileReader(ServerInstance, filename);
+		DELETE(conf);
+	}
+	
+	ModuleOpermotd(InspIRCd* Me)
+		: Module::Module(Me)
+	{
+		opermotd = NULL;
+		mycommand = new cmd_opermotd(ServerInstance);
+		ServerInstance->AddCommand(mycommand);
+		opermotd = new FileReader(ServerInstance);
+		LoadOperMOTD();
+	}
 
-		virtual Version GetVersion()
-		{
-			return Version(1,0,0,1,VF_VENDOR);
-		}
+	virtual ~ModuleOpermotd()
+	{
+	}
 
-		void Implements(char* List)
-		{
-			List[I_OnRehash] = List[I_OnOper] = 1;
-		}
+	virtual Version GetVersion()
+	{
+		return Version(1,0,0,1,VF_VENDOR);
+	}
 
-		virtual void OnOper(userrec* user, const std::string &opertype)
-		{
-			ShowOperMOTD(user);
-		}
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = List[I_OnOper] = 1;
+	}
 
-		virtual void OnRehash(const std::string &parameter)
-		{
-			LoadOperMOTD();
-		}
+	virtual void OnOper(userrec* user, const std::string &opertype)
+	{
+		ShowOperMOTD(user);
+	}
 
+	virtual void OnRehash(const std::string &parameter)
+	{
+		LoadOperMOTD();
+	}
 };
 
 class ModuleOpermotdFactory : public ModuleFactory
 {
-	public:
-		ModuleOpermotdFactory()
-		{
-		}
+ public:
+	ModuleOpermotdFactory()
+	{
+	}
 
-		~ModuleOpermotdFactory()
-		{
-		}
+	~ModuleOpermotdFactory()
+	{
+	}
 
-		virtual Module* CreateModule(InspIRCd* Me)
-		{
-			return new ModuleOpermotd(Me);
-		}
-
+	virtual Module* CreateModule(InspIRCd* Me)
+	{
+		return new ModuleOpermotd(Me);
+	}
 };
 
 extern "C" void* init_module(void)

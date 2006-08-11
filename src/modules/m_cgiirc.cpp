@@ -110,7 +110,7 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(ServerInstance);
 		
 		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
 		

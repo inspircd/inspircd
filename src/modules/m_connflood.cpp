@@ -64,7 +64,7 @@ public:
 	void InitConf()
 	{
 		/* read configuration variables */
-		conf = new ConfigReader;
+		conf = new ConfigReader(ServerInstance);
 		/* throttle configuration */
 		seconds = conf->ReadInteger("connflood", "seconds", 0, true);
 		maxconns = conf->ReadInteger("connflood", "maxconns", 0, true);

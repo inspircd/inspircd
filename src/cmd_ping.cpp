@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_ping.h"
 
-extern InspIRCd* ServerInstance;
+
 
 
 void cmd_ping::Handle (const char** parameters, int pcnt, userrec *user)

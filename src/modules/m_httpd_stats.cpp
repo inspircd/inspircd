@@ -49,7 +49,7 @@ class ModuleHttpStats : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader c;
+		ConfigReader c(ServerInstance);
 		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
 	}
 

@@ -26,7 +26,7 @@ class ModuleOperLevels : public Module
 		{
 
 			
-			conf = new ConfigReader;
+			conf = new ConfigReader(ServerInstance);
 		}
 
 		virtual ~ModuleOperLevels()
@@ -42,7 +42,7 @@ class ModuleOperLevels : public Module
 		virtual void OnRehash(const std::string &parameter)
 		{
 			DELETE(conf);
-			conf = new ConfigReader;
+			conf = new ConfigReader(ServerInstance);
 		}
 
 		virtual Version GetVersion()

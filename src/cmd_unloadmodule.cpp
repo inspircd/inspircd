@@ -20,7 +20,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_unloadmodule.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {

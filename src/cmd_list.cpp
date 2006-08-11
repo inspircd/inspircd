@@ -21,7 +21,7 @@
 #include "inspircd.h"
 #include "commands/cmd_list.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -22,7 +22,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whois.h"
 
-extern InspIRCd* ServerInstance;
+
 
 extern time_t TIME;
 
@@ -36,7 +36,7 @@ const char* Spacify(char* n)
 	return x;
 }
 
-void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
+void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
 	if (dest->registered == REG_ALL)
@@ -106,7 +106,7 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
-		do_whois(user,dest,0,0,parameters[0]);
+		do_whois(this->ServerInstance, user,dest,0,0,parameters[0]);
 	}
 	else
 	{

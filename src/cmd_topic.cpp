@@ -22,7 +22,7 @@
 #include "commands/cmd_topic.h"
 #include "helperfuncs.h"
 
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)

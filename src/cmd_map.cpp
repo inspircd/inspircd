@@ -21,7 +21,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_map.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_map::Handle (const char** parameters, int pcnt, userrec *user)
 {

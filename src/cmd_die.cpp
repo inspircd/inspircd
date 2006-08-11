@@ -23,7 +23,7 @@
 #include "helperfuncs.h"
 #include "commands/cmd_die.h"
 
-extern InspIRCd* ServerInstance;
+
 
 void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
