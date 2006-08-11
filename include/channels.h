@@ -428,18 +428,44 @@ class chanrec : public Extensible
 	 */
 	void WriteAllExceptSender(userrec* user, char status, const std::string& text);
 
+	/** Returns the maximum number of bans allowed to be set on this channel
+	 * @return The maximum number of bans allowed
+	 */
 	long GetMaxBans();
 
+	/** Return the channel's modes with parameters.
+	 * @param showkey If this is set to true, the actual key is shown,
+	 * otherwise it is replaced with '&lt;KEY&gt;'
+	 * @return The channel mode string
+	 */
 	char* ChanModes(bool showkey);
 
+	/** Spool the NAMES list for this channel to the given user
+	 * @param The user to spool the NAMES list to
+	 */
 	void UserList(userrec *user);
 
+	/** Get the number of invisible users on this channel
+	 * @return Number of invisible users
+	 */
 	int CountInvisible();
 
+	/** Get a users status on this channel
+	 * @param The user to look up
+	 * @return One of STATUS_OP, STATUS_HOP, STATUS_VOICE, or zero.
+	 */
 	int GetStatus(userrec *user);
 
+	/** Get a users status on this channel in a bitmask
+	 * @param The user to look up
+	 * @return A bitmask containing zero or more of STATUS_OP, STATUS_HOP, STATUS_VOICE
+	 */
 	int GetStatusFlags(userrec *user);
 
+	/** Get a users status on this channel in a string
+	 * @param The user to look up
+	 * @return A character array containing the string "@", "%", "+" or ""
+	 */
 	const char* GetStatusChar(userrec *user);
 
 	/** Destructor for chanrec
