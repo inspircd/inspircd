@@ -55,7 +55,6 @@
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
-
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "inspircd_se_config.h"
