@@ -231,7 +231,7 @@ class TreeServer : public classbase
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(std::string Name, std::string Desc) : ServerName(Name.c_str()), ServerDesc(Desc)
+	TreeServer(InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc)
 	{
 		Parent = NULL;
 		VersionString = "";
@@ -246,7 +246,8 @@ class TreeServer : public classbase
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock) : Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock)
+	TreeServer(InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
+		: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
@@ -2436,7 +2437,7 @@ class TreeSocket : public InspSocket
 			this->Instance->WriteOpers("*** Server connection from \2"+servername+"\2 denied, already exists");
 			return false;
 		}
-		TreeServer* Node = new TreeServer(servername,description,ParentOfThis,NULL);
+		TreeServer* Node = new TreeServer(this->Instance,servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		params[3] = ":" + params[3];
 		DoOneToAllButSender(prefix,"SERVER",params,prefix);
@@ -2480,7 +2481,7 @@ class TreeSocket : public InspSocket
 				// we should add the details of this server now
 				// to the servers tree, as a child of the root
 				// node.
-				TreeServer* Node = new TreeServer(sname,description,TreeRoot,this);
+				TreeServer* Node = new TreeServer(this->Instance,sname,description,TreeRoot,this);
 				TreeRoot->AddChild(Node);
 				params[3] = ":" + params[3];
 				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,sname);
@@ -2675,7 +2676,7 @@ class TreeSocket : public InspSocket
 						}
 					}
 					this->LinkState = CONNECTED;
-					Node = new TreeServer(InboundServerName,InboundDescription,TreeRoot,this);
+					Node = new TreeServer(this->Instance,InboundServerName,InboundDescription,TreeRoot,this);
 					TreeRoot->AddChild(Node);
 					params.clear();
 					params.push_back(InboundServerName);
@@ -3420,10 +3421,10 @@ class ModuleSpanningTree : public Module
 		
 		Bindings.clear();
 
-		::ServerInstance = this->ServerInstance;
+		::ServerInstance = Me;
 
 		// Create the root of the tree
-		TreeRoot = new TreeServer(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+		TreeRoot = new TreeServer(ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 
 		ReadConfiguration(true);
 
