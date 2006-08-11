@@ -1042,11 +1042,3 @@ time_t InspIRCd::Time()
 	return TIME;
 }
 
-classbase::classbase()
-{
-	/* This is in here only to make use of ServerInstance
-	 * without using an ugly extern
-	 */
-	this->age = ServerInstance->Time();
-}
-

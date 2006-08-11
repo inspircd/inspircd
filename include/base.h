@@ -26,8 +26,8 @@
 typedef void* VoidPointer;
 typedef std::map<std::string,char*> ExtensibleStore;
 
-extern time_t TIME;
- 
+class InspIRCd;
+
 /** The base class for all inspircd classes
 */ 
 class classbase
