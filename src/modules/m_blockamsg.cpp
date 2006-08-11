@@ -133,7 +133,7 @@ public:
 			// OR
 			// The number of target channels is equal to the number of channels the sender is on..a little suspicious.
 			// Check it's more than 1 too, or else users on one channel would have fun.
-			if((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= TIME-ForgetDelay)) || ((targets > 1) && (targets == userchans)))
+			if((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == userchans)))
 			{
 				// Block it...
 				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
@@ -152,11 +152,11 @@ public:
 				// If there's already a BlockedMessage allocated, use it.
 				m->message = parameters[1];
 				m->target = parameters[0];
-				m->sent = TIME;
+				m->sent = ServerInstance->Time();
 			}
 			else
 			{
-				m = new BlockedMessage(parameters[1], parameters[0], TIME);
+				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
 				user->Extend("amsgblock", (char*)m);
 			}
 		}					

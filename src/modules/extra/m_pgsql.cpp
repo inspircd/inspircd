@@ -670,7 +670,7 @@ SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hi)
 	strlcpy(this->host, dbhost.c_str(), MAXBUF);
 	strlcpy(this->IP, dbhost.c_str(), MAXBUF);
 	this->port = dbport;
-	idle = TIME;
+	idle = this->Instance->Time();
 	
 	this->ClosePending = false;
 			
@@ -806,7 +806,7 @@ bool SQLConn::DoConnectedPoll()
 		/* We just read stuff from the server, that counts as it being alive
 		 * so update the idle-since time :p
 		 */
-		idle = TIME;
+		idle = this->Instance->Time();
 			
 		if(PQisBusy(sql))
 		{

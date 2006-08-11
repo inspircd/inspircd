@@ -59,7 +59,7 @@ class ModuleSecureList : public Module
 		if (!validated)
 			return 0;
  
-		if ((command == "LIST") && (TIME < (user->signon+60)) && (!*user->oper))
+		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+60)) && (!*user->oper))
 		{
 			user->WriteServ("NOTICE %s :*** You cannot list within the first minute of connecting. Please try again later.",user->nick);
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't

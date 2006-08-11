@@ -71,12 +71,12 @@ public:
 		/* seconds to wait when the server just booted */
 		boot_wait = conf->ReadInteger("connflood", "bootwait", 0, true);
 
-		first = TIME;
+		first = ServerInstance->Time();
 	}
  
 	virtual void OnUserRegister(userrec* user)
 	{
-		time_t next = TIME;
+		time_t next = ServerInstance->Time();
 		if (!first)
 			first = next - boot_wait;
 

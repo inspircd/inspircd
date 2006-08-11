@@ -55,7 +55,7 @@ class ListTimer : public InspTimer
 
  public:
 
-	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,TIME), ServerInstance(Instance)
+	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,Instance->Time()), ServerInstance(Instance)
 	{
 	}
 
@@ -197,7 +197,7 @@ class ModuleSafeList : public Module
 		user->GetExt("safelist_last", last_list_time);
 		if (last_list_time)
 		{
-			if (TIME < (*last_list_time)+60)
+			if (ServerInstance->Time() < (*last_list_time)+60)
 			{
 				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
 				return 1;
@@ -210,12 +210,12 @@ class ModuleSafeList : public Module
 		/*
 		 * start at channel 0! ;)
 		 */
-		ld = new ListData(0,TIME);
+		ld = new ListData(0,ServerInstance->Time());
 		user->Extend("safelist_cache", ld);
 		listusers.push_back(user);
 
 		time_t* llt = new time_t;
-		*llt = TIME;
+		*llt = ServerInstance->Time();
 		user->Extend("safelist_last", llt);
 	
 		return 1;
