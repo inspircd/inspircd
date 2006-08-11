@@ -14,20 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <poll.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -40,8 +26,6 @@ static Module* SQLModule;
 static Module* MyMod;
 static std::string dbid;
 extern time_t TIME;
-
-extern InspIRCd* ServerInstance;
 
 enum LogTypes { LT_OPER = 1, LT_KILL, LT_SERVLINK, LT_XLINE, LT_CONNECT, LT_DISCONNECT, LT_FLOOD, LT_LOADMODULE };
 
@@ -270,24 +254,25 @@ class QueryInfo
 
 class ModuleSQLLog : public Module
 {
-	Server* Srv;
+	InspIRCd* Srv;
 	ConfigReader* Conf;
 
  public:
 	bool ReadConfig()
 	{
-		Conf = new ConfigReader();
-		dbid = Conf->ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
-		DELETE(Conf);
-		SQLModule = ServerInstance->FindFeature("SQL");
+		ConfigReader Conf(Srv);
+		
+		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
+		
+		SQLModule = Srv->FindFeature("SQL");
 		if (!SQLModule)
 			log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
 		return (SQLModule);
 	}
 
-	ModuleSQLLog(InspIRCd* Me) : Module::Module(Me)
+	ModuleSQLLog(InspIRCd* Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		
 		ReadConfig();
 		MyMod = this;
 		active_queries.clear();
@@ -397,7 +382,7 @@ class ModuleSQLLog : public Module
 
 	virtual void OnLoadModule(Module* mod, const std::string &name)
 	{
-		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName);
+		AddLogEntry(LT_LOADMODULE,name,Srv->Config->ServerName, Srv->Config->ServerName);
 	}
 
 	virtual ~ModuleSQLLog()
