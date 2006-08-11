@@ -269,12 +269,12 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 	this->stats = new serverstats();
 	this->Parser = new CommandParser(this);
 	this->Timers = new TimerManager();
+	this->XLines = new XLineManager(this);
 	Config->ClearStack();
 	Config->Read(true, NULL);
 	this->CheckRoot();
 	this->ModeGrok = new ModeParser(this);
-	this->AddServerName(Config->ServerName);
-	this->XLines = new XLineManager(this);
+	this->AddServerName(Config->ServerName);	
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 	stats->BoundPortCount = BindPorts(true);
