@@ -23,10 +23,6 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-
-
-extern userrec* fd_ref_table[MAX_DESCRIPTORS];
-
 /* $ModDesc: Provides support for RFC 1413 ident lookups */
 
 // Version 1.5.0.0 - Updated to use InspSocket, faster and neater.
@@ -53,7 +49,7 @@ class RFC1413 : public InspSocket
 	{
 		// When we timeout, the connection failed within the allowed timeframe,
 		// so we just display a notice, and tidy off the ident_data.
-		if (u && (fd_ref_table[ufd] == u))
+		if (u && (Instance->fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
@@ -84,7 +80,7 @@ class RFC1413 : public InspSocket
 								*j = '\0'; // truncate at invalid chars
 							if (*section)
 							{
-								if (u && (fd_ref_table[ufd] == u))
+								if (u && (Instance->fd_ref_table[ufd] == u))
 								{
 									if (this->Instance->IsIdent(section))
 									{
@@ -125,7 +121,7 @@ class RFC1413 : public InspSocket
 		// descriptor that they were when the lookup began.
 		//
 		// Fixes issue reported by webs, 7 Jun 2006
-		if (u && (fd_ref_table[ufd] == u))
+		if (u && (Instance->fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -133,7 +129,7 @@ class RFC1413 : public InspSocket
 
 	virtual void OnError(InspSocketError e)
 	{
-		if (u && (fd_ref_table[ufd] == u))
+		if (u && (Instance->fd_ref_table[ufd] == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -141,7 +137,7 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		if (u && (fd_ref_table[ufd] == u))
+		if (u && (Instance->fd_ref_table[ufd] == u))
 		{
 			uslen = sizeof(sock_us);
 			themlen = sizeof(sock_them);

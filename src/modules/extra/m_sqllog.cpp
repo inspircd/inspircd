@@ -25,7 +25,6 @@
 static Module* SQLModule;
 static Module* MyMod;
 static std::string dbid;
-extern time_t TIME;
 
 enum LogTypes { LT_OPER = 1, LT_KILL, LT_SERVLINK, LT_XLINE, LT_CONNECT, LT_DISCONNECT, LT_FLOOD, LT_LOADMODULE };
 
@@ -57,7 +56,7 @@ class QueryInfo
 		id = i;
 		category = cat;
 		sourceid = nickid = hostid = -1;
-		date = TIME;
+		date = time(NULL);
 		lastquery = "";
 	}
 

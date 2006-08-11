@@ -45,11 +45,6 @@ using namespace std;
 
 #define nspace __gnu_cxx
 
-
-
-
-extern chan_hash chanlist;
-
 void spy_userlist(userrec *user,chanrec *c)
 {
 	static char list[MAXBUF];
