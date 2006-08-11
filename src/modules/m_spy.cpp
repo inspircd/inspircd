@@ -90,7 +90,7 @@ class cmd_spylist : public command_t
 	{
 		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
-		for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
+		for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
 		{
 			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),i->second->ChanModes(true),i->second->topic);
 		}
