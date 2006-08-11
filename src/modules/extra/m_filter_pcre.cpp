@@ -14,8 +14,6 @@
  * ---------------------------------------------------
  */
 
-using namespace std;
-
 // Message and notice filtering using regex patterns
 // a module based on the original work done by Craig Edwards in 2003
 // for the chatspike network.
@@ -28,8 +26,6 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "inspircd.h"
-
-extern InspIRCd* ServerInstance;
 
 class FilterPCREException : public ModuleException
 {
@@ -46,56 +42,34 @@ class FilterPCREException : public ModuleException
 
 class ModuleFilterPCRE : public Module
 {
-	Server *Srv;
-	ConfigReader *Conf, *MyConf;
-	std::vector<pcre*> filters;
+	class Filter
+	{
+	 public:
+		pcre* regexp;
+	 	std::string reason;
+		std::string action;
+		
+		Filter(pcre* r, const std::string &rea, const std::string &act)
+		: regexp(r), reason(rea), action(act)
+		{
+		}
+	};
+	
+	InspIRCd* Srv;
+	std::vector<Filter> filters;
 	pcre *re;
 	const char *error;
 	int erroffset;
  
  public:
 	ModuleFilterPCRE(InspIRCd* Me)
-		: Module::Module(Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		// read the configuration file on startup.
-		// it is perfectly valid to set <filter file> to the value of the
-		// main config file, then append your <keyword> tags to the bottom
-		// of the main config... but rather messy. That's why the capability
-		// of using a seperate config file is provided.
-		
-		Conf = new ConfigReader;
-		std::string filterfile = Conf->ReadValue("filter","file",0);
-		MyConf = new ConfigReader(filterfile);
-		if ((filterfile == "") || (!MyConf->Verify()))
-		{
-			FilterPCREException e;
-			throw(e);
-		}
-		log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
-
-		filters.clear();
-		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
-		{
-			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
-			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
-			if (!re)
-			{
-				log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
-				log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
-			}
-			else
-			{
-				filters.push_back(re);
-				log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
-			}
-		}
-
+		OnRehash("");
 	}
 	
 	virtual ~ModuleFilterPCRE()
 	{
-		DELETE(MyConf);
-		DELETE(Conf);
 	}
 
 	void Implements(char* List)
@@ -114,14 +88,14 @@ class ModuleFilterPCRE : public Module
 	{
 		for (unsigned int index = 0; index < filters.size(); index++)
 		{
-			if (pcre_exec(filters[index],NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
+			Filter& filt = filters[index];
+			
+			if (pcre_exec(filt.regexp,NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{
 				const char* target;
-				std::string reason = MyConf->ReadValue("keyword","reason",index);
-				std::string do_action = MyConf->ReadValue("keyword","action",index);
-
-				if (do_action == "")
-					do_action = "none";
+				
+				if(filt.action.empty())
+					filt.action = "none";
 					
 				if (target_type == TYPE_USER)
 				{
@@ -138,18 +112,18 @@ class ModuleFilterPCRE : public Module
 					target = "";
 				}
 				
-				if (do_action == "block")
-				{	
-					ServerInstance->WriteOpers("Filter: %s had their notice filtered, target was %s: %s", user->nick, target, reason.c_str());
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+reason);
-    			}
+				log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, filt.reason.c_str(), filt.action.c_str());
 				
-				log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, reason.c_str(), do_action.c_str());
-
-				if (do_action == "kill")
+				if (filt.action == "block")
+				{	
+					Srv->WriteOpers("Filter: %s had their notice filtered, target was %s: %s", user->nick, target, filt.reason.c_str());
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+filt.reason);
+    			}
+				else if (filt.action == "kill")
 				{
-					userrec::QuitUser(ServerInstance,user,reason);
+					userrec::QuitUser(Srv, user, filt.reason);
 				}
+				
 				return 1;
 			}
 		}
@@ -158,27 +132,37 @@ class ModuleFilterPCRE : public Module
 	
 	virtual void OnRehash(const std::string &parameter)
 	{
-		// reload our config file on rehash - we must destroy and re-allocate the classes
-		// to call the constructor again and re-read our data.
-		DELETE(Conf);
-		DELETE(MyConf);
-		Conf = new ConfigReader;
-		std::string filterfile = Conf->ReadValue("filter","file",0);
-		// this automatically re-reads the configuration file into the class
-		MyConf = new ConfigReader(filterfile);
-		if ((filterfile == "") || (!MyConf->Verify()))
+		/* Read the configuration file on startup and rehash.
+		 * It is perfectly valid to set <filter file> to the value of the
+		 * main config file, then append your <keyword> tags to the bottom
+		 * of the main config... but rather messy. That's why the capability
+		 * of using a seperate config file is provided.
+		 */
+		
+		ConfigReader Conf(Srv);
+		
+		std::string filterfile = Conf.ReadValue("filter", "file", 0);
+		
+		ConfigReader MyConf(Srv, filterfile);
+		
+		if (filterfile.empty() || !MyConf.Verify())
 		{
 			FilterPCREException e;
-			// bail if the user forgot to create a config file
 			throw(e);
 		}
+		
 		log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
 
 		filters.clear();
-		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
+		
+		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
 		{
-			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
+			std::string pattern = MyConf.ReadValue("keyword","pattern",index);
+			std::string reason = MyConf.ReadValue("keyword","reason",index);
+			std::string action = MyConf.ReadValue("keyword","action",index);
+			
 			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
+			
 			if (!re)
 			{
 				log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
@@ -186,17 +170,16 @@ class ModuleFilterPCRE : public Module
 			}
 			else
 			{
-				filters.push_back(re);
+				filters.push_back(Filter(re, reason, action));
 				log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}
-
 	}
 	
 	virtual Version GetVersion()
 	{
-		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(3,0,0,0,VF_VENDOR);
+		/* Version 1.x is the unreleased unrealircd module */
+		return Version(3,2,0,0,VF_VENDOR);
 	}
 	
 };
