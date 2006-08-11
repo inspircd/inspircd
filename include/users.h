@@ -152,25 +152,35 @@ typedef std::vector<ucrec*> UserChanList;
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
- * user's nickname and hostname. Use the Find method of the server class to locate a specific user
- * by nickname.
+ * user's nickname and hostname. Use the FindNick method of the InspIRCd class to locate a specific user
+ * by nickname, or the FindDescriptor method of the InspIRCd class to find a specific user by their
+ * file descriptor value.
  */
 class userrec : public connection
 {
  private:
-	/** Pointer to creator
+	/** Pointer to creator.
+	 * This is required to make use of core functions
+	 * from within the userrec class.
 	 */
 	InspIRCd* ServerInstance;
 
 	/** A list of channels the user has a pending invite to.
+	 * Upon INVITE channels are added, and upon JOIN, the
+	 * channels are removed from this list.
 	 */
 	InvitedList invites;
  public:
-	/** Resolvers for looking up this users hostname
+	/** Resolvers for looking up this users IP address
+	 * This will occur if and when res_reverse completes.
+	 * When this class completes its lookup, userrec::dns_done
+	 * will be set from false to true.
 	 */
 	UserResolver* res_forward;
 
 	/** Resolvers for looking up this users hostname
+	 * This is instantiated by userrec::StartDNSLookup(),
+	 * and on success, instantiates userrec::res_reverse.
 	 */
 	UserResolver* res_reverse;
 
@@ -179,14 +189,15 @@ class userrec : public connection
 	std::string stored_host;
 
 	/** Starts a DNS lookup of the user's IP.
-	 * When complete, sets userrec::dns_done to true.
+	 * This will cause two UserResolver classes to be instantiated.
+	 * When complete, these objects set userrec::dns_done to true.
 	 */
 	void StartDNSLookup();
 	
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
+	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
-	
 	char nick[NICKMAX];
 	
 	/** The users ident reply.
@@ -199,7 +210,7 @@ class userrec : public connection
 	 */
 	char dhost[65];
 	
-	/** The users full name.
+	/** The users full name (GECOS).
 	 */
 	char fullname[MAXGECOS+1];
 	
@@ -252,6 +263,8 @@ class userrec : public connection
 	char oper[NICKMAX];
 
 	/** True when DNS lookups are completed.
+	 * The UserResolver classes res_forward and res_reverse will
+	 * set this value once they complete.
 	 */
 	bool dns_done;
 
@@ -276,13 +289,19 @@ class userrec : public connection
 	 */
 	std::string sendq;
 
-	/** Flood counters
+	/** Flood counters - lines received
 	 */
 	int lines_in;
+
+	/** Flood counters - time lines_in is due to be reset
+	 */
 	time_t reset_due;
+
+	/** Flood counters - Highest value lines_in may reach before the user gets disconnected
+	 */
 	long threshold;
 
-	/** IPV4 ip address
+	/** IPV4 or IPV6 ip address
 	 */
 	sockaddr* ip;
 
@@ -498,12 +517,15 @@ class userrec : public connection
 	void MakeHost(char* nhost);
 
 	/** Shuts down and closes the user's socket
+	 * This will not cause the user to be deleted. Use InspIRCd::QuitUser for this,
+	 * which will call CloseSocket() for you.
 	 */
 	void CloseSocket();
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove
 	 * @param r The quit reason
+	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
 	static void QuitUser(InspIRCd* Instance, userrec *user, const std::string &r);
 
@@ -523,6 +545,7 @@ class userrec : public connection
 	 * value of 'this' will be pushed onto this CullList. This is used by
 	 * the core to connect many users in rapid succession without invalidating
 	 * iterators.
+	 * @param Goners a CullList to use for failed connections
 	 */
 	void FullConnect(CullList* Goners);
 
@@ -546,6 +569,12 @@ class userrec : public connection
 	/** Add a client to the system.
 	 * This will create a new userrec, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.
+	 * @param Instance a pointer to the server instance
+	 * @param socket The socket id (file descriptor) this user is on
+	 * @param port The port number this user connected on
+	 * @param iscached This variable is reserved for future use
+	 * @param ip The IP address of the user
+	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
 	static void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip);
 
@@ -555,10 +584,12 @@ class userrec : public connection
 	void UnOper();
 
 	/** Return the number of global clones of this user
+	 * @return The global clone count of this user
 	 */
 	long GlobalCloneCount();
 
 	/** Return the number of local clones of this user
+	 * @return The local clone count of this user
 	 */
 	long LocalCloneCount();
 
@@ -634,15 +665,20 @@ class userrec : public connection
 
 	/** Write a WALLOPS message from this user to all local opers.
 	 * If this user is not opered, the function will return without doing anything.
+	 * @param text The format string to send in the WALLOPS message
+	 * @param ... Format arguments
 	 */
 	void WriteWallOps(const char* text, ...);
 
 	/** Write a WALLOPS message from this user to all local opers.
 	 * If this user is not opered, the function will return without doing anything.
+	 * @param text The text to send in the WALLOPS message
 	 */
 	void WriteWallOps(const std::string &text);
 
 	/** Return true if the user shares at least one channel with another user
+	 * @param other The other user to compare the channel list against
+	 * @return True if the given user shares at least one channel with this user
 	 */
 	bool SharesChannelWith(userrec *other);
 
@@ -650,6 +686,8 @@ class userrec : public connection
 	 * ALWAYS use this function, rather than writing userrec::dhost directly,
 	 * as this triggers module events allowing the change to be syncronized to
 	 * remote servers.
+	 * @param host The new hostname to set
+	 * @return True if the change succeeded, false if it didn't
 	 */
 	bool ChangeDisplayedHost(const char* host);
 
@@ -657,22 +695,33 @@ class userrec : public connection
 	 * ALWAYS use this function, rather than writing userrec::fullname directly,
 	 * as this triggers module events allowing the change to be syncronized to
 	 * remote servers.
+	 * @param gecos The user's new realname
+	 * @return True if the change succeeded, false if otherwise
 	 */
 	bool ChangeName(const char* gecos);
 
 	/** Return the total number of channels this user is on.
+	 * @return The number of channels the user is on
 	 */
 	int CountChannels();
 
 	/** Send a notice to all local users from this user
+	 * @param text The text format string to send
+	 * @param ... Format arguments
 	 */
 	void NoticeAll(char* text, ...);
 
 	/** Compile a channel list for this user, and send it to the user 'source'
+	 * Used internally by WHOIS
+	 * @param The user to send the channel list to if it is not too long
+	 * @return This user's channel list
 	 */
 	std::string ChannelList(userrec* source);
 
 	/** Split the channel list in cl which came from dest, and spool it to this user
+	 * Used internally by WHOIS
+	 * @param dest The user the original channel list came from
+	 * @param cl The  channel list as a string obtained from userrec::ChannelList()
 	 */
 	void SplitChanList(userrec* dest, const std::string &cl);
 
@@ -682,6 +731,7 @@ class userrec : public connection
 	void PurgeEmptyChannels();
 
 	/** Get the connect class which matches this user's host or IP address
+	 * @return A reference to this user's connect class
 	 */
 	ConnectClass& GetClass();
 

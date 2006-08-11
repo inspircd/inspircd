@@ -21,14 +21,19 @@
 #include "inspircd_config.h"
 #include "base.h"
 
+/** connection is the base class of userrec, and holds basic user properties.
+ * This can be extended for holding other user-like objects in the future.
+ */
 class connection : public Extensible
 {
  public:
-	/** File descriptor of the connection
+	/** File descriptor of the connection.
+	 * For a remote connection, this will have a negative value.
 	 */
 	int fd;
 	
-	/** Hostname of connection
+	/** Hostname of connection.
+	 * This should be valid as per RFC1035.
 	 */
 	char host[65];
 
@@ -53,6 +58,8 @@ class connection : public Extensible
 	bool haspassed;
 
 	/** Used by userrec to indicate the registration status of the connection
+	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
+	 * the connection state.
 	 */
 	char registered;
 	
@@ -60,19 +67,21 @@ class connection : public Extensible
 	 */
 	time_t lastping;
 	
-	/** Time the connection was created, set in the constructor
+	/** Time the connection was created, set in the constructor. This
+	 * may be different from the time the user's classbase object was
+	 * created.
 	 */
 	time_t signon;
 	
-	/** Time that the connection last sent data, used to calculate idle time
+	/** Time that the connection last sent a message, used to calculate idle time
 	 */
 	time_t idle_lastmsg;
 	
-	/** Used by PING checks with clients
+	/** Used by PING checking code
 	 */
 	time_t nping;
 	
-	/** Default constructor
+	/** Default constructor, creates the user as remote.
 	 */
 	connection()
 	{
