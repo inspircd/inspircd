@@ -126,6 +126,12 @@ class InspIRCd : public classbase
 
 	char ReadBuffer[65535];
 
+	const long duration_m;
+	const long duration_h;
+	const long duration_d;
+	const long duration_w;
+	const long duration_y;
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
@@ -283,8 +289,6 @@ class InspIRCd : public classbase
 
         bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 
-        bool IsUlined(const std::string &server);
-
         void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
         void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
@@ -305,8 +309,6 @@ class InspIRCd : public classbase
 
         bool DelELine(const std::string &hostmask);
 
-        long CalcDuration(const std::string &duration);
-
         bool IsValidMask(const std::string &mask);
 
         void AddSocket(InspSocket* sock);
@@ -320,6 +322,13 @@ class InspIRCd : public classbase
         chanrec* GetChannelIndex(long index);
 
         void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
+
+	bool nick_matches_everyone(const std::string &nick, userrec* user);
+	bool ip_matches_everyone(const std::string &ip, userrec* user);
+	bool host_matches_everyone(const std::string &mask, userrec* user);
+	long duration(const char* str);
+	int operstrcmp(const char* data,const char* input);
+	bool is_uline(const char* server);
 
 	std::string GetRevision();
 	std::string GetVersionString();

@@ -338,11 +338,6 @@ bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spatter
 	return match(sliteral.c_str(),spattern.c_str());
 }
 
-bool InspIRCd::IsUlined(const std::string &server)
-{
-	return is_uline(server.c_str());
-}
-
 bool InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
 {
 	return this->Parser->CallHandler(commandname,parameters,pcnt,user);
@@ -519,11 +514,6 @@ bool InspIRCd::DelKLine(const std::string &hostmask)
 bool InspIRCd::DelELine(const std::string &hostmask)
 {
 	return XLines->del_eline(hostmask.c_str());
-}
-
-long InspIRCd::CalcDuration(const std::string &delta)
-{
-	return duration(delta.c_str());
 }
 
 /*

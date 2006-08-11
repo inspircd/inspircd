@@ -71,7 +71,7 @@ std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *c
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)))
+				if ((status < STATUS_HOP) && (!ServerInstance->is_uline(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, chan->name);
 					return "";
@@ -99,7 +99,7 @@ std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *c
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_HOP) && (!is_uline(user->server)))
+				if ((status < STATUS_HOP) && (!ServerInstance->is_uline(user->server)))
 				{
 					user->WriteServ("482 %s %s :You are not a channel (half)operator",user->nick, chan->name);
 					return "";

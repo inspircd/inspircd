@@ -92,7 +92,7 @@ class cmd_cban : public command_t
 				// parameters[0] = #channel
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Tortoise abuser
-				long length = duration(parameters[1]);
+				long length = ServerInstance->duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
 				cbans.push_back(CBan(parameters[0], user->nick, ServerInstance->Time(), length, reason));

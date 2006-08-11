@@ -81,7 +81,7 @@ class ModuleNoNotice : public Module
 			chanrec* c = (chanrec*)dest;
 			if (c->IsModeSet('T'))
 			{
-				if ((ServerInstance->IsUlined(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
+				if ((ServerInstance->is_uline(user->server)) || (c->GetStatus(user) == STATUS_OP) || (c->GetStatus(user) == STATUS_HOP))
 				{
 					// ops and halfops can still /NOTICE the channel
 					return 0;

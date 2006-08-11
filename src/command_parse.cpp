@@ -134,7 +134,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 			{
 				if (n->second->flags_needed)
 				{
-					return ((user->HasPermission(commandname)) || (is_uline(user->server)));
+					return ((user->HasPermission(commandname)) || (ServerInstance->is_uline(user->server)));
 				}
 				return true;
 			}

@@ -109,7 +109,7 @@ class RemoveBase
 		protectkey = "cm_protect_" + std::string(channel->name);
 		founderkey = "cm_founder_" + std::string(channel->name);
 		
-		if (is_uline(user->server) || is_uline(user->nick))
+		if (ServerInstance->is_uline(user->server) || ServerInstance->is_uline(user->nick))
 		{
 			ServerInstance->Log(DEBUG, "Setting ulevel to U");
 			ulevel = chartolevel("U");
@@ -131,7 +131,7 @@ class RemoveBase
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
-		if (is_uline(target->server) || is_uline(target->nick))
+		if (ServerInstance->is_uline(target->server) || ServerInstance->is_uline(target->nick))
 		{
 			ServerInstance->Log(DEBUG, "Setting tlevel to U");
 			tlevel = chartolevel("U");

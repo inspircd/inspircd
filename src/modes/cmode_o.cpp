@@ -71,7 +71,7 @@ std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,in
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)))
+				if ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return "";
@@ -102,7 +102,7 @@ std::string ModeChannelOp::DelOp(userrec *user,const char *dest,chanrec *chan,in
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)) && (IS_LOCAL(user)))
+				if ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server)) && (IS_LOCAL(user)))
 				{
 					user->WriteServ("482 %s %s :You are not a channel operator",user->nick, chan->name);
 					return "";

@@ -49,39 +49,31 @@
 #include "typedefs.h"
 #include "command_parse.h"
 
-extern InspIRCd* ServerInstance;
-
-const long duration_m = 60;
-const long duration_h = duration_m * 60;
-const long duration_d = duration_h * 24;
-const long duration_w = duration_d * 7;
-const long duration_y = duration_w * 52;
-
 /* XXX - these really belong in helperfuncs perhaps -- w00t */
-bool is_uline(const char* server)
+bool InspIRCd::is_uline(const char* server)
 {
 	if (!server)
 		return false;
 	if (!*server)
 		return true;
 
-	return (find(ServerInstance->Config->ulines.begin(),ServerInstance->Config->ulines.end(),server) != ServerInstance->Config->ulines.end());
+	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
 }
 
-int operstrcmp(const char* data,const char* input)
+int InspIRCd::operstrcmp(const char* data,const char* input)
 {
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnOperCompare,OnOperCompare(data,input))
-	ServerInstance->Log(DEBUG,"operstrcmp: %d",MOD_RESULT);
+	FOREACH_RESULT_I(this,I_OnOperCompare,OnOperCompare(data,input))
+	Log(DEBUG,"operstrcmp: %d",MOD_RESULT);
 	if (MOD_RESULT == 1)
 		return 0;
 	if (MOD_RESULT == -1)
 		return 1;
-	ServerInstance->Log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
+	Log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
 	return strcmp(data,input);
 }
 
-long duration(const char* str)
+long InspIRCd::duration(const char* str)
 {
 	char n_field[MAXBUF];
 	long total = 0;
@@ -142,19 +134,19 @@ long duration(const char* str)
 
 /* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
 
-bool host_matches_everyone(const std::string &mask, userrec* user)
+bool InspIRCd::host_matches_everyone(const std::string &mask, userrec* user)
 {
 	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
+	if (!Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","hostmasks", 0))
+	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
 		return false;
 	
-	for (user_hash::iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		strlcpy(buffer,u->second->ident,MAXBUF);
 		charlcat(buffer,'@',MAXBUF);
@@ -162,62 +154,62 @@ bool host_matches_everyone(const std::string &mask, userrec* user)
 		if (match(buffer,mask.c_str()))
 			matches++;
 	}
-	float percent = ((float)matches / (float)ServerInstance->clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
-		ServerInstance->WriteOpers("*** \2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
+		WriteOpers("*** \2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
 		return true;
 	}
 	return false;
 }
 
-bool ip_matches_everyone(const std::string &ip, userrec* user)
+bool InspIRCd::ip_matches_everyone(const std::string &ip, userrec* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","ipmasks",0))
+	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
 		return false;
 	
-	for (user_hash::iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		if (match(u->second->GetIPString(),ip.c_str(),true))
 			matches++;
 	}
 	
-	float percent = ((float)matches / (float)ServerInstance->clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
-		ServerInstance->WriteOpers("*** \2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
+		WriteOpers("*** \2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
 		return true;
 	}
 	return false;
 }
 
-bool nick_matches_everyone(const std::string &nick, userrec* user)
+bool InspIRCd::nick_matches_everyone(const std::string &nick, userrec* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
-	if (!ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
 		strlcpy(itrigger,"95.5",MAXBUF);
 	
-	if (ServerInstance->Config->ConfValueBool(ServerInstance->Config->config_data, "insane","nickmasks",0))
+	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
 		return false;
 
-	for (user_hash::iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
 	{
 		if (match(u->second->nick,nick.c_str()))
 			matches++;
 	}
 	
-	float percent = ((float)matches / (float)ServerInstance->clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
-		ServerInstance->WriteOpers("*** \2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);
+		WriteOpers("*** \2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);
 		return true;
 	}
 	return false;

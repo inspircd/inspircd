@@ -165,7 +165,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)) || (!strcmp(user->server,"")))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -182,7 +182,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((u->modes['R'-65]) && (!account))
 			{
-				if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)))
+				if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;
@@ -212,7 +212,7 @@ class ModuleServicesAccount : public Module
 			{
 				if (!account)
 				{
-					if ((ServerInstance->IsUlined(user->nick)) || (ServerInstance->IsUlined(user->server)))
+					if ((ServerInstance->is_uline(user->nick)) || (ServerInstance->is_uline(user->server)))
 					{
 						// user is ulined, won't be stopped from joining
 						return 0;

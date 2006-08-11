@@ -55,14 +55,14 @@ class cmd_swhois : public command_t
 			{
 				// We already had it set...
 				
-				if (!ServerInstance->IsUlined(user->server))
+				if (!ServerInstance->is_uline(user->server))
 					// Ulines set SWHOISes silently
 					ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
 				
 				dest->Shrink("swhois");
 				DELETE(text);
 			}
-			else if(!ServerInstance->IsUlined(user->server))
+			else if(!ServerInstance->is_uline(user->server))
 			{
 				// Ulines set SWHOISes silently
 				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());

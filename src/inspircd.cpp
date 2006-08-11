@@ -190,14 +190,15 @@ std::string InspIRCd::GetRevision()
 	return REVISION;
 }
 
-InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
+InspIRCd::InspIRCd(int argc, char** argv)
+	: duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), ModCount(-1)
 {
 	bool SEGVHandler = false;
 	ServerInstance = this;
 
 	modules.resize(255);
 	factory.resize(255);
-
+	
 	this->Config = new ServerConfig(this);
 	this->Start();
 	this->module_sockets.clear();

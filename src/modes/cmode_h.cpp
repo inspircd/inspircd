@@ -80,7 +80,7 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((status < STATUS_OP) && (!is_uline(user->server)))
+				if ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server)))
 				{
 					user->WriteServ("482 %s %s :You're not a channel operator",user->nick, chan->name);
 					return "";
@@ -108,7 +108,7 @@ std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec 
 				return "";
 			if (MOD_RESULT == ACR_DEFAULT)
 			{
-				if ((user != d) && ((status < STATUS_OP) && (!is_uline(user->server))))
+				if ((user != d) && ((status < STATUS_OP) && (!ServerInstance->is_uline(user->server))))
 				{
 					user->WriteServ("482 %s %s :You are not a channel operator",user->nick, chan->name);
 					return "";

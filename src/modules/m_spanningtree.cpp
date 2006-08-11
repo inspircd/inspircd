@@ -1159,7 +1159,7 @@ class TreeSocket : public InspSocket
 		}
 		else
 		/* U-lined servers always win regardless of their TS */
-		if ((TS > ourTS) && (!this->Instance->IsUlined(source)))
+		if ((TS > ourTS) && (!this->Instance->is_uline(source.c_str())))
 		{
 			/* Bounce the mode back to its sender.* We use our lower TS, so the other end
 			 * SHOULD accept it, if its clock is right.
@@ -1272,7 +1272,7 @@ class TreeSocket : public InspSocket
 			/* The server was ulined, but something iffy is up with the TS.
 			 * Sound the alarm bells!
 			 */
-			if ((this->Instance->IsUlined(sourceserv)) && (TS > ourTS))
+			if ((this->Instance->is_uline(sourceserv.c_str())) && (TS > ourTS))
 			{
 				this->Instance->WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
 			}
@@ -1416,7 +1416,7 @@ class TreeSocket : public InspSocket
 						/* theres a mode for this user. push them onto the mode queue, and flush it
 						 * if there are more than MAXMODES to go.
 						 */
-						if ((ourTS >= TS) || (this->Instance->IsUlined(who->server)))
+						if ((ourTS >= TS) || (this->Instance->is_uline(who->server)))
 						{
 							/* We also always let u-lined clients win, no matter what the TS value */
 							ServerInstance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
@@ -3427,7 +3427,7 @@ class ModuleSpanningTree : public Module
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (ServerInstance->IsUlined(Current->GetChild(q)->GetName())))
+			if ((HideULines) && (ServerInstance->is_uline(Current->GetChild(q)->GetName().c_str())))
 			{
 				if (*user->oper)
 				{
@@ -3440,7 +3440,7 @@ class ModuleSpanningTree : public Module
 			}
 		}
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-		if ((HideULines) && (ServerInstance->IsUlined(Current->GetName())) && (!*user->oper))
+		if ((HideULines) && (ServerInstance->is_uline(Current->GetName().c_str())) && (!*user->oper))
 			return;
 		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
@@ -3526,7 +3526,7 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				if ((HideULines) && (ServerInstance->IsUlined(Current->GetChild(q)->GetName())))
+				if ((HideULines) && (ServerInstance->is_uline(Current->GetChild(q)->GetName().c_str())))
 				{
 					if (*user->oper)
 					{

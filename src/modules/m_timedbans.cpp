@@ -74,14 +74,14 @@ class cmd_tban : public command_t
 				}
 				TimedBan T;
 				std::string channelname = parameters[0];
-				unsigned long expire = ServerInstance->CalcDuration(parameters[1]) + time(NULL);
-				if (ServerInstance->CalcDuration(parameters[1]) < 1)
+				unsigned long expire = ServerInstance->duration(parameters[1]) + time(NULL);
+				if (ServerInstance->duration(parameters[1]) < 1)
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
 					return;
 				}
 				char duration[MAXBUF];
-				snprintf(duration,MAXBUF,"%lu",ServerInstance->CalcDuration(parameters[1]));
+				snprintf(duration,MAXBUF,"%lu",ServerInstance->duration(parameters[1]));
 				std::string mask = parameters[2];
 				const char *setban[32];
 				setban[0] = parameters[0];

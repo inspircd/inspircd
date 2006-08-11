@@ -29,13 +29,6 @@
 #include "channels.h"
 #include "modules.h"
 
-bool is_uline(const char* server);
-long duration(const char* str);
-bool host_matches_everyone(const std::string &mask, userrec* user);
-bool ip_matches_everyone(const std::string &ip, userrec* user);
-bool nick_matches_everyone(const std::string &nick, userrec* user);	
-int operstrcmp(const char* data,const char* input);
-
 /*       XXX Serious WTFness XXX
  *
  * Well, unless someone invents a wildcard or

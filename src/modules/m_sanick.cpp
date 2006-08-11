@@ -42,7 +42,7 @@ class cmd_sanick : public command_t
 		userrec* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
 		{
-			if (ServerInstance->IsUlined(source->server))
+			if (ServerInstance->is_uline(source->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return;

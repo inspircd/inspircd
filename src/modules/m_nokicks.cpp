@@ -86,7 +86,7 @@ class ModuleNoKicks : public Module
 		{
 			if (channel->IsModeSet('Q'))
 			{
-				if ((ServerInstance->IsUlined(source->nick)) || (ServerInstance->IsUlined(source->server)) || (!strcmp(source->server,"")))
+				if ((ServerInstance->is_uline(source->nick)) || (ServerInstance->is_uline(source->server)) || (!*source->server))
 				{
 					// ulines can still kick with +Q in place
 					return ACR_ALLOW;
