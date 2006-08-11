@@ -45,11 +45,6 @@
 #include "dns.h"
 #include "inspircd.h"
 
-extern time_t TIME;
-extern command_table cmdlist;
-
-class Server;
-
 // version is a simple class for holding a modules version number
 
 Version::Version(int major, int minor, int revision, int build, int flags)

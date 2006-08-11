@@ -48,8 +48,6 @@
 
 #define nspace __gnu_cxx
 
-extern time_t TIME;
-
 /* Special commands which may occur without registration of the user */
 cmd_user* command_user;
 cmd_nick* command_nick;
@@ -202,7 +200,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 		if (user)
 		{
 			/* activity resets the ping pending timer */
-			user->nping = TIME + user->pingmax;
+			user->nping = ServerInstance->Time() + user->pingmax;
 			if (cm->second->flags_needed)
 			{
 				if (!user->IsModeSet(cm->second->flags_needed))

@@ -28,9 +28,6 @@
 #include "hashcomp.h"
 #include "commands/cmd_nick.h"
 
-
-extern time_t TIME;
-
 void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];

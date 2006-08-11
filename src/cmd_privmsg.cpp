@@ -25,15 +25,12 @@
 #include "helperfuncs.h"
 #include "commands/cmd_privmsg.h"
 
-
-extern time_t TIME;
-
 void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	chanrec *chan;
 
-	user->idle_lastmsg = TIME;
+	user->idle_lastmsg = ServerInstance->Time();
 	
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return;

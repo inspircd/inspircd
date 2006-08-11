@@ -54,8 +54,6 @@ using namespace std;
 extern struct sockaddr_in client,server;
 extern socklen_t length;
 
-extern time_t TIME;
-extern time_t OLDTIME;
 char data[65536];
 
 void InspIRCd::ProcessUser(userrec* cu)

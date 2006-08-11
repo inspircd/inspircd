@@ -36,9 +36,6 @@
 #include "command_parse.h"
 #include "commands/cmd_oper.h"
 
-
-extern time_t TIME;
-
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 {
 	std::stringstream hl(hostlist);

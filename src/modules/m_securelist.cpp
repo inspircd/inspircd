@@ -23,12 +23,8 @@ using namespace std;
 #include <vector>
 #include "inspircd.h"
 
-extern time_t TIME;
-
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
 
-
- 
 class ModuleSecureList : public Module
 {
  private:

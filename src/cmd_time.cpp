@@ -21,14 +21,12 @@
 #include "helperfuncs.h"
 #include "commands/cmd_time.h"
 
-
-extern time_t TIME;
-
 void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	struct tm* timeinfo;
+	time_t local = ServerInstance->Time();
 
-	timeinfo = localtime(&TIME);
+	timeinfo = localtime(&local);
 
 	char tms[26];
 	snprintf(tms,26,"%s",asctime(timeinfo));

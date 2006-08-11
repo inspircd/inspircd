@@ -22,9 +22,6 @@
 #include "commands/cmd_topic.h"
 #include "helperfuncs.h"
 
-
-extern time_t TIME;
-
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
@@ -86,7 +83,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 
 			strlcpy(Ptr->topic,topic,MAXTOPIC-1);
 			strlcpy(Ptr->setby,user->nick,NICKMAX-1);
-			Ptr->topicset = TIME;
+			Ptr->topicset = ServerInstance->Time();
 			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
 			if (IS_LOCAL(user))
 			{

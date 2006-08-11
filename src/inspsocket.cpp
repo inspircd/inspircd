@@ -31,8 +31,6 @@ using irc::sockets::OpenTCPSocket;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
-extern time_t TIME;
-
 InspSocket::InspSocket(InspIRCd* SI)
 {
 	this->state = I_DISCONNECTED;

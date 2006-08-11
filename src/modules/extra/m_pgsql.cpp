@@ -44,8 +44,6 @@
  * I can access the socket engine :\
  */
 
-extern time_t TIME;
-
 /* Forward declare, so we can have the typedef neatly at the top */
 class SQLConn;
 /* Also needs forward declaration, as it's used inside SQLconn */

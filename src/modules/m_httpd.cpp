@@ -32,7 +32,6 @@ class ModuleHttp;
 
 
 static ModuleHttp* HttpModule;
-extern time_t TIME;
 static bool claimed;
 
 enum HttpState

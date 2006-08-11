@@ -65,8 +65,6 @@ using namespace std;
 /* +n (notice mask - our implementation of snomasks) */
 #include "modes/umode_n.h"
 
-extern time_t TIME;
-
 ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
 	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
 {

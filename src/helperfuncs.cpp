@@ -43,8 +43,6 @@
 #include "typedefs.h"
 #include "inspircd.h"
 
-extern time_t TIME;
-
 static char TIMESTR[26];
 static time_t LAST = 0;
 
@@ -75,13 +73,14 @@ void InspIRCd::Log(int level, const std::string &text)
 	if ((level < ServerInstance->Config->LogLevel) && !ServerInstance->Config->forcedebug)
 		return;
 
-	if (TIME != LAST)
+	if (ServerInstance->Time() != LAST)
 	{
-		struct tm *timeinfo = localtime(&TIME);
+		time_t local = ServerInstance->Time();
+		struct tm *timeinfo = localtime(&local);
 
 		strlcpy(TIMESTR,asctime(timeinfo),26);
 		TIMESTR[24] = ':';
-		LAST = TIME;
+		LAST = ServerInstance->Time();
 	}
 
 	if (ServerInstance->Config->log_file && ServerInstance->Config->writelog)

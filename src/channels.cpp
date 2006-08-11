@@ -38,8 +38,6 @@ using namespace std;
 #include "helperfuncs.h"
 #include "typedefs.h"
 
-extern time_t TIME;
-
 chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	*name = *topic = *setby = *key = 0;
@@ -238,7 +236,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 		strlcpy(Ptr->name, cname,CHANMAX);
 		Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
-		Ptr->created = TIME;
+		Ptr->created = Instance->Time();
 		*Ptr->topic = 0;
 		strlcpy(Ptr->setby, user->nick,NICKMAX-1);
 		Ptr->topicset = 0;

@@ -13,8 +13,6 @@
 #include "hashcomp.h"
 #include "modes/cmode_b.h"
 
-extern time_t TIME;
-
 ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, 'b', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }
@@ -91,7 +89,7 @@ std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *cha
 		}
 	}
 
-	b.set_time = TIME;
+	b.set_time = ServerInstance->Time();
 	strlcpy(b.data,dest.c_str(),MAXBUF);
 	if (*user->nick)
 	{

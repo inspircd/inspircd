@@ -24,10 +24,6 @@ using namespace std;
 #include "configreader.h"
 #include "inspircd.h"
 
-extern time_t TIME;
-
-
-
 class ListData : public classbase
 {
  public:

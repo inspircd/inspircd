@@ -14,8 +14,6 @@
 #include "hashcomp.h"
 #include "modes/cmode_o.h"
 
-extern time_t TIME;
-
 ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(Instance, 'o', 1, 1, true, MODETYPE_CHANNEL, false)
 {
 }

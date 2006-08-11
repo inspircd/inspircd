@@ -76,8 +76,6 @@ int iterations = 0;
 insp_sockaddr client, server;
 socklen_t length;
 
-time_t TIME = time(NULL), OLDTIME = time(NULL);
-
 char lowermap[255];
 
 void InspIRCd::AddServerName(const std::string &servername)
@@ -219,8 +217,8 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 	this->Config = new ServerConfig(this);
 	this->Start();
 	this->module_sockets.clear();
-	this->startup_time = time(NULL);
-	srand(time(NULL));
+	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
+	srand(this->TIME);
 	log(DEBUG,"*** InspIRCd starting up!");
 	if (!ServerConfig::FileExists(CONFIG_FILE))
 	{
@@ -1037,5 +1035,18 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 int InspIRCd::GetModuleCount()
 {
 	return this->ModCount;
+}
+
+time_t InspIRCd::Time()
+{
+	return TIME;
+}
+
+classbase::classbase()
+{
+	/* This is in here only to make use of ServerInstance
+	 * without using an ugly extern
+	 */
+	this->age = ServerInstance->Time();
 }
 

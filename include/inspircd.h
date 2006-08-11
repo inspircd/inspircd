@@ -109,6 +109,9 @@ class InspIRCd : public classbase
 
 	featurelist Features;
 
+	time_t TIME;
+	time_t OLDTIME;
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
@@ -125,9 +128,12 @@ class InspIRCd : public classbase
 	std::vector<userrec*> all_opers;
 	DNS* Res;
 	TimerManager* Timers;
+	command_table cmdlist;
 
 	ModuleList modules;
 	FactoryList factory;
+
+	time_t Time();
 
 	int GetModuleCount();
 

@@ -22,10 +22,6 @@
 #include "helperfuncs.h"
 #include "commands/cmd_whois.h"
 
-
-
-extern time_t TIME;
-
 const char* Spacify(char* n)
 {
 	static char x[MAXBUF];
@@ -81,7 +77,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		if (!strcasecmp(user->server,dest->server))
 		{
 			// idle time and signon line can only be sent if youre on the same server (according to RFC)
-			user->WriteServ("317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-TIME), dest->signon);
+			user->WriteServ("317 %s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
 		}
 		else
 		{

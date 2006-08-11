@@ -31,8 +31,6 @@
 #include "xline.h"
 #include "cull_list.h"
 
-extern time_t TIME;
-
 irc::whowas::whowas_users whowas;
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 
@@ -255,7 +253,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
-	reset_due = TIME;
+	reset_due = ServerInstance->Time();
 	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
 	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
@@ -742,14 +740,14 @@ namespace irc
 		}
 
 		/* every hour, run this function which removes all entries over 3 days */
-		void MaintainWhoWas(time_t TIME)
+		void MaintainWhoWas(time_t t)
 		{
 			for (whowas_users::iterator iter = ::whowas.begin(); iter != ::whowas.end(); iter++)
 			{
 				whowas_set* n = (whowas_set*)iter->second;
 				if (n->size())
 				{
-					while ((n->begin() != n->end()) && ((*n->begin())->signon < TIME - 259200)) // 3 days
+					while ((n->begin() != n->end()) && ((*n->begin())->signon < t - 259200)) // 3 days
 					{
 						WhoWasGroup *a = *(n->begin());
 						DELETE(a);
@@ -826,7 +824,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	strcpy(_new->ident, "unknown");
 
 	_new->registered = REG_NONE;
-	_new->signon = TIME + Instance->Config->dns_timeout;
+	_new->signon = Instance->Time() + Instance->Config->dns_timeout;
 	_new->lastping = 1;
 
 	log(DEBUG,"Setting socket addresses");
@@ -859,8 +857,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		}
 	}
 
-	_new->nping = TIME + _new->pingmax + Instance->Config->dns_timeout;
-	_new->timeout = TIME+class_regtimeout;
+	_new->nping = Instance->Time() + _new->pingmax + Instance->Config->dns_timeout;
+	_new->timeout = Instance->Time() + class_regtimeout;
 	_new->flood = class_flood;
 	_new->threshold = class_threshold;
 	_new->sendqmax = class_sqmax;
@@ -962,7 +960,7 @@ long userrec::LocalCloneCount()
 void userrec::FullConnect(CullList* Goners)
 {
 	ServerInstance->stats->statsConnects++;
-	this->idle_lastmsg = TIME;
+	this->idle_lastmsg = ServerInstance->Time();
 
 	ConnectClass a = this->GetClass();
 

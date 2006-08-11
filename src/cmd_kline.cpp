@@ -31,9 +31,6 @@
 #include "helperfuncs.h"
 #include "commands/cmd_kline.h"
 
-
-extern time_t TIME;
-
 void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)

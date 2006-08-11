@@ -58,10 +58,6 @@ extern InspIRCd* ServerInstance;
  *     -- Brain
  */
 
-
-
-extern time_t TIME;
-
 /* Lists for temporary lines with an expiry time */
 
 std::vector<KLine> klines;
@@ -153,7 +149,7 @@ bool add_gline(long duration, const char* source,const char* reason,const char* 
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
-	item.set_time = TIME;
+	item.set_time = ServerInstance->Time();
 	
 	if (duration)
 	{
@@ -179,7 +175,7 @@ bool add_eline(long duration, const char* source, const char* reason, const char
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
-	item.set_time = TIME;
+	item.set_time = ServerInstance->Time();
 	if (duration)
 	{
 		elines.push_back(item);
@@ -204,7 +200,7 @@ bool add_qline(long duration, const char* source, const char* reason, const char
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.is_global = false;
-	item.set_time = TIME;
+	item.set_time = ServerInstance->Time();
 	if (duration)
 	{
 		qlines.push_back(item);
@@ -235,7 +231,7 @@ bool add_zline(long duration, const char* source, const char* reason, const char
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
 	item.is_global = false;
-	item.set_time = TIME;
+	item.set_time = ServerInstance->Time();
 	if (duration)
 	{
 		zlines.push_back(item);
@@ -259,7 +255,7 @@ bool add_kline(long duration, const char* source, const char* reason, const char
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
-	item.set_time = TIME;
+	item.set_time = ServerInstance->Time();
 	if (duration)
 	{
 		klines.push_back(item);
@@ -602,7 +598,7 @@ bool QSortComparison ( const QLine one, const QLine two )
 
 void expire_lines()
 {
-	time_t current = TIME;
+	time_t current = ServerInstance->Time();
 
 	/* Because we now store all our XLines in sorted order using (i->duration + i->set_time) as a key, this
 	 * means that to expire the XLines we just need to do a while, picking off the top few until there are

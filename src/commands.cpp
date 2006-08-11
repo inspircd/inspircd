@@ -51,8 +51,6 @@
 
 extern InspIRCd* ServerInstance;
 
-extern time_t TIME;
-
 const long duration_m = 60;
 const long duration_h = duration_m * 60;
 const long duration_d = duration_h * 24;

@@ -26,9 +26,6 @@ using namespace std;
 /* $ModDesc: Connection throttle */
 
 int conns = 0, throttled = 0;
-extern time_t TIME;
-
-
 
 class ModuleConnFlood : public Module
 {

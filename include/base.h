@@ -40,7 +40,7 @@ class classbase
 	/** Constructor,
 	 * Sets the object's time
 	 */
-	classbase() { age = TIME; }
+	classbase();
 	~classbase() { }
 };
 

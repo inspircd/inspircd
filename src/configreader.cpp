@@ -26,8 +26,6 @@
 #include "userprocess.h"
 #include "xline.h"
 
-extern time_t TIME;
-
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)

@@ -34,9 +34,6 @@
 #include "socketengine.h"
 #include "commands/cmd_quit.h"
 
-
-extern time_t TIME;
-
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);

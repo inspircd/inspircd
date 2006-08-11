@@ -23,8 +23,6 @@
 #include "socketengine.h"
 #include "wildcard.h"
 
-extern time_t TIME;
-
 using namespace std;
 using namespace irc::sockets;
 

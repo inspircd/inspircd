@@ -41,10 +41,6 @@
 #include "command_parse.h"
 #include "commands/cmd_stats.h"
 
-
-
-extern time_t TIME;
-
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	string_list values;
@@ -110,7 +106,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		{
 			if (*i->second->oper)
 			{
-				results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+ConvToStr(TIME - i->second->idle_lastmsg));
+				results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg));
 				idx++;
 			}
 		}
@@ -213,7 +209,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			userrec* i = *n;
 			if (ServerInstance->IsNick(i->nick))
 			{
-				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
+				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 			}
 		}
 	}
@@ -227,7 +223,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			userrec* i = *n;
 			if (ServerInstance->IsNick(i->nick))
 			{
-				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(TIME - i->age));
+				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 			}
 		}
 	}
@@ -236,7 +232,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 	if (statschar == 'u')
 	{
 		time_t current_time = 0;
-		current_time = TIME;
+		current_time = ServerInstance->Time();
 		time_t server_uptime = current_time - ServerInstance->startup_time;
 		struct tm* stime;
 		stime = gmtime(&server_uptime);

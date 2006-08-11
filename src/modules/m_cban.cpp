@@ -30,8 +30,6 @@
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
-
-
 class CBan : public classbase
 {
 public:
@@ -50,12 +48,8 @@ public:
 	}
 };
 
-std::string EncodeCBan(const CBan &ban);
-CBan DecodeCBan(const std::string &data);
 bool CBanComp(const CBan &ban1, const CBan &ban2);
-void ExpireBans();
 
-extern time_t TIME;
 typedef std::vector<CBan> cbanlist;
 
 /* cbans is declared here, as our type is right above. Don't try move it. */
@@ -75,8 +69,6 @@ class cmd_cban : public command_t
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
-		
-		ExpireBans();
 
 		if(pcnt == 1)
 		{
@@ -85,7 +77,7 @@ class cmd_cban : public command_t
 			{
 				if (parameters[0] == iter->chname)
 				{
-					unsigned long remaining = (iter->set_on + iter->length) - TIME;
+					unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
 					user->WriteServ( "386 %s %s :Removed CBAN with %lu seconds left before expiry (%s)", user->nick, iter->chname.c_str(), remaining, iter->reason.c_str());
 					cbans.erase(iter);
 					break;
@@ -103,7 +95,7 @@ class cmd_cban : public command_t
 				long length = duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
-				cbans.push_back(CBan(parameters[0], user->nick, TIME, length, reason));
+				cbans.push_back(CBan(parameters[0], user->nick, ServerInstance->Time(), length, reason));
 					
 				std::sort(cbans.begin(), cbans.end(), CBanComp);
 				
@@ -157,7 +149,7 @@ class ModuleCBan : public Module
 		{
 			for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 			{
-				unsigned long remaining = (iter->set_on + iter->length) - TIME;
+				unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+iter->chname.c_str()+" "+iter->set_by+" "+ConvToStr(iter->set_on)+" "+ConvToStr(iter->length)+" "+ConvToStr(remaining)+" :"+iter->reason);
 			}
 		}
@@ -242,10 +234,10 @@ class ModuleCBan : public Module
 				/* 0 == permanent, don't mess with them! -- w00t */
 				if (iter->length != 0)
 				{
-					if (iter->set_on + iter->length <= TIME)
+					if (iter->set_on + iter->length <= ServerInstance->Time())
 					{
 						log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
-						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
+						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->Time() - iter->set_on);
 						cbans.erase(iter);
 						go_again = true;
 					}
