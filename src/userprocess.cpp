@@ -51,11 +51,6 @@ using namespace std;
 #include "command_parse.h"
 #include "cull_list.h"
 
-//extern struct sockaddr_in client,server;
-//extern socklen_t length;
-
-char data[65536];
-
 void InspIRCd::ProcessUser(userrec* cu)
 {
 	int result = EAGAIN;
@@ -72,7 +67,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		try
 		{
-			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,data,65535,result2);
+			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,ReadBuffer,sizeof(ReadBuffer),result2);
 			log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
@@ -91,7 +86,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else
 	{
-		result = cu->ReadData(data, 65535);
+		result = cu->ReadData(ReadBuffer, sizeof(ReadBuffer));
 	}
 
 	log(DEBUG,"Read result: %d",result);
@@ -112,12 +107,12 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		for (int checker = 0; checker < result; checker++)
 		{
-			if (data[checker] == 0)
-				data[checker] = ' ';
+			if (ReadBuffer[checker] == 0)
+				ReadBuffer[checker] = ' ';
 		}
 
 		if (result > 0)
-			data[result] = '\0';
+			ReadBuffer[result] = '\0';
 
 		current = cu;
 		currfd = current->fd;
@@ -125,7 +120,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 		// add the data to the users buffer
 		if (result > 0)
 		{
-			if (!current->AddBuffer(data))
+			if (!current->AddBuffer(ReadBuffer))
 			{
 				// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
 				if (current->registered == REG_ALL)

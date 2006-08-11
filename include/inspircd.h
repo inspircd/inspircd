@@ -112,6 +112,8 @@ class InspIRCd : public classbase
 	time_t TIME;
 	time_t OLDTIME;
 
+	char ReadBuffer[65535];
+
  public:
 	time_t startup_time;
 	ModeParser* ModeGrok;
