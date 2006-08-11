@@ -27,11 +27,9 @@
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 
-extern InspIRCd* ServerInstance;
-
 class ModuleSQLAuth : public Module
 {
-	Server* Srv;
+	InspIRCd* Srv;
 	Module* SQLutils;
 
 	std::string usertable;
@@ -46,9 +44,9 @@ class ModuleSQLAuth : public Module
 	
 public:
 	ModuleSQLAuth(InspIRCd* Me)
-		: Module::Module(Me)
+	: Module::Module(Me), Srv(Me)
 	{
-		SQLutils = ServerInstance->FindFeature("SQLutils");
+		SQLutils = Srv->FindFeature("SQLutils");
 		
 		if(SQLutils)
 		{
@@ -70,7 +68,7 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		ConfigReader Conf;
+		ConfigReader Conf(Srv);
 		
 		usertable	= Conf.ReadValue("sqlauth", "usertable", 0);	/* User table name */
 		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
@@ -96,7 +94,7 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			userrec::QuitUser(ServerInstance,user,killreason);
+			userrec::QuitUser(Srv,user,killreason);
 		}
 	}
 
@@ -104,7 +102,7 @@ public:
 	{
 		Module* target;
 		
-		target = ServerInstance->FindFeature("SQL");
+		target = Srv->FindFeature("SQL");
 		
 		if(target)
 		{
@@ -130,7 +128,7 @@ public:
 				log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 			
 				if (verbose)
-					ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
+					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
 			
 				return false;
 			}
@@ -170,14 +168,14 @@ public:
 					else if (verbose)
 					{
 						/* No rows in result, this means there was no record matching the user */
-						ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
+						Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
 						user->Extend("sqlauth_failed");
 					}
 				}
 				else if (verbose)
 				{
 					log(DEBUG, "Query failed: %s", res->error.Str());
-					ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					user->Extend("sqlauth_failed");
 				}
 			}
@@ -204,7 +202,7 @@ public:
 	{
 		if(user->GetExt("sqlauth_failed"))
 		{
-			userrec::QuitUser(ServerInstance,user,killreason);
+			userrec::QuitUser(Srv,user,killreason);
 			return false;
 		}
 		
