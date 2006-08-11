@@ -43,7 +43,7 @@
  * reimplementing them I need this so
  * I can access the socket engine :\
  */
-extern InspIRCd* ServerInstance;
+
 extern time_t TIME;
 
 /* Forward declare, so we can have the typedef neatly at the top */
@@ -95,8 +95,8 @@ class SQLresolver : public Resolver
 	SQLhost host;
 	ModulePgSQL* mod;
  public:
-	SQLresolver(ModulePgSQL* m, Server* srv, const SQLhost& hi)
-	: Resolver(ServerInstance, hi.host, DNS_QUERY_FORWARD), host(hi), mod(m)
+	SQLresolver(ModulePgSQL* m, InspIRCd* Instance, const SQLhost& hi)
+	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD), host(hi), mod(m)
 	{
 	}
 
@@ -456,7 +456,6 @@ class SQLConn : public InspSocket
 {
 private:
 	ModulePgSQL* us;		/* Pointer to the SQL provider itself */
-	Server* Srv;			/* Server* for..uhm..something, maybe */
 	std::string 	dbhost;	/* Database server hostname */
 	unsigned int	dbport;	/* Database server port */
 	std::string 	dbname;	/* Database name */
@@ -473,7 +472,7 @@ public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(InspIRCd* SI, ModulePgSQL* self, Server* srv, const SQLhost& hostinfo);
+	SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hostinfo);
 
 	~SQLConn();
 
@@ -513,7 +512,7 @@ public:
 class ModulePgSQL : public Module
 {
 private:
-	Server* Srv;
+	
 	ConnMap connections;
 	unsigned long currid;
 	char* sqlsuccess;
@@ -538,7 +537,7 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		ConfigReader conf;
+		ConfigReader conf(ServerInstance);
 		
 		/* Delete all the SQLConn objects in the connection lists,
 		 * this will call their destructors where they can handle
@@ -578,9 +577,9 @@ public:
 				/* Conversion failed, assume it's a host */
 				SQLresolver* resolver;
 				
-				resolver = new SQLresolver(this, Srv, host);
+				resolver = new SQLresolver(this, ServerInstance, host);
 				
-				Srv->AddResolver(resolver);
+				ServerInstance->AddResolver(resolver);
 			}
 			else
 			{
@@ -595,7 +594,7 @@ public:
 		SQLConn* newconn;
 				
 		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-		newconn = new SQLConn(ServerInstance, this, Srv, hi);
+		newconn = new SQLConn(ServerInstance, this, hi);
 				
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
@@ -662,8 +661,8 @@ public:
 	}	
 };
 
-SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, Server* srv, const SQLhost& hi)
-: InspSocket::InspSocket(SI), us(self), Srv(srv), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
+SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hi)
+: InspSocket::InspSocket(SI), us(self), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
 {
 	log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
 
@@ -734,13 +733,13 @@ bool SQLConn::DoConnect()
 	}
 	
 	this->state = I_CONNECTING;
-	if (!ServerInstance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
 	{
 		log(DEBUG, "A PQsocket cant be added to the socket engine!");
 		Close();
 		return false;
 	}
-	Instance->socket_ref[this->fd] = this;
+	this->Instance->socket_ref[this->fd] = this;
 	
 	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
 	

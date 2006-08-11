@@ -71,7 +71,7 @@ using namespace std;
 class SQLConnection;
 class Notifier;
 
-extern InspIRCd* ServerInstance;
+
 typedef std::map<std::string, SQLConnection*> ConnMap;
 bool giveup = false;
 static Module* SQLModule = NULL;
@@ -596,7 +596,7 @@ class SQLConnection : public classbase
 
 ConnMap Connections;
 
-void ConnectDatabases(Server* Srv)
+void ConnectDatabases(InspIRCd* ServerInstance)
 {
 	for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 	{
@@ -614,7 +614,7 @@ void ConnectDatabases(Server* Srv)
 }
 
 
-void LoadDatabases(ConfigReader* ThisConf, Server* Srv)
+void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 {
 	log(DEFAULT,"SQL: Loading database settings");
 	Connections.clear();
@@ -635,7 +635,7 @@ void LoadDatabases(ConfigReader* ThisConf, Server* Srv)
 			log(DEBUG,"Pushed back connection");
 		}
 	}
-	ConnectDatabases(Srv);
+	ConnectDatabases(ServerInstance);
 }
 
 void NotifyMainThread(SQLConnection* connection_with_new_result)
@@ -663,15 +663,15 @@ class Notifier : public InspSocket
 {
 	insp_sockaddr sock_us;
 	socklen_t uslen;
-	Server* Srv;
+	
 
  public:
 
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	Notifier(InspIRCd* SI, Server* S) : InspSocket(SI, "::1", 0, true, 3000), Srv(S)
+	Notifier(InspIRCd* SI) : InspSocket(SI, "::1", 0, true, 3000)
 #else
-	Notifier(InspIRCd* SI, Server* S) : InspSocket(SI, "127.0.0.1", 0, true, 3000), Srv(S)
+	Notifier(InspIRCd* SI) : InspSocket(SI, "127.0.0.1", 0, true, 3000)
 #endif
 	{
 		uslen = sizeof(sock_us);
@@ -681,7 +681,7 @@ class Notifier : public InspSocket
 		}
 	}
 
-	Notifier(InspIRCd* SI, int newfd, char* ip, Server* S) : InspSocket(SI, newfd, ip), Srv(S)
+	Notifier(InspIRCd* SI, int newfd, char* ip) : InspSocket(SI, newfd, ip)
 	{
 		log(DEBUG,"Constructor of new socket");
 	}
@@ -699,8 +699,8 @@ class Notifier : public InspSocket
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		log(DEBUG,"Inbound connection on fd %d!",newsock);
-		Notifier* n = new Notifier(this->Instance, newsock, ip, Srv);
-		Srv->AddSocket(n);
+		Notifier* n = new Notifier(this->Instance, newsock, ip);
+		this->Instance->AddSocket(n);
 		return true;
 	}
 
@@ -735,8 +735,9 @@ class Notifier : public InspSocket
 class ModuleSQL : public Module
 {
  public:
-	Server *Srv;
+	
 	ConfigReader *Conf;
+	InspIRCd* PublicServerInstance;
 	pthread_t Dispatcher;
 	int currid;
 
@@ -793,12 +794,13 @@ class ModuleSQL : public Module
 		: Module::Module(Me)
 	{
 		
-		Conf = new ConfigReader();
+		Conf = new ConfigReader(ServerInstance);
+		PublicServerInstance = ServerInstance;
 		currid = 0;
 		SQLModule = this;
 
-		MessagePipe = new Notifier(ServerInstance, Srv);
-		Srv->AddSocket(MessagePipe);
+		MessagePipe = new Notifier(ServerInstance);
+		ServerInstance->AddSocket(MessagePipe);
 		log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
 		
 		pthread_attr_t attribs;
@@ -837,7 +839,7 @@ void* DispatcherThread(void* arg)
 {
 	log(DEBUG,"Starting Dispatcher thread, mysql version %d",mysql_get_client_version());
 	ModuleSQL* thismodule = (ModuleSQL*)arg;
-	LoadDatabases(thismodule->Conf, thismodule->Srv);
+	LoadDatabases(thismodule->Conf, thismodule->PublicServerInstance);
 
 	/* Connect back to the Notifier */
 

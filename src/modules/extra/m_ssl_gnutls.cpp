@@ -17,7 +17,7 @@
 /* $CompileFlags: `libgnutls-config --cflags` */
 /* $LinkerFlags: `libgnutls-config --libs` `perl ../gnutls_rpath.pl` */
 
-extern InspIRCd* ServerInstance;
+
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
@@ -43,7 +43,7 @@ public:
 
 class ModuleSSLGnuTLS : public Module
 {
-	Server* Srv;
+	
 	ConfigReader* Conf;
 
 	char* dummy;
@@ -97,7 +97,7 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 	
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 		
 		for(unsigned int i = 0; i < listenports.size(); i++)
 		{
@@ -534,7 +534,7 @@ class ModuleSSLGnuTLS : public Module
 			log(DEBUG, "m_ssl_gnutls.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			userrec* extendme = Srv->FindDescriptor(session->fd);
+			userrec* extendme = ServerInstance->FindDescriptor(session->fd);
 			if (extendme)
 			{
 				if (!extendme->GetExt("ssl", dummy))
@@ -563,7 +563,7 @@ class ModuleSSLGnuTLS : public Module
 			metadata->push_back("ssl");		// The metadata id
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
-			event->Send();				// Trigger the event. We don't care what module picks it up.
+			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
 			DELETE(event);
 			DELETE(metadata);
 		}

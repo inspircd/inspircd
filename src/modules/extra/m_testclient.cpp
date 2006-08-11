@@ -8,12 +8,12 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
-extern InspIRCd* ServerInstance;
+
 
 class ModuleTestClient : public Module
 {
 private:
-	Server* Srv;
+	
 
 public:
 	ModuleTestClient(InspIRCd* Me)

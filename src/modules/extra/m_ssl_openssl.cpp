@@ -18,7 +18,7 @@
 /* $CompileFlags: -I/usr/include -I/usr/local/include */
 /* $LinkerFlags: -L/usr/local/lib -Wl,--rpath -Wl,/usr/local/lib -L/usr/lib -Wl,--rpath -Wl,/usr/lib -lssl */
 
-extern InspIRCd* ServerInstance;
+
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };
@@ -59,7 +59,7 @@ public:
 
 class ModuleSSLOpenSSL : public Module
 {
-	Server* Srv;
+	
 	ConfigReader* Conf;
 	
 	CullList* culllist;
@@ -107,7 +107,7 @@ class ModuleSSLOpenSSL : public Module
 		if(param != "ssl")
 			return;
 	
-		Conf = new ConfigReader;
+		Conf = new ConfigReader(ServerInstance);
 			
 		for(unsigned int i = 0; i < listenports.size(); i++)
 		{
@@ -601,7 +601,7 @@ class ModuleSSLOpenSSL : public Module
 			log(DEBUG, "m_ssl_openssl.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			userrec* u = Srv->FindDescriptor(session->fd);
+			userrec* u = ServerInstance->FindDescriptor(session->fd);
 			if (u)
 			{
 				if (!u->GetExt("ssl", dummy))
@@ -628,7 +628,7 @@ class ModuleSSLOpenSSL : public Module
 			metadata->push_back("ssl");		// The metadata id
 			metadata->push_back("ON");		// The value to send
 			Event* event = new Event((char*)metadata,(Module*)this,"send_metadata");
-			event->Send();				// Trigger the event. We don't care what module picks it up.
+			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
 			DELETE(event);
 			DELETE(metadata);
 		}

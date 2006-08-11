@@ -31,7 +31,7 @@
 
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */
 
-extern InspIRCd* ServerInstance;
+
 
 typedef std::map<unsigned long, userrec*> IdUserMap;
 typedef std::map<unsigned long, chanrec*> IdChanMap;
@@ -40,7 +40,7 @@ typedef std::list<unsigned long> AssocIdList;
 class ModuleSQLutils : public Module
 {
 private:
-	Server* Srv;
+	
 
 	IdUserMap iduser;
 	IdChanMap idchan;
