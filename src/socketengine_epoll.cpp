@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 #include "socketengine_epoll.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)

@@ -4,7 +4,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */

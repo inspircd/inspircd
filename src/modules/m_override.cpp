@@ -17,7 +17,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "configreader.h"
 #include "inspircd.h"
 

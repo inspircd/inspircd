@@ -17,7 +17,7 @@
 #include "users.h"
 #include "ctables.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "commands/cmd_list.h"
 

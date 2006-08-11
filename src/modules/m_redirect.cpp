@@ -20,7 +20,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */

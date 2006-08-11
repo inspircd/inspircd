@@ -19,7 +19,7 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "socketengine.h"
 #include "wildcard.h"
 

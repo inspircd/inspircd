@@ -28,7 +28,7 @@ using namespace std;
 #endif
 
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include <unistd.h>
 #include <sys/types.h>

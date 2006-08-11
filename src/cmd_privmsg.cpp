@@ -22,7 +22,7 @@
 #include "modules.h"
 #include "wildcard.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_privmsg.h"
 
 void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)

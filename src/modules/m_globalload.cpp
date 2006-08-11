@@ -23,7 +23,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
-#include "helperfuncs.h"
+
 
 class cmd_gloadmodule : public command_t
 {

@@ -23,7 +23,7 @@
 #include <arpa/inet.h>
 #include "users.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "dns.h"
 #include "inspircd.h"
 

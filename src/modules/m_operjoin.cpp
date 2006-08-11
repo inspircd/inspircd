@@ -5,7 +5,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Forces opers to join the specified channel(s) on oper-up */

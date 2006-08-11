@@ -24,7 +24,7 @@
 #include "commands.h"
 #include "xline.h"
 #include "dns.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "hashcomp.h"
 #include "commands/cmd_nick.h"

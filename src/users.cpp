@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include "inspstring.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "typedefs.h"
 #include "socketengine.h"
 #include "hashcomp.h"

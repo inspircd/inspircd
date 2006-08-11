@@ -38,7 +38,7 @@
 #include "xline.h"
 #include "commands.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "inspircd.h"

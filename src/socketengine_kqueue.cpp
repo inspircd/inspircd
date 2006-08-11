@@ -23,7 +23,7 @@
 #include <vector>
 #include <string>
 #include "socketengine_kqueue.h"
-#include "helperfuncs.h"
+
 
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {

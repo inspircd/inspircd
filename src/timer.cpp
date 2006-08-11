@@ -19,7 +19,7 @@
 #include "inspircd_config.h"
 #include "inspircd.h"
 #include "typedefs.h"
-#include "helperfuncs.h"
+
 #include "timer.h"
 
 void TimerManager::TickTimers(time_t TIME)

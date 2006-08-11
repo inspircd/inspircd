@@ -17,7 +17,7 @@
 #include "configreader.h"
 #include "modules.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_wallops.h"
 
 

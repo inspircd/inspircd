@@ -5,7 +5,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */

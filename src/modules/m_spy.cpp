@@ -34,7 +34,7 @@ using namespace std;
 #include "modules.h"
 #include "commands.h"
 #include "socket.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "inspstring.h"
 #include "hashcomp.h"

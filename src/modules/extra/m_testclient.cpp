@@ -3,7 +3,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "configreader.h"
 #include "m_sqlv2.h"

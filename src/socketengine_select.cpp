@@ -21,7 +21,7 @@
 #include <string>
 #include <sys/select.h>
 #include "socketengine_select.h"
-#include "helperfuncs.h"
+
 
 SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {

@@ -17,7 +17,7 @@
 
 #include "users.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 
 /* $ModDesc: Makes remote /whoises to SSL servers work on a non-ssl server */
 

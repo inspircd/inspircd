@@ -32,7 +32,7 @@ using namespace std;
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "wildcard.h"
 #include "inspstring.h"

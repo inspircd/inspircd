@@ -22,7 +22,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "u_listmode.h"
 #include "inspircd.h"

@@ -1,7 +1,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +z */

@@ -20,7 +20,7 @@ using namespace std;
 #include "inspircd.h"
 #include <string>
 #include "hashcomp.h"
-#include "helperfuncs.h"
+
 #include <ext/hash_map>
 
 #define nspace __gnu_cxx

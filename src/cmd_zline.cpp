@@ -21,7 +21,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "xline.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_zline.h"
 
 

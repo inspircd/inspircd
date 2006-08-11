@@ -18,7 +18,7 @@
 #include "users.h"
 #include "modules.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 

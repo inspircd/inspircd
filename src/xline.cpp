@@ -32,7 +32,7 @@ using namespace std;
 #include "commands.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "configreader.h"

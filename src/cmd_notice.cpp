@@ -24,7 +24,7 @@
 #include "modules.h"
 #include "wildcard.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "commands/cmd_notice.h"
 

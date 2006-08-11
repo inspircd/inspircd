@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 #include "socketengine.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)

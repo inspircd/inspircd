@@ -17,7 +17,7 @@
 #include "inspircd_config.h"
 #include "users.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "commands/cmd_userhost.h"
 

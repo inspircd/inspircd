@@ -21,7 +21,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspsocket.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 #include "httpd.h"
 

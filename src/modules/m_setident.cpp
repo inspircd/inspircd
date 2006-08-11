@@ -1,6 +1,6 @@
 #include "users.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for the SETIDENT command */

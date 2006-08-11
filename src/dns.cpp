@@ -38,7 +38,7 @@ using namespace std;
 #include <map>
 #include "dns.h"
 #include "inspircd.h"
-#include "helperfuncs.h"
+
 #include "inspircd_config.h"
 #include "socketengine.h"
 #include "configreader.h"

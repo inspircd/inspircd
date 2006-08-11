@@ -19,7 +19,7 @@ using namespace std;
 #include <string>
 #include "inspircd_config.h"
 #include "inspircd.h"
-#include "helperfuncs.h"
+
 #include "inspstring.h"
 
 using irc::sockets::MatchCIDR;

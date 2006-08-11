@@ -21,7 +21,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
-#include "helperfuncs.h"
+
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
 

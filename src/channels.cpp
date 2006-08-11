@@ -35,7 +35,7 @@ using namespace std;
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "typedefs.h"
 
 chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)

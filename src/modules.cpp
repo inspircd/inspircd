@@ -35,7 +35,7 @@
 #include "xline.h"
 #include "commands.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "socket.h"
 #include "socketengine.h"

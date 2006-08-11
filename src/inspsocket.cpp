@@ -23,7 +23,7 @@
 #include "socket.h"
 #include "configreader.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "socketengine.h"
 #include "inspircd.h"
 

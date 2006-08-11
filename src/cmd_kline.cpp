@@ -28,7 +28,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "xline.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_kline.h"
 
 void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)

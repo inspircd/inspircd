@@ -22,7 +22,7 @@
 #include <fstream>
 #include "inspircd.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "userprocess.h"
 #include "xline.h"
 

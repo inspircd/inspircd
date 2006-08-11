@@ -23,7 +23,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "inspircd.h"
 

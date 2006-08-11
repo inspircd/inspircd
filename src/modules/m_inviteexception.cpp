@@ -5,7 +5,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "mode.h"
-#include "helperfuncs.h"
+
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +I channel mode */

@@ -21,7 +21,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "configreader.h"
 #include "inspircd.h"

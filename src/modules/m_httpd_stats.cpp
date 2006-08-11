@@ -22,7 +22,7 @@ using namespace std;
 #include "configreader.h"
 #include "modules.h"
 #include "inspsocket.h"
-#include "helperfuncs.h"
+
 #include "httpd.h"
 #include "inspircd.h"
 

@@ -25,7 +25,7 @@ using namespace std;
 #include "users.h"
 #include "modules.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "commands.h"
 #include "mode.h"
 

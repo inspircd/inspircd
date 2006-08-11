@@ -43,7 +43,7 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "socketengine.h"
 #include "typedefs.h"

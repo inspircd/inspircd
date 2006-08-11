@@ -21,7 +21,7 @@
 #include "modules.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include "helperfuncs.h"
+
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
 #include "commands/cmd_oper.h"

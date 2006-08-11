@@ -33,7 +33,7 @@ using namespace std;
 #include "xline.h"
 #include "inspstring.h"
 #include "inspircd.h"
-#include "helperfuncs.h"
+
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "cull_list.h"

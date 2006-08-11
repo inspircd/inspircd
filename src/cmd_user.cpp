@@ -18,7 +18,7 @@
 #include "configreader.h"
 #include "users.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_user.h"
 
 

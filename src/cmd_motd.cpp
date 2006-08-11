@@ -16,7 +16,7 @@
 
 #include "users.h"
 #include "commands.h"
-#include "helperfuncs.h"
+
 #include "commands/cmd_motd.h"
 
 void cmd_motd::Handle (const char** parameters, int pcnt, userrec *user)

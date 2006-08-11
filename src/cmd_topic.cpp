@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "commands.h"
 #include "commands/cmd_topic.h"
-#include "helperfuncs.h"
+
 
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {
