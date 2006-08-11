@@ -93,75 +93,232 @@ class XLineManager;
 class InspIRCd : public classbase
 {
  private:
+	/** Holds a string describing the last module error to occur
+	 */
 	char MODERR[MAXBUF];
+
+	/** This is an internal flag used by the mainloop
+	 */
 	bool expire_run;
+
+	/** List of server names we've seen.
+	 */
 	servernamelist servernames;
  
+	/** Remove a ModuleFactory pointer
+	 */
 	void EraseFactory(int j);
+
+	/** Remove a Module pointer
+	 */
 	void EraseModule(int j);
+
+	/** Build the ISUPPORT string by triggering all modules On005Numeric events
+	 */
 	void BuildISupport();
+
+	/** Move a given module to a specific slot in the list
+	 */
 	void MoveTo(std::string modulename,int slot);
+
+	/** Display the startup banner
+	 */
 	void Start();
+
+	/** Set up the signal handlers
+	 */
 	void SetSignals(bool SEGVHandler);
+
+	/** Daemonize the ircd and close standard input/output streams
+	 */
 	bool DaemonSeed();
+
+	/** Build the upper/lowercase comparison table
+	 */
 	void MakeLowerMap();
+
+	/** Moves the given module to the last slot in the list
+	 */
 	void MoveToLast(std::string modulename);
+
+	/** Moves the given module to the first slot in the list
+	 */
 	void MoveToFirst(std::string modulename);
+
+	/** Moves one module to be placed after another in the list
+	 */
 	void MoveAfter(std::string modulename, std::string after);
+
+	/** Moves one module to be placed before another in the list
+	 */
 	void MoveBefore(std::string modulename, std::string before);
 
+	/** Process a user whos socket has been flagged as active
+	 */
 	void ProcessUser(userrec* cu);
+
+	/** Iterate the list of InspSocket objects, removing ones which have timed out
+	 */
 	void DoSocketTimeouts(time_t TIME);
+
+	/** Perform background user events such as PING checks
+	 */
 	void DoBackgroundUserStuff(time_t TIME);
 
+	/** Returns true when all modules have done pre-registration checks on a user
+	 */
 	bool AllModulesReportReady(userrec* user);
 
+	/** Total number of modules loaded into the ircd, minus one
+	 */
 	int ModCount;
+
+	/** Logfile pathname specified on the commandline, or empty string
+	 */
 	char LogFileName[MAXBUF];
 
+	/** The feature names published by various modules
+	 */
 	featurelist Features;
 
+	/** The current time, updated in the mainloop
+	 */
 	time_t TIME;
+
+	/** The time that was recorded last time around the mainloop
+	 */
 	time_t OLDTIME;
 
+	/** A 64k buffer used to read client lines into
+	 */
 	char ReadBuffer[65535];
 
+	/** Number of seconds in a minute
+	 */
 	const long duration_m;
+
+	/** Number of seconds in an hour
+	 */
 	const long duration_h;
+
+	/** Number of seconds in a day
+	 */
 	const long duration_d;
+
+	/** Number of seconds in a week
+	 */
 	const long duration_w;
+
+	/** Number of seconds in a year
+	 */
 	const long duration_y;
 
  public:
+	/** Time this ircd was booted
+	 */
 	time_t startup_time;
+
+	/** Mode handler, handles mode setting and removal
+	 */
 	ModeParser* Modes;
+
+	/** Command parser, handles client to server commands
+	 */
 	CommandParser* Parser;
+
+	/** Socket engine, handles socket activity events
+	 */
 	SocketEngine* SE;
+
+	/** Stats class, holds miscellaneous stats counters
+	 */
 	serverstats* stats;
+
+	/**  Server Config class, holds configuration file data
+	 */
 	ServerConfig* Config;
+
+	/** Module sockets list, holds the active set of InspSocket classes
+	 */
 	std::vector<InspSocket*> module_sockets;
-	InspSocket* socket_ref[MAX_DESCRIPTORS];	/* XXX: This should probably be made private, with inline accessors */
-	userrec* fd_ref_table[MAX_DESCRIPTORS];		/* XXX: Ditto */
+
+	/** Socket reference table, provides fast lookup of fd to InspSocket*
+	 */
+	InspSocket* socket_ref[MAX_DESCRIPTORS];
+
+	/** user reference table, provides fast lookup of fd to userrec*
+	 */
+	userrec* fd_ref_table[MAX_DESCRIPTORS];
+
+	/** Client list, a hash_map containing all clients, local and remote
+	 */
 	user_hash clientlist;
+
+	/** Channel list, a hash_map containing all channels
+	 */
 	chan_hash chanlist;
+
+	/** Local client list, a vector containing only local clients
+	 */
 	std::vector<userrec*> local_users;
+
+	/** Oper list, a vector containing all local and remote opered users
+	 */
 	std::vector<userrec*> all_opers;
+
+	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
+	 */
 	irc::whowas::whowas_users whowas;
+
+	/** DNS class, provides resolver facilities to the core and modules
+	 */
 	DNS* Res;
+
+	/** Timer manager class, triggers InspTimer timer events
+	 */
 	TimerManager* Timers;
+
+	/** Command list, a hash_map of command names to command_t*
+	 */
 	command_table cmdlist;
+
+	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
+	 */
 	XLineManager* XLines;
 
+	/** A list of Module* module classes
+	 * Note that this list is always exactly 255 in size.
+	 * The actual number of loaded modules is available from GetModuleCount()
+	 */
 	ModuleList modules;
+
+	/** A list of ModuleFactory* module factories
+	 * Note that this list is always exactly 255 in size.
+	 * The actual number of loaded modules is available from GetModuleCount()
+	 */
 	FactoryList factory;
 
+	/** Get the current time
+	 * Because this only calls time() once every time around the mainloop,
+	 * it is much faster than calling time() directly.
+	 */
 	time_t Time();
 
+	/** Get the total number of currently loaded modules
+	 */
 	int GetModuleCount();
 
+	/** Find a module by name, and return a Module* to it.
+	 * This is preferred over iterating the module lists yourself.
+	 * @param name The module name to look up
+	 */
 	Module* FindModule(const std::string &name);
 
+	/** Bind all ports specified in the configuration file.
+	 * @param bail True if the function should bail back to the shell on failure
+	 */
 	int BindPorts(bool bail);
+
 	bool HasPort(int port, char* addr);
 	bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
 
