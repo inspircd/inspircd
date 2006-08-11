@@ -228,7 +228,7 @@ void SHA256(const char *src, char *dest, int len)
 class cmd_mksha256 : public command_t
 {
 public:
-	cmd_mksha256() : command_t("MKSHA256", 'o', 1)
+ cmd_mksha256 (InspIRCd* Instance) : command_t(Instance,"MKSHA256", 'o', 1)
 	{
 		this->source = "m_opersha256.so";
 		syntax = "<any-text>";
@@ -250,7 +250,7 @@ public:
 	ModuleOperSHA256(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mksha256cmd = new cmd_mksha256();
+		mksha256cmd = new cmd_mksha256(ServerInstance);
 		ServerInstance->AddCommand(mksha256cmd);
 	}
 

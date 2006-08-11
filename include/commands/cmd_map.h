@@ -31,7 +31,7 @@
 class cmd_map : public command_t
 {
  public:
-        cmd_map () : command_t("MAP",0,0) { }
+        cmd_map (InspIRCd* Instance) : command_t(Instance,"MAP",0,0) { }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

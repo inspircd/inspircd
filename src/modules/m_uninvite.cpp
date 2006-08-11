@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_uninvite : public command_t
 {
  public:
-	cmd_uninvite () : command_t("UNINVITE", 0, 2)
+ cmd_uninvite (InspIRCd* Instance) : command_t(Instance,"UNINVITE", 0, 2)
 	{
 		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";
@@ -95,7 +95,7 @@ class ModuleUninvite : public Module
 	ModuleUninvite(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_uninvite();
+		mycommand = new cmd_uninvite(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class cmd_chghost : public command_t
 {
  public:
-	cmd_chghost () : command_t("CHGHOST",'o',2)
+ cmd_chghost (InspIRCd* Instance) : command_t(Instance,"CHGHOST",'o',2)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";
@@ -78,7 +78,7 @@ class ModuleChgHost : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_chghost();
+		mycommand = new cmd_chghost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

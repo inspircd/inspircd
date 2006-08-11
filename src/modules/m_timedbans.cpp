@@ -45,7 +45,7 @@ timedbans TimedBanList;
 class cmd_tban : public command_t
 {
  public:
-	cmd_tban () : command_t("TBAN", 0, 3)
+ cmd_tban (InspIRCd* Instance) : command_t(Instance,"TBAN", 0, 3)
 	{
 		this->source = "m_timedbans.so";
 		syntax = "<channel> <duration> <banmask>";
@@ -120,7 +120,7 @@ class ModuleTimedBans : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_tban();
+		mycommand = new cmd_tban(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
 	}

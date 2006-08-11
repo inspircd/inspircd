@@ -31,7 +31,7 @@
 class cmd_kill : public command_t
 {
  public:
-        cmd_kill () : command_t("KILL",'o',2) { syntax = "<nickname> <reason>"; }
+        cmd_kill (InspIRCd* Instance) : command_t(Instance,"KILL",'o',2) { syntax = "<nickname> <reason>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_userip : public command_t
 {
  public:
-	cmd_userip () : command_t("USERIP", 'o', 1)
+ cmd_userip (InspIRCd* Instance) : command_t(Instance,"USERIP", 'o', 1)
 	{
 		this->source = "m_userip.so";
 		syntax = "<nick>{,<nick>}";
@@ -63,7 +63,7 @@ class ModuleUserIP : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_userip();
+		mycommand = new cmd_userip(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

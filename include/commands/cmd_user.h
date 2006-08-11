@@ -31,7 +31,7 @@
 class cmd_user : public command_t
 {
  public:
-        cmd_user () : command_t("USER",0,4) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+        cmd_user (InspIRCd* Instance) : command_t(Instance,"USER",0,4) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

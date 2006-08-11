@@ -31,7 +31,7 @@
 class cmd_version : public command_t
 {
  public:
-        cmd_version () : command_t("VERSION",0,0) { syntax = "[<servername>]"; }
+        cmd_version (InspIRCd* Instance) : command_t(Instance,"VERSION",0,0) { syntax = "[<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

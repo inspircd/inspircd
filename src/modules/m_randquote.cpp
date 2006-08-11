@@ -34,7 +34,7 @@ std::string suffix = "";
 class cmd_randquote : public command_t
 {
  public:
-	cmd_randquote () : command_t("RANDQUOTE", 0, 0)
+ cmd_randquote (InspIRCd* Instance) : command_t(Instance,"RANDQUOTE", 0, 0)
 	{
 		this->source = "m_randquote.so";
 	}
@@ -108,7 +108,7 @@ class ModuleRandQuote : public Module
 		else
 		{
 			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-			mycommand = new cmd_randquote();
+			mycommand = new cmd_randquote(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}
 	}

@@ -31,7 +31,7 @@
 class cmd_loadmodule : public command_t
 {
  public:
-        cmd_loadmodule () : command_t("LOADMODULE",'o',1) { syntax = "<modulename>"; }
+        cmd_loadmodule (InspIRCd* Instance) : command_t(Instance,"LOADMODULE",'o',1) { syntax = "<modulename>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -61,7 +61,7 @@ parkedinfo pi;
 class cmd_park : public command_t
 {
  public:
-	cmd_park () : command_t("PARK", 0, 0)
+ cmd_park (InspIRCd* Instance) : command_t(Instance,"PARK", 0, 0)
 	{
 		this->source = "m_park.so";
 	}
@@ -106,7 +106,7 @@ class cmd_park : public command_t
 class cmd_parkstats : public command_t
 {
  public:
-	cmd_parkstats () : command_t("PARKSTATS", 'o', 0)
+ cmd_parkstats (InspIRCd* Instance) : command_t(Instance,"PARKSTATS", 'o', 0)
 	{
 		this->source = "m_park.so";
 	}
@@ -122,7 +122,7 @@ class cmd_parkstats : public command_t
 class cmd_unpark : public command_t
 {
  public:
-	cmd_unpark () : command_t("UNPARK", 0, 2)
+ cmd_unpark (InspIRCd* Instance) : command_t(Instance,"UNPARK", 0, 2)
 	{
 		this->source = "m_park.so";
 		syntax = "<nick> <key>";
@@ -232,9 +232,9 @@ class ModulePark : public Module
 		
 		pinfo.clear();
 		this->ReadSettings();
-		cmd1 = new cmd_park();
-		cmd2 = new cmd_unpark();
-		cmd3 = new cmd_parkstats();
+		cmd1 = new cmd_park(ServerInstance);
+		cmd2 = new cmd_unpark(ServerInstance);
+		cmd3 = new cmd_parkstats(ServerInstance);
 		ServerInstance->AddCommand(cmd1);
 		ServerInstance->AddCommand(cmd2);
 		ServerInstance->AddCommand(cmd3);

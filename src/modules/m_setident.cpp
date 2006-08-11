@@ -11,7 +11,7 @@ extern InspIRCd* ServerInstance;
 class cmd_setident : public command_t
 {
  public:
-	cmd_setident() : command_t("SETIDENT", 'o', 1)
+ cmd_setident (InspIRCd* Instance) : command_t(Instance,"SETIDENT", 'o', 1)
 	{
 		this->source = "m_setident.so";
 		syntax = "<new-ident>";
@@ -42,7 +42,7 @@ class ModuleSetIdent : public Module
 	ModuleSetIdent(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_setident();
+		mycommand = new cmd_setident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

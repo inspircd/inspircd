@@ -23,6 +23,7 @@
 #include "base.h"
 
 class userrec;
+class InspIRCd;
 
 /*typedef void (handlerfunc) (char**, int, userrec*);*/
 
@@ -30,6 +31,8 @@ class userrec;
  */
 class command_t : public Extensible
 {
+ protected:
+	InspIRCd* ServerInstance;
  public:
 	/** Command name
 	*/
@@ -57,7 +60,7 @@ class command_t : public Extensible
 	 */
 	std::string syntax;
 
-	command_t(const std::string &cmd, char flags, int minpara) : command(cmd), flags_needed(flags), min_params(minpara), disabled(false)
+	command_t(InspIRCd* Instance, const std::string &cmd, char flags, int minpara) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false)
 	{
 		use_count = total_bytes = 0;
 		source = "<core>";

@@ -63,7 +63,7 @@ class Helpop : public ModeHandler
 class cmd_helpop : public command_t
 {
  public:
-	 cmd_helpop () : command_t("HELPOP",0,1)
+	 cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 1)
 	 {
 		 this->source = "m_helpop.so";
 		 syntax = "[?|!]<any-text>";
@@ -206,7 +206,7 @@ class ModuleHelpop : public Module
 			ReadConfig();
 			ho = new Helpop(ServerInstance);
 			ServerInstance->AddMode(ho, 'h');
-			mycommand = new cmd_helpop();
+			mycommand = new cmd_helpop(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}
 

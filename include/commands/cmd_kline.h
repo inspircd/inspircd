@@ -31,7 +31,7 @@
 class cmd_kline : public command_t
 {
  public:
-        cmd_kline () : command_t("KLINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
+        cmd_kline (InspIRCd* Instance) : command_t(Instance,"KLINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

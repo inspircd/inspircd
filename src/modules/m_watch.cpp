@@ -44,7 +44,7 @@ watchlist watches;
 class cmd_watch : public command_t
 {
  public:
-	cmd_watch() : command_t("WATCH",0,0)
+ cmd_watch (InspIRCd* Instance) : command_t(Instance,"WATCH",0,0)
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
@@ -206,7 +206,7 @@ class Modulewatch : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_watch();
+		mycommand = new cmd_watch(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

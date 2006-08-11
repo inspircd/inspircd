@@ -33,7 +33,7 @@ extern InspIRCd* ServerInstance;
 class cmd_tline : public command_t
 {
  public:
-	cmd_tline () : command_t("TLINE", 'o', 1)
+ cmd_tline (InspIRCd* Instance) : command_t(Instance,"TLINE", 'o', 1)
 	{
 		this->source = "m_tline.so";
 		this->syntax = "<mask>";
@@ -81,7 +81,7 @@ class ModuleTLine : public Module
 		: Module::Module(Me)
 	{
 		
-		newcommand = new cmd_tline();
+		newcommand = new cmd_tline(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 

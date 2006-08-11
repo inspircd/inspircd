@@ -11,7 +11,7 @@ extern InspIRCd* ServerInstance;
 class cmd_chgident : public command_t
 {
  public:
-	cmd_chgident() : command_t("CHGIDENT", 'o', 2)
+ cmd_chgident (InspIRCd* Instance) : command_t(Instance,"CHGIDENT", 'o', 2)
 	{
 		this->source = "m_chgident.so";
 		syntax = "<nick> <newident>";
@@ -48,7 +48,7 @@ class ModuleChgIdent : public Module
 public:
 	ModuleChgIdent(InspIRCd* Me) : Module::Module(Me)
 	{
-		mycommand = new cmd_chgident();
+		mycommand = new cmd_chgident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

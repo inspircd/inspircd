@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_sethost : public command_t
 {
  public:
-	cmd_sethost() : command_t("SETHOST",'o',1)
+ cmd_sethost (InspIRCd* Instance) : command_t(Instance,"SETHOST",'o',1)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
@@ -70,7 +70,7 @@ class ModuleSetHost : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_sethost();
+		mycommand = new cmd_sethost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

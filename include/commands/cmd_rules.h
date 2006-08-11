@@ -31,7 +31,7 @@
 class cmd_rules : public command_t
 {
  public:
-        cmd_rules () : command_t("RULES",0,0) { syntax = "[<servername>]"; }
+        cmd_rules (InspIRCd* Instance) : command_t(Instance,"RULES",0,0) { syntax = "[<servername>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

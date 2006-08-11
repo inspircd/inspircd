@@ -400,7 +400,7 @@ class cmd_mode : public command_t
 	/**
 	 * Standard constructor
 	 */
-	cmd_mode () : command_t("MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
+	cmd_mode (InspIRCd* Instance) : command_t(Instance,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
 	/**
 	 * Handle MODE
 	 */

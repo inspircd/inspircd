@@ -599,7 +599,7 @@ class cmd_rconnect : public command_t
 {
 	Module* Creator;
  public:
-	cmd_rconnect (Module* Callback) : command_t("RCONNECT", 'o', 2), Creator(Callback)
+	cmd_rconnect (InspIRCd* Instance, Module* Callback) : command_t(Instance, "RCONNECT", 'o', 2), Creator(Callback)
 	{
 		this->source = "m_spanningtree.so";
 		syntax = "<remote-server-mask> <servermask>";
@@ -3431,7 +3431,7 @@ class ModuleSpanningTree : public Module
 
 		ReadConfiguration(true);
 
-		command_rconnect = new cmd_rconnect(this);
+		command_rconnect = new cmd_rconnect(ServerInstance, this);
 		ServerInstance->AddCommand(command_rconnect);
 	}
 

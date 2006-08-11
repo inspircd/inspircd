@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_sajoin : public command_t
 {
  public:
-	cmd_sajoin() : command_t("SAJOIN", 'o', 2)
+ cmd_sajoin (InspIRCd* Instance) : command_t(Instance,"SAJOIN", 'o', 2)
 	{
 		this->source = "m_sajoin.so";
 		syntax = "<nick> <channel>";
@@ -69,7 +69,7 @@ class ModuleSajoin : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_sajoin();
+		mycommand = new cmd_sajoin(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

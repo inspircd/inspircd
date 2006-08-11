@@ -30,7 +30,7 @@ static ConfigReader *Conf;
 class cmd_vhost : public command_t
 {
  public:
-	cmd_vhost() : command_t("VHOST", 0, 2)
+ cmd_vhost (InspIRCd* Instance) : command_t(Instance,"VHOST", 0, 2)
 	{
 		this->source = "m_vhost.so";
 		syntax = "<username> <password>";
@@ -68,7 +68,7 @@ class ModuleVHost : public Module
 	{
 		
 		Conf = new ConfigReader;
-		mycommand = new cmd_vhost();
+		mycommand = new cmd_vhost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

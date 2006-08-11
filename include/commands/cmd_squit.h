@@ -31,7 +31,7 @@
 class cmd_squit : public command_t
 {
  public:
-        cmd_squit () : command_t("SQUIT",'o',1) { syntax = "<servername> [<reason>]"; }
+        cmd_squit (InspIRCd* Instance) : command_t(Instance,"SQUIT",'o',1) { syntax = "<servername> [<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

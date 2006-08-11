@@ -28,7 +28,7 @@ class cmd_swhois : public command_t
 {
 	
  public:
-	cmd_swhois() : command_t("SWHOIS",'o',2)
+ cmd_swhois (InspIRCd* Instance) : command_t(Instance,"SWHOIS",'o',2)
 	{
 		this->source = "m_swhois.so";
 		syntax = "<nick> <swhois>";
@@ -85,7 +85,7 @@ class ModuleSWhois : public Module
 	{
 		
 		Conf = new ConfigReader();
-		mycommand = new cmd_swhois();
+		mycommand = new cmd_swhois(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

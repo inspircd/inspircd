@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_knock : public command_t
 {
  public:
-	cmd_knock () : command_t("KNOCK", 0, 2)
+ cmd_knock (InspIRCd* Instance) : command_t(Instance,"KNOCK", 0, 2)
 	{
 		this->source = "m_knock.so";
 		syntax = "<channel> <reason>";
@@ -114,7 +114,7 @@ class ModuleKnock : public Module
 		
 		kn = new Knock(ServerInstance);
 		ServerInstance->AddMode(kn, 'K');
-		mycommand = new cmd_knock();
+		mycommand = new cmd_knock(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

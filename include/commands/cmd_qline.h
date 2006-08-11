@@ -31,7 +31,7 @@
 class cmd_qline : public command_t
 {
  public:
-        cmd_qline () : command_t("QLINE",'o',1) { syntax = "<nick> [<duration> :<reason>]"; }
+        cmd_qline (InspIRCd* Instance) : command_t(Instance,"QLINE",'o',1) { syntax = "<nick> [<duration> :<reason>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

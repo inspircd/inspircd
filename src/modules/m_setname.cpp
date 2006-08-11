@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class cmd_setname : public command_t
 {
  public:
-	cmd_setname () : command_t("SETNAME", 0, 1)
+ cmd_setname (InspIRCd* Instance) : command_t(Instance,"SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";
@@ -58,7 +58,7 @@ class ModuleSetName : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_setname();
+		mycommand = new cmd_setname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

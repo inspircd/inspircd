@@ -37,7 +37,7 @@ typedef std::vector<std::string> silencelist;
 class cmd_silence : public command_t
 {
  public:
-	cmd_silence() : command_t("SILENCE", 0, 0)
+ cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
 	{
 		this->source = "m_silence.so";
 		syntax = "{[+|-]<nick>}";
@@ -142,7 +142,7 @@ class ModuleSilence : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_silence();
+		mycommand = new cmd_silence(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

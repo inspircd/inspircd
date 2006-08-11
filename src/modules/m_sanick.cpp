@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class cmd_sanick : public command_t
 {
  public:
-	cmd_sanick () : command_t("SANICK", 'o', 2)
+ cmd_sanick (InspIRCd* Instance) : command_t(Instance,"SANICK", 'o', 2)
 	{
 		this->source = "m_sanick.so";
 		syntax = "<nick> <new-nick>";
@@ -72,7 +72,7 @@ class ModuleSanick : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_sanick();
+		mycommand = new cmd_sanick(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

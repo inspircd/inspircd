@@ -272,7 +272,7 @@ void GenHash(const char* src, char* dest)
 class cmd_mkpasswd : public command_t
 {
  public:
-	cmd_mkpasswd () : command_t("MKPASSWD", 'o', 1)
+ cmd_mkpasswd (InspIRCd* Instance) : command_t(Instance,"MKPASSWD", 'o', 1)
 	{
 		this->source = "m_opermd5.so";
 		syntax = "<any-text>";
@@ -296,7 +296,7 @@ class ModuleOperMD5 : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_mkpasswd();
+		mycommand = new cmd_mkpasswd(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

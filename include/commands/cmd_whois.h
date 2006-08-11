@@ -33,7 +33,7 @@ void do_whois(userrec* user, userrec* dest,unsigned long signon, unsigned long i
 class cmd_whois : public command_t
 {
  public:
-        cmd_whois () : command_t("WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
+        cmd_whois (InspIRCd* Instance) : command_t(Instance,"WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

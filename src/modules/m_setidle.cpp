@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class cmd_setidle : public command_t
 {
  public:
-	cmd_setidle () : command_t("SETIDLE", 'o', 1)
+ cmd_setidle (InspIRCd* Instance) : command_t(Instance,"SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
 		syntax = "<idle-seconds>";
@@ -62,7 +62,7 @@ class ModuleSetIdle : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_setidle();
+		mycommand = new cmd_setidle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

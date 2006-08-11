@@ -31,7 +31,7 @@
 class cmd_wallops : public command_t
 {
  public:
-        cmd_wallops () : command_t("WALLOPS",'o',1) { syntax = "<any-text>"; }
+        cmd_wallops (InspIRCd* Instance) : command_t(Instance,"WALLOPS",'o',1) { syntax = "<any-text>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

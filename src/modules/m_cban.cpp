@@ -63,11 +63,8 @@ cbanlist cbans;
 
 class cmd_cban : public command_t
 {
- private:
-	InspIRCd* ServerInstance;
-
  public:
-	cmd_cban(InspIRCd* Me) : command_t("CBAN", 'o', 1), ServerInstance(Me)
+	cmd_cban(InspIRCd* Me) : command_t(Me, "CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
 		this->

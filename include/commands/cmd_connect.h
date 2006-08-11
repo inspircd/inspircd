@@ -24,7 +24,7 @@
 class cmd_connect : public command_t
 {
  public:
-        cmd_connect () : command_t("CONNECT",'o',1) { syntax = "<servername> [<remote-server>]"; }
+        cmd_connect (InspIRCd* Instance) : command_t(Instance,"CONNECT",'o',1) { syntax = "<servername> [<remote-server>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -31,7 +31,7 @@
 class cmd_away : public command_t
 {
  public:
-        cmd_away () : command_t("AWAY",0,0) { syntax = "[<message>]"; }
+        cmd_away (InspIRCd* Instance) : command_t(Instance,"AWAY",0,0) { syntax = "[<message>]"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

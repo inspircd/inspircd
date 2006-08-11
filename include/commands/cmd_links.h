@@ -31,7 +31,7 @@
 class cmd_links : public command_t
 {
  public:
-        cmd_links () : command_t("LINKS",0,0) { }
+        cmd_links (InspIRCd* Instance) : command_t(Instance,"LINKS",0,0) { }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

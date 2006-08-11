@@ -31,7 +31,7 @@
 class cmd_lusers : public command_t
 {
  public:
-        cmd_lusers () : command_t("LUSERS",0,0) { }
+        cmd_lusers (InspIRCd* Instance) : command_t(Instance,"LUSERS",0,0) { }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

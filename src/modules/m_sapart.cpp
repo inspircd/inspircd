@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_sapart : public command_t
 {
  public:
-	cmd_sapart () : command_t("SAPART", 'o', 2)
+ cmd_sapart (InspIRCd* Instance) : command_t(Instance,"SAPART", 'o', 2)
 	{
 		this->source = "m_sapart.so";
 		syntax = "<nick> <channel>";
@@ -65,7 +65,7 @@ class ModuleSapart : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_sapart();
+		mycommand = new cmd_sapart(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

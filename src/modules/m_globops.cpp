@@ -32,7 +32,7 @@ extern InspIRCd* ServerInstance;
 class cmd_globops : public command_t
 {
  public:
-	cmd_globops () : command_t("GLOBOPS",'o',1)
+ cmd_globops (InspIRCd* Instance) : command_t(Instance,"GLOBOPS",'o',1)
 	{
 		this->source = "m_globops.so";
 		syntax = "<any-text>";
@@ -89,7 +89,7 @@ class ModuleGlobops : public Module
 		
 		mg = new ModeGlobops(ServerInstance);
 		ServerInstance->AddMode(mg, 'g');
-		mycommand = new cmd_globops();
+		mycommand = new cmd_globops(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

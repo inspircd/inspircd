@@ -85,7 +85,7 @@ void spy_userlist(userrec *user,chanrec *c)
 class cmd_spylist : public command_t
 {
   public:
-	cmd_spylist () : command_t("SPYLIST", 'o', 0)
+ cmd_spylist (InspIRCd* Instance) : command_t(Instance,"SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "";
@@ -106,7 +106,7 @@ class cmd_spylist : public command_t
 class cmd_spynames : public command_t
 {
   public:
-	cmd_spynames () : command_t("SPYNAMES", 'o', 0)
+ cmd_spynames (InspIRCd* Instance) : command_t(Instance,"SPYNAMES", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "{<channel>{,<channel>}}";
@@ -148,8 +148,8 @@ class ModuleSpy : public Module
 	ModuleSpy(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_spylist();
-		mycommand2 = new cmd_spynames();
+		mycommand = new cmd_spylist(ServerInstance);
+		mycommand2 = new cmd_spynames(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 	}

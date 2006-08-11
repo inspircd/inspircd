@@ -31,7 +31,7 @@
 class cmd_notice : public command_t
 {
  public:
-        cmd_notice () : command_t("NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
+        cmd_notice (InspIRCd* Instance) : command_t(Instance,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

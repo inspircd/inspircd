@@ -41,7 +41,7 @@ extern InspIRCd* ServerInstance;
 class cmd_saquit : public command_t
 {
  public:
-	cmd_saquit () : command_t("SAQUIT",'o',2)
+ cmd_saquit (InspIRCd* Instance) : command_t(Instance,"SAQUIT",'o',2)
 	{
 		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";
@@ -78,7 +78,7 @@ class ModuleSaquit : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_saquit();
+		mycommand = new cmd_saquit(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

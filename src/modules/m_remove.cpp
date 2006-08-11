@@ -207,7 +207,7 @@ class RemoveBase
 class cmd_remove : public command_t, public RemoveBase
 {
  public:
-	cmd_remove(bool& snk) : command_t("REMOVE", 0, 2), RemoveBase(snk)
+	cmd_remove(InspIRCd* Instance, bool& snk) : command_t(Instance, "REMOVE", 0, 2), RemoveBase(snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -222,7 +222,7 @@ class cmd_remove : public command_t, public RemoveBase
 class cmd_fpart : public command_t, public RemoveBase
 {
  public:
-	cmd_fpart(bool& snk) : command_t("FPART", 0, 2), RemoveBase(snk)
+	cmd_fpart(InspIRCd* Instance, bool& snk) : command_t(Instance, "FPART", 0, 2), RemoveBase(snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";
@@ -245,8 +245,8 @@ class ModuleRemove : public Module
 	ModuleRemove(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		mycommand = new cmd_remove(supportnokicks);
-		mycommand2 = new cmd_fpart(supportnokicks);
+		mycommand = new cmd_remove(ServerInstance, supportnokicks);
+		mycommand2 = new cmd_fpart(ServerInstance, supportnokicks);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 		OnRehash("");

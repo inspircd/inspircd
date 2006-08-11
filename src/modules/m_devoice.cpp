@@ -34,7 +34,7 @@ extern InspIRCd* ServerInstance;
 class cmd_devoice : public command_t
 {
  public:
-	cmd_devoice () : command_t("DEVOICE", 0, 1)
+ cmd_devoice (InspIRCd* Instance) : command_t(Instance,"DEVOICE", 0, 1)
 	{
 		this->source = "m_devoice.so";
 		syntax = "<channel>";
@@ -64,7 +64,7 @@ class ModuleDeVoice : public Module
 	ModuleDeVoice(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_devoice();
+		mycommand = new cmd_devoice(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

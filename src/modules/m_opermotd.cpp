@@ -47,7 +47,7 @@ void ShowOperMOTD(userrec* user)
 class cmd_opermotd : public command_t
 {
  public:
-	cmd_opermotd () : command_t("OPERMOTD", 'o', 0)
+ cmd_opermotd (InspIRCd* Instance) : command_t(Instance,"OPERMOTD", 'o', 0)
 	{
 		this->source = "m_opermotd.so";
 		syntax = "[<servername>]";
@@ -67,7 +67,7 @@ class ModuleOpermotd : public Module
 			: Module::Module(Me)
 		{
 			
-			mycommand = new cmd_opermotd();
+			mycommand = new cmd_opermotd(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 			opermotd = new FileReader();
 			LoadOperMOTD();

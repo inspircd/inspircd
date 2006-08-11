@@ -31,7 +31,7 @@
 class cmd_users : public command_t
 {
  public:
-        cmd_users () : command_t("USERS",0,0) { }
+        cmd_users (InspIRCd* Instance) : command_t(Instance,"USERS",0,0) { }
         void Handle(const char** parameters, int pcnt, userrec *user);
 };
 

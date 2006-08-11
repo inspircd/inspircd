@@ -30,7 +30,7 @@ extern InspIRCd *ServerInstance;
 class cmd_gloadmodule : public command_t
 {
  public:
-	cmd_gloadmodule () : command_t("GLOADMODULE", 'o', 1)
+ cmd_gloadmodule (InspIRCd* Instance) : command_t(Instance,"GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename>";
@@ -53,7 +53,7 @@ class cmd_gloadmodule : public command_t
 class cmd_gunloadmodule : public command_t
 {
  public:
-	cmd_gunloadmodule () : command_t("GUNLOADMODULE", 'o', 1)
+ cmd_gunloadmodule (InspIRCd* Instance) : command_t(Instance,"GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename>";
@@ -82,8 +82,8 @@ class ModuleGlobalLoad : public Module
 	ModuleGlobalLoad(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_gloadmodule();
-		mycommand2 = new cmd_gunloadmodule();
+		mycommand = new cmd_gloadmodule(ServerInstance);
+		mycommand2 = new cmd_gunloadmodule(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 	}

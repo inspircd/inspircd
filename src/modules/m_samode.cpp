@@ -43,7 +43,7 @@ extern InspIRCd* ServerInstance;
 class cmd_samode : public command_t
 {
  public:
-	cmd_samode () : command_t("SAMODE", 'o', 2)
+ cmd_samode (InspIRCd* Instance) : command_t(Instance,"SAMODE", 'o', 2)
 	{
 		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";
@@ -80,7 +80,7 @@ class ModuleSaMode : public Module
 		: Module::Module(Me)
 	{
 		
-		mycommand = new cmd_samode();
+		mycommand = new cmd_samode(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

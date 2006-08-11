@@ -31,7 +31,7 @@ extern InspIRCd* ServerInstance;
 class cmd_check : public command_t
 {
  public:
-	cmd_check() : command_t("CHECK", 'o', 1)
+ 	cmd_check (InspIRCd* Instance) : command_t(Instance,"CHECK", 'o', 1)
 	{
 		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
@@ -189,7 +189,7 @@ class ModuleCheck : public Module
 	ModuleCheck(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		mycommand = new cmd_check();
+		mycommand = new cmd_check(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

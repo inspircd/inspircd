@@ -53,7 +53,7 @@ class MyV6Resolver : public Resolver
 class cmd_woot : public command_t
 {
  public:
-	cmd_woot () : command_t("WOOT", 0, 0)
+ cmd_woot (InspIRCd* Instance) : command_t(Instance,"WOOT", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}
@@ -91,7 +91,7 @@ class ModuleTestCommand : public Module
 		// 0 in the modes parameter signifies that
 		// anyone can issue the command, and the
 		// command takes only one parameter.
-		newcommand = new cmd_woot();
+		newcommand = new cmd_woot(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 
