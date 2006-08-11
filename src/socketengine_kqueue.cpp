@@ -25,7 +25,7 @@
 #include "socketengine_kqueue.h"
 #include "helperfuncs.h"
 
-KQueueEngine::KQueueEngine()
+KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)

@@ -41,7 +41,6 @@ class floodsettings : public classbase
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
 		reset = time(NULL) + secs;
-		log(DEBUG,"Create new floodsettings: %lu %lu",time(NULL),reset);
 	};
 
 	void addmessage(userrec* who)
@@ -50,16 +49,13 @@ class floodsettings : public classbase
 		if (iter != counters.end())
 		{
 			iter->second++;
-			log(DEBUG,"Count for %s is now %d",who->nick,iter->second);
 		}
 		else
 		{
 			counters[who] = 1;
-			log(DEBUG,"Count for %s is now *1*",who->nick);
 		}
 		if (time(NULL) > reset)
 		{
-			log(DEBUG,"floodsettings timer Resetting.");
 			counters.clear();
 			reset = time(NULL) + secs;
 		}
@@ -70,7 +66,6 @@ class floodsettings : public classbase
 		std::map<userrec*,int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
-			log(DEBUG,"should kick? %d, %d",iter->second,this->lines);
 			return (iter->second >= this->lines);
 		}
 		else return false;

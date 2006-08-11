@@ -58,7 +58,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	if (cu->fd == FD_MAGIC_NUMBER)
 		return;
 
-	log(DEBUG,"Processing user with fd %d",cu->fd);
+	ilog(this,DEBUG,"Processing user with fd %d",cu->fd);
 
 	if (this->Config->GetIOHook(cu->GetPort()))
 	{
@@ -68,11 +68,11 @@ void InspIRCd::ProcessUser(userrec* cu)
 		try
 		{
 			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,ReadBuffer,sizeof(ReadBuffer),result2);
-			log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
+			ilog(this,DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
 		{
-			log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+			ilog(this,DEBUG,"Module exception caught: %s",modexcept.GetReason());
 		}
 
 		if (MOD_RESULT < 0)
@@ -89,7 +89,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 		result = cu->ReadData(ReadBuffer, sizeof(ReadBuffer));
 	}
 
-	log(DEBUG,"Read result: %d",result);
+	ilog(this,DEBUG,"Read result: %d",result);
 
 	if ((result) && (result != -EAGAIN))
 	{
@@ -136,7 +136,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 					if (current->lines_in > current->flood)
 					{
-						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+						ilog(this,DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						this->WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						userrec::QuitUser(this, current,"Excess flood");
 						return;
@@ -150,7 +150,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				else
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					ilog(this,DEFAULT,"Excess flood from: %s",current->GetIPString());
 					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					XLines->apply_lines(APPLY_ZLINES);
 				}
@@ -167,7 +167,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				else
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					ilog(this,DEFAULT,"Excess flood from: %s",current->GetIPString());
 					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					XLines->apply_lines(APPLY_ZLINES);
 				}
@@ -186,7 +186,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 				if (++current->lines_in > current->flood)
 				{
-					log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+					ilog(this,DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					userrec::QuitUser(this, current,"Excess flood");
 					return;
@@ -196,7 +196,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				{
 					if (current->registered == REG_ALL)
 					{
-						log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+						ilog(this,DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						userrec::QuitUser(this, current,"Excess flood");
 					}
@@ -242,7 +242,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			log(DEBUG,"killing: %s",cu->nick);
+			ilog(this,DEBUG,"killing: %s",cu->nick);
 			userrec::QuitUser(this,cu,strerror(errno));
 			return;
 		}
@@ -255,9 +255,9 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		log(DEBUG,"InspIRCd: Exited: %s",cu->nick);
+		ilog(this,DEBUG,"InspIRCd: Exited: %s",cu->nick);
 		userrec::QuitUser(this,cu,"Client exited");
-		log(DEBUG,"Bailing from client exit");
+		ilog(this,DEBUG,"Bailing from client exit");
 		return;
 	}
 }
@@ -272,7 +272,7 @@ void InspIRCd::DoSocketTimeouts(time_t TIME)
 		InspSocket* s = (InspSocket*)*a;
 		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (this->socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
 		{
-			log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
+			ilog(this,DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
 			this->socket_ref[s->GetFd()] = NULL;
 			SE->DelFd(s->GetFd());
 			this->module_sockets.erase(a);
@@ -312,7 +312,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 			 */
 			if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
 			{
-				log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+				ilog(this,DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 				//ZapThisDns(curr->fd);
 				GlobalGoners.AddItem(curr,"Registration timeout");
 				continue;
@@ -331,7 +331,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 			}
 			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
 			{
-				log(DEBUG,"dns done, registered=3, and modules ready, OK");
+				ilog(this,DEBUG,"dns done, registered=3, and modules ready, OK");
 				curr->FullConnect(&GlobalGoners);
 				//ZapThisDns(curr->fd);
 				continue;

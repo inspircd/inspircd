@@ -23,7 +23,7 @@
 #include "socketengine_select.h"
 #include "helperfuncs.h"
 
-SelectEngine::SelectEngine()
+SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	log(DEBUG,"SelectEngine::SelectEngine()");
 	EngineHandle = 0;

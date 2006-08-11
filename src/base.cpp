@@ -38,16 +38,7 @@ bool Extensible::Shrink(const std::string &key)
 	 * returns the number of elements removed, std::map
 	 * is single-associative so this should only be 0 or 1
 	 */
-	if(this->Extension_Items.erase(key))
-	{
-		log(DEBUG, "Shrinking object with item %s",key.c_str());
-		return true;
-	}
-	else
-	{
-		log(DEBUG, "Tried to shrink object with item %s but no items removed", key.c_str());		
-		return false;
-	}
+	return this->Extension_Items.erase(key);
 }
 
 void Extensible::GetExtList(std::deque<std::string> &list)

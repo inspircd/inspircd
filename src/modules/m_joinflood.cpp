@@ -46,16 +46,13 @@ class joinfloodsettings : public classbase
 		reset = time(NULL) + secs;
 		counter = 0;
 		locked = false;
-		log(DEBUG,"Create new joinfloodsettings: %lu %lu",time(NULL),reset);
 	};
 
 	void addjoin()
 	{
 		counter++;
-		log(DEBUG,"joinflood counter is %d",counter);
 		if (time(NULL) > reset)
 		{
-			log(DEBUG,"joinflood counter reset");
 			counter = 0;
 			reset = time(NULL) + secs;
 		}
@@ -68,7 +65,6 @@ class joinfloodsettings : public classbase
 
 	void clear()
 	{
-		log(DEBUG,"joinflood counter clear");
 		counter = 0;
 	}
 
@@ -91,7 +87,6 @@ class joinfloodsettings : public classbase
 
 	void lock()
 	{
-		log(DEBUG,"joinflood lock");
 		locked = true;
 		unlocktime = time(NULL) + 60;
 	}

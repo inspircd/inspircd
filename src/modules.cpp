@@ -419,7 +419,6 @@ bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 	if (find(local_users.begin(),local_users.end(),user) != local_users.end())
 	{
 		local_users.erase(find(local_users.begin(),local_users.end(),user));
-		log(DEBUG,"Delete local user");
 	}
 
 	this->SE->DelFd(old_fd);
@@ -430,7 +429,6 @@ bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 
 bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
 {
-	log(DEBUG,"PseudoToUser");
 	zombie->fd = alive->fd;
 	FOREACH_MOD_I(this,I_OnUserQuit,OnUserQuit(alive,message));
 	alive->fd = FD_MAGIC_NUMBER;
@@ -444,7 +442,6 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 	if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
 	{
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));
-		log(DEBUG,"Delete local user");
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
 	this->fd_ref_table[zombie->fd] = zombie;

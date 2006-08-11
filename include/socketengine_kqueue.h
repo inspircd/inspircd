@@ -28,13 +28,15 @@
 #include <sys/time.h>
 #include "socketengine.h"
 
+class InspIRCd;
+
 class KQueueEngine : public SocketEngine
 {
 private:
 	struct kevent ke_list[MAX_DESCRIPTORS];	/* Up to 64k sockets for kqueue */
 	struct timespec ts;			/* kqueue delay value */
 public:
-	KQueueEngine();
+	KQueueEngine(InspIRCd* Instance);
 	virtual ~KQueueEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -47,7 +49,7 @@ public:
 class SocketEngineFactory
 {
  public:
-	SocketEngine* Create() { return new KQueueEngine(); }
+	SocketEngine* Create(InspIRCd* Instance) { return new KQueueEngine(InspIRCd* Instance); }
 };
 
 #endif

@@ -42,7 +42,6 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	std::string xhost;
 	while (hl >> xhost)
 	{
-		log(DEBUG,"Oper: Matching host %s",xhost.c_str());
 		if (match(host,xhost.c_str()) || match(ip,xhost.c_str(),true))
 		{
 			return true;

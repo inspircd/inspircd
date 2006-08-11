@@ -46,6 +46,8 @@ const char X_ESTAB_DNS          = 4;
  */
 const char X_READBIT            = 0x80;
 
+class InspIRCd;
+
 /**
  * The actual socketengine class presents the
  * same interface on all operating systems, but
@@ -67,6 +69,7 @@ const char X_READBIT            = 0x80;
 class SocketEngine : public Extensible
 {
 protected:
+	InspIRCd* ServerInstance;
 	int EngineHandle;			/* Handle to the socket engine if needed */
 	int CurrentSetSize;			/* Current number of descriptors in the engine */
 	char ref[MAX_DESCRIPTORS];		/* Reference table */
@@ -80,7 +83,7 @@ public:
 	 * epoll on a 2.4 linux kernel) then this
 	 * function may bail back to the shell.
 	 */
-	SocketEngine();
+	SocketEngine(InspIRCd* Instance);
 
 	/** Destructor
 	 * The destructor transparently tidies up

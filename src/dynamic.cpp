@@ -138,12 +138,10 @@ DLLManager::~DLLManager()
 
 bool DLLManager::GetSymbol(initfunc* &v, const char *sym_name)
 {
-	log(DEBUG,"Symbol search...");
 	for (int j = 0; modsyms[j].name; j++)
 	{
 		if (!strcmp(this->staticname,modsyms[j].name))
 		{
-			log(DEBUG,"Loading symbol...");
 			v = modsyms[j].value;
 			err = 0;
 			return true;
@@ -162,7 +160,6 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	
 	if (h)
 	{
-		log(DEBUG,"Found symbol %s", sym_name);
 		dlerror(); // clear value
 		*v = dlsym(h, sym_name);
 		err = (char*)dlerror();

@@ -100,7 +100,6 @@ class ModuleOperLevelsFactory : public ModuleFactory
 
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
-		log(DEBUG,"CreateModule");
 		return new ModuleOperLevels(Me);
 	}
 

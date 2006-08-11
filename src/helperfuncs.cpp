@@ -59,37 +59,35 @@ void InspIRCd::Log(int level, const char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	InspIRCd::Log(level, std::string(textbuffer));
+	this->Log(level, std::string(textbuffer));
 }
 
 void InspIRCd::Log(int level, const std::string &text)
 {
-	extern InspIRCd* ServerInstance;
-
-	if (!ServerInstance || !ServerInstance->Config)
+	if (!this->Config)
 		return;
 
 	/* If we were given -debug we output all messages, regardless of configured loglevel */
-	if ((level < ServerInstance->Config->LogLevel) && !ServerInstance->Config->forcedebug)
+	if ((level < Config->LogLevel) && !Config->forcedebug)
 		return;
 
-	if (ServerInstance->Time() != LAST)
+	if (Time() != LAST)
 	{
-		time_t local = ServerInstance->Time();
+		time_t local = Time();
 		struct tm *timeinfo = localtime(&local);
 
 		strlcpy(TIMESTR,asctime(timeinfo),26);
 		TIMESTR[24] = ':';
-		LAST = ServerInstance->Time();
+		LAST = Time();
 	}
 
-	if (ServerInstance->Config->log_file && ServerInstance->Config->writelog)
+	if (Config->log_file && Config->writelog)
 	{
-		fprintf(ServerInstance->Config->log_file,"%s %s\n",TIMESTR,text.c_str());
-		fflush(ServerInstance->Config->log_file);
+		fprintf(Config->log_file,"%s %s\n",TIMESTR,text.c_str());
+		fflush(Config->log_file);
 	}
 
-	if (ServerInstance->Config->nofork)
+	if (Config->nofork)
 	{
 		printf("%s %s\n", TIMESTR, text.c_str());
 	}
@@ -194,7 +192,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 	if ((!text) || (!modes) || (!flags))
 	{
-		log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
+		ilog(this,DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
 		return;
 	}
 
@@ -319,39 +317,6 @@ void InspIRCd::SendError(const char *s)
 			t->Write("ERROR :%s",s);
 		}
 	}
-}
-
-void InspIRCd::Error(int status)
-{
-	void *array[300];
-	size_t size;
-	char **strings;
-
-	signal(SIGALRM, SIG_IGN);
-	signal(SIGPIPE, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
-	signal(SIGABRT, SIG_IGN);
-	signal(SIGSEGV, SIG_IGN);
-	signal(SIGURG, SIG_IGN);
-	signal(SIGKILL, SIG_IGN);
-	log(DEFAULT,"*** fell down a pothole in the road to perfection ***");
-#ifdef HAS_EXECINFO
-	log(DEFAULT,"Please report the backtrace lines shown below with any bugreport to the bugtracker at http://www.inspircd.org/bugtrack/");
-	size = backtrace(array, 30);
-	strings = backtrace_symbols(array, size);
-	for (size_t i = 0; i < size; i++) {
-		log(DEFAULT,"[%d] %s", i, strings[i]);
-	}
-	free(strings);
-#else
-	log(DEFAULT,"You do not have execinfo.h so i could not backtrace -- on FreeBSD, please install the libexecinfo port.");
-#endif
-	signal(SIGSEGV, SIG_DFL);
-	if (raise(SIGSEGV) == -1)
-	{
-		log(DEFAULT,"What the hell, i couldnt re-raise SIGSEGV! Error: %s",strerror(errno));
-	}
-	Exit(status);
 }
 
 // this function counts all users connected, wether they are registered or NOT.
@@ -498,7 +463,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-		log(DEFAULT,"InspIRCd: startup: not starting with UID 0!");
+		ilog(this,DEFAULT,"Cant start as root");
 		Exit(ERROR);
 	}
 }
@@ -508,7 +473,7 @@ void InspIRCd::CheckDie()
 	if (*Config->DieValue)
 	{
 		printf("WARNING: %s\n\n",Config->DieValue);
-		log(DEFAULT,"Uh-Oh, somebody didn't read their config file: '%s'",Config->DieValue);
+		ilog(this,DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
 		Exit(ERROR);
 	}
 }
@@ -527,12 +492,12 @@ void InspIRCd::LoadAllModules()
 		
 		if (!this->LoadModule(configToken))		
 		{
-			log(DEFAULT,"Exiting due to a module loader error.");
+			ilog(this,DEFAULT,"There was an error loading a module: %s", this->ModuleError());
 			printf("\nThere was an error loading a module: %s\n\n",this->ModuleError());
 			Exit(ERROR);
 		}
 	}
 	printf("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");
-	log(DEFAULT,"Total loaded modules: %d", this->ModCount+1);
+	ilog(this,DEFAULT,"Total loaded modules: %d", this->ModCount+1);
 }
 

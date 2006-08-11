@@ -102,8 +102,6 @@ public:
 
 	void push(const SQLrequest &q)
 	{
-		log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.q.c_str());
-
 		if(q.pri)
 			priority.push_back(q);
 		else
@@ -216,7 +214,6 @@ class MySQLresult : public SQLresult
 	{
 		/* A number of affected rows from from mysql_affected_rows.
 		 */
-		log(DEBUG,"Created new MySQLresult of non-error type");
 		fieldlists.clear();
 		rows = 0;
 		if (affected_rows >= 1)
@@ -249,7 +246,6 @@ class MySQLresult : public SQLresult
 						SQLfield sqlf(b, !row[field_count]);
 						colnames.push_back(a);
 						fieldlists[n].push_back(sqlf); 
-						log(DEBUG,"Inc field count to %d",field_count+1);
 						field_count++;
 					}
 					n++;
@@ -258,14 +254,12 @@ class MySQLresult : public SQLresult
 			}
 			mysql_free_result(res);
 		}
-		log(DEBUG, "Created new MySQL result; %d rows, %d columns", rows, colnames.size());
 	}
 
 	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int id) : SQLresult(self, to, id), currentrow(0)
 	{
 		rows = 0;
 		error = e;
-		log(DEBUG,"Created new MySQLresult of error type");
 	}
 
 	~MySQLresult()
@@ -313,7 +307,6 @@ class MySQLresult : public SQLresult
 			return fieldlists[row][column];
 		}
 
-		log(DEBUG,"Danger will robinson, we don't have row %d, column %d!", row, column);
 		throw SQLbadColName();
 
 		/* XXX: We never actually get here because of the throw */
@@ -439,7 +432,6 @@ class SQLConnection : public classbase
 
 		/* Parse the command string and dispatch it to mysql */
 		SQLrequest& req = queue.front();
-		log(DEBUG,"DO QUERY: %s",req.query.q.c_str());
 
 		/* Pointer to the buffer we screw around with substitution in */
 		char* query;
@@ -491,10 +483,7 @@ class SQLConnection : public classbase
 					req.query.p.pop_front();
 				}
 				else
-				{
-					log(DEBUG, "Found a substitution location but no parameter to substitute :|");
 					break;
-				}
 			}
 			else
 			{
@@ -506,13 +495,9 @@ class SQLConnection : public classbase
 
 		*queryend = 0;
 
-		log(DEBUG, "Attempting to dispatch query: %s", query);
-
 		pthread_mutex_lock(&queue_mutex);
 		req.query.q = query;
 		pthread_mutex_unlock(&queue_mutex);
-
-		log(DEBUG,"REQUEST ID: %d",req.id);
 
 		if (!mysql_real_query(&connection, req.query.q.data(), req.query.q.length()))
 		{
@@ -533,7 +518,6 @@ class SQLConnection : public classbase
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
-			log(DEBUG,"SQL ERROR: %s",mysql_error(&connection));
 			SQLerror e(QREPLY_FAIL, ConvToStr(mysql_errno(&connection)) + std::string(": ") + mysql_error(&connection));
 			MySQLresult* r = new MySQLresult(SQLModule, req.GetSource(), e, req.id);
 			r->dbid = this->GetID();
@@ -649,12 +633,7 @@ void NotifyMainThread(SQLConnection* connection_with_new_result)
 	 * block if we like. We just send the connection id of the
 	 * connection back.
 	 */
-	log(DEBUG,"Notify of result on connection: %s",connection_with_new_result->GetID().c_str());
-	if (send(QueueFD, connection_with_new_result->GetID().c_str(), connection_with_new_result->GetID().length()+1, 0) < 1) // add one for null terminator
-	{
-		log(DEBUG,"Error writing to QueueFD: %s",strerror(errno));
-	}
-	log(DEBUG,"Sent it on its way via fd=%d",QueueFD);
+	send(QueueFD, connection_with_new_result->GetID().c_str(), connection_with_new_result->GetID().length()+1, 0);
 }
 
 void* DispatcherThread(void* arg);
@@ -683,7 +662,7 @@ class Notifier : public InspSocket
 
 	Notifier(InspIRCd* SI, int newfd, char* ip) : InspSocket(SI, newfd, ip)
 	{
-		log(DEBUG,"Constructor of new socket");
+		ilog(Instance,DEBUG,"Constructor of new socket");
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -698,7 +677,7 @@ class Notifier : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		log(DEBUG,"Inbound connection on fd %d!",newsock);
+		ilog(Instance,DEBUG,"Inbound connection on fd %d!",newsock);
 		Notifier* n = new Notifier(this->Instance, newsock, ip);
 		this->Instance->AddSocket(n);
 		return true;
@@ -706,17 +685,17 @@ class Notifier : public InspSocket
 
 	virtual bool OnDataReady()
 	{
-		log(DEBUG,"Inbound data!");
+		ilog(Instance,DEBUG,"Inbound data!");
 		char* data = this->Read();
 		ConnMap::iterator iter;
 
 		if (data && *data)
 		{
-			log(DEBUG,"Looking for connection %s",data);
+			ilog(Instance,DEBUG,"Looking for connection %s",data);
 			/* We expect to be sent a null terminated string */
 			if((iter = Connections.find(data)) != Connections.end())
 			{
-				log(DEBUG,"Found it!");
+				ilog(Instance,DEBUG,"Found it!");
 
 				/* Lock the mutex, send back the data */
 				pthread_mutex_lock(&results_mutex);
@@ -837,7 +816,6 @@ class ModuleSQL : public Module
 
 void* DispatcherThread(void* arg)
 {
-	log(DEBUG,"Starting Dispatcher thread, mysql version %d",mysql_get_client_version());
 	ModuleSQL* thismodule = (ModuleSQL*)arg;
 	LoadDatabases(thismodule->Conf, thismodule->PublicServerInstance);
 
@@ -846,11 +824,8 @@ void* DispatcherThread(void* arg)
 	if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
 	{
 		/* crap, we're out of sockets... */
-		log(DEBUG,"QueueFD cant be created");
 		return NULL;
 	}
-
-	log(DEBUG,"Initialize QueueFD to %d",QueueFD);
 
 	insp_sockaddr addr;
 
@@ -869,11 +844,8 @@ void* DispatcherThread(void* arg)
 	if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
 	{
 		/* wtf, we cant connect to it, but we just created it! */
-		log(DEBUG,"QueueFD cant connect!");
 		return NULL;
 	}
-
-	log(DEBUG,"Connect QUEUE FD");
 
 	while (!giveup)
 	{
@@ -894,7 +866,6 @@ void* DispatcherThread(void* arg)
 		/* Theres an item! */
 		if (conn)
 		{
-			log(DEBUG,"Process Leading query");
 			conn->DoLeadingQuery();
 
 			/* XXX: Lock */

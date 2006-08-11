@@ -194,10 +194,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	addr.sin_port = htons(DNS::QUERY_PORT);
 #endif
 	if (sendto(DNS::GetMasterSocket(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
-	{
-		log(DEBUG,"Error in sendto! (%s)",strerror(errno));
 		return -1;
-	}
 
 	return 0;
 }

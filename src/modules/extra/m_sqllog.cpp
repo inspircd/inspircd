@@ -66,8 +66,6 @@ class QueryInfo
 		// Nothing here and not sent yet
 		SQLrequest req = SQLreq(MyMod, SQLModule, dbid, "", "");
 
-		log(DEBUG,"State: %d",qs);
-
 		switch (qs)
 		{
 			case FIND_SOURCE:
@@ -99,7 +97,7 @@ class QueryInfo
 						}
 						else
 						{
-							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -116,7 +114,7 @@ class QueryInfo
 				}
 				else
 				{
-					log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 				
 			break;
@@ -148,7 +146,7 @@ class QueryInfo
 						}
 						else
 						{
-							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -164,7 +162,7 @@ class QueryInfo
 				}
 				else
 				{
-					log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 			break;
 			case FIND_HOST:
@@ -196,7 +194,7 @@ class QueryInfo
 						}
 						else
 						{
-							log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -213,7 +211,7 @@ class QueryInfo
 				}
 				else
 				{
-					log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 			break;
 			case INSERT_LOGENTRY:
@@ -239,7 +237,7 @@ class QueryInfo
 					}
 					else
 					{
-						log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 					}
 				}
 			break;

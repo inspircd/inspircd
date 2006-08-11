@@ -2187,23 +2187,23 @@ class TreeSocket : public InspSocket
 		switch (*(params[0].c_str()))
 		{
 			case 'Z':
-				propogate = add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				propogate = ServerInstance->XLines->add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				ServerInstance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'Q':
-				propogate = add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				propogate = ServerInstance->XLines->add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				ServerInstance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'E':
-				propogate = add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				eline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				propogate = ServerInstance->XLines->add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				ServerInstance->XLines->eline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'G':
-				propogate = add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				propogate = ServerInstance->XLines->add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				ServerInstance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
 			break;
 			case 'K':
-				propogate = add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				propogate = ServerInstance->XLines->add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 			break;
 			default:
 				/* Just in case... */
@@ -2229,7 +2229,7 @@ class TreeSocket : public InspSocket
 		if (!this->bursting)
 		{
 			log(DEBUG,"Applying lines...");
-			apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+			ServerInstance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 		}
 		return true;
 	}
@@ -2811,7 +2811,7 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+						ServerInstance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 					}
 					if (prefix == "")
 					{
@@ -2829,7 +2829,7 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+						ServerInstance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 					}
 					if (prefix == "")
 					{
@@ -2912,7 +2912,7 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
-					apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+					ServerInstance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
 					std::string sourceserv = this->myhost;
 					if (this->InboundServerName != "")
 					{

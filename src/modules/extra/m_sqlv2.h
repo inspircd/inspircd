@@ -149,7 +149,6 @@ public:
 	SQLquery(const std::string &query)
 	: q(query)
 	{
-		log(DEBUG, "SQLquery constructor: %s", q.c_str());
 	}
 
 	/** Initialize an SQLquery with a format string and parameters.
@@ -159,7 +158,6 @@ public:
 	SQLquery(const std::string &query, const ParamL &params)
 	: q(query), p(params)
 	{
-		log(DEBUG, "SQLquery constructor with %d params: %s", p.size(), q.c_str());
 	}	
 	
 	/** An overloaded operator for pushing parameters onto the parameter list

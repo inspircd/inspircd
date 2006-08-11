@@ -73,7 +73,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, 
 	char* Classes = (char*)values[1];
 	
 	opertypes[TypeName] = strdup(Classes);
-	log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
+	ilog(conf->GetInstance(),DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
 }
 
@@ -83,7 +83,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* CommandList = (char*)values[1];
 	
 	operclass[ClassName] = strdup(CommandList);
-	log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
+	ilog(conf->GetInstance(),DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	return true;
 }
 
@@ -676,7 +676,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 			}
 			catch (ModuleException& modexcept)
 			{
-				log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				ilog(Instance,DEBUG,"Module exception cought: %s",modexcept.GetReason());
 			}
 		}
 		
@@ -701,7 +701,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 
 	if (iter != Instance->clientlist.end())
 	{
-		log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
+		ilog(Instance,DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
 			Instance->fd_ref_table[user->fd] = NULL;
@@ -812,7 +812,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		Instance->clientlist.erase(iter);
 	}
 
-	log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
+	ilog(Instance,DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
 	_new = new userrec(Instance);
 	Instance->clientlist[tempnick] = _new;
@@ -827,9 +827,9 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	_new->signon = Instance->Time() + Instance->Config->dns_timeout;
 	_new->lastping = 1;
 
-	log(DEBUG,"Setting socket addresses");
+	ilog(Instance,DEBUG,"Setting socket addresses");
 	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
-	log(DEBUG,"Socket addresses set.");
+	ilog(Instance,DEBUG,"Socket addresses set.");
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)

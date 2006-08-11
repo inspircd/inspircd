@@ -29,14 +29,14 @@
 #include <string>
 #include "socketengine.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
-SocketEngine::SocketEngine()
+SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
 SocketEngine::~SocketEngine()
 {
-	log(DEBUG,"SocketEngine::~SocketEngine()");
 }
 
 char SocketEngine::GetType(int fd)

@@ -36,6 +36,28 @@
 /* Crucial defines */
 #define ETIREDGERBILS EAGAIN
 
+/** Debug levels for use with InspIRCd::Log()
+ */
+enum DebugLevel
+{
+	DEBUG		=	10,
+	VERBOSE		=	20,
+	DEFAULT		=	30,
+	SPARSE		=	40,
+	NONE		=	50,
+};
+
+/* I'm not entirely happy with this, the ## before 'args' is a g++ extension.
+ * The problem is that if you #define log(l, x, args...) and then call it
+ * with only two parameters, you get do_log(l, x, ), which is a syntax error...
+ * The ## tells g++ to remove the trailing comma...
+ * If this is ever an issue, we can just have an #ifndef GCC then #define log(a...) do_log(a)
+ */
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x) 
+#define log(l, x, args...) ServerInstance->Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
+#define ilog(i, l, x, args...) i->Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
+
 /* This define is used in place of strcmp when we 
  * want to check if a char* string contains only one
  * letter. Pretty fast, its just two compares and an
@@ -43,7 +65,7 @@
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
-#define DELETE(x) { InspIRCd::Log(DEBUG,"%s:%d: delete()",__FILE__,__LINE__); if (x) { delete x; x = NULL; } else InspIRCd::Log(DEBUG,"Attempt to delete NULL pointer!"); }
+#define DELETE(x) {if (x) { delete x; x = NULL; }}
 
 template<typename T> inline std::string ConvToStr(const T &in)
 {
@@ -177,7 +199,6 @@ class InspIRCd : public classbase
 
 	bool IsChannel(const char *chname);
 
-	static void Error(int status);
 	static void Rehash(int status);
 	static void Exit(int status);
 
@@ -319,8 +340,8 @@ class InspIRCd : public classbase
 	bool UnloadModule(const char* filename);
 	InspIRCd(int argc, char** argv);
 	void DoOneIteration(bool process_module_sockets);
-	static void Log(int level, const char* text, ...);
-	static void Log(int level, const std::string &text);
+	void Log(int level, const char* text, ...);
+	void Log(int level, const std::string &text);
 	int Run();
 };
 

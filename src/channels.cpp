@@ -240,7 +240,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		*Ptr->topic = 0;
 		strlcpy(Ptr->setby, user->nick,NICKMAX-1);
 		Ptr->topicset = 0;
-		log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
+		ilog(Instance,DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		/*
 		 * set created to 2 to indicate user
 		 * is the first in the channel
@@ -276,7 +276,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 					{
 						if (!key)
 						{
-							log(DEBUG,"chanrec::JoinUser(): no key given in JOIN");
+							ilog(Instance,DEBUG,"chanrec::JoinUser(): no key given in JOIN");
 							user->WriteServ("475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 							return NULL;
 						}
@@ -284,7 +284,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 						{
 							if (strcmp(key,Ptr->key))
 							{
-								log(DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
+								ilog(Instance,DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
 								user->WriteServ("475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 								return NULL;
 							}
@@ -350,7 +350,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 		else
 		{
-			log(DEBUG,"chanrec::JoinUser(): Overridden checks");
+			ilog(Instance,DEBUG,"chanrec::JoinUser(): Overridden checks");
 		}
 		created = 1;
 	}
@@ -391,7 +391,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (created == 2)
 	{
-		log(DEBUG,"BLAMMO, Whacking channel.");
+		ilog(Instance,DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
 		chan_hash::iterator n = Instance->chanlist.find(cname);
 		if (n != Instance->chanlist.end())
@@ -443,7 +443,6 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))
 	{
-		log(DEBUG,"Sent JOIN to client");
 		if (Ptr->topicset)
 		{
 			user->WriteServ("332 %s %s :%s", user->nick, Ptr->name, Ptr->topic);

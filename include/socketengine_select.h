@@ -26,13 +26,15 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
+class InspIRCd;
+
 class SelectEngine : public SocketEngine
 {
 private:
 	std::map<int,int> fds;		/* List of file descriptors being monitored */
 	fd_set wfdset, rfdset;		/* Readable and writeable sets for select() */
 public:
-	SelectEngine();
+	SelectEngine(InspIRCd* Instance);
 	virtual ~SelectEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -45,7 +47,7 @@ public:
 class SocketEngineFactory
 {
 public:
-	SocketEngine* Create() { return new SelectEngine(); }
+	SocketEngine* Create(InspIRCd* Instance) { return new SelectEngine(InspIRCd* Instance); }
 };
 
 #endif

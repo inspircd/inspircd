@@ -22,8 +22,9 @@
 #include <string>
 #include "socketengine_epoll.h"
 #include "helperfuncs.h"
+#include "inspircd.h"
 
-EPollEngine::EPollEngine()
+EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
 	EngineHandle = epoll_create(MAX_DESCRIPTORS);
 

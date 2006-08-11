@@ -27,12 +27,14 @@
 #include <sys/epoll.h>
 #define EP_DELAY 5
 
+class InspIRCd;
+
 class EPollEngine : public SocketEngine
 {
 private:
 	struct epoll_event events[MAX_DESCRIPTORS];     /* Up to 64k sockets for epoll */
 public:
-	EPollEngine();
+	EPollEngine(InspIRCd* Instance);
 	virtual ~EPollEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -45,7 +47,7 @@ public:
 class SocketEngineFactory
 {
 public:
-	SocketEngine* Create() { return new EPollEngine(); }
+	SocketEngine* Create(InspIRCd* Instance) { return new EPollEngine(Instance); }
 };
 
 #endif

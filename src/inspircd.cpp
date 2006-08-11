@@ -136,8 +136,6 @@ void InspIRCd::SetSignals(bool SEGVHandler)
 	signal (SIGHUP, InspIRCd::Rehash);
 	signal (SIGPIPE, SIG_IGN);
 	signal (SIGTERM, InspIRCd::Exit);
-	if (SEGVHandler)
-		signal (SIGSEGV, InspIRCd::Error);
 }
 
 bool InspIRCd::DaemonSeed()
@@ -301,7 +299,7 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 	 * initialize the socket engine.
 	 */
 	SocketEngineFactory* SEF = new SocketEngineFactory();
-	SE = SEF->Create();
+	SE = SEF->Create(this);
 	delete SEF;
 
 	/* We must load the modules AFTER initializing the socket engine, now */

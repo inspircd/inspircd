@@ -234,7 +234,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 
 	if ((*addr) && (insp_aton(addr,&addy) < 1))
 	{
-		log(DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
+		ilog(this,DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
 		return false;;
 	}
 
@@ -270,10 +270,10 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	}
 	else
 	{
-		log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
+		ilog(this,DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
 		if (listen(sockfd, Config->MaxConn) == -1)
 		{
-			log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
+			ilog(this,DEFAULT,"ERROR in listen(): %s",strerror(errno));
 			return false;
 		}
 		else
@@ -294,8 +294,7 @@ int irc::sockets::OpenTCPSocket()
   
 	if ((sockfd = socket (AF_FAMILY, SOCK_STREAM, 0)) < 0)
 	{
-		log(DEFAULT,"Error creating TCP socket: %s",strerror(errno));
-		return (ERROR);
+		return ERROR;
 	}
 	else
 	{
@@ -332,7 +331,7 @@ int InspIRCd::BindPorts(bool bail)
 	if (!bail)
 	{
 		int InitialPortCount = stats->BoundPortCount;
-		log(DEBUG,"Initial port count: %d",InitialPortCount);
+		ilog(this,DEBUG,"Initial port count: %d",InitialPortCount);
 
 		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 		{
@@ -349,7 +348,7 @@ int InspIRCd::BindPorts(bool bail)
 
 				strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
 				clientportcount++;
-				log(DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
+				ilog(this,DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
 			}
 		}
 		int PortCount = clientportcount;
@@ -359,13 +358,13 @@ int InspIRCd::BindPorts(bool bail)
 			{
 				if ((Config->openSockfd[count] = OpenTCPSocket()) == ERROR)
 				{
-					log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
+					ilog(this,DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
 				}
 				else
 				{
 					if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
 					{
-						log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+						ilog(this,DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 					}
 					else
 					{
@@ -374,7 +373,7 @@ int InspIRCd::BindPorts(bool bail)
 						{
 							if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
 							{
-								log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
+								ilog(this,DEFAULT,"ERK! Failed to add listening port to socket engine!");
 								shutdown(Config->openSockfd[count],2);
 								close(Config->openSockfd[count]);
 							}
@@ -388,7 +387,7 @@ int InspIRCd::BindPorts(bool bail)
 		}
 		else
 		{
-			log(DEBUG,"There is nothing new to bind!");
+			ilog(this,DEBUG,"There is nothing new to bind!");
 		}
 		return InitialPortCount;
 	}
@@ -413,7 +412,7 @@ int InspIRCd::BindPorts(bool bail)
 
 			strlcpy(Config->addrs[clientportcount],Addr,256);
 			clientportcount++;
-			log(DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
+			ilog(this,DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
 		}
 	}
 
@@ -423,13 +422,13 @@ int InspIRCd::BindPorts(bool bail)
 	{
 		if ((Config->openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
 		{
-			log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
+			ilog(this,DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
 		}
 		else
 		{
 			if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
 			{
-				log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+				ilog(this,DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 			}
 			else
 			{

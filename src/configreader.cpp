@@ -139,7 +139,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 bool NoValidation(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	log(DEBUG,"No validation for <%s:%s>",tag,value);
+	ilog(conf->GetInstance(),DEBUG,"No validation for <%s:%s>",tag,value);
 	return true;
 }
 
@@ -156,7 +156,7 @@ bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, 
 	int* x = (int*)data;
 	if ((*x < 0) || (*x > 31))
 	{
-		log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		*x = 20;
 	}
 	return true;
@@ -167,7 +167,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, v
 	int* x = (int*)data;	
 	if ((*x < 1) || (*x > MAXCLIENTS))
 	{
-		log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
 		*x = MAXCLIENTS;
 	}
 	return true;
@@ -177,7 +177,7 @@ bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, voi
 {
 	int* x = (int*)data;	
 	if (*x > SOMAXCONN)
-		log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	if (!*x)
 		*x = SOMAXCONN;
 	return true;
@@ -219,7 +219,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 	if (!*x)
 	{
 		// attempt to look up their nameserver from /etc/resolv.conf
-		log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		ilog(conf->GetInstance(),DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
 		std::string nameserver;
 		bool found_server = false;
@@ -233,19 +233,19 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 					resolv >> nameserver;
 					strlcpy(x,nameserver.c_str(),MAXBUF);
 					found_server = true;
-					log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					ilog(conf->GetInstance(),DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
 			}
 
 			if (!found_server)
 			{
-				log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				ilog(conf->GetInstance(),DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 				strlcpy(x,"127.0.0.1",MAXBUF);
 			}
 		}
 		else
 		{
-			log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+			ilog(conf->GetInstance(),DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			strlcpy(x,"127.0.0.1",MAXBUF);
 		}
 	}
@@ -266,7 +266,7 @@ bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, 
 	char* x = (char*)data;
 	if (!strchr(x,'.'))
 	{
-		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
+		ilog(conf->GetInstance(),DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
 		charlcat(x,'.',MAXBUF);
 	}
 	//strlower(x);
@@ -277,7 +277,7 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* valu
 {
 	if ((!conf->NetBufferSize) || (conf->NetBufferSize > 65535) || (conf->NetBufferSize < 1024))
 	{
-		log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		ilog(conf->GetInstance(),DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		conf->NetBufferSize = 10240;
 	}
 	return true;
@@ -287,7 +287,7 @@ bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void
 {
 	if ((!conf->MaxWhoResults) || (conf->MaxWhoResults > 65535) || (conf->MaxWhoResults < 1))
 	{
-		log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		ilog(conf->GetInstance(),DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
 		conf->MaxWhoResults = 128;
 	}
 	return true;
@@ -329,7 +329,7 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void*
  */
 bool InitConnect(ServerConfig* conf, const char* tag)
 {
-	log(DEFAULT,"Reading connect classes...");
+	ilog(conf->GetInstance(),DEFAULT,"Reading connect classes...");
 	conf->Classes.clear();
 	return true;
 }
@@ -374,7 +374,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
 		{
 			c.threshold = 1;
 			c.flood = 999;
-			log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
+			ilog(conf->GetInstance(),DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
 		}
 		if (c.sendqmax == 0)
 			c.sendqmax = 262114;
@@ -391,7 +391,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
 		c.host = deny;
 		c.type = CC_DENY;
 		conf->Classes.push_back(c);
-		log(DEBUG,"Read connect class type DENY, host=%s",deny);
+		ilog(conf->GetInstance(),DEBUG,"Read connect class type DENY, host=%s",deny);
 	}
 
 	return true;
@@ -401,7 +401,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
  */
 bool DoneConnect(ServerConfig* conf, const char* tag)
 {
-	log(DEBUG,"DoneConnect called for tag: %s",tag);
+	ilog(conf->GetInstance(),DEBUG,"DoneConnect called for tag: %s",tag);
 	return true;
 }
 
@@ -418,7 +418,7 @@ bool InitULine(ServerConfig* conf, const char* tag)
 bool DoULine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* server = (char*)values[0];
-	log(DEBUG,"Read ULINE '%s'",server);
+	ilog(conf->GetInstance(),DEBUG,"Read ULINE '%s'",server);
 	conf->ulines.push_back(server);
 	return true;
 }
