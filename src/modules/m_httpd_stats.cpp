@@ -173,7 +173,7 @@ class ModuleHttpStats : public Module
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 
-				log(DEBUG,"Sent");
+				ServerInstance->Log(DEBUG,"Sent");
 			}
 		}
 	}

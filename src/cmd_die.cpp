@@ -29,7 +29,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
 	{
-		log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, ServerInstance->Config->DieDelay);
+		ServerInstance->Log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, ServerInstance->Config->DieDelay);
 		
 		/* This would just be WriteOpers(), but as we just sleep() and then die then the write buffers never get flushed.
 		 * so we iterate the oper list, writing the message and immediately trying to flush their write buffer.
@@ -51,7 +51,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
+		ServerInstance->Log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
 		ServerInstance->WriteOpers("*** Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
 	}
 }

@@ -43,13 +43,13 @@ class Channel_r : public ModeHandler
 		// only a u-lined server may add or remove the +r mode.
 		if ((is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
-			log(DEBUG,"Allowing cmode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			ServerInstance->Log(DEBUG,"Allowing cmode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			channel->SetMode('r',adding);
 			return MODEACTION_ALLOW;
 		}
 		else
 		{
-			log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			ServerInstance->Log(DEBUG,"Only a server can set chanmode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			source->WriteServ("500 "+std::string(source->nick)+" :Only a server may modify the +r channel mode");
 			return MODEACTION_DENY;
 		}
@@ -66,13 +66,13 @@ class User_r : public ModeHandler
 	{
 		if ((kludgeme) || (is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
-			log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
+			ServerInstance->Log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
 			dest->SetMode('r',adding);
 			return MODEACTION_ALLOW;
 		}
 		else
 		{
-			log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",source->nick, source->server);
+			ServerInstance->Log(DEBUG,"Only a server can set umode +r, server and nick are: '%s','%s'",source->nick, source->server);
 			source->WriteServ("500 "+std::string(source->nick)+" :Only a server may modify the +r user mode");
 			return MODEACTION_DENY;
 		}

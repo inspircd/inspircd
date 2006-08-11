@@ -39,12 +39,12 @@ class MyV6Resolver : public Resolver
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
-		log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s'",fw ? "FORWARD" : "REVERSE", result.c_str());
+		ServerInstance->Log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s'",fw ? "FORWARD" : "REVERSE", result.c_str());
 	}
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		log(DEBUG,"*** RESOLVER GOT ERROR: %d: %s",e,errormessage.c_str());
+		ServerInstance->Log(DEBUG,"*** RESOLVER GOT ERROR: %d: %s",e,errormessage.c_str());
 	}
 };
 
@@ -72,7 +72,7 @@ class cmd_woot : public command_t
 		}
 		catch (ModuleException& e)
 		{
-			log(DEBUG,"Danger, will robinson! There was an exception: %s",e.GetReason());
+			ServerInstance->Log(DEBUG,"Danger, will robinson! There was an exception: %s",e.GetReason());
 		}
 	}
 };

@@ -234,7 +234,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 
 	if ((*addr) && (insp_aton(addr,&addy) < 1))
 	{
-		ilog(this,DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
+		this->Log(DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
 		return false;;
 	}
 
@@ -270,10 +270,10 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	}
 	else
 	{
-		ilog(this,DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
+		this->Log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
 		if (listen(sockfd, Config->MaxConn) == -1)
 		{
-			ilog(this,DEFAULT,"ERROR in listen(): %s",strerror(errno));
+			this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
 			return false;
 		}
 		else
@@ -331,7 +331,7 @@ int InspIRCd::BindPorts(bool bail)
 	if (!bail)
 	{
 		int InitialPortCount = stats->BoundPortCount;
-		ilog(this,DEBUG,"Initial port count: %d",InitialPortCount);
+		this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
 
 		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 		{
@@ -348,7 +348,7 @@ int InspIRCd::BindPorts(bool bail)
 
 				strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
 				clientportcount++;
-				ilog(this,DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
+				this->Log(DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
 			}
 		}
 		int PortCount = clientportcount;
@@ -358,13 +358,13 @@ int InspIRCd::BindPorts(bool bail)
 			{
 				if ((Config->openSockfd[count] = OpenTCPSocket()) == ERROR)
 				{
-					ilog(this,DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
+					this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
 				}
 				else
 				{
 					if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
 					{
-						ilog(this,DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+						this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 					}
 					else
 					{
@@ -373,7 +373,7 @@ int InspIRCd::BindPorts(bool bail)
 						{
 							if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
 							{
-								ilog(this,DEFAULT,"ERK! Failed to add listening port to socket engine!");
+								this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
 								shutdown(Config->openSockfd[count],2);
 								close(Config->openSockfd[count]);
 							}
@@ -387,7 +387,7 @@ int InspIRCd::BindPorts(bool bail)
 		}
 		else
 		{
-			ilog(this,DEBUG,"There is nothing new to bind!");
+			this->Log(DEBUG,"There is nothing new to bind!");
 		}
 		return InitialPortCount;
 	}
@@ -412,7 +412,7 @@ int InspIRCd::BindPorts(bool bail)
 
 			strlcpy(Config->addrs[clientportcount],Addr,256);
 			clientportcount++;
-			ilog(this,DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
+			this->Log(DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
 		}
 	}
 
@@ -422,13 +422,13 @@ int InspIRCd::BindPorts(bool bail)
 	{
 		if ((Config->openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
 		{
-			ilog(this,DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
+			this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
 		}
 		else
 		{
 			if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
 			{
-				ilog(this,DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+				this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
 			}
 			else
 			{

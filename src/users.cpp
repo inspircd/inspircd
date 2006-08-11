@@ -73,7 +73,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, 
 	char* Classes = (char*)values[1];
 	
 	opertypes[TypeName] = strdup(Classes);
-	ilog(conf->GetInstance(),DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
+	conf->GetInstance()->Log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
 }
 
@@ -83,7 +83,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* CommandList = (char*)values[1];
 	
 	operclass[ClassName] = strdup(CommandList);
-	ilog(conf->GetInstance(),DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
+	conf->GetInstance()->Log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	return true;
 }
 
@@ -121,16 +121,16 @@ bool userrec::ProcessNoticeMasks(const char *sm)
 
 void userrec::StartDNSLookup()
 {
-	log(DEBUG,"Commencing reverse lookup");
+	ServerInstance->Log(DEBUG,"Commencing reverse lookup");
 	try
 	{
-		log(DEBUG,"Passing instance: %08x",this->ServerInstance);
+		ServerInstance->Log(DEBUG,"Passing instance: %08x",this->ServerInstance);
 		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), false);
 		this->ServerInstance->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
 	{
-		log(DEBUG,"Error in resolver: %s",e.GetReason());
+		ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 	}
 }
 
@@ -145,7 +145,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 {
 	if ((!this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
 	{
-		log(DEBUG,"Commencing forward lookup");
+		ServerInstance->Log(DEBUG,"Commencing forward lookup");
 		this->bound_user->stored_host = result;
 		try
 		{
@@ -154,7 +154,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 		}
 		catch (ModuleException& e)
 		{
-			log(DEBUG,"Error in resolver: %s",e.GetReason());
+			ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
 	else if ((this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
@@ -249,7 +249,7 @@ const char* userrec::FormatModes()
 
 userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	log(DEBUG,"userrec::userrec(): Instance: %08x",ServerInstance);
+	ServerInstance->Log(DEBUG,"userrec::userrec(): Instance: %08x",ServerInstance);
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
@@ -401,7 +401,7 @@ void userrec::InviteTo(irc::string &channel)
 
 void userrec::RemoveInvite(irc::string &channel)
 {
-	log(DEBUG,"Removing invites");
+	ServerInstance->Log(DEBUG,"Removing invites");
 	
 	if (invites.size())
 	{
@@ -589,11 +589,11 @@ void userrec::FlushWriteBuf()
 
 void userrec::SetWriteError(const std::string &error)
 {
-	log(DEBUG,"SetWriteError: %s",error.c_str());
+	ServerInstance->Log(DEBUG,"SetWriteError: %s",error.c_str());
 	// don't try to set the error twice, its already set take the first string.
 	if (!this->WriteError.length())
 	{
-		log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
+		ServerInstance->Log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 		this->WriteError = error;
 	}
 }
@@ -608,7 +608,7 @@ void userrec::Oper(const std::string &opertype)
 	this->modes[UM_OPERATOR] = 1;
 	this->WriteServ("MODE %s :+o", this->nick);
 	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-	log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
+	ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
 	strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
 	ServerInstance->all_opers.push_back(this);
 	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
@@ -624,7 +624,7 @@ void userrec::UnOper()
 		{
 			if (*a == this)
 			{
-				log(DEBUG,"Oper removed from optimization list");
+				ServerInstance->Log(DEBUG,"Oper removed from optimization list");
 				ServerInstance->all_opers.erase(a);
 				return;
 			}
@@ -676,7 +676,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 			}
 			catch (ModuleException& modexcept)
 			{
-				ilog(Instance,DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
 			}
 		}
 		
@@ -701,7 +701,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 
 	if (iter != Instance->clientlist.end())
 	{
-		ilog(Instance,DEBUG,"deleting user hash value %lx",(unsigned long)user);
+		Instance->Log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
 			Instance->fd_ref_table[user->fd] = NULL;
@@ -812,7 +812,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		Instance->clientlist.erase(iter);
 	}
 
-	ilog(Instance,DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
+	Instance->Log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
 	_new = new userrec(Instance);
 	Instance->clientlist[tempnick] = _new;
@@ -827,9 +827,9 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	_new->signon = Instance->Time() + Instance->Config->dns_timeout;
 	_new->lastping = 1;
 
-	ilog(Instance,DEBUG,"Setting socket addresses");
+	Instance->Log(DEBUG,"Setting socket addresses");
 	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
-	ilog(Instance,DEBUG,"Socket addresses set.");
+	Instance->Log(DEBUG,"Socket addresses set.");
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)
@@ -1119,7 +1119,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
-			log(DEBUG,"Set inet6 protocol address");
+			ServerInstance->Log(DEBUG,"Set inet6 protocol address");
 			sockaddr_in6* sin = new sockaddr_in6;
 			sin->sin6_family = AF_INET6;
 			sin->sin6_port = port;
@@ -1130,7 +1130,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #endif
 		case AF_INET:
 		{
-			log(DEBUG,"Set inet4 protocol address");
+			ServerInstance->Log(DEBUG,"Set inet4 protocol address");
 			sockaddr_in* sin = new sockaddr_in;
 			sin->sin_family = AF_INET;
 			sin->sin_port = port;
@@ -1139,7 +1139,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 		}
 		break;
 		default:
-			log(DEBUG,"Ut oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
+			ServerInstance->Log(DEBUG,"Ut oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
 		break;
 	}
 }
@@ -1166,7 +1166,7 @@ int userrec::GetPort()
 		}
 		break;
 		default:
-			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return 0;
@@ -1215,7 +1215,7 @@ const char* userrec::GetIPString()
 		}
 		break;
 		default:
-			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return "";
@@ -1258,7 +1258,7 @@ const char* userrec::GetIPString(char* buf)
 		break;
 
 		default:
-			log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
+			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return "";
@@ -1281,7 +1281,7 @@ void userrec::Write(const std::string &text)
 		}
 		catch (ModuleException& modexcept)
 		{
-			log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+			ServerInstance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
 		}
 	}
 	else

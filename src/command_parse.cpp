@@ -275,7 +275,7 @@ bool CommandParser::RemoveCommands(const char* source)
 			command_t* x = i->second;
 			if (x->source == std::string(source))
 			{
-				log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
+				ServerInstance->Log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
 				cmdlist.erase(i);
 				go_again = true;
 				break;
@@ -300,7 +300,7 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 
 	if (buffer.length())
 	{
-		log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
+		ServerInstance->Log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
 		this->ProcessCommand(user,buffer);
 	}
 }
@@ -311,7 +311,7 @@ bool CommandParser::CreateCommand(command_t *f)
 	if (cmdlist.find(f->command) == cmdlist.end())
 	{
 		cmdlist[f->command] = f;
-		log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
+		ServerInstance->Log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
 		return true;
 	}
 	else return false;

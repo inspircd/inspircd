@@ -45,13 +45,13 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 	}
 #ifdef STATIC_LINK
 	this->staticname[0] = '\0';
-	log(DEBUG,"Loading core-compiled module '%s'",fname);
+	ServerInstance->Log(DEBUG,"Loading core-compiled module '%s'",fname);
 	for (int j = 0; modsyms[j].name; j++)
 	{
-		log(DEBUG,"Check %s",modsyms[j].name);
+		ServerInstance->Log(DEBUG,"Check %s",modsyms[j].name);
 		if (!strcmp(modsyms[j].name,fname))
 		{
-			log(DEBUG,"Found %s",fname);
+			ServerInstance->Log(DEBUG,"Found %s",fname);
 			strlcpy(this->staticname,fname,1020);
 			err = 0;
 			return;
@@ -69,7 +69,7 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 		err = strerror(errno);
 		return;
 	}
-	log(DEBUG,"Opened module file %s",fname);
+	ServerInstance->Log(DEBUG,"Opened module file %s",fname);
 	char tmpfile_template[255];
 	char buffer[65536];
 	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",ServerInstance->Config->TempDir,getpid());
@@ -80,7 +80,7 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 		err = strerror(errno);
 		return;
 	}
-	log(DEBUG,"Copying %s to %s",fname, tmpfile_template);
+	ServerInstance->Log(DEBUG,"Copying %s to %s",fname, tmpfile_template);
 	while (!feof(x))
 	{
 		int n = fread(buffer, 1, 65535, x);
@@ -95,7 +95,7 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 			}
 		}
 	}
-	log(DEBUG,"Copied entire file.");
+	ServerInstance->Log(DEBUG,"Copied entire file.");
 	// Try to open the library now and get any error message.
 
 	if (close(fd) == -1)
@@ -106,17 +106,17 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
-		log(DEBUG,"dlerror occured!");
+		ServerInstance->Log(DEBUG,"dlerror occured!");
 		err = (char*)dlerror();
 		return;
 	}
 
-	log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
+	ServerInstance->Log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
 
 	// We can delete the tempfile once it's loaded, leaving just the inode.
 	if (!err && !ServerInstance->Config->debugging)
 	{
-		log(DEBUG,"Deleteting %s",tmpfile_template);
+		ServerInstance->Log(DEBUG,"Deleteting %s",tmpfile_template);
 		if (unlink(tmpfile_template) == -1)
 			err = strerror(errno);
 	}

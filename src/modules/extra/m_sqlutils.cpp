@@ -49,7 +49,7 @@ public:
 	ModuleSQLutils(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		log(DEBUG, "%s 'SQLutils' feature", ServerInstance->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
+		ServerInstance->Log(DEBUG, "%s 'SQLutils' feature", ServerInstance->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
 	}
 
 	void Implements(char* List)
@@ -63,7 +63,7 @@ public:
 		{
 			AssociateUser* req = (AssociateUser*)request;
 			
-			log(DEBUG, "Associated ID %lu with user %s", req->id, req->user->nick);
+			ServerInstance->Log(DEBUG, "Associated ID %lu with user %s", req->id, req->user->nick);
 			
 			iduser.insert(std::make_pair(req->id, req->user));
 			
@@ -73,7 +73,7 @@ public:
 		{
 			AssociateChan* req = (AssociateChan*)request;
 
-			log(DEBUG, "Associated ID %lu with channel %s", req->id, req->chan->name);
+			ServerInstance->Log(DEBUG, "Associated ID %lu with channel %s", req->id, req->chan->name);
 			
 			idchan.insert(std::make_pair(req->id, req->chan));			
 			
@@ -87,7 +87,7 @@ public:
 			 * it is associated with.
 			 */
 			
-			log(DEBUG, "Unassociating ID %lu with all users and channels", req->id);
+			ServerInstance->Log(DEBUG, "Unassociating ID %lu with all users and channels", req->id);
 			
 			DoUnAssociate(iduser, req->id);
 			DoUnAssociate(idchan, req->id);
@@ -98,11 +98,11 @@ public:
 			
 			IdUserMap::iterator iter = iduser.find(req->id);
 			
-			log(DEBUG, "Looking up user associated with ID %lu", req->id);
+			ServerInstance->Log(DEBUG, "Looking up user associated with ID %lu", req->id);
 			
 			if(iter != iduser.end())
 			{
-				log(DEBUG, "Found user %s", iter->second->nick);
+				ServerInstance->Log(DEBUG, "Found user %s", iter->second->nick);
 				req->user = iter->second;
 			}
 		}
@@ -112,17 +112,17 @@ public:
 			
 			IdChanMap::iterator iter = idchan.find(req->id);
 			
-			log(DEBUG, "Looking up channel associated with ID %lu", req->id);
+			ServerInstance->Log(DEBUG, "Looking up channel associated with ID %lu", req->id);
 			
 			if(iter != idchan.end())
 			{
-				log(DEBUG, "Found channel %s", iter->second->name);
+				ServerInstance->Log(DEBUG, "Found channel %s", iter->second->name);
 				req->chan = iter->second;
 			}
 		}
 		else
 		{
-			log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+			ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 			return NULL;
 		}
 		
@@ -149,18 +149,18 @@ public:
 				{
 					if(iter->second == user)
 					{
-						log(DEBUG, "Erased query from map associated with quitting user %s", user->nick);
+						ServerInstance->Log(DEBUG, "Erased query from map associated with quitting user %s", user->nick);
 					}
 					else
 					{
-						log(DEBUG, "BUG: ID associated with user %s doesn't have the same userrec* associated with it in the map (erasing anyway)", user->nick);
+						ServerInstance->Log(DEBUG, "BUG: ID associated with user %s doesn't have the same userrec* associated with it in the map (erasing anyway)", user->nick);
 					}
 
 					iduser.erase(iter);					
 				}
 				else
 				{
-					log(DEBUG, "BUG: user %s was extended with sqlutils_queryids but there was nothing matching in the map", user->nick);
+					ServerInstance->Log(DEBUG, "BUG: user %s was extended with sqlutils_queryids but there was nothing matching in the map", user->nick);
 				}
 			}
 			
@@ -218,11 +218,11 @@ public:
 			 */
 			RemoveFromList(iter->second, id);
 			
-			log(DEBUG, "Removed query %lu from map and removed references to it on value", id);
+			ServerInstance->Log(DEBUG, "Removed query %lu from map and removed references to it on value", id);
 		}
 		else
 		{
-			log(DEBUG, "Nothing associated with query %lu", id);
+			ServerInstance->Log(DEBUG, "Nothing associated with query %lu", id);
 		}
 	}
 	
@@ -246,18 +246,18 @@ public:
 				{
 					if(iter->second == chan)
 					{
-						log(DEBUG, "Erased query from map associated with dying channnel %s", chan->name);
+						ServerInstance->Log(DEBUG, "Erased query from map associated with dying channnel %s", chan->name);
 					}
 					else
 					{
-						log(DEBUG, "BUG: ID associated with channel %s doesn't have the same chanrec* associated with it in the map (erasing anyway)", chan->name);
+						ServerInstance->Log(DEBUG, "BUG: ID associated with channel %s doesn't have the same chanrec* associated with it in the map (erasing anyway)", chan->name);
 					}
 
 					idchan.erase(iter);					
 				}
 				else
 				{
-					log(DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name);
+					ServerInstance->Log(DEBUG, "BUG: channel %s was extended with sqlutils_queryids but there was nothing matching in the map", chan->name);
 				}
 			}
 			

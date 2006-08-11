@@ -587,11 +587,11 @@ void ConnectDatabases(InspIRCd* ServerInstance)
 		i->second->SetEnable(true);
 		if (i->second->Connect())
 		{
-			log(DEFAULT,"SQL: Successfully connected database "+i->second->GetHost());
+			ServerInstance->Log(DEFAULT,"SQL: Successfully connected database "+i->second->GetHost());
 		}
 		else
 		{
-			log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
+			ServerInstance->Log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
 		}
 	}
@@ -600,9 +600,9 @@ void ConnectDatabases(InspIRCd* ServerInstance)
 
 void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 {
-	log(DEFAULT,"SQL: Loading database settings");
+	ServerInstance->Log(DEFAULT,"SQL: Loading database settings");
 	Connections.clear();
-	log(DEBUG,"Cleared connections");
+	ServerInstance->Log(DEBUG,"Cleared connections");
 	for (int j =0; j < ThisConf->Enumerate("database"); j++)
 	{
 		std::string db = ThisConf->ReadValue("database","name",j);
@@ -610,13 +610,13 @@ void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 		std::string pass = ThisConf->ReadValue("database","password",j);
 		std::string host = ThisConf->ReadValue("database","hostname",j);
 		std::string id = ThisConf->ReadValue("database","id",j);
-		log(DEBUG,"Read database settings");
+		ServerInstance->Log(DEBUG,"Read database settings");
 		if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
 		{
 			SQLConnection* ThisSQL = new SQLConnection(host,user,pass,db,id);
-			log(DEFAULT,"Loaded database: "+ThisSQL->GetHost());
+			ServerInstance->Log(DEFAULT,"Loaded database: "+ThisSQL->GetHost());
 			Connections[id] = ThisSQL;
-			log(DEBUG,"Pushed back connection");
+			ServerInstance->Log(DEBUG,"Pushed back connection");
 		}
 	}
 	ConnectDatabases(ServerInstance);
@@ -662,7 +662,7 @@ class Notifier : public InspSocket
 
 	Notifier(InspIRCd* SI, int newfd, char* ip) : InspSocket(SI, newfd, ip)
 	{
-		ilog(Instance,DEBUG,"Constructor of new socket");
+		Instance->Log(DEBUG,"Constructor of new socket");
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -677,7 +677,7 @@ class Notifier : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		ilog(Instance,DEBUG,"Inbound connection on fd %d!",newsock);
+		Instance->Log(DEBUG,"Inbound connection on fd %d!",newsock);
 		Notifier* n = new Notifier(this->Instance, newsock, ip);
 		this->Instance->AddSocket(n);
 		return true;
@@ -685,17 +685,17 @@ class Notifier : public InspSocket
 
 	virtual bool OnDataReady()
 	{
-		ilog(Instance,DEBUG,"Inbound data!");
+		Instance->Log(DEBUG,"Inbound data!");
 		char* data = this->Read();
 		ConnMap::iterator iter;
 
 		if (data && *data)
 		{
-			ilog(Instance,DEBUG,"Looking for connection %s",data);
+			Instance->Log(DEBUG,"Looking for connection %s",data);
 			/* We expect to be sent a null terminated string */
 			if((iter = Connections.find(data)) != Connections.end())
 			{
-				ilog(Instance,DEBUG,"Found it!");
+				Instance->Log(DEBUG,"Found it!");
 
 				/* Lock the mutex, send back the data */
 				pthread_mutex_lock(&results_mutex);
@@ -745,7 +745,7 @@ class ModuleSQL : public Module
 
 			char* returnval = NULL;
 
-			log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
+			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
 
 			if((iter = Connections.find(req->dbid)) != Connections.end())
 			{
@@ -764,7 +764,7 @@ class ModuleSQL : public Module
 			return returnval;
 		}
 
-		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 
 		return NULL;
 	}
@@ -780,7 +780,7 @@ class ModuleSQL : public Module
 
 		MessagePipe = new Notifier(ServerInstance);
 		ServerInstance->AddSocket(MessagePipe);
-		log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
+		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
 		
 		pthread_attr_t attribs;
 		pthread_attr_init(&attribs);

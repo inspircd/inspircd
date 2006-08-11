@@ -35,27 +35,27 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (pcnt < 1) 
 	{
-		log(DEBUG,"not enough params for handle_nick");
+		ServerInstance->Log(DEBUG,"not enough params for handle_nick");
 		return;
 	}
 	if (!parameters[0])
 	{
-		log(DEBUG,"invalid parameter passed to handle_nick");
+		ServerInstance->Log(DEBUG,"invalid parameter passed to handle_nick");
 		return;
 	}
 	if (!parameters[0][0])
 	{
-		log(DEBUG,"zero length new nick passed to handle_nick");
+		ServerInstance->Log(DEBUG,"zero length new nick passed to handle_nick");
 		return;
 	}
 	if (!user)
 	{
-		log(DEBUG,"invalid user passed to handle_nick");
+		ServerInstance->Log(DEBUG,"invalid user passed to handle_nick");
 		return;
 	}
 	if (!user->nick)
 	{
-		log(DEBUG,"invalid old nick passed to handle_nick");
+		ServerInstance->Log(DEBUG,"invalid old nick passed to handle_nick");
 		return;
 	}
 	if (irc::string(user->nick) == irc::string(parameters[0]))
@@ -67,7 +67,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
 		 */
-		log(DEBUG,"old nick is new nick, not updating hash (case change only)");
+		ServerInstance->Log(DEBUG,"old nick is new nick, not updating hash (case change only)");
 		strlcpy(oldnick, user->nick, NICKMAX - 1);
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
@@ -127,7 +127,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	strlcpy(user->nick, parameters[0], NICKMAX - 1);
 
-	log(DEBUG,"new nick set: %s",user->nick);
+	ServerInstance->Log(DEBUG,"new nick set: %s",user->nick);
 	
 	if (user->registered < REG_NICKUSER)
 	{
@@ -136,7 +136,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		// and unless we're lucky we'll get a duff one later on.
 		//user->dns_done = (!lookup_dns(user->nick));
 		//if (user->dns_done)
-		//	log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
+		//	ServerInstance->Log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 
 		if (ServerInstance->Config->NoUserDns)
 		{
@@ -146,7 +146,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			user->StartDNSLookup();
 			if (user->dns_done)
-				log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
+				ServerInstance->Log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 		}
 	}
 	if (user->registered == REG_NICKUSER)

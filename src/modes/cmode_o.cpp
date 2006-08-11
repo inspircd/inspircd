@@ -93,10 +93,10 @@ std::string ModeChannelOp::DelOp(userrec *user,const char *dest,chanrec *chan,in
 		if (IS_LOCAL(user))
 		{
 			int MOD_RESULT = 0;
-			log(DEBUG,"Call OnAccessCheck for AC_DEOP");
+			ServerInstance->Log(DEBUG,"Call OnAccessCheck for AC_DEOP");
 			FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user,d,chan,AC_DEOP));
 
-			log(DEBUG,"Returns %d",MOD_RESULT);
+			ServerInstance->Log(DEBUG,"Returns %d",MOD_RESULT);
 
 			if (MOD_RESULT == ACR_DENY)
 				return "";

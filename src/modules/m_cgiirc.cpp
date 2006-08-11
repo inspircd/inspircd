@@ -135,7 +135,7 @@ public:
 			}
 			else
 			{
-				log(DEBUG, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
+				ServerInstance->Log(DEBUG, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
 				continue;
 			}
 		}
@@ -197,16 +197,16 @@ public:
 
 	virtual void OnUserRegister(userrec* user)
 	{
-		log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,user->GetIPString());
+		ServerInstance->Log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,user->GetIPString());
 		
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 		{
-			log(DEBUG, "m_cgiirc.so: Matching %s against (%s or %s)", iter->hostmask.c_str(), user->host, user->GetIPString());
+			ServerInstance->Log(DEBUG, "m_cgiirc.so: Matching %s against (%s or %s)", iter->hostmask.c_str(), user->host, user->GetIPString());
 			
 			if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
 			{
 				// Deal with it...
-				log(DEBUG, "m_cgiirc.so: Handling CGI:IRC user: %s (%s) matched %s", user->GetFullRealHost(), user->GetIPString(), iter->hostmask.c_str());
+				ServerInstance->Log(DEBUG, "m_cgiirc.so: Handling CGI:IRC user: %s (%s) matched %s", user->GetFullRealHost(), user->GetIPString(), iter->hostmask.c_str());
 				
 				if(iter->type == PASS)
 				{
@@ -234,7 +234,7 @@ public:
 
 	bool CheckPass(userrec* user)
 	{
-		log(DEBUG, "m_cgiirc.so: CheckPass(%s) - %s", user->nick, user->password);
+		ServerInstance->Log(DEBUG, "m_cgiirc.so: CheckPass(%s) - %s", user->nick, user->password);
 		
 		if(IsValidHost(user->password))
 		{
@@ -250,7 +250,7 @@ public:
 #endif
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
-				log(DEBUG, "m_cgiirc.so: Got an IP in the user's password");
+				ServerInstance->Log(DEBUG, "m_cgiirc.so: Got an IP in the user's password");
 
 				if(NotifyOpers)
 					ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick, user->host, user->password);
@@ -258,7 +258,7 @@ public:
 			else
 			{
 				/* We got as resolved hostname in the password. */
-				log(DEBUG, "m_cgiirc.so: Got a hostname in the user's password");
+				ServerInstance->Log(DEBUG, "m_cgiirc.so: Got a hostname in the user's password");
 
 				try
 				{
@@ -281,7 +281,7 @@ public:
 		}
 		else
 		{
-			log(DEBUG, "m_cgiirc.so: User's password was not a valid host");
+			ServerInstance->Log(DEBUG, "m_cgiirc.so: User's password was not a valid host");
 		}
 		
 		return false;
@@ -317,7 +317,7 @@ public:
 								
 		try
 		{
-			log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");
+			ServerInstance->Log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");
 			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->fd, "IDENT");
 			ServerInstance->AddResolver(r);
 		}

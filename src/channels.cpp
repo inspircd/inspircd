@@ -56,7 +56,7 @@ void chanrec::SetMode(char mode,bool mode_on)
 
 void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 {
-	log(DEBUG,"SetModeParam called");
+	ServerInstance->Log(DEBUG,"SetModeParam called");
 	
 	CustomModeList::iterator n = custom_mode_params.find(mode);	
 
@@ -65,11 +65,11 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 		if (n == custom_mode_params.end())
 		{
 			custom_mode_params[mode] = strdup(parameter);
-			log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
+			ServerInstance->Log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
 		}
 		else
 		{
-			log(DEBUG, "Tried to set custom mode parameter for %c '%s' when it was already '%s'", mode, parameter, n->second);
+			ServerInstance->Log(DEBUG, "Tried to set custom mode parameter for %c '%s' when it was already '%s'", mode, parameter, n->second);
 		}
 	}
 	else
@@ -240,7 +240,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		*Ptr->topic = 0;
 		strlcpy(Ptr->setby, user->nick,NICKMAX-1);
 		Ptr->topicset = 0;
-		ilog(Instance,DEBUG,"chanrec::JoinUser(): created: %s",cname);
+		Instance->Log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		/*
 		 * set created to 2 to indicate user
 		 * is the first in the channel
@@ -276,7 +276,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 					{
 						if (!key)
 						{
-							ilog(Instance,DEBUG,"chanrec::JoinUser(): no key given in JOIN");
+							Instance->Log(DEBUG,"chanrec::JoinUser(): no key given in JOIN");
 							user->WriteServ("475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
 							return NULL;
 						}
@@ -284,7 +284,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 						{
 							if (strcmp(key,Ptr->key))
 							{
-								ilog(Instance,DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
+								Instance->Log(DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
 								user->WriteServ("475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
 								return NULL;
 							}
@@ -350,7 +350,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 		else
 		{
-			ilog(Instance,DEBUG,"chanrec::JoinUser(): Overridden checks");
+			Instance->Log(DEBUG,"chanrec::JoinUser(): Overridden checks");
 		}
 		created = 1;
 	}
@@ -391,7 +391,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (created == 2)
 	{
-		ilog(Instance,DEBUG,"BLAMMO, Whacking channel.");
+		Instance->Log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
 		chan_hash::iterator n = Instance->chanlist.find(cname);
 		if (n != Instance->chanlist.end())
@@ -491,7 +491,7 @@ long chanrec::PartUser(userrec *user, const char* reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist.end())
 		{
-			log(DEBUG,"del_channel: destroyed: %s", this->name);
+			ServerInstance->Log(DEBUG,"del_channel: destroyed: %s", this->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
 			ServerInstance->chanlist.erase(iter);
 		}

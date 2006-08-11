@@ -195,7 +195,7 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 					n->channel->AddVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"grant: %s %s",n->channel->name,d->nick);
+			ServerInstance->Log(DEBUG,"grant: %s %s",n->channel->name,d->nick);
 			return d->nick;
 		}
 	}
@@ -229,7 +229,7 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 					n->channel->DelVoicedUser(d);
 				break;
 			}
-			log(DEBUG,"revoke: %s %s",n->channel->name,d->nick);
+			ServerInstance->Log(DEBUG,"revoke: %s %s",n->channel->name,d->nick);
 			return d->nick;
 		}
 	}
@@ -266,7 +266,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
 	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
-	log(DEBUG,"ModeParser::Process start");
+	ServerInstance->Log(DEBUG,"ModeParser::Process start");
 
 	/* Special case for displaying the list for listmodes,
 	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
@@ -303,7 +303,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			if ((IS_LOCAL(user)) && (targetchannel->GetStatus(user) < STATUS_HOP))
 			{
 				/* We don't have halfop */
-				log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");
+				ServerInstance->Log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");
 
 				/* Are we a uline or is it a servermode? */
 				if ((!is_uline(user->server)) && (!servermode))
@@ -469,7 +469,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			{
 				if (type == MODETYPE_CHANNEL)
 				{
-					log(DEBUG,"Write output sequence and parameters to channel: %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
+					ServerInstance->Log(DEBUG,"Write output sequence and parameters to channel: %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					targetchannel->WriteChannel(user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
 				}
@@ -546,7 +546,7 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 		return false;
 
 	modehandlers[pos] = mh;
-	log(DEBUG,"ModeParser::AddMode: added mode %c",mh->GetModeChar());
+	ServerInstance->Log(DEBUG,"ModeParser::AddMode: added mode %c",mh->GetModeChar());
 	return true;
 }
 
@@ -627,7 +627,7 @@ bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 	pos = (mw->GetModeChar()-65) | mask;
 
 	modewatchers[pos].push_back(mw);
-	log(DEBUG,"ModeParser::AddModeWatcher: watching mode %c",mw->GetModeChar());
+	ServerInstance->Log(DEBUG,"ModeParser::AddModeWatcher: watching mode %c",mw->GetModeChar());
 
 	return true;
 }
@@ -652,7 +652,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 		return false;
 
 	modewatchers[pos].erase(a);
-	log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
+	ServerInstance->Log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
 
 	return true;
 }
@@ -698,7 +698,7 @@ bool ModeParser::InsertMode(std::string &output, const char* mode, unsigned shor
 
 	if(section > 4 || section == 0)
 	{
-		log(DEBUG, "InsertMode: CHANMODES doesn't have a section %dh :/", section);
+		ServerInstance->Log(DEBUG, "InsertMode: CHANMODES doesn't have a section %dh :/", section);
 		return false;
 	}
 

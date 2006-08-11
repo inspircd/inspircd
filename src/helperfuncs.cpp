@@ -192,7 +192,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 	if ((!text) || (!modes) || (!flags))
 	{
-		ilog(this,DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
+		this->Log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
 		return;
 	}
 
@@ -463,7 +463,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-		ilog(this,DEFAULT,"Cant start as root");
+		this->Log(DEFAULT,"Cant start as root");
 		Exit(ERROR);
 	}
 }
@@ -473,7 +473,7 @@ void InspIRCd::CheckDie()
 	if (*Config->DieValue)
 	{
 		printf("WARNING: %s\n\n",Config->DieValue);
-		ilog(this,DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
+		this->Log(DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
 		Exit(ERROR);
 	}
 }
@@ -492,12 +492,12 @@ void InspIRCd::LoadAllModules()
 		
 		if (!this->LoadModule(configToken))		
 		{
-			ilog(this,DEFAULT,"There was an error loading a module: %s", this->ModuleError());
+			this->Log(DEFAULT,"There was an error loading a module: %s", this->ModuleError());
 			printf("\nThere was an error loading a module: %s\n\n",this->ModuleError());
 			Exit(ERROR);
 		}
 	}
 	printf("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");
-	ilog(this,DEFAULT,"Total loaded modules: %d", this->ModCount+1);
+	this->Log(DEFAULT,"Total loaded modules: %d", this->ModCount+1);
 }
 

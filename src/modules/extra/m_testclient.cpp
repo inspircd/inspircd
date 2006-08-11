@@ -41,11 +41,11 @@ public:
 			
 			if(foo.Send())
 			{
-				log(DEBUG, "Sent query, got given ID %lu", foo.id);
+				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", foo.id);
 			}
 			else
 			{
-				log(DEBUG, "SQLrequest failed: %s", foo.error.Str());
+				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", foo.error.Str());
 			}
 		}
 	}
@@ -54,7 +54,7 @@ public:
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
-			log(DEBUG, "Got SQL result (%s)", request->GetId());
+			ServerInstance->Log(DEBUG, "Got SQL result (%s)", request->GetId());
 		
 			SQLresult* res = (SQLresult*)request;
 
@@ -62,33 +62,33 @@ public:
 			{
 				if(res->Cols())
 				{
-					log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+					ServerInstance->Log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
 
 					for (int r = 0; r < res->Rows(); r++)
 					{
-						log(DEBUG, "Row %d:", r);
+						ServerInstance->Log(DEBUG, "Row %d:", r);
 						
 						for(int i = 0; i < res->Cols(); i++)
 						{
-							log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
+							ServerInstance->Log(DEBUG, "\t[%s]: %s", res->ColName(i).c_str(), res->GetValue(r, i).d.c_str());
 						}
 					}
 				}
 				else
 				{
-					log(DEBUG, "%d rows affected in query", res->Rows());
+					ServerInstance->Log(DEBUG, "%d rows affected in query", res->Rows());
 				}
 			}
 			else
 			{
-				log(DEBUG, "SQLrequest failed: %s", res->error.Str());
+				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", res->error.Str());
 				
 			}
 		
 			return SQLSUCCESS;
 		}
 		
-		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}

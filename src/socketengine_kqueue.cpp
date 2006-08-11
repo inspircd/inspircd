@@ -30,8 +30,8 @@ KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
 	{
-		log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		log(SPARSE,"ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		printf("ERROR: this is a fatal error, exiting now.");
 		InspIRCd::Exit(ERROR);
@@ -41,7 +41,7 @@ KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 KQueueEngine::~KQueueEngine()
 {
-	log(DEBUG,"KQueueEngine::~KQueueEngine()");
+	ServerInstance->Log(DEBUG,"KQueueEngine::~KQueueEngine()");
 	close(EngineHandle);
 }
 
@@ -49,12 +49,12 @@ bool KQueueEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
+		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
 	}
 	if (GetRemainingFds() <= 1)
 	{
-		log(DEFAULT,"ERROR: System out of file descriptors!");
+		ServerInstance->Log(DEFAULT,"ERROR: System out of file descriptors!");
 		return false;
 	}
 
@@ -64,18 +64,18 @@ bool KQueueEngine::AddFd(int fd, bool readable, char type)
 	ref[fd] = type;
 	if (readable)
 	{
-		log(DEBUG,"Set readbit");
+		ServerInstance->Log(DEBUG,"Set readbit");
 		ref[fd] |= X_READBIT;
 	}
-	log(DEBUG,"Add socket %d",fd);
+	ServerInstance->Log(DEBUG,"Add socket %d",fd);
 
 	struct kevent ke;
-	log(DEBUG,"kqueue: Add socket to events, kq=%d socket=%d",EngineHandle,fd);
+	ServerInstance->Log(DEBUG,"kqueue: Add socket to events, kq=%d socket=%d",EngineHandle,fd);
 	EV_SET(&ke, fd, readable ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
-		log(DEBUG,"kqueue: List insertion failure!");
+		ServerInstance->Log(DEBUG,"kqueue: List insertion failure!");
 		return false;
 	}
 
@@ -85,7 +85,7 @@ bool KQueueEngine::AddFd(int fd, bool readable, char type)
 
 bool KQueueEngine::DelFd(int fd)
 {
-	log(DEBUG,"KQueueEngine::DelFd(%d)",fd);
+	ServerInstance->Log(DEBUG,"KQueueEngine::DelFd(%d)",fd);
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
@@ -95,7 +95,7 @@ bool KQueueEngine::DelFd(int fd)
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
-		log(DEBUG,"kqueue: Failed to remove socket from queue!");
+		ServerInstance->Log(DEBUG,"kqueue: Failed to remove socket from queue!");
 		return false;
 	}
 

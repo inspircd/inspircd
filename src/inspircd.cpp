@@ -80,7 +80,7 @@ char lowermap[255];
 
 void InspIRCd::AddServerName(const std::string &servername)
 {
-	log(DEBUG,"Adding server name: %s",servername.c_str());
+	ServerInstance->Log(DEBUG,"Adding server name: %s",servername.c_str());
 	
 	if(find(servernames.begin(), servernames.end(), servername) == servernames.end())
 		servernames.push_back(servername); /* Wasn't already there. */
@@ -156,14 +156,14 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		log(DEFAULT,"Failed to getrlimit()!");
+		ServerInstance->Log(DEFAULT,"Failed to getrlimit()!");
 		return false;
 	}
 	else
 	{
 		rl.rlim_cur = rl.rlim_max;
 		if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			ServerInstance->Log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 	}
   
 	return true;
@@ -180,7 +180,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		printf("Failed to write PID-file '%s', exiting.\n",filename.c_str());
-		log(DEFAULT,"Failed to write PID-file '%s', exiting.",filename.c_str());
+		ServerInstance->Log(DEFAULT,"Failed to write PID-file '%s', exiting.",filename.c_str());
 		Exit(0);
 	}
 }
@@ -203,11 +203,11 @@ InspIRCd::InspIRCd(int argc, char** argv) : ModCount(-1)
 	this->module_sockets.clear();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	srand(this->TIME);
-	log(DEBUG,"*** InspIRCd starting up!");
+	ServerInstance->Log(DEBUG,"*** InspIRCd starting up!");
 	if (!ServerConfig::FileExists(CONFIG_FILE))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
-		log(DEFAULT,"main: no config");
+		ServerInstance->Log(DEFAULT,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(ERROR);
 	}
@@ -405,7 +405,7 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 	}
 	else
 	{
-		log(DEBUG,"Move of %s to slot failed!",modulename.c_str());
+		ServerInstance->Log(DEBUG,"Move of %s to slot failed!",modulename.c_str());
 	}
 }
 
@@ -470,7 +470,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 		{
 			if (modules[j]->GetVersion().Flags & VF_STATIC)
 			{
-				log(DEFAULT,"Failed to unload STATIC module %s",filename);
+				ServerInstance->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
 				return false;
 			}
@@ -502,19 +502,19 @@ bool InspIRCd::UnloadModule(const char* filename)
 			}
 
 			// found the module
-			log(DEBUG,"Removing dependent commands...");
+			ServerInstance->Log(DEBUG,"Removing dependent commands...");
 			Parser->RemoveCommands(filename);
-			log(DEBUG,"Deleting module...");
+			ServerInstance->Log(DEBUG,"Deleting module...");
 			this->EraseModule(j);
-			log(DEBUG,"Erasing module entry...");
+			ServerInstance->Log(DEBUG,"Erasing module entry...");
 			this->EraseFactory(j);
-			log(DEFAULT,"Module %s unloaded",filename);
+			ServerInstance->Log(DEFAULT,"Module %s unloaded",filename);
 			this->ModCount--;
 			BuildISupport();
 			return true;
 		}
 	}
-	log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
+	ServerInstance->Log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
 	snprintf(MODERR,MAXBUF,"Module not loaded");
 	return false;
 }
@@ -532,13 +532,13 @@ bool InspIRCd::LoadModule(const char* filename)
 #ifndef IS_CYGWIN
 	if (!ServerConfig::DirValid(modfile))
 	{
-		log(DEFAULT,"Module %s is not within the modules directory.",modfile);
+		ServerInstance->Log(DEFAULT,"Module %s is not within the modules directory.",modfile);
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
 		return false;
 	}
 #endif
 #endif
-	log(DEBUG,"Loading module: %s",modfile);
+	ServerInstance->Log(DEBUG,"Loading module: %s",modfile);
 #ifndef STATIC_LINK
 	if (ServerConfig::FileExists(modfile))
 	{
@@ -547,7 +547,7 @@ bool InspIRCd::LoadModule(const char* filename)
 		{
 			if (Config->module_names[j] == filename_str)
 			{
-				log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
+				ServerInstance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
 				snprintf(MODERR,MAXBUF,"Module already loaded");
 				return false;
 			}
@@ -558,7 +558,7 @@ bool InspIRCd::LoadModule(const char* filename)
 			factory[this->ModCount+1] = a;
 			if (factory[this->ModCount+1]->LastError())
 			{
-				log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
+				ServerInstance->Log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
 				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[this->ModCount+1]->LastError());
 				return false;
 			}
@@ -581,14 +581,14 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 			else
 			{
-       				log(DEFAULT,"Unable to load %s",modfile);
+       				ServerInstance->Log(DEFAULT,"Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF,"Factory function failed: Probably missing init_module() entrypoint.");
 				return false;
 			}
 		}
 		catch (ModuleException& modexcept)
 		{
-			log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
+			ServerInstance->Log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
 			return false;
 		}
@@ -596,7 +596,7 @@ bool InspIRCd::LoadModule(const char* filename)
 	}
 	else
 	{
-		log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
+		ServerInstance->Log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
 	}
@@ -729,7 +729,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * listening ports or module sockets though, things could get
 	 * ugly.
 	 */
-	log(DEBUG,"There are %d fd's to process.",numberactive);
+	ServerInstance->Log(DEBUG,"There are %d fd's to process.",numberactive);
 
 	for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 	{
@@ -738,7 +738,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		{
 			case X_ESTAB_CLIENT:
 
-				log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
+				ServerInstance->Log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
 				cu = this->fd_ref_table[activefds[activefd]];
 				if (cu)
 					this->ProcessUser(cu);
@@ -747,7 +747,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	
 			case X_ESTAB_MODULE:
 
-				log(DEBUG,"Type: X_ESTAB_MODULE: fd=%d",activefds[activefd]);
+				ServerInstance->Log(DEBUG,"Type: X_ESTAB_MODULE: fd=%d",activefds[activefd]);
 
 				if (!process_module_sockets)
 					break;
@@ -760,7 +760,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	      
 				if ((s) && (!s->Poll()))
 				{
-					log(DEBUG,"Socket poll returned false, close and bail");
+					ServerInstance->Log(DEBUG,"Socket poll returned false, close and bail");
 					SE->DelFd(s->GetFd());
 					this->socket_ref[activefds[activefd]] = NULL;
 					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
@@ -777,7 +777,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 				}
 				else if (!s)
 				{
-					log(DEBUG,"WTF, X_ESTAB_MODULE for nonexistent InspSocket, removed!");
+					ServerInstance->Log(DEBUG,"WTF, X_ESTAB_MODULE for nonexistent InspSocket, removed!");
 					SE->DelFd(s->GetFd());
 				}
 			break;
@@ -792,7 +792,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 			case X_LISTEN:
 
-				log(DEBUG,"Type: X_LISTEN: fd=%d",activefds[activefd]);
+				ServerInstance->Log(DEBUG,"Type: X_LISTEN: fd=%d",activefds[activefd]);
 
 				/* It's a listener */
 				uslen = sizeof(sock_us);
@@ -806,7 +806,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 #else
 					in_port = ntohs(sock_us.sin_port);
 #endif
-					log(DEBUG,"Accepted socket %d",incomingSockfd);
+					ServerInstance->Log(DEBUG,"Accepted socket %d",incomingSockfd);
 					/* Years and years ago, we used to resolve here
 					 * using gethostbyaddr(). That is sucky and we
 					 * don't do that any more...
@@ -824,22 +824,22 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 						}
 						catch (ModuleException& modexcept)
 						{
-							log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+							ServerInstance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
 						}
 					}
 					stats->statsAccept++;
 #ifdef IPV6
-					log(DEBUG,"Add ipv6 client");
+					ServerInstance->Log(DEBUG,"Add ipv6 client");
 					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin6_addr);
 #else
-					log(DEBUG,"Add ipv4 client");
+					ServerInstance->Log(DEBUG,"Add ipv4 client");
 					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin_addr);
 #endif
-					log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
+					ServerInstance->Log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
 				}
 				else
 				{
-					log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
+					ServerInstance->Log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
 					shutdown(incomingSockfd,2);
 					close(incomingSockfd);
 					stats->statsRefused++;
@@ -852,7 +852,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 				 * what we would do, so for now, its going
 				 * to safely do bugger all.
 				 */
-				log(DEBUG,"Type: X_WHAT_THE_FUCK_BBQ: fd=%d",activefds[activefd]);
+				ServerInstance->Log(DEBUG,"Type: X_WHAT_THE_FUCK_BBQ: fd=%d",activefds[activefd]);
 				SE->DelFd(activefds[activefd]);
 			break;
 		}
@@ -908,7 +908,7 @@ int InspIRCd::Run()
 {
 	this->Res = new DNS(this);
 
-	log(DEBUG,"RES: %08x",this->Res);
+	ServerInstance->Log(DEBUG,"RES: %08x",this->Res);
 
 	this->LoadAllModules();
 
@@ -924,10 +924,10 @@ int InspIRCd::Run()
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
-	log(DEBUG,"%d listeners",stats->BoundPortCount);
+	ServerInstance->Log(DEBUG,"%d listeners",stats->BoundPortCount);
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
-		log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
+		ServerInstance->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
 		if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
@@ -984,13 +984,13 @@ int main(int argc, char** argv)
 		}
 		catch (std::bad_alloc&)
 		{
-			log(SPARSE,"You are out of memory! (got exception std::bad_alloc!)");
+			ServerInstance->Log(SPARSE,"You are out of memory! (got exception std::bad_alloc!)");
 			ServerInstance->SendError("**** OUT OF MEMORY **** We're gonna need a bigger boat!");
 		}
 	}
 	catch (...)
 	{
-		log(SPARSE,"Uncaught exception, aborting.");
+		ServerInstance->Log(SPARSE,"Uncaught exception, aborting.");
 		ServerInstance->SendError("Server terminating due to uncaught exception.");
 	}
 	return 0;

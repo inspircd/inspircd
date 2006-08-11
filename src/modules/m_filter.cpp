@@ -110,7 +110,7 @@ class ModuleFilter : public Module
 					ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their notice filtered, target was "+target+": "+f->reason);
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+f->reason);
     				}
-				log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their notice filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
+				ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their notice filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
 
 				if (f->action == "kill")
 				{
@@ -153,7 +153,7 @@ class ModuleFilter : public Module
 			x->action = do_action;
 			filters[pattern] = x;
 		}
-		log(DEFAULT,"m_filter: read configuration from "+filterfile);
+		ServerInstance->Log(DEFAULT,"m_filter: read configuration from "+filterfile);
 		DELETE(Conf);
 		DELETE(MyConf);
 	}

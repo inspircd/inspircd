@@ -236,7 +236,7 @@ class ModuleCBan : public Module
 				{
 					if (iter->set_on + iter->length <= ServerInstance->Time())
 					{
-						log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
+						ServerInstance->Log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
 						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->Time() - iter->set_on);
 						cbans.erase(iter);
 						go_again = true;

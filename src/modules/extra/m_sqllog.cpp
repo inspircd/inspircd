@@ -97,7 +97,7 @@ class QueryInfo
 						}
 						else
 						{
-							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -114,7 +114,7 @@ class QueryInfo
 				}
 				else
 				{
-					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 				
 			break;
@@ -146,7 +146,7 @@ class QueryInfo
 						}
 						else
 						{
-							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -162,7 +162,7 @@ class QueryInfo
 				}
 				else
 				{
-					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 			break;
 			case FIND_HOST:
@@ -194,7 +194,7 @@ class QueryInfo
 						}
 						else
 						{
-							//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+							//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 						}
 						break;
 					}
@@ -211,7 +211,7 @@ class QueryInfo
 				}
 				else
 				{
-					//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+					//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 				}
 			break;
 			case INSERT_LOGENTRY:
@@ -237,7 +237,7 @@ class QueryInfo
 					}
 					else
 					{
-						//log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+						//ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 					}
 				}
 			break;
@@ -264,7 +264,7 @@ class ModuleSQLLog : public Module
 		
 		SQLModule = Srv->FindFeature("SQL");
 		if (!SQLModule)
-			log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
+			ServerInstance->Log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
 		return (SQLModule);
 	}
 
@@ -290,20 +290,20 @@ class ModuleSQLLog : public Module
 
 	virtual char* OnRequest(Request* request)
 	{
-		log(DEBUG,"OnRequest in m_sqllog.so");
+		ServerInstance->Log(DEBUG,"OnRequest in m_sqllog.so");
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			SQLresult* res;
 			std::map<unsigned long, QueryInfo*>::iterator n;
 
 			res = static_cast<SQLresult*>(request);
-			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
+			ServerInstance->Log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
 
 			n = active_queries.find(res->id);
 
 			if (n != active_queries.end())
 			{
-				log(DEBUG,"This is an active query");
+				ServerInstance->Log(DEBUG,"This is an active query");
 				n->second->Go(res);
 
 				std::map<unsigned long, QueryInfo*>::iterator n = active_queries.find(res->id);
@@ -325,11 +325,11 @@ class ModuleSQLLog : public Module
 			QueryInfo* i = new QueryInfo(nick, host, req.id, category);
 			i->qs = FIND_SOURCE;
 			active_queries[req.id] = i;
-			log(DEBUG,"Active query id %d",req.id);
+			ServerInstance->Log(DEBUG,"Active query id %d",req.id);
 		}
 		else
 		{
-			log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+			ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 		}
 
 		/*long nickid = InsertNick(nick);

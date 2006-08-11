@@ -62,7 +62,7 @@ class ModuleOperLog : public Module
 			{
 				plist.append(std::string(" ")+std::string(parameters[j]));
 			}
-			log(DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
+			ServerInstance->Log(DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
 		}
 
 		return 0;

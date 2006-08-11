@@ -25,7 +25,7 @@
 void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char *argv[32];
-	log(DEFAULT,"Restart: %s",user->nick);
+	ServerInstance->Log(DEFAULT,"Restart: %s",user->nick);
 	if (!strcmp(parameters[0],ServerInstance->Config->restartpass))
 	{
 		ServerInstance->WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);

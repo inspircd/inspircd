@@ -30,8 +30,8 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 	if (EngineHandle == -1)
 	{
-		log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		log(SPARSE,"ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		printf("ERROR: this is a fatal error, exiting now.");
 		InspIRCd::Exit(ERROR);
@@ -48,12 +48,12 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
+		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
 	}
 	if (GetRemainingFds() <= 1)
 	{
-		log(DEFAULT,"ERROR: System out of file descriptors!");
+		ServerInstance->Log(DEFAULT,"ERROR: System out of file descriptors!");
 		return false;
 	}
 	if (ref[fd])
@@ -63,20 +63,20 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 
 	if (readable)
 	{
-		log(DEBUG,"Set readbit");
+		ServerInstance->Log(DEBUG,"Set readbit");
 		ref[fd] |= X_READBIT;
 	}
-	log(DEBUG,"Add socket %d",fd);
+	ServerInstance->Log(DEBUG,"Add socket %d",fd);
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
-	log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
+	ServerInstance->Log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
 	readable ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
-		log(DEBUG,"epoll: List insertion failure!");
+		ServerInstance->Log(DEBUG,"epoll: List insertion failure!");
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 
 bool EPollEngine::DelFd(int fd)
 {
-	log(DEBUG,"EPollEngine::DelFd(%d)",fd);
+	ServerInstance->Log(DEBUG,"EPollEngine::DelFd(%d)",fd);
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
@@ -98,7 +98,7 @@ bool EPollEngine::DelFd(int fd)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 	if (i < 0)
 	{
-		log(DEBUG,"epoll: List deletion failure!");
+		ServerInstance->Log(DEBUG,"epoll: List deletion failure!");
 		return false;
 	}
 

@@ -179,7 +179,7 @@ class cmd_watch : public command_t
 						w->watcher = user;
 						w->target = nick;
 						watches.push_back(w);
-						log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
+						ServerInstance->Log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
 					}
 		       			userrec* a = ServerInstance->FindNick(nick);
 		       			if (a)
@@ -217,7 +217,7 @@ class Modulewatch : public Module
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
-		log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
+		ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
 		irc::string n2 = user->nick;
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
@@ -225,7 +225,7 @@ class Modulewatch : public Module
 			irc::string n1 = a->target.c_str();
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,a->watcher->nick);
+				ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,a->watcher->nick);
 				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
 			}
 		}
@@ -250,14 +250,14 @@ class Modulewatch : public Module
 	virtual void OnGlobalConnect(userrec* user)
 	{
 		irc::string n2 = user->nick;
-		log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
+		ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
 			watchentry* a = (watchentry*)(*q);
 			irc::string n1 = a->target.c_str();
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,a->watcher->nick);
+				ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,a->watcher->nick);
 				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}
@@ -267,7 +267,7 @@ class Modulewatch : public Module
 	{
 		irc::string n2 = oldnick.c_str();
 		irc::string n3 = user->nick;
-		log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
+		ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
 		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 		{
 			watchentry* a = (watchentry*)(*q);
@@ -275,13 +275,13 @@ class Modulewatch : public Module
 			// changed from a nick on the watchlist to one that isnt
 			if (n1 == n2)
 			{
-				log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),a->watcher->nick);
+				ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),a->watcher->nick);
 				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
 			}
 			else if (n1 == n3)
 			{
 				// changed from a nick not on notify to one that is
-				log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,a->watcher->nick);
+				ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,a->watcher->nick);
 				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
 			}
 		}

@@ -52,7 +52,7 @@ std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *cha
 {
 	if ((!user) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
+		ServerInstance->Log(DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
 		dest = "";
 		return dest;
 	}
@@ -119,7 +119,7 @@ std::string& ModeChannelBan::DelBan(userrec *user,std::string& dest,chanrec *cha
 {
 	if ((!user) || (!chan))
 	{
-		log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
+		ServerInstance->Log(DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
 		dest = "";
 		return dest;
 	}

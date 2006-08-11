@@ -90,7 +90,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						ServerInstance->WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
-						log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
+						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return;
 					}
 					found = true;
@@ -116,13 +116,13 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
 			ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
-			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
+			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
 		}
 		else
 		{
 			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
 			ServerInstance->WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
-			log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
+			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
 		}
 	}
 	return;

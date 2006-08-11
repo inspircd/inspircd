@@ -25,26 +25,26 @@
 
 SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
-	log(DEBUG,"SelectEngine::SelectEngine()");
+	ServerInstance->Log(DEBUG,"SelectEngine::SelectEngine()");
 	EngineHandle = 0;
 	CurrentSetSize = 0;
 }
 
 SelectEngine::~SelectEngine()
 {
-	log(DEBUG,"SelectEngine::~SelectEngine()");
+	ServerInstance->Log(DEBUG,"SelectEngine::~SelectEngine()");
 }
 
 bool SelectEngine::AddFd(int fd, bool readable, char type)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
+		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
 	}
 	if (GetRemainingFds() <= 1)
 	{
-		log(DEFAULT,"ERROR: System out of file descriptors!");
+		ServerInstance->Log(DEFAULT,"ERROR: System out of file descriptors!");
 		return false;
 	}
 
@@ -56,10 +56,10 @@ bool SelectEngine::AddFd(int fd, bool readable, char type)
 	ref[fd] = type;
 	if (readable)
 	{
-		log(DEBUG,"Set readbit");
+		ServerInstance->Log(DEBUG,"Set readbit");
 		ref[fd] |= X_READBIT;
 	}
-	log(DEBUG,"Add socket %d",fd);
+	ServerInstance->Log(DEBUG,"Add socket %d",fd);
 
 	CurrentSetSize++;
 	return true;
@@ -67,7 +67,7 @@ bool SelectEngine::AddFd(int fd, bool readable, char type)
 
 bool SelectEngine::DelFd(int fd)
 {
-	log(DEBUG,"SelectEngine::DelFd(%d)",fd);
+	ServerInstance->Log(DEBUG,"SelectEngine::DelFd(%d)",fd);
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
@@ -76,7 +76,7 @@ bool SelectEngine::DelFd(int fd)
 	if (t != fds.end())
 	{
 		fds.erase(t);
-		log(DEBUG,"Deleted fd %d",fd);
+		ServerInstance->Log(DEBUG,"Deleted fd %d",fd);
 	}
 
 	CurrentSetSize--;

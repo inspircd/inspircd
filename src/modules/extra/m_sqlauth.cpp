@@ -50,11 +50,11 @@ public:
 		
 		if(SQLutils)
 		{
-			log(DEBUG, "Successfully got SQLutils pointer");
+			ServerInstance->Log(DEBUG, "Successfully got SQLutils pointer");
 		}
 		else
 		{
-			log(DEFAULT, "ERROR: This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
+			ServerInstance->Log(DEFAULT, "ERROR: This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
 			throw ModuleException("This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
 		}
 				
@@ -117,7 +117,7 @@ public:
 				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
 				 * us to discard the query.
 			 	 */
-				log(DEBUG, "Sent query, got given ID %lu", req.id);
+				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", req.id);
 				
 				AssociateUser(this, SQLutils, req.id, user).Send();
 					
@@ -125,7 +125,7 @@ public:
 			}
 			else
 			{
-				log(DEBUG, "SQLrequest failed: %s", req.error.Str());
+				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 			
 				if (verbose)
 					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
@@ -135,7 +135,7 @@ public:
 		}
 		else
 		{
-			log(SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be allowed to connect until it comes back unless they match an exception");
+			ServerInstance->Log(SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be allowed to connect until it comes back unless they match an exception");
 			return false;
 		}
 	}
@@ -148,7 +148,7 @@ public:
 		
 			res = static_cast<SQLresult*>(request);
 			
-			log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
+			ServerInstance->Log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
 			
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
@@ -157,8 +157,8 @@ public:
 			{
 				if(res->error.Id() == NO_ERROR)
 				{				
-					log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
-					log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
+					ServerInstance->Log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
+					ServerInstance->Log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
 			
 					if(res->Rows())
 					{
@@ -174,20 +174,20 @@ public:
 				}
 				else if (verbose)
 				{
-					log(DEBUG, "Query failed: %s", res->error.Str());
+					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
 					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					user->Extend("sqlauth_failed");
 				}
 			}
 			else
 			{
-				log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
+				ServerInstance->Log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
 			}
 		
 			return SQLSUCCESS;
 		}
 		
-		log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
 	}

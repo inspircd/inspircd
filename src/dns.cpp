@@ -245,7 +245,7 @@ int DNS::GetMasterSocket()
 /* Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
+	ServerInstance->Log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
 
 	insp_inaddr addr;
 
@@ -269,16 +269,16 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 			 * We're forced to turn some checks off.
 			 * If anyone knows how to fix this, let me know. --Brain
 			 */
-			log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
-			log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
-			log(DEFAULT,"         to a true IPv6 environment.");
+			ServerInstance->Log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
+			ServerInstance->Log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
+			ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
 			this->ip6munge = true;
 		}
-		log(DEBUG,"Added nameserver '%s'",ServerInstance->Config->DNSServer);
+		ServerInstance->Log(DEBUG,"Added nameserver '%s'",ServerInstance->Config->DNSServer);
 	}
 	else
 	{
-		log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",ServerInstance->Config->DNSServer);
+		ServerInstance->Log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",ServerInstance->Config->DNSServer);
 	}
 
 	/* Initialize mastersocket */
@@ -296,7 +296,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	}
 	else
 	{
-		log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
+		ServerInstance->Log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
 	}
 	/* Have we got a socket and is it nonblocking? */
 	if (MasterSocket != -1)
@@ -318,7 +318,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 		if (bind(MasterSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			/* Failed to bind */
-			log(DEBUG,"Cant bind DNS::MasterSocket");
+			ServerInstance->Log(DEBUG,"Cant bind DNS::MasterSocket");
 			shutdown(MasterSocket,2);
 			close(MasterSocket);
 			MasterSocket = -1;
@@ -326,13 +326,13 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 
 		if (MasterSocket >= 0)
 		{
-			log(DEBUG,"Add master socket %d",MasterSocket);
+			ServerInstance->Log(DEBUG,"Add master socket %d",MasterSocket);
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 			{
 				if (!ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS))
 				{
-					log(DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
+					ServerInstance->Log(DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
 					shutdown(MasterSocket,2);
 					close(MasterSocket);
 					MasterSocket = -1;
@@ -493,7 +493,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 			return -1;
 	}
 
-	log(DEBUG,"DNS::GetNameForce: %s %d",query, fp);
+	ServerInstance->Log(DEBUG,"DNS::GetNameForce: %s %d",query, fp);
 
 	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
@@ -541,13 +541,13 @@ DNSResult DNS::GetResult()
 	int length = recvfrom(MasterSocket,buffer,sizeof(DNSHeader),0,&from,&x);
 
 	if (length < 0)
-		log(DEBUG,"Error in recvfrom()! (%s)",strerror(errno));
+		ServerInstance->Log(DEBUG,"Error in recvfrom()! (%s)",strerror(errno));
 
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
 		/* Nope - something screwed up. */
-		log(DEBUG,"Whole header not read!");
+		ServerInstance->Log(DEBUG,"Whole header not read!");
 		return std::make_pair(-1,"");
 	}
 
@@ -575,7 +575,7 @@ DNSResult DNS::GetResult()
 	{
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
-			log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, ServerInstance->Config->DNSServer);
+			ServerInstance->Log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, ServerInstance->Config->DNSServer);
 			return std::make_pair(-1,"");
 		}
 	}
@@ -594,7 +594,7 @@ DNSResult DNS::GetResult()
 	if (n_iter == requests.end())
 	{
 		/* Somehow we got a DNS response for a request we never made... */
-		log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterSocket,this_id);
+		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterSocket,this_id);
 		return std::make_pair(-1,"");
 	}
 	else
@@ -679,7 +679,7 @@ DNSResult DNS::GetResult()
 			break;
 
 			default:
-				log(DEBUG,"WARNING: Somehow we made a request for a DNS_QUERY_PTR4 or DNS_QUERY_PTR6, but these arent real rr types!");
+				ServerInstance->Log(DEBUG,"WARNING: Somehow we made a request for a DNS_QUERY_PTR4 or DNS_QUERY_PTR6, but these arent real rr types!");
 			break;
 			
 		}
@@ -839,7 +839,7 @@ DNS::~DNS()
 /* High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
 {
-	log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
+	ServerInstance->Log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
 
 	insp_inaddr binip;
 
@@ -887,14 +887,14 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) 
 	}
 	if (this->myid == -1)
 	{
-		log(DEBUG,"Resolver::Resolver: Could not get an id!");
+		ServerInstance->Log(DEBUG,"Resolver::Resolver: Could not get an id!");
 		this->OnError(RESOLVER_NSDOWN, "Nameserver is down");
 		throw ModuleException("Resolver: Couldnt get an id to make a request");
 		/* We shouldnt get here really */
 		return;
 	}
 
-	log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
+	ServerInstance->Log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
 }
 
 void Resolver::OnError(ResolverError e, const std::string &errormessage)
@@ -916,7 +916,7 @@ int Resolver::GetId()
 /* Process a socket read event */
 void DNS::MarshallReads(int fd)
 {
-	log(DEBUG,"Marshall reads: %d %d",fd,GetMasterSocket());
+	ServerInstance->Log(DEBUG,"Marshall reads: %d %d",fd,GetMasterSocket());
 	/* We are only intrested in our single fd */
 	if (fd == GetMasterSocket())
 	{
@@ -932,7 +932,7 @@ void DNS::MarshallReads(int fd)
 				res.first -= ERROR_MASK;
 
 				/* Marshall the error to the correct class */
-				log(DEBUG,"Error available, id=%d",res.first);
+				ServerInstance->Log(DEBUG,"Error available, id=%d",res.first);
 				if (Classes[res.first])
 				{
 					if (ServerInstance && ServerInstance->stats)
@@ -945,7 +945,7 @@ void DNS::MarshallReads(int fd)
 			else
 			{
 				/* It is a non-error result */
-				log(DEBUG,"Result available, id=%d",res.first);
+				ServerInstance->Log(DEBUG,"Result available, id=%d",res.first);
 				/* Marshall the result to the correct class */
 				if (Classes[res.first])
 				{

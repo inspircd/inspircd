@@ -63,12 +63,12 @@ class ChanFounder : public ModeHandler
 	{
 		userrec* theuser = ServerInstance->FindNick(parameter);
 
-		log(DEBUG,"ChanFounder::OnModeChange");
+		ServerInstance->Log(DEBUG,"ChanFounder::OnModeChange");
 
 		// cant find the user given as the parameter, eat the mode change.
 		if (!theuser)
 		{
-			log(DEBUG,"No such user in ChanFounder");
+			ServerInstance->Log(DEBUG,"No such user in ChanFounder");
 			parameter = "";
 			return MODEACTION_DENY;
 		}
@@ -76,7 +76,7 @@ class ChanFounder : public ModeHandler
 		// given user isnt even on the channel, eat the mode change
 		if (!channel->HasUser(theuser))
 		{
-			log(DEBUG,"Channel doesn't have user in ChanFounder");
+			ServerInstance->Log(DEBUG,"Channel doesn't have user in ChanFounder");
 			parameter = "";
 			return MODEACTION_DENY;
 		}
@@ -87,20 +87,20 @@ class ChanFounder : public ModeHandler
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((is_uline(source->nick)) || (is_uline(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
-			log(DEBUG,"Allowing remote mode change in ChanFounder");
+			ServerInstance->Log(DEBUG,"Allowing remote mode change in ChanFounder");
 			if (adding)
 			{
 				if (!theuser->GetExt(founder,dummyptr))
 				{
-					log(DEBUG,"Does not have the ext item in ChanFounder");
+					ServerInstance->Log(DEBUG,"Does not have the ext item in ChanFounder");
 					if (!theuser->Extend(founder,fakevalue))
-						log(DEBUG,"COULD NOT EXTEND!!!");
+						ServerInstance->Log(DEBUG,"COULD NOT EXTEND!!!");
 					// Tidy the nickname (make case match etc)
 					parameter = theuser->nick;
 					if (theuser->GetExt(founder, dummyptr))
-						log(DEBUG,"Extended!");
+						ServerInstance->Log(DEBUG,"Extended!");
 					else
-						log(DEBUG,"Not extended :(");
+						ServerInstance->Log(DEBUG,"Not extended :(");
 					return MODEACTION_ALLOW;
 				}
 			}
@@ -321,7 +321,7 @@ class ModuleChanProtect : public Module
 				user->WriteServ("MODE %s +q %s",channel->name,user->nick);
 				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
 				{
-					log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
+					ServerInstance->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
 				}
 			}
 		}
@@ -333,7 +333,7 @@ class ModuleChanProtect : public Module
 		// etc of protected users. There are many types of access check, we're going to handle
 		// a relatively small number of them relevent to our module using a switch statement.
 	
-		log(DEBUG,"chanprotect OnAccessCheck %d",access_type);
+		ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck %d",access_type);
 		// don't allow action if:
 		// (A) Theyre founder (no matter what)
 		// (B) Theyre protected, and you're not
@@ -355,16 +355,16 @@ class ModuleChanProtect : public Module
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				log(DEBUG,"OnAccessCheck AC_DEOP");
+				ServerInstance->Log(DEBUG,"OnAccessCheck AC_DEOP");
 				if (dest->GetExt(founder,dummyptr))
 				{
-					log(DEBUG,"Has %s",founder.c_str());
+					ServerInstance->Log(DEBUG,"Has %s",founder.c_str());
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
 				}
 				else
 				{
-					log(DEBUG,"Doesnt have %s",founder.c_str());
+					ServerInstance->Log(DEBUG,"Doesnt have %s",founder.c_str());
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
@@ -375,7 +375,7 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				log(DEBUG,"OnAccessCheck AC_KICK");
+				ServerInstance->Log(DEBUG,"OnAccessCheck AC_KICK");
 				if (dest->GetExt(founder,dummyptr))
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");

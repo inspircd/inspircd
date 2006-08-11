@@ -87,13 +87,13 @@ class ListTimer : public InspTimer
 					break;
 				}
 
-				log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
+				ServerInstance->Log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
 				chan = NULL;
 				/* Attempt to fill up to half the user's sendq with /LIST output */
 				long amount_sent = 0;
 				do
 				{
-					log(DEBUG,"Channel %ld",ld->list_position);
+					ServerInstance->Log(DEBUG,"Channel %ld",ld->list_position);
 					if (!ld->list_position)
 						u->WriteServ("321 %s Channel :Users Name",u->nick);
 					chan = ServerInstance->GetChannelIndex(ld->list_position);
@@ -107,7 +107,7 @@ class ListTimer : public InspTimer
 							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chan->ChanModes(has_user),chan->topic);
 							/* Increment total plus linefeed */
 							amount_sent += counter + 4 + strlen(ServerInstance->Config->ServerName);
-							log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
+							ServerInstance->Log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
 							u->WriteServ(std::string(buffer));
 						}
 					}

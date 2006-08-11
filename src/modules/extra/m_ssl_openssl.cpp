@@ -128,11 +128,11 @@ class ModuleSSLOpenSSL : public Module
 					// We keep a record of which ports we're listening on with SSL
 					listenports.push_back(port);
 				
-					log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", port);
+					ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", port);
 				}
 				else
 				{
-					log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", port);
+					ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", port);
 				}
 			}
 		}
@@ -182,18 +182,18 @@ class ModuleSSLOpenSSL : public Module
 		/* Load our keys and certificates*/
 		if(!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str()))
 		{
-			log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s", certfile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s", certfile.c_str());
 		}
 
 		if(!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))
 		{
-			log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s", keyfile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s", keyfile.c_str());
 		}
 
 		/* Load the CAs we trust*/
 		if(!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))
 		{
-			log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
 		}
 
 		FILE* dhpfile = fopen(dhfile.c_str(), "r");
@@ -201,7 +201,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if(dhpfile == NULL)
 		{
-			log(DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
 			throw ModuleException();
 		}
 		else
@@ -210,7 +210,7 @@ class ModuleSSLOpenSSL : public Module
 		
 			if(SSL_CTX_set_tmp_dh(ctx, ret) < 0)
 			{
-				log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
+				ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
 			}
 		}
 		
@@ -235,7 +235,7 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				log(DEBUG, "m_ssl_openssl.so: Adding user %s to cull list", user->nick);
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Adding user %s to cull list", user->nick);
 				culllist->AddItem(user, "SSL module unloading");
 			}
 		}
@@ -247,7 +247,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
 			int numusers = culllist->Apply();
-			log(DEBUG, "m_ssl_openssl.so: Killed %d users for unload of OpenSSL SSL module", numusers);
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Killed %d users for unload of OpenSSL SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)
 				ServerInstance->Config->DelIOHook(listenports[i]);
@@ -277,13 +277,13 @@ class ModuleSSLOpenSSL : public Module
 	
 		if(session->sess == NULL)
 		{
-			log(DEBUG, "m_ssl.so: Couldn't create SSL object: %s", get_error());
+			ServerInstance->Log(DEBUG, "m_ssl.so: Couldn't create SSL object: %s", get_error());
 			return;
 		}
 		
 		if(SSL_set_fd(session->sess, fd) == 0)
 		{
-			log(DEBUG, "m_ssl.so: Couldn't set fd for SSL object: %s", get_error());
+			ServerInstance->Log(DEBUG, "m_ssl.so: Couldn't set fd for SSL object: %s", get_error());
 			return;
 		}
 
@@ -292,7 +292,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketClose: %d", fd);
+		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
 	}
 	
@@ -302,13 +302,13 @@ class ModuleSSLOpenSSL : public Module
 		
 		if(!session->sess)
 		{
-			log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: No session to read from");
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: No session to read from");
 			readresult = 0;
 			CloseSession(session);
 			return 1;
 		}
 		
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
+		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
 		
 		if(session->status == ISSL_HANDSHAKING)
 		{
@@ -318,18 +318,18 @@ class ModuleSSLOpenSSL : public Module
 				if(Handshake(session))
 				{
 					// Handshake successfully resumed.
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: successfully resumed handshake");
+					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: successfully resumed handshake");
 				}
 				else
 				{
 					// Couldn't resume handshake.	
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: failed to resume handshake");
+					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: failed to resume handshake");
 					return -1;
 				}
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: handshake wants to write data but we are currently reading");
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: handshake wants to write data but we are currently reading");
 				return -1;			
 			}
 		}
@@ -388,12 +388,12 @@ class ModuleSSLOpenSSL : public Module
 
 		if(!session->sess)
 		{
-			log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: No session to write to");
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: No session to write to");
 			CloseSession(session);
 			return 1;
 		}
 		
-		log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
+		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
 		session->outbuf.append(buffer, count);
 		
 		if(session->status == ISSL_HANDSHAKING)
@@ -404,17 +404,17 @@ class ModuleSSLOpenSSL : public Module
 				if(Handshake(session))
 				{
 					// Handshake successfully resumed.
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: successfully resumed handshake");
+					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: successfully resumed handshake");
 				}
 				else
 				{
 					// Couldn't resume handshake.	
-					log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: failed to resume handshake"); 
+					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: failed to resume handshake"); 
 				}
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: handshake wants to read data but we are currently writing");			
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: handshake wants to read data but we are currently writing");			
 			}
 		}
 		
@@ -440,7 +440,7 @@ class ModuleSSLOpenSSL : public Module
 		
 		if(ret == 0)
 		{
-			log(DEBUG, "m_ssl_openssl.so: DoWrite: Client closed the connection");
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Client closed the connection");
 			CloseSession(session);
 			return 0;
 		}
@@ -450,26 +450,26 @@ class ModuleSSLOpenSSL : public Module
 			
 			if(err == SSL_ERROR_WANT_WRITE)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written, need to retry: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written, need to retry: %s", get_error());
 				session->wstat = ISSL_WRITE;
 				return -1;
 			}
 			else if(err == SSL_ERROR_WANT_READ)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written but the damn thing wants to read instead: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written but the damn thing wants to read instead: %s", get_error());
 				session->wstat = ISSL_READ;
 				return -1;
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoWrite: Error writing SSL data: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Error writing SSL data: %s", get_error());
 				CloseSession(session);
 				return 0;
 			}
 		}
 		else
 		{
-			log(DEBUG, "m_ssl_openssl.so: DoWrite: Successfully wrote %d bytes", ret);
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Successfully wrote %d bytes", ret);
 			session->outbuf = session->outbuf.substr(ret);
 			return ret;
 		}
@@ -479,14 +479,14 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-		log(DEBUG, "m_ssl_openssl.so: DoRead: SSL_read(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
+		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: SSL_read(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
 			
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
 		if(ret == 0)
 		{
 			// Client closed connection.
-			log(DEBUG, "m_ssl_openssl.so: DoRead: Client closed the connection");
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Client closed the connection");
 			CloseSession(session);
 			return 0;
 		}
@@ -496,19 +496,19 @@ class ModuleSSLOpenSSL : public Module
 				
 			if(err == SSL_ERROR_WANT_READ)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read, need to retry: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read, need to retry: %s", get_error());
 				session->rstat = ISSL_READ;
 				return -1;
 			}
 			else if(err == SSL_ERROR_WANT_WRITE)
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read but the damn thing wants to write instead: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read but the damn thing wants to write instead: %s", get_error());
 				session->rstat = ISSL_WRITE;
 				return -1;
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_openssl.so: DoRead: Error reading SSL data: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Error reading SSL data: %s", get_error());
 				CloseSession(session);
 				return 0;
 			}
@@ -519,7 +519,7 @@ class ModuleSSLOpenSSL : public Module
 			// There are 'ret' + 'inbufoffset' bytes of data in 'inbuf'
 			// 'buffer' is 'count' long
 			
-			log(DEBUG, "m_ssl_openssl.so: DoRead: Read %d bytes, now have %d waiting to be passed up", ret, ret + session->inbufoffset);
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Read %d bytes, now have %d waiting to be passed up", ret, ret + session->inbufoffset);
 
 			session->inbufoffset += ret;
 
@@ -576,20 +576,20 @@ class ModuleSSLOpenSSL : public Module
 				
 			if(err == SSL_ERROR_WANT_READ)
 			{
-				log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to read again: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to read again: %s", get_error());
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 			}
 			else if(err == SSL_ERROR_WANT_WRITE)
 			{
-				log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to write more data: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to write more data: %s", get_error());
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
 			}
 			else
 			{
-				log(DEBUG, "m_ssl_openssl.so: Handshake: Failed, bailing: %s", get_error());
+				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake: Failed, bailing: %s", get_error());
 				CloseSession(session);
 			}
 
@@ -598,7 +598,7 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			// Handshake complete.
-			log(DEBUG, "m_ssl_openssl.so: Handshake completed");
+			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake completed");
 			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			userrec* u = ServerInstance->FindDescriptor(session->fd);

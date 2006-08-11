@@ -111,44 +111,44 @@ class RemoveBase
 		
 		if (is_uline(user->server) || is_uline(user->nick))
 		{
-			log(DEBUG, "Setting ulevel to U");
+			ServerInstance->Log(DEBUG, "Setting ulevel to U");
 			ulevel = chartolevel("U");
 		}
 		if (user->GetExt(founderkey))
 		{
-			log(DEBUG, "Setting ulevel to ~");
+			ServerInstance->Log(DEBUG, "Setting ulevel to ~");
 			ulevel = chartolevel("~");
 		}
 		else if (user->GetExt(protectkey))
 		{
-			log(DEBUG, "Setting ulevel to &");
+			ServerInstance->Log(DEBUG, "Setting ulevel to &");
 			ulevel = chartolevel("&");
 		}
 		else
 		{
-			log(DEBUG, "Setting ulevel to %s", channel->GetStatusChar(user));
+			ServerInstance->Log(DEBUG, "Setting ulevel to %s", channel->GetStatusChar(user));
 			ulevel = chartolevel(channel->GetStatusChar(user));
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
 		if (is_uline(target->server) || is_uline(target->nick))
 		{
-			log(DEBUG, "Setting tlevel to U");
+			ServerInstance->Log(DEBUG, "Setting tlevel to U");
 			tlevel = chartolevel("U");
 		}
 		else if (target->GetExt(founderkey))
 		{
-			log(DEBUG, "Setting tlevel to ~");
+			ServerInstance->Log(DEBUG, "Setting tlevel to ~");
 			tlevel = chartolevel("~");
 		}
 		else if (target->GetExt(protectkey))
 		{
-			log(DEBUG, "Setting tlevel to &");
+			ServerInstance->Log(DEBUG, "Setting tlevel to &");
 			tlevel = chartolevel("&");
 		}
 		else
 		{
-			log(DEBUG, "Setting tlevel to %s", channel->GetStatusChar(target));
+			ServerInstance->Log(DEBUG, "Setting tlevel to %s", channel->GetStatusChar(target));
 			tlevel = chartolevel(channel->GetStatusChar(target));
 		}
 		

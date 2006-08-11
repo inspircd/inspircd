@@ -72,12 +72,12 @@ int operstrcmp(const char* data,const char* input)
 {
 	int MOD_RESULT = 0;
 	FOREACH_RESULT(I_OnOperCompare,OnOperCompare(data,input))
-	log(DEBUG,"operstrcmp: %d",MOD_RESULT);
+	ServerInstance->Log(DEBUG,"operstrcmp: %d",MOD_RESULT);
 	if (MOD_RESULT == 1)
 		return 0;
 	if (MOD_RESULT == -1)
 		return 1;
-	log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
+	ServerInstance->Log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
 	return strcmp(data,input);
 }
 

@@ -85,7 +85,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->SE->DelFd(user->fd);
 		if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
 		{
-			log(DEBUG,"Delete local user");
+			ServerInstance->Log(DEBUG,"Delete local user");
 			ServerInstance->local_users.erase(find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user));
 		}
 		user->CloseSocket();

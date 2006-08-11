@@ -112,7 +112,7 @@ class ModuleFilterPCRE : public Module
 					target = "";
 				}
 				
-				log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, filt.reason.c_str(), filt.action.c_str());
+				ServerInstance->Log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, filt.reason.c_str(), filt.action.c_str());
 				
 				if (filt.action == "block")
 				{	
@@ -151,7 +151,7 @@ class ModuleFilterPCRE : public Module
 			throw(e);
 		}
 		
-		log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
+		ServerInstance->Log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
 
 		filters.clear();
 		
@@ -165,13 +165,13 @@ class ModuleFilterPCRE : public Module
 			
 			if (!re)
 			{
-				log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
-				log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
+				ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
+				ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", pattern.c_str());
 			}
 			else
 			{
 				filters.push_back(Filter(re, reason, action));
-				log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
+				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}
 	}

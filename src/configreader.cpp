@@ -139,7 +139,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 bool NoValidation(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	ilog(conf->GetInstance(),DEBUG,"No validation for <%s:%s>",tag,value);
+	conf->GetInstance()->Log(DEBUG,"No validation for <%s:%s>",tag,value);
 	return true;
 }
 
@@ -156,7 +156,7 @@ bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, 
 	int* x = (int*)data;
 	if ((*x < 0) || (*x > 31))
 	{
-		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
 		*x = 20;
 	}
 	return true;
@@ -167,7 +167,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, v
 	int* x = (int*)data;	
 	if ((*x < 1) || (*x > MAXCLIENTS))
 	{
-		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
 		*x = MAXCLIENTS;
 	}
 	return true;
@@ -177,7 +177,7 @@ bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, voi
 {
 	int* x = (int*)data;	
 	if (*x > SOMAXCONN)
-		ilog(conf->GetInstance(),DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
 	if (!*x)
 		*x = SOMAXCONN;
 	return true;
@@ -206,7 +206,7 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 		nspace::hash_map<std::string,command_t*>::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
 		if (cm != ServerInstance->Parser->cmdlist.end())
 		{
-			log(DEBUG,"Disabling command '%s'",cm->second->command.c_str());
+			ServerInstance->Log(DEBUG,"Disabling command '%s'",cm->second->command.c_str());
 			cm->second->Disable(true);
 		}
 	}
@@ -219,7 +219,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 	if (!*x)
 	{
 		// attempt to look up their nameserver from /etc/resolv.conf
-		ilog(conf->GetInstance(),DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
 		std::string nameserver;
 		bool found_server = false;
@@ -233,19 +233,19 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 					resolv >> nameserver;
 					strlcpy(x,nameserver.c_str(),MAXBUF);
 					found_server = true;
-					ilog(conf->GetInstance(),DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
 			}
 
 			if (!found_server)
 			{
-				ilog(conf->GetInstance(),DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+				conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 				strlcpy(x,"127.0.0.1",MAXBUF);
 			}
 		}
 		else
 		{
-			ilog(conf->GetInstance(),DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
+			conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			strlcpy(x,"127.0.0.1",MAXBUF);
 		}
 	}
@@ -266,7 +266,7 @@ bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, 
 	char* x = (char*)data;
 	if (!strchr(x,'.'))
 	{
-		ilog(conf->GetInstance(),DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
 		charlcat(x,'.',MAXBUF);
 	}
 	//strlower(x);
@@ -277,7 +277,7 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* valu
 {
 	if ((!conf->NetBufferSize) || (conf->NetBufferSize > 65535) || (conf->NetBufferSize < 1024))
 	{
-		ilog(conf->GetInstance(),DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
+		conf->GetInstance()->Log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
 		conf->NetBufferSize = 10240;
 	}
 	return true;
@@ -287,7 +287,7 @@ bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void
 {
 	if ((!conf->MaxWhoResults) || (conf->MaxWhoResults > 65535) || (conf->MaxWhoResults < 1))
 	{
-		ilog(conf->GetInstance(),DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		conf->GetInstance()->Log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
 		conf->MaxWhoResults = 128;
 	}
 	return true;
@@ -329,7 +329,7 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void*
  */
 bool InitConnect(ServerConfig* conf, const char* tag)
 {
-	ilog(conf->GetInstance(),DEFAULT,"Reading connect classes...");
+	conf->GetInstance()->Log(DEFAULT,"Reading connect classes...");
 	conf->Classes.clear();
 	return true;
 }
@@ -374,7 +374,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
 		{
 			c.threshold = 1;
 			c.flood = 999;
-			ilog(conf->GetInstance(),DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
+			conf->GetInstance()->Log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
 		}
 		if (c.sendqmax == 0)
 			c.sendqmax = 262114;
@@ -391,7 +391,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
 		c.host = deny;
 		c.type = CC_DENY;
 		conf->Classes.push_back(c);
-		ilog(conf->GetInstance(),DEBUG,"Read connect class type DENY, host=%s",deny);
+		conf->GetInstance()->Log(DEBUG,"Read connect class type DENY, host=%s",deny);
 	}
 
 	return true;
@@ -401,7 +401,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** value
  */
 bool DoneConnect(ServerConfig* conf, const char* tag)
 {
-	ilog(conf->GetInstance(),DEBUG,"DoneConnect called for tag: %s",tag);
+	conf->GetInstance()->Log(DEBUG,"DoneConnect called for tag: %s",tag);
 	return true;
 }
 
@@ -418,7 +418,7 @@ bool InitULine(ServerConfig* conf, const char* tag)
 bool DoULine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
 {
 	char* server = (char*)values[0];
-	ilog(conf->GetInstance(),DEBUG,"Read ULINE '%s'",server);
+	conf->GetInstance()->Log(DEBUG,"Read ULINE '%s'",server);
 	conf->ulines.push_back(server);
 	return true;
 }
@@ -654,11 +654,11 @@ void ServerConfig::Read(bool bail, userrec* user)
  */	}
 	else
 	{
-		log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
+		ServerInstance->Log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
 
 		if (bail)
 		{
-			/* Unneeded because of the log() aboive? */
+			/* Unneeded because of the ServerInstance->Log() aboive? */
 			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
 			InspIRCd::Exit(ERROR);
 		}
@@ -786,7 +786,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
-	log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
+	ServerInstance->Log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
 
 	/* If we're rehashing, let's load any new modules, and unload old ones
 	 */
@@ -832,7 +832,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			}
 		}
 
-		log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
+		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 }
 
@@ -920,11 +920,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if ((ch == '\\') && (in_quote) && (in_tag))
 		{
 			line += ch;
-			log(DEBUG,"Escape sequence in config line.");
+			ServerInstance->Log(DEBUG,"Escape sequence in config line.");
 			char real_character;
 			if (conf.get(real_character))
 			{
-				log(DEBUG,"Escaping %c", real_character);
+				ServerInstance->Log(DEBUG,"Escaping %c", real_character);
 				line += real_character;
 				continue;
 			}
@@ -1199,11 +1199,11 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	}
 	else if(pos == 0)
 	{
-		log(DEBUG, "No <%s> tags in config file.", tag.c_str());
+		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
 	}
 	else
 	{
-		log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
+		ServerInstance->Log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	
 	return false;
@@ -1269,11 +1269,11 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 	}
 	else if(pos == 0)
 	{
-		log(DEBUG, "No <%s> tags in config file.", tag.c_str());
+		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
 	}
 	else
 	{
-		log(DEBUG, "ConfVarEnum got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
+		ServerInstance->Log(DEBUG, "ConfVarEnum got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	
 	return 0;
