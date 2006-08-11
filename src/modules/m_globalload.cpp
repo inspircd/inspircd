@@ -25,12 +25,10 @@ using namespace std;
 #include "inspircd.h"
 #include "helperfuncs.h"
 
-extern InspIRCd *ServerInstance;
-	 
 class cmd_gloadmodule : public command_t
 {
  public:
- cmd_gloadmodule (InspIRCd* Instance) : command_t(Instance,"GLOADMODULE", 'o', 1)
+	cmd_gloadmodule (InspIRCd* Instance) : command_t(Instance,"GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename>";
@@ -53,7 +51,7 @@ class cmd_gloadmodule : public command_t
 class cmd_gunloadmodule : public command_t
 {
  public:
- cmd_gunloadmodule (InspIRCd* Instance) : command_t(Instance,"GUNLOADMODULE", 'o', 1)
+	cmd_gunloadmodule (InspIRCd* Instance) : command_t(Instance,"GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename>";

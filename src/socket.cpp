@@ -23,7 +23,6 @@
 #include "socketengine.h"
 #include "wildcard.h"
 
-extern InspIRCd* ServerInstance;
 extern time_t TIME;
 
 using namespace std;

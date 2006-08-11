@@ -67,8 +67,6 @@ using namespace std;
 
 extern time_t TIME;
 
-extern InspIRCd* ServerInstance;
-
 ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
 	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
 {
