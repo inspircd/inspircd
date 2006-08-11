@@ -319,49 +319,136 @@ class InspIRCd : public classbase
 	 */
 	int BindPorts(bool bail);
 
+	/** Returns true if this server has the given port bound to the given address
+	 */
 	bool HasPort(int port, char* addr);
+
+	/** Binds a socket on an already open file descriptor
+	 */
 	bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
 
+	/** Adds a server name to the list of servers we've seen
+	 */
 	void AddServerName(const std::string &servername);
+
+	/** Finds a cached char* pointer of a server name,
+	 * This is used to optimize userrec by storing only the pointer to the name
+	 */
 	const char* FindServerNamePtr(const std::string &servername);
+
+	/** Returns true if we've seen the given server name before
+	 */
 	bool FindServerName(const std::string &servername);
 
+	/** Gets the GECOS (description) field of the given server.
+	 * If the servername is not that of the local server, the name
+	 * is passed to handling modules which will attempt to determine
+	 * the GECOS that bleongs to the given servername.
+	 */
 	std::string GetServerDescription(const char* servername);
 
+	/** Write text to all opers connected to this server
+	 */
 	void WriteOpers(const char* text, ...);
+
+	/** Write text to all opers connected to this server
+	 */
 	void WriteOpers(const std::string &text);
 	
+	/** Find a nickname in the nick hash
+	 */
 	userrec* FindNick(const std::string &nick);
+
+	/** Find a nickname in the nick hash
+	 */
 	userrec* FindNick(const char* nick);
 
+	/** Find a channel in the channels hash
+	 */
 	chanrec* FindChan(const std::string &chan);
+
+	/** Find a channel in the channels hash
+	 */
 	chanrec* FindChan(const char* chan);
 
+	/** Called by the constructor to load all modules from the config file.
+	 */
 	void LoadAllModules();
+
+	/** Check for a 'die' tag in the config file, and abort if found
+	 */
 	void CheckDie();
+
+	/** Check we aren't running as root, and exit if we are
+	 */
 	void CheckRoot();
+
+	/** Determine the right path for, and open, the logfile
+	 */
 	void OpenLog(char** argv, int argc);
 
+	/** Convert a user to a pseudoclient, disconnecting the real user
+	 */
 	bool UserToPseudo(userrec* user, const std::string &message);
+
+	/** Convert a pseudoclient to a real user, discarding the pseudoclient
+	 */
 	bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
 
+	/** Send a server notice to all local users
+	 */
 	void ServerNoticeAll(char* text, ...);
+
+	/** Send a server message (PRIVMSG) to all local users
+	 */
 	void ServerPrivmsgAll(char* text, ...);
+
+	/** Send text to all users with a specific set of modes
+	 */
 	void WriteMode(const char* modes, int flags, const char* text, ...);
 
+	/** Return true if a channel name is valid
+	 */
 	bool IsChannel(const char *chname);
 
+	/** Rehash the local server
+	 */
 	static void Rehash(int status);
+
+	/** Causes the server to exit immediately
+	 */
 	static void Exit(int status);
 
+	/** Return a count of users, unknown and known connections
+	 */
 	int UserCount();
+
+	/** Return a count of fully registered connections only
+	 */
 	int RegisteredUserCount();
+
+	/** Return a count of invisible (umode +i) users only
+	 */
 	int InvisibleUserCount();
+
+	/** Return a count of opered (umode +o) users only
+	 */
 	int OperCount();
+
+	/** Return a count of unregistered (before NICK/USER) users only
+	 */
 	int UnregisteredUserCount();
+
+	/** Return a count of channels on the network
+	 */
 	long ChannelCount();
+
+	/** Return a count of local users on this server only
+	 */
 	long LocalUserCount();
 
+	/** Send an error notice to all local users, opered and unopered
+	 */
 	void SendError(const char *s);
 
 	/** For use with Module::Prioritize().
@@ -421,63 +508,132 @@ class InspIRCd : public classbase
 	 */
 	Module* FindFeature(const std::string &FeatureName);
 
+	/** Given a pointer to a Module, return its filename
+	 */
 	const std::string& GetModuleName(Module* m);
 
+	/** Return true if a nickname is valid
+	 */
 	bool IsNick(const char* n);
+
+	/** Return true if an ident is valid
+	 */
 	bool IsIdent(const char* n);
 
+	/** Find a username by their file descriptor.
+	 * It is preferred to use this over directly accessing the fd_ref_table array.
+	 */
         userrec* FindDescriptor(int socket);
 
+	/** Add a new mode to this server's mode parser
+	 */
         bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
+	/** Add a new mode watcher to this server's mode parser
+	 */
         bool AddModeWatcher(ModeWatcher* mw);
 
+	/** Delete a mode watcher from this server's mode parser
+	 */
         bool DelModeWatcher(ModeWatcher* mw);
 
+	/** Add a dns Resolver class to this server's active set
+	 */
         bool AddResolver(Resolver* r);
 
+	/** Add a command to this server's command parser
+	 */
         void AddCommand(command_t *f);
 
+	/** Send a modechange.
+	 * The parameters provided are identical to that sent to the
+	 * handler for class cmd_mode.
+	 */
         void SendMode(const char **parameters, int pcnt, userrec *user);
 
+	/** Match two strings using pattern matching.
+	 * This operates identically to the global function match(),
+	 * except for that it takes std::string arguments rather than
+	 * const char* ones.
+	 */
         bool MatchText(const std::string &sliteral, const std::string &spattern);
 
+	/** Call the handler for a given command.
+	 * @return True if the command handler was called successfully
+	 */
         bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
 
+	/** Return true if the command is a module-implemented command and the given parameters are valid for it
+	 */
         bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 
+	/** Add a gline and apply it
+	 */
         void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
+	/** Add a qline and apply it
+	 */
         void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
 
+	/** Add a zline and apply it
+	 */
         void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
 
+	/** Add a kline and apply it
+	 */
         void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
+	/** Add an eline
+	 */
         void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
+	/** Delete a gline
+	 */
         bool DelGLine(const std::string &hostmask);
 
+	/** Delete a qline
+	 */
         bool DelQLine(const std::string &nickname);
 
+	/** Delete a zline
+	 */
         bool DelZLine(const std::string &ipaddr);
 
+	/** Delete a kline
+	 */
         bool DelKLine(const std::string &hostmask);
 
+	/** Delete an eline
+	 */
         bool DelELine(const std::string &hostmask);
 
+	/** Return true if the given parameter is a valid nick!user@host mask
+	 */
         bool IsValidMask(const std::string &mask);
 
+	/** Add an InspSocket class to the active set
+	 */
         void AddSocket(InspSocket* sock);
 
+	/** Remove an InspSocket class from the active set
+	 */
         void RemoveSocket(InspSocket* sock);
 
+	/** Delete a socket immediately
+	 * XXX: How does this relate to InspIRCd::RemoveSocket()?
+	 */
         void DelSocket(InspSocket* sock);
 
+	/** Rehash the local server
+	 */
         void RehashServer();
 
+	/** Return the channel whos index number matches that provided
+	 */
         chanrec* GetChannelIndex(long index);
 
+	/** Dump text to a user target, splitting it appropriately to fit
+	 */
         void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 
 	bool NickMatchesEveryone(const std::string &nick, userrec* user);
