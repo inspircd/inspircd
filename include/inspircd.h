@@ -29,11 +29,13 @@
 #include "socketengine.h"
 #include "command_parse.h"
 
-/* Some misc defines */
+/** Returned by some functions to indicate failure,
+ * and the exit code of the program if it terminates.
+ */
 #define ERROR -1
-#define MAXCOMMAND 32
 
-/* Crucial defines */
+/** Crucial defines
+ */
 #define ETIREDGERBILS EAGAIN
 
 /** Debug levels for use with InspIRCd::Log()
@@ -47,15 +49,20 @@ enum DebugLevel
 	NONE		=	50,
 };
 
-/* This define is used in place of strcmp when we 
+/**
+ * This define is used in place of strcmp when we 
  * want to check if a char* string contains only one
  * letter. Pretty fast, its just two compares and an
  * addition.
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
+/** Delete a pointer, and NULL its value
+ */
 #define DELETE(x) {if (x) { delete x; x = NULL; }}
 
+/** Template function to convert any input type to std::string
+ */
 template<typename T> inline std::string ConvToStr(const T &in)
 {
 	std::stringstream tmp;
@@ -63,33 +70,76 @@ template<typename T> inline std::string ConvToStr(const T &in)
 	return tmp.str();
 }
 
+/** This class contains various STATS counters
+ * It is used by the InspIRCd class, which internally
+ * has an instance of it.
+ */
 class serverstats : public classbase
 {
   public:
+	/** Number of accepted connections
+	 */
 	unsigned long statsAccept;
+	/** Number of failed accepts
+	 */
 	unsigned long statsRefused;
+	/** Number of unknown commands seen
+	 */
 	unsigned long statsUnknown;
+	/** Number of nickname collisions handled
+	 */
 	unsigned long statsCollisions;
+	/** Number of DNS queries sent out
+	 */
 	unsigned long statsDns;
+	/** Number of good DNS replies received
+	 * NOTE: This may not tally to the number sent out,
+	 * due to timeouts and other latency issues.
+	 */
 	unsigned long statsDnsGood;
+	/** Number of bad (negative) DNS replies received
+	 * NOTE: This may not tally to the number sent out,
+	 * due to timeouts and other latency issues.
+	 */
 	unsigned long statsDnsBad;
+	/** Number of inbound connections seen
+	 */
 	unsigned long statsConnects;
+	/** Total bytes of data transmitted
+	 */
 	double statsSent;
+	/** Total bytes of data received
+	 */
 	double statsRecv;
+	/** Number of bound listening ports
+	 */
 	unsigned long BoundPortCount;
 
+	/** The constructor initializes all the counts to zero
+	 */
 	serverstats()
+		: statsAccept(0), statsRefused(0), statsUnknown(0), statsCollisions(0), statsDns(0),
+		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0.0), statsRecv(0.0),
+		BoundPortCount(0)
 	{
-		statsAccept = statsRefused = statsUnknown = 0;
-		statsCollisions = statsDns = statsDnsGood = 0;
-		statsDnsBad = statsConnects = 0;
-		statsSent = statsRecv = 0.0;
-		BoundPortCount = 0;
 	}
 };
 
 class XLineManager;
 
+/** The main singleton class of the irc server.
+ * This class contains instances of all the other classes
+ * in this software, with the exception of the base class,
+ * classbase. Amongst other things, it contains a ModeParser,
+ * a DNS object, a CommandParser object, and a list of active
+ * Module objects, and facilities for Module objects to
+ * interact with the core system it implements. You should
+ * NEVER attempt to instantiate a class of type InspIRCd
+ * yourself. If you do, this is equivalent to spawning a second
+ * IRC server, and could have catastrophic consequences for the
+ * program in terms of ram usage (basically, you could create
+ * an obese forkbomb built from recursively spawning irc servers!)
+ */
 class InspIRCd : public classbase
 {
  private:
@@ -615,12 +665,11 @@ class InspIRCd : public classbase
 	 */
         void AddSocket(InspSocket* sock);
 
-	/** Remove an InspSocket class from the active set
+	/** Remove an InspSocket class from the active set at next time around the loop
 	 */
         void RemoveSocket(InspSocket* sock);
 
-	/** Delete a socket immediately
-	 * XXX: How does this relate to InspIRCd::RemoveSocket()?
+	/** Delete a socket immediately without waiting for the next iteration of the mainloop
 	 */
         void DelSocket(InspSocket* sock);
 
@@ -636,24 +685,80 @@ class InspIRCd : public classbase
 	 */
         void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 
+	/** Check if the given nickmask matches too many users, send errors to the given user
+	 */
 	bool NickMatchesEveryone(const std::string &nick, userrec* user);
+
+	/** Check if the given IP mask matches too many users, send errors to the given user
+	 */
 	bool IPMatchesEveryone(const std::string &ip, userrec* user);
+
+	/** Check if the given hostmask matches too many users, send errors to the given user
+	 */
 	bool HostMatchesEveryone(const std::string &mask, userrec* user);
+
+	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
+	 */
 	long Duration(const char* str);
+
+	/** Attempt to compare an oper password to a string from the config file.
+	 * This will be passed to handling modules which will compare the data
+	 * against possible hashed equivalents in the input string.
+	 */
 	int OperPassCompare(const char* data,const char* input);
+
+	/** Check if a given server is a uline.
+	 * An empty string returns true, this is by design.
+	 */
 	bool ULine(const char* server);
 
+	/** Returns the subversion revision ID of this ircd
+	 */
 	std::string GetRevision();
+
+	/** Returns the full version string of this ircd
+	 */
 	std::string GetVersionString();
+
+	/** Attempt to write the process id to a given file
+	 */
 	void WritePID(const std::string &filename);
+
+	/** Returns text describing the last module error
+	 */
 	char* ModuleError();
+
+	/** Load a given module file
+	 */
 	bool LoadModule(const char* filename);
+
+	/** Unload a given module file
+	 */
 	bool UnloadModule(const char* filename);
+
+	/** This constructor initialises all the subsystems and reads the config file.
+	 */
 	InspIRCd(int argc, char** argv);
+
+	/** Do one iteration of the mainloop
+	 */
 	void DoOneIteration(bool process_module_sockets);
+
+	/** Output a log message to the ircd.log file
+	 */
 	void Log(int level, const char* text, ...);
+
+	/** Output a log message to the ircd.log file
+	 */
 	void Log(int level, const std::string &text);
+
+	/** Begin execution of the server.
+	 * NOTE: this function NEVER returns. Internally,
+	 * after performing some initialisation routines,
+	 * it will repeatedly call DoOneIteration in a loop.
+	 */
 	int Run();
 };
 
 #endif
+
