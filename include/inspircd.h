@@ -47,17 +47,6 @@ enum DebugLevel
 	NONE		=	50,
 };
 
-/* I'm not entirely happy with this, the ## before 'args' is a g++ extension.
- * The problem is that if you #define log(l, x, args...) and then call it
- * with only two parameters, you get do_log(l, x, ), which is a syntax error...
- * The ## tells g++ to remove the trailing comma...
- * If this is ever an issue, we can just have an #ifndef GCC then #define log(a...) do_log(a)
- */
-#define STRINGIFY2(x) #x
-#define STRINGIFY(x) STRINGIFY2(x) 
-#define log(l, x, args...) ServerInstance->Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
-#define ilog(i, l, x, args...) i->Log(l, __FILE__ ":" STRINGIFY(__LINE__) ": " x, ##args)
-
 /* This define is used in place of strcmp when we 
  * want to check if a char* string contains only one
  * letter. Pretty fast, its just two compares and an

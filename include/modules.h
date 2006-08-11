@@ -97,7 +97,7 @@ typedef std::map<std::string,Module*> featurelist;
 		} \
 		catch (ModuleException& modexcept) \
 		{ \
-			log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
   }
@@ -111,7 +111,7 @@ typedef std::map<std::string,Module*> featurelist;
 		} \
 		catch (ModuleException& modexcept) \
 		{ \
-			ilog(z,DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
+			z->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
 }
@@ -134,7 +134,7 @@ typedef std::map<std::string,Module*> featurelist;
 				} \
 				catch (ModuleException& modexcept) \
 				{ \
-					log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+					ServerInstance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
@@ -155,7 +155,7 @@ typedef std::map<std::string,Module*> featurelist;
 				} \
 				catch (ModuleException& modexcept) \
 				{ \
-					ilog(z,DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+					z->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
