@@ -29,7 +29,7 @@ using namespace std;
 /* $ModDesc: Provides support for the /watch command */
 
 
-extern InspIRCd* ServerInstance;
+
 
 class watchentry : public classbase
 {

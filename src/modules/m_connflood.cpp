@@ -28,7 +28,7 @@ using namespace std;
 int conns = 0, throttled = 0;
 extern time_t TIME;
 
-extern InspIRCd* ServerInstance;
+
 
 class ModuleConnFlood : public Module
 {

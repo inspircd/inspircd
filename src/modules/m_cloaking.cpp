@@ -43,7 +43,7 @@
 
 /* $ModDesc: Provides masking of user hostnames */
 
-extern InspIRCd* ServerInstance;
+
 
 /* The four core functions - F1 is optimized somewhat */
 

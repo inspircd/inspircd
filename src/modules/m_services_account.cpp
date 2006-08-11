@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
-extern InspIRCd* ServerInstance;
+
 
 class AChannel_R : public ModeHandler
 {

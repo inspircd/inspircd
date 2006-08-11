@@ -29,7 +29,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-extern InspIRCd* ServerInstance;
+
 	 
 class cmd_devoice : public command_t
 {

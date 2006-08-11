@@ -30,7 +30,7 @@ static bool kludgeme = false;
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
 
-extern InspIRCd* ServerInstance;
+
 
 class Channel_r : public ModeHandler
 {

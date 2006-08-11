@@ -6,7 +6,7 @@
 
 /* $ModDesc: Provides support for the CHGIDENT command */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_chgident : public command_t
 {

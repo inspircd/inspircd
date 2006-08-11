@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style umode +B */
 
-extern InspIRCd* ServerInstance;
+
 
 class BotMode : public ModeHandler
 {

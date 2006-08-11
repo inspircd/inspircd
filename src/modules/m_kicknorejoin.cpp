@@ -10,7 +10,7 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-extern InspIRCd* ServerInstance;
+
 
 inline int strtoint(const std::string &str)
 {

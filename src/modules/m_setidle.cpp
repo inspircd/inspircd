@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set their idle time */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_setidle : public command_t
 {

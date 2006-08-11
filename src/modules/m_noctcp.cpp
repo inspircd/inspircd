@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
-extern InspIRCd* ServerInstance;
+
 
 class NoCTCP : public ModeHandler
 {

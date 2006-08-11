@@ -8,7 +8,7 @@
 
 static char* dummy;
 
-extern InspIRCd* ServerInstance;
+
 
 class SSLMode : public ModeHandler
 {

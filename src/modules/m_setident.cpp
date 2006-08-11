@@ -6,7 +6,7 @@
 /* $ModDesc: Provides support for the SETIDENT command */
 
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_setident : public command_t
 {

@@ -24,7 +24,7 @@
 
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
 
-extern InspIRCd* ServerInstance;
+
 
 class BlockCaps : public ModeHandler
 {

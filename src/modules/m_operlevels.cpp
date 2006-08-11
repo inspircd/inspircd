@@ -9,7 +9,7 @@ using namespace std;
 
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 
-extern InspIRCd* ServerInstance;
+
 
 class ModuleOperLevels : public Module
 {

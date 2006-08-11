@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
 
-extern InspIRCd* ServerInstance;
+
 
 class ChannelStripColor : public ModeHandler
 {

@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
 
-extern InspIRCd* ServerInstance;
+
 
 class Redirect : public ModeHandler
 {

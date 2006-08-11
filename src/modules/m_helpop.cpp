@@ -25,7 +25,7 @@ using namespace std;
 // Global Vars
 static ConfigReader *helpop;
 
-extern InspIRCd* ServerInstance;
+
 
 bool do_helpop(const char**, int, userrec*);
 void sendtohelpop(userrec*, int, const char**);
@@ -127,60 +127,58 @@ class cmd_helpop : public command_t
 			}
 		}
 	}
-};
 
 
-bool do_helpop(const char** parameters, int pcnt, userrec *src)
-{
-	char search[MAXBUF];
-	std::string output = " "; // a fix bought to you by brain :p
-	char a[MAXBUF];
-	int nlines = 0;
-
-	if (!pcnt)
+	bool do_helpop(const char** parameters, int pcnt, userrec *src)
 	{
- 		strcpy(search,"start");
-  	}
-	else
-	{
-		if (*parameters[0] == '?')
-			parameters[0]++;
- 		strlcpy(search,parameters[0],MAXBUF);
-   	}
+		char search[MAXBUF];
+		std::string output = " "; // a fix bought to you by brain :p
+		char a[MAXBUF];
+		int nlines = 0;
 
-	for (char* n = search; *n; n++)
-		*n = tolower(*n);
-
-	for (int i = 1; output != ""; i++)
-	{
-		snprintf(a,MAXBUF,"line%d",i);
-		output = helpop->ReadValue(search, a, 0);
-		if (output != "")
+		if (!pcnt)
 		{
-			src->WriteServ("290 "+std::string(src->nick)+" :"+output);
-			nlines++;
+	 		strcpy(search,"start");
+	  	}
+		else
+		{
+			if (*parameters[0] == '?')
+				parameters[0]++;
+	 		strlcpy(search,parameters[0],MAXBUF);
+	   	}
+
+		for (char* n = search; *n; n++)
+			*n = tolower(*n);
+
+		for (int i = 1; output != ""; i++)
+		{
+			snprintf(a,MAXBUF,"line%d",i);
+			output = helpop->ReadValue(search, a, 0);
+			if (output != "")
+			{
+				src->WriteServ("290 "+std::string(src->nick)+" :"+output);
+				nlines++;
+			}
 		}
+		return (nlines>0);
 	}
-	return (nlines>0);
-}
 
-
-
-void sendtohelpop(userrec *src, int pcnt, const char **params)
-{
-	const char* first = params[0];
-	if (*first == '!')
+	void sendtohelpop(userrec *src, int pcnt, const char **params)
 	{
-		first++;
-	}
+		const char* first = params[0];
+		if (*first == '!')
+		{
+			first++;
+		}
 
-	std::string line = "*** HELPOPS - From "+std::string(src->nick)+": "+std::string(first)+" ";
-	for (int i = 1; i < pcnt; i++)
-	{
-		line = line + std::string(params[i]) + " ";
+		std::string line = "*** HELPOPS - From "+std::string(src->nick)+": "+std::string(first)+" ";
+		for (int i = 1; i < pcnt; i++)
+		{
+			line = line + std::string(params[i]) + " ";
+		}
+		ServerInstance->WriteMode("oh",WM_AND,line.c_str());
 	}
-	ServerInstance->WriteMode("oh",WM_AND,line.c_str());
-}
+};
 
 class HelpopException : public ModuleException
 {

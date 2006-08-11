@@ -23,7 +23,7 @@ using namespace std;
 
 /* $ModDesc: Sends the /LUSERS on connect */
 
-extern InspIRCd* ServerInstance;
+
 
 // This has to be the simplest module ever.
 // The RFC doesnt specify that you should send the /LUSERS numerics

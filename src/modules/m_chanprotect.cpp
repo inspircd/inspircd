@@ -23,7 +23,7 @@
 
 /* $ModDesc: Provides channel modes +a and +q */
 
-extern InspIRCd* ServerInstance;
+
 
 const char* fakevalue = "on";
 

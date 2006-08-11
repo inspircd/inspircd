@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +Q */
 
-extern InspIRCd* ServerInstance;
+
 
 class NoKicks : public ModeHandler
 {

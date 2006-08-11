@@ -25,7 +25,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-extern InspIRCd* ServerInstance;
+
 
 /* $ModDesc: Provides support for user parking/unparking */
 

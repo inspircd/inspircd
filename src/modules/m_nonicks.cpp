@@ -28,7 +28,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
 
-extern InspIRCd* ServerInstance;
+
 
 class NoNicks : public ModeHandler
 {

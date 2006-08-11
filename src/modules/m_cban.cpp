@@ -30,7 +30,7 @@
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
-extern InspIRCd* ServerInstance;
+
 
 class CBan : public classbase
 {
@@ -126,6 +126,11 @@ class cmd_cban : public command_t
 	}
 };
 
+bool CBanComp(const CBan &ban1, const CBan &ban2)
+{
+	return ((ban1.set_on + ban1.length) < (ban2.set_on + ban2.length));
+}
+
 class ModuleCBan : public Module
 {
 	cmd_cban* mycommand;
@@ -203,60 +208,55 @@ class ModuleCBan : public Module
 	{
 		return Version(1,0,0,1,VF_VENDOR);
 	}
-};
 
-std::string EncodeCBan(const CBan &ban)
-{
-	std::ostringstream stream;	
-	stream << ban.chname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
-	return stream.str();	
-}
-
-CBan DecodeCBan(const std::string &data)
-{
-	CBan res;
-	std::istringstream stream(data);
-	stream >> res.chname;
-	stream >> res.set_by;
-	stream >> res.set_on;
-	stream >> res.length;
-	res.reason = stream.str();
-	
-	return res;
-}
-
-bool CBanComp(const CBan &ban1, const CBan &ban2)
-{
-	return ((ban1.set_on + ban1.length) < (ban2.set_on + ban2.length));
-}
-
-void ExpireBans()
-{
-	bool go_again = true;
-
-	while (go_again)
+	std::string EncodeCBan(const CBan &ban)
 	{
-		go_again = false;
+		std::ostringstream stream;	
+		stream << ban.chname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
+		return stream.str();	
+	}
 
-		for (cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
+	CBan DecodeCBan(const std::string &data)
+	{
+		CBan res;
+		std::istringstream stream(data);
+		stream >> res.chname;
+		stream >> res.set_by;
+		stream >> res.set_on;
+		stream >> res.length;
+		res.reason = stream.str();
+	
+		return res;
+	}
+
+	void ExpireBans()
+	{
+		bool go_again = true;
+
+		while (go_again)
 		{
-			/* 0 == permanent, don't mess with them! -- w00t */
-			if (iter->length != 0)
+			go_again = false;
+	
+			for (cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 			{
-				if (iter->set_on + iter->length <= TIME)
+				/* 0 == permanent, don't mess with them! -- w00t */
+				if (iter->length != 0)
 				{
-					log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
-					ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
-					cbans.erase(iter);
-					go_again = true;
+					if (iter->set_on + iter->length <= TIME)
+					{
+						log(DEBUG, "m_cban.so: Ban on %s expired, removing...", iter->chname.c_str());
+						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), TIME - iter->set_on);
+						cbans.erase(iter);
+						go_again = true;
+					}
 				}
+	
+				if (go_again == true)
+					break;
 			}
-
-			if (go_again == true)
-				break;
 		}
 	}
-}
+};
 
 class ModuleCBanFactory : public ModuleFactory
 {

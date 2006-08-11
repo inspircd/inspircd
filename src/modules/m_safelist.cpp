@@ -26,7 +26,7 @@ using namespace std;
 
 extern time_t TIME;
 
-extern InspIRCd* ServerInstance;
+
 
 class ListData : public classbase
 {
@@ -55,11 +55,11 @@ class ListTimer : public InspTimer
 
 	char buffer[MAXBUF];
 	chanrec *chan;
-	
+	InspIRCd* ServerInstance;
 
  public:
 
-	ListTimer(long interval) : InspTimer(interval,TIME)
+	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,TIME), ServerInstance(Instance)
 	{
 	}
 
@@ -133,7 +133,7 @@ class ListTimer : public InspTimer
 			}
 		}
 
-		ListTimer* MyTimer = new ListTimer(1);
+		ListTimer* MyTimer = new ListTimer(ServerInstance,1);
 		ServerInstance->Timers->AddTimer(MyTimer);
 	}
 };
@@ -146,7 +146,7 @@ class ModuleSafeList : public Module
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
-		MyTimer = new ListTimer(1);
+		MyTimer = new ListTimer(ServerInstance,1);
 		ServerInstance->Timers->AddTimer(MyTimer);
 	}
  

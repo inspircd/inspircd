@@ -11,7 +11,7 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 
-extern InspIRCd* ServerInstance;
+
 
 class SeeWhois : public ModeHandler
 {

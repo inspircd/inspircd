@@ -23,7 +23,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-extern InspIRCd* ServerInstance;
+
 
 extern userrec* fd_ref_table[MAX_DESCRIPTORS];
 
@@ -87,7 +87,7 @@ class RFC1413 : public InspSocket
 							{
 								if (u && (fd_ref_table[ufd] == u))
 								{
-									if (ServerInstance->IsIdent(section))
+									if (this->Instance->IsIdent(section))
 									{
 										strlcpy(u->ident,section,IDENTMAX);
 										log(DEBUG,"IDENT SET: "+std::string(u->ident));

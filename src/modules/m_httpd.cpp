@@ -29,7 +29,7 @@ using namespace std;
 
 class ModuleHttp;
 
-extern InspIRCd* ServerInstance;
+
 
 static ModuleHttp* HttpModule;
 extern time_t TIME;
@@ -66,7 +66,7 @@ class HttpSocket : public InspSocket
 		if (InternalState == HTTP_LISTEN)
 		{
 			HttpSocket* s = new HttpSocket(this->Instance, newsock, ip, index);
-			ServerInstance->AddSocket(s);
+			this->Instance->AddSocket(s);
 		}
 		return true;
 	}

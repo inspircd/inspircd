@@ -29,7 +29,7 @@ using namespace std;
 #include "inspircd.h"
 
 
-extern InspIRCd* ServerInstance;
+
 
 class TimedBan : public classbase
 {

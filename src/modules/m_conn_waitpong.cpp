@@ -9,7 +9,7 @@
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
 
-extern InspIRCd* ServerInstance;
+
 
 char* RandString(unsigned int length)
 {

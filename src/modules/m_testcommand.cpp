@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
-extern InspIRCd* ServerInstance;
+
 
 class MyV6Resolver : public Resolver
 {

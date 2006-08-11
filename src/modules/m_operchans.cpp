@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for oper-only chans via the +O channel mode */
 
-extern InspIRCd* ServerInstance;
+
 
 class OperChans : public ModeHandler
 {

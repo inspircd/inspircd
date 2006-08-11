@@ -24,7 +24,7 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
-extern InspIRCd* ServerInstance;
+
 
 class Host : public classbase
 {

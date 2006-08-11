@@ -47,7 +47,7 @@ using namespace std;
 
 
 
-extern InspIRCd* ServerInstance;
+
 extern chan_hash chanlist;
 
 void spy_userlist(userrec *user,chanrec *c)

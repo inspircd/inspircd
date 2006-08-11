@@ -36,7 +36,7 @@ using namespace std;
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_saquit : public command_t
 {

@@ -27,7 +27,7 @@ using namespace std;
 /* $ModDesc: Provides support for unreal-style SAPART command */
 
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_sapart : public command_t
 {

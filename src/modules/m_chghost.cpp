@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the CHGHOST command */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_chghost : public command_t
 {

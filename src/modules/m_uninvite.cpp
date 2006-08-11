@@ -27,7 +27,7 @@ using namespace std;
 #include "inspircd.h"
 
 
-extern InspIRCd* ServerInstance;
+
 	 
 class cmd_uninvite : public command_t
 {

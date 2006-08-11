@@ -22,7 +22,7 @@
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_swhois : public command_t
 {

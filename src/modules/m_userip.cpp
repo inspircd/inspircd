@@ -27,7 +27,7 @@ using namespace std;
 /* $ModDesc: Provides support for USERIP command */
 
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_userip : public command_t
 {

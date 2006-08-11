@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_nicklock : public command_t
 {

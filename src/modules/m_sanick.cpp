@@ -25,7 +25,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for SANICK command */
 
-extern InspIRCd* ServerInstance;
+
 
 
 class cmd_sanick : public command_t

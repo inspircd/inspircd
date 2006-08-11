@@ -29,7 +29,7 @@
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-extern InspIRCd* ServerInstance;
+
 
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST };
 

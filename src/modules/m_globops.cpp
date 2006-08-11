@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for GLOBOPS and user mode +g */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_globops : public command_t
 {

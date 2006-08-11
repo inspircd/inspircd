@@ -27,7 +27,7 @@ extern time_t TIME;
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
 
-extern InspIRCd* ServerInstance;
+
  
 class ModuleSecureList : public Module
 {

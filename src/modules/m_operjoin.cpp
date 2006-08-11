@@ -10,7 +10,7 @@ using namespace std;
 
 /* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
 
-extern InspIRCd* ServerInstance;
+
 
 class ModuleOperjoin : public Module
 {

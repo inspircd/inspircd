@@ -28,7 +28,7 @@ using namespace std;
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
 
-extern InspIRCd* ServerInstance;
+
 	 
 class cmd_tline : public command_t
 {

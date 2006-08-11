@@ -19,15 +19,14 @@
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
-extern InspIRCd* ServerInstance;
-
 class RemoveBase
 {
  private: 
 	bool& supportnokicks;
+	InspIRCd* ServerInstance;
  
  protected:
-	RemoveBase(bool& snk) : supportnokicks(snk)
+	RemoveBase(InspIRCd* Instance, bool& snk) : supportnokicks(snk), ServerInstance(Instance)
 	{
 	}		
  
@@ -207,7 +206,7 @@ class RemoveBase
 class cmd_remove : public command_t, public RemoveBase
 {
  public:
-	cmd_remove(InspIRCd* Instance, bool& snk) : command_t(Instance, "REMOVE", 0, 2), RemoveBase(snk)
+	cmd_remove(InspIRCd* Instance, bool& snk) : command_t(Instance, "REMOVE", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -222,7 +221,7 @@ class cmd_remove : public command_t, public RemoveBase
 class cmd_fpart : public command_t, public RemoveBase
 {
  public:
-	cmd_fpart(InspIRCd* Instance, bool& snk) : command_t(Instance, "FPART", 0, 2), RemoveBase(snk)
+	cmd_fpart(InspIRCd* Instance, bool& snk) : command_t(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";

@@ -30,7 +30,7 @@
 /* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
 
 extern time_t TIME;
-extern InspIRCd* ServerInstance;
+
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 

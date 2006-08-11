@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides aliases of commands. */
 
-extern InspIRCd* ServerInstance;
+
 
 class Alias : public classbase
 {

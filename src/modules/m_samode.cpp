@@ -38,7 +38,7 @@ using namespace std;
 #include "inspircd.h"
 
 
-extern InspIRCd* ServerInstance;
+
 	 
 class cmd_samode : public command_t
 {

@@ -18,7 +18,7 @@
 // The +e channel mode takes a nick!ident@host, glob patterns allowed,
 // and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
 
-extern InspIRCd* ServerInstance;
+
 
 class BanException : public ListModeBase
 {

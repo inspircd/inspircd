@@ -28,7 +28,7 @@ using namespace std;
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
 
-extern InspIRCd* ServerInstance;
+
 
 typedef std::map<irc::string,int> StatsHash;
 typedef StatsHash::iterator StatsIter;

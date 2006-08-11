@@ -29,7 +29,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
-extern InspIRCd* ServerInstance;
+
 
 class ChanFilter : public ListModeBase
 {

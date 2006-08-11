@@ -27,7 +27,7 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +j (join flood protection) */
 
-extern InspIRCd* ServerInstance;
+
 
 class joinfloodsettings : public classbase
 {

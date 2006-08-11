@@ -23,7 +23,7 @@
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
-extern InspIRCd* ServerInstance;
+
 
 typedef std::map<std::string,std::string> override_t;
 

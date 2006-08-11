@@ -26,7 +26,7 @@ using namespace std;
 
 /* $ModDesc: Provides support for the SETNAME command */
 
-extern InspIRCd* ServerInstance;
+
 
 class cmd_setname : public command_t
 {

@@ -28,7 +28,7 @@ typedef std::map<irc::string,irc::string> censor_t;
 
 /* $ModDesc: Provides user and channel +G mode */
 
-extern InspIRCd* ServerInstance;
+
 
 class CensorException : public ModuleException
 {
