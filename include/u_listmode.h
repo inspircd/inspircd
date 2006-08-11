@@ -67,7 +67,6 @@ class ListModeBase : public ModeHandler
 
         std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
         {
-		log(DEBUG,"ListMode: ModeSet()");
 		modelist* el;
 		channel->GetExt(infokey, el);
 		if (el)
@@ -76,12 +75,10 @@ class ListModeBase : public ModeHandler
 	                {
 	                        if(parameter == it->mask)
 	                        {
-					log(DEBUG,"Found item %s",parameter.c_str());
 					return std::make_pair(true, parameter);
 				}
 	                }
 		}
-		log(DEBUG,"Didnt find item %s",parameter.c_str());
 		return std::make_pair(false, parameter);
         }
 
@@ -113,14 +110,7 @@ class ListModeBase : public ModeHandler
 			limit.limit = Conf.ReadInteger(configtag, "limit", i, true);
 
 			if(limit.mask.size() && limit.limit > 0)
-			{
 				chanlimits.push_back(limit);
-				log(DEBUG, "Read channel listmode limit of %u for mask '%s'", limit.limit, limit.mask.c_str());
-			}
-			else
-			{
-				log(DEBUG, "Invalid tag");
-			}
 		}
 		if(chanlimits.size() == 0)
 		{
