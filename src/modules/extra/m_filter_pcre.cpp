@@ -37,8 +37,8 @@ class FilterPCREException : public ModuleException
 };
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I/usr/local/include */
-/* $LinkerFlags: -L/usr/local/lib -lpcre */
+/* $CompileFlags: -I`pcre-config --prefix`/include */
+/* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
 
 class ModuleFilterPCRE : public Module
 {
