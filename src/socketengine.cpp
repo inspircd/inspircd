@@ -33,6 +33,7 @@
 
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	memset(ref, 0, sizeof(ref));
 }
 
 SocketEngine::~SocketEngine()
