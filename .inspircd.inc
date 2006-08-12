@@ -88,6 +88,8 @@ sub start {
         # Check to see its not 'running' already.
         if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
         # If we are still alive here.. Try starting the IRCd..
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+
         system("$binpath/$executable");
         return 1;
 }
@@ -95,7 +97,9 @@ sub start {
 sub debug {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
-		
+	
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+	
 	# Check we have gdb
 	checkgdb();
 		
@@ -108,6 +112,8 @@ sub screendebug
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 	
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+
 	#Check we have gdb
 	checkgdb();
 	checkscreen();
@@ -122,6 +128,8 @@ sub valdebug
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
+
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 
 	# Check we have valgrind and gdb
 	checkvalgrind();
@@ -138,6 +146,8 @@ sub screenvaldebug
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
 	
+	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
+
 	#Check we have gdb
 	checkvalgrind();
 	checkgdb();
