@@ -41,17 +41,35 @@ using irc::sockets::insp_aton;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
 
+/** Because of weirdness in g++, before 3.x this was namespace std. It's now __gnu_cxx.
+ * This is a #define'd alias.
+ */
 namespace nspace
 {
+	/** Convert a string to lower case respecting RFC1459
+	 * @param n A string to lowercase
+	 */
 	void strlower(char *n);
 
+	/** Hashing function to hash insp_inaddr structs
+	 */
         template<> struct hash<insp_inaddr>
         {
+		/** Hash an insp_inaddr
+		 * @param a An insp_inaddr to hash
+		 * @return The hash value
+		 */
                 size_t operator()(const insp_inaddr &a) const;
         };
 
+	/** Hashing function to hash std::string without respect to case
+	 */
         template<> struct hash<std::string>
         {
+		/** Hash a std::string using RFC1459 case sensitivity rules
+		 * @param s A string to hash
+		 * @return The hash value
+		 */
                 size_t operator()(const string &s) const;
         };
 }
@@ -176,14 +194,12 @@ namespace irc
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */
 /* This was endless fun. No. Really. */
 /* It was also the first core change Ommeh made, if anyone cares */
-
 std::ostream& operator<<(std::ostream &os, const irc::string &str);
 std::istream& operator>>(std::istream &is, irc::string &str);
 
 /* Define operators for + and == with irc::string to std::string for easy assignment
  * and comparison - Brain
  */
-
 std::string operator+ (std::string& leftval, irc::string& rightval);
 irc::string operator+ (irc::string& leftval, std::string& rightval);
 bool operator== (std::string& leftval, irc::string& rightval);
