@@ -149,8 +149,12 @@ void UserResolver::OnLookupComplete(const std::string &result)
 		this->bound_user->stored_host = result;
 		try
 		{
-			bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, true);
-			this->ServerInstance->AddResolver(bound_user->res_forward);
+			/* Check we didnt time out */
+			if (this->bound_user->registered != REG_ALL)
+			{
+				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, true);
+				this->ServerInstance->AddResolver(bound_user->res_forward);
+			}
 		}
 		catch (ModuleException& e)
 		{
@@ -165,14 +169,18 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			std::string hostname = this->bound_user->stored_host;
 			if (hostname.length() < 65)
 			{
-				/* Hostnames starting with : are not a good thing (tm) */
-				if (*(hostname.c_str()) == ':')
-					hostname = "0" + hostname;
+				/* Check we didnt time out */
+				if (this->bound_user->registered != REG_ALL)
+				{
+					/* Hostnames starting with : are not a good thing (tm) */
+					if (*(hostname.c_str()) == ':')
+						hostname = "0" + hostname;
 
-				this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
-				this->bound_user->dns_done = true;
-				strlcpy(this->bound_user->dhost, hostname.c_str(),64);
-				strlcpy(this->bound_user->host, hostname.c_str(),64);
+					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
+					this->bound_user->dns_done = true;
+					strlcpy(this->bound_user->dhost, hostname.c_str(),64);
+					strlcpy(this->bound_user->host, hostname.c_str(),64);
+				}
 			}
 			else
 			{
