@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** User mode +n
+ */
 class ModeUserServerNoticeMask : public ModeHandler
 {
  public:

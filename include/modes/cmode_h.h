@@ -3,6 +3,8 @@
 
 class InspIRCd;
 
+/** Channel mode +h
+ */
 class ModeChannelHalfOp : public ModeHandler
 {
  private:

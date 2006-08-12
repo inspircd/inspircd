@@ -3,6 +3,8 @@
 
 class InspIRCd;
 
+/** Channel mode +b
+ */
 class ModeChannelBan : public ModeHandler
 {
  private:

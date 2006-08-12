@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** Channel mode +l
+ */
 class ModeChannelLimit : public ModeHandler
 {
  public:

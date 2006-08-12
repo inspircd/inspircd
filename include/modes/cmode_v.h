@@ -3,6 +3,8 @@
 
 class InspIRCd;
 
+/** Channel mode +v
+ */
 class ModeChannelVoice : public ModeHandler
 {
  private:

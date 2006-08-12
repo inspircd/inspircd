@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** User mode +w
+ */
 class ModeUserWallops : public ModeHandler
 {
  public:

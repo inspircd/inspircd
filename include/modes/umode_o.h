@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** User mode +o
+ */
 class ModeUserOperator : public ModeHandler
 {
  public:

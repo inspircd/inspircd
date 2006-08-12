@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** User mode +i
+ */
 class ModeUserInvisible : public ModeHandler
 {
  public:

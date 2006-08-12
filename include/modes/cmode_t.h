@@ -2,6 +2,8 @@
 
 class InspIRCd;
 
+/** Channel mode +t
+ */
 class ModeChannelTopicOps : public ModeHandler
 {
  public:
