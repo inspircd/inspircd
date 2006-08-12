@@ -27,13 +27,8 @@
  * ---------------------------------------------------------------------
  */
 
-#include <algorithm>
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include <fcntl.h>
-#include <sys/errno.h>
-#include <sys/ioctl.h>
 #include <signal.h>
 #include <time.h>
 #include <string>
@@ -45,20 +40,11 @@
 #include <fstream>
 #include <vector>
 #include <deque>
-#include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
 #include "mode.h"
-#include "commands.h"
 #include "xline.h"
-#include "inspstring.h"
-#include "hashcomp.h"
 #include "socketengine.h"
 #include "inspircd_se_config.h"
-#include "userprocess.h"
 #include "socket.h"
 #include "typedefs.h"
 #include "command_parse.h"
@@ -68,14 +54,9 @@ using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
-InspIRCd* ServerInstance = NULL;
-
-int iterations = 0;
-
-insp_sockaddr client, server;
-socklen_t length;
-
 char lowermap[255];
+
+InspIRCd* SI = NULL;
 
 void InspIRCd::AddServerName(const std::string &servername)
 {
@@ -105,9 +86,6 @@ bool InspIRCd::FindServerName(const std::string &servername)
 
 void InspIRCd::Exit(int status)
 {
-	if (ServerInstance->Config->log_file)
-		fclose(ServerInstance->Config->log_file);
-	ServerInstance->SendError("Server shutdown.");
 	exit (status);
 }
 
@@ -122,11 +100,11 @@ void InspIRCd::Start()
 
 void InspIRCd::Rehash(int status)
 {
-	ServerInstance->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
-	fclose(ServerInstance->Config->log_file);
-	ServerInstance->OpenLog(NULL,0);
-	ServerInstance->Config->Read(false,NULL);
-	FOREACH_MOD(I_OnRehash,OnRehash(""));
+	SI->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
+	fclose(SI->Config->log_file);
+	SI->OpenLog(NULL,0);
+	SI->Config->Read(false,NULL);
+	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
 }
 
 void InspIRCd::SetSignals(bool SEGVHandler)
@@ -193,7 +171,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
 	bool SEGVHandler = false;
-	ServerInstance = this;
+	//ServerInstance = this;
 
 	modules.resize(255);
 	factory.resize(255);
@@ -302,7 +280,49 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	SE = SEF->Create(this);
 	delete SEF;
 
-	/* We must load the modules AFTER initializing the socket engine, now */
+	this->Res = new DNS(this);
+
+	this->Log(DEBUG,"RES: %08x",this->Res);
+
+	this->LoadAllModules();
+
+	/* Just in case no modules were loaded - fix for bug #101 */
+	this->BuildISupport();
+
+	if (!stats->BoundPortCount)
+	{
+		printf("\nI couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
+		Exit(ERROR);
+	}
+
+	/* Add the listening sockets used for client inbound connections
+	 * to the socket engine
+	 */
+	this->Log(DEBUG,"%d listeners",stats->BoundPortCount);
+	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
+	{
+		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
+		if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
+		{
+			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
+			Exit(ERROR);
+		}
+	}
+
+	if (!Config->nofork)
+	{
+		fclose(stdout);
+		fclose(stderr);
+		fclose(stdin);
+	}
+
+	printf("\nInspIRCd is now running!\n");
+
+	this->WritePID(Config->PID);
+
+	/* main loop, this never returns */
+	expire_run = false;
+	iterations = 0;
 
 	return;
 }
@@ -458,7 +478,7 @@ void InspIRCd::BuildISupport()
 	v << " CASEMAPPING=rfc1459 STATUSMSG=@%+ CHARSET=ascii TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=" << Config->MaxTargets << " AWAYLEN=";
 	v << MAXAWAY << " CHANMODES=b,k,l,psmnti FNC NETWORK=" << Config->Network << " MAXPARA=32";
 	Config->data005 = v.str();
-	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
+	FOREACH_MOD_I(this,I_On005Numeric,On005Numeric(Config->data005));
 }
 
 bool InspIRCd::UnloadModule(const char* filename)
@@ -484,7 +504,7 @@ bool InspIRCd::UnloadModule(const char* filename)
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
 
-			FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
+			FOREACH_MOD_I(this,I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 
 			for(int t = 0; t < 255; t++)
 			{
@@ -602,7 +622,7 @@ bool InspIRCd::LoadModule(const char* filename)
 	}
 #endif
 	this->ModCount++;
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
+	FOREACH_MOD_I(this,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
 	// now work out which modules, if any, want to move to the back of the queue,
 	// and if they do, move them there.
 	std::vector<std::string> put_to_back;
@@ -676,7 +696,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		XLines->expire_lines();
 		if (process_module_sockets)
 		{
-			FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 		}
 		Timers->TickMissedTimers(TIME);
 		expire_run = true;
@@ -906,50 +926,6 @@ bool InspIRCd::IsNick(const char* n)
 
 int InspIRCd::Run()
 {
-	this->Res = new DNS(this);
-
-	this->Log(DEBUG,"RES: %08x",this->Res);
-
-	this->LoadAllModules();
-
-	/* Just in case no modules were loaded - fix for bug #101 */
-	this->BuildISupport();
-
-	if (!stats->BoundPortCount)
-	{
-		printf("\nI couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
-		Exit(ERROR);
-	}
-
-	/* Add the listening sockets used for client inbound connections
-	 * to the socket engine
-	 */
-	this->Log(DEBUG,"%d listeners",stats->BoundPortCount);
-	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
-	{
-		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
-		if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
-		{
-			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
-			Exit(ERROR);
-		}
-	}
-
-	if (!Config->nofork)
-	{
-		fclose(stdout);
-		fclose(stderr);
-		fclose(stdin);
-	}
-
-	printf("\nInspIRCd is now running!\n");
-
-	this->WritePID(Config->PID);
-
-	/* main loop, this never returns */
-	expire_run = false;
-	iterations = 0;
-
 	while (true)
 	{
 		DoOneIteration(true);
@@ -966,9 +942,9 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-	ServerInstance = new InspIRCd(argc, argv);
-	ServerInstance->Run();
-	delete ServerInstance;
+	SI = new InspIRCd(argc, argv);
+	SI->Run();
+	delete SI;
 	return 0;
 }
 

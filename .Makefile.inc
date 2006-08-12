@@ -45,7 +45,6 @@ install: all
 	@-install -v -m 0700 src/libIRCDcommands.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDconfigreader.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDcull_list.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDdnsqueue.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDdynamic.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDhash.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDhelper.so $(LIBPATH)

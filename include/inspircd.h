@@ -281,6 +281,18 @@ class InspIRCd : public classbase
 	 */
 	const long duration_y;
 
+	/** Used when connecting clients
+	 */
+	insp_sockaddr client, server;
+
+	/** Used when connecting clients
+	 */
+	socklen_t length;
+
+	/** Used to count iterations around the mainloop
+	 */
+	int iterations;
+
  public:
 	/** Time this ircd was booted
 	 */
