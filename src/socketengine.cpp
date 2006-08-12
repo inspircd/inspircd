@@ -34,6 +34,7 @@ char ref[MAX_DESCRIPTORS];
 SocketEngine::SocketEngine()
 {
 	log(DEBUG,"SocketEngine::SocketEngine()");
+	memset(ref, 0, sizeof(ref));
 #ifdef USE_EPOLL
 	EngineHandle = epoll_create(MAX_DESCRIPTORS);
 #endif
