@@ -278,6 +278,11 @@ class ModeWatcher : public Extensible
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 
+/** The mode parser handles routing of modes and handling of mode strings.
+ * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
+ * parses client to server MODE strings for user and channel modes, and performs
+ * processing for the 004 mode list numeric, amongst other things.
+ */
 class ModeParser : public classbase
 {
  private:
