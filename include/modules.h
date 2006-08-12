@@ -1410,7 +1410,7 @@ class FileReader : public classbase
 };
 
 
-/** Instantiates classes inherited from Module
+/** Instantiates classes inherited from Module.
  * This class creates a class inherited from type Module, using new. This is to allow for modules
  * to create many different variants of Module, dependent on architecture, configuration, etc.
  * In most cases, the simple class shown in the example module m_foobar.so will suffice for most
@@ -1419,7 +1419,11 @@ class FileReader : public classbase
 class ModuleFactory : public classbase
 {
  public:
+	/** The default constructor does nothing.
+	 */
 	ModuleFactory() { }
+	/** The default destructor does nothing
+	 */
 	virtual ~ModuleFactory() { }
 	/** Creates a new module.
 	 * Your inherited class of ModuleFactory must return a pointer to your Module class
@@ -1428,9 +1432,16 @@ class ModuleFactory : public classbase
 	virtual Module * CreateModule(InspIRCd* Me) = 0;
 };
 
-
+/** A DLLFactory (designed to load shared objects) containing a ModuleFactory.
+ */
 typedef DLLFactory<ModuleFactory> ircd_module;
+
+/** A list of loaded Modules
+ */
 typedef std::vector<Module*> ModuleList;
+
+/** A list of loaded ModuleFactories
+ */
 typedef std::vector<ircd_module*> FactoryList;
 
 #endif
