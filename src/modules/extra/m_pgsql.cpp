@@ -575,9 +575,16 @@ public:
 				/* Conversion failed, assume it's a host */
 				SQLresolver* resolver;
 				
-				resolver = new SQLresolver(this, ServerInstance, host);
-				
-				ServerInstance->AddResolver(resolver);
+				try
+				{
+					resolver = new SQLresolver(this, ServerInstance, host);
+					
+					ServerInstance->AddResolver(resolver);
+				}
+				catch(...)
+				{
+					ServerInstance->Log(DEBUG, "Couldn't make a SQLresolver..this connection is gonna diiiiiie...actually we just won't create it");
+				}
 			}
 			else
 			{
