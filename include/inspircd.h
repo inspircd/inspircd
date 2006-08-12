@@ -346,10 +346,6 @@ class InspIRCd : public classbase
 	 */
 	TimerManager* Timers;
 
-	/** Command list, a hash_map of command names to command_t*
-	 */
-	command_table cmdlist;
-
 	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
 	 */
 	XLineManager* XLines;
