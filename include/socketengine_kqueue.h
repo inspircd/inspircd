@@ -30,13 +30,24 @@
 
 class InspIRCd;
 
+/** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
+ */
 class KQueueEngine : public SocketEngine
 {
 private:
-	struct kevent ke_list[MAX_DESCRIPTORS];	/* Up to 64k sockets for kqueue */
-	struct timespec ts;			/* kqueue delay value */
+	/** These are used by kqueue() to hold socket events
+	 */
+	struct kevent ke_list[MAX_DESCRIPTORS];
+	/** This is a specialised time value used by kqueue()
+	 */
+	struct timespec ts;
 public:
+	/** Create a new KQueueEngine
+	 * @param Instance The creator of this object
+	 */
 	KQueueEngine(InspIRCd* Instance);
+	/** Delete a KQueueEngine
+	 */
 	virtual ~KQueueEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -46,9 +57,13 @@ public:
 	virtual std::string GetName();
 };
 
+/** Creates a SocketEngine
+ */
 class SocketEngineFactory
 {
  public:
+	/** Create a new instance of SocketEngine based on KQueueEngine
+	 */
 	SocketEngine* Create(InspIRCd* Instance) { return new KQueueEngine(InspIRCd* Instance); }
 };
 

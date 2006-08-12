@@ -28,13 +28,24 @@
 
 class InspIRCd;
 
+/** A specialisation of the SocketEngine class, designed to use traditional select().
+ */
 class SelectEngine : public SocketEngine
 {
 private:
-	std::map<int,int> fds;		/* List of file descriptors being monitored */
-	fd_set wfdset, rfdset;		/* Readable and writeable sets for select() */
+	/** Because select() does not track an fd list for us between calls, we have one of our own
+	 */
+	std::map<int,int> fds;
+	/** The read set and write set, populated before each call to select().
+	 */
+	fd_set wfdset, rfdset;
 public:
+	/** Create a new SelectEngine
+	 * @param Instance The creator of this object
+	 */
 	SelectEngine(InspIRCd* Instance);
+	/** Delete a SelectEngine
+	 */
 	virtual ~SelectEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -44,9 +55,13 @@ public:
 	virtual std::string GetName();
 };
 
+/** Creates a SocketEngine
+ */
 class SocketEngineFactory
 {
 public:
+	/** Create a new instance of SocketEngine based on SelectEngine
+	 */
 	SocketEngine* Create(InspIRCd* Instance) { return new SelectEngine(InspIRCd* Instance); }
 };
 

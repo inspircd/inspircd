@@ -84,6 +84,8 @@ class GLine : public XLine
 	char hostmask[200];
 };
 
+/** ELine class
+ */
 class ELine : public XLine
 {
   public:

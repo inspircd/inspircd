@@ -29,12 +29,21 @@
 
 class InspIRCd;
 
+/** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
+ */
 class EPollEngine : public SocketEngine
 {
 private:
-	struct epoll_event events[MAX_DESCRIPTORS];     /* Up to 64k sockets for epoll */
+	/** These are used by epoll() to hold socket events
+	 */
+	struct epoll_event events[MAX_DESCRIPTORS];
 public:
+	/** Create a new EPollEngine
+	 * @param Instance The creator of this object
+	 */
 	EPollEngine(InspIRCd* Instance);
+	/** Delete an EPollEngine
+	 */
 	virtual ~EPollEngine();
 	virtual bool AddFd(int fd, bool readable, char type);
 	virtual int GetMaxFds();
@@ -44,9 +53,13 @@ public:
 	virtual std::string GetName();
 };
 
+/** Creates a SocketEngine
+ */
 class SocketEngineFactory
 {
 public:
+	/** Create a new instance of SocketEngine based on EpollEngine
+	 */
 	SocketEngine* Create(InspIRCd* Instance) { return new EPollEngine(Instance); }
 };
 
