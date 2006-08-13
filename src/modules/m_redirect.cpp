@@ -132,7 +132,7 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L'))
+			if (chan->IsModeSet('L') && chan->limit)
 			{
 				if (chan->GetUserCounter() >= chan->limit)
 				{
