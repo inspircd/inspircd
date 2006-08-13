@@ -175,6 +175,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	modules.resize(255);
 	factory.resize(255);
+
+	memset(fd_ref_table, 0, sizeof(fd_ref_table));
+	memset(socket_ref, 0, sizeof(socket_ref));
 	
 	this->Config = new ServerConfig(this);
 	this->Start();
