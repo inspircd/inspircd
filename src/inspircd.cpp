@@ -83,7 +83,7 @@ time_t TIME = time(NULL), OLDTIME = time(NULL);
 // This table references users by file descriptor.
 // its an array to make it VERY fast, as all lookups are referenced
 // by an integer, meaning there is no need for a scan/search operation.
-userrec* fd_ref_table[MAX_DESCRIPTORS];
+userrec* fd_ref_table[MAX_DESCRIPTORS] = { NULL };
 
 Server* MyServer = new Server;
 ServerConfig *Config = new ServerConfig;

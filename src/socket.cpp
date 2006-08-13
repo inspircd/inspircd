@@ -43,7 +43,7 @@ extern InspIRCd* ServerInstance;
 extern ServerConfig* Config;
 extern time_t TIME;
 
-InspSocket* socket_ref[MAX_DESCRIPTORS];
+InspSocket* socket_ref[MAX_DESCRIPTORS] = { NULL };
 
 InspSocket::InspSocket()
 {
