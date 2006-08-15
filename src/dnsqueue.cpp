@@ -133,7 +133,7 @@ public:
 								log(DEBUG,"POS2");
 								if ((hostname.find_last_of(".in-addr.arpa") == hostname.length() - 1) && (hostname.find_last_of(".in-addr.arpa") != std::string::npos))
 								{
-									WriteServ(usr->fd,"NOTICE Auth :*** Your ISP are muppets -- reverse resolution resolves back to same reverse .arpa domain (!)");
+									WriteServ(usr->fd,"NOTICE Auth :*** Your ISP is a muppet -- reverse resolution resolves back to same reverse .arpa domain (!)");
 								}
 								else
 								{
