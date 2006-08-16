@@ -176,7 +176,6 @@ class ModuleTimedBans : public Module
 						// falls into the abyss :p
 						userrec* temp = new userrec(ServerInstance);
 						temp->fd = FD_MAGIC_NUMBER;
-						temp->server = "";
 						ServerInstance->SendMode(setban,3,temp);
                                                 /* FIX: Send mode remotely*/
                                                 std::deque<std::string> n;
