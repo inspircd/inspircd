@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *                <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *		<Craig@chatspike.net>
  *
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -32,6 +32,12 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
 			return;
+
+		if (!strchr(parameters[0],'@'))
+		{
+			user->WriteServ("NOTICE %s :*** E-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
+			return;
+		}
 
 		ServerInstance->XLines->add_eline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddELine,OnAddELine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
