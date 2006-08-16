@@ -141,7 +141,9 @@ class ModuleTimedBans : public Module
 		{
 			irc::string listitem = banmask.c_str();
 			irc::string target = i->mask.c_str();
-			if (listitem == target)
+			irc::string tchan = i->channel.c_str();
+			irc::string thischan = chan->name;
+			if ((listitem == target) && (tchan == thischan))
 			{
 				TimedBanList.erase(i);
 				break;
