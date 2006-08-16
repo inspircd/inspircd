@@ -185,8 +185,9 @@ class ModuleTimedBans : public Module
                                                 Event rmode((char *)&n, NULL, "send_mode");
                                                 rmode.Send(ServerInstance);
 						DELETE(temp);
-						free(setban[0]);
-						free(setban[2]);
+						// i hate free.
+						free((char*)setban[0]);
+						free((char*)setban[2]);
 					}
 					else
 					{
