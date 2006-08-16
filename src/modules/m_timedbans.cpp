@@ -137,12 +137,12 @@ class ModuleTimedBans : public Module
 
 	virtual int OnDelBan(userrec* source, chanrec* chan, const std::string &banmask)
 	{
+		irc::string listitem = banmask.c_str();
+		irc::string thischan = chan->name;
 		for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
 		{
-			irc::string listitem = banmask.c_str();
 			irc::string target = i->mask.c_str();
 			irc::string tchan = i->channel.c_str();
-			irc::string thischan = chan->name;
 			if ((listitem == target) && (tchan == thischan))
 			{
 				TimedBanList.erase(i);
