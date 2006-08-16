@@ -166,9 +166,9 @@ class ModuleTimedBans : public Module
 					{
 						cr->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
 						const char *setban[3];
-						setban[0] = i->channel.c_str();
+						setban[0] = strdup(i->channel.c_str());
 						setban[1] = "-b";
-						setban[2] = i->mask.c_str();
+						setban[2] = strdup(i->mask.c_str());
 						// kludge alert!
 						// ::SendMode expects a userrec* to send the numeric replies
 						// back to, so we create it a fake user that isnt in the user
@@ -179,12 +179,14 @@ class ModuleTimedBans : public Module
 						ServerInstance->SendMode(setban,3,temp);
                                                 /* FIX: Send mode remotely*/
                                                 std::deque<std::string> n;
-                                                n.push_back(i->channel);
+                                                n.push_back(setban[0]);
                                                 n.push_back("-b");
-                                                n.push_back(i->mask);
+                                                n.push_back(setban[2]);
                                                 Event rmode((char *)&n, NULL, "send_mode");
                                                 rmode.Send(ServerInstance);
 						DELETE(temp);
+						free(setban[0]);
+						free(setban[2]);
 					}
 					else
 					{
