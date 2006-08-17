@@ -477,7 +477,12 @@ bool userrec::HasPermission(const std::string &command)
 	return false;
 }
 
-
+/** NOTE: We cannot pass a const reference to this method.
+ * The string is changed by the workings of the method,
+ * so that if we pass const ref, we end up copying it to
+ * something we can change anyway. Makes sense to just let
+ * the compiler do that copy for us.
+ */
 bool userrec::AddBuffer(std::string a)
 {
 	std::string::size_type i = a.rfind('\r');
@@ -1269,7 +1274,12 @@ const char* userrec::GetIPString(char* buf)
 	return "";
 }
 
-
+/** NOTE: We cannot pass a const reference to this method.
+ * The string is changed by the workings of the method,
+ * so that if we pass const ref, we end up copying it to
+ * something we can change anyway. Makes sense to just let
+ * the compiler do that copy for us.
+ */
 void userrec::Write(std::string text)
 {
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
