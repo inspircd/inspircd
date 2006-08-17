@@ -484,7 +484,7 @@ bool userrec::AddBuffer(std::string a)
 
 	while (i != std::string::npos)
 	{
-		b.erase(i, 1);
+		a.erase(i, 1);
 		i = a.rfind('\r');
 	}
 
