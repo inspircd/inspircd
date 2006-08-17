@@ -725,17 +725,16 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		{
 			irc::whowas::MaintainWhoWas(TIME);
 		}
+		Timers->TickTimers(TIME);
+		if (process_module_sockets)
+			this->DoSocketTimeouts(TIME);
 	}
 
 	/* Process timeouts on module sockets each time around
 	 * the loop. There shouldnt be many module sockets, at
 	 * most, 20 or so, so this won't be much of a performance
 	 * hit at all.   
-	 */ 
-	if (process_module_sockets)
-		this->DoSocketTimeouts(TIME);
-	 
-	Timers->TickTimers(TIME);
+	 */
 	 
 	/* Call the socket engine to wait on the active
 	 * file descriptors. The socket engine has everything's
