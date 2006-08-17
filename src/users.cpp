@@ -1697,12 +1697,12 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 
 		if(pos == std::string::npos)
 		{
-			line += cl.substr(start, length - start);
+			line.append(cl.substr(start, length - start));
 			break;
 		}
 		else
 		{
-			line += cl.substr(start, length - start + 1);
+			line.append(cl.substr(start, length - start + 1));
 		}
 	}
 
