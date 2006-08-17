@@ -480,15 +480,13 @@ bool userrec::HasPermission(const std::string &command)
 
 bool userrec::AddBuffer(const std::string &a)
 {
-	std::string b = "";
+	std::string b(a);
+	std::string::size_type i = b.rfind('\r');
 
-	/* NB: std::string is arsey about \r and \n and tries to translate them
-	 * somehow, so we CANNOT use std::string::find() here :(
-	 */
-	for (std::string::const_iterator i = a.begin(); i != a.end(); i++)
+	while (i != std::string::npos)
 	{
-		if (*i != '\r')
-			b += *i;
+		b.erase(i, 1);
+		i = b.rfind('\r');
 	}
 
 	if (b.length())
