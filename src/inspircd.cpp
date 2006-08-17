@@ -322,12 +322,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	printf("\nInspIRCd is now running!\n");
 
 	this->WritePID(Config->PID);
-
-	/* main loop, this never returns */
-	expire_run = false;
-	iterations = 0;
-
-	return;
 }
 
 std::string InspIRCd::GetVersionString()
@@ -688,35 +682,12 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 */
 	OLDTIME = TIME;
 	TIME = time(NULL);
-	
+
 	/* Run background module timers every few seconds
 	 * (the docs say modules shouldnt rely on accurate
 	 * timing using this event, so we dont have to
 	 * time this exactly).
 	 */
-	if (((TIME % 5) == 0) && (!expire_run))
-	{
-		XLines->expire_lines();
-		if (process_module_sockets)
-		{
-			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
-		}
-		Timers->TickMissedTimers(TIME);
-		expire_run = true;
-		return;
-	}   
-	else if ((TIME % 5) == 1)
-	{
-		expire_run = false;
-	}
-
-	if (iterations++ == 15)
-	{
-		iterations = 0;
-		this->DoBackgroundUserStuff(TIME);
-	}
- 
-	/* Once a second, do the background processing */
 	if (TIME != OLDTIME)
 	{
 		if (TIME < OLDTIME)
@@ -728,13 +699,15 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		Timers->TickTimers(TIME);
 		if (process_module_sockets)
 			this->DoSocketTimeouts(TIME);
-	}
+		this->DoBackgroundUserStuff(TIME);
 
-	/* Process timeouts on module sockets each time around
-	 * the loop. There shouldnt be many module sockets, at
-	 * most, 20 or so, so this won't be much of a performance
-	 * hit at all.   
-	 */
+		if ((TIME % 5) == 0)
+		{
+			XLines->expire_lines();
+			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+			Timers->TickMissedTimers(TIME);
+		}
+	}
 	 
 	/* Call the socket engine to wait on the active
 	 * file descriptors. The socket engine has everything's
