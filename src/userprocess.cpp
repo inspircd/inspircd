@@ -265,16 +265,16 @@ void InspIRCd::ProcessUser(userrec* cu)
 void InspIRCd::DoSocketTimeouts(time_t TIME)
 {
 	unsigned int numsockets = this->module_sockets.size();
-	SocketEngine* SE = this->SE;
 
 	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
 	{
-		InspSocket* s = (InspSocket*)*a;
-		if ((s) && (s->GetFd() >= 0) && (s->GetFd() < MAX_DESCRIPTORS) && (this->socket_ref[s->GetFd()] != NULL) && (s->Timeout(TIME)))
+		InspSocket* s = *a;
+		int fd = s->GetFd();
+		if ((s) && (fd >= 0) && (fd < MAX_DESCRIPTORS) && (this->socket_ref[fd] != NULL) && (s->Timeout(TIME)))
 		{
 			this->Log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			this->socket_ref[s->GetFd()] = NULL;
-			SE->DelFd(s->GetFd());
+			this->socket_ref[fd] = NULL;
+			SE->DelFd(fd);
 			this->module_sockets.erase(a);
 			s->Close();
 			DELETE(s);
