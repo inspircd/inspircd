@@ -20,6 +20,7 @@
 #include "users.h"
 #include "channels.h"
 #include "ctables.h"
+#include "modules.h"
 
 class cmd_connect : public command_t
 {
