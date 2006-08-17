@@ -478,19 +478,18 @@ bool userrec::HasPermission(const std::string &command)
 }
 
 
-bool userrec::AddBuffer(const std::string &a)
+bool userrec::AddBuffer(std::string a)
 {
-	std::string b(a);
-	std::string::size_type i = b.rfind('\r');
+	std::string::size_type i = a.rfind('\r');
 
 	while (i != std::string::npos)
 	{
 		b.erase(i, 1);
-		i = b.rfind('\r');
+		i = a.rfind('\r');
 	}
 
-	if (b.length())
-		recvq.append(b);
+	if (a.length())
+		recvq.append(a);
 
 	if (recvq.length() > (unsigned)this->recvqmax)
 	{
@@ -1271,19 +1270,18 @@ const char* userrec::GetIPString(char* buf)
 }
 
 
-void userrec::Write(const std::string &text)
+void userrec::Write(std::string text)
 {
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
 		return;
 
-	std::string crlf = text;
-	crlf.append("\r\n");
+	text.append("\r\n");
 
 	if (ServerInstance->Config->GetIOHook(this->GetPort()))
 	{
 		try
 		{
-			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, crlf.data(), crlf.length());
+			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, text.data(), text.length());
 		}
 		catch (ModuleException& modexcept)
 		{
@@ -1292,9 +1290,9 @@ void userrec::Write(const std::string &text)
 	}
 	else
 	{
-		this->AddWriteBuf(crlf);
+		this->AddWriteBuf(text);
 	}
-	ServerInstance->stats->statsSent += crlf.length();
+	ServerInstance->stats->statsSent += text.length();
 }
 
 /** Write()

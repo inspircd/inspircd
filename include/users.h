@@ -447,7 +447,7 @@ class userrec : public connection
 	 * @param a The string to add to the users read buffer
 	 * @return True if the string was successfully added to the read buffer
 	 */
-	bool AddBuffer(const std::string &a);
+	bool AddBuffer(std::string a);
 
 	/** This method returns true if the buffer contains at least one carriage return
 	 * character (e.g. one complete line may be read)
@@ -596,7 +596,7 @@ class userrec : public connection
 	/** Write text to this user, appending CR/LF.
 	 * @param text A std::string to send to the user
 	 */
-	void Write(const std::string &text);
+	void Write(std::string text);
 
 	/** Write text to this user, appending CR/LF.
 	 * @param text The format string for text to send to the user
