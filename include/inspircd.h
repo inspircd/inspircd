@@ -59,7 +59,11 @@ enum DebugLevel
 
 /** Delete a pointer, and NULL its value
  */
-#define DELETE(x) {if (x) { delete x; x = NULL; }}
+template<typename T> void DELETE(T* x)
+{
+	delete x;
+	x = NULL;
+}
 
 /** Template function to convert any input type to std::string
  */
