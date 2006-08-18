@@ -31,7 +31,7 @@ void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = ServerInstance->FindNick(parameters[i]);
-		if(u)
+		if ((u) && (u->registered == REG_ALL))
 		{
 			if(*u->oper)
 				if(*user->oper)

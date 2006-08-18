@@ -46,6 +46,9 @@ bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_
 	bool realhost = false;
 	bool realname = false;
 
+	if (user->registered != REG_ALL)
+		return false;
+
 	if (opt_realname)
 		realname = match(user->fullname, matchtext);
 
