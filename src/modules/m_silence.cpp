@@ -86,18 +86,18 @@ class cmd_silence : public command_t
 					if (sl->size())
 					{
 						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-		     		 	{
+			     		 	{
 							// search through for the item
 							irc::string listitem = i->c_str();
 							if (listitem == mask)
-	       					{
-	       						sl->erase(i);
+							{
+	       							sl->erase(i);
 								user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
 								break;
-       						}
-       					}
+							}
+						}
 					}
-					if (!sl->size())
+					else
 					{
 						// tidy up -- if a user's list is empty, theres no use having it
 						// hanging around in the user record.
