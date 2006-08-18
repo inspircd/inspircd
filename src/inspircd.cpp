@@ -120,9 +120,11 @@ bool InspIRCd::DaemonSeed()
 		return (ERROR);
 	else if (childpid > 0)
 	{
-		/* We wait a few seconds here, so that the shell prompt doesnt come back over the output */
-		sleep(6);
-		exit (0);
+		/* We wait here for the child process to kill us,
+		 * so that the shell prompt doesnt come back over
+		 * the output */
+		while (1)
+			sleep(600);
 	}
 	setsid ();
 	umask (007);
@@ -140,7 +142,7 @@ bool InspIRCd::DaemonSeed()
 		if (setrlimit(RLIMIT_CORE, &rl) == -1)
 			this->Log(DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 	}
-  
+
 	return true;
 }
 
@@ -303,9 +305,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!Config->nofork)
 	{
-		fclose(stdout);
-		fclose(stderr);
+		if (kill(getppid(), SIGTERM) == -1)
+			printf("Error killing parent process: %s\n",strerror(errno));
 		fclose(stdin);
+		fclose(stderr);
+		fclose(stdout);
 	}
 
 	printf("\nInspIRCd is now running!\n");
