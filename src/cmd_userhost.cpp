@@ -65,7 +65,7 @@ void cmd_userhost::Handle (char **parameters, int pcnt, userrec *user)
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = Find(parameters[i]);
-		if(u)
+		if ((u) && (u->registered == 7))
 		{
 			if(*u->oper)
 				if(*user->oper)
