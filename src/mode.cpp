@@ -611,6 +611,8 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 				
 			case 'b':
 				if ((param >= pcnt)) break;
+				if ((!*parameters[param]) || (strchr(parameters[param],' ')) || (strchr(parameters[param],':')))
+					break;
 				r = NULL;
 				if (mdir == 1)
 				{
@@ -659,7 +661,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
-							if ((*parameters[param]) && (!strchr(parameters[param],' ')))
+							if ((*parameters[param]) && (!strchr(parameters[param],' ')) && (!strchr(parameters[param],':')))
 							{
 								*outl++ = 'k';
 								char key[MAXBUF];
@@ -914,10 +916,20 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 					{
 						if ((ModeDefinedOn(*modechar,MT_CHANNEL)>0) && (mdir))
 						{
+							if ((!*parameters[param]) || (strchr(parameters[param],' ')) || (strchr(parameters[param],':')))
+							{
+								log(DEBUG,"Gank, broken mode!");
+								break;
+							}
 							p.push_back(parameters[param]);
 						}
 						if ((ModeDefinedOff(*modechar,MT_CHANNEL)>0) && (!mdir))
 						{
+							if ((!*parameters[param]) || (strchr(parameters[param],' ')) || (strchr(parameters[param],':')))
+							{
+								log(DEBUG,"Gank, broken mode!");
+								break;
+							}
 							p.push_back(parameters[param]);
 						}
 					}
