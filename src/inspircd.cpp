@@ -118,7 +118,7 @@ bool InspIRCd::DaemonSeed()
 {
 	int childpid;
 	if ((childpid = fork ()) < 0)
-		return (ERROR);
+		return false;
 	else if (childpid > 0)
 	{
 		/* We wait here for the child process to kill us,
@@ -129,9 +129,7 @@ bool InspIRCd::DaemonSeed()
 		 * they threw an error and we should give up.
 		 */
 		while (kill(childpid, 0) != -1)
-		{
 			sleep(1);
-		}
 		exit(ERROR);
 	}
 	setsid ();
