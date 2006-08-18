@@ -130,6 +130,11 @@ class cmd_watch : public command_t
 				{
 					// removing an item from the list
 					nick++;
+					if (!ServerInstance->IsNick(nick))
+					{
+						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
+						return;
+					}
 					irc::string n1 = nick;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
@@ -144,7 +149,7 @@ class cmd_watch : public command_t
 							}
 							else
 							{
-								 user->WriteServ("602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
+								user->WriteServ("602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
 							}
 							if (n1 == n2)
 							{
@@ -158,6 +163,11 @@ class cmd_watch : public command_t
 				else if (nick[0] == '+')
 				{
 					nick++;
+					if (!ServerInstance->IsNick(nick))
+					{
+						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
+						return;
+					}
 					irc::string n1 = nick;
 					bool exists = false;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
