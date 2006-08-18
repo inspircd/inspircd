@@ -107,10 +107,11 @@ void InspIRCd::Rehash(int status)
 
 void InspIRCd::SetSignals(bool SEGVHandler)
 {
-	signal (SIGALRM, SIG_IGN);
-	signal (SIGHUP, InspIRCd::Rehash);
-	signal (SIGPIPE, SIG_IGN);
-	signal (SIGTERM, InspIRCd::Exit);
+	signal(SIGALRM, SIG_IGN);
+	signal(SIGHUP, InspIRCd::Rehash);
+	signal(SIGPIPE, SIG_IGN);
+	signal(SIGTERM, InspIRCd::Exit);
+	signal(SIGCHLD, SIG_IGN);
 }
 
 bool InspIRCd::DaemonSeed()
@@ -122,9 +123,16 @@ bool InspIRCd::DaemonSeed()
 	{
 		/* We wait here for the child process to kill us,
 		 * so that the shell prompt doesnt come back over
-		 * the output */
-		while (1)
-			sleep(600);
+		 * the output.
+		 * Sending a kill with a signal of 0 just checks
+		 * if the child pid is still around. If theyre not,
+		 * they threw an error and we should give up.
+		 */
+		while (kill(childpid, 0) != -1)
+		{
+			sleep(1);
+		}
+		exit(ERROR);
 	}
 	setsid ();
 	umask (007);
