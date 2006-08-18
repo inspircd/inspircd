@@ -24,6 +24,7 @@ using namespace std;
 #include "modules.h"
 #include "helperfuncs.h"
 #include "hashcomp.h"
+#include "message.h"
 
 /* $ModDesc: Provides support for the /watch command */
 
@@ -122,6 +123,11 @@ class cmd_watch : public command_t
 				{
 					// removing an item from the list
 					nick++;
+					if (!isnick(nick))
+					{
+						WriteServ(user->fd,"942 %s %s :Invalid nickname",user->nick,nick);
+						return;
+					}
 					irc::string n1 = nick;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
 					{
@@ -148,6 +154,11 @@ class cmd_watch : public command_t
 				else if (nick[0] == '+')
 				{
 					nick++;
+					if (!isnick(nick))
+					{
+						WriteServ(user->fd,"942 %s %s :Invalid nickname",user->nick,nick);
+						return;
+					}
 					irc::string n1 = nick;
 					bool exists = false;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
