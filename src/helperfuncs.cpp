@@ -83,7 +83,7 @@ void InspIRCd::Log(int level, const std::string &text)
 
 	if (Config->log_file && Config->writelog)
 	{
-		std::string out = std::string(TIMESTR) + text.c_str() + "\n";
+		std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
 		this->Logger->WriteLogLine(out);
 	}
 
