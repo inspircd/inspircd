@@ -138,12 +138,22 @@ namespace irc
 	};
 };
 
+/** This class handles incoming connections on client ports.
+ * It will create a new userrec for every valid connection
+ * and assign it a file descriptor.
+ */
 class ListenSocket : public EventHandler
 {
  protected:
+	/** The creator/owner of this object
+	 */
 	InspIRCd* ServerInstance;
  public:
+	/** Create a new listening socket
+	 */
 	ListenSocket(InspIRCd* Instance, int sockfd, irc::sockets::insp_sockaddr client, irc::sockets::insp_sockaddr server, int port, char* addr);
+	/** Handle an I/O event
+	 */
 	void HandleEvent(EventType et);
 };
 
