@@ -62,7 +62,7 @@ class SocketEngineFactory
 public:
 	/** Create a new instance of SocketEngine based on SelectEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new SelectEngine(InspIRCd* Instance); }
+	SocketEngine* Create(InspIRCd* Instance) { return new SelectEngine(Instance); }
 };
 
 #endif

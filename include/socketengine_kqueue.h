@@ -64,7 +64,7 @@ class SocketEngineFactory
  public:
 	/** Create a new instance of SocketEngine based on KQueueEngine
 	 */
-	SocketEngine* Create(InspIRCd* Instance) { return new KQueueEngine(InspIRCd* Instance); }
+	SocketEngine* Create(InspIRCd* Instance) { return new KQueueEngine(Instance); }
 };
 
 #endif
