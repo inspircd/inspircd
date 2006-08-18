@@ -22,9 +22,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides support for the /SILENCE command */
 
@@ -40,7 +40,7 @@ class cmd_silence : public command_t
  cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
 	{
 		this->source = "m_silence.so";
-		syntax = "{[+|-]<nick>}";
+		syntax = "{[+|-]<mask>}";
 	}
 
 	void Handle (const char** parameters, int pcnt, userrec *user)
@@ -56,7 +56,7 @@ class cmd_silence : public command_t
 			{
 				for (silencelist::const_iterator c = sl->begin(); c < sl->end(); c++)
 				{
-					user->WriteServ("271 %s %s %s!*@*",user->nick, user->nick,c->c_str());
+					user->WriteServ("271 %s %s %s",user->nick, user->nick,c->c_str());
 				}
 			}
 			user->WriteServ("272 %s :End of Silence List",user->nick);
@@ -64,11 +64,19 @@ class cmd_silence : public command_t
 		else if (pcnt > 0)
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			const char *nick = parameters[0];
-			if (nick[0] == '-')
+			std::string mask = parameters[0] + 1;
+			char action = *parameters[0];
+			
+			if (!mask.length())
+ 			{
+				// 'SILENCE +' or 'SILENCE -', assume *!*@*
+				mask = "*!*@*";
+			}
+			
+			ModeParser::CleanMask(mask);
+
+			if (action == '-')
 			{
-				// removing an item from the list
-				nick++;
 				// fetch their silence list
 				silencelist* sl;
 				user->GetExt("silence_list", sl);
@@ -78,18 +86,16 @@ class cmd_silence : public command_t
 					if (sl->size())
 					{
 						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-		       			 	{
+		     		 	{
 							// search through for the item
 							irc::string listitem = i->c_str();
-							irc::string target = nick;
-							if (listitem == target)
-		       					{
-		       						sl->erase(i);
-								user->WriteServ("950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
-								// we have modified the vector from within a loop, we must now bail out
-							       	return;
-	       						}
-	       					}
+							if (listitem == mask)
+	       					{
+	       						sl->erase(i);
+								user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
+								break;
+       						}
+       					}
 					}
 					if (!sl->size())
 					{
@@ -100,9 +106,8 @@ class cmd_silence : public command_t
 					}
 				}
 			}
-			else if (nick[0] == '+')
+			else if (action == '+')
 			{
-				nick++;
 				// fetch the user's current silence list
 				silencelist* sl;
 				user->GetExt("silence_list", sl);
@@ -112,19 +117,17 @@ class cmd_silence : public command_t
 					sl = new silencelist;
 					user->Extend(std::string("silence_list"), sl);
 				}
-				// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
 					irc::string listitem = n->c_str();
-					irc::string target = nick;
-					if (listitem == target)
+					if (listitem == mask)
 					{
-						user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick,nick);
+						user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
 						return;
 					}
 				}
-				sl->push_back(std::string(nick));
-				user->WriteServ("951 %s %s :Added %s!*@* to silence list",user->nick, user->nick,nick);
+				sl->push_back(mask);
+				user->WriteServ("951 %s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
 				return;
 			}
 		}
@@ -185,9 +188,7 @@ class ModuleSilence : public Module
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					irc::string listitem = c->c_str();
-					irc::string target = user->nick;
-					if (listitem == target)
+					if (match(user->GetFullHost(), c->c_str()))
 					{
 						return 1;
 					}
