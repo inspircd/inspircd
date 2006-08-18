@@ -46,7 +46,7 @@ extern std::vector<ircd_module*> factory;
 
 void cmd_away::Handle (char **parameters, int pcnt, userrec *user)
 {
-	if (pcnt)
+	if ((pcnt) && (*parameters[0]))
 	{
 		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
 		WriteServ(user->fd,"306 %s :You have been marked as being away",user->nick);
