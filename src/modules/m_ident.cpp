@@ -41,8 +41,9 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user), ufd(user->GetFd())
+	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user)
 	{
+		ufd = user->GetFd();
 	}
 
 	virtual void OnTimeout()
@@ -137,6 +138,7 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
+		Instance->Log(DEBUG,"Ident: connected");
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			uslen = sizeof(sock_us);
@@ -230,6 +232,14 @@ class ModuleIdent : public Module
 		 * have an ident field any more.
 		 */
 		RFC1413* ident;
+		if (user->GetExt("ident_data", ident))
+		{
+			if (ident->timeout_end > ServerInstance->Time())
+			{
+				ident->u = NULL;
+				ServerInstance->RemoveSocket(ident);
+			}
+		}
 		return (!user->GetExt("ident_data", ident));
 	}
 
