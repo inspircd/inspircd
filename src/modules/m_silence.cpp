@@ -74,18 +74,18 @@ class cmd_silence : public command_t
 					if (sl->size())
 					{
 						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-		       			 	{
+	       			 	{
 							// search through for the item
 							irc::string listitem = i->c_str();
 							irc::string target = nick;
 							if (listitem == target)
-		       					{
-		       						sl->erase(i);
+	       					{
+	       						sl->erase(i);
 								WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
 								// we have modified the vector from within a loop, we must now bail out
-							       	return;
-	       						}
-	       					}
+						       	break;
+	   						}
+	   					}
 					}
 					if (!sl->size())
 					{
@@ -107,6 +107,10 @@ class cmd_silence : public command_t
 					sl = new silencelist;
 					user->Extend(std::string("silence_list"),(char*)sl);
 				}
+
+				if (!nick || !is_nick(nick))
+				{
+					WriteServ(user->fd, "
 				// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
