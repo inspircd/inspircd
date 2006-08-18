@@ -88,8 +88,8 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 	}
 	else
 	{
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, nick);
-		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, nick);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *nick ? nick : "*");
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
 	}
 }
 
@@ -107,8 +107,8 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		/* no such nick/channel */
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
-		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, parameters[0]);
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *parameters[0] ? parameters[0] : "*");
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *parameters[0] ? parameters[0] : "*");
 	}
 }
 

@@ -231,7 +231,7 @@ void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 			user->WriteServ(*n);
-		user->WriteServ("315 %s %s :End of /WHO list.",user->nick, parameters[0]);
+		user->WriteServ("315 %s %s :End of /WHO list.",user->nick, *parameters[0] ? parameters[0] : "*");
 	}
 	else
 	{
