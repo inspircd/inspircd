@@ -45,7 +45,7 @@ class cmd_userip : public command_t
 		for (int i = 0; i < pcnt; i++)
 		{
 			userrec *u = ServerInstance->FindNick(parameters[i]);
-			if (u)
+			if ((u) && (u->registered == REG_ALL))
 			{
 				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,u->GetIPString());
 				strlcat(Return,junk,MAXBUF);
