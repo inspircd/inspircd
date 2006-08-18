@@ -33,6 +33,7 @@ using namespace std;
 #include "hashcomp.h"
 #include "typedefs.h"
 #include "cmd_list.h"
+#include "wildcard.h"
 
 extern chan_hash chanlist;
 
@@ -41,6 +42,9 @@ void cmd_list::Handle (char **parameters, int pcnt, userrec *user)
 	WriteServ(user->fd,"321 %s Channel :Users Name",user->nick);
 	for (chan_hash::const_iterator i = chanlist.begin(); i != chanlist.end(); i++)
 	{
+		// If the user gave us a glob pattern, attempt to match it
+		if (pcnt && !match(i->second->name, parameters[0]))
+				continue;
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = i->second->HasUser(user);
 		if (((!(i->second->modes[CM_PRIVATE])) && (!(i->second->modes[CM_SECRET]))) || (n))
