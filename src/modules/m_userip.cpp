@@ -42,7 +42,7 @@ class cmd_userip : public command_t
 		for (int i = 0; i < pcnt; i++)
 		{
 			userrec *u = Find(parameters[i]);
-			if (u)
+			if ((u) && (u->registered == 7))
 			{
 				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,(char*)inet_ntoa(u->ip4));
 				strlcat(Return,junk,MAXBUF);
