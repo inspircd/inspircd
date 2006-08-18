@@ -215,12 +215,6 @@ class InspIRCd : public classbase
 	 */
 	void MoveBefore(std::string modulename, std::string before);
 
-	/** Process a user whos socket has been flagged as active
-	 * @param cu The user to process
-	 * @return There is no actual return value, however upon exit, the user 'cu' may have been deleted
-	 */
-	void ProcessUser(userrec* cu);
-
 	/** Iterate the list of InspSocket objects, removing ones which have timed out
 	 * @param TIME the current time
 	 */
@@ -322,14 +316,6 @@ class InspIRCd : public classbase
 	 */
 	std::vector<InspSocket*> module_sockets;
 
-	/** Socket reference table, provides fast lookup of fd to InspSocket*
-	 */
-	InspSocket* socket_ref[MAX_DESCRIPTORS];
-
-	/** user reference table, provides fast lookup of fd to userrec*
-	 */
-	userrec* fd_ref_table[MAX_DESCRIPTORS];
-
 	/** Client list, a hash_map containing all clients, local and remote
 	 */
 	user_hash clientlist;
@@ -380,6 +366,12 @@ class InspIRCd : public classbase
 	 * @return The current time as an epoch value (time_t)
 	 */
 	time_t Time();
+
+	/** Process a user whos socket has been flagged as active
+	 * @param cu The user to process
+	 * @return There is no actual return value, however upon exit, the user 'cu' may have been deleted
+	 */
+	void ProcessUser(userrec* cu);
 
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules

@@ -309,7 +309,7 @@ class TreeServer : public classbase
 		for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
 		{
 			userrec* a = (userrec*)*n;
-			ServerInstance->Log(DEBUG,"Kill %s fd=%d",a->nick,a->fd);
+			ServerInstance->Log(DEBUG,"Kill %s fd=%d",a->nick,a->GetFd());
 			if (!IS_LOCAL(a))
 				userrec::QuitUser(ServerInstance,a,reason_s);
 		}
@@ -932,7 +932,7 @@ class TreeSocket : public InspSocket
 		{
 			/* FMODE from a server, create a fake user to receive mode feedback */
 			who = new userrec(this->Instance);
-			who->fd = FD_MAGIC_NUMBER;
+			who->SetFd(FD_MAGIC_NUMBER);
 			smode = true;		/* Setting this flag tells us we should free the userrec later */
 			sourceserv = source;	/* Set sourceserv to the actual source string */
 		}
@@ -1542,7 +1542,7 @@ class TreeSocket : public InspSocket
 
 		userrec* _new = new userrec(this->Instance);
 		this->Instance->clientlist[tempnick] = _new;
-		_new->fd = FD_MAGIC_NUMBER;
+		_new->SetFd(FD_MAGIC_NUMBER);
 		strlcpy(_new->nick, tempnick,NICKMAX-1);
 		strlcpy(_new->host, params[2].c_str(),63);
 		strlcpy(_new->dhost, params[3].c_str(),63);
@@ -3135,7 +3135,7 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 	CUList *ulist = c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (i->second->fd < 0)
+		if (i->second->GetFd() < 0)
 		{
 			TreeServer* best = BestRouteTo(i->second->server);
 			if (best)
@@ -3689,7 +3689,7 @@ class ModuleSpanningTree : public Module
 		if ((IS_LOCAL(user)) && (pcnt > 1))
 		{
 			userrec* remote = ServerInstance->FindNick(parameters[1]);
-			if ((remote) && (remote->fd < 0))
+			if ((remote) && (remote->GetFd() < 0))
 			{
 				std::deque<std::string> params;
 				params.push_back(parameters[1]);
@@ -4005,7 +4005,7 @@ class ModuleSpanningTree : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* d = (userrec*)dest;
-			if ((d->fd < 0) && (IS_LOCAL(user)))
+			if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 			{
 				std::deque<std::string> params;
 				params.clear();
@@ -4053,7 +4053,7 @@ class ModuleSpanningTree : public Module
 			// route private messages which are targetted at clients only to the server
 			// which needs to receive them
 			userrec* d = (userrec*)dest;
-			if ((d->fd < 0) && (IS_LOCAL(user)))
+			if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 			{
 				std::deque<std::string> params;
 				params.clear();

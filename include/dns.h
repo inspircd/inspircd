@@ -37,8 +37,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include <string>
 #include "inspircd_config.h"
-#include "socket.h"
 #include "base.h"
+#include "socketengine.h"
+#include "socket.h"
 
 using namespace std;
 using irc::sockets::insp_aton;
@@ -225,7 +226,7 @@ class Resolver : public Extensible
  * back to Resolver objects, based upon the request ID. You
  * should never use this class yourself.
  */
-class DNS : public Extensible
+class DNS : public EventHandler
 {
  private:
 
@@ -246,11 +247,6 @@ class DNS : public Extensible
 	 * Server address being used currently
 	 */
 	insp_inaddr myserver;
-
-	/**
-	 * File descriptor being used to perform queries
-	 */
-	static int MasterSocket;
 
 	/**
 	 * A counter used to form part of the pseudo-random id
@@ -295,11 +291,6 @@ class DNS : public Extensible
 	 */
 	static void EmptyHeader(unsigned char *output, const DNSHeader *header, const int length);
 	/**
-	 * Get the master socket fd, used internally
-	 */
-	static int GetMasterSocket();
-
-	/**
 	 * Start the lookup of an ipv4 from a hostname
 	 */
 	int GetIP(const char* name);
@@ -337,8 +328,9 @@ class DNS : public Extensible
 
 	/**
 	 * Handle a SocketEngine read event
+	 * Inherited from EventHandler
 	 */
-	void MarshallReads(int fd);
+	void HandleEvent(EventType et);
 
 	/**
 	 * Add a Resolver* to the list of active classes

@@ -138,12 +138,12 @@ UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_res
 	Resolver(Instance, to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
 {
 	this->fwd = forward;
-	this->bound_fd = user->fd;
+	this->bound_fd = user->GetFd();
 }
 
 void UserResolver::OnLookupComplete(const std::string &result)
 {
-	if ((!this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
+	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		ServerInstance->Log(DEBUG,"Commencing forward lookup");
 		this->bound_user->stored_host = result;
@@ -161,7 +161,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
-	else if ((this->fwd) && (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user))
+	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		/* Both lookups completed */
 		if (this->bound_user->GetIPString() == result)
@@ -196,7 +196,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
-	if (ServerInstance->fd_ref_table[this->bound_fd] == this->bound_user)
+	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
 	{
 		/* Error message here */
 		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
@@ -262,9 +262,10 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
-	lines_in = fd = lastping = signon = idle_lastmsg = nping = registered = 0;
+	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
+	fd = -1;
 	recvq = "";
 	sendq = "";
 	WriteError = "";
@@ -690,7 +691,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 			}
 		}
 		
-		Instance->SE->DelFd(user->fd);
+		Instance->SE->DelFd(user);
 		user->CloseSocket();
 	}
 
@@ -714,7 +715,6 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 		Instance->Log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
-			Instance->fd_ref_table[user->fd] = NULL;
 			if (find(Instance->local_users.begin(),Instance->local_users.end(),user) != Instance->local_users.end())
 				Instance->local_users.erase(find(Instance->local_users.begin(),Instance->local_users.end(),user));
 		}
@@ -874,7 +874,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	_new->sendqmax = class_sqmax;
 	_new->recvqmax = class_rqmax;
 
-	Instance->fd_ref_table[socket] = _new;
 	Instance->local_users.push_back(_new);
 
 	if (Instance->local_users.size() > Instance->Config->SoftLimit)
@@ -919,7 +918,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 	if (socket > -1)
 	{
-		if (!Instance->SE->AddFd(socket,true,X_ESTAB_CLIENT))
+		if (!Instance->SE->AddFd(_new))
 		{
 			userrec::QuitUser(Instance, _new, "Internal error handling connection");
 			return;
@@ -1797,5 +1796,11 @@ void userrec::ShowRULES()
 		this->WriteServ("NOTICE %s :%s",this->nick,ServerInstance->Config->RULES[i].c_str());
 
 	this->WriteServ("NOTICE %s :End of %s rules.",this->nick,ServerInstance->Config->ServerName);
+}
+
+void userrec::HandleEvent(EventType et)
+{
+	/* WARNING: May delete this user! */
+	ServerInstance->ProcessUser(this);
 }
 

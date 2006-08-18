@@ -50,9 +50,6 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
 
-/* Master file descriptor */
-int DNS::MasterSocket;
-
 /* Masks to mask off the responses we get from the DNSRequest methods */
 enum QueryInfo
 {
@@ -109,9 +106,10 @@ class DNSRequest
 	unsigned int    rr_class;	/* Request class */
 	QueryType       type;		/* Request type */
 	insp_inaddr	myserver;	/* DNS server address*/
+	DNS*		dnsobj;		/* DNS caller (where we get our FD from) */
 
 	/* Allocate the processing buffer */
-	DNSRequest(insp_inaddr server)
+	DNSRequest(DNS* dns, insp_inaddr server) : dnsobj(dns)
 	{
 		res = new unsigned char[512];
 		*res = 0;
@@ -193,7 +191,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(DNS::QUERY_PORT);
 #endif
-	if (sendto(DNS::GetMasterSocket(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 		return -1;
 
 	return 0;
@@ -203,7 +201,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
 	/* Is the DNS connection down? */
-	if (MasterSocket == -1)
+	if (this->GetFd() == -1)
 		return NULL;
 
 	/* Are there already the max number of requests on the go? */
@@ -217,7 +215,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	while (requests.find(id) != requests.end())
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	DNSRequest* req = new DNSRequest(this->myserver);
+	DNSRequest* req = new DNSRequest(this, this->myserver);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -235,11 +233,6 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 
 	/* According to the C++ spec, new never returns NULL. */
 	return req;
-}
-
-int DNS::GetMasterSocket()
-{
-	return MasterSocket;
 }
 
 /* Initialise the DNS UDP socket so that we can send requests */
@@ -282,16 +275,16 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	}
 
 	/* Initialize mastersocket */
-	MasterSocket = socket(PF_PROTOCOL, SOCK_DGRAM, 0);
-	if (MasterSocket != -1)
+	this->SetFd(socket(PF_PROTOCOL, SOCK_DGRAM, 0));
+	if (this->GetFd() != -1)
 	{
 		/* Did it succeed? */
-		if (fcntl(MasterSocket, F_SETFL, O_NONBLOCK) != 0)
+		if (fcntl(this->GetFd(), F_SETFL, O_NONBLOCK) != 0)
 		{
 			/* Couldn't make the socket nonblocking */
-			shutdown(MasterSocket,2);
-			close(MasterSocket);
-			MasterSocket = -1;
+			shutdown(this->GetFd(),2);
+			close(this->GetFd());
+			this->SetFd(-1);
 		}
 	}
 	else
@@ -299,7 +292,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 		ServerInstance->Log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
 	}
 	/* Have we got a socket and is it nonblocking? */
-	if (MasterSocket != -1)
+	if (this->GetFd() != -1)
 	{
 #ifdef IPV6
 		insp_sockaddr addr;
@@ -315,27 +308,27 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 		addr.sin_addr.s_addr = INADDR_ANY;
 #endif
 		/* Bind the port */
-		if (bind(MasterSocket,(sockaddr *)&addr,sizeof(addr)) != 0)
+		if (bind(this->GetFd(),(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			/* Failed to bind */
-			ServerInstance->Log(DEBUG,"Cant bind DNS::MasterSocket");
-			shutdown(MasterSocket,2);
-			close(MasterSocket);
-			MasterSocket = -1;
+			ServerInstance->Log(DEBUG,"Cant bind DNS fd");
+			shutdown(this->GetFd(),2);
+			close(this->GetFd());
+			this->SetFd(-1);
 		}
 
-		if (MasterSocket >= 0)
+		if (this->GetFd() >= 0)
 		{
-			ServerInstance->Log(DEBUG,"Add master socket %d",MasterSocket);
+			ServerInstance->Log(DEBUG,"Add master socket %d",this->GetFd());
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 			{
-				if (!ServerInstance->SE->AddFd(MasterSocket,true,X_ESTAB_DNS))
+				if (!ServerInstance->SE->AddFd(this))
 				{
 					ServerInstance->Log(DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
-					shutdown(MasterSocket,2);
-					close(MasterSocket);
-					MasterSocket = -1;
+					shutdown(this->GetFd(),2);
+					close(this->GetFd());
+					this->SetFd(-1);
 				}
 			}
 		}
@@ -538,7 +531,7 @@ DNSResult DNS::GetResult()
 	const char* ipaddr_from = "";
 	unsigned short int port_from = 0;
 
-	int length = recvfrom(MasterSocket,buffer,sizeof(DNSHeader),0,&from,&x);
+	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,&from,&x);
 
 	if (length < 0)
 		ServerInstance->Log(DEBUG,"Error in recvfrom()! (%s)",strerror(errno));
@@ -594,7 +587,7 @@ DNSResult DNS::GetResult()
 	if (n_iter == requests.end())
 	{
 		/* Somehow we got a DNS response for a request we never made... */
-		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",MasterSocket,this_id);
+		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",this->GetFd(),this_id);
 		return std::make_pair(-1,"");
 	}
 	else
@@ -832,8 +825,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 /* Close the master socket */
 DNS::~DNS()
 {
-	shutdown(MasterSocket, 2);
-	close(MasterSocket);
+	shutdown(this->GetFd(), 2);
+	close(this->GetFd());
 }
 
 /* High level abstraction of dns used by application at large */
@@ -914,53 +907,47 @@ int Resolver::GetId()
 }
 
 /* Process a socket read event */
-void DNS::MarshallReads(int fd)
+void DNS::HandleEvent(EventType et)
 {
-	ServerInstance->Log(DEBUG,"Marshall reads: %d %d",fd,GetMasterSocket());
-	/* We are only intrested in our single fd */
-	if (fd == GetMasterSocket())
+	ServerInstance->Log(DEBUG,"Marshall reads: %d",this->GetFd());
+	/* Fetch the id and result of the next available packet */
+	DNSResult res = this->GetResult();
+	/* Is there a usable request id? */
+	if (res.first != -1)
 	{
-		/* Fetch the id and result of the next available packet */
-		DNSResult res = this->GetResult();
-		/* Is there a usable request id? */
-		if (res.first != -1)
+		/* Its an error reply */
+		if (res.first & ERROR_MASK)
 		{
-			/* Its an error reply */
-			if (res.first & ERROR_MASK)
+			/* Mask off the error bit */
+			res.first -= ERROR_MASK;
+			/* Marshall the error to the correct class */
+			ServerInstance->Log(DEBUG,"Error available, id=%d",res.first);
+			if (Classes[res.first])
 			{
-				/* Mask off the error bit */
-				res.first -= ERROR_MASK;
-
-				/* Marshall the error to the correct class */
-				ServerInstance->Log(DEBUG,"Error available, id=%d",res.first);
-				if (Classes[res.first])
-				{
-					if (ServerInstance && ServerInstance->stats)
-						ServerInstance->stats->statsDnsBad++;
-					Classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
-					delete Classes[res.first];
-					Classes[res.first] = NULL;
-				}
+				if (ServerInstance && ServerInstance->stats)
+					ServerInstance->stats->statsDnsBad++;
+				Classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
+				delete Classes[res.first];
+				Classes[res.first] = NULL;
 			}
-			else
-			{
-				/* It is a non-error result */
-				ServerInstance->Log(DEBUG,"Result available, id=%d",res.first);
-				/* Marshall the result to the correct class */
-				if (Classes[res.first])
-				{
-					if (ServerInstance && ServerInstance->stats)
-						ServerInstance->stats->statsDnsGood++;
-					Classes[res.first]->OnLookupComplete(res.second);
-					delete Classes[res.first];
-					Classes[res.first] = NULL;
-				}
-			}
-
-			if (ServerInstance && ServerInstance->stats)
-				ServerInstance->stats->statsDns++;
-
 		}
+		else
+		{
+			/* It is a non-error result */
+			ServerInstance->Log(DEBUG,"Result available, id=%d",res.first);
+			/* Marshall the result to the correct class */
+			if (Classes[res.first])
+			{
+				if (ServerInstance && ServerInstance->stats)
+					ServerInstance->stats->statsDnsGood++;
+				Classes[res.first]->OnLookupComplete(res.second);
+				delete Classes[res.first];
+				Classes[res.first] = NULL;
+			}
+		}
+
+		if (ServerInstance && ServerInstance->stats)
+			ServerInstance->stats->statsDns++;
 	}
 }
 

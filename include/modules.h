@@ -166,9 +166,9 @@ typedef std::map<std::string,Module*> featurelist;
 
 // useful macros
 
-#define IS_LOCAL(x) ((x->fd > -1) && (x->fd <= MAX_DESCRIPTORS))
-#define IS_REMOTE(x) (x->fd < 0)
-#define IS_MODULE_CREATED(x) (x->fd == FD_MAGIC_NUMBER)
+#define IS_LOCAL(x) ((x->GetFd() > -1) && (x->GetFd() <= MAX_DESCRIPTORS))
+#define IS_REMOTE(x) (x->GetFd() < 0)
+#define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
 
 /** Holds a module's Version information
  *  The four members (set by the constructor only) indicate details as to the version number

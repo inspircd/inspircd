@@ -57,7 +57,7 @@ class cmd_samode : public command_t
 		std::string result;
 		ServerInstance->Log(DEBUG,"SAMODE: Being handled");
 		userrec* n = new userrec(ServerInstance);
-		n->fd = FD_MAGIC_NUMBER;
+		n->SetFd(FD_MAGIC_NUMBER);
 		ServerInstance->SendMode(parameters,pcnt,n);
 		delete n;
 		ServerInstance->Log(DEBUG,"SAMODE: Modechange handled");

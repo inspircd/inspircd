@@ -25,6 +25,8 @@
 #include "inspircd.h"
 #include "globals.h"
 #include "modules.h"
+#include "socketengine.h"
+#include "socket.h"
 
 class ServerConfig;
 class InspIRCd;
@@ -310,7 +312,7 @@ class ServerConfig : public Extensible
 
 	/** A list of the file descriptors for the listening client ports
 	 */
-	int openSockfd[MAX_DESCRIPTORS];
+	ListenSocket* openSockfd[255];
 
 	/** Boolean sets of which modules implement which functions
 	 */

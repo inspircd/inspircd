@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -19,7 +19,6 @@
 #include "socket.h"
 #include "inspircd.h"
 #include "inspstring.h"
-
 #include "socketengine.h"
 #include "wildcard.h"
 
@@ -40,6 +39,75 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 				0xFC, /* 11111100 - 6 bits */
 				0xFE  /* 11111110 - 7 bits */
 };
+
+
+ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance)
+{
+	this->SetFd(sockfd);
+	Instance->Log(DEBUG,"Binding to port %s:%d",addr,port);
+	if (!Instance->BindSocket(this->fd,client,server,port,addr))
+	{
+		Instance->Log(DEBUG,"Binding failed!");
+		this->fd = -1;
+	}
+}
+
+void ListenSocket::HandleEvent(EventType et)
+{
+	insp_sockaddr sock_us;	// our port number
+	socklen_t uslen;	// length of our port number
+	insp_sockaddr client;
+	socklen_t length;
+	int incomingSockfd, in_port;
+
+	ServerInstance->Log(DEBUG,"Handle ListenSocket event");
+
+	uslen = sizeof(sock_us);
+	length = sizeof(client);
+	incomingSockfd = accept (this->GetFd(),(struct sockaddr*)&client, &length);
+	
+	if ((incomingSockfd > -1) && (!getsockname(incomingSockfd, (sockaddr*)&sock_us, &uslen)))
+	{
+#ifdef IPV6
+		in_port = ntohs(sock_us.sin6_port);
+#else
+		in_port = ntohs(sock_us.sin_port);
+#endif
+		ServerInstance->Log(DEBUG,"Accepted socket %d",incomingSockfd);
+		NonBlocking(incomingSockfd);
+		if (ServerInstance->Config->GetIOHook(in_port))
+		{
+			try
+			{
+#ifdef IPV6
+				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin6_addr), in_port);
+#else
+				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin_addr), in_port);
+#endif
+			}
+			catch (ModuleException& modexcept)
+			{
+				ServerInstance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+			}
+		}
+		ServerInstance->stats->statsAccept++;
+#ifdef IPV6
+		ServerInstance->Log(DEBUG,"Add ipv6 client");
+		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin6_addr);
+#else
+		ServerInstance->Log(DEBUG,"Add ipv4 client");
+		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin_addr);
+#endif
+		ServerInstance->Log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
+	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
+		shutdown(incomingSockfd,2);
+		close(incomingSockfd);
+		ServerInstance->stats->statsRefused++;
+	}
+}
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
 bool irc::sockets::MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
@@ -356,31 +424,30 @@ int InspIRCd::BindPorts(bool bail)
 		{
 			for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
 			{
-				if ((Config->openSockfd[count] = OpenTCPSocket()) == ERROR)
+				int fd = OpenTCPSocket();
+				if (fd == ERROR)
 				{
-					this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[count],Config->addrs[count],Config->ports[count]);
+					this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
 				}
 				else
 				{
-					if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
+					Config->openSockfd[count] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
+					if (Config->openSockfd[count]->GetFd() > -1)
+					{
+						if (!SE->AddFd(Config->openSockfd[count]))
+						{
+							this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
+							shutdown(Config->openSockfd[count]->GetFd(),2);
+							close(Config->openSockfd[count]->GetFd());
+							delete Config->openSockfd[count];
+						}
+						else
+							BoundPortCount++;
+					}
+					/*if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
 					{
 						this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
-					}
-					else
-					{
-						/* Associate the new open port with a slot in the socket engine */
-						if (Config->openSockfd[count] > -1)
-						{
-							if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
-							{
-								this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
-								shutdown(Config->openSockfd[count],2);
-								close(Config->openSockfd[count]);
-							}
-							else
-								BoundPortCount++;
-						}
-					}
+					}*/
 				}
 			}
 			return InitialPortCount + BoundPortCount;
@@ -420,21 +487,22 @@ int InspIRCd::BindPorts(bool bail)
 
 	for (int count = 0; count < PortCount; count++)
 	{
-		if ((Config->openSockfd[BoundPortCount] = OpenTCPSocket()) == ERROR)
+		int fd = OpenTCPSocket();
+		if (fd == ERROR)
 		{
-			this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",Config->openSockfd[BoundPortCount],Config->addrs[count],Config->ports[count]);
+			this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
 		}
 		else
 		{
-			if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
+			Config->openSockfd[count] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
+			if (Config->openSockfd[count]->GetFd() > -1)
 			{
-				this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
-			}
-			else
-			{
-				/* well we at least bound to one socket so we'll continue */
 				BoundPortCount++;
 			}
+			/*if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
+			{
+				this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
+			}*/
 		}
 	}
 	return BoundPortCount;

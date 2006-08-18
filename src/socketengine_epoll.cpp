@@ -15,14 +15,11 @@
  */
 
 #include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
 #include <sys/epoll.h>
 #include <vector>
 #include <string>
 #include "socketengine_epoll.h"
-
-#include "inspircd.h"
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
@@ -44,8 +41,9 @@ EPollEngine::~EPollEngine()
 	close(EngineHandle);
 }
 
-bool EPollEngine::AddFd(int fd, bool readable, char type)
+bool EPollEngine::AddFd(EventHandler* eh)
 {
+	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
 		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
@@ -59,19 +57,14 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 	if (ref[fd])
 		return false;
 
-	ref[fd] = type;
+	ref[fd] = eh;
 
-	if (readable)
-	{
-		ServerInstance->Log(DEBUG,"Set readbit");
-		ref[fd] |= X_READBIT;
-	}
-	ServerInstance->Log(DEBUG,"Add socket %d",fd);
+	ServerInstance->Log(DEBUG,"***** Add socket %d",fd);
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
 	ServerInstance->Log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
-	readable ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
+	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
@@ -84,16 +77,17 @@ bool EPollEngine::AddFd(int fd, bool readable, char type)
 	return true;
 }
 
-bool EPollEngine::DelFd(int fd)
+bool EPollEngine::DelFd(EventHandler* eh)
 {
-	ServerInstance->Log(DEBUG,"EPollEngine::DelFd(%d)",fd);
+	ServerInstance->Log(DEBUG,"EPollEngine::DelFd(%d)",eh->GetFd());
 
+	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
-	ref[fd] && X_READBIT ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
+	ref[fd]->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 	if (i < 0)
@@ -103,7 +97,7 @@ bool EPollEngine::DelFd(int fd)
 	}
 
 	CurrentSetSize--;
-	ref[fd] = 0;
+	ref[fd] = NULL;
 	return true;
 }
 
@@ -117,13 +111,13 @@ int EPollEngine::GetRemainingFds()
 	return MAX_DESCRIPTORS - CurrentSetSize;
 }
 
-int EPollEngine::Wait(int* fdlist)
+int EPollEngine::Wait(EventHandler** fdlist)
 {
 	int result = 0;
 
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 50);
 	for (int j = 0; j < i; j++)
-		fdlist[result++] = events[j].data.fd;
+		fdlist[result++] = ref[events[j].data.fd];
 
 	return result;
 }
@@ -132,3 +126,4 @@ std::string EPollEngine::GetName()
 {
 	return "epoll";
 }
+

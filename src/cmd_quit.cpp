@@ -52,7 +52,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			/* We should only prefix the quit for a local user. Remote users have
 			 * already been prefixed, where neccessary, by the upstream server.
 			 */
-			if (user->fd > -1)
+			if (IS_LOCAL(user))
 			{
 				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
 				ServerInstance->WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
@@ -80,9 +80,9 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
 	/* push the socket on a stack of sockets due to be closed at the next opportunity */
-	if (user->fd > -1)
+	if (IS_LOCAL(user))
 	{
-		ServerInstance->SE->DelFd(user->fd);
+		ServerInstance->SE->DelFd(user);
 		if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
 		{
 			ServerInstance->Log(DEBUG,"Delete local user");
@@ -99,7 +99,6 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	if (user->registered == REG_ALL) {
 		user->PurgeEmptyChannels();
 	}
-	if (user->fd > -1)
-		ServerInstance->fd_ref_table[user->fd] = NULL;
 	DELETE(user);
 }
+

@@ -177,7 +177,7 @@ class ModuleTimedBans : public Module
 						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
 						// falls into the abyss :p
 						userrec* temp = new userrec(ServerInstance);
-						temp->fd = FD_MAGIC_NUMBER;
+						temp->SetFd(FD_MAGIC_NUMBER);
                                                 /* FIX: Send mode remotely*/
                                                 std::deque<std::string> n;
                                                 n.push_back(setban[0]);

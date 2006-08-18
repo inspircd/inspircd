@@ -23,6 +23,7 @@
 #include "dns.h"
 #include "inspircd_config.h"
 #include "socket.h"
+#include "inspsocket.h"
 
 /**
  * States which a socket may be in
@@ -53,17 +54,12 @@ using irc::sockets::insp_aton;
  * and use the InspSocket constructors to establish connections
  * and bindings.
  */
-class InspSocket : public Extensible
+class InspSocket : public EventHandler
 {
  public:
 	InspIRCd* Instance;
 
 	std::deque<std::string> outbuffer;
-
-	/**
-	 * The file descriptor of this socket
-	 */
-        int fd;
 
 	/**
 	 * The hostname connected to
@@ -365,6 +361,10 @@ class InspSocket : public Extensible
 	 * memory reclaimed.
 	 */
 	void MarkAsClosed();
+
+	void HandleEvent(EventType et);
+
+	bool Readable();
 };
 
 #endif

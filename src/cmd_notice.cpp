@@ -118,7 +118,7 @@ void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		parameters[1] = (char*)temp.c_str();
 
-		if (dest->fd > -1)
+		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
 			user->WriteTo(dest, "NOTICE %s :%s", dest->nick, parameters[1]);

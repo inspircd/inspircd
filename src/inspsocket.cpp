@@ -23,7 +23,6 @@
 #include "socket.h"
 #include "configreader.h"
 #include "inspstring.h"
-
 #include "socketengine.h"
 #include "inspircd.h"
 
@@ -31,10 +30,16 @@ using irc::sockets::OpenTCPSocket;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
+bool InspSocket::Readable()
+{
+	return ((this->state != I_CONNECTING) && (this->WaitingForWriteEvent == false));
+}
+
 InspSocket::InspSocket(InspIRCd* SI)
 {
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
+	this->WaitingForWriteEvent = false;
 	this->ClosePending = false;
 	this->Instance = SI;
 }
@@ -45,20 +50,21 @@ InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
 	this->ClosePending = false;
+	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
 	if (this->fd > -1)
-	{
-		this->ClosePending = (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE));
-		this->Instance->socket_ref[this->fd] = this;
-	}
+		this->ClosePending = (!this->Instance->SE->AddFd(this));
 }
 
-InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime) : fd(-1)
+InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime)
 {
+	this->fd = -1;
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->ClosePending = false;
-	if (listening) {
+	this->WaitingForWriteEvent = false;
+	if (listening)
+	{
 		if ((this->fd = OpenTCPSocket()) == ERROR)
 		{
 			this->fd = -1;
@@ -85,14 +91,13 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 				this->state = I_LISTENING;
 				if (this->fd > -1)
 				{
-					if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+					if (!this->Instance->SE->AddFd(this))
 					{
 						this->Close();
 						this->state = I_ERROR;
 						this->OnError(I_ERR_NOMOREFDS);
 						this->ClosePending = true;
 					}
-					this->Instance->socket_ref[this->fd] = this;
 				}
 				this->Instance->Log(DEBUG,"New socket now in I_LISTENING state");
 				return;
@@ -136,9 +141,9 @@ void InspSocket::WantWrite()
 	 *
 	 * This behaviour may be fixed in a later version.
 	 */
+	this->Instance->SE->DelFd(this);
 	this->WaitingForWriteEvent = true;
-	this->Instance->SE->DelFd(this->fd);
-	if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	if (!this->Instance->SE->AddFd(this))
 	{
 		this->Close();
 		this->fd = -1;
@@ -263,7 +268,7 @@ bool InspSocket::DoConnect()
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
-		if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+		if (!this->Instance->SE->AddFd(this))
 		{
 			this->OnError(I_ERR_NOMOREFDS);
 			this->Close();
@@ -272,7 +277,6 @@ bool InspSocket::DoConnect()
 			this->ClosePending = true;
 			return false;
 		}
-		this->Instance->socket_ref[this->fd] = this;
 		this->SetQueues(this->fd);
 	}
 	this->Instance->Log(DEBUG,"Returning true from InspSocket::DoConnect");
@@ -287,7 +291,6 @@ void InspSocket::Close()
 		this->OnClose();
 		shutdown(this->fd,2);
 		close(this->fd);
-		this->Instance->socket_ref[this->fd] = NULL;
 		this->ClosePending = true;
 		this->fd = -1;
 	}
@@ -388,7 +391,7 @@ bool InspSocket::FlushWriteBuffer()
 
 bool InspSocket::Timeout(time_t current)
 {
-	if (!this->Instance->socket_ref[this->fd] || !this->Instance->SE->HasFd(this->fd))
+	if (this->Instance->SE->GetRef(this->fd) != this)
 	{
 		this->Instance->Log(DEBUG,"No FD or socket ref");
 		return false;
@@ -419,7 +422,7 @@ bool InspSocket::Timeout(time_t current)
 
 bool InspSocket::Poll()
 {
-	if (!this->Instance->socket_ref[this->fd] || !this->Instance->SE->HasFd(this->fd))
+	if (this->Instance->SE->GetRef(this->fd) != this)
 		return false;
 
 	int incoming = -1;
@@ -432,14 +435,14 @@ bool InspSocket::Poll()
 	{
 		case I_CONNECTING:
 			this->Instance->Log(DEBUG,"State = I_CONNECTING");
-			this->SetState(I_CONNECTED);
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
 			if (this->fd > -1)
 			{
-				this->Instance->SE->DelFd(this->fd);
-				if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+				this->Instance->SE->DelFd(this);
+				this->SetState(I_CONNECTED);
+				if (!this->Instance->SE->AddFd(this))
 					return false;
 			}
 			return this->OnConnected();
@@ -460,8 +463,9 @@ bool InspSocket::Poll()
 			if (this->WaitingForWriteEvent)
 			{
 				/* Switch back to read events */
-				this->Instance->SE->DelFd(this->fd);
-				if (!this->Instance->SE->AddFd(this->fd,true,X_ESTAB_MODULE))
+				this->Instance->SE->DelFd(this);
+				this->WaitingForWriteEvent = false;
+				if (!this->Instance->SE->AddFd(this))
 					return false;
 
 				/* Trigger the write event */
@@ -516,3 +520,13 @@ InspSocket::~InspSocket()
 {
 	this->Close();
 }
+
+void InspSocket::HandleEvent(EventType et)
+{
+	if (!this->Poll())
+	{
+		this->Instance->SE->DelFd(this);
+		delete this;
+	}
+}
+

@@ -45,11 +45,11 @@ public:
 	/** Delete an EPollEngine
 	 */
 	virtual ~EPollEngine();
-	virtual bool AddFd(int fd, bool readable, char type);
+	virtual bool AddFd(EventHandler* eh);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
-	virtual bool DelFd(int fd);
-	virtual int Wait(int* fdlist);
+	virtual bool DelFd(EventHandler* eh);
+	virtual int Wait(EventHandler** fdlist);
 	virtual std::string GetName();
 };
 

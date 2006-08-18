@@ -60,7 +60,7 @@ class CGIResolver : public Resolver
 	virtual void OnLookupComplete(const std::string &result)
 	{
 		/* Check the user still exists */
-		if ((them) && (them == ServerInstance->fd_ref_table[theirfd]))
+		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
 				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick, them->host, result.c_str(), typ.c_str());
@@ -73,7 +73,7 @@ class CGIResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		if ((them) && (them == ServerInstance->fd_ref_table[theirfd]))
+		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			if (notify)
 				ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick, them->host,typ.c_str());
@@ -262,7 +262,7 @@ public:
 
 				try
 				{
-					CGIResolver* r = new CGIResolver(NotifyOpers, user->password, false, user, user->fd, "PASS");
+					CGIResolver* r = new CGIResolver(NotifyOpers, user->password, false, user, user->GetFd(), "PASS");
 					ServerInstance->AddResolver(r);
 				}
 				catch (ModuleException& e)
@@ -317,8 +317,8 @@ public:
 								
 		try
 		{
-			ServerInstance->Log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->fd, "IDENT");
-			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->fd, "IDENT");
+			ServerInstance->Log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->GetFd(), "IDENT");
+			CGIResolver* r = new CGIResolver(NotifyOpers, newip, false, user, user->GetFd(), "IDENT");
 			ServerInstance->AddResolver(r);
 		}
 		catch (ModuleException& e)

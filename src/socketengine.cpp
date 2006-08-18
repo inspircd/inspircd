@@ -15,21 +15,30 @@
  */
 
 #include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
-#ifdef USE_EPOLL
-#include <sys/epoll.h>
-#endif
-#ifdef USE_KQUEUE
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
-#endif
 #include <vector>
 #include <string>
 #include "socketengine.h"
 
-#include "inspircd.h"
+int EventHandler::GetFd()
+{
+	return this->fd;
+}
+
+void EventHandler::SetFd(int FD)
+{
+	this->fd = FD;
+}
+
+bool EventHandler::Readable()
+{
+	return true;
+}
+
+bool EventHandler::Writeable()
+{
+	return false;
+}
 
 SocketEngine::SocketEngine(InspIRCd* Instance) : ServerInstance(Instance)
 {
@@ -40,15 +49,7 @@ SocketEngine::~SocketEngine()
 {
 }
 
-char SocketEngine::GetType(int fd)
-{
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-		return X_EMPTY_SLOT;
-	/* Mask off the top bit used for 'read/write' state */
-	return (ref[fd] & ~0x80);
-}
-
-bool SocketEngine::AddFd(int fd, bool readable, char type)
+bool SocketEngine::AddFd(EventHandler* eh)
 {
 	return true;
 }
@@ -57,10 +58,17 @@ bool SocketEngine::HasFd(int fd)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
-	return (ref[fd] != 0);
+	return ref[fd];
 }
 
-bool SocketEngine::DelFd(int fd)
+EventHandler* SocketEngine::GetRef(int fd)
+{
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+		return false;
+	return ref[fd];
+}
+
+bool SocketEngine::DelFd(EventHandler* eh)
 {
 	return true;
 }
@@ -75,7 +83,7 @@ int SocketEngine::GetRemainingFds()
 	return 0;
 }
 
-int SocketEngine::Wait(int* fdlist)
+int SocketEngine::Wait(EventHandler** fdlist)
 {
 	return 0;
 }
@@ -84,3 +92,4 @@ std::string SocketEngine::GetName()
 {
 	return "misconfigured";
 }
+

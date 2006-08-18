@@ -55,10 +55,8 @@ void InspIRCd::ProcessUser(userrec* cu)
 {
 	int result = EAGAIN;
 
-	if (cu->fd == FD_MAGIC_NUMBER)
+	if (cu->GetFd() == FD_MAGIC_NUMBER)
 		return;
-
-	this->Log(DEBUG,"Processing user with fd %d",cu->fd);
 
 	if (this->Config->GetIOHook(cu->GetPort()))
 	{
@@ -67,7 +65,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		try
 		{
-			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->fd,ReadBuffer,sizeof(ReadBuffer),result2);
+			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
 			this->Log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
@@ -115,7 +113,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 			ReadBuffer[result] = '\0';
 
 		current = cu;
-		currfd = current->fd;
+		currfd = current->GetFd();
 
 		// add the data to the users buffer
 		if (result > 0)
@@ -216,7 +214,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				if (single_line.length() > 512)
 					single_line.resize(512);
 
-				userrec* old_comp = this->fd_ref_table[currfd];
+				EventHandler* old_comp = this->SE->GetRef(currfd);
 
 				this->Parser->ProcessBuffer(single_line,current);
 				/*
@@ -225,8 +223,8 @@ void InspIRCd::ProcessUser(userrec* cu)
 				 * there used to be an ugly, slow loop here. Now we have a reference
 				 * table, life is much easier (and FASTER)
 				 */
-				userrec* new_comp = this->fd_ref_table[currfd];
-				if ((currfd < 0) || (!this->fd_ref_table[currfd]) || (old_comp != new_comp))
+				EventHandler* new_comp = this->SE->GetRef(currfd);
+				if (old_comp != new_comp)
 				{
 					return;
 				}
@@ -270,11 +268,10 @@ void InspIRCd::DoSocketTimeouts(time_t TIME)
 	{
 		InspSocket* s = *a;
 		int fd = s->GetFd();
-		if ((s) && (fd >= 0) && (fd < MAX_DESCRIPTORS) && (this->socket_ref[fd] != NULL) && (s->Timeout(TIME)))
+		if ((s) && (fd >= 0) && (fd < MAX_DESCRIPTORS) && (this->SE->GetRef(fd) == s) && (s->Timeout(TIME)))
 		{
 			this->Log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			this->socket_ref[fd] = NULL;
-			SE->DelFd(fd);
+			SE->DelFd(s);
 			this->module_sockets.erase(a);
 			s->Close();
 			DELETE(s);

@@ -171,13 +171,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
 	bool SEGVHandler = false;
-	//ServerInstance = this;
 
 	modules.resize(255);
 	factory.resize(255);
-
-	memset(fd_ref_table, 0, sizeof(fd_ref_table));
-	memset(socket_ref, 0, sizeof(socket_ref));
 	
 	this->Config = new ServerConfig(this);
 	this->Start();
@@ -294,7 +290,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!stats->BoundPortCount)
 	{
-		printf("\nI couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
+		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Exit(ERROR);
 	}
 
@@ -305,7 +301,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
 		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
-		if (!SE->AddFd(Config->openSockfd[count],true,X_LISTEN))
+		if (!SE->AddFd(Config->openSockfd[count]))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
 			Exit(ERROR);
@@ -667,15 +663,8 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
-	int activefds[MAX_DESCRIPTORS];
-	int incomingSockfd;
-	int in_port;
-	userrec* cu = NULL;
-	InspSocket* s = NULL;
-	InspSocket* s_del = NULL;
+	EventHandler* activefds[MAX_DESCRIPTORS];
 	unsigned int numberactive;
-	insp_sockaddr sock_us;     // our port number
-	socklen_t uslen;	 // length of our port number
 
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 	 * Once per loop iteration is pleanty.
@@ -728,129 +717,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 	for (unsigned int activefd = 0; activefd < numberactive; activefd++)
 	{
-		int socket_type = SE->GetType(activefds[activefd]);
-		switch (socket_type)
-		{
-			case X_ESTAB_CLIENT:
-
-				this->Log(DEBUG,"Type: X_ESTAB_CLIENT: fd=%d",activefds[activefd]);
-				cu = this->fd_ref_table[activefds[activefd]];
-				if (cu)
-					this->ProcessUser(cu);
-	
-			break;
-	
-			case X_ESTAB_MODULE:
-
-				this->Log(DEBUG,"Type: X_ESTAB_MODULE: fd=%d",activefds[activefd]);
-
-				if (!process_module_sockets)
-					break;
-
-				/* Process module-owned sockets.
-				 * Modules are encouraged to inherit their sockets from
-				 * InspSocket so we can process them neatly like this.
-				 */
-				s = this->socket_ref[activefds[activefd]]; 
-	      
-				if ((s) && (!s->Poll()))
-				{
-					this->Log(DEBUG,"Socket poll returned false, close and bail");
-					SE->DelFd(s->GetFd());
-					this->socket_ref[activefds[activefd]] = NULL;
-					for (std::vector<InspSocket*>::iterator a = module_sockets.begin(); a < module_sockets.end(); a++)
-					{
-						s_del = *a;
-						if ((s_del) && (s_del->GetFd() == activefds[activefd]))
-						{
-							module_sockets.erase(a);
-							break;
-						}
-					}
-					s->Close();
-					DELETE(s);
-				}
-				else if (!s)
-				{
-					this->Log(DEBUG,"WTF, X_ESTAB_MODULE for nonexistent InspSocket, removed!");
-					SE->DelFd(s->GetFd());
-				}
-			break;
-
-			case X_ESTAB_DNS:
-				/* Handles instances of the Resolver class,
-				 * a simple class extended by modules and the core for
-				 * nonblocking resolving of addresses.
-				 */
-				this->Res->MarshallReads(activefds[activefd]);
-			break;
-
-			case X_LISTEN:
-
-				this->Log(DEBUG,"Type: X_LISTEN: fd=%d",activefds[activefd]);
-
-				/* It's a listener */
-				uslen = sizeof(sock_us);
-				length = sizeof(client);
-				incomingSockfd = accept (activefds[activefd],(struct sockaddr*)&client,&length);
-	
-				if ((incomingSockfd > -1) && (!getsockname(incomingSockfd,(sockaddr*)&sock_us,&uslen)))
-				{
-#ifdef IPV6
-					in_port = ntohs(sock_us.sin6_port);
-#else
-					in_port = ntohs(sock_us.sin_port);
-#endif
-					this->Log(DEBUG,"Accepted socket %d",incomingSockfd);
-					/* Years and years ago, we used to resolve here
-					 * using gethostbyaddr(). That is sucky and we
-					 * don't do that any more...
-					 */
-					NonBlocking(incomingSockfd);
-					if (Config->GetIOHook(in_port))
-					{
-						try
-						{
-#ifdef IPV6
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin6_addr), in_port);
-#else
-							Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin_addr), in_port);
-#endif
-						}
-						catch (ModuleException& modexcept)
-						{
-							this->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
-						}
-					}
-					stats->statsAccept++;
-#ifdef IPV6
-					this->Log(DEBUG,"Add ipv6 client");
-					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin6_addr);
-#else
-					this->Log(DEBUG,"Add ipv4 client");
-					userrec::AddClient(this, incomingSockfd, in_port, false, client.sin_addr);
-#endif
-					this->Log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
-				}
-				else
-				{
-					this->Log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
-					shutdown(incomingSockfd,2);
-					close(incomingSockfd);
-					stats->statsRefused++;
-				}
-			break;
-
-			default:
-				/* Something went wrong if we're in here.
-				 * In fact, so wrong, im not quite sure
-				 * what we would do, so for now, its going
-				 * to safely do bugger all.
-				 */
-				this->Log(DEBUG,"Type: X_WHAT_THE_FUCK_BBQ: fd=%d",activefds[activefd]);
-				SE->DelFd(activefds[activefd]);
-			break;
-		}
+		this->Log(DEBUG,"Handle %s event on fd %d",activefds[activefd]->Readable() ? "read" : "write", activefds[activefd]->GetFd());
+		activefds[activefd]->HandleEvent(activefds[activefd]->Readable() ? EVENT_READ : EVENT_WRITE);
 	}
 }
 

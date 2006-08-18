@@ -20,18 +20,14 @@
 #include <time.h>
 #include "inspircd_config.h"
 #include "base.h"
+#include "socketengine.h"
 
 /** connection is the base class of userrec, and holds basic user properties.
  * This can be extended for holding other user-like objects in the future.
  */
-class connection : public Extensible
+class connection : public EventHandler
 {
  public:
-	/** File descriptor of the connection.
-	 * For a remote connection, this will have a negative value.
-	 */
-	int fd;
-	
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
 	 */
@@ -80,13 +76,6 @@ class connection : public Extensible
 	/** Used by PING checking code
 	 */
 	time_t nping;
-	
-	/** Default constructor, creates the user as remote.
-	 */
-	connection()
-	{
-		this->fd = -1;
-	}
 };
 
 

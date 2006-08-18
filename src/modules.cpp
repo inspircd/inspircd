@@ -380,7 +380,7 @@ void InspIRCd::DumpText(userrec* User, const std::string &LinePrefix, stringstre
 
 userrec* InspIRCd::FindDescriptor(int socket)
 {
-	return ((socket < MAX_DESCRIPTORS && socket > -1) ? this->fd_ref_table[socket] : NULL);
+	return reinterpret_cast<userrec*>(this->SE->GetRef(socket));
 }
 
 bool InspIRCd::AddMode(ModeHandler* mh, const unsigned char mode)
@@ -405,18 +405,18 @@ bool InspIRCd::AddResolver(Resolver* r)
 
 bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 {
-	unsigned int old_fd = user->fd;
+	unsigned int old_fd = user->GetFd();
 	user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
 	user->FlushWriteBuf();
 	user->ClearBuffer();
-	user->fd = FD_MAGIC_NUMBER;
+	user->SetFd(FD_MAGIC_NUMBER);
 
 	if (find(local_users.begin(),local_users.end(),user) != local_users.end())
 	{
 		local_users.erase(find(local_users.begin(),local_users.end(),user));
 	}
 
-	this->SE->DelFd(old_fd);
+	this->SE->DelFd(user);
 	shutdown(old_fd,2);
 	close(old_fd);
 	return true;
@@ -424,9 +424,9 @@ bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 
 bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
 {
-	zombie->fd = alive->fd;
+	zombie->SetFd(alive->GetFd());
 	FOREACH_MOD_I(this,I_OnUserQuit,OnUserQuit(alive,message));
-	alive->fd = FD_MAGIC_NUMBER;
+	alive->SetFd(FD_MAGIC_NUMBER);
 	alive->FlushWriteBuf();
 	alive->ClearBuffer();
 	// save these for later
@@ -439,7 +439,6 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 		local_users.erase(find(local_users.begin(),local_users.end(),alive));
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
-	this->fd_ref_table[zombie->fd] = zombie;
 	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
 	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
 	{
@@ -456,9 +455,8 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 				zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
 		}
 	}
-	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->fd != FD_MAGIC_NUMBER))
+	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->GetFd() != FD_MAGIC_NUMBER))
 		local_users.push_back(zombie);
-
 	return true;
 }
 

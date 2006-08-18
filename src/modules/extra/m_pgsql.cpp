@@ -738,13 +738,12 @@ bool SQLConn::DoConnect()
 	}
 	
 	this->state = I_CONNECTING;
-	if (!this->Instance->SE->AddFd(this->fd,false,X_ESTAB_MODULE))
+	if (!this->Instance->SE->AddFd(this))
 	{
 		Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
 		Close();
 		return false;
 	}
-	this->Instance->socket_ref[this->fd] = this;
 	
 	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
 	
@@ -754,9 +753,7 @@ bool SQLConn::DoConnect()
 void SQLConn::Close()
 {
 	Instance->Log(DEBUG,"SQLConn::Close");
-	
-	if(this->fd > 01)
-		Instance->socket_ref[this->fd] = NULL;
+
 	this->fd = -1;
 	this->state = I_ERROR;
 	this->OnError(I_ERR_SOCKET);

@@ -26,10 +26,10 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <poll.h>
 #include <netdb.h>
 #include <errno.h>
 #include "inspircd_config.h"
+#include "socketengine.h"
 
 namespace irc
 {
@@ -136,6 +136,15 @@ namespace irc
 		 */
 		int OpenTCPSocket(); 
 	};
+};
+
+class ListenSocket : public EventHandler
+{
+ protected:
+	InspIRCd* ServerInstance;
+ public:
+	ListenSocket(InspIRCd* Instance, int sockfd, irc::sockets::insp_sockaddr client, irc::sockets::insp_sockaddr server, int port, char* addr);
+	void HandleEvent(EventType et);
 };
 
 #endif

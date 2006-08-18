@@ -41,7 +41,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user), ufd(user->fd)
+	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user), ufd(user->GetFd())
 	{
 	}
 
@@ -49,7 +49,7 @@ class RFC1413 : public InspSocket
 	{
 		// When we timeout, the connection failed within the allowed timeframe,
 		// so we just display a notice, and tidy off the ident_data.
-		if (u && (Instance->fd_ref_table[ufd] == u))
+		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			u->Shrink("ident_data");
 			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
@@ -80,7 +80,7 @@ class RFC1413 : public InspSocket
 								*j = '\0'; // truncate at invalid chars
 							if (*section)
 							{
-								if (u && (Instance->fd_ref_table[ufd] == u))
+								if (u && (Instance->SE->GetRef(ufd) == u))
 								{
 									if (this->Instance->IsIdent(section))
 									{
@@ -121,7 +121,7 @@ class RFC1413 : public InspSocket
 		// descriptor that they were when the lookup began.
 		//
 		// Fixes issue reported by webs, 7 Jun 2006
-		if (u && (Instance->fd_ref_table[ufd] == u))
+		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -129,7 +129,7 @@ class RFC1413 : public InspSocket
 
 	virtual void OnError(InspSocketError e)
 	{
-		if (u && (Instance->fd_ref_table[ufd] == u))
+		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			u->Shrink("ident_data");
 		}
@@ -137,11 +137,11 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		if (u && (Instance->fd_ref_table[ufd] == u))
+		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			uslen = sizeof(sock_us);
 			themlen = sizeof(sock_them);
-			if ((getsockname(this->u->fd,(sockaddr*)&sock_us,&uslen) || getpeername(this->u->fd, (sockaddr*)&sock_them, &themlen)))
+			if ((getsockname(this->u->GetFd(),(sockaddr*)&sock_us,&uslen) || getpeername(this->u->GetFd(), (sockaddr*)&sock_them, &themlen)))
 			{
 				Instance->Log(DEBUG,"Ident: failed to get socket names, bailing");
 				return false;

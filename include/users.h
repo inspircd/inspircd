@@ -743,6 +743,11 @@ class userrec : public connection
 	 */
 	void ShowRULES();
 
+	/** Handle socket event.
+	 * From EventHandler class.
+	 */
+	void HandleEvent(EventType et);
+
 	/** Default destructor
 	 */
 	virtual ~userrec();

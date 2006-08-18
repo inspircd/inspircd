@@ -222,7 +222,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (!Ptr)
 	{
-		if (user->fd > -1)
+		if (IS_LOCAL(user))
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname));
@@ -654,7 +654,7 @@ void chanrec::WriteChannel(userrec* user, const std::string &text)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (i->second->fd != FD_MAGIC_NUMBER)
+		if (IS_LOCAL(i->second))
 			user->WriteTo(i->second,text);
 	}
 }
