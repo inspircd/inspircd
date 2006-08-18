@@ -74,20 +74,20 @@ class cmd_silence : public command_t
 					if (sl->size())
 					{
 						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-	       			 	{
+						{
 							// search through for the item
 							irc::string listitem = i->c_str();
 							irc::string target = nick;
 							if (listitem == target)
-	       					{
-	       						sl->erase(i);
+							{
+	       							sl->erase(i);
 								WriteServ(user->fd,"950 %s %s :Removed %s!*@* from silence list",user->nick, user->nick,nick);
 								// we have modified the vector from within a loop, we must now bail out
-						       	break;
+						       		break;
 	   						}
 	   					}
 					}
-					if (!sl->size())
+					else
 					{
 						// tidy up -- if a user's list is empty, theres no use having it
 						// hanging around in the user record.
@@ -102,15 +102,16 @@ class cmd_silence : public command_t
 				// fetch the user's current silence list
 				silencelist* sl = (silencelist*)user->GetExt("silence_list");
 				// what, they dont have one??? WE'RE ALL GONNA DIE! ...no, we just create an empty one.
+				if (!nick || !isnick(nick))
+				{
+					WriteServ(user->fd, "NOTICE %s :*** Invalid nickname '%s'",user->nick,nick);
+					return;
+				}
 				if (!sl)
 				{
 					sl = new silencelist;
 					user->Extend(std::string("silence_list"),(char*)sl);
 				}
-
-				if (!nick || !is_nick(nick))
-				{
-					WriteServ(user->fd, "
 				// add the nick to it -- silence only takes nicks for some reason even though its list shows masks
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
