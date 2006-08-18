@@ -422,6 +422,7 @@ int InspIRCd::BindPorts(bool bail)
 		int PortCount = clientportcount;
 		if (PortCount)
 		{
+			BoundPortCount = stats->BoundPortCount;
 			for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
 			{
 				int fd = OpenTCPSocket();
@@ -431,15 +432,15 @@ int InspIRCd::BindPorts(bool bail)
 				}
 				else
 				{
-					Config->openSockfd[count] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
-					if (Config->openSockfd[count]->GetFd() > -1)
+					Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
+					if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
 					{
-						if (!SE->AddFd(Config->openSockfd[count]))
+						if (!SE->AddFd(Config->openSockfd[BoundPortCount]))
 						{
 							this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
-							shutdown(Config->openSockfd[count]->GetFd(),2);
-							close(Config->openSockfd[count]->GetFd());
-							delete Config->openSockfd[count];
+							shutdown(Config->openSockfd[BoundPortCount]->GetFd(),2);
+							close(Config->openSockfd[BoundPortCount]->GetFd());
+							delete Config->openSockfd[BoundPortCount];
 						}
 						else
 							BoundPortCount++;
@@ -494,8 +495,8 @@ int InspIRCd::BindPorts(bool bail)
 		}
 		else
 		{
-			Config->openSockfd[count] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
-			if (Config->openSockfd[count]->GetFd() > -1)
+			Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
+			if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
 			{
 				BoundPortCount++;
 			}

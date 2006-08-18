@@ -301,7 +301,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Log(DEBUG,"%d listeners",stats->BoundPortCount);
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
-		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]);
+		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]->GetFd());
 		if (!SE->AddFd(Config->openSockfd[count]))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
