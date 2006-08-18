@@ -234,10 +234,13 @@ class ModuleIdent : public Module
 		RFC1413* ident;
 		if (user->GetExt("ident_data", ident))
 		{
-			if (ident->timeout_end > ServerInstance->Time())
+			/*ServerInstance->Log(DEBUG,"TIMES: %lu %lu",ident->timeout_end, ServerInstance->Time());*/
+			if (ServerInstance->Time() > ident->timeout_end)
 			{
 				ident->u = NULL;
 				ServerInstance->RemoveSocket(ident);
+				user->Shrink("ident_data");
+				return true;
 			}
 		}
 		return (!user->GetExt("ident_data", ident));
