@@ -39,9 +39,14 @@ ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec*
 		else if ((!channel->modes[CM_KEY]) || ((adding) && (!IS_LOCAL(source))))
 		{
 			/* Key isnt currently set */
-			strlcpy(channel->key,parameter.c_str(),32);
-			channel->modes[CM_KEY] = adding;
-			return MODEACTION_ALLOW;
+			if (parameter.length())
+			{
+				strlcpy(channel->key,parameter.c_str(),32);
+				channel->modes[CM_KEY] = adding;
+				return MODEACTION_ALLOW;
+			}
+			else
+				return MODEACTION_DENY;
 		}
 		else if (((channel->modes[CM_KEY]) && (!strcasecmp(parameter.c_str(),channel->key))) || ((!adding) && (!IS_LOCAL(source))))
 		{
