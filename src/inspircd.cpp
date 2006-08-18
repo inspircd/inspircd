@@ -50,6 +50,7 @@
 #include "command_parse.h"
 
 using irc::sockets::NonBlocking;
+using irc::sockets::Blocking;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
@@ -790,5 +791,73 @@ int InspIRCd::GetModuleCount()
 time_t InspIRCd::Time()
 {
 	return TIME;
+}
+
+bool FileLogger::Readable()
+{
+	return false;
+}
+
+void FileLogger::HandleEvent(EventType et)
+{
+	this->WriteLogLine("");
+	ServerInstance->SE->DelFd(this);
+}
+
+void FileLogger::WriteLogLine(const std::string &line)
+{
+	if (line.length())
+		buffer.append(line);
+
+	if (log)
+	{
+		int written = fprintf(log,"%s",buffer.c_str());
+		if ((written >= 0) && (written < (int)buffer.length()))
+		{
+			buffer.erase(0, buffer.length());
+			ServerInstance->SE->AddFd(this);
+		}
+		else if (written == -1)
+		{
+			if (errno == EAGAIN)
+				ServerInstance->SE->AddFd(this);
+		}
+		else
+		{
+			/* Wrote the whole buffer, and no need for write callback */
+			buffer = "";
+		}
+	}
+	if (writeops++ % 20)
+	{
+		fflush(log);
+	}
+}
+
+void FileLogger::Close()
+{
+	if (log)
+	{
+		int flags = fcntl(fileno(log), F_GETFL, 0);
+		fcntl(fileno(log), F_SETFL, flags ^ O_NONBLOCK);
+		if (buffer.size())
+			fprintf(log,"%s",buffer.c_str());
+		fflush(log);
+		fclose(log);
+	}
+	buffer = "";
+	ServerInstance->SE->DelFd(this);
+}
+
+FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Instance), log(logfile), writeops(0)
+{
+	irc::sockets::NonBlocking(fileno(log));
+	this->SetFd(fileno(log));
+	buffer = "";
+}
+
+FileLogger::~FileLogger()
+{
+	this->Close();
 }
 

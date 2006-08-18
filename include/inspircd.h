@@ -125,6 +125,55 @@ class serverstats : public classbase
 	}
 };
 
+class InspIRCd;
+
+/** This class implements a nonblocking log-writer.
+ * Most people writing an ircd give little thought to their disk
+ * i/o. On a congested system, disk writes can block for long
+ * periods of time (e.g. if the system is busy and/or swapping
+ * a lot). If we just use a blocking fprintf() call, this could
+ * block for undesirable amounts of time (half of a second through
+ * to whole seconds). We DO NOT want this, so we make our logfile
+ * nonblocking and hook it into the SocketEngine.
+ */
+class FileLogger : public EventHandler
+{
+ protected:
+	/** The creator/owner of this object
+	 */
+	InspIRCd* ServerInstance;
+	/** The log file (fd is inside this somewhere,
+	 * we get it out with fileno())
+	 */
+	FILE* log;
+	/** Buffer of pending log lines to be written
+	 */
+	std::string buffer;
+	/** Number of write operations that have occured
+	 */
+	int writeops;
+ public:
+	/** The constructor takes an already opened logfile
+	 */
+	FileLogger(InspIRCd* Instance, FILE* logfile);
+	/** This returns false, logfiles are writeable
+	 */
+	bool Readable();
+	/** Handle pending write events
+	 */
+	void HandleEvent(EventType et);
+	/** Write one or more preformatted log lines
+	 */
+	void WriteLogLine(const std::string &line);
+	/** Close the log file and cancel any events.
+	 */
+	void Close();
+	/** Close the log file and cancel any events.
+	 * (indirectly call Close()
+	 */
+	~FileLogger();
+};
+
 class XLineManager;
 
 /** The main singleton class of the irc server.
@@ -279,9 +328,9 @@ class InspIRCd : public classbase
 	 */
 	socklen_t length;
 
-	/** Used to count iterations around the mainloop
+	/** Nonblocking file writer
 	 */
-	int iterations;
+	FileLogger* Logger;
 
  public:
 	/** Time this ircd was booted

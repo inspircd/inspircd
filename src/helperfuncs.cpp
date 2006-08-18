@@ -83,8 +83,8 @@ void InspIRCd::Log(int level, const std::string &text)
 
 	if (Config->log_file && Config->writelog)
 	{
-		fprintf(Config->log_file,"%s %s\n",TIMESTR,text.c_str());
-		fflush(Config->log_file);
+		std::string out = std::string(TIMESTR) + text.c_str() + "\n";
+		this->Logger->WriteLogLine(out);
 	}
 
 	if (Config->nofork)
@@ -446,6 +446,8 @@ void InspIRCd::OpenLog(char** argv, int argc)
 			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
 			Exit(ERROR);
 		}
+
+		this->Logger = new FileLogger(this, Config->log_file);
 		return;
 	}
 
@@ -456,6 +458,8 @@ void InspIRCd::OpenLog(char** argv, int argc)
 		printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
 		Exit(ERROR);
 	}
+
+	this->Logger = new FileLogger(this, Config->log_file);
 }
 
 void InspIRCd::CheckRoot()
