@@ -395,6 +395,10 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								if (parameter_counter < pcnt)
 								{
 									parameter = parameters[parameter_counter++];
+
+									/* Yerk, invalid! */
+									if ((parameter.rfind(':') || (parameter.rfind(' '))))
+										parameter = "";
 								}
 								else
 								{
