@@ -659,13 +659,16 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
-							*outl++ = 'k';
-							char key[MAXBUF];
-							strlcpy(key,parameters[param++],32);
-							outpars[pc++] = key;
-							strlcpy(chan->key,key,MAXBUF);
-							chan->modes[CM_KEY] = 1;
-							k_set = true;
+							if (*parameters[param])
+							{
+								*outl++ = 'k';
+								char key[MAXBUF];
+								strlcpy(key,parameters[param++],32);
+								outpars[pc++] = key;
+								strlcpy(chan->key,key,MAXBUF);
+								chan->modes[CM_KEY] = 1;
+								k_set = true;
+							}
 						}
 						else param++;
 					}
