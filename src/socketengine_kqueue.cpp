@@ -112,17 +112,18 @@ int KQueueEngine::GetRemainingFds()
 	return MAX_DESCRIPTORS - CurrentSetSize;
 }
 
-int KQueueEngine::Wait(EventHandler** fdlist)
+int KQueueEngine::DispatchEvents()
 {
-	int result = 0;
-
 	ts.tv_nsec = 5000L;
 	ts.tv_sec = 0;
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
-		fdlist[result++] = ref[ke_list[j].ident];
+	{
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ref[ke_list[j].ident]->Readable() ? "read" : "write", ref[ke_list[j].ident]->GetFd());
+		ref[ke_list[j].ident]->HandleEvent(ref[ke_list[j].ident]->Readable() ? EVENT_READ : EVENT_WRITE);
+	}
 
-	return result;
+	return i;
 }
 
 std::string KQueueEngine::GetName()

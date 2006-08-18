@@ -83,7 +83,7 @@ int SocketEngine::GetRemainingFds()
 	return 0;
 }
 
-int SocketEngine::Wait(EventHandler** fdlist)
+int SocketEngine::DispatchEvents()
 {
 	return 0;
 }

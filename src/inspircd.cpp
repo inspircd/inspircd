@@ -663,9 +663,6 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
-	EventHandler* activefds[MAX_DESCRIPTORS];
-	unsigned int numberactive;
-
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 	 * Once per loop iteration is pleanty.
 	 */
@@ -697,29 +694,15 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			Timers->TickMissedTimers(TIME);
 		}
 	}
-	 
+
 	/* Call the socket engine to wait on the active
 	 * file descriptors. The socket engine has everything's
 	 * descriptors in its list... dns, modules, users,
 	 * servers... so its nice and easy, just one call.
+	 * This will cause any read or write events to be 
+	 * dispatched to their handlers.
 	 */
-	if (!(numberactive = SE->Wait(activefds)))
-		return;
-
-	/**
-	 * Now process each of the fd's. For users, we have a fast
-	 * lookup table which can find a user by file descriptor, so
-	 * processing them by fd isnt expensive. If we have a lot of
-	 * listening ports or module sockets though, things could get
-	 * ugly.
-	 */
-	this->Log(DEBUG,"There are %d fd's to process.",numberactive);
-
-	for (unsigned int activefd = 0; activefd < numberactive; activefd++)
-	{
-		this->Log(DEBUG,"Handle %s event on fd %d",activefds[activefd]->Readable() ? "read" : "write", activefds[activefd]->GetFd());
-		activefds[activefd]->HandleEvent(activefds[activefd]->Readable() ? EVENT_READ : EVENT_WRITE);
-	}
+	SE->DispatchEvents();
 }
 
 bool InspIRCd::IsIdent(const char* n)

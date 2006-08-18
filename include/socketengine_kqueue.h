@@ -53,7 +53,7 @@ public:
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
 	virtual bool DelFd(EventHandler* eh);
-	virtual int Wait(EventHandler** fdlist);
+	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
 

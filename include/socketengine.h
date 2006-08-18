@@ -216,20 +216,16 @@ public:
 	 */
 	EventHandler* GetRef(int fd);
 
-	/** Waits for an event.
+	/** Waits for events and dispatches them to handlers.
 	 * Please note that this doesnt wait long, only
-	 * a couple of milliseconds. It returns a list
-	 * of active EventHandlers in the array fdlist
-	 * which the core will then dispatch events to
+	 * a couple of milliseconds. It returns the number of
+	 * events which occured during this call.
+	 * This method will dispatch events to their handlers
 	 * by calling their EventHandler::HandleEvent()
 	 * methods with the neccessary EventType value.
-	 * @param fdlist A pointer to a set of EventHandler
-	 * classes. You should ensure that the array you pass
-	 * is at least MAX_DESCRIPTORS in size, to accomodate
-	 * for the maximum number of events which can occur.
 	 * @return The number of events which have occured.
 	 */
-	virtual int Wait(EventHandler** fdlist);
+	virtual int DispatchEvents();
 
 	/** Returns the socket engines name.
 	 * This returns the name of the engine for use

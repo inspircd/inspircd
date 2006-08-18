@@ -111,15 +111,16 @@ int EPollEngine::GetRemainingFds()
 	return MAX_DESCRIPTORS - CurrentSetSize;
 }
 
-int EPollEngine::Wait(EventHandler** fdlist)
+int EPollEngine::DispatchEvents()
 {
-	int result = 0;
-
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 50);
 	for (int j = 0; j < i; j++)
-		fdlist[result++] = ref[events[j].data.fd];
+	{
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ref[events[j].data.fd]->Readable() ? "read" : "write", ref[events[j].data.fd]->GetFd());
+		ref[events[j].data.fd]->HandleEvent(ref[events[j].data.fd]->Readable() ? EVENT_READ : EVENT_WRITE);
+	}
 
-	return result;
+	return i;
 }
 
 std::string EPollEngine::GetName()

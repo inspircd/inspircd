@@ -92,14 +92,16 @@ int SelectEngine::GetRemainingFds()
 	return FD_SETSIZE - CurrentSetSize;
 }
 
-int SelectEngine::Wait(EventHandler** fdlist)
+int SelectEngine::DispatchEvents()
 {
 	int result = 0;
+	timeval tval;
+	int sresult = 0;
+	EventHandler* ev[MAX_DESCRIPTOR];
 
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
-	timeval tval;
-	int sresult;
+
 	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
 		if (ref[a->second]->Readable())
@@ -120,8 +122,21 @@ int SelectEngine::Wait(EventHandler** fdlist)
 		for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 		{
 			if ((FD_ISSET (a->second, &rfdset)) || (FD_ISSET (a->second, &wfdset)))
-				fdlist[result++] = ref[a->second];
+			{
+				ev[result++] = ref[a->second];
+			}
 		}
+	}
+
+	/** An event handler may remove its own descriptor from the list, therefore it is not
+	 * safe to directly iterate over the list and dispatch events there with STL iterators.
+	 * Thats a shame because it makes this code slower and more resource intensive, but maybe
+	 * the user should stop using select(), as select() smells anyway.
+	 */
+	for (int i = 0; i < result; i++)
+	{
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ev[i]->Readable() ? "read" : "write", ev[i]->GetFd());
+		ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
 	}
 
 	return result;
