@@ -59,7 +59,7 @@ enum DebugLevel
 
 /** Delete a pointer, and NULL its value
  */
-template<typename T> void DELETE(T* x)
+template<typename T> inline void DELETE(T* x)
 {
 	delete x;
 	x = NULL;
