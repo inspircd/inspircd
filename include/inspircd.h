@@ -135,6 +135,9 @@ class InspIRCd;
  * block for undesirable amounts of time (half of a second through
  * to whole seconds). We DO NOT want this, so we make our logfile
  * nonblocking and hook it into the SocketEngine.
+ * NB: If the operating system does not support nonblocking file
+ * I/O (linux seems to, as does freebsd) this will default to
+ * blocking behaviour.
  */
 class FileLogger : public EventHandler
 {
