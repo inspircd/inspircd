@@ -27,7 +27,7 @@
 
 void cmd_away::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (pcnt)
+	if ((pcnt) && (*parameters[0]))
 	{
 		strlcpy(user->awaymsg,parameters[0],MAXAWAY);
 		user->WriteServ("306 %s :You have been marked as being away",user->nick);
