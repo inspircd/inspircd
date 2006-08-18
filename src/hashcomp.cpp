@@ -25,8 +25,6 @@ using namespace std;
 
 #define nspace __gnu_cxx
 
-char lowermap[255];
-
 /******************************************************
  *
  * The hash functions of InspIRCd are the centrepoint
@@ -127,9 +125,7 @@ bool irc::InAddr_HashComp::operator()(const insp_inaddr &s1, const insp_inaddr &
  * std::string which is not only case-insensitive but
  * can also do scandanavian comparisons, e.g. { = [, etc.
  *
- * This class depends on the global 'lowermap' which is
- * initialized at startup by inspircd.cpp, and contains
- * the 'scandanavian' casemappings for fast irc compare.
+ * This class depends on the const array 'lowermap'.
  *
  ******************************************************/
 
@@ -282,18 +278,3 @@ const std::string irc::commasepstream::GetToken()
 irc::commasepstream::~commasepstream()
 {
 }
-
-void InspIRCd::MakeLowerMap()
-{       
-	// initialize the lowercase mapping table
-	for (unsigned char cn = 0; cn < 255; cn++)
-		lowermap[cn] = cn;
-	// lowercase the uppercase chars
-	for (unsigned char cn = 65; cn < 91; cn++)
-		lowermap[cn] = tolower(cn);
-	// now replace the specific chars for scandanavian comparison
-	lowermap[(unsigned char)'['] = '{';
-	lowermap[(unsigned char)']'] = '}';
-	lowermap[(unsigned char)'\\'] = '|';
-}
-

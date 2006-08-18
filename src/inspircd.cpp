@@ -54,8 +54,6 @@ using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
-char lowermap[255];
-
 InspIRCd* SI = NULL;
 
 void InspIRCd::AddServerName(const std::string &servername)
@@ -240,9 +238,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 
-	this->MakeLowerMap();
-
-	OpenLog(argv, argc);
+	this->OpenLog(argv, argc);
 	this->stats = new serverstats();
 	this->Parser = new CommandParser(this);
 	this->Timers = new TimerManager();
@@ -281,10 +277,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Res = new DNS(this);
 
-	this->Log(DEBUG,"RES: %08x",this->Res);
-
 	this->LoadAllModules();
-
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
@@ -625,38 +618,22 @@ bool InspIRCd::LoadModule(const char* filename)
 	for (unsigned int j = 0; j < Config->module_names.size(); j++)
 	{
 		if (modules[j]->Prioritize() == PRIORITY_LAST)
-		{
 			put_to_back.push_back(Config->module_names[j]);
-		}
 		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
-		{
 			put_to_front.push_back(Config->module_names[j]);
-		}
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
-		{
 			put_before[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
-		}
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
-		{
 			put_after[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
-		}
 	}
 	for (unsigned int j = 0; j < put_to_back.size(); j++)
-	{
 		MoveToLast(put_to_back[j]);
-	}
 	for (unsigned int j = 0; j < put_to_front.size(); j++)
-	{
 		MoveToFirst(put_to_front[j]);
-	}
 	for (std::map<std::string,std::string>::iterator j = put_before.begin(); j != put_before.end(); j++)
-	{
 		MoveBefore(j->first,j->second);
-	}
 	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
-	{
 		MoveAfter(j->first,j->second);
-	}
 	BuildISupport();
 	return true;
 }

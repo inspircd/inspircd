@@ -189,10 +189,6 @@ class InspIRCd : public classbase
 	 */
 	bool DaemonSeed();
 
-	/** Build the upper/lowercase comparison table
-	 */
-	void MakeLowerMap();
-
 	/** Moves the given module to the last slot in the list
 	 * @param modulename The module name to relocate
 	 */
