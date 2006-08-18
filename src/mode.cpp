@@ -659,7 +659,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 						FOREACH_RESULT(I_OnRawMode,OnRawMode(user, chan, 'k', parameters[param], true, 1));
 						if (!MOD_RESULT)
 						{
-							if (*parameters[param])
+							if ((*parameters[param]) && (!strchr(parameters[param],' ')))
 							{
 								*outl++ = 'k';
 								char key[MAXBUF];
