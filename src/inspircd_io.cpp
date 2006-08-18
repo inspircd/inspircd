@@ -870,7 +870,7 @@ bool DaemonSeed()
 {
 	int childpid;
 	if ((childpid = fork ()) < 0)
-		return (ERROR);
+		return false;
 	else if (childpid > 0)
 	{
 		/* We wait a few seconds here, so that the shell prompt doesnt come back over the output */
