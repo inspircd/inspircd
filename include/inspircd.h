@@ -165,14 +165,14 @@ class FileLogger : public EventHandler
 	FileLogger(InspIRCd* Instance, FILE* logfile);
 	/** This returns false, logfiles are writeable.
 	 */
-	bool Readable();
+	virtual bool Readable();
 	/** Handle pending write events.
 	 * This will flush any waiting data to disk.
 	 * If any data remains after the fprintf call,
 	 * another write event is scheduled to write
 	 * the rest of the data when possible.
 	 */
-	void HandleEvent(EventType et);
+	virtual void HandleEvent(EventType et);
 	/** Write one or more preformatted log lines.
 	 * If the data cannot be written immediately,
 	 * this class will insert itself into the
@@ -183,11 +183,11 @@ class FileLogger : public EventHandler
 	void WriteLogLine(const std::string &line);
 	/** Close the log file and cancel any events.
 	 */
-	void Close();
+	virtual void Close();
 	/** Close the log file and cancel any events.
 	 * (indirectly call Close()
 	 */
-	~FileLogger();
+	virtual ~FileLogger();
 };
 
 class XLineManager;
