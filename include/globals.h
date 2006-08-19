@@ -17,11 +17,8 @@
 #ifndef __WORLD_H
 #define __WORLD_H
 
-// include the common header files
-
 #include <string>
 #include <deque>
-#include "users.h"
 
 typedef std::deque<std::string> file_cache;
 typedef std::pair< std::string, std::string > KeyVal;
