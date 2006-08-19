@@ -1467,8 +1467,8 @@ helperfuncs.o: helperfuncs.cpp ../include/base.h ../include/helperfuncs.h ../inc
 channels.o: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
 
-mode.o: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES)
-	\${MAKE} -C "modes" DIRNAME="src/modes" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
+mode.o: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES) modes/modeclasses.a
+	\${MAKE} -C "modes" DIRNAME="src/modes" \$(MAKEARGS)
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
 
 xline.o: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
