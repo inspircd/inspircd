@@ -160,16 +160,25 @@ class FileLogger : public EventHandler
 	 */
 	int writeops;
  public:
-	/** The constructor takes an already opened logfile
+	/** The constructor takes an already opened logfile.
 	 */
 	FileLogger(InspIRCd* Instance, FILE* logfile);
-	/** This returns false, logfiles are writeable
+	/** This returns false, logfiles are writeable.
 	 */
 	bool Readable();
-	/** Handle pending write events
+	/** Handle pending write events.
+	 * This will flush any waiting data to disk.
+	 * If any data remains after the fprintf call,
+	 * another write event is scheduled to write
+	 * the rest of the data when possible.
 	 */
 	void HandleEvent(EventType et);
-	/** Write one or more preformatted log lines
+	/** Write one or more preformatted log lines.
+	 * If the data cannot be written immediately,
+	 * this class will insert itself into the
+	 * SocketEngine, and register a write event,
+	 * and when the write event occurs it will
+	 * attempt again to write the data.
 	 */
 	void WriteLogLine(const std::string &line);
 	/** Close the log file and cancel any events.
@@ -183,7 +192,7 @@ class FileLogger : public EventHandler
 
 class XLineManager;
 
-/** The main singleton class of the irc server.
+/** The main class of the irc server.
  * This class contains instances of all the other classes
  * in this software, with the exception of the base class,
  * classbase. Amongst other things, it contains a ModeParser,
