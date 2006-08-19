@@ -19,6 +19,7 @@
 
 #include <string>
 #include <deque>
+#include <multimap>
 
 typedef std::deque<std::string> file_cache;
 typedef std::pair< std::string, std::string > KeyVal;
