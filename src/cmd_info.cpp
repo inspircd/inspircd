@@ -60,6 +60,9 @@ void cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :        eggy", user->nick);
 	user->WriteServ( "371 %s :        skenmy", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
+	user->WriteServ( "371 %s :Contains portions of FireDNS written by", user->nick);
+	user->WriteServ( "371 %s :Ian Gulliver, (c) 2002.", user->nick);
+	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :Thanks to irc-junkie and searchirc", user->nick);
 	user->WriteServ( "371 %s :for the nice comments and the help", user->nick);
 	user->WriteServ( "371 %s :you gave us in attracting users to", user->nick);
