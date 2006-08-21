@@ -1203,7 +1203,7 @@ class TreeSocket : public InspSocket
 
 			numusers++;
 
-			if (curlen > (480-NICKMAX))
+			if ((curlen > (480-NICKMAX)) || (numusers > 12))
 			{
 				this->WriteLine(list);
 				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",Srv->GetServerName().c_str(),c->name,(unsigned long)c->age);
