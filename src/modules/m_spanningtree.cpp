@@ -1375,15 +1375,19 @@ class TreeSocket : public InspSocket
 
 		ServerInstance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 
+		irc::tokenstream users(params[2]);
+		std::string item = "";
+
 		/* do this first, so our mode reversals are correctly received by other servers
 		 * if there is a TS collision.
 		 */
+		params[2] = ":" + params[2];
 		DoOneToAllButSender(source,"FJOIN",params,source);
 		
-		for (unsigned int usernum = 2; usernum < params.size(); usernum++)
+		while ((item = users.GetToken()) != "")
 		{
 			/* process one channel at a time, applying modes. */
-			char* usr = (char*)params[usernum].c_str();
+			char* usr = (char*)item.c_str();
 			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 			 * (is this even possible?) */
 			if (usr && *usr)
@@ -1623,7 +1627,8 @@ class TreeSocket : public InspSocket
 				n = "+";
 			}
 
-			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s", n, i->second->nick);
+			// The first parameter gets a : before it
+			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s%s", !numusers ? ":" : "", n, i->second->nick);
 
 			curlen += ptrlen;
 			ptr += ptrlen;
