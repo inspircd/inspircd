@@ -4082,7 +4082,7 @@ class ModuleSpanningTree : public Module
 				params.clear();
 				params.push_back(channel->name);
 				params.push_back(ts);
-				params.push_back("@"+std::string(user->nick));
+				params.push_back("@,"+std::string(user->nick));
 				DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 			}
 		}
