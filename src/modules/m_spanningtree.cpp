@@ -1401,6 +1401,12 @@ class TreeSocket : public InspSocket
 						mode_users[modectr++] = usr;
 						charlcat(modestring,mh->GetModeChar(),MAXBUF);
 					}
+					else
+					{
+						this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",mh->GetPrefix());
+						this->WriteLine(std::string("ERROR :What?! You sent me a mode prefix i cant handle ('")+mh->GetModeChar()+"'). Closing connection to avoid desync.");
+						return false;
+					}
 					usr++;
 					permissions++;
 				}
