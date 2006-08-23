@@ -185,7 +185,7 @@ class Version : public classbase
  * This class is used to represent a basic data structure which is passed
  * between modules for safe inter-module communications.
  */
-class ModuleMessage : public classbase
+class ModuleMessage : public Extensible
 {
  public:
 	virtual ~ModuleMessage() {};
