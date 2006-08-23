@@ -880,9 +880,9 @@ long chanrec::GetMaxBans()
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
  * % for halfop etc. If the user has several modes set, the highest mode
- * the user has must be returned. */
-
-const char* chanrec::GetStatusChar(userrec *user)
+ * the user has must be returned.
+ */
+const char* chanrec::GetPrefixChar(userrec *user)
 {
 	static char px[2];
 	unsigned int mx = 0;
@@ -906,6 +906,23 @@ const char* chanrec::GetStatusChar(userrec *user)
 	return px;
 }
 
+unsigned int chanrec::GetPrefixValue(userrec* user)
+{
+	unsigned int mx = 0;
+
+	prefixlist::iterator n = prefixes.find(user);
+	if (n != prefixes.end())
+	{
+		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
+		{
+			if (x->second > mx)
+				mx  = x->second;
+		}
+	}
+
+	return mx;
+}
+
 
 int chanrec::GetStatusFlags(userrec *user)
 {
@@ -918,7 +935,6 @@ int chanrec::GetStatusFlags(userrec *user)
 	}
 	return 0;
 }
-
 
 
 int chanrec::GetStatus(userrec *user)

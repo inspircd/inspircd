@@ -60,6 +60,14 @@ enum ModeMasks
 	MASK_CHANNEL = 0	/* A channel mode */
 };
 
+/**
+ * These fixed values can be used to proportionally compare module-defined prefixes to known values.
+ * For example, if your module queries a chanrec, and is told that user 'joebloggs' has the prefix
+ * '$', and you dont know what $ means, then you can compare it to these three values to determine
+ * its worth against them. For example if '$' had a value of 15000, you would know it is of higher
+ * status than voice, but lower status than halfop.
+ * No two modes should have equal prefix values.
+ */
 enum PrefixModeValue
 {
 	VOICE_VALUE	=	10000,
@@ -141,6 +149,11 @@ class ModeHandler : public Extensible
 	 * @param listmode Set to true if your mode is a listmode, e.g. it will respond to MODE #channel +modechar with a list of items
 	 * @param ModeType Set this to MODETYPE_USER for a usermode, or MODETYPE_CHANNEL for a channelmode.
 	 * @param operonly Set this to true if only opers should be allowed to set or unset the mode.
+	 * @param mprefix For listmodes where parameters are NICKNAMES which are on the channel (for example, +ohv), you may define a prefix.
+	 * When you define a prefix, it can be returned in NAMES, WHO etc if it has the highest value (as returned by GetPrefixRank())
+	 * In the core, the only modes to implement prefixes are +ovh (ops, voice, halfop) which define the prefix characters @, % and +
+	 * and the rank values OP_VALUE, HALFOP_VALUE and VOICE_VALUE respectively. Any prefixes you define should have unique values proportional
+	 * to these three defaults or proportional to another mode in a module you depend on. See src/cmode_o.cpp as an example.
 	 */
 	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix = 0);
 	/**
@@ -152,13 +165,17 @@ class ModeHandler : public Extensible
 	 */
 	bool IsListMode();
 	/**
-	 * Mode prefix or 0
+	 * Mode prefix or 0. If this is defined, you should
+	 * also implement GetPrefixRank() to return an integer
+	 * value for this mode prefix.
 	 */
 	char GetPrefix();
 	/**
 	 * Get the 'value' of this modes prefix.
 	 * determines which to display when there are multiple.
-	 * The mode with the highest value is ranked first.
+	 * The mode with the highest value is ranked first. See the
+	 * PrefixModeValue enum and chanrec::GetPrefixValue() for
+	 * more information.
 	 */
 	virtual unsigned int GetPrefixRank();
 	/**
@@ -409,12 +426,26 @@ class ModeParser : public classbase
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
+	/**
+	 * Returns a list of mode characters which are usermodes.
+	 * This is used in the 004 numeric when users connect.
+	 */
 	std::string UserModeList();
 
+	/**
+	 * Returns a list of channel mode characters which are listmodes.
+	 * This is used in the 004 numeric when users connect.
+	 */
 	std::string ChannelModeList();
 
+	/**
+	 * Returns a list of channel mode characters which take parameters.
+	 * This is used in the 004 numeric when users connect.
+	 */
 	std::string ParaModeList();
 
+	/** Used to parse the CHANMODES= parameter of a 005 numeric.
+	 */
 	bool InsertMode(std::string &output, const char* mode, unsigned short section);
 };
 

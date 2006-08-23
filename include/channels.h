@@ -144,8 +144,16 @@ class ucrec : public classbase
 
 class InspIRCd;
 
+/** A stored prefix and its rank
+ */
 typedef std::pair<char, unsigned int> prefixtype;
+
+/** A list of prefixes set on a user in a channel
+ */
 typedef std::vector<prefixtype> pfxcontainer;
+
+/** A list of users with zero or more prefixes set on them
+ */
 typedef std::map<userrec*, std::vector<prefixtype> > prefixlist;
 
 /** Holds all relevent information for a channel.
@@ -467,14 +475,48 @@ class chanrec : public Extensible
 	 */
 	int GetStatusFlags(userrec *user);
 
-	/** Get a users status on this channel in a string
+	/** Get a users prefix on this channel in a string.
 	 * @param The user to look up
-	 * @return A character array containing the string "@", "%", "+" or ""
+	 * @return A character array containing the prefix string.
+	 * Unlike GetStatus and GetStatusFlags which will only return the
+	 * core specified modes @, % and + (op, halfop and voice), GetPrefixChar
+	 * will also return module-defined prefixes. If the user has to prefix,
+	 * an empty but non-null string is returned. If the user has multiple
+	 * prefixes, the highest is returned. If you do not recognise the prefix
+	 * character you can get, you can deal with it in a 'proprtional' manner
+	 * compared to known prefixes, using GetPrefixValue().
 	 */
-	const char* GetStatusChar(userrec *user);
+	const char* GetPrefixChar(userrec *user);
 
+	/** Get the value of a users prefix on this channel.
+	 * @param The user to look up
+	 * @return The module or core-defined value of the users prefix.
+	 * The values for op, halfop and voice status are constants in
+	 * mode.h, and are OP_VALUE, HALFOP_VALUE, and VOICE_VALUE respectively.
+	 * If the value you are given does not match one of these three, it is
+	 * a module-defined mode, and it should be compared in proportion to
+	 * these three constants. For example a value greater than OP_VALUE
+	 * is a prefix of greater 'worth' than ops, and a value less than
+	 * VOICE_VALUE is of lesser 'worth' than a voice.
+	 */
+	unsigned int GetPrefixValue(userrec* user);
+
+	/** This method removes all prefix characters from a user.
+	 * It will not inform the user or the channel of the removal of prefixes,
+	 * and should be used when the user parts or quits.
+	 * @param The user to remove all prefixes from
+	 */
 	void RemoveAllPrefixes(userrec* user);
 
+	/** Add a prefix character to a user.
+	 * Only the core should call this method, usually  from
+	 * within the mode parser or when the first user joins
+	 * the channel (to grant ops to them)
+	 * @param The user to associate the privilage with
+	 * @param prefix The prefix character to associate
+	 * @param prefix_rank The rank (value) of this prefix character
+	 * @param adding True if adding the prefix, false when removing
+	 */
 	void SetPrefix(userrec* user, char prefix, unsigned int prefix_rank, bool adding);
 
 	/** Destructor for chanrec
