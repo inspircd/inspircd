@@ -569,6 +569,12 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
 		return false;
 
+	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
+	 * A mode prefix of ':' will fuck up both server to server, and client to server.
+	 */
+	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':'))
+		return false;
+
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	pos = (mh->GetModeChar()-65) | mask;
 
