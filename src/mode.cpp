@@ -644,7 +644,7 @@ std::string ModeParser::ParaModeList()
 
 bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
 {       
-	return (one.second) < (two.second);
+	return one.second > two.second;
 }
 
 std::string ModeParser::BuildPrefixes()
@@ -652,18 +652,28 @@ std::string ModeParser::BuildPrefixes()
 	std::string mletters = "";
 	std::string mprefixes = "";
 	pfxcontainer pfx;
+	std::map<char,char> prefix_to_mode;
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))
+		{
 			pfx.push_back(std::make_pair<char,unsigned int>(modehandlers[pos]->GetPrefix(), modehandlers[pos]->GetPrefixRank()));
+			prefix_to_mode[modehandlers[pos]->GetPrefix()] = modehandlers[pos]->GetModeChar();
+		}
 	}
 
 	sort(pfx.begin(), pfx.end(), ModeParser::PrefixComparison);
 
-	return "";
+	for (pfxcontainer::iterator n = pfx.begin(); n != pfx.end(); n++)
+	{
+		mletters = mletters + n->first;
+		mprefixes = mprefixes + prefix_to_mode.find(n->first)->second;
+	}
+
+	return "(" + mprefixes + ")" + mletters;
 }
 
 bool ModeParser::AddModeWatcher(ModeWatcher* mw)
