@@ -454,7 +454,7 @@ class chanrec : public Extensible
 	char* ChanModes(bool showkey);
 
 	/** Spool the NAMES list for this channel to the given user
-	 * @param The user to spool the NAMES list to
+	 * @param user The user to spool the NAMES list to
 	 */
 	void UserList(userrec *user);
 
@@ -464,19 +464,19 @@ class chanrec : public Extensible
 	int CountInvisible();
 
 	/** Get a users status on this channel
-	 * @param The user to look up
+	 * @param user The user to look up
 	 * @return One of STATUS_OP, STATUS_HOP, STATUS_VOICE, or zero.
 	 */
 	int GetStatus(userrec *user);
 
 	/** Get a users status on this channel in a bitmask
-	 * @param The user to look up
+	 * @param user The user to look up
 	 * @return A bitmask containing zero or more of STATUS_OP, STATUS_HOP, STATUS_VOICE
 	 */
 	int GetStatusFlags(userrec *user);
 
 	/** Get a users prefix on this channel in a string.
-	 * @param The user to look up
+	 * @param user The user to look up
 	 * @return A character array containing the prefix string.
 	 * Unlike GetStatus and GetStatusFlags which will only return the
 	 * core specified modes @, % and + (op, halfop and voice), GetPrefixChar
@@ -488,10 +488,14 @@ class chanrec : public Extensible
 	 */
 	const char* GetPrefixChar(userrec *user);
 
+	/** Return all of a users mode prefixes into a char* string.
+	 * @param user The user to look up
+	 * @return A list of all prefix characters. There is no gauranteed order of prefixes.
+	 */
 	const char* GetAllPrefixChars(userrec* user);
 
 	/** Get the value of a users prefix on this channel.
-	 * @param The user to look up
+	 * @param user The user to look up
 	 * @return The module or core-defined value of the users prefix.
 	 * The values for op, halfop and voice status are constants in
 	 * mode.h, and are OP_VALUE, HALFOP_VALUE, and VOICE_VALUE respectively.
@@ -506,7 +510,7 @@ class chanrec : public Extensible
 	/** This method removes all prefix characters from a user.
 	 * It will not inform the user or the channel of the removal of prefixes,
 	 * and should be used when the user parts or quits.
-	 * @param The user to remove all prefixes from
+	 * @param user The user to remove all prefixes from
 	 */
 	void RemoveAllPrefixes(userrec* user);
 
@@ -514,7 +518,7 @@ class chanrec : public Extensible
 	 * Only the core should call this method, usually  from
 	 * within the mode parser or when the first user joins
 	 * the channel (to grant ops to them)
-	 * @param The user to associate the privilage with
+	 * @param user The user to associate the privilage with
 	 * @param prefix The prefix character to associate
 	 * @param prefix_rank The rank (value) of this prefix character
 	 * @param adding True if adding the prefix, false when removing

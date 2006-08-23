@@ -327,47 +327,39 @@ class ModeParser : public classbase
 {
  private:
 	InspIRCd* ServerInstance;
-	/**
-	 * Mode handlers for each mode, to access a handler subtract
+	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
 	ModeHandler* modehandlers[256];
-	/**
-	 * Mode watcher classes arranged in the same way as the
+	/** Mode watcher classes arranged in the same way as the
 	 * mode handlers, except for instead of having 256 of them
 	 * we have 256 lists of them.
 	 */
 	std::vector<ModeWatcher*> modewatchers[256];
-	/**
-	 * Displays the current modes of a channel or user.
+	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
 	void DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text);
 
  public:
 
-	/**
-	 * The constructor initializes all the RFC basic modes by using ModeParserAddMode().
+	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
 	 */
 	ModeParser(InspIRCd* Instance);
 
-	/**
-	 * Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
+	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
 	 */
 	userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
-	/**
-	 * Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
+	/** Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
 	const char* Grant(userrec *d,chanrec *chan,int MASK);
-	/**
-	 * Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
+	/** Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
 	const char* Revoke(userrec *d,chanrec *chan,int MASK);
-	/**
-	 * Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
+	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *
 	 * nick -> nick!*@*
@@ -381,15 +373,13 @@ class ModeParser : public classbase
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
 	static void CleanMask(std::string &mask);
-	/**
-	 * Add a mode to the mode parser. The modeletter parameter
+	/** Add a mode to the mode parser. The modeletter parameter
 	 * is purely to save on doing a lookup in the function, as
 	 * strictly it could be obtained via ModeHandler::GetModeChar().
 	 * @return True if the mode was successfully added.
 	 */
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
-	/**
-	 * Add a mode watcher.
+	/** Add a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more
 	 * information.
@@ -397,8 +387,7 @@ class ModeParser : public classbase
 	 * @return True if the ModeWatcher was added correctly
 	 */
 	bool AddModeWatcher(ModeWatcher* mw);
-	/**
-	 * Delete a mode watcher.
+	/** Delete a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more
 	 * information.
@@ -406,8 +395,7 @@ class ModeParser : public classbase
 	 * @return True if the ModeWatcher was deleted correctly
 	 */
 	bool DelModeWatcher(ModeWatcher* mw);
-	/**
-	 * Process a set of mode changes from a server or user.
+	/** Process a set of mode changes from a server or user.
 	 * @param parameters The parameters of the mode change, in the format
 	 * they would be from a MODE command.
 	 * @param pcnt The number of items in the parameters array
@@ -418,38 +406,38 @@ class ModeParser : public classbase
 	 */
 	void Process(const char** parameters, int pcnt, userrec *user, bool servermode);
 
-	/**
-	 * Find the mode handler for a given mode and type
+	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
 	 * @param type of mode to search for, user or channel
 	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
+	/** Find a mode handler by its prefix.
+	 * If there is no mode handler with the given prefix, NULL will be returned.
+	 * @param pfxletter The prefix to find, e.g. '@'
+	 * @return The mode handler which handles this prefix, or NULL if there is none.
+	 */
 	ModeHandler* FindPrefix(unsigned const char pfxletter);
 
-	/**
-	 * Returns a list of mode characters which are usermodes.
+	/** Returns a list of mode characters which are usermodes.
 	 * This is used in the 004 numeric when users connect.
 	 */
 	std::string UserModeList();
 
-	/**
-	 * Returns a list of channel mode characters which are listmodes.
+	/** Returns a list of channel mode characters which are listmodes.
 	 * This is used in the 004 numeric when users connect.
 	 */
 	std::string ChannelModeList();
 
-	/**
-	 * Returns a list of channel mode characters which take parameters.
+	/** Returns a list of channel mode characters which take parameters.
 	 * This is used in the 004 numeric when users connect.
 	 */
 	std::string ParaModeList();
 
 	static bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two);
 
-	/**
-	 * This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
+	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */
 	std::string BuildPrefixes();
 
@@ -458,19 +446,16 @@ class ModeParser : public classbase
 	bool InsertMode(std::string &output, const char* mode, unsigned short section);
 };
 
-/**
- * Command handler class for the MODE command.
+/** Command handler class for the MODE command.
  * put here for completeness.
  */
 class cmd_mode : public command_t
 {
  public:
-	/**
-	 * Standard constructor
+	/** Standard constructor
 	 */
 	cmd_mode (InspIRCd* Instance) : command_t(Instance,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
-	/**
-	 * Handle MODE
+	/** Handle MODE
 	 */
 	void Handle(const char** parameters, int pcnt, userrec *user);
 };
