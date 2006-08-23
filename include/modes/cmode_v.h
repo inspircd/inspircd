@@ -14,5 +14,6 @@ class ModeChannelVoice : public ModeHandler
 	std::string AddVoice(userrec *user,const char *dest,chanrec *chan,int status);
 	std::string DelVoice(userrec *user,const char *dest,chanrec *chan,int status);
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
+	unsigned int GetPrefixRank();
 };
 

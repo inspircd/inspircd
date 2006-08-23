@@ -144,6 +144,9 @@ class ucrec : public classbase
 
 class InspIRCd;
 
+typedef std::pair<char, unsigned int> prefixtype;
+typedef std::vector<prefixtype> pfxcontainer;
+typedef std::map<userrec*, std::vector<prefixtype> > prefixlist;
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
@@ -160,6 +163,8 @@ class chanrec : public Extensible
 	/** Connect a chanrec to a userrec
 	 */
 	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, int created);
+
+	prefixlist prefixes;
 
  public:
 	/** The channels name.
@@ -467,6 +472,8 @@ class chanrec : public Extensible
 	 * @return A character array containing the string "@", "%", "+" or ""
 	 */
 	const char* GetStatusChar(userrec *user);
+
+	void SetPrefix(userrec* user, char prefix, unsigned int prefix_rank, bool adding);
 
 	/** Destructor for chanrec
 	 */

@@ -34,7 +34,8 @@ class InspIRCd;
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.
  */
-enum ModeType {
+enum ModeType
+{
 	MODETYPE_USER = 0,
 	MODETYPE_CHANNEL = 1
 };
@@ -42,7 +43,8 @@ enum ModeType {
 /**
  * Holds mode actions - modes can be allowed or denied.
  */
-enum ModeAction {
+enum ModeAction
+{
 	MODEACTION_DENY = 0, /* Drop the mode change, AND a parameter if its a parameterized mode */
 	MODEACTION_ALLOW = 1 /* Allow the mode */
 };
@@ -52,9 +54,17 @@ enum ModeAction {
  * array. Used in a simple two instruction hashing function
  * "(modeletter - 65) OR mask"
  */
-enum ModeMasks {
+enum ModeMasks
+{
 	MASK_USER = 128,	/* A user mode */
 	MASK_CHANNEL = 0	/* A channel mode */
+};
+
+enum PrefixModeValue
+{
+	VOICE_VALUE	=	10000,
+	HALFOP_VALUE	=	20000,
+	OP_VALUE	=	30000
 };
 
 /**
@@ -116,6 +126,10 @@ class ModeHandler : public Extensible
 	 */
 	bool oper;
 
+	/** Mode prefix, or 0
+	 */
+	char prefix;
+
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -128,16 +142,25 @@ class ModeHandler : public Extensible
 	 * @param ModeType Set this to MODETYPE_USER for a usermode, or MODETYPE_CHANNEL for a channelmode.
 	 * @param operonly Set this to true if only opers should be allowed to set or unset the mode.
 	 */
-	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly);
+	ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix = 0);
 	/**
 	 * The default destructor does nothing
 	 */
 	virtual ~ModeHandler();
-
 	/**
 	 * Returns true if the mode is a list mode
 	 */
 	bool IsListMode();
+	/**
+	 * Mode prefix or 0
+	 */
+	char GetPrefix();
+	/**
+	 * Get the 'value' of this modes prefix.
+	 * determines which to display when there are multiple.
+	 * The mode with the highest value is ranked first.
+	 */
+	virtual unsigned int GetPrefixRank();
 	/**
 	 * Returns the modes type
 	 */

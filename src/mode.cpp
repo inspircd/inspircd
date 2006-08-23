@@ -65,8 +65,8 @@ using namespace std;
 /* +n (notice mask - our implementation of snomasks) */
 #include "modes/umode_n.h"
 
-ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly)
-	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly)
+ModeHandler::ModeHandler(InspIRCd* Instance, char modeletter, int parameters_on, int parameters_off, bool listmode, ModeType type, bool operonly, char mprefix)
+	: ServerInstance(Instance), mode(modeletter), n_params_on(parameters_on), n_params_off(parameters_off), list(listmode), m_type(type), oper(operonly), prefix(mprefix)
 {
 }
 
@@ -79,6 +79,11 @@ bool ModeHandler::IsListMode()
 	return list;
 }
 
+unsigned int ModeHandler::GetPrefixRank()
+{
+	return 0;
+}
+
 ModeType ModeHandler::GetModeType()
 {
 	return m_type;
@@ -87,6 +92,11 @@ ModeType ModeHandler::GetModeType()
 bool ModeHandler::NeedsOper()
 {
 	return oper;
+}
+
+char ModeHandler::GetPrefix()
+{
+	return prefix;
 }
 
 int ModeHandler::GetNumParams(bool adding)
@@ -273,9 +283,10 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	 */
 	if ((targetchannel) && (pcnt == 2))
 	{
+		ServerInstance->Log(DEBUG,"Spool list");
 		const char* mode = parameters[1];
 		if (*mode == '+')
-		mode++;
+			mode++;
 		unsigned char handler_id = ((*mode) - 65) | MASK_CHANNEL;
 		ModeHandler* mh = modehandlers[handler_id];
 		if ((mh) && (mh->IsListMode()))
@@ -287,10 +298,13 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 	if (pcnt == 1)
 	{
+		ServerInstance->Log(DEBUG,"Mode list request");
 		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0]);
 	}
 	else if (pcnt > 1)
 	{
+		ServerInstance->Log(DEBUG,"More than one parameter");
+
 		if (targetchannel)
 		{
 			type = MODETYPE_CHANNEL;
@@ -340,6 +354,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
 			unsigned char modechar = *letter;
+
+			ServerInstance->Log(DEBUG,"Process letter %c", modechar);
 
 			switch (modechar)
 			{
@@ -397,7 +413,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 									parameter = parameters[parameter_counter++];
 
 									/* Yerk, invalid! */
-									if ((parameter.rfind(':') || (parameter.rfind(' '))))
+									if ((parameter.rfind(':') != std::string::npos) || (parameter.rfind(' ') != std::string::npos))
 										parameter = "";
 								}
 								else
@@ -436,7 +452,17 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 								/* Is there a valid parameter for this mode? If so add it to the parameter list */
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
+								{
 									parameter_list << " " << parameter;
+									/* Does this mode have a prefix? */
+									if (modehandlers[handler_id]->GetPrefix() && targetchannel)
+									{
+										userrec* user_to_prefix = ServerInstance->FindNick(parameter);
+										if (user_to_prefix)
+											targetchannel->SetPrefix(user_to_prefix, modehandlers[handler_id]->GetPrefix(),
+													modehandlers[handler_id]->GetPrefixRank(), adding);
+									}
+								}
 
 								/* Call all the AfterMode events in the mode watchers for this mode */
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)

@@ -430,6 +430,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 		/* first user in is given ops */
 		a->uc_modes = UCMODE_OP;
 		Ptr->AddOppedUser(user);
+		Ptr->SetPrefix(user, '@', OP_VALUE, true);
 	}
 	else
 	{
@@ -880,26 +881,26 @@ long chanrec::GetMaxBans()
 
 const char* chanrec::GetStatusChar(userrec *user)
 {
-	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	static char px[2];
+	unsigned int mx = 0;
+
+	*px = 0;
+	*(px+1) = 0;
+
+	prefixlist::iterator n = prefixes.find(user);
+	if (n != prefixes.end())
 	{
-		if ((*i)->channel == this)
+		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
 		{
-			if (((*i)->uc_modes & UCMODE_OP) > 0)
+			if (x->second > mx)
 			{
-				return "@";
+				*px = x->first;
+				mx  = x->second;
 			}
-			if (((*i)->uc_modes & UCMODE_HOP) > 0)
-			{
-				return "%";
-			}
-			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
-			{
-				return "+";
-			}
-			return "";
 		}
 	}
-	return "";
+
+	return px;
 }
 
 
@@ -944,4 +945,34 @@ int chanrec::GetStatus(userrec *user)
 	return STATUS_NORMAL;
 }
 
+void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
+{
+	prefixlist::iterator n = prefixes.find(user);
+	prefixtype pfx = std::make_pair(prefix,prefix_value);
+	if (adding)
+	{
+		if (n != prefixes.end())
+		{
+			if (std::find(n->second.begin(), n->second.end(), pfx) == n->second.end())
+			{
+				n->second.push_back(pfx);
+			}
+		}
+		else
+		{
+			pfxcontainer one;
+			one.push_back(pfx);
+			prefixes.insert(std::make_pair<userrec*,pfxcontainer>(user, one));
+		}
+	}
+	else
+	{
+		if (n != prefixes.end())
+		{
+			pfxcontainer::iterator x = std::find(n->second.begin(), n->second.end(), pfx);
+			if (x != n->second.end())
+				n->second.erase(x);
+		}
+	}
+}
 

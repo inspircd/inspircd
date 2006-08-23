@@ -14,8 +14,13 @@
 #include "hashcomp.h"
 #include "modes/cmode_v.h"
 
-ModeChannelVoice::ModeChannelVoice(InspIRCd* Instance) : ModeHandler(Instance, 'v', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelVoice::ModeChannelVoice(InspIRCd* Instance) : ModeHandler(Instance, 'v', 1, 1, true, MODETYPE_CHANNEL, false, '+')
 {
+}
+
+unsigned int ModeChannelVoice::GetPrefixRank()
+{
+	return VOICE_VALUE;
 }
 
 ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)

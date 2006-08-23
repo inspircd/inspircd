@@ -14,8 +14,13 @@
 #include "hashcomp.h"
 #include "modes/cmode_h.h"
 
-ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, 'h', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, 'h', 1, 1, true, MODETYPE_CHANNEL, false, '%')
 {
+}
+
+unsigned int ModeChannelHalfOp::GetPrefixRank()
+{
+	return HALFOP_VALUE;
 }
 
 ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)

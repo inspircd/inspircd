@@ -14,8 +14,13 @@
 #include "hashcomp.h"
 #include "modes/cmode_o.h"
 
-ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(Instance, 'o', 1, 1, true, MODETYPE_CHANNEL, false)
+ModeChannelOp::ModeChannelOp(InspIRCd* Instance) : ModeHandler(Instance, 'o', 1, 1, true, MODETYPE_CHANNEL, false, '@')
 {
+}
+
+unsigned int ModeChannelOp::GetPrefixRank()
+{
+	return OP_VALUE;
 }
 
 ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
