@@ -1674,7 +1674,7 @@ std::string userrec::ChannelList(userrec* source)
 			 */
 			if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
 			{
-				list.append(rec->channel->GetStatusChar(this)).append(rec->channel->name).append(" ");
+				list.append(rec->channel->GetPrefixChar(this)).append(rec->channel->name).append(" ");
 			}
 		}
 	}

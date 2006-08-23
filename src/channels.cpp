@@ -835,7 +835,7 @@ void chanrec::UserList(userrec *user)
 			continue;
 		}
 
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetStatusChar(i->second), i->second->nick);
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->second), i->second->nick);
 
 		curlen += ptrlen;
 		ptr += ptrlen;

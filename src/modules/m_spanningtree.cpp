@@ -1613,22 +1613,8 @@ class TreeSocket : public InspSocket
 				specific_voice.push_back(i->second);
 			}
 
-			const char* n = "";
-			if (x & UCMODE_OP)
-			{
-				n = "@";
-			}
-			else if (x & UCMODE_HOP)
-			{
-				n = "%";
-			}
-			else if (x & UCMODE_VOICE)
-			{
-				n = "+";
-			}
-
 			// The first parameter gets a : before it
-			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s%s", !numusers ? ":" : "", n, i->second->nick);
+			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s%s", !numusers ? ":" : "", c->GetPrefixChar(i->second), i->second->nick);
 
 			curlen += ptrlen;
 			ptr += ptrlen;

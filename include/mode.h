@@ -444,6 +444,13 @@ class ModeParser : public classbase
 	 */
 	std::string ParaModeList();
 
+	static bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two);
+
+	/**
+	 * This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
+	 */
+	std::string BuildPrefixes();
+
 	/** Used to parse the CHANMODES= parameter of a 005 numeric.
 	 */
 	bool InsertMode(std::string &output, const char* mode, unsigned short section);

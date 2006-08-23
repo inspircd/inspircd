@@ -642,6 +642,30 @@ std::string ModeParser::ParaModeList()
 	return modestr;
 }
 
+bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
+{       
+	return (one.second) < (two.second);
+}
+
+std::string ModeParser::BuildPrefixes()
+{
+	std::string mletters = "";
+	std::string mprefixes = "";
+	pfxcontainer pfx;
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+
+		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))
+			pfx.push_back(std::make_pair<char,unsigned int>(modehandlers[pos]->GetPrefix(), modehandlers[pos]->GetPrefixRank()));
+	}
+
+	sort(pfx.begin(), pfx.end(), ModeParser::PrefixComparison);
+
+	return "";
+}
+
 bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 {
 	unsigned char mask = 0;

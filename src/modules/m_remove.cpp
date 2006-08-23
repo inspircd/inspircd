@@ -126,8 +126,8 @@ class RemoveBase
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "Setting ulevel to %s", channel->GetStatusChar(user));
-			ulevel = chartolevel(channel->GetStatusChar(user));
+			ServerInstance->Log(DEBUG, "Setting ulevel to %s", channel->GetPrefixChar(user));
+			ulevel = chartolevel(channel->GetPrefixChar(user));
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
@@ -148,8 +148,8 @@ class RemoveBase
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "Setting tlevel to %s", channel->GetStatusChar(target));
-			tlevel = chartolevel(channel->GetStatusChar(target));
+			ServerInstance->Log(DEBUG, "Setting tlevel to %s", channel->GetPrefixChar(target));
+			tlevel = chartolevel(channel->GetPrefixChar(target));
 		}
 		
 		hasnokicks = (ServerInstance->FindModule("m_nokicks.so") && channel->IsModeSet('Q'));
