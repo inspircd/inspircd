@@ -482,6 +482,7 @@ long chanrec::PartUser(userrec *user, const char* reason)
 			}
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
+			this->RemoveAllPrefixes(user);
 			break;
 		}
 	}
@@ -528,6 +529,7 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 			this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
+			this->RemoveAllPrefixes(user);
 			break;
 		}
 	}
@@ -610,6 +612,7 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
 			(*i)->uc_modes = 0;
 			(*i)->channel = NULL;
+			this->RemoveAllPrefixes(user);
 			break;
 		}
 	}
@@ -974,5 +977,12 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 				n->second.erase(x);
 		}
 	}
+}
+
+void chanrec::RemoveAllPrefixes(userrec* user)
+{
+	prefixlist::iterator n = prefixes.find(user);
+	if (n != prefixes.end())
+		prefixes.erase(n);
 }
 

@@ -473,6 +473,8 @@ class chanrec : public Extensible
 	 */
 	const char* GetStatusChar(userrec *user);
 
+	void RemoveAllPrefixes(userrec* user);
+
 	void SetPrefix(userrec* user, char prefix, unsigned int prefix_rank, bool adding);
 
 	/** Destructor for chanrec

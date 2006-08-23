@@ -1744,6 +1744,7 @@ void userrec::PurgeEmptyChannels()
 		ucrec* uc = *f;
 		if (uc->channel)
 		{
+			uc->channel->RemoveAllPrefixes(this);
 			if (uc->channel->DelUser(this) == 0)
 			{
 				/* No users left in here, mark it for deletion */
