@@ -168,7 +168,6 @@ public:
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output, "J", 3);
 	}
 
 	virtual ~ModuleKickNoRejoin()

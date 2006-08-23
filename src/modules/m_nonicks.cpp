@@ -89,7 +89,6 @@ class ModuleNoNickChange : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output,"N",4);
 	}
 	
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)

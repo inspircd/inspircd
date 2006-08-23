@@ -77,7 +77,6 @@ class ModuleNoKicks : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output,"Q",4);
 	}
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)

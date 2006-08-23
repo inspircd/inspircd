@@ -435,15 +435,16 @@ class ModeParser : public classbase
 	 */
 	std::string ParaModeList();
 
+	/** Generates the CHANMODES= 005 sequence
+	 */
+	std::string ChanModes();
+	/** Used by this class internally during std::sort and 005 generation
+	 */
 	static bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */
 	std::string BuildPrefixes();
-
-	/** Used to parse the CHANMODES= parameter of a 005 numeric.
-	 */
-	bool InsertMode(std::string &output, const char* mode, unsigned short section);
 };
 
 /** Command handler class for the MODE command.

@@ -133,7 +133,6 @@ class ModuleServicesAccount : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output, "RM", 4);
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

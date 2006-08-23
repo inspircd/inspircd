@@ -76,7 +76,6 @@ class ModuleBlockColour : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output,"c",4);
 	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)

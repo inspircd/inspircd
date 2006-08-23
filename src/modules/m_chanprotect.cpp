@@ -273,7 +273,6 @@ class ModuleChanProtect : public Module
 	
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output,"qa",1);
 	}
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)

@@ -191,7 +191,6 @@ class ModuleServices : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output, "rRM", 4);
 	}
 
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */

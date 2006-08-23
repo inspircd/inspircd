@@ -662,6 +662,54 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
+std::string ModeParser::ChanModes()
+{
+	std::string type1;	/* Listmodes EXCEPT those with a prefix */
+	std::string type2;	/* Modes that take a param when adding or removing */
+	std::string type3;	/* Modes that only take a param when adding */
+	std::string type4;	/* Modes that dont take a param */
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+		 /* One parameter when adding */
+		if (modehandlers[pos])
+		{	
+			if (modehandlers[pos]->GetNumParams(true))
+			{
+				if ((modehandlers[pos]->IsListMode()) && (!modehandlers[pos]->GetPrefix()))
+				{
+					type1 += modehandlers[pos]->GetModeChar();
+				}
+				else
+				{
+					/* ... and one parameter when removing */
+					if (modehandlers[pos]->GetNumParams(false))
+					{
+						/* But not a list mode */
+						if (!modehandlers[pos]->GetPrefix())
+						{
+							type2 += modehandlers[pos]->GetModeChar();
+						}
+					}
+					else
+					{
+						/* No parameters when removing */
+						type3 += modehandlers[pos]->GetModeChar();
+					}
+				}
+			}
+			else
+			{
+				type4 += modehandlers[pos]->GetModeChar();
+			}
+		}
+			 
+	}
+
+	return type1 + "," + type2 + "," + type3 + "," + type4;
+}
+
 bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
 {       
 	return one.second > two.second;
@@ -773,29 +821,5 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	this->AddMode(new ModeUserInvisible(Instance), 'i');
 	this->AddMode(new ModeUserOperator(Instance), 'o');
 	this->AddMode(new ModeUserServerNoticeMask(Instance), 'n');
-}
-
-bool ModeParser::InsertMode(std::string &output, const char* mode, unsigned short section)
-{
-	unsigned short currsection = 1;
-	unsigned int pos = output.find("CHANMODES=", 0) + 10; // +10 for the length of "CHANMODES="
-
-	if(section > 4 || section == 0)
-	{
-		ServerInstance->Log(DEBUG, "InsertMode: CHANMODES doesn't have a section %dh :/", section);
-		return false;
-	}
-
-	for(; pos < output.size(); pos++)
-	{
-		if(section == currsection)
-			break;
-
-		if(output[pos] == ',')
-			currsection++;
-	}
-
-	output.insert(pos, mode);
-	return true;
 }
 

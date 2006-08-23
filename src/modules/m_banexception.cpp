@@ -49,7 +49,6 @@ public:
 	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" EXCEPTS=e");
-		ServerInstance->Modes->InsertMode(output, "e", 1);
 	}
 
 	virtual int OnCheckBan(userrec* user, chanrec* chan)

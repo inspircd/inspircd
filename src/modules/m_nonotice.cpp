@@ -98,7 +98,6 @@ class ModuleNoNotice : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		ServerInstance->Modes->InsertMode(output,"T",4);
 	}
 
 	virtual ~ModuleNoNotice()
