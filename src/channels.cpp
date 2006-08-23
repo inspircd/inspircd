@@ -906,6 +906,26 @@ const char* chanrec::GetPrefixChar(userrec *user)
 	return px;
 }
 
+const char* chanrec::GetAllPrefixChars(userrec* user)
+{
+	static char prefix[MAXBUF];
+	int ctr = 0;
+	*prefix = 0;
+
+	prefixlist::iterator n = prefixes.find(user);
+	if (n != prefixes.end())
+	{
+		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
+		{
+			prefix[ctr++] = x->first;
+		}
+	}
+
+	prefix[ctr] = 0;
+
+	return prefix;
+}
+
 unsigned int chanrec::GetPrefixValue(userrec* user)
 {
 	unsigned int mx = 0;

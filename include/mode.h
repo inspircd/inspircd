@@ -426,6 +426,8 @@ class ModeParser : public classbase
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
+	ModeHandler* FindPrefix(unsigned const char pfxletter);
+
 	/**
 	 * Returns a list of mode characters which are usermodes.
 	 * This is used in the 004 numeric when users connect.

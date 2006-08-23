@@ -1392,24 +1392,17 @@ class TreeSocket : public InspSocket
 			 * (is this even possible?) */
 			if (usr && *usr)
 			{
-				char permissions = *usr;
-				switch (permissions)
+				char* permissions = usr;
+				while (*permissions != ',')
 				{
-					case '@':
-						usr++;
+					ModeHandler* mh = ServerInstance->Modes->FindPrefix(*permissions);
+					if (mh)
+					{
 						mode_users[modectr++] = usr;
-						strlcat(modestring,"o",MAXBUF);
-					break;
-					case '%':
-						usr++;
-						mode_users[modectr++] = usr;
-						strlcat(modestring,"h",MAXBUF);
-					break;
-					case '+':
-						usr++;
-						mode_users[modectr++] = usr;
-						strlcat(modestring,"v",MAXBUF);
-					break;
+						charlcat(modestring,mh->GetModeChar(),MAXBUF);
+					}
+					usr++;
+					permissions++;
 				}
 				who = this->Instance->FindNick(usr);
 				if (who)
@@ -1603,18 +1596,8 @@ class TreeSocket : public InspSocket
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			int x = c->GetStatusFlags(i->second);
-			if ((x & UCMODE_HOP) && (x & UCMODE_OP))
-			{
-				specific_halfop.push_back(i->second);
-			}
-			if (((x & UCMODE_HOP) || (x & UCMODE_OP)) && (x & UCMODE_VOICE))
-			{
-				specific_voice.push_back(i->second);
-			}
-
 			// The first parameter gets a : before it
-			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s%s", !numusers ? ":" : "", c->GetPrefixChar(i->second), i->second->nick);
+			size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", c->GetAllPrefixChars(i->second), i->second->nick);
 
 			curlen += ptrlen;
 			ptr += ptrlen;
@@ -1628,32 +1611,11 @@ class TreeSocket : public InspSocket
 				ptr = list + dlen;
 				ptrlen = 0;
 				numusers = 0;
-				for (unsigned int y = 0; y < specific_voice.size(); y++)
-				{
-					modes.append("v");
-					params.append(specific_voice[y]->nick).append(" ");
-				}
-				for (unsigned int y = 0; y < specific_halfop.size(); y++)
-				{
-					modes.append("h");
-					params.append(specific_halfop[y]->nick).append(" ");
-				}
 			}
 		}
+
 		if (numusers)
-		{
 			this->WriteLine(list);
-			for (unsigned int y = 0; y < specific_voice.size(); y++)
-			{
-				modes.append("v");
-				params.append(specific_voice[y]->nick).append(" ");
-			}
-			for (unsigned int y = 0; y < specific_halfop.size(); y++)
-			{
-				modes.append("h");
-				params.append(specific_halfop[y]->nick).append(" ");
-			}
-		}
 
                 for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
                 {

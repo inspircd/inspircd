@@ -642,6 +642,20 @@ std::string ModeParser::ParaModeList()
 	return modestr;
 }
 
+ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
+{
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+
+		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix() == pfxletter))
+		{
+			return modehandlers[pos];
+		}
+	}
+	return NULL;
+}
+
 bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
 {       
 	return one.second > two.second;

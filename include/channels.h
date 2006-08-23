@@ -488,6 +488,8 @@ class chanrec : public Extensible
 	 */
 	const char* GetPrefixChar(userrec *user);
 
+	const char* GetAllPrefixChars(userrec* user);
+
 	/** Get the value of a users prefix on this channel.
 	 * @param The user to look up
 	 * @return The module or core-defined value of the users prefix.
