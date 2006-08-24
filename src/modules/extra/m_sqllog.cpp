@@ -367,7 +367,7 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnGlobalConnect(userrec* user)
+	virtual void OnPostConnect(userrec* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
