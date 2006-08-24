@@ -351,6 +351,10 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		unsigned char handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
 
+		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
+		if ((*mode_sequence.begin() != '+') && (*mode_sequence.begin() != '-'))
+			mode_sequence.insert(0, "+");
+
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
 			unsigned char modechar = *letter;
