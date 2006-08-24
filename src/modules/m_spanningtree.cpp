@@ -1393,7 +1393,7 @@ class TreeSocket : public InspSocket
 			if (usr && *usr)
 			{
 				char* permissions = usr;
-				while (*permissions != ',')
+				while ((*permissions) && (*permissions != ','))
 				{
 					ModeHandler* mh = ServerInstance->Modes->FindPrefix(*permissions);
 					if (mh)
