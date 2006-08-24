@@ -222,7 +222,7 @@ class Modulewatch : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_OnGlobalConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
+		List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
@@ -257,7 +257,7 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnGlobalConnect(userrec* user)
+	virtual void OnPostConnect(userrec* user)
 	{
 		irc::string n2 = user->nick;
 		ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);

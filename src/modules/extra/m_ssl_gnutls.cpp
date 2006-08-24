@@ -238,7 +238,7 @@ class ModuleSSLGnuTLS : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnGlobalConnect] = 1;
+		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
@@ -551,7 +551,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual void OnGlobalConnect(userrec* user)
+	virtual void OnPostConnect(userrec* user)
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propogated the NICK message.
