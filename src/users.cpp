@@ -1193,7 +1193,6 @@ int userrec::GetProtocolFamily()
 const char* userrec::GetIPString()
 {
 	static char buf[1024];
-	static char temp[1024];
 
 	if (this->ip == NULL)
 		return "";
@@ -1203,6 +1202,8 @@ const char* userrec::GetIPString()
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
+			static char temp[1024];
+		
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
@@ -1232,8 +1233,6 @@ const char* userrec::GetIPString()
 
 const char* userrec::GetIPString(char* buf)
 {
-	static char temp[1024];
-
 	if (this->ip == NULL)
 	{
 		*buf = 0;
@@ -1245,6 +1244,8 @@ const char* userrec::GetIPString(char* buf)
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
+			static char temp[1024];
+		
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
