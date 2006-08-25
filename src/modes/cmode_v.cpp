@@ -7,7 +7,6 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-
 #include "commands.h"
 #include "modules.h"
 #include "inspstring.h"
@@ -28,7 +27,7 @@ ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* chan
 	userrec* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (channel->GetStatus(x) == STATUS_VOICE)
+		if (channel->GetStatusFlags(x) & UCMODE_VOICE)
 		{
 			return std::make_pair(true, x->nick);
 		}

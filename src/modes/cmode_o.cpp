@@ -28,7 +28,7 @@ ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel
 	userrec* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
-		if (channel->GetStatus(x) == STATUS_OP)
+		if (channel->GetStatusFlags(x) & UCMODE_OP)
 		{
 			return std::make_pair(true, x->nick);
 		}

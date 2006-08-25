@@ -361,10 +361,14 @@ class ServerConfig : public Extensible
 	 */
 	bool SyntaxHints;
 
+	/** If set to true, users appear to quit then rejoin when their hosts change.
+	 * This keeps clients synchronized properly.
+	 */
+	bool CycleHosts;
+
 	ServerConfig(InspIRCd* Instance);
 
-	/** Clears the include stack in preperation for
-	 * a Read() call.
+	/** Clears the include stack in preperation for a Read() call.
 	 */
 	void ClearStack();
 

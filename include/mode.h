@@ -445,6 +445,16 @@ class ModeParser : public classbase
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */
 	std::string BuildPrefixes();
+
+	/** This returns the privilages of a user upon a channel, in the format of a mode change.
+	 * For example, if a user has privilages +avh, this will return the string "avh nick nick nick".
+	 * This is used by the core when cycling a user to refresh their hostname. You may use it for
+	 * similar purposes.
+	 * @param user The username to look up
+	 * @param channel The channel name to look up the privilages of the user for
+	 * @return The mode string.
+	 */
+	std::string ModeString(userrec* user, chanrec* channel);
 };
 
 /** Command handler class for the MODE command.

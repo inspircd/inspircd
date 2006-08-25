@@ -666,6 +666,31 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
+std::string ModeParser::ModeString(userrec* user, chanrec* channel)
+{
+	std::string types;
+	std::string pars;
+
+	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	{
+		unsigned char pos = (mode-65) | MASK_CHANNEL;
+		ModeHandler* mh = modehandlers[pos];
+		if ((mh) && (mh->GetNumParams(true)) && (mh->GetNumParams(false)))
+		{
+			ModePair ret;
+			ret = mh->ModeSet(NULL, user, channel, user->nick);
+			if (ret.first)
+			{
+				pars.append(" ");
+				pars.append(user->nick);
+				types.push_back(mh->GetModeChar());
+			}
+		}
+	}
+
+	return types+pars;
+}
+
 std::string ModeParser::ChanModes()
 {
 	std::string type1;	/* Listmodes EXCEPT those with a prefix */

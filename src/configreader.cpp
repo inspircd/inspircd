@@ -37,7 +37,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
-	writelog = AllowHalfop = true;
+	CycleHosts = writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -560,6 +560,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"tempdir",			&this->TempDir,			DT_CHARPTR, ValidateTempDir},
 		{"options",		"nouserdns",			&this->NoUserDns,		DT_BOOLEAN, NoValidation},
 		{"options",		"syntaxhints",			&this->SyntaxHints,		DT_BOOLEAN, NoValidation},
+		{"options",		"cyclehosts",			&this->CycleHosts,		DT_BOOLEAN, NoValidation},
 		{"pid",			"file",				&this->PID,			DT_CHARPTR, NoValidation},
 		{NULL}
 	};

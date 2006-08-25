@@ -1632,7 +1632,23 @@ bool userrec::ChangeDisplayedHost(const char* host)
 			return false;
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
 	}
+	if (this->ServerInstance->Config->CycleHosts)
+		this->WriteCommonExcept("QUIT :Changing hosts");
+
 	strlcpy(this->dhost,host,63);
+
+	if (this->ServerInstance->Config->CycleHosts)
+	{
+		for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+		{
+			if ((*i)->channel)
+			{
+				(*i)->channel->WriteAllExceptSender(this, 0, "JOIN %s", (*i)->channel->name);
+				(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s",
+								    (*i)->channel->name, this->ServerInstance->Modes->ModeString(this, (*i)->channel).c_str());
+			}
+		}
+	}
 
 	if (IS_LOCAL(this))
 		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);

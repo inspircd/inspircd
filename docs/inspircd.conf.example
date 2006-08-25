@@ -522,6 +522,13 @@
 #                  used in unreal. This is only useful on networks    #
 #                  running the m_chanprotect module                   #
 #                                                                     #
+#  cyclehosts    - If this is set to true, yes or 1, then when a      #
+#                  user's hostname changes, they will appear to quit  #
+#                  and then rejoin with their new host. This prevents #
+#                  clients from being confused by host changes,       #
+#                  especially in the case of bots, and it is          #
+#                  recommended that this option is enabled.           #
+#                                                                     #
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #                  of text in one go at any time. (OPTIONAL)          #
@@ -638,6 +645,7 @@
          hideulines="no"
 	 nouserdns="no"
 	 syntaxhints="no"
+	 cyclehosts="yes"
          allowhalfop="yes">
 
 
