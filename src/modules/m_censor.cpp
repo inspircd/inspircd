@@ -21,7 +21,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 typedef std::map<irc::string,irc::string> censor_t;
@@ -133,14 +132,9 @@ class ModuleCensor : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-
-	virtual void On005Numeric(std::string &output)
-	{
-	}
- 
 	virtual ~ModuleCensor()
 	{
 		DELETE(cu);

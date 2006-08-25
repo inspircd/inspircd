@@ -16,12 +16,9 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include <string>
-
 #include "commands.h"
 #include "hashcomp.h"
 #include "inspircd.h"
@@ -29,8 +26,6 @@ using namespace std;
 static bool kludgeme = false;
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
-
-
 
 class Channel_r : public ModeHandler
 {
@@ -189,10 +184,6 @@ class ModuleServices : public Module
 		kludgeme = false;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
@@ -205,7 +196,7 @@ class ModuleServices : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 	}
 
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)

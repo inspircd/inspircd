@@ -16,16 +16,12 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +T */
-
-
 
 class NoNotice : public ModeHandler
 {
@@ -71,7 +67,7 @@ class ModuleNoNotice : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreNotice] = List[I_On005Numeric] = 1;
+		List[I_OnUserPreNotice] = 1;
 	}
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
@@ -94,10 +90,6 @@ class ModuleNoNotice : public Module
 			}
 		}
 		return 0;
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
 	}
 
 	virtual ~ModuleNoNotice()

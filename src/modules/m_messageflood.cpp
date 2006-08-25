@@ -21,7 +21,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
@@ -260,11 +259,7 @@ class ModuleMsgFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
 	}
 
 	virtual ~ModuleMsgFlood()

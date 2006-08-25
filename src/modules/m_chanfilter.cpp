@@ -22,7 +22,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "u_listmode.h"
 #include "inspircd.h"
@@ -81,11 +80,7 @@ class ModuleChanFilter : public Module
 	void Implements(char* List) 
 	{ 
 		cf->DoImplements(List);
-		List[I_OnCleanup] = List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnSyncChannel] = 1;
-	}
-	
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnCleanup] = List[I_OnChannelDelete] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnSyncChannel] = 1;
 	}
 
 	virtual void OnChannelDelete(chanrec* chan)

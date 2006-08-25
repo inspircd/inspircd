@@ -1,14 +1,27 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *                              
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *      
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */     
+
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +z */
 
 static char* dummy;
-
-
 
 class SSLMode : public ModeHandler
 {
@@ -71,13 +84,9 @@ class ModuleSSLModes : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
 		if(chan && chan->IsModeSet('z'))

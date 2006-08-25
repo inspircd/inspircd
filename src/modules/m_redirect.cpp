@@ -16,16 +16,12 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
-
-
 
 class Redirect : public ModeHandler
 {
@@ -120,13 +116,9 @@ class ModuleRedirect : public Module
 	
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreJoin] = 1;
+		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
 	{
 		if (chan)

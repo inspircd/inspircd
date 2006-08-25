@@ -20,7 +20,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +Q */
@@ -72,11 +71,7 @@ class ModuleNoKicks : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnAccessCheck] = 1;
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnAccessCheck] = 1;
 	}
 
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)

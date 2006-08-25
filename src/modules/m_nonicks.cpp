@@ -16,19 +16,14 @@
 
 using namespace std;
 
-#include <stdio.h>
-#include <string>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
-
-
 
 class NoNicks : public ModeHandler
 {
@@ -60,9 +55,7 @@ class NoNicks : public ModeHandler
 
 class ModuleNoNickChange : public Module
 {
-	
 	NoNicks* nn;
-	
  public:
 	ModuleNoNickChange(InspIRCd* Me)
 		: Module::Module(Me)
@@ -84,13 +77,9 @@ class ModuleNoNickChange : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreNick] = 1;
+		List[I_OnUserPreNick] = 1;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-	
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
 		irc::string server = user->server;

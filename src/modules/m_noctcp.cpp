@@ -16,11 +16,9 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
@@ -72,13 +70,9 @@ class ModuleNoCTCP : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status);

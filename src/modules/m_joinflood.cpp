@@ -21,7 +21,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "configreader.h"
 #include "inspircd.h"
 
@@ -240,11 +239,7 @@ class ModuleJoinFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserJoin] = 1;
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnChannelDelete] = List[I_OnUserPreJoin] = List[I_OnUserJoin] = 1;
 	}
 
 	virtual ~ModuleJoinFlood()

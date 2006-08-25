@@ -16,17 +16,12 @@
 
 using namespace std;
 
-#include <stdio.h>
-#include <string>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
-
-
 
 class ChannelStripColor : public ModeHandler
 {
@@ -115,13 +110,9 @@ class ModuleStripColor : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
- 	
 	virtual ~ModuleStripColor()
 	{
 		DELETE(usc);

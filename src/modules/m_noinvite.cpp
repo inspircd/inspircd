@@ -16,16 +16,12 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style channel mode +V */
-
-
 
 class NoInvite : public ModeHandler
 {
@@ -57,66 +53,57 @@ class NoInvite : public ModeHandler
 
 class ModuleNoInvite : public Module
 {
-	
 	NoInvite *ni;
+ public:
+
+	ModuleNoInvite(InspIRCd* Me) : Module::Module(Me)
+	{
+		ni = new NoInvite(ServerInstance);
+		ServerInstance->AddMode(ni, 'V');
+	}
+
+	void Implements(char* List)
+	{
+		List[I_OnUserPreInvite] = 1;
+	}
+
+	virtual int OnUserPreInvite(userrec* user,userrec* dest,chanrec* channel)
+	{
+		if (channel->IsModeSet('V'))
+		{
+			user->WriteServ("492 %s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
+			return 1;
+		}
+		return 0;
+	}
+
+	virtual ~ModuleNoInvite()
+	{
+		DELETE(ni);
+	}
 	
-	public:
- 
-		ModuleNoInvite(InspIRCd* Me) : Module::Module(Me)
-		{
-			
-			ni = new NoInvite(ServerInstance);
-			ServerInstance->AddMode(ni, 'V');
-		}
-
-		void Implements(char* List)
-		{
-			List[I_On005Numeric] = List[I_OnUserPreInvite] = 1;
-		}
-
-		virtual void On005Numeric(std::string &output)
-		{
-		}
-
-
-		virtual int OnUserPreInvite(userrec* user,userrec* dest,chanrec* channel)
-		{
-			if (channel->IsModeSet('V'))
-			{
-				user->WriteServ("492 %s %s :Can't invite %s to channel (+V set)",user->nick, channel->name, dest->nick);
-				return 1;
-			}
-			return 0;
-		}
-
-		virtual ~ModuleNoInvite()
-		{
-			DELETE(ni);
-		}
-	
-		virtual Version GetVersion()
-		{
-			return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
-		}
+	virtual Version GetVersion()
+	{
+		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+	}
 };
 
 
 class ModuleNoInviteFactory : public ModuleFactory
 {
-	public:
-		ModuleNoInviteFactory()
-		{
-		}
-	
-		~ModuleNoInviteFactory()
-		{
-		}
-	
-		virtual Module * CreateModule(InspIRCd* Me)
-		{
-			return new ModuleNoInvite(Me);
-		}
-	
+ public:
+	ModuleNoInviteFactory()
+	{
+	}
+
+	~ModuleNoInviteFactory()
+	{
+	}
+
+	virtual Module * CreateModule(InspIRCd* Me)
+	{
+		return new ModuleNoInvite(Me);
+	}
 };
 
 

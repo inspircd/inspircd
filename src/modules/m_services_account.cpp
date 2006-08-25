@@ -16,18 +16,13 @@
 
 using namespace std;
 
-#include <stdio.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include <string>
-
 #include "hashcomp.h"
 #include "inspircd.h"
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
-
-
 
 class AChannel_R : public ModeHandler
 {
@@ -131,10 +126,6 @@ class ModuleServicesAccount : public Module
 		ServerInstance->AddMode(m3, 'R');
 	}
 
-	virtual void On005Numeric(std::string &output)
-	{
-	}
-
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
@@ -149,7 +140,7 @@ class ModuleServicesAccount : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnUserPreMessage] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
+		List[I_OnWhois] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 		List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnDecodeMetaData] = 1;
 	}
 

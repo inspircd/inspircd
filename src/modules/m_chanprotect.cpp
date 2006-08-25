@@ -17,7 +17,6 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 #include "commands.h"
 
@@ -282,11 +281,7 @@ class ModuleChanProtect : public Module
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
-	}
-	
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)

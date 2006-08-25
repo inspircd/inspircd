@@ -18,7 +18,6 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 #include "mode.h"
 
@@ -69,11 +68,7 @@ public:
 
 	void Implements(char* List)
 	{
-		List[I_On005Numeric] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
