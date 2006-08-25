@@ -517,6 +517,11 @@
 #                  only useful on networks running the m_chanprotect  #
 #                  module without services.                           #
 #                                                                     #
+#  qaprefixes    - If qaprefixes is true, yes, or 1, then users       #
+#                  with +q or +a will get the ~ or & prefixes         #
+#                  used in unreal. This is only useful on networks    #
+#                  running the m_chanprotect module                   #
+#                                                                     #
 #  netbuffersize - size of the buffer used to receive data from       #
 #                  clients. The ircd may only read() this amount      #
 #                  of text in one go at any time. (OPTIONAL)          #
@@ -608,7 +613,7 @@
 #                  this can save a lot of resources on very busy irc  #
 #                  servers.                                           #
 #                                                                     #
-#  syntaxhints   - If et to 'yes', 'true' or '1', when a user does    #
+#  syntaxhints   - If set to 'yes', 'true' or '1', when a user does    #
 #                  not give enough parameters for a command, a syntax #
 #                  hint will be given (using the RPL_TEXT numeric)    #
 #                  as well as the standard ERR_NEEDMOREPARAMS.        #
@@ -619,6 +624,7 @@
          netbuffersize="10240"
          maxwho="128"
          noservices="0"
+         qaprefixes="0"
          somaxconn="128"
          softlimit="128"
          operonlystats="oclgkz"

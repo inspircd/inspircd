@@ -23,7 +23,8 @@
 
 /* $ModDesc: Provides channel modes +a and +q */
 
-
+#define PROTECT_VALUE 40000
+#define FOUNDER_VALUE 50000
 
 const char* fakevalue = "on";
 
@@ -31,7 +32,13 @@ class ChanFounder : public ModeHandler
 {
 	char* dummyptr;
  public:
-	ChanFounder(InspIRCd* Instance) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false) { }
+	ChanFounder(InspIRCd* Instance, bool using_prefixes) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0) { }
+
+	unsigned int GetPrefixRank()
+	{
+		return FOUNDER_VALUE;
+	}
+
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -145,7 +152,13 @@ class ChanProtect : public ModeHandler
 {
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false) { }
+	ChanProtect(InspIRCd* Instance, bool using_prefixes) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0) { }
+
+	unsigned int GetPrefixRank()
+	{
+		return PROTECT_VALUE;
+	}
+
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
@@ -246,6 +259,7 @@ class ModuleChanProtect : public Module
 {
 	
 	bool FirstInGetsFounder;
+	bool QAPrefixes;
 	ChanProtect* cp;
 	ChanFounder* cf;
 	char* dummyptr;
@@ -254,16 +268,16 @@ class ModuleChanProtect : public Module
  
 	ModuleChanProtect(InspIRCd* Me) : Module::Module(Me)
 	{	
+		/* Load config stuff */
+		OnRehash("");
+
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance);
-		cf = new ChanFounder(ServerInstance);
+		cp = new ChanProtect(ServerInstance,QAPrefixes);
+		cf = new ChanFounder(ServerInstance,QAPrefixes);
 
 		ServerInstance->AddMode(cp, 'a');
 		ServerInstance->AddMode(cf, 'q');
-		
-		/* Load config stuff */
-		OnRehash("");
 	}
 
 	void Implements(char* List)
@@ -299,6 +313,7 @@ class ModuleChanProtect : public Module
 		ConfigReader Conf(ServerInstance);
 		
 		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
+		QAPrefixes = Conf.ReadFlag("options","qaprefixes",0);
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
