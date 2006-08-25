@@ -27,21 +27,23 @@
 
 const char* fakevalue = "on";
 
-class ChanFounder : public ModeHandler
+class FounderProtectBase
 {
+ private:
+	InspIRCd* MyInstance;
+	std::string extend;
+	std::string type;
+	int list;
+	int end;
 	char* dummyptr;
  public:
-	ChanFounder(InspIRCd* Instance, bool using_prefixes) : ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0) { }
-
-	unsigned int GetPrefixRank()
+	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e) : MyInstance(Instance), extend(ext), type(mtype), list(l), end(e)
 	{
-		return FOUNDER_VALUE;
 	}
-
 
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
-		userrec* x = ServerInstance->FindNick(parameter);
+		userrec* x = MyInstance->FindNick(parameter);
 		if (x)
 		{
 			if (!channel->HasUser(x))
@@ -50,8 +52,8 @@ class ChanFounder : public ModeHandler
 			}
 			else
 			{
-				std::string founder = "cm_founder_"+std::string(channel->name);
-				if (x->GetExt(founder,dummyptr))
+				std::string item = extend+std::string(channel->name);
+				if (x->GetExt(item,dummyptr))
 				{
 					return std::make_pair(true, x->nick);
 				}
@@ -64,63 +66,86 @@ class ChanFounder : public ModeHandler
 		return std::make_pair(false, parameter);
 	}
 
+        void DisplayList(userrec* user, chanrec* channel)
+	{
+		CUList* cl = channel->GetUsers();
+		std::string item = extend+std::string(channel->name);
+		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
+		{
+			if (i->second->GetExt(item, dummyptr))
+			{
+				user->WriteServ("%d %s %s %s", list, user->nick, channel->name,i->second->nick);
+			}
+		}
+		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick, channel->name, type.c_str());
+	}
+
+	userrec* FindAndVerify(std::string &parameter, chanrec* channel)
+	{
+		userrec* theuser = MyInstance->FindNick(parameter);
+		if ((!theuser) || (!channel->HasUser(theuser)))
+		{
+			parameter = "";
+			return theuser;
+		}
+		return NULL;
+	}
+
+	ModeAction HandleChange(userrec* source, userrec*theuser, bool adding, chanrec* channel, std::string &parameter)
+	{
+		std::string item = extend+std::string(channel->name);
+
+		if (adding)
+		{
+			if (!theuser->GetExt(item, dummyptr))
+			{
+				theuser->Extend(item, fakevalue);
+				parameter = theuser->nick;
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (theuser->GetExt(item, dummyptr))
+			{
+				theuser->Shrink(item);
+				parameter = theuser->nick;
+				return MODEACTION_ALLOW;
+			}
+		}
+		return MODEACTION_DENY;
+	}
+};
+
+class ChanFounder : public ModeHandler, public FounderProtectBase
+{
+	char* dummyptr;
+ public:
+	ChanFounder(InspIRCd* Instance, bool using_prefixes)
+		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0),
+		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387) { }
+
+	unsigned int GetPrefixRank()
+	{
+		return FOUNDER_VALUE;
+	}
+
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
+	}
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = ServerInstance->FindNick(parameter);
+		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
 
-		ServerInstance->Log(DEBUG,"ChanFounder::OnModeChange");
-
-		// cant find the user given as the parameter, eat the mode change.
 		if (!theuser)
-		{
-			ServerInstance->Log(DEBUG,"No such user in ChanFounder");
-			parameter = "";
 			return MODEACTION_DENY;
-		}
-
-		// given user isnt even on the channel, eat the mode change
-		if (!channel->HasUser(theuser))
-		{
-			ServerInstance->Log(DEBUG,"Channel doesn't have user in ChanFounder");
-			parameter = "";
-			return MODEACTION_DENY;
-		}
-
-		std::string protect = "cm_protect_"+std::string(channel->name);
-		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
-			ServerInstance->Log(DEBUG,"Allowing remote mode change in ChanFounder");
-			if (adding)
-			{
-				if (!theuser->GetExt(founder,dummyptr))
-				{
-					ServerInstance->Log(DEBUG,"Does not have the ext item in ChanFounder");
-					if (!theuser->Extend(founder,fakevalue))
-						ServerInstance->Log(DEBUG,"COULD NOT EXTEND!!!");
-					// Tidy the nickname (make case match etc)
-					parameter = theuser->nick;
-					if (theuser->GetExt(founder, dummyptr))
-						ServerInstance->Log(DEBUG,"Extended!");
-					else
-						ServerInstance->Log(DEBUG,"Not extended :(");
-					return MODEACTION_ALLOW;
-				}
-			}
-			else
-			{
-				if (theuser->GetExt(founder, dummyptr))
-				{
-					theuser->Shrink(founder);
-					// Tidy the nickname (make case match etc)
-					parameter = theuser->nick;
-					return MODEACTION_ALLOW;
-				}
-			}
-			return MODEACTION_DENY;
+			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
 		else
 		{
@@ -133,102 +158,41 @@ class ChanFounder : public ModeHandler
 
 	void DisplayList(userrec* user, chanrec* channel)
 	{
-		CUList* cl = channel->GetUsers();
-		std::string founder = "cm_founder_"+std::string(channel->name);
-		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
-		{
-			if (i->second->GetExt(founder, dummyptr))
-			{
-				user->WriteServ("386 %s %s %s",user->nick, channel->name,i->second->nick);
-			}
-		}
-		user->WriteServ("387 %s %s :End of channel founder list",user->nick, channel->name);
+		FounderProtectBase::DisplayList(user,channel);
 	}
-
 };
 
-class ChanProtect : public ModeHandler
+class ChanProtect : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance, bool using_prefixes) : ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0) { }
+	ChanProtect(InspIRCd* Instance, bool using_prefixes)
+		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0),
+		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389) { }
 
 	unsigned int GetPrefixRank()
 	{
 		return PROTECT_VALUE;
 	}
 
-
 	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
-		userrec* x = ServerInstance->FindNick(parameter);
-		if (x)
-		{
-			if (!channel->HasUser(x))
-			{
-				return std::make_pair(false, parameter);
-			}
-			else
-			{
-				std::string founder = "cm_protect_"+std::string(channel->name);
-				if (x->GetExt(founder,dummyptr))
-				{
-					return std::make_pair(true, x->nick);
-				}
-				else
-				{
-					return std::make_pair(false, parameter);
-				}
-			}
-		}
-		return std::make_pair(false, parameter);
+		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = ServerInstance->FindNick(parameter);
+		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
 
-		// cant find the user given as the parameter, eat the mode change.
 		if (!theuser)
-		{
-			parameter = "";
 			return MODEACTION_DENY;
-		}
 
-		// given user isnt even on the channel, eat the mode change
-		if (!channel->HasUser(theuser))
-		{
-			parameter = "";
-			return MODEACTION_DENY;
-		}
-
-		std::string protect = "cm_protect_"+std::string(channel->name);
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
-			if (adding)
-			{
-				if (!theuser->GetExt(protect,dummyptr))
-				{
-					theuser->Extend(protect,fakevalue);
-					// Tidy the nickname (make case match etc)
-					parameter = theuser->nick;
-					return MODEACTION_ALLOW;
-				}
-			}
-			else
-			{
-				if (theuser->GetExt(protect,dummyptr))
-				{
-					theuser->Shrink(protect);
-					// Tidy the nickname (make case match etc)
-					parameter = theuser->nick;
-					return MODEACTION_ALLOW;
-				}
-			}
-			return MODEACTION_DENY;
+			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
 		else
 		{
@@ -240,16 +204,7 @@ class ChanProtect : public ModeHandler
 
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
-		CUList* cl = channel->GetUsers();
-		std::string protect = "cm_protect_"+std::string(channel->name);
-		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
-		{
-			if (i->second->GetExt(protect,dummyptr))
-			{
-				user->WriteServ("388 %s %s %s",user->nick, channel->name,i->second->nick);
-			}
-		}
-		user->WriteServ("389 %s %s :End of channel protected user list",user->nick, channel->name);
+		FounderProtectBase::DisplayList(user, channel);
 	}
 
 };
