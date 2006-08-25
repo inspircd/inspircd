@@ -11,7 +11,7 @@
 class cmd_chgident : public command_t
 {
  public:
- cmd_chgident (InspIRCd* Instance) : command_t(Instance,"CHGIDENT", 'o', 2)
+	cmd_chgident (InspIRCd* Instance) : command_t(Instance,"CHGIDENT", 'o', 2)
 	{
 		this->source = "m_chgident.so";
 		syntax = "<nick> <newident>";

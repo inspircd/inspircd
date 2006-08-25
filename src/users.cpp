@@ -1460,7 +1460,7 @@ void userrec::WriteCommonExcept(const char* text, ...)
 
 void userrec::WriteCommonExcept(const std::string &text)
 {
-	bool quit_munge = true;
+	bool quit_munge = false;
 	char oper_quit[MAXBUF];
 	char textbuffer[MAXBUF];
 
@@ -1633,7 +1633,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
 	}
 	if (this->ServerInstance->Config->CycleHosts)
-		this->WriteCommonExcept("QUIT :Changing hosts");
+		this->WriteCommonExcept("%s","QUIT :Changing hosts");
 
 	strlcpy(this->dhost,host,63);
 
@@ -1644,8 +1644,9 @@ bool userrec::ChangeDisplayedHost(const char* host)
 			if ((*i)->channel)
 			{
 				(*i)->channel->WriteAllExceptSender(this, 0, "JOIN %s", (*i)->channel->name);
-				(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s",
-								    (*i)->channel->name, this->ServerInstance->Modes->ModeString(this, (*i)->channel).c_str());
+				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
+				if (n.length())
+					(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s", (*i)->channel->name, n.c_str());
 			}
 		}
 	}
@@ -1659,7 +1660,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 bool userrec::ChangeIdent(const char* newident)
 {
 	if (this->ServerInstance->Config->CycleHosts)
-		this->WriteCommonExcept("QUIT :Changing ident");
+		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
 	strlcpy(this->ident, newident, IDENTMAX+2);
 
@@ -1670,8 +1671,9 @@ bool userrec::ChangeIdent(const char* newident)
 			if ((*i)->channel)
 			{
 				(*i)->channel->WriteAllExceptSender(this, 0, "JOIN %s", (*i)->channel->name);
-				(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s",
-								    (*i)->channel->name, this->ServerInstance->Modes->ModeString(this, (*i)->channel).c_str());
+				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
+				if (n.length())
+					(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s", (*i)->channel->name, n.c_str());
 			}
 		}
 	}
