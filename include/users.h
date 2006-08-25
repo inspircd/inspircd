@@ -685,11 +685,21 @@ class userrec : public connection
 	/** Change the displayed host of a user.
 	 * ALWAYS use this function, rather than writing userrec::dhost directly,
 	 * as this triggers module events allowing the change to be syncronized to
-	 * remote servers.
+	 * remote servers. This will also emulate a QUIT and rejoin (where configured)
+	 * before setting their host field.
 	 * @param host The new hostname to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
 	bool ChangeDisplayedHost(const char* host);
+
+	/** Change the ident (username) of a user.
+	 * ALWAYS use this function, rather than writing userrec::ident directly,
+	 * as this correctly causes the user to seem to quit (where configured)
+	 * before setting their ident field.
+	 * @param host The new ident to set
+	 * @return True if the change succeeded, false if it didn't
+	 */
+	bool ChangeIdent(const char* newident);
 
 	/** Change a users realname field.
 	 * ALWAYS use this function, rather than writing userrec::fullname directly,

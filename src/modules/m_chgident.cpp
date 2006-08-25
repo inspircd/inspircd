@@ -30,7 +30,8 @@ class cmd_chgident : public command_t
 			}
 		
 			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
-			strlcpy(dest->ident, parameters[1], IDENTMAX+2);
+			dest->ChangeIdent(parameters[1]);
+			//strlcpy(dest->ident, parameters[1], IDENTMAX+2);
 		}
 		else
 		{
