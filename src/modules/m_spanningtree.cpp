@@ -2752,7 +2752,7 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
-		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
+		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			Sock->WriteLine(data);
@@ -2778,7 +2778,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 		// The route has a socket (its a direct connection)
 		// The route isnt the one to be omitted
 		// The route isnt the path to the one to be omitted
-		if ((Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
+		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			Sock->WriteLine(FullLine);
@@ -2799,7 +2799,7 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = TreeRoot->GetChild(x);
-		if (Route->GetSocket())
+		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			Sock->WriteLine(FullLine);
@@ -2819,7 +2819,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 		{
 			FullLine = FullLine + " " + params[x];
 		}
-		if (Route->GetSocket())
+		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			Sock->WriteLine(FullLine);
