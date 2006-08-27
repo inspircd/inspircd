@@ -1388,7 +1388,7 @@ class TreeSocket : public InspSocket
 		while (item != "")
 		{
 			item = users.GetToken();
-			/* process one channel at a time, applying modes. */
+			/* process one user at a time, applying modes. */
 			char* usr = (char*)item.c_str();
 			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 			 * (is this even possible?) */
@@ -1407,7 +1407,7 @@ class TreeSocket : public InspSocket
 					else
 					{
 						this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",mh->GetPrefix());
-						this->WriteLine(std::string("ERROR :What?! You sent me a mode prefix i cant handle ('")+mh->GetModeChar()+"'). Closing connection to avoid desync.");
+						this->WriteLine(std::string("ERROR :Invalid prefix '")+mh->GetModeChar()+"' in FJOIN");
 						return false;
 					}
 					usr++;
@@ -1464,6 +1464,14 @@ class TreeSocket : public InspSocket
 							free(mode_users[f]);
 						modectr = 2;
 					}
+				}
+				else
+				{
+					for (unsigned int f = 2; f < modectr; f++)
+						free(mode_users[f]);
+
+					this->WriteLine("ERROR :Invalid user '"+std::string(usr)+"' in FJOIN to '"+channel+"'");
+					return false;
 				}
 			}
 		}
