@@ -109,7 +109,9 @@ typedef nspace::hash_map<std::string, char*> sid_hash;
 /* More forward declarations */
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
 bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
+bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
 bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
+bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
 bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
 void ReadConfiguration(bool rebind);
 
@@ -3219,6 +3221,20 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 		}
 	}
 	return true;
+}
+
+bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params)
+{
+	std::string spfx = prefix;
+	std::string scmd = command;
+	return DoOneToMany(spfx, scmd, params);
+}
+
+bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit)
+{
+	std::string spfx = prefix;
+	std::string scmd = command;
+	return DoOneToAllButSender(spfx, scmd, params, omit);
 }
 
 bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target)
