@@ -1417,7 +1417,7 @@ class TreeSocket : public InspSocket
 
 				/* Did they get any modes? How many times? */
 				for (int k = 0; k < ntimes; k++)
-					mode_users[modectr++] = usr;
+					mode_users[modectr++] = strdup(usr); // XXX
 
 				who = this->Instance->FindNick(usr);
 				if (who)
@@ -1460,6 +1460,8 @@ class TreeSocket : public InspSocket
 							DoOneToMany(this->Instance->Config->ServerName,"FMODE",params);
 						}
 						strcpy(mode_users[1],"+");
+						for (unsigned int f = 2; f < modectr; f++)
+							free(mode_users[f]);
 						modectr = 2;
 					}
 				}
@@ -1496,6 +1498,9 @@ class TreeSocket : public InspSocket
 				}
 				DoOneToMany(this->Instance->Config->ServerName,"FMODE",params);
 			}
+
+			for (unsigned int f = 2; f < modectr; f++)
+				free(mode_users[f]);
 		}
 		return true;
 	}
