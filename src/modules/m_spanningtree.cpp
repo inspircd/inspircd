@@ -1395,12 +1395,13 @@ class TreeSocket : public InspSocket
 			if (usr && *usr)
 			{
 				char* permissions = usr;
+				int ntimes = 0;
 				while ((*permissions) && (*permissions != ','))
 				{
 					ModeHandler* mh = ServerInstance->Modes->FindPrefix(*permissions);
 					if (mh)
 					{
-						mode_users[modectr++] = usr;
+						ntimes++;
 						charlcat(modestring,mh->GetModeChar(),MAXBUF);
 					}
 					else
@@ -1412,7 +1413,13 @@ class TreeSocket : public InspSocket
 					usr++;
 					permissions++;
 				}
-				who = this->Instance->FindNick(++usr);
+				usr++;
+
+				/* Did they get any modes? How many times? */
+				for (int k = 0; k < ntimes; k++)
+					mode_users[modectr++] = usr;
+
+				who = this->Instance->FindNick(usr);
 				if (who)
 				{
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, key);
