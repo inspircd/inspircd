@@ -3170,7 +3170,8 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			Sock->WriteLine(data);
+			if (Sock)
+				Sock->WriteLine(data);
 		}
 	}
 	return true;
@@ -3196,7 +3197,8 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			Sock->WriteLine(FullLine);
+			if (Sock)
+				Sock->WriteLine(FullLine);
 		}
 	}
 	return true;
@@ -3217,7 +3219,8 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			Sock->WriteLine(FullLine);
+			if (Sock)
+				Sock->WriteLine(FullLine);
 		}
 	}
 	return true;
@@ -3251,13 +3254,14 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
-			Sock->WriteLine(FullLine);
+			if (Sock)
+				Sock->WriteLine(FullLine);
 		}
 		return true;
 	}
 	else
 	{
-		return true;
+		return false;
 	}
 }
 
