@@ -2046,7 +2046,7 @@ class TreeSocket : public InspSocket
 		/* Get the reply to a STATS query if it matches this servername,
 		 * and send it back as a load of PUSH queries
 		 */
-		if (params.size() > 1)
+		if (params.size() > 0)
 		{
 			if (this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
 			{
@@ -2085,7 +2085,7 @@ class TreeSocket : public InspSocket
 				/* Pass it on */
 				userrec* source = this->Instance->FindNick(prefix);
 				if (source)
-					DoOneToOne(prefix, "MOTD", params, params[1]);
+					DoOneToOne(prefix, "MOTD", params, params[0]);
 			}
 		}
 		return true;
