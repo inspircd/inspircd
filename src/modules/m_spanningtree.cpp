@@ -861,6 +861,38 @@ class TreeSocket : public InspSocket
 		this->WriteLine("CAPAB END");
 	}
 
+	/* Check a comma seperated list for an item */
+	bool HasItem(const std::string &list, const std::string &item)
+	{
+		irc::commasepstream seplist(list);
+
+		std::string item2 = "*";
+		while ((item2 = seplist.GetToken()) != "")
+		{
+			if (item2 == item)
+				return true;
+		}
+
+		return false;
+	}
+
+	/* Isolate and return the elements that are different between two comma seperated lists */
+	std::string ListDifference(const std::string &one, const std::string &two)
+	{
+		irc::commasepstream list_one(one);
+		std::string item = "*";
+		std::string result = "";
+		while ((item = list_one.GetToken()) != "")
+		{
+			if (!HasItem(two, item))
+			{
+				result.append(" ");
+				result.append(item);
+			}
+		}
+		return result;
+	}
+
 	bool Capab(std::deque<std::string> params)
 	{
 		if (params.size() < 1)
@@ -885,7 +917,18 @@ class TreeSocket : public InspSocket
 			 * Maybe this could be tidier? -- Brain
 			 */
 			if ((this->ModuleList != this->MyCapabilities()) && (this->ModuleList.length()))
-				reason = "Modules loaded on these servers are not correctly matched";
+			{
+				std::string diff = ListDifference(this->ModuleList, this->MyCapabilities());
+				if (!diff.length())
+				{
+					diff = "this server:" + ListDifference(this->MyCapabilities(), this->ModuleList);
+				}
+				else
+				{
+					diff = "your server:" + diff;
+				}
+				reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
+			}
 
 			if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
 				reason = "We don't both support linking to IPV6 servers";
