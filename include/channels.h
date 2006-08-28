@@ -490,7 +490,9 @@ class chanrec : public Extensible
 
 	/** Return all of a users mode prefixes into a char* string.
 	 * @param user The user to look up
-	 * @return A list of all prefix characters. There is no gauranteed order of prefixes.
+	 * @return A list of all prefix characters. The prefixes will always
+	 * be in rank order, greatest first, as certain IRC clients require
+	 * this when multiple prefixes are used names lists.
 	 */
 	const char* GetAllPrefixChars(userrec* user);
 
