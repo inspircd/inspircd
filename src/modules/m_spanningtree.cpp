@@ -3021,6 +3021,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		TreeSocket* s = new TreeSocket(this->Instance, newsock, ip);
+		s = s; /* Whinge whinge whinge, thats all GCC ever does. */
 		return true;
 	}
 };
