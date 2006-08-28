@@ -40,7 +40,6 @@ InspSocket::InspSocket(InspIRCd* SI)
 	this->state = I_DISCONNECTED;
 	this->fd = -1;
 	this->WaitingForWriteEvent = false;
-	this->ClosePending = false;
 	this->Instance = SI;
 }
 
@@ -49,11 +48,10 @@ InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	strlcpy(this->IP,ip,MAXBUF);
-	this->ClosePending = false;
 	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
 	if (this->fd > -1)
-		this->ClosePending = (!this->Instance->SE->AddFd(this));
+		this->Instance->SE->AddFd(this);
 }
 
 InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime)
@@ -61,7 +59,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 	this->fd = -1;
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
-	this->ClosePending = false;
 	this->WaitingForWriteEvent = false;
 	if (listening)
 	{
@@ -70,7 +67,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 			this->fd = -1;
 			this->state = I_ERROR;
 			this->OnError(I_ERR_SOCKET);
-			this->ClosePending = true;
 			this->Instance->Log(DEBUG,"OpenTCPSocket() error");
 			return;
 		}
@@ -96,7 +92,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 						this->Close();
 						this->state = I_ERROR;
 						this->OnError(I_ERR_NOMOREFDS);
-						this->ClosePending = true;
 					}
 				}
 				this->Instance->Log(DEBUG,"New socket now in I_LISTENING state");
@@ -116,7 +111,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 			this->fd = -1;
 			this->state = I_ERROR;
 			this->OnError(I_ERR_RESOLVE);
-			this->ClosePending = true;
 			return;
 		}
 		else
@@ -149,7 +143,6 @@ void InspSocket::WantWrite()
 		this->fd = -1;
 		this->state = I_ERROR;
 		this->OnError(I_ERR_NOMOREFDS);
-		this->ClosePending = true;
 	}
 }
 
@@ -226,7 +219,6 @@ bool InspSocket::DoConnect()
 		this->Instance->Log(DEBUG,"Cant socket()");
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
-		this->fd = -1;
 		return false;
 	}
 
@@ -260,8 +252,6 @@ bool InspSocket::DoConnect()
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->state = I_ERROR;
-			this->fd = -1;
-			this->ClosePending = true;
 			return false;
 		}
 	}
@@ -272,9 +262,7 @@ bool InspSocket::DoConnect()
 		{
 			this->OnError(I_ERR_NOMOREFDS);
 			this->Close();
-			this->fd = -1;
 			this->state = I_ERROR;
-			this->ClosePending = true;
 			return false;
 		}
 		this->SetQueues(this->fd);
@@ -286,13 +274,11 @@ bool InspSocket::DoConnect()
 
 void InspSocket::Close()
 {
-	if (this->fd != -1)
+	if (this->fd > -1)
 	{
 		this->OnClose();
 		shutdown(this->fd,2);
 		close(this->fd);
-		this->ClosePending = true;
-		this->fd = -1;
 	}
 }
 
@@ -313,13 +299,17 @@ char* InspSocket::Read()
 	}
 	else
 	{
-		if (errno == EAGAIN)
+		int err = errno;
+		if (err == EAGAIN)
 		{
 			return "";
 		}
 		else
 		{
-			this->Instance->Log(DEBUG,"EOF or error on socket: %s",strerror(errno));
+			if (!n)
+				this->Instance->Log(DEBUG,"EOF or error on socket: EOF");
+			else
+				this->Instance->Log(DEBUG,"EOF or error on socket: %s",strerror(err));
 			return NULL;
 		}
 	}
@@ -328,7 +318,6 @@ char* InspSocket::Read()
 void InspSocket::MarkAsClosed()
 {
 	this->Instance->Log(DEBUG,"Marked as closed");
-	this->ClosePending = true;
 }
 
 // There are two possible outcomes to this function.
@@ -337,14 +326,6 @@ void InspSocket::MarkAsClosed()
 // and should be aborted.
 int InspSocket::Write(const std::string &data)
 {
-	if (this->ClosePending)
-		return false;
-
-	/*int result = write(this->fd,data.c_str(),data.length());
-	if (result < 1)
-		return false;
-	return true;*/
-
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
 	outbuffer.push_back(data);
@@ -353,9 +334,6 @@ int InspSocket::Write(const std::string &data)
 
 bool InspSocket::FlushWriteBuffer()
 {
-	if (this->ClosePending)
-		return true;
-
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
 		if (outbuffer.size())
@@ -381,7 +359,6 @@ bool InspSocket::FlushWriteBuffer()
 				this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
 				this->state = I_ERROR;
-				this->ClosePending = true;
 				return true;
 			}
 		}
@@ -414,7 +391,6 @@ bool InspSocket::Timeout(time_t current)
 		this->OnError(I_ERR_TIMEOUT);
 		timeout = true;
 		this->state = I_ERROR;
-		this->ClosePending = true;
 		return true;
 	}
 	return this->FlushWriteBuffer();
@@ -428,7 +404,7 @@ bool InspSocket::Poll()
 	int incoming = -1;
 	bool n = true;
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS) || (this->ClosePending))
+	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
 	switch (this->state)
@@ -526,6 +502,7 @@ void InspSocket::HandleEvent(EventType et)
 	if (!this->Poll())
 	{
 		this->Instance->SE->DelFd(this);
+		this->Close();
 		delete this;
 	}
 }

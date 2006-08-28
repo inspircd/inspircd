@@ -3021,7 +3021,6 @@ class TreeSocket : public InspSocket
 			}
 		}
 		TreeSocket* s = new TreeSocket(this->Instance, newsock, ip);
-		this->Instance->AddSocket(s);
 		return true;
 	}
 };
@@ -3059,7 +3058,6 @@ class ServernameResolver : public Resolver
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
-				ServerInstance->AddSocket(newsocket);
 			}
 			else
 			{
@@ -3306,7 +3304,6 @@ void ReadConfiguration(bool rebind)
 				TreeSocket* listener = new TreeSocket(ServerInstance, IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
-					ServerInstance->AddSocket(listener);
 					Bindings.push_back(listener);
 				}
 				else
@@ -3645,7 +3642,6 @@ class ModuleSpanningTree : public Module
 				ServerInstance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
-				ServerInstance->RemoveSocket(sock);
 			}
 			else
 			{
@@ -3725,7 +3721,6 @@ class ModuleSpanningTree : public Module
 						// they didnt answer, boot them
 						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
-						ServerInstance->RemoveSocket(sock);
 						return;
 					}
 				}
@@ -3755,7 +3750,6 @@ class ModuleSpanningTree : public Module
 						TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
-							ServerInstance->AddSocket(newsocket);
 						}
 						else
 						{
@@ -3836,7 +3830,6 @@ class ModuleSpanningTree : public Module
 						TreeSocket* newsocket = new TreeSocket(ServerInstance,x->IPAddr,x->Port,false,10,x->Name.c_str());
 						if (newsocket->GetFd() > -1)
 						{
-							ServerInstance->AddSocket(newsocket);
 						}
 						else
 						{

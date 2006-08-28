@@ -184,7 +184,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	
 	this->Config = new ServerConfig(this);
 	this->Start();
-	this->module_sockets.clear();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	srand(this->TIME);
 	this->Log(DEBUG,"*** InspIRCd starting up!");
@@ -671,8 +670,6 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			irc::whowas::MaintainWhoWas(TIME);
 		}
 		Timers->TickTimers(TIME);
-		if (process_module_sockets)
-			this->DoSocketTimeouts(TIME);
 		this->DoBackgroundUserStuff(TIME);
 
 		if ((TIME % 5) == 0)

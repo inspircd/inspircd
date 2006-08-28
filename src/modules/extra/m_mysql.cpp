@@ -679,7 +679,7 @@ class Notifier : public InspSocket
 	{
 		Instance->Log(DEBUG,"Inbound connection on fd %d!",newsock);
 		Notifier* n = new Notifier(this->Instance, newsock, ip);
-		this->Instance->AddSocket(n);
+		n = n; /* Stop bitching at me, GCC */
 		return true;
 	}
 
@@ -779,7 +779,6 @@ class ModuleSQL : public Module
 		SQLModule = this;
 
 		MessagePipe = new Notifier(ServerInstance);
-		ServerInstance->AddSocket(MessagePipe);
 		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
 		
 		pthread_attr_t attribs;

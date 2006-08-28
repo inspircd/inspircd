@@ -260,29 +260,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 }
 
-void InspIRCd::DoSocketTimeouts(time_t TIME)
-{
-	unsigned int numsockets = this->module_sockets.size();
-
-	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
-	{
-		InspSocket* s = *a;
-		int fd = s->GetFd();
-		if ((s) && (fd >= 0) && (fd < MAX_DESCRIPTORS) && (this->SE->GetRef(fd) == s) && (s->Timeout(TIME)))
-		{
-			this->Log(DEBUG,"userprocess.cpp: Socket poll returned false, close and bail");
-			SE->DelFd(s);
-			this->module_sockets.erase(a);
-			s->Close();
-			DELETE(s);
-			break;
-		}
-
-		if (this->module_sockets.size() != numsockets)
-			break;
-	}
-}
-
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.

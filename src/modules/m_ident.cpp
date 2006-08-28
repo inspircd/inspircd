@@ -212,16 +212,7 @@ class ModuleIdent : public Module
 		 */
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout);
-		if (ident->GetState() != I_ERROR)
-		{
-			user->Extend("ident_data", (char*)ident);
-			ServerInstance->AddSocket(ident);
-		}
-		else
-		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
-			DELETE(ident);
-		}
+		user->Extend("ident_data", (char*)ident);
 	}
 
 	virtual bool OnCheckReady(userrec* user)
@@ -232,17 +223,6 @@ class ModuleIdent : public Module
 		 * have an ident field any more.
 		 */
 		RFC1413* ident;
-		if (user->GetExt("ident_data", ident))
-		{
-			/*ServerInstance->Log(DEBUG,"TIMES: %lu %lu",ident->timeout_end, ServerInstance->Time());*/
-			if (ServerInstance->Time() > ident->timeout_end)
-			{
-				ident->u = NULL;
-				ServerInstance->RemoveSocket(ident);
-				user->Shrink("ident_data");
-				return true;
-			}
-		}
 		return (!user->GetExt("ident_data", ident));
 	}
 
@@ -259,7 +239,6 @@ class ModuleIdent : public Module
 				// a user which has now vanished! To prevent this, set ident::u
 				// to NULL and check it so that we dont write users who have gone away.
 				ident->u = NULL;
-				ServerInstance->RemoveSocket(ident);
 			}
 		}
 	}
@@ -278,7 +257,6 @@ class ModuleIdent : public Module
 		if (user->GetExt("ident_data", ident))
 		{
 			ident->u = NULL;
-			ServerInstance->RemoveSocket(ident);
 		}
 	}
 	

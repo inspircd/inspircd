@@ -65,7 +65,7 @@ class HttpSocket : public InspSocket
 		if (InternalState == HTTP_LISTEN)
 		{
 			HttpSocket* s = new HttpSocket(this->Instance, newsock, ip, index);
-			this->Instance->AddSocket(s);
+			s = s; /* Stop GCC whining */
 		}
 		return true;
 	}
@@ -283,10 +283,6 @@ class ModuleHttp : public Module
 	void CreateListener()
 	{
 		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, index);
-		if ((http) && (http->GetState() == I_LISTENING))
-		{
-			ServerInstance->AddSocket(http);
-		}
 	}
 
 	ModuleHttp(InspIRCd* Me) : Module::Module(Me)
@@ -317,7 +313,7 @@ class ModuleHttp : public Module
 
 	virtual ~ModuleHttp()
 	{
-		ServerInstance->DelSocket(http);
+		ServerInstance->SE->DelFd(http);
 	}
 
 	virtual Version GetVersion()

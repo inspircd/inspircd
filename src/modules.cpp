@@ -211,24 +211,6 @@ void		Module::OnSetAway(userrec* user) { };
 void		Module::OnCancelAway(userrec* user) { };
 int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
 
-/* server is a wrapper class that provides methods to all of the C-style
- * exports in the core
- */
-
-void InspIRCd::AddSocket(InspSocket* sock)
-{
-	this->module_sockets.push_back(sock);
-}
-
-void InspIRCd::RemoveSocket(InspSocket* sock)
-{
-	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
-	{
-		InspSocket* s = (InspSocket*)*a;
-		if (s == sock)
-			s->MarkAsClosed();
-	}
-}
 
 long InspIRCd::PriorityAfter(const std::string &modulename)
 {
@@ -302,18 +284,6 @@ void InspIRCd::RehashServer()
 {
 	this->WriteOpers("*** Rehashing config file");
 	this->Config->Read(false,NULL);
-}
-
-void InspIRCd::DelSocket(InspSocket* sock)
-{
-	for (std::vector<InspSocket*>::iterator a = this->module_sockets.begin(); a < this->module_sockets.end(); a++)
-	{
-		if (*a == sock)
-		{
-			this->module_sockets.erase(a);
-			return;
-		}
-	}
 }
 
 /* This is ugly, yes, but hash_map's arent designed to be

@@ -373,10 +373,6 @@ class InspIRCd : public classbase
 	 */
 	ServerConfig* Config;
 
-	/** Module sockets list, holds the active set of InspSocket classes
-	 */
-	std::vector<InspSocket*> module_sockets;
-
 	/** Client list, a hash_map containing all clients, local and remote
 	 */
 	user_hash clientlist;
@@ -867,21 +863,6 @@ class InspIRCd : public classbase
 	 * @return True i the mask is valid
 	 */
         bool IsValidMask(const std::string &mask);
-
-	/** Add an InspSocket class to the active set
-	 * @param sock A socket to add to the active set
-	 */
-        void AddSocket(InspSocket* sock);
-
-	/** Remove an InspSocket class from the active set at next time around the loop
-	 * @param sock A socket to remove from the active set
-	 */
-        void RemoveSocket(InspSocket* sock);
-
-	/** Delete a socket immediately without waiting for the next iteration of the mainloop
-	 * @param sock A socket to delete from the active set
-	 */
-        void DelSocket(InspSocket* sock);
 
 	/** Rehash the local server
 	 */
