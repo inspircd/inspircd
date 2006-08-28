@@ -639,7 +639,9 @@ class TreeSocket : public InspSocket
 	AES* ctx_in;
 	AES* ctx_out;
 	unsigned int keylength;
-	
+	std::string ModuleList;
+	std::map<std::string,std::string> CapKeys;
+
  public:
 
 	/* Because most of the I/O gubbins are encapsulated within
@@ -823,31 +825,138 @@ class TreeSocket : public InspSocket
 	
 	void SendCapabilities()
 	{
-		this->WriteLine("CAPAB "+MyCapabilities());
+		irc::commasepstream modulelist(MyCapabilities());
+
+		this->WriteLine("CAPAB START");
+
+		/* Send module names, split at 509 length */
+		std::string item = "*";
+		std::string line = "CAPAB MODULES ";
+		while ((item = modulelist.GetToken()) != "")
+		{
+			if (line.length() + item.length() + 1 > 509)
+			{
+				this->WriteLine(line);
+				line = "CAPAB MODULES ";
+			}
+
+			if (line != "CAPAB MODULES ")
+				line.append(",");
+
+			line.append(item);
+		}
+		if (line != "CAPAB MODULES ")
+			this->WriteLine(line);
+
+		int ip6 = 0;
+		int ip6support = 0;
+#ifdef IPV6
+		ip6 = 1;
+#endif
+#ifdef SUPPORT_IP6LINKS
+		ip6support = 1;
+#endif
+		this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support));
+
+		this->WriteLine("CAPAB END");
 	}
 
 	bool Capab(std::deque<std::string> params)
 	{
-		if (params.size() != 1)
+		if (params.size() < 1)
 		{
-			this->WriteLine("ERROR :Invalid number of parameters for CAPAB");
+			this->WriteLine("ERROR :Invalid number of parameters for CAPAB - Mismatched version");
 			return false;
 		}
 
-		if (params[0] != this->MyCapabilities())
+		if (params[0] == "START")
 		{
-			std::string quitserver = this->myhost;
-			if (this->InboundServerName != "")
-			{
-				quitserver = this->InboundServerName;
-			}
+			this->ModuleList = "";
+			this->CapKeys.clear();
+		}
+		else if (params[0] == "END")
+		{
+			std::string reason = "";
+			int ip6support = 0;
+#ifdef SUPPORT_IP6LINKS
+			ip6support = 1;
+#endif
+			/* Compare ModuleList and check CapKeys...
+			 * Maybe this could be tidier? -- Brain
+			 */
+			if ((this->ModuleList != this->MyCapabilities()) && (this->ModuleList.length()))
+				reason = "Modules loaded on these servers are not correctly matched";
 
-			this->Instance->WriteOpers("*** \2ERROR\2: Server '%s' does not have the same set of modules loaded, cannot link!",quitserver.c_str());
-			this->Instance->WriteOpers("*** Our networked module set is: '%s'",this->MyCapabilities().c_str());
-			this->Instance->WriteOpers("*** Other server's networked module set is: '%s'",params[0].c_str());
-			this->Instance->WriteOpers("*** These lists must match exactly on both servers. Please correct these errors, and try again.");
-			this->WriteLine("ERROR :CAPAB mismatch; My capabilities: '"+this->MyCapabilities()+"'");
-			return false;
+			if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
+				reason = "We don't both support linking to IPV6 servers";
+
+			if (((this->CapKeys.find("IP6NATIVE") != this->CapKeys.end()) && (this->CapKeys.find("IP6NATIVE")->second == "1")) && (!ip6support))
+				reason = "The remote server is IPV6 native, and we don't support linking to IPV6 servers";
+
+			if (((this->CapKeys.find("NICKMAX") == this->CapKeys.end()) || ((this->CapKeys.find("NICKMAX") != this->CapKeys.end()) && (this->CapKeys.find("NICKMAX")->second != ConvToStr(NICKMAX)))))
+				reason = "Maximum nickname lengths differ or remote nickname length not specified";
+
+			if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
+				reason = "We don't both have halfop support enabled/disabled identically";
+
+			if (((this->CapKeys.find("IDENTMAX") == this->CapKeys.end()) || ((this->CapKeys.find("IDENTMAX") != this->CapKeys.end()) && (this->CapKeys.find("IDENTMAX")->second != ConvToStr(IDENTMAX)))))
+				reason = "Maximum ident lengths differ or remote ident length not specified";
+
+			if (((this->CapKeys.find("CHANMAX") == this->CapKeys.end()) || ((this->CapKeys.find("CHANMAX") != this->CapKeys.end()) && (this->CapKeys.find("CHANMAX")->second != ConvToStr(CHANMAX)))))
+				reason = "Maximum channel lengths differ or remote channel length not specified";
+
+			if (((this->CapKeys.find("MAXMODES") == this->CapKeys.end()) || ((this->CapKeys.find("MAXMODES") != this->CapKeys.end()) && (this->CapKeys.find("MAXMODES")->second != ConvToStr(MAXMODES)))))
+				reason = "Maximum modes per line differ or remote modes per line not specified";
+
+			if (((this->CapKeys.find("MAXQUIT") == this->CapKeys.end()) || ((this->CapKeys.find("MAXQUIT") != this->CapKeys.end()) && (this->CapKeys.find("MAXQUIT")->second != ConvToStr(MAXQUIT)))))
+				reason = "Maximum quit lengths differ or remote quit length not specified";
+
+			if (((this->CapKeys.find("MAXTOPIC") == this->CapKeys.end()) || ((this->CapKeys.find("MAXTOPIC") != this->CapKeys.end()) && (this->CapKeys.find("MAXTOPIC")->second != ConvToStr(MAXTOPIC)))))
+				reason = "Maximum topic lengths differ or remote topic length not specified";
+
+			if (((this->CapKeys.find("MAXKICK") == this->CapKeys.end()) || ((this->CapKeys.find("MAXKICK") != this->CapKeys.end()) && (this->CapKeys.find("MAXKICK")->second != ConvToStr(MAXKICK)))))
+				reason = "Maximum kick lengths differ or remote kick length not specified";
+
+			if (((this->CapKeys.find("MAXGECOS") == this->CapKeys.end()) || ((this->CapKeys.find("MAXGECOS") != this->CapKeys.end()) && (this->CapKeys.find("MAXGECOS")->second != ConvToStr(MAXGECOS)))))
+				reason = "Maximum GECOS (fullname) lengths differ or remote GECOS length not specified";
+
+			if (((this->CapKeys.find("MAXAWAY") == this->CapKeys.end()) || ((this->CapKeys.find("MAXAWAY") != this->CapKeys.end()) && (this->CapKeys.find("MAXAWAY")->second != ConvToStr(MAXAWAY)))))
+				reason = "Maximum awaymessage lengths differ or remote awaymessage length not specified";
+
+			if (reason.length())
+			{
+				this->WriteLine("ERROR :CAPAB negotiation failed: "+reason);
+				return false;
+			}
+		}
+		else if ((params[0] == "MODULES") && (params.size() == 2))
+		{
+			if (!this->ModuleList.length())
+			{
+				this->ModuleList.append(params[1]);
+			}
+			else
+			{
+				this->ModuleList.append(",");
+				this->ModuleList.append(params[1]);
+			}
+		}
+		else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
+		{
+			irc::tokenstream capabs(params[1]);
+			std::string item = "*";
+			while ((item = capabs.GetToken()) != "")
+			{
+				/* Process each key/value pair */
+				std::string::size_type equals = item.rfind('=');
+				if (equals != std::string::npos)
+				{
+					std::string var = item.substr(0, equals);
+					std::string value = item.substr(equals+1, item.length());
+					this->Instance->Log(DEBUG,"Key='%s' Value='%s'",var.c_str(),value.c_str());
+					CapKeys[var] = value;
+				}
+			}
 		}
 
 		return true;
