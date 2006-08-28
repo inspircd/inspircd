@@ -209,6 +209,7 @@ void		Module::OnChannelDelete(chanrec* chan) { };
 Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
 void		Module::OnSetAway(userrec* user) { };
 void		Module::OnCancelAway(userrec* user) { };
+int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
 
 /* server is a wrapper class that provides methods to all of the C-style
  * exports in the core

@@ -343,7 +343,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -1239,6 +1239,13 @@ class Module : public Extensible
 	/** Called when a user cancels their away state.
 	 */
 	virtual void OnCancelAway(userrec* user);
+
+	/** Called whenever a NAMES list is requested.
+	 * You can produce the nameslist yourself, overriding the current list,
+	 * and if you do you must return 1. If you do not handle the names list,
+	 * return 0.
+	 */
+	virtual int OnUserList(userrec* user, chanrec* Ptr);
 };
 
 

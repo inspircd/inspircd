@@ -993,6 +993,11 @@
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# NAMESX module: Provides support for the NAMESX extension which allows
+# clients to see all the prefixes set on a user without getting confused.
+#<module name="m_namesx.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
 # user from changing their nick again. /NICKLOCK and /NICKUNLOCK
 #<module name="m_nicklock.so">

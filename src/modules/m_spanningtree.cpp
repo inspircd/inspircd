@@ -4018,17 +4018,20 @@ class ModuleSpanningTree : public Module
 			if (IS_LOCAL(user))
 			{
 				chanrec *c = (chanrec*)dest;
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				std::deque<TreeServer*> list;
-				GetListOfServersForChannel(c,list);
-				unsigned int ucount = list.size();
-				for (unsigned int i = 0; i < ucount; i++)
+				if (c)
 				{
-					TreeSocket* Sock = list[i]->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
+					std::string cname = c->name;
+					if (status)
+						cname = status + cname;
+					std::deque<TreeServer*> list;
+					GetListOfServersForChannel(c,list);
+					unsigned int ucount = list.size();
+					for (unsigned int i = 0; i < ucount; i++)
+					{
+						TreeSocket* Sock = list[i]->GetSocket();
+						if (Sock)
+							Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
+					}
 				}
 			}
 		}
@@ -4066,17 +4069,20 @@ class ModuleSpanningTree : public Module
 			if (IS_LOCAL(user))
 			{
 				chanrec *c = (chanrec*)dest;
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				std::deque<TreeServer*> list;
-				GetListOfServersForChannel(c,list);
-				unsigned int ucount = list.size();
-				for (unsigned int i = 0; i < ucount; i++)
+				if (c)
 				{
-					TreeSocket* Sock = list[i]->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
+					std::string cname = c->name;
+					if (status)
+						cname = status + cname;
+					std::deque<TreeServer*> list;
+					GetListOfServersForChannel(c,list);
+					unsigned int ucount = list.size();
+					for (unsigned int i = 0; i < ucount; i++)
+					{
+						TreeSocket* Sock = list[i]->GetSocket();
+						if (Sock)
+							Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
+					}
 				}
 			}
 		}

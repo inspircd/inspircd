@@ -450,7 +450,6 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 			user->WriteServ("333 %s %s %s %lu", user->nick, Ptr->name, Ptr->setby, (unsigned long)Ptr->topicset);
 		}
 		Ptr->UserList(user);
-		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 	}
 	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user,Ptr));
 	return Ptr;
@@ -811,6 +810,14 @@ void chanrec::UserList(userrec *user)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
+	int MOD_RESULT = 0;
+
+	FOREACH_RESULT(I_OnUserList,OnUserList(user, this));
+	ServerInstance->Log(DEBUG,"MOD_RESULT for UserList = %d",MOD_RESULT);
+	if (MOD_RESULT == 1)
+		return;
+
+	ServerInstance->Log(DEBUG,"Using builtin NAMES list generation");
 
 	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
 
@@ -861,6 +868,8 @@ void chanrec::UserList(userrec *user)
 	{
 		user->WriteServ(list);
 	}
+
+	user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, this->name);
 }
 
 long chanrec::GetMaxBans()
