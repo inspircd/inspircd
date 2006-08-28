@@ -921,12 +921,20 @@ const char* chanrec::GetAllPrefixChars(userrec* user)
 	int ctr = 0;
 	*prefix = 0;
 
+	/* Cheat and always put the highest first.
+	 * This fixes a NASTY ass-umption in xchat.
+	 */
+	const char* first = this->GetPrefixChar(user);
+	if (*first)
+		prefix[ctr++] = *first;
+
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{
 		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
 		{
-			prefix[ctr++] = x->first;
+			if (x->first != *first)
+				prefix[ctr++] = x->first;
 		}
 	}
 
