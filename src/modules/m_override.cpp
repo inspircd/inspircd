@@ -17,13 +17,10 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
-
-
 
 typedef std::map<std::string,std::string> override_t;
 
@@ -36,13 +33,7 @@ class ModuleOverride : public Module
  
 	ModuleOverride(InspIRCd* Me)
 		: Module::Module(Me)
-	{
-	
-		// here we initialise our module. Use new to create new instances of the required
-		// classes.
-		
-		
-		
+	{		
 		// read our config options (main config file)
 		OnRehash("");
 	}
