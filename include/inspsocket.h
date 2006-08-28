@@ -24,6 +24,7 @@
 #include "inspircd_config.h"
 #include "socket.h"
 #include "inspsocket.h"
+#include "timer.h"
 
 /**
  * States which a socket may be in
@@ -43,6 +44,17 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
 
+class SocketTimeout : public InspTimer
+{
+ private:
+	InspSocket* sock;
+	InspIRCd* ServerInstance;
+	int sfd;
+ public:
+	SocketTimeout(int fd, InspIRCd* Instance, InspSocket* thesock, long secs_from_now, time_t now) : InspTimer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
+	virtual void Tick(time_t now);
+};
+
 /**
  * InspSocket is an extendable socket class which modules
  * can use for TCP socket support. It is fully integrated
@@ -58,6 +70,10 @@ class InspSocket : public EventHandler
 {
  public:
 	InspIRCd* Instance;
+
+	SocketTimeout* Timeout;
+
+	unsigned long timeout_val;
 
 	std::deque<std::string> outbuffer;
 
@@ -90,13 +106,6 @@ class InspSocket : public EventHandler
 	 * in in_addr form
 	 */
         insp_inaddr addy;
-
-	/**
-	 * When this time is reached,
-	 * the socket times out if it is
-	 * in the CONNECTING state
-	 */
-        time_t timeout_end;
 
 	/**
 	 * This value is true if the
@@ -266,14 +275,6 @@ class InspSocket : public EventHandler
 	 * no IP address exists.
 	 */
 	std::string GetIP();
-
-	/**
-	 * This function checks if the socket has
-	 * timed out yet, given the current time
-	 * in the parameter.
-	 * @return true if timed out, false if not timed out
-	 */
-	bool Timeout(time_t current);
 
 	/**
 	 * Writes a std::string to the socket. No carriage

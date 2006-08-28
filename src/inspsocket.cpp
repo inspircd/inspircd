@@ -117,7 +117,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		{
 			this->Instance->Log(DEBUG,"No need to resolve %s",this->host);
 			strlcpy(this->IP,host,MAXBUF);
-			timeout_end = time(NULL) + maxtime;
+			timeout_val = maxtime;
 			this->DoConnect();
 		}
 	}
@@ -254,6 +254,9 @@ bool InspSocket::DoConnect()
 			this->state = I_ERROR;
 			return false;
 		}
+
+		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, timeout_val, this->Instance->Time());
+		this->Instance->Timers->AddTimer(this->Timeout);
 	}
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
@@ -366,34 +369,31 @@ bool InspSocket::FlushWriteBuffer()
 	return (fd < 0);
 }
 
-bool InspSocket::Timeout(time_t current)
+void SocketTimeout::Tick(time_t now)
 {
-	if (this->Instance->SE->GetRef(this->fd) != this)
+	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 	{
-		this->Instance->Log(DEBUG,"No FD or socket ref");
-		return false;
+		ServerInstance->Log(DEBUG,"No FD or socket ref");
+		return;
 	}
 
-	if (this->ClosePending)
+	if (this->sock->state == I_CONNECTING)
 	{
-		this->Instance->Log(DEBUG,"Close is pending");
-		return true;
-	}
-
-	if ((this->state == I_CONNECTING) && (current > timeout_end))
-	{
-		this->Instance->Log(DEBUG,"Timed out, current=%lu timeout_end=%lu");
+		ServerInstance->Log(DEBUG,"Timed out, current=%lu",now);
 		// for non-listening sockets, the timeout can occur
 		// which causes termination of the connection after
 		// the given number of seconds without a successful
 		// connection.
-		this->OnTimeout();
-		this->OnError(I_ERR_TIMEOUT);
-		timeout = true;
-		this->state = I_ERROR;
-		return true;
+		this->sock->OnTimeout();
+		this->sock->OnError(I_ERR_TIMEOUT);
+		this->sock->timeout = true;
+		this->sock->state = I_ERROR;
+		ServerInstance->SE->DelFd(this->sock);
+		this->sock->Close();
+		delete this->sock;
+		return;
 	}
-	return this->FlushWriteBuffer();
+	this->sock->FlushWriteBuffer();
 }
 
 bool InspSocket::Poll()
