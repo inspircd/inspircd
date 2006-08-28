@@ -3642,6 +3642,7 @@ class ModuleSpanningTree : public Module
 				ServerInstance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
+				ServerInstance->SE->DelFd(sock);
 			}
 			else
 			{
@@ -3721,6 +3722,7 @@ class ModuleSpanningTree : public Module
 						// they didnt answer, boot them
 						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
+						ServerInstance->SE->DelFd(sock);
 						return;
 					}
 				}
