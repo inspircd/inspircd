@@ -921,20 +921,12 @@ const char* chanrec::GetAllPrefixChars(userrec* user)
 	int ctr = 0;
 	*prefix = 0;
 
-	/* Cheat and always put the highest first.
-	 * This fixes a NASTY ass-umption in xchat.
-	 */
-	const char* first = this->GetPrefixChar(user);
-	if (*first)
-		prefix[ctr++] = *first;
-
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{
 		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
 		{
-			if (x->first != *first)
-				prefix[ctr++] = x->first;
+			prefix[ctr++] = x->first;
 		}
 	}
 
@@ -1001,6 +993,11 @@ int chanrec::GetStatus(userrec *user)
 	return STATUS_NORMAL;
 }
 
+/*bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
+{       
+        return one.second > two.second;
+}*/
+
 void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
 {
 	prefixlist::iterator n = prefixes.find(user);
@@ -1012,6 +1009,7 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 			if (std::find(n->second.begin(), n->second.end(), pfx) == n->second.end())
 			{
 				n->second.push_back(pfx);
+				std::sort(n->second.begin(), n->second.end(), ModeParser::PrefixComparison);
 			}
 		}
 		else
