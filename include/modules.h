@@ -1253,7 +1253,7 @@ class Module : public classbase
  * output to users and other servers. All modules should instantiate at least one copy of this class,
  * and use its member functions to perform their tasks.
  */
-class Server : public classbase
+class Server : public Extensible
 {
  public:
 	/** Default constructor.
