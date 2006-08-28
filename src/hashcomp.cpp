@@ -206,10 +206,6 @@ std::istream& operator>>(std::istream &is, irc::string &str)
 
 irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)
 {
-	/* Remove trailing spaces, these muck up token parsing */
-	while (tokens.find_last_of(' ') == tokens.length() - 1)
-		tokens.erase(tokens.end() - 1);
-
 	/* Record starting position and current position */
 	last_starting_position = tokens.begin();
 	n = tokens.begin();
@@ -243,7 +239,12 @@ const std::string irc::tokenstream::GetToken()
 			 */
 			last_starting_position = n+1;
 			last_pushed = true;
-			return std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+
+			std::string strip(lsp, n+1 == tokens.end() ? n+1  : n++);
+			while ((strip.length()) && (strip.find_last_of(' ') == strip.length() - 1))
+				strip.erase(strip.end() - 1);
+
+			return strip;
 		}
 
 		n++;
