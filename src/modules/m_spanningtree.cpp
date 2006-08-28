@@ -921,11 +921,11 @@ class TreeSocket : public InspSocket
 				std::string diff = ListDifference(this->ModuleList, this->MyCapabilities());
 				if (!diff.length())
 				{
-					diff = "this server:" + ListDifference(this->MyCapabilities(), this->ModuleList);
+					diff = "your server:" + ListDifference(this->MyCapabilities(), this->ModuleList);
 				}
 				else
 				{
-					diff = "your server:" + diff;
+					diff = "this server:" + diff;
 				}
 				reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
 			}
