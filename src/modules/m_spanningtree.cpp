@@ -927,7 +927,10 @@ class TreeSocket : public InspSocket
 				{
 					diff = "this server:" + diff;
 				}
-				reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
+				if (diff.length() == 12)
+					reason = "Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
+				else
+					reason = "Modules loaded on these servers are not correctly matched, these modules are not loaded on " + diff;
 			}
 
 			if (((this->CapKeys.find("IP6SUPPORT") == this->CapKeys.end()) && (ip6support)) || ((this->CapKeys.find("IP6SUPPORT") != this->CapKeys.end()) && (this->CapKeys.find("IP6SUPPORT")->second != ConvToStr(ip6support))))
