@@ -2040,6 +2040,57 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
+	/* remote MOTD. leet, huh? */
+	bool Motd(std::string prefix, std::deque<std::string> &params)
+	{
+		/* Get the reply to a STATS query if it matches this servername,
+		 * and send it back as a load of PUSH queries
+		 */
+		if (params.size() > 1)
+		{
+			if (this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
+			{
+				/* It's for our server */
+				string_list results;
+				userrec* source = this->Instance->FindNick(prefix);
+
+				if (source)
+				{
+					std::deque<std::string> par;
+					par.push_back(prefix);
+					par.push_back("");
+
+					if (!ServerInstance->Config->MOTD.size())
+					{
+						par[1] = std::string("::")+ServerInstance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
+						DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+						return true;
+					}
+   
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 375 "+source->nick+" :"+ServerInstance->Config->ServerName+" message of the day";
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+   
+					for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
+					{
+						par[1] = std::string("::")+ServerInstance->Config->ServerName+" 372 "+source->nick+" :- "+ServerInstance->Config->MOTD[i];
+						DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					}
+     
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 376 "+source->nick+" End of message of the day.";
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				}
+			}
+			else
+			{
+				/* Pass it on */
+				userrec* source = this->Instance->FindNick(prefix);
+				if (source)
+					DoOneToOne(prefix, "MOTD", params, params[1]);
+			}
+		}
+		return true;
+	}
+
 	bool Stats(std::string prefix, std::deque<std::string> &params)
 	{
 		/* Get the reply to a STATS query if it matches this servername,
@@ -2891,6 +2942,10 @@ class TreeSocket : public InspSocket
 				{
 					return this->Stats(prefix, params);
 				}
+				else if (command == "MOTD")
+				{
+					return this->Motd(prefix, params);
+				}
 				else if (command == "SERVER")
 				{
 					return this->RemoteServer(prefix,params);
@@ -3693,6 +3748,29 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	int HandleMotd(const char** parameters, int pcnt, userrec* user)
+	{
+		if (pcnt > 0)
+		{
+			/* Remote MOTD, the server is within the 1st parameter */
+			std::deque<std::string> params;
+			params.push_back(parameters[0]);
+
+			/* Send it out remotely, generate no reply yet */
+			TreeServer* s = FindServerMask(parameters[0]);
+			if (s)
+			{
+				DoOneToOne(user->nick, "MOTD", params, s->GetName());
+			}
+			else
+			{
+				user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			}
+			return 1;
+		}
+		return 0;
+	}
+
 	int HandleStats(const char** parameters, int pcnt, userrec* user)
 	{
 		if (pcnt > 1)
@@ -4053,6 +4131,10 @@ class ModuleSpanningTree : public Module
 		else if (command == "STATS")
 		{
 			return this->HandleStats(parameters,pcnt,user);
+		}
+		else if (command == "MOTD")
+		{
+			return this->HandleMotd(parameters,pcnt,user);
 		}
 		else if (command == "SQUIT")
 		{
