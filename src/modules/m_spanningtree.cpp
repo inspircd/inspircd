@@ -239,7 +239,7 @@ class TreeServer : public classbase
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
-		this->SetNextPingTime(time(NULL) + 120);
+		this->SetNextPingTime(time(NULL) + 60);
 		this->SetPingFlag();
 
 		/* find the 'route' for this server (e.g. the one directly connected
@@ -2708,7 +2708,7 @@ class TreeSocket : public InspSocket
 					 * When there is activity on the socket, reset the ping counter so
 					 * that we're not wasting bandwidth pinging an active server.
 					 */ 
-					route_back_again->SetNextPingTime(time(NULL) + 120);
+					route_back_again->SetNextPingTime(time(NULL) + 60);
 					route_back_again->SetPingFlag();
 				}
 				
@@ -3644,6 +3644,8 @@ class ModuleSpanningTree : public Module
 				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
 				ServerInstance->SE->DelFd(sock);
+				sock->Close();
+				delete sock;
 			}
 			else
 			{
@@ -3716,7 +3718,7 @@ class ModuleSpanningTree : public Module
 					if (serv->AnsweredLastPing())
 					{
 						sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
-						serv->SetNextPingTime(curtime + 120);
+						serv->SetNextPingTime(curtime + 60);
 					}
 					else
 					{
@@ -3724,6 +3726,8 @@ class ModuleSpanningTree : public Module
 						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
 						ServerInstance->SE->DelFd(sock);
+						sock->Close();
+						delete sock;
 						return;
 					}
 				}
