@@ -86,12 +86,12 @@ class FounderProtectBase
 		if ((!theuser) || (!channel->HasUser(theuser)))
 		{
 			parameter = "";
-			return theuser;
+			return NULL;
 		}
-		return NULL;
+		return theuser;
 	}
 
-	ModeAction HandleChange(userrec* source, userrec*theuser, bool adding, chanrec* channel, std::string &parameter)
+	ModeAction HandleChange(userrec* source, userrec* theuser, bool adding, chanrec* channel, std::string &parameter)
 	{
 		std::string item = extend+std::string(channel->name);
 
@@ -140,7 +140,9 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
 
 		if (!theuser)
+		{
 			return MODEACTION_DENY;
+		}
 
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
