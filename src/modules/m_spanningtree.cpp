@@ -2043,9 +2043,6 @@ class TreeSocket : public InspSocket
 	/* remote MOTD. leet, huh? */
 	bool Motd(std::string prefix, std::deque<std::string> &params)
 	{
-		/* Get the reply to a STATS query if it matches this servername,
-		 * and send it back as a load of PUSH queries
-		 */
 		if (params.size() > 0)
 		{
 			if (this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
@@ -2086,6 +2083,47 @@ class TreeSocket : public InspSocket
 				userrec* source = this->Instance->FindNick(prefix);
 				if (source)
 					DoOneToOne(prefix, "MOTD", params, params[0]);
+			}
+		}
+		return true;
+	}
+
+	/* remote ADMIN. leet, huh? */
+	bool Admin(std::string prefix, std::deque<std::string> &params)
+	{
+		if (params.size() > 0)
+		{
+			if (this->Instance->MatchText(this->Instance->Config->ServerName, params[0]))
+			{
+				/* It's for our server */
+				string_list results;
+				userrec* source = this->Instance->FindNick(prefix);
+
+				if (source)
+				{
+					std::deque<std::string> par;
+					par.push_back(prefix);
+					par.push_back("");
+
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+ServerInstance->Config->ServerName;
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 257 "+source->nick+" :Name     - "+ServerInstance->Config->AdminName;
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 258 "+source->nick+" :Nickname - "+ServerInstance->Config->AdminNick;
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 258 "+source->nick+" :E-Mail   - "+ServerInstance->Config->AdminEmail;
+					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				}
+			}
+			else
+			{
+				/* Pass it on */
+				userrec* source = this->Instance->FindNick(prefix);
+				if (source)
+					DoOneToOne(prefix, "ADMIN", params, params[0]);
 			}
 		}
 		return true;
@@ -2946,6 +2984,10 @@ class TreeSocket : public InspSocket
 				{
 					return this->Motd(prefix, params);
 				}
+				else if (command == "ADMIN")
+				{
+					return this->Admin(prefix, params);
+				}
 				else if (command == "SERVER")
 				{
 					return this->RemoteServer(prefix,params);
@@ -3771,6 +3813,29 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
+	int HandleAdmin(const char** parameters, int pcnt, userrec* user)
+	{
+		if (pcnt > 0)
+		{
+			/* Remote ADMIN, the server is within the 1st parameter */
+			std::deque<std::string> params;
+			params.push_back(parameters[0]);
+
+			/* Send it out remotely, generate no reply yet */
+			TreeServer* s = FindServerMask(parameters[0]);
+			if (s)
+			{
+				DoOneToOne(user->nick, "ADMIN", params, s->GetName());
+			}
+			else
+			{
+				user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+			}
+			return 1;
+		}
+		return 0;
+	}
+
 	int HandleStats(const char** parameters, int pcnt, userrec* user)
 	{
 		if (pcnt > 1)
@@ -4135,6 +4200,10 @@ class ModuleSpanningTree : public Module
 		else if (command == "MOTD")
 		{
 			return this->HandleMotd(parameters,pcnt,user);
+		}
+		else if (command == "ADMIN")
+		{
+			return this->HandleAdmin(parameters,pcnt,user);
 		}
 		else if (command == "SQUIT")
 		{
