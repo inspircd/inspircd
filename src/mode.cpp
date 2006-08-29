@@ -432,8 +432,9 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 							 */
 							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
 							{
-								user->WriteServ("481 %s :Permission Denied- Only operators may set %s mode %c", user->nick,
-										type == MODETYPE_CHANNEL ? "channel" : "user", modehandlers[handler_id]->GetModeChar());
+								user->WriteServ("481 %s :Permission Denied- Only IRC operators may %sset %s mode %c", user->nick,
+										adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user",
+										modehandlers[handler_id]->GetModeChar());
 								continue;
 							}
 
