@@ -713,19 +713,15 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 	}
 
 	/*
-	 * this must come before the ServerInstance->WriteOpers so that it doesnt try to fill their buffer with anything
-	 * if they were an oper with +s.
-	 *
-	 * XXX -
-	 * In the current implementation, we only show local quits, as we only show local connects. With 
-	 * the proposed implmentation of snomasks however, this will likely change in the (near?) future.
+	 * this must come before the ServerInstance->SNO->WriteToSnoMaskso that it doesnt try to fill their buffer with anything
+	 * if they were an oper with +sn +qQ.
 	 */
 	if (user->registered == REG_ALL)
 	{
 		if (IS_LOCAL(user))
 			Instance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
 		else
-			Instance->SNO->WriteToSnoMask('Q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
+			Instance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,reason.c_str());
 		user->AddToWhoWas();
 	}
 
