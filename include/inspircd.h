@@ -25,9 +25,9 @@
 #include "channels.h"
 #include "socket.h"
 #include "mode.h"
-
 #include "socketengine.h"
 #include "command_parse.h"
+#include "snomasks.h"
 
 /** Returned by some functions to indicate failure,
  * and the exit code of the program if it terminates.
@@ -372,6 +372,11 @@ class InspIRCd : public classbase
 	/**  Server Config class, holds configuration file data
 	 */
 	ServerConfig* Config;
+
+	/** Snomask manager - handles routing of snomask messages
+	 * to opers.
+	 */
+	SnomaskManager* SNO;
 
 	/** Client list, a hash_map containing all clients, local and remote
 	 */

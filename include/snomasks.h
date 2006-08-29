@@ -19,18 +19,26 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "configreader.h"
 #include "inspircd.h"
+
+typedef std::map<char, std::string> SnoList;
 
 class SnomaskManager : public Extensible
 {
  private:
 	InspIRCd* ServerInstance;
+	SnoList SnoMasks;
  public:
 	SnomaskManager(InspIRCd* Instance);
 	~SnomaskManager();
 
-
+	bool EnableSnomask(char letter, const std::string &description);
+	bool DisableSnomask(char letter);
+	void WriteToSnoMask(char letter, const std::string &text);
+	void WriteToSnoMask(char letter, const char* text, ...);
+	bool IsEnabled(char letter);
 };
 
 #endif

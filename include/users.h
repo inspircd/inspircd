@@ -46,6 +46,7 @@ enum UserModes {
 	UM_WALLOPS = 'w'-65,
 	UM_INVISIBLE = 'i'-65,
 	UM_OPERATOR = 'o'-65,
+	UM_SNOMASK = 'n'-65,
 };
 
 enum RegistrationState {
@@ -372,9 +373,11 @@ class userrec : public connection
 
 	/** Process a snomask modifier string, e.g. +abc-de
 	 * @param sm A sequence of notice mask characters
-	 * @return True if the notice masks were successfully applied
+	 * @return The cleaned mode sequence which can be output,
+	 * e.g. in the above example if masks c and e are not
+	 * valid, this function will return +ab-d
 	 */
-	bool userrec::ProcessNoticeMasks(const char *sm);
+	std::string userrec::ProcessNoticeMasks(const char *sm);
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check

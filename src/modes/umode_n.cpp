@@ -15,12 +15,18 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(userrec* source, userrec* dest
 		return MODEACTION_DENY;
 
 	/* Set the bitfields */
-	if (dest->modes[UM_SERVERNOTICE] != adding)
+	if (adding)
 	{
-		dest->modes[UM_SERVERNOTICE] = adding;
+		parameter = dest->ProcessNoticeMasks(parameter.c_str());
+		return MODEACTION_ALLOW;
+	}
+	else if (dest->modes[UM_SNOMASK] != false)
+	{
+		dest->modes[UM_SNOMASK] = false;
 		return MODEACTION_ALLOW;
 	}
 
 	/* Allow the change */
 	return MODEACTION_DENY;
 }
+

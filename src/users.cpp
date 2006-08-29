@@ -92,10 +92,11 @@ bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
 	return true;
 }
 
-bool userrec::ProcessNoticeMasks(const char *sm)
+std::string userrec::ProcessNoticeMasks(const char *sm)
 {
-	bool adding = true;
+	bool adding = true, oldadding = false;
 	const char *c = sm;
+	std::string output = "";
 
 	while (c && *c)
 	{
@@ -103,20 +104,31 @@ bool userrec::ProcessNoticeMasks(const char *sm)
 		{
 			case '+':
 				adding = true;
-				break;
+			break;
 			case '-':
 				adding = false;
-				break;
+			break;
 			default:
-				if ((*c >= 'A') && (*c <= 'z'))
-					this->SetNoticeMask(*c, adding);
-				break;
+				if ((*c >= 'A') && (*c <= 'z') && (ServerInstance->SNO->IsEnabled(*c)))
+				{
+					if ((IsNoticeMaskSet(*c) && adding) || (!IsNoticeMaskSet(*c) && !adding))
+					{
+						if ((oldadding != adding) || (sm == c))
+							output += (adding ? '+' : '-');
+
+						this->SetNoticeMask(*c, adding);
+
+						output += *c;
+					}
+				}
+				oldadding = adding;
+			break;
 		}
 
 		*c++;
 	}
 
-	return true;
+	return output;
 }
 
 void userrec::StartDNSLookup()
