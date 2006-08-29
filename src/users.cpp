@@ -117,7 +117,7 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 				{
 					if ((!IsNoticeMaskSet(*c) && adding) || (IsNoticeMaskSet(*c) && !adding))
 					{
-						if ((oldadding != adding) || (sm == c))
+						if ((oldadding != adding) || (sm == (c+1)))
 							output += (adding ? '+' : '-');
 
 						this->SetNoticeMask(*c, adding);
