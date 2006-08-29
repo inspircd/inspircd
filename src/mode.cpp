@@ -259,7 +259,8 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	{
 		/* Display user's current mode string */
 		user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
-		user->WriteServ("008 %s :+%s", targetuser->nick, targetuser->FormatNoticeMasks());
+		if (*targetuser->oper)
+			user->WriteServ("008 %s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
 		return;
 	}
 
