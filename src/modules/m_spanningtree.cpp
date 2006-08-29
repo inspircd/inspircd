@@ -1742,7 +1742,7 @@ class TreeSocket : public InspSocket
 #endif
 			_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
 
-		this->Instance->WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
+		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
 
 		params[7] = ":" + params[7];
 		DoOneToAllButSender(source,"NICK",params,source);

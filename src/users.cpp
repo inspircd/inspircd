@@ -723,7 +723,9 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quit
 	if (user->registered == REG_ALL)
 	{
 		if (IS_LOCAL(user))
-			Instance->SNO->WriteToSnoMask('q',"*** Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
+			Instance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
+		else
+			Instance->SNO->WriteToSnoMask('Q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
 		user->AddToWhoWas();
 	}
 
@@ -1079,7 +1081,7 @@ void userrec::FullConnect(CullList* Goners)
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 	this->registered = REG_ALL;
-	ServerInstance->SNO->WriteToSnoMask('c',"*** Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
 }
 
 /** userrec::UpdateNick()
