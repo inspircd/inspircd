@@ -21,6 +21,13 @@
 #include "modules.h"
 #include "commands.h"
 #include "xline.h"
-
 #include "snomasks.h"
+
+SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)
+{
+}
+
+SnomaskManager::~SnomaskManager()
+{
+}
 

@@ -1735,9 +1735,11 @@ class TreeSocket : public InspSocket
 		for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
 			_new->modes[(*v)-65] = 1;
 
+#ifdef SUPPORT_IP6LINKS
 		if (params[6].find_first_of(":") != std::string::npos)
 			_new->SetSockAddr(AF_INET6, params[6].c_str(), 0);
 		else
+#endif
 			_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
 
 		this->Instance->WriteOpers("*** Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
