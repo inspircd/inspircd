@@ -102,5 +102,6 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('o',"OPER");		/* Oper up/down notices */
 	this->EnableSnomask('d',"DEBUG");		/* Debug notices */
 	this->EnableSnomask('x',"XLINE");		/* Xline notice (g/z/q/k/e) */
+	this->EnableSnomask('t',"STATS");		/* Local or remote stats request */
 }
 

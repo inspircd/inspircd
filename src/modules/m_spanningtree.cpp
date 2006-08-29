@@ -602,7 +602,7 @@ class cmd_rconnect : public command_t
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
 			/* Yes, initiate the given connect */
-			ServerInstance->WriteOpers("*** Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
+			ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
 			const char* para[1];
 			para[0] = parameters[1];
 			Creator->OnPreCommand("CONNECT", para, 1, user, true);
@@ -700,12 +700,12 @@ class TreeSocket : public InspSocket
 		keylength = key.length();
 		if (!(keylength == 16 || keylength == 24 || keylength == 32))
 		{
-			this->Instance->WriteOpers("*** \2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
+			this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
 			ServerInstance->Log(DEBUG,"Key length not 16, 24 or 32 characters!");
 		}
 		else
 		{
-			this->Instance->WriteOpers("*** \2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
+			this->Instance->SNO->WriteToSnoMask('l',"\2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
 			ctx_in->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 				\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
 			ctx_out->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
@@ -728,13 +728,13 @@ class TreeSocket : public InspSocket
 			{
 				if (x->Name == this->myhost)
 				{
-					this->Instance->WriteOpers("*** Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
+					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
 					this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
 						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
 						{
-							this->Instance->WriteOpers("\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
+							this->Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
 						}
 						else
 						{
@@ -753,7 +753,7 @@ class TreeSocket : public InspSocket
 		 * If that happens the connection hangs here until it's closed. Unlikely
 		 * and rather harmless.
 		 */
-		this->Instance->WriteOpers("*** Connection to \2"+myhost+"\2 lost link tag(!)");
+		this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2 lost link tag(!)");
 		return true;
 	}
 	
@@ -765,7 +765,7 @@ class TreeSocket : public InspSocket
 		 */
 		if (e == I_ERR_CONNECT)
 		{
-			this->Instance->WriteOpers("*** Connection failed: Connection refused");
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection refused");
 		}
 	}
 
@@ -1928,7 +1928,7 @@ class TreeSocket : public InspSocket
 		std::string endburst = "ENDBURST";
 		// Because by the end of the netburst, it  could be gone!
 		std::string name = s->GetName();
-		this->Instance->WriteOpers("*** Bursting to \2"+name+"\2.");
+		this->Instance->SNO->WriteToSnoMask('l',"Bursting to \2"+name+"\2.");
 		this->WriteLine(burst);
 		/* send our version string */
 		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" VERSION :"+this->Instance->GetVersionString());
@@ -1941,7 +1941,7 @@ class TreeSocket : public InspSocket
 		this->SendXLines(s);		
 		FOREACH_MOD_I(this->Instance,I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
 		this->WriteLine(endburst);
-		this->Instance->WriteOpers("*** Finished bursting to \2"+name+"\2.");
+		this->Instance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
 	}
 
 	/* This function is called when we receive data from a remote
@@ -2037,7 +2037,7 @@ class TreeSocket : public InspSocket
 	{
 		if (params.size() < 1)
 			return false;
-		this->Instance->WriteOpers("*** ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
+		this->Instance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 		/* we will return false to cause the socket to close. */
 		return false;
 	}
@@ -2244,7 +2244,7 @@ class TreeSocket : public InspSocket
 
 		if (this->Instance->MatchText(this->Instance->Config->ServerName,servermask))
 		{
-			this->Instance->WriteOpers("*** Remote rehash initiated from server \002"+prefix+"\002.");
+			this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated from server \002"+prefix+"\002.");
 			this->Instance->RehashServer();
 			ReadConfiguration(false);
 		}
@@ -2420,7 +2420,7 @@ class TreeSocket : public InspSocket
 			break;
 			default:
 				/* Just in case... */
-				this->Instance->WriteOpers("*** \2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
+				this->Instance->SNO->WriteToSnoMask('x',"\2WARNING\2: Invalid xline type '"+params[0]+"' sent by server "+prefix+", ignored!");
 				propogate = false;
 			break;
 		}
@@ -2430,11 +2430,11 @@ class TreeSocket : public InspSocket
 		{
 			if (atoi(params[4].c_str()))
 			{
-				this->Instance->WriteOpers("*** %s Added %cLINE on %s to expire in %lu seconds (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),atoi(params[4].c_str()),params[5].c_str());
+				this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire in %lu seconds (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),atoi(params[4].c_str()),params[5].c_str());
 			}
 			else
 			{
-				this->Instance->WriteOpers("*** %s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
+				this->Instance->SNO->WriteToSnoMask('x',"%s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
 			}
 			params[5] = ":" + params[5];
 			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
@@ -2647,14 +2647,14 @@ class TreeSocket : public InspSocket
 		if (CheckDupe)
 		{
 			this->WriteLine("ERROR :Server "+servername+" already exists!");
-			this->Instance->WriteOpers("*** Server connection from \2"+servername+"\2 denied, already exists");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+servername+"\2 denied, already exists");
 			return false;
 		}
 		TreeServer* Node = new TreeServer(this->Instance,servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		params[3] = ":" + params[3];
 		DoOneToAllButSender(prefix,"SERVER",params,prefix);
-		this->Instance->WriteOpers("*** Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
+		this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 		return true;
 	}
 
@@ -2671,7 +2671,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2683,7 +2683,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				// Begin the sync here. this kickstarts the
@@ -2704,7 +2704,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
+		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2721,7 +2721,7 @@ class TreeSocket : public InspSocket
 		if (hops)
 		{
 			this->WriteLine("ERROR :Server too far away for authentication");
-			this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
+			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 			return false;
 		}
 		std::string description = params[3];
@@ -2733,7 +2733,7 @@ class TreeSocket : public InspSocket
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-					this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+					this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
 				/* If the config says this link is encrypted, but the remote side
@@ -2743,10 +2743,10 @@ class TreeSocket : public InspSocket
 				if ((x->EncryptionKey != "") && (!this->ctx_in))
 				{
 					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
-					this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
+					this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
 					return false;
 				}
-				this->Instance->WriteOpers("*** Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+				this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 				this->InboundServerName = sname;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
@@ -2758,7 +2758,7 @@ class TreeSocket : public InspSocket
 			}
 		}
 		this->WriteLine("ERROR :Invalid credentials");
-		this->Instance->WriteOpers("*** Server connection from \2"+sname+"\2 denied, invalid link credentials");
+		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 		return false;
 	}
 
@@ -2811,7 +2811,7 @@ class TreeSocket : public InspSocket
 		}
 		else if ((this->ctx_in) && (command == "AES"))
 		{
-			this->Instance->WriteOpers("*** \2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
+			this->Instance->SNO->WriteToSnoMask('l',"\2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
 		}
 
 		switch (this->LinkState)
@@ -2879,13 +2879,13 @@ class TreeSocket : public InspSocket
 						long delta = THEM-time(NULL);
 						if ((delta < -600) || (delta > 600))
 						{
-							this->Instance->WriteOpers("*** \2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
+							this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
 							this->WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 							return false;
 						}
 						else if ((delta < -60) || (delta > 60))
 						{
-							this->Instance->WriteOpers("*** \2WARNING\2: Your clocks are out by %d seconds, please consider synching your clocks.",abs(delta));
+							this->Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds, please consider synching your clocks.",abs(delta));
 						}
 					}
 					this->LinkState = CONNECTED;
@@ -3139,7 +3139,7 @@ class TreeSocket : public InspSocket
 					{
 						sourceserv = this->InboundServerName;
 					}
-					this->Instance->WriteOpers("*** Received end of netburst from \2%s\2",sourceserv.c_str());
+					this->Instance->SNO->WriteToSnoMask('l',"Received end of netburst from \2%s\2",sourceserv.c_str());
 					return true;
 				}
 				else
@@ -3230,7 +3230,7 @@ class TreeSocket : public InspSocket
 	{
 		if (this->LinkState == CONNECTING)
 		{
-			this->Instance->WriteOpers("*** CONNECT: Connection to \002"+myhost+"\002 timed out.");
+			this->Instance->SNO->WriteToSnoMask('l',"CONNECT: Connection to \002"+myhost+"\002 timed out.");
 		}
 	}
 
@@ -3317,7 +3317,7 @@ class ServernameResolver : public Resolver
 			else
 			{
 				/* Something barfed, show the opers */
-				ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 				delete newsocket;
 			}
 		}
@@ -3326,7 +3326,7 @@ class ServernameResolver : public Resolver
 	void OnError(ResolverError e, const std::string &errormessage)
 	{
 		/* Ooops! */
-		ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
+		ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -3941,7 +3941,7 @@ class ModuleSpanningTree : public Module
 			if (sock)
 			{
 				ServerInstance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
-				ServerInstance->WriteOpers("*** SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+				ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
 				ServerInstance->SE->DelFd(sock);
 				sock->Close();
@@ -4023,7 +4023,7 @@ class ModuleSpanningTree : public Module
 					else
 					{
 						// they didnt answer, boot them
-						ServerInstance->WriteOpers("*** Server \002%s\002 pinged out",serv->GetName().c_str());
+						ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 pinged out",serv->GetName().c_str());
 						sock->Squit(serv,"Ping timeout");
 						ServerInstance->SE->DelFd(sock);
 						sock->Close();
@@ -4047,7 +4047,7 @@ class ModuleSpanningTree : public Module
 				if (!CheckDupe)
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
-					ServerInstance->WriteOpers("*** AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
+					ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
 
 					insp_inaddr binip;
 
@@ -4060,7 +4060,7 @@ class ModuleSpanningTree : public Module
 						}
 						else
 						{
-							ServerInstance->WriteOpers("*** AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 							delete newsocket;
 						}
 					}
@@ -4140,7 +4140,7 @@ class ModuleSpanningTree : public Module
 						}
 						else
 						{
-							ServerInstance->WriteOpers("*** CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+							ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 							delete newsocket;
 						}
 					}
@@ -4179,7 +4179,7 @@ class ModuleSpanningTree : public Module
 				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
 			}
 			results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-			ServerInstance->WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+			ServerInstance->SNO->WriteToSnoMask('t',"Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 			return 1;
 		}
 		return 0;

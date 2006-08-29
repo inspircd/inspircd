@@ -253,7 +253,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 	}
 
 	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
-	ServerInstance->WriteOpers("*** Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
+	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 
 	return;
 }
