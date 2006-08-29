@@ -98,8 +98,12 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 	const char *c = sm;
 	std::string output = "";
 
+	ServerInstance->Log(DEBUG,"Process notice masks");
+
 	while (c && *c)
 	{
+		ServerInstance->Log(DEBUG,"Process notice mask %c",*c);
+		
 		switch (*c)
 		{
 			case '+':
@@ -111,7 +115,7 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 			default:
 				if ((*c >= 'A') && (*c <= 'z') && (ServerInstance->SNO->IsEnabled(*c)))
 				{
-					if ((IsNoticeMaskSet(*c) && adding) || (!IsNoticeMaskSet(*c) && !adding))
+					if ((!IsNoticeMaskSet(*c) && adding) || (IsNoticeMaskSet(*c) && !adding))
 					{
 						if ((oldadding != adding) || (sm == c))
 							output += (adding ? '+' : '-');
@@ -287,6 +291,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	invites.clear();
 	chans.resize(MAXCHANS);
 	memset(modes,0,sizeof(modes));
+	memset(snomasks,0,sizeof(snomasks));
 	
 	for (unsigned int n = 0; n < MAXCHANS; n++)
 	{

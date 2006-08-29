@@ -27,6 +27,7 @@
 SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	SnoMasks.clear();
+	this->SetupDefaults();
 }
 
 SnomaskManager::~SnomaskManager()
@@ -88,5 +89,19 @@ void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
 bool SnomaskManager::IsEnabled(char letter)
 {
 	return (SnoMasks.find(letter) != SnoMasks.end());
+}
+
+void SnomaskManager::SetupDefaults()
+{
+	this->EnableSnomask('c',"CONNECT");		/* Local connect notices */
+	this->EnableSnomask('C',"REMOTECONNECT");	/* Remote connect notices */
+	this->EnableSnomask('q',"QUIT");		/* Local quit notices */
+	this->EnableSnomask('Q',"REMOTEQUIT");		/* Remote quit notices */
+	this->EnableSnomask('k',"KILL");		/* Kill notices */
+	this->EnableSnomask('n',"NICK");		/* Nickchange notices */
+	this->EnableSnomask('l',"LINK");		/* Link notices */
+	this->EnableSnomask('o',"OPER");		/* Oper up/down notices */
+	this->EnableSnomask('d',"DEBUG");		/* Debug notices */
+	this->EnableSnomask('x',"XLINE");		/* Xline notice (g/z/q/k/e) */
 }
 

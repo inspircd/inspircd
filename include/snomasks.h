@@ -30,6 +30,7 @@ class SnomaskManager : public Extensible
  private:
 	InspIRCd* ServerInstance;
 	SnoList SnoMasks;
+	void SetupDefaults();
  public:
 	SnomaskManager(InspIRCd* Instance);
 	~SnomaskManager();
