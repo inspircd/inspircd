@@ -44,11 +44,11 @@ void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (!ServerInstance->Duration(parameters[1]))
 		{
-			ServerInstance->WriteOpers("*** %s added permanent G-line for %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent G-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed G-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 
 		ServerInstance->XLines->apply_lines(APPLY_GLINES);
@@ -58,7 +58,7 @@ void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->XLines->del_gline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelGLine,OnDelGLine(user, parameters[0]));
-			ServerInstance->WriteOpers("*** %s Removed G-line on %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);
 		}
 		else
 		{

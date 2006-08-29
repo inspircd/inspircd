@@ -49,11 +49,11 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (!ServerInstance->Duration(parameters[1]))
 		{
-			ServerInstance->WriteOpers("*** %s added permanent K-line for %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 
 		ServerInstance->XLines->apply_lines(APPLY_KLINES);
@@ -63,7 +63,7 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->XLines->del_kline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelKLine,OnDelKLine(user, parameters[0]));
-			ServerInstance->WriteOpers("*** %s Removed K-line on %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed K-line on %s.",user->nick,parameters[0]);
 		}
 		else
 		{
@@ -71,3 +71,4 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 }
+

@@ -44,11 +44,11 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (!ServerInstance->Duration(parameters[1]))
 		{
-			ServerInstance->WriteOpers("*** %s added permanent E-line for %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 	}
 	else
@@ -56,7 +56,7 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->XLines->del_eline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
-			ServerInstance->WriteOpers("*** %s Removed E-line on %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick,parameters[0]);
 		}
 		else
 		{

@@ -33,11 +33,11 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnAddQLine,OnAddQLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!ServerInstance->Duration(parameters[1]))
 		{
-			ServerInstance->WriteOpers("*** %s added permanent Q-line for %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Q-line for %s.",user->nick,parameters[0]);
 		}
 		else
 		{
-			ServerInstance->WriteOpers("*** %s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
 		}
 		ServerInstance->XLines->apply_lines(APPLY_QLINES);
 	}
@@ -46,7 +46,7 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->XLines->del_qline(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelQLine,OnDelQLine(user, parameters[0]));
-			ServerInstance->WriteOpers("*** %s Removed Q-line on %s.",user->nick,parameters[0]);
+			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Q-line on %s.",user->nick,parameters[0]);
 		}
 		else
 		{
