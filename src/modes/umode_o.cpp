@@ -24,7 +24,7 @@ ModeAction ModeUserOperator::OnModeChange(userrec* source, userrec* dest, chanre
 	 * verifying as an oper and getting an opertype assigned
 	 * to your userrec!
 	 */
-	SNO->WriteToSnoMask('o', "User %s de-opered (by %s)", dest.c_str(), source.c_str());
+	SNO->WriteToSnoMask('o', "User %s de-opered (by %s)", dest->nick, source->nick);
 	dest->UnOper();
 
 	return MODEACTION_ALLOW;
