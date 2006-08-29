@@ -431,7 +431,11 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 							 * eat any parameter that  came with the mode, and continue to next
 							 */
 							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
+							{
+								user->WriteServ("481 %s :Permission Denied- Only operators may set %s mode %c", user->nick,
+										type == MODETYPE_CHANNEL ? "channel" : "user", modehandlers[handler_id]->GetModeChar());
 								continue;
+							}
 
 							/* Call the handler for the mode */
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
