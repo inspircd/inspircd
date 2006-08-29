@@ -174,7 +174,7 @@ public:
 						 */
 						
 						user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-						Srv->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
+						Srv->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
 						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 					}
 				}
@@ -187,7 +187,7 @@ public:
 					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
 
 					user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-					Srv->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					Srv->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
 				}
 			}
@@ -227,7 +227,7 @@ public:
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
 								
-				Srv->WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
+				Srv->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 				
 				if (!user->modes[UM_OPERATOR])
@@ -274,3 +274,4 @@ extern "C" void * init_module( void )
 {
 	return new ModuleSQLOperFactory;
 }
+

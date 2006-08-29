@@ -29,10 +29,8 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspstring.h"
-
 #include "hashcomp.h"
 #include "socketengine.h"
-
 #include "command_parse.h"
 #include "commands/cmd_oper.h"
 
@@ -89,7 +87,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					if (!ServerInstance->IsNick(TypeName))
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
-						ServerInstance->WriteOpers("*** CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
+						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
 						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return;
 					}
@@ -105,7 +103,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->WriteOpers("*** %s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
 		user->WriteServ("381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 		if (!user->modes[UM_OPERATOR])
 			user->Oper(OperType);
@@ -115,15 +113,16 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!fail2)
 		{
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
-			ServerInstance->WriteOpers("*** WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
+			ServerInstance->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
 		}
 		else
 		{
 			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
-			ServerInstance->WriteOpers("*** CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
+			ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
 		}
 	}
 	return;
 }
+
