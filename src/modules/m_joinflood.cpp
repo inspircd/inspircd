@@ -118,6 +118,7 @@ class JoinFlood : public ModeHandler
 
 		if (adding)
 		{
+			ServerInstance->Log(DEBUG,"Got parameter: '%s'",parameter.c_str());
 			char ndata[MAXBUF];
 			char* data = ndata;
 			strlcpy(ndata,parameter.c_str(),MAXBUF);
