@@ -15,32 +15,12 @@
  */
 
 #include <stdarg.h>
-#include "inspircd_config.h"
 #include "configreader.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/errno.h>
-#include <signal.h>
-#include <time.h>
-#include <string>
-#include <sstream>
-#ifdef HAS_EXECINFO
-#include <execinfo.h>
-#endif
-#include "connection.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
 #include "mode.h"
 #include "xline.h"
-#include "commands.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
-#include "typedefs.h"
 #include "inspircd.h"
 
 static char TIMESTR[26];

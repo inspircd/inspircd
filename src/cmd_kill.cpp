@@ -14,17 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include <vector>
-#include "inspircd_config.h"
-#include "hash_map.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_kill.h"
-
-
 
 void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {

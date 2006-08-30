@@ -16,11 +16,7 @@
 
 #include "configreader.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_wallops.h"
-
-
 
 void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {

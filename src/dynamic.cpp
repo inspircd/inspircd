@@ -16,9 +16,7 @@
 
 using namespace std;
 
-#include "inspircd_config.h"
 #include "configreader.h"
-#include "globals.h"
 #include "dynamic.h"
 
 #ifndef STATIC_LINK
@@ -27,12 +25,7 @@ using namespace std;
 #include "modlist.h"
 #endif
 
-#include "inspstring.h"
-
 #include "inspircd.h"
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
 
 DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 {

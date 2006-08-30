@@ -30,16 +30,8 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <signal.h>
-#include <time.h>
-#include <string>
 #include <exception>
-#include <stdexcept>
-#include <new>
-#include <map>
-#include <sstream>
 #include <fstream>
-#include <vector>
-#include <deque>
 #include "modules.h"
 #include "mode.h"
 #include "xline.h"

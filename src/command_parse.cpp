@@ -14,39 +14,248 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/errno.h>
-#include <sys/ioctl.h>
-#include <sys/utsname.h>
-#include <time.h>
-#include <string>
-#include <sstream>
-#include <vector>
 #include <algorithm>
 #include "users.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
-#include "mode.h"
-#include "commands.h"
 #include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
 #include "socketengine.h"
 #include "userprocess.h"
 #include "socket.h"
-#include "dns.h"
-#include "typedefs.h"
 #include "command_parse.h"
-#include "ctables.h"
-
 #define nspace __gnu_cxx
+
+/*       XXX Serious WTFness XXX
+ *
+ * Well, unless someone invents a wildcard or
+ * regexp #include, and makes it a standard,
+ * we're stuck with this way of including all
+ * the commands.
+ */
+
+#include "commands/cmd_admin.h"
+#include "commands/cmd_away.h"
+#include "commands/cmd_commands.h"
+#include "commands/cmd_connect.h"
+#include "commands/cmd_die.h"
+#include "commands/cmd_eline.h"
+#include "commands/cmd_gline.h"
+#include "commands/cmd_info.h"
+#include "commands/cmd_invite.h"
+#include "commands/cmd_ison.h"
+#include "commands/cmd_join.h"
+#include "commands/cmd_kick.h"
+#include "commands/cmd_kill.h"
+#include "commands/cmd_kline.h"
+#include "commands/cmd_links.h"
+#include "commands/cmd_list.h"
+#include "commands/cmd_loadmodule.h"
+#include "commands/cmd_lusers.h"
+#include "commands/cmd_map.h"
+#include "commands/cmd_modules.h"
+#include "commands/cmd_motd.h"
+#include "commands/cmd_names.h"
+#include "commands/cmd_nick.h"
+#include "commands/cmd_notice.h"
+#include "commands/cmd_oper.h"
+#include "commands/cmd_part.h"
+#include "commands/cmd_pass.h"
+#include "commands/cmd_ping.h"
+#include "commands/cmd_pong.h"
+#include "commands/cmd_privmsg.h"
+#include "commands/cmd_qline.h"
+#include "commands/cmd_quit.h"
+#include "commands/cmd_rehash.h"
+#include "commands/cmd_restart.h"
+#include "commands/cmd_rules.h"
+#include "commands/cmd_server.h"
+#include "commands/cmd_squit.h"
+#include "commands/cmd_stats.h"
+#include "commands/cmd_summon.h"
+#include "commands/cmd_time.h"
+#include "commands/cmd_topic.h"
+#include "commands/cmd_trace.h"
+#include "commands/cmd_unloadmodule.h"
+#include "commands/cmd_user.h"
+#include "commands/cmd_userhost.h"
+#include "commands/cmd_users.h"
+#include "commands/cmd_version.h"
+#include "commands/cmd_wallops.h"
+#include "commands/cmd_who.h"
+#include "commands/cmd_whois.h"
+#include "commands/cmd_whowas.h"
+#include "commands/cmd_zline.h"
+
+bool InspIRCd::ULine(const char* server)
+{
+	if (!server)
+		return false;
+	if (!*server)
+		return true;
+
+	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
+}
+
+int InspIRCd::OperPassCompare(const char* data,const char* input)
+{
+	int MOD_RESULT = 0;
+	FOREACH_RESULT_I(this,I_OnOperCompare,OnOperCompare(data,input))
+	Log(DEBUG,"OperPassCompare: %d",MOD_RESULT);
+	if (MOD_RESULT == 1)
+		return 0;
+	if (MOD_RESULT == -1)
+		return 1;
+	Log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
+	return strcmp(data,input);
+}
+
+long InspIRCd::Duration(const char* str)
+{
+	char n_field[MAXBUF];
+	long total = 0;
+	n_field[0] = 0;
+
+	if ((!strchr(str,'s')) && (!strchr(str,'m')) && (!strchr(str,'h')) && (!strchr(str,'d')) && (!strchr(str,'w')) && (!strchr(str,'y')))
+	{
+		std::string n = str;
+		n += 's';
+		return Duration(n.c_str());
+	}
+	
+	for (char* i = (char*)str; *i; i++)
+	{
+		// if we have digits, build up a string for the value in n_field,
+		// up to 10 digits in size.
+		if ((*i >= '0') && (*i <= '9'))
+		{
+			strlcat(n_field,i,10);
+		}
+		else
+		{
+			// we dont have a digit, check for numeric tokens
+			switch (tolower(*i))
+			{
+				case 's':
+					total += atoi(n_field);
+				break;
+
+				case 'm':
+					total += (atoi(n_field)*duration_m);
+				break;
+
+				case 'h':
+					total += (atoi(n_field)*duration_h);
+				break;
+
+				case 'd':
+					total += (atoi(n_field)*duration_d);
+				break;
+
+				case 'w':
+					total += (atoi(n_field)*duration_w);
+				break;
+
+				case 'y':
+					total += (atoi(n_field)*duration_y);
+				break;
+			}
+			n_field[0] = 0;
+		}
+	}
+	// add trailing seconds
+	total += atoi(n_field);
+	
+	return total;
+}
+
+/* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
+
+bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
+{
+	char buffer[MAXBUF];
+	char itrigger[MAXBUF];
+	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger", 0, itrigger, MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
+		return false;
+	
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		strlcpy(buffer,u->second->ident,MAXBUF);
+		charlcat(buffer,'@',MAXBUF);
+		strlcat(buffer,u->second->host,MAXBUF);
+		if (match(buffer,mask.c_str()))
+			matches++;
+	}
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
+		return true;
+	}
+	return false;
+}
+
+bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
+{
+	char itrigger[MAXBUF];
+	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
+		return false;
+	
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		if (match(u->second->GetIPString(),ip.c_str(),true))
+			matches++;
+	}
+	
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
+		return true;
+	}
+	return false;
+}
+
+bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
+{
+	char itrigger[MAXBUF];
+	long matches = 0;
+	
+	if (!Config->ConfValue(Config->config_data, "insane","trigger",0,itrigger,MAXBUF))
+		strlcpy(itrigger,"95.5",MAXBUF);
+	
+	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
+		return false;
+
+	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	{
+		if (match(u->second->nick,nick.c_str()))
+			matches++;
+	}
+	
+	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	if (percent > (float)atof(itrigger))
+	{
+		WriteOpers("*** \2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);
+		return true;
+	}
+	return false;
+}
+
+
+
+
 
 /* Special commands which may occur without registration of the user */
 cmd_user* command_user;
@@ -293,9 +502,9 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 	if (!user)
 		return;
 
-	while ((a = buffer.find("\n")) != std::string::npos)
+	while ((a = buffer.rfind("\n")) != std::string::npos)
 		buffer.erase(a);
-	while ((a = buffer.find("\r")) != std::string::npos)
+	while ((a = buffer.rfind("\r")) != std::string::npos)
 		buffer.erase(a);
 
 	if (buffer.length())

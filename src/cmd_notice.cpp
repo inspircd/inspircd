@@ -14,18 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "configreader.h"
-#include "hash_map.h"
 #include "users.h"
 #include "modules.h"
 #include "wildcard.h"
-#include "commands.h"
-
-#include "hashcomp.h"
 #include "commands/cmd_notice.h"
 
 void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)

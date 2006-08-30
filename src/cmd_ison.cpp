@@ -14,15 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include "ctables.h"
 #include "users.h"
-#include "commands.h"
-
 #include "inspircd.h"
 #include "commands/cmd_ison.h"
-
-
 
 void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {

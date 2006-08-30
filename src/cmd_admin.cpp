@@ -16,11 +16,7 @@
 
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_admin.h"
-
-
 
 void cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
 {

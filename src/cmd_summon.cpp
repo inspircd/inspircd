@@ -15,8 +15,6 @@
  */
 
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_summon.h"
 
 void cmd_summon::Handle (const char** parameters, int pcnt, userrec *user)

@@ -14,17 +14,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "xline.h"
-
-#include "commands/cmd_eline.h"
-
-
+#include "commands/cmd_gline.h"
 
 void cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {

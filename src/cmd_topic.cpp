@@ -14,13 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "commands/cmd_topic.h"
-
 
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {

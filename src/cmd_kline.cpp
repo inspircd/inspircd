@@ -14,21 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include <time.h>
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
-
-#include "inspircd_config.h"
 #include "configreader.h"
-#include "hash_map.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "xline.h"
-
 #include "commands/cmd_kline.h"
 
 void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)

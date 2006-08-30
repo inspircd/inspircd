@@ -14,14 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include <vector>
-#include <string>
 #include "socketengine_kqueue.h"
 
 

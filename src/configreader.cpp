@@ -14,16 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
-#include <string>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include "inspircd.h"
-#include "inspstring.h"
-
-#include "userprocess.h"
 #include "xline.h"
 
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;

@@ -16,12 +16,7 @@
 
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_ping.h"
-
-
-
 
 void cmd_ping::Handle (const char** parameters, int pcnt, userrec *user)
 {

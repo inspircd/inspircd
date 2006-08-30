@@ -14,24 +14,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "typedefs.h"
 #include "users.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
-#include "commands.h"
-#include "mode.h"
-#include "xline.h"
-#include "inspstring.h"
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "command_parse.h"
 #include "commands/cmd_oper.h"
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)

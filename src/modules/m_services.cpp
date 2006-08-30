@@ -19,8 +19,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "commands.h"
-#include "hashcomp.h"
 #include "inspircd.h"
 
 static bool kludgeme = false;

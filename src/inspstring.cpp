@@ -1,8 +1,5 @@
-#include "inspircd_config.h"
 #include "inspstring.h"
-#include <cstddef>
 #include <string.h>
-#include <stdio.h>
 
 /*
  * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>

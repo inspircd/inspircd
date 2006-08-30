@@ -1,14 +1,27 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                     E-mail:
+ *              <brain@chatspike.net>
+ *              <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ * the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 /* Support for a dancer-style /remove command, an alternative to /kick to try and avoid auto-rejoin-on-kick scripts */
 /* Written by Om, 25-03-05 */
 
 #include <sstream>
-#include <string>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "configreader.h"
-#include "commands.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel */

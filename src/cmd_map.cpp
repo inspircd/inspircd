@@ -14,14 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_map.h"
-
-
 
 void cmd_map::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -14,16 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include <unistd.h>
-#include <string>
-#include <vector>
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_die.h"
-
-
 
 void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {

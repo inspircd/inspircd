@@ -17,12 +17,7 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_version.h"
-
-
-
 
 void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 {

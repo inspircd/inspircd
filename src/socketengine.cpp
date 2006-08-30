@@ -14,10 +14,7 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include <vector>
-#include <string>
 #include "socketengine.h"
 
 int EventHandler::GetFd()

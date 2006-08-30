@@ -49,7 +49,6 @@ install: all
 	@-install -v -m 0700 src/libIRCDhash.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDhelper.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDinspsocket.so $(LIBPATH)
-	@-install -v -m 0700 src/libIRCDmessage.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDmode.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDmodules.so $(LIBPATH)
 	@-install -v -m 0700 src/libIRCDsocket.so $(LIBPATH)

@@ -14,15 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include <vector>
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_invite.h"
-
-
 
 void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -26,20 +26,13 @@ looks like this, walks like this or tastes like this.
 
 using namespace std;
 
-#include <string>
-#include <time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <map>
 #include "dns.h"
 #include "inspircd.h"
-
-#include "inspircd_config.h"
 #include "socketengine.h"
 #include "configreader.h"
 #include "socket.h"

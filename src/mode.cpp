@@ -16,17 +16,10 @@
 
 using namespace std;
 
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include "configreader.h"
-#include <unistd.h>
-#include "hash_map.h"
-#include "connection.h"
 #include "users.h"
 #include "modules.h"
 #include "inspstring.h"
-
-#include "commands.h"
 #include "mode.h"
 
 /* +s (secret) */
@@ -53,7 +46,6 @@ using namespace std;
 #include "modes/cmode_h.h"
 /* +v (channel voice) */
 #include "modes/cmode_v.h"
-
 /* +s (server notices) */
 #include "modes/umode_s.h"
 /* +w (see wallops) */

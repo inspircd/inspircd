@@ -18,36 +18,14 @@
 
 using namespace std;
 
-#include "inspircd_config.h"
 #include "configreader.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/errno.h>
-#include <sys/ioctl.h>
-#include <sys/utsname.h>
-#include <time.h>
-#include <string>
-#include <ext/hash_map>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
-#include "mode.h"
-#include "commands.h"
 #include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
 #include "socketengine.h"
 #include "userprocess.h"
 #include "inspircd.h"
-#include "typedefs.h"
 #include "command_parse.h"
 #include "cull_list.h"
 

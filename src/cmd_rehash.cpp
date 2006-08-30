@@ -14,14 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "commands/cmd_rehash.h"
-
-
 
 void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {

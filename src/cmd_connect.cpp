@@ -15,8 +15,6 @@
  */
 
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_connect.h"
 
 /*

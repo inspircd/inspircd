@@ -15,8 +15,6 @@
  */
 
 #include "users.h"
-#include "ctables.h"
-#include "commands.h"
 #include "inspircd.h"
 #include "commands/cmd_list.h"
 #include "wildcard.h"

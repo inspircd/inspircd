@@ -1,17 +1,9 @@
-#include <string>
-#include <vector>
-#include "inspircd_config.h"
 #include "configreader.h"
-#include "hash_map.h"
 #include "inspircd.h"
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-
-#include "commands.h"
 #include "modules.h"
-#include "inspstring.h"
-#include "hashcomp.h"
 #include "modes/cmode_h.h"
 
 ModeChannelHalfOp::ModeChannelHalfOp(InspIRCd* Instance) : ModeHandler(Instance, 'h', 1, 1, true, MODETYPE_CHANNEL, false, '%')

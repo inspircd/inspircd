@@ -14,13 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "xline.h"
-
 #include "commands/cmd_qline.h"
 
 void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)

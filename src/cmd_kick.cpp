@@ -14,14 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "users.h"
-#include "commands.h"
-
 #include "inspircd.h"
 #include "commands/cmd_kick.h"
-
-
 
 void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {

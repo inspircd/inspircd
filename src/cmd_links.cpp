@@ -14,15 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_links.h"
-
-
 
 void cmd_links::Handle (const char** parameters, int pcnt, userrec *user)
 {

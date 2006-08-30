@@ -14,39 +14,19 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-//#include "inspircd.h"
 #include "configreader.h"
-#include <unistd.h>
-#include <sys/errno.h>
-#include <time.h>
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
 #include "mode.h"
 #include "xline.h"
-#include "commands.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
 #include "socket.h"
 #include "socketengine.h"
-#include "typedefs.h"
-#include "modules.h"
 #include "command_parse.h"
 #include "dns.h"
 #include "inspircd.h"
 
 // version is a simple class for holding a modules version number
-
 Version::Version(int major, int minor, int revision, int build, int flags)
 : Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags)
 {

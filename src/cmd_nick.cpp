@@ -14,19 +14,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
-#include "inspircd_config.h"
 #include "configreader.h"
-#include "hash_map.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-#include "xline.h"
-#include "dns.h"
-
 #include "inspircd.h"
-#include "hashcomp.h"
+#include "xline.h"
 #include "commands/cmd_nick.h"
 
 void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)

@@ -14,24 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include <time.h>
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include "hash_map.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "wildcard.h"
 #include "commands/cmd_modules.h"
-
-
 
 char* itab[] = {
 	"OnUserConnect", "OnUserQuit", "OnUserDisconnect", "OnUserJoin", "OnUserPart", "OnRehash", "OnServerRaw",

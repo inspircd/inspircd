@@ -14,11 +14,8 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_whowas.h"
 
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)

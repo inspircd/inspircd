@@ -16,11 +16,7 @@
 
 #include "inspircd.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_part.h"
-
-
 
 void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 {

@@ -16,11 +16,7 @@
 
 #include "inspircd.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_loadmodule.h"
-
-
 
 void cmd_loadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {

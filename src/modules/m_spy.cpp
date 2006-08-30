@@ -23,27 +23,12 @@ using namespace std;
 
 /* $ModDesc: Provides SPYLIST and SPYNAMES capability, allowing opers to see who's in +s channels */
 
-#include <stdio.h>
-#include <vector>
-#include <deque>
-#include "globals.h"
 #include "inspircd_config.h"
-#include <ext/hash_map>
 #include "users.h" 
 #include "channels.h"
 #include "modules.h"
-#include "commands.h"
-#include "socket.h"
-
 #include "inspircd.h"
-#include "inspstring.h"
-#include "hashcomp.h"
-#include "xline.h"
-#include "typedefs.h"
-#include "cull_list.h"
-#include "aes.h"
-
-#define nspace __gnu_cxx
+#include "wildcard.h"
 
 void spy_userlist(userrec *user,chanrec *c)
 {
@@ -80,7 +65,7 @@ void spy_userlist(userrec *user,chanrec *c)
 class cmd_spylist : public command_t
 {
   public:
- cmd_spylist (InspIRCd* Instance) : command_t(Instance,"SPYLIST", 'o', 0)
+	cmd_spylist (InspIRCd* Instance) : command_t(Instance,"SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "";
@@ -92,6 +77,8 @@ class cmd_spylist : public command_t
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
 		for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
 		{
+			if (pcnt && !match(i->second->name, parameters[0]))
+				continue;
 			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),i->second->ChanModes(true),i->second->topic);
 		}
 		user->WriteServ("323 %s :End of channel list.",user->nick);
@@ -101,7 +88,7 @@ class cmd_spylist : public command_t
 class cmd_spynames : public command_t
 {
   public:
- cmd_spynames (InspIRCd* Instance) : command_t(Instance,"SPYNAMES", 'o', 0)
+	cmd_spynames (InspIRCd* Instance) : command_t(Instance,"SPYNAMES", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "{<channel>{,<channel>}}";

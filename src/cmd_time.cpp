@@ -14,11 +14,8 @@
  * ---------------------------------------------------
  */
 
-#include <time.h>
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_time.h"
 
 void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)

@@ -15,12 +15,8 @@
  */
 
 #include "users.h"
-#include "commands.h"
-
 #include "inspircd.h"
 #include "commands/cmd_server.h"
-
-
 
 void cmd_server::Handle (const char** parameters, int pcnt, userrec *user)
 {

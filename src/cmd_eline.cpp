@@ -14,17 +14,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "xline.h"
-
 #include "commands/cmd_eline.h"
-
-
 
 void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 {

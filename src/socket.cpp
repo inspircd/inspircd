@@ -18,7 +18,6 @@
 #include "configreader.h"
 #include "socket.h"
 #include "inspircd.h"
-#include "inspstring.h"
 #include "socketengine.h"
 #include "wildcard.h"
 

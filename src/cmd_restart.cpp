@@ -16,11 +16,7 @@
 
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_restart.h"
-
-
 
 void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {

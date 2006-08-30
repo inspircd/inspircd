@@ -14,14 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
 #include <stdarg.h>
 #include "configreader.h"
 #include "users.h"
-#include "modules.h"
-#include "commands.h"
-#include "xline.h"
 #include "snomasks.h"
 
 SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)

@@ -14,14 +14,9 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_user.h"
-
-
 
 void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
@@ -34,8 +29,9 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else {
 			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
-			/* XXX - Should this IDENTMAX + 1 be IDENTMAX - 1? Ok, users.h has it defined as
-			 * char ident[IDENTMAX+2]; - WTF?
+			/* XXX - The ident field is IDENTMAX+2 in size to account for +1 for the optional
+			 * ~ character, and +1 for null termination, therefore we can safely use up to
+			 * IDENTMAX here.
 			 */
 			strlcpy(user->ident, parameters[0], IDENTMAX);
 			strlcpy(user->fullname,parameters[3],MAXGECOS);

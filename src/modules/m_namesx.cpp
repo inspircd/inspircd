@@ -19,9 +19,7 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "commands.h"
 #include "inspircd.h"
-#include <vector>
 
 static const char* dummy = "ON";
 

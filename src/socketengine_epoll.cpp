@@ -14,11 +14,8 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include <sys/epoll.h>
-#include <vector>
-#include <string>
 #include "socketengine_epoll.h"
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)

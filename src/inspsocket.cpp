@@ -14,12 +14,6 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include "inspircd_config.h"
 #include "socket.h"
 #include "configreader.h"
 #include "inspstring.h"

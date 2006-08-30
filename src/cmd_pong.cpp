@@ -15,9 +15,7 @@
  */
 
 #include "users.h"
-#include "commands.h"
 #include "commands/cmd_pong.h"
-
 
 void cmd_pong::Handle (const char** parameters, int pcnt, userrec *user)
 {

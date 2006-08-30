@@ -14,16 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include <vector>
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_away.h"
-
-
 
 void cmd_away::Handle (const char** parameters, int pcnt, userrec *user)
 {

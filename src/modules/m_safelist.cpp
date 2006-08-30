@@ -19,10 +19,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include <vector>
 #include "configreader.h"
 #include "inspircd.h"
+#include "wildcard.h"
 
 class ListData : public classbase
 {
@@ -30,9 +29,10 @@ class ListData : public classbase
 	long list_start;
 	long list_position;
 	bool list_ended;
+	const std::string glob;
 
 	ListData() : list_start(0), list_position(0), list_ended(false) {};
-	ListData(long pos, time_t t) : list_start(t), list_position(pos), list_ended(false) {};
+	ListData(long pos, time_t t, const std::string &pattern) : list_start(t), list_position(pos), list_ended(false), glob(pattern) {};
 };
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
@@ -52,6 +52,7 @@ class ListTimer : public InspTimer
 	char buffer[MAXBUF];
 	chanrec *chan;
 	InspIRCd* ServerInstance;
+	const std::string glob;
 
  public:
 
@@ -99,6 +100,8 @@ class ListTimer : public InspTimer
 					chan = ServerInstance->GetChannelIndex(ld->list_position);
 					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
+					if (!match(chan->name, ld->glob.c_str()))
+						continue;
 					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 					{
 						long users = chan->GetUserCounter();
@@ -210,7 +213,7 @@ class ModuleSafeList : public Module
 		/*
 		 * start at channel 0! ;)
 		 */
-		ld = new ListData(0,ServerInstance->Time());
+		ld = new ListData(0,ServerInstance->Time(), pcnt ? parameters[0] : "*");
 		user->Extend("safelist_cache", ld);
 		listusers.push_back(user);
 
@@ -263,11 +266,8 @@ class ModuleSafeList : public Module
 	}
 
 };
- 
- 
- 
-/******************************************************************************************************/
- 
+
+
 class ModuleSafeListFactory : public ModuleFactory
 {
  public:

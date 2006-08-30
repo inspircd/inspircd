@@ -14,42 +14,14 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include <unistd.h>
-#include <sys/errno.h>
-#include <sys/ioctl.h>
-#include <sys/utsname.h>
-#include <cstdio>
-#include <time.h>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#ifndef RUSAGE_SELF
-#define   RUSAGE_SELF     0
-#define   RUSAGE_CHILDREN     -1
-#endif
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
-#include "commands.h"
-#include "mode.h"
 #include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "typedefs.h"
 #include "command_parse.h"
 
-/* XXX - these really belong in helperfuncs perhaps -- w00t */
 bool InspIRCd::ULine(const char* server)
 {
 	if (!server)

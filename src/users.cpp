@@ -14,19 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "channels.h"
-#include "connection.h"
 #include "users.h"
 #include "inspircd.h"
 #include <stdarg.h>
-#include "inspstring.h"
-#include "commands.h"
-
-#include "typedefs.h"
 #include "socketengine.h"
-#include "hashcomp.h"
 #include "wildcard.h"
 #include "xline.h"
 #include "cull_list.h"

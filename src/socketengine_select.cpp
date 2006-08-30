@@ -14,11 +14,7 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include "globals.h"
 #include "inspircd.h"
-#include <vector>
-#include <string>
 #include <sys/select.h>
 #include "socketengine_select.h"
 

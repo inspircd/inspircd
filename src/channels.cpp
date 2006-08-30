@@ -16,27 +16,13 @@
 
 using namespace std;
 
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include <stdarg.h>
 #include "configreader.h"
 #include "inspircd.h"
-#include "hash_map.h"
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "commands.h"
 #include "wildcard.h"
 #include "mode.h"
-#include "xline.h"
-#include "inspstring.h"
-
-#include "typedefs.h"
 
 chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 {

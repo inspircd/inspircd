@@ -16,11 +16,7 @@
 
 #include "inspircd.h"
 #include "users.h"
-#include "commands.h"
-
 #include "commands/cmd_unloadmodule.h"
-
-
 
 void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {

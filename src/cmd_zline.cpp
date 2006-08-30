@@ -14,17 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
 #include "xline.h"
-
 #include "commands/cmd_zline.h"
-
-
 
 void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {

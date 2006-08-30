@@ -16,26 +16,11 @@
 
 using namespace std;
 
-#include "inspircd_config.h"
 #include "inspircd.h"
-#include <string>
-#include <map>
-#include <sstream>
-#include <vector>
-#include <deque>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
 #include "wildcard.h"
-#include "commands.h"
 #include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
-#include "typedefs.h"
-#include "configreader.h"
 #include "cull_list.h"
 
 /* Version two, now with optimized expiry!

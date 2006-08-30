@@ -14,31 +14,12 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include "hash_map.h"
-#include <sys/types.h>
-#include <sys/time.h>
 #include <sys/resource.h>
-#ifndef RUSAGE_SELF
-#define   RUSAGE_SELF     0
-#define   RUSAGE_CHILDREN     -1
-#endif
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "commands.h"
-#include "mode.h"
 #include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
-#include "socketengine.h"
-#include "command_parse.h"
 #include "commands/cmd_stats.h"
 
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
@@ -163,7 +144,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
 		results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->modules.size())+" ("+ConvToStr(ServerInstance->modules.size()*sizeof(Module))+")");
 		results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+")");
-		if (!getrusage(RUSAGE_SELF,&R))
+		if (!getrusage(0,&R))	/* RUSAGE_SELF */
 		{
 			results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
 			results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));

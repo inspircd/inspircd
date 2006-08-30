@@ -17,12 +17,7 @@
 #include "inspircd_config.h"
 #include "base.h"
 #include <time.h>
-#include <map>
-#include <deque>
-#include <string>
 #include "inspircd.h"
-#include "modules.h"
-
 
 const int bitfields[]           =       {1,2,4,8,16,32,64,128};
 const int inverted_bitfields[]  =       {~1,~2,~4,~8,~16,~32,~64,~128};

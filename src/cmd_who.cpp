@@ -17,12 +17,8 @@
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "wildcard.h"
 #include "commands/cmd_who.h"
-
-
 
 /* get the last 'visible' chan of a user */
 static char *getlastchanname(userrec *u)

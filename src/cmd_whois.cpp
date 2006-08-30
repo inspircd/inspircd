@@ -18,8 +18,6 @@
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "commands.h"
-
 #include "commands/cmd_whois.h"
 
 const char* Spacify(char* n)

@@ -14,24 +14,10 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include <string>
-#include <vector>
 #include "users.h"
-#include "ctables.h"
-#include "globals.h"
 #include "modules.h"
-#include "dynamic.h"
-#include "wildcard.h"
-#include "commands.h"
-#include "mode.h"
-#include "xline.h"
-#include "inspstring.h"
-
-#include "hashcomp.h"
-#include "socketengine.h"
 #include "commands/cmd_quit.h"
 
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)

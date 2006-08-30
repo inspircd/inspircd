@@ -18,27 +18,16 @@
 
 using namespace std;
 
-#include <stdio.h>
-#include <vector>
-#include <deque>
-#include "globals.h"
-#include "inspircd_config.h"
-#include "hash_map.h"
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "commands.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-
 #include "inspircd.h"
 #include "wildcard.h"
-#include "inspstring.h"
-#include "hashcomp.h"
 #include "xline.h"
-#include "typedefs.h"
 #include "cull_list.h"
 #include "aes.h"
 
