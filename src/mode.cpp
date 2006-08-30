@@ -410,7 +410,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 									parameter = parameters[parameter_counter++];
 
 									/* Yerk, invalid! */
-									if ((parameter.rfind(':') == 0) || (parameter.rfind(' ') != std::string::npos))
+									if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 										parameter = "";
 								}
 								else
