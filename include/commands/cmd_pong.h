@@ -19,8 +19,6 @@
 
 // include the common header files
 
-#include <string>
-#include <vector>
 #include "inspircd.h"
 #include "users.h"
 #include "channels.h"

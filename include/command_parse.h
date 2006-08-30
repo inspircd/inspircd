@@ -17,8 +17,6 @@
 #ifndef __COMMAND_PARSE_H
 #define __COMMAND_PARSE_H
 
-#include <typeinfo>
-#include <iostream>
 #include <string>
 #include "users.h"
 #include "ctables.h"

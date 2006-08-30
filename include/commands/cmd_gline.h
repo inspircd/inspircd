@@ -17,14 +17,8 @@
 #ifndef __CMD_GLINE_H__
 #define __CMD_GLINE_H__
 
-// include the common header files
+// include the common header file
 
-#include <typeinfo>
-#include <iostream>
-#include <string>
-#include <deque>
-#include <sstream>
-#include <vector>
 #include "users.h"
 #include "channels.h"
 

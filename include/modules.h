@@ -64,7 +64,6 @@ enum TargetTypeFlags {
 #include <string>
 #include <deque>
 #include <sstream>
-#include <typeinfo>
 #include "timer.h"
 #include "mode.h"
 #include "dns.h"
