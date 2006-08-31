@@ -377,7 +377,7 @@ class userrec : public connection
 	 * e.g. in the above example if masks c and e are not
 	 * valid, this function will return +ab-d
 	 */
-	std::string userrec::ProcessNoticeMasks(const char *sm);
+	std::string ProcessNoticeMasks(const char *sm);
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check

@@ -437,7 +437,7 @@ class ModeParser : public classbase
 	std::string ChanModes();
 	/** Used by this class internally during std::sort and 005 generation
 	 */
-	static bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two);
+	static bool PrefixComparison(const prefixtype one, const prefixtype two);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric.
 	 */
