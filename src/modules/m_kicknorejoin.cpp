@@ -37,7 +37,26 @@ public:
 	{
 		if ((modechar == 'J') && (type == MT_CHANNEL))
 		{
-			if (!mode_on)
+			if (mode_on)
+			{
+				chanrec* c = (chanrec*)target;
+
+				for (size_t k = 0; k < params[0].length(); k++)
+					if (!isdigit(k))
+					{
+						WriteServ(user->fd,"608 %s %s :Invalid rejoin parameter",user->nick,c->name);
+						return 0;
+					}
+
+				if (atoi(params[0].c_str()) <= 0)
+				{
+					WriteServ(user->fd,"608 %s %s :Invalid rejoin parameter",user->nick,c->name);
+					return 0;
+				}
+
+				return 1;
+			}
+			else
 			{
 				// Taking the mode off, we need to clean up.
 				chanrec* c = (chanrec*)target;
@@ -49,9 +68,10 @@ public:
 					delete dl;
 					c->Shrink("norejoinusers");
 				}
+
+				return 1;
 			}
 			/* Don't allow negative or 0 +J value */
-			return ((!mode_on) || (atoi(params[0].c_str()) > 0));
 		}
 		return 0;
 	}
