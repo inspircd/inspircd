@@ -425,6 +425,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 
 	a->channel = Ptr;
 	Ptr->AddUser(user);
+	user->ModChannelCount(1);
 	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
 
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
@@ -467,6 +468,7 @@ long chanrec::PartUser(userrec *user, const char* reason)
 			}
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
+			user->ModChannelCount(-1);
 			this->RemoveAllPrefixes(user);
 			break;
 		}

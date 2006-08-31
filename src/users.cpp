@@ -272,7 +272,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
-	timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
 	fd = -1;
 	recvq = "";
@@ -1609,11 +1609,17 @@ bool userrec::SharesChannelWith(userrec *other)
 
 int userrec::CountChannels()
 {
-	int z = 0;
+	return ChannelCount;
+	/*int z = 0;
 	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
 		if ((*i)->channel)
 			z++;
-	return z;
+	return z;*/
+}
+
+void userrec::ModChannelCount(int n)
+{
+	ChannelCount += n;
 }
 
 bool userrec::ChangeName(const char* gecos)

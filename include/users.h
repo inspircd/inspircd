@@ -171,6 +171,10 @@ class userrec : public connection
 	 * channels are removed from this list.
 	 */
 	InvitedList invites;
+
+	/** Number of channels this user is currently on
+	 */
+	unsigned int ChannelCount;
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
@@ -717,6 +721,12 @@ class userrec : public connection
 	 * @return The number of channels the user is on
 	 */
 	int CountChannels();
+
+	/** Modify the number of channels this user is on (used by CountChannels).
+	 * Pass a positive number to increment the counter, or a negative number
+	 * to decrement it.
+	 */
+	void ModChannelCount(int n);
 
 	/** Send a notice to all local users from this user
 	 * @param text The text format string to send
