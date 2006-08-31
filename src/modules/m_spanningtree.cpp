@@ -1694,7 +1694,9 @@ class TreeSocket : public InspSocket
 		/* This used to have a pretty craq'y loop doing the same thing,
 		 * now we just let the STL do the hard work (more efficiently)
 		 */
-		params[5] = params[5].substr(params[5].find_first_not_of('+'));
+		std::string::size_type pos_after_plus = params[5].find_first_not_of('+');
+		if (pos_after_plus != std::string::npos)
+			params[5] = params[5].substr(pos_after_plus);
 		
 		const char* tempnick = params[1].c_str();
 		ServerInstance->Log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
