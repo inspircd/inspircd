@@ -3577,53 +3577,60 @@ void ReadConfiguration(bool rebind)
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
-		if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
+		if (L.Name != ServerInstance->Config->ServerName)
 		{
-			ValidIPs.push_back(L.IPAddr);
-
-			if (Allow.length())
-				ValidIPs.push_back(Allow);
-
-			/* Needs resolving */
-			insp_inaddr binip;
-			if (insp_aton(L.IPAddr.c_str(), &binip) < 1)
+			if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
 			{
-				try
+				ValidIPs.push_back(L.IPAddr);
+
+				if (Allow.length())
+					ValidIPs.push_back(Allow);
+
+				/* Needs resolving */
+				insp_inaddr binip;
+				if (insp_aton(L.IPAddr.c_str(), &binip) < 1)
 				{
-					SecurityIPResolver* sr = new SecurityIPResolver(ServerInstance, L.IPAddr, L);
-					ServerInstance->AddResolver(sr);
+					try
+					{
+						SecurityIPResolver* sr = new SecurityIPResolver(ServerInstance, L.IPAddr, L);
+						ServerInstance->AddResolver(sr);
+					}
+					catch (ModuleException& e)
+					{
+						ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+					}
 				}
-				catch (ModuleException& e)
+
+				LinkBlocks.push_back(L);
+				ServerInstance->Log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
+			}
+			else
+			{
+				if (L.IPAddr == "")
 				{
-					ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', IP address not defined!",L.Name.c_str());
+				}
+				else if (L.RecvPass == "")
+				{
+					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
+				}
+				else if (L.SendPass == "")
+				{
+					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', sendpass not defined!",L.Name.c_str());
+				}
+				else if (L.Name == "")
+				{
+					ServerInstance->Log(DEFAULT,"Invalid configuration, link tag without a name!");
+				}
+				else if (!L.Port)
+				{
+					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', no port specified!",L.Name.c_str());
 				}
 			}
-
-			LinkBlocks.push_back(L);
-			ServerInstance->Log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 		}
 		else
 		{
-			if (L.IPAddr == "")
-			{
-				ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', IP address not defined!",L.Name.c_str());
-			}
-			else if (L.RecvPass == "")
-			{
-				ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
-			}
-			else if (L.SendPass == "")
-			{
-				ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', sendpass not defined!",L.Name.c_str());
-			}
-			else if (L.Name == "")
-			{
-				ServerInstance->Log(DEFAULT,"Invalid configuration, link tag without a name!");
-			}
-			else if (!L.Port)
-			{
-				ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', no port specified!",L.Name.c_str());
-			}
+			ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', link tag has the same server name as the local server!",L.Name.c_str());
 		}
 	}
 	DELETE(Conf);
