@@ -144,23 +144,23 @@ class XLineManager
 
 	/** This functor is used by the std::sort() function to keep glines in order
 	 */
-	static bool XLineManager::GSortComparison ( const GLine one, const GLine two );
+	static bool GSortComparison ( const GLine one, const GLine two );
 
 	/** This functor is used by the std::sort() function to keep elines in order
 	 */
-	static bool XLineManager::ESortComparison ( const ELine one, const ELine two );
+	static bool ESortComparison ( const ELine one, const ELine two );
 
 	/** This functor is used by the std::sort() function to keep zlines in order
 	 */
-	static bool XLineManager::ZSortComparison ( const ZLine one, const ZLine two );
+	static bool ZSortComparison ( const ZLine one, const ZLine two );
 
 	/** This functor is used by the std::sort() function to keep klines in order
 	 */
-	static bool XLineManager::KSortComparison ( const KLine one, const KLine two );
+	static bool KSortComparison ( const KLine one, const KLine two );
 
 	/** This functor is used by the std::sort() function to keep qlines in order
 	 */
-	static bool XLineManager::QSortComparison ( const QLine one, const QLine two );
+	static bool QSortComparison ( const QLine one, const QLine two );
  public:
 	/* Lists for temporary lines with an expiry time */
 
