@@ -19,6 +19,7 @@
 #include "modules.h"
 #include "configreader.h"
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
@@ -36,6 +37,7 @@ class ModuleOverride : public Module
 	{		
 		// read our config options (main config file)
 		OnRehash("");
+		ServerInstance->SNO->EnableSnomask('O',"OVERRIDE");
 	}
 	
 	virtual void OnRehash(const std::string &parameter)
@@ -87,7 +89,7 @@ class ModuleOverride : public Module
 		{
 			if (((chan->GetStatus(source) == STATUS_HOP) && (chan->GetStatus(user) == STATUS_OP)) || (chan->GetStatus(source) < STATUS_VOICE))
 			{
-				ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
 			return -1;
@@ -111,7 +113,7 @@ class ModuleOverride : public Module
 						case AC_DEOP:
 							if (CanOverride(source,"MODEDEOP"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -122,7 +124,7 @@ class ModuleOverride : public Module
 						case AC_OP:
 							if (CanOverride(source,"MODEOP"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -133,7 +135,7 @@ class ModuleOverride : public Module
 						case AC_VOICE:
 							if (CanOverride(source,"MODEVOICE"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -144,7 +146,7 @@ class ModuleOverride : public Module
 						case AC_DEVOICE:
 							if (CanOverride(source,"MODEDEVOICE"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -155,7 +157,7 @@ class ModuleOverride : public Module
 						case AC_HALFOP:
 							if (CanOverride(source,"MODEHALFOP"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -166,7 +168,7 @@ class ModuleOverride : public Module
 						case AC_DEHALFOP:
 							if (CanOverride(source,"MODEDEHALFOP"))
 							{
-								ServerInstance->WriteOpers("*** NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 								return ACR_ALLOW;
 							}
 							else
@@ -207,7 +209,7 @@ class ModuleOverride : public Module
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass invite-only", cname, user->nick);
 						}
 					}
-					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
+					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
 					return -1;
 				}
 				
@@ -215,7 +217,7 @@ class ModuleOverride : public Module
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);
-					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
+					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +k on "+std::string(cname));
 					return -1;
 				}
 					
@@ -223,15 +225,25 @@ class ModuleOverride : public Module
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel limit", cname, user->nick);
-					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
+					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +l on "+std::string(cname));
 					return -1;
 				}
 
 				if (CanOverride(user,"BANWALK"))
 				{
-					// other join
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel bans", cname, user->nick);
+					for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
+					{
+						char mask[MAXBUF];
+						sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
+						if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
+						{
+							if (NoisyOverride)
+							{
+								chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel bans on %s", cname, user->nick,i->data);
+								ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel bans on %s", cname, user->nick, i->data);
+							}
+						}
+					}
 					return -1;
 				}
 			}
@@ -241,6 +253,7 @@ class ModuleOverride : public Module
 	
 	virtual ~ModuleOverride()
 	{
+		ServerInstance->SNO->DisableSnomask('O');
 	}
 	
 	virtual Version GetVersion()
