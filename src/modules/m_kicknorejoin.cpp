@@ -42,7 +42,7 @@ public:
 				chanrec* c = (chanrec*)target;
 
 				for (size_t k = 0; k < params[0].length(); k++)
-					if (!isdigit(k))
+					if (!isdigit(params[0][k]))
 					{
 						WriteServ(user->fd,"608 %s %s :Invalid rejoin parameter",user->nick,c->name);
 						return 0;
