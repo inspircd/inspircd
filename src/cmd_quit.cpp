@@ -41,12 +41,12 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			if (IS_LOCAL(user))
 			{
 				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
-				ServerInstance->WriteOpers("*** Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s%s",ServerInstance->Config->PrefixQuit,parameters[0]);
 			}
 			else
 			{
-				ServerInstance->WriteOpers("*** Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s",parameters[0]);
 			}
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(ServerInstance->Config->PrefixQuit)+std::string(parameters[0])));
@@ -54,8 +54,15 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			user->Write("ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
-			ServerInstance->WriteOpers("*** Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
+			if (IS_LOCAL(user))
+			{
+				user->Write("ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting at %s: %s!%s@%s [Client exited]",user->server,user->nick,user->ident,user->host);
+			}
 			user->WriteCommonExcept("QUIT :Client exited");
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,"Client exited"));
 
