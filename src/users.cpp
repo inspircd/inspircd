@@ -496,25 +496,34 @@ bool userrec::HasPermission(const std::string &command)
  */
 bool userrec::AddBuffer(std::string a)
 {
-	std::string::size_type i = a.rfind('\r');
-
-	while (i != std::string::npos)
+	try
 	{
-		a.erase(i, 1);
-		i = a.rfind('\r');
+		std::string::size_type i = a.rfind('\r');
+	
+		while (i != std::string::npos)
+		{
+			a.erase(i, 1);
+			i = a.rfind('\r');
+		}
+
+		if (a.length())
+			recvq.append(a);
+		
+		if (recvq.length() > (unsigned)this->recvqmax)
+		{
+			this->SetWriteError("RecvQ exceeded");
+			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
+			return false;
+		}
+	
+		return true;
 	}
 
-	if (a.length())
-		recvq.append(a);
-
-	if (recvq.length() > (unsigned)this->recvqmax)
+	catch (...)
 	{
-		this->SetWriteError("RecvQ exceeded");
-		ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
+		ServerInstance->Log(DEBUG,"Exception in userrec::AddBuffer()");
 		return false;
 	}
-
-	return true;
 }
 
 bool userrec::BufferIsReady()
@@ -529,29 +538,38 @@ void userrec::ClearBuffer()
 
 std::string userrec::GetBuffer()
 {
-	if (!recvq.length())
-		return "";
-
-	/* Strip any leading \r or \n off the string.
-	 * Usually there are only one or two of these,
-	 * so its is computationally cheap to do.
-	 */
-	while ((*recvq.begin() == '\r') || (*recvq.begin() == '\n'))
-		recvq.erase(recvq.begin());
-
-	for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
+	try
 	{
-		/* Find the first complete line, return it as the
-		 * result, and leave the recvq as whats left
+		if (!recvq.length())
+			return "";
+	
+		/* Strip any leading \r or \n off the string.
+		 * Usually there are only one or two of these,
+		 * so its is computationally cheap to do.
 		 */
-		if (*x == '\n')
+		while ((*recvq.begin() == '\r') || (*recvq.begin() == '\n'))
+			recvq.erase(recvq.begin());
+	
+		for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
 		{
-			std::string ret = std::string(recvq.begin(), x);
-			recvq.erase(recvq.begin(), x + 1);
-			return ret;
+			/* Find the first complete line, return it as the
+			 * result, and leave the recvq as whats left
+			 */
+			if (*x == '\n')
+			{
+				std::string ret = std::string(recvq.begin(), x);
+				recvq.erase(recvq.begin(), x + 1);
+				return ret;
+			}
 		}
+		return "";
 	}
-	return "";
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::GetBuffer()");
+		return "";
+	}
 }
 
 void userrec::AddWriteBuf(const std::string &data)
@@ -570,52 +588,80 @@ void userrec::AddWriteBuf(const std::string &data)
 		ServerInstance->WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
 		return;
 	}
-	
-	if (data.length() > 512)
+
+	try 
 	{
-		std::string newdata(data);
-		newdata.resize(510);
-		newdata.append("\r\n");
-		sendq.append(newdata);
+		if (data.length() > 512)
+		{
+			std::string newdata(data);
+			newdata.resize(510);
+			newdata.append("\r\n");
+			sendq.append(newdata);
+		}
+		else
+		{
+			sendq.append(data);
+		}
 	}
-	else
+	catch (...)
 	{
-		sendq.append(data);
+		this->SetWriteError("SendQ exceeded");
+		ServerInstance->WriteOpers("*** User %s SendQ got an exception",this->nick);
 	}
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
 void userrec::FlushWriteBuf()
 {
-	if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
+	try
 	{
-		const char* tb = this->sendq.c_str();
-		int n_sent = write(this->fd,tb,this->sendq.length());
-		if (n_sent == -1)
+		if (this->fd == FD_MAGIC_NUMBER)
 		{
-			if (errno != EAGAIN)
-				this->SetWriteError(strerror(errno));
+			sendq = "";
 		}
-		else
+		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
-			// advance the queue
-			tb += n_sent;
-			this->sendq = tb;
-			// update the user's stats counters
-			this->bytes_out += n_sent;
-			this->cmds_out++;
+			const char* tb = this->sendq.c_str();
+				int n_sent = write(this->fd,tb,this->sendq.length());
+			if (n_sent == -1)
+			{
+				if (errno != EAGAIN)
+					this->SetWriteError(strerror(errno));
+			}
+			else
+			{
+				// advance the queue
+				tb += n_sent;
+				this->sendq = tb;
+				// update the user's stats counters
+				this->bytes_out += n_sent;
+				this->cmds_out++;
+			}
 		}
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::FlushWriteBuf()");
 	}
 }
 
 void userrec::SetWriteError(const std::string &error)
 {
-	ServerInstance->Log(DEBUG,"SetWriteError: %s",error.c_str());
-	// don't try to set the error twice, its already set take the first string.
-	if (!this->WriteError.length())
+	try
 	{
-		ServerInstance->Log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
-		this->WriteError = error;
+		ServerInstance->Log(DEBUG,"SetWriteError: %s",error.c_str());
+		// don't try to set the error twice, its already set take the first string.
+		if (!this->WriteError.length())
+		{
+			ServerInstance->Log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
+			this->WriteError = error;
+		}
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::SetWriteError()");
 	}
 }
 
@@ -626,30 +672,46 @@ const char* userrec::GetWriteError()
 
 void userrec::Oper(const std::string &opertype)
 {
-	this->modes[UM_OPERATOR] = 1;
-	this->WriteServ("MODE %s :+o", this->nick);
-	FOREACH_MOD(I_OnOper, OnOper(this, opertype));
-	ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
-	strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
-	ServerInstance->all_opers.push_back(this);
-	FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
+	try
+	{
+		this->modes[UM_OPERATOR] = 1;
+		this->WriteServ("MODE %s :+o", this->nick);
+		FOREACH_MOD(I_OnOper, OnOper(this, opertype));
+		ServerInstance->Log(DEFAULT,"OPER: %s!%s@%s opered as type: %s", this->nick, this->ident, this->host, opertype.c_str());
+		strlcpy(this->oper, opertype.c_str(), NICKMAX - 1);
+		ServerInstance->all_opers.push_back(this);
+		FOREACH_MOD(I_OnPostOper,OnPostOper(this, opertype));
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::Oper()");
+	}
 }
 
 void userrec::UnOper()
 {
-	if (*this->oper)
+	try
 	{
-		*this->oper = 0;
-		this->modes[UM_OPERATOR] = 0;
-		for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
+		if (*this->oper)
 		{
-			if (*a == this)
+			*this->oper = 0;
+				this->modes[UM_OPERATOR] = 0;
+			for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
 			{
-				ServerInstance->Log(DEBUG,"Oper removed from optimization list");
-				ServerInstance->all_opers.erase(a);
-				return;
+				if (*a == this)
+				{
+					ServerInstance->Log(DEBUG,"Oper removed from optimization list");
+					ServerInstance->all_opers.erase(a);
+					return;
+				}
 			}
 		}
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::UnOper()");
 	}
 }
 
@@ -1079,54 +1141,72 @@ void userrec::FullConnect(CullList* Goners)
  */
 userrec* userrec::UpdateNickHash(const char* New)
 {
-	//user_hash::iterator newnick;
-	user_hash::iterator oldnick = ServerInstance->clientlist.find(this->nick);
+	try
+	{
+		//user_hash::iterator newnick;
+		user_hash::iterator oldnick = ServerInstance->clientlist.find(this->nick);
 
-	if (!strcasecmp(this->nick,New))
-		return oldnick->second;
+		if (!strcasecmp(this->nick,New))
+			return oldnick->second;
 
-	if (oldnick == ServerInstance->clientlist.end())
-		return NULL; /* doesnt exist */
+		if (oldnick == ServerInstance->clientlist.end())
+			return NULL; /* doesnt exist */
 
-	userrec* olduser = oldnick->second;
-	ServerInstance->clientlist[New] = olduser;
-	ServerInstance->clientlist.erase(oldnick);
-	return ServerInstance->clientlist[New];
+		userrec* olduser = oldnick->second;
+		ServerInstance->clientlist[New] = olduser;
+		ServerInstance->clientlist.erase(oldnick);
+		return ServerInstance->clientlist[New];
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::UpdateNickHash()");
+		return NULL;
+	}
 }
 
 bool userrec::ForceNickChange(const char* newnick)
 {
-	char nick[MAXBUF];
-	int MOD_RESULT = 0;
-
-	*nick = 0;
-
-	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
-	
-	if (MOD_RESULT)
+	try
 	{
-		ServerInstance->stats->statsCollisions++;
+		char nick[MAXBUF];
+		int MOD_RESULT = 0;
+
+		*nick = 0;
+	
+		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
+	
+		if (MOD_RESULT)
+		{
+			ServerInstance->stats->statsCollisions++;
+			return false;
+		}
+	
+		if (ServerInstance->XLines->matches_qline(newnick))
+		{
+			ServerInstance->stats->statsCollisions++;
+			return false;
+		}
+	
+		if (newnick)
+		{
+			strlcpy(this->nick, newnick, NICKMAX - 1);
+		}
+		if (this->registered == REG_ALL)
+		{
+			const char* pars[1];
+			pars[0] = nick;
+			std::string cmd = "NICK";
+			ServerInstance->Parser->CallHandler(cmd, pars, 1, this);
+		}
+		return true;
+	}
+
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::ForceNickChange()");
 		return false;
 	}
-	
-	if (ServerInstance->XLines->matches_qline(newnick))
-	{
-		ServerInstance->stats->statsCollisions++;
-		return false;
-	}
-
-	if (newnick)
-	{
-		strlcpy(this->nick, newnick, NICKMAX - 1);
-	}
-	if (this->registered == REG_ALL)
-	{
-		const char* pars[1];
-		pars[0] = nick;
-		std::string cmd = "NICK";
-		ServerInstance->Parser->CallHandler(cmd, pars, 1, this);
-	}
-	return true;
 }
 
 void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
@@ -1293,7 +1373,15 @@ void userrec::Write(std::string text)
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
 		return;
 
-	text.append("\r\n");
+	try
+	{
+		text.append("\r\n");
+	}
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::Write() std::string::append");
+		return;
+	}
 
 	if (ServerInstance->Config->GetIOHook(this->GetPort()))
 	{
@@ -1413,39 +1501,47 @@ void userrec::WriteCommon(const char* text, ...)
 
 void userrec::WriteCommon(const std::string &text)
 {
-	bool sent_to_at_least_one = false;
-
-	if (this->registered != REG_ALL)
-		return;
-
-	uniq_id++;
-
-	for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
+	try
 	{
-		ucrec *n = *v;
-		if (n->channel)
+		bool sent_to_at_least_one = false;
+	
+		if (this->registered != REG_ALL)
+			return;
+	
+		uniq_id++;
+	
+		for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
 		{
-			CUList *ulist= n->channel->GetUsers();
-
-			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			ucrec *n = *v;
+			if (n->channel)
 			{
-				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				CUList *ulist= n->channel->GetUsers();
+		
+				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 				{
-					already_sent[i->second->fd] = uniq_id;
-					i->second->WriteFrom(this, std::string(text));
-					sent_to_at_least_one = true;
+					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+					{
+						already_sent[i->second->fd] = uniq_id;
+						i->second->WriteFrom(this, std::string(text));
+						sent_to_at_least_one = true;
+					}
 				}
 			}
 		}
+	
+		/*
+		 * if the user was not in any channels, no users will receive the text. Make sure the user
+		 * receives their OWN message for WriteCommon
+		 */
+		if (!sent_to_at_least_one)
+		{
+			this->WriteFrom(this,std::string(text));
+		}
 	}
 
-	/*
-	 * if the user was not in any channels, no users will receive the text. Make sure the user
-	 * receives their OWN message for WriteCommon
-	 */
-	if (!sent_to_at_least_one)
+	catch (...)
 	{
-		this->WriteFrom(this,std::string(text));
+		ServerInstance->Log(DEBUG,"Exception in userrec::WriteCommon()");
 	}
 }
 
@@ -1550,7 +1646,16 @@ void userrec::WriteWallOps(const std::string &text)
 		return;
 
 	std::string wallop = "WALLOPS :";
-	wallop.append(text);
+
+	try
+	{
+		wallop.append(text);
+	}
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::Write() std::string::append");
+		return;
+	}
 
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
@@ -1610,11 +1715,6 @@ bool userrec::SharesChannelWith(userrec *other)
 int userrec::CountChannels()
 {
 	return ChannelCount;
-	/*int z = 0;
-	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
-		if ((*i)->channel)
-			z++;
-	return z;*/
 }
 
 void userrec::ModChannelCount(int n)
@@ -1717,24 +1817,32 @@ void userrec::NoticeAll(char* text, ...)
 
 std::string userrec::ChannelList(userrec* source)
 {
-	std::string list;
-	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+	try
 	{
-		ucrec* rec = *i;
-
-		if(rec->channel && rec->channel->name)
+		std::string list;
+		for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			/* If the target is the same as the sender, let them see all their channels.
-			 * If the channel is NOT private/secret OR the user shares a common channel
-			 * If the user is an oper, and the <options:operspywhois> option is set.
-			 */
-			if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
+			ucrec* rec = *i;
+	
+			if(rec->channel && rec->channel->name)
 			{
-				list.append(rec->channel->GetPrefixChar(this)).append(rec->channel->name).append(" ");
+				/* If the target is the same as the sender, let them see all their channels.
+				 * If the channel is NOT private/secret OR the user shares a common channel
+				 * If the user is an oper, and the <options:operspywhois> option is set.
+				 */
+				if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
+				{
+					list.append(rec->channel->GetPrefixChar(this)).append(rec->channel->name).append(" ");
+				}
 			}
 		}
+		return list;
 	}
-	return list;
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::ChannelList()");
+		return "";
+	}
 }
 
 void userrec::SplitChanList(userrec* dest, const std::string &cl)
@@ -1743,33 +1851,41 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	std::ostringstream prefix;
 	std::string::size_type start, pos, length;
 
-	prefix << ":" << ServerInstance->Config->ServerName << " 319 " << this->nick << " " << dest->nick << " :";
-	line = prefix.str();
-
-	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
+	try
 	{
-		length = (pos == std::string::npos) ? cl.length() : pos;
-
-		if (line.length() + length - start > 510)
+		prefix << ":" << ServerInstance->Config->ServerName << " 319 " << this->nick << " " << dest->nick << " :";
+		line = prefix.str();
+	
+		for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
+		{
+			length = (pos == std::string::npos) ? cl.length() : pos;
+	
+			if (line.length() + length - start > 510)
+			{
+				this->Write(line);
+				line = prefix.str();
+			}
+	
+			if(pos == std::string::npos)
+			{
+				line.append(cl.substr(start, length - start));
+				break;
+			}
+			else
+			{
+				line.append(cl.substr(start, length - start + 1));
+			}
+		}
+	
+		if (line.length())
 		{
 			this->Write(line);
-			line = prefix.str();
-		}
-
-		if(pos == std::string::npos)
-		{
-			line.append(cl.substr(start, length - start));
-			break;
-		}
-		else
-		{
-			line.append(cl.substr(start, length - start + 1));
 		}
 	}
 
-	if (line.length())
+	catch (...)
 	{
-		this->Write(line);
+		ServerInstance->Log(DEBUG,"Exception in userrec::SplitChanList()");
 	}
 }
 
@@ -1804,7 +1920,14 @@ void userrec::PurgeEmptyChannels()
 			if (uc->channel->DelUser(this) == 0)
 			{
 				/* No users left in here, mark it for deletion */
-				to_delete.push_back(uc->channel);
+				try
+				{
+					to_delete.push_back(uc->channel);
+				}
+				catch (...)
+				{
+					ServerInstance->Log(DEBUG,"Exception in userrec::PurgeEmptyChannels to_delete.push_back()");
+				}
 				uc->channel = NULL;
 			}
 		}
@@ -1858,6 +1981,13 @@ void userrec::ShowRULES()
 void userrec::HandleEvent(EventType et)
 {
 	/* WARNING: May delete this user! */
-	ServerInstance->ProcessUser(this);
+	try
+	{
+		ServerInstance->ProcessUser(this);
+	}
+	catch (...)
+	{
+		ServerInstance->Log(DEBUG,"Exception in userrec::HandleEvent intercepted");
+	}
 }
 
