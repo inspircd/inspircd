@@ -113,7 +113,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					if (current->lines_in > current->flood)
 					{
 						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						this->WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+						this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						userrec::QuitUser(this, current,"Excess flood");
 						return;
 					}
@@ -126,7 +126,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				else
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					this->Log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					this->SNO->WriteToSnoMask('f',"Excess flood from: %s",current->GetIPString());
 					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					XLines->apply_lines(APPLY_ZLINES);
 				}
@@ -143,7 +143,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				else
 				{
 					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					this->Log(DEFAULT,"Excess flood from: %s",current->GetIPString());
+					this->SNO->WriteToSnoMask('f',"Excess flood from: %s",current->GetIPString());
 					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
 					XLines->apply_lines(APPLY_ZLINES);
 				}
@@ -163,7 +163,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				if (++current->lines_in > current->flood)
 				{
 					this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-					WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+					this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					userrec::QuitUser(this, current,"Excess flood");
 					return;
 				}
@@ -173,7 +173,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					if (current->registered == REG_ALL)
 					{
 						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						WriteOpers("*** Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
+						SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						userrec::QuitUser(this, current,"Excess flood");
 					}
 					else
@@ -323,3 +323,4 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 	/* Remove all the queued users who are due to be quit, free memory used. */
 	GlobalGoners.Apply();
 }
+

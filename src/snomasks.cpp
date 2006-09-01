@@ -98,5 +98,6 @@ void SnomaskManager::SetupDefaults()
 	this->EnableSnomask('d',"DEBUG");		/* Debug notices */
 	this->EnableSnomask('x',"XLINE");		/* Xline notice (g/z/q/k/e) */
 	this->EnableSnomask('t',"STATS");		/* Local or remote stats request */
+	this->EnableSnomask('f',"FLOOD");		/* Flooding notices */
 }
 
