@@ -123,12 +123,13 @@ class ModuleKnock : public Module
 
 	virtual ~ModuleKnock()
 	{
+		ServerInstance->Modes->DelMode(kn);
 		DELETE(kn);
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,1,VF_COMMON|VF_VENDOR);
 	}
 };
 

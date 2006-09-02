@@ -115,6 +115,8 @@ class ModuleStripColor : public Module
 
 	virtual ~ModuleStripColor()
 	{
+		ServerInstance->Modes->DelMode(usc);
+		ServerInstance->Modes->DelMode(csc);
 		DELETE(usc);
 		DELETE(csc);
 	}
@@ -202,7 +204,7 @@ class ModuleStripColor : public Module
 	virtual Version GetVersion()
 	{
 		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR);
 	}
 	
 };

@@ -305,6 +305,9 @@ class ModuleServicesAccount : public Module
 
 	virtual ~ModuleServicesAccount()
 	{
+		ServerInstance->Modes->DelMode(m1);
+		ServerInstance->Modes->DelMode(m2);
+		ServerInstance->Modes->DelMode(m3);
 		DELETE(m1);
 		DELETE(m2);
 		DELETE(m3);
@@ -312,7 +315,7 @@ class ModuleServicesAccount : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 };
 

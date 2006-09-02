@@ -81,12 +81,13 @@ class ModuleBotMode : public Module
 	
 	virtual ~ModuleBotMode()
 	{
+		ServerInstance->Modes->DelMode(bm);
 		DELETE(bm);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 
 	virtual void OnWhois(userrec* src, userrec* dst)

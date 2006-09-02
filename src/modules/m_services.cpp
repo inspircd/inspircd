@@ -275,6 +275,12 @@ class ModuleServices : public Module
 
 	virtual ~ModuleServices()
 	{
+		kludgeme = true;
+		ServerInstance->Modes->DelMode(m1);
+		ServerInstance->Modes->DelMode(m2);
+		ServerInstance->Modes->DelMode(m3);
+		ServerInstance->Modes->DelMode(m4);
+		ServerInstance->Modes->DelMode(m5);
 		DELETE(m1);
 		DELETE(m2);
 		DELETE(m3);
@@ -284,7 +290,7 @@ class ModuleServices : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 };
 

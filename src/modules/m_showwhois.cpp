@@ -61,6 +61,7 @@ class ModuleShowwhois : public Module
 
 	~ModuleShowwhois()
 	{
+		ServerInstance->Modes->DelMode(sw);
 		DELETE(sw);
 	}
 
@@ -71,7 +72,7 @@ class ModuleShowwhois : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,3,VF_STATIC);
+		return Version(1,0,0,3,VF_COMMON|VF_VENDOR);
 	}
 
 	virtual void OnWhois(userrec* source, userrec* dest)

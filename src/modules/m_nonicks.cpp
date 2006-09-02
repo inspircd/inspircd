@@ -67,12 +67,13 @@ class ModuleNoNickChange : public Module
 	
 	virtual ~ModuleNoNickChange()
 	{
+		ServerInstance->Modes->DelMode(nn);
 		DELETE(nn);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,1,VF_COMMON|VF_VENDOR);
 	}
 
 	void Implements(char* List)

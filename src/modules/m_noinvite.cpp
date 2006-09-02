@@ -79,12 +79,13 @@ class ModuleNoInvite : public Module
 
 	virtual ~ModuleNoInvite()
 	{
+		ServerInstance->Modes->DelMode(ni);
 		DELETE(ni);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 };
 

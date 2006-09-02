@@ -254,6 +254,7 @@ class ModuleHelpop : public Module
 
 		virtual ~ModuleHelpop()
 		{
+			ServerInstance->Modes->DelMode(ho);
 			DELETE(conf);
 			DELETE(helpop);
 			DELETE(ho);
@@ -261,7 +262,7 @@ class ModuleHelpop : public Module
 	
 		virtual Version GetVersion()
 		{
-			return Version(1,0,0,1,VF_STATIC|VF_VENDOR);
+			return Version(1,0,0,1,VF_COMMON|VF_VENDOR);
 		}
 };
 

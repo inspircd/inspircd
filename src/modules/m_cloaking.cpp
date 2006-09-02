@@ -416,6 +416,7 @@ class ModuleCloaking : public Module
 	
 	virtual ~ModuleCloaking()
 	{
+		ServerInstance->Modes->DelMode(cu);
 		DELETE(cu);
 	}
 	
@@ -423,7 +424,7 @@ class ModuleCloaking : public Module
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
-		return Version(1,0,0,2,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,2,VF_COMMON|VF_VENDOR);
 	}
 
 	virtual void OnRehash(const std::string &parameter)

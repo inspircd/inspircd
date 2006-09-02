@@ -94,20 +94,21 @@ public:
 		}
 		return 0;
 	}
-	
+
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
-	
+
 	virtual ~ModuleBlockCAPS()
 	{
+		ServerInstance->Modes->DelMode(bc);
 		DELETE(bc);
 	}
-	
+
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 };
 

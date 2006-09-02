@@ -137,10 +137,12 @@ class ModuleCensor : public Module
 
 	virtual ~ModuleCensor()
 	{
+		ServerInstance->Modes->DelMode(cu);
+		ServerInstance->Modes->DelMode(cc);
 		DELETE(cu);
 		DELETE(cc);
 	}
-	
+
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
 	{
 		if ((pattern != "") && (text != ""))
@@ -153,9 +155,8 @@ class ModuleCensor : public Module
 			}
 		}
 	}
-	
+
 	// format of a config entry is <badword text="shit" replace="poo">
-	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
 	{
 		bool active = false;
@@ -219,7 +220,7 @@ class ModuleCensor : public Module
 	virtual Version GetVersion()
 	{
 		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_COMMON|VF_VENDOR);
 	}
 	
 };
