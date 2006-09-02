@@ -32,6 +32,32 @@ ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* chan
 	return std::make_pair(false, parameter);
 }
 
+void ModeChannelVoice::RemoveMode(chanrec* channel)
+{
+	CUList* list = channel->GetVoicedUsers();
+	CUList copy;
+	char moderemove[MAXBUF];
+	userrec* n = new userrec(ServerInstance);
+	n->SetFd(FD_MAGIC_NUMBER);
+
+	for (CUList::iterator i = list->begin(); i != list->end(); i++)
+	{
+		userrec* n = i->second;
+		copy.insert(std::make_pair(n,n));
+	}
+	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
+	{
+		sprintf(moderemove,"-%c",this->GetModeChar());
+		const char* parameters[] = { channel->name, moderemove, i->second->nick };
+		ServerInstance->SendMode(parameters, 3, n);
+	}
+	delete n;
+}
+
+void ModeChannelVoice::RemoveMode(userrec* user)
+{
+}
+
 ModeAction ModeChannelVoice::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);

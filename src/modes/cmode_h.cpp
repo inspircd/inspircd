@@ -32,6 +32,32 @@ ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* cha
 	return std::make_pair(false, parameter);
 }
 
+void ModeChannelHalfOp::RemoveMode(chanrec* channel)
+{
+	CUList* list = channel->GetHalfoppedUsers();
+	CUList copy;
+	char moderemove[MAXBUF];
+	userrec* n = new userrec(ServerInstance);
+	n->SetFd(FD_MAGIC_NUMBER);
+
+	for (CUList::iterator i = list->begin(); i != list->end(); i++)
+	{
+		userrec* n = i->second;
+		copy.insert(std::make_pair(n,n));
+	}
+	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
+	{
+		sprintf(moderemove,"-%c",this->GetModeChar());
+		const char* parameters[] = { channel->name, moderemove, i->second->nick };
+		ServerInstance->SendMode(parameters, 3, n);
+	}
+	delete n;
+}
+
+void ModeChannelHalfOp::RemoveMode(userrec* user)
+{
+}
+
 ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 {
 	/* If halfops are not enabled in the conf, we don't execute

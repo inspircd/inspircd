@@ -18,7 +18,29 @@ ModePair ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channe
         {
                 return std::make_pair(false, parameter);
         }
-}       
+}
+
+void ModeChannelKey::RemoveMode(chanrec* channel)
+{
+	char moderemove[MAXBUF];
+	const char* parameters[] = { channel->name, moderemove, channel->key };
+
+	if (channel->IsModeSet(this->GetModeChar()))
+	{
+		userrec* n = new userrec(ServerInstance);
+
+		sprintf(moderemove,"-%c",this->GetModeChar());
+		n->SetFd(FD_MAGIC_NUMBER);
+
+		ServerInstance->SendMode(parameters, 3, n);
+
+		delete n;
+	}
+}
+
+void ModeChannelKey::RemoveMode(userrec* user)
+{
+}
 
 bool ModeChannelKey::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 {
