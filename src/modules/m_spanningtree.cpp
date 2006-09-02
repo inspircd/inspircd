@@ -799,7 +799,7 @@ class TreeSocket : public InspSocket
 
 		for (int i = 0; i <= this->Instance->GetModuleCount(); i++)
 		{
-			if ((this->Instance->modules[i]->GetVersion().Flags & VF_STATIC) || (this->Instance->modules[i]->GetVersion().Flags & VF_COMMON))
+			if (this->Instance->modules[i]->GetVersion().Flags & VF_COMMON)
 				modlist.push_back(this->Instance->Config->module_names[i]);
 		}
 		sort(modlist.begin(),modlist.end());
