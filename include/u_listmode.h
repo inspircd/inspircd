@@ -90,23 +90,26 @@ class ListModeBase : public ModeHandler
 		{
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				user->WriteServ( "%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
+				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
 		}
-		user->WriteServ( "%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+		user->WriteServ("%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
 	virtual void RemoveMode(chanrec* channel)
 	{
+		ServerInstance->Log(DEBUG,"Removing listmode base from %s %s",channel->name,infokey.c_str());
 		modelist* el;
 		channel->GetExt(infokey, el);
 		if (el)
 		{
+			ServerInstance->Log(DEBUG,"Channel is extended with a list");
 			char moderemove[MAXBUF];
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
+				ServerInstance->Log(DEBUG,"Remove item %s",it->mask.c_str());
 				sprintf(moderemove,"-%c",this->GetModeChar());
 				const char* parameters[] = { channel->name, moderemove, it->mask.c_str() };
 				ServerInstance->SendMode(parameters, 3, n);
@@ -300,19 +303,6 @@ class ListModeBase : public ModeHandler
 
 	virtual void DoCleanup(int target_type, void* item)
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* chan = (chanrec*)item;
-
-			modelist* list;
-			chan->GetExt(infokey, list);
-
-			if (list)
-			{
-				chan->Shrink(infokey);
-				delete list;
-			}
-		}
 	}
 	
 	virtual bool ValidateParam(userrec* source, chanrec* channel, std::string &parameter)
