@@ -22,6 +22,9 @@ ModePair ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channe
 
 void ModeChannelKey::RemoveMode(chanrec* channel)
 {
+	/** +k needs a parameter when being removed,
+	 * so we have a special-case RemoveMode here for it
+	 */
 	char moderemove[MAXBUF];
 	const char* parameters[] = { channel->name, moderemove, channel->key };
 
