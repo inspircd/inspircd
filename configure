@@ -1364,7 +1364,7 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 
 EOCHEESE
 	$crud = $crud . "	install -m 0700 m_$i.so \$(MODPATH)\n";
-	###
+###
 	# End Write Entry to the MakeFile
 	###
 	}
@@ -1538,7 +1538,7 @@ sub write_dynamic_makefile {
 	my $cmdobjs = "";
 	my $srcobjs = "";
 	foreach my $cmd (@cmdlist) {
-		$cmdobjs = $cmdobjs . "cmd_$cmd.o ";
+		$cmdobjs = $cmdobjs . "cmd_$cmd.so ";
 		$srcobjs = $srcobjs . "cmd_$cmd.cpp ";
 	}
 
@@ -1573,8 +1573,8 @@ RELCPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* /modes\\//
 
 all: libIRCDtimer.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so inspircd
 
-inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so
-	\$(CC) -I../include $extra -Wl,--rpath -Wl,/usr/local/lib -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDaes.so libIRCDtimer.so libIRCDsnomasks.so
+inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDaes.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so $cmdobjs
+	\$(CC) -I../include $extra -Wl,--rpath -Wl,/usr/local/lib -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDaes.so libIRCDtimer.so libIRCDsnomasks.so $cmdobjs
 
 libIRCDsocketengine.so: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp $se.cpp
@@ -1633,7 +1633,7 @@ libIRCDconfigreader.so: configreader.cpp ../include/base.h ../include/configread
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDconfigreader.so configreader.o
 
-libIRCDcommands.so: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h $srcobjs
+libIRCDcommands.so: commands.cpp ../include/base.h ../include/commands.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h $cmdobjs
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
 	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDcommands.so commands.o $cmdobjs
 
@@ -1672,8 +1672,9 @@ libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/gl
 EOM
 	foreach my $cmd (@cmdlist) {
 		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/commands/cmd_$cmd.h
+cmd_$cmd.so: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/commands/cmd_$cmd.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
+	\$(CC) -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o cmd_$cmd.so cmd_$cmd.o
 
 ITEM
 	}
