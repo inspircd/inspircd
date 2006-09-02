@@ -26,6 +26,12 @@
 
 const char* fakevalue = "on";
 
+/* When this is set to true, no restrictions apply to setting or
+ * removal of +qa. This is used while unloading so that the server
+ * can freely clear all of its users of the modes.
+ */
+bool unload_kludge = false;
+
 class FounderProtectBase
 {
  private:
@@ -63,6 +69,27 @@ class FounderProtectBase
 			}
 		}
 		return std::make_pair(false, parameter);
+	}
+
+	void RemoveMode(chanrec* channel, char mc)
+	{
+		unload_kludge = true;
+		CUList* cl = channel->GetUsers();
+		std::string item = extend+std::string(channel->name);
+		char moderemove[MAXBUF];
+		userrec* n = new userrec(MyInstance);
+		n->SetFd(FD_MAGIC_NUMBER);
+		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
+		{
+			if (i->second->GetExt(item, dummyptr))
+			{
+				sprintf(moderemove,"-%c",mc);
+				const char* parameters[] = { channel->name, moderemove, i->second->nick };
+				MyInstance->SendMode(parameters, 3, n);
+			}
+		}
+		delete n;
+		unload_kludge = false;
 	}
 
         void DisplayList(userrec* user, chanrec* channel)
@@ -134,6 +161,15 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
+	void RemoveMode(chanrec* channel)
+	{
+		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
+	}
+
+	void RemoveMode(userrec* user)
+	{
+	}
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
@@ -144,7 +180,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		}
 
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
+		if ((unload_kludge) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
@@ -181,6 +217,15 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
+	void RemoveMode(chanrec* channel)
+	{
+		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
+	}
+
+	void RemoveMode(userrec* user)
+	{
+	}
+
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
@@ -191,7 +236,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
+		if ((unload_kludge) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
