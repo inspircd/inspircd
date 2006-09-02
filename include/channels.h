@@ -527,6 +527,12 @@ class chanrec : public Extensible
 	 */
 	void SetPrefix(userrec* user, char prefix, unsigned int prefix_rank, bool adding);
 
+	/** Check if a user is banned on this channel
+	 * @param user A user to check against the banlist
+	 * @returns True if the user given is banned
+	 */
+	bool IsBanned(userrec* user);
+
 	/** Destructor for chanrec
 	 */
 	virtual ~chanrec() { /* stub */ }

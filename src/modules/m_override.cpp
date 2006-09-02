@@ -231,17 +231,12 @@ class ModuleOverride : public Module
 
 				if (CanOverride(user,"BANWALK"))
 				{
-					for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
+					if (chan->IsBanned(user))
 					{
-						char mask[MAXBUF];
-						sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
-						if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
+						if (NoisyOverride)
 						{
-							if (NoisyOverride)
-							{
-								chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel bans on %s", cname, user->nick,i->data);
-								ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel bans on %s", cname, user->nick, i->data);
-							}
+							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel ban", cname, user->nick);
+							ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban", cname, user->nick);
 						}
 					}
 					return -1;

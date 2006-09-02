@@ -64,13 +64,10 @@ class cmd_tban : public command_t
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
 					return;
 				}
-				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
+				if (channel->IsBanned(user))
 				{
-					if (!strcasecmp(i->data,parameters[2]))
-					{
-						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
-						return;
-					}
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
+					return;
 				}
 				TimedBan T;
 				std::string channelname = parameters[0];
