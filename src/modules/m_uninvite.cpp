@@ -32,7 +32,7 @@ using namespace std;
 class cmd_uninvite : public command_t
 {
  public:
- cmd_uninvite (InspIRCd* Instance) : command_t(Instance,"UNINVITE", 0, 2)
+	cmd_uninvite (InspIRCd* Instance) : command_t(Instance,"UNINVITE", 0, 2)
 	{
 		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";
@@ -105,8 +105,7 @@ class ModuleUninvite : public Module
 	
 	virtual Version GetVersion()
 	{
-		/* Must be static, because we dont want to desync invite lists */
-		return Version(1, 0, 0, 0, VF_VENDOR|VF_STATIC);
+		return Version(1, 0, 0, 0, VF_VENDOR);
 	}
 };
 
