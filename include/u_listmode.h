@@ -107,7 +107,13 @@ class ListModeBase : public ModeHandler
 			char moderemove[MAXBUF];
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);
+			modelist copy;
+			/* Make a copy of it, because we cant change the list whilst iterating over it */
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
+			{
+				copy.push_back(*it);
+			}
+			for(modelist::iterator it = copy.begin(); it != copy.end(); it++)
 			{
 				ServerInstance->Log(DEBUG,"Remove item %s",it->mask.c_str());
 				sprintf(moderemove,"-%c",this->GetModeChar());
