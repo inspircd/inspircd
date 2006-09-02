@@ -65,22 +65,22 @@ class ListModeBase : public ModeHandler
 		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
 	}
 
-        std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
+	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
 		modelist* el;
 		channel->GetExt(infokey, el);
 		if (el)
 		{
-	                for (modelist::iterator it = el->begin(); it != el->end(); it++)
-	                {
-	                        if(parameter == it->mask)
-	                        {
+			for (modelist::iterator it = el->begin(); it != el->end(); it++)
+			{
+				if(parameter == it->mask)
+				{
 					return std::make_pair(true, parameter);
 				}
-	                }
+			}
 		}
 		return std::make_pair(false, parameter);
-        }
+	}
 
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
@@ -94,6 +94,30 @@ class ListModeBase : public ModeHandler
 			}
 		}
 		user->WriteServ( "%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+	}
+
+	virtual void RemoveMode(chanrec* channel)
+	{
+		modelist* el;
+		channel->GetExt(infokey, el);
+		if (el)
+		{
+			char moderemove[MAXBUF];
+			userrec* n = new userrec(ServerInstance);
+			n->SetFd(FD_MAGIC_NUMBER);
+			for(modelist::iterator it = el->begin(); it != el->end(); it++)
+			{
+				sprintf(moderemove,"-%c",this->GetModeChar());
+				const char* parameters[] = { channel->name, moderemove, it->mask.c_str() };
+				ServerInstance->SendMode(parameters, 3, n);
+			}
+			delete n;
+		}
+	}
+
+	virtual void RemoveMode(userrec* user)
+	{
+		/* Listmodes dont get set on users */
 	}
 
 	virtual void DoRehash()

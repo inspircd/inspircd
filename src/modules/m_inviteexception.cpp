@@ -95,7 +95,13 @@ public:
 		
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 3, VF_VENDOR | VF_STATIC);
+		return Version(1, 0, 0, 3, VF_VENDOR | VF_COMMON);
+	}
+
+	~ModuleInviteException()
+	{
+		ServerInstance->Modes->DelMode(ie);
+		DELETE(ie);
 	}
 };
 

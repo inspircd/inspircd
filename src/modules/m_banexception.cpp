@@ -93,11 +93,12 @@ public:
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 3, VF_STATIC | VF_VENDOR);
+		return Version(1, 0, 0, 3, VF_COMMON | VF_VENDOR);
 	}
 	
 	virtual ~ModuleBanException()
 	{
+		ServerInstance->Modes->DelMode(be);
 		DELETE(be);	
 	}
 };
