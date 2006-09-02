@@ -588,6 +588,41 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 	return true;
 }
 
+bool ModeParser::DelMode(ModeHandler* mh)
+{
+	unsigned char mask = 0;
+	unsigned char pos = 0;
+
+	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
+		return false;
+
+	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
+	pos = (mh->GetModeChar()-65) | mask;
+
+	if (!modehandlers[pos])
+		return false;
+
+	switch (mh->GetModeType())
+	{
+		case MODETYPE_USER:
+			for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+			{
+				mh->RemoveMode(i->second);
+			}
+		break;
+		case MODETYPE_CHANNEL:
+			for (chan_hash::iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
+			{
+				mh->RemoveMode(i->second);
+			}
+		break;
+	}
+
+	modehandlers[pos] = NULL;
+
+	return true;
+}
+
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 {
 	unsigned char mask = 0;
@@ -814,6 +849,47 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	ServerInstance->Log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
 
 	return true;
+}
+
+/** This default implementation can remove simple user modes
+ */
+void ModeHandler::RemoveMode(userrec* user)
+{
+	char moderemove[MAXBUF];
+	const char* parameters[] = { user->nick, moderemove };
+
+	if (user->IsModeSet(this->GetModeChar()))
+	{
+		userrec* n = new userrec(ServerInstance);
+
+		sprintf(moderemove,"-%c",this->GetModeChar());
+		n->SetFd(FD_MAGIC_NUMBER);
+
+		ServerInstance->SendMode(parameters, 2, n);
+
+		delete n;
+	}
+}
+
+/** This default implementation can remove simple channel modes
+ * (no parameters)
+ */
+void ModeHandler::RemoveMode(chanrec* channel)
+{
+	char moderemove[MAXBUF];
+	const char* parameters[] = { channel->name, moderemove };
+
+	if (channel->IsModeSet(this->GetModeChar()))
+	{
+		userrec* n = new userrec(ServerInstance);
+
+		sprintf(moderemove,"-%c",this->GetModeChar());
+		n->SetFd(FD_MAGIC_NUMBER);
+
+		ServerInstance->SendMode(parameters, 2, n);
+
+		delete n;
+	}
 }
 
 ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)

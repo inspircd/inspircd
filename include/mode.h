@@ -244,6 +244,26 @@ class ModeHandler : public Extensible
 	 * This allows the local server to enforce our locally set parameters back to a remote server.
 	 */
 	virtual ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
+
+	/**
+	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.
+	 * Your mode handler should remove its user mode from the user by sending the appropriate server modes using
+	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
+	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
+	 * your mode properly from each user.
+	 * @param user The user which the server wants to remove your mode from
+	 */
+	virtual void RemoveMode(userrec* user);
+
+	/**
+	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.
+	 * Your mode handler should remove its user mode from the channel by sending the appropriate server modes using
+	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
+	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
+	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
+	 * @param channel The channel which the server wants to remove your mode from
+	 */
+	virtual void RemoveMode(chanrec* channel);
 };
 
 /**
@@ -376,6 +396,15 @@ class ModeParser : public classbase
 	 * @return True if the mode was successfully added.
 	 */
 	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
+	/** Delete a mode from the mode parser.
+	 * When a mode is deleted, the mode handler will be called
+	 * for every user (if it is a user mode) or for every  channel
+	 * (if it is a channel mode) to unset the mode on all objects.
+	 * This prevents modes staying in the system which no longer exist.
+	 * @param mh The mode handler to remove
+	 * @return True if the mode was successfully removed.
+	 */
+	bool DelMode(ModeHandler* mh);
 	/** Add a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more

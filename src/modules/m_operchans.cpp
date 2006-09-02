@@ -88,12 +88,13 @@ class ModuleOperChans : public Module
 	
     	virtual ~ModuleOperChans()
 	{
+		ServerInstance->Modes->DelMode(oc);
 		DELETE(oc);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,0,0,0,VF_VENDOR);
 	}
 };
 
