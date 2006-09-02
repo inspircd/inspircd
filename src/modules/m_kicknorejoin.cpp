@@ -119,8 +119,8 @@ public:
 				if (!dl->size())
 				{
 					// Now it's empty..
-						DELETE(dl);
-						chan->Shrink("norejoinusers");
+					DELETE(dl);
+					chan->Shrink("norejoinusers");
 				}
 			}
 		}
@@ -167,12 +167,13 @@ public:
 
 	virtual ~ModuleKickNoRejoin()
 	{
+		ServerInstance->Modes->DelMode(kr);
 		DELETE(kr);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_STATIC | VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR);
 	}
 };
 

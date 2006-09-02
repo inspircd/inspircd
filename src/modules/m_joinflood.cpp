@@ -245,12 +245,13 @@ class ModuleJoinFlood : public Module
 
 	virtual ~ModuleJoinFlood()
 	{
+		ServerInstance->Modes->DelMode(jf);
 		DELETE(jf);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR);
 	}
 };
 
