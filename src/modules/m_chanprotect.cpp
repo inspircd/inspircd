@@ -433,13 +433,15 @@ class ModuleChanProtect : public Module
 	
 	virtual ~ModuleChanProtect()
 	{
+		ServerInstance->Modes->DelMode(cp);
+		ServerInstance->Modes->DelMode(cf);
 		DELETE(cp);
 		DELETE(cf);
 	}
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR);
 	}
 	
 	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
