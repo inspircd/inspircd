@@ -114,6 +114,7 @@ install: all
 	-install -m 0700 src/cmd_whois.so $(LIBPATH)
 	-install -m 0700 src/cmd_whowas.so $(LIBPATH)
 	-install -m 0700 src/cmd_zline.so $(LIBPATH)
+	-install -m 0700 src/cmd_mode.so $(LIBPATH)
 	@-cp .gdbargs $(BASE)
 	@-cp conf/inspircd.quotes.example $(CONPATH)
 	@-cp conf/inspircd.rules.example $(CONPATH)
