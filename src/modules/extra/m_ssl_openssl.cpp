@@ -427,8 +427,7 @@ class ModuleSSLOpenSSL : public Module
 			CloseSession(session);
 			return 1;
 		}
-		
-		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
+
 		session->outbuf.append(buffer, count);
 		
 		if(session->status == ISSL_HANDSHAKING)
@@ -504,7 +503,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Successfully wrote %d bytes", ret);
 			session->outbuf = session->outbuf.substr(ret);
 			return ret;
 		}
@@ -514,7 +512,6 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: SSL_read(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
 			
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
@@ -553,8 +550,6 @@ class ModuleSSLOpenSSL : public Module
 			// Read successfully 'ret' bytes into inbuf + inbufoffset
 			// There are 'ret' + 'inbufoffset' bytes of data in 'inbuf'
 			// 'buffer' is 'count' long
-			
-			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Read %d bytes, now have %d waiting to be passed up", ret, ret + session->inbufoffset);
 
 			session->inbufoffset += ret;
 
