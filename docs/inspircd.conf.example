@@ -295,28 +295,43 @@
 #   Opers are defined here. This is a very important section.         #
 #   Remember to only make operators out of truthworthy people.        #
 #                                                                     #
-#  name      - oper name, best to use lower-case                      #
+#  name        - oper name, best to use lower-case                    #
 #                                                                     #
-#  password  - password to oper-up,                                   #
-#              encryption not supported by inspircd. However, there   #
-#              are modules that allow for oper password encryption.   #      
+#  password    - password to oper-up,                                 #
+#                encryption not supported by inspircd. However, there #
+#                are modules that allow for oper password encryption. #      
 #                                                                     #
-#  host      - host of client allowed to oper-up.                     #
-#              wildcards accepted, seperate multiple hosts with space #
-#              You may also specify CIDR ip addresses.                #
+#  host        - host of client allowed to oper-up.                   #
+#                wildcards accepted, seperate multiple hosts with a   #
+#                space. You may also specify CIDR ip addresses.       #
 #                                                                     #
-#  type      - specified above, defines the kind of operator          #
+#  fingerprint - When using the m_ssl_oper_cert.so module, you may    #
+#                specify a key fingerprint here. This can be obtained #
+#                using the /fingerprint command whilst the module is  #
+#                loaded, and will lock this oper block to only the    #
+#                user who has that specific key/certificate pair.     #
+#                This enhances security a great deal, however it      #
+#                requires that opers use clients which can send ssl   #
+#                client certificates, if this is configured for that  #
+#                oper. Note that if the m_ssl_oper.so module is not   #
+#                loaded, and/or one of m_ssl_openssl or m_ssl_gnutls  #
+#                is not loaded, this configuration option has no      #
+#                effect and will be ignored.                          #
+#                                                                     #
+#  type        - specified above, defines the kind of operator        #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #       <oper name="login"                                            #
 #             password="pass"                                         #
 #             host="hostmask@of.oper"                                 #
+#             fingerprint="hexsequence"                               #
 #             type="oper type">                                       #
 #                                                                     #
 
 <oper   name="katsklaw"
         password="s3cret"
         host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+	fingerprint="a41d730937a53b79f788c0ab13e9e1d5"
         type="NetAdmin">
 
 
@@ -1246,9 +1261,9 @@
 # SSL Cert Oper module: Allows opers to oper up using the key fingerprint
 # stored within their SSL certificate and key pair.
 # When using this module, one of m_ssl_gnutls.so or m_ssl_openssl.so must
-# be loaded. Any value may be placed in the password field of the OPER
-# command if your oper tag is fingerprint enabled. You must symlink the
-# source for this module from the directory src/modules/extra.
+# be loaded. An extra value should be added to enabled opers, which
+# is in the following format: fingerprint="<hash>". For more information,
+# see the example in the oper blocks.
 #<module name="m_ssl_oper_cert.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
