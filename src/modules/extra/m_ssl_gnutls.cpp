@@ -720,6 +720,7 @@ class ModuleSSLGnuTLS : public Module
 		else
 		{
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(digest, digest_size)));
+			user->WriteServ("NOTICE %s :*** Your SSL Certificate fingerprint is: %s", user->nick, irc::hex(digest, digest_size).c_str());
 		}
 
 		/* Beware here we do not check for errors.

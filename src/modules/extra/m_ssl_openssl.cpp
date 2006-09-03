@@ -695,7 +695,6 @@ class ModuleSSLOpenSSL : public Module
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
 		const EVP_MD *digest = EVP_md5();
-		//char* buf;
 
 		user->Extend("ssl_cert",certinfo);
 
@@ -720,16 +719,6 @@ class ModuleSSLOpenSSL : public Module
 			certinfo->data.insert(std::make_pair("trusted",ConvToStr(0)));
 		}
 
-		/*if (!X509_verify_cert(cert))
-		{
-			certinfo->data.insert(std::make_pair("invalid",ConvToStr(1)));
-		}
-		else
-		{
-			certinfo->data.insert(std::make_pair("invalid",ConvToStr(0)));
-		}*/
-
-		//X509_NAME_oneline(nm, 0, 0);
 		certinfo->data.insert(std::make_pair("dn",std::string(X509_NAME_oneline(X509_get_subject_name(cert),0,0))));
 		certinfo->data.insert(std::make_pair("issuer",std::string(X509_NAME_oneline(X509_get_issuer_name(cert),0,0))));
 
@@ -741,6 +730,8 @@ class ModuleSSLOpenSSL : public Module
 		{
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
 		}
+
+		user->WriteServ("NOTICE %s :*** Your SSL Certificate fingerprint is: %s", user->nick, irc::hex(md, n).c_str());
 
 		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == 0))
 		{
