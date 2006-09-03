@@ -703,6 +703,7 @@ if ($config{USE_GNUTLS} eq "y") {
 		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
 		chdir("src/modules");
 		system("ln -s extra/m_ssl_gnutls.cpp");
+		system("ln -s extra/ssl_cert.h");
 		chdir("../..");
 	}
 	getmodules();
@@ -737,6 +738,7 @@ if ($config{USE_GNUTLS} eq "y") {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
 		chdir("src/modules");
 		system("ln -s extra/m_ssl_openssl.cpp");
+		system("ln -s extra/ssl_cert.h");
 		chdir("../..");
 	}
 	getmodules();

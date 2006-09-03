@@ -2,6 +2,7 @@
 #include <vector>
 
 #include <gnutls/gnutls.h>
+#include <gnutls/x509.h>
 
 #include "inspircd_config.h"
 #include "configreader.h"
@@ -12,6 +13,8 @@
 #include "socket.h"
 #include "hashcomp.h"
 #include "inspircd.h"
+
+#include "ssl_cert.h"
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `libgnutls-config --cflags` */
@@ -214,6 +217,13 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
 				culllist->AddItem(user, "SSL module unloading");
 			}
+			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
+			{
+				ssl_cert* tofree;
+				user->GetExt("ssl_cert", tofree);
+				delete tofree;
+				user->Shrink("ssl_cert");
+			}
 		}
 	}
 	
@@ -265,7 +275,7 @@ class ModuleSSLGnuTLS : public Module
 		 */
 		
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
-		
+
 		Handshake(session);
 	}
 
@@ -273,13 +283,23 @@ class ModuleSSLGnuTLS : public Module
 	{
 		ServerInstance->Log(DEBUG, "OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
+
+		EventHandler* user = ServerInstance->SE->GetRef(fd);
+
+		if ((user) && (user->GetExt("ssl_cert", dummy)))
+		{
+			ssl_cert* tofree;
+			user->GetExt("ssl_cert", tofree);
+			delete tofree;
+			user->Shrink("ssl_cert");
+		}
 	}
 	
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		issl_session* session = &sessions[fd];
 		
-		if(!session->sess)
+		if (!session->sess)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: No session to read from");
 			readresult = 0;
@@ -289,7 +309,7 @@ class ModuleSSLGnuTLS : public Module
 		
 		ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
 		
-		if(session->status == ISSL_HANDSHAKING_READ)
+		if (session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.
 			
@@ -305,7 +325,7 @@ class ModuleSSLGnuTLS : public Module
 				return -1;
 			}
 		}
-		else if(session->status == ISSL_HANDSHAKING_WRITE)
+		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: handshake wants to write data but we are currently reading");
 			return -1;
@@ -313,7 +333,7 @@ class ModuleSSLGnuTLS : public Module
 		
 		// If we resumed the handshake then session->status will be ISSL_HANDSHAKEN.
 		
-		if(session->status == ISSL_HANDSHAKEN)
+		if (session->status == ISSL_HANDSHAKEN)
 		{
 			// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 			// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
@@ -321,7 +341,7 @@ class ModuleSSLGnuTLS : public Module
 			
 			int ret = gnutls_record_recv(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
-			if(ret == 0)
+			if (ret == 0)
 			{
 				// Client closed connection.
 				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Client closed the connection");
@@ -329,9 +349,9 @@ class ModuleSSLGnuTLS : public Module
 				CloseSession(session);
 				return 1;
 			}
-			else if(ret < 0)
+			else if (ret < 0)
 			{
-				if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+				if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 				{
 					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Not all SSL data read: %s", gnutls_strerror(ret));
 					return -1;
@@ -350,8 +370,6 @@ class ModuleSSLGnuTLS : public Module
 				// 'buffer' is 'count' long
 				
 				unsigned int length = ret + session->inbufoffset;
-		
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Read %d bytes, now have %d waiting to be passed up", ret, length);
 						
 				if(count <= length)
 				{
@@ -415,7 +433,6 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: handshake wants to read data but we are currently writing");
 		}
 
-		ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Adding %d bytes to the outgoing buffer", count);		
 		session->outbuf.append(sendbuffer, count);
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
@@ -443,7 +460,6 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Successfully wrote %d bytes", ret);
 				session->outbuf = session->outbuf.substr(ret);
 			}
 		}
@@ -498,7 +514,7 @@ class ModuleSSLGnuTLS : public Module
 	{		
 		int ret = gnutls_handshake(session->sess);
       
-      if(ret < 0)
+		if(ret < 0)
 		{
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
@@ -566,6 +582,8 @@ class ModuleSSLGnuTLS : public Module
 			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
 			DELETE(event);
 			DELETE(metadata);
+
+			VerifyCertificate(&sessions[user->GetFd()],user);
 		}
 	}
 	
@@ -592,6 +610,120 @@ class ModuleSSLGnuTLS : public Module
 		session->sess = NULL;
 		session->status = ISSL_NONE;
 	}
+
+	void VerifyCertificate(issl_session* session, userrec* user)
+	{
+		unsigned int status;
+		const gnutls_datum_t* cert_list;
+		int ret;
+		unsigned int cert_list_size, name_size;
+		gnutls_x509_crt_t cert;
+		char name[MAXBUF];
+		ssl_cert* certinfo = new ssl_cert;
+
+		user->Extend("ssl_cert",certinfo);
+
+		/* This verification function uses the trusted CAs in the credentials
+		 * structure. So you must have installed one or more CA certificates.
+		 */
+		ret = gnutls_certificate_verify_peers2(session->sess, &status);
+
+		if (ret < 0)
+		{
+			certinfo->data.insert(std::make_pair("error",std::string(gnutls_strerror(ret))));
+			return;
+		}
+
+		if (status & GNUTLS_CERT_INVALID)
+		{
+			certinfo->data.insert(std::make_pair("invalid",ConvToStr(1)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("invalid",ConvToStr(0)));
+		}
+		if (status & GNUTLS_CERT_SIGNER_NOT_FOUND)
+		{
+			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(1)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(0)));
+		}
+		if (status & GNUTLS_CERT_REVOKED)
+		{
+			certinfo->data.insert(std::make_pair("revoked",ConvToStr(1)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("revoked",ConvToStr(0)));
+		}
+		if (status & GNUTLS_CERT_SIGNER_NOT_CA)
+		{
+			certinfo->data.insert(std::make_pair("trusted",ConvToStr(0)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("trusted",ConvToStr(1)));
+		}
+	
+		/* Up to here the process is the same for X.509 certificates and
+		 * OpenPGP keys. From now on X.509 certificates are assumed. This can
+		 * be easily extended to work with openpgp keys as well.
+		 */
+		if (gnutls_certificate_type_get(session->sess) != GNUTLS_CRT_X509)
+		{
+			certinfo->data.insert(std::make_pair("error","No X509 keys sent"));
+			return;
+		}
+
+		ret = gnutls_x509_crt_init(&cert);
+		if (ret < 0)
+		{
+			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+			return;
+		}
+
+		cert_list = gnutls_certificate_get_peers(session->sess, &cert_list_size);
+		if (cert_list == NULL)
+		{
+			certinfo->data.insert(std::make_pair("error","No certificate was found"));
+			return;
+		}
+
+		/* This is not a real world example, since we only check the first 
+		 * certificate in the given chain.
+		 */
+
+		ret = gnutls_x509_crt_import(cert, &cert_list[0], GNUTLS_X509_FMT_DER);
+		if (ret < 0)
+		{
+			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+			return;
+		}
+
+		name_size = sizeof(name);
+		gnutls_x509_crt_get_dn(cert, name, &name_size);
+
+		certinfo->data.insert(std::make_pair("dn",name));
+
+		name_size = sizeof(name);
+		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
+
+		certinfo->data.insert(std::make_pair("issuer",name));
+
+		/* Beware here we do not check for errors.
+		 */
+		if ((gnutls_x509_crt_get_expiration_time(cert) < time(0)) || (gnutls_x509_crt_get_activation_time(cert) > time(0)))
+		{
+			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
+		}
+
+		gnutls_x509_crt_deinit(cert);
+
+		return;
+	}
+
 };
 
 class ModuleSSLGnuTLSFactory : public ModuleFactory
