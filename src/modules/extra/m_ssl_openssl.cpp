@@ -61,6 +61,11 @@ public:
 
 static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 {
+	/* XXX: This will allow self signed certificates.
+	 * In the future if we want an option to not allow this,
+	 * we can just return preverify_ok here, and openssl
+	 * will boot off self-signed and invalid peer certs.
+	 */
 	return 1;
 }
 	
@@ -91,8 +96,6 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
-
 		culllist = new CullList(ServerInstance);
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
@@ -717,16 +720,10 @@ class ModuleSSLOpenSSL : public Module
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
 		}
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == -1))
+		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == 0))
 		{
 			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
 		}
-
-		/*if (cert->name)
-		{
-			certinfo->data.insert(std::make_pair("dn",cert->name));
-		}*/
-
 	}
 };
 
