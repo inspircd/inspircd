@@ -483,18 +483,4 @@ class ModeParser : public classbase
 	std::string ModeString(userrec* user, chanrec* channel);
 };
 
-/** Command handler class for the MODE command.
- * put here for completeness.
- */
-class cmd_mode : public command_t
-{
- public:
-	/** Standard constructor
-	 */
-	cmd_mode (InspIRCd* Instance) : command_t(Instance,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
-	/** Handle MODE
-	 */
-	void Handle(const char** parameters, int pcnt, userrec *user);
-};
-
 #endif

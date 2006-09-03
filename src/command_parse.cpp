@@ -444,8 +444,22 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 	}
 }
 
-bool CommandParser::CreateCommand(command_t *f)
+bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 {
+	if (so_handle)
+	{
+		if (RFCCommands.find(f->command) == RFCCommands.end())
+		{
+			RFCCommands[f->command] = so_handle;
+			ServerInstance->Log(DEFAULT,"Monitoring RFC-specified reloadable command at %8x",so_handle);
+		}
+		else
+		{
+			ServerInstance->Log(DEFAULT,"ERK! Somehow, we loaded a cmd_*.so file twice! Only the first instance is being recorded.");
+			return false;
+		}
+	}
+
 	/* create the command and push it onto the table */
 	if (cmdlist.find(f->command) == cmdlist.end())
 	{
@@ -472,6 +486,49 @@ void CommandParser::FindSym(void** v, void* h)
 	}
 }
 
+bool CommandParser::ReloadCommand(const char* cmd)
+{
+	char filename[MAXBUF];
+	char commandname[MAXBUF];
+	int y = 0;
+
+	for (const char* x = cmd; *x; x++, y++)
+		commandname[y] = toupper(*x);
+
+	commandname[y] = 0;
+
+	SharedObjectList::iterator command = RFCCommands.find(commandname);
+
+	if (command != RFCCommands.end())
+	{
+		command_t* cmdptr = cmdlist.find(commandname)->second;
+		cmdlist.erase(cmdlist.find(commandname));
+
+		for (char* x = commandname; *x; x++)
+			*x = tolower(*x);
+
+
+		delete cmdptr;
+		dlclose(command->second);
+
+		sprintf(filename, "cmd_%s.so", commandname);
+		this->LoadCommand(filename);
+
+		return true;
+	}
+
+	return false;
+}
+
+void cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
+{
+	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
+	if (ServerInstance->Parser->ReloadCommand(parameters[0]))
+		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0]);
+	else
+		user->WriteServ("NOTICE %s :*** Could not reload command '%s'", user->nick, parameters[0]);
+}
+
 void CommandParser::LoadCommand(const char* name)
 {
 	char filename[MAXBUF];
@@ -490,11 +547,13 @@ void CommandParser::LoadCommand(const char* name)
 
 	command_t* newcommand = cmd_factory_func(ServerInstance);
 
-	this->CreateCommand(newcommand);
+	this->CreateCommand(newcommand, h);
 }
 
 void CommandParser::SetupCommandTable()
 {
+	RFCCommands.clear();
+
 	DIR* library = opendir(LIBRARYDIR);
 	if (library)
 	{
@@ -508,5 +567,7 @@ void CommandParser::SetupCommandTable()
 		}
 		closedir(library);
 	}
+
+	this->CreateCommand(new cmd_reload(ServerInstance));
 }
 

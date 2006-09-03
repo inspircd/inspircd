@@ -515,17 +515,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	}
 }
 
-
-void cmd_mode::Handle (const char** parameters, int pcnt, userrec *user)
-{
-	if (!user)
-		return;
-
-	ServerInstance->Modes->Process(parameters, pcnt, user, false);
-
-	return;
-}
-
 void ModeParser::CleanMask(std::string &mask)
 {
 	std::string::size_type pos_of_pling = mask.find_first_of('!');

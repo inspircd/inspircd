@@ -24,6 +24,8 @@
 
 class InspIRCd;
 
+typedef std::map<std::string, void*> SharedObjectList;
+
 /** This class handles command management and parsing.
  * It allows you to add and remove commands from the map,
  * call command handlers by name, and chop up comma seperated
@@ -55,12 +57,16 @@ class CommandParser : public classbase
 
 	void FindSym(void** v, void* h);
 
+	SharedObjectList RFCCommands;
+
+	void LoadCommand(const char* name);
+
  public:
 	/** Command list, a hash_map of command names to command_t*
 	 */
 	command_table cmdlist;
 
-	void LoadCommand(const char* name);
+	bool ReloadCommand(const char* cmd);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class
@@ -146,9 +152,28 @@ class CommandParser : public classbase
 
 	/** Add a new command to the commands hash
 	 * @param f The new command_t to add to the list
+	 * @param so_handle The handle to the shared object where the command can be found.
+	 * Only core commands loaded via cmd_*.so files should set this parameter to anything
+	 * meaningful. Module authors should leave this parameter at its default of NULL.
 	 * @return True if the command was added
 	 */
-	bool CreateCommand(command_t *f);
+	bool CreateCommand(command_t *f, void* so_handle = NULL);
 };
+
+/** Command handler class for the RELOAD command.
+ * A command cant really reload itself, so this has to be in here.
+ */
+class cmd_reload : public command_t
+{
+ public:
+	/** Standard constructor
+	 */
+	cmd_reload (InspIRCd* Instance) : command_t(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
+	/** Handle RELOAD
+	 */
+	void Handle(const char** parameters, int pcnt, userrec *user);
+};
+
+
 
 #endif
