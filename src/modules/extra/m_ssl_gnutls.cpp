@@ -306,9 +306,7 @@ class ModuleSSLGnuTLS : public Module
 			CloseSession(session);
 			return 1;
 		}
-		
-		ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
-		
+
 		if (session->status == ISSL_HANDSHAKING_READ)
 		{
 			// The handshake isn't finished, try to finish it.

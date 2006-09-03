@@ -44,7 +44,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 		try
 		{
 			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
-			this->Log(DEBUG,"Data result returned by module: %d",MOD_RESULT);
 		}
 		catch (ModuleException& modexcept)
 		{

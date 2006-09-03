@@ -330,7 +330,7 @@ class ModuleSSLOpenSSL : public Module
 			user->Shrink("ssl_cert");
 		}
 	}
-	
+
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		issl_session* session = &sessions[fd];
@@ -342,8 +342,6 @@ class ModuleSSLOpenSSL : public Module
 			CloseSession(session);
 			return 1;
 		}
-		
-		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead(%d, buffer, %u, %d)", fd, count, readresult);
 		
 		if(session->status == ISSL_HANDSHAKING)
 		{
@@ -368,7 +366,7 @@ class ModuleSSLOpenSSL : public Module
 				return -1;			
 			}
 		}
-		
+
 		// If we resumed the handshake then session->status will be ISSL_OPEN
 				
 		if(session->status == ISSL_OPEN)
