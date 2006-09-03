@@ -25,6 +25,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 #include "ssl_cert.h"
+#include "wildcard.h"
 
 class cmd_fingerprint : public command_t
 {
@@ -61,6 +62,7 @@ class cmd_fingerprint : public command_t
 };
 
 
+
 class ModuleOperSSLCert : public Module
 {
 	ssl_cert* cert;
@@ -82,45 +84,67 @@ class ModuleOperSSLCert : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnOperCompare] = List[I_OnPreCommand] = 1;
+		List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnOperCompare(const std::string &data, const std::string &input)
+
+	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	{
-		ServerInstance->Log(DEBUG,"HasCert=%d, data='%s' input='%s'",HasCert,data.c_str(), input.c_str());
-		if ((HasCert) && ((data.length()) && (data.length() == cert->GetFingerprint().length())))
+		std::stringstream hl(hostlist);
+		std::string xhost;
+		while (hl >> xhost)
 		{
-			ServerInstance->Log(DEBUG,"Lengths match, cert='%s'",cert->GetFingerprint().c_str());
-			if (data == cert->GetFingerprint())
+			if (match(host,xhost.c_str()) || match(ip,xhost.c_str(),true))
 			{
-				ServerInstance->Log(DEBUG,"Return 1");
-				return 1;
-			}
-			else
-			{
-				/* Someones playing silly buggers, and entering in literals asa the oper pass */
-				if (input == cert->GetFingerprint())
-					return -1;
-
-				ServerInstance->Log(DEBUG,"'%s' != '%s'",data.c_str(), cert->GetFingerprint().c_str());
-				return 0;
+				return true;
 			}
 		}
-		else
-		{
-			ServerInstance->Log(DEBUG,"Lengths dont match");
-			return 0;
-		}
+		return false;
 	}
+
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
 	{
 		irc::string cmd = command.c_str();
 		
-		if ((cmd == "OPER") && (validated == 1))
+		if ((cmd == "OPER") && (validated))
 		{
+			char LoginName[MAXBUF];
+			char Password[MAXBUF];
+			char OperType[MAXBUF];
+			char HostName[MAXBUF];
+			char TheHost[MAXBUF];
+			char TheIP[MAXBUF];
+			char FingerPrint[MAXBUF];
+
+			snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
+			snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
+
 			HasCert = user->GetExt("ssl_cert",cert);
 			ServerInstance->Log(DEBUG,"HasCert=%d",HasCert);
+			for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
+			{
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "name", i, LoginName, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "password", i, Password, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "fingerprint",  i, FingerPrint, MAXBUF);
+				
+				if (*FingerPrint)
+				{
+					if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
+					{
+						/* This oper would match */
+						if (cert->GetFingerprint() != FingerPrint)
+						{
+							user->WriteServ("491 %s :This oper login name requires a matching key fingerprint.",user->nick);
+							ServerInstance->SNO->WriteToSnoMask('o',"OPER: '%s' cannot oper, does not match fingerprint", user->nick);
+							ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.",user->nick,user->ident,user->host);
+							return 1;
+						}
+					}
+				}
+			}
 		}
 		return 0;
 	}
