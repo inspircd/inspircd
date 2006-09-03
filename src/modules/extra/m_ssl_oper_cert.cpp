@@ -88,7 +88,7 @@ class ModuleOperSSLCert : public Module
 	virtual int OnOperCompare(const std::string &data, const std::string &input)
 	{
 		ServerInstance->Log(DEBUG,"HasCert=%d, data='%s' input='%s'",HasCert,data.c_str(), input.c_str());
-		if (((data.length()) && (data.length() == cert->GetFingerprint().length())))
+		if ((HasCert) && ((data.length()) && (data.length() == cert->GetFingerprint().length())))
 		{
 			ServerInstance->Log(DEBUG,"Lengths match, cert='%s'",cert->GetFingerprint().c_str());
 			if (data == cert->GetFingerprint())
@@ -98,6 +98,10 @@ class ModuleOperSSLCert : public Module
 			}
 			else
 			{
+				/* Someones playing silly buggers, and entering in literals asa the oper pass */
+				if (input == cert->GetFingerprint())
+					return -1;
+
 				ServerInstance->Log(DEBUG,"'%s' != '%s'",data.c_str(), cert->GetFingerprint().c_str());
 				return 0;
 			}
