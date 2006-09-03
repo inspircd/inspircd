@@ -1223,6 +1223,14 @@
 # http://www.inspircd.org/wiki/GnuTLS_SSL_Module                      #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL Info module: Allows users to retrieve information about other
+# user's peer SSL certificates and keys. This can be used by client
+# scripts to validate users. For this to work, one of m_ssl_gnutls.so
+# or m_ssl_openssl.so must be loaded. You must symlink the source for
+# this module from the directory src/modules/extra.
+#<module name="m_sslinfo.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # OpenSSL ssl module: Adds support for client-server SSL using OpenSSL,
 # if enabled. You must copy the source for this module from the directory
 # src/modules/extra, or answer 'yes' in ./configure when asked if you
@@ -1233,6 +1241,15 @@
 #                                                                     #
 # m_ssl_openssl.so is too complex it describe here, see the wiki:     #
 # http://www.inspircd.org/wiki/OpenSSL_SSL_Module                     #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SSL Cert Oper module: Allows opers to oper up using the key fingerprint
+# stored within their SSL certificate and key pair.
+# When using this module, one of m_ssl_gnutls.so or m_ssl_openssl.so must
+# be loaded. Any value may be placed in the password field of the OPER
+# command if your oper tag is fingerprint enabled. You must symlink the
+# source for this module from the directory src/modules/extra.
+#<module name="m_ssl_oper_cert.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip colour module: Adds the channel mode +S
