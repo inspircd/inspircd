@@ -737,6 +737,8 @@ class ModuleSSLOpenSSL : public Module
 		{
 			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
 		}
+
+		X509_free(cert);
 	}
 };
 
