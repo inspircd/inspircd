@@ -275,3 +275,21 @@ const std::string irc::commasepstream::GetToken()
 irc::commasepstream::~commasepstream()
 {
 }
+
+std::string irc::hex(const unsigned char *raw, size_t rawsz)
+{
+	if (!rawsz)
+		return "";
+
+	char buf[rawsz*2+1];
+	size_t i;
+
+	for (i = 0; i < rawsz; i++)
+	{
+		sprintf (&(buf[i*2]), "%02x", raw[i]);
+	}
+	buf[i*2] = 0;
+
+	return buf;
+}
+

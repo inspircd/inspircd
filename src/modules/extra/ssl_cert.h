@@ -48,6 +48,16 @@ class ssl_cert
 			return empty;
 	}
 
+	const std::string& GetFingerprint()
+	{
+		ssl_data_iter ssldi = data.find("fingerprint");
+
+		if (ssldi != data.end())
+			return ssldi->second;
+		else
+			return empty;
+	}
+
 	bool IsTrusted()
 	{
 		ssl_data_iter ssldi = data.find("trusted");

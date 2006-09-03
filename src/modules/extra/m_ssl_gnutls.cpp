@@ -619,6 +619,8 @@ class ModuleSSLGnuTLS : public Module
 		unsigned int cert_list_size, name_size;
 		gnutls_x509_crt_t cert;
 		char name[MAXBUF];
+		unsigned char digest[MAXBUF];
+		size_t digest_size = sizeof(digest);
 		ssl_cert* certinfo = new ssl_cert;
 
 		user->Extend("ssl_cert",certinfo);
@@ -712,6 +714,15 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
 
 		certinfo->data.insert(std::make_pair("issuer",name));
+
+		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_MD5, digest, &digest_size)) < 0)
+		{
+			certinfo->data.insert(std::make_pair("error",gnutls_strerror(ret)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(digest, digest_size)));
+		}
 
 		/* Beware here we do not check for errors.
 		 */

@@ -207,6 +207,8 @@ namespace irc
 		static const char* find(const char* s1, int  n, char c);
 	};
 
+	std::string hex(const unsigned char *raw, size_t rawsz);
+
 	/** This typedef declares irc::string based upon irc_char_traits
 	 */
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
