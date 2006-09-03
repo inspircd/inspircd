@@ -18,6 +18,13 @@
 #include "inspircd.h"
 #include "commands/cmd_userhost.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_userhost(Instance);
+}
+
 void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF],junk[MAXBUF];

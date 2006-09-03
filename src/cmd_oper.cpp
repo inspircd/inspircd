@@ -35,6 +35,13 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	return false;
 }
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_oper(Instance);
+}
+
 void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char LoginName[MAXBUF];

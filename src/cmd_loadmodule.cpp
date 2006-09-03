@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_loadmodule.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_loadmodule(Instance);
+}
+
 void cmd_loadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->LoadModule(parameters[0]))

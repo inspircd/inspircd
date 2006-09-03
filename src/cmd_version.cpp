@@ -19,6 +19,13 @@
 #include "users.h"
 #include "commands/cmd_version.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_version(Instance);
+}
+
 void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	std::stringstream out(ServerInstance->Config->data005);

@@ -21,6 +21,13 @@
 #include "xline.h"
 #include "commands/cmd_zline.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_zline(Instance);
+}
+
 void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)

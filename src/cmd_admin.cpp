@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_admin.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_admin(Instance);
+}
+
 void cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("256 %s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);

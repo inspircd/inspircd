@@ -17,6 +17,13 @@
 #include "users.h"
 #include "commands/cmd_pong.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_pong(Instance);
+}
+
 void cmd_pong::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// set the user as alive so they survive to next ping

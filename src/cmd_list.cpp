@@ -19,6 +19,13 @@
 #include "commands/cmd_list.h"
 #include "wildcard.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_list(Instance);
+}
+
 void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("321 %s Channel :Users Name",user->nick);

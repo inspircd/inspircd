@@ -19,6 +19,13 @@
 #include "modules.h"
 #include "commands/cmd_topic.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_topic(Instance);
+}
+
 void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;

@@ -22,6 +22,13 @@
 #include "xline.h"
 #include "commands/cmd_stats.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_stats(Instance);
+}
+
 void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	string_list values;

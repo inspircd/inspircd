@@ -17,6 +17,13 @@
 #include "users.h"
 #include "commands/cmd_rules.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_rules(Instance);
+}
+
 void cmd_rules::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->ShowRULES();

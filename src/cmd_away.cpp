@@ -19,6 +19,13 @@
 #include "modules.h"
 #include "commands/cmd_away.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_away(Instance);
+}
+
 void cmd_away::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if ((pcnt) && (*parameters[0]))

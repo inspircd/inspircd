@@ -19,6 +19,13 @@
 #include "modules.h"
 #include "commands/cmd_invite.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_invite(Instance);
+}
+
 void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	int MOD_RESULT = 0;

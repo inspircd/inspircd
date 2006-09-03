@@ -21,6 +21,13 @@
 #include "wildcard.h"
 #include "commands/cmd_privmsg.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_privmsg(Instance);
+}
+
 void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;

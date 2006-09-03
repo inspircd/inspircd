@@ -17,6 +17,13 @@
 #include "users.h"
 #include "commands/cmd_pass.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_pass(Instance);
+}
+
 void cmd_pass::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// Check to make sure they havnt registered -- Fix by FCS

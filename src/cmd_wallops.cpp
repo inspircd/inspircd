@@ -18,6 +18,13 @@
 #include "modules.h"
 #include "commands/cmd_wallops.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_wallops(Instance);
+}
+
 void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteWallOps(std::string(parameters[0]));

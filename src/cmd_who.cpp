@@ -54,6 +54,13 @@ bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_
 	return ((realname) || (realhost) || (match(user->dhost, matchtext)) || (match(user->nick, matchtext)) || (match(user->server, matchtext)));
 }
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_who(Instance);
+}
+
 void cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	/*

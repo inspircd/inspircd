@@ -20,6 +20,13 @@
 #include "wildcard.h"
 #include "commands/cmd_notice.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_notice(Instance);
+}
+
 void cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;

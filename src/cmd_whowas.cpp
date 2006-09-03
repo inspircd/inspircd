@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_whowas.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_whowas(Instance);
+}
+
 void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
 	irc::whowas::whowas_users::iterator i = ServerInstance->whowas.find(parameters[0]);

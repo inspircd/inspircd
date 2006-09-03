@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_time.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_time(Instance);
+}
+
 void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	struct tm* timeinfo;

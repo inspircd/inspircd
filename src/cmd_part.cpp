@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_part.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_part(Instance);
+}
+
 void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))

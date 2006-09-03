@@ -18,6 +18,13 @@
 #include "inspircd.h"
 #include "commands/cmd_trace.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_trace(Instance);
+}
+
 void cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)

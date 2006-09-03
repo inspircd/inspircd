@@ -52,10 +52,15 @@ class CommandParser : public classbase
 	/** Insert the default RFC1459 commands into the command hash.
 	 */
 	void SetupCommandTable();
+
+	void FindSym(void** v, void* h);
+
  public:
 	/** Command list, a hash_map of command names to command_t*
 	 */
 	command_table cmdlist;
+
+	void LoadCommand(const char* name);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class

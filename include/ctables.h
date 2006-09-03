@@ -55,12 +55,15 @@ class command_t : public Extensible
 	/** True if the command is disabled to non-opers
 	 */
 	bool disabled;
+	/** True if the command can be issued before registering
+	 */
+	bool works_before_reg;
 	/** Syntax string for the command, displayed if non-empty string.
 	 * This takes place of the text in the 'not enough parameters' numeric.
 	 */
 	std::string syntax;
 
-	command_t(InspIRCd* Instance, const std::string &cmd, char flags, int minpara) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false)
+	command_t(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg)
 	{
 		use_count = total_bytes = 0;
 		source = "<core>";
@@ -77,6 +80,11 @@ class command_t : public Extensible
 	bool IsDisabled()
 	{
 		return disabled;
+	}
+
+	bool WorksBeforeReg()
+	{
+		return works_before_reg;
 	}
 
 	virtual ~command_t() {}

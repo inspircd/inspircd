@@ -20,6 +20,13 @@
 #include "modules.h"
 #include "commands/cmd_quit.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_quit(Instance);
+}
+
 void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);

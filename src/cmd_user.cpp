@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_user.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_user(Instance);
+}
+
 void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (user->registered < REG_NICKUSER)

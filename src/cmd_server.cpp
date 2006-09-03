@@ -18,6 +18,13 @@
 #include "inspircd.h"
 #include "commands/cmd_server.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_server(Instance);
+}
+
 void cmd_server::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("666 %s :You cannot identify as a server, you are a USER. IRC Operators informed.",user->nick);

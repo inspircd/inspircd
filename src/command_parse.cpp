@@ -17,6 +17,8 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <algorithm>
+#include <dirent.h>
+#include <dlfcn.h>
 #include "users.h"
 #include "modules.h"
 #include "wildcard.h"
@@ -25,68 +27,6 @@
 #include "userprocess.h"
 #include "socket.h"
 #include "command_parse.h"
-#define nspace __gnu_cxx
-
-/*       XXX Serious WTFness XXX
- *
- * Well, unless someone invents a wildcard or
- * regexp #include, and makes it a standard,
- * we're stuck with this way of including all
- * the commands.
- */
-
-#include "commands/cmd_admin.h"
-#include "commands/cmd_away.h"
-#include "commands/cmd_commands.h"
-#include "commands/cmd_connect.h"
-#include "commands/cmd_die.h"
-#include "commands/cmd_eline.h"
-#include "commands/cmd_gline.h"
-#include "commands/cmd_info.h"
-#include "commands/cmd_invite.h"
-#include "commands/cmd_ison.h"
-#include "commands/cmd_join.h"
-#include "commands/cmd_kick.h"
-#include "commands/cmd_kill.h"
-#include "commands/cmd_kline.h"
-#include "commands/cmd_links.h"
-#include "commands/cmd_list.h"
-#include "commands/cmd_loadmodule.h"
-#include "commands/cmd_lusers.h"
-#include "commands/cmd_map.h"
-#include "commands/cmd_modules.h"
-#include "commands/cmd_motd.h"
-#include "commands/cmd_names.h"
-#include "commands/cmd_nick.h"
-#include "commands/cmd_notice.h"
-#include "commands/cmd_oper.h"
-#include "commands/cmd_part.h"
-#include "commands/cmd_pass.h"
-#include "commands/cmd_ping.h"
-#include "commands/cmd_pong.h"
-#include "commands/cmd_privmsg.h"
-#include "commands/cmd_qline.h"
-#include "commands/cmd_quit.h"
-#include "commands/cmd_rehash.h"
-#include "commands/cmd_restart.h"
-#include "commands/cmd_rules.h"
-#include "commands/cmd_server.h"
-#include "commands/cmd_squit.h"
-#include "commands/cmd_stats.h"
-#include "commands/cmd_summon.h"
-#include "commands/cmd_time.h"
-#include "commands/cmd_topic.h"
-#include "commands/cmd_trace.h"
-#include "commands/cmd_unloadmodule.h"
-#include "commands/cmd_user.h"
-#include "commands/cmd_userhost.h"
-#include "commands/cmd_users.h"
-#include "commands/cmd_version.h"
-#include "commands/cmd_wallops.h"
-#include "commands/cmd_who.h"
-#include "commands/cmd_whois.h"
-#include "commands/cmd_whowas.h"
-#include "commands/cmd_zline.h"
 
 bool InspIRCd::ULine(const char* server)
 {
@@ -252,16 +192,6 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
 	}
 	return false;
 }
-
-
-
-
-
-/* Special commands which may occur without registration of the user */
-cmd_user* command_user;
-cmd_nick* command_nick;
-cmd_pass* command_pass;
-
 
 /* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
  * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -437,7 +367,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
 				return;
 			}
-			if ((user->registered == REG_ALL) || (cm->second == command_user) || (cm->second == command_nick) || (cm->second == command_pass))
+			if ((user->registered == REG_ALL) || (cm->second->WorksBeforeReg()))
 			{
 				/* ikky /stats counters */
 				cm->second->use_count++;
@@ -531,70 +461,52 @@ CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 	this->SetupCommandTable();
 }
 
+void CommandParser::FindSym(void** v, void* h)
+{
+	*v = dlsym(h, "init_command");
+	const char* err = dlerror();
+	if (err)
+	{
+		printf("ERROR: %s\n",err);
+		exit(0);
+	}
+}
+
+void CommandParser::LoadCommand(const char* name)
+{
+	char filename[MAXBUF];
+	void* h;
+	command_t* (*cmd_factory_func)(InspIRCd*);
+
+	snprintf(filename, MAXBUF, "%s/%s", LIBRARYDIR, name);
+	ServerInstance->Log(DEBUG,"Load command: %s", filename);
+
+	h = dlopen(filename, RTLD_NOW | RTLD_GLOBAL);
+
+	if (!h)
+		return;
+
+	this->FindSym((void **)&cmd_factory_func, h);
+
+	command_t* newcommand = cmd_factory_func(ServerInstance);
+
+	this->CreateCommand(newcommand);
+}
+
 void CommandParser::SetupCommandTable()
 {
-	/* These three are special (can occur without
-	 * full user registration) and so are saved
-	 * for later use.
-	 */
-	command_user = new cmd_user(ServerInstance);
-	command_nick = new cmd_nick(ServerInstance);
-	command_pass = new cmd_pass(ServerInstance);
-	this->CreateCommand(command_user);
-	this->CreateCommand(command_nick);
-	this->CreateCommand(command_pass);
-
-	/* The rest of these arent special. boo hoo.
-	 */
-	this->CreateCommand(new cmd_quit(ServerInstance));
-	this->CreateCommand(new cmd_version(ServerInstance));
-	this->CreateCommand(new cmd_ping(ServerInstance));
-	this->CreateCommand(new cmd_pong(ServerInstance));
-	this->CreateCommand(new cmd_admin(ServerInstance));
-	this->CreateCommand(new cmd_privmsg(ServerInstance));
-	this->CreateCommand(new cmd_info(ServerInstance));
-	this->CreateCommand(new cmd_time(ServerInstance));
-	this->CreateCommand(new cmd_whois(ServerInstance));
-	this->CreateCommand(new cmd_wallops(ServerInstance));
-	this->CreateCommand(new cmd_notice(ServerInstance));
-	this->CreateCommand(new cmd_join(ServerInstance));
-	this->CreateCommand(new cmd_names(ServerInstance));
-	this->CreateCommand(new cmd_part(ServerInstance));
-	this->CreateCommand(new cmd_kick(ServerInstance));
-	this->CreateCommand(new cmd_mode(ServerInstance));
-	this->CreateCommand(new cmd_topic(ServerInstance));
-	this->CreateCommand(new cmd_who(ServerInstance));
-	this->CreateCommand(new cmd_motd(ServerInstance));
-	this->CreateCommand(new cmd_rules(ServerInstance));
-	this->CreateCommand(new cmd_oper(ServerInstance));
-	this->CreateCommand(new cmd_list(ServerInstance));
-	this->CreateCommand(new cmd_die(ServerInstance));
-	this->CreateCommand(new cmd_restart(ServerInstance));
-	this->CreateCommand(new cmd_kill(ServerInstance));
-	this->CreateCommand(new cmd_rehash(ServerInstance));
-	this->CreateCommand(new cmd_lusers(ServerInstance));
-	this->CreateCommand(new cmd_stats(ServerInstance));
-	this->CreateCommand(new cmd_userhost(ServerInstance));
-	this->CreateCommand(new cmd_away(ServerInstance));
-	this->CreateCommand(new cmd_ison(ServerInstance));
-	this->CreateCommand(new cmd_summon(ServerInstance));
-	this->CreateCommand(new cmd_users(ServerInstance));
-	this->CreateCommand(new cmd_invite(ServerInstance));
-	this->CreateCommand(new cmd_trace(ServerInstance));
-	this->CreateCommand(new cmd_whowas(ServerInstance));
-	this->CreateCommand(new cmd_connect(ServerInstance));
-	this->CreateCommand(new cmd_squit(ServerInstance));
-	this->CreateCommand(new cmd_modules(ServerInstance));
-	this->CreateCommand(new cmd_links(ServerInstance));
-	this->CreateCommand(new cmd_map(ServerInstance));
-	this->CreateCommand(new cmd_kline(ServerInstance));
-	this->CreateCommand(new cmd_gline(ServerInstance));
-	this->CreateCommand(new cmd_zline(ServerInstance));
-	this->CreateCommand(new cmd_qline(ServerInstance));
-	this->CreateCommand(new cmd_eline(ServerInstance));
-	this->CreateCommand(new cmd_loadmodule(ServerInstance));
-	this->CreateCommand(new cmd_unloadmodule(ServerInstance));
-	this->CreateCommand(new cmd_server(ServerInstance));
-	this->CreateCommand(new cmd_commands(ServerInstance));
+	DIR* library = opendir(LIBRARYDIR);
+	if (library)
+	{
+		dirent* entry = NULL;
+		while ((entry = readdir(library)))
+		{
+			if (match(entry->d_name, "cmd_*.so"))
+			{
+				this->LoadCommand(entry->d_name);
+			}
+		}
+		closedir(library);
+	}
 }
 

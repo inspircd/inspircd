@@ -18,6 +18,13 @@
 #include "users.h"
 #include "commands/cmd_names.h"
 
+
+
+extern "C" command_t* init_command(InspIRCd* Instance)
+{
+	return new cmd_names(Instance);
+}
+
 void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* c;
