@@ -684,6 +684,7 @@ class ModuleSSLGnuTLS : public Module
 			return;
 		}
 
+		cert_list_size = 0;
 		cert_list = gnutls_certificate_get_peers(session->sess, &cert_list_size);
 		if (cert_list == NULL)
 		{

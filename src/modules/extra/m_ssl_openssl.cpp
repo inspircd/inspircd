@@ -14,6 +14,8 @@
 #include "hashcomp.h"
 #include "inspircd.h"
 
+#include "ssl_cert.h"
+
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: -I/usr/include -I/usr/local/include */
 /* $LinkerFlags: -L/usr/local/lib -Wl,--rpath -Wl,/usr/local/lib -L/usr/lib -Wl,--rpath -Wl,/usr/lib -lssl */
@@ -656,6 +658,14 @@ class ModuleSSLOpenSSL : public Module
 		session->inbuf = NULL;
 		session->sess = NULL;
 		session->status = ISSL_NONE;
+	}
+
+	void VerifyCertificate(issl_session* session, userrec* user)
+	{
+
+
+
+
 	}
 };
 
