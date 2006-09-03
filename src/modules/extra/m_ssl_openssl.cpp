@@ -59,6 +59,11 @@ public:
 	}
 };
 
+static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
+{
+	return 1;
+}
+	
 class ModuleSSLOpenSSL : public Module
 {
 	
@@ -99,6 +104,8 @@ class ModuleSSLOpenSSL : public Module
 		
 		/* Build our SSL context*/
 		ctx = SSL_CTX_new( SSLv23_server_method() );
+
+		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash("ssl");
@@ -239,6 +246,13 @@ class ModuleSSLOpenSSL : public Module
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Adding user %s to cull list", user->nick);
 				culllist->AddItem(user, "SSL module unloading");
+			}
+			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
+			{
+				ssl_cert* tofree;
+				user->GetExt("ssl_cert", tofree);
+				delete tofree;
+				user->Shrink("ssl_cert");
 			}
 		}
 	}
@@ -633,6 +647,8 @@ class ModuleSSLOpenSSL : public Module
 			event->Send(ServerInstance);		// Trigger the event. We don't care what module picks it up.
 			DELETE(event);
 			DELETE(metadata);
+
+			VerifyCertificate(&sessions[user->GetFd()], user);
 		}
 	}
 	
@@ -662,9 +678,54 @@ class ModuleSSLOpenSSL : public Module
 
 	void VerifyCertificate(issl_session* session, userrec* user)
 	{
+		X509* cert;
+		ssl_cert* certinfo = new ssl_cert;
+		unsigned int n;
+		unsigned char md[EVP_MAX_MD_SIZE];
+		const EVP_MD *digest = EVP_md5();
+		//char* buf;
 
+		user->Extend("ssl_cert",certinfo);
 
+		cert = SSL_get_peer_certificate((SSL*)session->sess);
 
+		if (!cert)
+		{
+			certinfo->data.insert(std::make_pair("error","Could not get peer certificate: "+std::string(get_error())));
+			return;
+		}
+
+		/*if (!X509_verify_cert(cert))
+		{
+			certinfo->data.insert(std::make_pair("invalid",ConvToStr(1)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("invalid",ConvToStr(0)));
+		}*/
+
+		//X509_NAME_oneline(nm, 0, 0);
+		certinfo->data.insert(std::make_pair("dn",std::string(X509_NAME_oneline(X509_get_subject_name(cert),0,0))));
+		certinfo->data.insert(std::make_pair("issuer",std::string(X509_NAME_oneline(X509_get_issuer_name(cert),0,0))));
+
+		if (!X509_digest(cert, digest, md, &n))
+		{
+			certinfo->data.insert(std::make_pair("error","Out of memory generating fingerprint"));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
+		}
+
+		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == -1))
+		{
+			certinfo->data.insert(std::make_pair("error","Not activated, or expired certificate"));
+		}
+
+		/*if (cert->name)
+		{
+			certinfo->data.insert(std::make_pair("dn",cert->name));
+		}*/
 
 	}
 };
