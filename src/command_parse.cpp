@@ -475,15 +475,16 @@ CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 	this->SetupCommandTable();
 }
 
-void CommandParser::FindSym(void** v, void* h)
+bool CommandParser::FindSym(void** v, void* h)
 {
 	*v = dlsym(h, "init_command");
 	const char* err = dlerror();
 	if (err)
 	{
-		printf("ERROR: %s\n",err);
-		exit(0);
+		ServerInstance->Log(SPARSE, "Error loading core command: %s\n", err);
+		return false;
 	}
+	return true;
 }
 
 bool CommandParser::ReloadCommand(const char* cmd)
@@ -542,13 +543,16 @@ void CommandParser::LoadCommand(const char* name)
 	h = dlopen(filename, RTLD_NOW | RTLD_GLOBAL);
 
 	if (!h)
+	{
+		ServerInstance->Log(SPARSE, "Error loading core command: %s", dlerror());
 		return;
+	}
 
-	this->FindSym((void **)&cmd_factory_func, h);
-
-	command_t* newcommand = cmd_factory_func(ServerInstance);
-
-	this->CreateCommand(newcommand, h);
+	if (this->FindSym((void **)&cmd_factory_func, h))
+	{
+		command_t* newcommand = cmd_factory_func(ServerInstance);
+		this->CreateCommand(newcommand, h);
+	}
 }
 
 void CommandParser::SetupCommandTable()

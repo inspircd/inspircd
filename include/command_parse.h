@@ -55,10 +55,20 @@ class CommandParser : public classbase
 	 */
 	void SetupCommandTable();
 
-	void FindSym(void** v, void* h);
+	/** Finds the init_command symbol in a .so file
+	 * @param v A function pointer to be initialized
+	 * @param h A valid shared object handle
+	 * @return True if the symbol could be found
+	 */
+	bool FindSym(void** v, void* h);
 
+	/** A list of core-implemented modes and their shared object handles
+	 */
 	SharedObjectList RFCCommands;
 
+	/** Load a command from a shared object on disk.
+	 * @param name The shared object to load (without path)
+	 */
 	void LoadCommand(const char* name);
 
  public:
@@ -66,6 +76,14 @@ class CommandParser : public classbase
 	 */
 	command_table cmdlist;
 
+	/** Reload a core command.
+	 * This will only reload commands implemented by the core,
+	 * to reload a modular command, you must reload that module.
+	 * @param cmd The command to reload. This will cause the shared
+	 * object which implements this command to be closed, and then reloaded.
+	 * @return True if the command was reloaded, false if it could not be found
+	 * or another error occured
+	 */
 	bool ReloadCommand(const char* cmd);
 
 	/** Default constructor.
