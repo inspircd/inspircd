@@ -25,6 +25,8 @@
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };
 
+static bool SelfSigned = false;
+
 bool isin(int port, const std::vector<int> &portlist)
 {
 	for(unsigned int i = 0; i < portlist.size(); i++)
@@ -66,6 +68,10 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 	 * we can just return preverify_ok here, and openssl
 	 * will boot off self-signed and invalid peer certs.
 	 */
+	int ve = X509_STORE_CTX_get_error(ctx);
+
+	SelfSigned = (ve == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT);
+
 	return 1;
 }
 	
@@ -313,6 +319,16 @@ class ModuleSSLOpenSSL : public Module
 	{
 		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
+
+		EventHandler* user = ServerInstance->SE->GetRef(fd);
+
+		if ((user) && (user->GetExt("ssl_cert", dummy)))
+		{
+			ssl_cert* tofree;
+			user->GetExt("ssl_cert", tofree);
+			delete tofree;
+			user->Shrink("ssl_cert");
+		}
 	}
 	
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
@@ -696,6 +712,19 @@ class ModuleSSLOpenSSL : public Module
 		{
 			certinfo->data.insert(std::make_pair("error","Could not get peer certificate: "+std::string(get_error())));
 			return;
+		}
+
+		certinfo->data.insert(std::make_pair("invalid", SSL_get_verify_result(session->sess) != X509_V_OK ? ConvToStr(1) : ConvToStr(0)));
+
+		if (SelfSigned)
+		{
+			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(0)));
+			certinfo->data.insert(std::make_pair("trusted",ConvToStr(1)));
+		}
+		else
+		{
+			certinfo->data.insert(std::make_pair("unknownsigner",ConvToStr(1)));
+			certinfo->data.insert(std::make_pair("trusted",ConvToStr(0)));
 		}
 
 		/*if (!X509_verify_cert(cert))
