@@ -4084,6 +4084,11 @@ class ModuleSpanningTree : public Module
 	{
 		if (x->FailOver.length())
 		{
+			if (x->FailOver == x->Name)
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
+				return;
+			}
 			Link* TryThisOne = this->FindLink(x->FailOver.c_str());
 			if (TryThisOne)
 			{
