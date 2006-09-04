@@ -14,13 +14,13 @@
 #                            |___/                                     #
 #                                                                      #
 ##################################||####################################
-                                 #||#
+                                 #||#                                   
 ##################################||####################################
 #                                                                      #
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #                                                                      #
-#                 Last updated on : 09/01/2006                         #
+#                 Last updated on : 04/09/2006                         #
 #                 Written by      : CC  (cc@backchat.co.za)            #
 #                 Updated by      : katsklaw (katsklaw@gmail.com)      #
 #                 Updated by      : brain (brain@inspircd.org)         #
@@ -79,17 +79,18 @@
 #                                                                     #
 #   Enter the port and address bindings here.                         #
 #                                                                     #
-#  bind address - specifies which the address which ports bind.       #
-#                 may be a hostname or an IP address. Resolution of   #
-#                 hostnames may block for up to one second per IP     #
-#                 as port binding occurs before the socket engine is  #
-#                 initialized and therefore nonblocking DNS is not    #
-#                 available at this point until startup is complete.  #
+#  bind address - specifies which address ports bind to. Leaving this #
+#                 field blank binds the port to all IPs available.    #
+#                                                                     #
 #  port         - The port number to bind to                          #
+#                                                                     #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
 #                 a standard tcp based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
-#                 format.                                             #
+#                 format. SSL support is provided by modules, to      #
+#                 enable SSL support, please read the module section  #
+#                 of this configuration file.                         #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -146,7 +147,7 @@
 # slash (/) in which case it is treated as an absolute path.          #
 #                                                                     #
 # Syntax is as follows:                                               #
-#       <include file="file.conf">                                    #
+#<include file="file.conf">                                           #
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -168,7 +169,8 @@
 #       <connect allow="ip mask" localmax="3" globalmax="3">          #
 #       <connect deny="ip mask">                                      #
 #                                                                     #
-#   IP masks may be specified in CIDR format for IPV4 and IPV6.       #
+#   IP masks may be specified in CIDR format or wildcard format,      #
+#   for IPV4 and IPV6.                                                #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
@@ -219,7 +221,7 @@
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="10" threshold="60" pingfreq="120" sendq="262144" recvq="4096" localmax="3" globalmax="3">
+<connect allow="*" timeout="60" flood="20" threshold="1" pingfreq="120" sendq="262144" recvq="8192" localmax="3" globalmax="3">
 
 <connect deny="69.254.*">
 <connect deny="3ffe::0/32">
@@ -245,12 +247,17 @@
 #  You can create your own named classes, if you want, in fact that   #
 #  is the whole idea of this system!                                  #
 #                                                                     #
+#  Note: It is possible to make a class which covers all available    #
+#  commands. To do this, specify commands="*". This is not really     #
+#  recommended, as it negates the whole purpose of the class system,  #
+#  however it is provided for fast configuration (e.g. in test nets)  #
+#                                                                     #
 
-<class name="Shutdown" commands="DIE RESTART REHASH">
-<class name="ServerLink" commands="CONNECT SQUIT">
+<class name="Shutdown" commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOAD">
+<class name="ServerLink" commands="CONNECT SQUIT RCONNECT MKPASSWD MKSHA256">
 <class name="BanControl" commands="KILL GLINE KLINE ZLINE QLINE ELINE">
-<class name="OperChat" commands="WALLOPS GLOBOPS">
-<class name="HostCloak" commands="SETHOST SETIDENT SETNAME">
+<class name="OperChat" commands="WALLOPS GLOBOPS SETIDLE SPYLIST SPYNAMES">
+<class name="HostCloak" commands="SETHOST SETIDENT SETNAME CHGHOST CHGIDENT">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  OPERATOR COMPOSITION   -#-#-#-#-#-#-#-#-#-#-#
@@ -266,13 +273,14 @@
 #                                                                     #
 #  classes    - specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
-#               what commands                                         #
+#               what commands. Class names are case sensitive,        #
+#               seperate multiple class names with spaces.            #
 #                                                                     #
 #  host       - optional hostmask operators will recieve on oper-up.  #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <type name="name" classes="class name" host="oper hostmask">  #
+#     <type name="name" classes="class names" host="oper hostmask">   #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
@@ -295,21 +303,26 @@
 #   Opers are defined here. This is a very important section.         #
 #   Remember to only make operators out of truthworthy people.        #
 #                                                                     #
-#  name        - oper name, best to use lower-case                    #
+#  name        - oper name, This is case sensitive, so it is best to  #
+#                use lower-case.                                      #
 #                                                                     #
-#  password    - password to oper-up,                                 #
-#                encryption not supported by inspircd. However, there #
-#                are modules that allow for oper password encryption. #      
+#  password    - password to oper-up, also case sensitive.            #
+#                encryption is supported via modules. You may load    #
+#                modules for MD5 or SHA256 encryption, and if you do, #
+#                this value will be a hash value, otherwise put a     #
+#                plaintext password in this value.                    #
 #                                                                     #
-#  host        - host of client allowed to oper-up.                   #
+#  host        - hosts of client allowed to oper-up.                  #
 #                wildcards accepted, seperate multiple hosts with a   #
 #                space. You may also specify CIDR ip addresses.       #
 #                                                                     #
 #  fingerprint - When using the m_ssl_oper_cert.so module, you may    #
 #                specify a key fingerprint here. This can be obtained #
 #                using the /fingerprint command whilst the module is  #
-#                loaded, and will lock this oper block to only the    #
-#                user who has that specific key/certificate pair.     #
+#                loaded, or from the notice given to you when you     #
+#                connect to the ircd using a client certificate,      #
+#                and will lock this oper block to only the user who   #
+#                has that specific key/certificate pair.              #
 #                This enhances security a great deal, however it      #
 #                requires that opers use clients which can send ssl   #
 #                client certificates, if this is configured for that  #
@@ -318,7 +331,8 @@
 #                is not loaded, this configuration option has no      #
 #                effect and will be ignored.                          #
 #                                                                     #
-#  type        - specified above, defines the kind of operator        #
+#  type        - Sefines the kind of operator. This must match a type #
+#                tag you defined above, and is case sensitive.        #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #       <oper name="login"                                            #
@@ -341,9 +355,15 @@
 # server may create outbound links to.                                #
 #                                                                     #
 # name        -   The name is the canocial name of the server, does   #
-#                 not have to resolve - but it is expected to be sent #
+#                 not have to resolve - but it is expected to be set  #
 #                 in the remote servers connection info.              #
-# ipaddr      -   Valid host or ip address for remote server. *       #
+#                                                                     #
+# ipaddr      -   Valid host or ip address for remote server. These   #
+#                 hosts are resolved on rehash, and cached, if you    #
+#                 specify a hostname, so if you find that your server #
+#                 is still trying to connect to an old IP after you   #
+#                 have updated your dns, try rehashing and then       #
+#                 attempting the connect again.                       #
 #                                                                     #
 # port        -   The TCP port for the remote server.                 #
 #                                                                     #
@@ -372,7 +392,8 @@
 #                 password or servername)                             #
 #                                                                     #
 # allowmask     - When this is defined, it indicates a range of IP    #
-#                 addresses to allow for this link (in CIDR form).    #
+#                 addresses to allow for this link (You may use CIDR  #
+#                 or wildcard form for this address).                 #
 #                 e.g. if your server is going to connect to you from #
 #                 the range 1.2.3.1 through 1.2.3.255, put 1.2.3.0/24 #
 #                 into this value. If it is not defined, then only    #
@@ -425,7 +446,7 @@
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   These options let you define the path to your motd and rules      #
-#   files.                                                            #
+#   files. These should be absolute paths.                            #
 #                                                                     #
 
 <files  motd="/home/cc/inspircd/conf/inspircd.motd"
@@ -475,7 +496,8 @@
 # Define the path to the PID file here. The PID file can be used to   #
 # rehash the ircd from the shell or to terminate the ircd from the    #
 # shell using shell scripts, perl scripts etc, and to monitor the     #
-# ircd's state via cron jobs.                                         #
+# ircd's state via cron jobs. This is IMPORTANT and you must define   #
+# it or the ircd will refuse to start.                                #
 #                                                                     #
 
 <pid file="/path/to/inspircd.pid">
@@ -680,9 +702,6 @@
 #  http://www.inspircd.org/wiki/Modules_List for a list of modules and#
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
-#  WINDOWS USERS PLEASE NOTE: You can still load these modules! They  #
-#  are incorporated into the executable and can be loaded and removed #
-#  similarly to if they were in a ramdisk.                            #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -821,15 +840,15 @@
 # be included. However, if prefix is not included, it will default    #
 # to your networks name from the <server> tag.                        #
 #                                                                     #
-# <cloak key1="-543241423"                                            #
+# <cloak key1="543241423"                                             #
 #        key2="5378410432"                                            #
 #        key3="1143242382"                                            #
 #        key4="9504324581"                                            #
 #        prefix="mynet">                                              #
 #                                                                     #
-# Please note that the key values will accept any number, positive    #
-# or negative, and should be large numbers. Using small numbers such  #
-# as "7" or "1924" will seriously weaken the security of your cloak.  #
+# Please note that the key values will accept any number, and should  #
+# be large numbers. Using small numbers such as "7" or "1924" will    #
+# seriously weaken the security of your cloak.                        #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Lusers: Shows the LUSERS output on connect
@@ -844,10 +863,12 @@
 # If you have the m_conn_waitpong.so module loaded, configure it with #
 # the <waitpong> tag:                                                 #
 #                                                                     #
-# sendsnotice    -   Whether to send a snotice on connect, like Unreal#
+# sendsnotice    -   Whether to send a snotice on connect, like other #
+#                    older ircds                                      #
+#                                                                     #
 # killonbadreply -   Whether to kill the user if they send the wrong  #
 #                    PONG reply.                                      #
-#
+#                                                                     #
 #<waitpong sendsnotice="yes" killonbadreply="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -856,11 +877,14 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #  seconds, maxconns -  Amount of connections per <seconds>.
+#
 #  timeout           -  Time to wait after the throttle was activated
 #                       before deactivating it. Be aware that the time
 #                       is seconds + timeout.
+#
 #  quitmsg           -  The message that users get if they attempt to
 #                       connect while the throttle is active.
+#
 #  bootwait          -  Amount of time to wait before enforcing the
 #                       throttling when the server just booted.
 #
@@ -874,12 +898,14 @@
 #-#-#-#-#-#-#-#-#-#-#-   DENYCHAN DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you have the m_denychans.so module loaded, you need to specify   #
-# the channels to deny:
+# the channels to deny:                                               #
 #                                                                     #
 # name        -      The channel name to deny.                        #
+#                                                                     #
 # allowopers  -      If operators are allowed to override the deny.   #
+#                                                                     #
 # reason      -      Reason given for the deny.                       #
-#
+#                                                                     #
 #<badchan name="#gods" allowopers="yes" reason="Tortoises!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -897,11 +923,11 @@
 #                                                                     #
 # Optional - If you specify to use the m_filter or m_filter_pcre      #
 # modules, then specfiy below the path to the filter.conf file.       #
-#
+#                                                                     #
 #<filter file="/path/to/inspircd/filter.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Foobar module - does nothing - historical relic
+# Foobar module: does nothing - historical relic
 #<module name="m_foobar.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -921,7 +947,7 @@
 #                                                                     #
 # Optional - If you specify to use the m_helpop.so module, then       #
 # specify below the path to the helpop.conf file.                     #
-#
+#                                                                     #
 #<helpop file="/path/to/inspircd/helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -932,7 +958,7 @@
 #                                                                     #
 # Optional - If you choose to use the m_hostchange.so module.         #
 # Config Help -  See http://www.inspircd.org/wiki/Host_Changer_Module #
-#
+#                                                                     #
 #<host suffix="polarbears.org">
 #<hostchange mask="*@fbi.gov" action="addnick">
 #<hostchange mask="*r00t@*" action="suffix">
@@ -953,12 +979,12 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http stats module: Provides basic stats pages over HTTP
-# Required m_httpd.so
+# Requires m_httpd.so to be loaded for it to function.
 #<module name="m_http_stats.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- HTTPD STATS CONFIGURATION -#-#-#-#-#-#-#-#-#-#
 #
-# No extra configuration yet.
+#<httpstats stylesheet="http://remote.style/sheet.css">
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -971,7 +997,7 @@
 # specify the timeout for ident lookups here. If not defined, it will #
 # default to one second. This is a non-blocking timeout which holds   #
 # the user in a 'connecting' state until the lookup is complete.      #
-#
+#                                                                     #
 #<ident timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1010,11 +1036,12 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # NAMESX module: Provides support for the NAMESX extension which allows
 # clients to see all the prefixes set on a user without getting confused.
+# This is supported by mIRC, x-chat, klient, and maybe more.
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
-# user from changing their nick again. /NICKLOCK and /NICKUNLOCK
+# user from changing their nick again.
 #<module name="m_nicklock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1048,7 +1075,7 @@
 #-#-#-#-#-#-#-#-#-#-#   OPERJOIN CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you are using the m_operjoin.so module, specify the channel here #
-#
+#                                                                     #
 #<operjoin channel="#channel">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1059,7 +1086,7 @@
 #-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you are using the m_opermotd.so module, specify the motd here    #
-#
+#                                                                     #
 #<opermotd file="/path/to/oper.motd">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1092,7 +1119,7 @@
 #<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Parking module: Adds parking support and /PARK and /UNPARK
+# Parking module: Adds parking support via /PARK and /UNPARK
 #<module name="m_park.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#   PARK CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1114,14 +1141,16 @@
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Random Quote module: provides a random quote on connect
+# Random Quote module: provides a random quote on connect.
+# NOTE: Some of these may mimic fatal errors and confuse users and 
+# opers alike! - BEWARE!
 #<module name="m_randquote.so">
 #
 #-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the m_randquote.so module, then    #
 # specify below the path to the randquotes.conf file.                 #
-#
+#                                                                     #
 #<randquote file="/path/to/inspircd/randquotes.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1203,14 +1232,14 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
-# to see when they are whois'ed
+# to see when they are whois'ed (can be annoying).
 #<module name="m_showwhois.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Spy module: Adds the commands SPYLIST and SPYNAMES that let opers
 # see who is in a +s channel, and list +s channels, show keys of keyed
 # channels the oper is not a member of etc. (standard 'abusive' features
-# of unrealircd, modulized here in InspIRCd).
+# of many other ircds, modulized here in InspIRCd).
 #<module name="m_spy.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1406,7 +1435,7 @@
 #                                                                     #
 #   You should already know what to do here :)                        #
 
-<die value="You should probably edit your config *PROPERLY* and try again.">
+<die value="No, i wasnt joking. You should probably edit your config *PROPERLY* and try again.">
 
 
 #########################################################################
