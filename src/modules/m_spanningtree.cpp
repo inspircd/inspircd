@@ -3250,7 +3250,7 @@ class TreeSocket : public InspSocket
 		{
 			Squit(s,"Remote host closed the connection");
 		}
-		this->Instance->WriteOpers("Server '\2%s\2' closed the connection.",quitserver.c_str());
+		this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -3270,7 +3270,7 @@ class TreeSocket : public InspSocket
 
 			if (!found)
 			{
-				this->Instance->WriteOpers("Server connection from %s denied (no link blocks with that IP address)", ip);
+				this->Instance->SNO->WriteToSnoMask('l',"Server connection from %s denied (no link blocks with that IP address)", ip);
 				close(newsock);
 				return false;
 			}
