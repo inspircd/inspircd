@@ -491,16 +491,20 @@ class TreeServer : public classbase
 class Link : public classbase
 {
  public:
-	 irc::string Name;
-	 std::string IPAddr;
-	 int Port;
-	 std::string SendPass;
-	 std::string RecvPass;
-	 unsigned long AutoConnect;
-	 time_t NextConnectTime;
-	 std::string EncryptionKey;
-	 bool HiddenFromStats;
+	irc::string Name;
+	std::string IPAddr;
+	int Port;
+	std::string SendPass;
+	std::string RecvPass;
+	unsigned long AutoConnect;
+	time_t NextConnectTime;
+	std::string EncryptionKey;
+	bool HiddenFromStats;
+	irc::string FailOver;
 };
+
+void DoFailOver(Link* x);
+Link* FindLink(const std::string& name);
 
 /* The usual stuff for inspircd modules,
  * plus the vector of Link classes which we
@@ -754,7 +758,10 @@ class TreeSocket : public InspSocket
 		 */
 		if (e == I_ERR_CONNECT)
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection refused");
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection to \002"+myhost+"\002 refused");
+			Link* MyLink = FindLink(myhost);
+			if (MyLink)
+				DoFailOver(MyLink);
 		}
 	}
 
@@ -3222,6 +3229,9 @@ class TreeSocket : public InspSocket
 		if (this->LinkState == CONNECTING)
 		{
 			this->Instance->SNO->WriteToSnoMask('l',"CONNECT: Connection to \002"+myhost+"\002 timed out.");
+			Link* MyLink = FindLink(myhost);
+			if (MyLink)
+				DoFailOver(MyLink);
 		}
 	}
 
@@ -3310,6 +3320,7 @@ class ServernameResolver : public Resolver
 				/* Something barfed, show the opers */
 				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 				delete newsocket;
+				DoFailOver(&MyLink);
 			}
 		}
 	}
@@ -3318,6 +3329,7 @@ class ServernameResolver : public Resolver
 	{
 		/* Ooops! */
 		ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
+		DoFailOver(&MyLink);
 	}
 };
 
@@ -3571,6 +3583,7 @@ void ReadConfiguration(bool rebind)
 		std::string Allow = Conf->ReadValue("link","allowmask",j);
 		L.Name = (Conf->ReadValue("link","name",j)).c_str();
 		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
+		L.FailOver = Conf->ReadValue("link","failover",j).c_str();
 		L.Port = Conf->ReadInteger("link","port",j,true);
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
@@ -4033,6 +4046,69 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
+	void ConnectServer(Link* x)
+	{
+		insp_inaddr binip;
+
+		/* Do we already have an IP? If so, no need to resolve it. */
+		if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
+		{
+			TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
+			if (newsocket->GetFd() > -1)
+			{
+				/* Handled automatically on success */
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+				delete newsocket;
+				this->DoFailOver(x);
+			}
+		}
+		else
+		{
+			try
+			{
+				ServernameResolver* snr = new ServernameResolver(ServerInstance,x->IPAddr, *x);
+				ServerInstance->AddResolver(snr);
+			}
+			catch (ModuleException& e)
+			{
+				ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+				this->DoFailOver(x);
+			}
+		}
+	}
+
+	void DoFailOver(Link* x)
+	{
+		if (x->FailOver.length())
+		{
+			Link* TryThisOne = this->FindLink(x->FailOver.c_str());
+			if (TryThisOne)
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
+				ConnectServer(TryThisOne);
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
+			}
+		}
+	}
+
+	Link* FindLink(const std::string& name)
+	{
+		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		{
+			if (ServerInstance->MatchText(x->Name.c_str(), name.c_str()))
+			{
+				return &(*x);
+			}
+		}
+		return NULL;
+	}
+
 	void AutoConnectServers(time_t curtime)
 	{
 		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
@@ -4046,35 +4122,7 @@ class ModuleSpanningTree : public Module
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
 					ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Auto-connecting server \002%s\002 (%lu seconds until next attempt)",x->Name.c_str(),x->AutoConnect);
-
-					insp_inaddr binip;
-
-					/* Do we already have an IP? If so, no need to resolve it. */
-					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
-					{
-						TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
-						if (newsocket->GetFd() > -1)
-						{
-						}
-						else
-						{
-							ServerInstance->SNO->WriteToSnoMask('l',"AUTOCONNECT: Error autoconnecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
-							delete newsocket;
-						}
-					}
-					else
-					{
-						try
-						{
-							ServernameResolver* snr = new ServernameResolver(ServerInstance,x->IPAddr, *x);
-							ServerInstance->AddResolver(snr);
-						}
-						catch (ModuleException& e)
-						{
-							ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
-						}
-					}
-
+					this->ConnectServer(&(*x));
 				}
 			}
 		}
@@ -4127,33 +4175,7 @@ class ModuleSpanningTree : public Module
 				if (!CheckDupe)
 				{
 					user->WriteServ("NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
-					insp_inaddr binip;
-
-					/* Do we already have an IP? If so, no need to resolve it. */
-					if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
-					{
-						TreeSocket* newsocket = new TreeSocket(ServerInstance,x->IPAddr,x->Port,false,10,x->Name.c_str());
-						if (newsocket->GetFd() > -1)
-						{
-						}
-						else
-						{
-							ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
-							delete newsocket;
-						}
-					}
-					else
-					{
-						try
-						{
-							ServernameResolver* snr = new ServernameResolver(ServerInstance, x->IPAddr, *x);
-							ServerInstance->AddResolver(snr);
-						}
-						catch (ModuleException& e)
-						{
-							ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
-						}
-					}
+					ConnectServer(&(*x));
 					return 1;
 				}
 				else
@@ -4801,6 +4823,15 @@ class ModuleSpanningTree : public Module
 	}
 };
 
+void DoFailOver(Link* x)
+{
+	TreeProtocolModule->DoFailOver(x);
+}
+
+Link* FindLink(const std::string& name)
+{
+	return TreeProtocolModule->FindLink(name);
+}
 
 class ModuleSpanningTreeFactory : public ModuleFactory
 {

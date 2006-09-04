@@ -399,6 +399,24 @@
 #                 into this value. If it is not defined, then only    #
 #                 the ipaddr field of the server shall be allowed.    #
 #                                                                     #
+# failover      - If you define this option, it must be the name of a #
+#                 different link tag in your configuration. This      #
+#                 option causes the ircd to attempt a connection to   #
+#                 the failover link in the event that the connection  #
+#                 to this server fails. For example, you could define #
+#                 two hub uplinks to a leaf server, and set an        #
+#                 american server to autoconnect, with a european     #
+#                 hub as its failover. In this situation, your ircd   #
+#                 will only try the link to the european hub if the   #
+#                 american hub is unreachable. NOTE that for the      #
+#                 intents and purposes of this option, an unreachable #
+#                 server is one which DOES NOT ANSWER THE CONNECTION. #
+#                 If the server answers the connection with accept(), #
+#                 EVEN IF THE CREDENTIALS ARE INVALID, the failover   #
+#                 link will not be tried! Failover settings will also #
+#                 apply to autoconnected servers as well as manually  #
+#                 connected ones.                                     #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
@@ -430,6 +448,7 @@
         port="7000"
 	allowmask="69.58.44.0/24"
         autoconnect="300"
+	failover="hub.other.net"
         sendpass="outgoing!password"
         recvpass="incoming!password">
 
