@@ -33,6 +33,12 @@ using namespace std;
 
 #define nspace __gnu_cxx
 
+
+/** If you make a change which breaks the protocol, increment this.
+ * If you  completely change the protocol, completely change the number.
+ */
+const long ProtocolVersion = 1100;
+
 /*
  * The server list in InspIRCd is maintained as two structures
  * which hold the data in different ways. Most of the time, we
@@ -852,7 +858,7 @@ class TreeSocket : public InspSocket
 #ifdef SUPPORT_IP6LINKS
 		ip6support = 1;
 #endif
-		this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support));
+		this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion));
 
 		this->WriteLine("CAPAB END");
 	}
@@ -937,6 +943,18 @@ class TreeSocket : public InspSocket
 
 			if (((this->CapKeys.find("NICKMAX") == this->CapKeys.end()) || ((this->CapKeys.find("NICKMAX") != this->CapKeys.end()) && (this->CapKeys.find("NICKMAX")->second != ConvToStr(NICKMAX)))))
 				reason = "Maximum nickname lengths differ or remote nickname length not specified";
+
+			if (((this->CapKeys.find("PROTOCOL") == this->CapKeys.end()) || ((this->CapKeys.find("PROTOCOL") != this->CapKeys.end()) && (this->CapKeys.find("PROTOCOL")->second != ConvToStr(ProtocolVersion)))))
+			{
+				if (this->CapKeys.find("PROTOCOL") != this->CapKeys.end())
+				{
+					reason = "Mismatched protocol versions "+this->CapKeys.find("PROTOCOL")->second+" and "+ConvToStr(ProtocolVersion);
+				}
+				else
+				{
+					reason = "Protocol version not specified";
+				}
+			}
 
 			if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
 				reason = "We don't both have halfop support enabled/disabled identically";
