@@ -852,7 +852,7 @@ sub dir_check {
 			if (($tmp eq "") || ($tmp =~ /^y/i)) {
 				# Attempt to Create the Dir..
 				
-				print("mkdir -p \"$var\" >> /dev/null 2>&1");
+				system("mkdir -p \"$var\" >> /dev/null 2>&1");
 				$chk = system("mkdir -p \"$var\" >> /dev/null 2>&1") / 256;
 				if ($chk != 0) {
 					print "Unable to create directory. ($var)\n\n";
