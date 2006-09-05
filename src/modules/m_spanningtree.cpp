@@ -4123,6 +4123,18 @@ class ModuleSpanningTree : public Module
 				ServerInstance->Log(DEBUG,"Auto-Connecting %s",x->Name.c_str());
 				x->NextConnectTime = curtime + x->AutoConnect;
 				TreeServer* CheckDupe = FindServer(x->Name.c_str());
+				if (x->FailOver.length())
+				{
+					TreeServer* CheckFailOver = FindServer(x->FailOver.c_str());
+					if (CheckFailOver)
+					{
+						/* The failover for this server is currently a member of the network.
+						 * The failover probably succeeded, where the main link did not.
+						 * Don't try the main link until the failover is gone again.
+						 */
+						continue;
+					}
+				}
 				if (!CheckDupe)
 				{
 					// an autoconnected server is not connected. Check if its time to connect it
