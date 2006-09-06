@@ -4450,9 +4450,18 @@ class ModuleSpanningTree : public Module
 		// Only do this for local users
 		if (IS_LOCAL(user))
 		{
+			char ts[24];
+			snprintf(ts,24,"%lu",(unsigned long)channel->age);
+
 			std::deque<std::string> params;
 			params.clear();
 			params.push_back(channel->name);
+
+			/** XXX: The client protocol will IGNORE this parameter.
+			 * We could make use of it if we wanted to keep the TS
+			 * in step if somehow we lose it.
+			 */
+			params.push_back(ts);
 
 			if (channel->GetUserCounter() > 1)
 			{
@@ -4463,8 +4472,6 @@ class ModuleSpanningTree : public Module
 			{
 				// first in the channel, set up their permissions
 				// and the channel TS with FJOIN.
-				char ts[24];
-				snprintf(ts,24,"%lu",(unsigned long)channel->age);
 				params.clear();
 				params.push_back(channel->name);
 				params.push_back(ts);
