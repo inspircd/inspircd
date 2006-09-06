@@ -4286,6 +4286,8 @@ class ModuleSpanningTree : public Module
 			this->HandleVersion(parameters,pcnt,user);
 			return 1;
 		}
+
+		return 0;
 	}
 
 	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result)
