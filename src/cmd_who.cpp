@@ -175,6 +175,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + (opt_showrealhost ? oper->host : oper->dhost) + " " + 
 							oper->server + " " + oper->nick + " ";
 
+					ch = ServerInstance->FindChan(getlastchanname(oper));
+
 					/* away? */
 					if (*oper->awaymsg)
 					{
@@ -191,7 +193,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 						wholine.append("*");
 					}
 	
-					wholine = wholine + ch->GetPrefixChar(oper) + " :0 " + oper->fullname;
+					wholine = wholine + (ch ? ch->GetPrefixChar(oper) : "") + " :0 " + oper->fullname;
 					whoresults.push_back(wholine);
 				}
 			}
@@ -207,6 +209,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
 						i->second->server + " " + i->second->nick + " ";
 	
+					ch = ServerInstance->FindChan(getlastchanname(i->second));
+
 					/* away? */
 					if (*(i->second)->awaymsg)
 					{
@@ -223,7 +227,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 						wholine.append("*");
 					}
 
-					wholine = wholine + ch->GetPrefixChar(i->second) + " :0 " + i->second->fullname;
+					wholine = wholine + (ch ? ch->GetPrefixChar(i->second) : "") + " :0 " + i->second->fullname;
 					whoresults.push_back(wholine);
 				}
 			}
