@@ -37,7 +37,7 @@ class cmd_chghost : public command_t
 		syntax = "<nick> <newhost>";
 	}
 	 
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		const char * x = parameters[1];
 
@@ -48,14 +48,14 @@ class cmd_chghost : public command_t
 				if (((*x < '0') || (*x > '9')) && (*x != '-'))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
-					return;
+					return CMD_FAILURE;
 				}
 			}
 		}
 		if ((parameters[1] - x) > 63)
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long",user->nick);
-			return;
+			return CMD_FAILURE;
 		}
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
@@ -65,7 +65,10 @@ class cmd_chghost : public command_t
 				// fix by brain - ulines set hosts silently
 				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+parameters[1]);
 			}
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

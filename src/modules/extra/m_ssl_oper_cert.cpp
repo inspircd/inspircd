@@ -36,7 +36,7 @@ class cmd_fingerprint : public command_t
 		syntax = "<nickname>";
 	}       
 	          
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* target = ServerInstance->FindNick(parameters[0]);
 		if (target)
@@ -45,18 +45,26 @@ class cmd_fingerprint : public command_t
 			if (target->GetExt("ssl_cert",cert))
 			{
 				if (cert->GetFingerprint().length())
+				{
 					user->WriteServ("NOTICE %s :Certificate fingerprint for %s is %s",user->nick,target->nick,cert->GetFingerprint().c_str());
+					return CMD_SUCCESS;
+				}
 				else
+				{
 					user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick,target->nick);
+					return CMD_FAILURE;
+				}
 			}
 			else
 			{
 				user->WriteServ("NOTICE %s :Certificate fingerprint for %s does not exist!", user->nick, target->nick);
+				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			user->WriteServ("401 %s %s :No such nickname", user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
 };

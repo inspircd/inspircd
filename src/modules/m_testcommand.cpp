@@ -53,12 +53,12 @@ class MyV6Resolver : public Resolver
 class cmd_woot : public command_t
 {
  public:
- cmd_woot (InspIRCd* Instance) : command_t(Instance,"WOOT", 0, 0)
+	cmd_woot (InspIRCd* Instance) : command_t(Instance,"WOOT", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/* We dont have to worry about deleting 'r', the core will
 		 * do it for us as required.*/
@@ -74,6 +74,8 @@ class cmd_woot : public command_t
 		{
 			ServerInstance->Log(DEBUG,"Danger, will robinson! There was an exception: %s",e.GetReason());
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

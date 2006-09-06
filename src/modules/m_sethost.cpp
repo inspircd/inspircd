@@ -32,18 +32,18 @@ using namespace std;
 class cmd_sethost : public command_t
 {
  public:
- cmd_sethost (InspIRCd* Instance) : command_t(Instance,"SETHOST",'o',1)
+	cmd_sethost (InspIRCd* Instance) : command_t(Instance,"SETHOST",'o',1)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (strlen(parameters[0]) > 64)
 		{
 			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
-			return;
+			return CMD_FAILURE;
 		}
 		for (unsigned int x = 0; x < strlen(parameters[0]); x++)
 		{
@@ -52,12 +52,17 @@ class cmd_sethost : public command_t
 				if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
-					return;
+					return CMD_FAILURE;
 				}
 			}
 		}
 		if (user->ChangeDisplayedHost(parameters[0]))
+		{
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
+			return CMD_SUCCESS;
+		}
+
+		return CMD_FAILURE;
 	}
 };
 

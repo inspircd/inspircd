@@ -31,18 +31,18 @@ using namespace std;
 class cmd_setidle : public command_t
 {
  public:
- cmd_setidle (InspIRCd* Instance) : command_t(Instance,"SETIDLE", 'o', 1)
+	cmd_setidle (InspIRCd* Instance) : command_t(Instance,"SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
 		syntax = "<idle-seconds>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (atoi(parameters[0]) < 1)
 		{
 			user->WriteServ("948 %s :Invalid idle time.",user->nick);
-			return;
+			return CMD_FAILURE;
 		}
 		user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
 		// minor tweak - we cant have signon time shorter than our idle time!
@@ -50,6 +50,8 @@ class cmd_setidle : public command_t
 			user->signon = user->idle_lastmsg;
 		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+std::string(parameters[0])+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
+
+		return CMD_SUCCESS;
 	}
 };
 

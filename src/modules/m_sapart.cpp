@@ -32,13 +32,13 @@ using namespace std;
 class cmd_sapart : public command_t
 {
  public:
- cmd_sapart (InspIRCd* Instance) : command_t(Instance,"SAPART", 'o', 2)
+	cmd_sapart (InspIRCd* Instance) : command_t(Instance,"SAPART", 'o', 2)
 	{
 		this->source = "m_sapart.so";
 		syntax = "<nick> <channel>";
 	}
-	 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		chanrec* channel = ServerInstance->FindChan(parameters[1]);
@@ -47,12 +47,16 @@ class cmd_sapart : public command_t
 			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 			if (!channel->PartUser(dest, dest->nick))
 				delete channel;
+
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

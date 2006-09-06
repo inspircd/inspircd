@@ -71,7 +71,7 @@ class cmd_spylist : public command_t
 		syntax = "";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
@@ -82,6 +82,9 @@ class cmd_spylist : public command_t
 			user->WriteServ("322 %s %s %d :[+%s] %s",user->nick,i->second->name,i->second->GetUserCounter(),i->second->ChanModes(true),i->second->topic);
 		}
 		user->WriteServ("323 %s :End of channel list.",user->nick);
+
+		/* Dont send out across the network */
+		return CMD_FAILURE;
 	}
 };
 
@@ -94,18 +97,18 @@ class cmd_spynames : public command_t
 		syntax = "{<channel>{,<channel>}}";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* c;
 
 		if (!pcnt)
 		{
 			user->WriteServ("366 %s * :End of /NAMES list.",user->nick);
-			return;
+			return CMD_FAILURE;
 		}
 
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
-			return;
+			return CMD_FAILURE;
 
 		ServerInstance->WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
 
@@ -119,6 +122,8 @@ class cmd_spynames : public command_t
 		{
 			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

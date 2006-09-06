@@ -38,7 +38,7 @@ class cmd_uninvite : public command_t
 		syntax = "<nick> <channel>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* u = ServerInstance->FindNick(parameters[0]);
 		chanrec* c = ServerInstance->FindChan(parameters[1]);
@@ -54,7 +54,7 @@ class cmd_uninvite : public command_t
 				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 				
-			return; 
+			return CMD_FAILURE;
 		}	
 
 		if (c->modes[CM_INVITEONLY])
@@ -62,7 +62,7 @@ class cmd_uninvite : public command_t
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
 				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
-				return;
+				return CMD_FAILURE;
 			}
 		}
 
@@ -71,18 +71,20 @@ class cmd_uninvite : public command_t
 		if (!u->IsInvited(xname))
 		{
 			user->WriteServ("491 %s %s %s :Is not invited to channel %s",user->nick,u->nick,c->name,c->name);
-			return;
+			return CMD_FAILURE;
 		}
 		if (!c->HasUser(user))
 		{
 			user->WriteServ("492 %s %s :You're not on that channel!",user->nick, c->name);
-			return;
+			return CMD_FAILURE;
 		}
 
 		u->RemoveInvite(xname);
 		user->WriteServ("494 %s %s %s :Uninvited",user->nick,c->name,u->nick);
 		u->WriteServ("493 %s :You were uninvited from %s by %s",u->nick,c->name,user->nick);
 		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.", c->name, user->nick, u->nick);
+
+		return CMD_SUCCESS;
 	}
 };
 

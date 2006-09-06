@@ -17,7 +17,7 @@ class cmd_chgident : public command_t
 		syntax = "<nick> <newident>";
 	}
 	
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 
@@ -26,16 +26,17 @@ class cmd_chgident : public command_t
 			if(!ServerInstance->IsIdent(parameters[1]))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 		
 			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
 			dest->ChangeIdent(parameters[1]);
-			//strlcpy(dest->ident, parameters[1], IDENTMAX+2);
+			return CMD_SUCCESS;
 		}
 		else
 		{
 			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
 };

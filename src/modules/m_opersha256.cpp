@@ -228,17 +228,18 @@ void SHA256(const char *src, char *dest, int len)
 class cmd_mksha256 : public command_t
 {
 public:
- cmd_mksha256 (InspIRCd* Instance) : command_t(Instance,"MKSHA256", 'o', 1)
+	cmd_mksha256 (InspIRCd* Instance) : command_t(Instance,"MKSHA256", 'o', 1)
 	{
 		this->source = "m_opersha256.so";
 		syntax = "<any-text>";
 	}
 
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		char buffer[SHA256_BLOCK_SIZE + 1];
 		SHA256(parameters[0], buffer, strlen(parameters[0]));
-		user->WriteServ( "NOTICE %s :SHA256 hashed password for %s is %s", user->nick, parameters[0], buffer);
+		user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s", user->nick, parameters[0], buffer);
+		return CMD_SUCCESS;
 	}
 };
 

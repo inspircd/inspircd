@@ -31,20 +31,20 @@ using namespace std;
 class cmd_knock : public command_t
 {
  public:
- cmd_knock (InspIRCd* Instance) : command_t(Instance,"KNOCK", 0, 2)
+	cmd_knock (InspIRCd* Instance) : command_t(Instance,"KNOCK", 0, 2)
 	{
 		this->source = "m_knock.so";
 		syntax = "<channel> <reason>";
 	}
 	
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* c = ServerInstance->FindChan(parameters[0]);
 
 		if (!c)
 		{
 			user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
-			return;
+			return CMD_FAILURE;
 		}
 
 		std::string line = "";
@@ -52,7 +52,7 @@ class cmd_knock : public command_t
 		if (c->IsModeSet('K'))
 		{
 			user->WriteServ("480 %s :Can't KNOCK on %s, +K is set.",user->nick, c->name);
-			return;
+			return CMD_FAILURE;
 		}
 
 		for (int i = 1; i < pcnt - 1; i++)
@@ -65,13 +65,15 @@ class cmd_knock : public command_t
 		{
 			c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
 			user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
-			return;
+			return CMD_SUCCESS;
 		}
 		else
 		{
 			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
-			return;
+			return CMD_FAILURE;
 		}
+
+		return CMD_SUCCESS;
 	}
 };
 

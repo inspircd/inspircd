@@ -69,18 +69,18 @@ class cmd_helpop : public command_t
 		 syntax = "[?|!]<any-text>";
 	 }
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char a[MAXBUF];
 		std::string output = " ";
 
 		if (!helpop)
-			return;
+			return CMD_FAILURE;
 
 		if (pcnt < 1)
 		{
 	 		do_helpop(NULL,pcnt,user);
-			return;
+			return CMD_SUCCESS;
 	   	}
 
 		if (*parameters[0] == '!')
@@ -126,6 +126,8 @@ class cmd_helpop : public command_t
 				sendtohelpop(user, pcnt, parameters);
 			}
 		}
+
+		return CMD_SUCCESS;
 	}
 
 

@@ -272,17 +272,18 @@ void GenHash(const char* src, char* dest)
 class cmd_mkpasswd : public command_t
 {
  public:
- cmd_mkpasswd (InspIRCd* Instance) : command_t(Instance,"MKPASSWD", 'o', 1)
+	cmd_mkpasswd (InspIRCd* Instance) : command_t(Instance,"MKPASSWD", 'o', 1)
 	{
 		this->source = "m_opermd5.so";
 		syntax = "<any-text>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char buffer[MAXBUF];
 		GenHash(parameters[0],buffer);
 		user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0],buffer);
+		return CMD_SUCCESS;
 	}
 };
 

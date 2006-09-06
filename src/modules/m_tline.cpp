@@ -33,13 +33,13 @@ using namespace std;
 class cmd_tline : public command_t
 {
  public:
- cmd_tline (InspIRCd* Instance) : command_t(Instance,"TLINE", 'o', 1)
+	cmd_tline (InspIRCd* Instance) : command_t(Instance,"TLINE", 'o', 1)
 	{
 		this->source = "m_tline.so";
 		this->syntax = "<mask>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		float n_counted = 0;
 		float n_matched = 0;
@@ -69,6 +69,8 @@ class cmd_tline : public command_t
 			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick, n_counted, parameters[0], n_matched, (n_counted/n_matched)*100, n_match_host, n_match_ip);
 		else
 			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick, n_counted, parameters[0]);
+
+		return CMD_FAILURE;
 			
 	}
 };

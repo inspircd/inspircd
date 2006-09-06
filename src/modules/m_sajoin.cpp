@@ -38,7 +38,7 @@ class cmd_sajoin : public command_t
 		syntax = "<nick> <channel>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
@@ -46,18 +46,20 @@ class cmd_sajoin : public command_t
 			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			if (!ServerInstance->IsChannel(parameters[1]))
 			{
 				/* we didn't need to check this for each character ;) */
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name");
-				return;
+				return CMD_FAILURE;
 			}
 
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 			chanrec::JoinUser(ServerInstance, dest, parameters[1], true);
 		}
+
+		return CMD_SUCCESS;
 	}
 };
 

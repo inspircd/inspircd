@@ -47,7 +47,7 @@ class cmd_saquit : public command_t
 		syntax = "<nick> <reason>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
@@ -55,7 +55,7 @@ class cmd_saquit : public command_t
 			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			std::string line = "";
 			for (int i = 1; i < pcnt - 1; i++)
@@ -66,7 +66,11 @@ class cmd_saquit : public command_t
 		
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
 			userrec::QuitUser(ServerInstance, dest, line);
+
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

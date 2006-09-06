@@ -17,7 +17,7 @@ class cmd_setident : public command_t
 		syntax = "<new-ident>";
 	}
 
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		for(unsigned int x = 0; x < strlen(parameters[0]); x++)
 		{
@@ -25,11 +25,13 @@ class cmd_setident : public command_t
 				continue;
 			
 			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
-			return;
+			return CMD_FAILURE;
 		}
 		
 		ServerInstance->WriteOpers("%s used SETIDENT to change their ident from '%s' to '%s'", user->nick, user->ident, parameters[0]);
-		strlcpy(user->ident, parameters[0], IDENTMAX+2);
+		user->ChangeIdent(parameters[0]);
+
+		return CMD_SUCCESS;
 	}
 };
 

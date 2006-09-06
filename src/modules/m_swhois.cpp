@@ -34,7 +34,7 @@ class cmd_swhois : public command_t
 		syntax = "<nick> <swhois>";
 	}
 
-	void Handle(const char** parameters, int pcnt, userrec* user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec* user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 		if(dest)
@@ -70,7 +70,11 @@ class cmd_swhois : public command_t
 			
 			text = new std::string(line);
 			dest->Extend("swhois", text);
+
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

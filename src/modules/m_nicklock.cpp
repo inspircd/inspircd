@@ -39,7 +39,7 @@ class cmd_nicklock : public command_t
 		syntax = "<oldnick> <newnick>";
 	}
 
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = ServerInstance->FindNick(parameters[0]);
 		irc::string server;
@@ -50,7 +50,7 @@ class cmd_nicklock : public command_t
 			if (source->GetExt("nick_locked", dummy))
 			{
 				user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			if (ServerInstance->IsNick(parameters[1]))
 			{
@@ -59,11 +59,17 @@ class cmd_nicklock : public command_t
 				if (!source->ForceNickChange(parameters[1]))
 				{
 					userrec::QuitUser(ServerInstance, source, "Nickname collision");
-					return;
+					return CMD_FAILURE;
 				}
 				source->Extend("nick_locked", "ON");
+
+				return CMD_SUCCESS;
 			}
+
+			return CMD_FAILURE;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 
@@ -76,7 +82,7 @@ class cmd_nickunlock : public command_t
 		syntax = "<locked-nick>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
@@ -84,7 +90,10 @@ class cmd_nickunlock : public command_t
 			source->Shrink("nick_locked");
 			user->WriteServ("945 %s %s :Nickname now unlocked.",user->nick,source->nick);
 			ServerInstance->WriteOpers(std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

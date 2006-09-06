@@ -59,7 +59,7 @@ class cmd_cban : public command_t
 		syntax = "<channel> [<duration> :<reason>]";
 	}
 
-	void Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -107,8 +107,11 @@ class cmd_cban : public command_t
 			else
 			{
 				user->WriteServ( "403 %s %s :Invalid channel name", user->nick, parameters[0]);
+				return CMD_FAILURE;
 			}
 		}
+
+		return CMD_SUCCESS;
 	}
 };
 

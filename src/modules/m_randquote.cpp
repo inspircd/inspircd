@@ -39,7 +39,7 @@ class cmd_randquote : public command_t
 		this->source = "m_randquote.so";
 	}
 
-	void Handle (const char** parameters, int pcntl, userrec *user)
+	CmdResult Handle (const char** parameters, int pcntl, userrec *user)
 	{
 		std::string str;
 		int fsize;
@@ -55,8 +55,9 @@ class cmd_randquote : public command_t
 		{
 			sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
 			user->WriteServ(std::string(buf));
+			return CMD_FAILURE;
 		}
-		return;
+		return CMD_SUCCESS;
 	}
 };
 

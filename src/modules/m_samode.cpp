@@ -43,13 +43,13 @@ using namespace std;
 class cmd_samode : public command_t
 {
  public:
- cmd_samode (InspIRCd* Instance) : command_t(Instance,"SAMODE", 'o', 2)
+	cmd_samode (InspIRCd* Instance) : command_t(Instance,"SAMODE", 'o', 2)
 	{
 		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.
@@ -69,6 +69,8 @@ class cmd_samode : public command_t
 			result.append(parameters[n]);
 		}
 		ServerInstance->WriteOpers(result);
+
+		return CMD_SUCCESS;
 	}
 };
 

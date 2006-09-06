@@ -37,7 +37,7 @@ class cmd_sanick : public command_t
 		syntax = "<nick> <new-nick>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
@@ -45,7 +45,7 @@ class cmd_sanick : public command_t
 			if (ServerInstance->ULine(source->server))
 			{
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			if (ServerInstance->IsNick(parameters[1]))
 			{
@@ -56,10 +56,16 @@ class cmd_sanick : public command_t
 				{
 					/* We couldnt change the nick */
 					userrec::QuitUser(ServerInstance, source, "Nickname collision");
-					return;
+					return CMD_FAILURE;
 				}
+
+				return CMD_SUCCESS;
 			}
+
+			return CMD_FAILURE;
 		}
+
+		return CMD_FAILURE;
 	}
 };
 

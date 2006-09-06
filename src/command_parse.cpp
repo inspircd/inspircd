@@ -522,13 +522,19 @@ bool CommandParser::ReloadCommand(const char* cmd)
 	return false;
 }
 
-void cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
 	if (ServerInstance->Parser->ReloadCommand(parameters[0]))
+	{
 		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0]);
+		return CMD_SUCCESS;
+	}
 	else
+	{
 		user->WriteServ("NOTICE %s :*** Could not reload command '%s'", user->nick, parameters[0]);
+		return CMD_FAILURE;
+	}
 }
 
 void CommandParser::LoadCommand(const char* name)

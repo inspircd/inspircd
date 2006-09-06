@@ -35,7 +35,7 @@ class cmd_check : public command_t
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec *targuser;
 		chanrec *targchan;
@@ -175,6 +175,8 @@ class cmd_check : public command_t
 		}
 
 		user->WriteServ(checkstr + " END " + std::string(parameters[0]));
+
+		return CMD_SUCCESS;
 	}
 };
 

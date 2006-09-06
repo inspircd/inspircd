@@ -61,12 +61,12 @@ parkedinfo pi;
 class cmd_park : public command_t
 {
  public:
- cmd_park (InspIRCd* Instance) : command_t(Instance,"PARK", 0, 0)
+	cmd_park (InspIRCd* Instance) : command_t(Instance,"PARK", 0, 0)
 	{
 		this->source = "m_park.so";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/** Parking. easy stuff.
 		 *
@@ -82,6 +82,7 @@ class cmd_park : public command_t
 		if (othersessions >= ConcurrentParks)
 		{
 			user->WriteServ("927 "+std::string(user->nick)+" :You are already parked up to the maximum number of allowed times.");
+			return CMD_FAILURE;
 		}
 		else
 		{
@@ -98,6 +99,7 @@ class cmd_park : public command_t
 			pi.host = user->host;
 			pi.parktime = time(NULL);
 			pinfo.push_back(pi);
+			return CMD_SUCCESS;
 		}
 	}
 
@@ -106,29 +108,30 @@ class cmd_park : public command_t
 class cmd_parkstats : public command_t
 {
  public:
- cmd_parkstats (InspIRCd* Instance) : command_t(Instance,"PARKSTATS", 'o', 0)
+	cmd_parkstats (InspIRCd* Instance) : command_t(Instance,"PARKSTATS", 'o', 0)
 	{
 		this->source = "m_park.so";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		char status[MAXBUF];
 		snprintf(status,MAXBUF,"NOTICE %s :There are a total of %lu parked clients on this server, with a maximum of %lu parked sessions allowed per user.",user->nick,(unsigned long)pinfo.size(),(unsigned long)ConcurrentParks);
 		user->WriteServ(std::string(status));
+		return CMD_SUCCESS;
 	}
 };
 
 class cmd_unpark : public command_t
 {
  public:
- cmd_unpark (InspIRCd* Instance) : command_t(Instance,"UNPARK", 0, 2)
+	cmd_unpark (InspIRCd* Instance) : command_t(Instance,"UNPARK", 0, 2)
 	{
 		this->source = "m_park.so";
 		syntax = "<nick> <key>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/** Unparking. complicated stuff.
 		 *
@@ -150,7 +153,7 @@ class cmd_unpark : public command_t
 		if (!unpark)
 		{
 			user->WriteServ("942 %s %s :Invalid user specified.",user->nick, parameters[0]);
-			return;
+			return CMD_FAILURE;
 		}
 		awaylog* awy;
 		unpark->GetExt("park_awaylog", awy);
@@ -159,7 +162,7 @@ class cmd_unpark : public command_t
 		if (!awy)
 		{
 			user->WriteServ("943 %s %s :This user is not parked.",user->nick, unpark->nick);
-			return;
+			return CMD_FAILURE;
 		}
 		if (*key == atoi(parameters[1]))
 		{
@@ -205,7 +208,10 @@ class cmd_unpark : public command_t
 		else
 		{
 			user->WriteServ("928 "+std::string(user->nick)+" :Incorrect park key.");
+			return CMD_FAILURE;
 		}
+
+		return CMD_SUCCESS;
 	}
 };
 

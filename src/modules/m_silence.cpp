@@ -37,13 +37,13 @@ typedef std::vector<std::string> silencelist;
 class cmd_silence : public command_t
 {
  public:
- cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
+	cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
 	{
 		this->source = "m_silence.so";
 		syntax = "{[+|-]<mask>}";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!pcnt)
 		{
@@ -60,6 +60,8 @@ class cmd_silence : public command_t
 				}
 			}
 			user->WriteServ("272 %s :End of Silence List",user->nick);
+
+			return CMD_SUCCESS;
 		}
 		else if (pcnt > 0)
 		{
@@ -123,15 +125,15 @@ class cmd_silence : public command_t
 					if (listitem == mask)
 					{
 						user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
-						return;
+						return CMD_SUCCESS;
 					}
 				}
 				sl->push_back(mask);
 				user->WriteServ("951 %s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
-				return;
+				return CMD_SUCCESS;
 			}
 		}
-		return;
+		return CMD_SUCCESS;
 	}
 };
 

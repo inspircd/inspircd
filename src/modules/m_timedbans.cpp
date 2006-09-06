@@ -51,7 +51,7 @@ class cmd_tban : public command_t
 		syntax = "<channel> <duration> <banmask>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chanrec* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)
@@ -62,12 +62,12 @@ class cmd_tban : public command_t
 				if (!ServerInstance->IsValidMask(parameters[2]))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
-					return;
+					return CMD_FAILURE;
 				}
 				if (channel->IsBanned(user))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+std::string(parameters[2])+" is already on the banlist of "+std::string(parameters[0]));
-					return;
+					return CMD_FAILURE;
 				}
 				TimedBan T;
 				std::string channelname = parameters[0];
@@ -75,7 +75,7 @@ class cmd_tban : public command_t
 				if (ServerInstance->Duration(parameters[1]) < 1)
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
-					return;
+					return CMD_FAILURE;
 				}
 				char duration[MAXBUF];
 				snprintf(duration,MAXBUF,"%lu",ServerInstance->Duration(parameters[1]));
@@ -99,13 +99,15 @@ class cmd_tban : public command_t
 					T.expire = expire;
 					TimedBanList.push_back(T);
 					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %s seconds.", channel->name, user->nick, mask.c_str(), duration);
+					return CMD_SUCCESS;
 				}
-				return;
+				return CMD_FAILURE;
 			}
 			else user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, channel->name);
-			return;
+			return CMD_FAILURE;
 		}
 		user->WriteServ("401 %s %s :No such channel",user->nick, parameters[0]);
+		return CMD_FAILURE;
 	}
 };
 

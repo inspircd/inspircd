@@ -44,13 +44,13 @@ watchlist watches;
 class cmd_watch : public command_t
 {
  public:
- cmd_watch (InspIRCd* Instance) : command_t(Instance,"WATCH",0,0)
+	cmd_watch (InspIRCd* Instance) : command_t(Instance,"WATCH",0,0)
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!pcnt)
 		{
@@ -133,7 +133,7 @@ class cmd_watch : public command_t
 					if (!ServerInstance->IsNick(nick))
 					{
 						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
-						return;
+						return CMD_FAILURE;
 					}
 					irc::string n1 = nick;
 					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
@@ -166,7 +166,7 @@ class cmd_watch : public command_t
 					if (!ServerInstance->IsNick(nick))
 					{
 						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
-						return;
+						return CMD_FAILURE;
 					}
 					irc::string n1 = nick;
 					bool exists = false;
@@ -203,7 +203,8 @@ class cmd_watch : public command_t
 				}
 			}
 		}
-		return;
+		/* So that spanningtree doesnt pass the WATCH commands to the network! */
+		return CMD_FAILURE;
 	}
 };
 

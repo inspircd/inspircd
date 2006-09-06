@@ -77,7 +77,7 @@ class RemoveBase
 		}
 	}
 	
-	void Handle (const char** parameters, int pcnt, userrec *user, bool neworder)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
@@ -108,13 +108,13 @@ class RemoveBase
 		if (!target || !channel)
 		{
 			user->WriteServ("401 %s %s :No such nick/channel", user->nick, !target ? username : channame);
-			return;
+			return CMD_FAILURE;
 		}
 
 		if (!channel->HasUser(target))
 		{
 			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick, target->nick, channel->name);
-			return;
+			return CMD_FAILURE;
 		}	
 		
 		/* This is adding support for the +q and +a channel modes, basically if they are enabled, and the remover has them set.
@@ -206,13 +206,17 @@ class RemoveBase
 			else
 			{
 				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick, target->nick, channel->name);
+				return CMD_FAILURE;
 			}
 		}
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
 			user->WriteServ( "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick, channel->name, target->nick);
+			return CMD_FAILURE;
 		}
+
+		return CMD_SUCCESS;
 	}
 };
 
@@ -225,9 +229,9 @@ class cmd_remove : public command_t, public RemoveBase
 		syntax = "<nick> <channel> [<reason>]";
 	}
 	
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		RemoveBase::Handle(parameters, pcnt, user, false);
+		return RemoveBase::Handle(parameters, pcnt, user, false);
 	}
 };
 
@@ -240,9 +244,9 @@ class cmd_fpart : public command_t, public RemoveBase
 		syntax = "<channel> <nick> [<reason>]";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		RemoveBase::Handle(parameters, pcnt, user, true);
+		return RemoveBase::Handle(parameters, pcnt, user, true);
 	}
 };
 

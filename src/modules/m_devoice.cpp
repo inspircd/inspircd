@@ -34,26 +34,28 @@ using namespace std;
 class cmd_devoice : public command_t
 {
  public:
- cmd_devoice (InspIRCd* Instance) : command_t(Instance,"DEVOICE", 0, 1)
+	cmd_devoice (InspIRCd* Instance) : command_t(Instance,"DEVOICE", 0, 1)
 	{
 		this->source = "m_devoice.so";
 		syntax = "<channel>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		/*
-		 * NOTE: DO NOT CODE LIKE THIS!!! This has no checks and can send
-		 * invalid or plain confusing mode changes, code some checking!
-		 *
-		 * - I'm not aware what checking I need, so for now... be supreme evil.
-		 */
-		const char* modes[3];
-		modes[0] = parameters[0];
-		modes[1] = "-v";
-		modes[2] = user->nick;
+		chanrec* c = ServerInstance->FindChan(parameters[0]);
+		if (c && c->HasUser(user))
+		{
+			const char* modes[3];
+			modes[0] = parameters[0];
+			modes[1] = "-v";
+			modes[2] = user->nick;
 
-		ServerInstance->SendMode(modes,3,user);
+			ServerInstance->SendMode(modes,3,user);
+
+			return CMD_SUCCESS;
+		}
+
+		return CMD_FAILURE;
 	}
 };
 

@@ -38,7 +38,7 @@ class cmd_globops : public command_t
 		syntax = "<any-text>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		std::string line = "From " + std::string(user->nick) + ": ";
 		for (int i = 0; i < pcnt; i++)
@@ -46,6 +46,8 @@ class cmd_globops : public command_t
 			line = line + std::string(parameters[i]) + " ";
 		}
 		ServerInstance->SNO->WriteToSnoMask('g',line);
+
+		return CMD_SUCCESS;
 	}
 };
 

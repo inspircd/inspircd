@@ -36,7 +36,7 @@ class cmd_sslinfo : public command_t
 		this->syntax = "<nick>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		userrec* target = ServerInstance->FindNick(parameters[0]);
 		ssl_cert* cert;
@@ -52,14 +52,18 @@ class cmd_sslinfo : public command_t
 				user->WriteServ("NOTICE %s :*** Distinguised Name: %s", user->nick, cert->GetDN().c_str());
 				user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick, cert->GetIssuer().c_str());
 				user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick, cert->GetFingerprint().c_str());
+				return CMD_SUCCESS;
 			}
 			else
 			{
 				user->WriteServ("NOTICE %s :*** No SSL certificate information for this user.", user->nick);
+				return CMD_FAILURE;
 			}
 		}
 		else
 			user->WriteServ("401 %s %s :No such nickname", user->nick, parameters[0]);
+
+		return CMD_FAILURE;
 	}
 };
 

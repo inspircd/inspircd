@@ -36,7 +36,7 @@ class cmd_vhost : public command_t
 		syntax = "<username> <password>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
 		{
@@ -49,11 +49,12 @@ class cmd_vhost : public command_t
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
-					return;
+					return CMD_FAILURE;
 				}
 			}
 		}
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
+		return CMD_FAILURE;
 	}
 };
 

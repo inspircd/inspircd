@@ -31,13 +31,13 @@ using namespace std;
 class cmd_setname : public command_t
 {
  public:
- cmd_setname (InspIRCd* Instance) : command_t(Instance,"SETNAME", 0, 1)
+	cmd_setname (InspIRCd* Instance) : command_t(Instance,"SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		std::string line = "";
 		for (int i = 0; i < pcnt-1; i++)
@@ -46,6 +46,8 @@ class cmd_setname : public command_t
 		}
 		line = line + std::string(parameters[pcnt-1]);
 		user->ChangeName(line.c_str());
+
+		return CMD_SUCCESS;
 	}
 };
 
