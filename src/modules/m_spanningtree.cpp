@@ -1636,11 +1636,8 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
-					for (unsigned int f = 2; f < modectr; f++)
-						free(mode_users[f]);
-
-					this->WriteLine("ERROR :Invalid user '"+std::string(usr)+"' in FJOIN to '"+channel+"'");
-					return false;
+					ServerInstance->Log(SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", who->nick, channel.c_str());
+					continue;
 				}
 			}
 		}
@@ -1679,26 +1676,6 @@ class TreeSocket : public InspSocket
 			for (unsigned int f = 2; f < modectr; f++)
 				free(mode_users[f]);
 		}
-		return true;
-	}
-
-	bool SyncChannelTS(std::string source, std::deque<std::string> &params)
-	{
-		if (params.size() >= 2)
-		{
-			chanrec* c = this->Instance->FindChan(params[0]);
-			if (c)
-			{
-				time_t theirTS = atoi(params[1].c_str());
-				time_t ourTS = c->age;
-				if (ourTS >= theirTS)
-				{
-					ServerInstance->Log(DEBUG,"Updating timestamp for %s, our timestamp was %lu and theirs is %lu",c->name,ourTS,theirTS);
-					c->age = theirTS;
-				}
-			}
-		}
-		DoOneToAllButSender(this->Instance->Config->ServerName,"SYNCTS",params,source);
 		return true;
 	}
 
