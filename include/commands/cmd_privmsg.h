@@ -26,7 +26,7 @@ class cmd_privmsg : public command_t
 {
  public:
         cmd_privmsg (InspIRCd* Instance) : command_t(Instance,"PRIVMSG",0,2) { syntax = "<target>{,<target>} <message>"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

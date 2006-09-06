@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_ison(Instance);
 }
 
-void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char retbuf[MAXBUF];
 	userrec *u;
@@ -43,5 +43,8 @@ void cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 
-	user->WriteServ( retbuf);
+	user->WriteServ(retbuf);
+
+	return CMD_SUCCESS;
 }
+

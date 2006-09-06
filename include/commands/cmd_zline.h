@@ -26,7 +26,7 @@ class cmd_zline : public command_t
 {
  public:
         cmd_zline (InspIRCd* Instance) : command_t(Instance,"ZLINE",'o',1) { syntax = "<ipmask> [<duration> :<reason>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

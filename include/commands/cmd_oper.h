@@ -28,7 +28,7 @@ class cmd_oper : public command_t
 {
  public:
         cmd_oper (InspIRCd* Instance) : command_t(Instance,"OPER",0,2) { syntax = "<username> <password>"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

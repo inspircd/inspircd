@@ -26,7 +26,7 @@ class cmd_userhost : public command_t
 {
  public:
         cmd_userhost (InspIRCd* Instance) : command_t(Instance,"USERHOST",0,1) { syntax = "<nick>{,<nick>}"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

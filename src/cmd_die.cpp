@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_die(Instance);
 }
 
-void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
 	{
@@ -53,5 +53,7 @@ void cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		ServerInstance->Log(SPARSE, "Failed /DIE command from %s!%s@%s", user->nick, user->ident, user->host);
 		ServerInstance->WriteOpers("*** Failed DIE Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		return CMD_FAILURE;
 	}
+	return CMD_SUCCESS;
 }

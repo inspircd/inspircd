@@ -42,7 +42,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_oper(Instance);
 }
 
-void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char LoginName[MAXBUF];
 	char Password[MAXBUF];
@@ -83,7 +83,7 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
 						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
 						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
-						return;
+						return CMD_FAILURE;
 					}
 					found = true;
 					fail2 = false;
@@ -109,14 +109,16 @@ void cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
 			ServerInstance->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
+			return CMD_FAILURE;
 		}
 		else
 		{
 			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
 			ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
+			return CMD_FAILURE;
 		}
 	}
-	return;
+	return CMD_SUCCESS;
 }
 

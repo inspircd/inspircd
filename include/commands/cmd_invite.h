@@ -26,7 +26,7 @@ class cmd_invite : public command_t
 {
  public:
         cmd_invite (InspIRCd* Instance) : command_t(Instance,"INVITE",0,0) { syntax = "[<nick> <channel>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

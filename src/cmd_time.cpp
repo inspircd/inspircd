@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_time(Instance);
 }
 
-void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	struct tm* timeinfo;
 	time_t local = ServerInstance->Time();
@@ -37,5 +37,6 @@ void cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
 	tms[24] = 0;
 
 	user->WriteServ("391 %s %s :%s",user->nick,ServerInstance->Config->ServerName,tms);
-  
+
+	return CMD_SUCCESS;
 }

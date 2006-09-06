@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_kill(Instance);
 }
 
-void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *u = ServerInstance->FindNick(parameters[0]);
 	char killreason[MAXBUF];
@@ -42,7 +42,7 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		if (MOD_RESULT)
 		{
 			ServerInstance->Log(DEBUG, "A module prevented the kill with result %d", MOD_RESULT);
-			return;
+			return CMD_FAILURE;
 		}
 
 		if (!IS_LOCAL(u))
@@ -81,6 +81,9 @@ void cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, parameters[0]);
+		return CMD_FAILURE;
 	}
+
+	return CMD_SUCCESS;
 }
 

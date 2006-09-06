@@ -28,7 +28,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_privmsg(Instance);
 }
 
-void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	chanrec *chan;
@@ -36,7 +36,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	user->idle_lastmsg = ServerInstance->Time();
 	
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
-		return;
+		return CMD_SUCCESS;
 
 	if ((parameters[0][0] == '$') && ((*user->oper) || (ServerInstance->ULine(user->server))))
 	{
@@ -44,7 +44,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		std::string temp = parameters[1];
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0));
 		if (MOD_RESULT)
-			return;
+			return CMD_FAILURE;
 		parameters[1] = (char*)temp.c_str();
 		// notice to server mask
 		const char* servermask = parameters[0] + 1;
@@ -53,7 +53,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			ServerInstance->ServerPrivmsgAll("%s",parameters[1]);
 		}
 		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
-		return;
+		return CMD_SUCCESS;
 	}
 	char status = 0;
 	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
@@ -71,12 +71,12 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 				if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
 				{
 					user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
-					return;
+					return CMD_FAILURE;
 				}
 				if ((chan->modes[CM_MODERATED]) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
 					user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
-					return;
+					return CMD_FAILURE;
 				}
 			}
 			int MOD_RESULT = 0;
@@ -84,14 +84,14 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			std::string temp = parameters[1];
 			FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status));
 			if (MOD_RESULT) {
-				return;
+				return CMD_FAILURE;
 			}
 			parameters[1] = (char*)temp.c_str();
 
 			if (temp == "")
 			{
 				user->WriteServ("412 %s No text to send", user->nick);
-				return;
+				return CMD_FAILURE;
 			}
 			
 			chan->WriteAllExceptSender(user, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
@@ -101,8 +101,9 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			/* no such nick/channel */
 			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
-		return;
+		return CMD_SUCCESS;
 	}
 
 	dest = ServerInstance->FindNick(parameters[0]);
@@ -119,7 +120,7 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		std::string temp = parameters[1];
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,dest,TYPE_USER,temp,0));
 		if (MOD_RESULT) {
-			return;
+			return CMD_FAILURE;
 		}
 		parameters[1] = (char*)temp.c_str();
 
@@ -135,5 +136,8 @@ void cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/* no such nick/channel */
 		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+		return CMD_FAILURE;
 	}
+	return CMD_SUCCESS;
 }
+

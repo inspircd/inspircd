@@ -26,7 +26,7 @@ class cmd_topic : public command_t
 {
  public:
         cmd_topic (InspIRCd* Instance) : command_t(Instance,"TOPIC",0,1) { syntax = "<channel> [<topic>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

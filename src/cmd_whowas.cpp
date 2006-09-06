@@ -25,13 +25,14 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_whowas(Instance);
 }
 
-void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
+CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
 	irc::whowas::whowas_users::iterator i = ServerInstance->whowas.find(parameters[0]);
 
 	if (i == ServerInstance->whowas.end())
 	{
 		user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
+		return CMD_FAILURE;
 	}
 	else
 	{
@@ -65,8 +66,11 @@ void cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 		else
 		{
 			user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
 	
 	user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
+
+	return CMD_SUCCESS;
 }

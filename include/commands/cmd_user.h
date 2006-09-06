@@ -26,7 +26,7 @@ class cmd_user : public command_t
 {
  public:
         cmd_user (InspIRCd* Instance) : command_t(Instance,"USER",0,4,true) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

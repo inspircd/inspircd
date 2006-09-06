@@ -27,17 +27,17 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_eline(Instance);
 }
 
-void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
 		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
-			return;
+			return CMD_FAILURE;
 
 		if (!strchr(parameters[0],'@'))
 		{
 			user->WriteServ("NOTICE %s :*** E-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return;
+			return CMD_FAILURE;
 		}
 
 		ServerInstance->XLines->add_eline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
@@ -65,5 +65,5 @@ void cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 
-	// no need to apply the lines for an eline
+	return CMD_SUCCESS;
 }

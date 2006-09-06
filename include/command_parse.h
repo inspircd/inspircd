@@ -189,7 +189,7 @@ class cmd_reload : public command_t
 	cmd_reload (InspIRCd* Instance) : command_t(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
-	void Handle(const char** parameters, int pcnt, userrec *user);
+	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 

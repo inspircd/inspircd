@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_lusers(Instance);
 }
 
-void cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// this lusers command shows one server at all times because
 	// a protocol module must override it to show those stats.
@@ -38,5 +38,7 @@ void cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
 		user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->ChannelCount());
 	if (ServerInstance->LocalUserCount())
 		user->WriteServ("254 %s :I have %d clients and 0 servers",user->nick,ServerInstance->LocalUserCount());
+
+	return CMD_SUCCESS;
 }
 

@@ -26,7 +26,7 @@ class cmd_unloadmodule : public command_t
 {
  public:
         cmd_unloadmodule (InspIRCd* Instance) : command_t(Instance,"UNLOADMODULE",'o',1) { syntax = "<modulename>"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

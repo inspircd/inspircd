@@ -26,7 +26,7 @@ class cmd_join : public command_t
 {
  public:
         cmd_join (InspIRCd* Instance) : command_t(Instance,"JOIN",0,1) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

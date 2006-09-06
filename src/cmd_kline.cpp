@@ -27,17 +27,17 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_kline(Instance);
 }
 
-void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
 		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
-			return;
+			return CMD_FAILURE;
 
 		if (!strchr(parameters[0],'@'))
 		{       
 			user->WriteServ("NOTICE %s :*** K-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
-			return;
+			return CMD_FAILURE;
 		}
 
 		ServerInstance->XLines->add_kline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
@@ -66,5 +66,7 @@ void cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteServ("NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick,parameters[0]);
 		}
 	}
+
+	return CMD_SUCCESS;
 }
 

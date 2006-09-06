@@ -26,7 +26,7 @@ class cmd_ping : public command_t
 {
  public:
         cmd_ping (InspIRCd* Instance) : command_t(Instance,"PING",0,1) { syntax = "<servername> [:<servername>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

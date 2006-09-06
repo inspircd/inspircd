@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_unloadmodule(Instance);
 }
 
-void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->UnloadModule(parameters[0]))
 	{
@@ -35,5 +35,8 @@ void cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+		return CMD_FAILURE;
 	}
+
+	return CMD_SUCCESS;
 }

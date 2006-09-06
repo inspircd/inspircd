@@ -24,7 +24,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_summon(Instance);
 }
 
-void cmd_summon::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_summon::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("445 %s :SUMMON has been disabled (depreciated command)",user->nick);
+	return CMD_FAILURE;
 }

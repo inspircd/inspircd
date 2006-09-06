@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_topic(Instance);
 }
 
-void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* Ptr;
 
@@ -38,7 +38,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 			if ((Ptr->modes[CM_SECRET]) && (!Ptr->HasUser(user)))
 			{
 				user->WriteServ("401 %s %s :No such nick/channel",user->nick, Ptr->name);
-				return;
+				return CMD_FAILURE;
 			}
 			if (Ptr->topicset)
 			{
@@ -53,8 +53,9 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
-		return;
+		return CMD_SUCCESS;
 	}
 	else if (pcnt>1)
 	{
@@ -66,12 +67,12 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 				if (!Ptr->HasUser(user))
 				{
 					user->WriteServ("442 %s %s :You're not on that channel!",user->nick, Ptr->name);
-					return;
+					return CMD_FAILURE;
 				}
 				if ((Ptr->modes[CM_TOPICLOCK]) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
 					user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel", user->nick, Ptr->name);
-					return;
+					return CMD_FAILURE;
 				}
 			}
 			char topic[MAXTOPIC];
@@ -82,7 +83,7 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
 				if (MOD_RESULT)
-					return;
+					return CMD_FAILURE;
 			}
 
 			strlcpy(Ptr->topic,topic,MAXTOPIC-1);
@@ -97,7 +98,9 @@ void cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
+	return CMD_SUCCESS;
 }
 

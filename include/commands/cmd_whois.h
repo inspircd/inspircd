@@ -28,7 +28,7 @@ class cmd_whois : public command_t
 {
  public:
         cmd_whois (InspIRCd* Instance) : command_t(Instance,"WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

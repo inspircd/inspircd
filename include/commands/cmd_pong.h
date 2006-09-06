@@ -27,7 +27,7 @@ class cmd_pong : public command_t
 {
  public:
         cmd_pong (InspIRCd* Instance) : command_t(Instance,"PONG",0,1) { syntax = "<ping-text>"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

@@ -28,17 +28,19 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_zline(Instance);
 }
 
-void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
 		if (strchr(parameters[0],'@'))
 		{
 			user->WriteServ("NOTICE %s :*** You cannot include a username in a zline, a zline must ban only an IP mask",user->nick);
-			return;
+			return CMD_FAILURE;
 		}
+
 		if (ServerInstance->IPMatchesEveryone(parameters[0],user))
-			return;
+			return CMD_FAILURE;
+
 		ServerInstance->XLines->add_zline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddZLine,OnAddZLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!ServerInstance->Duration(parameters[1]))
@@ -61,6 +63,9 @@ void cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			user->WriteServ("NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick,parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
+
+	return CMD_SUCCESS;
 }

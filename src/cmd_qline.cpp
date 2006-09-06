@@ -27,12 +27,12 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_qline(Instance);
 }
 
-void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
 		if (ServerInstance->NickMatchesEveryone(parameters[0],user))
-			return;
+			return CMD_FAILURE;
 		ServerInstance->XLines->add_qline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddQLine,OnAddQLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!ServerInstance->Duration(parameters[1]))
@@ -55,6 +55,10 @@ void cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 		else
 		{
 			user->WriteServ("NOTICE %s :*** Q-Line %s not found in list, try /stats q.",user->nick,parameters[0]);
+			return CMD_FAILURE;
 		}
 	}
+
+	return CMD_SUCCESS;
 }
+

@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_kick(Instance);
 }
 
-void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];
 	chanrec* c = ServerInstance->FindChan(parameters[0]);
@@ -34,13 +34,13 @@ void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 	if (!u || !c)
 	{
 		user->WriteServ( "401 %s %s :No such nick/channel", user->nick, u ? parameters[0] : parameters[1]);
-		return;
+		return CMD_FAILURE;
 	}
 
 	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!ServerInstance->ULine(user->server)))
 	{
 		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick, parameters[0]);
-		return;
+		return CMD_FAILURE;
 	}
 
 	if (pcnt > 2)
@@ -55,4 +55,6 @@ void cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 	if (!c->KickUser(user, u, reason))
 		/* Nobody left here, delete the chanrec */
 		delete c;
+
+	return CMD_SUCCESS;
 }

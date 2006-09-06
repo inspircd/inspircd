@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_invite(Instance);
 }
 
-void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	int MOD_RESULT = 0;
 
@@ -46,7 +46,7 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 				user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 			}
 
-			return;
+			return CMD_FAILURE;
 		}
 
 		if ((c->modes[CM_INVITEONLY]) && (IS_LOCAL(user)))
@@ -54,27 +54,27 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
 				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
-				return;
+				return CMD_FAILURE;
 			}
 		}
 
 		if (c->HasUser(u))
 	 	{
 	 		user->WriteServ("443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
-	 		return;
+	 		return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 	 	{
 			user->WriteServ("442 %s %s :You're not on that channel!",user->nick, c->name);
-	  		return;
+	  		return CMD_FAILURE;
 		}
 
 		FOREACH_RESULT(I_OnUserPreInvite,OnUserPreInvite(user,u,c));
 
 		if (MOD_RESULT == 1)
 		{
-			return;
+			return CMD_FAILURE;
 		}
 
 		irc::string xname(c->name);
@@ -94,4 +94,6 @@ void cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		user->WriteServ("347 %s :End of INVITE list",user->nick);
 	}
+	return CMD_SUCCESS;
 }
+

@@ -26,7 +26,7 @@ class cmd_modules : public command_t
 {
  public:
         cmd_modules (InspIRCd* Instance) : command_t(Instance,"MODULES",0,0) { syntax = "[debug]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

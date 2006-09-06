@@ -594,7 +594,7 @@ class cmd_rconnect : public command_t
 		syntax = "<remote-server-mask> <servermask>";
 	}
 
-	void Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
 		/* Is this aimed at our server? */
@@ -605,7 +605,11 @@ class cmd_rconnect : public command_t
 			const char* para[1];
 			para[0] = parameters[1];
 			Creator->OnPreCommand("CONNECT", para, 1, user, true);
+
+			return CMD_SUCCESS;
 		}
+
+		return CMD_FAILURE;
 	}
 };
  

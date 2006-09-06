@@ -28,40 +28,25 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_nick(Instance);
 }
 
-void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];
 
-	if (pcnt < 1) 
-	{
-		ServerInstance->Log(DEBUG,"not enough params for handle_nick");
-		return;
-	}
-	if (!parameters[0])
-	{
-		ServerInstance->Log(DEBUG,"invalid parameter passed to handle_nick");
-		return;
-	}
-	if (!parameters[0][0])
+	if (!*parameters[0])
 	{
 		ServerInstance->Log(DEBUG,"zero length new nick passed to handle_nick");
-		return;
+		return CMD_FAILURE;
 	}
-	if (!user)
-	{
-		ServerInstance->Log(DEBUG,"invalid user passed to handle_nick");
-		return;
-	}
-	if (!user->nick)
+	if (!*user->nick)
 	{
 		ServerInstance->Log(DEBUG,"invalid old nick passed to handle_nick");
-		return;
+		return CMD_FAILURE;
 	}
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
 		if (!strcmp(user->nick,parameters[0]))
-			return;
+			return CMD_SUCCESS;
 		/* Its a change of case. People insisted that they should be
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
@@ -71,12 +56,12 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
-			return;
+			return CMD_FAILURE;
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0]);
 		strlcpy(user->nick, parameters[0], NICKMAX - 1);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
-		return;
+		return CMD_SUCCESS;
 	}
 	else
 	{
@@ -89,18 +74,26 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			ServerInstance->WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,mq);
 			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0],mq);
-			return;
+			return CMD_FAILURE;
 		}
-		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user))
+		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user) && (ServerInstance->IsNick(parameters[0])))
 		{
-			user->WriteServ("433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
-			return;
+			userrec* InUse = ServerInstance->FindNick(parameters[0]);
+			if (InUse->registered != REG_ALL)
+			{
+				userrec::QuitUser(ServerInstance, InUse, "Nickname overruled");
+			}
+			else
+			{
+				user->WriteServ("433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
+				return CMD_FAILURE;
+			}
 		}
 	}
 	if ((!ServerInstance->IsNick(parameters[0])) && (IS_LOCAL(user)))
 	{
 		user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
-		return;
+		return CMD_FAILURE;
 	}
 
 	if (user->registered == REG_ALL)
@@ -109,7 +102,7 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT) {
 			// if a module returns true, the nick change is silently forbidden.
-			return;
+			return CMD_FAILURE;
 		}
 
 		user->WriteCommon("NICK %s",parameters[0]);
@@ -121,8 +114,8 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	/* change the nick of the user in the users_hash */
 	user = user->UpdateNickHash(parameters[0]);
 	/* actually change the nick within the record */
-	if (!user) return;
-	if (!user->nick) return;
+	if (!user) return CMD_FAILURE;
+	if (!*user->nick) return CMD_FAILURE;
 
 	strlcpy(user->nick, parameters[0], NICKMAX - 1);
 
@@ -158,4 +151,8 @@ void cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 	}
+
+	return CMD_SUCCESS;
+
 }
+

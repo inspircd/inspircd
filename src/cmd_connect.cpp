@@ -27,7 +27,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_connect(Instance);
 }
 
-void cmd_connect::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_connect::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ( "NOTICE %s :You are a nub. Load a linking module.", user->nick);
+	return CMD_SUCCESS;
 }

@@ -25,18 +25,18 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_names(Instance);
 }
 
-void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	chanrec* c;
 
 	if (!pcnt)
 	{
 		user->WriteServ("366 %s * :End of /NAMES list.",user->nick);
-		return;
+		return CMD_SUCCESS;
 	}
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
-		return;
+		return CMD_SUCCESS;
 
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
@@ -44,7 +44,7 @@ void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 		if ((c->modes[CM_SECRET]) && (!c->HasUser(user)))
 		{
 		      user->WriteServ("401 %s %s :No such nick/channel",user->nick, c->name);
-		      return;
+		      return CMD_FAILURE;
 		}
 		c->UserList(user);
 		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
@@ -53,4 +53,6 @@ void cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 	}
+
+	return CMD_SUCCESS;
 }

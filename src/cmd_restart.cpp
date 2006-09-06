@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_restart(Instance);
 }
 
-void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char *argv[32];
 	ServerInstance->Log(DEFAULT,"Restart: %s",user->nick);
@@ -62,5 +62,9 @@ void cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		ServerInstance->WriteOpers("*** Failed RESTART Command from %s!%s@%s.",user->nick,user->ident,user->host);
+		return CMD_FAILURE;
 	}
+
+	return CMD_SUCCESS;
 }
+

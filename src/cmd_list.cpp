@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_list(Instance);
 }
 
-void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("321 %s Channel :Users Name",user->nick);
 	for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
@@ -44,4 +44,6 @@ void cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 	user->WriteServ("323 %s :End of channel list.",user->nick);
+
+	return CMD_SUCCESS;
 }

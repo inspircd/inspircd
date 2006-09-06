@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_user(Instance);
 }
 
-void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (user->registered < REG_NICKUSER)
 	{
@@ -33,6 +33,7 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
 			user->WriteServ("461 %s USER :Not enough parameters",user->nick);
+			return CMD_FAILURE;
 		}
 		else {
 			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
@@ -48,13 +49,14 @@ void cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		user->WriteServ("462 %s :You may not reregister",user->nick);
-		return;
+		return CMD_FAILURE;
 	}
 	/* parameters 2 and 3 are local and remote hosts, ignored when sent by client connection */
 	if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
-		//ConnectUser(user,NULL);
 	}
+
+	return CMD_SUCCESS;
 }

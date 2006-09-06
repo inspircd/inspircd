@@ -25,7 +25,14 @@
 class userrec;
 class InspIRCd;
 
-/*typedef void (handlerfunc) (char**, int, userrec*);*/
+/** Used to indicate command success codes
+ */
+enum CmdResult
+{
+	CMD_FAILURE = 0,	/* Command exists, but failed */
+	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
+	CMD_INVALID = 2,	/* Command doesnt exist at all! */
+};
 
 /** A structure that defines a command
  */
@@ -70,7 +77,7 @@ class command_t : public Extensible
 		syntax = "";
 	}
 
-	virtual void Handle(const char** parameters, int pcnt, userrec* user) = 0;
+	virtual CmdResult Handle(const char** parameters, int pcnt, userrec* user) = 0;
 
 	void Disable(bool setting)
 	{

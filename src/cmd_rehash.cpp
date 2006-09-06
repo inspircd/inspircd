@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_rehash(Instance);
 }
 
-void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 	std::string parameter = "";
@@ -40,4 +40,7 @@ void cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->Config->Read(false,user);
 	}
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
+
+	return CMD_SUCCESS;
 }
+

@@ -26,7 +26,7 @@ class cmd_quit : public command_t
 {
  public:
         cmd_quit (InspIRCd* Instance) : command_t(Instance,"QUIT",0,0) { syntax = "[<message>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

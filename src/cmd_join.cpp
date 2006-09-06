@@ -25,30 +25,31 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_join(Instance);
 }
 
-void cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt > 1)
 	{
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0, 1))
-			return;
+			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			chanrec::JoinUser(ServerInstance, user, parameters[0], false, parameters[1]);
-			return;
+			return CMD_SUCCESS;
 		}
 	}
 	else
 	{
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
-			return;
+			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			chanrec::JoinUser(ServerInstance, user, parameters[0], false);
-			return;
+			return CMD_SUCCESS;
 		}
 	}
 
 	user->WriteServ("403 %s %s :Invalid channel name",user->nick, parameters[0]);
+	return CMD_FAILURE;
 }

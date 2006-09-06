@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_info(Instance);
 }
 
-void cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ( "371 %s :. o O (The Inspire Internet Relay Chat Server) O o .", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
@@ -74,4 +74,5 @@ void cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :Best experienced with: An IRC client.", user->nick);
 	FOREACH_MOD(I_OnInfo,OnInfo(user));
 	user->WriteServ( "374 %s :End of /INFO list", user->nick);
+	return CMD_SUCCESS;
 }

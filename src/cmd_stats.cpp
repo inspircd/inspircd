@@ -29,12 +29,14 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_stats(Instance);
 }
 
-void cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	string_list values;
 	DoStats(this->ServerInstance, *parameters[0], user, values);
 	for (size_t i = 0; i < values.size(); i++)
 		user->Write(":%s", values[i].c_str());
+
+	return CMD_SUCCESS;
 }
 
 void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_list &results)

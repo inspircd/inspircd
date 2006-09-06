@@ -26,7 +26,7 @@ class cmd_server : public command_t
 {
  public:
         cmd_server (InspIRCd* Instance) : command_t(Instance,"SERVER",0,0) { }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

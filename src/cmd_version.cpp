@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_version(Instance);
 }
 
-void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	std::stringstream out(ServerInstance->Config->data005);
 	std::string token = "";
@@ -48,4 +48,6 @@ void cmd_version::Handle (const char** parameters, int pcnt, userrec *user)
 			token_counter = 0;
 		}
 	}
+
+	return CMD_SUCCESS;
 }

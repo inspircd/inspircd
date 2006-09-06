@@ -27,7 +27,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_quit(Instance);
 }
 
-void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
 	char reason[MAXBUF];
@@ -100,5 +100,7 @@ void cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		user->PurgeEmptyChannels();
 	}
 	DELETE(user);
+
+	return CMD_SUCCESS;
 }
 

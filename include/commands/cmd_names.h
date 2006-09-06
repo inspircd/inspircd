@@ -26,7 +26,7 @@ class cmd_names : public command_t
 {
  public:
         cmd_names (InspIRCd* Instance) : command_t(Instance,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

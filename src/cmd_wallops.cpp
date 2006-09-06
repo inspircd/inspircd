@@ -25,8 +25,9 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_wallops(Instance);
 }
 
-void cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_wallops::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteWallOps(std::string(parameters[0]));
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
+	return CMD_SUCCESS;
 }

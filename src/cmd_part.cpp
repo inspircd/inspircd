@@ -25,10 +25,10 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_part(Instance);
 }
 
-void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
-		return;
+		return CMD_SUCCESS;
 
 	chanrec* c = ServerInstance->FindChan(parameters[0]);
 	
@@ -41,5 +41,8 @@ void cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		user->WriteServ( "401 %s %s :No such channel", user->nick, parameters[0]);
+		return CMD_FAILURE;
 	}
+
+	return CMD_SUCCESS;
 }

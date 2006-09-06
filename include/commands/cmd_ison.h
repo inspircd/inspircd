@@ -26,7 +26,7 @@ class cmd_ison : public command_t
 {
  public:
         cmd_ison (InspIRCd* Instance) : command_t(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

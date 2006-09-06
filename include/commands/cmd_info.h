@@ -26,7 +26,7 @@ class cmd_info : public command_t
 {
  public:
         cmd_info (InspIRCd* Instance) : command_t(Instance,"INFO",0,0) { syntax = "[<servermask>]"; }
-        void Handle(const char** parameters, int pcnt, userrec *user);
+        CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
 #endif

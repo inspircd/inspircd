@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_userhost(Instance);
 }
 
-void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char Return[MAXBUF],junk[MAXBUF];
 	snprintf(Return,MAXBUF,"302 %s :",user->nick);
@@ -50,4 +50,6 @@ void cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 	user->WriteServ(Return);
+
+	return CMD_SUCCESS;
 }

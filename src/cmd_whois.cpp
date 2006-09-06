@@ -98,11 +98,11 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_whois(Instance);
 }
 
-void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
-		return;
+		return CMD_SUCCESS;
 
 	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
@@ -114,6 +114,9 @@ void cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 		/* no such nick/channel */
 		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *parameters[0] ? parameters[0] : "*");
 		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *parameters[0] ? parameters[0] : "*");
+		return CMD_FAILURE;
 	}
+
+	return CMD_SUCCESS;
 }
 

@@ -26,8 +26,9 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_links(Instance);
 }
 
-void cmd_links::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_links::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("364 %s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
 	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
+	return CMD_SUCCESS;
 }
