@@ -3185,10 +3185,17 @@ class TreeSocket : public InspSocket
 						{
 							strparams[q] = params[q].c_str();
 						}
-						if (!this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
+						switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 						{
-							this->WriteLine("ERROR :Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
-							return false;
+							case CMD_INVALID:
+								this->WriteLine("ERROR :Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
+								return false;
+							break;
+							case CMD_FAILURE:
+								return true;
+							break;
+							default:
+							break;
 						}
 					}
 					else
@@ -4279,7 +4286,11 @@ class ModuleSpanningTree : public Module
 			this->HandleVersion(parameters,pcnt,user);
 			return 1;
 		}
-		else if (ServerInstance->IsValidModuleCommand(command, pcnt, user))
+	}
+
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result)
+	{
+		if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, pcnt, user)))
 		{
 			// this bit of code cleverly routes all module commands
 			// to all remote severs *automatically* so that modules
@@ -4302,7 +4313,6 @@ class ModuleSpanningTree : public Module
 			ServerInstance->Log(DEBUG,"Globally route '%s'",command.c_str());
 			DoOneToMany(user->nick,command,params);
 		}
-		return 0;
 	}
 
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description)
@@ -4830,7 +4840,7 @@ class ModuleSpanningTree : public Module
 		List[I_OnUserQuit] = List[I_OnUserPostNick] = List[I_OnUserKick] = List[I_OnRemoteKill] = List[I_OnRehash] = 1;
 		List[I_OnOper] = List[I_OnAddGLine] = List[I_OnAddZLine] = List[I_OnAddQLine] = List[I_OnAddELine] = 1;
 		List[I_OnDelGLine] = List[I_OnDelZLine] = List[I_OnDelQLine] = List[I_OnDelELine] = List[I_ProtoSendMode] = List[I_OnMode] = 1;
-		List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = List[I_OnSetAway] = List[I_OnCancelAway] = 1;
+		List[I_OnStats] = List[I_ProtoSendMetaData] = List[I_OnEvent] = List[I_OnSetAway] = List[I_OnCancelAway] = List[I_OnPostCommand] = 1;
 	}
 
 	/* It is IMPORTANT that m_spanningtree is the last module in the chain

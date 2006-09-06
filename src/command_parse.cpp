@@ -284,7 +284,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 
 // calls a handler function for a command
 
-bool CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
+CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
 {
 	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
 
@@ -298,19 +298,17 @@ bool CommandParser::CallHandler(const std::string &commandname,const char** para
 				{
 					if ((user->HasPermission(commandname)) || (!IS_LOCAL(user)))
 					{
-						n->second->Handle(parameters,pcnt,user);
-						return true;
+						return n->second->Handle(parameters,pcnt,user);
 					}
 				}
 				else
 				{
-					n->second->Handle(parameters,pcnt,user);
-					return true;
+					return n->second->Handle(parameters,pcnt,user);
 				}
 			}
 		}
 	}
-	return false;
+	return CMD_INVALID;
 }
 
 void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
@@ -383,8 +381,9 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				 * command handler call, as the handler
 				 * may free the user structure!
 				 */
+				CmdResult result = cm->second->Handle(command_p,items,user);
 
-				cm->second->Handle(command_p,items,user);
+				FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result));
 				return;
 			}
 			else

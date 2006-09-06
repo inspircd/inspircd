@@ -342,7 +342,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList, I_OnPostCommand };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -985,8 +985,8 @@ class Module : public Extensible
 
 	/** Called whenever any command is about to be executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
-	 * or another module, but it will not occur for invalid commands (e.g. ones which do not
-	 * exist within the command table). By returning 1 from this method you may prevent the
+	 * or another module, and for invalid commands. Invalid commands may only be sent to this
+	 * function when the value of validated is false. By returning 1 from this method you may prevent the
 	 * command being executed. If you do this, no output is created by the core, and it is
 	 * down to your module to produce any output neccessary.
 	 * Note that unless you return 1, you should not destroy any structures (e.g. by using
@@ -1000,6 +1000,19 @@ class Module : public Extensible
 	 * @return 1 to block the command, 0 to allow
 	 */
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated);
+
+	/** Called after any command has been executed.
+	 * This event occurs for all registered commands, wether they are registered in the core,
+	 * or another module, but it will not occur for invalid commands (e.g. ones which do not
+	 * exist within the command table). The result code returned by the command handler is
+	 * provided.
+	 * @param command The command being executed
+	 * @param parameters An array of array of characters containing the parameters for the command
+	 * @param pcnt The nuimber of parameters passed to the command
+	 * @param user the user issuing the command
+	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
+	 */
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting

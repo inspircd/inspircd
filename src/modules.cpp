@@ -132,6 +132,7 @@ void		Module::OnLoadModule(Module* mod,const std::string &name) { };
 void		Module::OnUnloadModule(Module* mod,const std::string &name) { };
 void		Module::OnBackgroundTimer(time_t curtime) { };
 int		Module::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated) { return 0; };
+void		Module::OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result) { };
 bool		Module::OnCheckReady(userrec* user) { return true; };
 void		Module::OnUserRegister(userrec* user) { };
 int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
