@@ -356,8 +356,8 @@ bool InspSocket::FlushWriteBuffer()
 				this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
 				this->OnError(I_ERR_WRITE);
 				this->state = I_ERROR;
-				ServerInstance->SE->DelFd(this->sock);
-				this->sock->Close();
+				this->Instance->SE->DelFd(this);
+				this->Close();
 				return true;
 			}
 		}

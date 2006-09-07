@@ -69,13 +69,13 @@ enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
 class SQLhost
 {
  public:
-	std::string		id;		/* Database handle id */
- 	std::string 	host;	/* Database server hostname */
+	std::string	id;	/* Database handle id */
+	std::string	host;	/* Database server hostname */
 	unsigned int	port;	/* Database server port */
-	std::string 	name;	/* Database name */
-	std::string 	user;	/* Database username */
-	std::string 	pass;	/* Database password */
-	bool			ssl;	/* If we should require SSL */
+	std::string	name;	/* Database name */
+	std::string	user;	/* Database username */
+	std::string	pass;	/* Database password */
+	bool		ssl;	/* If we should require SSL */
  
 	SQLhost()
 	{
@@ -847,6 +847,9 @@ bool SQLConn::DoConnectedPoll()
 			{
 				/* ..and the result */
 				PgSQLresult reply(us, to, query.id, result);
+
+				/* Fix by brain, make sure the original query gets sent back in the reply */
+				reply.query = query.query.q;
 				
 				Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));	
 				
