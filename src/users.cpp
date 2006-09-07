@@ -1169,13 +1169,10 @@ bool userrec::ForceNickChange(const char* newnick)
 {
 	try
 	{
-		char nick[MAXBUF];
 		int MOD_RESULT = 0;
-
-		*nick = 0;
 	
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
-	
+
 		if (MOD_RESULT)
 		{
 			ServerInstance->stats->statsCollisions++;
@@ -1187,19 +1184,15 @@ bool userrec::ForceNickChange(const char* newnick)
 			ServerInstance->stats->statsCollisions++;
 			return false;
 		}
-	
-		if (newnick)
-		{
-			strlcpy(this->nick, newnick, NICKMAX - 1);
-		}
+
 		if (this->registered == REG_ALL)
 		{
 			const char* pars[1];
-			pars[0] = nick;
+			pars[0] = newnick;
 			std::string cmd = "NICK";
-			ServerInstance->Parser->CallHandler(cmd, pars, 1, this);
+			return (ServerInstance->Parser->CallHandler(cmd, pars, 1, this) == CMD_SUCCESS);
 		}
-		return true;
+		return false;
 	}
 
 	catch (...)

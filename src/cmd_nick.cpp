@@ -32,7 +32,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];
 
-	if (!*parameters[0])
+	if (!parameters[0][0])
 	{
 		ServerInstance->Log(DEBUG,"zero length new nick passed to handle_nick");
 		return CMD_FAILURE;
@@ -42,11 +42,13 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->Log(DEBUG,"invalid old nick passed to handle_nick");
 		return CMD_FAILURE;
 	}
+	ServerInstance->Log(DEBUG,"Fall through");
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
 		if (!strcmp(user->nick,parameters[0]))
 			return CMD_SUCCESS;
+
 		/* Its a change of case. People insisted that they should be
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
@@ -65,10 +67,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		if ((*parameters[0] == ':') && (*(parameters[0]+1) != 0))
-		{
-			parameters[0]++;
-		}
 		char* mq = ServerInstance->XLines->matches_qline(parameters[0]);
 		if (mq)
 		{
