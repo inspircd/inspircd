@@ -57,6 +57,7 @@ class cmd_sanick : public command_t
 				else
 				{
 					/* We couldnt change the nick */
+					ServerInstance->WriteOpers(std::string(user->nick)+" failed SANICK (from "+std::string(parameters[0])+" to "+parameters[1]+")");
 					userrec::QuitUser(ServerInstance, source, "Nickname collision");
 					return CMD_FAILURE;
 				}
