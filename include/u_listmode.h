@@ -258,18 +258,16 @@ class ListModeBase : public ModeHandler
 						}
 						return MODEACTION_ALLOW;
 					}
-					else
-					{
-						/* Tried to remove something that wasn't set */
-						TellNotSet(source, channel, parameter);
-					}
 				}
+				/* Tried to remove something that wasn't set */
+				TellNotSet(source, channel, parameter);
 				parameter = "";
 				return MODEACTION_DENY;
 			}
 			else
 			{
-				// Hmm, taking an exception off a non-existant list, DIE
+				/* Hmm, taking an exception off a non-existant list, DIE */
+				TellNotSet(source, channel, parameter);
 				parameter = "";
 				return MODEACTION_DENY;
 			}
