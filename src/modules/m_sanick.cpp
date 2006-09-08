@@ -49,17 +49,17 @@ class cmd_sanick : public command_t
 			}
 			if (ServerInstance->IsNick(parameters[1]))
 			{
-				// FIX by brain: Cant use source->nick here because if it traverses a server link then
-				// source->nick becomes invalid as the object data moves in memory.
-				ServerInstance->WriteOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
-				if (!source->ForceNickChange(parameters[1]))
+				if (source->ForceNickChange(parameters[1]))
+				{
+					ServerInstance->WriteOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
+					return CMD_SUCCESS;
+				}
+				else
 				{
 					/* We couldnt change the nick */
 					userrec::QuitUser(ServerInstance, source, "Nickname collision");
 					return CMD_FAILURE;
 				}
-
-				return CMD_SUCCESS;
 			}
 
 			return CMD_FAILURE;
