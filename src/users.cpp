@@ -1000,8 +1000,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 long userrec::GlobalCloneCount()
 {
-	char u1[1024];
-	char u2[1024];
+	char u1[1024] = {0};
+	char u2[1024] = {0};
 	long x = 0;
 	for (user_hash::const_iterator a = ServerInstance->clientlist.begin(); a != ServerInstance->clientlist.end(); a++)
 	{
