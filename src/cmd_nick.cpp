@@ -70,8 +70,8 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		char* mq = ServerInstance->XLines->matches_qline(parameters[0]);
 		if (mq)
 		{
-			ServerInstance->WriteOpers("*** Q-Lined nickname %s from %s!%s@%s: %s",parameters[0],user->nick,user->ident,user->host,mq);
-			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0],mq);
+			ServerInstance->SNO->WriteToSnoMask('x', "Q-Lined nickname %s from %s!%s@%s: %s", parameters[0], user->nick, user->ident, user->host, mq);
+			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0], mq);
 			return CMD_FAILURE;
 		}
 		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user) && (ServerInstance->IsNick(parameters[0])))
