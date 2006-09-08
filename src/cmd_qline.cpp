@@ -33,6 +33,13 @@ CmdResult cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (ServerInstance->NickMatchesEveryone(parameters[0],user))
 			return CMD_FAILURE;
+
+		if (strchr(parameters[0],'@') || strchr(parameters[0],'!') || strchr(parameters[0],'.'))
+		{
+			user->WriteServ("NOTICE %s :*** A Q-Line only bans a nick pattern, not a nick!user@host pattern.",user->nick);
+			return CMD_FAILURE;
+		}
+
 		ServerInstance->XLines->add_qline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
 		FOREACH_MOD(I_OnAddQLine,OnAddQLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
 		if (!ServerInstance->Duration(parameters[1]))
