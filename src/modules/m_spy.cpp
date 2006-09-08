@@ -30,11 +30,11 @@ using namespace std;
 #include "inspircd.h"
 #include "wildcard.h"
 
-void spy_userlist(userrec *user,chanrec *c)
+void spy_userlist(userrec *user, chanrec *c)
 {
 	static char list[MAXBUF];
 
-	if ((!c) || (!user))
+	if (!c || !user)
 		return;
 
 	snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
@@ -99,7 +99,7 @@ class cmd_spynames : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		chanrec* c;
+		chanrec* c = NULL;
 
 		if (!pcnt)
 		{
@@ -110,11 +110,10 @@ class cmd_spynames : public command_t
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
 			return CMD_FAILURE;
 
-		ServerInstance->WriteOpers("*** Oper %s used SPYNAMES to view the users on %s",user->nick,parameters[0]);
-
 		c = ServerInstance->FindChan(parameters[0]);
 		if (c)
 		{
+			ServerInstance->WriteOpers("*** Oper %s used SPYNAMES to view the users on %s", user->nick, parameters[0]);
 			spy_userlist(user,c);
 			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
 		}
