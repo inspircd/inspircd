@@ -215,6 +215,7 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 	else
 	{
 		/* No 'number of bits' field! */
+		free(mask);
 		return false;
 	}
 
