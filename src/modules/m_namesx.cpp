@@ -65,7 +65,6 @@ class ModuleNamesX : public Module
 		{
 			if ((pcnt) && (!strcasecmp(parameters[0],"NAMESX")))
 			{
-				ServerInstance->Log(DEBUG,"Setting this user as NAMESX capable");
 				user->Extend("NAMESX",dummy);
 				return 1;
 			}
@@ -75,10 +74,8 @@ class ModuleNamesX : public Module
 
 	virtual int OnUserList(userrec* user, chanrec* Ptr)
 	{
-		ServerInstance->Log(DEBUG,"NAMESX called for %s %s",user->nick,Ptr->name);
 		if (user->GetExt("NAMESX"))
 		{
-			ServerInstance->Log(DEBUG,"Using NAMESX user list code");
 			char list[MAXBUF];
 			size_t dlen, curlen;
 			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, Ptr->name);
@@ -99,8 +96,7 @@ class ModuleNamesX : public Module
 				if (curlen > (480-NICKMAX))
 				{
 					/* list overflowed into multiple numerics */
-					ServerInstance->Log(DEBUG,"Send list 1");
-					user->WriteServ(list);
+					user->WriteServ(std::string(list));
 					/* reset our lengths */
 					dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, Ptr->name);
 					ptr = list + dlen;
@@ -111,15 +107,11 @@ class ModuleNamesX : public Module
 			/* if whats left in the list isnt empty, send it */
 			if (numusers)
 			{
-				ServerInstance->Log(DEBUG,"Send list 2");
-				user->WriteServ(list);
+				user->WriteServ(std::string(list));
 			}
 			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-			ServerInstance->Log(DEBUG,"Returning 1");
 			return 1;
 		}
-
-		ServerInstance->Log(DEBUG,"Returning 0");
 		return 0;		
  	}
 };
