@@ -147,7 +147,7 @@ class Channel_M : public ModeHandler
 		{
 			if (channel->IsModeSet('M'))
 			{
-				channel->SetMode('M',true);
+				channel->SetMode('M',false);
 				return MODEACTION_ALLOW;
 			}
 		}
