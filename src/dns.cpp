@@ -242,6 +242,10 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	 */
 	currid = 0;
 
+	/* By default we're not munging ip's
+	 */
+	ip6munge = false;
+
 	/* Clear the namesever address */
 	memset(&myserver,0,sizeof(insp_inaddr));
 
