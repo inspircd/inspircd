@@ -62,6 +62,10 @@ class cmd_sanick : public command_t
 					return CMD_FAILURE;
 				}
 			}
+			else
+			{
+				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick, parameters[1]);
+			}
 
 			return CMD_FAILURE;
 		}
