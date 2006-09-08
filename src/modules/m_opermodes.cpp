@@ -17,6 +17,7 @@
 using namespace std;
 
 #include <stdio.h>
+#include <vector>
 #include "users.h"
 #include "channels.h"
 #include "inspircd.h"
@@ -76,10 +77,34 @@ class ModuleModesOnOper : public Module
 					ThisOpersModes = "+" + ThisOpersModes;
 				if (ThisOpersModes != "")
 				{
-					const char* modes[2];
+					std::string buf;
+					stringstream ss(ThisOpersModes);
+
+					vector<string> tokens;
+
+					// split ThisOperModes into modes and mode params
+					while (ss >> buf)
+						tokens.push_back(buf);
+
+					int size = tokens.size() + 1;
+					const char* modes[size];
 					modes[0] = user->nick;
-					modes[1] = ThisOpersModes.c_str();
-					ServerInstance->SendMode(modes,2,user);
+					modes[1] = (char*)tokens[0].c_str();
+
+					if (tokens.size() > 1)
+					{
+						// process mode params
+						int i = 2;
+						for (unsigned int k = 1; k < tokens.size(); k++)
+						{
+							modes[i] = (char*)tokens[k].c_str();
+							ServerInstance->Log(DEBUG, "m_opermodes.so: got mode param: %s", modes[i]);
+							i++;
+						}
+					}
+					
+					ServerInstance->Log(DEBUG, "m_opermodes.so: new modes for %s: %s", modes[0], modes[1]);
+					ServerInstance->SendMode(modes, size, user);
 				}
 				break;
 			}
