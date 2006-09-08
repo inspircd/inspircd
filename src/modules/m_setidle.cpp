@@ -48,7 +48,7 @@ class cmd_setidle : public command_t
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(atoi(std::string(parameters[0])))+" seconds");
+		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(atoi(parameters[0]))+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
 
 		return CMD_SUCCESS;
