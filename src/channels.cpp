@@ -852,7 +852,7 @@ void chanrec::UserList(userrec *user)
 		if (curlen > (480-NICKMAX))
 		{
 			/* list overflowed into multiple numerics */
-			user->WriteServ(list);
+			user->WriteServ(std::string(list));
 
 			/* reset our lengths */
 			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
@@ -866,7 +866,7 @@ void chanrec::UserList(userrec *user)
 	/* if whats left in the list isnt empty, send it */
 	if (numusers)
 	{
-		user->WriteServ(list);
+		user->WriteServ(std::string(list));
 	}
 
 	user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, this->name);
