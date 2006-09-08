@@ -47,17 +47,18 @@ class cmd_sanick : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
 			}
+			std::string oldnick = user->nick;
 			if (ServerInstance->IsNick(parameters[1]))
 			{
 				if (source->ForceNickChange(parameters[1]))
 				{
-					ServerInstance->WriteOpers(std::string(user->nick)+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
+					ServerInstance->WriteOpers(oldnick+" used SANICK to change "+std::string(parameters[0])+" to "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else
 				{
 					/* We couldnt change the nick */
-					ServerInstance->WriteOpers(std::string(user->nick)+" failed SANICK (from "+std::string(parameters[0])+" to "+parameters[1]+")");
+					ServerInstance->WriteOpers(oldnick+" failed SANICK (from "+std::string(parameters[0])+" to "+parameters[1]+")");
 					return CMD_FAILURE;
 				}
 			}
