@@ -1717,6 +1717,9 @@ void userrec::ModChannelCount(int n)
 
 bool userrec::ChangeName(const char* gecos)
 {
+	if (!strcmp(gecos, this->fullname))
+		return true;
+
 	if (IS_LOCAL(this))
 	{
 		int MOD_RESULT = 0;
@@ -1731,6 +1734,9 @@ bool userrec::ChangeName(const char* gecos)
 
 bool userrec::ChangeDisplayedHost(const char* host)
 {
+	if (!strcmp(host, this->dhost))
+		return true;
+
 	if (IS_LOCAL(this))
 	{
 		int MOD_RESULT = 0;
@@ -1766,6 +1772,9 @@ bool userrec::ChangeDisplayedHost(const char* host)
 
 bool userrec::ChangeIdent(const char* newident)
 {
+	if (!strcmp(newident, this->ident))
+		return true;
+
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
