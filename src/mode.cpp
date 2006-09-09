@@ -351,6 +351,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		bool adding = true, state_change = false;
 		unsigned char handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
+		int parameter_count = 0;
 
 		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
 		if ((*mode_sequence.begin() != '+') && (*mode_sequence.begin() != '-'))
@@ -464,6 +465,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
 								{
 									parameter_list << " " << parameter;
+									parameter_count++;
 									/* Does this mode have a prefix? */
 									if (modehandlers[handler_id]->GetPrefix() && targetchannel)
 									{
@@ -480,6 +482,14 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 								/* Reset the state change flag */
 								state_change = false;
+
+								if ((output_sequence.length() + parameter_list.str().length() > 450) || (output_sequence.length() > 100)
+										|| (parameter_count > MAXMODES))
+								{
+									/* We cant have a mode sequence this long */
+									letter = mode_sequence.end();
+									continue;
+								}
 							}
 						}
 					}
