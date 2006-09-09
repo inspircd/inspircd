@@ -63,7 +63,7 @@ class cmd_chghost : public command_t
 			if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
 			{
 				// fix by brain - ulines set hosts silently
-				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+parameters[1]);
+				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
 			}
 			return CMD_SUCCESS;
 		}

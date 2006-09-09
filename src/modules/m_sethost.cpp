@@ -58,7 +58,7 @@ class cmd_sethost : public command_t
 		}
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
-			ServerInstance->WriteOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+std::string(parameters[0]));
+			ServerInstance->WriteOpers(std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;
 		}
 

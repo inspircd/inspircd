@@ -27,9 +27,9 @@ class cmd_setident : public command_t
 			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 			return CMD_FAILURE;
 		}
-		
-		ServerInstance->WriteOpers("%s used SETIDENT to change their ident from '%s' to '%s'", user->nick, user->ident, parameters[0]);
+
 		user->ChangeIdent(parameters[0]);
+		ServerInstance->WriteOpers("%s used SETIDENT to change their ident to '%s'", user->nick, user->ident);
 
 		return CMD_SUCCESS;
 	}

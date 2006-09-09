@@ -28,9 +28,9 @@ class cmd_chgident : public command_t
 				user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 				return CMD_FAILURE;
 			}
-		
-			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident from '%s' to '%s'", user->nick, dest->nick, dest->ident, parameters[1]);
+
 			dest->ChangeIdent(parameters[1]);
+			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
 			return CMD_SUCCESS;
 		}
 		else
