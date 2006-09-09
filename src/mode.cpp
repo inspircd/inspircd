@@ -312,15 +312,23 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				/* We don't have halfop */
 				ServerInstance->Log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");
 
-				/* Are we a uline or is it a servermode? */
-				if ((!ServerInstance->ULine(user->server)) && (!servermode))
-				{
-					/* Not enough permission:
-					 * NOT a uline and NOT a servermode,
-					 * OR, NOT halfop or above.
-					 */
-					user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
+				int MOD_RESULT = 0;
+				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
+				if (MOD_RESULT == ACR_DENY)
 					return;
+
+				if (MOD_RESULT == ACR_DEFAULT)
+				{
+					/* Are we a uline or is it a servermode? */
+					if ((!ServerInstance->ULine(user->server)) && (!servermode))
+					{
+						/* Not enough permission:
+						 * NOT a uline and NOT a servermode,
+						 * OR, NOT halfop or above.
+						 */
+						user->WriteServ("482 %s %s :You're not a channel (half)operator",user->nick, targetchannel->name);
+						return;
+					}
 				}
 			}
 		}
