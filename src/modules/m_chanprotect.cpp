@@ -355,6 +355,7 @@ class ModuleChanProtect : public Module
 		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
 		{
+			ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck returns ALLOW");
 			return ACR_ALLOW;
 		}
 
@@ -428,6 +429,7 @@ class ModuleChanProtect : public Module
 		}
 		
 		// we dont know what this access check is, or dont care. just carry on, nothing to see here.
+		ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck returns DEFAULT");
 		return ACR_DEFAULT;
 	}
 	
