@@ -106,86 +106,86 @@ class ModuleOverride : public Module
 				// Fix by brain - allow the change if they arent on channel - rely on boolean short-circuit
 				// to not check the other items in the statement if they arent on the channel
 				int mode = channel->GetStatus(source);
-				if ((!channel->HasUser(source)) || ((mode != STATUS_HOP) && (mode != STATUS_OP)))
+				switch (access_type)
 				{
-					switch (access_type)
-					{
-						case AC_DEOP:
-							if (CanOverride(source,"MODEDEOP"))
-							{
+					case AC_DEOP:
+						if (CanOverride(source,"MODEDEOP"))
+						{
+							if ((!channel->HasUser(source)) || (mode != STATUS_OP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
-
-						case AC_OP:
-							if (CanOverride(source,"MODEOP"))
-							{
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
+						}
+					case AC_OP:
+						if (CanOverride(source,"MODEOP"))
+						{
+							if ((!channel->HasUser(source)) || (mode != STATUS_OP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
-
-						case AC_VOICE:
-							if (CanOverride(source,"MODEVOICE"))
-							{
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
+						}
+					case AC_VOICE:
+						if (CanOverride(source,"MODEVOICE"))
+						{
+							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
-
-						case AC_DEVOICE:
-							if (CanOverride(source,"MODEDEVOICE"))
-							{
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
+						}
+					case AC_DEVOICE:
+						if (CanOverride(source,"MODEDEVOICE"))
+						{
+							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
-
-						case AC_HALFOP:
-							if (CanOverride(source,"MODEHALFOP"))
-							{
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
+						}
+					case AC_HALFOP:
+						if (CanOverride(source,"MODEHALFOP"))
+						{
+							if ((!channel->HasUser(source)) || (mode != STATUS_OP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
-
-						case AC_DEHALFOP:
-							if (CanOverride(source,"MODEDEHALFOP"))
-							{
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
+						}
+					case AC_DEHALFOP:
+						if (CanOverride(source,"MODEDEHALFOP"))
+						{
+							if ((!channel->HasUser(source)) || (mode != STATUS_OP))
 								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
-								return ACR_ALLOW;
-							}
-							else
-							{
-								return ACR_DEFAULT;
-							}
+							return ACR_ALLOW;
+						}
+						else
+						{
+							return ACR_DEFAULT;
 					}
 				}
-			}
 			
-			if (CanOverride(source,"OTHERMODE"))
-			{
-				return ACR_ALLOW;
-			}
-			else
-			{
-				return ACR_DEFAULT;
+				if (CanOverride(source,"OTHERMODE"))
+				{
+					if ((!channel->HasUser(source)) || (mode != STATUS_OP))
+						ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" changed modes on "+std::string(channel->name));
+					return ACR_ALLOW;
+				}
+				else
+				{
+					return ACR_DEFAULT;
+				}
 			}
 		}
 

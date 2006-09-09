@@ -77,7 +77,10 @@ ModeAction ModeChannelOp::OnModeChange(userrec* source, userrec* dest, chanrec* 
 	 * the return value and is always MODEACTION_DENY if the mode is supposed to have
 	 * a parameter.
 	 */
-	return MODEACTION_ALLOW;
+	if (parameter.length())
+		return MODEACTION_ALLOW;
+	else
+		return MODEACTION_DENY;
 }
 
 std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,int status)
