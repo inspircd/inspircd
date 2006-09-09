@@ -487,7 +487,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 										|| (parameter_count > MAXMODES))
 								{
 									/* We cant have a mode sequence this long */
-									letter = mode_sequence.end();
+									letter = mode_sequence.end() - 1;
 									continue;
 								}
 							}
