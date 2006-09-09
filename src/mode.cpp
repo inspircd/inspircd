@@ -510,17 +510,11 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				{
 					targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s %s%s", targetchannel->name, output_sequence.c_str(), parameter_list.str().c_str());
 					this->LastParse = targetchannel->name;
-					LastParse.append(" ");
-					LastParse.append(output_sequence);
-					LastParse.append(parameter_list.str());
 				}
 				else
 				{
 					targetuser->WriteServ("MODE %s %s%s",targetuser->nick,output_sequence.c_str(), parameter_list.str().c_str());
 					this->LastParse = targetuser->nick;
-					LastParse.append(" ");
-					LastParse.append(output_sequence);
-					LastParse.append(parameter_list.str());
 				}
 			}
 			else
@@ -531,20 +525,18 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					targetchannel->WriteChannel(user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
 					this->LastParse = targetchannel->name;
-					LastParse.append(" ");
-					LastParse.append(output_sequence);
-					LastParse.append(parameter_list.str());
 				}
 				else
 				{
 					user->WriteTo(targetuser,"MODE %s %s%s",targetuser->nick,output_sequence.c_str(), parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
 					this->LastParse = targetuser->nick;
-					LastParse.append(" ");
-					LastParse.append(output_sequence);
-					LastParse.append(parameter_list.str());
 				}
 			}
+
+			LastParse.append(" ");
+			LastParse.append(output_sequence);
+			LastParse.append(parameter_list.str());
 		}
 	}
 }
