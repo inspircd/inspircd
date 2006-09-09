@@ -40,6 +40,7 @@
 #include "socket.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include <dlfcn.h>
 
 using irc::sockets::NonBlocking;
 using irc::sockets::Blocking;
@@ -343,6 +344,7 @@ void InspIRCd::EraseFactory(int j)
 	{
 		if (v == j)
 		{
+			delete *t;
 			factory.erase(t);
 		 	factory.push_back(NULL);
 		 	return;

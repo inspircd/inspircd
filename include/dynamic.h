@@ -65,12 +65,12 @@ class DLLManager
 	{
 		 return err;
 	}
-	
- protected:
 
 	/** The module handle
 	 */
 	void *h;
+
+ protected:
 
 	/** The last error string, or NULL
 	 */
