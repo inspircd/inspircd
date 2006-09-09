@@ -89,7 +89,7 @@ class ModuleOverride : public Module
 		{
 			if (((chan->GetStatus(source) == STATUS_HOP) && (chan->GetStatus(user) == STATUS_OP)) || (chan->GetStatus(source) < STATUS_VOICE))
 			{
-				ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Kicked "+std::string(user->nick)+" on "+std::string(chan->name)+" ("+reason+")");
 			}
 			/* Returning -1 explicitly allows the kick */
 			return -1;
@@ -115,7 +115,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -129,7 +129,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -143,7 +143,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -157,7 +157,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -171,7 +171,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -185,7 +185,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
 							return ACR_ALLOW;
 						}
 						else
@@ -200,7 +200,7 @@ class ModuleOverride : public Module
 					ServerInstance->Log(DEBUG,"Override access check other mode");
 					if (NoisyOverride)
 					if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-						ServerInstance->SNO->WriteToSnoMask('O',"NOTICE: "+std::string(source->nick)+" changed modes on "+std::string(channel->name));
+						ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" changed modes on "+std::string(channel->name));
 					return ACR_ALLOW;
 				}
 				else
