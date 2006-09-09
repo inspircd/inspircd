@@ -271,6 +271,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 	ServerInstance->Log(DEBUG,"ModeParser::Process start");
 
+	LastParse = "";
+
 	/* Special case for displaying the list for listmodes,
 	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
 	 */
