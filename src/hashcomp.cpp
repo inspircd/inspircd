@@ -263,7 +263,12 @@ const std::string irc::commasepstream::GetToken()
 		if ((*n == ',') || (n+1 == tokens.end()))
 		{
 			last_starting_position = n+1;
-			return std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+			std::string strip = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+
+			while ((strip.length()) && (strip.find_last_of(',') == strip.length() - 1))
+				strip.erase(strip.end() - 1);
+
+			return strip;
 		}
 
 		n++;

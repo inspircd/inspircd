@@ -241,6 +241,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 		return 0;
 
 	/* Only one commasepstream here */
+	ServerInstance->Log(DEBUG,"LoopCall on '%s'",parameters[splithere]);
 	irc::commasepstream items1(parameters[splithere]);
 	std::string item = "";
 	unsigned int max = 0;
@@ -251,6 +252,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
+		ServerInstance->Log(DEBUG,"LoopCall get item: '%s'", item.c_str());
 		parameters[splithere] = item.c_str();
 		CommandObj->Handle(parameters,pcnt,user);
 	}
