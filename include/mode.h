@@ -360,6 +360,11 @@ class ModeParser : public classbase
 	 */
 	void DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text);
 
+	/** The string representing the last set of modes to be parsed.
+	 * Use GetLastParse() to get this value, to be used for  display purposes.
+	 */
+	std::string LastParse;
+
  public:
 
 	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
@@ -390,6 +395,12 @@ class ModeParser : public classbase
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
 	static void CleanMask(std::string &mask);
+	/** Get the last string to be processed, as it was sent to the user or channel. 
+	 * Use this to display a string you just sent to be parsed, as the actual output
+	 * may be different to what you sent after it has been 'cleaned up' by the parser.
+	 * @return Last parsed string, as seen by users.
+	 */
+	const std::string& GetLastParse();
 	/** Add a mode to the mode parser. The modeletter parameter
 	 * is purely to save on doing a lookup in the function, as
 	 * strictly it could be obtained via ModeHandler::GetModeChar().

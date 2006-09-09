@@ -509,10 +509,18 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				if (type == MODETYPE_CHANNEL)
 				{
 					targetchannel->WriteChannelWithServ(ServerInstance->Config->ServerName, "MODE %s %s%s", targetchannel->name, output_sequence.c_str(), parameter_list.str().c_str());
+					this->LastParse = targetchannel->name;
+					LastParse.append(" ");
+					LastParse.append(output_sequence);
+					LastParse.append(parameter_list.str());
 				}
 				else
 				{
 					targetuser->WriteServ("MODE %s %s%s",targetuser->nick,output_sequence.c_str(), parameter_list.str().c_str());
+					this->LastParse = targetuser->nick;
+					LastParse.append(" ");
+					LastParse.append(output_sequence);
+					LastParse.append(parameter_list.str());
 				}
 			}
 			else
@@ -522,15 +530,28 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					ServerInstance->Log(DEBUG,"Write output sequence and parameters to channel: %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					targetchannel->WriteChannel(user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
+					this->LastParse = targetchannel->name;
+					LastParse.append(" ");
+					LastParse.append(output_sequence);
+					LastParse.append(parameter_list.str());
 				}
 				else
 				{
 					user->WriteTo(targetuser,"MODE %s %s%s",targetuser->nick,output_sequence.c_str(), parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
+					this->LastParse = targetuser->nick;
+					LastParse.append(" ");
+					LastParse.append(output_sequence);
+					LastParse.append(parameter_list.str());
 				}
 			}
 		}
 	}
+}
+
+const std::string& ModeParser::GetLastParse()
+{
+	return LastParse;
 }
 
 void ModeParser::CleanMask(std::string &mask)
@@ -904,6 +925,9 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	/* Clear mode list */
 	memset(modehandlers, 0, sizeof(modehandlers));
 	memset(modewatchers, 0, sizeof(modewatchers));
+
+	/* Last parse string */
+	LastParse = "";
 
 	/* Initialise the RFC mode letters */
 
