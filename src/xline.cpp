@@ -679,7 +679,6 @@ void XLineManager::expire_lines()
 void XLineManager::apply_lines(const int What)
 {
 	char reason[MAXBUF];
-	char host[MAXBUF];
 
 	if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()) &&
 	(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
@@ -690,7 +689,7 @@ void XLineManager::apply_lines(const int What)
 	for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		userrec* u = (userrec*)(*u2);
-		u->MakeHost(host);
+
 		if (elines.size() || pelines.size())
 		{
 			// ignore people matching exempts
