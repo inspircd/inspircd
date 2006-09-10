@@ -428,18 +428,22 @@ class chanrec : public Extensible
 
 	/** Write to all users on a channel except a specific user, using va_args for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
+	 * use the nick!user@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A printf-style format string which builds the output line without prefi
 	 * @param ... Zero or more POD type
 	 */
-	void WriteAllExceptSender(userrec* user, char status, char* text, ...);
+	void WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...);
 
 	/** Write to all users on a channel except a specific user, using std::string for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
+	 * use the nick!user@host of the user.          
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A std::string containing the output line without prefix
 	 */
-	void WriteAllExceptSender(userrec* user, char status, const std::string& text);
+	void WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text);
 
 	/** Returns the maximum number of bans allowed to be set on this channel
 	 * @return The maximum number of bans allowed

@@ -734,7 +734,8 @@ std::string ModeParser::ModeString(userrec* user, chanrec* channel)
 		{
 			ModePair ret;
 			ret = mh->ModeSet(NULL, user, channel, user->nick);
-			if (ret.first)
+			ServerInstance->Log(DEBUG,"first='%d' second='%s'",ret.first,ret.second.c_str());
+			if ((ret.first) && (ret.second == user->nick))
 			{
 				pars.append(" ");
 				pars.append(user->nick);

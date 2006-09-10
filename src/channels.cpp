@@ -690,27 +690,24 @@ void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text
 
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
-void chanrec::WriteAllExceptSender(userrec* user, char status, char* text, ...)
+void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
-	if (!user || !text)
+	if (!text)
 		return;
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	this->WriteAllExceptSender(user, status, std::string(textbuffer));
+	this->WriteAllExceptSender(user, serversource, status, std::string(textbuffer));
 }
 
-void chanrec::WriteAllExceptSender(userrec* user, char status, const std::string& text)
+void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text)
 {
 	CUList *ulist;
-
-	if (!user)
-		return;
 
 	switch (status)
 	{
@@ -731,7 +728,12 @@ void chanrec::WriteAllExceptSender(userrec* user, char status, const std::string
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if ((IS_LOCAL(i->second)) && (user != i->second))
-			i->second->WriteFrom(user,text);
+		{
+			if (serversource)
+				i->second->WriteServ(text);
+			else
+				i->second->WriteFrom(user,text);
+		}
 	}
 }
 

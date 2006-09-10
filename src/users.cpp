@@ -1754,10 +1754,10 @@ bool userrec::ChangeDisplayedHost(const char* host)
 		{
 			if ((*i)->channel)
 			{
-				(*i)->channel->WriteAllExceptSender(this, 0, "JOIN %s", (*i)->channel->name);
+				(*i)->channel->WriteAllExceptSender(this, false, 0, "JOIN %s", (*i)->channel->name);
 				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
-				if (n.length())
-					(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s", (*i)->channel->name, n.c_str());
+				if (n.length() > 0)
+					(*i)->channel->WriteAllExceptSender(this, true, 0, "MODE %s +%s", (*i)->channel->name, n.c_str());
 			}
 		}
 	}
@@ -1784,10 +1784,10 @@ bool userrec::ChangeIdent(const char* newident)
 		{
 			if ((*i)->channel)
 			{
-				(*i)->channel->WriteAllExceptSender(this, 0, "JOIN %s", (*i)->channel->name);
+				(*i)->channel->WriteAllExceptSender(this, false, 0, "JOIN %s", (*i)->channel->name);
 				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
-				if (n.length())
-					(*i)->channel->WriteChannelWithServ(this->ServerInstance->Config->ServerName, "MODE %s +%s", (*i)->channel->name, n.c_str());
+				if (n.length() > 0)
+					(*i)->channel->WriteAllExceptSender(this, true, 0, "MODE %s +%s", (*i)->channel->name, n.c_str());
 			}
 		}
 	}
