@@ -53,7 +53,11 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	char TheIP[MAXBUF];
 	int j;
 	bool found = false;
-	bool fail2 = false;
+	bool type_invalid = false;
+
+	bool match_login = false;
+	bool match_pass = false;
+	bool match_hosts = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
@@ -65,9 +69,13 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
-		if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
+		match_login = !strcmp(LoginName,parameters[0]);
+		match_pass = !ServerInstance->OperPassCompare(Password,parameters[1]);
+		match_hosts = OneOfMatches(TheHost,TheIP,HostName);
+
+		if (match_login && match_pass && match_hosts)
 		{
-			fail2 = true;
+			type_invalid = true;
 			for (j =0; j < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "type"); j++)
 			{
 				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","name", j, TypeName, MAXBUF);
@@ -81,41 +89,48 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					if (!ServerInstance->IsNick(TypeName))
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
-						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type invalid for OperType '%s'",OperType);
+						ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper type '%s' contains invalid characters",OperType);
 						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return CMD_FAILURE;
 					}
 					found = true;
-					fail2 = false;
+					type_invalid = false;
 					break;
 				}
 			}
 		}
-		if (found)
+		if (match_login || found)
 			break;
 	}
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s",user->nick,user->ident,user->host,OperType);
+		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,OperType,parameters[0]);
 		user->WriteServ("381 %s :You are now an IRC operator of type %s",user->nick,OperType);
 		if (!user->modes[UM_OPERATOR])
 			user->Oper(OperType);
 	}
 	else
 	{
-		if (!fail2)
+		if (!type_invalid)
 		{
+			std::string fields = "";
+			if (!match_login)
+				fields.append("login ");
+			if (!match_pass)
+				fields.append("password ");
+			if (!match_hosts)
+				fields.append("hosts");
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
-			ServerInstance->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s!",user->nick,user->ident,user->host);
-			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.",user->nick,user->ident,user->host);
+			ServerInstance->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
+			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
 			return CMD_FAILURE;
 		}
 		else
 		{
 			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
-			ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper block mismatch for OperType %s",OperType);
-			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host);
+			ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
+			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
 			return CMD_FAILURE;
 		}
 	}
