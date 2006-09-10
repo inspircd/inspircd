@@ -92,15 +92,39 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values,
 	return true;
 }
 
+IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
+{
+	IdentHostPair n = std::make_pair<std::string,std::string>("*","*");
+	std::string::size_type x = ident_and_host.find('@');
+	if (x != std::string::npos)
+	{
+		n.second = ident_and_host.substr(x + 1,ident_and_host.length());
+		n.first = ident_and_host.substr(0, x);
+		if (!n.first.length())
+			n.first = "*";
+		if (!n.second.length())
+			n.second = "*";
+	}
+	else
+	{
+		n.second = ident_and_host;
+	}
+
+	return n;
+}
+
 // adds a g:line
 
 bool XLineManager::add_gline(long duration, const char* source,const char* reason,const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
+
 	bool ret = del_gline(hostmask);
 	
 	GLine item;
 	item.duration = duration;
-	strlcpy(item.hostmask,hostmask,199);
+	strlcpy(item.identmask,ih.first.c_str(),19);
+	strlcpy(item.hostmask,ih.second.c_str(),199);
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
@@ -123,10 +147,14 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 
 bool XLineManager::add_eline(long duration, const char* source, const char* reason, const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
+
 	bool ret = del_eline(hostmask);
+
 	ELine item;
 	item.duration = duration;
-	strlcpy(item.hostmask,hostmask,199);
+	strlcpy(item.identmask,ih.first.c_str(),19);
+	strlcpy(item.hostmask,ih.second.c_str(),199);
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
@@ -203,10 +231,14 @@ bool XLineManager::add_zline(long duration, const char* source, const char* reas
 
 bool XLineManager::add_kline(long duration, const char* source, const char* reason, const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
+
 	bool ret = del_kline(hostmask);
+
 	KLine item;
 	item.duration = duration;
-	strlcpy(item.hostmask,hostmask,200);
+	strlcpy(item.identmask,ih.first.c_str(),19);
+	strlcpy(item.hostmask,ih.second.c_str(),200);
 	strlcpy(item.reason,reason,MAXBUF);
 	strlcpy(item.source,source,255);
 	item.n_matches = 0;
@@ -227,9 +259,10 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 
 bool XLineManager::del_gline(const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			glines.erase(i);
 			return true;
@@ -237,7 +270,7 @@ bool XLineManager::del_gline(const char* hostmask)
 	}
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			pglines.erase(i);
 			return true;
@@ -250,9 +283,10 @@ bool XLineManager::del_gline(const char* hostmask)
 
 bool XLineManager::del_eline(const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			elines.erase(i);
 			return true;
@@ -260,7 +294,7 @@ bool XLineManager::del_eline(const char* hostmask)
 	}
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			pelines.erase(i);
 			return true;
@@ -345,9 +379,10 @@ bool XLineManager::del_zline(const char* ipaddr)
 
 bool XLineManager::del_kline(const char* hostmask)
 {
+	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			klines.erase(i);
 			return true;
@@ -355,7 +390,7 @@ bool XLineManager::del_kline(const char* hostmask)
 	}
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
 	{
-		if (!strcasecmp(hostmask,i->hostmask))
+		if (!strcasecmp(ih.first.c_str(),i->identmask) && !strcasecmp(ih.second.c_str(),i->hostmask))
 		{
 			pklines.erase(i);
 			return true;
@@ -383,39 +418,57 @@ char* XLineManager::matches_qline(const char* nick)
 
 char* XLineManager::matches_gline(userrec* user)
 {
-	char match1[MAXBUF];
-	char match2[MAXBUF];
-	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
-	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
-
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		if (match(match1,i->hostmask, true) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		if (match(match1,i->hostmask, true) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	return NULL;
 }
 
 char* XLineManager::matches_exception(userrec* user)
-{
-        char match1[MAXBUF];
-	char match2[MAXBUF];
-	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
-	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
-			
+{			
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",user->host);
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		if ((match(match1,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		if ((match(match1,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	return NULL;
 }
 
@@ -523,18 +576,28 @@ char* XLineManager::matches_zline(const char* ipaddr)
 
 char* XLineManager::matches_kline(userrec* user)
 {
-	char match1[MAXBUF];
-	char match2[MAXBUF];
-	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
-	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		if ((match(match1,i->hostmask, true)) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		if ((match(match1,i->hostmask, true)) || (match(match2,i->hostmask, true)))
-			return i->reason;
+	{
+		if ((match(user->ident,i->identmask)))
+		{
+			if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+			{
+				return i->reason;
+			}
+		}
+	}
 	return NULL;
 }
 

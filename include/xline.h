@@ -67,6 +67,7 @@ class KLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
+	char identmask[20];
 	char hostmask[200];
 };
 
@@ -78,6 +79,7 @@ class GLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
+	char identmask[20];
 	char hostmask[200];
 };
 
@@ -89,6 +91,7 @@ class ELine : public XLine
         /** Hostmask (ident@host) to match against
          * May contain wildcards.
          */
+	char identmask[20];
         char hostmask[200];
 };
 
@@ -132,6 +135,8 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, void** values,
 bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
 bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
 bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
+
+typedef std::pair<std::string, std::string> IdentHostPair;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
  */
@@ -200,6 +205,8 @@ class XLineManager
 	 * @param Instance A pointer to the creator object
 	 */
 	XLineManager(InspIRCd* Instance);
+
+	IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host);
 
 	/** Add a new GLine
 	 * @param duration The duration of the line
