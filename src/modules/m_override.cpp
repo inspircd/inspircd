@@ -30,6 +30,9 @@ class ModuleOverride : public Module
 	
 	override_t overrides;
 	bool NoisyOverride;
+	bool OverriddenMode;
+	int OverOps, OverDeops, OverVoices, OverDevoices, OverHalfops, OverDehalfops;
+
  public:
  
 	ModuleOverride(InspIRCd* Me)
@@ -38,6 +41,8 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash("");
 		ServerInstance->SNO->EnableSnomask('O',"OVERRIDE");
+		OverriddenMode = false;
+		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 	}
 	
 	virtual void OnRehash(const std::string &parameter)
@@ -60,7 +65,27 @@ class ModuleOverride : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = 1;
+		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = List[I_OnPostCommand] = 1;
+	}
+
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result)
+	{
+		if ((NoisyOverride) && (OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
+		{
+			int Total = OverOps + OverDeops + OverVoices + OverDevoices + OverHalfops + OverDehalfops;
+
+			ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" Overriding modes: "+ServerInstance->Modes->GetLastParse()+" "+(Total ? "[Detail: " : "")+
+					(OverOps ? ConvToStr(OverOps)+" op"+(OverOps != 1 ? "s" : "")+" " : "")+
+					(OverDeops ? ConvToStr(OverDeops)+" deop"+(OverDeops != 1 ? "s" : "")+" " : "")+
+					(OverVoices ? ConvToStr(OverVoices)+" voice"+(OverVoices != 1 ? "s" : "")+" " : "")+
+					(OverDevoices ? ConvToStr(OverDevoices)+" devoice"+(OverDevoices != 1 ? "s" : "")+" " : "")+
+					(OverHalfops ? ConvToStr(OverHalfops)+" halfop"+(OverHalfops != 1 ? "s" : "")+" " : "")+
+					(OverDehalfops ? ConvToStr(OverDehalfops)+" dehalfop"+(OverDehalfops != 1 ? "s" : "") : "")
+					+(Total ? "]" : ""));
+
+			OverriddenMode = false;
+			OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
+		}
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -99,7 +124,6 @@ class ModuleOverride : public Module
 	
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{
-		ServerInstance->Log(DEBUG,"Override access check");
 		if (*source->oper)
 		{
 			if (source && channel)
@@ -115,7 +139,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Deopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverDeops++;
 							return ACR_ALLOW;
 						}
 						else
@@ -129,7 +153,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Opped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverOps++;
 							return ACR_ALLOW;
 						}
 						else
@@ -143,7 +167,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Voiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverVoices++;
 							return ACR_ALLOW;
 						}
 						else
@@ -157,7 +181,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_HOP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Devoiced "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverDevoices++;
 							return ACR_ALLOW;
 						}
 						else
@@ -171,7 +195,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Halfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverHalfops++;
 							return ACR_ALLOW;
 						}
 						else
@@ -185,7 +209,7 @@ class ModuleOverride : public Module
 						{
 							if (NoisyOverride)
 							if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-								ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" Override-Dehalfopped "+std::string(dest->nick)+" on "+std::string(channel->name));
+								OverDehalfops++;
 							return ACR_ALLOW;
 						}
 						else
@@ -197,10 +221,13 @@ class ModuleOverride : public Module
 			
 				if (CanOverride(source,"OTHERMODE"))
 				{
-					ServerInstance->Log(DEBUG,"Override access check other mode");
 					if (NoisyOverride)
 					if ((!channel->HasUser(source)) || (mode < STATUS_OP))
-						ServerInstance->SNO->WriteToSnoMask('O',std::string(source->nick)+" changed modes on "+std::string(channel->name));
+					{
+						ServerInstance->Log(DEBUG,"Overridden mode");
+						OverriddenMode = true;
+						OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
+					}
 					return ACR_ALLOW;
 				}
 				else
