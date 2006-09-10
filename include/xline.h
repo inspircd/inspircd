@@ -283,28 +283,28 @@ class XLineManager
 	char* matches_qline(const char* nick);
 
 	/** Check if a hostname matches a GLine
-	 * @return host The host to check against
+	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_gline(const char* host);
+	char* matches_gline(userrec* user);
 
 	/** Check if a IP matches a ZLine
-	 * @return ipaddr The IP to check against
+	 * @param ipaddr The IP to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
 	char* matches_zline(const char* ipaddr);
 
 	/** Check if a hostname matches a KLine
-	 * @return host The host to check against
+	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_kline(const char* host);
+	char* matches_kline(userrec* user);
 
 	/** Check if a hostname matches a ELine
-	 * @return host The host to check against
+	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_exception(const char* host);
+	char* matches_exception(userrec* user);
 
 	/** Expire any pending non-permenant lines
 	 */

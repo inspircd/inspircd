@@ -973,7 +973,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		userrec::QuitUser(Instance, _new,"Server is full");
 		return;
 	}
-	char* e = Instance->XLines->matches_exception(ipaddr);
+	char* e = Instance->XLines->matches_exception(_new);
 	if (!e)
 	{
 		char* r = Instance->XLines->matches_zline(ipaddr);
@@ -1070,11 +1070,11 @@ void userrec::FullConnect(CullList* Goners)
 
 	char match_against[MAXBUF];
 	snprintf(match_against,MAXBUF,"%s@%s", this->ident, this->host);
-	char* e = ServerInstance->XLines->matches_exception(match_against);
+	char* e = ServerInstance->XLines->matches_exception(this);
 
 	if (!e)
 	{
-		char* r = ServerInstance->XLines->matches_gline(match_against);
+		char* r = ServerInstance->XLines->matches_gline(this);
 		
 		if (r)
 		{
@@ -1084,7 +1084,7 @@ void userrec::FullConnect(CullList* Goners)
 			return;
 		}
 		
-		r = ServerInstance->XLines->matches_kline(match_against);
+		r = ServerInstance->XLines->matches_kline(this);
 		
 		if (r)
 		{

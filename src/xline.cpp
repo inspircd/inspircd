@@ -381,30 +381,30 @@ char* XLineManager::matches_qline(const char* nick)
 
 // returns a pointer to the reason if a host matches a gline, NULL if it didnt match
 
-char* XLineManager::matches_gline(const char* host)
+char* XLineManager::matches_gline(userrec* user)
 {
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		if (match(host,i->hostmask, true))
+		if (match(user->host,i->hostmask, true) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		if (match(host,i->hostmask, true))
+		if (match(user->host,i->hostmask, true) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
 
-char* XLineManager::matches_exception(const char* host)
+char* XLineManager::matches_exception(userrec* user)
 {
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
 	char host2[MAXBUF];
-	snprintf(host2,MAXBUF,"*@%s",host);
+	snprintf(host2,MAXBUF,"*@%s",user->host);
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		if ((match(host,i->hostmask)) || (match(host2,i->hostmask, true)))
+		if ((match(user->host,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		if ((match(host,i->hostmask)) || (match(host2,i->hostmask, true)))
+		if ((match(user->host,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
@@ -511,15 +511,15 @@ char* XLineManager::matches_zline(const char* ipaddr)
 
 // returns a pointer to the reason if a host matches a kline, NULL if it didnt match
 
-char* XLineManager::matches_kline(const char* host)
+char* XLineManager::matches_kline(userrec* user)
 {
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		if (match(host,i->hostmask, true))
+		if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		if (match(host,i->hostmask, true))
+		if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
@@ -617,12 +617,12 @@ void XLineManager::apply_lines(const int What)
 		if (elines.size() || pelines.size())
 		{
 			// ignore people matching exempts
-			if (matches_exception(host))
+			if (matches_exception(u))
 				continue;
 		}
 		if ((What & APPLY_GLINES) && (glines.size() || pglines.size()))
 		{
-			if ((check = matches_gline(host)))
+			if ((check = matches_gline(u)))
 			{
 				snprintf(reason,MAXBUF,"G-Lined: %s",check);
 				Goners->AddItem(u,reason);
@@ -630,7 +630,7 @@ void XLineManager::apply_lines(const int What)
 		}
 		if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
 		{
-			if ((check = matches_kline(host)))
+			if ((check = matches_kline(u)))
 			{
 				snprintf(reason,MAXBUF,"K-Lined: %s",check);
 				Goners->AddItem(u,reason);
