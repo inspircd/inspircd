@@ -63,10 +63,11 @@ ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec*
 		else if ((!channel->modes[CM_KEY]) || ((adding) && (!IS_LOCAL(source))))
 		{
 			/* Key isnt currently set */
-			if ((parameter.length()) && (parameter.length() < 32) && (parameter.rfind(' ') == std::string::npos))
+			if ((parameter.length()) && (parameter.rfind(' ') == std::string::npos))
 			{
 				strlcpy(channel->key,parameter.c_str(),32);
 				channel->modes[CM_KEY] = adding;
+				parameter = channel->key;
 				return MODEACTION_ALLOW;
 			}
 			else
