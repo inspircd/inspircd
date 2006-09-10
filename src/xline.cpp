@@ -739,18 +739,18 @@ void XLineManager::stats_k(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		results.push_back(sn+" 216 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 216 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		results.push_back(sn+" 216 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 216 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
 void XLineManager::stats_g(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
 void XLineManager::stats_q(userrec* user, string_list &results)
@@ -775,9 +775,9 @@ void XLineManager::stats_e(userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		results.push_back(sn+" 223 "+user->nick+" :"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
+		results.push_back(sn+" 223 "+user->nick+" :"+i->identmask+"@"+i->hostmask+" "+ConvToStr(i->set_time)+" "+ConvToStr(i->duration)+" "+i->source+" :"+i->reason);
 }
 
 XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
