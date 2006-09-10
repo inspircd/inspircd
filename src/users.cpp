@@ -1068,8 +1068,6 @@ void userrec::FullConnect(CullList* Goners)
 		return;
 	}
 
-	char match_against[MAXBUF];
-	snprintf(match_against,MAXBUF,"%s@%s", this->ident, this->host);
 	char* e = ServerInstance->XLines->matches_exception(this);
 
 	if (!e)

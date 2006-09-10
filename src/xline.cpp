@@ -383,28 +383,38 @@ char* XLineManager::matches_qline(const char* nick)
 
 char* XLineManager::matches_gline(userrec* user)
 {
+	char match1[MAXBUF];
+	char match2[MAXBUF];
+	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
+	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
+
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
 	for (std::vector<GLine>::iterator i = glines.begin(); i != glines.end(); i++)
-		if (match(user->host,i->hostmask, true) || (match(user->GetIPString(),i->hostmask, true)))
+		if (match(match1,i->hostmask, true) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	for (std::vector<GLine>::iterator i = pglines.begin(); i != pglines.end(); i++)
-		if (match(user->host,i->hostmask, true) || (match(user->GetIPString(),i->hostmask, true)))
+		if (match(match1,i->hostmask, true) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
 
 char* XLineManager::matches_exception(userrec* user)
 {
+        char match1[MAXBUF];
+	char match2[MAXBUF];
+	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
+	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
+			
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
 	char host2[MAXBUF];
 	snprintf(host2,MAXBUF,"*@%s",user->host);
 	for (std::vector<ELine>::iterator i = elines.begin(); i != elines.end(); i++)
-		if ((match(user->host,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+		if ((match(match1,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	for (std::vector<ELine>::iterator i = pelines.begin(); i != pelines.end(); i++)
-		if ((match(user->host,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+		if ((match(match1,i->hostmask)) || (match(host2,i->hostmask, true)) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
@@ -513,13 +523,17 @@ char* XLineManager::matches_zline(const char* ipaddr)
 
 char* XLineManager::matches_kline(userrec* user)
 {
+	char match1[MAXBUF];
+	char match2[MAXBUF];
+	snprintf(match1, MAXBUF, "%s@%s", user->ident, user->GetIPString());
+	snprintf(match2, MAXBUF, "%s@%s", user->ident, user->host);
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
 	for (std::vector<KLine>::iterator i = klines.begin(); i != klines.end(); i++)
-		if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+		if ((match(match1,i->hostmask, true)) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	for (std::vector<KLine>::iterator i = pklines.begin(); i != pklines.end(); i++)
-		if ((match(user->host,i->hostmask, true)) || (match(user->GetIPString(),i->hostmask, true)))
+		if ((match(match1,i->hostmask, true)) || (match(match2,i->hostmask, true)))
 			return i->reason;
 	return NULL;
 }
