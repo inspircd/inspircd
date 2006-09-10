@@ -291,9 +291,10 @@
 	line4="i                Is invisible to /WHO"
 	line5="w                Can receive wallops messages"
 	line6="s                Can receive server notices"
-	line7="x                Cloaked hostname (requires cloaking module)"
-	line8="g                Can receive globops (requires globops module)"
-	line9="h                Will receive helpops notification (requires helpop module)">
+	line7="n [mask]         Can receive server notices specified by [mask]"
+	line8="x                Cloaked hostname (requires cloaking module)"
+	line9="g                Can receive globops (requires globops module)"
+	line10="h                Will receive helpops notification (requires helpop module)">
 
 <chmodes line1="Channel Modes"
 	line2="-------------"
