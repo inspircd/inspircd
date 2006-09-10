@@ -212,7 +212,12 @@ class ModuleIdent : public Module
 		 */
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout);
-		user->Extend("ident_data", (char*)ident);
+		if ((ident->GetState() == I_CONNECTING) || (ident->GetState() == I_CONNECTED))
+		{
+			user->Extend("ident_data", (char*)ident);
+		}
+		else
+			delete ident;
 	}
 
 	virtual bool OnCheckReady(userrec* user)
