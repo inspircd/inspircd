@@ -22,6 +22,7 @@
 #include "users.h"
 #include "channels.h"
 
+const char* Spacify(char* n);
 void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick);
 
 class cmd_whois : public command_t
