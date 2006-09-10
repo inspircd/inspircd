@@ -19,16 +19,7 @@
 #include "users.h"
 #include "modules.h"
 #include "commands/cmd_whois.h"
-
-const char* Spacify(char* n)
-{
-	static char x[MAXBUF];
-	strlcpy(x,n,MAXBUF);
-	for (char* y = x; *y; y++)
-		if (*y == '_')
-			*y = ' ';
-	return x;
-}
+#include "hashcomp.h"
 
 void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
@@ -66,7 +57,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		}
 		if (*dest->oper)
 		{
-			user->WriteServ("313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),Spacify(dest->oper), ServerInstance->Config->Network);
+			user->WriteServ("313 %s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{

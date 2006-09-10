@@ -298,3 +298,14 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	return buf;
 }
 
+const char* irc::Spacify(char* n)
+{
+	static char x[MAXBUF];
+	strlcpy(x,n,MAXBUF);
+	for (char* y = x; *y; y++)
+		if (*y == '_')
+			*y = ' ';
+	return x;
+}
+
+

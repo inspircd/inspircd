@@ -212,6 +212,8 @@ namespace irc
 	/** This typedef declares irc::string based upon irc_char_traits
 	 */
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
+
+	const char* Spacify(char* n);
 }
 
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */

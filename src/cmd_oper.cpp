@@ -20,7 +20,7 @@
 #include "modules.h"
 #include "wildcard.h"
 #include "commands/cmd_oper.h"
-#include "commands/cmd_whois.h"
+#include "hashcomp.h"
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 {
@@ -35,8 +35,6 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	}
 	return false;
 }
-
-
 
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
@@ -106,8 +104,8 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	if (found)
 	{
 		/* correct oper credentials */
-		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,Spacify(OperType),parameters[0]);
-		user->WriteServ("381 %s :You are now an IRC operator of type %s",user->nick,Spacify(OperType));
+		ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",user->nick,user->ident,user->host,irc::Spacify(OperType),parameters[0]);
+		user->WriteServ("381 %s :You are now an IRC operator of type %s",user->nick,irc::Spacify(OperType));
 		if (!user->modes[UM_OPERATOR])
 			user->Oper(OperType);
 	}
