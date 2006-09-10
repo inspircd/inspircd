@@ -880,7 +880,7 @@ sub dir_check {
 
 sub getosflags {
 	if ($config{OSNAME} =~ /BSD$/) {
-		$config{LDLIBS} = "-Ldl -lstdc++";
+		$config{LDLIBS} = "-lstdc++";
 		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{MAKEPROG} = "gmake";
 		if ($config{OSNAME} eq "OpenBSD") {
