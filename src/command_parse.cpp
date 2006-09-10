@@ -320,7 +320,10 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	std::string command = tokens.GetToken();
 
 	while (((para[items] = tokens.GetToken()) != "") && (items < 127))
-		command_p[items] = para[items++].c_str();
+	{
+		command_p[items] = para[items].c_str();
+		items++;
+	}
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 		
