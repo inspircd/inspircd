@@ -1138,15 +1138,6 @@
 #<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Parking module: Adds parking support via /PARK and /UNPARK
-#<module name="m_park.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-#   PARK CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_park.so is too complex it describe here, see the wiki:            #
-# http://www.inspircd.org/wiki/User_Parking_Module                    #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
