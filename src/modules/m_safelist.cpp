@@ -100,10 +100,11 @@ class ListTimer : public InspTimer
 					chan = ServerInstance->GetChannelIndex(ld->list_position);
 					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
-					if (!match(chan->name, ld->glob.c_str()))
-						continue;
 					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 					{
+						if (!match(chan->name, ld->glob.c_str()))
+							continue;
+
 						long users = chan->GetUserCounter();
 						if (users)
 						{
