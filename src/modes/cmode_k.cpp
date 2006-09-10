@@ -58,13 +58,12 @@ ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec*
 		if (((channel->modes[CM_KEY]) && (strcasecmp(parameter.c_str(),channel->key))) && (IS_LOCAL(source)))
 		{
 			/* Key is currently set and the correct key wasnt given */
-			ServerInstance->Log(DEBUG,"Key Cond 2");
 			return MODEACTION_DENY;
 		}
 		else if ((!channel->modes[CM_KEY]) || ((adding) && (!IS_LOCAL(source))))
 		{
 			/* Key isnt currently set */
-			if ((parameter.length()) && (parameter.rfind(' ') == std::string::npos))
+			if ((parameter.length()) && (parameter.length() < 32) && (parameter.rfind(' ') == std::string::npos))
 			{
 				strlcpy(channel->key,parameter.c_str(),32);
 				channel->modes[CM_KEY] = adding;
@@ -80,12 +79,11 @@ ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec*
 			channel->modes[CM_KEY] = adding;
 			return MODEACTION_ALLOW;
 		}
-		ServerInstance->Log(DEBUG,"Key Cond three");
 		return MODEACTION_DENY;
 	}
 	else
 	{
-		ServerInstance->Log(DEBUG,"Key Condition one");
 		return MODEACTION_DENY;
 	}
 }
+
