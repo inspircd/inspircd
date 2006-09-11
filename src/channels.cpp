@@ -224,7 +224,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
 		Ptr->created = Instance->Time();
 		*Ptr->topic = 0;
-		strlcpy(Ptr->setby, user->nick,NICKMAX-1);
+		*Ptr->setby = 0;
 		Ptr->topicset = 0;
 		Instance->Log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		/*
