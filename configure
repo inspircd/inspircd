@@ -37,10 +37,8 @@ $config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{HAS_STDINT}         = "false";						# stdint.h check
-$config{HAS_EXECINFO}       = "0";						# execinfo.h Check.
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
 $config{USE_EPOLL}          = "y";						# epoll enabled
-$config{THREADED_DNS}       = "n";						# threaded dns
 $config{IPV6}               = "n";						# IPv6 support (experimental)
 $config{SUPPORT_IP6LINKS}   = "y";						# IPv4 supporting IPv6 links (experimental)
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
@@ -197,27 +195,6 @@ if (!$fail) {
 print "yes\n" if $config{HAS_STRLCPY} eq "true";
 print "no\n" if $config{HAS_STRLCPY} eq "false";
 
-printf "Checking if execinfo.h exists... ";
-$config{HAS_EXECINFO} = "0";
-my $fail = 0;
-open(EXECINFO, "</usr/include/execinfo.h") or $fail = 1;
-if ($fail) {
-	$fail = 0;
-	open(EXECINFO, "</usr/local/include/execinfo.h") or $fail = 1;
-	if (!$fail) {
-		printf "/usr/local/include/execinfo.h\n";
-		$config{HAS_EXECINFO} = "1";
-		close(EXECINFO);
-	}
-	else {
-		printf "Not found!\n";
-	}
-}
-else {
-	printf "/usr/include/execinfo.h\n";
-	$config{HAS_EXECINFO} = "1";
-	close(EXECINFO);
-}
 
 printf "Checking if kqueue exists... ";
 $has_kqueue = 0;
@@ -689,7 +666,6 @@ print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.x\033[0m\n";
 print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
-print "\033[0mMultithread DNS:\033[1;32m\t\t$config{THREADED_DNS}\033[0m\n";
 print "\033[0mIPv6 Support:\033[1;32m\t\t\t$config{IPV6}\033[0m\n";
 print "\033[0mIPv6 to IPv4 Links:\033[1;32m\t\t$config{SUPPORT_IP6LINKS}\033[0m\n";
 print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
@@ -1032,9 +1008,6 @@ EOF
 		if ($config{OSNAME} eq "CYG-STATIC") {
 			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
 		}
-		if ($config{HAS_EXECINFO} eq "1") {
-			print FILEHANDLE "#define HAS_EXECINFO\n";
-		}
 		if ($config{STATIC_LINK} eq "yes") {
 			print FILEHANDLE "#define STATIC_LINK\n";
 		}
@@ -1046,9 +1019,6 @@ EOF
 		}
 		if ($config{HAS_STDINT} eq "true") {
 			print FILEHANDLE "#define HAS_STDINT\n";
-		}
-		if ($config{THREADED_DNS} =~ /y/i) {
-			print FILEHANDLE "#define THREADED_DNS\n";
 		}
 		if ($config{IPV6} =~ /y/i) {
 			print FILEHANDLE "#define IPV6\n";
@@ -1117,9 +1087,7 @@ EOF
 	}
 
 	opendir(DIRHANDLE, $this);
-	if ($config{THREADED_DNS} =~ /y/i) {
-		$config{LDLIBS} = $config{LDLIBS} . " -pthread";
-	}
+
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^\.(.+)\.inc$/) {
 			$file = $1;
@@ -1545,19 +1513,13 @@ sub write_dynamic_makefile {
 		$srcobjs = $srcobjs . "cmd_$cmd.cpp ";
 	}
 
-if (($config{OSNAME} !~ /Linux/i) && ($config{HAS_EXECINFO} eq "1")) {
-	$extra = "-L/usr/local/lib -lexecinfo";
-} else {
-	$extra = "";
-}
-
-$se = "socketengine_select";
-if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
-	$se = "socketengine_kqueue";
-}
-elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
-	$se = "socketengine_epoll";
-}
+	$se = "socketengine_select";
+	if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
+		$se = "socketengine_kqueue";
+	}
+	elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
+		$se = "socketengine_epoll";
+	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
 	print FH <<EOM;
