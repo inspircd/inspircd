@@ -206,7 +206,7 @@ class XLineManager
 	 */
 	XLineManager(InspIRCd* Instance);
 
-	IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host);
+	IdentHostPair IdentSplit(const std::string &ident_and_host);
 
 	/** Add a new GLine
 	 * @param duration The duration of the line
