@@ -86,7 +86,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			if (MOD_RESULT) {
 				return CMD_FAILURE;
 			}
-			parameters[1] = (char*)temp.c_str();
+			parameters[1] = temp.c_str();
 
 			if (temp == "")
 			{
