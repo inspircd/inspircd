@@ -169,7 +169,7 @@ class JoinFlood : public ModeHandler
 						else
 						{
 							// new mode param, replace old with new
-							if ((!nsecs) && (!njoins))
+							if ((!nsecs > 0) && (!njoins > 0))
 							{
 								joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
 								channel->Shrink("joinflood");
