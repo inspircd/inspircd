@@ -22,13 +22,10 @@ using namespace std;
 #include "configreader.h"
 #include "modules.h"
 #include "inspsocket.h"
-
 #include "httpd.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
-
-
 
 typedef std::map<irc::string,int> StatsHash;
 typedef StatsHash::iterator StatsIter;

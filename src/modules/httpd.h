@@ -17,6 +17,7 @@ class HTTPRequest : public classbase
 	std::string type;
 	std::string document;
 	std::string ipaddr;
+	std::string postdata;
 	std::stringstream* headers;
 
  public:
@@ -34,8 +35,8 @@ class HTTPRequest : public classbase
 	 * @param opaque An opaque pointer used internally by m_httpd, which you must pass back to the module in your reply.
 	 * @param ip The IP address making the web request.
 	 */
-	HTTPRequest(const std::string &request_type, const std::string &uri, std::stringstream* hdr, void* opaque, const std::string &ip)
-		: type(request_type), document(uri), ipaddr(ip), headers(hdr), sock(opaque)
+	HTTPRequest(const std::string &request_type, const std::string &uri, std::stringstream* hdr, void* opaque, const std::string &ip, const std::string &pdata)
+		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(opaque)
 	{
 	}
 
@@ -46,6 +47,11 @@ class HTTPRequest : public classbase
 	std::stringstream* GetHeaders()
 	{
 		return headers;
+	}
+
+	std::string& GetPostData()
+	{
+		return postdata;
 	}
 
 	/** Get the request type.

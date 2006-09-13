@@ -21,15 +21,12 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspsocket.h"
-
 #include "inspircd.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
 
 class ModuleHttp;
-
-
 
 static ModuleHttp* HttpModule;
 static bool claimed;
@@ -38,7 +35,8 @@ enum HttpState
 {
 	HTTP_LISTEN = 0,
 	HTTP_SERVE_WAIT_REQUEST = 1,
-	HTTP_SERVE_SEND_DATA = 2
+	HTTP_SERVE_RECV_POSTDATA = 2,
+	HTTP_SERVE_SEND_DATA = 3
 };
 
 class HttpSocket : public InspSocket
@@ -46,6 +44,10 @@ class HttpSocket : public InspSocket
 	FileReader* index;
 	HttpState InternalState;
 	std::stringstream headers;
+	std::string postdata;
+	std::string request_type;
+	std::string uri;
+	std::string http_version;
 
  public:
 
@@ -186,9 +188,6 @@ class HttpSocket : public InspSocket
 	virtual bool OnDataReady()
 	{
 		char* data = this->Read();
-		std::string request_type;
-		std::string uri;
-		std::string http_version;
 
 		/* Check that the data read is a valid pointer and it has some content */
 		if (data && *data)
@@ -197,35 +196,49 @@ class HttpSocket : public InspSocket
 
 			if (headers.str().find("\r\n\r\n") != std::string::npos)
 			{
-				/* Headers are complete */
-				InternalState = HTTP_SERVE_SEND_DATA;
-
 				headers >> request_type;
 				headers >> uri;
 				headers >> http_version;
 
-				if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+				if ((InternalState == HTTP_SERVE_WAIT_REQUEST) && (request_type == "POST"))
 				{
-					SendHeaders(0, 505, "");
+					/* Do we need to fetch postdata? */
+					postdata = "";
+					InternalState = HTTP_SERVE_RECV_POSTDATA;
+					/* TODO: Get content length and store */
+				}
+				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
+				{
+					/* Add postdata, once we have it all, send the event */
 				}
 				else
 				{
-					if ((request_type == "GET") && (uri == "/"))
+					/* Headers are complete */
+					InternalState = HTTP_SERVE_SEND_DATA;
+	
+					if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 					{
-						SendHeaders(index->ContentSize(), 200, "");
-						this->Write(index->Contents());
+						SendHeaders(0, 505, "");
 					}
 					else
 					{
-						claimed = false;
-						HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP());
-						Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-						e.Send(this->Instance);
-
-						if (!claimed)
+						if ((request_type == "GET") && (uri == "/"))
 						{
-							SendHeaders(0, 404, "");
-							Instance->Log(DEBUG,"Page not claimed, 404");
+							SendHeaders(index->ContentSize(), 200, "");
+							this->Write(index->Contents());
+						}
+						else
+						{
+							claimed = false;
+							HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
+							Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+							e.Send(this->Instance);
+	
+							if (!claimed)
+							{
+								SendHeaders(0, 404, "");
+								Instance->Log(DEBUG,"Page not claimed, 404");
+							}
 						}
 					}
 				}
