@@ -66,6 +66,11 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 				u->PurgeEmptyChannels();
 			}
 
+			if (u == user)
+			{
+				FOREACH_MOD(I_OnPostCommand,OnPostCommand("KILL", parameters, pcnt, user, CMD_SUCCESS));
+				return CMD_USER_DELETED;
+			}
 			DELETE(u);
 		}
 		else

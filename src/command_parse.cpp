@@ -386,7 +386,10 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				 */
 				CmdResult result = cm->second->Handle(command_p,items,user);
 
-				FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result));
+				if (result != CMD_USER_DELETED)
+				{
+					FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result));
+				}
 				return;
 			}
 			else

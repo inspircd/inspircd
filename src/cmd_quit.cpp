@@ -99,8 +99,9 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	if (user->registered == REG_ALL) {
 		user->PurgeEmptyChannels();
 	}
-	DELETE(user);
 
-	return CMD_SUCCESS;
+	FOREACH_MOD(I_OnPostCommand,OnPostCommand("QUIT", parameters, pcnt, user, CMD_SUCCESS));
+	DELETE(user);
+	return CMD_USER_DELETED;
 }
 
