@@ -157,6 +157,33 @@ class JoinFlood : public ModeHandler
 						channel->SetModeParam('j', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
 					}
+					else
+					{
+						std::string cur_param = channel->GetModeParameter('j');
+						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
+						if (cur_param == parameter)
+						{
+							// mode params match
+							return MODEACTION_DENY;
+						}
+						else
+						{
+							// new mode param, replace old with new
+							if ((!nsecs) && (!njoins))
+							{
+								joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
+								channel->Shrink("joinflood");
+								channel->Extend("joinflood", f);
+								channel->SetModeParam('j', cur_param.c_str(), false);
+								channel->SetModeParam('j', parameter.c_str(), true);
+								return MODEACTION_ALLOW;
+							}
+							else
+							{
+								return MODEACTION_DENY;
+							}
+						}
+					}
 				}
 			}
 			else

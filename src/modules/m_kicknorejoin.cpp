@@ -55,10 +55,41 @@ class KickRejoin : public ModeHandler
 		}
 		if ((!adding) || (atoi(parameter.c_str()) > 0))
 		{
-			parameter = ConvToStr(atoi(parameter.c_str()));
-			channel->SetModeParam('J', parameter.c_str(), adding);
-			channel->SetMode('J', adding);
-			return MODEACTION_ALLOW;
+			ServerInstance->Log(DEBUG,"Got parameter: '%s'",parameter.c_str());
+
+			if (!channel->IsModeSet('J'))
+			{
+				parameter = ConvToStr(atoi(parameter.c_str()));
+				channel->SetModeParam('J', parameter.c_str(), adding);
+				channel->SetMode('J', adding);
+				return MODEACTION_ALLOW;
+			}
+			else
+			{
+				std::string cur_param = channel->GetModeParameter('J');
+				if (cur_param == parameter)
+				{
+					// mode params match, don't change mode
+					return MODEACTION_DENY;
+				}
+				else
+				{
+					// new mode param, replace old with new
+					parameter = ConvToStr(atoi(parameter.c_str()));
+					cur_param = ConvToStr(atoi(cur_param.c_str()));
+					if (parameter != "0")
+					{
+						channel->SetModeParam('J', cur_param.c_str(), false);
+						channel->SetModeParam('J', parameter.c_str(), adding);
+						return MODEACTION_ALLOW;
+					}
+					else
+					{
+						/* Fix to jamie's fix, dont allow +J 0 on the new value! */
+						return MODEACTION_DENY;
+					}
+				}
+			}
 		}
 		else
 		{

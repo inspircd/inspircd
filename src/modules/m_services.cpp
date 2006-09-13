@@ -231,7 +231,7 @@ class ModuleServices : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			if ((u->IsModeSet('R')) && (user->IsModeSet('r')))
+			if ((u->IsModeSet('R')) && (!user->IsModeSet('r')))
 			{
 				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 				{
@@ -257,7 +257,7 @@ class ModuleServices : public Module
 		{
 			if (chan->IsModeSet('R'))
 			{
-				if (user->IsModeSet('r'))
+				if (!user->IsModeSet('r'))
 				{
 					if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 					{
