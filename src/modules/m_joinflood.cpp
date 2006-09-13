@@ -171,7 +171,10 @@ class JoinFlood : public ModeHandler
 							// new mode param, replace old with new
 							if ((nsecs > 0) && (njoins > 0))
 							{
-								joinfloodsettings *f = new joinfloodsettings(nsecs,njoins);
+								joinfloodsettings* f;
+								channel->GetExt("joinflood", f);
+								delete f;
+								f = new joinfloodsettings(nsecs,njoins);
 								channel->Shrink("joinflood");
 								channel->Extend("joinflood", f);
 								channel->SetModeParam('j', cur_param.c_str(), false);
