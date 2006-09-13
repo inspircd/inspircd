@@ -56,7 +56,7 @@ $config{IS_DARWIN} = "NO";								# Darwin Handler
 
 $no_svn = 0;
 
-$config{HAS_OPENSSL} =~ /OpenSSL (\S+) \d+ \S+ \d{4}/;
+$config{HAS_OPENSSL} =~ /OpenSSL ([-[:digit:].]+)([a-z])? (\w{3}|[0-9]+) (\w{3}|[0-9]+) [0-9]{4}/;
 $config{HAS_OPENSSL} = $1;
 
 # Minihack! Convert Cygwin to 'Cyg-Static' so i can
