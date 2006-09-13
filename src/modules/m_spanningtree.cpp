@@ -3196,6 +3196,7 @@ class TreeSocket : public InspSocket
 								return true;
 							break;
 							default:
+								/* CMD_SUCCESS and CMD_USER_DELETED fall through here */
 							break;
 						}
 					}
