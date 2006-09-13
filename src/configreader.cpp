@@ -629,24 +629,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 	if (this->LoadConf(newconfig, CONFIG_FILE, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
-		this->config_data = newconfig;
-		
-/* 		int c = 1;
-		std::string last;
-		
-		for(ConfigDataHash::const_iterator i = this->config_data.begin(); i != this->config_data.end(); i++)
-		{
-			c = (i->first != last) ? 1 : c+1;
-			last = i->first;
-			
-			std::cout << "[" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
-			
-			for(KeyValList::const_iterator j = i->second.begin(); j != i->second.end(); j++)
-				std::cout << "\t" << j->first << " = " << j->second << std::endl;
-			
-			std::cout << "[/" << i->first << " " << c << "/" << this->config_data.count(i->first) << "]" << std::endl;
-		}
- */	}
+		this->config_data = newconfig;	
+	}
 	else
 	{
 		ServerInstance->Log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
