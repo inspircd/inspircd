@@ -434,23 +434,8 @@ class ModuleCloaking : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserConnect] = 1;
+		List[I_OnRehash] = 1;
 	}
-
-	virtual void OnUserConnect(userrec* user)
-	{
-		// Heres the weird bit. When a user connects we must set +x on them, so
-		// we're going to use the SendMode method of the Server class to send
-		// the mode to the client. This is basically the same as sending an
-		// SAMODE in unreal. Note that to the user it will appear as if they set
-		// the mode on themselves.
-		
-		const char* modes[2];		// only two parameters
-		modes[0] = user->nick;		// first parameter is the nick
-		modes[1] = "+x";		// second parameter is the mode
-		ServerInstance->SendMode(modes,2,user);	// send these, forming the command "MODE <nick> +x"
-	}
-
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
