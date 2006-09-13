@@ -1298,6 +1298,7 @@ class TreeSocket : public InspSocket
 				newparams.push_back(params[0]);
 				newparams.push_back(ConvToStr(ourTS));
 				newparams.push_back(to_bounce+params_to_bounce);
+				ServerInstance->Log(DEBUG,"BOUNCE BACK: %s",(to_bounce+params_to_bounce).c_str());
 				DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
 			}
 
@@ -1312,7 +1313,7 @@ class TreeSocket : public InspSocket
 				{
 					for (q = 2; (q < params_to_keep.size()) && (q < 64); q++)
 					{
-						ServerInstance->Log(DEBUG,"Item %d of %d", q, params_to_keep.size());
+						ServerInstance->Log(DEBUG,"KEEP Item %d of %d: %s", q, params_to_keep.size(), params_to_keep[q].c_str());
 						modelist[n++] = params_to_keep[q].c_str();
 					}
 				}
