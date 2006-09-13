@@ -81,7 +81,7 @@ class ModuleModesOnConnect : public Module
 
 					vector<string> tokens;
 
-					// split ThisOperModes into modes and mode params
+					// split ThisUserModes into modes and mode params
 					while (ss >> buf)
 						tokens.push_back(buf);
 
