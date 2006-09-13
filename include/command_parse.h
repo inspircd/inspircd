@@ -38,6 +38,10 @@ class CommandParser : public classbase
 	 */
 	InspIRCd* ServerInstance;
 
+	/** Parameter buffer
+	 */
+	std::vector<std::string> para;
+
 	/** Process a parameter string into a list of items
 	 * @param command_p The output list of items
 	 * @param parameters The input string

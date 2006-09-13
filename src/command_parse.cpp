@@ -315,7 +315,6 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 {
 	const char *command_p[127];
 	int items = 0;
-	std::string para[127];
 	irc::tokenstream tokens(cmd);
 	std::string command = tokens.GetToken();
 
@@ -477,6 +476,7 @@ bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 
 CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	para.resize(128);
 	this->SetupCommandTable();
 }
 
