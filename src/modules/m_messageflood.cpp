@@ -154,6 +154,19 @@ class MsgFlood : public ModeHandler
 						channel->SetModeParam('f', parameter.c_str(), true);
 						return MODEACTION_ALLOW;
 					}
+					else
+					{
+						if (((nlines != f->lines) || (nsecs != f->secs)) && ((nsecs > 0) && (nlines > 0)))
+						{
+							delete f;
+							floodsettings *f = new floodsettings(ban,nsecs,nlines);
+							parameter = ConvToStr(nlines) + ":" +ConvToStr(nsecs);
+							channel->Shrink("flood");
+							channel->Extend("flood",f);
+							channel->SetModeParam('f', parameter.c_str(), true);
+							return MODEACTION_ALLOW;
+						}
+					}
 				}
 			}
 			else
