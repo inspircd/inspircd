@@ -48,16 +48,17 @@ class HttpSocket : public InspSocket
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
+	int postsize;
 
  public:
 
-	HttpSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page)
+	HttpSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
 	{
 		SI->Log(DEBUG,"HttpSocket constructor");
 		InternalState = HTTP_LISTEN;
 	}
 
-	HttpSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind)
+	HttpSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 	}
