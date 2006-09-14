@@ -229,8 +229,9 @@ class HttpSocket : public InspSocket
 					{
 						Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
 						std::string::size_type x = headers.str().find("\r\n\r\n");
-						postdata = headers.str().substr(x+5, headers.str().length());
+						postdata = headers.str().substr(x+4, headers.str().length());
 						/* Get content length and store */
+						Instance->Log(DEBUG,"Initial postdata: '%s'", postdata.c_str());
 						if (postdata.length() >= postsize)
 							ServeData();
 					}
