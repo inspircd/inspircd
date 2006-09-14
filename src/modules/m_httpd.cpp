@@ -172,7 +172,7 @@ class HttpSocket : public InspSocket
 	void SendHeaders(unsigned long size, int response, const std::string &extraheaders)
 	{
 		time_t local = this->Instance->Time();
-		struct tm *timeinfo = localtime(&local);
+		struct tm *timeinfo = gmtime(&local);
 		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
 		this->Write(asctime(timeinfo));
 		if (extraheaders.empty())
