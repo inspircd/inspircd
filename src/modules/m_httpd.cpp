@@ -220,12 +220,19 @@ class HttpSocket : public InspSocket
 							postsize = atoi(header_item.c_str());
 						}
 					}
-					Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
-					std::string::size_type x = headers.str().find("\r\n\r\n");
-					postdata = headers.str().substr(x+5, headers.str().length());
-					/* Get content length and store */
-					if (postdata.length() >= postsize)
-						ServeData();
+					if (!postsize)
+					{
+						SendHeaders(0, 400, "");
+					}
+					else
+					{
+						Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
+						std::string::size_type x = headers.str().find("\r\n\r\n");
+						postdata = headers.str().substr(x+5, headers.str().length());
+						/* Get content length and store */
+						if (postdata.length() >= postsize)
+							ServeData();
+					}
 				}
 				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 				{
@@ -233,9 +240,7 @@ class HttpSocket : public InspSocket
 					amount += strlen(data);
 					postdata.append(data);
 					if (amount >= postsize)
-					{
 						ServeData();
-					}
 				}
 				else
 				{
