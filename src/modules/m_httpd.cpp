@@ -198,9 +198,12 @@ class HttpSocket : public InspSocket
 
 			if (headers.str().find("\r\n\r\n") != std::string::npos)
 			{
-				headers >> request_type;
-				headers >> uri;
-				headers >> http_version;
+				if (request_type == "")
+				{
+					headers >> request_type;
+					headers >> uri;
+					headers >> http_version;
+				}
 
 				if ((InternalState == HTTP_SERVE_WAIT_REQUEST) && (request_type == "POST"))
 				{
