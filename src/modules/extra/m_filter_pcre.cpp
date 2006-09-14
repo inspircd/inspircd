@@ -38,8 +38,8 @@ class FilterPCREException : public ModuleException
 };
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I/usr/local/include */
-/* $LinkerFlags: -L/usr/local/lib -lpcre */
+/* $CompileFlags: `pcre-config --cflags` */
+/* $LinkerFlags: `pcre-config --libs` */
 
 class ModuleFilterPCRE : public Module
 {
