@@ -222,6 +222,7 @@ class HttpSocket : public InspSocket
 					}
 					if (!postsize)
 					{
+						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
 					}
 					else
