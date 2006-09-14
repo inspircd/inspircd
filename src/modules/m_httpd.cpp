@@ -48,8 +48,8 @@ class HttpSocket : public InspSocket
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
-	int postsize;
-	int amount;
+	unsigned int postsize;
+	unsigned int amount;
 
  public:
 
@@ -221,7 +221,11 @@ class HttpSocket : public InspSocket
 						}
 					}
 					Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
+					std::string::size_type x = headers.str().find("\r\n\r\n");
+					postdata = headers.str().substr(x+5, headers.str().length());
 					/* Get content length and store */
+					if (postdata.length() >= postsize)
+						ServeData();
 				}
 				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 				{
@@ -230,70 +234,51 @@ class HttpSocket : public InspSocket
 					postdata.append(data);
 					if (amount >= postsize)
 					{
-						InternalState = HTTP_SERVE_SEND_DATA;
-
-						if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
-						{
-							SendHeaders(0, 505, "");
-						}
-						else
-						{
-							claimed = false;
-							HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
-							Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-							e.Send(this->Instance);
-
-							if (!claimed)
-							{
-								SendHeaders(0, 404, "");
-								Instance->Log(DEBUG,"Page not claimed, 404");
-							}
-							
-						}
+						ServeData();
 					}
 				}
 				else
 				{
-					/* Headers are complete */
-					InternalState = HTTP_SERVE_SEND_DATA;
-	
-					if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
-					{
-						SendHeaders(0, 505, "");
-					}
-					else
-					{
-						if ((request_type == "GET") && (uri == "/"))
-						{
-							SendHeaders(index->ContentSize(), 200, "");
-							this->Write(index->Contents());
-						}
-						else
-						{
-							claimed = false;
-							HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
-							Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-							e.Send(this->Instance);
-	
-							if (!claimed)
-							{
-								SendHeaders(0, 404, "");
-								Instance->Log(DEBUG,"Page not claimed, 404");
-							}
-						}
-					}
+					ServeData();
 				}
-
-				return false;
+				return true;
 			}
 			return true;
 		}
 		else
 		{
-			/* Bastard client closed the socket on us!
-			 * Oh wait, theyre SUPPOSED to do that!
-			 */
 			return false;
+		}
+	}
+
+	void ServeData()
+	{
+		/* Headers are complete */
+		InternalState = HTTP_SERVE_SEND_DATA;
+	
+		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+		{
+			SendHeaders(0, 505, "");
+		}
+		else
+		{
+			if ((request_type == "GET") && (uri == "/"))
+			{
+				SendHeaders(index->ContentSize(), 200, "");
+				this->Write(index->Contents());
+			}
+			else
+			{
+				claimed = false;
+				HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
+				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+				e.Send(this->Instance);
+				if (!claimed)
+				{
+					SendHeaders(0, 404, "");
+					Instance->Log(DEBUG,"Page not claimed, 404");
+				}
+			}
 		}
 	}
 
