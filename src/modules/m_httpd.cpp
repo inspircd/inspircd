@@ -49,6 +49,7 @@ class HttpSocket : public InspSocket
 	std::string uri;
 	std::string http_version;
 	int postsize;
+	int amount;
 
  public:
 
@@ -205,12 +206,48 @@ class HttpSocket : public InspSocket
 				{
 					/* Do we need to fetch postdata? */
 					postdata = "";
+					amount = 0;
 					InternalState = HTTP_SERVE_RECV_POSTDATA;
-					/* TODO: Get content length and store */
+					std::string header_item;
+					while (headers >> header_item)
+					{
+						if (header_item == "Content-Length:")
+						{
+							headers >> header_item;
+							postsize = atoi(header_item.c_str());
+						}
+					}
+					Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
+					/* Get content length and store */
 				}
 				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 				{
 					/* Add postdata, once we have it all, send the event */
+					amount += strlen(data);
+					postdata.append(data);
+					if (amount >= postsize)
+					{
+						InternalState = HTTP_SERVE_SEND_DATA;
+
+						if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+						{
+							SendHeaders(0, 505, "");
+						}
+						else
+						{
+							claimed = false;
+							HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
+							Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+							e.Send(this->Instance);
+
+							if (!claimed)
+							{
+								SendHeaders(0, 404, "");
+								Instance->Log(DEBUG,"Page not claimed, 404");
+							}
+							
+						}
+					}
 				}
 				else
 				{
