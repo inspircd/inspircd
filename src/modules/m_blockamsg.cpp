@@ -31,6 +31,8 @@
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 
+/** Holds a blocked message's details
+ */
 class BlockedMessage : public classbase
 {
 public:

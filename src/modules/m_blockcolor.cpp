@@ -25,8 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for unreal-style channel mode +c */
 
-
-
+/** Handles the +c channel mode
+ */
 class BlockColor : public ModeHandler
 {
  public:

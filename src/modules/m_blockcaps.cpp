@@ -24,7 +24,8 @@
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */
 
 
-
+/** Handles the +P channel mode
+ */
 class BlockCaps : public ModeHandler
 {
  public:

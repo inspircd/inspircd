@@ -19,7 +19,8 @@
 // and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
 
 
-
+/** Handles +e channel mode
+ */
 class BanException : public ListModeBase
 {
  public:

@@ -24,12 +24,18 @@ using namespace std;
 
 /* $ModDesc: Provides aliases of commands. */
 
+/** An alias definition
+ */
 class Alias : public classbase
 {
  public:
+	/** The text of the alias command */
 	irc::string text;
+	/** Text to replace with */
 	std::string replace_with;
+	/** Nickname required to perform alias */
 	std::string requires;
+	/** Alias requires ulined server */
 	bool uline;
 };
 

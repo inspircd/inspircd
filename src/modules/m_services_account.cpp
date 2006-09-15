@@ -24,6 +24,8 @@ using namespace std;
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
+/** Channel mode +R - unidentified users cannot join
+ */
 class AChannel_R : public ModeHandler
 {
  public:
@@ -52,6 +54,8 @@ class AChannel_R : public ModeHandler
 	}
 };
 
+/** User mode +R - unidentified users cannot message
+ */
 class AUser_R : public ModeHandler
 {
  public:
@@ -80,6 +84,8 @@ class AUser_R : public ModeHandler
 	}
 };
 
+/** Channel mode +M - unidentified users cannot message channel
+ */
 class AChannel_M : public ModeHandler
 {
  public:

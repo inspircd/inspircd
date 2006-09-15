@@ -25,6 +25,8 @@ static bool kludgeme = false;
 
 /* $ModDesc: Povides support for services +r user/chan modes and more */
 
+/** Channel mode +r - mark a channel as identified
+ */
 class Channel_r : public ModeHandler
 {
 	
@@ -49,6 +51,8 @@ class Channel_r : public ModeHandler
 	}
 };
 
+/** User mode +r - mark a user as identified
+ */
 class User_r : public ModeHandler
 {
 	
@@ -72,6 +76,8 @@ class User_r : public ModeHandler
 	}
 };
 
+/** Channel mode +R - registered users only
+ */
 class Channel_R : public ModeHandler
 {
  public:
@@ -100,6 +106,8 @@ class Channel_R : public ModeHandler
 	}
 };
 
+/** User mode +R - only allow PRIVMSG and NOTICE from registered users
+ */
 class User_R : public ModeHandler
 {
  public:
@@ -128,6 +136,8 @@ class User_R : public ModeHandler
 	}
 };
 
+/** Channel mode +M - only allow privmsg and notice to channel from registered users
+ */
 class Channel_M : public ModeHandler
 {
  public:
@@ -156,6 +166,8 @@ class Channel_M : public ModeHandler
 	}
 };
 
+/** Dreamnforge-like services support
+ */
 class ModuleServices : public Module
 {
 	
