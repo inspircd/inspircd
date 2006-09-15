@@ -6,8 +6,8 @@
 
 /* $ModDesc: Provides support for the CHGIDENT command */
 
-
-
+/** Handle /CHGIDENT
+ */
 class cmd_chgident : public command_t
 {
  public:

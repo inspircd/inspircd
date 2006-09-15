@@ -20,13 +20,13 @@
 #include "xline.h"
 #include "commands/cmd_gline.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_gline(Instance);
 }
 
+/** Handle /GLINE
+ */
 CmdResult cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)

@@ -18,13 +18,13 @@
 #include "users.h"
 #include "commands/cmd_join.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_join(Instance);
 }
 
+/** Handle /JOIN
+ */
 CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt > 1)

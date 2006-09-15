@@ -18,13 +18,13 @@
 #include "inspircd.h"
 #include "commands/cmd_lusers.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_lusers(Instance);
 }
 
+/** Handle /LUSERS
+ */
 CmdResult cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	// this lusers command shows one server at all times because

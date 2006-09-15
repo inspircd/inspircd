@@ -18,13 +18,13 @@
 #include "inspircd.h"
 #include "commands/cmd_kick.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_kick(Instance);
 }
 
+/** Handle /KICK
+ */
 CmdResult cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char reason[MAXKICK];

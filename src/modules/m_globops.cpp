@@ -27,8 +27,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for GLOBOPS and user mode +g */
 
-
-
+/** Handle /GLOBOPS
+ */
 class cmd_globops : public command_t
 {
  public:

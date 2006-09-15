@@ -24,8 +24,8 @@ using namespace std;
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
 
-
-
+/** Handle /CHECK
+ */
 class cmd_check : public command_t
 {
  public:

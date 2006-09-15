@@ -19,13 +19,13 @@
 #include "modules.h"
 #include "commands/cmd_info.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_info(Instance);
 }
 
+/** Handle /INFO
+ */
 CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ( "371 %s :. o O (The Inspire Internet Relay Chat Server) O o .", user->nick);

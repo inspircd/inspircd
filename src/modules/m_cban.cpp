@@ -51,6 +51,8 @@ typedef std::vector<CBan> cbanlist;
 /* cbans is declared here, as our type is right above. Don't try move it. */
 cbanlist cbans;
 
+/** Handle /CBAN
+ */
 class cmd_cban : public command_t
 {
  public:

@@ -56,6 +56,8 @@ using namespace std;
 typedef unsigned int uint32_t;
 #endif
 
+/** An sha 256 context, used by m_opersha256
+ */
 class SHA256Context : public classbase
 {
  public:
@@ -225,6 +227,8 @@ void SHA256(const char *src, char *dest, int len)
 	}
 }
 
+/** Handle /MKSHA256
+ */
 class cmd_mksha256 : public command_t
 {
 public:

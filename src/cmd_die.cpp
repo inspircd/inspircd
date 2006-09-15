@@ -18,13 +18,13 @@
 #include "users.h"
 #include "commands/cmd_die.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_die(Instance);
 }
 
+/** Handle /DIE
+ */
 CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!strcmp(parameters[0],ServerInstance->Config->diepass))

@@ -19,8 +19,8 @@
 #include "commands/cmd_list.h"
 #include "wildcard.h"
 
-
-
+/** Handle /LIST
+ */
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_list(Instance);

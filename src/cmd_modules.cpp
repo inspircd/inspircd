@@ -37,13 +37,13 @@ char* itab[] = {
 	"OnPostCommand", NULL
 };
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_modules(Instance);
 }
 
+/** Handle /MODULES
+ */
 CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 {
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)

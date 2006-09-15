@@ -27,6 +27,8 @@ using namespace std;
 #include "ssl_cert.h"
 #include "wildcard.h"
 
+/** Handle /FINGERPRINT
+ */
 class cmd_fingerprint : public command_t
 {
  public:

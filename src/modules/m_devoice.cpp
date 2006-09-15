@@ -29,8 +29,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-
-	 
+/** Handle /DEVOICE
+ */	 
 class cmd_devoice : public command_t
 {
  public:

@@ -18,8 +18,8 @@
 #include "users.h"
 #include "commands/cmd_commands.h"
 
-
-
+/** Handle /COMMANDS
+ */
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_commands(Instance);

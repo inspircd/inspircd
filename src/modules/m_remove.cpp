@@ -32,6 +32,8 @@
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
+/** Base class for /FPART and /REMOVE
+ */
 class RemoveBase
 {
  private: 
@@ -220,6 +222,8 @@ class RemoveBase
 	}
 };
 
+/** Handle /REMOVE
+ */
 class cmd_remove : public command_t, public RemoveBase
 {
  public:
@@ -235,6 +239,8 @@ class cmd_remove : public command_t, public RemoveBase
 	}
 };
 
+/** Handle /FPART
+ */
 class cmd_fpart : public command_t, public RemoveBase
 {
  public:

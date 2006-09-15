@@ -24,7 +24,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-
+/** Handle /GLOADMODULE
+ */
 class cmd_gloadmodule : public command_t
 {
  public:
@@ -50,6 +51,8 @@ class cmd_gloadmodule : public command_t
 	}
 };
 
+/** Handle /GUNLOADMODULE
+ */
 class cmd_gunloadmodule : public command_t
 {
  public:

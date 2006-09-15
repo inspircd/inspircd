@@ -46,6 +46,8 @@ typedef unsigned int uint32_t;
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
+/** An MD5 context, used by m_opermd5
+ */
 class MD5Context : public classbase
 {
  public:
@@ -269,6 +271,8 @@ void GenHash(const char* src, char* dest)
 	strcpy(dest,hash);
 }
 
+/** Handle /MKPASSWD
+ */
 class cmd_mkpasswd : public command_t
 {
  public:

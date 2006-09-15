@@ -23,6 +23,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_mode(Instance);
 }
 
+/** Handle /MODE
+ */
 CmdResult cmd_mode::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	ServerInstance->Modes->Process(parameters, pcnt, user, false);

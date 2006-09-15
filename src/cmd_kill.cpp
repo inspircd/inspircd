@@ -19,13 +19,13 @@
 #include "modules.h"
 #include "commands/cmd_kill.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_kill(Instance);
 }
 
+/** Handle /KILL
+ */
 CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *u = ServerInstance->FindNick(parameters[0]);
