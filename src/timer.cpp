@@ -39,6 +39,28 @@ void TimerManager::TickTimers(time_t TIME)
 	}
 }
 
+void TimerManager::DelTimer(InspTimer* T)
+{
+	timerlist::iterator found = Timers.find(T->GetTimer());
+
+	if (found != Timers.end())
+	{
+		timergroup* x = found->second;
+		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
+		{
+			InspTimer* n = *y;
+			if (n == T)
+			{
+				DELETE(n);
+				x->erase(y);
+				if (!x->size())
+					Timers.erase(found);
+				return;
+			}
+		}
+	}
+}
+
 /*
  * Because some muppets may do odd things, and their ircd may lock up due
  * to crappy 3rd party modules, or they may change their system time a bit,

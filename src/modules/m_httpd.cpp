@@ -41,6 +41,18 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 3
 };
 
+class HttpSocket;
+
+class HTTPTimeout : public InspTimer
+{
+ private:
+	HttpSocket* s;
+	SocketEngine* SE;
+ public:
+	HTTPTimeout(HttpSocket* sock, SocketEngine* engine);
+	void Tick(time_t TIME);
+};
+
 /** A socket used for HTTP transport
  */
 class HttpSocket : public InspSocket
@@ -54,6 +66,7 @@ class HttpSocket : public InspSocket
 	std::string http_version;
 	unsigned int postsize;
 	unsigned int amount;
+	HTTPTimeout* Timeout;
 
  public:
 
@@ -61,11 +74,21 @@ class HttpSocket : public InspSocket
 	{
 		SI->Log(DEBUG,"HttpSocket constructor");
 		InternalState = HTTP_LISTEN;
+		Timeout = NULL;
 	}
 
 	HttpSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
+		Timeout = new HTTPTimeout(this, Instance->SE);
+		Instance->Timers->AddTimer(Timeout);
+	}
+
+	~HttpSocket()
+	{
+		if (Timeout)
+			Instance->Timers->DelTimer(Timeout);
+		Timeout = NULL;
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
@@ -228,6 +251,8 @@ class HttpSocket : public InspSocket
 					{
 						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
+						Timeout = new HTTPTimeout(this, Instance->SE);
+						Instance->Timers->AddTimer(Timeout);
 					}
 					else
 					{
@@ -266,6 +291,9 @@ class HttpSocket : public InspSocket
 	{
 		/* Headers are complete */
 		InternalState = HTTP_SERVE_SEND_DATA;
+
+		Instance->Timers->DelTimer(Timeout);
+		Timeout = NULL;
 	
 		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
 		{
@@ -291,6 +319,8 @@ class HttpSocket : public InspSocket
 				}
 			}
 		}
+		Timeout = new HTTPTimeout(this, Instance->SE);
+		Instance->Timers->AddTimer(Timeout);
 	}
 
 	void Page(std::stringstream* n, int response, std::string& extraheaders)
@@ -300,6 +330,16 @@ class HttpSocket : public InspSocket
 		this->Write(n->str());
 	}
 };
+
+HTTPTimeout::HTTPTimeout(HttpSocket* sock, SocketEngine* engine) : InspTimer(60, time(NULL)), s(sock), SE(engine)
+{
+}
+
+void HTTPTimeout::Tick(time_t TIME)
+{
+	SE->DelFd(s);
+	s->Close();
+}
 
 class ModuleHttp : public Module
 {

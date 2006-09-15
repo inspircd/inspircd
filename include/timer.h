@@ -84,6 +84,10 @@ class TimerManager : public Extensible
 	 * @param T an InspTimer derived class to add
 	 */
 	void AddTimer(InspTimer* T);
+	/** Delete and InspTImer
+	 * @param T an InspTimer derived class to delete
+	 */
+	void DelTimer(InspTimer* T);
 	/** Tick any timers that have been missed due to lag
 	 * @param TIME the current system time
 	 */
