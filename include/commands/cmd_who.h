@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /WHO
+ */
 class cmd_who : public command_t
 {
  public:

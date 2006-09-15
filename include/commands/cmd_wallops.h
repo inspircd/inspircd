@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /WALLOPS
+ */
 class cmd_wallops : public command_t
 {
  public:

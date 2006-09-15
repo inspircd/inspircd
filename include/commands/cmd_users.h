@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /USERS stub
+ */
 class cmd_users : public command_t
 {
  public:

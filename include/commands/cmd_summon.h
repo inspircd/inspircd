@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /SUMMON stub
+ */
 class cmd_summon : public command_t
 {
  public:

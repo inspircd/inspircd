@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /QUIT
+ */
 class cmd_quit : public command_t
 {
  public:

@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /PASS
+ */
 class cmd_pass : public command_t
 {
  public:

@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /RULES
+ */
 class cmd_rules : public command_t
 {
  public:

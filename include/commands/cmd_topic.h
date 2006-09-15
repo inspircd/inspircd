@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /TOPIC
+ */
 class cmd_topic : public command_t
 {
  public:

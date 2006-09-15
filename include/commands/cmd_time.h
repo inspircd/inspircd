@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /TIME
+ */
 class cmd_time : public command_t
 {
  public:

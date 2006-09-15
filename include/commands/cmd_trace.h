@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /TRACE
+ */
 class cmd_trace : public command_t
 {
  public:

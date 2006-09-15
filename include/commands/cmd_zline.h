@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /ZLINE
+ */
 class cmd_zline : public command_t
 {
  public:

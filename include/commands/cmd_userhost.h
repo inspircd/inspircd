@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /USERHOST
+ */
 class cmd_userhost : public command_t
 {
  public:

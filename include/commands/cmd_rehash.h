@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /REHASH
+ */
 class cmd_rehash : public command_t
 {
  public:

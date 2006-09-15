@@ -23,6 +23,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /PONG
+ */
 class cmd_pong : public command_t
 {
  public:

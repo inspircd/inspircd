@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /PRIVMSG
+ */
 class cmd_privmsg : public command_t
 {
  public:

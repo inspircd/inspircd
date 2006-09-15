@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /PING
+ */
 class cmd_ping : public command_t
 {
  public:

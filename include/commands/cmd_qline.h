@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /QLINE
+ */
 class cmd_qline : public command_t
 {
  public:

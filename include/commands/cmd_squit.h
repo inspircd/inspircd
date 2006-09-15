@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /SQUIT
+ */
 class cmd_squit : public command_t
 {
  public:

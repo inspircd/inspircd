@@ -25,6 +25,8 @@
 
 void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &results);
 
+/** Handle /STATS
+ */
 class cmd_stats : public command_t
 {
  public:
