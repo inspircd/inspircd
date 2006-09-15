@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /INVITE
+ */
 class cmd_invite : public command_t
 {
  public:

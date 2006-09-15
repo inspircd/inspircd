@@ -24,6 +24,8 @@
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 
+/** Handle /OPER
+ */
 class cmd_oper : public command_t
 {
  public:

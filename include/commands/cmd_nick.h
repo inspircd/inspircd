@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /NICK
+ */
 class cmd_nick : public command_t
 {
  public:

@@ -21,6 +21,8 @@
 #include "channels.h"
 #include "ctables.h"
 
+/** Handle /MODE
+ */
 class cmd_mode : public command_t
 {
  public:

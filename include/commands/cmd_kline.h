@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /KLINE
+ */
 class cmd_kline : public command_t
 {
  public:

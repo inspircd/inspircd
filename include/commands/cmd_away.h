@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /AWAY
+ */
 class cmd_away : public command_t
 {
  public:

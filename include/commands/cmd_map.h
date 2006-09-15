@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /MAP
+ */
 class cmd_map : public command_t
 {
  public:

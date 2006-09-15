@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /ISON
+ */
 class cmd_ison : public command_t
 {
  public:

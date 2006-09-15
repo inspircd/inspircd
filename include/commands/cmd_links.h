@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /LINKS
+ */
 class cmd_links : public command_t
 {
  public:

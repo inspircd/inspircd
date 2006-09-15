@@ -21,6 +21,8 @@
 #include "channels.h"
 #include "ctables.h"
 
+/** Handle /ADMIN
+ */
 class cmd_admin : public command_t
 {
  public:

@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /DIE
+ */
 class cmd_die : public command_t
 {
  public:

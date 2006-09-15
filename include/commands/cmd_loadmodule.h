@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /LOADMODULE
+ */
 class cmd_loadmodule : public command_t
 {
  public:

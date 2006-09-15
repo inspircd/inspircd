@@ -25,6 +25,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /MOTD
+ */
 class cmd_motd : public command_t
 {
  public:

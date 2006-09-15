@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /INFO
+ */
 class cmd_info : public command_t
 {
  public:

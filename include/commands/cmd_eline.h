@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /ELINE
+ */
 class cmd_eline : public command_t
 {
  public:

@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /GLINE
+ */
 class cmd_gline : public command_t
 {
  public:

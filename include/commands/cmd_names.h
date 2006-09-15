@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /NAMES
+ */
 class cmd_names : public command_t
 {
  public:

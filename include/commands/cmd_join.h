@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /JOIN
+ */
 class cmd_join : public command_t
 {
  public:

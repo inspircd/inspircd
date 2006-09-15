@@ -22,6 +22,8 @@
 #include "ctables.h"
 #include "modules.h"
 
+/** Handle /CONNECT
+ */
 class cmd_connect : public command_t
 {
  public:

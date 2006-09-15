@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /NOTICE
+ */
 class cmd_notice : public command_t
 {
  public:

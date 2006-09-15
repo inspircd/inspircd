@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /KICK
+ */
 class cmd_kick : public command_t
 {
  public:

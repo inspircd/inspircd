@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /MODULES
+ */
 class cmd_modules : public command_t
 {
  public:

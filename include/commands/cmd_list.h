@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /LIST
+ */
 class cmd_list : public command_t
 {
  public:

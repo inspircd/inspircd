@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /LUSERS
+ */
 class cmd_lusers : public command_t
 {
  public:
