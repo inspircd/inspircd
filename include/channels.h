@@ -66,18 +66,6 @@ class BanItem : public HostItem
 {
 };
 
-/** A subclass of HostItem designed to hold channel exempts (+e)
- */
-class ExemptItem : public HostItem
-{
-};
-
-/** A subclass of HostItem designed to hold channel invites (+I)
- */
-class InviteItem : public HostItem
-{
-};
-
 /** Holds a complete ban list
  */
 typedef std::vector<BanItem> 	BanList;
