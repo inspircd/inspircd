@@ -34,6 +34,7 @@ class HTTPRequest : public classbase
 	 * @param hdr The headers sent with the request
 	 * @param opaque An opaque pointer used internally by m_httpd, which you must pass back to the module in your reply.
 	 * @param ip The IP address making the web request.
+	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
 	HTTPRequest(const std::string &request_type, const std::string &uri, std::stringstream* hdr, void* opaque, const std::string &ip, const std::string &pdata)
 		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(opaque)
@@ -49,6 +50,10 @@ class HTTPRequest : public classbase
 		return headers;
 	}
 
+	/** Get the post data (request content).
+	 * All post data will be returned, including carriage returns and linefeeds.
+	 * @return The postdata
+	 */
 	std::string& GetPostData()
 	{
 		return postdata;
