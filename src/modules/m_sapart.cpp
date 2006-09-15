@@ -49,9 +49,28 @@ class cmd_sapart : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
 			}
-			ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+
 			if (!channel->PartUser(dest, dest->nick))
 				delete channel;
+			chanrec* n = ServerInstance->FindChan(parameters[1]);
+			if (!n)
+			{
+				ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+				return CMD_SUCCESS;
+			}
+			else
+			{
+				if (!n->HasUser(dest))
+				{
+					ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+					return CMD_SUCCESS;
+				}
+				else
+				{
+					user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1]);
+					return CMD_FAILURE;
+				}
+			}
 
 			return CMD_SUCCESS;
 		}
