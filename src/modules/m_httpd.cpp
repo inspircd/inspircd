@@ -339,6 +339,7 @@ void HTTPTimeout::Tick(time_t TIME)
 {
 	SE->DelFd(s);
 	s->Close();
+	delete s;
 }
 
 class ModuleHttp : public Module
