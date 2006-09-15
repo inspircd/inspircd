@@ -24,8 +24,8 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
-
-
+/** Holds information on a host set by m_hostchange
+ */
 class Host : public classbase
 {
  public:

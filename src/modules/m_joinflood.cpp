@@ -26,8 +26,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +j (join flood protection) */
 
-
-
+/** Holds settings and state associated with channel mode +j
+ */
 class joinfloodsettings : public classbase
 {
  public:
@@ -40,6 +40,7 @@ class joinfloodsettings : public classbase
 	bool locked;
 
 	joinfloodsettings() : secs(0), joins(0) {};
+
 	joinfloodsettings(int b, int c) : secs(b), joins(c)
 	{
 		reset = time(NULL) + secs;
@@ -92,6 +93,8 @@ class joinfloodsettings : public classbase
 
 };
 
+/** Handles channel mode +j
+ */
 class JoinFlood : public ModeHandler
 {
  public:

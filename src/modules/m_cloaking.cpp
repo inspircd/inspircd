@@ -60,6 +60,8 @@ typedef unsigned int uint32_t;
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;
 
+/** An MD5 context, used by m_cloaking
+ */
 class xMD5Context : public classbase
 {
  public:
@@ -68,6 +70,8 @@ class xMD5Context : public classbase
 	word32 in[16];
 };
 
+/** Handles user mode +x
+ */
 class CloakUser : public ModeHandler
 {
 	

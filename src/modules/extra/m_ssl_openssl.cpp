@@ -41,6 +41,8 @@ char* get_error()
 	return ERR_error_string(ERR_get_error(), NULL);
 }
 
+/** Represents an SSL user's extra data
+ */
 class issl_session : public classbase
 {
 public:

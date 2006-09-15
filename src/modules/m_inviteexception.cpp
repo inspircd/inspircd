@@ -21,6 +21,8 @@
 
 class InspIRCd* ServerInstance;
 
+/** Handles channel mode +I
+ */
 class InviteException : public ListModeBase
 {
  public:
@@ -30,8 +32,6 @@ class InviteException : public ListModeBase
 class ModuleInviteException : public Module
 {
 	InviteException* ie;
-	
-
 public:
 	ModuleInviteException(InspIRCd* Me) : Module(Me)
 	{

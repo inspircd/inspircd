@@ -28,8 +28,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
-
-
+/** Handles channel mode +g
+ */
 class ChanFilter : public ListModeBase
 {
  public:

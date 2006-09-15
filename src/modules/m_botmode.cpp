@@ -21,14 +21,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "configreader.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style umode +B */
 
-
-
+/** Handles user mode +B
+ */
 class BotMode : public ModeHandler
 {
  public:

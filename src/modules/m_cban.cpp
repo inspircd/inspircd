@@ -24,6 +24,8 @@
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 
+/** Holds a CBAN item
+ */
 class CBan : public classbase
 {
 public:

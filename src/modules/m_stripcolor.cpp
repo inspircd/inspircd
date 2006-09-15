@@ -23,6 +23,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
 
+/** Handles channel mode +S
+ */
 class ChannelStripColor : public ModeHandler
 {
  public:

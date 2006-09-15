@@ -27,8 +27,8 @@ typedef std::map<irc::string,irc::string> censor_t;
 
 /* $ModDesc: Provides user and channel +G mode */
 
-
-
+/** Thrown by m_censor
+ */
 class CensorException : public ModuleException
 {
  public:
@@ -38,6 +38,8 @@ class CensorException : public ModuleException
 	}
 };
 
+/** Handles usermode +G
+ */
 class CensorUser : public ModeHandler
 {
  public:
@@ -70,6 +72,8 @@ class CensorUser : public ModeHandler
 	}
 };
 
+/** Handles channel mode +G
+ */
 class CensorChannel : public ModeHandler
 {
  public:

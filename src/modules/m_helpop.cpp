@@ -19,19 +19,18 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 // Global Vars
 static ConfigReader *helpop;
-
-
 
 bool do_helpop(const char**, int, userrec*);
 void sendtohelpop(userrec*, int, const char**);
 
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
 
+/** Handles user mode +h
+ */
 class Helpop : public ModeHandler
 {
  public:
@@ -60,6 +59,8 @@ class Helpop : public ModeHandler
 	}
 };
 
+/** Handles /HELPOP
+ */
 class cmd_helpop : public command_t
 {
  public:
@@ -182,6 +183,8 @@ class cmd_helpop : public command_t
 	}
 };
 
+/** Thrown by m_helpop
+ */
 class HelpopException : public ModuleException
 {
  private:

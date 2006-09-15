@@ -32,6 +32,8 @@ const char* fakevalue = "on";
  */
 bool unload_kludge = false;
 
+/** Handles basic operation of +qa channel modes
+ */
 class FounderProtectBase
 {
  private:
@@ -143,6 +145,8 @@ class FounderProtectBase
 	}
 };
 
+/** Abstraction of FounderProtectBase for channel mode +q
+ */
 class ChanFounder : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
@@ -199,6 +203,8 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 	}
 };
 
+/** Abstraction of FounderProtectBase for channel mode +a
+ */
 class ChanProtect : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;

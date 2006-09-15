@@ -26,8 +26,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for /KNOCK and mode +K */
 
-
-
+/** Handles the /KNOCK command
+ */
 class cmd_knock : public command_t
 {
  public:
@@ -77,6 +77,8 @@ class cmd_knock : public command_t
 	}
 };
 
+/** Handles channel mode +K
+ */
 class Knock : public ModeHandler
 {
  public:

@@ -37,6 +37,8 @@ typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
 
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
+/** Holds a core configuration item and its callbacks
+ */
 struct InitialConfig
 {
 	char* tag;
@@ -46,6 +48,9 @@ struct InitialConfig
 	Validator validation_function;
 };
 
+/** Holds a core configuration item and its callbacks
+ * where there may be more than one item
+ */
 struct MultiConfig
 {
 	const char* tag;

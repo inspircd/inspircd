@@ -33,6 +33,8 @@ bool isin(int port, const std::vector<int> &portlist)
 	return false;
 }
 
+/** Represents an SSL user's extra data
+ */
 class issl_session : public classbase
 {
 public:

@@ -25,8 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 
-
-
+/** Holds flood settings and state for mode +f
+ */
 class floodsettings : public classbase
 {
  public:
@@ -80,6 +80,8 @@ class floodsettings : public classbase
 	}
 };
 
+/** Handles channel mode +f
+ */
 class MsgFlood : public ModeHandler
 {
  public:

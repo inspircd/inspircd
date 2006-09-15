@@ -21,6 +21,8 @@ inline int strtoint(const std::string &str)
 
 typedef std::map<userrec*, time_t> delaylist;
 
+/** Handles channel mode +J
+ */
 class KickRejoin : public ModeHandler
 {
  public:

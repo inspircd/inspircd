@@ -25,13 +25,14 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
 
 
 
+/** Holds a filter pattern and reason
+ */
 class Filter : public classbase
 {
  public:
@@ -41,6 +42,8 @@ class Filter : public classbase
 
 typedef std::map<std::string,Filter*> filter_t;
 
+/** Thrown by m_filter
+ */
 class FilterException : public ModuleException
 {
  public:

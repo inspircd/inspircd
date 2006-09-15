@@ -24,9 +24,10 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
+/** Thrown by m_filter_pcre
+ */
 class FilterPCREException : public ModuleException
 {
  public:

@@ -23,16 +23,15 @@
 #include <arpa/inet.h>
 #include "users.h"
 #include "modules.h"
-
 #include "dns.h"
 #include "inspircd.h"
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-
-
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST };
 
+/** Holds a CGI site's details
+ */
 class CGIhost : public classbase
 {
 public:
@@ -47,6 +46,8 @@ public:
 
 typedef std::vector<CGIhost> CGIHostlist;
 
+/** Resolver for CGI:IRC hostnames encoded in ident/GECOS
+ */
 class CGIResolver : public Resolver
 {
 	std::string typ;

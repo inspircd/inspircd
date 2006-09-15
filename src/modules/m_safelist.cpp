@@ -23,6 +23,8 @@ using namespace std;
 #include "inspircd.h"
 #include "wildcard.h"
 
+/** Holds a users m_safelist state
+ */
 class ListData : public classbase
 {
  public:

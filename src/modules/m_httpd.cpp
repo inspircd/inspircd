@@ -1,4 +1,4 @@
-/*       +------------------------------------+
+/*       +------------------------------------+       
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -31,6 +31,8 @@ class ModuleHttp;
 static ModuleHttp* HttpModule;
 static bool claimed;
 
+/** HTTP socket states
+ */
 enum HttpState
 {
 	HTTP_LISTEN = 0,
@@ -39,6 +41,8 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 3
 };
 
+/** A socket used for HTTP transport
+ */
 class HttpSocket : public InspSocket
 {
 	FileReader* index;
