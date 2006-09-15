@@ -86,9 +86,12 @@ class HttpSocket : public InspSocket
 
 	~HttpSocket()
 	{
-		if (Timeout)
-			Instance->Timers->DelTimer(Timeout);
-		Timeout = NULL;
+		if (Instance->Time() < Timeout->GetTimer())
+		{
+			if (Timeout)
+				Instance->Timers->DelTimer(Timeout);
+			Timeout = NULL;
+		}
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
