@@ -70,14 +70,6 @@ class BanItem : public HostItem
  */
 typedef std::vector<BanItem> 	BanList;
 
-/** Holds a complete exempt list
- */
-typedef std::vector<ExemptItem>	ExemptList;
-
-/** Holds a complete invite list
- */
-typedef std::vector<InviteItem>	InviteList;
-
 /** A list of users on a channel
  */
 typedef std::map<userrec*,userrec*> CUList;
