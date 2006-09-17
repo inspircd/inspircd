@@ -42,26 +42,24 @@ class Alias : public classbase
 class ModuleAlias : public Module
 {
  private:
-	ConfigReader *MyConf;
 	std::vector<Alias> Aliases;
 
 	virtual void ReadAliases()
 	{
+		ConfigReader MyConf(ServerInstance);
+
 		Aliases.clear();
 	
-		for (int i = 0; i < MyConf->Enumerate("alias"); i++)
+		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
 		{
 			Alias a;
 			std::string txt;
-			txt = MyConf->ReadValue("alias", "text", i);
+			txt = MyConf.ReadValue("alias", "text", i);
 			a.text = txt.c_str();
-			a.replace_with = MyConf->ReadValue("alias", "replace", i);
-			a.requires = MyConf->ReadValue("alias", "requires", i);
-		
-			a.uline =	((MyConf->ReadValue("alias", "uline", i) == "yes") ||
-					(MyConf->ReadValue("alias", "uline", i) == "1") ||
-						(MyConf->ReadValue("alias", "uline", i) == "true"));
-					
+			a.replace_with = MyConf.ReadValue("alias", "replace", i);
+			a.requires = MyConf.ReadValue("alias", "requires", i);
+			a.uline = MyConf.ReadFlag("alias", "uline", i);
+	
 			Aliases.push_back(a);
 		}
 
@@ -72,8 +70,6 @@ class ModuleAlias : public Module
 	ModuleAlias(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
-		MyConf = new ConfigReader(ServerInstance);
 		ReadAliases();
 	}
 
@@ -84,7 +80,6 @@ class ModuleAlias : public Module
 
 	virtual ~ModuleAlias()
 	{
-		DELETE(MyConf);
 	}
 
 	virtual Version GetVersion()
@@ -150,9 +145,6 @@ class ModuleAlias : public Module
  
 	virtual void OnRehash(const std::string &parameter)
 	{
-		DELETE(MyConf);
-		MyConf = new ConfigReader(ServerInstance);
-	
 		ReadAliases();
  	}
 };
