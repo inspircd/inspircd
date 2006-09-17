@@ -904,6 +904,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			if (conf.get(real_character))
 			{
 				ServerInstance->Log(DEBUG,"Escaping %c", real_character);
+				if (real_character == 'n')
+					real_character = '\n';
 				line += real_character;
 				continue;
 			}
@@ -1068,7 +1070,10 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 				if ((*c == '\\') && (in_quote))
 				{
 					c++;
-					current_value += *c;
+					if (*c == 'n')
+						current_value += '\n';
+					else
+						current_value += *c;
 					continue;
 				}
 				if (*c == '"')
