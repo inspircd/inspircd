@@ -170,57 +170,78 @@ class ModuleAlias : public Module
 
 				/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
 
-				std::string newline = Aliases[i].replace_with;
+				std::string::size_type crlf = Aliases[i].replace_with.find('\n');
 
-				for (int v = 1; v < 10; v++)
+				if (crlf == std::string::npos)
 				{
-					std::string var = "$";
-					var.append(ConvToStr(v));
-					var.append("-");
-					std::string::size_type x = newline.find(var);
-
-					while (x != std::string::npos)
-					{
-						newline.erase(x, var.length());
-						newline.insert(x, GetVar(var, original_line));
-						x = newline.find(var);
-					}
-
-					var = "$";
-					var.append(ConvToStr(v));
-					x = newline.find(var);
-
-					while (x != std::string::npos)
-					{
-						newline.erase(x, var.length());
-						newline.insert(x, GetVar(var, original_line));
-						x = newline.find(var);
-					}
+					DoCommand(Aliases[i].replace_with, user, original_line);
+					return 1;
 				}
-
-				/* Special variables */
-				SearchAndReplace(newline, "$nick", user->nick);
-				SearchAndReplace(newline, "$ident", user->ident);
-				SearchAndReplace(newline, "$host", user->host);
-				SearchAndReplace(newline, "$vhost", user->dhost);
-
-				irc::tokenstream ss(newline);
-				const char* parv[127];
-				int x = 0;
-
-				while ((pars[x] = ss.GetToken()) != "")
+				else
 				{
-					parv[x] = pars[x].c_str();
-					ServerInstance->Log(DEBUG,"Parameter %d: %s", x, parv[x]);
-					x++;
+					irc::sepstream commands(Aliases[i].replace_with, '\n');
+					std::string command = "*";
+					while ((command = commands.GetToken()) != "")
+					{
+						DoCommand(command, user, original_line);
+					}
+					return 1;
 				}
-
-				ServerInstance->CallCommandHandler(parv[0], &parv[1], x-1, user);
-				return 1;
 			}
 		}
 		return 0;
- 	}
+	}
+
+	void DoCommand(std::string newline, userrec* user, const std::string &original_line)
+	{
+		for (int v = 1; v < 10; v++)
+		{
+			std::string var = "$";
+			var.append(ConvToStr(v));
+			var.append("-");
+			std::string::size_type x = newline.find(var);
+
+			while (x != std::string::npos)
+			{
+				newline.erase(x, var.length());
+				newline.insert(x, GetVar(var, original_line));
+				x = newline.find(var);
+			}
+
+			var = "$";
+			var.append(ConvToStr(v));
+			x = newline.find(var);
+
+			while (x != std::string::npos)
+			{
+				newline.erase(x, var.length());
+				newline.insert(x, GetVar(var, original_line));
+				x = newline.find(var);
+			}
+		}
+
+		/* Special variables */
+		SearchAndReplace(newline, "$nick", user->nick);
+		SearchAndReplace(newline, "$ident", user->ident);
+		SearchAndReplace(newline, "$host", user->host);
+		SearchAndReplace(newline, "$vhost", user->dhost);
+
+		irc::tokenstream ss(newline);
+		const char* parv[127];
+		int x = 0;
+
+		while ((pars[x] = ss.GetToken()) != "")
+		{
+			parv[x] = pars[x].c_str();
+			ServerInstance->Log(DEBUG,"Parameter %d: %s", x, parv[x]);
+			x++;
+		}
+
+		if (ServerInstance->CallCommandHandler(parv[0], &parv[1], x-1, user) == CMD_INVALID)
+		{
+			user->WriteServ("421 %s %s :Unknown command", user->nick, parv[0]);
+		}
+	}
  
 	virtual void OnRehash(const std::string &parameter)
 	{
