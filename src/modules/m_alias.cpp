@@ -43,6 +43,7 @@ class ModuleAlias : public Module
 {
  private:
 	std::vector<Alias> Aliases;
+	std::vector<std::string> pars;
 
 	virtual void ReadAliases()
 	{
@@ -71,6 +72,7 @@ class ModuleAlias : public Module
 		: Module::Module(Me)
 	{
 		ReadAliases();
+		pars.resize(127);
 	}
 
 	void Implements(char* List)
@@ -85,6 +87,31 @@ class ModuleAlias : public Module
 	virtual Version GetVersion()
 	{
 		return Version(1,0,0,1,VF_VENDOR);
+	}
+
+	std::string GetVar(std::string varname, const std::string &original_line)
+	{
+		irc::spacesepstream ss(original_line);
+		varname.erase(varname.begin());
+		int index = *(varname.begin()) - 48;
+		varname.erase(varname.begin());
+		bool everything_after = (varname == "-");
+		std::string word = "";
+		
+		for (int j = 0; j < index; j++)
+			word = ss.GetToken();
+
+		if (everything_after)
+		{
+			std::string more = "*";
+			while ((more = ss.GetToken()) != "")
+			{
+				word.append(" ");
+				word.append(more);
+			}
+		}
+
+		return word;
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -120,23 +147,34 @@ class ModuleAlias : public Module
 						return 1;
 					}
 				}
-					std::string n = "";
-				for (int j = 0; j < pcnt; j++)
+
+				/* Now, search and replace in a copy of the original_line, replacing $1 through $9 and $1- etc */
+
+				std::string newline = Aliases[i].replace_with;
+
+				for (int var = 1; var < 10; var++)
 				{
-					if (j)
-						n = n + " ";
-					n = n + parameters[j];
+					std::string var = "$" + ConvToStr(var) + "-";
+					std::string::size_type x = newline.find(var);
+
+					while (x != std::string::npos)
+					{
+						newline.erase(x, var.length());
+						newline.insert(x, GetVar(var, original_line));
+					}
 				}
-				/* Final param now in n as one string */
-				std::stringstream stuff(Aliases[i].replace_with);
-					std::string cmd = "";
-				std::string target = "";
-				stuff >> cmd;
-				stuff >> target;
-					const char* para[2];
-				para[0] = target.c_str();
-				para[1] = n.c_str();
-					ServerInstance->CallCommandHandler(cmd,para,2,user);
+
+				irc::tokenstream ss(newline);
+				const char* parv[127];
+				int x = 0;
+
+				while ((pars[x] = ss.GetToken()) != "")
+				{
+					parv[x] = pars[x].c_str();
+					x++;
+				}
+
+				ServerInstance->CallCommandHandler(parv[0], &parv[1], x-2, user);
 				return 1;
 			}
 		}
