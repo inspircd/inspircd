@@ -37,6 +37,8 @@ class Alias : public classbase
 	std::string requires;
 	/** Alias requires ulined server */
 	bool uline;
+	/** Requires oper? */
+	bool operonly;
 };
 
 class ModuleAlias : public Module
@@ -60,7 +62,7 @@ class ModuleAlias : public Module
 			a.replace_with = MyConf.ReadValue("alias", "replace", i);
 			a.requires = MyConf.ReadValue("alias", "requires", i);
 			a.uline = MyConf.ReadFlag("alias", "uline", i);
-	
+			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
 			Aliases.push_back(a);
 		}
 
@@ -144,6 +146,9 @@ class ModuleAlias : public Module
 		{
 			if (Aliases[i].text == c)
 			{
+				if ((Aliases[i].operonly) && (!*user->oper))
+					return 0;
+
 				if (Aliases[i].requires != "")
 				{
 					u = ServerInstance->FindNick(Aliases[i].requires);
