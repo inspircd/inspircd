@@ -248,24 +248,24 @@ const std::string irc::tokenstream::GetToken()
 	return "";
 }
 
-irc::commasepstream::commasepstream(const std::string &source) : tokens(source)
+irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)
 {
 	last_starting_position = tokens.begin();
 	n = tokens.begin();
 }
 
-const std::string irc::commasepstream::GetToken()
+const std::string irc::sepstream::GetToken()
 {
 	std::string::iterator lsp = last_starting_position;
 
 	while (n != tokens.end())
 	{
-		if ((*n == ',') || (n+1 == tokens.end()))
+		if ((*n == sep) || (n+1 == tokens.end()))
 		{
 			last_starting_position = n+1;
 			std::string strip = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
 
-			while ((strip.length()) && (strip.find_last_of(',') == strip.length() - 1))
+			while ((strip.length()) && (strip.find_last_of(sep) == strip.length() - 1))
 				strip.erase(strip.end() - 1);
 
 			return strip;
@@ -277,7 +277,7 @@ const std::string irc::commasepstream::GetToken()
 	return "";
 }
 
-irc::commasepstream::~commasepstream()
+irc::sepstream::~sepstream()
 {
 }
 

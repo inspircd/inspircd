@@ -161,22 +161,39 @@ namespace irc
 	 * the next token, until none remain, at which point the method returns
 	 * an empty string.
 	 */
-	class commasepstream
+	class sepstream : public classbase
 	{
 	 private:
 		std::string tokens;
 		std::string::iterator last_starting_position;
 		std::string::iterator n;
+		char sep;
 	 public:
 		/** Create a commasepstream and fill it with the provided data
 		 */
-		commasepstream(const std::string &source);
-		~commasepstream();
+		sepstream(const std::string &source, char seperator);
+		virtual ~sepstream();
 
 		/** Fetch the next token from the stream
 		 * @returns The next token is returned, or an empty string if none remain
 		 */
-		const std::string GetToken();
+		virtual const std::string GetToken();
+	};
+
+	class commasepstream : public sepstream
+	{
+	 public:
+		commasepstream(const std::string &source) : sepstream(source, ',')
+		{
+		}
+	};
+
+	class spacesepstream : public sepstream
+	{
+	 public:
+		spacesepstream(const std::string &source) : sepstream(source, ' ')
+		{
+		}
 	};
 
 
