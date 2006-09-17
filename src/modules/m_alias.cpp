@@ -97,7 +97,9 @@ class ModuleAlias : public Module
 		varname.erase(varname.begin());
 		bool everything_after = (varname == "-");
 		std::string word = "";
-		
+
+		ServerInstance->Log(DEBUG,"Get var %d%s", index , everything_after ? " and all after it" : "");
+
 		for (int j = 0; j < index; j++)
 			word = ss.GetToken();
 
@@ -111,7 +113,20 @@ class ModuleAlias : public Module
 			}
 		}
 
+		ServerInstance->Log(DEBUG,"Var is '%s'", word.c_str());
+
 		return word;
+	}
+
+	void SearchAndReplace(std::string& newline, const std::string &find, const std::string &replace)
+	{
+		std::string::size_type x = newline.find(find);
+		while (x != std::string::npos)
+		{
+			newline.erase(x, find.length());
+			newline.insert(x, replace);
+			x = newline.find(find);
+		}
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -152,17 +167,37 @@ class ModuleAlias : public Module
 
 				std::string newline = Aliases[i].replace_with;
 
-				for (int var = 1; var < 10; var++)
+				for (int v = 1; v < 10; v++)
 				{
-					std::string var = "$" + ConvToStr(var) + "-";
+					std::string var = "$";
+					var.append(ConvToStr(v));
+					var.append("-");
 					std::string::size_type x = newline.find(var);
 
 					while (x != std::string::npos)
 					{
 						newline.erase(x, var.length());
 						newline.insert(x, GetVar(var, original_line));
+						x = newline.find(var);
+					}
+
+					var = "$";
+					var.append(ConvToStr(v));
+					x = newline.find(var);
+
+					while (x != std::string::npos)
+					{
+						newline.erase(x, var.length());
+						newline.insert(x, GetVar(var, original_line));
+						x = newline.find(var);
 					}
 				}
+
+				/* Special variables */
+				SearchAndReplace(newline, "$nick", user->nick);
+				SearchAndReplace(newline, "$ident", user->ident);
+				SearchAndReplace(newline, "$host", user->host);
+				SearchAndReplace(newline, "$vhost", user->dhost);
 
 				irc::tokenstream ss(newline);
 				const char* parv[127];
@@ -171,10 +206,11 @@ class ModuleAlias : public Module
 				while ((pars[x] = ss.GetToken()) != "")
 				{
 					parv[x] = pars[x].c_str();
+					ServerInstance->Log(DEBUG,"Parameter %d: %s", x, parv[x]);
 					x++;
 				}
 
-				ServerInstance->CallCommandHandler(parv[0], &parv[1], x-2, user);
+				ServerInstance->CallCommandHandler(parv[0], &parv[1], x-1, user);
 				return 1;
 			}
 		}
