@@ -94,7 +94,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		int idx = 0;
 	  	for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 		{
-			if (*i->second->oper)
+			if ((*i->second->oper) && (!ServerInstance->ULine(i->second->server)))
 			{
 				results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg));
 				idx++;
