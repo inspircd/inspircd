@@ -237,9 +237,15 @@ class ModuleAlias : public Module
 			x++;
 		}
 
-		if (ServerInstance->CallCommandHandler(parv[0], &parv[1], x-1, user) == CMD_INVALID)
+		ServerInstance->Log(DEBUG,"Call command handler on %s", parv[0]);
+
+		if (ServerInstance->Parser->CallHandler(parv[0], &parv[1], x-1, user) == CMD_INVALID)
 		{
-			user->WriteServ("421 %s %s :Unknown command", user->nick, parv[0]);
+			ServerInstance->Log(DEBUG,"Unknown command or not enough parameters");
+		}
+		else
+		{
+			ServerInstance->Log(DEBUG,"Command handler called successfully.");
 		}
 	}
  
