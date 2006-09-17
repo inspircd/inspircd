@@ -31,6 +31,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
 	char reason[MAXBUF];
+	std::string quitmsg = "Client exited";
 
 	if (user->registered == REG_ALL)
 	{
@@ -47,9 +48,11 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			 */
 			if (IS_LOCAL(user))
 			{
-				user->Write("ERROR :Closing link (%s@%s) [%s%s]",user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s%s]",user->nick,user->ident,user->host,ServerInstance->Config->PrefixQuit,parameters[0]);
-				user->WriteCommonExcept("QUIT :%s%s",ServerInstance->Config->PrefixQuit,parameters[0]);
+				quitmsg = ServerInstance->Config->PrefixQuit;
+				quitmsg.append(parameters[0]);
+				user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,quitmsg.c_str());
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,quitmsg.c_str());
+				user->WriteCommonExcept("QUIT :%s", quitmsg.c_str());
 			}
 			else
 			{
@@ -63,7 +66,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (IS_LOCAL(user))
 			{
-				user->Write("ERROR :Closing link (%s@%s) [QUIT]",user->ident,user->host);
+				user->Write("ERROR :Closing link (%s@%s) []",user->ident,user->host);
 				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [Client exited]",user->nick,user->ident,user->host);
 			}
 			else
@@ -100,7 +103,12 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		user->PurgeEmptyChannels();
 	}
 
-	FOREACH_MOD(I_OnPostCommand,OnPostCommand("QUIT", parameters, pcnt, user, CMD_SUCCESS));
+	if (IS_LOCAL(user))
+	{
+		std::string original_command = "QUIT :" + quitmsg;
+		FOREACH_MOD(I_OnPostCommand,OnPostCommand("QUIT", parameters, pcnt, user, CMD_SUCCESS, original_command));
+	}
+
 	DELETE(user);
 	return CMD_USER_DELETED;
 }

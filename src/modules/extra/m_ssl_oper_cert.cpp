@@ -113,7 +113,7 @@ class ModuleOperSSLCert : public Module
 	}
 
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
 		

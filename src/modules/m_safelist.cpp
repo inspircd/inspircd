@@ -169,7 +169,7 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */ 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)

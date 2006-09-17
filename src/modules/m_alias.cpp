@@ -92,7 +92,7 @@ class ModuleAlias : public Module
 		return Version(1,0,0,1,VF_VENDOR);
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		userrec *u = NULL;
 		irc::string c = command.c_str();

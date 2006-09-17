@@ -327,7 +327,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 		
 	int MOD_RESULT = 0;
-	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false));
+	FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,false,cmd));
 	if (MOD_RESULT == 1) {
 		return;
 	}
@@ -374,7 +374,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				cm->second->total_bytes += cmd.length();
 
 				int MOD_RESULT = 0;
-				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true));
+				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true,cmd));
 				if (MOD_RESULT == 1)
 					return;
 
@@ -387,7 +387,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 
 				if (result != CMD_USER_DELETED)
 				{
-					FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result));
+					FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
 				}
 				return;
 			}

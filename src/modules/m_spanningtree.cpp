@@ -601,7 +601,8 @@ class cmd_rconnect : public command_t
 			ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick,parameters[0],parameters[1]);
 			const char* para[1];
 			para[0] = parameters[1];
-			Creator->OnPreCommand("CONNECT", para, 1, user, true);
+			std::string original_command = std::string("CONNECT ") + parameters[1];
+			Creator->OnPreCommand("CONNECT", para, 1, user, true, original_command);
 
 			return CMD_SUCCESS;
 		}
@@ -4224,7 +4225,7 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -4286,7 +4287,7 @@ class ModuleSpanningTree : public Module
 		return 0;
 	}
 
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result)
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
 	{
 		if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, pcnt, user)))
 		{

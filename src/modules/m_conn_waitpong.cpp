@@ -79,7 +79,7 @@ class ModuleWaitPong : public Module
 		user->Extend("waitpong_pingstr", pingrpl);
 	}
 	
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec* user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec* user, bool validated, const std::string &original_line)
 	{
 		if(command == "PONG")
 		{

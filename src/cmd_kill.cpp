@@ -68,7 +68,8 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 
 			if (u == user)
 			{
-				FOREACH_MOD(I_OnPostCommand,OnPostCommand("KILL", parameters, pcnt, user, CMD_SUCCESS));
+				std::string original_command = std::string("KILL ") + u->nick + " :"+parameters[1];
+				FOREACH_MOD(I_OnPostCommand,OnPostCommand("KILL", parameters, pcnt, user, CMD_SUCCESS,original_command));
 				return CMD_USER_DELETED;
 			}
 			DELETE(u);

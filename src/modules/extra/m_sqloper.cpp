@@ -65,7 +65,7 @@ public:
 		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		if (validated && (command == "OPER"))
 		{
