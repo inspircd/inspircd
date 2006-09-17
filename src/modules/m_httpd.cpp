@@ -16,11 +16,8 @@
 
 using namespace std;
 
-#include <stdio.h>
-#include "users.h"
-#include "channels.h"
+#include <algorithm>
 #include "modules.h"
-#include "inspsocket.h"
 #include "inspircd.h"
 #include "httpd.h"
 
@@ -43,13 +40,23 @@ enum HttpState
 
 class HttpSocket;
 
+/** This class is used to handle HTTP socket timeouts
+ */
 class HTTPTimeout : public InspTimer
 {
  private:
+	/** HttpSocket we are attached to
+	 */
 	HttpSocket* s;
+	/** Socketengine the file descriptor is in
+	 */
 	SocketEngine* SE;
  public:
+	/** Attach timeout to HttpSocket
+	 */
 	HTTPTimeout(HttpSocket* sock, SocketEngine* engine);
+	/** Handle timer tick
+	 */
 	void Tick(time_t TIME);
 };
 
@@ -233,6 +240,9 @@ class HttpSocket : public InspSocket
 					headers >> request_type;
 					headers >> uri;
 					headers >> http_version;
+
+					std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
+					std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
 				}
 
 				if ((InternalState == HTTP_SERVE_WAIT_REQUEST) && (request_type == "POST"))
