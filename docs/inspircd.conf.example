@@ -747,14 +747,27 @@
 #                                                                     #
 # If you have the m_alias.so module loaded, you may also define       #
 # aliases as shown below. They are commonly used to provide shortcut  #
-# commands to services, however they are not limited to jsut this use.#
+# commands to services, however they are not limited to just this use.#
 # An alias tag requires the following values to be defined in it:     #
 #                                                                     #
 # text        -      The text to detect at the start of the line,     #
 #                    must be at the start of the line to trigger the  #
 #                    alias. Cant contain spaces, but case insensitive #
 # replace     -      The text to replace 'text' with. Usually this    #
-#                    will be "PRIVMSG ServiceName" or similar.        #
+#                    will be "PRIVMSG ServiceName :$2-" or similar.   #
+#                    You may use the variables $1 through $9 in the   #
+#                    replace string, which refer to the first through #
+#                    ninth word in the original string typed by the   #
+#                    user. You may also use $1- through $9- which     #
+#                    refer to the first word onwards, through to the  #
+#                    ninth word onwards, e.g. if the user types the   #
+#                    command "foo bar baz qux quz" then $3- will hold #
+#                    "baz qux quz" and $2 will contain "bar". You may #
+#                    also use the special variables: $nick, $ident,   #
+#                    $host and $vhost, and you may seperate multiple  #
+#                    commands with \n. If you wish to use the ACTUAL  #
+#                    characters \ and n together in a line, you must  #
+#                    use the sequence "\\n".                          #
 # requires    -      If you provide a value for 'requires' this means #
 #                    the given nickname MUST be online for the alias  #
 #                    to successfully trigger. If they are not, then   #
@@ -766,11 +779,18 @@
 #                    online, but not on a u-lined server, then an     #
 #                    oper-alert is sent out as this is possibly signs #
 #                    of a user trying to impersonate a service.       #
+# operonly    -      Defining this value, with a value of 'yes', '1'  #
+#                    or true will make the alias oper only. If a non- #
+#                    oper attempts to use the alias, it will appear   #
+#                    to not exist.                                    #
 #                                                                     #
-#<alias text="NICKSERV" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
-#<alias text="CHANSERV" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
-#<alias text="NS" replace="PRIVMSG NickServ" requires="NickServ" uline="yes">
-#<alias text="CS" replace="PRIVMSG ChanServ" requires="ChanServ" uline="yes">
+#<alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
+#<alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
+#<alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
+#<alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
+#<alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
+#<alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
+#<alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $3" requires="NickServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibear security module: Prevents 'bear.txt' based trojans from
