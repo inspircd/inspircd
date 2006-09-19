@@ -462,26 +462,24 @@ if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPE
 if ($interactive)
 {
 	system("clear");
-	# Display Splash Logo..
-	show_splash();
-	chomp($wholeos = `uname -mnr`);
+	chomp($wholeos = `uname -sr`);
 
 	my $rev = getrevision();
 	# Display Introduction Message..
 	print "
-Welcome to the InspIRCd Configuration program!
+Welcome to the \033[1mInspIRCd\033[0m Configuration program! (\033[1minteractive mode\033[0m)
+\033[1mPackage maintainers: Type ./configure --help for non-interactive help\033[0m
 
 *** If you are unsure of any of these values, leave it blank for    ***
 *** standard settings that will work, and your server will run      ***
-*** using them. If you are running this server as part of a         ***
-*** larger network, you must consult with your network admins       ***
-*** for the proper values to use, or server links will be unstable! ***
+*** using them. Please consult your IRC network admin if in doubt.  ***
 
 Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter
 a new value. Please note: You will \033[1mHAVE\033[0m to read the docs
 dir, otherwise you won't have a config file!
 
-Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}
+Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos)
+Maximum file descriptors: \033[1;32m$config{MAX_CLIENT_T}\033[0m
 Your InspIRCd revision ID is \033[1;32mr$rev\033[0m";
 	if ($rev eq "r0") {
 		print " (Non-SVN build)";
@@ -1377,17 +1375,6 @@ sub getlinkerflags {
 	}
 	close(FLAGS);
 	return undef;
-}
-
-sub show_splash {
-  print "'\033[1;33m####\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::'\033[1;33m####\033[0m:'\033[1;33m########\033[0m:::'\033[1;33m######\033[0m::'\033[1;33m########\033[0m::\n";
-  print ". \033[1;33m##\033[0m:: \033[1;33m###\033[0m:: \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:. \033[1;33m##\033[0m:: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:'\033[1;33m##\033[0m... \033[1;33m##\033[0m: \033[1;33m##\033[0m.... \033[1;33m##\033[0m:\n";
-  print ": \033[1;33m##\033[0m:: \033[1;33m####\033[0m: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::..:: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
-  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m \033[1;33m##\033[0m \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::: \033[1;33m##\033[0m:: \033[1;33m########\033[0m:: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
-  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m. \033[1;33m####\033[0m::..... \033[1;33m##\033[0m: \033[1;33m##\033[0m.....:::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m.. \033[1;33m##\033[0m::: \033[1;33m##\033[0m::::::: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
-  print ": \033[1;33m##\033[0m:: \033[1;33m##\033[0m:. \033[1;33m###\033[0m:'\033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m::::::::: \033[1;33m##\033[0m:: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:: \033[1;33m##\033[0m::: \033[1;33m##\033[0m: \033[1;33m##\033[0m:::: \033[1;33m##\033[0m:\n";
-  print "'\033[1;33m####\033[0m: \033[1;33m##\033[0m::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m##\033[0m::::::::'\033[1;33m####\033[0m: \033[1;33m##\033[0m:::. \033[1;33m##\033[0m:. \033[1;33m######\033[0m:: \033[1;33m########\033[0m::\n";
-  print "\033[0m\033[0m....::..::::..:::......:::..:::::::::....::..:::::..:::......:::........:::\n\n";
 }
 
 sub resolve_directory {
