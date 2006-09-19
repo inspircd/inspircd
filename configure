@@ -875,13 +875,15 @@ if ($config{USE_GNUTLS} eq "y") {
 		chdir("../..");
 	}
 	getmodules();
-	$failed = 0;
-	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
-	close(TMP);
-	open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
-	close(TMP);
-	if ($failed) {
-		print "SSL Certificates Not found, Generating.. \n\n
+	if ($interactive)
+	{
+		$failed = 0;
+		open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
+		close(TMP);
+		open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
+		close(TMP);
+		if ($failed) {
+			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the Private Key may take some time, go grab a  *
 * Coffee. Even better, to generate some more entropy if it  *
@@ -889,15 +891,20 @@ if ($config{USE_GNUTLS} eq "y") {
 * few times and get that HD going :) Then answer the        *
 * Questions which follow. If you are unsure, just hit enter *
 *************************************************************\n\n";
-		system("certtool --generate-privkey --outfile key.pem");
-		system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem");
-		print "\nCertificate generation complete, copying to config directory... ";
-		system("mv key.pem $config{CONFIG_DIR}/key.pem");
-		system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
-		print "Done.\n\n";
-	} else {
-		print "SSL Certificates found, skipping.\n\n"
-	}	
+			system("certtool --generate-privkey --outfile key.pem");
+			system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem");
+			print "\nCertificate generation complete, copying to config directory... ";
+			system("mv key.pem $config{CONFIG_DIR}/key.pem");
+			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
+			print "Done.\n\n";
+		} else {
+			print "SSL Certificates found, skipping.\n\n"
+		}
+	}
+	else
+	{
+		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
+	}
 } elsif ($config{USE_OPENSSL} eq "y") {
 	$failed = 0;
 	open(TMP, "<src/modules/m_ssl_openssl.cpp") or $failed = 1;
@@ -911,25 +918,32 @@ if ($config{USE_GNUTLS} eq "y") {
 	}
 	getmodules();
 	$failed = 0;
-	open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
-	close(TMP);
-	open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
-	close(TMP);
-	if ($failed) {
-		print "SSL Certificates Not found, Generating.. \n\n
+	if ($interactive)
+	{
+		open(TMP, "<$config{CONFIG_DIR}/key.pem") or $failed = 1;
+		close(TMP);
+		open(TMP, "<$config{CONFIG_DIR}/cert.pem") or $failed = 1;
+		close(TMP);
+		if ($failed) {
+			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
 * coffee, or something.                                     *
 *************************************************************\n\n";
-		system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
-		system("openssl dhparam -out dhparams.pem 1024");
-		print "\nCertificate generation complete, copying to config directory... ";
-		system("mv key.pem $config{CONFIG_DIR}/key.pem");
-		system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
-		system("mv dhparams.pem $config{CONFIG_DIR}/dhparams.pem");
-		print "Done.\n\n";
-	} else {
-		print "SSL Certificates found, skipping.\n\n"
+			system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
+			system("openssl dhparam -out dhparams.pem 1024");
+			print "\nCertificate generation complete, copying to config directory... ";
+			system("mv key.pem $config{CONFIG_DIR}/key.pem");
+			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
+			system("mv dhparams.pem $config{CONFIG_DIR}/dhparams.pem");
+			print "Done.\n\n";
+		} else {
+			print "SSL Certificates found, skipping.\n\n"
+		}
+	}
+	else
+	{
+		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
 	}
 }
 if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
