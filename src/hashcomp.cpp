@@ -87,7 +87,7 @@ size_t nspace::hash<string>::operator()(const string &s) const
 	 * This avoids a copy to use hash<const char*>
 	 */
 	unsigned long t = 0;
-	for (const char* x = s.c_str(); *x; x++)
+	for (const char* x = s.c_str(); *x; ++x) /* ++x not x++, so we don't hash the \0 */
 		t = 5 * t + lowermap[(unsigned char)*x];
 	return size_t(t);
 }
