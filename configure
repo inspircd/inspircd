@@ -1902,7 +1902,7 @@ Non-interactive and initial configuration:
   --enable-ipv6                Build ipv6 native InspIRCd [no]
   --enable-remote-ipv6         Build with ipv6 support for remote
                                servers on the network [yes]
-  --disable-remote-ipv6        No not allow remote ipv6 servers
+  --disable-remote-ipv6        Do not allow remote ipv6 servers
                                [not set]
   --with-cc=[filename]         Use an alternative g++ binary to
                                build InspIRCd [g++]
