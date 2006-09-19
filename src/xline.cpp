@@ -435,6 +435,7 @@ void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 		if (!strcasecmp(host,(*i)->hostmask))
 		{
 			(*i)->set_time = create_time;
+			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
 	}
@@ -456,6 +457,7 @@ void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 		if (!strcasecmp(host,(*i)->hostmask))
 		{
 			(*i)->set_time = create_time;
+			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
 	}
@@ -477,6 +479,7 @@ void XLineManager::qline_set_creation_time(const char* nick, time_t create_time)
 		if (!strcasecmp(nick,(*i)->nick))
 		{
 			(*i)->set_time = create_time;
+			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
 	}
@@ -498,6 +501,7 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 		if (!strcasecmp(ip,(*i)->ipaddr))
 		{
 			(*i)->set_time = create_time;
+			(*i)->expiry = create_time + (*i)->duration;
 			return;
 		}
 	}
