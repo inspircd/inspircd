@@ -1874,12 +1874,14 @@ is started, and any omitted values are defaulted.
 
 Interactive configuration and reconfiguration:
 
-  -update                      Update makefiles
-  -modupdate                   Detect new modules
-  -svnupdate {rebuild}         Update working copy
+  --update                      Update makefiles
+  --modupdate                   Detect new modules
+  --svnupdate {rebuild}         Update working copy
                                {and optionally rebuild}
-  -clean                       Remove .config.cache
-  -help	                       Show this help text
+  --clean                       Remove .config.cache
+
+  Arguments with a single \"-\" symbol, as in
+  InspIRCd 1.0.x, are also allowed.
 
 Non-interactive and initial configuration:
 
