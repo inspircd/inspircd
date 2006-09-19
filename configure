@@ -2,7 +2,7 @@
 
 # InspIRCd Configuration Script
 #
-# Copyright 2003 The ChatSpike Development Team
+# Copyright 2002-2006 The ChatSpike Development Team
 # <brain@chatspike.net>
 # <Craig@chatspike.net>
 #
@@ -349,11 +349,10 @@ sub svnupdate
 }
 
 print "Running non-interactive configure...\n" unless $interactive;
-
-print "Checking for cache from previous configure...\n";
-getcache();
-print "Checking operating system version...\n";
-getosflags();
+print "Checking for cache from previous configure... ";
+print ((getcache() eq "true") ? "found\n" : "not found\n");
+print "Checking operating system version... ";
+print getosflags() . "\n";
 
 if (defined $opt_maxclients)
 {
@@ -1084,7 +1083,9 @@ sub getosflags {
 				$config{CC} = "eg++";
 				chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
 			}
+			return "OpenBSD";
 		}
+		return $config{OSNAME};
 	} else {
 		$config{LDLIBS} = "-ldl -lstdc++";
 		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
@@ -1094,6 +1095,7 @@ sub getosflags {
 			$config{LDLIBS} = "";
 			$config{MAKEPROG} = "/usr/bin/make";
 			$config{MAKEORDER} = "ircd mods";
+			return "Cygwin";
 		} elsif ($config{OSNAME} eq "CYG-STATIC") {
 			$config{FLAGS} = "-Wall -Woverloaded-virtual $config{OPTIMISATI}";
 			$config{LDLIBS} = "";
@@ -1101,7 +1103,9 @@ sub getosflags {
 			$config{MAKEORDER} = "mods ircd";
 			$config{STATICLIBS} = "modules/mods.a";
 			$config{STATIC_LINK} = "yes";
+			return "Cygwin-Static";
 		}
+		return "Linux";
 	}
 	
 	if ($config{OSNAME} =~ /SunOS/)
@@ -1112,12 +1116,14 @@ sub getosflags {
 		# rt = POSIX realtime extensions
 		# resolv = inet_aton only (why isnt this in nsl?!)
 		$config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
+		return "Solaris";
 	}
 	
 	if($config{OSNAME} eq "MINGW32")
 	{
 		# All code is position-independent on windows
 		$config{FLAGS} =~ s/-fPIC //;
+		return "MinGW";
 	}
 }
 
