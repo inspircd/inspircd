@@ -121,14 +121,7 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 
 	bool ret = del_gline(hostmask);
 	
-	GLine item;
-	item.duration = duration;
-	strlcpy(item.identmask,ih.first.c_str(),19);
-	strlcpy(item.hostmask,ih.second.c_str(),199);
-	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,255);
-	item.n_matches = 0;
-	item.set_time = ServerInstance->Time();
+	GLine item(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 	
 	if (duration)
 	{
@@ -151,14 +144,8 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 
 	bool ret = del_eline(hostmask);
 
-	ELine item;
-	item.duration = duration;
-	strlcpy(item.identmask,ih.first.c_str(),19);
-	strlcpy(item.hostmask,ih.second.c_str(),199);
-	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,255);
-	item.n_matches = 0;
-	item.set_time = ServerInstance->Time();
+	ELine item(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+
 	if (duration)
 	{
 		elines.push_back(item);
@@ -176,14 +163,8 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 bool XLineManager::add_qline(long duration, const char* source, const char* reason, const char* nickname)
 {
 	bool ret = del_qline(nickname);
-	QLine item;
-	item.duration = duration;
-	strlcpy(item.nick,nickname,63);
-	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,255);
-	item.n_matches = 0;
-	item.is_global = false;
-	item.set_time = ServerInstance->Time();
+	QLine item(ServerInstance->Time(), duration, source, reason, nickname);
+
 	if (duration)
 	{
 		qlines.push_back(item);
@@ -201,20 +182,16 @@ bool XLineManager::add_qline(long duration, const char* source, const char* reas
 bool XLineManager::add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
 {
 	bool ret = del_zline(ipaddr);
-	ZLine item;
-	item.duration = duration;
+
 	if (strchr(ipaddr,'@'))
 	{
 		while (*ipaddr != '@')
 			ipaddr++;
 		ipaddr++;
 	}
-	strlcpy(item.ipaddr,ipaddr,39);
-	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,255);
-	item.n_matches = 0;
-	item.is_global = false;
-	item.set_time = ServerInstance->Time();
+
+	ZLine item(ServerInstance->Time(), duration, source, reason, ipaddr);
+
 	if (duration)
 	{
 		zlines.push_back(item);
@@ -235,14 +212,8 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 
 	bool ret = del_kline(hostmask);
 
-	KLine item;
-	item.duration = duration;
-	strlcpy(item.identmask,ih.first.c_str(),19);
-	strlcpy(item.hostmask,ih.second.c_str(),200);
-	strlcpy(item.reason,reason,MAXBUF);
-	strlcpy(item.source,source,255);
-	item.n_matches = 0;
-	item.set_time = ServerInstance->Time();
+	KLine item(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+
 	if (duration)
 	{
 		klines.push_back(item);
@@ -320,32 +291,6 @@ bool XLineManager::del_qline(const char* nickname)
 		if (!strcasecmp(nickname,i->nick))
 		{
 			pqlines.erase(i);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool XLineManager::qline_make_global(const char* nickname)
-{
-	for (std::vector<QLine>::iterator i = qlines.begin(); i != qlines.end(); i++)
-	{
-		if (!strcasecmp(nickname,i->nick))
-		{
-			i->is_global = true;
-			return true;
-		}
-	}
-	return false;
-}
-
-bool XLineManager::zline_make_global(const char* ipaddr)
-{
-	for (std::vector<ZLine>::iterator i = zlines.begin(); i != zlines.end(); i++)
-	{
-		if (!strcasecmp(ipaddr,i->ipaddr))
-		{
-			i->is_global = true;
 			return true;
 		}
 	}

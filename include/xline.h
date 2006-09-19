@@ -37,6 +37,18 @@ class XLine : public classbase
 {
   public:
 
+	XLine(time_t s_time, long d, const char* src, const char* re)
+		: set_time(s_time), duration(d)
+	{
+		source = strdup(src);
+		reason = strdup(re);
+	}
+
+	virtual ~XLine()
+	{
+		free(reason);
+		free(source);
+	}
 	/** The time the line was added.
 	 */
 	time_t set_time;
@@ -47,16 +59,11 @@ class XLine : public classbase
 	
 	/** Source of the ban. This can be a servername or an oper nickname
 	 */
-	char source[256];
+	char* source;
 	
 	/** Reason for the ban
 	 */
-	char reason[MAXBUF];
-	
-	/** Number of times the core matches the ban, for statistics
-	 */
-	long n_matches;
-	
+	char* reason;
 };
 
 /** KLine class
@@ -67,8 +74,20 @@ class KLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
-	char identmask[20];
-	char hostmask[200];
+	KLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	{
+		identmask = strdup(ident);
+		hostmask = strdup(host);
+	}
+
+	~KLine()
+	{
+		free(identmask);
+		free(hostmask);
+	}
+
+	char* identmask;
+	char* hostmask;
 };
 
 /** GLine class
@@ -79,8 +98,20 @@ class GLine : public XLine
 	/** Hostmask (ident@host) to match against
 	 * May contain wildcards.
 	 */
-	char identmask[20];
-	char hostmask[200];
+	GLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	{
+		identmask = strdup(ident);
+		hostmask = strdup(host);
+	}
+
+	~GLine()
+	{
+		free(identmask);
+		free(hostmask);
+	}
+
+	char* identmask;
+	char* hostmask;
 };
 
 /** ELine class
@@ -91,8 +122,20 @@ class ELine : public XLine
         /** Hostmask (ident@host) to match against
          * May contain wildcards.
          */
-	char identmask[20];
-        char hostmask[200];
+	ELine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
+	{
+		identmask = strdup(ident);
+		hostmask = strdup(host);
+	}
+
+	~ELine()
+	{
+		free(identmask);
+		free(hostmask);
+	}
+
+	char* identmask;
+        char* hostmask;
 };
 
 /** ZLine class
@@ -103,11 +146,17 @@ class ZLine : public XLine
 	/** IP Address (xx.yy.zz.aa) to match against
 	 * May contain wildcards.
 	 */
-	char ipaddr[40];
-	/** Set if this is a global Z:line
-	 * (e.g. it came from another server)
-	 */
-	bool is_global;
+	ZLine(time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(s_time, d, src, re)
+	{
+		ipaddr = strdup(ip);
+	}
+
+	~ZLine()
+	{
+		free(ipaddr);
+	}
+
+	char* ipaddr;
 };
 
 /** QLine class
@@ -118,11 +167,17 @@ class QLine : public XLine
 	/** Nickname to match against.
 	 * May contain wildcards.
 	 */
-	char nick[64];
-	/** Set if this is a global Z:line
-	 * (e.g. it came from another server)
-	 */
-	bool is_global;
+	QLine(time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(s_time, d, src, re)
+	{
+		nick = strdup(nickname);
+	}
+
+	~QLine()
+	{
+		free(nick);
+	}
+
+	char* nick;
 };
 
 class ServerConfig;
@@ -376,18 +431,6 @@ class XLineManager
 	 * @param create_Time The new creation time
 	 */
 	void eline_set_creation_time(const char* host, time_t create_time);
-	
-	/** Make a ZLine global
-	 * @param ipaddr The zline to change
-	 * @return True if the zline was updated
-	 */
-	bool zline_make_global(const char* ipaddr);
-
-	/** Make a QLine global
-	 * @param nickname The qline to change
-	 * @return True if the qline was updated
-	 */
-	bool qline_make_global(const char* nickname);
 };
 
 #endif
