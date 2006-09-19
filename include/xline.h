@@ -204,57 +204,57 @@ class XLineManager
 
 	/** This functor is used by the std::sort() function to keep glines in order
 	 */
-	static bool GSortComparison ( const GLine one, const GLine two );
+	static bool GSortComparison ( const GLine* one, const GLine* two );
 
 	/** This functor is used by the std::sort() function to keep elines in order
 	 */
-	static bool ESortComparison ( const ELine one, const ELine two );
+	static bool ESortComparison ( const ELine* one, const ELine* two );
 
 	/** This functor is used by the std::sort() function to keep zlines in order
 	 */
-	static bool ZSortComparison ( const ZLine one, const ZLine two );
+	static bool ZSortComparison ( const ZLine* one, const ZLine* two );
 
 	/** This functor is used by the std::sort() function to keep klines in order
 	 */
-	static bool KSortComparison ( const KLine one, const KLine two );
+	static bool KSortComparison ( const KLine* one, const KLine* two );
 
 	/** This functor is used by the std::sort() function to keep qlines in order
 	 */
-	static bool QSortComparison ( const QLine one, const QLine two );
+	static bool QSortComparison ( const QLine* one, const QLine* two );
  public:
 	/* Lists for temporary lines with an expiry time */
 
 	/** Temporary KLines */
-	std::vector<KLine> klines;
+	std::vector<KLine*> klines;
 
 	/** Temporary Glines */
-	std::vector<GLine> glines;
+	std::vector<GLine*> glines;
 
 	/** Temporary Zlines */
-	std::vector<ZLine> zlines;
+	std::vector<ZLine*> zlines;
 
 	/** Temporary QLines */
-	std::vector<QLine> qlines;
+	std::vector<QLine*> qlines;
 
 	/** Temporary ELines */
-	std::vector<ELine> elines;
+	std::vector<ELine*> elines;
 
 	/* Seperate lists for perm XLines that isnt checked by expiry functions */
 
 	/** Permenant KLines */
-	std::vector<KLine> pklines;
+	std::vector<KLine*> pklines;
 
 	/** Permenant GLines */
-	std::vector<GLine> pglines;
+	std::vector<GLine*> pglines;
 
 	/** Permenant ZLines */
-	std::vector<ZLine> pzlines;
+	std::vector<ZLine*> pzlines;
 
 	/** Permenant QLines */
-	std::vector<QLine> pqlines;
+	std::vector<QLine*> pqlines;
 
 	/** Permenant ELines */
-	std::vector<ELine> pelines;
+	std::vector<ELine*> pelines;
 	
 	/** Constructor
 	 * @param Instance A pointer to the creator object
