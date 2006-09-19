@@ -1872,19 +1872,14 @@ any required values manually. If one or more
 options are specified, non-interactive configuration
 is started, and any omitted values are defaulted.
 
-Interactive configuration and reconfiguration:
+Arguments with a single \"-\" symbol, as in
+InspIRCd 1.0.x, are also allowed.
 
-  --update                      Update makefiles
-  --modupdate                   Detect new modules
-  --svnupdate {rebuild}         Update working copy
+  --update                     Update makefiles
+  --modupdate                  Detect new modules
+  --svnupdate {rebuild}        Update working copy
                                {and optionally rebuild}
-  --clean                       Remove .config.cache
-
-  Arguments with a single \"-\" symbol, as in
-  InspIRCd 1.0.x, are also allowed.
-
-Non-interactive and initial configuration:
-
+  --clean                      Remove .config.cache
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
   --with-nick-length=[n]       Specify max. nick length [32]
@@ -1927,6 +1922,7 @@ Non-interactive and initial configuration:
   --binary-dir=[directory]     Binaries directory [prefix/bin]
   --library-dir=[directory]    Library directory [prefix/lib]
   --help                       Show this help text
+
 ";
 	exit(0);
 }
