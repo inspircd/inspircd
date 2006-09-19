@@ -1,6 +1,92 @@
+1.0.6
+
+ * Fix for bug which can lock up ircd if someone adds a timed ban when the banlist is full
+ * Fix for issues related to bug #127
+ * Added some detail to the socket() and bind() log messages
+ * Fix to not hide invisible users non-common channels in whois (rfc doesnt state this)
+ * Made all the private methods of InspSocket protected instead
+ * Remove numeric which makes some clients (Xchat, more?) think their nick is in use. Apparently it's not needed
+ * Exclude LUSERS lines with zero counts (NO WE WONT CHANGE THE SPELLING OF connection(s)!)
+ * Prevent notice loop on NOTICE $*
+ * Allow PRIVMSG and NOTICE targets of $<servermask> to the module events (this wasnt trivial and is almost a damn feature)
+ * Fix NOTICE $* to go between servers
+ * Remove dependency on gnu make
+ * Remove hook on sigsegv, hopefully dump cores, finally.
+ * Special checking for muppet providers that make their reverse resolution resolve back to the same reverse resolution., *WHY* DO PEOPLE IN CONTROL OF THE RDNS RECORDS EVEN *ALLOW* SUCH LUNACY?!
+ * Only attempt forward lookup if the user still exists
+ * Update m_antibear to use a different hook for ADDED goodness.
+ * Fix the dns issue with 1_0_stable. The issue is easier to resolve here than in trunk
+ * Removal of all gcc2 checks (there sure was a lot of craq in here)
+ * Removed #ifdef stuff, this should be fine on both 3.3 and 3.4
+ * Don't allow SAQUIT, SANICK, SAPART and SAJOIN on ulined clients smile.gif
+ * Different way of dealing with netsplits, seems we're getting duff data in the hash somehow by trying to track these seperately
+ * Fix sometimes-leaking dns sockets when user quits between the two lookups (forward and reverse)
+ * Being as -modupdate already existed and just didnt work, this counts as a fix. Congrats epinephrine its your lucky day smile.gif
+ * Removed a bunch of SSL debug messages that popped up every time a user on SSL did anything. Now we're going to find some massive bug in m_ssl_* and have to add them all back in...
+ * Check for stdint.h
+ * Make configure detect stdint.h - this will be used for a fix later and to move opersha256 out of extra/ at last
+ * Update docs to indicate use of _ in opertpes translates to space when displayed
+ * Spacify() function translates _ in opertypes to spaces (only when displayed, however)
+ * Fix the only mangled comment thats important, the tree diagram in here wink.gif
+ * FEAR THE POWER OF VIM AND THE ALMIGHTY "%s/ /\t/g"
+ * Fix for +f not propogating +b out to other servers (including services) using new send_mode event
+ * Backport of send_mode system from trunk - for preliminary info on this search the source file for send_mode.
+ * Made Add*Line automatically apply the new line
+
+1.0.5
+
+ * Added docs for connflood
+ * Someone made silence require 1 parameter, so no way to list the silence entries tongue.gif
+ * Add m_connflood, pippijn's connect throttle module (now we are offering another paid unreal feature for nothing)
+ * Enhance m_antibear with numerics 931 and 437
+ * Add an fflush() call after logging, hopefully fixes the issue with delayed logging on low activity. Reported by Rob from Anope.
+ * Tweak to IS_LOCAL macro to exclude invalid fd's that are > MAX_DESCRIPTORS
+ * Stability fix for netsplits after failed or desynced remote kills
+ * Made CullList::Apply return something other than 0, and added myself to the list of developers on startup - Special
+ * Allow hosts in <bind> and <link> -- see FIXME for minor issue to be fixed in 1.1 (probably not major enough to fix in 1.0)
+ * Allow binding by hostname again in <link> and <bind>
+ * Remove references to hostnames in <link> tag, use ip's instead
+ * 'inspircd' target missing from OSX makefile
+ * We can re-enable special's security fix now - note this is good for boxes with one or more static ip's and still doesnt resolve the issue for smelly dynamic-ip users (well boo hoo)
+ * Added BindAddr() smart binding, ensures that outbound ports always bind to the first server ip given rather than INADDR_ANY unless of course none are available or the only ip is localhost...
+ * Temporarily revert special's security improvement until we have bind= and mask=
+ * Extra safety for user lists to not keep bad pointers hanging about
+ * Dont allow /REMOVE of a uline, dont allow /REMOVE of a user who isnt on the channel (*slaps* Om)
+ * Pointer safety for Write* functions (check the local user exists in the fd_ref_table as a safety measure before attempting to use their user pointer)
+ * Speed, craq, and double space fix for samode's notice
+ * m_services_account: Allows ircu-alike account support for services use. It owns you.
+ * Added support for OSX back, based upon particularly weighty patch from BuildSmart
+ * Fix for potential oper flood - connections on server ports from IPs that don't match any link blocks are immediately dropped
+ * Backport of ./inspircd restart fix
+ * Don't allow non-ulines to kick ulines from channels - return numeric 482 if this is attempted (you are not a chanop) with different text
+ * Fix permanent CBANs
+ * Fix to send KILL message through to a user when theyre remote killed
+ * Sync m_check with trunk
+ * Added FindMatchingLocal and FindMatchingGlobal exports
+ * Stuff in m_opermd5 Now uses stdint.h
+ * Updated m_sql to use mysql_config
+ * Added helper script for mysql rpath
+ * Tidied up SQLQuery::Sanitise
+
+1.0.4
+
+ * Random-Crash-On-Netsplit bug is finally fixed!
+ * Backport of epoll/kqueue failure checking
+ * Fixed broken kline matching when a new user connects (reported by LeaChim)
+ * Fixed crashbug with knock on non-existent channel
+ * Fixed output corruption when host is exactly 64 chars long
+ * Fixed crash when attempting "/OS RAW PUSH non-existent-nick :::nick!ident@host KICK #chan nick :any reason" (yes, REALLY.)
+ * Let ulines do NOTICE/PRIVMSG $* without oper again, so that OS GLOBAL on services packages is fixed smile.gif
+ * Add validation for channel name in m_operjoin, throws an exception aborting the module loading if the name is invalid
+ * Fixed EAGAIN missing check when writing to a socket
+ * Fixed m_sql and sqlauth etc to automatically cope with the server going down
+ * Fixes for cygwin compilation
+ * Added signal/raise in the sigsegv handler to re-raise the signal, so we get coredumps
+ * Changed instances of MAXBUF to MAXQUIT to prevent some output corruption
+
 1.0.3
 
- *  Obscure bug of the week: InspIRCd crashes when given more than 64 client ports to bind in the config file (yes, *REALLY*.)
+ * Obscure bug of the week: InspIRCd crashes when given more than 64 client ports to bind in the config file (yes, *REALLY*.)
  * Removal of ancient TRUE/FALSE #defines (C-ish stuff)
  * Removed lowercasing of servername on validation
  * Case insensitive server names
