@@ -80,16 +80,16 @@ size_t nspace::hash<insp_inaddr>::operator()(const insp_inaddr &a) const
 
 size_t nspace::hash<string>::operator()(const string &s) const
 {
-	char a[s.length()];
-	size_t t = 0;
-	static struct hash<const char *> strhash;
-
-	for (const char* x = s.c_str(); *x; x++)	/* Faster to do it this way than */
-		a[t++] = lowermap[(unsigned char)*x];	/* Seperate strlcpy and strlower */
-
-	a[t] = 0;
-
-	return strhash(a);
+	/* XXX: NO DATA COPIES! :)
+	 * The hash function here is practically
+	 * a copy of the one in STL's hash_fun.h,
+	 * only with *x replaced with lowermap[*x].
+	 * This avoids a copy to use hash<const char*>
+	 */
+	unsigned long t = 0;
+	for (const char* x = s.c_str(); *x; x++)
+		t = 5 * t + lowermap[(unsigned char)*x];
+	return size_t(t);
 }
 
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
