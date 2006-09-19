@@ -42,6 +42,7 @@ class XLine : public classbase
 	{
 		source = strdup(src);
 		reason = strdup(re);
+		expiry = set_time + duration;
 	}
 
 	virtual ~XLine()
@@ -64,6 +65,10 @@ class XLine : public classbase
 	/** Reason for the ban
 	 */
 	char* reason;
+
+	/** Expiry time
+	 */
+	time_t expiry;
 };
 
 /** KLine class
@@ -342,31 +347,31 @@ class XLineManager
 	 * @return nick The nick to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_qline(const char* nick);
+	QLine* matches_qline(const char* nick);
 
 	/** Check if a hostname matches a GLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_gline(userrec* user);
+	GLine* matches_gline(userrec* user);
 
 	/** Check if a IP matches a ZLine
 	 * @param ipaddr The IP to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_zline(const char* ipaddr);
+	ZLine* matches_zline(const char* ipaddr);
 
 	/** Check if a hostname matches a KLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_kline(userrec* user);
+	KLine* matches_kline(userrec* user);
 
 	/** Check if a hostname matches a ELine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	char* matches_exception(userrec* user);
+	ELine* matches_exception(userrec* user);
 
 	/** Expire any pending non-permenant lines
 	 */

@@ -973,14 +973,14 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		userrec::QuitUser(Instance, _new,"Server is full");
 		return;
 	}
-	char* e = Instance->XLines->matches_exception(_new);
+	ELine* e = Instance->XLines->matches_exception(_new);
 	if (!e)
 	{
-		char* r = Instance->XLines->matches_zline(ipaddr);
+		ZLine* r = Instance->XLines->matches_zline(ipaddr);
 		if (r)
 		{
 			char reason[MAXBUF];
-			snprintf(reason,MAXBUF,"Z-Lined: %s",r);
+			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
 			userrec::QuitUser(Instance, _new,reason);
 			return;
 		}
@@ -1068,26 +1068,26 @@ void userrec::FullConnect(CullList* Goners)
 		return;
 	}
 
-	char* e = ServerInstance->XLines->matches_exception(this);
+	ELine* e = ServerInstance->XLines->matches_exception(this);
 
 	if (!e)
 	{
-		char* r = ServerInstance->XLines->matches_gline(this);
+		GLine* r = ServerInstance->XLines->matches_gline(this);
 		
 		if (r)
 		{
 			char reason[MAXBUF];
-			snprintf(reason,MAXBUF,"G-Lined: %s",r);
+			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
 			Goners->AddItem(this, reason);
 			return;
 		}
 		
-		r = ServerInstance->XLines->matches_kline(this);
+		KLine* n = ServerInstance->XLines->matches_kline(this);
 		
-		if (r)
+		if (n)
 		{
 			char reason[MAXBUF];
-			snprintf(reason,MAXBUF,"K-Lined: %s",r);
+			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
 			Goners->AddItem(this, reason);
 			return;
 		}

@@ -356,22 +356,22 @@ bool XLineManager::del_kline(const char* hostmask)
 
 // returns a pointer to the reason if a nickname matches a qline, NULL if it didnt match
 
-char* XLineManager::matches_qline(const char* nick)
+QLine* XLineManager::matches_qline(const char* nick)
 {
 	if ((qlines.empty()) && (pqlines.empty()))
 		return NULL;
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 		if (match(nick,(*i)->nick))
-			return (*i)->reason;
+			return (*i);
 	for (std::vector<QLine*>::iterator i = pqlines.begin(); i != pqlines.end(); i++)
 		if (match(nick,(*i)->nick))
-			return (*i)->reason;
+			return (*i);
 	return NULL;
 }
 
 // returns a pointer to the reason if a host matches a gline, NULL if it didnt match
 
-char* XLineManager::matches_gline(userrec* user)
+GLine* XLineManager::matches_gline(userrec* user)
 {
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
@@ -381,7 +381,7 @@ char* XLineManager::matches_gline(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
@@ -391,14 +391,14 @@ char* XLineManager::matches_gline(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
 	return NULL;
 }
 
-char* XLineManager::matches_exception(userrec* user)
+ELine* XLineManager::matches_exception(userrec* user)
 {			
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
@@ -410,7 +410,7 @@ char* XLineManager::matches_exception(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
@@ -420,7 +420,7 @@ char* XLineManager::matches_exception(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
@@ -514,22 +514,22 @@ void XLineManager::zline_set_creation_time(const char* ip, time_t create_time)
 
 // returns a pointer to the reason if an ip address matches a zline, NULL if it didnt match
 
-char* XLineManager::matches_zline(const char* ipaddr)
+ZLine* XLineManager::matches_zline(const char* ipaddr)
 {
 	if ((zlines.empty()) && (pzlines.empty()))
 		return NULL;
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 		if (match(ipaddr,(*i)->ipaddr, true))
-			return (*i)->reason;
+			return (*i);
 	for (std::vector<ZLine*>::iterator i = pzlines.begin(); i != pzlines.end(); i++)
 		if (match(ipaddr,(*i)->ipaddr, true))
-			return (*i)->reason;
+			return (*i);
 	return NULL;
 }
 
 // returns a pointer to the reason if a host matches a kline, NULL if it didnt match
 
-char* XLineManager::matches_kline(userrec* user)
+KLine* XLineManager::matches_kline(userrec* user)
 {
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
@@ -539,7 +539,7 @@ char* XLineManager::matches_kline(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
@@ -549,7 +549,7 @@ char* XLineManager::matches_kline(userrec* user)
 		{
 			if ((match(user->host,(*i)->hostmask, true)) || (match(user->GetIPString(),(*i)->hostmask, true)))
 			{
-				return (*i)->reason;
+				return (*i);
 			}
 		}
 	}
@@ -558,27 +558,27 @@ char* XLineManager::matches_kline(userrec* user)
 
 bool XLineManager::GSortComparison ( const GLine* one, const GLine* two )
 {
-	return (one->duration + one->set_time) < (two->duration + two->set_time);
+	return (one->expiry) < (two->expiry);
 }
 
 bool XLineManager::ESortComparison ( const ELine* one, const ELine* two )
 {
-	return (one->duration + one->set_time) < (two->duration + two->set_time);
+	return (one->expiry) < (two->expiry);
 }
 
 bool XLineManager::ZSortComparison ( const ZLine* one, const ZLine* two )
 {
-	return (one->duration + one->set_time) < (two->duration + two->set_time);
+	return (one->expiry) < (two->expiry);
 }
 
 bool XLineManager::KSortComparison ( const KLine* one, const KLine* two )
 {
-	return (one->duration + one->set_time) < (two->duration + two->set_time);
+	return (one->expiry) < (two->expiry);
 }
 
 bool XLineManager::QSortComparison ( const QLine* one, const QLine* two )
 {
-	return (one->duration + one->set_time) < (two->duration + two->set_time);
+	return (one->expiry) < (two->expiry);
 }
 
 // removes lines that have expired
@@ -592,35 +592,35 @@ void XLineManager::expire_lines()
 	 * none left at the head of the queue that are after the current time.
 	 */
 
-	while ((glines.size()) && (current > ((*glines.begin())->duration + (*glines.begin())->set_time)))
+	while ((glines.size()) && (current > (*glines.begin())->expiry))
 	{
 		std::vector<GLine*>::iterator i = glines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
 		glines.erase(i);
 	}
 
-	while ((elines.size()) && (current > ((*elines.begin())->duration + (*elines.begin())->set_time)))
+	while ((elines.size()) && (current > (*elines.begin())->expiry))
 	{
 		std::vector<ELine*>::iterator i = elines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
 		elines.erase(i);
 	}
 
-	while ((zlines.size()) && (current > ((*zlines.begin())->duration + (*zlines.begin())->set_time)))
+	while ((zlines.size()) && (current > (*zlines.begin())->expiry))
 	{
 		std::vector<ZLine*>::iterator i = zlines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Z-Line %s (set by %s %d seconds ago)",(*i)->ipaddr,(*i)->source,(*i)->duration);
 		zlines.erase(i);
 	}
 
-	while ((klines.size()) && (current > ((*klines.begin())->duration + (*klines.begin())->set_time)))
+	while ((klines.size()) && (current > (*klines.begin())->expiry))
 	{
 		std::vector<KLine*>::iterator i = klines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
 		klines.erase(i);
 	}
 
-	while ((qlines.size()) && (current > ((*qlines.begin())->duration + (*qlines.begin())->set_time)))
+	while ((qlines.size()) && (current > (*qlines.begin())->expiry))
 	{
 		std::vector<QLine*>::iterator i = qlines.begin();
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Q-Line %s (set by %s %d seconds ago)",(*i)->nick,(*i)->source,(*i)->duration);
@@ -640,7 +640,7 @@ void XLineManager::apply_lines(const int What)
 		return;
 
 	CullList* Goners = new CullList(ServerInstance);
-	char* check = NULL;
+	XLine* check = NULL;
 	for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		userrec* u = (userrec*)(*u2);
@@ -655,7 +655,7 @@ void XLineManager::apply_lines(const int What)
 		{
 			if ((check = matches_gline(u)))
 			{
-				snprintf(reason,MAXBUF,"G-Lined: %s",check);
+				snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
 				Goners->AddItem(u,reason);
 			}
 		}
@@ -663,7 +663,7 @@ void XLineManager::apply_lines(const int What)
 		{
 			if ((check = matches_kline(u)))
 			{
-				snprintf(reason,MAXBUF,"K-Lined: %s",check);
+				snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
 				Goners->AddItem(u,reason);
 			}
 		}
@@ -671,7 +671,7 @@ void XLineManager::apply_lines(const int What)
 		{
 			if ((check = matches_qline(u->nick)))
 			{
-				snprintf(reason,MAXBUF,"Q-Lined: %s",check);
+				snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
 				Goners->AddItem(u,reason);
 			}
 		}
@@ -679,7 +679,7 @@ void XLineManager::apply_lines(const int What)
 		{
 			if ((check = matches_zline(u->GetIPString())))
 			{
-				snprintf(reason,MAXBUF,"Z-Lined: %s",check);
+				snprintf(reason,MAXBUF,"Z-Lined: %s",check->reason);
 				Goners->AddItem(u,reason);
 			}
 		}
