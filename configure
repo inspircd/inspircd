@@ -15,6 +15,11 @@
 use Cwd;
 use Getopt::Long;
 
+if ($ARGV[1] eq "-help")
+{
+	showhelp();
+}
+
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'enable-openssl' => \$opt_use_openssl,
@@ -1870,6 +1875,7 @@ Interactive configuration and reconfiguration:
   -svnupdate {rebuild}         Update working copy
                                {and optionally rebuild}
   -clean                       Remove .config.cache
+  -help	                       Show this help text
 
 Non-interactive and initial configuration:
 
