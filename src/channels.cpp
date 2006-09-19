@@ -260,20 +260,10 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 					FOREACH_RESULT_I(Instance,I_OnCheckKey,OnCheckKey(user, Ptr, key ? key : ""));
 					if (!MOD_RESULT)
 					{
-						if (!key)
+						if ((!key) || strcmp(key,Ptr->key))
 						{
-							Instance->Log(DEBUG,"chanrec::JoinUser(): no key given in JOIN");
-							user->WriteServ("475 %s %s :Cannot join channel (Requires key)",user->nick, Ptr->name);
+							user->WriteServ("475 %s %s :Cannot join channel (Incorrect channel key)",user->nick, Ptr->name);
 							return NULL;
-						}
-						else
-						{
-							if (strcmp(key,Ptr->key))
-							{
-								Instance->Log(DEBUG,"chanrec::JoinUser(): bad key given in JOIN");
-								user->WriteServ("475 %s %s :Cannot join channel (Incorrect key)",user->nick, Ptr->name);
-								return NULL;
-							}
 						}
 					}
 				}
