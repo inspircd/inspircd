@@ -19,6 +19,7 @@ use Getopt::Long;
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'enable-openssl' => \$opt_use_openssl,
+	'disable-interactive' => \$opt_nointeractive,
 	'with-nick-length=i' => \$opt_nick_length,
 	'with-channel-length=i' => \$opt_chan_length,
 	'with-max-channels=i' => \$opt_maxchans,
@@ -59,6 +60,7 @@ my $non_interactive = (
 	(defined $opt_module_dir) ||
 	(defined $opt_base_dir) ||
 	(defined $opt_binary_dir) ||
+	(defined $opt_nointeractive) ||
 	(defined $opt_away) ||
 	(defined $opt_gecos) ||
 	(defined $opt_kick) ||
@@ -1851,6 +1853,7 @@ ITEM
 
 sub showhelp
 {
+	chomp($PWD = `pwd`);
 	print "Usage: configure [options]
 Options: [defaults in brackets after descriptions]
 
@@ -1863,16 +1866,17 @@ is started, and any omitted values are defaulted.
 Arguments with a single \"-\" symbol, as in
 InspIRCd 1.0.x, are also allowed.
 
-  --update                     Update makefiles
-  --modupdate                  Detect new modules
-  --svnupdate {rebuild}        Update working copy
-                               {and optionally rebuild}
-  --clean                      Remove .config.cache
+  --disable-interactive        Sets no options intself, but
+                               will disable any interactive prompting.
+  --update                     Update makefiles and dependencies
+  --modupdate                  Detect new modules and write makefiles
+  --svnupdate {rebuild}        Update working copy via subversion
+                               {and optionally rebuild it}
+  --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
   --with-nick-length=[n]       Specify max. nick length [32]
-  --with-channel-length=[n]    Specify max. channel length
-                               [64]
+  --with-channel-length=[n]    Specify max. channel length [64]
   --with-max-channels=[n]      Specify max. number of channels
                                a normal user may join [20]
   --with-max-oper-channels=[n] Specify max. number of channels
@@ -1880,10 +1884,8 @@ InspIRCd 1.0.x, are also allowed.
   --with-max-clients=[n]       Specify maximum number of users
                                which may connect locally
   --enable-optimization=[n]    Optimize using -O[n] gcc flag
-  --enable-epoll               Enable epoll() where supported
-                               [set]
-  --enable-kqueue              Enable kqueue() where supported
-                               [set]
+  --enable-epoll               Enable epoll() where supported [set]
+  --enable-kqueue              Enable kqueue() where supported [set]
   --disable-epoll              Do not enable epoll(), fall back
                                to select() [not set]
   --disable-kqueue             Do not enable kqueue(), fall back
@@ -1891,8 +1893,7 @@ InspIRCd 1.0.x, are also allowed.
   --enable-ipv6                Build ipv6 native InspIRCd [no]
   --enable-remote-ipv6         Build with ipv6 support for remote
                                servers on the network [yes]
-  --disable-remote-ipv6        Do not allow remote ipv6 servers
-                               [not set]
+  --disable-remote-ipv6        Do not allow remote ipv6 servers [not set]
   --with-cc=[filename]         Use an alternative g++ binary to
                                build InspIRCd [g++]
   --with-ident-length=[n]      Specify max length of ident [12]
@@ -1903,13 +1904,19 @@ InspIRCd 1.0.x, are also allowed.
   --with-away-length=[n]       Specify max length of away [150]
   --with-max-modes=[n]         Specify max modes per line which
                                have parameters [20]
-  --prefix=[directory]         Base directory to install into
-                               [current directory]
-  --config-dir=[directory]     Config file directory [prefix/conf]
-  --module-dir=[directory]     Modules directory [prefix/modules]
-  --binary-dir=[directory]     Binaries directory [prefix/bin]
-  --library-dir=[directory]    Library directory [prefix/lib]
-  --help                       Show this help text
+  --prefix=[directory]         Base directory to install into (if defined,
+                               can automatically define config, module, bin
+			       and library dirs as subdirectories of prefix)
+                               [$PWD]
+  --config-dir=[directory]     Config file directory for config and SSL certs
+                               [$PWD/conf]
+  --module-dir=[directory]     Modules directory for loadable modules
+                               [$PWD/modules]
+  --binary-dir=[directory]     Binaries directory for core binary
+                               [$PWD/bin]
+  --library-dir=[directory]    Library directory for core libraries
+                               [$PWD/lib]
+  --help                       Show this help text and exit
 
 ";
 	exit(0);
