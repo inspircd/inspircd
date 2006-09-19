@@ -15,11 +15,6 @@
 use Cwd;
 use Getopt::Long;
 
-if ($ARGV[1] eq "-help")
-{
-	showhelp();
-}
-
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'enable-openssl' => \$opt_use_openssl,
@@ -50,6 +45,10 @@ GetOptions (
 	'binary-dir=s' => \$opt_binary_dir,
 	'library-dir=s' => \$opt_library_dir,
 	'help'	=> sub { showhelp(); },
+	'modupdate' => sub { update(); },
+	'update' => sub { modupdate(); },
+	'svnupdate' => sub { svnupdate(); },
+	'clean' => sub { clean(); },
 );
 
 my $non_interactive = (
@@ -283,12 +282,15 @@ if (!$config{MAX_CLIENT_T}) {
 # Get and Set some important vars..
 getmodules();
 
-my $arg = $ARGV[0];	                                        # Do Some Argument Checks..
-if ($arg eq "-clean") {
-	system("rm -rf .config.cache");
-}               # Remove the config.cache file.
+sub clean
+{
+	if ($arg eq "-clean") {
+		system("rm -rf .config.cache");
+	}
+}
 
-if ($arg eq "-update") {
+sub update
+{
 	# Does the cache file exist?
 	if (!getcache()) {
 		# No, No it doesn't.. *BASH*
@@ -306,7 +308,8 @@ if ($arg eq "-update") {
 	}
 }
 
-if ($arg eq "-modupdate") {
+sub modupdate
+{
         # Does the cache file exist?
         if (!getcache()) {
                 # No, No it doesn't.. *BASH*
@@ -326,7 +329,8 @@ if ($arg eq "-modupdate") {
 
 
 
-if ($arg eq "-svnupdate") {
+sub svnupdate
+{
 	my $fail = 0;
 	open(FH,"<.svn/entries") or $fail = 1;
 	if ($fail) {
