@@ -13,40 +13,198 @@
 ########################################
 
 use Cwd;
+use Getopt::Long;
+
+GetOptions (
+	'enable-gnutls' => \$opt_use_gnutls,
+	'enable-openssl' => \$opt_use_openssl,
+	'with-nick-length=i' => \$opt_nick_length,
+	'with-channel-length=i' => \$opt_chan_length,
+	'with-max-channels=i' => \$opt_maxchans,
+	'with-max-oper-channels=i' => \$opt_opermaxchans,
+	'with-max-clients' => \$opt_maxclients,
+	'enable-optimization' => \$opt_optimise,
+	'enable-epoll' => \$opt_epoll,
+	'enable-kqueue' => \$opt_kqueue,
+	'disable-epoll' => \$opt_noepoll,
+	'disable-kqueue' => \$opt_nokqueue,
+	'enable-ipv6' => \$opt_ipv6,
+	'enable-remote-ipv6' => \$opt_ipv6links,
+	'disable-remote-ipv6' => \$opt_noipv6links,
+	'with-cc=s' => \$opt_cc,
+	'with-ident-length=i' => \$opt_ident,
+	'with-quit-length=i' => \$opt_quit,
+	'with-topic-length=i' => \$opt_topic,
+	'with-kick-length=i' => \$opt_kick,
+	'with-gecos-length=i' => \$opt_gecos,
+	'with-away-length=i' => \$opt_away,
+	'with-max-modes=i' => \$opt_modes,
+	'prefix=s' => \$opt_base_dir,
+	'config-dir=s' => \$opt_config_dir,
+	'module-dir=s' => \$opt_module_dir,
+	'binary-dir=s' => \$opt_binary_dir,
+	'library-dir=s' => \$opt_library_dir,
+	'help'	=> sub { showhelp(); },
+);
+
+my $non_interactive = (
+	(defined $opt_library_dir) ||
+	(defined $opt_base_dir) ||
+	(defined $opt_config_dir) ||
+	(defined $opt_module_dir) ||
+	(defined $opt_base_dir) ||
+	(defined $opt_binary_dir) ||
+	(defined $opt_away) ||
+	(defined $opt_gecos) ||
+	(defined $opt_kick) ||
+	(defined $opt_maxclients) ||
+	(defined $opt_modes) ||
+	(defined $opt_topic) ||
+	(defined $opt_quit) ||
+	(defined $opt_ident) ||
+	(defined $opt_cc) ||
+	(defined $opt_ipv6) ||
+	(defined $opt_ipv6links) ||
+	(defined $opt_noipv6links) ||
+	(defined $opt_kqueue) ||
+	(defined $opt_epoll) ||
+	(defined $opt_maxchans) ||
+	(defined $opt_opermaxchans) ||
+	(defined $opt_chan_length) ||
+	(defined $opt_nick_length) ||
+	(defined $opt_optimise) ||
+	(defined $opt_use_openssl) ||
+	(defined $opt_nokqueue) ||
+	(defined $opt_noepoll) ||
+	(defined $opt_use_gnutls)
+);
+my $interactive = !$non_interactive;
+
 
 chomp($topdir = getcwd());
 $this = resolve_directory($topdir);						# PWD, Regardless.
 @modlist = ();                                                  		# Declare for Module List..
 %config = ();                                                   		# Initiate Configuration Hash..
 $config{ME}                 = resolve_directory($topdir);			# Present Working Directory
-$config{BASE_DIR}           = $config{ME};                                      # Use CWD as 'Base' Directory.
-$config{CONFIG_DIR}         = resolve_directory($config{ME}."/conf");		# Configuration Directory
-$config{MODULE_DIR}         = resolve_directory($config{ME}."/modules");	# Modules Directory
-$config{BINARY_DIR}         = resolve_directory($config{ME}."/bin");		# Binary Directory
-$config{LIBRARY_DIR}        = resolve_directory($config{ME}."/lib");		# Library Directory
+
+$config{BASE_DIR}           = $config{ME};
+
+if (defined $opt_base_dir)
+{
+	$config{BASE_DIR} = $opt_base_dir;
+}
+
+$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");		# Configuration Directory
+$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");		# Modules Directory
+$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
+$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");		# Library Directory
+
+if (defined $opt_config_dir)
+{
+	$config{CONFIG_DIR} = $opt_config_dir;
+}
+if (defined $opt_module_dir)
+{
+	$config{MODULE_DIR} = $opt_module_dir;
+}
+if (defined $opt_binary_dir)
+{
+	$config{BINARY_DIR} = $opt_binary_dir;
+}
+if (defined $opt_library_dir)
+{
+	$config{LIBRARY_DIR} = $opt_library_dir;
+}
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
 chomp($config{HAS_OPENSSL}  = `openssl version 2>/dev/null`);			# Openssl version
-$config{USE_GNUTLS}         = "n";						# Use gnutls.
+$config{USE_GNUTLS}	    = "n";
+if (defined $opt_use_gnutls)
+{
+	$config{USE_GNUTLS} = "y";						# Use gnutls.
+}
 $config{USE_OPENSSL}        = "n";						# Use openssl.
+if (defined $opt_use_openssl)
+{
+	$config{USE_OPENSSL} = "y";
+}
 $config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
 $config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
+if (defined $opt_optimise)
+{
+	$config{OPTIMISATI} = "-O" . $opt_optimise;
+	$config{OPTIMITEMP} = $opt_optimise;
+}
 $config{NICK_LENGT}         = "31";                             		# Default Nick Length
+if (defined $opt_nick_length)
+{
+	$config{NICK_LENGT} = $opt_nick_length;
+}
 $config{CHAN_LENGT}         = "64";                             		# Default Channel Name Length
+if (defined $opt_chan_length)
+{
+	$config{CHAN_LENGT} = $opt_chan_length;
+}
 $config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user
+if (defined $opt_maxchans)
+{
+	$config{MAX_CHANNE} = $opt_maxchans;
+}
 $config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
+if (defined $opt_opermaxchans)
+{
+	$config{MAX_OPERCH} = $opt_opermaxchans;
+}
 $config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
+if (defined $opt_modes)
+{
+	$config{MAXI_MODES} = $opt_modes;
+}
 $config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
 $config{HAS_STDINT}         = "false";						# stdint.h check
 $config{USE_KQUEUE}         = "y";						# kqueue enabled
+if (defined $opt_kqueue)
+{
+	$config{USE_KQUEUE} = "y";
+}
+if (defined $opt_nokqueue)
+{
+	$config{USE_KQUEUE} = "n";
+}
 $config{USE_EPOLL}          = "y";						# epoll enabled
+if (defined $opt_epoll)
+{
+	$config{USE_EPOLL} = "y";
+}
+if (defined $opt_noepoll)
+{
+	$config{USE_EPOLL} = "n";
+}
 $config{IPV6}               = "n";						# IPv6 support (experimental)
+if (defined $opt_ipv6)
+{
+	$config{IPV6} = "y";
+}
 $config{SUPPORT_IP6LINKS}   = "y";						# IPv4 supporting IPv6 links (experimental)
+if (defined $opt_ipv6links)
+{
+	$config{SUPPORT_IP6LINKS} = "y";
+}
+if (defined $opt_noipv6links)
+{
+	$config{SUPPORT_IP6LINKS} = "n";
+}
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
-chomp($config{OSNAME}       = `uname`);                      		# Operating System Name
+chomp($config{OSNAME}       = `uname`);                              		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
+if (defined $opt_cc)
+{
+	$config{CC} = $opt_cc;
+}
+$exec = $config{CC} . " -dumpversion | cut -c 1";
+chomp($config{GCCVER}       = `$exec`);						# Major GCC Version
 $config{MAKEORDER}	    = "ircd mods";					# build order
 $config{STATICLIBS}         = "";						# library archive path
 $config{MAX_IDENT}          = "12";						# max ident size
@@ -55,6 +213,30 @@ $config{MAX_TOPIC}          = "307";						# max topic size
 $config{MAX_KICK}           = "255";						# max kick message size
 $config{MAX_GECOS}          = "128";						# max GECOS size
 $config{MAX_AWAY}           = "200";						# max AWAY size
+if (defined $opt_ident)
+{
+	$config{MAX_IDENT} = $opt_ident;
+}
+if (defined $opt_quit)
+{
+	$config{MAX_QUIT} = $opt_quit;
+}
+if (defined $opt_topic)
+{
+	$config{MAX_TOPIC} = $opt_topic;
+}
+if (defined $opt_kick)
+{
+	$config{MAX_KICK} = $opt_kick;
+}
+if (defined $opt_gecos)
+{
+	$config{MAX_GECOS} = $opt_gecos;
+}
+if (defined $opt_away)
+{
+	$config{MAX_AWAY} = $opt_away;
+}
 
 $no_svn = 0;
 
@@ -62,7 +244,7 @@ $config{HAS_OPENSSL} =~ /OpenSSL ([-[:digit:].]+)([a-z])? (\w{3}|[0-9]+) (\w{3}|
 $config{HAS_OPENSSL} = $1;
 
 if ($config{GCCVER} eq "") {
-	print "g++ was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
+	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
 	exit;
 }
 
@@ -154,10 +336,17 @@ if ($arg eq "-svnupdate") {
 	exit;
 }
 
+print "Running non-interactive configure...\n" unless $interactive;
+
 print "Checking for cache from previous configure...\n";
 getcache();
 print "Checking operating system version...\n";
 getosflags();
+
+if (defined $opt_maxclients)
+{
+	$config{MAX_CLIENT} = $opt_maxclients;
+}
 
 if (!$config{MAX_CLIENT}) { 
 	# If the cache hasn't set the max clients, copy the variable of MAX_CLIENT_T, this
@@ -261,14 +450,16 @@ if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPE
 ################################################################################
 
 # Clear the Screen..
-system("clear");
-# Display Splash Logo..
-show_splash();
-chomp($wholeos = `uname -mnr`);
+if ($interactive)
+{
+	system("clear");
+	# Display Splash Logo..
+	show_splash();
+	chomp($wholeos = `uname -mnr`);
 
-my $rev = getrevision();
-# Display Introduction Message..
-print "
+	my $rev = getrevision();
+	# Display Introduction Message..
+	print "
 Welcome to the InspIRCd Configuration program!
 
 *** If you are unsure of any of these values, leave it blank for    ***
@@ -283,339 +474,339 @@ dir, otherwise you won't have a config file!
 
 Your operating system is: \033[1;32m$config{OSNAME}\033[0m ($wholeos), fdmax: $config{MAX_CLIENT_T}
 Your InspIRCd revision ID is \033[1;32mr$rev\033[0m";
-if ($rev eq "r0") {
-	print " (Non-SVN build)";
-}
-print ".\n\n";
+	if ($rev eq "r0") {
+		print " (Non-SVN build)";
+	}
+	print ".\n\n";
 
-$config{CHANGE_COMPILER} = "n";
-print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
+	$config{CHANGE_COMPILER} = "n";
+	print "I have detected the following compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
 
-while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
-	print "\033[1;32mIMPORTANT!\033[0m A GCC 2.x compiler has been detected, and
+	while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
+		print "\033[1;32mIMPORTANT!\033[0m A GCC 2.x compiler has been detected, and
 should NOT be used. You should probably specify a newer compiler.\n\n";
-	yesno(CHANGE_COMPILER,"Do you want to change the compiler?");
-	if ($config{CHANGE_COMPILER} =~ /y/i) {
-		print "What command do you want to use to invoke your compiler?\n";
-		print "[\033[1;32m$config{CC}\033[0m] -> ";
-		chomp($config{CC} = <STDIN>);
-		if ($config{CC} eq "") {
-			$config{CC} = "g++";
-		}
-		chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
-		if ($foo ne "") {
-			chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
-			print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
-			if ($config{GCCVER} < 3) {
-				print "\033[1;32mGCC 2.x WILL NOT WORK!\033[0m. Let's try that again, shall we?\n";
+		yesno(CHANGE_COMPILER,"Do you want to change the compiler?");
+		if ($config{CHANGE_COMPILER} =~ /y/i) {
+			print "What command do you want to use to invoke your compiler?\n";
+			print "[\033[1;32m$config{CC}\033[0m] -> ";
+			chomp($config{CC} = <STDIN>);
+			if ($config{CC} eq "") {
+				$config{CC} = "g++";
+			}
+			chomp($foo = `$config{CC} -dumpversion | cut -c 1`);
+			if ($foo ne "") {
+				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
+				print "Queried compiler: \033[1;32m$config{CC}\033[0m (version \033[1;32m$config{GCCVER}.x\033[0m)\n";
+				if ($config{GCCVER} < 3) {
+					print "\033[1;32mGCC 2.x WILL NOT WORK!\033[0m. Let's try that again, shall we?\n";
+				}
+			}
+			else {
+				print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
 			}
 		}
-		else {
-			print "\033[1;32mWARNING!\033[0m Could not execute the compiler you specified. You may want to try again.\n";
+	}
+
+	print "\n";
+
+	# Directory Settings..
+	my $tmpbase = $config{BASE_DIR};
+	dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
+	if ($tmpbase ne $config{BASE_DIR}) {
+		$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");           # Configuration Dir
+		$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");        # Modules Directory
+		$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");            # Binary Directory
+		$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");            # Library Directory
+	}
+
+	dir_check("are the configuration files", "CONFIG_DIR");
+	dir_check("are the modules to be compiled to", "MODULE_DIR");
+	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
+	dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
+
+	if ($has_kqueue) {
+		yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
+		print "\n";
+	}
+	if ($has_epoll) {
+		yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
+		print "\n";
+	}
+	$chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y"));
+	if (!$chose_hiperf) {
+		print "No high-performance socket engines are available, or you chose\n";
+		print "not to enable one. Defaulting to select() engine.\n\n";
+	}
+
+	yesno(IPV6,"Would you like to build InspIRCd with IPv6 support?");
+	print "\n";
+
+	if ($config{IPV6} eq "y") {
+		print "You have chosen to build an \033[1;32mIPV6-only\033[0m server.\nTo accept IPV4 users, you must use the '::ffff:' notation of addresses.\n\n";
+		$config{SUPPORT_IP6LINKS} = "y";
+	} else {
+		yesno(SUPPORT_IP6LINKS,"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers which are using '::ffff:' notation?\nIf you are using a recent operating\nsystem and are unsure, answer yes.");
+		print "\n";
+	}
+
+	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
+		print "I have detected both GnuTLS and OpenSSL on your system.\n";
+		print "I will default to GnuTLS. If you wish to use OpenSSL\n";
+		print "instead, you should enable the OpenSSL module yourself\n";
+		print "by copying it from src/modules/extra to src/modules.\n\n";
+	}
+
+	if ($config{HAS_GNUTLS} eq "y") {
+		yesno(USE_GNUTLS, "Would you like to enable SSL Support?");
+		if ($config{USE_GNUTLS} eq "y") {
+			print "\nUsing GnuTLS SSL module.\n";
+		}
+	} elsif	($config{HAS_OPENSSL} eq "y") {
+			yesno(USE_OPENSSL, "Would you like to enable SSL Support?");
+	if ($config{USE_OPENSSL} eq "y") {
+			print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
 		}
 	}
-}
 
-print "\n";
+	print "\nThe following questions will ask you for various figures relating\n";
+	print "To your IRCd install. Please note that these should usually be left\n";
+	print "as defaults unless you have a real reason to change them. If they\n";
+	print "changed, then the values must be identical on all servers on your\n";
+	print "network, or malfunctions and/or crashes may occur, with the exception\n";
+	print "of the 'maximum number of clients' setting which may be different on\n";
+	print "different servers on the network.\n\n";
 
-# Directory Settings..
-my $tmpbase = $config{BASE_DIR};
-dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
-if ($tmpbase ne $config{BASE_DIR}) {
-	$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");           # Configuration Directory
-	$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");        # Modules Directory
-	$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");            # Binary Directory
-	$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");            # Library Directory
-}
-
-dir_check("are the configuration files", "CONFIG_DIR");
-dir_check("are the modules to be compiled to", "MODULE_DIR");
-dir_check("is the IRCd binary to be placed", "BINARY_DIR");
-dir_check("are the IRCd libraries to be placed", "LIBRARY_DIR");
-
-if ($has_kqueue) {
-	yesno(USE_KQUEUE,"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
-	print "\n";
-}
-if ($has_epoll) {
-	yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
-	print "\n";
-}
-$chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y"));
-if (!$chose_hiperf) {
-	print "No high-performance socket engines are available, or you chose\n";
-	print "not to enable one. Defaulting to select() engine.\n\n";
-}
-
-yesno(IPV6,"Would you like to build InspIRCd with IPv6 support?");
-print "\n";
-
-if ($config{IPV6} eq "y") {
-	print "You have chosen to build an \033[1;32mIPV6-only\033[0m server.\nTo accept IPV4 users, you must use the '::ffff:' notation of addresses.\n\n";
-	$config{SUPPORT_IP6LINKS} = "y";
-} else {
-	yesno(SUPPORT_IP6LINKS,"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers which are using '::ffff:' notation?\nIf you are using a recent operating\nsystem and are unsure, answer yes.");
-	print "\n";
-}
-
-if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
-	print "I have detected both GnuTLS and OpenSSL on your system.\n";
-	print "I will default to GnuTLS. If you wish to use OpenSSL\n";
-	print "instead, you should enable the OpenSSL module yourself\n";
-	print "by copying it from src/modules/extra to src/modules.\n\n";
-}
-
-if ($config{HAS_GNUTLS} eq "y") {
-	yesno(USE_GNUTLS, "Would you like to enable SSL Support?");
-	if ($config{USE_GNUTLS} eq "y") {
-		print "\nUsing GnuTLS SSL module.\n";
-	}
-} elsif ($config{HAS_OPENSSL} eq "y") {
-	yesno(USE_OPENSSL, "Would you like to enable SSL Support?");
-	if ($config{USE_OPENSSL} eq "y") {
-		print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
-	}
-}
-
-print "\nThe following questions will ask you for various figures relating\n";
-print "To your IRCd install. Please note that these should usually be left\n";
-print "as defaults unless you have a real reason to change them. If they\n";
-print "changed, then the values must be identical on all servers on your\n";
-print "network, or malfunctions and/or crashes may occur, with the exception\n";
-print "of the 'maximum number of clients' setting which may be different on\n";
-print "different servers on the network.\n\n";
-
-# File Descriptor Settings..
-my $continue = 0;
-while (!$continue) {
-	print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
-	print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_CLIENT};
-	}
-	if ($var =~ /^\d+$/) {
-		if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
-			# Client has entered a larger number than the 'discovered' value
-			# Confirm.
-			print "WARNING: Our scans have indicated that you are attempting
+	# File Descriptor Settings..
+	my $continue = 0;
+	while (!$continue) {
+		print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
+		print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_CLIENT};
+		}
+		if ($var =~ /^\d+$/) {
+			if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
+				# Client has entered a larger number than the 'discovered' value
+				# Confirm.
+				print "WARNING: Our scans have indicated that you are attempting
 to use more sockets than there are avaliable. Are you sure
 you wish to do this? It may cause the IRCd to malfunction [y/n]
 [\033[1;32mn\033[0m] -> $c";
-			chomp($tmp = <STDIN>);
-			if ($tmp ne "y") {
-				print "Please enter the correct value.\n\n";
-				next;
+				chomp($tmp = <STDIN>);
+				if ($tmp ne "y") {
+					print "Please enter the correct value.\n\n";
+					next;
+				}
 			}
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+			next;
 		}
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-		next;
-	}
-	# If we get here, we should be good to go.
-	$config{MAX_CLIENT} = $var;
-	$continue = 1;
-	print "\n";
-}
-
-my $continue = 0;
-while (!$continue) {
-	print "What is the maximum length of nicknames?\n";
-	print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{NICK_LENGT};
-	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{NICK_LENGT} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
-
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of channel names?\n";
-	print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{CHAN_LENGT};
-	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{CHAN_LENGT} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
-
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum number of channels a normal user may join at any one time?\n";
-	print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_CHANNE};
-	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_CHANNE} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
-
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum number of channels an oper may join at any one time?\n";
-	print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_OPERCH};
-	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_OPERCH} = $var;
+		# If we get here, we should be good to go.
+		$config{MAX_CLIENT} = $var;
 		$continue = 1;
 		print "\n";
 	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum number of mode changes in one line?\n";
-	print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAXI_MODES};
+	my $continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of nicknames?\n";
+		print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{NICK_LENGT};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{NICK_LENGT} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAXI_MODES} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of an ident (username)?\n";
-	print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_IDENT};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of channel names?\n";
+		print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{CHAN_LENGT};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{CHAN_LENGT} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_IDENT} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of a quit message?\n";
-	print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_QUIT};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum number of channels a normal user may join at any one time?\n";
+		print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_CHANNE};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_CHANNE} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_QUIT} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of a channel topic?\n";
-	print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_TOPIC};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum number of channels an oper may join at any one time?\n";
+		print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_OPERCH};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_OPERCH} = $var;
+			$continue = 1;
+			print "\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_TOPIC} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of a kick message?\n";
-	print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_KICK};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum number of mode changes in one line?\n";
+		print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
+			chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAXI_MODES};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAXI_MODES} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_KICK} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of a GECOS (real name) field?\n";
-	print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_GECOS};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of an ident (username)?\n";
+		print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_IDENT};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_IDENT} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_GECOS} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-$continue = 0;
-while (!$continue) {
-	print "What is the maximum length of an away message?\n";
-	print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{MAX_AWAY};
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of a quit message?\n";
+		print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_QUIT};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_QUIT} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
 	}
-	if ($var =~ /^\d+$/) {
-		# We don't care what the number is, set it and be on our way.
-		$config{MAX_AWAY} = $var;
-		$continue = 1;
-		print "\n";
-	} else {
-		print "You must enter a number in this field. Please try again.\n\n";
-	}
-}
 
-# Code Optimisation
-print "Enter the Level Of Binary optimisation. This is a number between 0 and 3.
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of a channel topic?\n";
+		print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_TOPIC};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_TOPIC} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
+	}
+
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of a kick message?\n";
+		print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_KICK};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_KICK} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
+	}
+
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of a GECOS (real name) field?\n";
+		print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_GECOS};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_GECOS} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
+	}
+
+	$continue = 0;
+	while (!$continue) {
+		print "What is the maximum length of an away message?\n";
+		print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
+		chomp($var = <STDIN>);
+		if ($var eq "") {
+			$var = $config{MAX_AWAY};
+		}
+		if ($var =~ /^\d+$/) {
+			# We don't care what the number is, set it and be on our way.
+			$config{MAX_AWAY} = $var;
+			$continue = 1;
+			print "\n";
+		} else {
+			print "You must enter a number in this field. Please try again.\n\n";
+		}
+	}
+
+	# Code Optimisation
+	print "Enter the Level Of Binary optimisation. This is a number between 0 and 3.
 The InspIRCd Team will NOT support any bug reports above 0. Also note,
 the IRCd behaviour will be different depending on this value. Please
 read the documentation for more information.
@@ -625,24 +816,25 @@ value will default to 0 if you either don't enter a number, or enter
 a value outside the range.
 
 As always, if you are unsure, just press enter and accept the default.\n\n";
-print "[\033[1;32m$config{OPTIMITEMP}\033[0m] -> ";
-chomp($var = <STDIN>);
-if ($var eq "") {
-	$var = $config{OPTIMITEMP};
-}
+	print "[\033[1;32m$config{OPTIMITEMP}\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "") {
+		$var = $config{OPTIMITEMP};
+	}
 
-if ($var eq "1") {
-	$config{OPTIMITEMP} = 1;
-	$config{OPTIMISATI} = "-O";
-} elsif ($var eq "2") {
-	$config{OPTIMITEMP} = 2;
-	$config{OPTIMISATI} = "-O2";
-} elsif ($var eq "3") {
-	$config{OPTIMITEMP} = 3;
-	$config{OPTIMISATI} = "-O3";
-} else {
-	$config{OPTIMITEMP} = 0;
-	$config{OPTIMISATI} = "-g";
+	if ($var eq "1") {
+		$config{OPTIMITEMP} = 1;
+		$config{OPTIMISATI} = "-O";
+	} elsif ($var eq "2") {
+		$config{OPTIMITEMP} = 2;
+		$config{OPTIMISATI} = "-O2";
+	} elsif ($var eq "3") {
+		$config{OPTIMITEMP} = 3;
+		$config{OPTIMISATI} = "-O3";
+	} else {
+		$config{OPTIMITEMP} = 0;
+		$config{OPTIMISATI} = "-g";
+	}
 }
 
 print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
@@ -1644,4 +1836,71 @@ cmd_$cmd.so: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/insp
 ITEM
 	}
 	close(FH);
+}
+
+sub showhelp
+{
+	print "Usage: configure [options]
+Options: [defaults in brackets after descriptions]
+
+When no options are specified, interactive
+configuration is started and you must specify
+any required values manually. If one or more
+options are specified, non-interactive configuration
+is started, and any omitted values are defaulted.
+
+Interactive configuration and reconfiguration:
+
+  -update                      Update makefiles
+  -modupdate                   Detect new modules
+  -svnupdate {rebuild}         Update working copy
+                               {and optionally rebuild}
+  -clean                       Remove .config.cache
+
+Non-interactive and initial configuration:
+
+  --enable-gnutls              Enable GnuTLS module [no]
+  --enable-openssl             Enable OpenSSL module [no]
+  --with-nick-length=[n]       Specify max. nick length [32]
+  --with-channel-length=[n]    Specify max. channel length
+                               [64]
+  --with-max-channels=[n]      Specify max. number of channels
+                               a normal user may join [20]
+  --with-max-oper-channels=[n] Specify max. number of channels
+                               an irc operator may join [60]
+  --with-max-clients=[n]       Specify maximum number of users
+                               which may connect locally
+  --enable-optimization=[n]    Optimize using -O[n] gcc flag
+  --enable-epoll               Enable epoll() where supported
+                               [set]
+  --enable-kqueue              Enable kqueue() where supported
+                               [set]
+  --disable-epoll              Do not enable epoll(), fall back
+                               to select() [not set]
+  --disable-kqueue             Do not enable kqueue(), fall back
+                               to select() [not set]
+  --enable-ipv6                Build ipv6 native InspIRCd [no]
+  --enable-remote-ipv6         Build with ipv6 support for remote
+                               servers on the network [yes]
+  --disable-remote-ipv6        No not allow remote ipv6 servers
+                               [not set]
+  --with-cc=[filename]         Use an alternative g++ binary to
+                               build InspIRCd [g++]
+  --with-ident-length=[n]      Specify max length of ident [12]
+  --with-quit-length=[n]       Specify max length of quit [200]
+  --with-topic-length=[n]      Specify max length of topic [350]
+  --with-kick-length=[n]       Specify max length of kick [200]
+  --with-gecos-length=[n]      Specify max length of gecos [150]
+  --with-away-length=[n]       Specify max length of away [150]
+  --with-max-modes=[n]         Specify max modes per line which
+                               have parameters [20]
+  --prefix=[directory]         Base directory to install into
+                               [current directory]
+  --config-dir=[directory]     Config file directory [prefix/conf]
+  --module-dir=[directory]     Modules directory [prefix/modules]
+  --binary-dir=[directory]     Binaries directory [prefix/bin]
+  --library-dir=[directory]    Library directory [prefix/lib]
+  --help                       Show this help text
+";
+	exit(0);
 }
