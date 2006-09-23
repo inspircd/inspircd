@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.0b1+Chavtastic"
+echo "InspIRCd-1.1.0b2+SVN"
