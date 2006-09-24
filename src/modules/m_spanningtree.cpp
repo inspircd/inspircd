@@ -37,7 +37,7 @@ using namespace std;
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  */
-const long ProtocolVersion = 1100;
+const long ProtocolVersion = 1101;
 
 /*
  * The server list in InspIRCd is maintained as two structures
@@ -2620,6 +2620,52 @@ class TreeSocket : public InspSocket
 		}
 	}
 
+	bool RemoveStatus(std::string prefix, std::deque<std::string> &params)
+	{
+		if (params.size() < 1)
+			return true;
+
+		chanrec* c = Instance->FindChan(params[0]);
+
+		if (c)
+		{
+			CUList *ulist = c->GetUsers();
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			{
+				std::string modesequence = Instance->Modes->ModeString(i->second, c);
+				if (modesequence.length())
+				{
+					modesequence = "-" + modesequence;
+
+					std::deque<std::string> items;
+					const char* y[127];
+					unsigned int z = 0;
+					std::string x = "*";
+					irc::spacesepstream sep(modesequence);
+					
+					while ((x = sep.GetToken()) != "")
+					{
+						if (!z)
+						{
+							y[z++] = c->name;
+							items.push_back(c->name);
+							items.push_back(ConvToStr(c->age));
+						}
+						items.push_back(x);
+						y[z++] = (items.end() - 1)->c_str();
+					}
+
+					DoOneToMany(Instance->Config->ServerName, "FMODE", items);
+					userrec* n = new userrec(Instance);
+					n->SetFd(FD_MAGIC_NUMBER);
+					Instance->SendMode(y,z,n);
+					delete n;
+				}
+			}
+		}
+		return true;
+	}
+
 	bool RemoteServer(std::string prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 4)
@@ -3014,6 +3060,10 @@ class TreeSocket : public InspSocket
 				else if (command == "METADATA")
 				{
 					return this->MetaData(prefix,params);
+				}
+				else if (command == "REMSTATUS")
+				{
+					return this->RemoveStatus(prefix,params);
 				}
 				else if (command == "PING")
 				{
