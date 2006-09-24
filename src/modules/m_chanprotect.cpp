@@ -454,22 +454,29 @@ class ModuleChanProtect : public Module
 	
 	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
-		// this is called when the server is linking into a net and wants to sync channel data.
-		// we should send our mode changes for the channel here to ensure that other servers
-		// know whos +q/+a on the channel.
-		CUList* cl = chan->GetUsers();
-		string_list commands;
-		std::string founder = "cm_founder_"+std::string(chan->name);
-		std::string protect = "cm_protect_"+std::string(chan->name);
-		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
+		/* NOTE: If +qa prefix is on, this is propogated by the channel join,
+		 * so we dont need to propogate it manually
+		 */
+		if (!QAPrefixes)
 		{
-			if (i->second->GetExt(founder,dummyptr))
+			// this is called when the server is linking into a net and wants to sync channel data.
+			// we should send our mode changes for the channel here to ensure that other servers
+			// know whos +q/+a on the channel.
+			CUList* cl = chan->GetUsers();
+			string_list commands;
+			std::string founder = "cm_founder_"+std::string(chan->name);
+			std::string protect = "cm_protect_"+std::string(chan->name);
+			for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(i->second->nick));
-			}
-			if (i->second->GetExt(protect,dummyptr))
-			{
-				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(i->second->nick));
+				if (i->second->GetExt(founder,dummyptr))
+				{
+					proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(i->second->nick));
+				}
+				if (i->second->GetExt(protect,dummyptr))
+				{
+					proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(i->second->nick));
+			
+				}
 			}
 		}
 	}
