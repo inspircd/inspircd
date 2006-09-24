@@ -93,7 +93,7 @@ int SelectEngine::DispatchEvents()
 	int result = 0;
 	timeval tval;
 	int sresult = 0;
-	EventHandler* ev[MAX_DESCRIPTOR];
+	EventHandler* ev[MAX_DESCRIPTORS];
 
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
