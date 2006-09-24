@@ -1546,7 +1546,23 @@ class TreeSocket : public InspSocket
 			ourTS = us->age;
 		}
 
-		Instance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
+		/* XXX: PAY ATTENTION:
+		 * In 1.1, if they have the newer channel, we immediately clear
+		 * all status modes from our users. We then accept their modes.
+		 * If WE have the newer channel its the other side's job to do this.
+		 * Note that this causes the losing server to send out confirming
+		 * FMODE lines.
+		 */
+		if ((ourTS > TS) || (this->Instance->ULine(who->server)))
+		{
+			Instance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
+			std::deque<std::string> param_list;
+			us->age = TS;
+			ourTS = TS;
+			param_list.push_back(chan->name);
+			Instance->Log(DEBUG,"REMOVE ALL STATUS MODES FROM OUR USERS *NOW*");
+			this->RemoveStatus(Instance->Config->ServerName, param_list);
+		}
 
 		irc::tokenstream users(params[2]);
 		std::string item = "*";
@@ -1611,25 +1627,6 @@ class TreeSocket : public InspSocket
 								ourTS = TS;
 							}
 						}
-						else
-						{
-							Instance->Log(DEBUG,"Their channel newer than ours, bouncing their modes");
-							/* bouncy bouncy! */
-							std::deque<std::string> params;
-							/* modes are now being UNSET... */
-							*mode_users[1] = '-';
-							for (unsigned int x = 0; x < modectr; x++)
-							{
-								if (x == 1)
-								{
-									params.push_back(ConvToStr(us->age));
-								}
-								params.push_back(mode_users[x]);
-								
-							}
-							// tell everyone to bounce the modes. bad modes, bad!
-							DoOneToMany(this->Instance->Config->ServerName,"FMODE",params);
-						}
 						strcpy(mode_users[1],"+");
 						for (unsigned int f = 2; f < modectr; f++)
 							free(mode_users[f]);
@@ -1638,7 +1635,7 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
-					Instance->Log(SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", who->nick, channel.c_str());
+					Instance->Log(SPARSE,"Warning! Invalid user in FJOIN to channel %s IGNORED", channel.c_str());
 					continue;
 				}
 			}
@@ -1658,21 +1655,6 @@ class TreeSocket : public InspSocket
 					us->age = TS;
 					ourTS = TS;
 				}
-			}
-			else
-			{
-				Instance->Log(DEBUG,"Their channel newer than ours, bouncing their modes");
-				std::deque<std::string> params;
-				*mode_users[1] = '-';
-				for (unsigned int x = 0; x < modectr; x++)
-				{
-					if (x == 1)
-					{
-						params.push_back(ConvToStr(us->age));
-					}
-					params.push_back(mode_users[x]);
-				}
-				DoOneToMany(this->Instance->Config->ServerName,"FMODE",params);
 			}
 
 			for (unsigned int f = 2; f < modectr; f++)
