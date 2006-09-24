@@ -68,6 +68,12 @@ class KickRejoin : public ModeHandler
 			}
 			else
 			{
+				if (!adding)
+				{
+					channel->SetModeParam('J', parameter.c_str(), adding);
+					return MODEACTION_ALLOW;
+				}
+
 				std::string cur_param = channel->GetModeParameter('J');
 				if (cur_param == parameter)
 				{

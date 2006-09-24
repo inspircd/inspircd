@@ -63,9 +63,13 @@ class User_r : public ModeHandler
 	{
 		if ((kludgeme) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
-			ServerInstance->Log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
-			dest->SetMode('r',adding);
-			return MODEACTION_ALLOW;
+			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
+			{
+				ServerInstance->Log(DEBUG,"Allowing umode +r, server and nick are: '%s','%s'",source->nick,source->server);
+				dest->SetMode('r',adding);
+				return MODEACTION_ALLOW;
+			}
+			return MODEACTION_DENY;
 		}
 		else
 		{
