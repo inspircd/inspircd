@@ -47,8 +47,8 @@ GetOptions (
 	'binary-dir=s' => \$opt_binary_dir,
 	'library-dir=s' => \$opt_library_dir,
 	'help'	=> sub { showhelp(); },
-	'modupdate' => sub { update(); },
-	'update' => sub { modupdate(); },
+	'modupdate' => sub { modupdate(); },
+	'update' => sub { update(); },
 	'svnupdate' => sub { svnupdate(); },
 	'clean' => sub { clean(); },
 );
