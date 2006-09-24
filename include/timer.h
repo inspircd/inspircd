@@ -84,7 +84,7 @@ class TimerManager : public Extensible
 	 * @param T an InspTimer derived class to add
 	 */
 	void AddTimer(InspTimer* T);
-	/** Delete and InspTImer
+	/** Delete an InspTimer
 	 * @param T an InspTimer derived class to delete
 	 */
 	void DelTimer(InspTimer* T);
