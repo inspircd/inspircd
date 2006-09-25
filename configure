@@ -294,6 +294,7 @@ sub clean
 
 sub update
 {
+	getmodules();
 	# Does the cache file exist?
 	if (!getcache()) {
 		# No, No it doesn't.. *BASH*
@@ -313,6 +314,7 @@ sub update
 
 sub modupdate
 {
+	getmodules();
         # Does the cache file exist?
         if (!getcache()) {
                 # No, No it doesn't.. *BASH*

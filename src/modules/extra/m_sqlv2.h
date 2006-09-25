@@ -30,6 +30,13 @@ typedef std::deque<std::string> ParamL;
  */
 class SQLexception : public ModuleException
 {
+	SQLexception(const std::string &reason) : ModuleException(reason)
+	{
+	}
+
+	SQLexception() : ModuleException("SQLv2: Undefined exception")
+	{
+	}
 };
 
 /** An exception thrown when a bad column or row name or id is requested
@@ -37,7 +44,9 @@ class SQLexception : public ModuleException
 class SQLbadColName : public SQLexception
 {
 public:
-	SQLbadColName() { }
+	SQLbadColName() : SQLexception("SQLv2: Bad column name")
+	{
+	}
 };
 
 /** SQLerror holds the error state of any SQLrequest or SQLresult.
