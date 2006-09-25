@@ -210,9 +210,10 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (!Ptr)
 	{
+		privs = "@";
+
 		if (IS_LOCAL(user))
 		{
-			privs = "@";
 			MOD_RESULT = 0;
 			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname,privs));
 			if (MOD_RESULT == 1)
