@@ -377,7 +377,7 @@ class ModuleHttp : public Module
 
 		httpsocks.clear();
 
-		for (int i = 0; i < c.Enumerate("alias"); i++)
+		for (int i = 0; i < c.Enumerate("http"); i++)
 		{
 			host = c.ReadValue("http", "host", i);
 			bindip = c.ReadValue("http", "ip", i);
