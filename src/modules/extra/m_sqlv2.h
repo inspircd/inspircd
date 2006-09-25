@@ -30,6 +30,7 @@ typedef std::deque<std::string> ParamL;
  */
 class SQLexception : public ModuleException
 {
+ public:
 	SQLexception(const std::string &reason) : ModuleException(reason)
 	{
 	}

@@ -4495,34 +4495,17 @@ class ModuleSpanningTree : public Module
 		// Only do this for local users
 		if (IS_LOCAL(user))
 		{
-			char ts[24];
-			snprintf(ts,24,"%lu",(unsigned long)channel->age);
-
 			std::deque<std::string> params;
 			params.clear();
 			params.push_back(channel->name);
-
-			/** XXX: The client protocol will IGNORE this parameter.
-			 * We could make use of it if we wanted to keep the TS
-			 * in step if somehow we lose it.
-			 */
-			params.push_back(ts);
-
-			if (channel->GetUserCounter() > 1)
-			{
-				// not the first in the channel
-				DoOneToMany(user->nick,"JOIN",params);
-			}
-			else
-			{
-				// first in the channel, set up their permissions
-				// and the channel TS with FJOIN.
-				params.clear();
-				params.push_back(channel->name);
-				params.push_back(ts);
-				params.push_back("@,"+std::string(user->nick));
-				DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
-			}
+			// set up their permissions and the channel TS with FJOIN.
+			// All users are FJOINed now, because a module may specify
+			// new joining permissions for the user.
+			params.clear();
+			params.push_back(channel->name);
+			params.push_back(ConvToStr(channel->age));
+			params.push_back(c->GetAllPrefixChars(i->second)+","+std::string(user->nick));
+			DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 		}
 	}
 

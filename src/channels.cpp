@@ -199,10 +199,12 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	if (!user || !cn)
 		return NULL;
 
-	int created = 0;
+	bool new_channel = false;
 	char cname[MAXBUF];
 	int MOD_RESULT = 0;
 	strlcpy(cname,cn,CHANMAX);
+
+	std::string privs;
 
 	chanrec* Ptr = Instance->FindChan(cname);
 
@@ -210,8 +212,9 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	{
 		if (IS_LOCAL(user))
 		{
+			privs = "@";
 			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname,privs));
 			if (MOD_RESULT == 1)
 				return NULL;
 		}
@@ -227,12 +230,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		*Ptr->setby = 0;
 		Ptr->topicset = 0;
 		Instance->Log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
-		/*
-		 * set created to 2 to indicate user
-		 * is the first in the channel
-		 * and should be given ops
-		 */
-		created = 2;
+		new_channel = true;
 	}
 	else
 	{
@@ -247,7 +245,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		if (IS_LOCAL(user)) /* was a check on fd > -1 */
 		{
 			MOD_RESULT = 0;
-			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname));
+			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname,privs));
 			if (MOD_RESULT == 1)
 			{
 				return NULL;
@@ -321,14 +319,13 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		{
 			Instance->Log(DEBUG,"chanrec::JoinUser(): Overridden checks");
 		}
-		created = 1;
 	}
 
 	for (UserChanList::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
 	{
 		if ((*index)->channel == NULL)
 		{
-			return chanrec::ForceChan(Instance, Ptr, *index, user, created);
+			return chanrec::ForceChan(Instance, Ptr, *index, user, privs);
 		}
 	}
 
@@ -340,7 +337,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	if (!IS_LOCAL(user)) /* was a check on fd < 0 */
 	{
 		ucrec* a = new ucrec();
-		chanrec* c = chanrec::ForceChan(Instance, Ptr,a,user,created);
+		chanrec* c = chanrec::ForceChan(Instance, Ptr, a, user, privs);
 		user->chans.push_back(a);
 		return c;
 	}
@@ -350,7 +347,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		if (user->chans.size() < OPERMAXCHANS)
 		{
 			ucrec* a = new ucrec();
-			chanrec* c = chanrec::ForceChan(Instance, Ptr,a,user,created);
+			chanrec* c = chanrec::ForceChan(Instance, Ptr, a, user, privs);
 			user->chans.push_back(a);
 			return c;
 		}
@@ -358,7 +355,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	user->WriteServ("405 %s %s :You are on too many channels",user->nick, cname);
 
-	if (created == 2)
+	if (new_channel)
 	{
 		Instance->Log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
@@ -392,24 +389,41 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	return NULL;
 }
 
-chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, int created)
+chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, const std::string &privs)
 {
-	if (created == 2)
+	a->uc_modes = 0;
+
+	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
-		/* first user in is given ops */
-		a->uc_modes = UCMODE_OP;
-		Ptr->AddOppedUser(user);
-		Ptr->SetPrefix(user, '@', OP_VALUE, true);
-	}
-	else
-	{
-		a->uc_modes = 0;
+		const char status = *x;
+		switch (status)
+		{
+			case '@':
+				a->uc_modes = UCMODE_OP;
+			break;
+			case '%':
+				a->uc_modes = UCMODE_HOP;
+			break;
+			case '+':
+				a->uc_modes = UCMODE_VOICE;
+			break;
+		}
+		ModeHandler* mh = ServerInstance->Modes->FindPrefix(status);
+		if (mh)
+		{
+			Ptr->SetPrefix(user, status, mh->GetRank(), true);
+		}
 	}
 
 	a->channel = Ptr;
 	Ptr->AddUser(user);
 	user->ModChannelCount(1);
 	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
+
+	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
+	std::string ms = ServerInstance->Modes->ModeString(user, channel);
+	if ((channel->usercount() > 1) && (ms.length()))
+		channel->WriteAllExceptSender(user, true, 0, "MODE %s +%s", channel->name, ms.c_str());
 
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))

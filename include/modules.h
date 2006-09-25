@@ -488,10 +488,13 @@ class Module : public Extensible
 	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
 	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 	 * @param user The user joining the channel
-	 * @param cname The channel name being joined
+	 * @param chan If the  channel is a new channel, this will be NULL, otherwise it will be a pointer to the channel being joined
+	 * @param cname The channel name being joined. For new channels this is valid where chan is not.
+	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "@".
+	 * You may alter this string to alter the user's modes on the channel.
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname);
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs);
 	
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no

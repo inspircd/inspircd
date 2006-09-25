@@ -113,7 +113,7 @@ void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage) { }
 void		Module::OnRehash(const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
-int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname) { return 0; }
+int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs) { return 0; }
 void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { };
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
 void		Module::OnOper(userrec* user, const std::string &opertype) { };

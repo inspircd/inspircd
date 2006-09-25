@@ -150,7 +150,7 @@ class chanrec : public Extensible
 
 	/** Connect a chanrec to a userrec
 	 */
-	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, int created);
+	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, const std::string &privs);
 
 	prefixlist prefixes;
 
