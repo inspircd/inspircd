@@ -91,6 +91,11 @@ class HttpSocket : public InspSocket
 		Instance->Timers->AddTimer(Timeout);
 	}
 
+	FileReader* GetIndex()
+	{
+		return index;
+	}
+
 	~HttpSocket()
 	{
 		if (Instance->Time() < Timeout->GetTimer())
@@ -357,43 +362,36 @@ void HTTPTimeout::Tick(time_t TIME)
 
 class ModuleHttp : public Module
 {
-	int port;
-	std::string host;
-	std::string bindip;
-	std::string indexfile;
-
-	FileReader* index;
-
-	HttpSocket* http;
-
+	std::vector<HttpSocket*> httpsocks;
  public:
 
 	void ReadConfig()
 	{
+		int port;
+		std::string host;
+		std::string bindip;
+		std::string indexfile;
+		FileReader* index;
+		HttpSocket* http;
 		ConfigReader c(ServerInstance);
-		this->host = c.ReadValue("http", "host", 0);
-		this->bindip = c.ReadValue("http", "ip", 0);
-		this->port = c.ReadInteger("http", "port", 0, true);
-		this->indexfile = c.ReadValue("http", "index", 0);
 
-		if (index)
+		httpsocks.clear();
+
+		for (int i = 0; i < c.Enumerate("alias"); i++)
 		{
-			delete index;
-			index = NULL;
+			host = c.ReadValue("http", "host", i);
+			bindip = c.ReadValue("http", "ip", i);
+			port = c.ReadInteger("http", "port", i, true);
+			indexfile = c.ReadValue("http", "index", i);
+			index = new FileReader(ServerInstance, indexfile);
+			http = new HttpSocket(ServerInstance, bindip, port, true, 0, index);
+			httpsocks.push_back(http);
 		}
-		index = new FileReader(ServerInstance, this->indexfile);
-	}
-
-	void CreateListener()
-	{
-		http = new HttpSocket(ServerInstance, this->bindip, this->port, true, 0, index);
 	}
 
 	ModuleHttp(InspIRCd* Me) : Module::Module(Me)
 	{
-		index = NULL;
 		ReadConfig();
-		CreateListener();
 	}
 
 	void OnEvent(Event* event)
@@ -417,7 +415,12 @@ class ModuleHttp : public Module
 
 	virtual ~ModuleHttp()
 	{
-		ServerInstance->SE->DelFd(http);
+		for (size_t i = 0; i < httpsocks.size(); i++)
+		{
+			ServerInstance->SE->DelFd(httpsocks[i]);
+			delete httpsocks[i]->GetIndex();
+			delete httpsocks[i];
+		}
 	}
 
 	virtual Version GetVersion()
