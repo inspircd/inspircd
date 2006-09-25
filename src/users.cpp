@@ -1000,17 +1000,21 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 long userrec::GlobalCloneCount()
 {
-	char u1[1024] = {0};
-	char u2[1024] = {0};
+	char u1[128] = {0};
+	char u2[128] = {0};
 	long x = 0;
+	
+	this->GetIPString(u2);
+	
 	for (user_hash::const_iterator a = ServerInstance->clientlist.begin(); a != ServerInstance->clientlist.end(); a++)
 	{
 		/* We have to match ip's as strings - we don't know what protocol
 		 * a remote user may be using
 		 */
-		if (!strcasecmp(a->second->GetIPString(u1), this->GetIPString(u2)))
-				x++;
+		if (strcmp(a->second->GetIPString(u1), u2) == 0)
+			x++;
 	}
+	
 	return x;
 }
 
