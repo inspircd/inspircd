@@ -64,7 +64,7 @@ class ModuleRestrictChans : public Module
 		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		irc::string x = cname;
 		// user is not an oper and its not in the allow list

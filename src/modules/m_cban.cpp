@@ -158,7 +158,7 @@ class ModuleCBan : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname)
+	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname, std::string &privs)
 	{
 		ExpireBans();
 	

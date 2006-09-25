@@ -229,7 +229,7 @@ class ModuleJoinFlood : public Module
 		ServerInstance->AddMode(jf, 'j');
 	}
 	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{

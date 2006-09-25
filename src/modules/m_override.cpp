@@ -240,7 +240,7 @@ class ModuleOverride : public Module
 		return ACR_DEFAULT;
 	}
 	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		if (*user->oper)
 		{

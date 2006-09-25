@@ -58,7 +58,7 @@ class ModuleDenyChannels : public Module
 		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{

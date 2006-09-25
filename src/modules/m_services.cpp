@@ -267,7 +267,7 @@ class ModuleServices : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status);
 	}
  	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{

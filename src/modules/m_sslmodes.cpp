@@ -87,7 +87,7 @@ class ModuleSSLModes : public Module
 		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname)
+	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
