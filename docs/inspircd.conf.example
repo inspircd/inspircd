@@ -1022,6 +1022,10 @@
 #<http ip="192.168.1.10" host="brainwave" port="32006"
 #      index="/home/brain/inspircd/http/index.html">
 #
+# You may have as many of these tags as you wish, each with a different
+# IP, port, host or index file. Each one will act as an independent
+# HTTP server.
+#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http stats module: Provides basic stats pages over HTTP
