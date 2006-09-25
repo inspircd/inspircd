@@ -56,7 +56,7 @@ SVSHoldlist SVSHolds;
 class cmd_svshold : public command_t
 {
  public:
-	cmd_svshold(InspIRCd* Me) : command_t(Me, "SVSHold", 'o', 1)
+	cmd_svshold(InspIRCd* Me) : command_t(Me, "SVSHOLD", 'o', 1)
 	{
 		this->source = "m_svshold.so";
 		this->
