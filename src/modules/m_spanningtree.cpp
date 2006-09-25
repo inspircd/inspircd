@@ -4821,17 +4821,26 @@ class ModuleSpanningTree : public Module
 
 	virtual void OnEvent(Event* event)
 	{
+		std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
+
 		if (event->GetEventID() == "send_metadata")
 		{
-			std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
 			if (params->size() < 3)
 				return;
 			(*params)[2] = ":" + (*params)[2];
 			DoOneToMany(ServerInstance->Config->ServerName,"METADATA",*params);
 		}
+		else if (event->GetEventID() == "send_topic")
+		{
+			if (params->size() < 2)
+				return;
+			(*params)[1] = ":" + (*params)[1];
+			params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
+			params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time()));
+			DoOneToMany(ServerInstance->Config->ServerName,"FTOPIC",*params);
+		}
 		else if (event->GetEventID() == "send_mode")
 		{
-			std::deque<std::string>* params = (std::deque<std::string>*)event->GetData();
 			if (params->size() < 2)
 				return;
 			// Insert the TS value of the object, either userrec or chanrec
