@@ -4504,7 +4504,7 @@ class ModuleSpanningTree : public Module
 			params.clear();
 			params.push_back(channel->name);
 			params.push_back(ConvToStr(channel->age));
-			params.push_back(c->GetAllPrefixChars(i->second)+","+std::string(user->nick));
+			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->nick));
 			DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 		}
 	}
