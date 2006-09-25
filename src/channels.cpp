@@ -408,10 +408,10 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 				a->uc_modes = UCMODE_VOICE;
 			break;
 		}
-		ModeHandler* mh = ServerInstance->Modes->FindPrefix(status);
+		ModeHandler* mh = Instance->Modes->FindPrefix(status);
 		if (mh)
 		{
-			Ptr->SetPrefix(user, status, mh->GetRank(), true);
+			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
 		}
 	}
 
@@ -421,9 +421,9 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
-	std::string ms = ServerInstance->Modes->ModeString(user, channel);
-	if ((channel->usercount() > 1) && (ms.length()))
-		channel->WriteAllExceptSender(user, true, 0, "MODE %s +%s", channel->name, ms.c_str());
+	std::string ms = Instance->Modes->ModeString(user, Ptr);
+	if ((Ptr->GetUserCounter() > 1) && (ms.length()))
+		Ptr->WriteAllExceptSender(user, true, 0, "MODE %s +%s", Ptr->name, ms.c_str());
 
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))
