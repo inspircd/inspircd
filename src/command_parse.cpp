@@ -518,7 +518,7 @@ bool CommandParser::ReloadCommand(const char* cmd)
 		dlclose(command->second);
 		RFCCommands.erase(command);
 
-		sprintf(filename, "cmd_%s.so", commandname);
+		snprintf(filename, MAXBUF, "cmd_%s.so", commandname);
 		this->LoadCommand(filename);
 
 		return true;

@@ -127,7 +127,7 @@ class cmd_check : public command_t
 				 * find how many connections from this user's IP -- unlike Asuka,
 				 * I define a clone as coming from the same host. --w00t
 				 */
-				sprintf(ptr, "%lu    ", i->second->GlobalCloneCount());
+				snprintf(ptr, MAXBUF, "%lu    ", i->second->GlobalCloneCount());
 				
 				if (flags & UCMODE_OP)
 				{
@@ -144,8 +144,8 @@ class cmd_check : public command_t
 					strcat(ptr, "+");
 				}
 				
-				sprintf(tmpbuf, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
-				strcat(ptr, tmpbuf);
+				snprintf(tmpbuf, MAXBUF, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
+				strlcat(ptr, tmpbuf, MAXBUF);
 				
 				user->WriteServ(checkstr + " member " + ptr);
 			}

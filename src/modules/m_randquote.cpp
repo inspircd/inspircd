@@ -43,18 +43,16 @@ class cmd_randquote : public command_t
 	{
 		std::string str;
 		int fsize;
-		char buf[MAXBUF];
+
 		if (q_file == "" || quotes->Exists())
 		{
 			fsize = quotes->FileSize();
 			str = quotes->GetLine(rand() % fsize);
-			sprintf(buf,"NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
-			user->WriteServ(std::string(buf));
+			user->WriteServ("NOTICE %s :%s%s%s",user->nick,prefix.c_str(),str.c_str(),suffix.c_str());
 		}
 		else
 		{
-			sprintf(buf, "NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
-			user->WriteServ(std::string(buf));
+			user->WriteServ("NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;

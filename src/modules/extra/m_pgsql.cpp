@@ -523,7 +523,7 @@ public:
 		
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
 		
-		strcpy(sqlsuccess, SQLSUCCESS);
+		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS)+1);
 
 		OnRehash("");
 	}

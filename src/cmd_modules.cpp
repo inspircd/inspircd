@@ -82,7 +82,7 @@ CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 								if (ServerInstance->Config->implement_lists[i][it])
 								{
 									snprintf(data,MAXBUF,"%s=>%c ",itab[it],(ServerInstance->Config->implement_lists[i][it] ? '1' : '0'));
-									strncat(dlist,data,MAXBUF);
+									strlcat(dlist,data,MAXBUF);
 								}
 								it++;
 							}

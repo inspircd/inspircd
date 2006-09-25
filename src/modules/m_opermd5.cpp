@@ -252,23 +252,17 @@ void MyMD5(void *dest, void *orig, int len)
 
 void GenHash(const char* src, char* dest)
 {
-	int i = 0;
 	unsigned char bytes[16];
-	char hash[1024];
-	*hash = 0;
+	const char* xtab = "0123456789abcdef";
+
 	MyMD5((char*)bytes,(void*)src,strlen(src));
-	for (i = 0; i < 16; i++)
+
+	for (int i = 0; i < 16; i++)
 	{
-		const char* xtab = "0123456789abcdef";
-		unsigned char lo = xtab[bytes[i] % 16];
-		unsigned char hi = xtab[bytes[i] / 16];
-		char hx[3];
-		hx[0] = hi;
-		hx[1] = lo;
-		hx[2] = '\0';
-		strcat(hash,hx);
+		*dest++ = xtab[bytes[i] % 16];
+		*dest++ = xtab[bytes[i] / 16];
 	}
-	strcpy(dest,hash);
+	*dest++ = 0;
 }
 
 /** Handle /MKPASSWD

@@ -57,7 +57,7 @@ class cmd_tline : public command_t
 			else
 			{
 				char host[MAXBUF];
-				sprintf(host, "%s@%s", u->second->ident, u->second->GetIPString());
+				snprintf(host, MAXBUF, "%s@%s", u->second->ident, u->second->GetIPString());
 				if (match(host, parameters[0], true))
 				{
 					n_matched++;

@@ -304,7 +304,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 					MOD_RESULT = 0;
 					FOREACH_RESULT_I(Instance,I_OnCheckBan,OnCheckBan(user, Ptr));
 					char mask[MAXBUF];
-					sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
+					snprintf(mask, MAXBUF, "%s!%s@%s",user->nick, user->ident, user->GetIPString());
 					if (!MOD_RESULT)
 					{
 						if (Ptr->IsBanned(user))
@@ -443,7 +443,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 bool chanrec::IsBanned(userrec* user)
 {
 	char mask[MAXBUF];
-	sprintf(mask,"%s!%s@%s",user->nick, user->ident, user->GetIPString());
+	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
 	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 	{
 		/* This allows CIDR ban matching
