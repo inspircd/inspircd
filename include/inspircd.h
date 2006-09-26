@@ -245,9 +245,8 @@ class InspIRCd : public classbase
 	void Start();
 
 	/** Set up the signal handlers
-	 * @param SEGVHandler create a handler for segfaults (deprecated)
 	 */
-	void SetSignals(bool SEGVHandler);
+	void SetSignals();
 
 	/** Daemonize the ircd and close standard input/output streams
 	 * @return True if the program daemonized succesfully

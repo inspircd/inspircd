@@ -99,7 +99,7 @@ void InspIRCd::Rehash(int status)
 	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
 }
 
-void InspIRCd::SetSignals(bool SEGVHandler)
+void InspIRCd::SetSignals()
 {
 	signal(SIGALRM, SIG_IGN);
 	signal(SIGHUP, InspIRCd::Rehash);
@@ -170,8 +170,6 @@ std::string InspIRCd::GetRevision()
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
-	bool SEGVHandler = false;
-
 	modules.resize(255);
 	factory.resize(255);
 	
@@ -207,14 +205,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			else if (!strcmp(argv[i],"-wait"))
 			{
 				sleep(6);
-			}
-			else if (!strcmp(argv[i],"-nolimit"))
-			{
-				printf("WARNING: The `-nolimit' option is deprecated, and now on by default. This behaviour may change in the future.\n");
-			}
-			else if (!strcmp(argv[i],"-notraceback"))
-			{
-				SEGVHandler = false;
 			}
 			else if (!strcmp(argv[i],"-logfile"))
 			{
@@ -260,7 +250,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
 
 	printf("\n");
-	this->SetSignals(SEGVHandler);
+	this->SetSignals();
 	if (!Config->nofork)
 	{
 		if (!this->DaemonSeed())
