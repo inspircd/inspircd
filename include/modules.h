@@ -1179,6 +1179,7 @@ class Module : public Extensible
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
 	 * event. To do so, use the OnUserConnect method to change the state of local users.
+	 * This is called for both local and remote users.
 	 * @param user The user who is connecting
 	 */
 	virtual void OnPostConnect(userrec* user);

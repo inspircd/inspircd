@@ -1735,6 +1735,8 @@ class TreeSocket : public InspSocket
 			SourceServer->AddUserCount();
 		}
 
+		FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
+
 		return true;
 	}
 
