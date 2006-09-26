@@ -400,13 +400,13 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 		switch (status)
 		{
 			case '@':
-				a->uc_modes = UCMODE_OP;
+				a->uc_modes |= UCMODE_OP;
 			break;
 			case '%':
-				a->uc_modes = UCMODE_HOP;
+				a->uc_modes |= UCMODE_HOP;
 			break;
 			case '+':
-				a->uc_modes = UCMODE_VOICE;
+				a->uc_modes |= UCMODE_VOICE;
 			break;
 		}
 		ModeHandler* mh = Instance->Modes->FindPrefix(status);
