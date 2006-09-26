@@ -728,7 +728,7 @@ class TreeSocket : public InspSocket
 			{
 				if (x->Name == this->myhost)
 				{
-					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] established.");
+					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] started.");
 					this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
