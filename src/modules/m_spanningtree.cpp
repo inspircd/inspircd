@@ -1553,7 +1553,7 @@ class TreeSocket : public InspSocket
 		 * Note that this causes the losing server to send out confirming
 		 * FMODE lines.
 		 */
-		if ((ourTS > TS) || (this->Instance->ULine(who->server)))
+		if ((ourTS > TS) || (this->Instance->ULine(source.c_str())))
 		{
 			Instance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 			std::deque<std::string> param_list;
