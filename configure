@@ -878,6 +878,17 @@ print "\033[0mIPv6 to IPv4 Links:\033[1;32m\t\t$config{SUPPORT_IP6LINKS}\033[0m\
 print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
 print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
 
+if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
+{
+	print "Sorry, but i couldn't detect gnutls. Make sure gnutls-config is in your path.\n";
+	exit(0);
+}
+if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
+{
+	print "Sorry, but i couldn't detect openssl. Make sure openssl is in your path.\n";
+	exit(0);
+}
+
 if ($config{USE_GNUTLS} eq "y") {
 	$failed = 0;
 	open(TMP, "<src/modules/m_ssl_gnutls.cpp") or $failed = 1;
