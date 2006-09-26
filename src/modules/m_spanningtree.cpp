@@ -1596,8 +1596,8 @@ class TreeSocket : public InspSocket
 					}
 					else
 					{
-						this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",mh->GetPrefix());
-						this->WriteLine(std::string("ERROR :Invalid prefix '")+mh->GetModeChar()+"' in FJOIN");
+						this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",*permissions);
+						this->WriteLine(std::string("ERROR :Invalid prefix '")+(*permissions)+"' in FJOIN");
 						return false;
 					}
 					usr++;
