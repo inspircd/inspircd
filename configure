@@ -294,6 +294,8 @@ sub clean
 
 sub update
 {
+	chomp($topdir = getcwd());
+	$this = resolve_directory($topdir);                                             # PWD, Regardless.
 	getmodules();
 	# Does the cache file exist?
 	if (!getcache()) {
@@ -314,6 +316,8 @@ sub update
 
 sub modupdate
 {
+	chomp($topdir = getcwd());
+	$this = resolve_directory($topdir);                                             # PWD, Regardless.
 	getmodules();
         # Does the cache file exist?
         if (!getcache()) {

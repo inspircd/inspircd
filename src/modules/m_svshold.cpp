@@ -44,6 +44,7 @@ public:
 	}
 };
 
+
 bool SVSHoldComp(const SVSHold &ban1, const SVSHold &ban2);
 
 typedef std::vector<SVSHold> SVSHoldlist;
@@ -73,7 +74,7 @@ class cmd_svshold : public command_t
 			/* form: svshold nickname removes a hold. */
 			for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 			{
-				if (parameters[0] == iter->nickname)
+				if (irc::string(parameters[0]) == irc::string(iter->nickname.c_str()))
 				{
 					unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
 					user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, iter->nickname.c_str(), remaining, iter->reason.c_str());
@@ -164,7 +165,7 @@ class ModuleSVSHold : public Module
 		/* check SVSHolds in here, and apply as necessary. */
 		for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 		{
-			if (iter->nickname == newnick)
+			if (irc::string(iter->nickname.c_str()) == irc::string(newnick.c_str()))
 			{
 				// nope, boned.
 				user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick, newnick.c_str(), iter->reason.c_str());
