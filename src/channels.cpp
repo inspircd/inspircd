@@ -301,17 +301,12 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 				}
 				if (Ptr->bans.size())
 				{
-					MOD_RESULT = 0;
-					FOREACH_RESULT_I(Instance,I_OnCheckBan,OnCheckBan(user, Ptr));
 					char mask[MAXBUF];
 					snprintf(mask, MAXBUF, "%s!%s@%s",user->nick, user->ident, user->GetIPString());
-					if (!MOD_RESULT)
+					if (Ptr->IsBanned(user))
 					{
-						if (Ptr->IsBanned(user))
-						{
-							user->WriteServ("474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
-							return NULL;
-						}
+						user->WriteServ("474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
+						return NULL;
 					}
 				}
 			}
@@ -443,18 +438,22 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 bool chanrec::IsBanned(userrec* user)
 {
 	char mask[MAXBUF];
-	snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	int MOD_RESULT = 0;
+	FOREACH_RESULT_I(Instance,I_OnCheckBan,OnCheckBan(user, Ptr));
+	if (!MOD_RESULT)
 	{
-		/* This allows CIDR ban matching
-		 * 
-		 *        Full masked host                      Full unmasked host                   IP with/without CIDR
-		 */
-		if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
+		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
+		for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
 		{
-			return true;
+			/* This allows CIDR ban matching
+			 * 
+			 *        Full masked host                      Full unmasked host                   IP with/without CIDR
+			 */
+			if ((match(user->GetFullHost(),i->data)) || (match(user->GetFullRealHost(),i->data)) || (match(mask, i->data, true)))
+			{
+				return true;
+			}
 		}
-
 	}
 	return false;
 }
