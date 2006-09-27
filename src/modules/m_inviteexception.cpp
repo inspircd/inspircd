@@ -1,11 +1,25 @@
-#include <stdio.h>
+/*     +------------------------------------+
+ *     | Inspire Internet Relay Chat Daemon |
+ *     +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                    E-mail:
+ *             <brain@chatspike.net>
+ *             <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ * the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 #include <string>
 #include <vector>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "mode.h"
-
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +I channel mode */
@@ -17,6 +31,7 @@
  * The +I channel mode takes a nick!ident@host, glob patterns allowed,
  * and if a user matches an entry on the +I list then they can join the channel,
  * ignoring if +i is set on the channel
+ * Now supports CIDR and IP addresses -- Brain
  */
 
 class InspIRCd* ServerInstance;
@@ -58,9 +73,11 @@ public:
 			chan->GetExt(ie->GetInfoKey(), list);
 			if (list)
 			{
+				char mask[MAXBUF];
+				snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if(match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()))
+					if(match(user->GetFullRealHost(), it->mask.c_str()) || match(user->GetFullHost(), it->mask.c_str()) || (match(mask, it->mask.c_str(), true)))
 					{
 						// They match an entry on the list, so let them in.
 						return 1;

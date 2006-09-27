@@ -1,13 +1,28 @@
-#include <stdio.h>
+/*     +------------------------------------+
+ *     | Inspire Internet Relay Chat Daemon |
+ *     +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                    E-mail:
+ *             <brain@chatspike.net>
+ *             <Craig@chatspike.net>
+ *
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ * the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 #include <string>
 #include <vector>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "mode.h"
-
 #include "inspircd.h"
 #include "u_listmode.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
 
@@ -17,6 +32,7 @@
 
 // The +e channel mode takes a nick!ident@host, glob patterns allowed,
 // and if a user matches an entry on the +e list then they can join the channel, overriding any (+b) bans set on them
+// Now supports CIDR and IP addresses -- Brain
 
 
 /** Handles +e channel mode
@@ -54,17 +70,23 @@ public:
 
 	virtual int OnCheckBan(userrec* user, chanrec* chan)
 	{
-		if(chan != NULL)
+		if (chan != NULL)
 		{
 			modelist* list;
 			chan->GetExt(be->GetInfoKey(), list);
 			
-			if(list)
+			if (list)
 			{
+				char mask[MAXBUF];
+				snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
-					if(ServerInstance->MatchText(user->GetFullRealHost(), it->mask) || ServerInstance->MatchText(user->GetFullHost(), it->mask))
+				{
+					if (ServerInstance->MatchText(user->GetFullRealHost(), it->mask) || ServerInstance->MatchText(user->GetFullHost(), it->mask) || (match(mask, it->mask.c_str(), true)))
+					{
 						// They match an entry on the list, so let them in.
 						return 1;
+					}
+				}
 				return 0;
 			}
 			// or if there wasn't a list, there can't be anyone on it, so we don't need to do anything.
