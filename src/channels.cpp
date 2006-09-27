@@ -301,8 +301,6 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 				}
 				if (Ptr->bans.size())
 				{
-					char mask[MAXBUF];
-					snprintf(mask, MAXBUF, "%s!%s@%s",user->nick, user->ident, user->GetIPString());
 					if (Ptr->IsBanned(user))
 					{
 						user->WriteServ("474 %s %s :Cannot join channel (You're banned)",user->nick, Ptr->name);
