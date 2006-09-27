@@ -439,7 +439,7 @@ bool chanrec::IsBanned(userrec* user)
 {
 	char mask[MAXBUF];
 	int MOD_RESULT = 0;
-	FOREACH_RESULT_I(Instance,I_OnCheckBan,OnCheckBan(user, Ptr));
+	FOREACH_RESULT(I_OnCheckBan,OnCheckBan(user, this));
 	if (!MOD_RESULT)
 	{
 		snprintf(mask, MAXBUF, "%s!%s@%s", user->nick, user->ident, user->GetIPString());
