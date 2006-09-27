@@ -885,26 +885,20 @@ long chanrec::GetMaxBans()
  */
 const char* chanrec::GetPrefixChar(userrec *user)
 {
-	static char px[2];
-	unsigned int mx = 0;
-
-	*px = 0;
-	*(px+1) = 0;
-
+	static char pf[2] = {0, 0};
+	
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{
-		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
+		if (n->second.size())
 		{
-			if (x->second > mx)
-			{
-				*px = x->first;
-				mx  = x->second;
-			}
+			*pf = n->second.begin()->first;
+			return pf;
 		}
 	}
 
-	return px;
+	*pf = 0;
+	return pf;
 }
 
 const char* chanrec::GetAllPrefixChars(userrec* user)
@@ -929,19 +923,13 @@ const char* chanrec::GetAllPrefixChars(userrec* user)
 
 unsigned int chanrec::GetPrefixValue(userrec* user)
 {
-	unsigned int mx = 0;
-
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{
-		for (std::vector<prefixtype>::iterator x = n->second.begin(); x != n->second.end(); x++)
-		{
-			if (x->second > mx)
-				mx  = x->second;
-		}
+		if (n->second.size())
+			return n->second.begin()->second;
 	}
-
-	return mx;
+	return 0;
 }
 
 
