@@ -622,7 +622,7 @@ void userrec::FlushWriteBuf()
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
 			const char* tb = this->sendq.c_str();
-				int n_sent = write(this->fd,tb,this->sendq.length());
+			int n_sent = write(this->fd,tb,this->sendq.length());
 			if (n_sent == -1)
 			{
 				if (errno != EAGAIN)
@@ -696,7 +696,7 @@ void userrec::UnOper()
 		if (*this->oper)
 		{
 			*this->oper = 0;
-				this->modes[UM_OPERATOR] = 0;
+			this->modes[UM_OPERATOR] = 0;
 			for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
 			{
 				if (*a == this)
@@ -715,20 +715,9 @@ void userrec::UnOper()
 	}
 }
 
-void userrec::QuitUser(InspIRCd* Instance, userrec *user,const std::string &quitreason)
+void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason)
 {
 	user_hash::iterator iter = Instance->clientlist.find(user->nick);
-
-/*
- * I'm pretty sure returning here is causing a desync when part of the net thinks a user is gone,
- * and another part doesn't. We want to broadcast the quit/kill before bailing so the net stays in sync.
- *
- * I can't imagine this blowing up, so I'm commenting it out. We still check
- * before playing with a bad iterator below in our if(). DISCUSS THIS BEFORE YOU DO ANYTHING. --w00t
- *
- *	if (iter == clientlist.end())
- *		return;
- */
 	std::string reason = quitreason;
 
 	if (reason.length() > MAXQUIT - 1)
@@ -873,7 +862,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = Instance->clientlist.find(tempnick);
 	const char *ipaddr = insp_ntoa(ip);
-	userrec* _new;
+	userrec* New;
 	int j = 0;
 
 	/*
@@ -894,27 +883,27 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 	Instance->Log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 	
-	_new = new userrec(Instance);
-	Instance->clientlist[tempnick] = _new;
-	_new->fd = socket;
-	strlcpy(_new->nick,tempnick.c_str(),NICKMAX-1);
+	New = new userrec(Instance);
+	Instance->clientlist[tempnick] = New;
+	New->fd = socket;
+	strlcpy(New->nick,tempnick.c_str(),NICKMAX-1);
 
-	_new->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
+	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
-	strcpy(_new->ident, "unknown");
+	strcpy(New->ident, "unknown");
 
-	_new->registered = REG_NONE;
-	_new->signon = Instance->Time() + Instance->Config->dns_timeout;
-	_new->lastping = 1;
+	New->registered = REG_NONE;
+	New->signon = Instance->Time() + Instance->Config->dns_timeout;
+	New->lastping = 1;
 
 	Instance->Log(DEBUG,"Setting socket addresses");
-	_new->SetSockAddr(AF_FAMILY, ipaddr, port);
+	New->SetSockAddr(AF_FAMILY, ipaddr, port);
 	Instance->Log(DEBUG,"Socket addresses set.");
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	for (const char* temp = _new->GetIPString(); *temp && j < 64; temp++, j++)
-		_new->dhost[j] = _new->host[j] = *temp;
-	_new->dhost[j] = _new->host[j] = 0;
+	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)
+		New->dhost[j] = New->host[j] = *temp;
+	New->dhost[j] = New->host[j] = 0;
 			
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
@@ -929,7 +918,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		{
 			class_regtimeout = (unsigned long)i->registration_timeout;
 			class_flood = i->flood;
-			_new->pingmax = i->pingtime;
+			New->pingmax = i->pingtime;
 			class_threshold = i->threshold;
 			class_sqmax = i->sendqmax;
 			class_rqmax = i->recvqmax;
@@ -937,24 +926,18 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		}
 	}
 
-	_new->nping = Instance->Time() + _new->pingmax + Instance->Config->dns_timeout;
-	_new->timeout = Instance->Time() + class_regtimeout;
-	_new->flood = class_flood;
-	_new->threshold = class_threshold;
-	_new->sendqmax = class_sqmax;
-	_new->recvqmax = class_rqmax;
+	New->nping = Instance->Time() + New->pingmax + Instance->Config->dns_timeout;
+	New->timeout = Instance->Time() + class_regtimeout;
+	New->flood = class_flood;
+	New->threshold = class_threshold;
+	New->sendqmax = class_sqmax;
+	New->recvqmax = class_rqmax;
 
-	Instance->local_users.push_back(_new);
+	Instance->local_users.push_back(New);
 
-	if (Instance->local_users.size() > Instance->Config->SoftLimit)
+	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
 	{
-		userrec::QuitUser(Instance, _new,"No more connections allowed");
-		return;
-	}
-
-	if (Instance->local_users.size() >= MAXCLIENTS)
-	{
-		userrec::QuitUser(Instance, _new,"No more connections allowed");
+		userrec::QuitUser(Instance, New,"No more connections allowed");
 		return;
 	}
 
@@ -970,10 +953,10 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 */
 	if ((unsigned)socket >= MAX_DESCRIPTORS)
 	{
-		userrec::QuitUser(Instance, _new,"Server is full");
+		userrec::QuitUser(Instance, New, "Server is full");
 		return;
 	}
-	ELine* e = Instance->XLines->matches_exception(_new);
+	ELine* e = Instance->XLines->matches_exception(New);
 	if (!e)
 	{
 		ZLine* r = Instance->XLines->matches_zline(ipaddr);
@@ -981,21 +964,21 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
-			userrec::QuitUser(Instance, _new,reason);
+			userrec::QuitUser(Instance, New, reason);
 			return;
 		}
 	}
 
 	if (socket > -1)
 	{
-		if (!Instance->SE->AddFd(_new))
+		if (!Instance->SE->AddFd(New))
 		{
-			userrec::QuitUser(Instance, _new, "Internal error handling connection");
+			userrec::QuitUser(Instance, New, "Internal error handling connection");
 			return;
 		}
 	}
 
-	_new->WriteServ("NOTICE Auth :*** Looking up your hostname...");
+	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 }
 
 long userrec::GlobalCloneCount()
