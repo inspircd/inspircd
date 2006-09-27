@@ -583,14 +583,7 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 				int us = this->GetStatus(user);
    			 	if ((them < STATUS_HOP) || (them < us))
 				{
-					if (them == STATUS_HOP)
-					{
-						src->WriteServ("482 %s %s :You must be a channel operator",src->nick, this->name);
-					}
-					else
-					{
-						src->WriteServ("482 %s %s :You must be at least a half-operator",src->nick, this->name);
-					}
+					src->WriteServ("482 %s %s :You must be a channel %soperator",src->nick, this->name, them == STATUS_HOP ? "" : "half-");
 					return this->GetUserCounter();
 				}
 			}
@@ -760,7 +753,7 @@ char* chanrec::ChanModes(bool showkey)
 	*scratch = '\0';
 	*sparam = '\0';
 
-	/* This was still iterating up to 190, chanrec::custom_modes is only 64 elements -- Om */
+	/* This was still iterating up to 190, chanrec::modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
 		if(this->modes[n])
@@ -809,6 +802,9 @@ void chanrec::UserList(userrec *user)
 	char list[MAXBUF];
 	size_t dlen, curlen;
 	int MOD_RESULT = 0;
+
+	if (!IS_LOCAL(user))
+		return;
 
 	FOREACH_RESULT(I_OnUserList,OnUserList(user, this));
 	ServerInstance->Log(DEBUG,"MOD_RESULT for UserList = %d",MOD_RESULT);
@@ -872,11 +868,9 @@ void chanrec::UserList(userrec *user)
 
 long chanrec::GetMaxBans()
 {
-	std::string x;
 	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
 	{
-		x = n->first;
-		if (match(this->name,x.c_str()))
+		if (match(this->name,n->first.c_str()))
 		{
 			return n->second;
 		}
