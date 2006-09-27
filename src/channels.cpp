@@ -892,6 +892,11 @@ const char* chanrec::GetPrefixChar(userrec *user)
 	{
 		if (n->second.size())
 		{
+			/* If the user has any prefixes, their highest prefix
+			 * will always be at the head of the list, as the list is
+			 * sorted in rank order highest first (see SetPrefix()
+			 * for reasons why)
+			 */
 			*pf = n->second.begin()->first;
 			return pf;
 		}
@@ -973,11 +978,6 @@ int chanrec::GetStatus(userrec *user)
 	return STATUS_NORMAL;
 }
 
-/*bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
-{       
-        return one.second > two.second;
-}*/
-
 void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
 {
 	prefixlist::iterator n = prefixes.find(user);
@@ -989,6 +989,11 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 			if (std::find(n->second.begin(), n->second.end(), pfx) == n->second.end())
 			{
 				n->second.push_back(pfx);
+				/* We must keep prefixes in rank order, largest first.
+				 * This is for two reasons, firstly because x-chat *ass-u-me's* this
+				 * state, and secondly it turns out to be a benefit to us later.
+				 * See above in GetPrefix().
+				 */
 				std::sort(n->second.begin(), n->second.end(), ModeParser::PrefixComparison);
 			}
 		}
