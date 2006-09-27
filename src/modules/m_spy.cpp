@@ -107,7 +107,7 @@ class cmd_spynames : public command_t
 			return CMD_FAILURE;
 		}
 
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 1))
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 			return CMD_FAILURE;
 
 		c = ServerInstance->FindChan(parameters[0]);
