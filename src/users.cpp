@@ -89,7 +89,7 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 {
 	bool adding = true, oldadding = false;
 	const char *c = sm;
-	std::string output = "";
+	std::string output;
 
 	ServerInstance->Log(DEBUG,"Process notice masks");
 
@@ -367,7 +367,7 @@ char* userrec::MakeWildHost()
 
 int userrec::ReadData(void* buffer, size_t size)
 {
-	if (this->fd > -1)
+	if (IS_LOCAL(this))
 	{
 		return read(this->fd, buffer, size);
 	}
