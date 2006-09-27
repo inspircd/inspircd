@@ -459,8 +459,8 @@ bool chanrec::IsBanned(userrec* user)
 }
 
 /* chanrec::PartUser
- * remove a channel from a users record, and remove the record from the hash
- * if the channel has become empty
+ * remove a channel from a users record, and return the number of users left.
+ * Therefore, if this function returns 0 the caller should delete the chanrec.
  */
 long chanrec::PartUser(userrec *user, const char* reason)
 {
@@ -472,16 +472,8 @@ long chanrec::PartUser(userrec *user, const char* reason)
 		/* zap it from the channel list of the user */
 		if (user->chans[i]->channel == this)
 		{
-			if (reason)
-			{
-				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason));
-				this->WriteChannel(user, "PART %s :%s", this->name, reason);
-			}
-			else
-			{
-				FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, ""));
-				this->WriteChannel(user, "PART :%s", this->name);
-			}
+			FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : ""));
+			this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
 			user->chans[i]->uc_modes = 0;
 			user->chans[i]->channel = NULL;
 			user->ModChannelCount(-1);
