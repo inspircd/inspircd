@@ -1534,18 +1534,17 @@ class TreeSocket : public InspSocket
 		
 		chanrec* chan = this->Instance->FindChan(channel);
 		if (chan)
-		{
 			key = chan->key;
-		}
+
 		strlcpy(mode_users[0],channel.c_str(),MAXBUF);
 
 		/* default is a high value, which if we dont have this
 		 * channel will let the other side apply their modes.
 		 */
 		time_t ourTS = time(NULL)+600;
-		chanrec* us = this->Instance->FindChan(channel);
-		if (us)
-			ourTS = us->age;
+
+		if (chan)
+			ourTS = chan->age;
 
 		/* XXX: PAY ATTENTION:
 		 * In 1.1, if they have the newer channel, we immediately clear
@@ -1558,10 +1557,10 @@ class TreeSocket : public InspSocket
 		{
 			Instance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 			std::deque<std::string> param_list;
-			if (us)
-				us->age = TS;
+			if (chan)
+				chan->age = TS;
 			ourTS = TS;
-			param_list.push_back(chan->name);
+			param_list.push_back(channel);
 			Instance->Log(DEBUG,"REMOVE ALL STATUS MODES FROM OUR USERS *NOW*");
 			this->RemoveStatus(Instance->Config->ServerName, param_list);
 		}
@@ -1624,8 +1623,8 @@ class TreeSocket : public InspSocket
 							this->Instance->SendMode((const char**)mode_users,modectr,who);
 							if (ourTS != TS)
 							{
-								Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
-								us->age = TS;
+								Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
+								chan->age = TS;
 								ourTS = TS;
 							}
 						}
@@ -1645,7 +1644,7 @@ class TreeSocket : public InspSocket
 		/* there werent enough modes built up to flush it during FJOIN,
 		 * or, there are a number left over. flush them out.
 		 */
-		if ((modectr > 2) && (who) && (us))
+		if ((modectr > 2) && (who) && (chan))
 		{
 			if (ourTS >= TS)
 			{
@@ -1653,8 +1652,8 @@ class TreeSocket : public InspSocket
 				this->Instance->SendMode((const char**)mode_users,modectr,who);
 				if (ourTS != TS)
 				{
-					Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",us->name,ourTS,TS);
-					us->age = TS;
+					Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
+					chan->age = TS;
 					ourTS = TS;
 				}
 			}
