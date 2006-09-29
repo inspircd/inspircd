@@ -38,7 +38,7 @@ class FilterPCREException : public ModuleException
 };
 
 /* $ModDesc: m_filter with regexps */
-/* $CompileFlags: -I`pcre-config --cflags` */
+/* $CompileFlags: `pcre-config --cflags` */
 /* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
 
 class ModuleFilterPCRE : public Module
@@ -154,6 +154,9 @@ class ModuleFilterPCRE : public Module
 		
 		ServerInstance->Log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
 
+		for (std::vector<Filter>::iterator i = filters.begin(); i != filters.end(); i++)
+			pcre_free((*i).regexp);
+		
 		filters.clear();
 		
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
