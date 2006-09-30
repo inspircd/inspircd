@@ -385,33 +385,30 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, const std::string &privs)
 {
-	a->uc_modes = 0;
+	userrec* dummyuser = new userrec(Instance);
+	std::string nick = user->nick;
 
-	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
-	{
-		const char status = *x;
-		switch (status)
-		{
-			case '@':
-				a->uc_modes |= UCMODE_OP;
-			break;
-			case '%':
-				a->uc_modes |= UCMODE_HOP;
-			break;
-			case '+':
-				a->uc_modes |= UCMODE_VOICE;
-			break;
-		}
-		ModeHandler* mh = Instance->Modes->FindPrefix(status);
-		if (mh)
-		{
-			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
-		}
-	}
+	a->uc_modes = 0;
+	dummyuser->SetFd(FD_MAGIC_NUMBER);
 
 	a->channel = Ptr;
 	Ptr->AddUser(user);
 	user->ModChannelCount(1);
+
+	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
+	{
+		const char status = *x;
+		ModeHandler* mh = Instance->Modes->FindPrefix(status);
+		if (mh)
+		{
+			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
+			/* Make sure that the mode handler knows this mode was now set */
+			mh->OnModeChange(dummyuser, dummyuser, Ptr, nick, true);
+		}
+	}
+
+	delete dummyuser;
+
 	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
