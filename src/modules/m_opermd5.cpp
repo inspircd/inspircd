@@ -259,8 +259,8 @@ void GenHash(const char* src, char* dest)
 
 	for (int i = 0; i < 16; i++)
 	{
-		*dest++ = xtab[bytes[i] % 16];
 		*dest++ = xtab[bytes[i] / 16];
+		*dest++ = xtab[bytes[i] % 16];
 	}
 	*dest++ = 0;
 }
