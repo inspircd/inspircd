@@ -293,7 +293,9 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				// This user didn't answer the last ping, remove them
 				if (!curr->lastping)
 				{
-					GlobalGoners.AddItem(curr,"Ping timeout");
+					time_t last_activity = curr->nping - curr->pingmax;
+					std::string boobies = "Ping timeout: " + ConvToStr(last_activity <= 0 ? curr->pingmax : last_activity) + " second(s)"; 
+					GlobalGoners.AddItem(curr, boobies);
 					curr->lastping = 1;
 					curr->nping = TIME+curr->pingmax;
 					continue;
