@@ -1309,7 +1309,7 @@ class TreeSocket : public InspSocket
 				modelist[0] = params[0].c_str();
 				modelist[1] = to_keep.c_str();
 
-				if (params_to_keep.size() > 1)
+				if (params_to_keep.size() > 0)
 				{
 					for (q = 0; (q < params_to_keep.size()) && (q < 64); q++)
 					{
@@ -1321,12 +1321,12 @@ class TreeSocket : public InspSocket
                 	        if (smode)
 				{
 					Instance->Log(DEBUG,"Send mode");
-					this->Instance->SendMode(modelist, n+2, who);
+					this->Instance->SendMode(modelist, n, who);
 				}
 				else
 				{
 					Instance->Log(DEBUG,"Send mode client");
-					this->Instance->CallCommandHandler("MODE", modelist, n+2, who);
+					this->Instance->CallCommandHandler("MODE", modelist, n, who);
 				}
 
 				/* HOT POTATO! PASS IT ON! */

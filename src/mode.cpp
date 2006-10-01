@@ -269,7 +269,9 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
 	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
-	ServerInstance->Log(DEBUG,"ModeParser::Process start");
+	ServerInstance->Log(DEBUG,"ModeParser::Process start: pcnt=%d",pcnt);
+	for (int j = 0; j < pcnt; j++)
+		ServerInstance->Log(DEBUG,"    parameters[%d] = '%s'", j, parameters[j]);
 
 	LastParse = "";
 
@@ -418,6 +420,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								/* This mode expects a parameter, do we have any parameters left in our list to use? */
 								if (parameter_counter < pcnt)
 								{
+									ServerInstance->Log(DEBUG,"parameter_counter = %d, pcnt = %d", parameter_counter, pcnt);
 									parameter = parameters[parameter_counter++];
 
 									/* Yerk, invalid! */
