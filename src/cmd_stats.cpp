@@ -31,10 +31,13 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	string_list values;
-	DoStats(this->ServerInstance, *parameters[0], user, values);
-	for (size_t i = 0; i < values.size(); i++)
-		user->Write(":%s", values[i].c_str());
+	if (pcnt < 2)
+	{
+		string_list values;
+		DoStats(this->ServerInstance, *parameters[0], user, values);
+		for (size_t i = 0; i < values.size(); i++)
+			user->Write(":%s", values[i].c_str());
+	}
 
 	return CMD_SUCCESS;
 }

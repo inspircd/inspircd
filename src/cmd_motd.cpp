@@ -26,6 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
  */
 CmdResult cmd_motd::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->ShowMOTD();
+	if (!pcnt)
+		user->ShowMOTD();
 	return CMD_SUCCESS;
 }
