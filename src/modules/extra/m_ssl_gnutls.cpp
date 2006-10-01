@@ -616,11 +616,12 @@ class ModuleSSLGnuTLS : public Module
 		unsigned int status;
 		const gnutls_datum_t* cert_list;
 		int ret;
-		unsigned int cert_list_size, name_size;
+		unsigned int cert_list_size;
 		gnutls_x509_crt_t cert;
 		char name[MAXBUF];
 		unsigned char digest[MAXBUF];
 		size_t digest_size = sizeof(digest);
+		size_t name_size = sizeof(name);
 		ssl_cert* certinfo = new ssl_cert;
 
 		user->Extend("ssl_cert",certinfo);
@@ -705,12 +706,10 @@ class ModuleSSLGnuTLS : public Module
 			return;
 		}
 
-		name_size = sizeof(name);
 		gnutls_x509_crt_get_dn(cert, name, &name_size);
 
 		certinfo->data.insert(std::make_pair("dn",name));
 
-		name_size = sizeof(name);
 		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
 
 		certinfo->data.insert(std::make_pair("issuer",name));
