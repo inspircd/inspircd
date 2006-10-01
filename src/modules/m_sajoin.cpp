@@ -55,7 +55,6 @@ class cmd_sajoin : public command_t
 				return CMD_FAILURE;
 			}
 
-			ServerInstance->WriteOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 			chanrec::JoinUser(ServerInstance, dest, parameters[1], true);
 
 			/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propogate */
