@@ -110,6 +110,7 @@ void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, const std::string& message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
 void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
+void		Module::OnPostJoin(userrec* user, chanrec* channel) { }
 void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage) { }
 void		Module::OnRehash(const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }

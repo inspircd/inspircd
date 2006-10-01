@@ -427,6 +427,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 		Ptr->UserList(user);
 	}
 	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user,Ptr));
+	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(user,Ptr));
 	return Ptr;
 }
 
