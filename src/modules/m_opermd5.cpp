@@ -325,7 +325,7 @@ class ModuleOperMD5 : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,0,1,VF_VENDOR,API_VERSION);
 	}
 };
 

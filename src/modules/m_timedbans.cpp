@@ -204,7 +204,7 @@ class ModuleTimedBans : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_VENDOR);
+		return Version(1,0,0,0,VF_VENDOR,API_VERSION);
 	}
 };
 

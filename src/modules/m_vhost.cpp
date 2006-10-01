@@ -91,9 +91,7 @@ class ModuleVHost : public Module
 	
 	virtual Version GetVersion()
 	{
-		// returns the version number of the module to be
-		// listed in /MODULES
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,0,1,VF_VENDOR,API_VERSION);
 	}
 	
 };

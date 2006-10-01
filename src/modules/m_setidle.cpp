@@ -21,12 +21,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Allows opers to set their idle time */
-
-
 
 class cmd_setidle : public command_t
 {
@@ -74,9 +71,8 @@ class ModuleSetIdle : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,0,1,VF_VENDOR,API_VERSION);
 	}
-	
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.

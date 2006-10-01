@@ -55,7 +55,7 @@ class ModuleFoobar : public Module
 		// this method instantiates a class of type Version, and returns
 		// the modules version information using it.
 	
-		return Version(1,0,0,1,VF_VENDOR);
+		return Version(1,0,0,1,VF_VENDOR,API_VERSION);
 	}
 
 	void Implements(char* List)

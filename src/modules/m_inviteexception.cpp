@@ -112,7 +112,7 @@ public:
 		
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 3, VF_VENDOR | VF_COMMON);
+		return Version(1, 0, 0, 3, VF_VENDOR | VF_COMMON, API_VERSION);
 	}
 
 	~ModuleInviteException()

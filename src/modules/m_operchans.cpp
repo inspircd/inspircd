@@ -94,7 +94,7 @@ class ModuleOperChans : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_VENDOR|VF_COMMON);
+		return Version(1,0,0,0,VF_VENDOR|VF_COMMON,API_VERSION);
 	}
 };
 

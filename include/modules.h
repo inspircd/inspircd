@@ -68,9 +68,14 @@ enum TargetTypeFlags {
 #include "mode.h"
 #include "dns.h"
 
+/** If you change the module API, change this value
+ */
+#define API_VERSION 11001
+
 class ServerConfig;
 
-// Forward-delacare module for ModuleMessage etc
+/* Forward-delacare module for ModuleMessage etc
+ */
 class Module;
 
 /** Low level definition of a FileReader classes file cache area
@@ -176,8 +181,8 @@ typedef std::map<std::string,Module*> featurelist;
 class Version : public classbase
 {
  public:
-	 const int Major, Minor, Revision, Build, Flags;
-	 Version(int major, int minor, int revision, int build, int flags);
+	 const int Major, Minor, Revision, Build, Flags, API;
+	 Version(int major, int minor, int revision, int build, int flags, int api_ver);
 };
 
 /** The ModuleMessage class is the base class of Request and Event

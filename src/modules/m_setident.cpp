@@ -1,12 +1,8 @@
 #include "users.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for the SETIDENT command */
-
-
-
 
 class cmd_setident : public command_t
 {
@@ -54,7 +50,7 @@ class ModuleSetIdent : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_VENDOR);
+		return Version(1,0,0,0,VF_VENDOR,API_VERSION);
 	}
 	
 };

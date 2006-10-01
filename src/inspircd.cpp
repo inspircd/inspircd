@@ -566,6 +566,18 @@ bool InspIRCd::LoadModule(const char* filename)
 			if ((long)factory[this->ModCount+1]->factory != -1)
 			{
 				Module* m = factory[this->ModCount+1]->factory->CreateModule(this);
+
+				Version v = m->GetVersion();
+
+				if (v.API != API_VERSION)
+				{
+					delete m;
+					delete a;
+					this->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
+					snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
+					return false;
+				}
+
 				modules[this->ModCount+1] = m;
 				/* save the module and the module's classfactory, if
 				 * this isnt done, random crashes can occur :/ */

@@ -285,7 +285,7 @@ class ModuleMsgFlood : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR);
+		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 

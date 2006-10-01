@@ -27,8 +27,8 @@
 #include "inspircd.h"
 
 // version is a simple class for holding a modules version number
-Version::Version(int major, int minor, int revision, int build, int flags)
-: Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags)
+Version::Version(int major, int minor, int revision, int build, int flags, int api_ver)
+: Major(major), Minor(minor), Revision(revision), Build(build), Flags(flags), API(api_ver)
 {
 }
 
@@ -116,7 +116,7 @@ void		Module::OnRehash(const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs) { return 0; }
 void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { };
-Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR); }
+Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR,-1); }
 void		Module::OnOper(userrec* user, const std::string &opertype) { };
 void		Module::OnPostOper(userrec* user, const std::string &opertype) { };
 void		Module::OnInfo(userrec* user) { };

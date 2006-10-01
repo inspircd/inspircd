@@ -4855,7 +4855,7 @@ class ModuleSpanningTree : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_STATIC|VF_VENDOR);
+		return Version(1,1,0,2,VF_STATIC|VF_VENDOR,API_VERSION);
 	}
 
 	void Implements(char* List)
