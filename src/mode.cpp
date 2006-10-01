@@ -859,7 +859,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	if (!mw)
 		return false;
 
-	if ((mw->GetModeType() < 'A') || (mw->GetModeType() > 'z'))
+	if ((mw->GetModeChar() < 'A') || (mw->GetModeChar() > 'z'))
 		return false;
 
 	mw->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
@@ -868,7 +868,10 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	ModeWatchIter a = find(modewatchers[pos].begin(),modewatchers[pos].end(),mw);
 
 	if (a == modewatchers[pos].end())
+	{
+		ServerInstance->Log(DEBUG, "ModeParser::DelModeWatcher: Couldn't find watcher for mode %c in list", mw->GetModeChar());
 		return false;
+	}
 
 	modewatchers[pos].erase(a);
 	ServerInstance->Log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
@@ -953,4 +956,3 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	this->AddMode(new ModeUserOperator(Instance), 'o');
 	this->AddMode(new ModeUserServerNoticeMask(Instance), 'n');
 }
-
