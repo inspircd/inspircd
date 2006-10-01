@@ -1030,7 +1030,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http stats module: Provides basic stats pages over HTTP
 # Requires m_httpd.so to be loaded for it to function.
-#<module name="m_http_stats.so">
+#<module name="m_httpd_stats.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- HTTPD STATS CONFIGURATION -#-#-#-#-#-#-#-#-#-#
 #
