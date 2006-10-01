@@ -44,6 +44,9 @@ KQueueEngine::~KQueueEngine()
 bool KQueueEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
+
+	ServerInstance->Log(DEFAULT,"KQueueEngine::AddFd(%d)",fd);
+
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
 		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
@@ -56,7 +59,10 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	}
 
 	if (ref[fd])
+	{
+		ServerInstance->Log(DEFAULT,"ERROR: Slot already occupied");
 		return false;
+	}
 
 	ref[fd] = eh;
 	ServerInstance->Log(DEBUG,"Add socket %d",fd);

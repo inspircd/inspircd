@@ -52,7 +52,10 @@ bool EPollEngine::AddFd(EventHandler* eh)
 		return false;
 	}
 	if (ref[fd])
+	{
+		ServerInstance->Log(DEFAULT,"Slot %d already occupied",fd);
 		return false;
+	}
 
 	ref[fd] = eh;
 
