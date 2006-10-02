@@ -68,13 +68,13 @@ class cmd_sajoin : public command_t
 				}
 				else
 				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(user->nick)+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
 					return CMD_FAILURE;
 				}
 			}
 			else
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(user->nick)+" to "+parameters[1]);
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]);
 				return CMD_FAILURE;
 			}
 		}
