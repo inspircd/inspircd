@@ -87,7 +87,7 @@ class RemoveBase
 		chanrec* channel;
 		ModeLevel tlevel;
 		ModeLevel ulevel;
-		std::ostringstream reason;
+		std::string reason;
 		std::string protectkey;
 		std::string founderkey;
 		bool hasnokicks;
@@ -179,6 +179,8 @@ class RemoveBase
 			 */
 			if ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER))
 			{
+				// no you can't just go from a std::ostringstream to a std::string, Om. -nenolod
+				std::ostringstream reason_stream;
 				std::string reasonparam;
 				
 				/* If a reason is given, use it */
@@ -187,15 +189,15 @@ class RemoveBase
 					/* Use all the remaining parameters as the reason */
 					for(int i = 2; i < pcnt; i++)
 					{
-						reason << " " << parameters[i];
+						reason_stream << " " << parameters[i];
 					}
 					
-					reasonparam = reason.str();
-					reason.clear();
+					reasonparam = reason_stream.str();
+					reason_stream.clear();
 				}
 
 				/* Build up the part reason string. */
-				reason << "Removed by " << user->nick << reasonparam;
+				reason = "Removed by " + user->nick + ": " + reasonparam;
 
 				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s removed %s from the channel", channel->name, user->nick, target->nick);
 				target->WriteServ("NOTICE %s :*** %s removed you from %s with the message: %s", target->nick, user->nick, channel->name, reasonparam.c_str());
