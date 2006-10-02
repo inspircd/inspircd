@@ -338,6 +338,7 @@ void irc::modestacker::PushMinus()
 
 int irc::modestacker::GetStackedLine(std::deque<std::string> &result)
 {
+	int n = 0;
 	result.clear();
 	result.push_back(adding ? "+" : "-");
 
@@ -348,8 +349,8 @@ int irc::modestacker::GetStackedLine(std::deque<std::string> &result)
 			result.push_back(sequence[1]);
 		sequence[0].erase(sequence[0].begin());
 		sequence.erase(sequence.begin() + 1);
+		n++;
 	}
 
-	return result.size();
+	return n;
 }
-

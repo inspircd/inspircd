@@ -2627,27 +2627,34 @@ class TreeSocket : public InspSocket
 				std::string modesequence = Instance->Modes->ModeString(i->second, c);
 				if (modesequence.length())
 				{
+					ServerInstance->Log(DEBUG,"Mode sequence = '%s'",modesequence.c_str());
 					irc::spacesepstream sep(modesequence);
 					std::string modeletters = sep.GetToken();
+					ServerInstance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
 					
 					while (!modeletters.empty())
 					{
 						char mletter = *(modeletters.begin());
 						modestack.Push(mletter,sep.GetToken());
+						ServerInstance->Log(DEBUG,"Push letter = '%c'",mletter);
 						modeletters.erase(modeletters.begin());
+						ServerInstance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
 					}
 				}
 			}
 
 			while (modestack.GetStackedLine(stackresult))
 			{
+				ServerInstance->Log(DEBUG,"Stacked line size %d",stackresult.size());
 				stackresult.push_front(ConvToStr(c->age));
 				stackresult.push_front(c->name);
 				DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
 				stackresult.erase(stackresult.begin() + 1);
+				ServerInstance->Log(DEBUG,"Stacked items:");
 				for (size_t z = 0; z < stackresult.size(); z++)
 				{
 					y[z] = stackresult[z].c_str();
+					ServerInstance->Log(DEBUG,"\tstackresult[%d]='%s'",z,stackresult[z].c_str());
 				}
 				userrec* n = new userrec(Instance);
 				n->SetFd(FD_MAGIC_NUMBER);
