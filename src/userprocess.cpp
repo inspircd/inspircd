@@ -294,8 +294,8 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				if (!curr->lastping)
 				{
 					/* Everybody loves boobies. */
-					std::string time = ConvToStr(this->Time() - (curr->nping - curr->pingmax));
-					std::string boobies = "Ping timeout: " + time + " second(s)"; 
+					time_t time = this->Time() - (curr->nping - curr->pingmax);
+					std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : ""); 
 					GlobalGoners.AddItem(curr, boobies);
 					curr->lastping = 1;
 					curr->nping = TIME+curr->pingmax;
