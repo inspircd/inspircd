@@ -956,6 +956,20 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		userrec::QuitUser(Instance, New, "Server is full");
 		return;
 	}
+
+	/*
+	 * XXX really really fixme! QuitUser doesn't like having a null entry in the ref table it seems, moving this up so 
+	 * zlines dont crash ircd. we need a better solution, as this is obviously inefficient (and probably wrong) -- w00t
+	 */
+	if (socket > -1)
+	{
+		if (!Instance->SE->AddFd(New))
+		{
+			userrec::QuitUser(Instance, New, "Internal error handling connection");
+			return;
+		}
+	}
+
 	ELine* e = Instance->XLines->matches_exception(New);
 	if (!e)
 	{
@@ -965,15 +979,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
 			userrec::QuitUser(Instance, New, reason);
-			return;
-		}
-	}
-
-	if (socket > -1)
-	{
-		if (!Instance->SE->AddFd(New))
-		{
-			userrec::QuitUser(Instance, New, "Internal error handling connection");
 			return;
 		}
 	}
