@@ -222,7 +222,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			}
 			else
 			{
-				printf("Usage: %s [-nofork] [-nolog] [-debug] [-wait] [-nolimit] [-notraceback] [-logfile <filename>]\n",argv[0]);
+				printf("Usage: %s [-nofork] [-nolog] [-debug] [-wait] [-logfile <filename>]\n",argv[0]);
 				Exit(ERROR);
 			}
 		}
