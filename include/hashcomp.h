@@ -131,6 +131,9 @@ namespace irc
 	 public:
 		modestacker(bool add);
 		void Push(char modeletter, const std::string &parameter);
+		void Push(char modeletter);
+		void PushPlus();
+		void PushMinus();
 		int GetStackedLine(std::deque<std::string> &result);
 	};
 
