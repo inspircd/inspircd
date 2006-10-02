@@ -726,48 +726,6 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-	/*
-	// test suite for modestacker
-	irc::modestacker x(true);
-	x.Push('o',"Brain");
-	x.Push('h',"Brain");
-	x.Push('v',"Brain");
-	x.Push('q',"Brain");
-	x.Push('a',"Brain");
-        x.Push('o',"Brain");
-        x.Push('h',"Brain");
-        x.Push('v',"Brain");
-        x.Push('q',"Brain");
-        x.Push('a',"Brain");
-        x.Push('o',"Brain");
-        x.Push('h',"Brain");
-        x.Push('v',"Brain");
-        x.Push('q',"Brain");
-        x.Push('a',"Brain");
-        x.Push('o',"Brain");
-        x.Push('h',"Brain");
-        x.Push('v',"Brain");
-        x.Push('q',"Brain");
-        x.Push('a',"Brain");
-        x.Push('o',"Brain");
-        x.Push('h',"Brain");
-        x.Push('v',"Brain");
-        x.Push('q',"Brain");
-        x.Push('a',"Brain");
-
-	std::deque<std::string> modes;
-	for (int i = 0; i < 2; i++)
-	{
-		x.GetStackedLine(modes);
-		printf("=== Stacked line ===\n");
-		printf("Mode sequence length=%d\n",modes.size());
-		for (size_t n = 0; n < modes.size(); n++)
-		{
-			printf("\tmodes[%d]='%s'\n",n,modes[n].c_str());
-		}
-	}
-	return 0;*/
-	
 	SI = new InspIRCd(argc, argv);
 	SI->Run();
 	delete SI;

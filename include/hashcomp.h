@@ -170,7 +170,7 @@ namespace irc
 		/** Return zero or more elements which form the
 		 * mode line. This will be clamped to a max of
 		 * MAXMODES+1 items (MAXMODES mode parameters and
-		 * one mode dequence string).
+		 * one mode sequence string).
 		 * @param result The deque to populate. This will
 		 * be cleared before it is used.
 		 * @return The number of elements in the deque
