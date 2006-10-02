@@ -309,3 +309,31 @@ const char* irc::Spacify(char* n)
 }
 
 
+irc::modestacker::modestacker(bool add) : adding(add)
+{
+	sequence.clear();
+	sequence.push_back("");
+}
+
+void irc::modestacker::Push(char modeletter, const std::string &parameter)
+{
+	*(sequence.begin()) += modeletter;
+	sequence.push_back(parameter);
+}
+
+std::deque<std::string> irc::modestacker::GetStackedLine()
+{
+	std::deque<std::string> result;
+	result.push_back("");
+
+	while (!sequence[0].empty() && (sequence.size() > 1))
+	{
+		result[0] += *(sequence[0].begin());
+		result.push_back(sequence[1]);
+		sequence[0].erase(sequence[0].begin());
+		sequence.erase(sequence.begin() + 1);
+	}
+
+	return result;
+}
+

@@ -123,6 +123,17 @@ namespace irc
 	        bool operator()(const insp_inaddr &s1, const insp_inaddr &s2) const;
 	};
 
+	class modestacker
+	{
+	 private:
+		std::deque<std::string> sequence;
+		bool adding;
+	 public:
+		modestacker(bool add);
+		void Push(char modeletter, const std::string &parameter);
+		std::deque<std::string> GetStackedLine();
+	};
+
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
 	 * It will split the string into 'tokens' each containing one parameter
 	 * from the string.
