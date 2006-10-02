@@ -54,7 +54,6 @@ The following features are supported:
 	* Dynamic module support
 	* Object orientated architecture to save memory and increase speed
 	* Connection multiplexing, one process for all (no forking!)
-	* Experimental DNS multithreading
 
 The following operating systems are supported:
 
