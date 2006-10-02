@@ -184,8 +184,6 @@ class RemoveBase
 				/* If a reason is given, use it */
 				if(pcnt > 2)
 				{
-					 reason <<  ":";
-					
 					/* Use all the remaining parameters as the reason */
 					for(int i = 2; i < pcnt; i++)
 					{
