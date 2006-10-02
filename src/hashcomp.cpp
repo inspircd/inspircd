@@ -321,12 +321,12 @@ void irc::modestacker::Push(char modeletter, const std::string &parameter)
 	sequence.push_back(parameter);
 }
 
-std::deque<std::string> irc::modestacker::GetStackedLine()
+int irc::modestacker::GetStackedLine(std::deque<std::string> &result)
 {
-	std::deque<std::string> result;
-	result.push_back("");
+	result.clear();
+	result.push_back(adding ? "+" : "-");
 
-	while (!sequence[0].empty() && (sequence.size() > 1))
+	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES+1))
 	{
 		result[0] += *(sequence[0].begin());
 		result.push_back(sequence[1]);
@@ -334,6 +334,6 @@ std::deque<std::string> irc::modestacker::GetStackedLine()
 		sequence.erase(sequence.begin() + 1);
 	}
 
-	return result;
+	return result.size();
 }
 

@@ -131,7 +131,7 @@ namespace irc
 	 public:
 		modestacker(bool add);
 		void Push(char modeletter, const std::string &parameter);
-		std::deque<std::string> GetStackedLine();
+		int GetStackedLine(std::deque<std::string> &result);
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
