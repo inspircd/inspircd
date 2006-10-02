@@ -123,17 +123,58 @@ namespace irc
 	        bool operator()(const insp_inaddr &s1, const insp_inaddr &s2) const;
 	};
 
+	/** irc::modestacker stacks mode sequences into a list.
+	 * It can then reproduce this list, clamped to a maximum of MAXMODES
+	 * values per line.
+	 */
 	class modestacker
 	{
 	 private:
+		/** The mode sequence and its parameters
+		 */
 		std::deque<std::string> sequence;
+		/** True if the mode sequence is initially adding
+		 * characters, false if it is initially removing
+		 * them
+		 */
 		bool adding;
 	 public:
+		/** Construct a new modestacker.
+		 * @param add True if the stack is adding modes,
+		 * false if it is removing them
+		 */
 		modestacker(bool add);
+		/** Push a modeletter and its parameter onto the stack.
+		 * No checking is performed as to if this mode actually
+		 * requires a parameter. If you stack invalid mode
+		 * sequences, they will be tidied if and when they are
+		 * passed to a mode parser.
+		 * @param modeletter The mode letter to insert
+		 * @param parameter The parameter for the mode
+		 */
 		void Push(char modeletter, const std::string &parameter);
+		/** Push a modeletter without parameter onto the stack.
+		 * No checking is performed as to if this mode actually
+		 * requires a parameter. If you stack invalid mode
+		 * sequences, they will be tidied if and when they are
+		 * passed to a mode parser.
+		 * @param modeletter The mode letter to insert
+		 */
 		void Push(char modeletter);
+		/** Push a '+' symbol onto the stack.
+		 */
 		void PushPlus();
+		/** Push a '-' symbol onto the stack.
+		 */
 		void PushMinus();
+		/** Return zero or more elements which form the
+		 * mode line. This will be clamped to a max of
+		 * MAXMODES+1 items (MAXMODES mode parameters and
+		 * one mode dequence string).
+		 * @param result The deque to populate. This will
+		 * be cleared before it is used.
+		 * @return The number of elements in the deque
+		 */
 		int GetStackedLine(std::deque<std::string> &result);
 	};
 

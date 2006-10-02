@@ -2616,38 +2616,43 @@ class TreeSocket : public InspSocket
 
 		if (c)
 		{
+			irc::modestacker modestack(false);
 			CUList *ulist = c->GetUsers();
+			const char* y[127];
+			std::deque<std::string> stackresult;
+			std::string x;
+
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
 				std::string modesequence = Instance->Modes->ModeString(i->second, c);
 				if (modesequence.length())
 				{
-					modesequence = "-" + modesequence;
-
-					std::deque<std::string> items;
-					const char* y[127];
-					unsigned int z = 0;
-					std::string x = "*";
 					irc::spacesepstream sep(modesequence);
+					std::string modeletters = sep.GetToken();
 					
-					while ((x = sep.GetToken()) != "")
+					while (!modeletters.empty())
 					{
-						if (!z)
-						{
-							y[z++] = c->name;
-							items.push_back(c->name);
-							items.push_back(ConvToStr(c->age));
-						}
-						items.push_back(x);
-						y[z++] = (items.end() - 1)->c_str();
+						char mletter = *(modeletters.begin());
+						modestack.Push(mletter,sep.GetToken());
+						modeletters.erase(modeletters.begin());
 					}
-
-					DoOneToMany(Instance->Config->ServerName, "FMODE", items);
-					userrec* n = new userrec(Instance);
-					n->SetFd(FD_MAGIC_NUMBER);
-					Instance->SendMode(y,z,n);
-					delete n;
 				}
+			}
+
+			while (modestack.GetStackedLine(stackresult))
+			{
+				stackresult.push_front(ConvToStr(c->age));
+				stackresult.push_front(c->name);
+				DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
+				stackresult.erase(stackresult.begin() + 1);
+				for (size_t z = 0; z < stackresult.size(); z++)
+				{
+					y[z] = stackresult[z].c_str();
+				}
+				userrec* n = new userrec(Instance);
+				n->SetFd(FD_MAGIC_NUMBER);
+				Instance->SendMode(y, stackresult.size(), n);
+				delete n;
 			}
 		}
 		return true;
