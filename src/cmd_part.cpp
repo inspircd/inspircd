@@ -34,7 +34,7 @@ CmdResult cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
 	
 	if (c)
 	{
-		if (!c->PartUser(user, pcnt > 1 ? parameters[0] : NULL))
+		if (!c->PartUser(user, pcnt > 1 ? parameters[1] : NULL))
 			/* Arse, who stole our channel! :/ */
 			delete c;
 	}
