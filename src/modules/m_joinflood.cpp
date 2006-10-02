@@ -38,12 +38,13 @@ class joinfloodsettings : public classbase
 	time_t unlocktime;
 	int counter;
 	bool locked;
-
+    InspIRCd* ServerInstance;
+    
 	joinfloodsettings() : secs(0), joins(0) {};
 
 	joinfloodsettings(int b, int c) : secs(b), joins(c)
 	{
-		reset = InspIRCd::Time() + secs;
+		reset = ServerInstance->Time() + secs;
 		counter = 0;
 		locked = false;
 	};
@@ -51,10 +52,10 @@ class joinfloodsettings : public classbase
 	void addjoin()
 	{
 		counter++;
-		if (InspIRCd::Time() > reset)
+		if (ServerInstance->Time() > reset)
 		{
 			counter = 0;
-			reset = InspIRCd::Time() + secs;
+			reset = ServerInstance->Time() + secs;
 		}
 	}
 
@@ -72,7 +73,7 @@ class joinfloodsettings : public classbase
 	{
 		if (locked)
 		{
-			if (InspIRCd::Time() > unlocktime)
+			if (ServerInstance->Time() > unlocktime)
 			{
 				locked = false;
 				return false;
@@ -88,7 +89,7 @@ class joinfloodsettings : public classbase
 	void lock()
 	{
 		locked = true;
-		unlocktime = InspIRCd::Time() + 60;
+		unlocktime = ServerInstance->Time() + 60;
 	}
 
 };
