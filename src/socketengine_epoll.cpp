@@ -87,7 +87,7 @@ bool EPollEngine::DelFd(EventHandler* eh)
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
-	ref[fd]->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
+	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 	if (i < 0)
