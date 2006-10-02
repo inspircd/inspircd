@@ -43,7 +43,7 @@ class joinfloodsettings : public classbase
 
 	joinfloodsettings(int b, int c) : secs(b), joins(c)
 	{
-		reset = time(NULL) + secs;
+		reset = InspIRCd::Time() + secs;
 		counter = 0;
 		locked = false;
 	};
@@ -51,10 +51,10 @@ class joinfloodsettings : public classbase
 	void addjoin()
 	{
 		counter++;
-		if (time(NULL) > reset)
+		if (InspIRCd::Time() > reset)
 		{
 			counter = 0;
-			reset = time(NULL) + secs;
+			reset = InspIRCd::Time() + secs;
 		}
 	}
 
@@ -72,7 +72,7 @@ class joinfloodsettings : public classbase
 	{
 		if (locked)
 		{
-			if (time(NULL) > unlocktime)
+			if (InspIRCd::Time() > unlocktime)
 			{
 				locked = false;
 				return false;
@@ -88,7 +88,7 @@ class joinfloodsettings : public classbase
 	void lock()
 	{
 		locked = true;
-		unlocktime = time(NULL) + 60;
+		unlocktime = InspIRCd::Time() + 60;
 	}
 
 };
