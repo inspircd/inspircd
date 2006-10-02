@@ -2228,6 +2228,7 @@ class TreeSocket : public InspSocket
 			this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated from server \002"+prefix+"\002.");
 			this->Instance->RehashServer();
 			ReadConfiguration(false);
+			InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 		}
 		DoOneToAllButSender(prefix,"REHASH",params,prefix);
 		return true;
