@@ -39,6 +39,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 		ServerInstance->Config->Read(false,user);
 	}
+	InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
 
 	return CMD_SUCCESS;
