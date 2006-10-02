@@ -408,6 +408,34 @@ bool InspIRCd::IsChannel(const char *chname)
 	return true;
 }
 
+bool InspIRCd::IsNick(const char* n)
+{
+	if (!n || !*n)
+		return false;
+ 
+	int p = 0;
+	for (char* i = (char*)n; *i; i++, p++)
+	{
+		if ((*i >= 'A') && (*i <= '}'))
+		{
+			/* "A"-"}" can occur anywhere in a nickname */
+			continue;
+		}
+
+		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
+		{
+			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
+			continue;
+		}
+
+		/* invalid character! abort */
+		return false;
+	}
+
+	/* too long? or not -- pointer arithmetic rocks */
+	return (p < NICKMAX - 1);
+}
+
 void InspIRCd::OpenLog(char** argv, int argc)
 {
 	if (!*this->LogFileName)

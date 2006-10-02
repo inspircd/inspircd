@@ -708,30 +708,6 @@ bool InspIRCd::IsIdent(const char* n)
 }
 
 
-bool InspIRCd::IsNick(const char* n)
-{
-	if (!n || !*n)
-		return false;
-
-	int p = 0; 
-	for (char* i = (char*)n; *i; i++, p++)
-	{
-		/* "A"-"}" can occur anywhere in a nickname */
-		if ((*i >= 'A') && (*i <= '}'))
-		{
-			continue;
-		}
-		/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
-		{
-			continue;
-		}
-		/* invalid character! abort */
-		return false;
-	}
-	return (p < NICKMAX - 1);
-}
-
 int InspIRCd::Run()
 {
 	while (true)
