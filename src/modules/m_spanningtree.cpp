@@ -1585,13 +1585,16 @@ class TreeSocket : public InspSocket
 			{
 				char* permissions = usr;
 				int ntimes = 0;
-				while ((*permissions) && (*permissions != ','))
+				char* nm = new char[MAXBUF];
+				char* tnm = nm;
+
+				while ((*permissions) && (*permissions != ',') && (ntimes < MAXBUF))
 				{
 					ModeHandler* mh = Instance->Modes->FindPrefix(*permissions);
 					if (mh)
 					{
 						ntimes++;
-						charlcat(modestring,mh->GetModeChar(),MAXBUF);
+						*tnm++ = mh->GetModeChar();
 					}
 					else
 					{
@@ -1602,22 +1605,33 @@ class TreeSocket : public InspSocket
 					usr++;
 					permissions++;
 				}
-				usr++;
 
-				/* Did they get any modes? How many times? */
-				for (int k = 0; k < ntimes; k++)
-					mode_users[modectr++] = strdup(usr);
+				*tnm = 0;
+				usr++;
 
 				who = this->Instance->FindNick(usr);
 				if (who)
 				{
+					/* Did they get any modes? How many times? */
+					strlcat(modestring, nm, MAXBUF);
+					for (int k = 0; k < ntimes; k++)
+						mode_users[modectr++] = strdup(usr);
+
+					delete[] nm;
+
+					TreeServer* route_back_again = BestRouteTo(who->server);
+					if ((!route_back_again) || (route_back_again->GetSocket() != this))
+					{
+						Instance->Log(DEBUG,"Fake direction in FJOIN, user '%s'",who->nick);
+						continue;
+					}
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, key);
 					if (modectr >= (MAXMODES-1))
 					{
 						/* theres a mode for this user. push them onto the mode queue, and flush it
 						 * if there are more than MAXMODES to go.
 						 */
-						if ((ourTS >= TS) || (this->Instance->ULine(who->server)))
+						if (ourTS >= TS)
 						{
 							/* We also always let u-lined clients win, no matter what the TS value */
 							Instance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
@@ -1637,6 +1651,7 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
+					delete[] nm;
 					Instance->Log(SPARSE,"Warning! Invalid user in FJOIN to channel %s IGNORED", channel.c_str());
 					continue;
 				}
