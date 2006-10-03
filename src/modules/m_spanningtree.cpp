@@ -1515,57 +1515,96 @@ class TreeSocket : public InspSocket
 	/** FJOIN, similar to unreal SJOIN */
 	bool ForceJoin(std::string source, std::deque<std::string> &params)
 	{
+		/* 1.1 FJOIN works as follows:
+		 *
+		 * Each FJOIN is sent along with a timestamp, and the side with the lowest
+		 * timestamp 'wins'. From this point on we will refer to this side as the
+		 * winner. The side with the higher timestamp loses, from this point on we
+		 * will call this side the loser or losing side. This should be familiar to
+		 * anyone who's dealt with dreamforge or TS6 before.
+		 *
+		 * When two sides of a split heal and this occurs, the following things
+		 * will happen:
+		 *
+		 * If the timestamps are exactly equal, both sides merge their privilages
+		 * and users, as in InspIRCd 1.0 and ircd2.8. The channels have not been
+		 * re-created during a split, this is safe to do.
+		 *
+		 *
+		 * If the timestamps are NOT equal, the losing side removes all privilage
+		 * modes from all of its users that currently exist in the channel, before
+		 * introducing new users into the channel which are listed in the FJOIN
+		 * command's parameters. This means, all modes +ohv, and privilages added
+		 * by modules, such as +qa. The losing side then LOWERS its timestamp value
+		 * of the channel to match that of the winning side, and the modes of the
+		 * users of the winning side are merged in with the losing side. The loser
+		 * then sends out a set of FMODE commands which 'confirm' that it just
+		 * removed all privilage modes from its existing users, which allows for
+		 * services packages to still work correctly without needing to know the
+		 * timestamping rules which InspIRCd follows. In TS6 servers this is always
+		 * a problem, and services packages must contain code which explicitly
+		 * behaves as TS6 does, removing ops from the losing side of a split where
+		 * neccessary within its internal records, as this state information is
+		 * not explicitly echoed out in that protocol.
+		 *
+		 * The winning side on the other hand will ignore all user modes from the
+		 * losing side, so only its modes get applied. Life is simple for those
+		 * who succeed at internets. :-)
+		 */
+
 		if (params.size() < 3)
 			return true;
 
-		char first[MAXBUF];
-		char modestring[MAXBUF];
-		char* mode_users[127];
-		memset(&mode_users,0,sizeof(mode_users));
-		mode_users[0] = first;
-		mode_users[1] = modestring;
-		strcpy(modestring,"+");
-		unsigned int modectr = 2;
+		char first[MAXBUF];		/* The first parameter of the mode command */
+		char modestring[MAXBUF];	/* The mode sequence (2nd parameter) of the mode command */
+		char* mode_users[127];		/* The values used by the mode command */
+		memset(&mode_users,0,sizeof(mode_users));	/* Initialize mode parameters */
+		mode_users[0] = first;		/* Set this up to be our on-stack value */
+		mode_users[1] = modestring;	/* Same here as above */
+		strcpy(modestring,"+");		/* Initialize the mode sequence to just '+' */
+		unsigned int modectr = 2;	/* Pointer to the third mode parameter (e.g. the one after the +-sequence) */
 		
-		userrec* who = NULL;
-		std::string channel = params[0];
-		time_t TS = atoi(params[1].c_str());
-		char* key = "";
+		userrec* who = NULL;			/* User we are currently checking */
+		std::string channel = params[0];	/* Channel name, as a string */
+		time_t TS = atoi(params[1].c_str());	/* Timestamp given to us for remote side */
 		
+		/* Try and find the channel */
 		chanrec* chan = this->Instance->FindChan(channel);
-		if (chan)
-			key = chan->key;
 
+		/* Initialize channel name in the mode parameters */
 		strlcpy(mode_users[0],channel.c_str(),MAXBUF);
 
-		/* default is a high value, which if we dont have this
+		/* default TS is a high value, which if we dont have this
 		 * channel will let the other side apply their modes.
 		 */
 		time_t ourTS = time(NULL)+600;
 
+		/* Does this channel exist? if it does, get its REAL timestamp */
 		if (chan)
 			ourTS = chan->age;
 
-		/* XXX: PAY ATTENTION:
-		 * In 1.1, if they have the newer channel, we immediately clear
+		/* In 1.1, if they have the newer channel, we immediately clear
 		 * all status modes from our users. We then accept their modes.
 		 * If WE have the newer channel its the other side's job to do this.
 		 * Note that this causes the losing server to send out confirming
 		 * FMODE lines.
 		 */
 		if (ourTS > TS)
-// || (this->Instance->ULine(source.c_str())))
 		{
-			Instance->Log(DEBUG,"FJOIN detected, our TS=%lu, their TS=%lu",ourTS,TS);
 			std::deque<std::string> param_list;
+
 			if (chan)
 				chan->age = TS;
+
+			/* XXX: Lower the TS here */
 			ourTS = TS;
+
 			param_list.push_back(channel);
-			Instance->Log(DEBUG,"REMOVE ALL STATUS MODES FROM OUR USERS *NOW*");
+			/* Zap all the privilage modes on our side */
 			this->RemoveStatus(Instance->Config->ServerName, param_list);
 		}
 
+		/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
 		irc::tokenstream users(params[2]);
 		std::string item = "*";
 
@@ -1574,16 +1613,20 @@ class TreeSocket : public InspSocket
 		 */
 		params[2] = ":" + params[2];
 		DoOneToAllButSender(source,"FJOIN",params,source);
+
+		/* Now, process every 'prefixes,nick' pair */
 		while (item != "")
 		{
+			/* Find next user */
 			item = users.GetToken();
-			/* process one user at a time, applying modes. */
-			char* usr = (char*)item.c_str();
+
+			const char* usr = item.c_str();
+
 			/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 			 * (is this even possible?) */
 			if (usr && *usr)
 			{
-				char* permissions = usr;
+				const char* permissions = usr;
 				int ntimes = 0;
 				char* nm = new char[MAXBUF];
 				char* tnm = nm;
@@ -1625,7 +1668,7 @@ class TreeSocket : public InspSocket
 						Instance->Log(DEBUG,"Fake direction in FJOIN, user '%s'",who->nick);
 						continue;
 					}
-					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, key);
+					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "");
 					if (modectr >= (MAXMODES-1))
 					{
 						/* theres a mode for this user. push them onto the mode queue, and flush it
