@@ -1512,7 +1512,7 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
-	/** FJOIN, similar to unreal SJOIN */
+	/** FJOIN, similar to TS6 SJOIN, but not quite. */
 	bool ForceJoin(std::string source, std::deque<std::string> &params)
 	{
 		/* 1.1 FJOIN works as follows:
@@ -1548,8 +1548,15 @@ class TreeSocket : public InspSocket
 		 * not explicitly echoed out in that protocol.
 		 *
 		 * The winning side on the other hand will ignore all user modes from the
-		 * losing side, so only its modes get applied. Life is simple for those
+		 * losing side, so only its own modes get applied. Life is simple for those
 		 * who succeed at internets. :-)
+		 *
+		 * NOTE: Unlike TS6 and dreamforge and other protocols which have SJOIN,
+		 * FJOIN does not contain the simple-modes such as +iklmnsp. Why not,
+		 * you ask? Well, quite simply because we don't need to. They'll be sent
+		 * after the FJOIN by FMODE, and FMODE is timestamped, so in the event
+		 * the losing side sends any modes for the channel which shouldnt win,
+		 * they wont as their timestamp will be too high :-)
 		 */
 
 		if (params.size() < 3)
@@ -1631,16 +1638,23 @@ class TreeSocket : public InspSocket
 				char* nm = new char[MAXBUF];
 				char* tnm = nm;
 
+				/* Iterate through all the prefix values, convert them from prefixes
+				 * to mode letters, and append them to the mode sequence
+				 */
 				while ((*permissions) && (*permissions != ',') && (ntimes < MAXBUF))
 				{
 					ModeHandler* mh = Instance->Modes->FindPrefix(*permissions);
 					if (mh)
 					{
+						/* This is a valid prefix */
 						ntimes++;
 						*tnm++ = mh->GetModeChar();
 					}
 					else
 					{
+						/* Not a valid prefix...
+						 * danger bill bobbertson! (that's will robinsons older brother ;-) ...)
+						 */
 						this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",*permissions);
 						this->WriteLine(std::string("ERROR :Invalid prefix '")+(*permissions)+"' in FJOIN");
 						return false;
@@ -1649,9 +1663,12 @@ class TreeSocket : public InspSocket
 					permissions++;
 				}
 
+				/* Null terminate modes */
 				*tnm = 0;
+				/* Advance past the comma, to the nick */
 				usr++;
 
+				/* Check the user actually exists */
 				who = this->Instance->FindNick(usr);
 				if (who)
 				{
@@ -1660,32 +1677,63 @@ class TreeSocket : public InspSocket
 					for (int k = 0; k < ntimes; k++)
 						mode_users[modectr++] = strdup(usr);
 
+					/* Free temporary buffer used for mode sequence */
 					delete[] nm;
 
+					/* Check that the user's 'direction' is correct
+					 * based on the server sending the FJOIN. We must
+					 * check each nickname in turn, because the origin of
+					 * the FJOIN may be different to the origin of the nicks
+					 * in the command itself.
+					 */
 					TreeServer* route_back_again = BestRouteTo(who->server);
 					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
+						/* Oh dear oh dear. */
 						Instance->Log(DEBUG,"Fake direction in FJOIN, user '%s'",who->nick);
 						continue;
 					}
+					/* Finally, we can actually place the user into the channel.
+					 * We're sure its right. Final answer, phone a friend.
+					 */
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "");
+
+					/* Have we already queued up MAXMODES modes with parameters
+					 * (+qaohv) ready to be sent to the server?
+					 */
 					if (modectr >= (MAXMODES-1))
 					{
-						/* theres a mode for this user. push them onto the mode queue, and flush it
-						 * if there are more than MAXMODES to go.
+						/* Only actually give the users any status if we lost
+						 * the FJOIN or drew (equal timestamps).
+						 * It isn't actually possible for ourTS to be > TS here,
+						 * only possible to actually have ourTS == TS, or
+						 * ourTS < TS, because if we lost, we already lowered
+						 * our TS above before we entered this loop. We only
+						 * check >= as a safety measure, in case someone stuffed
+						 * up. If someone DID stuff up, it was most likely me.
+						 * Note: I do not like baseball bats in the face...
 						 */
 						if (ourTS >= TS)
 						{
-							/* We also always let u-lined clients win, no matter what the TS value */
 							Instance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
 							this->Instance->SendMode((const char**)mode_users,modectr,who);
-							if (ourTS != TS)
+
+							/* Something stuffed up, and for some reason, the timestamp is
+							 * NOT lowered right now and should be. Lower it. Usually this
+							 * code won't be executed, doubtless someone will remove it some
+							 * day soon.
+							 */
+							if (ourTS > TS)
 							{
 								Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
 								chan->age = TS;
 								ourTS = TS;
 							}
 						}
+
+						/* Reset all this back to defaults, and
+						 * free any ram we have left allocated.
+						 */
 						strcpy(mode_users[1],"+");
 						for (unsigned int f = 2; f < modectr; f++)
 							free(mode_users[f]);
@@ -1694,12 +1742,20 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
+					/* Remember to free this */
 					delete[] nm;
+					/* If we got here, there's a nick in FJOIN which doesnt exist on this server.
+					 * We don't try to process the nickname here (that WOULD cause a segfault because
+					 * we'd be playing with null pointers) however, we DO pass the nickname on, just
+					 * in case somehow we're desynched, so that other users which might be able to see
+					 * the nickname get their fair chance to process it.
+					 */
 					Instance->Log(SPARSE,"Warning! Invalid user in FJOIN to channel %s IGNORED", channel.c_str());
 					continue;
 				}
 			}
 		}
+
 		/* there werent enough modes built up to flush it during FJOIN,
 		 * or, there are a number left over. flush them out.
 		 */
@@ -1707,9 +1763,12 @@ class TreeSocket : public InspSocket
 		{
 			if (ourTS >= TS)
 			{
-				Instance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
+				/* Our channel is newer than theirs. Evil deeds must be afoot. */
 				this->Instance->SendMode((const char**)mode_users,modectr,who);
-				if (ourTS != TS)
+				/* Yet again, we can't actually get a true value here, if everything else
+				 * is working as it should.
+				 */
+				if (ourTS > TS)
 				{
 					Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
 					chan->age = TS;
@@ -1717,9 +1776,14 @@ class TreeSocket : public InspSocket
 				}
 			}
 
+			/* Free anything we have left to free */
 			for (unsigned int f = 2; f < modectr; f++)
 				free(mode_users[f]);
 		}
+
+		/* All done. That wasnt so bad was it, you can wipe
+		 * the sweat from your forehead now. :-)
+		 */
 		return true;
 	}
 
