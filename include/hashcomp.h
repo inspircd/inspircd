@@ -125,6 +125,9 @@ namespace irc
 
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.
+	 * This class can join a vector of std::string, a deque of
+	 * std::string, or a const char** array, using overloaded
+	 * constructors.
 	 */
 	class stringjoiner
 	{
@@ -132,16 +135,29 @@ namespace irc
 		std::string joined;
 	 public:
 		/** Join elements of a vector, between (and including) begin and end
+		 * @param seperator The string to seperate values with
+		 * @param sequence One or more items to seperate
+		 * @param begin The starting element in the sequence to be joined
+		 * @param end The ending element in the sequence to be joined
 		 */
 		stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end);
 		/** Join elements of a deque, between (and including) begin and end
+		 * @param seperator The string to seperate values with
+		 * @param sequence One or more items to seperate
+		 * @param begin The starting element in the sequence to be joined
+		 * @param end The ending element in the sequence to be joined
 		 */
 		stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end);
 		/** Join elements of an array of char arrays, between (and including) begin and end
+		 * @param seperator The string to seperate values with
+		 * @param sequence One or more items to seperate
+		 * @param begin The starting element in the sequence to be joined
+		 * @param end The ending element in the sequence to be joined
 		 */
 		stringjoiner(const std::string &seperator, const char** sequence, int begin, int end);
 
 		/** Get the joined sequence
+		 * @return A reference to the joined string
 		 */
 		std::string& GetJoined();
 	};
