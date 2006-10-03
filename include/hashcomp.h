@@ -123,6 +123,29 @@ namespace irc
 	        bool operator()(const insp_inaddr &s1, const insp_inaddr &s2) const;
 	};
 
+	/** irc::stringjoiner joins string lists into a string, using
+	 * the given seperator string.
+	 */
+	class stringjoiner
+	{
+	 private:
+		std::string joined;
+	 public:
+		/** Join elements of a vector, between (and including) begin and end
+		 */
+		stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end);
+		/** Join elements of a deque, between (and including) begin and end
+		 */
+		stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end);
+		/** Join elements of an array of char arrays, between (and including) begin and end
+		 */
+		stringjoiner(const std::string &seperator, const char** sequence, int begin, int end);
+
+		/** Get the joined sequence
+		 */
+		std::string& GetJoined();
+	};
+
 	/** irc::modestacker stacks mode sequences into a list.
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES
 	 * values per line.

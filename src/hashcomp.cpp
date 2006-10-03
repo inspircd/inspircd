@@ -354,3 +354,30 @@ int irc::modestacker::GetStackedLine(std::deque<std::string> &result)
 
 	return n;
 }
+
+irc::stringjoiner::stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end)
+{
+	for (int v = begin; v < end; v++)
+		joined.append(sequence[v]).append(seperator);
+	joined.append(sequence[end]);
+}
+
+irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end)
+{
+	for (int v = begin; v < end; v++)
+		joined.append(sequence[v]).append(seperator);
+	joined.append(sequence[end]);
+}
+
+irc::stringjoiner::stringjoiner(const std::string &seperator, const char** sequence, int begin, int end)
+{
+	for (int v = begin; v < end; v++)
+		joined.append(sequence[v]).append(seperator);
+	joined.append(sequence[end]);
+}
+
+std::string& irc::stringjoiner::GetJoined()
+{
+	return joined;
+}
+

@@ -48,7 +48,8 @@ class RemoveBase
 	enum ModeLevel { PEON = 0, HALFOP = 1, OP = 2, ADMIN = 3, OWNER = 4, ULINE = 5 };	 
  
 	/* This little function just converts a chanmode character (U ~ & @ & +) into an integer (5 4 3 2 1 0) */
-	/* XXX - this could be handy in the core, so it can be used elsewhere */
+	/* XXX - We should probably use the new mode prefix rank stuff
+	 * for this instead now -- Brain */
 	ModeLevel chartolevel(const std::string &privs)
 	{
 		if(privs.empty())
@@ -180,20 +181,16 @@ class RemoveBase
 			if ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER))
 			{
 				// no you can't just go from a std::ostringstream to a std::string, Om. -nenolod
-				std::ostringstream reason_stream;
-				std::string reasonparam;
+				// but you can do this, nenolod -brain
+
+				std::string reasonparam("No reason given");
 				
 				/* If a reason is given, use it */
 				if(pcnt > 2)
 				{
-					/* Use all the remaining parameters as the reason */
-					for(int i = 2; i < pcnt; i++)
-					{
-						reason_stream << " " << parameters[i];
-					}
-					
-					reasonparam = reason_stream.str();
-					reason_stream.clear();
+					/* Join params 2 ... pcnt - 1 (inclusive) into one */
+					irc::stringjoiner reason_join(" ", parameters, 2, pcnt - 1);
+					reasonparam = reason_join.GetJoined();
 				}
 
 				/* Build up the part reason string. */
