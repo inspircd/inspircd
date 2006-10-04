@@ -1818,6 +1818,7 @@ class TreeSocket : public InspSocket
 			// nick collision
 			Instance->Log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,params[4].c_str(),params[2].c_str(),(unsigned long)age,(unsigned long)iter->second->age);
 			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+tempnick+" :Nickname collision");
+			userrec::QuitUser(this->Instance, iter->second, "Nickname collision");
 			return true;
 		}
 
