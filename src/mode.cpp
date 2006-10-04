@@ -729,6 +729,9 @@ std::string ModeParser::ModeString(userrec* user, chanrec* channel)
 	std::string types;
 	std::string pars;
 
+	if (!channel || !user)
+		return "";
+
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
