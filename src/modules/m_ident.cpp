@@ -52,9 +52,14 @@ class RFC1413 : public InspSocket
 		// so we just display a notice, and tidy off the ident_data.
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
+            char *newident;
+            
 			u->Shrink("ident_data");
-			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
-		}
+			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using ~"+std::string(u->ident)+" instead.");
+		    strcpy(newident,"~");
+            strlcat(newident,u->ident,IDENTMAX);
+            strlcpy(u->ident,newident,IDENTMAX);
+        }
 	}
 
 	virtual bool OnDataReady()
