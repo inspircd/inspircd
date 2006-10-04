@@ -1147,6 +1147,9 @@ class TreeSocket : public InspSocket
 			{
 				ourTS = chan->age;
 			}
+			else
+				/* Oops, channel doesnt exist! */
+				return true;
 		}
 
 		/* TS is equal: Merge the mode changes, use voooodoooooo on modes
