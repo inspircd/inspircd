@@ -153,6 +153,7 @@ class ModuleSafeList : public Module
  
 	virtual ~ModuleSafeList()
 	{
+		ServerInstance->Timers->DelTimer(MyTimer);
 	}
  
 	virtual Version GetVersion()
