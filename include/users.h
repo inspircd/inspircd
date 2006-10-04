@@ -826,7 +826,7 @@ namespace irc
 
 		/** Called every hour by the core to remove expired entries
 		 */
-		void MaintainWhoWas(time_t TIME);
+		void MaintainWhoWas(InspIRCd* ServerInstance, time_t TIME);
 	};
 };
 

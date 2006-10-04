@@ -24,7 +24,6 @@
 #include "xline.h"
 #include "cull_list.h"
 
-irc::whowas::whowas_users whowas;
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 
 typedef std::map<irc::string,char*> opertype_t;
@@ -809,9 +808,9 @@ namespace irc
 		}
 
 		/* every hour, run this function which removes all entries over 3 days */
-		void MaintainWhoWas(time_t t)
+		void MaintainWhoWas(InspIRCd* ServerInstance, time_t t)
 		{
-			for (whowas_users::iterator iter = ::whowas.begin(); iter != ::whowas.end(); iter++)
+			for (whowas_users::iterator iter = ServerInstance->whowas.begin(); iter != ServerInstance->whowas.end(); iter++)
 			{
 				whowas_set* n = (whowas_set*)iter->second;
 				if (n->size())
@@ -831,21 +830,27 @@ namespace irc
 /* adds or updates an entry in the whowas list */
 void userrec::AddToWhoWas()
 {
-	irc::whowas::whowas_users::iterator iter = whowas.find(this->nick);
+	irc::whowas::whowas_users::iterator iter = ServerInstance->whowas.find(this->nick);
 
-	if (iter == whowas.end())
+	ServerInstance->Log(DEBUG,"Add to whowas lists");
+
+	if (iter == ServerInstance->whowas.end())
 	{
+		ServerInstance->Log(DEBUG,"Adding new whowas set for %s",this->nick);
 		irc::whowas::whowas_set* n = new irc::whowas::whowas_set;
 		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
 		n->push_back(a);
-		whowas[this->nick] = n;
+		ServerInstance->whowas[this->nick] = n;
 	}
 	else
 	{
 		irc::whowas::whowas_set* group = (irc::whowas::whowas_set*)iter->second;
 
+		ServerInstance->Log(DEBUG,"Using existing whowas group for %s",this->nick);
+
 		if (group->size() > 10)
 		{
+			ServerInstance->Log(DEBUG,"Trimming existing group to ten entries for %s",this->nick);
 			irc::whowas::WhoWasGroup *a = (irc::whowas::WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();
