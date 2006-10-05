@@ -4997,11 +4997,33 @@ class ModuleSpanningTree : public Module
 
 	virtual ~ModuleSpanningTree()
 	{
+		ServerInstance->Log(DEBUG,"Performing unload of spanningtree!");
+		ServerInstance->Log(DEBUG,"Freeing bindings...");
+		for (unsigned int i = 0; i < Bindings.size(); i++)
+		{
+			ServerInstance->Log(DEBUG,"Freeing binding %d of %d",i, Bindings.size());
+			ServerInstance->SE->DelFd(Bindings[i]);
+			Bindings[i]->Close();
+			DELETE(Bindings[i]);
+		}
+		ServerInstance->Log(DEBUG,"Freeing connected servers...");
+		while (TreeRoot->ChildCount())
+		{
+			TreeServer* child_server = TreeRoot->GetChild(0);
+			ServerInstance->Log(DEBUG,"Freeing connected server %s", child_server->GetName().c_str());
+			if (child_server)
+			{
+				TreeSocket* sock = child_server->GetSocket();
+				ServerInstance->SE->DelFd(sock);
+				sock->Close();
+				DELETE(sock);
+			}
+		}	       
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version(1,1,0,2,VF_STATIC|VF_VENDOR,API_VERSION);
+		return Version(1,1,0,2,VF_VENDOR,API_VERSION);
 	}
 
 	void Implements(char* List)
