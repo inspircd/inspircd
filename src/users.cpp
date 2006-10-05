@@ -26,18 +26,12 @@
 
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 
-typedef std::map<irc::string,char*> opertype_t;
-typedef opertype_t operclass_t;
-
-opertype_t opertypes;
-operclass_t operclass;
-
 /* XXX: Used for speeding up WriteCommon operations */
 unsigned long uniq_id = 0;
 
 bool InitTypes(ServerConfig* conf, const char* tag)
 {
-	for (opertype_t::iterator n = opertypes.begin(); n != opertypes.end(); n++)
+	for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
 	{
 		if (n->second)
 			delete[] n->second;
@@ -49,7 +43,7 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 
 bool InitClasses(ServerConfig* conf, const char* tag)
 {
-	for (operclass_t::iterator n = operclass.begin(); n != operclass.end(); n++)
+	for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
 	{
 		if (n->second)
 			delete[] n->second;
@@ -64,7 +58,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, 
 	char* TypeName = (char*)values[0];
 	char* Classes = (char*)values[1];
 	
-	opertypes[TypeName] = strdup(Classes);
+	conf->opertypes[TypeName] = strdup(Classes);
 	conf->GetInstance()->Log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
 }
@@ -74,7 +68,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values,
 	char* ClassName = (char*)values[0];
 	char* CommandList = (char*)values[1];
 	
-	operclass[ClassName] = strdup(CommandList);
+	conf->operclass[ClassName] = strdup(CommandList);
 	conf->GetInstance()->Log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	return true;
 }

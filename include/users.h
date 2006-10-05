@@ -65,8 +65,6 @@ class Invited : public classbase
 	 irc::string channel;
 };
 
-
-
 class InspIRCd;
 
 /** Derived from Resolver, and performs user forward/reverse lookups.

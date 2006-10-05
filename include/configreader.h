@@ -31,10 +31,18 @@
 class ServerConfig;
 class InspIRCd;
 
+/** A callback for validating a single value
+ */
 typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, void*);
+/** A callback for validating multiple value entries
+ */
 typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, void**, int*);
+/** A callback indicating the end of a group of entries
+ */
 typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
 
+/** Types of data in the core config
+ */
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
 /** Holds a core configuration item and its callbacks
@@ -61,6 +69,15 @@ struct MultiConfig
 	MultiNotify	finish_function;
 };
 
+/** A set of oper types
+ */
+typedef std::map<irc::string,char*> opertype_t;
+
+/** A Set of oper classes
+ */
+typedef opertype_t operclass_t;
+
+
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
  * and storage of the configuration data needed to run the ircd, such as
@@ -69,6 +86,8 @@ struct MultiConfig
 class ServerConfig : public Extensible
 {
   private:
+	/** Creator/owner
+	 */
 	InspIRCd* ServerInstance;
 
 	/** This variable holds the names of all
@@ -84,6 +103,8 @@ class ServerConfig : public Extensible
 	 */
 	bool ParseLine(ConfigDataHash &target, std::string &line, long linenumber, std::ostringstream &errorstream);
   
+	/** Process an include directive
+	 */
 	bool DoInclude(ConfigDataHash &target, const std::string &file, std::ostringstream &errorstream);
 
 	/** Check that there is only one of each configuration item
@@ -371,6 +392,16 @@ class ServerConfig : public Extensible
 	 */
 	bool CycleHosts;
 
+	/* All oper type definitions from the config file
+	 */
+	opertype_t opertypes;
+
+	/** All oper class definitions from the config file
+	 */
+	operclass_t operclass;
+
+	/** Construct a new ServerConfig
+	 */
 	ServerConfig(InspIRCd* Instance);
 
 	/** Clears the include stack in preperation for a Read() call.
@@ -391,28 +422,46 @@ class ServerConfig : public Extensible
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
 	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
+	/** Load 'filename' into 'target', with the new config parser everything is parsed into
+	 * tag/key/value at load-time rather than at read-value time.
+	 */
 	bool LoadConf(ConfigDataHash &target, const std::string &filename, std::ostringstream &errorstream);
 	
 	/* Both these return true if the value existed or false otherwise */
 	
-	/* Writes 'length' chars into 'result' as a string */
+	/** Writes 'length' chars into 'result' as a string
+	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length);
+	/** Writes 'length' chars into 'result' as a string
+	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result);
 	
-	/* Tries to convert the value to an integer and write it to 'result' */
+	/** Tries to convert the value to an integer and write it to 'result'
+	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+	/** Tries to convert the value to an integer and write it to 'result'
+	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
 	
-	/* Returns true if the value exists and has a true value, false otherwise */
+	/** Returns true if the value exists and has a true value, false otherwise
+	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+	/** Returns true if the value exists and has a true value, false otherwise
+	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
 	
-	/* Returns the number of occurences of tag in the config file */
+	/** Returns the number of occurences of tag in the config file
+	 */
 	int ConfValueEnum(ConfigDataHash &target, const char* tag);
+	/** Returns the number of occurences of tag in the config file
+	 */
 	int ConfValueEnum(ConfigDataHash &target, const std::string &tag);
 	
-	/* Returns the numbers of vars inside the index'th 'tag in the config file */
+	/** Returns the numbers of vars inside the index'th 'tag in the config file
+	 */
 	int ConfVarEnum(ConfigDataHash &target, const char* tag, int index);
+	/** Returns the numbers of vars inside the index'th 'tag in the config file
+	 */
 	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
 	
 	Module* GetIOHook(int port);
