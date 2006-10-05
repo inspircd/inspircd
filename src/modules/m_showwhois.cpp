@@ -26,7 +26,7 @@ class SeeWhois : public ModeHandler
 
 		if (adding)
 		{
-			if (!channel->IsModeSet('W'))
+			if (!dest->IsModeSet('W'))
 			{
 				dest->SetMode('W',true);
 				return MODEACTION_ALLOW;
@@ -34,7 +34,7 @@ class SeeWhois : public ModeHandler
 		}
 		else
 		{
-			if (channel->IsModeSet('W'))
+			if (dest->IsModeSet('W'))
 			{
 				dest->SetMode('W',false);
 				return MODEACTION_ALLOW;
