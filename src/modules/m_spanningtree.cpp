@@ -3015,7 +3015,9 @@ class TreeSocket : public InspSocket
 				}
 				else
 				{
-					this->WriteLine("ERROR :Invalid command in negotiation phase.");
+					std::string error("ERROR :Invalid command in negotiation phase: ");
+					error.append(command.c_str());
+					this->WriteLine(error);
 					return false;
 				}
 			break;
