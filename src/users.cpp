@@ -37,7 +37,7 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 			delete[] n->second;
 	}
 	
-	opertypes.clear();
+	conf->opertypes.clear();
 	return true;
 }
 
@@ -49,7 +49,7 @@ bool InitClasses(ServerConfig* conf, const char* tag)
 			delete[] n->second;
 	}
 	
-	operclass.clear();
+	conf->operclass.clear();
 	return true;
 }
 
@@ -449,15 +449,15 @@ bool userrec::HasPermission(const std::string &command)
 	// are they even an oper at all?
 	if (*this->oper)
 	{
-		opertype_t::iterator iter_opertype = opertypes.find(this->oper);
-		if (iter_opertype != opertypes.end())
+		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
+		if (iter_opertype != ServerInstance->Config->opertypes.end())
 		{
 			char* Classes = strdup(iter_opertype->second);
 			char* myclass = strtok_r(Classes," ",&savept);
 			while (myclass)
 			{
-				operclass_t::iterator iter_operclass = operclass.find(myclass);
-				if (iter_operclass != operclass.end())
+				operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
+				if (iter_operclass != ServerInstance->Config->operclass.end())
 				{
 					char* CommandList = strdup(iter_operclass->second);
 					mycmd = strtok_r(CommandList," ",&savept2);
