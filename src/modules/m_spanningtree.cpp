@@ -3735,9 +3735,10 @@ void ReadConfiguration(bool rebind)
 		{
 			std::string Type = Conf->ReadValue("bind","type",j);
 			std::string IP = Conf->ReadValue("bind","address",j);
-			long Port = Conf->ReadInteger("bind","port",j,true);
+			int Port = Conf->ReadInteger("bind","port",j,true);
 			if (Type == "servers")
 			{
+				ServerInstance->Log(DEBUG,"m_spanningtree: Binding server port %s:%d", IP.c_str(), Port);
 				if (IP == "*")
 				{
 					IP = "";
@@ -3745,6 +3746,7 @@ void ReadConfiguration(bool rebind)
 				TreeSocket* listener = new TreeSocket(ServerInstance, IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
+					ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), Port);
 					Bindings.push_back(listener);
 				}
 				else
@@ -3753,6 +3755,7 @@ void ReadConfiguration(bool rebind)
 					listener->Close();
 					DELETE(listener);
 				}
+				ServerInstance->Log(DEBUG,"Done with this binding");
 			}
 		}
 	}
@@ -3838,7 +3841,6 @@ void ReadConfiguration(bool rebind)
 
 class ModuleSpanningTree : public Module
 {
-	std::vector<TreeSocket*> Bindings;
 	int line;
 	int NumServers;
 	unsigned int max_local;
@@ -4998,7 +5000,7 @@ class ModuleSpanningTree : public Module
 	virtual ~ModuleSpanningTree()
 	{
 		ServerInstance->Log(DEBUG,"Performing unload of spanningtree!");
-		ServerInstance->Log(DEBUG,"Freeing bindings...");
+		ServerInstance->Log(DEBUG,"Freeing %d bindings...",Bindings.size());
 		for (unsigned int i = 0; i < Bindings.size(); i++)
 		{
 			ServerInstance->Log(DEBUG,"Freeing binding %d of %d",i, Bindings.size());
