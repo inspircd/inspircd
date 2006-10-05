@@ -2089,14 +2089,12 @@ class TreeSocket : public InspSocket
 					char result[1024];
 					memset(result,0,1024);
 					memset(out,0,1024);
-					Instance->Log(DEBUG,"Original string '%s'",ret.c_str());
 					/* ERROR + CAPAB is still allowed unencryped */
 					if ((ret.substr(0,7) != "ERROR :") && (ret.substr(0,6) != "CAPAB "))
 					{
 						int nbytes = from64tobits(out, ret.c_str(), 1024);
 						if ((nbytes > 0) && (nbytes < 1024))
 						{
-							Instance->Log(DEBUG,"m_spanningtree: decrypt %d bytes",nbytes);
 							ctx_in->Decrypt(out, result, nbytes, 0);
 							for (int t = 0; t < nbytes; t++)
 								if (result[t] == '\7') result[t] = 0;
@@ -2130,16 +2128,12 @@ class TreeSocket : public InspSocket
 				// pad it to the key length
 				int n = this->keylength - (line.length() % this->keylength);
 				if (n)
-				{
-					Instance->Log(DEBUG,"Append %d chars to line to make it %d long from %d, key length %d",n,n+line.length(),line.length(),this->keylength);
 					line.append(n,'\7');
-				}
 			}
 			unsigned int ll = line.length();
 			ctx_out->Encrypt(line.c_str(), result, ll, 0);
 			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
-			//int from64tobits(char *out, const char *in, int maxlen);
 		}
 		return this->Write(line + "\r\n");
 	}
