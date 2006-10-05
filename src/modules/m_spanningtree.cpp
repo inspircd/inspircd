@@ -114,6 +114,8 @@ void ReadConfiguration(bool rebind);
 bool FlatLinks;
 /* Hide U-Lined servers in /MAP and /LINKS */
 bool HideULines;
+/* Announce TS changes to channels on merge */
+bool AnnounceTSChange;
 
 std::vector<std::string> ValidIPs;
 
@@ -1606,7 +1608,10 @@ class TreeSocket : public InspSocket
 			if (chan)
 				chan->age = TS;
 
-			/* XXX: Lower the TS here */
+			/* Lower the TS here */
+			if (AnnounceTSChange && chan)
+				chan->WriteChannelWithServ(Instance->Config->ServerName,
+				"TS for %s changed from %lu to %lu", chan->name, ourTS, TS);
 			ourTS = TS;
 
 			param_list.push_back(channel);
@@ -3753,6 +3758,7 @@ void ReadConfiguration(bool rebind)
 	}
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	HideULines = Conf->ReadFlag("options","hideulines",0);
+	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
 	LinkBlocks.clear();
 	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)

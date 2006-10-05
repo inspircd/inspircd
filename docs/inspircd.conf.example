@@ -676,10 +676,17 @@
 #                  this can save a lot of resources on very busy irc  #
 #                  servers.                                           #
 #                                                                     #
-#  syntaxhints   - If set to 'yes', 'true' or '1', when a user does    #
+#  syntaxhints   - If set to 'yes', 'true' or '1', when a user does   #
 #                  not give enough parameters for a command, a syntax #
 #                  hint will be given (using the RPL_TEXT numeric)    #
 #                  as well as the standard ERR_NEEDMOREPARAMS.        #
+#                                                                     #
+#  announcets    - If this value is defined to 'yes', 'true' or '1',  #
+#                  then if a channel's timestamp is updated the users #
+#                  on the channel will be informed of the change via  #
+#                  a server notice to the channel with the old and    #
+#                  new TS values in the timestamp. If you think this  #
+#                  is just pointless noise, define the value to 0.    #
 #                                                                     #
 
 <options prefixquit="Quit: "
@@ -702,6 +709,7 @@
 	 nouserdns="no"
 	 syntaxhints="no"
 	 cyclehosts="yes"
+	 announcets="yes"
          allowhalfop="yes">
 
 
