@@ -534,7 +534,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				else
 				{
 					user->WriteTo(targetuser,"MODE %s %s%s",targetuser->nick,output_sequence.c_str(), parameter_list.str().c_str());
-					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence));
+					FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, output_sequence + parameter_list.str()));
 					this->LastParse = targetuser->nick;
 				}
 			}

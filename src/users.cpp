@@ -1134,8 +1134,11 @@ void userrec::FullConnect(CullList* Goners)
 	 * changes dont go out onto the network and produce 'fake direction'.
 	 */
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
-	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
+
 	this->registered = REG_ALL;
+
+	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
+
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString());
 }
 

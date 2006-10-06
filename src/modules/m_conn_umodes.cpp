@@ -101,6 +101,7 @@ class ModuleModesOnConnect : public Module
 						}
 					}
 
+					ServerInstance->Log(DEBUG,"Call mode handler to set modes");
 					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
 				}
 				break;
