@@ -941,9 +941,10 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	Instance->Log(DEBUG,"Push back to local users.");
 	Instance->local_users.push_back(New);
 
-	Instance->Log(DEBUG,"Check softlimit.");
+	Instance->Log(DEBUG,"Check softlimit: %d %d %d",Instance->local_users.size(), Instance->Config->SoftLimit, MAXCLIENTS);
 	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
 	{
+		Instance->Log(DEBUG,"Check softlimit failed");
 		userrec::QuitUser(Instance, New,"No more connections allowed");
 		return;
 	}
