@@ -15,12 +15,18 @@ class cmd_setident : public command_t
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
-		for(unsigned int x = 0; x < strlen(parameters[0]); x++)
+		size_t len = 0;
+		for(const char* x = parameters[0]; *x; x++, len++)
 		{
-			if(((parameters[0][x] >= 'A') && (parameters[0][x] <= '}')) || strchr(".-0123456789", parameters[0][x]))
+			if(((*x >= 'A') && (*x <= '}')) || strchr(".-0123456789", *x))
 				continue;
-			
+
 			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
+			return CMD_FAILURE;
+		}
+		if (len > IDENTMAX)
+		{
+			user->WriteServ("NOTICE %s :*** Ident is too long", user->nick);
 			return CMD_FAILURE;
 		}
 

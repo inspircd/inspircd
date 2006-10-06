@@ -72,7 +72,6 @@ class HttpSocket : public InspSocket
 	std::string uri;
 	std::string http_version;
 	unsigned int postsize;
-	unsigned int amount;
 	HTTPTimeout* Timeout;
 
  public:
@@ -254,7 +253,6 @@ class HttpSocket : public InspSocket
 				{
 					/* Do we need to fetch postdata? */
 					postdata = "";
-					amount = 0;
 					InternalState = HTTP_SERVE_RECV_POSTDATA;
 					std::string header_item;
 					while (headers >> header_item)
@@ -286,9 +284,8 @@ class HttpSocket : public InspSocket
 				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 				{
 					/* Add postdata, once we have it all, send the event */
-					amount += strlen(data);
 					postdata.append(data);
-					if (amount >= postsize)
+					if (postdata.length() >= postsize)
 						ServeData();
 				}
 				else

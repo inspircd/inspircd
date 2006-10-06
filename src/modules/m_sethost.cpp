@@ -40,21 +40,22 @@ class cmd_sethost : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (strlen(parameters[0]) > 64)
+		size_t len = 0;
+		for (const char* x = parameters[0]; *x; x++, len++)
 		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
-			return CMD_FAILURE;
-		}
-		for (unsigned int x = 0; x < strlen(parameters[0]); x++)
-		{
-			if (((tolower(parameters[0][x]) < 'a') || (tolower(parameters[0][x]) > 'z')) && (parameters[0][x] != '.'))
+			if (((tolower(*x) < 'a') || (tolower(*x) > 'z')) && (*x != '.'))
 			{
-				if (((parameters[0][x] < '0') || (parameters[0][x]> '9')) && (parameters[0][x] != '-'))
+				if (((*x < '0') || (*x> '9')) && (*x != '-'))
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 					return CMD_FAILURE;
 				}
 			}
+		}
+		if (len > 64)
+		{
+			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);
+			return CMD_FAILURE;
 		}
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
