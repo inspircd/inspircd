@@ -61,6 +61,8 @@ class cmd_randquote : public command_t
 	}
 };
 
+/** Thrown by m_randquote
+ */
 class RandquoteException : public ModuleException
 {
  private:

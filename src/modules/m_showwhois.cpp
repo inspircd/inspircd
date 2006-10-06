@@ -6,13 +6,12 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 
-
-
+/** Handle user mode +W
+ */
 class SeeWhois : public ModeHandler
 {
  public:

@@ -23,7 +23,6 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 #include "m_sqlv2.h"
 
@@ -85,6 +84,8 @@ int QueueFD = -1;
 
 typedef std::deque<SQLresult*> ResultQueue;
 
+/** Represents a mysql query queue
+ */
 class QueryQueue : public classbase
 {
 private:
@@ -198,6 +199,8 @@ pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t results_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/** Represents a mysql result set
+ */
 class MySQLresult : public SQLresult
 {
 	int currentrow;
@@ -383,6 +386,8 @@ class SQLConnection;
 
 void NotifyMainThread(SQLConnection* connection_with_new_result);
 
+/** Represents a connection to a mysql database
+ */
 class SQLConnection : public classbase
 {
  protected:
@@ -638,6 +643,8 @@ void NotifyMainThread(SQLConnection* connection_with_new_result)
 
 void* DispatcherThread(void* arg);
 
+/** Used by m_mysql to notify one thread when the other has a result
+ */
 class Notifier : public InspSocket
 {
 	insp_sockaddr sock_us;
@@ -711,6 +718,8 @@ class Notifier : public InspSocket
 	}
 };
 
+/** MySQL module
+ */
 class ModuleSQL : public Module
 {
  public:

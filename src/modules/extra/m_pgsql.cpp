@@ -87,6 +87,8 @@ class SQLhost
 	}
 };
 
+/** Used to resolve sql server hostnames
+ */
 class SQLresolver : public Resolver
 {
  private:

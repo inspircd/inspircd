@@ -57,6 +57,8 @@ class ChannelStripColor : public ModeHandler
 	}
 };
 
+/** Handles user mode +S
+ */
 class UserStripColor : public ModeHandler
 {
  public:

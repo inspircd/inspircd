@@ -22,15 +22,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for the /watch command */
 
-
-
-
+/** A watchlist entry
+ */
 class watchentry : public classbase
 {
  public:
@@ -41,6 +39,8 @@ class watchentry : public classbase
 typedef std::vector<watchentry*> watchlist;
 watchlist watches;
 
+/** Handle /WATCH
+ */
 class cmd_watch : public command_t
 {
  public:

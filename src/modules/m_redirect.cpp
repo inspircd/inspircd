@@ -23,6 +23,8 @@ using namespace std;
 
 /* $ModDesc: Provides channel mode +L (limit redirection) */
 
+/** Handle channel mode +L
+ */
 class Redirect : public ModeHandler
 {
  public:

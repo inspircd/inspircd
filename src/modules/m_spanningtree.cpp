@@ -119,6 +119,8 @@ bool AnnounceTSChange;
 
 std::vector<std::string> ValidIPs;
 
+/** This will be used in a future version of InspIRCd for UID support
+ */
 class UserManager : public classbase
 {
 	uid_hash uids;
@@ -3514,6 +3516,8 @@ class ServernameResolver : public Resolver
 	}
 };
 
+/** Handle resolving of server IPs for the cache
+ */
 class SecurityIPResolver : public Resolver
 {
  private:

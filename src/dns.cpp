@@ -43,13 +43,15 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
 
-/* Masks to mask off the responses we get from the DNSRequest methods */
+/** Masks to mask off the responses we get from the DNSRequest methods
+ */
 enum QueryInfo
 {
 	ERROR_MASK	= 0x10000	/* Result is an error */
 };
 
-/* Flags which can be ORed into a request or reply for different meanings */
+/** Flags which can be ORed into a request or reply for different meanings
+ */
 enum QueryFlags
 {
 	FLAGS_MASK_RD		= 0x01,	/* Recursive */
@@ -63,7 +65,8 @@ enum QueryFlags
 };
 
 
-/* Represents a dns resource record (rr) */
+/** Represents a dns resource record (rr)
+ */
 class ResourceRecord
 {
  public:
@@ -73,7 +76,7 @@ class ResourceRecord
 	unsigned int	rdlength;	/* Record length */
 };
 
-/* Represents a dns request/reply header, and its payload as opaque data.
+/** Represents a dns request/reply header, and its payload as opaque data.
  */
 class DNSHeader
 {
@@ -88,7 +91,7 @@ class DNSHeader
 	unsigned char	payload[512];	/* Packet payload */
 };
 
-/* Represents a request 'on the wire' with routing information relating to
+/** Represents a request 'on the wire' with routing information relating to
  * where to call when we get a result
  */
 class DNSRequest
@@ -122,7 +125,7 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
-/* Fill a ResourceRecord class based on raw data input */
+/** Fill a ResourceRecord class based on raw data input */
 inline void DNS::FillResourceRecord(ResourceRecord* rr, const unsigned char *input)
 {
 	rr->type = (QueryType)((input[0] << 8) + input[1]);
@@ -131,7 +134,7 @@ inline void DNS::FillResourceRecord(ResourceRecord* rr, const unsigned char *inp
 	rr->rdlength = (input[8] << 8) + input[9];
 }
 
-/* Fill a DNSHeader class based on raw data input of a given length */
+/** Fill a DNSHeader class based on raw data input of a given length */
 inline void DNS::FillHeader(DNSHeader *header, const unsigned char *input, const int length)
 {
 	header->id[0] = input[0];
@@ -145,7 +148,7 @@ inline void DNS::FillHeader(DNSHeader *header, const unsigned char *input, const
 	memcpy(header->payload,&input[12],length);
 }
 
-/* Empty a DNSHeader class out into raw data, ready for transmission */
+/** Empty a DNSHeader class out into raw data, ready for transmission */
 inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, const int length)
 {
 	output[0] = header->id[0];
@@ -163,7 +166,7 @@ inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, con
 	memcpy(&output[12],header->payload,length);
 }
 
-/* Send requests we have previously built down the UDP socket */
+/** Send requests we have previously built down the UDP socket */
 int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
 	insp_sockaddr addr;
@@ -190,7 +193,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	return 0;
 }
 
-/* Add a query with a predefined header, and allocate an ID for it. */
+/** Add a query with a predefined header, and allocate an ID for it. */
 DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 {
 	/* Is the DNS connection down? */
@@ -228,7 +231,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	return req;
 }
 
-/* Initialise the DNS UDP socket so that we can send requests */
+/** Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	ServerInstance->Log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
@@ -332,7 +335,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	}
 }
 
-/* Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */
+/** Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */
 int DNS::MakePayload(const char * const name, const QueryType rr, const unsigned short rr_class, unsigned char * const payload)
 {
 	short payloadpos = 0;
@@ -369,7 +372,7 @@ int DNS::MakePayload(const char * const name, const QueryType rr, const unsigned
 	return payloadpos + 4;
 }
 
-/* Start lookup of an hostname to an IP address */
+/** Start lookup of an hostname to an IP address */
 int DNS::GetIP(const char *name)
 {
 	DNSHeader h;
@@ -387,7 +390,7 @@ int DNS::GetIP(const char *name)
 	return id;
 }
 
-/* Start lookup of an hostname to an IPv6 address */
+/** Start lookup of an hostname to an IPv6 address */
 int DNS::GetIP6(const char *name)
 {
 	DNSHeader h;
@@ -405,7 +408,7 @@ int DNS::GetIP6(const char *name)
 	return id;
 }
 
-/* Start lookup of a cname to another name */
+/** Start lookup of a cname to another name */
 int DNS::GetCName(const char *alias)
 {
 	DNSHeader h;
@@ -423,7 +426,7 @@ int DNS::GetCName(const char *alias)
 	return id;
 }
 
-/* Start lookup of an IP address to a hostname */
+/** Start lookup of an IP address to a hostname */
 int DNS::GetName(const insp_inaddr *ip)
 {
 	char query[128];
@@ -450,7 +453,7 @@ int DNS::GetName(const insp_inaddr *ip)
 	return id;
 }
 
-/* Start lookup of an IP address to a hostname */
+/** Start lookup of an IP address to a hostname */
 int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 {
 	char query[128];
@@ -496,6 +499,8 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 	return id;
 }
 
+/** Build an ipv6 reverse domain from an in6_addr
+ */
 void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 {
 #ifdef SUPPORT_IP6LINKS
@@ -516,7 +521,7 @@ void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 #endif
 }
 
-/* Return the next id which is ready, and the result attached to it */
+/** Return the next id which is ready, and the result attached to it */
 DNSResult DNS::GetResult()
 {
 	/* Fetch dns query response and decide where it belongs */
@@ -680,7 +685,7 @@ DNSResult DNS::GetResult()
 	}
 }
 
-/* A result is ready, process it */
+/** A result is ready, process it */
 DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 {
 	int i = 0;
@@ -819,14 +824,14 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	return std::make_pair(res,"No error");;
 }
 
-/* Close the master socket */
+/** Close the master socket */
 DNS::~DNS()
 {
 	shutdown(this->GetFd(), 2);
 	close(this->GetFd());
 }
 
-/* High level abstraction of dns used by application at large */
+/** High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
 {
 	ServerInstance->Log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
@@ -887,23 +892,25 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) 
 	ServerInstance->Log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
 }
 
+/** Called when an error occurs */
 void Resolver::OnError(ResolverError e, const std::string &errormessage)
 {
 	/* Nothing in here */
 }
 
+/** Destroy a resolver */
 Resolver::~Resolver()
 {
 	/* Nothing here (yet) either */
 }
 
-/* Get the request id associated with this class */
+/** Get the request id associated with this class */
 int Resolver::GetId()
 {
 	return this->myid;
 }
 
-/* Process a socket read event */
+/** Process a socket read event */
 void DNS::HandleEvent(EventType et)
 {
 	ServerInstance->Log(DEBUG,"Marshall reads: %d",this->GetFd());
@@ -948,7 +955,7 @@ void DNS::HandleEvent(EventType et)
 	}
 }
 
-/* Add a derived Resolver to the working set */
+/** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
 	/* Check the pointers validity and the id's validity */
@@ -980,6 +987,7 @@ bool DNS::AddResolverClass(Resolver* r)
 	}
 }
 
+/** Generate pseudo-random number */
 unsigned long DNS::PRNG()
 {
 	unsigned long val = 0;

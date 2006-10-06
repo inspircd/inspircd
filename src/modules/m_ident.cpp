@@ -27,6 +27,8 @@ using namespace std;
 
 // Version 1.5.0.0 - Updated to use InspSocket, faster and neater.
 
+/** Handles RFC1413 ident connections to users
+ */
 class RFC1413 : public InspSocket
 {
  protected:

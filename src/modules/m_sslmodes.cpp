@@ -23,6 +23,8 @@
 
 static char* dummy;
 
+/** Handle channel mode +z
+ */
 class SSLMode : public ModeHandler
 {
  public:
