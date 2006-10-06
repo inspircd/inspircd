@@ -196,9 +196,9 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 					break;
 				}
 			}
+			if (send_to_user)
+				t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
 		}
-		if (send_to_user)
-			t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
 	}
 	else
 	if (flags == WM_OR)
@@ -216,9 +216,9 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 					break;
 				}
 			}
+			if (send_to_user)
+				t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
 		}
-		if (send_to_user)
-			t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
 	}
 }
 
