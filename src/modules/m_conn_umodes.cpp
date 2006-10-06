@@ -101,7 +101,7 @@ class ModuleModesOnConnect : public Module
 						}
 					}
 
-					ServerInstance->SendMode(modes, size, user);
+					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
 				}
 				break;
 			}
