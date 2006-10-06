@@ -55,11 +55,13 @@ class ListTimer : public InspTimer
 	chanrec *chan;
 	InspIRCd* ServerInstance;
 	const std::string glob;
+	size_t ServerNameSize;
 
  public:
 
 	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,Instance->Time()), ServerInstance(Instance)
 	{
+		ServerNameSize = 4 + strlen(ServerInstance->Config->ServerName);
 	}
 
 	virtual void Tick(time_t TIME)
@@ -92,7 +94,7 @@ class ListTimer : public InspTimer
 
 				ServerInstance->Log(DEBUG, "m_safelist.so: resuming spool of list to client %s at channel %ld", u->nick, ld->list_position);
 				chan = NULL;
-				/* Attempt to fill up to half the user's sendq with /LIST output */
+				/* Attempt to fill up to 25% the user's sendq with /LIST output */
 				long amount_sent = 0;
 				do
 				{
@@ -105,14 +107,14 @@ class ListTimer : public InspTimer
 					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 					{
 						bool display = match(chan->name, ld->glob.c_str());
-
 						long users = chan->GetUserCounter();
+
 						if ((users) && (display))
 						{
-							int counter = snprintf(buffer,MAXBUF,"322 %s %s %ld :[+%s] %s",u->nick,chan->name,users,chan->ChanModes(has_user),chan->topic);
+							int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",u->nick, chan->name, users, chan->ChanModes(has_user), chan->topic);
 							/* Increment total plus linefeed */
-							amount_sent += counter + 4 + strlen(ServerInstance->Config->ServerName);
-							ServerInstance->Log(DEBUG,"m_safelist.so: Sent %ld of safe %ld / 4",amount_sent,u->sendqmax);
+							amount_sent += counter + ServerNameSize;
+							ServerInstance->Log(DEBUG, "m_safelist.so: Sent %ld of safe %ld / 4", amount_sent, u->sendqmax);
 							u->WriteServ(std::string(buffer));
 						}
 					}
