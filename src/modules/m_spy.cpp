@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *		       E-mail:
+ *		<brain@chatspike.net>
+ *	   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -32,34 +32,62 @@ using namespace std;
 
 void spy_userlist(userrec *user, chanrec *c)
 {
-	static char list[MAXBUF];
+	char list[MAXBUF];
+	size_t dlen, curlen;
 
-	if (!c || !user)
-		return;
+	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
 
-	snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+	int numusers = 0;
+	char* ptr = list + dlen;
 
 	CUList *ulist= c->GetUsers();
+
+	/* Improvement by Brain - this doesnt change in value, so why was it inside
+	 * the loop?
+	 */
+	bool has_user = c->HasUser(user);
+
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		strlcat(list,c->GetPrefixChar(i->second),MAXBUF);
-		strlcat(list,i->second->nick,MAXBUF);
-		strlcat(list," ",MAXBUF);
-		if (strlen(list)>(480-NICKMAX))
+		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
 		{
-			/* list overflowed into
-			 * multiple numerics */
+			/*
+			 * user is +i, and source not on the channel, does not show
+			 * nick in NAMES list
+			 */
+			continue;
+		}
+
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", c->GetPrefixChar(i->second), i->second->nick);
+
+		curlen += ptrlen;
+		ptr += ptrlen;
+
+		numusers++;
+
+		if (curlen > (480-NICKMAX))
+		{
+			/* list overflowed into multiple numerics */
 			user->WriteServ(std::string(list));
-			snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+
+			/* reset our lengths */
+			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+			ptr = list + dlen;
+
+			ptrlen = 0;
+			numusers = 0;
 		}
 	}
+
 	/* if whats left in the list isnt empty, send it */
-	if (list[strlen(list)-1] != ':')
+	if (numusers)
 	{
 		user->WriteServ(std::string(list));
 	}
-}
 
+	user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
+
+}
 
 
 class cmd_spylist : public command_t
