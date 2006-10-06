@@ -22,13 +22,11 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "configreader.h"
 #include "inspircd.h"
 
-
-
-	 
+/** Handle /UNINVITE
+ */	 
 class cmd_uninvite : public command_t
 {
  public:

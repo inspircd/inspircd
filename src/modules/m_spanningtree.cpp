@@ -583,6 +583,8 @@ bool IsServer(std::string ServerName)
 }
 
 
+/** Handle /RCONNECT
+ */
 class cmd_rconnect : public command_t
 {
 	Module* Creator;

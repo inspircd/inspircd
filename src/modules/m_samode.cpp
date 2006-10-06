@@ -24,7 +24,7 @@ using namespace std;
  * 
  */
 
-/* $ModDesc: Povides more advanced UnrealIRCd SAMODE command */
+/* $ModDesc: Provides more advanced UnrealIRCd SAMODE command */
 
 /*
  * ToDo:
@@ -37,9 +37,8 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-
-
-	 
+/** Handle /SAMODE
+ */
 class cmd_samode : public command_t
 {
  public:

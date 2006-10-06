@@ -28,7 +28,8 @@ using namespace std;
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
 
 
-
+/** Handle /NICKLOCK
+ */
 class cmd_nicklock : public command_t
 {
 	char* dummy;
@@ -73,6 +74,8 @@ class cmd_nicklock : public command_t
 	}
 };
 
+/** Handle /NICKUNLOCK
+ */
 class cmd_nickunlock : public command_t
 {
  public:

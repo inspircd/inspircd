@@ -30,6 +30,8 @@ CmdResult ShowOperMOTD(userrec* user)
 	return CMD_SUCCESS;
 }
 
+/** Handle /OPERMOTD
+ */
 class cmd_opermotd : public command_t
 {
  public:

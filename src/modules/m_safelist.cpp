@@ -42,8 +42,7 @@ class ListData : public classbase
 typedef std::vector<userrec *> UserList;
 UserList listusers;    /* vector of people doing a /list */
 
-/*
- * To create a timer which recurs every second, we inherit from InspTimer.
+/** To create a timer which recurs every second, we inherit from InspTimer.
  * InspTimer is only one-shot however, so at the end of each Tick() we simply
  * insert another of ourselves into the pending queue :)
  */

@@ -21,14 +21,12 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for unreal-style SAPART command */
 
-
-
-
+/** Handle /SAPART
+ */
 class cmd_sapart : public command_t
 {
  public:

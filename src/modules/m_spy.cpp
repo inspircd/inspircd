@@ -75,7 +75,8 @@ void spy_userlist(userrec *user, chanrec *c)
 
 }
 
-
+/** Handle /SPYLIST
+ */
 class cmd_spylist : public command_t
 {
   public:
@@ -102,6 +103,8 @@ class cmd_spylist : public command_t
 	}
 };
 
+/** Handle /SPYNAMES
+ */
 class cmd_spynames : public command_t
 {
   public:

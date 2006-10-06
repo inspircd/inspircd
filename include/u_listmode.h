@@ -27,6 +27,8 @@ inline std::string stringtime()
 	return TIME.str();
 }
 
+/** An item in a listmode's list
+ */
 class ListItem : public classbase
 {
 public:
@@ -35,6 +37,8 @@ public:
 	std::string time;
 };
 
+/** The number of items a listmode's list may contain
+ */
 class ListLimit : public classbase
 {
 public:
@@ -46,6 +50,8 @@ public:
 typedef std::vector<ListItem> modelist;
 typedef std::vector<ListLimit> limitlist;
 
+/** The base class for listmodes defined by u_listmode.h
+ */
 class ListModeBase : public ModeHandler
 {
  protected:

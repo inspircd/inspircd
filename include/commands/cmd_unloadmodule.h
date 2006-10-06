@@ -22,6 +22,8 @@
 #include "users.h"
 #include "channels.h"
 
+/** Handle /UNLOADMODULE
+ */
 class cmd_unloadmodule : public command_t
 {
  public:

@@ -4,6 +4,8 @@
 
 /* $ModDesc: Provides support for the SETIDENT command */
 
+/** Handle /SETIDENT
+ */
 class cmd_setident : public command_t
 {
  public:

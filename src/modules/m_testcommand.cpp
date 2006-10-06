@@ -20,14 +20,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "dns.h"
 #include "inspircd.h"
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 
-
-
+/** A test resolver class for IPV6
+ */
 class MyV6Resolver : public Resolver
 {
 	bool fw;
@@ -48,8 +47,8 @@ class MyV6Resolver : public Resolver
 	}
 };
 
-
-	 
+/** Handle /WOOT
+ */
 class cmd_woot : public command_t
 {
  public:

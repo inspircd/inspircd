@@ -35,9 +35,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for an SAQUIT command, exits user with a reason */
 
-
-
-
+/** Handle /SAQUIT
+ */
 class cmd_saquit : public command_t
 {
  public:

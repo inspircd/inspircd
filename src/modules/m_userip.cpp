@@ -21,14 +21,12 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides support for USERIP command */
 
-
-
-
+/** Handle /USERIP
+ */
 class cmd_userip : public command_t
 {
  public:

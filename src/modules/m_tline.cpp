@@ -20,16 +20,14 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "wildcard.h"
 #include "inspircd.h"
 #include "dns.h"
 
 /* $ModDesc: Provides /tline command used to test who a mask matches */
 
-
-
-	 
+/** Handle /TLINE
+ */ 
 class cmd_tline : public command_t
 {
  public:

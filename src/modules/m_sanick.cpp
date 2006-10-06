@@ -25,9 +25,8 @@ using namespace std;
 
 /* $ModDesc: Provides support for SANICK command */
 
-
-
-
+/** Handle /SANICK
+ */
 class cmd_sanick : public command_t
 {
  public:

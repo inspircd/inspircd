@@ -25,6 +25,8 @@ using namespace std;
 
 /* $ModDesc: Allows opers to set their idle time */
 
+/** Handle /SETIDLE
+ */
 class cmd_setidle : public command_t
 {
  public:

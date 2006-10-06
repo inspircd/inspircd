@@ -24,13 +24,14 @@ using namespace std;
 
 /* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
 
-static ConfigReader *Conf;
+static ConfigReader* Conf;
 
-
+/** Handle /VHOST
+ */
 class cmd_vhost : public command_t
 {
  public:
- cmd_vhost (InspIRCd* Instance) : command_t(Instance,"VHOST", 0, 2)
+	cmd_vhost (InspIRCd* Instance) : command_t(Instance,"VHOST", 0, 2)
 	{
 		this->source = "m_vhost.so";
 		syntax = "<username> <password>";

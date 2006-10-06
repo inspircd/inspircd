@@ -31,6 +31,8 @@ std::string suffix = "";
 
 /* $ModDesc: Provides random Quotes on Connect. */
 
+/** Handle /RANDQUOTE
+ */
 class cmd_randquote : public command_t
 {
  public:

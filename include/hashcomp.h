@@ -248,10 +248,8 @@ namespace irc
 		const std::string GetToken();
 	};
 
-	/** irc::commasepstream allows for splitting comma seperated lists.
-	 * Lists passed to irc::commasepstream should not contain spaces
-	 * after the commas, or this will be taken to be part of the item
-	 * data. Each successive call to commasepstream::GetToken() returns
+	/** irc::sepstream allows for splitting token seperated lists.
+	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
 	 * an empty string.
 	 */
@@ -263,7 +261,7 @@ namespace irc
 		std::string::iterator n;
 		char sep;
 	 public:
-		/** Create a commasepstream and fill it with the provided data
+		/** Create a sepstream and fill it with the provided data
 		 */
 		sepstream(const std::string &source, char seperator);
 		virtual ~sepstream();
@@ -274,6 +272,8 @@ namespace irc
 		virtual const std::string GetToken();
 	};
 
+	/** A derived form of sepstream, which seperates on commas
+	 */
 	class commasepstream : public sepstream
 	{
 	 public:
@@ -282,6 +282,8 @@ namespace irc
 		}
 	};
 
+	/** A derived form of sepstream, which seperates on spaces
+	 */
 	class spacesepstream : public sepstream
 	{
 	 public:

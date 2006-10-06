@@ -23,14 +23,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "configreader.h"
 #include "inspircd.h"
 
 
-
-
+/** Holds a timed ban
+ */
 class TimedBan : public classbase
 {
  public:
@@ -42,6 +41,8 @@ class TimedBan : public classbase
 typedef std::vector<TimedBan> timedbans;
 timedbans TimedBanList;
 
+/** Handle /TBAN
+ */
 class cmd_tban : public command_t
 {
  public:

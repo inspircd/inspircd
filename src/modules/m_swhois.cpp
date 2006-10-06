@@ -17,13 +17,12 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 
-
-
+/** Handle /SWHOIS
+ */
 class cmd_swhois : public command_t
 {
 	
