@@ -170,7 +170,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 	int modelen;
 	va_list argsPtr;
 
-	if ((!text) || (!modes) || (!flags))
+	if (!text || !modes || !flags)
 	{
 		this->Log(DEFAULT,"*** BUG *** WriteMode was given an invalid parameter");
 		return;
@@ -181,14 +181,12 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 	va_end(argsPtr);
 	modelen = strlen(modes);
 
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	if (flags == WM_AND)
 	{
-		userrec* t = (userrec*)(*i);
-		bool send_to_user = false;
-
-		if (flags == WM_AND)
+		for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
-			send_to_user = true;
+			userrec* t = *i;
+			bool send_to_user = true;
 
 			for (int n = 0; n < modelen; n++)
 			{
@@ -199,9 +197,16 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 				}
 			}
 		}
-		else if (flags == WM_OR)
+		if (send_to_user)
+			t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
+	}
+	else
+	if (flags == WM_OR)
+	{
+		for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
-			send_to_user = false;
+			userrec* t = *i;
+			bool send_to_user = false;
 
 			for (int n = 0; n < modelen; n++)
 			{
@@ -212,11 +217,8 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 				}
 			}
 		}
-
 		if (send_to_user)
-		{
 			t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
-		}
 	}
 }
 
