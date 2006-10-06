@@ -119,35 +119,12 @@ class cmd_check : public command_t
 			/* note that unlike /names, we do NOT check +i vs in the channel */
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char list[MAXBUF];
 				char tmpbuf[MAXBUF];
-				char* ptr = list;
-				int flags = targchan->GetStatusFlags(i->second);
 				/*
-				 * find how many connections from this user's IP -- unlike Asuka,
-				 * I define a clone as coming from the same host. --w00t
+				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				snprintf(ptr, MAXBUF, "%lu    ", i->second->GlobalCloneCount());
-				
-				if (flags & UCMODE_OP)
-				{
-					strcat(ptr, "@");
-				}
-				
-				if (flags & UCMODE_HOP)
-				{
-					strcat(ptr, "%");
-				}
-				
-				if (flags & UCMODE_VOICE)
-				{
-					strcat(ptr, "+");
-				}
-				
-				snprintf(tmpbuf, MAXBUF, "%s (%s@%s) %s ", i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
-				strlcat(ptr, tmpbuf, MAXBUF);
-				
-				user->WriteServ(checkstr + " member " + ptr);
+				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", i->second->GlobalCloneCount(), targchan->GetAllPrefixChars(i->second), i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
+				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 		}
 		else
