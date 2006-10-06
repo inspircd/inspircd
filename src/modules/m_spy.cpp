@@ -42,11 +42,6 @@ void spy_userlist(userrec *user, chanrec *c)
 
 	CUList *ulist= c->GetUsers();
 
-	/* Improvement by Brain - this doesnt change in value, so why was it inside
-	 * the loop?
-	 */
-	bool has_user = c->HasUser(user);
-
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", c->GetPrefixChar(i->second), i->second->nick);
