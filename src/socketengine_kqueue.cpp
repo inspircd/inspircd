@@ -94,15 +94,15 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 	struct kevent ke;
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
-
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
 		ServerInstance->Log(DEBUG,"kqueue: Failed to remove socket from queue: %s",strerror(errno));
 		return false;
 	}
+
+	CurrentSetSize--;
+	ref[fd] = NULL;
 
 	return true;
 }
