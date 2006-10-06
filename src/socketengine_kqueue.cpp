@@ -70,6 +70,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	struct kevent ke;
 	ServerInstance->Log(DEBUG,"kqueue: Add socket to events, kq=%d socket=%d",EngineHandle,fd);
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
@@ -92,6 +93,10 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 
 	struct kevent ke;
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+
+	CurrentSetSize--;
+	ref[fd] = NULL;
+
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
@@ -99,8 +104,6 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 		return false;
 	}
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
 	return true;
 }
 

@@ -90,14 +90,16 @@ bool EPollEngine::DelFd(EventHandler* eh)
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
+
+	CurrentSetSize--;
+	ref[fd] = NULL;
+
 	if (i < 0)
 	{
 		ServerInstance->Log(DEBUG,"epoll: List deletion failure: %s",strerror(errno));
 		return false;
 	}
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
 	return true;
 }
 
