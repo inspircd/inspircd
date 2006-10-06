@@ -903,13 +903,17 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)
 		New->dhost[j] = New->host[j] = *temp;
 	New->dhost[j] = New->host[j] = 0;
-			
+	
+	Instance->Log(DEBUG,"Hosts set.");
+
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
 	long class_threshold = 5;
 	long class_sqmax = 262144;      // 256kb
 	long class_rqmax = 4096;	// 4k
+
+	Instance->Log(DEBUG,"Class stuff set.");
 
 	for (ClassVector::iterator i = Instance->Config->Classes.begin(); i != Instance->Config->Classes.end(); i++)
 	{
@@ -924,6 +928,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 			break;
 		}
 	}
+
+	Instance->Log(DEBUG,"nping etc set.");
 
 	New->nping = Instance->Time() + New->pingmax + Instance->Config->dns_timeout;
 	New->timeout = Instance->Time() + class_regtimeout;
@@ -950,7 +956,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 * which for the time being is a physical impossibility (even the largest networks dont have more
 	 * than about 10,000 users on ONE server!)
 	 */
-	if ((unsigned)socket >= MAX_DESCRIPTORS)
+	if ((unsigned int)socket >= MAX_DESCRIPTORS)
 	{
 		userrec::QuitUser(Instance, New, "Server is full");
 		return;
@@ -959,20 +965,27 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	ELine* e = Instance->XLines->matches_exception(New);
 	if (!e)
 	{
+		Instance->Log(DEBUG,"Doesnt match eline.");
 		ZLine* r = Instance->XLines->matches_zline(ipaddr);
 		if (r)
 		{
+			Instance->Log(DEBUG,"Matches zline.");
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
 			userrec::QuitUser(Instance, New, reason);
 			return;
 		}
+		Instance->Log(DEBUG,"Doesnt match zline.");
 	}
+
+	Instance->Log(DEBUG,"Check before AddFd.");
 
 	if (socket > -1)
 	{
+		Instance->Log(DEBUG,"Adding fd.");
 		if (!Instance->SE->AddFd(New))
 		{
+			Instance->Log(DEBUG,"Oops, fd already exists");
 			userrec::QuitUser(Instance, New, "Internal error handling connection");
 			return;
 		}
