@@ -696,7 +696,7 @@
          noservices="0"
          qaprefixes="0"
          somaxconn="128"
-         softlimit="128"
+         softlimit="12800"
          operonlystats="oclgkz"
          operspywhois="no"
          customversion=""
