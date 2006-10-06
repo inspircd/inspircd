@@ -1271,23 +1271,18 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 	char linebuf[MAXBUF];
 
 	F.clear();
-	file =  fopen(fname,"r");
+	file =  fopen(fname, "r");
 
 	if (file)
 	{
 		while (!feof(file))
 		{
-			fgets(linebuf,sizeof(linebuf),file);
-			linebuf[strlen(linebuf)-1]='\0';
-
-			if (!*linebuf)
-			{
-				strcpy(linebuf," ");
-			}
+			fgets(linebuf, sizeof(linebuf), file);
+			linebuf[strlen(linebuf)-1] = 0;
 
 			if (!feof(file))
 			{
-				F.push_back(linebuf);
+				F.push_back(*linebuf ? linebuf : " ");
 			}
 		}
 
