@@ -49,15 +49,6 @@ void spy_userlist(userrec *user, chanrec *c)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
-		{
-			/*
-			 * user is +i, and source not on the channel, does not show
-			 * nick in NAMES list
-			 */
-			continue;
-		}
-
 		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", c->GetPrefixChar(i->second), i->second->nick);
 
 		curlen += ptrlen;
