@@ -938,13 +938,17 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->sendqmax = class_sqmax;
 	New->recvqmax = class_rqmax;
 
+	Instance->Log(DEBUG,"Push back to local users.");
 	Instance->local_users.push_back(New);
 
+	Instance->Log(DEBUG,"Check softlimit.");
 	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
 	{
 		userrec::QuitUser(Instance, New,"No more connections allowed");
 		return;
 	}
+
+	Instance->Log(DEBUG,"Softlimit passed.");
 
 	/*
 	 * XXX -
@@ -961,6 +965,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		userrec::QuitUser(Instance, New, "Server is full");
 		return;
 	}
+
+	Instance->Log(DEBUG,"socket < MAX_DESCRIPTORS passed.");
 
 	ELine* e = Instance->XLines->matches_exception(New);
 	if (!e)
