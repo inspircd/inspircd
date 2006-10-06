@@ -95,7 +95,7 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
-		ServerInstance->Log(DEBUG,"kqueue: Failed to remove socket from queue!");
+		ServerInstance->Log(DEBUG,"kqueue: Failed to remove socket from queue: %s",strerror(errno));
 		return false;
 	}
 

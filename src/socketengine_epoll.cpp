@@ -92,7 +92,7 @@ bool EPollEngine::DelFd(EventHandler* eh)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 	if (i < 0)
 	{
-		ServerInstance->Log(DEBUG,"epoll: List deletion failure!");
+		ServerInstance->Log(DEBUG,"epoll: List deletion failure: %s",strerror(errno));
 		return false;
 	}
 
