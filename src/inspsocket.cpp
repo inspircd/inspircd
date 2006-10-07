@@ -369,7 +369,7 @@ void SocketTimeout::Tick(time_t now)
 {
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 	{
-		ServerInstance->Log(DEBUG,"No FD or socket ref");
+		ServerInstance->Log(DEBUG,"Our socket has been deleted before the timeout was reached.");
 		return;
 	}
 
@@ -383,8 +383,12 @@ void SocketTimeout::Tick(time_t now)
 		this->sock->OnTimeout();
 		this->sock->OnError(I_ERR_TIMEOUT);
 		this->sock->timeout = true;
-		this->sock->state = I_ERROR;
 		ServerInstance->SE->DelFd(this->sock);
+		/* NOTE: We must set this AFTER DelFd, as we added
+		 * this socket whilst writeable. This means that we
+		 * must DELETE the socket whilst writeable too!
+		 */
+		this->sock->state = I_ERROR;
 		this->sock->Close();
 		delete this->sock;
 		return;
