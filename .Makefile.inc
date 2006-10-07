@@ -140,4 +140,7 @@ modclean:
 	rm -rf src/modules/*.so
 	rm -rf src/modules/*.o
 
-squeakyclean: modclean clean
+squeakyclean: distclean
+
+distclean: modclean clean
+
