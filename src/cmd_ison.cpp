@@ -48,7 +48,7 @@ void cmd_ison::Handle (char **parameters, int pcnt, userrec *user)
 		if (u)
 		{
 			strlcat(retbuf, u->nick, MAXBUF);
-			charlcat(retbuf, ' ', MAXBUF);
+			strlcat(retbuf, " ", MAXBUF);
 		}
 	}
 

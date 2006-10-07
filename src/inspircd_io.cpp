@@ -260,7 +260,7 @@ bool ValidateServerName(const char* tag, const char* value, void* data)
 	if (!strchr(x,'.'))
 	{
 		log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
-		charlcat(x,'.',MAXBUF);
+		strlcat(x,".",MAXBUF);
 	}
 	//strlower(x);
 	return true;

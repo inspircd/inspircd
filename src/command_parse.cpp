@@ -215,7 +215,7 @@ int CommandParser::LoopCall(command_t* fn, char **parameters, int pcnt, userrec 
 	 */
 	if ((joins) && (*keylist) && (total>0)) // more than one channel and is joining
 	{
-		charlcat(keylist,',',MAXBUF);
+		strlcat(keylist,",",MAXBUF);
 	}
 
 	/* If we're doing JOIN handling (e.g. we've had to kludge for two

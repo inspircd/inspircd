@@ -1302,7 +1302,7 @@ char* chanmodes(chanrec *chan, bool showkey)
 			}
 			if (extparam != "")
 			{
-				charlcat(sparam,' ',MAXBUF);
+				strlcat(sparam," ",MAXBUF);
 				strlcat(sparam,extparam.c_str(),MAXBUF);
 			}
 		}
