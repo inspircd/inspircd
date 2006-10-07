@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.0b3+Marble"
+echo "InspIRCd-1.1.0b4+SVN"
