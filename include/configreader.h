@@ -361,7 +361,7 @@ class ServerConfig : public Extensible
 	/** STATS characters in this list are available
 	 * only to operators.
 	 */
-	char OperOnlyStats[MAXBUF];
+	char UserStats[MAXBUF];
 	
 	/** The path and filename of the ircd.log file
 	 */

@@ -614,12 +614,11 @@
 #                  if defined sets a soft maxconnections value, has   #
 #                  to be less than the ./configure maxclients         #
 #                                                                     #
-#  operonlystats - The operonlystats field is optional and specifies  #
-#                  which stats characters in /STATS may only be       #
-#                  requested by an IRC operator. Stats characters in  #
-#                  this field are case sensitive and enforced as      #
-#                  oper-only independent of if they are in a module   #
-#                  or the core.                                       #
+#  userstats     - The userstats field is optional and specifies      #
+#                  which stats characters in /STATS may be requested  #
+#                  by non-operators. Stats characters in this field   #
+#                  are case sensitive and are allowed to users        #
+#                  independent of if they are in a module or the core #
 #                                                                     #
 #  operspywhois  - If this is set then when an IRC operator uses      #
 #                  /WHOIS on a user they will see all channels, even  #
@@ -697,7 +696,7 @@
          qaprefixes="0"
          somaxconn="128"
          softlimit="12800"
-         operonlystats="oclgkz"
+         userstats="Pu"
          operspywhois="no"
          customversion=""
          maxtargets="20"

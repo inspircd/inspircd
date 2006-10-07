@@ -46,7 +46,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
-	if ((*ServerInstance->Config->OperOnlyStats) && (strchr(ServerInstance->Config->OperOnlyStats,statschar)) && (!*user->oper))
+	if ((*ServerInstance->Config->UserStats) && (!*user->oper) && (!strchr(ServerInstance->Config->UserStats,statschar)))
 	{
 		results.push_back(sn+std::string(" 481 ")+user->nick+" :Permission denied - STATS "+statschar+" is oper-only");
 		return;

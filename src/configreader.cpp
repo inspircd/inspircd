@@ -28,7 +28,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	*TempDir = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
-	*OperOnlyStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
+	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
 	CycleHosts = writelog = AllowHalfop = true;
@@ -545,7 +545,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"dns",			"timeout",			&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
 		{"options",		"moduledir",			&this->ModPath,			DT_CHARPTR, ValidateModPath},
 		{"disabled",		"commands",			&this->DisabledCommands,	DT_CHARPTR, NoValidation},
-		{"options",		"operonlystats",		&this->OperOnlyStats,		DT_CHARPTR, NoValidation},
+		{"options",		"userstats",		&this->UserStats,		DT_CHARPTR, NoValidation},
 		{"options",		"customversion",		&this->CustomVersion,		DT_CHARPTR, NoValidation},
 		{"options",		"hidesplits",			&this->HideSplits,		DT_BOOLEAN, NoValidation},
 		{"options",		"hidebans",			&this->HideBans,		DT_BOOLEAN, NoValidation},
