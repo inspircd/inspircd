@@ -50,6 +50,38 @@ extern ServerConfig* Config;
 
 extern time_t TIME;
 
+
+inline int charlcat2(char* x,char y,int z)
+{
+	char* x__n = x;
+	int v = 0;
+	while(*x__n++)
+		v++;
+	if (v < z - 1)
+	{
+		*--x__n = y;
+		*++x__n = 0;
+	}
+	return v;
+}
+
+bool charremove2(char* mp, char remove)
+{
+	char* mptr = mp;
+	bool shift_down = false;
+	while (*mptr)
+	{
+		if (*mptr == remove)
+		shift_down = true;
+		if (shift_down)
+			*mptr = *(mptr+1);
+		mptr++;
+	}
+	return shift_down;
+}
+
+
+
 userrec* ModeParser::SanityChecks(userrec *user,char *dest,chanrec *chan,int status)
 {
 	userrec *d;
@@ -1034,7 +1066,7 @@ void ModeParser::ProcessModes(char **parameters,userrec* user,chanrec *chan,int 
 	{
 		for (ptr = 0; ptr < pc; ptr++)
 		{
-			charlcat(outl,' ',MAXBUF);
+			charlcat2(outl,' ',MAXBUF);
 			strlcat(outl,outpars[ptr],MAXBUF-1);
 		}
 		if (local)
@@ -1227,7 +1259,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				case '+':
 					if ((direction != 1) && (next_ok))
 					{
-						charlcat(outpars,'+',MAXBUF);
+						charlcat2(outpars,'+',MAXBUF);
 						next_ok = false;
 					}	
 					direction = 1;
@@ -1236,7 +1268,7 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 				case '-':
 					if ((direction != 0) && (next_ok))
 					{
-						charlcat(outpars,'-',MAXBUF);
+						charlcat2(outpars,'-',MAXBUF);
 						next_ok = false;
 					}
 					direction = 0;
@@ -1263,8 +1295,8 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 							{
 								if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 								{
-									charlcat(dmodes,*i,53);
-									charlcat(outpars,*i,MAXMODES);
+									charlcat2(dmodes,*i,53);
+									charlcat2(outpars,*i,MAXMODES);
 									switch (*i)
 									{
 										case 'o':
@@ -1291,8 +1323,8 @@ void cmd_mode::Handle (char **parameters, int pcnt, userrec *user)
 							{
 								if ((ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)) || (*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o'))
 								{
-									charlcat(outpars,*i,MAXMODES);
-									charremove(dmodes,*i);
+									charlcat2(outpars,*i,MAXMODES);
+									charremove2(dmodes,*i);
 									switch (*i)
 									{
 										case 'o':
@@ -1473,7 +1505,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					if ((direction != 1) && (next_ok))
 					{
 						next_ok = false;
-						charlcat(outpars,'+',MAXBUF);
+						charlcat2(outpars,'+',MAXBUF);
 					}
 					direction = 1;
 				break;
@@ -1482,7 +1514,7 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 					if ((direction != 0) && (next_ok))
 					{
 						next_ok = false;
-						charlcat(outpars,'-',MAXBUF);
+						charlcat2(outpars,'-',MAXBUF);
 					}
 					direction = 0;
 				break;
@@ -1500,8 +1532,8 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								log(DEBUG,"umode %c is an allowed umode",*i);
 								if ((*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o') || (ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)))
 								{
-									charlcat(dmodes,*i,MAXBUF);
-									charlcat(outpars,*i,53);
+									charlcat2(dmodes,*i,MAXBUF);
+									charlcat2(outpars,*i,53);
 									switch (*i)
 									{
 										case 'i':
@@ -1528,8 +1560,8 @@ void ModeParser::ServerMode(char **parameters, int pcnt, userrec *user)
 								log(DEBUG,"umode %c is an allowed umode",*i);
 								if ((*i == 'i') || (*i == 's') || (*i == 'w') || (*i == 'o') || (ServerInstance->ModeGrok->ProcessModuleUmode(*i, user, dest, direction)))
 								{
-									charlcat(outpars,*i,MAXBUF);
-									charremove(dmodes,*i);
+									charlcat2(outpars,*i,MAXBUF);
+									charremove2(dmodes,*i);
 									switch (*i)
 									{
 										case 'i':
