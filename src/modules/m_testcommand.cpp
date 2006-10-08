@@ -52,6 +52,7 @@ class MyV6Resolver : public Resolver
 class cmd_woot : public command_t
 {
  public:
+	/* Command 'woot', takes no parameters and needs no special modes */
 	cmd_woot (InspIRCd* Instance) : command_t(Instance,"WOOT", 0, 0)
 	{
 		this->source = "m_testcommand.so";
@@ -61,7 +62,6 @@ class cmd_woot : public command_t
 	{
 		/* We dont have to worry about deleting 'r', the core will
 		 * do it for us as required.*/
-
 		try
 		{
 			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se", true);
@@ -86,12 +86,7 @@ class ModuleTestCommand : public Module
 		: Module::Module(Me)
 	{
 		
-		// Create a new command:
-		// command will be called /WOOT, and will
-		// call handle_woot when triggered, the
-		// 0 in the modes parameter signifies that
-		// anyone can issue the command, and the
-		// command takes only one parameter.
+		// Create a new command
 		newcommand = new cmd_woot(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
@@ -103,12 +98,14 @@ class ModuleTestCommand : public Module
 
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
 	{
+		/* This is an example, we do nothing here */
 	}
 	
 	virtual ~ModuleTestCommand()
 	{
+		delete newcommand;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 0, 0, 0, VF_VENDOR, API_VERSION);
