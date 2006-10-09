@@ -64,7 +64,7 @@ class cmd_tline : public command_t
 			}
 		}
 		if (n_matched)
-			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick, n_counted, parameters[0], n_matched, (n_counted/n_matched)*100, n_match_host, n_match_ip);
+			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against %0.0f user(s) (%0.2f%% of the userbase). %0.0f by hostname and %0.0f by IP address.",user->nick, n_counted, parameters[0], n_matched, (n_matched/n_counted)*100, n_match_host, n_match_ip);
 		else
 			user->WriteServ( "NOTICE %s :*** TLINE: Counted %0.0f user(s). Matched '%s' against no user(s).", user->nick, n_counted, parameters[0]);
 
