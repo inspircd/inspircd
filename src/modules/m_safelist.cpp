@@ -41,6 +41,7 @@ class ListData : public classbase
  
 typedef std::vector<userrec *> UserList;
 UserList listusers;    /* vector of people doing a /list */
+class ListTimer *timer;
 
 /** To create a timer which recurs every second, we inherit from InspTimer.
  * InspTimer is only one-shot however, so at the end of each Tick() we simply
@@ -135,26 +136,24 @@ class ListTimer : public InspTimer
 			}
 		}
 
-		ListTimer* MyTimer = new ListTimer(ServerInstance,1);
-		ServerInstance->Timers->AddTimer(MyTimer);
+		timer = new ListTimer(ServerInstance,1);
+		ServerInstance->Timers->AddTimer(timer);
 	}
 };
 
 class ModuleSafeList : public Module
 {
  private:
-	 
-	 ListTimer* MyTimer;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
-		MyTimer = new ListTimer(ServerInstance,1);
-		ServerInstance->Timers->AddTimer(MyTimer);
+		timer = new ListTimer(ServerInstance,1);
+		ServerInstance->Timers->AddTimer(timer);
 	}
  
 	virtual ~ModuleSafeList()
 	{
-		ServerInstance->Timers->DelTimer(MyTimer);
+		ServerInstance->Timers->DelTimer(timer);
 	}
  
 	virtual Version GetVersion()
