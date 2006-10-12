@@ -136,24 +136,30 @@ class ListTimer : public InspTimer
 			}
 		}
 
-		timer = new ListTimer(ServerInstance,1);
-		ServerInstance->Timers->AddTimer(timer);
+		if (listusers.size())
+		{
+			timer = new ListTimer(ServerInstance,1);
+			ServerInstance->Timers->AddTimer(timer);
+		}
+		else
+		{
+			timer = NULL;
+		}
 	}
 };
 
 class ModuleSafeList : public Module
 {
- private:
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
-		timer = new ListTimer(ServerInstance,1);
-		ServerInstance->Timers->AddTimer(timer);
+		timer = NULL;
 	}
  
 	virtual ~ModuleSafeList()
 	{
-		ServerInstance->Timers->DelTimer(timer);
+		if (timer)
+			ServerInstance->Timers->DelTimer(timer);
 	}
  
 	virtual Version GetVersion()
@@ -223,7 +229,13 @@ class ModuleSafeList : public Module
 		time_t* llt = new time_t;
 		*llt = ServerInstance->Time();
 		user->Extend("safelist_last", llt);
-	
+
+		if (!timer)
+		{
+			timer = new ListTimer(ServerInstance,1);
+			ServerInstance->Timers->AddTimer(timer);
+		}
+
 		return 1;
 	}
 
