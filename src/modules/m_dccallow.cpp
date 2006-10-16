@@ -333,7 +333,7 @@ virtual int OnUserPreNotice(userrec* user, void* dest, int target_type, std::str
 		irc::string type = tokens[1].c_str();
 		ServerInstance->Log(DEBUG, "m_dccallow.so: got DCC type %s", type.c_str());
 
-		bool blockchat = Conf->ReadBool("dccallow", "blockchat", 0);
+		bool blockchat = Conf->ReadFlag("dccallow", "blockchat", 0);
 
 		if (type == "SEND")
 		{
