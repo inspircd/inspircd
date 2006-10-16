@@ -333,12 +333,12 @@ class ModuleDCCAllow : public Module
 		    irc::string type = tokens[1].c_str();
 		    ServerInstance->Log(DEBUG, "m_dccallow.so: got DCC type %s", type.c_str());
 
-		    const char* blockchat = Conf->ReadValue("dccallow", "blockchat", 0).c_str();
+		    bool blockchat = Conf->ReadValue("dccallow", "blockchat", 0);
 		    ServerInstance->Log(DEBUG, "m_dccallow.so: got blockchat: %s", blockchat);
 
 		    if (type == "SEND")
 		    {
-			const char* defaultaction = Conf->ReadValue("dccallow", "action", 0).c_str();
+			std::string defaultaction = Conf->ReadValue("dccallow", "action", 0);
 			std::string filename = tokens[2];
 			
 			if (strcmp(defaultaction, "allow") == 0) 
