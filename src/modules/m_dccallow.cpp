@@ -330,7 +330,7 @@ class ModuleDCCAllow : public Module
 		    while (ss >> buf)
 			tokens.push_back(buf);
 
-		    std::string type = tokens[1];
+		    irc::string type = tokens[1].c_str();
 		    ServerInstance->Log(DEBUG, "m_dccallow.so: got DCC type %s", type.c_str());
 
 		    const char* blockchat = Conf->ReadValue("dccallow", "blockchat", 0).c_str();
