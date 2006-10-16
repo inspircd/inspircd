@@ -945,6 +945,27 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# DCCALLOW module: Adds the /DCCALLOW command
+#<module name="m_dccallow.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#  blockchat         - Whether to block DCC CHAT as well as DCC SEND
+#  length            - Default duration of entries in DCCALLOW list
+#  action            - Default action to take if no action is specified
+#                      can be 'block' or 'allow'
+#
+# File configuration:
+#  pattern           - The glob pattern to match against
+#  action            - Action to take if a user attempts to send a file
+#                      that matches this pattern, can be 'block' or 'allow'
+#
+#<dccallow blockchat="yes" length="5m" action="block">
+#<banfile pattern="*.exe" action="block">
+#<banfile pattern="*.txt" action="allow">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
 #<module name="m_denychans.so"> 
 #
