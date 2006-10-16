@@ -116,7 +116,7 @@ class cmd_dccallow : public command_t
 						for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
 						{
 							userrec* u = (userrec*)(*j);
-							if (u->nick == user->nick)
+							if (u == user)
 							{
 								ul.erase(j);
 								break;
@@ -449,9 +449,9 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
 		{
 			userrec* u = (userrec*)(*j);
-			if (u->nick == user->nick)
+			if (u == user)
 			{
-					ul.erase(j);
+				ul.erase(j);
 				break;
 			}
 		}
