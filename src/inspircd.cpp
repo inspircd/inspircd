@@ -577,6 +577,10 @@ bool InspIRCd::LoadModule(const char* filename)
 					snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
 					return false;
 				}
+				else
+				{
+					this->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				}
 
 				modules[this->ModCount+1] = m;
 				/* save the module and the module's classfactory, if
