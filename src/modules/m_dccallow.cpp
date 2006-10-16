@@ -405,8 +405,6 @@ class ModuleDCCAllow : public Module
 			}
 			else
 			{
-				DELETE(dl);
-				u->Shrink("dccallow_list");
 				RemoveFromUserlist(u);
 				ServerInstance->Log(DEBUG, "m_dccallow.so: UH OH! Couldn't get DCCALLOW list for %s", u->nick);
 			}
@@ -440,8 +438,6 @@ class ModuleDCCAllow : public Module
 			}
 			else
 			{
-				DELETE(dl);
-				u->Shrink("dccallow_list");
 				RemoveFromUserlist(u);
 			}
 		}
