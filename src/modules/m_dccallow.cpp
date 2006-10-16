@@ -57,7 +57,7 @@ class cmd_dccallow : public command_t
 		{
 			// display current DCCALLOW list
 			DisplayDCCAllowList(user);
-			return CMD_SUCCESS;
+			return CMD_FAILURE;
 		}
 		else if (pcnt > 0)
 		{
@@ -70,13 +70,13 @@ class cmd_dccallow : public command_t
 				{
 					// list current DCCALLOW list
 					DisplayDCCAllowList(user);
-					return CMD_SUCCESS;
+					return CMD_FAILURE;
 				} 
 				else if (!strcasecmp(parameters[0], "HELP"))
 				{
 					// display help
 					DisplayHelp(user);
-					return CMD_SUCCESS;
+					return CMD_FAILURE;
 				}
 			}
 			
@@ -141,12 +141,17 @@ class cmd_dccallow : public command_t
 						if (k->nickname == target->nick)
 						{
 							user->WriteServ("996 %s %s :%s is already on your DCCALLOW list", user->nick, user->nick, target->nick);
-							return CMD_SUCCESS;
+							return CMD_FAILURE;
+						}
+						else if (ServerInstance->MatchText(user->GetFullHost(), k->hostmask))
+						{
+							user->WriteServ("996 %s %s :You cannot add yourself to your own DCCALLOW list!", user->nick, user->nick);
+							return CMD_FAILURE;
 						}
 					}
 				
 					std::string mask = std::string(target->nick)+"!"+std::string(target->ident)+"@"+std::string(target->dhost);
-					std::string default_length = Conf->ReadValue("dccallow", "length", 0).c_str();
+					std::string default_length = Conf->ReadValue("dccallow", "length", 0);
 		
 					long length;
 					if (pcnt < 2)
@@ -178,7 +183,7 @@ class cmd_dccallow : public command_t
 						user->WriteServ("994 %s %s :Added %s to DCCALLOW list for this session", user->nick, user->nick, target->nick);
 					}
 				
-					return CMD_SUCCESS;
+					return CMD_FAILURE;
 				}
 			}
 			else
@@ -188,7 +193,7 @@ class cmd_dccallow : public command_t
 				return CMD_FAILURE;
 			}
 		}
-		return CMD_SUCCESS;
+		return CMD_FAILURE;
 	}
 
 	void DisplayHelp(userrec* user)
