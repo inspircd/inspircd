@@ -366,7 +366,7 @@ virtual int OnUserPreNotice(userrec* user, void* dest, int target_type, std::str
 			u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick, user->nick);
 			}
 		}
-		else if ((type == "CHAT") && (strcmp(blockchat, "yes") == 0))
+		else if ((type == "CHAT") && (blockchat))
 		{
 			user->WriteServ("NOTICE %s :The user %s is not accepting DCC CHAT requests from you.", user->nick, u->nick);
 			u->WriteServ("NOTICE %s :%s (%s@%s) attempted to initiate a DCC CHAT session, which was blocked.", u->nick, user->nick, user->ident, user->dhost);
