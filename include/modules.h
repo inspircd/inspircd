@@ -68,9 +68,18 @@ enum TargetTypeFlags {
 #include "mode.h"
 #include "dns.h"
 
-/** If you change the module API, change this value
+/** If you change the module API, change this value.
+ * If you have enabled ipv6, the sizes of structs is
+ * different, and modules will be incompatible with
+ * ipv4 servers, so this value will be ten times as
+ * high on ipv6 servers.
  */
-#define API_VERSION 11001
+#define NATIVE_API_VERSION 11001
+#ifdef IPV6
+#define API_VERSION (NATIVE_API_VERSION * 10)
+#else
+#define API_VERSION (NATIVE_API_VERSION * 1)
+#endif
 
 class ServerConfig;
 
