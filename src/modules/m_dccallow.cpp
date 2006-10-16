@@ -149,7 +149,7 @@ class cmd_dccallow : public command_t
 					std::string default_length = Conf->ReadValue("dccallow", "length", 0).c_str();
 		
 					long length;
-					if (pcnt == 1)
+					if (pcnt < 2)
 					{
 						length = ServerInstance->Duration(default_length.c_str());
 					} 
