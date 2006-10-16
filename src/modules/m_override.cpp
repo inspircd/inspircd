@@ -97,13 +97,13 @@ class ModuleOverride : public Module
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
-		
+
 		if (j != overrides.end())
 		{
-			// its defined, return its value as a boolean for if the token is set
-			return (j->second.find(token, 0) != std::string::npos);
+			// its defined or * is set, return its value as a boolean for if the token is set
+			return ((j->second.find(token, 0) != std::string::npos) || (j->second.find("*", 0) != std::string::npos));
 		}
-		
+
 		// its not defined at all, count as false
 		return false;
 	}
