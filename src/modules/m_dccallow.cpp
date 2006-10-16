@@ -183,7 +183,7 @@ class cmd_dccallow : public command_t
 						user->WriteServ("994 %s %s :Added %s to DCCALLOW list for this session", user->nick, user->nick, target->nick);
 					}
 				
-					return CMD_FAILURE;
+					return CMD_SUCCESS;
 				}
 			}
 			else
@@ -301,6 +301,10 @@ class ModuleDCCAllow : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
+
+			/* Always allow a user to dcc themselves (although... why?) */
+			if (user == u)
+				return 0;
 		
 			if ((text.length()) && (text[0] == '\1'))
 			{
