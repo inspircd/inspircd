@@ -47,7 +47,7 @@ class cmd_dccallow : public command_t
 	cmd_dccallow(InspIRCd* Me) : command_t(Me, "DCCALLOW", 0, 0)
 	{
 		this->source = "m_dccallow.so";
-		syntax = "{[+|-]<nick> <time>}";
+		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
 	}
 
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
