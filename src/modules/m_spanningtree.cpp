@@ -29,8 +29,6 @@
 #include "cull_list.h"
 #include "aes.h"
 
-using irc::sockets::MatchCIDR;
-
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  */
@@ -3444,7 +3442,7 @@ class TreeSocket : public InspSocket
 		if (!found)
 		{
 			for (vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
-				if (MatchCIDR(ip, (*i).c_str()))
+				if (irc::sockets::MatchCIDR(ip, (*i).c_str()))
 					found = true;
 
 			if (!found)
