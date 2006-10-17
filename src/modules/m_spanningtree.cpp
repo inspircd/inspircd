@@ -31,6 +31,8 @@ using namespace std;
 #include "cull_list.h"
 #include "aes.h"
 
+using irc::sockets::MatchCIDR;
+
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  */
@@ -55,14 +57,7 @@ const long ProtocolVersion = 1101;
  * any O(n) lookups. If however, during a split or sync, we want
  * to apply an operation to a server, and any of its child objects
  * we can resort to recursion to walk the tree structure.
- */
-
-using irc::sockets::MatchCIDR;
-
-class ModuleSpanningTree;
-static ModuleSpanningTree* TreeProtocolModule;
-
-/** Any socket can have one of five states at any one time.
+ * Any socket can have one of five states at any one time.
  * The LISTENER state indicates a socket which is listening
  * for connections. It cannot receive data itself, only incoming
  * sockets.
@@ -82,15 +77,13 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 /* Foward declarations */
 class TreeServer;
 class TreeSocket;
+class Link;
+class ModuleSpanningTree;
 
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
 typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::StrHashComp> server_hash;
-server_hash serverlist;
-
-typedef nspace::hash_map<std::string, userrec*> uid_hash;
-typedef nspace::hash_map<std::string, char*> sid_hash;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -100,16 +93,21 @@ class SpanningTreeUtilities
  private:
 	InspIRCd* ServerInstance;
  public:
+	ModuleSpanningTree* Creator;
 	bool FlatLinks; /* Flatten links and /MAP for non-opers */
 	bool HideULines; /* Hide U-Lined servers in /MAP and /LINKS */
 	bool AnnounceTSChange; /* Announce TS changes to channels on merge */
 	std::vector<TreeSocket*> Bindings; /* Socket bindings */
-	/* This variable represents the root of the server tree
-	 * (for all intents and purposes, it's us)
-	 */
+	/* This variable represents the root of the server tree */
 	TreeServer *TreeRoot;
+	/* IPs allowed to link to us */
+	std::vector<std::string> ValidIPs;
+	/* Hash of currently connected servers by name */
+	server_hash serverlist;
+	/* Holds the data from the <link> tags in the conf */
+	std::vector<Link> LinkBlocks;
 
-	SpanningTreeUtilities(InspIRCd* Instance);
+	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
 	~SpanningTreeUtilities();
 	bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
 	bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
@@ -124,58 +122,8 @@ class SpanningTreeUtilities
 	TreeServer* BestRouteTo(std::string ServerName);
 	TreeServer* FindServerMask(std::string ServerName);
 	bool IsServer(std::string ServerName);
-};
-
-
-std::vector<std::string> ValidIPs;
-
-/** This will be used in a future version of InspIRCd for UID support
- */
-class UserManager : public classbase
-{
-	uid_hash uids;
-	sid_hash sids;
- public:
-	UserManager()
-	{
-		uids.clear();
-		sids.clear();
-	}
-
-	std::string UserToUID(userrec* user)
-	{
-		return "";
-	}
-
-	std::string UIDToUser(const std::string &UID)
-	{
-		return "";
-	}
-
-	std::string CreateAndAdd(userrec* user)
-	{
-		return "";
-	}
-
-	std::string CreateAndAdd(const std::string &servername)
-	{
-		return "";
-	}
-
-	std::string ServerToSID(const std::string &servername)
-	{
-		return "";
-	}
-
-	std::string SIDToServer(const std::string &SID)
-	{
-		return "";
-	}
-
-	userrec* FindByID(const std::string &UID)
-	{
-		return NULL;
-	}
+	void DoFailOver(Link* x);
+	Link* FindLink(const std::string& name);
 };
 
 
@@ -333,10 +281,9 @@ class TreeServer : public classbase
 	 */
 	void AddHashEntry()
 	{
-		server_hash::iterator iter;
-		iter = serverlist.find(this->ServerName.c_str());
-		if (iter == serverlist.end())
-			serverlist[this->ServerName.c_str()] = this;
+		server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
+		if (iter == Utils->serverlist.end())
+			Utils->serverlist[this->ServerName.c_str()] = this;
 	}
 
 	/** This method removes the reference to this object
@@ -345,10 +292,9 @@ class TreeServer : public classbase
 	 */
 	void DelHashEntry()
 	{
-		server_hash::iterator iter;
-		iter = serverlist.find(this->ServerName.c_str());
-		if (iter != serverlist.end())
-			serverlist.erase(iter);
+		server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
+		if (iter != Utils->serverlist.end())
+			Utils->serverlist.erase(iter);
 	}
 
 	/** These accessors etc should be pretty self-
@@ -520,17 +466,6 @@ class Link : public classbase
 	bool HiddenFromStats;
 	irc::string FailOver;
 };
-
-void DoFailOver(Link* x);
-Link* FindLink(const std::string& name);
-
-/* The usual stuff for inspircd modules,
- * plus the vector of Link classes which we
- * use to store the <link> tags from the config
- * file.
- */
-ConfigReader *Conf;
-std::vector<Link> LinkBlocks;
 
 /** Yay for fast searches!
  * This is hundreds of times faster than recursion
@@ -746,7 +681,7 @@ class TreeSocket : public InspSocket
 		if (this->LinkState == CONNECTING)
 		{
 			/* we do not need to change state here. */
-			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+			for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 			{
 				if (x->Name == this->myhost)
 				{
@@ -788,9 +723,9 @@ class TreeSocket : public InspSocket
 		if (e == I_ERR_CONNECT)
 		{
 			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection to \002"+myhost+"\002 refused");
-			Link* MyLink = FindLink(myhost);
+			Link* MyLink = Utils->FindLink(myhost);
 			if (MyLink)
-				DoFailOver(MyLink);
+				Utils->DoFailOver(MyLink);
 		}
 	}
 
@@ -2005,12 +1940,12 @@ class TreeSocket : public InspSocket
 				snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s",sn,c->second->name,(unsigned long)c->second->topicset,c->second->setby,c->second->topic);
 				this->WriteLine(data);
 			}
-			FOREACH_MOD_I(this->Instance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)TreeProtocolModule,(void*)this));
+			FOREACH_MOD_I(this->Instance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));
 			list.clear();
 			c->second->GetExtList(list);
 			for (unsigned int j = 0; j < list.size(); j++)
 			{
-				FOREACH_MOD_I(this->Instance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
+				FOREACH_MOD_I(this->Instance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,list[j]));
 			}
 		}
 	}
@@ -2035,12 +1970,12 @@ class TreeSocket : public InspSocket
 				{
 					this->WriteLine(":"+std::string(u->second->nick)+" AWAY :"+std::string(u->second->awaymsg));
 				}
-				FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)TreeProtocolModule,(void*)this));
+				FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
 				list.clear();
 				u->second->GetExtList(list);
 				for (unsigned int j = 0; j < list.size(); j++)
 				{
-					FOREACH_MOD_I(this->Instance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)TreeProtocolModule,(void*)this,list[j]));
+					FOREACH_MOD_I(this->Instance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
 				}
 			}
 		}
@@ -2068,7 +2003,7 @@ class TreeSocket : public InspSocket
 		/* Send everything else (channel modes, xlines etc) */
 		this->SendChannelModes(s);
 		this->SendXLines(s);		
-		FOREACH_MOD_I(this->Instance,I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)TreeProtocolModule,(void*)this));
+		FOREACH_MOD_I(this->Instance,I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)Utils->Creator,(void*)this));
 		this->WriteLine(endburst);
 		this->Instance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
 	}
@@ -2855,7 +2790,7 @@ class TreeSocket : public InspSocket
 			return false;
 		}
 		std::string description = params[3];
-		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
@@ -2905,7 +2840,7 @@ class TreeSocket : public InspSocket
 			return false;
 		}
 		std::string description = params[3];
-		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
@@ -2979,7 +2914,7 @@ class TreeSocket : public InspSocket
 		if ((!this->ctx_in) && (command == "AES"))
 		{
 			std::string sserv = params[0];
-			for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+			for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 			{
 				if ((x->EncryptionKey != "") && (x->Name == sserv))
 				{
@@ -3425,9 +3360,9 @@ class TreeSocket : public InspSocket
 		if (this->LinkState == CONNECTING)
 		{
 			this->Instance->SNO->WriteToSnoMask('l',"CONNECT: Connection to \002"+myhost+"\002 timed out.");
-			Link* MyLink = FindLink(myhost);
+			Link* MyLink = Utils->FindLink(myhost);
 			if (MyLink)
-				DoFailOver(MyLink);
+				Utils->DoFailOver(MyLink);
 		}
 	}
 
@@ -3457,10 +3392,10 @@ class TreeSocket : public InspSocket
 		 */
 		bool found = false;
 
-		found = (std::find(ValidIPs.begin(), ValidIPs.end(), ip) != ValidIPs.end());
+		found = (std::find(Utils->ValidIPs.begin(), Utils->ValidIPs.end(), ip) != Utils->ValidIPs.end());
 		if (!found)
 		{
-			for (vector<std::string>::iterator i = ValidIPs.begin(); i != ValidIPs.end(); i++)
+			for (vector<std::string>::iterator i = Utils->ValidIPs.begin(); i != Utils->ValidIPs.end(); i++)
 				if (MatchCIDR(ip, (*i).c_str()))
 					found = true;
 
@@ -3517,7 +3452,7 @@ class ServernameResolver : public Resolver
 				/* Something barfed, show the opers */
 				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 				delete newsocket;
-				DoFailOver(&MyLink);
+				Utils->DoFailOver(&MyLink);
 			}
 		}
 	}
@@ -3526,7 +3461,7 @@ class ServernameResolver : public Resolver
 	{
 		/* Ooops! */
 		ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
-		DoFailOver(&MyLink);
+		Utils->DoFailOver(&MyLink);
 	}
 };
 
@@ -3536,15 +3471,16 @@ class SecurityIPResolver : public Resolver
 {
  private:
 	Link MyLink;
+	SpanningTreeUtilities* Utils;
  public:
-	SecurityIPResolver(InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x)
+	SecurityIPResolver(SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x), Utils(U)
 	{
 	}
 
 	void OnLookupComplete(const std::string &result)
 	{
 		ServerInstance->Log(DEBUG,"Security IP cache: Adding IP address '%s' for Link '%s'",result.c_str(),MyLink.Name.c_str());
-		ValidIPs.push_back(result);
+		Utils->ValidIPs.push_back(result);
 	}
 
 	void OnError(ResolverError e, const std::string &errormessage)
@@ -3553,7 +3489,7 @@ class SecurityIPResolver : public Resolver
 	}
 };
 
-SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance) : ServerInstance(Instance)
+SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
 {
 	Bindings.clear();
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
@@ -3770,7 +3706,7 @@ bool SpanningTreeUtilities::DoOneToOne(std::string prefix, std::string command, 
 
 void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
-	Conf = new ConfigReader(ServerInstance);
+	ConfigReader* Conf = new ConfigReader(ServerInstance);
 	if (rebind)
 	{
 		for (int j =0; j < Conf->Enumerate("bind"); j++)
@@ -3836,7 +3772,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				{
 					try
 					{
-						SecurityIPResolver* sr = new SecurityIPResolver(ServerInstance, L.IPAddr, L);
+						SecurityIPResolver* sr = new SecurityIPResolver(this, ServerInstance, L.IPAddr, L);
 						ServerInstance->AddResolver(sr);
 					}
 					catch (ModuleException& e)
@@ -3896,7 +3832,7 @@ class ModuleSpanningTree : public Module
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
 	{
-		Utils = new SpanningTreeUtilities(Me);
+		Utils = new SpanningTreeUtilities(Me, this);
 
 		command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 		ServerInstance->AddCommand(command_rconnect);
@@ -3936,7 +3872,7 @@ class ModuleSpanningTree : public Module
 
 	int CountServs()
 	{
-		return serverlist.size();
+		return Utils->serverlist.size();
 	}
 
 	void HandleLinks(const char** parameters, int pcnt, userrec* user)
@@ -4284,7 +4220,7 @@ class ModuleSpanningTree : public Module
 			{
 				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 				delete newsocket;
-				this->DoFailOver(x);
+				Utils->DoFailOver(x);
 			}
 		}
 		else
@@ -4297,48 +4233,14 @@ class ModuleSpanningTree : public Module
 			catch (ModuleException& e)
 			{
 				ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
-				this->DoFailOver(x);
+				Utils->DoFailOver(x);
 			}
 		}
-	}
-
-	void DoFailOver(Link* x)
-	{
-		if (x->FailOver.length())
-		{
-			if (x->FailOver == x->Name)
-			{
-				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
-				return;
-			}
-			Link* TryThisOne = this->FindLink(x->FailOver.c_str());
-			if (TryThisOne)
-			{
-				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
-				ConnectServer(TryThisOne);
-			}
-			else
-			{
-				ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
-			}
-		}
-	}
-
-	Link* FindLink(const std::string& name)
-	{
-		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
-		{
-			if (ServerInstance->MatchText(x->Name.c_str(), name.c_str()))
-			{
-				return &(*x);
-			}
-		}
-		return NULL;
 	}
 
 	void AutoConnectServers(time_t curtime)
 	{
-		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 		{
 			if ((x->AutoConnect) && (curtime >= x->NextConnectTime))
 			{
@@ -4406,7 +4308,7 @@ class ModuleSpanningTree : public Module
 	
 	int HandleConnect(const char** parameters, int pcnt, userrec* user)
 	{
-		for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+		for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 		{
 			if (ServerInstance->MatchText(x->Name.c_str(),parameters[0]))
 			{
@@ -4432,10 +4334,10 @@ class ModuleSpanningTree : public Module
 	{
 		if (statschar == 'c')
 		{
-			for (unsigned int i = 0; i < LinkBlocks.size(); i++)
+			for (unsigned int i = 0; i < Utils->LinkBlocks.size(); i++)
 			{
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" C *@"+(LinkBlocks[i].HiddenFromStats ? "<hidden>" : LinkBlocks[i].IPAddr)+" * "+LinkBlocks[i].Name.c_str()+" "+ConvToStr(LinkBlocks[i].Port)+" "+(LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+LinkBlocks[i].Name.c_str());
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" C *@"+(Utils->LinkBlocks[i].HiddenFromStats ? "<hidden>" : Utils->LinkBlocks[i].IPAddr)+" * "+Utils->LinkBlocks[i].Name.c_str()+" "+ConvToStr(Utils->LinkBlocks[i].Port)+" "+(Utils->LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(Utils->LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 			}
 			results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 			ServerInstance->SNO->WriteToSnoMask('t',"Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
@@ -5069,15 +4971,40 @@ class ModuleSpanningTree : public Module
 	}
 };
 
-void DoFailOver(Link* x)
+void SpanningTreeUtilities::DoFailOver(Link* x)
 {
-	TreeProtocolModule->DoFailOver(x);
+	if (x->FailOver.length())
+	{
+		if (x->FailOver == x->Name)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
+			return;
+		}
+		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
+		if (TryThisOne)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
+			Creator->ConnectServer(TryThisOne);
+		}
+		else
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
+		}
+	}
 }
 
-Link* FindLink(const std::string& name)
+Link* SpanningTreeUtilities::FindLink(const std::string& name)
 {
-	return TreeProtocolModule->FindLink(name);
+	for (std::vector<Link>::iterator x = LinkBlocks.begin(); x < LinkBlocks.end(); x++)
+	{
+		if (ServerInstance->MatchText(x->Name.c_str(), name.c_str()))
+		{
+			return &(*x);
+		}
+	}
+	return NULL;
 }
+
 
 class ModuleSpanningTreeFactory : public ModuleFactory
 {
@@ -5092,8 +5019,7 @@ class ModuleSpanningTreeFactory : public ModuleFactory
 	
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
-		TreeProtocolModule = new ModuleSpanningTree(Me);
-		return TreeProtocolModule;
+		return new ModuleSpanningTree(Me);
 	}
 	
 };
