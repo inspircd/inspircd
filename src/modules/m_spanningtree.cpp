@@ -31,9 +31,6 @@ using namespace std;
 #include "cull_list.h"
 #include "aes.h"
 
-#define nspace __gnu_cxx
-
-
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  */
@@ -64,7 +61,6 @@ using irc::sockets::MatchCIDR;
 
 class ModuleSpanningTree;
 static ModuleSpanningTree* TreeProtocolModule;
-static InspIRCd* ServerInstance;
 
 /** Any socket can have one of five states at any one time.
  * The LISTENER state indicates a socket which is listening
@@ -87,11 +83,6 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 class TreeServer;
 class TreeSocket;
 
-/* This variable represents the root of the server tree
- * (for all intents and purposes, it's us)
- */
-TreeServer *TreeRoot;
-
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
@@ -101,21 +92,40 @@ server_hash serverlist;
 typedef nspace::hash_map<std::string, userrec*> uid_hash;
 typedef nspace::hash_map<std::string, char*> sid_hash;
 
-/* More forward declarations */
-bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
-bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
-bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
-bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
-bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
-bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
-void ReadConfiguration(bool rebind);
+/** Contains helper functions and variables for this module,
+ * and keeps them out of the global namespace
+ */
+class SpanningTreeUtilities
+{
+ private:
+	InspIRCd* ServerInstance;
+ public:
+	bool FlatLinks; /* Flatten links and /MAP for non-opers */
+	bool HideULines; /* Hide U-Lined servers in /MAP and /LINKS */
+	bool AnnounceTSChange; /* Announce TS changes to channels on merge */
+	std::vector<TreeSocket*> Bindings; /* Socket bindings */
+	/* This variable represents the root of the server tree
+	 * (for all intents and purposes, it's us)
+	 */
+	TreeServer *TreeRoot;
 
-/* Flatten links and /MAP for non-opers */
-bool FlatLinks;
-/* Hide U-Lined servers in /MAP and /LINKS */
-bool HideULines;
-/* Announce TS changes to channels on merge */
-bool AnnounceTSChange;
+	SpanningTreeUtilities(InspIRCd* Instance);
+	~SpanningTreeUtilities();
+	bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
+	bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
+	bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
+	bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
+	bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
+	bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
+	void ReadConfiguration(bool rebind);
+	void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list);
+	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list);
+	TreeServer* FindServer(std::string ServerName);
+	TreeServer* BestRouteTo(std::string ServerName);
+	TreeServer* FindServerMask(std::string ServerName);
+	bool IsServer(std::string ServerName);
+};
+
 
 std::vector<std::string> ValidIPs;
 
@@ -186,6 +196,7 @@ class UserManager : public classbase
 class TreeServer : public classbase
 {
 	InspIRCd* ServerInstance;		/* Creator */
+	SpanningTreeUtilities* Utils;		/* Utility class */
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
@@ -203,7 +214,7 @@ class TreeServer : public classbase
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */
-	TreeServer(InspIRCd* Instance) : ServerInstance(Instance)
+	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance) : ServerInstance(Instance)
 	{
 		Parent = NULL;
 		ServerName = "";
@@ -213,11 +224,11 @@ class TreeServer : public classbase
 		VersionString = ServerInstance->GetVersionString();
 	}
 
-	/** We use this constructor only to create the 'root' item, TreeRoot, which
+	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc)
+	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc)
 	{
 		Parent = NULL;
 		VersionString = "";
@@ -232,7 +243,7 @@ class TreeServer : public classbase
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
+	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
 		: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock)
 	{
 		VersionString = "";
@@ -265,13 +276,13 @@ class TreeServer : public classbase
 		 */
 
 		Route = Above;
-		if (Route == TreeRoot)
+		if (Route == Utils->TreeRoot)
 		{
 			Route = this;
 		}
 		else
 		{
-			while (this->Route->GetParent() != TreeRoot)
+			while (this->Route->GetParent() != Utils->TreeRoot)
 			{
 				this->Route = Route->GetParent();
 			}
@@ -527,7 +538,7 @@ std::vector<Link> LinkBlocks;
  * there are more than a few servers to deal with.
  * (read as: lots).
  */
-TreeServer* FindServer(std::string ServerName)
+TreeServer* SpanningTreeUtilities::FindServer(std::string ServerName)
 {
 	server_hash::iterator iter;
 	iter = serverlist.find(ServerName.c_str());
@@ -547,7 +558,7 @@ TreeServer* FindServer(std::string ServerName)
  * See the comments for the constructor of TreeServer
  * for more details.
  */
-TreeServer* BestRouteTo(std::string ServerName)
+TreeServer* SpanningTreeUtilities::BestRouteTo(std::string ServerName)
 {
 	if (ServerName.c_str() == TreeRoot->GetName())
 		return NULL;
@@ -568,7 +579,7 @@ TreeServer* BestRouteTo(std::string ServerName)
  * and match each one until we get a hit. Yes its slow,
  * deal with it.
  */
-TreeServer* FindServerMask(std::string ServerName)
+TreeServer* SpanningTreeUtilities::FindServerMask(std::string ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
@@ -579,7 +590,7 @@ TreeServer* FindServerMask(std::string ServerName)
 }
 
 /* A convenient wrapper that returns true if a server exists */
-bool IsServer(std::string ServerName)
+bool SpanningTreeUtilities::IsServer(std::string ServerName)
 {
 	return (FindServer(ServerName) != NULL);
 }
@@ -590,8 +601,9 @@ bool IsServer(std::string ServerName)
 class cmd_rconnect : public command_t
 {
 	Module* Creator;
+	SpanningTreeUtilities* Utils;
  public:
-	cmd_rconnect (InspIRCd* Instance, Module* Callback) : command_t(Instance, "RCONNECT", 'o', 2), Creator(Callback)
+	cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : command_t(Instance, "RCONNECT", 'o', 2), Creator(Callback), Utils(Util)
 	{
 		this->source = "m_spanningtree.so";
 		syntax = "<remote-server-mask> <servermask>";
@@ -632,6 +644,7 @@ class cmd_rconnect : public command_t
  */
 class TreeSocket : public InspSocket
 {
+	SpanningTreeUtilities* Utils;
 	std::string myhost;
 	std::string in_buffer;
 	ServerState LinkState;
@@ -655,8 +668,8 @@ class TreeSocket : public InspSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime)
-		: InspSocket(SI, host, port, listening, maxtime)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime)
+		: InspSocket(SI, host, port, listening, maxtime), Utils(Util)
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
@@ -664,8 +677,8 @@ class TreeSocket : public InspSocket
 		this->ctx_out = NULL;
 	}
 
-	TreeSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
-		: InspSocket(SI, host, port, listening, maxtime)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
+		: InspSocket(SI, host, port, listening, maxtime), Utils(Util)
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
@@ -677,8 +690,8 @@ class TreeSocket : public InspSocket
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(InspIRCd* SI, int newfd, char* ip)
-		: InspSocket(SI, newfd, ip)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip)
+		: InspSocket(SI, newfd, ip), Utils(Util)
 	{
 		this->LinkState = WAIT_AUTH_1;
 		this->ctx_in = NULL;
@@ -1060,13 +1073,13 @@ class TreeSocket : public InspSocket
 	 */
 	void Squit(TreeServer* Current,std::string reason)
 	{
-		if ((Current) && (Current != TreeRoot))
+		if ((Current) && (Current != Utils->TreeRoot))
 		{
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
 			params.push_back(":"+reason);
-			DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
-			if (Current->GetParent() == TreeRoot)
+			Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
+			if (Current->GetParent() == Utils->TreeRoot)
 			{
 				this->Instance->WriteOpers("Server \002"+Current->GetName()+"\002 split: "+reason);
 			}
@@ -1308,7 +1321,7 @@ class TreeSocket : public InspSocket
 				newparams.push_back(ConvToStr(ourTS));
 				newparams.push_back(to_bounce+params_to_bounce);
 				Instance->Log(DEBUG,"BOUNCE BACK: %s",(to_bounce+params_to_bounce).c_str());
-				DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
+				Utils->DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
 			}
 
 			if (to_keep.length())
@@ -1339,7 +1352,7 @@ class TreeSocket : public InspSocket
 				}
 
 				/* HOT POTATO! PASS IT ON! */
-				DoOneToAllButSender(source,"FMODE",params,sourceserv);
+				Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
 			}
 		}
 		else
@@ -1448,7 +1461,7 @@ class TreeSocket : public InspSocket
 			/* Update the parameters for FMODE with the new 'bounced' string */
 			newparams[2] = modebounce;
 			/* Only send it back the way it came, no need to send it anywhere else */
-			DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
+			Utils->DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
 			Instance->Log(DEBUG,"FMODE bounced intelligently, our TS less than theirs and the other server is NOT a uline.");
 		}
 		else
@@ -1468,7 +1481,7 @@ class TreeSocket : public InspSocket
 				this->Instance->CallCommandHandler("MODE", modelist, n, who);
 
 			/* HOT POTATO! PASS IT ON! */
-			DoOneToAllButSender(source,"FMODE",params,sourceserv);
+			Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
 		}
 		/* Are we supposed to free the userrec? */
 		if (smode)
@@ -1512,7 +1525,7 @@ class TreeSocket : public InspSocket
 					}
 					/* all done, send it on its way */
 					params[3] = ":" + params[3];
-					DoOneToAllButSender(source,"FTOPIC",params,nsource);
+					Utils->DoOneToAllButSender(source,"FTOPIC",params,nsource);
 				}
 			}
 			
@@ -1613,7 +1626,7 @@ class TreeSocket : public InspSocket
 				chan->age = TS;
 
 			/* Lower the TS here */
-			if (AnnounceTSChange && chan)
+			if (Utils->AnnounceTSChange && chan)
 				chan->WriteChannelWithServ(Instance->Config->ServerName,
 				"TS for %s changed from %lu to %lu", chan->name, ourTS, TS);
 			ourTS = TS;
@@ -1631,7 +1644,7 @@ class TreeSocket : public InspSocket
 		 * if there is a TS collision.
 		 */
 		params[2] = ":" + params[2];
-		DoOneToAllButSender(source,"FJOIN",params,source);
+		Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
 		/* Now, process every 'prefixes,nick' pair */
 		while (item != "")
@@ -1698,7 +1711,7 @@ class TreeSocket : public InspSocket
 					 * the FJOIN may be different to the origin of the nicks
 					 * in the command itself.
 					 */
-					TreeServer* route_back_again = BestRouteTo(who->server);
+					TreeServer* route_back_again = Utils->BestRouteTo(who->server);
 					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
 						/* Oh dear oh dear. */
@@ -1859,17 +1872,17 @@ class TreeSocket : public InspSocket
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
 
 		params[7] = ":" + params[7];
-		DoOneToAllButSender(source,"NICK",params,source);
+		Utils->DoOneToAllButSender(source,"NICK",params,source);
 
 		// Increment the Source Servers User Count..
-		TreeServer* SourceServer = FindServer(source);
+		TreeServer* SourceServer = Utils->FindServer(source);
 		if (SourceServer)
 		{
 			Instance->Log(DEBUG,"Found source server of %s",_new->nick);
 			SourceServer->AddUserCount();
 		}
 
-		FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
+		FOREACH_MOD_I(Instance,I_OnPostConnect,OnPostConnect(_new));
 
 		return true;
 	}
@@ -2049,7 +2062,7 @@ class TreeSocket : public InspSocket
 		/* send our version string */
 		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" VERSION :"+this->Instance->GetVersionString());
 		/* Send server tree */
-		this->SendServers(TreeRoot,s,1);
+		this->SendServers(Utils->TreeRoot,s,1);
 		/* Send users and their oper status */
 		this->SendUsers(s);
 		/* Send everything else (channel modes, xlines etc) */
@@ -2172,21 +2185,21 @@ class TreeSocket : public InspSocket
 					if (!Instance->Config->MOTD.size())
 					{
 						par[1] = std::string("::")+Instance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
-						DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+						Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 						return true;
 					}
    
 					par[1] = std::string("::")+Instance->Config->ServerName+" 375 "+source->nick+" :"+Instance->Config->ServerName+" message of the day";
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
    
 					for (unsigned int i = 0; i < Instance->Config->MOTD.size(); i++)
 					{
 						par[1] = std::string("::")+Instance->Config->ServerName+" 372 "+source->nick+" :- "+Instance->Config->MOTD[i];
-						DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+						Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 					}
      
 					par[1] = std::string("::")+Instance->Config->ServerName+" 376 "+source->nick+" End of message of the day.";
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 				}
 			}
 			else
@@ -2194,7 +2207,7 @@ class TreeSocket : public InspSocket
 				/* Pass it on */
 				userrec* source = this->Instance->FindNick(prefix);
 				if (source)
-					DoOneToOne(prefix, "MOTD", params, params[0]);
+					Utils->DoOneToOne(prefix, "MOTD", params, params[0]);
 			}
 		}
 		return true;
@@ -2218,16 +2231,16 @@ class TreeSocket : public InspSocket
 					par.push_back("");
 
 					par[1] = std::string("::")+Instance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+Instance->Config->ServerName;
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 
 					par[1] = std::string("::")+Instance->Config->ServerName+" 257 "+source->nick+" :Name     - "+Instance->Config->AdminName;
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 
 					par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :Nickname - "+Instance->Config->AdminNick;
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 
 					par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :E-Mail   - "+Instance->Config->AdminEmail;
-					DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 				}
 			}
 			else
@@ -2235,7 +2248,7 @@ class TreeSocket : public InspSocket
 				/* Pass it on */
 				userrec* source = this->Instance->FindNick(prefix);
 				if (source)
-					DoOneToOne(prefix, "ADMIN", params, params[0]);
+					Utils->DoOneToOne(prefix, "ADMIN", params, params[0]);
 			}
 		}
 		return true;
@@ -2262,7 +2275,7 @@ class TreeSocket : public InspSocket
 					for (size_t i = 0; i < results.size(); i++)
 					{
 						par[1] = "::" + results[i];
-						DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+						Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 					}
 				}
 			}
@@ -2271,7 +2284,7 @@ class TreeSocket : public InspSocket
 				/* Pass it on */
 				userrec* source = this->Instance->FindNick(prefix);
 				if (source)
-					DoOneToOne(prefix, "STATS", params, params[1]);
+					Utils->DoOneToOne(prefix, "STATS", params, params[1]);
 			}
 		}
 		return true;
@@ -2294,7 +2307,7 @@ class TreeSocket : public InspSocket
 		{
 			u->modes[UM_OPERATOR] = 1;
 			strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
-			DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
+			Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 		}
 		return true;
 	}
@@ -2311,14 +2324,14 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+			Utils->DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
 			if (IS_LOCAL(u))
 			{
 				std::deque<std::string> par;
 				par.push_back(params[1]);
 				/* This is not required as one is sent in OnUserPostNick below
 				 */
-				//DoOneToMany(u->nick,"NICK",par);
+				//Utils->DoOneToMany(u->nick,"NICK",par);
 				if (!u->ForceNickChange(params[1].c_str()))
 				{
 					userrec::QuitUser(this->Instance, u, "Nickname collision");
@@ -2340,7 +2353,7 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			chanrec::JoinUser(this->Instance, u, params[1].c_str(), false);
-			DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
+			Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 		}
 		return true;
 	}
@@ -2356,10 +2369,10 @@ class TreeSocket : public InspSocket
 		{
 			this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated from server \002"+prefix+"\002.");
 			this->Instance->RehashServer();
-			ReadConfiguration(false);
-			InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
+			Utils->ReadConfiguration(false);
+			InitializeDisabledCommands(Instance->Config->DisabledCommands, Instance);
 		}
-		DoOneToAllButSender(prefix,"REHASH",params,prefix);
+		Utils->DoOneToAllButSender(prefix,"REHASH",params,prefix);
 		return true;
 	}
 
@@ -2386,7 +2399,7 @@ class TreeSocket : public InspSocket
 			}
 			std::string reason = params[1];
 			params[1] = ":" + params[1];
-			DoOneToAllButSender(prefix,"KILL",params,sourceserv);
+			Utils->DoOneToAllButSender(prefix,"KILL",params,sourceserv);
 			who->Write(":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
 			userrec::QuitUser(this->Instance,who,reason);
 		}
@@ -2400,7 +2413,7 @@ class TreeSocket : public InspSocket
 
 		if (params.size() == 1)
 		{
-			TreeServer* ServerSource = FindServer(prefix);
+			TreeServer* ServerSource = Utils->FindServer(prefix);
 			if (ServerSource)
 			{
 				ServerSource->SetPingFlag();
@@ -2427,7 +2440,7 @@ class TreeSocket : public InspSocket
 			else
 			{
 				// not for us, pass it on :)
-				DoOneToOne(prefix,"PONG",params,forwardto);
+				Utils->DoOneToOne(prefix,"PONG",params,forwardto);
 			}
 		}
 
@@ -2439,7 +2452,7 @@ class TreeSocket : public InspSocket
 		if (params.size() < 3)
 			return true;
 
-		TreeServer* ServerSource = FindServer(prefix);
+		TreeServer* ServerSource = Utils->FindServer(prefix);
 
 		if (ServerSource)
 		{
@@ -2466,7 +2479,7 @@ class TreeSocket : public InspSocket
 		}
 
 		params[2] = ":" + params[2];
-		DoOneToAllButSender(prefix,"METADATA",params,prefix);
+		Utils->DoOneToAllButSender(prefix,"METADATA",params,prefix);
 		return true;
 	}
 
@@ -2475,14 +2488,14 @@ class TreeSocket : public InspSocket
 		if (params.size() < 1)
 			return true;
 
-		TreeServer* ServerSource = FindServer(prefix);
+		TreeServer* ServerSource = Utils->FindServer(prefix);
 
 		if (ServerSource)
 		{
 			ServerSource->SetVersion(params[0]);
 		}
 		params[0] = ":" + params[0];
-		DoOneToAllButSender(prefix,"VERSION",params,prefix);
+		Utils->DoOneToAllButSender(prefix,"VERSION",params,prefix);
 		return true;
 	}
 
@@ -2496,7 +2509,7 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			u->ChangeDisplayedHost(params[0].c_str());
-			DoOneToAllButSender(prefix,"FHOST",params,u->server);
+			Utils->DoOneToAllButSender(prefix,"FHOST",params,u->server);
 		}
 		return true;
 	}
@@ -2548,7 +2561,7 @@ class TreeSocket : public InspSocket
 				this->Instance->SNO->WriteToSnoMask('x',"%s Added permenant %cLINE on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),params[5].c_str());
 			}
 			params[5] = ":" + params[5];
-			DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
+			Utils->DoOneToAllButSender(prefix,"ADDLINE",params,prefix);
 		}
 		if (!this->bursting)
 		{
@@ -2569,7 +2582,7 @@ class TreeSocket : public InspSocket
 		{
 			u->ChangeName(params[0].c_str());
 			params[0] = ":" + params[0];
-			DoOneToAllButSender(prefix,"FNAME",params,u->server);
+			Utils->DoOneToAllButSender(prefix,"FNAME",params,u->server);
 		}
 		return true;
 	}
@@ -2602,12 +2615,12 @@ class TreeSocket : public InspSocket
 					par.push_back(signon);
 					par.push_back(idle);
 					// ours, we're done, pass it BACK
-					DoOneToOne(params[0],"IDLE",par,u->server);
+					Utils->DoOneToOne(params[0],"IDLE",par,u->server);
 				}
 				else
 				{
 					// not ours pass it on
-					DoOneToOne(prefix,"IDLE",params,x->server);
+					Utils->DoOneToOne(prefix,"IDLE",params,x->server);
 				}
 			}
 			else if (params.size() == 3)
@@ -2626,7 +2639,7 @@ class TreeSocket : public InspSocket
 				else
 				{
 					// not ours, pass it on
-					DoOneToOne(prefix,"IDLE",params,who_to_send_to->server);
+					Utils->DoOneToOne(prefix,"IDLE",params,who_to_send_to->server);
 				}
 			}
 		}
@@ -2651,7 +2664,7 @@ class TreeSocket : public InspSocket
 		{
 			// continue the raw onwards
 			params[1] = ":" + params[1];
-			DoOneToOne(prefix,"PUSH",params,u->server);
+			Utils->DoOneToOne(prefix,"PUSH",params,u->server);
 		}
 		return true;
 	}
@@ -2672,7 +2685,7 @@ class TreeSocket : public InspSocket
 					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
 					params.push_back(curtime);
 					params[0] = prefix;
-					DoOneToOne(this->Instance->Config->ServerName,"TIME",params,params[0]);
+					Utils->DoOneToOne(this->Instance->Config->ServerName,"TIME",params,params[0]);
 				}
 			}
 			else
@@ -2680,7 +2693,7 @@ class TreeSocket : public InspSocket
 				// not us, pass it on
 				userrec* u = this->Instance->FindNick(params[1]);
 				if (u)
-					DoOneToOne(prefix,"TIME",params,params[0]);
+					Utils->DoOneToOne(prefix,"TIME",params,params[0]);
 			}
 		}
 		else if (params.size() == 3)
@@ -2700,7 +2713,7 @@ class TreeSocket : public InspSocket
 			else
 			{
 				if (u)
-					DoOneToOne(prefix,"TIME",params,u->server);
+					Utils->DoOneToOne(prefix,"TIME",params,u->server);
 			}
 		}
 		return true;
@@ -2725,12 +2738,12 @@ class TreeSocket : public InspSocket
 				// this is a ping for us, send back PONG to the requesting server
 				params[1] = params[0];
 				params[0] = forwardto;
-				DoOneToOne(forwardto,"PONG",params,params[1]);
+				Utils->DoOneToOne(forwardto,"PONG",params,params[1]);
 			}
 			else
 			{
 				// not for us, pass it on :)
-				DoOneToOne(prefix,"PING",params,forwardto);
+				Utils->DoOneToOne(prefix,"PING",params,forwardto);
 			}
 			return true;
 		}
@@ -2756,34 +2769,34 @@ class TreeSocket : public InspSocket
 				std::string modesequence = Instance->Modes->ModeString(i->second, c);
 				if (modesequence.length())
 				{
-					ServerInstance->Log(DEBUG,"Mode sequence = '%s'",modesequence.c_str());
+					Instance->Log(DEBUG,"Mode sequence = '%s'",modesequence.c_str());
 					irc::spacesepstream sep(modesequence);
 					std::string modeletters = sep.GetToken();
-					ServerInstance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
+					Instance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
 					
 					while (!modeletters.empty())
 					{
 						char mletter = *(modeletters.begin());
 						modestack.Push(mletter,sep.GetToken());
-						ServerInstance->Log(DEBUG,"Push letter = '%c'",mletter);
+						Instance->Log(DEBUG,"Push letter = '%c'",mletter);
 						modeletters.erase(modeletters.begin());
-						ServerInstance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
+						Instance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
 					}
 				}
 			}
 
 			while (modestack.GetStackedLine(stackresult))
 			{
-				ServerInstance->Log(DEBUG,"Stacked line size %d",stackresult.size());
+				Instance->Log(DEBUG,"Stacked line size %d",stackresult.size());
 				stackresult.push_front(ConvToStr(c->age));
 				stackresult.push_front(c->name);
-				DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
+				Utils->DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
 				stackresult.erase(stackresult.begin() + 1);
-				ServerInstance->Log(DEBUG,"Stacked items:");
+				Instance->Log(DEBUG,"Stacked items:");
 				for (size_t z = 0; z < stackresult.size(); z++)
 				{
 					y[z] = stackresult[z].c_str();
-					ServerInstance->Log(DEBUG,"\tstackresult[%d]='%s'",z,stackresult[z].c_str());
+					Instance->Log(DEBUG,"\tstackresult[%d]='%s'",z,stackresult[z].c_str());
 				}
 				userrec* n = new userrec(Instance);
 				n->SetFd(FD_MAGIC_NUMBER);
@@ -2803,24 +2816,24 @@ class TreeSocket : public InspSocket
 		std::string password = params[1];
 		// hopcount is not used for a remote server, we calculate this ourselves
 		std::string description = params[3];
-		TreeServer* ParentOfThis = FindServer(prefix);
+		TreeServer* ParentOfThis = Utils->FindServer(prefix);
 
 		if (!ParentOfThis)
 		{
 			this->WriteLine("ERROR :Protocol error - Introduced remote server from unknown server "+prefix);
 			return false;
 		}
-		TreeServer* CheckDupe = FindServer(servername);
+		TreeServer* CheckDupe = Utils->FindServer(servername);
 		if (CheckDupe)
 		{
 			this->WriteLine("ERROR :Server "+servername+" already exists!");
 			this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+servername+"\2 denied, already exists");
 			return false;
 		}
-		TreeServer* Node = new TreeServer(this->Instance,servername,description,ParentOfThis,NULL);
+		TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL);
 		ParentOfThis->AddChild(Node);
 		params[3] = ":" + params[3];
-		DoOneToAllButSender(prefix,"SERVER",params,prefix);
+		Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 		this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 		return true;
 	}
@@ -2846,7 +2859,7 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
-				TreeServer* CheckDupe = FindServer(sname);
+				TreeServer* CheckDupe = Utils->FindServer(sname);
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
@@ -2861,10 +2874,10 @@ class TreeSocket : public InspSocket
 				// we should add the details of this server now
 				// to the servers tree, as a child of the root
 				// node.
-				TreeServer* Node = new TreeServer(this->Instance,sname,description,TreeRoot,this);
-				TreeRoot->AddChild(Node);
+				TreeServer* Node = new TreeServer(this->Utils,this->Instance,sname,description,Utils->TreeRoot,this);
+				Utils->TreeRoot->AddChild(Node);
 				params[3] = ":" + params[3];
-				DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,sname);
+				Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
 				this->bursting = true;
 				this->DoBurst(Node);
 				return true;
@@ -2896,7 +2909,7 @@ class TreeSocket : public InspSocket
 		{
 			if ((x->Name == servername) && (x->RecvPass == password))
 			{
-				TreeServer* CheckDupe = FindServer(sname);
+				TreeServer* CheckDupe = Utils->FindServer(sname);
 				if (CheckDupe)
 				{
 					this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
@@ -3058,14 +3071,14 @@ class TreeSocket : public InspSocket
 						}
 					}
 					this->LinkState = CONNECTED;
-					Node = new TreeServer(this->Instance,InboundServerName,InboundDescription,TreeRoot,this);
-					TreeRoot->AddChild(Node);
+					Node = new TreeServer(this->Utils,this->Instance,InboundServerName,InboundDescription,Utils->TreeRoot,this);
+					Utils->TreeRoot->AddChild(Node);
 					params.clear();
 					params.push_back(InboundServerName);
 					params.push_back("*");
 					params.push_back("1");
 					params.push_back(":"+InboundDescription);
-					DoOneToAllButSender(TreeRoot->GetName(),"SERVER",params,InboundServerName);
+					Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,InboundServerName);
 					this->bursting = true;
 					this->DoBurst(Node);
 				}
@@ -3111,7 +3124,7 @@ class TreeSocket : public InspSocket
 					{
 						direction = t->server;
 					}
-					TreeServer* route_back_again = BestRouteTo(direction);
+					TreeServer* route_back_again = Utils->BestRouteTo(direction);
 					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
 						if (route_back_again)
@@ -3267,7 +3280,7 @@ class TreeSocket : public InspSocket
 				{
 					return this->Time(prefix,params);
 				}
-				else if ((command == "KICK") && (IsServer(prefix)))
+				else if ((command == "KICK") && (Utils->IsServer(prefix)))
 				{
 					std::string sourceserv = this->myhost;
 					if (params.size() == 3)
@@ -3285,7 +3298,7 @@ class TreeSocket : public InspSocket
 					{
 						sourceserv = this->InboundServerName;
 					}
-					return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+					return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 				}
 				else if (command == "SVSJOIN")
 				{
@@ -3299,7 +3312,7 @@ class TreeSocket : public InspSocket
 				{
 					if (params.size() == 2)
 					{
-						this->Squit(FindServer(params[0]),params[1]);
+						this->Squit(Utils->FindServer(params[0]),params[1]);
 					}
 					return true;
 				}
@@ -3340,18 +3353,18 @@ class TreeSocket : public InspSocket
 								std::deque<std::string> p;
 								p.push_back(params[0]);
 								p.push_back("Nickname collision ("+prefix+" -> "+params[0]+")");
-								DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
+								Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
 								p.clear();
 								p.push_back(prefix);
 								p.push_back("Nickname collision");
-								DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
+								Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
 								userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 								userrec* y = this->Instance->FindNick(prefix);
 								if (y)
 								{
 									userrec::QuitUser(this->Instance,y,"Nickname collision");
 								}
-								return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+								return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 							}
 						}
 						// its a user
@@ -3378,7 +3391,7 @@ class TreeSocket : public InspSocket
 					else
 					{
 						// its not a user. Its either a server, or somethings screwed up.
-						if (IsServer(prefix))
+						if (Utils->IsServer(prefix))
 						{
 							target = this->Instance->Config->ServerName;
 						}
@@ -3388,7 +3401,7 @@ class TreeSocket : public InspSocket
 							return true;
 						}
 					}
-					return DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+					return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 
 				}
 				return true;
@@ -3428,7 +3441,7 @@ class TreeSocket : public InspSocket
 		{
 			quitserver = this->InboundServerName;
 		}
-		TreeServer* s = FindServer(quitserver);
+		TreeServer* s = Utils->FindServer(quitserver);
 		if (s)
 		{
 			Squit(s,"Remote host closed the connection");
@@ -3458,7 +3471,7 @@ class TreeSocket : public InspSocket
 				return false;
 			}
 		}
-		TreeSocket* s = new TreeSocket(this->Instance, newsock, ip);
+		TreeSocket* s = new TreeSocket(this->Utils, this->Instance, newsock, ip);
 		s = s; /* Whinge whinge whinge, thats all GCC ever does. */
 		return true;
 	}
@@ -3478,8 +3491,9 @@ class ServernameResolver : public Resolver
 	 * admin takes the tag away and rehashes while the domain is resolving.
 	 */
 	Link MyLink;
+	SpanningTreeUtilities* Utils;
  public: 
-	ServernameResolver(InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x)
+	ServernameResolver(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), MyLink(x), Utils(Util)
 	{
 		/* Nothing in here, folks */
 	}
@@ -3490,10 +3504,10 @@ class ServernameResolver : public Resolver
 		 * Passing a hostname directly to InspSocket causes it to
 		 * just bail and set its FD to -1.
 		 */
-		TreeServer* CheckDupe = FindServer(MyLink.Name.c_str());
+		TreeServer* CheckDupe = Utils->FindServer(MyLink.Name.c_str());
 		if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 		{
-			TreeSocket* newsocket = new TreeSocket(ServerInstance, result,MyLink.Port,false,10,MyLink.Name.c_str());
+			TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,10,MyLink.Name.c_str());
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
@@ -3539,7 +3553,38 @@ class SecurityIPResolver : public Resolver
 	}
 };
 
-void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
+SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance) : ServerInstance(Instance)
+{
+	Bindings.clear();
+	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+	this->ReadConfiguration(true);
+}
+
+SpanningTreeUtilities::~SpanningTreeUtilities()
+{
+	for (unsigned int i = 0; i < Bindings.size(); i++)
+	{
+		ServerInstance->Log(DEBUG,"Freeing binding %d of %d",i, Bindings.size());
+		ServerInstance->SE->DelFd(Bindings[i]);
+		Bindings[i]->Close();
+		DELETE(Bindings[i]);
+	}
+	ServerInstance->Log(DEBUG,"Freeing connected servers...");
+	while (TreeRoot->ChildCount())
+	{
+		TreeServer* child_server = TreeRoot->GetChild(0);
+		ServerInstance->Log(DEBUG,"Freeing connected server %s", child_server->GetName().c_str());
+		if (child_server)
+		{
+			TreeSocket* sock = child_server->GetSocket();
+			ServerInstance->SE->DelFd(sock);
+			sock->Close();
+			DELETE(sock);
+		}
+	}
+}
+
+void SpanningTreeUtilities::AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 {
 	for (unsigned int c = 0; c < list.size(); c++)
 	{
@@ -3552,14 +3597,14 @@ void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
 }
 
 /** returns a list of DIRECT servernames for a specific channel */
-void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
+void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 {
 	CUList *ulist = c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (i->second->GetFd() < 0)
 		{
-			TreeServer* best = BestRouteTo(i->second->server);
+			TreeServer* best = this->BestRouteTo(i->second->server);
 			if (best)
 				AddThisServer(best,list);
 		}
@@ -3567,9 +3612,9 @@ void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
 	return;
 }
 
-bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params)
+bool SpanningTreeUtilities::DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params)
 {
-	TreeServer* omitroute = BestRouteTo(omit);
+	TreeServer* omitroute = this->BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
 		if (params.size() >= 2)
@@ -3588,7 +3633,7 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 					std::deque<std::string> par;
 					par.push_back(params[0]);
 					par.push_back(":"+params[1]);
-					DoOneToOne(prefix,command.c_str(),par,d->server);
+					this->DoOneToOne(prefix,command.c_str(),par,d->server);
 					return true;
 				}
 			}
@@ -3597,25 +3642,22 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 				std::deque<std::string> par;
 				par.push_back(params[0]);
 				par.push_back(":"+params[1]);
-				DoOneToAllButSender(prefix,command.c_str(),par,omitroute->GetName());
+				this->DoOneToAllButSender(prefix,command.c_str(),par,omitroute->GetName());
 				return true;
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG,"Channel privmsg going to chan %s",params[0].c_str());
 				chanrec* c = ServerInstance->FindChan(params[0]);
 				if (c)
 				{
 					std::deque<TreeServer*> list;
 					GetListOfServersForChannel(c,list);
-					ServerInstance->Log(DEBUG,"Got a list of %d servers",list.size());
 					unsigned int lsize = list.size();
 					for (unsigned int i = 0; i < lsize; i++)
 					{
 						TreeSocket* Sock = list[i]->GetSocket();
 						if ((Sock) && (list[i]->GetName() != omit) && (omitroute != list[i]))
 						{
-							ServerInstance->Log(DEBUG,"Writing privmsg to server %s",list[i]->GetName().c_str());
 							Sock->WriteLine(data);
 						}
 					}
@@ -3624,10 +3666,10 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 			}
 		}
 	}
-	unsigned int items = TreeRoot->ChildCount();
+	unsigned int items =this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
-		TreeServer* Route = TreeRoot->GetChild(x);
+		TreeServer* Route = this->TreeRoot->GetChild(x);
 		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
 		{
 			TreeSocket* Sock = Route->GetSocket();
@@ -3638,19 +3680,19 @@ bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string pref
 	return true;
 }
 
-bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit)
+bool SpanningTreeUtilities::DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit)
 {
-	TreeServer* omitroute = BestRouteTo(omit);
+	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
 	unsigned int words = params.size();
 	for (unsigned int x = 0; x < words; x++)
 	{
 		FullLine = FullLine + " " + params[x];
 	}
-	unsigned int items = TreeRoot->ChildCount();
+	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
-		TreeServer* Route = TreeRoot->GetChild(x);
+		TreeServer* Route = this->TreeRoot->GetChild(x);
 		// Send the line IF:
 		// The route has a socket (its a direct connection)
 		// The route isnt the one to be omitted
@@ -3665,7 +3707,7 @@ bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std
 	return true;
 }
 
-bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params)
+bool SpanningTreeUtilities::DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params)
 {
 	std::string FullLine = ":" + prefix + " " + command;
 	unsigned int words = params.size();
@@ -3673,10 +3715,10 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	{
 		FullLine = FullLine + " " + params[x];
 	}
-	unsigned int items = TreeRoot->ChildCount();
+	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
-		TreeServer* Route = TreeRoot->GetChild(x);
+		TreeServer* Route = this->TreeRoot->GetChild(x);
 		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
@@ -3687,23 +3729,23 @@ bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string
 	return true;
 }
 
-bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params)
+bool SpanningTreeUtilities::DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params)
 {
 	std::string spfx = prefix;
 	std::string scmd = command;
-	return DoOneToMany(spfx, scmd, params);
+	return this->DoOneToMany(spfx, scmd, params);
 }
 
-bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit)
+bool SpanningTreeUtilities::DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit)
 {
 	std::string spfx = prefix;
 	std::string scmd = command;
-	return DoOneToAllButSender(spfx, scmd, params, omit);
+	return this->DoOneToAllButSender(spfx, scmd, params, omit);
 }
-
-bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target)
+	
+bool SpanningTreeUtilities::DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target)
 {
-	TreeServer* Route = BestRouteTo(target);
+	TreeServer* Route = this->BestRouteTo(target);
 	if (Route)
 	{
 		std::string FullLine = ":" + prefix + " " + command;
@@ -3726,9 +3768,7 @@ bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string>
 	}
 }
 
-std::vector<TreeSocket*> Bindings;
-
-void ReadConfiguration(bool rebind)
+void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
 	Conf = new ConfigReader(ServerInstance);
 	if (rebind)
@@ -3745,7 +3785,7 @@ void ReadConfiguration(bool rebind)
 				{
 					IP = "";
 				}
-				TreeSocket* listener = new TreeSocket(ServerInstance, IP.c_str(),Port,true,10);
+				TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(),Port,true,10);
 				if (listener->GetState() == I_LISTENING)
 				{
 					ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), Port);
@@ -3841,6 +3881,7 @@ void ReadConfiguration(bool rebind)
 }
 
 
+
 class ModuleSpanningTree : public Module
 {
 	int line;
@@ -3848,36 +3889,29 @@ class ModuleSpanningTree : public Module
 	unsigned int max_local;
 	unsigned int max_global;
 	cmd_rconnect* command_rconnect;
+	SpanningTreeUtilities* Utils;
 
  public:
 
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
 	{
-		
-		Bindings.clear();
+		Utils = new SpanningTreeUtilities(Me);
 
-		::ServerInstance = Me;
-
-		// Create the root of the tree
-		TreeRoot = new TreeServer(ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
-
-		ReadConfiguration(true);
-
-		command_rconnect = new cmd_rconnect(ServerInstance, this);
+		command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 		ServerInstance->AddCommand(command_rconnect);
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
 	{
-		std::string Parent = TreeRoot->GetName();
+		std::string Parent = Utils->TreeRoot->GetName();
 		if (Current->GetParent())
 		{
 			Parent = Current->GetParent()->GetName();
 		}
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
+			if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
 			{
 				if (*user->oper)
 				{
@@ -3890,14 +3924,14 @@ class ModuleSpanningTree : public Module
 			}
 		}
 		/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-		if ((HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!*user->oper))
+		if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!*user->oper))
 			return;
-		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
+		user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(Utils->FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(Utils->FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
 	}
 
 	int CountLocalServs()
 	{
-		return TreeRoot->ChildCount();
+		return Utils->TreeRoot->ChildCount();
 	}
 
 	int CountServs()
@@ -3907,7 +3941,7 @@ class ModuleSpanningTree : public Module
 
 	void HandleLinks(const char** parameters, int pcnt, userrec* user)
 	{
-		ShowLinks(TreeRoot,user,0);
+		ShowLinks(Utils->TreeRoot,user,0);
 		user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
 		return;
 	}
@@ -3976,16 +4010,16 @@ class ModuleSpanningTree : public Module
 			line++;
 			for (unsigned int q = 0; q < Current->ChildCount(); q++)
 			{
-				if ((HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
+				if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
 				{
 					if (*user->oper)
 					{
-						ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+						ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 					}
 				}
 				else
 				{
-					ShowMap(Current->GetChild(q),user,(FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
+					ShowMap(Current->GetChild(q),user,(Utils->FlatLinks && (!*user->oper)) ? depth : depth+2,matrix,totusers,totservers);
 				}
 			}
 		}
@@ -4000,10 +4034,10 @@ class ModuleSpanningTree : public Module
 			params.push_back(parameters[0]);
 
 			/* Send it out remotely, generate no reply yet */
-			TreeServer* s = FindServerMask(parameters[0]);
+			TreeServer* s = Utils->FindServerMask(parameters[0]);
 			if (s)
 			{
-				DoOneToOne(user->nick, "MOTD", params, s->GetName());
+				Utils->DoOneToOne(user->nick, "MOTD", params, s->GetName());
 			}
 			else
 			{
@@ -4023,10 +4057,10 @@ class ModuleSpanningTree : public Module
 			params.push_back(parameters[0]);
 
 			/* Send it out remotely, generate no reply yet */
-			TreeServer* s = FindServerMask(parameters[0]);
+			TreeServer* s = Utils->FindServerMask(parameters[0]);
 			if (s)
 			{
-				DoOneToOne(user->nick, "ADMIN", params, s->GetName());
+				Utils->DoOneToOne(user->nick, "ADMIN", params, s->GetName());
 			}
 			else
 			{
@@ -4046,11 +4080,11 @@ class ModuleSpanningTree : public Module
 			params.push_back(parameters[0]);
 			params.push_back(parameters[1]);
 			/* Send it out remotely, generate no reply yet */
-			TreeServer* s = FindServerMask(parameters[1]);
+			TreeServer* s = Utils->FindServerMask(parameters[1]);
 			if (s)
 			{
 				params[1] = s->GetName();
-				DoOneToOne(user->nick, "STATS", params, s->GetName());
+				Utils->DoOneToOne(user->nick, "STATS", params, s->GetName());
 			}
 			else
 			{
@@ -4084,7 +4118,7 @@ class ModuleSpanningTree : public Module
 		}
 		line = 0;
 		// The only recursive bit is called here.
-		ShowMap(TreeRoot,user,0,matrix,totusers,totservers);
+		ShowMap(Utils->TreeRoot,user,0,matrix,totusers,totservers);
 		// Process each line one by one. The algorithm has a limit of
 		// 128 servers (which is far more than a spanning tree should have
 		// anyway, so we're ok). This limit can be raised simply by making
@@ -4128,10 +4162,10 @@ class ModuleSpanningTree : public Module
 
 	int HandleSquit(const char** parameters, int pcnt, userrec* user)
 	{
-		TreeServer* s = FindServerMask(parameters[0]);
+		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (s)
 		{
-			if (s == TreeRoot)
+			if (s == Utils->TreeRoot)
 			{
 				 user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
 				return 1;
@@ -4162,17 +4196,17 @@ class ModuleSpanningTree : public Module
 	{
 		if ((IS_LOCAL(user)) && (pcnt))
 		{
-			TreeServer* found = FindServerMask(parameters[0]);
+			TreeServer* found = Utils->FindServerMask(parameters[0]);
 			if (found)
 			{
 				// we dont' override for local server
-				if (found == TreeRoot)
+				if (found == Utils->TreeRoot)
 					return 0;
 				
 				std::deque<std::string> params;
 				params.push_back(found->GetName());
 				params.push_back(user->nick);
-				DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,found->GetName());
+				Utils->DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,found->GetName());
 			}
 			else
 			{
@@ -4191,7 +4225,7 @@ class ModuleSpanningTree : public Module
 			{
 				std::deque<std::string> params;
 				params.push_back(parameters[1]);
-				DoOneToOne(user->nick,"IDLE",params,remote->server);
+				Utils->DoOneToOne(user->nick,"IDLE",params,remote->server);
 				return 1;
 			}
 			else if (!remote)
@@ -4206,9 +4240,9 @@ class ModuleSpanningTree : public Module
 
 	void DoPingChecks(time_t curtime)
 	{
-		for (unsigned int j = 0; j < TreeRoot->ChildCount(); j++)
+		for (unsigned int j = 0; j < Utils->TreeRoot->ChildCount(); j++)
 		{
-			TreeServer* serv = TreeRoot->GetChild(j);
+			TreeServer* serv = Utils->TreeRoot->GetChild(j);
 			TreeSocket* sock = serv->GetSocket();
 			if (sock)
 			{
@@ -4241,7 +4275,7 @@ class ModuleSpanningTree : public Module
 		/* Do we already have an IP? If so, no need to resolve it. */
 		if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 		{
-			TreeSocket* newsocket = new TreeSocket(ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
+			TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
 			if (newsocket->GetFd() > -1)
 			{
 				/* Handled automatically on success */
@@ -4257,7 +4291,7 @@ class ModuleSpanningTree : public Module
 		{
 			try
 			{
-				ServernameResolver* snr = new ServernameResolver(ServerInstance,x->IPAddr, *x);
+				ServernameResolver* snr = new ServernameResolver(Utils, ServerInstance,x->IPAddr, *x);
 				ServerInstance->AddResolver(snr);
 			}
 			catch (ModuleException& e)
@@ -4310,10 +4344,10 @@ class ModuleSpanningTree : public Module
 			{
 				ServerInstance->Log(DEBUG,"Auto-Connecting %s",x->Name.c_str());
 				x->NextConnectTime = curtime + x->AutoConnect;
-				TreeServer* CheckDupe = FindServer(x->Name.c_str());
+				TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 				if (x->FailOver.length())
 				{
-					TreeServer* CheckFailOver = FindServer(x->FailOver.c_str());
+					TreeServer* CheckFailOver = Utils->FindServer(x->FailOver.c_str());
 					if (CheckFailOver)
 					{
 						/* The failover for this server is currently a member of the network.
@@ -4336,12 +4370,12 @@ class ModuleSpanningTree : public Module
 	int HandleVersion(const char** parameters, int pcnt, userrec* user)
 	{
 		// we've already checked if pcnt > 0, so this is safe
-		TreeServer* found = FindServerMask(parameters[0]);
+		TreeServer* found = Utils->FindServerMask(parameters[0]);
 		if (found)
 		{
 			std::string Version = found->GetVersion();
 			user->WriteServ("351 %s :%s",user->nick,Version.c_str());
-			if (found == TreeRoot)
+			if (found == Utils->TreeRoot)
 			{
 				std::stringstream out(ServerInstance->Config->data005);
 				std::string token = "";
@@ -4376,7 +4410,7 @@ class ModuleSpanningTree : public Module
 		{
 			if (ServerInstance->MatchText(x->Name.c_str(),parameters[0]))
 			{
-				TreeServer* CheckDupe = FindServer(x->Name.c_str());
+				TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 				if (!CheckDupe)
 				{
 					user->WriteServ("NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
@@ -4495,13 +4529,13 @@ class ModuleSpanningTree : public Module
 				}
 			}
 			ServerInstance->Log(DEBUG,"Globally route '%s'",command.c_str());
-			DoOneToMany(user->nick,command,params);
+			Utils->DoOneToMany(user->nick,command,params);
 		}
 	}
 
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description)
 	{
-		TreeServer* s = FindServer(servername);
+		TreeServer* s = Utils->FindServer(servername);
 		if (s)
 		{
 			description = s->GetDesc();
@@ -4515,7 +4549,7 @@ class ModuleSpanningTree : public Module
 			std::deque<std::string> params;
 			params.push_back(dest->nick);
 			params.push_back(channel->name);
-			DoOneToMany(source->nick,"INVITE",params);
+			Utils->DoOneToMany(source->nick,"INVITE",params);
 		}
 	}
 
@@ -4524,7 +4558,7 @@ class ModuleSpanningTree : public Module
 		std::deque<std::string> params;
 		params.push_back(chan->name);
 		params.push_back(":"+topic);
-		DoOneToMany(user->nick,"TOPIC",params);
+		Utils->DoOneToMany(user->nick,"TOPIC",params);
 	}
 
 	virtual void OnWallops(userrec* user, const std::string &text)
@@ -4533,7 +4567,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+text);
-			DoOneToMany(user->nick,"WALLOPS",params);
+			Utils->DoOneToMany(user->nick,"WALLOPS",params);
 		}
 	}
 
@@ -4548,7 +4582,7 @@ class ModuleSpanningTree : public Module
 				params.clear();
 				params.push_back(d->nick);
 				params.push_back(":"+text);
-				DoOneToOne(user->nick,"NOTICE",params,d->server);
+				Utils->DoOneToOne(user->nick,"NOTICE",params,d->server);
 			}
 		}
 		else if (target_type == TYPE_CHANNEL)
@@ -4562,7 +4596,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					GetListOfServersForChannel(c,list);
+					Utils->GetListOfServersForChannel(c,list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{
@@ -4581,7 +4615,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> par;
 				par.push_back(target);
 				par.push_back(":"+text);
-				DoOneToMany(user->nick,"NOTICE",par);
+				Utils->DoOneToMany(user->nick,"NOTICE",par);
 			}
 		}
 	}
@@ -4599,7 +4633,7 @@ class ModuleSpanningTree : public Module
 				params.clear();
 				params.push_back(d->nick);
 				params.push_back(":"+text);
-				DoOneToOne(user->nick,"PRIVMSG",params,d->server);
+				Utils->DoOneToOne(user->nick,"PRIVMSG",params,d->server);
 			}
 		}
 		else if (target_type == TYPE_CHANNEL)
@@ -4613,7 +4647,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					GetListOfServersForChannel(c,list);
+					Utils->GetListOfServersForChannel(c,list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{
@@ -4632,7 +4666,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> par;
 				par.push_back(target);
 				par.push_back(":"+text);
-				DoOneToMany(user->nick,"PRIVMSG",par);
+				Utils->DoOneToMany(user->nick,"PRIVMSG",par);
 			}
 		}
 	}
@@ -4658,7 +4692,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(channel->name);
 			params.push_back(ConvToStr(channel->age));
 			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->nick));
-			DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 		}
 	}
 
@@ -4669,7 +4703,7 @@ class ModuleSpanningTree : public Module
 			return;
 		std::deque<std::string> params;
 		params.push_back(newhost);
-		DoOneToMany(user->nick,"FHOST",params);
+		Utils->DoOneToMany(user->nick,"FHOST",params);
 	}
 
 	virtual void OnChangeName(userrec* user, const std::string &gecos)
@@ -4679,7 +4713,7 @@ class ModuleSpanningTree : public Module
 			return;
 		std::deque<std::string> params;
 		params.push_back(gecos);
-		DoOneToMany(user->nick,"FNAME",params);
+		Utils->DoOneToMany(user->nick,"FNAME",params);
 	}
 
 	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
@@ -4690,7 +4724,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(channel->name);
 			if (partmessage != "")
 				params.push_back(":"+partmessage);
-			DoOneToMany(user->nick,"PART",params);
+			Utils->DoOneToMany(user->nick,"PART",params);
 		}
 	}
 
@@ -4709,10 +4743,10 @@ class ModuleSpanningTree : public Module
 			params.push_back("+"+std::string(user->FormatModes()));
 			params.push_back(user->GetIPString());
 			params.push_back(":"+std::string(user->fullname));
-			DoOneToMany(ServerInstance->Config->ServerName,"NICK",params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"NICK",params);
 
 			// User is Local, change needs to be reflected!
-			TreeServer* SourceServer = FindServer(user->server);
+			TreeServer* SourceServer = Utils->FindServer(user->server);
 			if (SourceServer)
 			{
 				SourceServer->AddUserCount();
@@ -4727,10 +4761,10 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+reason);
-			DoOneToMany(user->nick,"QUIT",params);
+			Utils->DoOneToMany(user->nick,"QUIT",params);
 		}
 		// Regardless, We need to modify the user Counts..
-		TreeServer* SourceServer = FindServer(user->server);
+		TreeServer* SourceServer = Utils->FindServer(user->server);
 		if (SourceServer)
 		{
 			SourceServer->DelUserCount();
@@ -4744,7 +4778,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(user->nick);
-			DoOneToMany(oldnick,"NICK",params);
+			Utils->DoOneToMany(oldnick,"NICK",params);
 		}
 	}
 
@@ -4756,7 +4790,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(chan->name);
 			params.push_back(user->nick);
 			params.push_back(":"+reason);
-			DoOneToMany(source->nick,"KICK",params);
+			Utils->DoOneToMany(source->nick,"KICK",params);
 		}
 		else if (!source)
 		{
@@ -4764,7 +4798,7 @@ class ModuleSpanningTree : public Module
 			params.push_back(chan->name);
 			params.push_back(user->nick);
 			params.push_back(":"+reason);
-			DoOneToMany(ServerInstance->Config->ServerName,"KICK",params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"KICK",params);
 		}
 	}
 
@@ -4773,7 +4807,7 @@ class ModuleSpanningTree : public Module
 		std::deque<std::string> params;
 		params.push_back(dest->nick);
 		params.push_back(":"+reason);
-		DoOneToMany(source->nick,"KILL",params);
+		Utils->DoOneToMany(source->nick,"KILL",params);
 	}
 
 	virtual void OnRehash(const std::string &parameter)
@@ -4782,7 +4816,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(parameter);
-			DoOneToMany(ServerInstance->Config->ServerName,"REHASH",params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"REHASH",params);
 			// check for self
 			if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
 			{
@@ -4790,7 +4824,7 @@ class ModuleSpanningTree : public Module
 				ServerInstance->RehashServer();
 			}
 		}
-		ReadConfiguration(false);
+		Utils->ReadConfiguration(false);
 	}
 
 	// note: the protocol does not allow direct umode +o except
@@ -4802,7 +4836,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(opertype);
-			DoOneToMany(user->nick,"OPERTYPE",params);
+			Utils->DoOneToMany(user->nick,"OPERTYPE",params);
 		}
 	}
 
@@ -4821,13 +4855,13 @@ class ModuleSpanningTree : public Module
 				params.push_back(host);
 				params.push_back(sduration);
 				params.push_back(":"+reason);
-				DoOneToMany(source->nick,stype,params);
+				Utils->DoOneToMany(source->nick,stype,params);
 			}
 			else
 			{
 				std::deque<std::string> params;
 				params.push_back(host);
-				DoOneToMany(source->nick,stype,params);
+				Utils->DoOneToMany(source->nick,stype,params);
 			}
 		}
 	}
@@ -4882,7 +4916,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.push_back(u->nick);
 				params.push_back(text);
-				DoOneToMany(user->nick,"MODE",params);
+				Utils->DoOneToMany(user->nick,"MODE",params);
 			}
 			else
 			{
@@ -4890,7 +4924,7 @@ class ModuleSpanningTree : public Module
 				std::deque<std::string> params;
 				params.push_back(c->name);
 				params.push_back(text);
-				DoOneToMany(user->nick,"MODE",params);
+				Utils->DoOneToMany(user->nick,"MODE",params);
 			}
 		}
 	}
@@ -4901,7 +4935,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.push_back(":"+std::string(user->awaymsg));
-			DoOneToMany(user->nick,"AWAY",params);
+			Utils->DoOneToMany(user->nick,"AWAY",params);
 		}
 	}
 
@@ -4911,7 +4945,7 @@ class ModuleSpanningTree : public Module
 		{
 			std::deque<std::string> params;
 			params.clear();
-			DoOneToMany(user->nick,"AWAY",params);
+			Utils->DoOneToMany(user->nick,"AWAY",params);
 		}
 	}
 
@@ -4964,7 +4998,7 @@ class ModuleSpanningTree : public Module
 			if (params->size() < 3)
 				return;
 			(*params)[2] = ":" + (*params)[2];
-			DoOneToMany(ServerInstance->Config->ServerName,"METADATA",*params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"METADATA",*params);
 		}
 		else if (event->GetEventID() == "send_topic")
 		{
@@ -4973,7 +5007,7 @@ class ModuleSpanningTree : public Module
 			(*params)[1] = ":" + (*params)[1];
 			params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
 			params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time()));
-			DoOneToMany(ServerInstance->Config->ServerName,"FTOPIC",*params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FTOPIC",*params);
 		}
 		else if (event->GetEventID() == "send_mode")
 		{
@@ -4995,34 +5029,15 @@ class ModuleSpanningTree : public Module
 				}
 			}
 			params->insert(params->begin() + 1,ConvToStr(ourTS));
-			DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 		}
 	}
 
 	virtual ~ModuleSpanningTree()
 	{
 		ServerInstance->Log(DEBUG,"Performing unload of spanningtree!");
-		ServerInstance->Log(DEBUG,"Freeing %d bindings...",Bindings.size());
-		for (unsigned int i = 0; i < Bindings.size(); i++)
-		{
-			ServerInstance->Log(DEBUG,"Freeing binding %d of %d",i, Bindings.size());
-			ServerInstance->SE->DelFd(Bindings[i]);
-			Bindings[i]->Close();
-			DELETE(Bindings[i]);
-		}
-		ServerInstance->Log(DEBUG,"Freeing connected servers...");
-		while (TreeRoot->ChildCount())
-		{
-			TreeServer* child_server = TreeRoot->GetChild(0);
-			ServerInstance->Log(DEBUG,"Freeing connected server %s", child_server->GetName().c_str());
-			if (child_server)
-			{
-				TreeSocket* sock = child_server->GetSocket();
-				ServerInstance->SE->DelFd(sock);
-				sock->Close();
-				DELETE(sock);
-			}
-		}	       
+		/* This will also free the listeners */
+		delete Utils;
 	}
 
 	virtual Version GetVersion()
