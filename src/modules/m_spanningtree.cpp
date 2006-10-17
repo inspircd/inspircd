@@ -3564,6 +3564,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 			DELETE(sock);
 		}
 	}
+	delete TreeRoot;
 }
 
 void SpanningTreeUtilities::AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
