@@ -16,8 +16,6 @@
 
 /* $ModDesc: Povides a spanning tree server link protocol */
 
-using namespace std;
-
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
@@ -91,38 +89,88 @@ typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::St
 class SpanningTreeUtilities
 {
  private:
+	/** Creator server
+	 */
 	InspIRCd* ServerInstance;
  public:
+	/** Creator module
+	 */
 	ModuleSpanningTree* Creator;
-	bool FlatLinks; /* Flatten links and /MAP for non-opers */
-	bool HideULines; /* Hide U-Lined servers in /MAP and /LINKS */
-	bool AnnounceTSChange; /* Announce TS changes to channels on merge */
-	std::vector<TreeSocket*> Bindings; /* Socket bindings */
-	/* This variable represents the root of the server tree */
+	/** Flatten links and /MAP for non-opers
+	 */
+	bool FlatLinks;
+	/** Hide U-Lined servers in /MAP and /LINKS
+	 */
+	bool HideULines;
+	/** Announce TS changes to channels on merge
+	 */
+	bool AnnounceTSChange;
+	/** Socket bindings for listening sockets
+	 */
+	std::vector<TreeSocket*> Bindings;
+	/** This variable represents the root of the server tree
+	 */
 	TreeServer *TreeRoot;
-	/* IPs allowed to link to us */
+	/** IPs allowed to link to us
+	 */
 	std::vector<std::string> ValidIPs;
-	/* Hash of currently connected servers by name */
+	/** Hash of currently connected servers by name
+	 */
 	server_hash serverlist;
-	/* Holds the data from the <link> tags in the conf */
+	/** Holds the data from the <link> tags in the conf
+	 */
 	std::vector<Link> LinkBlocks;
 
+	/** Initialise utility class
+	 */
 	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
+	/** Destroy class and free listeners etc
+	 */
 	~SpanningTreeUtilities();
+	/** Send a message from this server to one other local or remote
+	 */
 	bool DoOneToOne(std::string prefix, std::string command, std::deque<std::string> &params, std::string target);
+	/** Send a message from this server to all but one other, local or remote
+	 */
 	bool DoOneToAllButSender(std::string prefix, std::string command, std::deque<std::string> &params, std::string omit);
+	/** Send a message from this server to all but one other, local or remote
+	 */
 	bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
+	/** Send a message from this server to all others
+	 */
 	bool DoOneToMany(std::string prefix, std::string command, std::deque<std::string> &params);
+	/** Send a message from this server to all others
+	 */
 	bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
+	/** Send a message from this server to all others, without doing any processing on the command (e.g. send it as-is with colons and all)
+	 */
 	bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
+	/** Read the spanningtree module's tags from the config file
+	 */
 	void ReadConfiguration(bool rebind);
+	/** Add a server to the server list for GetListOfServersForChannel
+	 */
 	void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list);
+	/** Compile a list of servers which contain members of channel c
+	 */
 	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list);
+	/** Find a server by name
+	 */
 	TreeServer* FindServer(std::string ServerName);
+	/** Find a route to a server by name
+	 */
 	TreeServer* BestRouteTo(std::string ServerName);
+	/** Find a server by glob mask
+	 */
 	TreeServer* FindServerMask(std::string ServerName);
+	/** Returns true if this is a server name we recognise
+	 */
 	bool IsServer(std::string ServerName);
+	/** Attempt to connect to the failover link of link x
+	 */
 	void DoFailOver(Link* x);
+	/** Find a link tag from a server name
+	 */
 	Link* FindLink(const std::string& name);
 };
 
