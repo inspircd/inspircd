@@ -26,7 +26,6 @@
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"
-#include "cull_list.h"
 #include "aes.h"
 
 /** If you make a change which breaks the protocol, increment this.
