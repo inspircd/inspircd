@@ -189,7 +189,6 @@ class SpanningTreeUtilities
 class TreeServer : public classbase
 {
 	InspIRCd* ServerInstance;		/* Creator */
-	SpanningTreeUtilities* Utils;		/* Utility class */
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
@@ -201,13 +200,14 @@ class TreeServer : public classbase
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
+	SpanningTreeUtilities* Utils;		/* Utility class */
 	
  public:
 
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */
-	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance) : ServerInstance(Instance)
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : ServerInstance(Instance), Utils(Util)
 	{
 		Parent = NULL;
 		ServerName = "";
@@ -221,7 +221,7 @@ class TreeServer : public classbase
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc)
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 	{
 		Parent = NULL;
 		VersionString = "";
@@ -236,8 +236,8 @@ class TreeServer : public classbase
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Utils, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
-		: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock)
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
+		: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util)
 	{
 		VersionString = "";
 		UserCount = OperCount = 0;
@@ -3537,8 +3537,8 @@ class SecurityIPResolver : public Resolver
 SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
 {
 	Bindings.clear();
-	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	this->ReadConfiguration(true);
+	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 }
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
