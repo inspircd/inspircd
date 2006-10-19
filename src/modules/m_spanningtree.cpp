@@ -2097,16 +2097,21 @@ class TreeSocket : public InspSocket
 						{
 							ctx_in->Decrypt(out, result, nbytes, 0);
 							for (int t = 0; t < nbytes; t++)
-								if (result[t] == '\7') result[t] = 0;
+							{
+								if (result[t] == '\7')
+								{
+									/* We only need to stick a \0 on the
+									 * first \7, the rest will be lost
+									 */
+									result[t] = 0;
+									break;
+								}
+							}
 							ret = result;
 						}
 					}
 				}
-				if (!this->ProcessLine(ret))
-				{
-					Instance->Log(DEBUG,"ProcessLine says no!");
-					return false;
-				}
+				return this->ProcessLine(ret);
 			}
 			return true;
 		}
