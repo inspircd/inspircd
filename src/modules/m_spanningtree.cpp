@@ -899,7 +899,7 @@ class TreeSocket : public InspSocket
 		return result;
 	}
 
-	bool Capab(std::deque<std::string> params)
+	bool Capab(const std::deque<std::string> &params)
 	{
 		if (params.size() < 1)
 		{
@@ -1052,7 +1052,7 @@ class TreeSocket : public InspSocket
 	 * does some validation first and passes on the SQUIT to all
 	 * other remaining servers.
 	 */
-	void Squit(TreeServer* Current,std::string reason)
+	void Squit(TreeServer* Current, const std::string &reason)
 	{
 		if ((Current) && (Current != Utils->TreeRoot))
 		{
@@ -1084,7 +1084,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/** FMODE command - server mode with timestamp checks */
-	bool ForceMode(std::string source, std::deque<std::string> &params)
+	bool ForceMode(const std::string &source, std::deque<std::string> &params)
 	{
 		/* Chances are this is a 1.0 FMODE without TS */
 		if (params.size() < 3)
@@ -1472,7 +1472,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/** FTOPIC command */
-	bool ForceTopic(std::string source, std::deque<std::string> &params)
+	bool ForceTopic(const std::string &source, std::deque<std::string> &params)
 	{
 		if (params.size() != 4)
 			return true;
@@ -1516,7 +1516,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/** FJOIN, similar to TS6 SJOIN, but not quite. */
-	bool ForceJoin(std::string source, std::deque<std::string> &params)
+	bool ForceJoin(const std::string &source, std::deque<std::string> &params)
 	{
 		/* 1.1 FJOIN works as follows:
 		 *
@@ -1794,7 +1794,7 @@ class TreeSocket : public InspSocket
 	}
 
 	/** NICK command */
-	bool IntroduceClient(std::string source, std::deque<std::string> &params)
+	bool IntroduceClient(const std::string &source, std::deque<std::string> &params)
 	{
 		if (params.size() < 8)
 			return true;
@@ -2931,7 +2931,7 @@ class TreeSocket : public InspSocket
 		return false;
 	}
 
-	void Split(std::string line, std::deque<std::string> &n)
+	void Split(const std::string &line, std::deque<std::string> &n)
 	{
 		n.clear();
 		irc::tokenstream tokens(line);
@@ -2941,7 +2941,7 @@ class TreeSocket : public InspSocket
 		return;
 	}
 
-	bool ProcessLine(std::string line)
+	bool ProcessLine(std::string &line)
 	{
 		std::deque<std::string> params;
 		irc::string command;
