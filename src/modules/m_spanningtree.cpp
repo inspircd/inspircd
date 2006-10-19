@@ -2074,8 +2074,12 @@ class TreeSocket : public InspSocket
 			{
 				std::string ret = in_buffer.substr(0,in_buffer.find("\n")-1);
 				in_buffer = in_buffer.substr(in_buffer.find("\n")+1,in_buffer.length()-in_buffer.find("\n"));
-				if (ret.find("\r") != std::string::npos)
-					ret = in_buffer.substr(0,in_buffer.find("\r")-1);
+				/* Use rfind here not find, as theres more
+				 * chance of the \r being near the end of the
+				 * string, not the start.
+				 */
+				if (ret.rfind("\r") != std::string::npos)
+					ret = in_buffer.substr(0,in_buffer.rfind("\r")-1);
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */
