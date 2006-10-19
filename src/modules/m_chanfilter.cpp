@@ -141,7 +141,7 @@ class ModuleChanFilter : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 1, VF_COMMON | VF_VENDOR, API_VERSION);
+		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 	
 	virtual ~ModuleChanFilter()

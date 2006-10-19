@@ -50,7 +50,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_VENDOR,API_VERSION);
+		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
 
 	void Implements(char* List)

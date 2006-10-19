@@ -215,7 +215,7 @@ public:
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,1,0,VF_VENDOR,API_VERSION);
+		return Version(1,1,1,0,VF_VENDOR,API_VERSION);
 	}
 	
 };

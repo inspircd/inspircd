@@ -84,7 +84,7 @@ class ModuleSaMode : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,2,2,VF_VENDOR,API_VERSION);
+		return Version(1,1,2,2,VF_VENDOR,API_VERSION);
 	}
 };
 

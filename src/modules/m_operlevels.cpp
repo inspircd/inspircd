@@ -47,7 +47,7 @@ class ModuleOperLevels : public Module
 
 		virtual Version GetVersion()
 		{
-			return Version(1,0,0,1,VF_VENDOR,API_VERSION);
+			return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 		}
 
 		virtual int OnKill(userrec* source, userrec* dest, const std::string &reason)

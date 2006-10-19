@@ -85,7 +85,7 @@ class ModuleNoInvite : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
+		return Version(1,1,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 };
 

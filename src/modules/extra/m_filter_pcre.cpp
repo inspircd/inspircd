@@ -183,7 +183,7 @@ class ModuleFilterPCRE : public Module
 	virtual Version GetVersion()
 	{
 		/* Version 1.x is the unreleased unrealircd module */
-		return Version(3,2,0,0,VF_VENDOR,API_VERSION);
+		return Version(3,2,1,0,VF_VENDOR,API_VERSION);
 	}
 	
 };

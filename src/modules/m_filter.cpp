@@ -164,7 +164,7 @@ class ModuleFilter : public Module
 	virtual Version GetVersion()
 	{
 		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(2,0,0,2,VF_VENDOR,API_VERSION);
+		return Version(2,1,0,2,VF_VENDOR,API_VERSION);
 	}
 	
 };

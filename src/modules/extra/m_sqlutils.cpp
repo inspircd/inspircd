@@ -268,7 +268,7 @@ public:
 			
 	virtual Version GetVersion()
 	{
-		return Version(1, 0, 0, 0, VF_STATIC|VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
+		return Version(1, 1, 0, 0, VF_STATIC|VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
 	
 	virtual ~ModuleSQLutils()
