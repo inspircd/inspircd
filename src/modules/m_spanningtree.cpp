@@ -1884,8 +1884,6 @@ class TreeSocket : public InspSocket
 		char* ptr = list + dlen;
 
 		CUList *ulist = c->GetUsers();
-		std::vector<userrec*> specific_halfop;
-		std::vector<userrec*> specific_voice;
 		std::string modes = "";
 		std::string params = "";
 
