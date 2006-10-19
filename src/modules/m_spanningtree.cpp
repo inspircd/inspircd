@@ -148,22 +148,22 @@ class SpanningTreeUtilities
 	~SpanningTreeUtilities();
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, std::string command, std::deque<std::string> &params, std::string target);
+	bool DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target);
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, std::string command, std::deque<std::string> &params, std::string omit);
+	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string omit);
 	/** Send a message from this server to all but one other, local or remote
 	 */
 	bool DoOneToAllButSender(const char* prefix, const char* command, std::deque<std::string> &params, std::string omit);
 	/** Send a message from this server to all others
 	 */
-	bool DoOneToMany(const std::string &prefix, std::string command, std::deque<std::string> &params);
+	bool DoOneToMany(const std::string &prefix, const std::string &command, std::deque<std::string> &params);
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const char* prefix, const char* command, std::deque<std::string> &params);
 	/** Send a message from this server to all others, without doing any processing on the command (e.g. send it as-is with colons and all)
 	 */
-	bool DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params);
+	bool DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, std::deque<std::string> &params);
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration(bool rebind);
@@ -3603,7 +3603,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<Tr
 	return;
 }
 
-bool SpanningTreeUtilities::DoOneToAllButSenderRaw(std::string data, std::string omit, std::string prefix, irc::string command, std::deque<std::string> &params)
+bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, std::deque<std::string> &params)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
@@ -3671,7 +3671,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(std::string data, std::string
 	return true;
 }
 
-bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, std::string command, std::deque<std::string> &params, std::string omit)
+bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string omit)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
@@ -3698,7 +3698,7 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, std::
 	return true;
 }
 
-bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, std::string command, std::deque<std::string> &params)
+bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, std::deque<std::string> &params)
 {
 	std::string FullLine = ":" + prefix + " " + command;
 	unsigned int words = params.size();
@@ -3734,7 +3734,7 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const char* prefix, const char* 
 	return this->DoOneToAllButSender(spfx, scmd, params, omit);
 }
 	
-bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, std::string command, std::deque<std::string> &params, std::string target)
+bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target)
 {
 	TreeServer* Route = this->BestRouteTo(target);
 	if (Route)
