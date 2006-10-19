@@ -2135,7 +2135,8 @@ class TreeSocket : public InspSocket
 			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
 			line = result64;
 		}
-		return this->Write(line + "\r\n");
+		line.append("\r\n");
+		return this->Write(line);
 	}
 
 	/* Handle ERROR command */
