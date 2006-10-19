@@ -175,16 +175,16 @@ class SpanningTreeUtilities
 	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list);
 	/** Find a server by name
 	 */
-	TreeServer* FindServer(std::string ServerName);
+	TreeServer* FindServer(const std::string &ServerName);
 	/** Find a route to a server by name
 	 */
-	TreeServer* BestRouteTo(std::string ServerName);
+	TreeServer* BestRouteTo(const std::string &ServerName);
 	/** Find a server by glob mask
 	 */
-	TreeServer* FindServerMask(std::string ServerName);
+	TreeServer* FindServerMask(const std::string &ServerName);
 	/** Returns true if this is a server name we recognise
 	 */
-	bool IsServer(std::string ServerName);
+	bool IsServer(const std::string &ServerName);
 	/** Attempt to connect to the failover link of link x
 	 */
 	void DoFailOver(Link* x);
@@ -519,7 +519,7 @@ class TreeServer : public classbase
  * there are more than a few servers to deal with.
  * (read as: lots).
  */
-TreeServer* SpanningTreeUtilities::FindServer(std::string ServerName)
+TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
 	server_hash::iterator iter;
 	iter = serverlist.find(ServerName.c_str());
@@ -539,7 +539,7 @@ TreeServer* SpanningTreeUtilities::FindServer(std::string ServerName)
  * See the comments for the constructor of TreeServer
  * for more details.
  */
-TreeServer* SpanningTreeUtilities::BestRouteTo(std::string ServerName)
+TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 {
 	if (ServerName.c_str() == TreeRoot->GetName())
 		return NULL;
@@ -560,7 +560,7 @@ TreeServer* SpanningTreeUtilities::BestRouteTo(std::string ServerName)
  * and match each one until we get a hit. Yes its slow,
  * deal with it.
  */
-TreeServer* SpanningTreeUtilities::FindServerMask(std::string ServerName)
+TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 {
 	for (server_hash::iterator i = serverlist.begin(); i != serverlist.end(); i++)
 	{
@@ -571,7 +571,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(std::string ServerName)
 }
 
 /* A convenient wrapper that returns true if a server exists */
-bool SpanningTreeUtilities::IsServer(std::string ServerName)
+bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
 {
 	return (FindServer(ServerName) != NULL);
 }
