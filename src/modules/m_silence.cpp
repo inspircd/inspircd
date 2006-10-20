@@ -117,7 +117,7 @@ class cmd_silence : public command_t
 				if (!sl)
 				{
 					sl = new silencelist;
-					user->Extend(std::string("silence_list"), sl);
+					user->Extend("silence_list", sl);
 				}
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{

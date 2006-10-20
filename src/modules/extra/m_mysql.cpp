@@ -408,16 +408,9 @@ class SQLConnection : public classbase
 	QueryQueue queue;
 	ResultQueue rq;
 
-	// This constructor creates an SQLConnection object with the given credentials, and creates the underlying
-	// MYSQL struct, but does not connect yet.
-	SQLConnection(std::string thishost, std::string thisuser, std::string thispass, std::string thisdb, const std::string &myid)
+	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
+	SQLConnection(const std::string &thishost, const std::string &thisuser, const std::string &thispass, const std::string &thisdb, const std::string &myid) : host(thishost), user(thisuser), pass(thispass), db(thisdb), Enabled(true), id(myid)
 	{
-		this->Enabled = true;
-		this->host = thishost;
-		this->user = thisuser;
-		this->pass = thispass;
-		this->db = thisdb;
-		this->id = myid;
 	}
 
 	// This method connects to the database using the credentials supplied to the constructor, and returns

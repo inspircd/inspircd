@@ -36,7 +36,7 @@ std::string suffix = "";
 class cmd_randquote : public command_t
 {
  public:
- cmd_randquote (InspIRCd* Instance) : command_t(Instance,"RANDQUOTE", 0, 0)
+	cmd_randquote (InspIRCd* Instance) : command_t(Instance,"RANDQUOTE", 0, 0)
 	{
 		this->source = "m_randquote.so";
 	}
@@ -66,13 +66,13 @@ class cmd_randquote : public command_t
 class RandquoteException : public ModuleException
 {
  private:
-	std::string err;
+	const std::string err;
  public:
-	RandquoteException(std::string message) : err(message) { }
+	RandquoteException(const std::string &message) : err(message) { }
 
 	virtual const char* GetReason()
 	{
-		return (char*)err.c_str();
+		return err.c_str();
 	}
 };
 

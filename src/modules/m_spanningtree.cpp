@@ -438,7 +438,7 @@ class TreeServer : public classbase
 		return Parent;
 	}
 
-	void SetVersion(std::string Version)
+	void SetVersion(const std::string &Version)
 	{
 		VersionString = Version;
 	}

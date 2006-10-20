@@ -39,7 +39,7 @@ public:
 	{
 	}
 
-	SVSHold(std::string nn, std::string sb, time_t so, long ln, std::string rs) : nickname(nn), set_by(sb), set_on(so), length(ln), reason(rs)
+	SVSHold(const std::string &nn, const std::string &sb, const time_t so, const long ln, const std::string &rs) : nickname(nn), set_by(sb), set_on(so), length(ln), reason(rs)
 	{
 	}
 };

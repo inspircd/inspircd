@@ -39,8 +39,8 @@ public:
 	std::string message;
 	irc::string target;
 	time_t sent;
-	
-	BlockedMessage(std::string msg, irc::string tgt, time_t when) : message(msg), target(tgt), sent(when)
+
+	BlockedMessage(const std::string &msg, const irc::string &tgt, time_t when) : message(msg), target(tgt), sent(when)
 	{
 	}
 };

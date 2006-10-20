@@ -31,7 +31,7 @@ class DCCAllow
 
 	DCCAllow() { }
 
-	DCCAllow(std::string nick, std::string hm, time_t so, long ln) : nickname(nick), hostmask(hm), set_on(so), length(ln) { }
+	DCCAllow(const std::string &nick, const std::string &hm, const time_t so, const long ln) : nickname(nick), hostmask(hm), set_on(so), length(ln) { }
 };
 
 typedef std::vector<userrec *> userlist;
@@ -132,7 +132,7 @@ class cmd_dccallow : public command_t
 					if (!dl)
 					{
 						dl = new dccallowlist;
-						user->Extend(std::string("dccallow_list"), dl);
+						user->Extend("dccallow_list", dl);
 						// add this user to the userlist
 						ul.push_back(user);
 					}
