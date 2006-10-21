@@ -45,7 +45,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	ServerInstance->Log(DEFAULT,"KQueueEngine::AddFd(%d)",fd);
+	ServerInstance->Log(DEBUG,"KQueueEngine::AddFd(%d)",fd);
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
