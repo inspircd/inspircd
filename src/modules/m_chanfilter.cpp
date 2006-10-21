@@ -37,9 +37,9 @@ class ChanFilter : public ListModeBase
 	
 	virtual bool ValidateParam(userrec* user, chanrec* chan, std::string &word)
 	{
-		if (word.length() > 35)
+		if ((word.length() > 35) || (word.empty()))
 		{
-			user->WriteServ( "935 %s %s %s :word is too long for censor list",user->nick, chan->name,word.c_str());
+			user->WriteServ("935 %s %s %s :word is too %s for censor list",user->nick, chan->name,word.c_str(), (word.empty() ? "short" : "long"));
 			return false;
 		}
 		
