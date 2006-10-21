@@ -247,7 +247,8 @@ class TreeServer : public classbase
 	{
 		Parent = NULL;
 		VersionString = "";
-		UserCount = OperCount = 0;
+		UserCount = ServerInstance->UserCount();
+		OperCount = ServerInstance->OperCount();
 		VersionString = ServerInstance->GetVersionString();
 		Route = NULL;
 		Socket = NULL; /* Fix by brain */
