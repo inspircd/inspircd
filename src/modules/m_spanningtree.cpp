@@ -2111,7 +2111,10 @@ class TreeSocket : public InspSocket
 						}
 					}
 				}
-				return this->ProcessLine(ret);
+				if (!this->ProcessLine(ret))
+				{
+					return false;
+				}
 			}
 			return true;
 		}
