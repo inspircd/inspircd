@@ -2078,8 +2078,8 @@ class TreeSocket : public InspSocket
 				 * chance of the \r being near the end of the
 				 * string, not the start.
 				 */
-				if (ret.rfind("\r") != std::string::npos)
-					ret = in_buffer.substr(0,in_buffer.rfind("\r")-1);
+				if (ret.find("\r") != std::string::npos)
+					ret = in_buffer.substr(0,in_buffer.find("\r")-1);
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */
