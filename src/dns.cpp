@@ -116,7 +116,7 @@ class RequestTimeout : public InspTimer
  public:
 	RequestTimeout(InspIRCd* SI, DNSRequest* watching, int id, requestlist &requests) : InspTimer(2, time(NULL)), ServerInstance(SI), watch(watching), watchid(id), rl(requests)
 	{
-		ServerInstance->Log(DEBUG,"New DNS timeout set on %08x", watching);
+		ServerInstance->Log(DEBUG, "New DNS timeout set on %08x", watching);
 	}
 
 	void Tick(time_t TIME)
@@ -126,13 +126,14 @@ class RequestTimeout : public InspTimer
 			/* Still exists, whack it */
 			if (rl.find(watchid)->second == watch)
 			{
+				watch->OnError(RESOLVER_TIMEOUT, "Request timed out");
 				rl.erase(rl.find(watchid));
 				delete watch;
-				ServerInstance->Log(DEBUG,"DNS timeout on %08x squished pointer", watch);
+				ServerInstance->Log(DEBUG, "DNS timeout on %08x squished pointer", watch);
 			}
 			return;
 		}
-		ServerInstance->Log(DEBUG,"DNS timeout on %08x: result already received!", watch);
+		ServerInstance->Log(DEBUG, "DNS timeout on %08x: result already received!", watch);
 	}
 };
 
