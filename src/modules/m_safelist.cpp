@@ -216,6 +216,8 @@ class ModuleSafeList : public Module
 			if (ServerInstance->Time() < (*last_list_time)+60)
 			{
 				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
+				user->WriteServ("321 %s Channel :Users Name",user->nick);
+				user->WriteServ("323 %s :End of channel list.",user->nick);
 				return 1;
 			}
 
