@@ -91,39 +91,66 @@ class DNSHeader
 	unsigned char	payload[512];	/* Packet payload */
 };
 
-/** Represents a request 'on the wire' with routing information relating to
- * where to call when we get a result
- */
 class DNSRequest
 {
  public:
-	unsigned char   id[2];		/* Request id */
-	unsigned char*	res;		/* Result processing buffer */
-	unsigned int    rr_class;	/* Request class */
-	QueryType       type;		/* Request type */
-	insp_inaddr	myserver;	/* DNS server address*/
-	DNS*		dnsobj;		/* DNS caller (where we get our FD from) */
+	unsigned char   id[2];          /* Request id */
+	unsigned char*  res;            /* Result processing buffer */
+	unsigned int    rr_class;       /* Request class */
+	QueryType       type;           /* Request type */
+	insp_inaddr     myserver;       /* DNS server address*/
+	DNS*            dnsobj;         /* DNS caller (where we get our FD from) */
 
-	/* Allocate the processing buffer */
-	DNSRequest(DNS* dns, insp_inaddr server) : dnsobj(dns)
-	{
-		res = new unsigned char[512];
-		*res = 0;
-		memcpy(&myserver, &server, sizeof(insp_inaddr));
-	}
-
-	/* Deallocate the processing buffer */
-	~DNSRequest()
-	{
-		delete[] res;
-	}
-
-	/* Called when a result is ready to be processed which matches this id */
+	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, requestlist &requests);
+	~DNSRequest();
 	DNSInfo ResultIsReady(DNSHeader &h, int length);
-
-	/* Called when there are requests to be sent out */
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
+
+class RequestTimeout : public InspTimer
+{
+	InspIRCd* ServerInstance;
+	DNSRequest* watch;
+	int watchid;
+	requestlist &rl;
+ public:
+	RequestTimeout(InspIRCd* SI, DNSRequest* watching, int id, requestlist &requests) : InspTimer(2, time(NULL)), ServerInstance(SI), watch(watching), watchid(id), rl(requests)
+	{
+		ServerInstance->Log(DEBUG,"New DNS timeout set on %08x", watching);
+	}
+
+	void Tick(time_t TIME)
+	{
+		if (rl.find(watchid) != rl.end())
+		{
+			/* Still exists, whack it */
+			if (rl.find(watchid)->second == watch)
+			{
+				rl.erase(rl.find(watchid));
+				delete watch;
+				ServerInstance->Log(DEBUG,"DNS timeout on %08x squished pointer", watch);
+			}
+			return;
+		}
+		ServerInstance->Log(DEBUG,"DNS timeout on %08x: result already received!", watch);
+	}
+};
+
+/* Allocate the processing buffer */
+DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, requestlist &requests) : dnsobj(dns)
+{
+	res = new unsigned char[512];
+	*res = 0;
+	memcpy(&myserver, &server, sizeof(insp_inaddr));
+	RequestTimeout* RT = new RequestTimeout(Instance, this, id, requests);
+	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
+}
+
+/* Deallocate the processing buffer */
+DNSRequest::~DNSRequest()
+{
+	delete[] res;
+}
 
 /** Fill a ResourceRecord class based on raw data input */
 inline void DNS::FillResourceRecord(ResourceRecord* rr, const unsigned char *input)
@@ -211,7 +238,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	while (requests.find(id) != requests.end())
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	DNSRequest* req = new DNSRequest(this, this->myserver);
+	DNSRequest* req = new DNSRequest(ServerInstance, this, this->myserver, id, requests);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
