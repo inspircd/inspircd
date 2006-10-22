@@ -148,7 +148,7 @@ DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id,
 	res = new unsigned char[512];
 	*res = 0;
 	memcpy(&myserver, &server, sizeof(insp_inaddr));
-	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout, Instance, this, id, requests);
+	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, id, requests);
 	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
 }
 
