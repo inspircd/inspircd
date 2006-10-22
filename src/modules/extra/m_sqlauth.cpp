@@ -183,7 +183,11 @@ public:
 			{
 				ServerInstance->Log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
 			}
-		
+
+			if (!user->GetExt("sqlauthed"))
+			{
+				userrec::QuitUser(Srv,user,killreason);
+			}
 			return SQLSUCCESS;
 		}
 		
@@ -200,12 +204,6 @@ public:
 	
 	virtual bool OnCheckReady(userrec* user)
 	{
-		if(user->GetExt("sqlauth_failed"))
-		{
-			userrec::QuitUser(Srv,user,killreason);
-			return false;
-		}
-		
 		return user->GetExt("sqlauthed");
 	}
 
