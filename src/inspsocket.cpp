@@ -334,15 +334,21 @@ bool InspSocket::FlushWriteBuffer()
 	errno = 0;
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
+		/* If we have multiple lines, try to send them all,
+		 * not just the first one -- Brain
+		 */
 		while (outbuffer.size() && (errno != EAGAIN))
 		{
+			/* Send a line */
 			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 			if (result > 0)
 			{
 				if ((unsigned int)result == outbuffer[0].length())
 				{
 					/* The whole block was written (usually a line)
-					 * Pop the block off the front of the queue
+					 * Pop the block off the front of the queue,
+					 * dont set errno, because we are clear of errors
+					 * and want to try and write the next block too.
 					 */
 					outbuffer.pop_front();
 				}
@@ -350,6 +356,12 @@ bool InspSocket::FlushWriteBuffer()
 				{
 					std::string temp = outbuffer[0].substr(result);
 					outbuffer[0] = temp;
+					/* We didnt get the whole line out. arses.
+					 * Try again next time, i guess. Set errno,
+					 * because we shouldnt be writing any more now,
+					 * until the socketengine says its safe to do so.
+					 */
+					errno = EAGAIN;
 				}
 			}
 			else if ((result == -1) && (errno != EAGAIN))
