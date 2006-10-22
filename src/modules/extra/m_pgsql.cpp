@@ -1168,13 +1168,13 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 			{
 				Instance->Log(DEBUG, "Dispatched query successfully");
 				qinprog = true;
-				DELETE(query);
+				delete[] query;
 				return SQLerror();
 			}
 			else
 			{
 				Instance->Log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
-				DELETE(query);
+				delete[] query;
 				return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
 			}
 		}

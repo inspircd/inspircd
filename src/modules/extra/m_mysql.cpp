@@ -530,6 +530,8 @@ class SQLConnection : public classbase
 		 * Pass them this connection id as what to examine
 		 */
 
+		delete[] query;
+
 		NotifyMainThread(this);
 	}
 
