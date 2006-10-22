@@ -301,12 +301,20 @@ class ListModeBase : public ModeHandler
 	{
 		modelist* list;
 		chan->GetExt(infokey, list);
+		irc::modestacker modestack(true);
+		std::deque<std::string> stackresult;
 		if (list)
 		{
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, "+" + std::string(1, mode) + " " + it->mask);
+				modestack.Push(std::string(1, mode)[0], it->mask);
 			}
+		}
+		while (modestack.GetStackedLine(stackresult))
+		{
+			irc::stringjoiner mode_join(" ", stackresult, 0, stackresult.size() - 1);
+			std::string line = mode_join.GetJoined();
+			proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan, line);
 		}
 	}
 

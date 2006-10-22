@@ -466,17 +466,24 @@ class ModuleChanProtect : public Module
 			string_list commands;
 			std::string founder = "cm_founder_"+std::string(chan->name);
 			std::string protect = "cm_protect_"+std::string(chan->name);
+			irc::modestacker modestack(true);
+			std::deque<std::string> stackresult;
 			for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 			{
 				if (i->second->GetExt(founder,dummyptr))
 				{
-					proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+q "+std::string(i->second->nick));
+					modestack.Push('q',i->second->nick);
 				}
 				if (i->second->GetExt(protect,dummyptr))
 				{
-					proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan,"+a "+std::string(i->second->nick));
-			
+					modestack.Push('a',i->second->nick);
 				}
+			}
+			while (modestack.GetStackedLine(stackresult))
+			{
+				irc::stringjoiner mode_join(" ", stackresult, 0, stackresult.size() - 1);
+				std::string line = mode_join.GetJoined();
+				proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan, line);
 			}
 		}
 	}
