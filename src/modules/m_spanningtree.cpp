@@ -1914,9 +1914,19 @@ class TreeSocket : public InspSocket
                 for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
                 {
 			modes.append("b");
-			params.append(b->data).append(" ");
+			params.append(" ").append(b->data);
+			if (params.length() >= MAXMODES)
+			{
+				/* Wrap at MAXMODES */
+				this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+modes+params);
+				modes = "";
+				params = "";
+			}
                 }
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true)+modes+" "+params);
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true));
+		/* Only send these if there are any */
+		if (!modes.empty())
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+modes+params);
 	}
 
 	/** Send G, Q, Z and E lines */
