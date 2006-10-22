@@ -1875,6 +1875,8 @@ class TreeSocket : public InspSocket
 	 */
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
+		std::string buffer;
+
 		Instance->Log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
@@ -1900,7 +1902,8 @@ class TreeSocket : public InspSocket
 
 			if (curlen > (480-NICKMAX))
 			{
-				this->WriteLine(list);
+				buffer.append(list).append("\n");
+
 				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 				ptr = list + dlen;
 				ptrlen = 0;
@@ -1909,7 +1912,7 @@ class TreeSocket : public InspSocket
 		}
 
 		if (numusers)
-			this->WriteLine(list);
+			buffer.append(list).append("\n");
 
                 for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
                 {
@@ -1918,65 +1921,71 @@ class TreeSocket : public InspSocket
 			if (params.length() >= MAXMODES)
 			{
 				/* Wrap at MAXMODES */
-				this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+modes+params);
+				buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\n");
 				modes = "";
 				params = "";
 			}
                 }
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+c->ChanModes(true));
+		buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true));
 		/* Only send these if there are any */
 		if (!modes.empty())
-			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" +"+modes+params);
+			buffer.append("\n").append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+
+		this->WriteLine(buffer);
 	}
 
 	/** Send G, Q, Z and E lines */
 	void SendXLines(TreeServer* Current)
 	{
 		char data[MAXBUF];
+		std::string buffer;
 		std::string n = this->Instance->Config->ServerName;
 		const char* sn = n.c_str();
 		int iterations = 0;
 		/* Yes, these arent too nice looking, but they get the job done */
 		for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<QLine*>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<GLine*>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s\n",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<ELine*>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s\n",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<ZLine*>::iterator i = Instance->XLines->pzlines.begin(); i != Instance->XLines->pzlines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<QLine*>::iterator i = Instance->XLines->pqlines.begin(); i != Instance->XLines->pqlines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<GLine*>::iterator i = Instance->XLines->pglines.begin(); i != Instance->XLines->pglines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE G %s %s %lu %lu :%s\n",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
 		for (std::vector<ELine*>::iterator i = Instance->XLines->pelines.begin(); i != Instance->XLines->pelines.end(); i++, iterations++)
 		{
-			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
-			this->WriteLine(data);
+			snprintf(data,MAXBUF,":%s ADDLINE E %s %s %lu %lu :%s\n",sn,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
+			buffer.append(data);
 		}
+
+		if (!buffer.empty())
+			this->WriteLine(buffer);
 	}
 
 	/** Send channel modes and topics */
@@ -2010,6 +2019,7 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
+		std::string dataline;
 		int iterations = 0;
 		for (user_hash::iterator u = this->Instance->clientlist.begin(); u != this->Instance->clientlist.end(); u++, iterations++)
 		{
@@ -2019,11 +2029,13 @@ class TreeSocket : public InspSocket
 				this->WriteLine(data);
 				if (*u->second->oper)
 				{
-					this->WriteLine(":"+std::string(u->second->nick)+" OPERTYPE "+std::string(u->second->oper));
+					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->nick, u->second->oper);
+					this->WriteLine(data);
 				}
 				if (*u->second->awaymsg)
 				{
-					this->WriteLine(":"+std::string(u->second->nick)+" AWAY :"+std::string(u->second->awaymsg));
+					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->nick, u->second->awaymsg);
+					this->WriteLine(data);
 				}
 				FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
 				list.clear();
