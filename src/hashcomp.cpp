@@ -217,6 +217,11 @@ const std::string irc::tokenstream::GetToken()
 
 	while (n != tokens.end())
 	{
+		/** Skip multi space, converting "  " into " "
+		 */
+		while ((n+1 != tokens.end()) && (*n == ' ') && (*(n+1) == ' '))
+			n++;
+
 		if ((last_pushed) && (*n == ':'))
 		{
 			/* If we find a token thats not the first and starts with :,
