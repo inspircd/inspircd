@@ -126,7 +126,12 @@ class RequestTimeout : public InspTimer
 			/* Still exists, whack it */
 			if (rl.find(watchid)->second == watch)
 			{
-				watch->OnError(RESOLVER_TIMEOUT, "Request timed out");
+				if (ServerInstance->Res->Classes[watchid])
+				{
+					ServerInstance->Res->Classes[watchid]->OnError(RESOLVER_TIMEOUT, "Request timed out");
+					delete ServerInstance->Res->Classes[watchid];
+					ServerInstance->Res->Classes[watchid] = NULL;
+				}
 				rl.erase(rl.find(watchid));
 				delete watch;
 				ServerInstance->Log(DEBUG, "DNS timeout on %08x squished pointer", watch);

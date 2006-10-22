@@ -282,8 +282,8 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	for (unsigned int n = 0; n < MAXCHANS; n++)
 	{
 		chans[n] = new ucrec();
-		x->channel = NULL;
-		x->uc_modes = 0;
+		chans[n]->channel = NULL;
+		chans[n]->uc_modes = 0;
 	}
 }
 

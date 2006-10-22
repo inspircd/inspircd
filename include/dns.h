@@ -255,11 +255,6 @@ class DNS : public EventHandler
 	int currid;
 
 	/**
-	 * Currently active Resolver classes
-	 */
-	Resolver* Classes[MAX_REQUEST_ID];
-
-	/**
 	 * We have to turn off a few checks on received packets
 	 * when people are using 4in6 (e.g. ::ffff:xxxx). This is
 	 * a temporary kludge, Please let me know if you know how
@@ -273,6 +268,10 @@ class DNS : public EventHandler
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
+	/**
+	 * Currently active Resolver classes
+	 */
+	Resolver* Classes[MAX_REQUEST_ID];
 	/**
 	 * The port number DNS requests are made on,
 	 * and replies have as a source-port number.
