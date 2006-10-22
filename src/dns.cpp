@@ -114,7 +114,7 @@ class RequestTimeout : public InspTimer
 	int watchid;
 	requestlist &rl;
  public:
-	RequestTimeout(InspIRCd* SI, DNSRequest* watching, int id, requestlist &requests) : InspTimer(2, time(NULL)), ServerInstance(SI), watch(watching), watchid(id), rl(requests)
+	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id, requestlist &requests) : InspTimer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id), rl(requests)
 	{
 		ServerInstance->Log(DEBUG, "New DNS timeout set on %08x", watching);
 	}
@@ -148,7 +148,7 @@ DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id,
 	res = new unsigned char[512];
 	*res = 0;
 	memcpy(&myserver, &server, sizeof(insp_inaddr));
-	RequestTimeout* RT = new RequestTimeout(Instance, this, id, requests);
+	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout, Instance, this, id, requests);
 	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
 }
 
