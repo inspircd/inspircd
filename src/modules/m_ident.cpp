@@ -257,6 +257,8 @@ class ModuleIdent : public Module
 				// a user which has now vanished! To prevent this, set ident::u
 				// to NULL and check it so that we dont write users who have gone away.
 				ident->u = NULL;
+				ServerInstance->SE->DelFd(ident);
+				delete ident;
 			}
 		}
 	}
@@ -275,6 +277,8 @@ class ModuleIdent : public Module
 		if (user->GetExt("ident_data", ident))
 		{
 			ident->u = NULL;
+			ServerInstance->SE->DelFd(ident);
+			delete ident;
 		}
 	}
 	
