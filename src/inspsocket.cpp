@@ -331,9 +331,10 @@ int InspSocket::Write(const std::string &data)
 
 bool InspSocket::FlushWriteBuffer()
 {
+	errno = 0;
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		if (outbuffer.size())
+		while (outbuffer.size() && (errno != EAGAIN))
 		{
 			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 			if (result > 0)
