@@ -205,6 +205,10 @@ class ModuleSafeList : public Module
 			return 1;
 		}
 
+		/* Work around mIRC suckyness. YOU SUCK, KHALED! */
+		if ((pcnt == 1) && (*parameters[0] == '<'))
+			pcnt = 0;
+
 		time_t* last_list_time;
 		user->GetExt("safelist_last", last_list_time);
 		if (last_list_time)

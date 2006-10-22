@@ -29,6 +29,11 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("321 %s Channel :Users Name",user->nick);
+
+	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
+	if ((pcnt == 1) && (*parameters[0] == '<'))
+		pcnt = 0;
+
 	for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
 	{
 		// attempt to match a glob pattern
