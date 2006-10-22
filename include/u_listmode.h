@@ -314,7 +314,7 @@ class ListModeBase : public ModeHandler
 		{
 			irc::stringjoiner mode_join(" ", stackresult, 0, stackresult.size() - 1);
 			std::string line = mode_join.GetJoined();
-			proto->ProtoSendMode(opaque,TYPE_CHANNEL,chan, line);
+			proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, line);
 		}
 	}
 
