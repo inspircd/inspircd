@@ -77,19 +77,30 @@ class FounderProtectBase
 	{
 		unload_kludge = true;
 		CUList* cl = channel->GetUsers();
-		std::string item = extend+std::string(channel->name);
-		char moderemove[MAXBUF];
+		std::string item = extend + std::string(channel->name);
+		const char* mode_junk[MAXMODES+1];
 		userrec* n = new userrec(MyInstance);
 		n->SetFd(FD_MAGIC_NUMBER);
+		mode_junk[0] = channel->name;
+		irc::modestacker modestack(false);
+		std::deque<std::string> stackresult;				
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
 			if (i->second->GetExt(item, dummyptr))
 			{
-				sprintf(moderemove,"-%c",mc);
-				const char* parameters[] = { channel->name, moderemove, i->second->nick };
-				MyInstance->SendMode(parameters, 3, n);
+				modestack.Push(mc, i->second->nick);
 			}
 		}
+
+		while (modestack.GetStackedLine(stackresult))
+		{
+			for (size_t j = 0; j < stackresult.size(); j++)
+			{
+				mode_junk[j+1] = stackresult[j].c_str();
+			}
+			MyInstance->SendMode(mode_junk, stackresult.size() + 1, n);
+		}
+		
 		delete n;
 		unload_kludge = false;
 	}
