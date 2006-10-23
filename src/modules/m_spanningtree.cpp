@@ -1914,19 +1914,22 @@ class TreeSocket : public InspSocket
 		if (numusers)
 			buffer.append(list).append("\n");
 
-                for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
-                {
+		for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
+		{
 			modes.append("b");
 			params.append(" ").append(b->data);
+
 			if (params.length() >= MAXMODES)
 			{
 				/* Wrap at MAXMODES */
-				buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\n");
+				buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name)..append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\n");
 				modes = "";
 				params = "";
 			}
-                }
+		}
+
 		buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true));
+
 		/* Only send these if there are any */
 		if (!modes.empty())
 			buffer.append("\n").append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(ConvToStr(c->age)).append(" +").append(modes).append(params);
