@@ -90,7 +90,10 @@ public:
 	virtual void OnUserRegister(userrec* user)
 	{
 		if ((allowpattern != "") && (Srv->MatchText(user->nick,allowpattern)))
+		{
+			user->Extend("sqlauthed");
 			return;
+		}
 		
 		if (!CheckCredentials(user))
 		{
