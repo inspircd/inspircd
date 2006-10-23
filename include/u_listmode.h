@@ -67,7 +67,7 @@ class ListModeBase : public ModeHandler
  	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
 		this->DoRehash();
-		infokey = "exceptionbase_mode_" + std::string(1, mode) + "_list";
+		infokey = "listbase_mode_" + std::string(1, mode) + "_list";
 	}
 
 	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
@@ -109,22 +109,24 @@ class ListModeBase : public ModeHandler
 		if (el)
 		{
 			ServerInstance->Log(DEBUG,"Channel is extended with a list");
-			char moderemove[MAXBUF];
+			irc::modestacker modestack(true);
+			std::deque<std::string> stackresult;
+			const char* mode_junk[MAXMODES+1];
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);
-			modelist copy;
-			/* Make a copy of it, because we cant change the list whilst iterating over it */
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				copy.push_back(*it);
+				modestack.Push(this->GetModeChar(), it->mask);
 			}
-			for(modelist::iterator it = copy.begin(); it != copy.end(); it++)
+			while (modestack.GetStackedLine(stackresult))
 			{
-				ServerInstance->Log(DEBUG,"Remove item %s",it->mask.c_str());
-				sprintf(moderemove,"-%c",this->GetModeChar());
-				const char* parameters[] = { channel->name, moderemove, it->mask.c_str() };
-				ServerInstance->SendMode(parameters, 3, n);
+				for (size_t j = 0; j < stackresult.size(); j++)
+				{
+					mode_junk[j+1] = stackresult[j].c_str();
+				}
+				ServerInstance->SendMode(mode_junk, stackresult.size() + 1, n);		
 			}
+
 			delete n;
 		}
 	}
