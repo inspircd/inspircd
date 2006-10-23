@@ -109,9 +109,10 @@ class ListModeBase : public ModeHandler
 		if (el)
 		{
 			ServerInstance->Log(DEBUG,"Channel is extended with a list");
-			irc::modestacker modestack(true);
+			irc::modestacker modestack(false);
 			std::deque<std::string> stackresult;
 			const char* mode_junk[MAXMODES+1];
+			mode_junk[0] = channel->name;
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
