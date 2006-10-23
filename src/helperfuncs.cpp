@@ -446,26 +446,17 @@ void InspIRCd::OpenLog(char** argv, int argc)
 		{
 			Config->logpath = ServerConfig::GetFullProgDir(argv,argc) + "/ircd.log";
 		}
+
+		Config->log_file = fopen(Config->logpath.c_str(),"a+");
 	}
 	else
 	{
 		Config->log_file = fopen(this->LogFileName,"a+");
-
-		if (!Config->log_file)
-		{
-			printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
-			Exit(ERROR);
-		}
-
-		this->Logger = new FileLogger(this, Config->log_file);
-		return;
 	}
-
-	Config->log_file = fopen(Config->logpath.c_str(),"a+");
 
 	if (!Config->log_file)
 	{
-		printf("ERROR: Could not write to logfile %s, bailing!\n\n",Config->logpath.c_str());
+		printf("ERROR: Could not write to logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
 		Exit(ERROR);
 	}
 
