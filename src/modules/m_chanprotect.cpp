@@ -20,6 +20,7 @@
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
+/* $ModDep: ../../include/u_listmode.h */
 
 #define PROTECT_VALUE 40000
 #define FOUNDER_VALUE 50000

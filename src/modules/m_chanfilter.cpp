@@ -27,6 +27,7 @@ using namespace std;
 #include "inspircd.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
+/* $ModDep: ../../include/u_listmode.h */
 
 /** Handles channel mode +g
  */

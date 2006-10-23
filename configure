@@ -1403,6 +1403,19 @@ sub getlinkerflags {
 	return undef;
 }
 
+sub getdependencies {
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
+			close(FLAGS);
+			return $1;
+		}
+	}
+	close(FLAGS);
+	return undef;
+}
+
 sub resolve_directory {
 	use File::Spec;
 	return File::Spec->rel2abs($_[0]);
@@ -1483,12 +1496,13 @@ HEADER
 		if ($i !~ /_static$/) {
 			$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 			$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
+			$deps = getdependencies("src/modules/m_".$i.".cpp");
 
 			###
 			# Write Entry to the Makefile
 			###
 			print FILEHANDLE <<EOCHEESE;
-m_$i.o: .m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h
+m_$i.o: .m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h $deps
 	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c .m_$i\_static.cpp
 	mv .m_$i\_static.o ../m_$i.o
 
@@ -1556,8 +1570,9 @@ EOF
 	###
 	$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 	$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
+	$deps = getdependencies("src/modules/m_".$i.".cpp");
 	print FILEHANDLE <<EOCHEESE;
-m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h
+m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
 	\$(CC) \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
 

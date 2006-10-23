@@ -23,6 +23,7 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +I channel mode */
+/* $ModDep: ../../include/u_listmode.h */
 
 /*
  * Written by Om <om@inspircd.org>, April 2005.

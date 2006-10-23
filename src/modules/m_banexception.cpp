@@ -25,6 +25,7 @@
 #include "wildcard.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
+/* $ModDep: ../../include/u_listmode.h */
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
