@@ -597,7 +597,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 			$var = $config{MAX_CLIENT};
 		}
 		if ($var =~ /^\d+$/) {
-			if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_failed ne true)) {
+			if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_fail ne "true")) {
 				# Client has entered a larger number than the 'discovered' value
 				# Confirm.
 				print "WARNING: Our scans have indicated that you are attempting
@@ -616,6 +616,7 @@ you wish to do this? It may cause the IRCd to malfunction [y/n]
 		}
 		# If we get here, we should be good to go.
 		$config{MAX_CLIENT} = $var;
+		$config{MAX_DESCRIPTORS} = $var;
 		$continue = 1;
 		print "\n";
 	}
