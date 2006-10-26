@@ -25,7 +25,6 @@ GetOptions (
 	'with-max-channels=i' => \$opt_maxchans,
 	'with-max-oper-channels=i' => \$opt_opermaxchans,
 	'with-max-clients' => \$opt_maxclients,
-	'enable-optimization' => \$opt_optimise,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
 	'disable-epoll' => \$opt_noepoll,
@@ -79,7 +78,6 @@ my $non_interactive = (
 	(defined $opt_opermaxchans) ||
 	(defined $opt_chan_length) ||
 	(defined $opt_nick_length) ||
-	(defined $opt_optimise) ||
 	(defined $opt_use_openssl) ||
 	(defined $opt_nokqueue) ||
 	(defined $opt_noepoll) ||
@@ -134,13 +132,11 @@ if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
 }
+
+# no, let's not change these.
 $config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
 $config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
-if (defined $opt_optimise)
-{
-	$config{OPTIMISATI} = "-O" . $opt_optimise;
-	$config{OPTIMITEMP} = $opt_optimise;
-}
+
 $config{NICK_LENGT}         = "31";                             		# Default Nick Length
 if (defined $opt_nick_length)
 {
@@ -819,37 +815,6 @@ you wish to do this? It may cause the IRCd to malfunction [y/n]
 			print "You must enter a number in this field. Please try again.\n\n";
 		}
 	}
-
-	# Code Optimisation
-	print "Enter the Level Of Binary optimisation. This is a number between 0 and 3.
-The InspIRCd Team will NOT support any bug reports above 0. Also note,
-the IRCd behaviour will be different depending on this value. Please
-read the documentation for more information.
-
-The higher the number, the more optimised your binary will be. This
-value will default to 0 if you either don't enter a number, or enter
-a value outside the range.
-
-As always, if you are unsure, just press enter and accept the default.\n\n";
-	print "[\033[1;32m$config{OPTIMITEMP}\033[0m] -> ";
-	chomp($var = <STDIN>);
-	if ($var eq "") {
-		$var = $config{OPTIMITEMP};
-	}
-
-	if ($var eq "1") {
-		$config{OPTIMITEMP} = 1;
-		$config{OPTIMISATI} = "-O";
-	} elsif ($var eq "2") {
-		$config{OPTIMITEMP} = 2;
-		$config{OPTIMISATI} = "-O2";
-	} elsif ($var eq "3") {
-		$config{OPTIMITEMP} = 3;
-		$config{OPTIMISATI} = "-O3";
-	} else {
-		$config{OPTIMITEMP} = 0;
-		$config{OPTIMISATI} = "-g";
-	}
 }
 
 print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
@@ -870,7 +835,8 @@ print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\033[0m\n";
 print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\033[0m\n";
 print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\033[0m\n";
 print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.x\033[0m\n";
-print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
+# and not echo it out so we don't get some ricer fuck complaining
+#print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
 print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
 print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
 print "\033[0mIPv6 Support:\033[1;32m\t\t\t$config{IPV6}\033[0m\n";
