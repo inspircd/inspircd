@@ -282,10 +282,8 @@ class ModuleOverride : public Module
 					if (chan->IsBanned(user))
 					{
 						if (NoisyOverride)
-						{
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel ban", cname, user->nick);
-							ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban", cname, user->nick);
-						}
+						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban", user->nick);
 					}
 					return -1;
 				}
