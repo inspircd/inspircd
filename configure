@@ -1860,6 +1860,11 @@ sub showhelp
 {
 	chomp($PWD = `pwd`);
 	print "Usage: configure [options]
+
+*** NOTE: NON-INTERACTIVE CONFIGURE IS *NOT* SUPPORTED BY THE ***
+*** INSPIRCD DEVELOPMENT TEAM. DO NOT ASK FOR HELP REGARDING  ***
+***     NON-INTERACTIVE CONFIGURE ON THE FORUMS OR ON IRC!    ***
+
 Options: [defaults in brackets after descriptions]
 
 When no options are specified, interactive
