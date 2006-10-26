@@ -3464,7 +3464,9 @@ class TreeSocket : public InspSocket
 		{
 			Squit(s,"Remote host closed the connection");
 		}
-		this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
+
+		if (quitserver != "")
+			this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
 	}
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
