@@ -115,7 +115,7 @@ int EPollEngine::GetRemainingFds()
 
 int EPollEngine::DispatchEvents()
 {
-	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 50);
+	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 150);
 	for (int j = 0; j < i; j++)
 	{
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ref[events[j].data.fd]->Readable() ? "read" : "write", ref[events[j].data.fd]->GetFd());

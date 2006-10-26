@@ -248,20 +248,18 @@ class ModuleOverride : public Module
 			{
 				if ((chan->modes[CM_INVITEONLY]) && (CanOverride(user,"INVITE")))
 				{
-					if (NoisyOverride)
+					irc::string x = chan->name;
+					if (!user->IsInvited(x))
 					{
-						irc::string x = chan->name;
-						if (!user->IsInvited(x))
-						{
-							/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
+						/* XXX - Ugly cast for a parameter that isn't used? :< - Om */
+						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass invite-only", cname, user->nick);
-						}
+						ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
 					}
-					ServerInstance->SNO->WriteToSnoMask('O',std::string(user->nick)+" used operoverride to bypass +i on "+std::string(cname));
 					return -1;
 				}
 				
-				if ((chan->key[0]) && (CanOverride(user,"KEY")))
+				if ((*chan->key) && (CanOverride(user,"KEY")))
 				{
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass the channel key", cname, user->nick);
@@ -283,7 +281,7 @@ class ModuleOverride : public Module
 					{
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper-override to bypass channel ban", cname, user->nick);
-						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban", user->nick);
+						ServerInstance->SNO->WriteToSnoMask('O',"%s used oper-override to bypass channel ban on %s", user->nick, cname);
 					}
 					return -1;
 				}
