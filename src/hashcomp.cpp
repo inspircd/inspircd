@@ -87,9 +87,9 @@ size_t nspace::hash<string>::operator()(const string &s) const
 	 * This avoids a copy to use hash<const char*>
 	 */
 	register size_t t = 0;
-	for (std::string::const_iterator x = s.begin(); x != s.end(); x++) /* ++x not x++, so we don't hash the \0 */
+	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + lowermap[(unsigned char)*x];
-	return size_t(t);
+	return t;
 }
 
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
