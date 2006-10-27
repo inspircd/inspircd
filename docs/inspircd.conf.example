@@ -465,11 +465,12 @@
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   These options let you define the path to your motd and rules      #
-#   files. These should be absolute paths.                            #
+#   files. If these are relative paths, they are relative to the      #
+#   configurtion directory.                                           #
 #                                                                     #
 
-<files  motd="/home/cc/inspircd/conf/inspircd.motd"
-        rules="/home/cc/inspircd/conf/inspircd.rules">
+<files  motd="inspircd.motd"
+        rules="inspircd.rules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -515,11 +516,12 @@
 # Define the path to the PID file here. The PID file can be used to   #
 # rehash the ircd from the shell or to terminate the ircd from the    #
 # shell using shell scripts, perl scripts etc, and to monitor the     #
-# ircd's state via cron jobs. This is IMPORTANT and you must define   #
-# it or the ircd will refuse to start.                                #
+# ircd's state via cron jobs. If this is a relative path, it will be  #
+# relative to the configuration directory, and if it is not defined,  #
+# the default of 'inspircd.pid' is used.                              #
 #                                                                     #
 
-<pid file="/path/to/inspircd.pid">
+#<pid file="/path/to/inspircd.pid">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -998,7 +1000,6 @@
 # Optional - If you specify to use the m_filter or m_filter_pcre      #
 # modules, then specfiy below the path to the filter.conf file.       #
 #                                                                     #
-#<filter file="/path/to/inspircd/filter.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Foobar module: does nothing - historical relic
@@ -1022,7 +1023,7 @@
 # Optional - If you specify to use the m_helpop.so module, then       #
 # specify below the path to the helpop.conf file.                     #
 #                                                                     #
-#<helpop file="/path/to/inspircd/helpop.conf">
+#<helpop file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hostchange module: Allows a different style of cloaking

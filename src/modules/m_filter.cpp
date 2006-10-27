@@ -42,17 +42,6 @@ class Filter : public classbase
 
 typedef std::map<std::string,Filter*> filter_t;
 
-/** Thrown by m_filter
- */
-class FilterException : public ModuleException
-{
- public:
-	virtual const char* GetReason()
-	{
-		return "Could not find <filter file=\"\"> definition in your config file!";
-	}
-};
-
 class ModuleFilter : public Module
 {
  
@@ -127,18 +116,8 @@ class ModuleFilter : public Module
 	
 	virtual void OnRehash(const std::string &parameter)
 	{
-		// reload our config file on rehash - we must destroy and re-allocate the classes
-		// to call the constructor again and re-read our data.
-		ConfigReader* Conf = new ConfigReader(ServerInstance);
-		std::string filterfile = Conf->ReadValue("filter","file",0);
 		// this automatically re-reads the configuration file into the class
-		ConfigReader* MyConf = new ConfigReader(ServerInstance, filterfile);
-		if ((filterfile == "") || (!MyConf->Verify()))
-		{
-			// bail if the user forgot to create a config file
-			FilterException e;
-			throw(e);
-		}
+		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
 		{
 			DELETE(n->second);
@@ -156,8 +135,6 @@ class ModuleFilter : public Module
 			x->action = do_action;
 			filters[pattern] = x;
 		}
-		ServerInstance->Log(DEFAULT,"m_filter: read configuration from "+filterfile);
-		DELETE(Conf);
 		DELETE(MyConf);
 	}
 	

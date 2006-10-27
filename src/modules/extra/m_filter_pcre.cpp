@@ -26,17 +26,6 @@
 #include "modules.h"
 #include "inspircd.h"
 
-/** Thrown by m_filter_pcre
- */
-class FilterPCREException : public ModuleException
-{
- public:
-	virtual const char* GetReason()
-	{
-		return "Could not find <filter file=\"\"> definition in your config file!";
-	}
-};
-
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: `pcre-config --cflags` */
 /* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
@@ -140,25 +129,13 @@ class ModuleFilterPCRE : public Module
 		 * of using a seperate config file is provided.
 		 */
 		
-		ConfigReader Conf(Srv);
-		
-		std::string filterfile = Conf.ReadValue("filter", "file", 0);
-		
-		ConfigReader MyConf(Srv, filterfile);
-		
-		if (filterfile.empty() || !MyConf.Verify())
-		{
-			FilterPCREException e;
-			throw(e);
-		}
-		
-		ServerInstance->Log(DEFAULT,"m_filter_pcre: read configuration from "+filterfile);
+		ConfigReader MyConf(Srv);
 
 		for (std::vector<Filter>::iterator i = filters.begin(); i != filters.end(); i++)
 			pcre_free((*i).regexp);
-		
+
 		filters.clear();
-		
+
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
 		{
 			std::string pattern = MyConf.ReadValue("keyword","pattern",index);
