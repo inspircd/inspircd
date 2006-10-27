@@ -325,9 +325,28 @@ class ModuleChanProtect : public Module
 		 * stack-allocate it locally.
 		 */
 		ConfigReader Conf(ServerInstance);
+
+		bool old_qa = QAPrefixes;
 		
 		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
 		QAPrefixes = Conf.ReadFlag("options","qaprefixes",0);
+
+		/* Did the user change the QA prefixes on the fly?
+		 * If so, remove all instances of the mode, and reinit
+		 * the module with prefixes enabled.
+		 */
+		if (old_qa != QAPrefixes)
+		{
+			ServerInstance->Modes->DelMode(cp);
+			ServerInstance->Modes->DelMode(cf);
+			DELETE(cp);
+			DELETE(cf);
+			cp = new ChanProtect(ServerInstance,QAPrefixes);
+			cf = new ChanFounder(ServerInstance,QAPrefixes);
+			ServerInstance->AddMode(cp, 'a');
+			ServerInstance->AddMode(cf, 'q');
+			ServerInstance->WriteOpers("*** WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
+		}
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel)
