@@ -1271,7 +1271,21 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 	char linebuf[MAXBUF];
 
 	F.clear();
-	file =  fopen(fname, "r");
+	
+	if (*fname != '/')
+	{
+		std::string::size_type pos;
+		std::string confpath = CONFIG_FILE;
+		if((pos = confpath.find("/inspircd.conf")) != std::string::npos)
+		{
+			/* Leaves us with just the path */
+			std::string newfile = confpath.substr(0, pos) + std::string("/") + newfile;
+			file =  fopen(newfile.c_str(), "r");
+			
+		}
+	}
+	else
+		file =  fopen(fname, "r");
 
 	if (file)
 	{
