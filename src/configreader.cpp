@@ -518,7 +518,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	std::ostringstream errstr;	/* String stream containing the error output */
 
 	/* These tags MUST occur and must ONLY occur once in the config file */
-	static char* Once[] = { "server", "admin", "files", "power", "options", "pid", NULL };
+	static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
 	/* These tags can occur ONCE or not at all */
 	static InitialConfig Values[] = {

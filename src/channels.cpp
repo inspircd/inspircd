@@ -1009,12 +1009,16 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 				n->second.erase(x);
 		}
 	}
+	ServerInstance->Log(DEBUG,"Added prefix %c to %s for %s, prefixlist size is now %d", prefix, this->name, user->nick, prefixes.size());
 }
 
 void chanrec::RemoveAllPrefixes(userrec* user)
 {
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
+	{
+		ServerInstance->Log(DEBUG,"Removed prefixes from %s for %s, prefixlist size is now %d", this->name, user->nick, prefixes.size());
 		prefixes.erase(n);
+	}
 }
 

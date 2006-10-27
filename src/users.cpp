@@ -1012,7 +1012,6 @@ long userrec::GlobalCloneCount()
 		/* We have to match ip's as strings - we don't know what protocol
 		 * a remote user may be using
 		 */
-		ServerInstance->Log(DEBUG,"Match %s against %s", a->second->GetIPString(), u2);
 		if (strcasecmp(a->second->GetIPString(), u2) == 0)
 			x++;
 	}
