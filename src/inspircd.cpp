@@ -148,7 +148,18 @@ bool InspIRCd::DaemonSeed()
 
 void InspIRCd::WritePID(const std::string &filename)
 {
-	std::ofstream outfile(filename.c_str());
+	std::string fname = (filename.empty() ? "inspircd.pid" : filename);
+	if (*(fname.begin()) != '/')
+	{
+		std::string::size_type pos;
+		std::string confpath = CONFIG_FILE;
+		if ((pos = confpath.find("/inspircd.conf")) != std::string::npos)
+		{
+			/* Leaves us with just the path */
+			fname = confpath.substr(0, pos) + std::string("/") + fname;
+		}
+	}									
+	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{
 		outfile << getpid();
@@ -156,8 +167,8 @@ void InspIRCd::WritePID(const std::string &filename)
 	}
 	else
 	{
-		printf("Failed to write PID-file '%s', exiting.\n",filename.c_str());
-		this->Log(DEFAULT,"Failed to write PID-file '%s', exiting.",filename.c_str());
+		printf("Failed to write PID-file '%s', exiting.\n",fname.c_str());
+		this->Log(DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(0);
 	}
 }

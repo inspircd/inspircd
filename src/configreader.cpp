@@ -1279,7 +1279,7 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 		if((pos = confpath.find("/inspircd.conf")) != std::string::npos)
 		{
 			/* Leaves us with just the path */
-			std::string newfile = confpath.substr(0, pos) + std::string("/") + newfile;
+			std::string newfile = confpath.substr(0, pos) + std::string("/") + fname;
 			file =  fopen(newfile.c_str(), "r");
 			
 		}
