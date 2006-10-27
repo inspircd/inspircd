@@ -37,6 +37,11 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all
+	@-mkdir -p ${BASE}
+	@-mkdir -p $(LIBPATH)
+	@-mkdir -p $(BINPATH)
+	@-mkdir -p $(CONPATH)
+	@-mkdir -p ${MODPATH}
 	-install -m 0700 src/libIRCDaes.so $(LIBPATH)
 	-install -m 0700 src/libIRCDasyncdns.so $(LIBPATH)
 	-install -m 0700 src/libIRCDbase.so $(LIBPATH)
