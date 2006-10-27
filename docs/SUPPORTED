@@ -2,6 +2,10 @@ Implemented server to server commands:
 
 	SERVER	CONNECT
 	LINKS	SQUIT
+	STATS	ADMIN
+	MOTD	VERSION
+	PING	WHOIS
+	REHASH
 
 Implemented commands:
 
