@@ -21,11 +21,15 @@ MODULES = @MODULES@
 STATICLIBS = @STATICLIBS@
 MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'STATICLIBS=${STATICLIBS}'
 
-all : @MAKEORDER@
+all : @MAKEORDER@ finishmessage
 
 mods:
 	@echo "Making modules..."
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS)
+
+# Make this depend on 'ircd' and 'mods', so its always output last even with -j
+finishmessage: ircd mods
+	@echo ""
 	@echo "*************************************"
 	@echo "*        BUILD COMPLETE!            *"
 	@echo "*   To install InspIRCd, type:      *"
@@ -127,6 +131,7 @@ install: all
 	@-cp conf/cert.pem $(CONPATH)
 	@-cp docs/inspircd.conf.example $(CONPATH)
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
+	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
 	@echo "* It is safe to ignore any messages *"
