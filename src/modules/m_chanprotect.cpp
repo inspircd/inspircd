@@ -278,6 +278,7 @@ class ModuleChanProtect : public Module
 	
 	bool FirstInGetsFounder;
 	bool QAPrefixes;
+	bool booting;
 	ChanProtect* cp;
 	ChanFounder* cf;
 	char* dummyptr;
@@ -287,7 +288,9 @@ class ModuleChanProtect : public Module
 	ModuleChanProtect(InspIRCd* Me) : Module::Module(Me)
 	{	
 		/* Load config stuff */
+		booting = true;
 		OnRehash("");
+		booting = false;
 
 		/* Initialise module variables */
 
@@ -335,7 +338,7 @@ class ModuleChanProtect : public Module
 		 * If so, remove all instances of the mode, and reinit
 		 * the module with prefixes enabled.
 		 */
-		if (old_qa != QAPrefixes)
+		if ((old_qa != QAPrefixes) && (!booting))
 		{
 			ServerInstance->Modes->DelMode(cp);
 			ServerInstance->Modes->DelMode(cf);
