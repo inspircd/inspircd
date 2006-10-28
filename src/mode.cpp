@@ -891,14 +891,8 @@ void ModeHandler::RemoveMode(userrec* user)
 
 	if (user->IsModeSet(this->GetModeChar()))
 	{
-		userrec* n = new userrec(ServerInstance);
-
 		sprintf(moderemove,"-%c",this->GetModeChar());
-		n->SetFd(FD_MAGIC_NUMBER);
-
-		ServerInstance->SendMode(parameters, 2, n);
-
-		delete n;
+		ServerInstance->Parser->CallHandler("MODE", parameters, 2, user);
 	}
 }
 

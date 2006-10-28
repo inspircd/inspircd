@@ -55,7 +55,8 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		ServerInstance->next_call = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
+		if (ServerInstance->next_call > ServerInstance->Time() + ServerInstance->Config->dns_timeout)
+			ServerInstance->next_call = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
 	}
 
