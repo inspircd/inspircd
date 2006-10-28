@@ -100,6 +100,7 @@ class Link : public classbase
 	std::string EncryptionKey;
 	bool HiddenFromStats;
 	std::string FailOver;
+	int Timeout;
 };
 
 /** Contains helper functions and variables for this module,
@@ -3527,7 +3528,7 @@ class ServernameResolver : public Resolver
 		TreeServer* CheckDupe = Utils->FindServer(MyLink.Name.c_str());
 		if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 		{
-			TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,10,MyLink.Name.c_str());
+			TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str());
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
@@ -3841,6 +3842,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
 		L.EncryptionKey =  Conf->ReadValue("link","encryptionkey",j);
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
+		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
@@ -4297,7 +4299,7 @@ class ModuleSpanningTree : public Module
 		/* Do we already have an IP? If so, no need to resolve it. */
 		if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 		{
-			TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,10,x->Name.c_str());
+			TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,x->Timeout ? x->Timeout : 10,x->Name.c_str());
 			if (newsocket->GetFd() > -1)
 			{
 				/* Handled automatically on success */
