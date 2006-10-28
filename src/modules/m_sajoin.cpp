@@ -76,11 +76,9 @@ class cmd_sajoin : public command_t
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]);
 				return CMD_FAILURE;
 			}
-			
-			return CMD_SUCCESS;
 		}
-		else
-			return CMD_FAILURE;
+
+		return CMD_FAILURE;
 	}
 };
 
