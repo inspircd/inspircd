@@ -185,6 +185,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	factory.resize(255);
 	
 	this->Config = new ServerConfig(this);
+	this->Config->opertypes.clear();
+	this->Config->operclass.clear();
 	this->SNO = new SnomaskManager(this);
 	this->Start();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);

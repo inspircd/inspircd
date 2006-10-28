@@ -31,8 +31,10 @@ unsigned long uniq_id = 0;
 
 bool InitTypes(ServerConfig* conf, const char* tag)
 {
+	conf->GetInstance()->Log(DEBUG,"Currently %d items to clear",conf->opertypes.size());
 	for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
 	{
+		conf->GetInstance()->Log(DEBUG,"Clear item");
 		if (n->second)
 			delete[] n->second;
 	}
