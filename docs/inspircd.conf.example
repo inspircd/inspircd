@@ -1032,6 +1032,11 @@
 #<helpop file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HIDEOPER module: Allows opers to hide their oper status from non-
+# opers by setting user mode +H on themselves.
+# <module name="m_hideoper.h">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hostchange module: Allows a different style of cloaking
 #<module name="m_hostchange.so">
 #
