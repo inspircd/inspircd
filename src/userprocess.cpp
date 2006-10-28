@@ -245,7 +245,15 @@ void InspIRCd::ProcessUser(userrec* cu)
  */
 void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 {
+	/* Is it time yet? */
+	if (TIME < next_call)
+		return;
+
 	CullList GlobalGoners(this);
+
+	/* Time we actually need to call this again */
+	const time_t DUMMY_VALUE = 32768;
+	next_call = TIME + DUMMY_VALUE;
 
 	/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
 	for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
@@ -268,11 +276,18 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				GlobalGoners.AddItem(curr,"Registration timeout");
 				continue;
 			}
+			else
+			{
+				if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
+					next_call = curr->timeout;
+			}
+
 			/*
 			 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
 			 * say this user is ok to proceed, fully connect them.
 			 */
-			if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
+			bool ready = AllModulesReportReady(curr);
+			if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
 			{
 				curr->dns_done = true;
 				//ZapThisDns(curr->fd);
@@ -280,13 +295,25 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				curr->FullConnect(&GlobalGoners);
 				continue;
 			}
-			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (AllModulesReportReady(curr)))
+			else
+			{
+				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
+					next_call = curr->signon;
+			}
+
+			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
 			{
 				this->Log(DEBUG,"dns done, registered=3, and modules ready, OK");
 				curr->FullConnect(&GlobalGoners);
 				//ZapThisDns(curr->fd);
 				continue;
 			}
+			else
+			{
+				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
+					next_call = curr->signon + this->Config->dns_timeout;
+			}
+
 			// It's time to PING this user. Send them a ping.
 			if ((TIME > curr->nping) && (curr->registered == REG_ALL))
 			{
@@ -305,6 +332,11 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				curr->lastping = 0;
 				curr->nping = TIME+curr->pingmax;
 			}
+			else
+			{
+				if ((curr->registered == REG_ALL) && (next_call > curr->nping))
+					next_call = curr->nping;
+			}
 
 			/*
 			 * We can flush the write buffer as the last thing we do, because if they
@@ -320,6 +352,16 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		}
 
 	}
+
+	/* If theres nothing to do, trigger in the next second, something might come up */
+	time_t delta = next_call - TIME;
+	if (delta == DUMMY_VALUE)
+	{
+		next_call = TIME + 1;
+		delta = 1;
+	}
+
+	this->Log(DEBUG,"Time now is %lu, next time we actually need to call this is %lu (%lu secs from now)", TIME, next_call, delta);
 
 
 	/* Remove all the queued users who are due to be quit, free memory used. */

@@ -421,6 +421,10 @@ class InspIRCd : public classbase
 	 */
 	FactoryList factory;
 
+	/** The time we next call our ping timeout and reg timeout checks
+	 */
+	time_t next_call;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.

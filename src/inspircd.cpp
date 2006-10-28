@@ -190,6 +190,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->SNO = new SnomaskManager(this);
 	this->Start();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
+	this->next_call = this->TIME + 3;
 	srand(this->TIME);
 	this->Log(DEBUG,"*** InspIRCd starting up!");
 	if (!ServerConfig::FileExists(CONFIG_FILE))
