@@ -74,7 +74,7 @@ enum TargetTypeFlags {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11001
+#define NATIVE_API_VERSION 11002
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -1293,12 +1293,13 @@ class Module : public Extensible
 	 * the values numeric and text, but you cannot change the user the
 	 * numeric is sent to. You may however change the user's userrec values.
 	 * @param user The user the numeric is being sent to
+	 * @param dest The user being WHOISed
 	 * @param numeric The numeric of the line being sent
 	 * @param text The text of the numeric, including any parameters
 	 * @return nonzero to drop the line completely so that the user does not
 	 * receive it, or zero to allow the line to be sent.
 	 */
-	virtual int OnWhoisLine(userrec* user, int &numeric, std::string &text);
+	virtual int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text);
 };
 
 

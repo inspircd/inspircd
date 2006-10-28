@@ -26,10 +26,10 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
 	if (dest->registered == REG_ALL)
 	{
-		ServerInstance->SendWhoisLine(user, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
+		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
 		{
-			ServerInstance->SendWhoisLine(user, 378, "%s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
+			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
 		}
 		std::string cl = dest->ChannelList(user);
 		if (cl.length())
@@ -40,24 +40,24 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 			}
 			else
 			{
-				ServerInstance->SendWhoisLine(user, 319, "%s %s :%s",user->nick, dest->nick, cl.c_str());
+				ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick, dest->nick, cl.c_str());
 			}
 		}
 		if (*ServerInstance->Config->HideWhoisServer && !(*user->oper))
 		{
-			ServerInstance->SendWhoisLine(user, 312, "%s %s %s :%s",user->nick, dest->nick, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 		}
 		else
 		{
-			ServerInstance->SendWhoisLine(user, 312, "%s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
+			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
 		}
 		if (*dest->awaymsg)
 		{
-			ServerInstance->SendWhoisLine(user, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
+			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
 		if (*dest->oper)
 		{
-			ServerInstance->SendWhoisLine(user, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
 		}
 		if ((!signon) && (!idle))
 		{
@@ -66,19 +66,19 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		if (!strcasecmp(user->server,dest->server))
 		{
 			// idle time and signon line can only be sent if youre on the same server (according to RFC)
-			ServerInstance->SendWhoisLine(user, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
+			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
 		}
 		else
 		{
 			if ((idle) || (signon))
-				ServerInstance->SendWhoisLine(user, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+				ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
-		ServerInstance->SendWhoisLine(user, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
 	else
 	{
-		ServerInstance->SendWhoisLine(user, 401, "%s %s :No such nick/channel",user->nick, *nick ? nick : "*");
-		ServerInstance->SendWhoisLine(user, 318, "%s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick, *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
 	}
 }
 
