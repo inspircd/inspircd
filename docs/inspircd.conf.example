@@ -586,6 +586,12 @@
 #                  used in unreal. This is only useful on networks    #
 #                  running the m_chanprotect module                   #
 #                                                                     #
+#  deprotectself - If this value is set to yes, true, or 1, then any  #
+#                  user with +q or +a may remove the +q or +a from    #
+#                  themselves. The default setting is to not enable   #
+#                  this feature, which stops even the founder taking  #
+#                  away their founder status without using services.  #
+#                                                                     #
 #  cyclehosts    - If this is set to true, yes or 1, then when a      #
 #                  user's hostname changes, they will appear to quit  #
 #                  and then rejoin with their new host. This prevents #
@@ -700,8 +706,9 @@
          loglevel="default"
          netbuffersize="10240"
          maxwho="128"
-         noservices="0"
-         qaprefixes="0"
+         noservices="no"
+         qaprefixes="no"
+	 deprotectself="no"
          somaxconn="128"
          softlimit="12800"
          userstats="Pu"
