@@ -1914,7 +1914,7 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	
 		if (line.length())
 		{
-			ServerInstance->SendWhoisLine(this, 319, "%s", line.c_str());
+			ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 		}
 	}
 
