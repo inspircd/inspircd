@@ -1902,7 +1902,7 @@ class TreeSocket : public InspSocket
 
 			if (curlen > (480-NICKMAX))
 			{
-				buffer.append(list).append("\n");
+				buffer.append(list).append("\r\n");
 
 				dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 				ptr = list + dlen;
@@ -1912,7 +1912,7 @@ class TreeSocket : public InspSocket
 		}
 
 		if (numusers)
-			buffer.append(list).append("\n");
+			buffer.append(list).append("\r\n");
 
 		for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 		{
@@ -1922,7 +1922,7 @@ class TreeSocket : public InspSocket
 			if (params.length() >= MAXMODES)
 			{
 				/* Wrap at MAXMODES */
-				buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\n");
+				buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
 				modes = "";
 				params = "";
 			}
@@ -1932,7 +1932,7 @@ class TreeSocket : public InspSocket
 
 		/* Only send these if there are any */
 		if (!modes.empty())
-			buffer.append("\n").append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+			buffer.append("\r\n").append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
 
 		this->WriteLine(buffer);
 	}
