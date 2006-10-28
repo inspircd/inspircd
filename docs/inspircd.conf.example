@@ -417,6 +417,11 @@
 #                 apply to autoconnected servers as well as manually  #
 #                 connected ones.                                     #
 #                                                                     #
+# timeout       - If this is defined, then outbound connections will  #
+#                 time out if they are not connected within this many #
+#                 seconds. If this is not defined, the default of ten #
+#                 seconds is used.                                    #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
@@ -449,6 +454,7 @@
 	allowmask="69.58.44.0/24"
         autoconnect="300"
 	failover="hub.other.net"
+	timeout="15"
         sendpass="outgoing!password"
         recvpass="incoming!password">
 
