@@ -31,15 +31,15 @@ unsigned long uniq_id = 0;
 
 bool InitTypes(ServerConfig* conf, const char* tag)
 {
-	if (!conf->opertypes.size())
-		return true;
-
-	conf->GetInstance()->Log(DEBUG,"Currently %d items to clear",conf->opertypes.size());
-	for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
+	if (conf->opertypes.size())
 	{
-		conf->GetInstance()->Log(DEBUG,"Clear item");
-		if (n->second)
-			delete[] n->second;
+		conf->GetInstance()->Log(DEBUG,"Currently %d items to clear",conf->opertypes.size());
+		for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
+		{
+			conf->GetInstance()->Log(DEBUG,"Clear item");
+			if (n->second)
+				delete[] n->second;
+		}
 	}
 	
 	conf->opertypes.clear();
@@ -48,13 +48,13 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 
 bool InitClasses(ServerConfig* conf, const char* tag)
 {
-	if (!conf->operclass.size())
-		return true;
-
-	for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
+	if (conf->operclass.size())
 	{
-		if (n->second)
-			delete[] n->second;
+		for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
+		{
+			if (n->second)
+				delete[] n->second;
+		}
 	}
 	
 	conf->operclass.clear();
