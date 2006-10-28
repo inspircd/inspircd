@@ -204,7 +204,7 @@ class ModuleServices : public Module
 		if (dest->IsModeSet('r'))
 		{
 			/* user is registered */
-			source->WriteServ("307 %s %s :is a registered nick", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, 307, "%s %s :is a registered nick", source->nick, dest->nick);
 		}
 	}
 

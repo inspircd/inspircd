@@ -140,7 +140,7 @@ class ModuleServicesAccount : public Module
 
 		if (account)
 		{
-			source->WriteServ("330 %s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
+			ServerInstance->SendWhoisLine(source, 330, "%s %s %s :is logged in as", source->nick, dest->nick, account->c_str());
 		}
 	}
 

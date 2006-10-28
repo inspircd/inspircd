@@ -192,7 +192,7 @@ Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
 void		Module::OnSetAway(userrec* user) { };
 void		Module::OnCancelAway(userrec* user) { };
 int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
-
+int		Module::OnWhoisLine(userrec* user, int &numeric, std::string &text) { return 0; };
 
 long InspIRCd::PriorityAfter(const std::string &modulename)
 {

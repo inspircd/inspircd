@@ -356,7 +356,8 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnStats, I_OnChangeLocalUserHost, I_OnChangeLocalUserGecos, I_OnLocalTopicChange,
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
-			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin };
+			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
+			I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -1286,6 +1287,18 @@ class Module : public Extensible
 	 * return 0.
 	 */
 	virtual int OnUserList(userrec* user, chanrec* Ptr);
+
+	/** Called whenever a line of WHOIS output is sent to a user.
+	 * You may change the numeric and the text of the output by changing
+	 * the values numeric and text, but you cannot change the user the
+	 * numeric is sent to. You may however change the user's userrec values.
+	 * @param user The user the numeric is being sent to
+	 * @param numeric The numeric of the line being sent
+	 * @param text The text of the numeric, including any parameters
+	 * @return nonzero to drop the line completely so that the user does not
+	 * receive it, or zero to allow the line to be sent.
+	 */
+	virtual int OnWhoisLine(userrec* user, int &numeric, std::string &text);
 };
 
 

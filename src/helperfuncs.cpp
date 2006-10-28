@@ -506,3 +506,25 @@ void InspIRCd::LoadAllModules()
 	this->Log(DEFAULT,"Total loaded modules: %d", this->ModCount+1);
 }
 
+void InspIRCd::SendWhoisLine(userrec* user, int numeric, const std::string &text)
+{
+	std::string copy_text = text;
+
+	int MOD_RESULT = 0;
+	FOREACH_RESULT_I(this, I_OnWhoisLine, OnWhoisLine(user, numeric, copy_text));
+
+	if (!MOD_RESULT)
+		user->WriteServ("%d %s", numeric, copy_text.c_str());
+}
+
+void InspIRCd::SendWhoisLine(userrec* user, int numeric, const char* format, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+	va_start (argsPtr, format);
+	vsnprintf(textbuffer, MAXBUF, format, argsPtr);
+	va_end(argsPtr);
+
+	this->SendWhoisLine(user, numeric, std::string(textbuffer));
+}
+

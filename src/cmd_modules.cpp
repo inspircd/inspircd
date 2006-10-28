@@ -34,7 +34,7 @@ char* itab[] = {
 	"OnPostLocalTopicChange", "OnEvent", "OnRequest", "OnOperCompre", "OnGlobalOper", "OnPostConnect", "OnAddBan", "OnDelBan",
 	"OnRawSocketAccept", "OnRawSocketClose", "OnRawSocketWrite", "OnRawSocketRead", "OnChangeLocalUserGECOS", "OnUserRegister",
 	"OnOperCompare", "OnChannelDelete", "OnPostOper", "OnSyncOtherMetaData", "OnSetAway", "OnCancelAway", "OnNamesList",
-	"OnPostCommand", "OnPostJoin", NULL
+	"OnPostCommand", "OnPostJoin", "OnWhoisLine", NULL
 };
 
 extern "C" command_t* init_command(InspIRCd* Instance)

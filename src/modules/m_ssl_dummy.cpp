@@ -17,6 +17,7 @@
 
 #include "users.h"
 #include "modules.h"
+#include "inspircd.h"
 
 
 /* $ModDesc: Makes remote /whoises to SSL servers work on a non-ssl server */
@@ -51,7 +52,7 @@ class ModuleSSLDummy : public Module
 	{
 		if(dest->GetExt("ssl", dummy))
 		{
-			source->WriteServ("320 %s %s :is using a secure connection", source->nick, dest->nick);
+			ServerInstance->SendWhoisLine(source, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
 		}
 	}
 	

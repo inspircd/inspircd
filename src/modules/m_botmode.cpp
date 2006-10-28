@@ -93,7 +93,7 @@ class ModuleBotMode : public Module
 	{
 		if (dst->IsModeSet('B'))
 		{
-			src->WriteServ("335 "+std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(src, 335, std::string(src->nick)+" "+std::string(dst->nick)+" :is a \2bot\2 on "+ServerInstance->Config->Network);
 		}
 	}
 

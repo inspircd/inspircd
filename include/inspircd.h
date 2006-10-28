@@ -998,6 +998,10 @@ class InspIRCd : public classbase
 	 */
 	void Log(int level, const std::string &text);
 
+	void SendWhoisLine(userrec* user, int numeric, const std::string &text);
+
+	void SendWhoisLine(userrec* user, int numeric, const char* format, ...);
+
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * after performing some initialisation routines,

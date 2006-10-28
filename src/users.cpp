@@ -1887,14 +1887,15 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 
 	try
 	{
-		prefix << ":" << ServerInstance->Config->ServerName << " 319 " << this->nick << " " << dest->nick << " :";
+		prefix << this->nick << " " << dest->nick << " :";
 		line = prefix.str();
+		int namelen = strlen(ServerInstance->Config->ServerName) + 6;
 	
 		for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 		{
 			length = (pos == std::string::npos) ? cl.length() : pos;
 	
-			if (line.length() + length - start > 510)
+			if (line.length() + namelen + length - start > 510)
 			{
 				this->Write(line);
 				line = prefix.str();
@@ -1913,7 +1914,7 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	
 		if (line.length())
 		{
-			this->Write(line);
+			ServerInstance->SendWhoisLine(this, 319, "%s", line.c_str());
 		}
 	}
 
