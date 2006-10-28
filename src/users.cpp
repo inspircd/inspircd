@@ -98,6 +98,24 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 			case '-':
 				adding = false;
 			break;
+			case '*':
+				for (unsigned char d = 'A'; d <= 'z'; d++)
+				{
+					if (ServerInstance->SNO->IsEnabled(d))
+					{
+						if ((!IsNoticeMaskSet(d) && adding) || (IsNoticeMaskSet(d) && !adding))
+						{
+							if ((oldadding != adding) || (!output.length()))
+								output += (adding ? '+' : '-');
+
+							this->SetNoticeMask(d, adding);
+
+							output += d;
+						}
+					}
+					oldadding = adding;
+				}
+			break;
 			default:
 				if ((*c >= 'A') && (*c <= 'z') && (ServerInstance->SNO->IsEnabled(*c)))
 				{
