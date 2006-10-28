@@ -110,7 +110,7 @@ class ModuleSWhois : public Module
 		dest->GetExt("swhois", swhois);
 		if (swhois)
 		{
-			ServerInstance->SendWhoisLine(source, 320, "%s %s :%s",source->nick,dest->nick,swhois->c_str());
+			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :%s",source->nick,dest->nick,swhois->c_str());
 		}
 	}
 
