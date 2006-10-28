@@ -52,67 +52,15 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 	}
 	err = "Module is not statically compiled into the ircd";
 #else
-	// Copy the library to a temp location, this makes recompiles
-	// a little safer if the ircd is running at the time as the
-	// shared libraries are mmap()ed and not doing this causes
-	// segfaults.
-	FILE* x = fopen(fname,"rb");
-	if (!x)
-	{
-		err = strerror(errno);
-		return;
-	}
-	ServerInstance->Log(DEBUG,"Opened module file %s",fname);
-	char tmpfile_template[255];
-	char buffer[65536];
-	snprintf(tmpfile_template, 255, "%s/inspircd_file.so.%d.XXXXXXXXXX",ServerInstance->Config->TempDir,getpid());
-	int fd = mkstemp(tmpfile_template);
-	if (fd == -1)
-	{
-		fclose(x);
-		err = strerror(errno);
-		return;
-	}
-	ServerInstance->Log(DEBUG,"Copying %s to %s",fname, tmpfile_template);
-	while (!feof(x))
-	{
-		int n = fread(buffer, 1, 65535, x);
-		if (n)
-		{
-			int written = write(fd,buffer,n);
-			if (written != n)
-			{
-				fclose(x);
-				err = strerror(errno);
-				return;
-			}
-		}
-	}
-	ServerInstance->Log(DEBUG,"Copied entire file.");
-	// Try to open the library now and get any error message.
-
-	if (close(fd) == -1)
-		err = strerror(errno);
-	if (fclose(x) == EOF)
-		err = strerror(errno);
-
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
-		ServerInstance->Log(DEBUG,"dlerror occured!");
 		err = (char*)dlerror();
+		ServerInstance->Log(DEBUG,"dlerror '%s' occured!", err);
 		return;
 	}
 
-	ServerInstance->Log(DEBUG,"Finished loading '%s': %0x",tmpfile_template, h);
-
-	// We can delete the tempfile once it's loaded, leaving just the inode.
-	if (!err && !ServerInstance->Config->debugging)
-	{
-		ServerInstance->Log(DEBUG,"Deleteting %s",tmpfile_template);
-		if (unlink(tmpfile_template) == -1)
-			err = strerror(errno);
-	}
+	ServerInstance->Log(DEBUG,"Finished loading '%s': %0x", fname, h);
 #endif
 }
 
