@@ -185,6 +185,7 @@ public:
 			else
 			{
 				ServerInstance->Log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
+				return NULL;
 			}
 
 			if (!user->GetExt("sqlauthed"))
