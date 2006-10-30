@@ -1430,6 +1430,7 @@ void userrec::Write(std::string text)
 		this->AddWriteBuf(text);
 	}
 	ServerInstance->stats->statsSent += text.length();
+	this->ServerInstance->SE->WantWrite(this);
 }
 
 /** Write()

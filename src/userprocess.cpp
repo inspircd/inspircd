@@ -201,15 +201,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 				 * table, life is much easier (and FASTER)
 				 */
 				EventHandler* new_comp = this->SE->GetRef(currfd);
-				if (old_comp != new_comp)
-				{
-					return;
-				}
-				else
-				{
-					/* The user is still here, flush their buffer */
-					current->FlushWriteBuf();
-				}
 			}
 
 			return;
