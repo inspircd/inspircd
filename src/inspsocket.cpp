@@ -119,16 +119,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 
 void InspSocket::WantWrite()
 {
-	/** XXX:
-	 * The socket engine may only have each FD in the list ONCE.
-	 * This means we cant watch for write AND read at the same
-	 * time. We have to remove the READ fd, to insert the WRITE
-	 * fd. Once we receive our WRITE event (which WILL ARRIVE,
-	 * pretty much gauranteed) we switch back to watching for
-	 * READ events again.
-	 *
-	 * This behaviour may be fixed in a later version.
-	 */
 	this->Instance->SE->WantWrite(this);
 }
 
@@ -318,6 +308,7 @@ int InspSocket::Write(const std::string &data)
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
 	outbuffer.push_back(data);
+	this->Instance->SE->WantWrite(this);
 	return (!this->FlushWriteBuffer());
 }
 
@@ -367,6 +358,12 @@ bool InspSocket::FlushWriteBuffer()
 			}
 		}
 	}
+
+	if ((errno == EAGAIN) && (fd > -1))
+	{
+		this->Instance->SE->WantWrite(this);
+	}
+
 	return (fd < 0);
 }
 
@@ -398,7 +395,6 @@ void SocketTimeout::Tick(time_t now)
 		delete this->sock;
 		return;
 	}
-	this->sock->FlushWriteBuffer();
 }
 
 bool InspSocket::Poll()
@@ -457,13 +453,6 @@ bool InspSocket::Poll()
 				/* Process the read event */
 				n = this->OnDataReady();
 			}
-			/* Flush any pending, but not till after theyre done with the event
-			 * so there are less write calls involved.
-			 * Both FlushWriteBuffer AND the return result of OnDataReady must
-			 * return true for this to be ok.
-			 */
-			if (this->FlushWriteBuffer())
-				return false;
 			return n;
 		break;
 		default:
@@ -504,11 +493,34 @@ InspSocket::~InspSocket()
 
 void InspSocket::HandleEvent(EventType et)
 {
-	if (!this->Poll())
+	switch (et)
 	{
-		this->Instance->SE->DelFd(this);
-		this->Close();
-		delete this;
+		case EVENT_READ:
+			if (!this->Poll())
+			{
+				this->Instance->SE->DelFd(this);
+				this->Close();
+				delete this;
+				return;
+			}
+		break;
+		case EVENT_WRITE:
+			if (this->state == I_CONNECTING)
+			{
+				this->HandleEvent(EVENT_READ);
+				return;
+			}
+			else
+			{
+				if (this->FlushWriteBuffer())
+				{
+					this->Instance->SE->DelFd(this);
+					this->Close();
+					delete this;
+					return;
+				}
+			}
+		break;
 	}
 }
 
