@@ -80,7 +80,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 void EPollEngine::WantWrite(EventHandler* eh)
 {
 	struct epoll_event ev;
-	ev.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;
+	ev.events = EPOLLOUT | EPOLLONESHOT;
 	ev.data.fd = eh->GetFd();
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 	if (i < 0)
@@ -146,8 +146,12 @@ int EPollEngine::DispatchEvents()
 			{
 				ServerInstance->Log(DEBUG,"epoll: Could not reset fd %d!", events[j].data.fd);
 			}
+			ref[events[j].data.fd]->HandleEvent(EVENT_WRITE);
 		}
-		ref[events[j].data.fd]->HandleEvent(events[j].events & EPOLLOUT ? EVENT_WRITE : EVENT_READ);
+		else
+		{
+			ref[events[j].data.fd]->HandleEvent(EVENT_READ);
+		}
 	}
 
 	return i;
