@@ -110,7 +110,7 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 void KQueueEngine::WantWrite(EventHandler* eh)
 {
 	struct kevent ke;
-	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE | EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
@@ -150,8 +150,12 @@ int KQueueEngine::DispatchEvents()
 			{
 				ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d back to just wanting to read!", ke_list[j].ident);
 			}
+			ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
-		ref[ke_list[j].ident]->HandleEvent(ke_list[j].flags & EVFILT_WRITE ? EVENT_WRITE : EVENT_READ);
+		else
+		{
+			ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
+		}
 	}
 
 	return i;

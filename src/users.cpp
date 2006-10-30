@@ -645,12 +645,16 @@ void userrec::FlushWriteBuf()
 			if (n_sent == -1)
 			{
 				if (errno == EAGAIN)
+				{
+					ServerInstance->Log(DEBUG,"EAGAIN, want write");
 					this->ServerInstance->SE->WantWrite(this);
+				}
 				else
 					this->SetWriteError(strerror(errno));
 			}
 			else
 			{
+				/*ServerInstance->Log(DEBUG,"Wrote: %d of %d: %s", n_sent, old_sendq_length, sendq.substr(0, n_sent).c_str());*/
 				// advance the queue
 				tb += n_sent;
 				this->sendq = tb;
@@ -658,7 +662,10 @@ void userrec::FlushWriteBuf()
 				this->bytes_out += n_sent;
 				this->cmds_out++;
 				if (n_sent != old_sendq_length)
+				{
+					ServerInstance->Log(DEBUG,"Not all written, want write");
 					this->ServerInstance->SE->WantWrite(this);
+				}
 			}
 		}
 	}
