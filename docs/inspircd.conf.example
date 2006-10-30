@@ -1039,9 +1039,14 @@
 #<helpop file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# HIDECHANS module: Allows opers to hide their channels list from non-
+# opers by setting user mode +I on themselves.
+# <module name="m_hidechans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDEOPER module: Allows opers to hide their oper status from non-
 # opers by setting user mode +H on themselves.
-# <module name="m_hideoper.h">
+# <module name="m_hideoper.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hostchange module: Allows a different style of cloaking
