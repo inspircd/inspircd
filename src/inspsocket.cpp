@@ -129,15 +129,7 @@ void InspSocket::WantWrite()
 	 *
 	 * This behaviour may be fixed in a later version.
 	 */
-	this->Instance->SE->DelFd(this);
-	this->WaitingForWriteEvent = true;
-	if (!this->Instance->SE->AddFd(this))
-	{
-		this->Close();
-		this->fd = -1;
-		this->state = I_ERROR;
-		this->OnError(I_ERR_NOMOREFDS);
-	}
+	this->Instance->SE->WantWrite(this);
 }
 
 void InspSocket::SetQueues(int nfd)

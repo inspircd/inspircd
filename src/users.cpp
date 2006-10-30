@@ -639,11 +639,14 @@ void userrec::FlushWriteBuf()
 		}
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
+			int old_sendq_length = sendq.length();
 			const char* tb = this->sendq.c_str();
 			int n_sent = write(this->fd,tb,this->sendq.length());
 			if (n_sent == -1)
 			{
-				if (errno != EAGAIN)
+				if (errno == EAGAIN)
+					this->ServerInstance->SE->WantWrite(this);
+				else
 					this->SetWriteError(strerror(errno));
 			}
 			else
@@ -654,6 +657,8 @@ void userrec::FlushWriteBuf()
 				// update the user's stats counters
 				this->bytes_out += n_sent;
 				this->cmds_out++;
+				if (n_sent != old_sendq_length)
+					this->ServerInstance->SE->WantWrite(this);
 			}
 		}
 	}
@@ -690,6 +695,7 @@ const char* userrec::GetWriteError()
 
 void userrec::Oper(const std::string &opertype)
 {
+	this->ServerInstance->SE->WantWrite(this);
 	try
 	{
 		this->modes[UM_OPERATOR] = 1;
@@ -2018,7 +2024,15 @@ void userrec::HandleEvent(EventType et)
 	/* WARNING: May delete this user! */
 	try
 	{
-		ServerInstance->ProcessUser(this);
+		switch (et)
+		{
+			case EVENT_READ:
+				ServerInstance->ProcessUser(this);
+			break;
+			case EVENT_WRITE:
+				this->FlushWriteBuf();
+			break;
+		}
 	}
 	catch (...)
 	{

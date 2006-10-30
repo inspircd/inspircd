@@ -77,6 +77,22 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	return true;
 }
 
+void EPollEngine::WantWrite(EventHandler* eh)
+{
+	struct epoll_event ev;
+	ev.events = EPOLLOUT | EPOLLIN | EPOLLONESHOT;
+	ev.data.fd = eh->GetFd();
+	int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
+	if (i < 0)
+	{
+		ServerInstance->Log(DEBUG,"epoll: Could not set want write on fd %d!",eh->GetFd());
+	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"epoll: WantWrite set on %d",eh->GetFd());
+	}
+}
+
 bool EPollEngine::DelFd(EventHandler* eh)
 {
 	ServerInstance->Log(DEBUG,"EPollEngine::DelFd(%d)",eh->GetFd());
@@ -118,8 +134,20 @@ int EPollEngine::DispatchEvents()
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 150);
 	for (int j = 0; j < i; j++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ref[events[j].data.fd]->Readable() ? "read" : "write", ref[events[j].data.fd]->GetFd());
-		ref[events[j].data.fd]->HandleEvent(ref[events[j].data.fd]->Readable() ? EVENT_READ : EVENT_WRITE);
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",events[j].events & EPOLLOUT ? "write" : "read", events[j].data.fd);
+		if (events[j].events & EPOLLOUT)
+		{
+			ServerInstance->Log(DEBUG,"One shot, we should EPOLL_CTL_MOD here to set it read only.");
+			struct epoll_event ev;
+			ev.events = EPOLLIN;
+			ev.data.fd = events[j].data.fd;
+			int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, events[j].data.fd, &ev);
+			if (i < 0)
+			{
+				ServerInstance->Log(DEBUG,"epoll: Could not reset fd %d!", events[j].data.fd);
+			}
+		}
+		ref[events[j].data.fd]->HandleEvent(events[j].events & EPOLLOUT ? EVENT_WRITE : EVENT_READ);
 	}
 
 	return i;

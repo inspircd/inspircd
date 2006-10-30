@@ -179,6 +179,8 @@ public:
 	 */
 	virtual bool AddFd(EventHandler* eh);
 
+	virtual void WantWrite(EventHandler* eh);
+
 	/** Returns the maximum number of file descriptors
 	 * you may store in the socket engine at any one time.
 	 * @return The maximum fd value
