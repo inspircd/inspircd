@@ -93,6 +93,12 @@ class EventHandler : public Extensible
 	 * is still added to a SocketEngine instance!
 	 * If this function is unimplemented, the base class
 	 * will return true.
+	 * 
+	 * NOTE: You cannot set both Readable() and
+	 * Writeable() to true. If you wish to receive
+	 * a write event for your object, you must call
+	 * SocketEngine::WantWrite() instead. This will
+	 * trigger your objects next EVENT_WRITE type event.
 	 */
 	virtual bool Readable();
 
@@ -103,6 +109,12 @@ class EventHandler : public Extensible
 	 * is still added to a SocketEngine instance!
 	 * If this function is unimplemented, the base class
 	 * will return false.
+	 *
+         * NOTE: You cannot set both Readable() and
+	 * Writeable() to true. If you wish to receive
+	 * a write event for your object, you must call
+	 * SocketEngine::WantWrite() instead. This will
+	 * trigger your objects next EVENT_WRITE type event.
 	 */
 	virtual bool Writeable();
 
@@ -110,7 +122,8 @@ class EventHandler : public Extensible
 	 * You MUST implement this function in your derived
 	 * class, and it will be called whenever read or write
 	 * events are received, depending on what your functions
-	 * Readable() and Writeable() returns.
+	 * Readable() and Writeable() returns and wether you
+	 * previously made a call to SocketEngine::WantWrite().
 	 * @param et either one of EVENT_READ for read events,
 	 * and EVENT_WRITE for write events.
 	 */
@@ -179,6 +192,17 @@ public:
 	 */
 	virtual bool AddFd(EventHandler* eh);
 
+	/** If you call this function and pass it an
+	 * event handler, that event handler will
+	 * receive the next available write event,
+	 * even if the socket is a readable socket only.
+	 * Developers should avoid constantly keeping
+	 * an eventhandler in the writeable state,
+	 * as this will consume large amounts of
+	 * CPU time.
+	 * @param eh An event handler which wants to
+	 * receive the next writeability event.
+	 */
 	virtual void WantWrite(EventHandler* eh);
 
 	/** Returns the maximum number of file descriptors
