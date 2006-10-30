@@ -79,6 +79,9 @@ bool EPollEngine::AddFd(EventHandler* eh)
 
 void EPollEngine::WantWrite(EventHandler* eh)
 {
+	/** Use oneshot so that the system removes the writeable
+	 * status for us and saves us a call.
+	 */
 	struct epoll_event ev;
 	ev.events = EPOLLOUT | EPOLLONESHOT;
 	ev.data.fd = eh->GetFd();
@@ -86,10 +89,6 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	if (i < 0)
 	{
 		ServerInstance->Log(DEBUG,"epoll: Could not set want write on fd %d!",eh->GetFd());
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG,"epoll: WantWrite set on %d",eh->GetFd());
 	}
 }
 
@@ -137,7 +136,6 @@ int EPollEngine::DispatchEvents()
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",events[j].events & EPOLLOUT ? "write" : "read", events[j].data.fd);
 		if (events[j].events & EPOLLOUT)
 		{
-			ServerInstance->Log(DEBUG,"One shot, we should EPOLL_CTL_MOD here to set it read only.");
 			struct epoll_event ev;
 			ev.events = EPOLLIN;
 			ev.data.fd = events[j].data.fd;

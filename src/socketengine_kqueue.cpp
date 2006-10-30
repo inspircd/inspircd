@@ -109,16 +109,16 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 
 void KQueueEngine::WantWrite(EventHandler* eh)
 {
+	/** When changing an item in a kqueue, there is no 'modify' call
+	 * as in epoll. Instead, we add the item again, and this overwrites
+	 * the original setting rather than adding it twice. See man kqueue.
+	 */
 	struct kevent ke;
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
 		ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d for wanting write", eh->GetFd());
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG,"kqueue: Set fd %d for want write", eh->GetFd());
 	}
 }
 
@@ -142,7 +142,6 @@ int KQueueEngine::DispatchEvents()
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ke_list[j].flags & EVFILT_WRITE ? "write" : "read", ke_list[j].ident);
 		if (ke_list[j].flags & EVFILT_WRITE)
 		{
-			ServerInstance->Log(DEBUG,"kqueue: Write socket wants to be set back to read");
 			struct kevent ke;
 			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
 			int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);

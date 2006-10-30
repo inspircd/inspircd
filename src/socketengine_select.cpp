@@ -60,11 +60,7 @@ bool SelectEngine::AddFd(EventHandler* eh)
 
 void SelectEngine::WantWrite(EventHandler* eh)
 {
-	int fd = eh->GetFd();
-
-	writeable[fd] = true;
-
-	ServerInstance->Log(DEBUG,"Set %d to writeable", fd);
+	writeable[eh->GetFd()] = true;
 }
 
 bool SelectEngine::DelFd(EventHandler* eh)
