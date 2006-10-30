@@ -201,6 +201,9 @@ void InspIRCd::ProcessUser(userrec* cu)
 				 * table, life is much easier (and FASTER)
 				 */
 				EventHandler* new_comp = this->SE->GetRef(currfd);
+
+				if (new_comp != old_comp)
+					return;
 			}
 
 			return;

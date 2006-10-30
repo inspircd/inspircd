@@ -633,7 +633,7 @@ void userrec::FlushWriteBuf()
 {
 	try
 	{
-		if (this->fd == FD_MAGIC_NUMBER)
+		if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
 		{
 			sendq = "";
 		}
