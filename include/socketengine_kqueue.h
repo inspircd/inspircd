@@ -55,6 +55,7 @@ public:
 	virtual bool DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
+	virtual void WantWrite(EventHandler* eh);
 };
 
 /** Creates a SocketEngine

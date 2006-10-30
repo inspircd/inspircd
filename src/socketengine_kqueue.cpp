@@ -107,6 +107,21 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 	return true;
 }
 
+void KQueueEngine::WantWrite(EventHandler* eh)
+{
+	struct kevent ke;
+	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE | EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	if (i == -1)
+	{
+		ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d for wanting write", eh->GetFd());
+	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"kqueue: Set fd %d for want write", eh->GetFd());
+	}
+}
+
 int KQueueEngine::GetMaxFds()
 {
 	return MAX_DESCRIPTORS;
@@ -124,8 +139,19 @@ int KQueueEngine::DispatchEvents()
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ref[ke_list[j].ident]->Readable() ? "read" : "write", ref[ke_list[j].ident]->GetFd());
-		ref[ke_list[j].ident]->HandleEvent(ref[ke_list[j].ident]->Readable() ? EVENT_READ : EVENT_WRITE);
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ke_list[j].flags & EVFILT_WRITE ? "write" : "read", ke_list[j].ident);
+		if (ke_list[j].flags & EVFILT_WRITE)
+		{
+			ServerInstance->Log(DEBUG,"kqueue: Write socket wants to be set back to read");
+			struct kevent ke;
+			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
+			int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+			if (i == -1)
+			{
+				ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d back to just wanting to read!", ke_list[j].ident);
+			}
+		}
+		ref[ke_list[j].ident]->HandleEvent(ke_list[j].flags & EVFILT_WRITE ? EVENT_WRITE : EVENT_READ);
 	}
 
 	return i;
