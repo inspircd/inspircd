@@ -24,6 +24,7 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 	ServerInstance->Log(DEBUG,"SelectEngine::SelectEngine()");
 	EngineHandle = 0;
 	CurrentSetSize = 0;
+	memset(writeable, 0, sizeof(writeable));
 }
 
 SelectEngine::~SelectEngine()
@@ -55,6 +56,15 @@ bool SelectEngine::AddFd(EventHandler* eh)
 
 	CurrentSetSize++;
 	return true;
+}
+
+void SelectEngine::WantWrite(EventHandler* eh)
+{
+	int fd = eh->GetFd();
+
+	writeable[fd] = true;
+
+	ServerInstance->Log(DEBUG,"Set %d to writeable", fd);
 }
 
 bool SelectEngine::DelFd(EventHandler* eh)
@@ -101,14 +111,11 @@ int SelectEngine::DispatchEvents()
 	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
 		if (ref[a->second]->Readable())
-		{
 			FD_SET (a->second, &rfdset);
-		}
 		else
-		{
 			FD_SET (a->second, &wfdset);
-		}
-		
+		if (writeable[a->second])
+			FD_SET (a->second, &wfdset);
 	}
 	tval.tv_sec = 0;
 	tval.tv_usec = 50L;
@@ -131,8 +138,17 @@ int SelectEngine::DispatchEvents()
 	 */
 	for (int i = 0; i < result; i++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ev[i]->Readable() ? "read" : "write", ev[i]->GetFd());
-		ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
+		if (writeable[ev[i]->GetFd()])
+		{
+			ev[i]->HandleEvent(EVENT_WRITE);
+			writeable[ev[i]->GetFd()] = false;
+
+		}
+		else
+		{
+			ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+		}
 	}
 
 	return result;

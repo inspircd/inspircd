@@ -702,7 +702,6 @@ const char* userrec::GetWriteError()
 
 void userrec::Oper(const std::string &opertype)
 {
-	this->ServerInstance->SE->WantWrite(this);
 	try
 	{
 		this->modes[UM_OPERATOR] = 1;

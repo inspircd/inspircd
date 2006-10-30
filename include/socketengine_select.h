@@ -36,6 +36,9 @@ private:
 	/** Because select() does not track an fd list for us between calls, we have one of our own
 	 */
 	std::map<int,int> fds;
+	/** List of writeable ones (WantWrite())
+	 */
+	bool writeable[MAX_DESCRIPTORS];
 	/** The read set and write set, populated before each call to select().
 	 */
 	fd_set wfdset, rfdset;
@@ -53,6 +56,7 @@ public:
 	virtual bool DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
+	virtual void WantWrite(EventHandler* eh);
 };
 
 /** Creates a SocketEngine
