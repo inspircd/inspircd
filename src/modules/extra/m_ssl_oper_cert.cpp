@@ -145,7 +145,7 @@ class ModuleOperSSLCert : public Module
 					if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
 					{
 						/* This oper would match */
-						if (cert->GetFingerprint() != FingerPrint)
+						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
 						{
 							user->WriteServ("491 %s :This oper login name requires a matching key fingerprint.",user->nick);
 							ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick);
