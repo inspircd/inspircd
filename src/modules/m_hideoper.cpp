@@ -70,7 +70,7 @@ class ModuleHideOper : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = 1;
+		List[I_OnWhoisLine] = 1;
 	}
 	
 	virtual ~ModuleHideOper()
