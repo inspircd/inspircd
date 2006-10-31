@@ -83,7 +83,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	 * status for us and saves us a call.
 	 */
 	struct epoll_event ev;
-	ev.events = EPOLLOUT | EPOLLONESHOT;
+	ev.events = EPOLLOUT;
 	ev.data.fd = eh->GetFd();
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 	if (i < 0)
