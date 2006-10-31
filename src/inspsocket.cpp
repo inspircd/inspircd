@@ -120,6 +120,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 void InspSocket::WantWrite()
 {
 	this->Instance->SE->WantWrite(this);
+	this->WaitingForWriteEvent = true;
 }
 
 void InspSocket::SetQueues(int nfd)
@@ -439,12 +440,6 @@ bool InspSocket::Poll()
 
 			if (this->WaitingForWriteEvent)
 			{
-				/* Switch back to read events */
-				this->Instance->SE->DelFd(this);
-				this->WaitingForWriteEvent = false;
-				if (!this->Instance->SE->AddFd(this))
-					return false;
-
 				/* Trigger the write event */
 				n = this->OnWriteReady();
 			}
@@ -505,8 +500,24 @@ void InspSocket::HandleEvent(EventType et)
 			}
 		break;
 		case EVENT_WRITE:
+			if (this->WaitingForWriteEvent)
+			{
+				if (!this->OnWriteReady())
+				{
+					this->Instance->SE->DelFd(this);
+					this->Close();
+					delete this;
+					return;
+				}
+			}
 			if (this->state == I_CONNECTING)
 			{
+				/* This might look wrong as if we should be actually calling
+				 * with EVENT_WRITE, but trust me it is correct. There are some
+				 * writeability-state things in the read code, because of how
+				 * InspSocket used to work regarding write buffering in previous
+				 * versions of InspIRCd. - Brain
+				 */
 				this->HandleEvent(EVENT_READ);
 				return;
 			}
