@@ -2039,6 +2039,9 @@ void userrec::HandleEvent(EventType et, int errornum)
 			case EVENT_WRITE:
 				this->FlushWriteBuf();
 			break;
+			case EVENT_ERROR:
+				this->SetWriteError(strerror(errornum));
+			break;
 		}
 	}
 	catch (...)
