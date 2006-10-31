@@ -437,18 +437,8 @@ bool InspSocket::Poll()
 			return true;
 		break;
 		case I_CONNECTED:
-
-			if (this->WaitingForWriteEvent)
-			{
-				/* Trigger the write event */
-				n = this->OnWriteReady();
-			}
-			else
-			{
-				/* Process the read event */
-				n = this->OnDataReady();
-			}
-			return n;
+			/* Process the read event */
+			return this->OnDataReady();
 		break;
 		default:
 		break;
@@ -502,6 +492,7 @@ void InspSocket::HandleEvent(EventType et)
 		case EVENT_WRITE:
 			if (this->WaitingForWriteEvent)
 			{
+				this->WaitingForWriteEvent = false;
 				if (!this->OnWriteReady())
 				{
 					this->Instance->SE->DelFd(this);
