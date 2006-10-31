@@ -404,7 +404,6 @@ bool InspSocket::Poll()
 		return false;
 
 	int incoming = -1;
-	bool n = true;
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
