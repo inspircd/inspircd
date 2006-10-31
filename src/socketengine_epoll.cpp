@@ -130,10 +130,25 @@ int EPollEngine::GetRemainingFds()
 
 int EPollEngine::DispatchEvents()
 {
+	socklen_t codesize;
+	int errcode;
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 150);
 	for (int j = 0; j < i; j++)
 	{
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",events[j].events & EPOLLOUT ? "write" : "read", events[j].data.fd);
+		if (events[j].events & EPOLLHUP)
+		{
+			ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, 0);
+			continue;
+		}
+		if (events[j].events & EPOLLERR)
+		{
+			/* Get error number */
+			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+				errcode = errno;
+			ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, errcode);
+			continue;
+		}
 		if (events[j].events & EPOLLOUT)
 		{
 			struct epoll_event ev;
@@ -144,11 +159,13 @@ int EPollEngine::DispatchEvents()
 			{
 				ServerInstance->Log(DEBUG,"epoll: Could not reset fd %d!", events[j].data.fd);
 			}
-			ref[events[j].data.fd]->HandleEvent(EVENT_WRITE);
+			if (ref[events[j].data.fd])
+				ref[events[j].data.fd]->HandleEvent(EVENT_WRITE);
 		}
 		else
 		{
-			ref[events[j].data.fd]->HandleEvent(EVENT_READ);
+			if (ref[events[j].data.fd])
+				ref[events[j].data.fd]->HandleEvent(EVENT_READ);
 		}
 	}
 

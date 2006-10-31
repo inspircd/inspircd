@@ -365,7 +365,7 @@ class InspSocket : public EventHandler
 	 */
 	void MarkAsClosed();
 
-	void HandleEvent(EventType et);
+	void HandleEvent(EventType et, int errornum = 0);
 
 	bool Readable();
 };

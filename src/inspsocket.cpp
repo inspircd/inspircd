@@ -475,10 +475,12 @@ InspSocket::~InspSocket()
 	this->Close();
 }
 
-void InspSocket::HandleEvent(EventType et)
+void InspSocket::HandleEvent(EventType et, int errornum)
 {
 	switch (et)
 	{
+		case EVENT_ERROR:
+		break;
 		case EVENT_READ:
 			if (!this->Poll())
 			{

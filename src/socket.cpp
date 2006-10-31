@@ -51,7 +51,7 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client,
 	}
 }
 
-void ListenSocket::HandleEvent(EventType et)
+void ListenSocket::HandleEvent(EventType et, int errornum)
 {
 	insp_sockaddr sock_us;	// our port number
 	socklen_t uslen;	// length of our port number

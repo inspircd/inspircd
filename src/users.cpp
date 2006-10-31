@@ -2026,7 +2026,7 @@ void userrec::ShowRULES()
 	this->WriteServ("NOTICE %s :End of %s rules.",this->nick,ServerInstance->Config->ServerName);
 }
 
-void userrec::HandleEvent(EventType et)
+void userrec::HandleEvent(EventType et, int errornum)
 {
 	/* WARNING: May delete this user! */
 	try

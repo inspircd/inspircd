@@ -330,7 +330,7 @@ class DNS : public EventHandler
 	 * Handle a SocketEngine read event
 	 * Inherited from EventHandler
 	 */
-	void HandleEvent(EventType et);
+	void HandleEvent(EventType et, int errornum = 0);
 
 	/**
 	 * Add a Resolver* to the list of active classes

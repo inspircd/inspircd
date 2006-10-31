@@ -944,7 +944,7 @@ int Resolver::GetId()
 }
 
 /** Process a socket read event */
-void DNS::HandleEvent(EventType et)
+void DNS::HandleEvent(EventType et, int errornum)
 {
 	ServerInstance->Log(DEBUG,"Marshall reads: %d",this->GetFd());
 	/* Fetch the id and result of the next available packet */

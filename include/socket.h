@@ -154,7 +154,7 @@ class ListenSocket : public EventHandler
 	ListenSocket(InspIRCd* Instance, int sockfd, irc::sockets::insp_sockaddr client, irc::sockets::insp_sockaddr server, int port, char* addr);
 	/** Handle an I/O event
 	 */
-	void HandleEvent(EventType et);
+	void HandleEvent(EventType et, int errornum = 0);
 };
 
 #endif

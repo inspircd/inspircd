@@ -786,7 +786,7 @@ bool FileLogger::Readable()
 	return false;
 }
 
-void FileLogger::HandleEvent(EventType et)
+void FileLogger::HandleEvent(EventType et, int errornum)
 {
 	this->WriteLogLine("");
 	ServerInstance->SE->DelFd(this);

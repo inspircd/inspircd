@@ -134,16 +134,21 @@ int SelectEngine::DispatchEvents()
 	 */
 	for (int i = 0; i < result; i++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
-		if (writeable[ev[i]->GetFd()])
+		if (ev[i])
 		{
-			ev[i]->HandleEvent(EVENT_WRITE);
-			writeable[ev[i]->GetFd()] = false;
-
-		}
-		else
-		{
-			ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+			ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
+			if (writeable[ev[i]->GetFd()])
+			{
+				if (ev[i])
+					ev[i]->HandleEvent(EVENT_WRITE);
+				writeable[ev[i]->GetFd()] = false;
+	
+			}
+			else
+			{
+				if (ev[i])
+					ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+			}
 		}
 	}
 

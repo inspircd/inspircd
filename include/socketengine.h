@@ -26,11 +26,15 @@
 /** Types of event an EventHandler may receive.
  * EVENT_READ is a readable file descriptor,
  * and EVENT_WRITE is a writeable file descriptor.
+ * EVENT_ERROR can always occur, and indicates
+ * a write error or read error on the socket,
+ * e.g. EOF condition or broken pipe.
  */
 enum EventType
 {
 	EVENT_READ	=	0,
-	EVENT_WRITE	=	1
+	EVENT_WRITE	=	1,
+	EVENT_ERROR	=	2
 };
 
 class InspIRCd;
@@ -127,7 +131,7 @@ class EventHandler : public Extensible
 	 * @param et either one of EVENT_READ for read events,
 	 * and EVENT_WRITE for write events.
 	 */
-	virtual void HandleEvent(EventType et) = 0;
+	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
 };
 
 /** Provides basic file-descriptor-based I/O support.

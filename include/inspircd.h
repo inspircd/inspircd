@@ -172,7 +172,7 @@ class FileLogger : public EventHandler
 	 * another write event is scheduled to write
 	 * the rest of the data when possible.
 	 */
-	virtual void HandleEvent(EventType et);
+	virtual void HandleEvent(EventType et, int errornum = 0);
 	/** Write one or more preformatted log lines.
 	 * If the data cannot be written immediately,
 	 * this class will insert itself into the

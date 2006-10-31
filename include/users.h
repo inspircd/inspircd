@@ -767,7 +767,7 @@ class userrec : public connection
 	/** Handle socket event.
 	 * From EventHandler class.
 	 */
-	void HandleEvent(EventType et);
+	void HandleEvent(EventType et, int errornum = 0);
 
 	/** Default destructor
 	 */
