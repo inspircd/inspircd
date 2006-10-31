@@ -142,6 +142,13 @@ int KQueueEngine::DispatchEvents()
 	for (int j = 0; j < i; j++)
 	{
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ke_list[j].flags & EVFILT_WRITE ? "write" : "read", ke_list[j].ident);
+		if (ke_list[j].flags & EV_EOF)
+		{
+			ServerInstance->Log(DEBUG,"kqueue: Error on FD %d", ke_list[j].ident);
+			/* Sneaky tricksy hobitses! */
+			ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
+			continue;
+		}
 		if (ke_list[j].flags & EVFILT_WRITE)
 		{
 			struct kevent ke;
@@ -151,11 +158,13 @@ int KQueueEngine::DispatchEvents()
 			{
 				ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d back to just wanting to read!", ke_list[j].ident);
 			}
-			ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
+			if (ref[ke_list[j].ident])
+				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}
 		else
 		{
-			ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
+			if (ref[ke_list[j].ident])
+				ref[ke_list[j].ident]->HandleEvent(EVENT_READ);
 		}
 	}
 

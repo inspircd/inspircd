@@ -513,6 +513,7 @@ void InspSocket::HandleEvent(EventType et)
 			}
 			else
 			{
+				Instance->Log(DEBUG,"State=%d CONNECTED=%d", this->state, I_CONNECTED);
 				if (this->FlushWriteBuffer())
 				{
 					this->Instance->SE->DelFd(this);
