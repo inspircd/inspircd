@@ -145,12 +145,19 @@ int KQueueEngine::DispatchEvents()
 		if (ke_list[j].flags & EV_EOF)
 		{
 			ServerInstance->Log(DEBUG,"kqueue: Error on FD %d", ke_list[j].ident);
-			/* Sneaky tricksy hobitses! */
+			/* We love you kqueue, oh yes we do *sings*!
+			 * kqueue gives us the error number directly in the EOF state!
+			 * Unlike smelly epoll and select, where we have to getsockopt
+			 * to get the error, this saves us time and cpu cycles. Go BSD!
+			 */
 			ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
 		}
 		if (ke_list[j].flags & EVFILT_WRITE)
 		{
+			/* This looks wrong but its right. As above, theres no modify 
+			 * call in kqueue. See the manpage.
+			 */
 			struct kevent ke;
 			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
 			int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
