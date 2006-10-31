@@ -100,6 +100,8 @@ int SelectEngine::DispatchEvents()
 	timeval tval;
 	int sresult = 0;
 	EventHandler* ev[MAX_DESCRIPTORS];
+	socklen_t codesize;
+	int errcode;
 
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
@@ -139,10 +141,14 @@ int SelectEngine::DispatchEvents()
 	{
 		if (ev[i])
 		{
-			if (FD_ISSET (a->second, &errfdset))
+			if (FD_ISSET (ev[i]->GetFd(), &errfdset))
 			{
 				if (ev[i])
-					ev[i]->HandleEvent(EVENT_ERROR, 0);
+				{
+					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+						errcode = errno;
+					ev[i]->HandleEvent(EVENT_ERROR, errcode);
+				}
 				continue;
 			}
 			ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
