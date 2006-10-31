@@ -80,6 +80,11 @@ class command_t : public Extensible
 
 	virtual CmdResult Handle(const char** parameters, int pcnt, userrec* user) = 0;
 
+	virtual CmdResult HandleServer(const char** parameters, int pcnt, const std::string &servername)
+	{
+		return CMD_INVALID;
+	}
+
 	void Disable(bool setting)
 	{
 		disabled = setting;
