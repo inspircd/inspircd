@@ -480,6 +480,10 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 	switch (et)
 	{
 		case EVENT_ERROR:
+			this->Instance->SE->DelFd(this);
+			this->Close();
+			delete this;
+			return;
 		break;
 		case EVENT_READ:
 			if (!this->Poll())
