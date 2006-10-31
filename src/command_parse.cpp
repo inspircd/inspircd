@@ -24,7 +24,6 @@
 #include "wildcard.h"
 #include "xline.h"
 #include "socketengine.h"
-#include "userprocess.h"
 #include "socket.h"
 #include "command_parse.h"
 

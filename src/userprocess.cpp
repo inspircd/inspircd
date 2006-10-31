@@ -223,7 +223,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		this->Log(DEBUG,"InspIRCd: Exited: %s",cu->nick);
 		userrec::QuitUser(this,cu,"Client exited");
 		this->Log(DEBUG,"Bailing from client exit");
 		return;
@@ -233,131 +232,126 @@ void InspIRCd::ProcessUser(userrec* cu)
 /**
  * This function is called once a second from the mainloop.
  * It is intended to do background checking on all the user structs, e.g.
- * stuff like ping checks, registration timeouts, etc. This function is
- * also responsible for checking if InspSocket derived classes are timed out.
+ * stuff like ping checks, registration timeouts, etc.
  */
 void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 {
 	/* Is it time yet? */
 	if (TIME < next_call)
 		return;
-
-	CullList GlobalGoners(this);
-
-	/* Time we actually need to call this again */
-	const time_t DUMMY_VALUE = 32768;
-	next_call = TIME + DUMMY_VALUE;
-
-	/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
-	for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
+	else
 	{
-		if (count2 >= this->local_users.size())
-			break;
-
-		userrec* curr = this->local_users[count2];
-
-		if (curr)
+		CullList GlobalGoners(this);
+	
+		/* Time we actually need to call this again */
+		const time_t DUMMY_VALUE = 32768;
+		next_call = TIME + DUMMY_VALUE;
+	
+		/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
+		for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
 		{
-			/*
-			 * registration timeout -- didnt send USER/NICK/HOST
-			 * in the time specified in their connection class.
-			 */
-			if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
+			if (count2 >= this->local_users.size())
+				break;
+	
+			userrec* curr = this->local_users[count2];
+	
+			if (curr)
 			{
-				this->Log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
-				//ZapThisDns(curr->fd);
-				GlobalGoners.AddItem(curr,"Registration timeout");
-				continue;
-			}
-			else
-			{
-				if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
-					next_call = curr->timeout;
-			}
-
-			/*
-			 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
-			 * say this user is ok to proceed, fully connect them.
-			 */
-			bool ready = AllModulesReportReady(curr);
-			if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
-			{
-				curr->dns_done = true;
-				//ZapThisDns(curr->fd);
-				this->stats->statsDnsBad++;
-				curr->FullConnect(&GlobalGoners);
-				continue;
-			}
-			else
-			{
-				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
-					next_call = curr->signon;
-			}
-
-			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
-			{
-				this->Log(DEBUG,"dns done, registered=3, and modules ready, OK");
-				curr->FullConnect(&GlobalGoners);
-				//ZapThisDns(curr->fd);
-				continue;
-			}
-			else
-			{
-				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
-					next_call = curr->signon + this->Config->dns_timeout;
-			}
-
-			// It's time to PING this user. Send them a ping.
-			if ((TIME > curr->nping) && (curr->registered == REG_ALL))
-			{
-				// This user didn't answer the last ping, remove them
-				if (!curr->lastping)
+				/*
+				 * registration timeout -- didnt send USER/NICK/HOST
+				 * in the time specified in their connection class.
+				 */
+				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
 				{
-					/* Everybody loves boobies. */
-					time_t time = this->Time() - (curr->nping - curr->pingmax);
-					std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : ""); 
-					GlobalGoners.AddItem(curr, boobies);
-					curr->lastping = 1;
-					curr->nping = TIME+curr->pingmax;
+					this->Log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
+					GlobalGoners.AddItem(curr,"Registration timeout");
 					continue;
 				}
-				curr->Write("PING :%s",this->Config->ServerName);
-				curr->lastping = 0;
-				curr->nping = TIME+curr->pingmax;
-			}
-			else
-			{
-				if ((curr->registered == REG_ALL) && (next_call > curr->nping))
-					next_call = curr->nping;
-			}
-
-			/*
-			 * We can flush the write buffer as the last thing we do, because if they
-			 * match any of the above conditions its no use flushing their buffer anyway.
-			 */
+				else
+				{
+					if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
+						next_call = curr->timeout;
+				}
 	
-			curr->FlushWriteBuf();
-			if (*curr->GetWriteError())
-			{
-				GlobalGoners.AddItem(curr,curr->GetWriteError());
-				continue;
+				/*
+				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
+				 * say this user is ok to proceed, fully connect them.
+				 */
+				bool ready = AllModulesReportReady(curr);
+				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
+				{
+					curr->dns_done = true;
+					this->stats->statsDnsBad++;
+					curr->FullConnect(&GlobalGoners);
+					continue;
+				}
+				else
+				{
+					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
+						next_call = curr->signon;
+				}
+	
+				if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
+				{
+					this->Log(DEBUG,"dns done, registered=3, and modules ready, OK");
+					curr->FullConnect(&GlobalGoners);
+					continue;
+				}
+				else
+				{
+					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
+						next_call = curr->signon + this->Config->dns_timeout;
+				}
+	
+				// It's time to PING this user. Send them a ping.
+				if ((TIME > curr->nping) && (curr->registered == REG_ALL))
+				{
+					// This user didn't answer the last ping, remove them
+					if (!curr->lastping)
+					{
+						/* Everybody loves boobies. */
+						time_t time = this->Time() - (curr->nping - curr->pingmax);
+						std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : ""); 
+						GlobalGoners.AddItem(curr, boobies);
+						curr->lastping = 1;
+						curr->nping = TIME+curr->pingmax;
+						continue;
+					}
+					curr->Write("PING :%s",this->Config->ServerName);
+					curr->lastping = 0;
+					curr->nping = TIME+curr->pingmax;
+				}
+				else
+				{
+					if ((curr->registered == REG_ALL) && (next_call > curr->nping))
+						next_call = curr->nping;
+				}
+	
+				/*
+				 * We can flush the write buffer as the last thing we do, because if they
+				 * match any of the above conditions its no use flushing their buffer anyway.
+				 */
+		
+				curr->FlushWriteBuf();
+				if (*curr->GetWriteError())
+				{
+					GlobalGoners.AddItem(curr,curr->GetWriteError());
+					continue;
+				}
 			}
+	
 		}
-
+	
+		/* If theres nothing to do, trigger in the next second, something might come up */
+		time_t delta = next_call - TIME;
+		if (delta == DUMMY_VALUE)
+		{
+			next_call = TIME + 1;
+			delta = 1;
+		}
+	
+		/* Remove all the queued users who are due to be quit, free memory used. */
+		GlobalGoners.Apply();
 	}
-
-	/* If theres nothing to do, trigger in the next second, something might come up */
-	time_t delta = next_call - TIME;
-	if (delta == DUMMY_VALUE)
-	{
-		next_call = TIME + 1;
-		delta = 1;
-	}
-
-	this->Log(DEBUG,"Time now is %lu, next time we actually need to call this is %lu (%lu secs from now)", TIME, next_call, delta);
-
-
-	/* Remove all the queued users who are due to be quit, free memory used. */
-	GlobalGoners.Apply();
 }
 
