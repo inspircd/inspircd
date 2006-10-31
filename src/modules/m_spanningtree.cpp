@@ -1611,7 +1611,7 @@ class TreeSocket : public InspSocket
 			/* Lower the TS here */
 			if (Utils->AnnounceTSChange && chan)
 				chan->WriteChannelWithServ(Instance->Config->ServerName,
-				"TS for %s changed from %lu to %lu", chan->name, ourTS, TS);
+				"NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, ourTS, TS);
 			ourTS = TS;
 
 			param_list.push_back(channel);
