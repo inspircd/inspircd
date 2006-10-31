@@ -41,7 +41,7 @@ private:
 	bool writeable[MAX_DESCRIPTORS];
 	/** The read set and write set, populated before each call to select().
 	 */
-	fd_set wfdset, rfdset;
+	fd_set wfdset, rfdset, errfdset;
 public:
 	/** Create a new SelectEngine
 	 * @param Instance The creator of this object

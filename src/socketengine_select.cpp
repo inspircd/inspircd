@@ -103,6 +103,7 @@ int SelectEngine::DispatchEvents()
 
 	FD_ZERO(&wfdset);
 	FD_ZERO(&rfdset);
+	FD_ZERO(&errfdset);
 
 	for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 	{
@@ -112,15 +113,17 @@ int SelectEngine::DispatchEvents()
 			FD_SET (a->second, &wfdset);
 		if (writeable[a->second])
 			FD_SET (a->second, &wfdset);
+
+		FD_SET (a->second, &errfdset);
 	}
 	tval.tv_sec = 0;
 	tval.tv_usec = 50L;
-	sresult = select(FD_SETSIZE, &rfdset, &wfdset, NULL, &tval);
+	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
 	if (sresult > 0)
 	{
 		for (std::map<int,int>::iterator a = fds.begin(); a != fds.end(); a++)
 		{
-			if ((FD_ISSET (a->second, &rfdset)) || (FD_ISSET (a->second, &wfdset)))
+			if ((FD_ISSET (a->second, &rfdset)) || (FD_ISSET (a->second, &wfdset)) || FD_ISSET (a->second, &errfdset))
 			{
 				ev[result++] = ref[a->second];
 			}
@@ -136,6 +139,12 @@ int SelectEngine::DispatchEvents()
 	{
 		if (ev[i])
 		{
+			if (FD_ISSET (a->second, &errfdset))
+			{
+				if (ev[i])
+					ev[i]->HandleEvent(EVENT_ERROR, 0);
+				continue;
+			}
 			ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
 			if (writeable[ev[i]->GetFd()])
 			{

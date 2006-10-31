@@ -138,6 +138,7 @@ int EPollEngine::DispatchEvents()
 		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",events[j].events & EPOLLOUT ? "write" : "read", events[j].data.fd);
 		if (events[j].events & EPOLLHUP)
 		{
+			ServerInstance->Log(DEBUG,"Handle error event on fd %d", events[j].data.fd);
 			ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, 0);
 			continue;
 		}
@@ -146,6 +147,7 @@ int EPollEngine::DispatchEvents()
 			/* Get error number */
 			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
+			ServerInstance->Log(DEBUG,"Handle error event on fd %d: %s", events[j].data.fd, strerror(errcode));
 			ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, errcode);
 			continue;
 		}
