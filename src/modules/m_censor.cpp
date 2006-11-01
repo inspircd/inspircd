@@ -27,17 +27,6 @@ typedef std::map<irc::string,irc::string> censor_t;
 
 /* $ModDesc: Provides user and channel +G mode */
 
-/** Thrown by m_censor
- */
-class CensorException : public ModuleException
-{
- public:
-	virtual const char* GetReason()
-	{
-		return "Could not find <censor file=\"\"> definition in your config file!";
-	}
-};
-
 /** Handles usermode +G
  */
 class CensorUser : public ModeHandler
@@ -114,19 +103,8 @@ class ModuleCensor : public Module
 	ModuleCensor(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		/*
-		 * read the configuration file on startup.
-		 * it is perfectly valid to set <censor file> to the value of the
-		 * main config file, then append your <badword> tags to the bottom
-		 * of the main config... but rather messy. That's why the capability
-		 * of using a seperate config file is provided.
-		 *
-		 * XXX - Really, it'd be nice to scraip this kind of thing, and have something like
-		 * an include directive to include additional configuration files. Might make our lives easier. --w00t
-		 *
-		 * XXX - These module pre-date the include directive which exists since beta 5 -- Brain
+		/* Read the configuration file on startup.
 		 */
-		
 		OnRehash("");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
@@ -201,15 +179,7 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		ConfigReader* Conf = new ConfigReader(ServerInstance);
-		std::string Censorfile = Conf->ReadValue("censor","file",0);
-		// this automatically re-reads the configuration file into the class
-		ConfigReader* MyConf = new ConfigReader(ServerInstance, Censorfile);
-		if ((Censorfile == "") || (!MyConf->Verify()))
-		{
-			CensorException e;
-			throw(e);
-		}
+		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		censors.clear();
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
@@ -217,7 +187,6 @@ class ModuleCensor : public Module
 			irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
-		DELETE(Conf);
 		DELETE(MyConf);
 	}
 	
