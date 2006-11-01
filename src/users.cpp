@@ -1376,7 +1376,7 @@ const char* userrec::GetIPString(char* buf)
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 			if (*buf == ':')
 			{
-				strlcpy(&temp[1], buf, sizeof(temp));
+				strlcpy(&temp[1], buf, sizeof(temp) - 1);
 				*temp = '0';
 				strlcpy(buf, temp, sizeof(temp));
 			}
