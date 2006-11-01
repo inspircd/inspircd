@@ -5028,6 +5028,19 @@ class ModuleSpanningTree : public Module
 			params->insert(params->begin() + 1,ConvToStr(ourTS));
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 		}
+		else if (event->GetEventID() == "send_push")
+		{
+			if (params->size() < 2)
+				return;
+			
+			userrec *a = ServerInstance->FindNick((*params)[0]);
+			
+			if (!a)
+				return;
+			
+			(*params)[1] = ":" + (*params)[1];
+			Utils->DoOneToOne(ServerInstance->Config->ServerName, "PUSH", *params, a->server);
+		}
 	}
 
 	virtual ~ModuleSpanningTree()
