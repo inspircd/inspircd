@@ -1036,9 +1036,10 @@
 #-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the m_helpop.so module, then       #
-# specify below the path to the helpop.conf file.                     #
+# specify below the path to the helpop.conf file, or if you like to   #
+# make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<helpop file="helpop.conf">
+#<include file="helpop.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-

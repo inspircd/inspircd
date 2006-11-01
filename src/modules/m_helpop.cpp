@@ -24,8 +24,8 @@ using namespace std;
 // Global Vars
 static ConfigReader *helpop;
 
-bool do_helpop(const char**, int, userrec*);
-void sendtohelpop(userrec*, int, const char**);
+/*bool do_helpop(const char**, int, userrec*);
+void sendtohelpop(userrec*, int, const char**);*/
 
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
 
@@ -98,7 +98,7 @@ class cmd_helpop : public command_t
 				for (int i = 1; output != ""; i++)
 				{
 					snprintf(a,MAXBUF,"line%d",i);
-					output = helpop->ReadValue("nohelp", std::string(a), 0);
+					output = helpop->ReadValue("helpop_nohelp", a, 0);
 	
 					if(output != "")
 					{
@@ -117,7 +117,7 @@ class cmd_helpop : public command_t
 	  			{
 					snprintf(a,MAXBUF,"line%d",i);
 					/* "nohelpo" for opers "nohelp" for users */
-	   				output = helpop->ReadValue("nohelpo", std::string(a), 0);
+	   				output = helpop->ReadValue("helpop_nohelpo", a, 0);
 					if (output != "")
 					{
 						user->WriteServ("290 "+std::string(user->nick)+" :"+output);
@@ -141,13 +141,14 @@ class cmd_helpop : public command_t
 
 		if (!pcnt)
 		{
-	 		strcpy(search,"start");
+	 		strcpy(search,"helpop_start");
 	  	}
 		else
 		{
 			if (*parameters[0] == '?')
 				parameters[0]++;
-	 		strlcpy(search,parameters[0],MAXBUF);
+			strlcpy(search, "helpop_", MAXBUF);
+	 		strlcat(search, parameters[0], MAXBUF);
 	   	}
 
 		for (char* n = search; *n; n++)
@@ -197,7 +198,6 @@ class HelpopException : public ModuleException
 class ModuleHelpop : public Module
 {
 	private:
-		ConfigReader *conf;
 		std::string  h_file;
 		cmd_helpop* mycommand;
 		Helpop* ho;
@@ -215,20 +215,10 @@ class ModuleHelpop : public Module
 
 		virtual void ReadConfig()
 		{
-			conf = new ConfigReader(ServerInstance);
-			h_file = conf->ReadValue("helpop", "file", 0);
-
-			if (h_file == "")
-			{
-				helpop = NULL;
-				HelpopException e("Missing helpop file");
-				throw(e);
-			}
-
-			helpop = new ConfigReader(ServerInstance, h_file);
-			if ((helpop->ReadValue("nohelp",  "line1", 0) == "") ||
-				(helpop->ReadValue("nohelpo", "line1", 0) == "") ||
-				(helpop->ReadValue("start",   "line1", 0) == ""))
+			helpop = new ConfigReader(ServerInstance);
+			if ((helpop->ReadValue("helpop_nohelp",  "line1", 0) == "") ||
+				(helpop->ReadValue("helpop_nohelpo", "line1", 0) == "") ||
+				(helpop->ReadValue("helpop_start",   "line1", 0) == ""))
 			{
 				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 				throw(e);
@@ -242,10 +232,8 @@ class ModuleHelpop : public Module
 
 		virtual void OnRehash(const std::string &parameter)
 		{
-			DELETE(conf);
 			if (helpop)
 				DELETE(helpop);
-
 			ReadConfig();
 		}
 
@@ -260,7 +248,6 @@ class ModuleHelpop : public Module
 		virtual ~ModuleHelpop()
 		{
 			ServerInstance->Modes->DelMode(ho);
-			DELETE(conf);
 			DELETE(helpop);
 			DELETE(ho);
 		}
