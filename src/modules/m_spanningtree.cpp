@@ -1058,6 +1058,9 @@ class TreeSocket : public InspSocket
 	{
 		if ((Current) && (Current != Utils->TreeRoot))
 		{
+			Event rmode((char*)Current->GetName().c_str(), (Module*)Utils->Creator, "lost_server");
+			rmode.Send(Instance);
+
 			std::deque<std::string> params;
 			params.push_back(Current->GetName());
 			params.push_back(":"+reason);
@@ -3345,6 +3348,10 @@ class TreeSocket : public InspSocket
 						sourceserv = this->InboundServerName;
 					}
 					this->Instance->SNO->WriteToSnoMask('l',"Received end of netburst from \2%s\2",sourceserv.c_str());
+
+					Event rmode((char*)sourceserv.c_str(), (Module*)Utils->Creator, "new_server");
+					rmode.Send(Instance);
+
 					return true;
 				}
 				else

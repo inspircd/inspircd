@@ -211,14 +211,6 @@ class InspIRCd : public classbase
 	/** Holds a string describing the last module error to occur
 	 */
 	char MODERR[MAXBUF];
-
-	/** This is an internal flag used by the mainloop
-	 */
-	bool expire_run;
-
-	/** List of server names we've seen.
-	 */
-	servernamelist servernames;
  
 	/** Remove a ModuleFactory pointer
 	 * @param j Index number of the ModuleFactory to remove
@@ -348,6 +340,10 @@ class InspIRCd : public classbase
 	FileLogger* Logger;
 
  public:
+        /** List of server names we've seen.
+	 */
+	servernamelist servernames;
+
 	/** Time this ircd was booted
 	 */
 	time_t startup_time;
