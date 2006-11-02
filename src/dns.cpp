@@ -94,12 +94,12 @@ class DNSHeader
 class DNSRequest
 {
  public:
-	unsigned char   id[2];          /* Request id */
-	unsigned char*  res;            /* Result processing buffer */
+	unsigned char   id[2];		/* Request id */
+	unsigned char*  res;		/* Result processing buffer */
 	unsigned int    rr_class;       /* Request class */
-	QueryType       type;           /* Request type */
+	QueryType       type;		/* Request type */
 	insp_inaddr     myserver;       /* DNS server address*/
-	DNS*            dnsobj;         /* DNS caller (where we get our FD from) */
+	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
 
 	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, requestlist &requests);
 	~DNSRequest();
@@ -468,10 +468,15 @@ int DNS::GetName(const insp_inaddr *ip)
 	int length;
 
 #ifdef IPV6
-	DNS::MakeIP6Int(query, (in6_addr*)ip);
+	unsigned char* c = (unsigned char*)&ip->s6_addr;
+	if (c[0] == 0 && c[1] == 0 && c[2] == 0 && c[3] == 0 &&
+	    c[4] == 0 && c[5] == 0 && c[6] == 0 && c[7] == 0 &&
+	    c[8] == 0 && c[9] == 0 && c[10] == 0xFF && c[11] == 0xFF)
+		sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[15],c[14],c[13],c[12]);
+	else
+		DNS::MakeIP6Int(query, (in6_addr*)ip);
 #else
 	unsigned char* c = (unsigned char*)&ip->s_addr;
-
 	sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 #endif
 
