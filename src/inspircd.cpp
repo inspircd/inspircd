@@ -540,6 +540,7 @@ bool InspIRCd::LoadModule(const char* filename)
 	if (strchr(filename,'*') || (strchr(filename,'?')))
 	{
 		bool all_success = true;
+		int n_match = 0;
 		DIR* library = opendir(Config->ModPath);
 	        if (library)
 	        {
@@ -548,13 +549,14 @@ bool InspIRCd::LoadModule(const char* filename)
 			{
 				if (this->MatchText(entry->d_name, filename))
 				{
+					n_match++;
 					if (!this->LoadModule(entry->d_name))
 						all_success = false;
 				}
 			}
 			closedir(library);
 		}
-		return all_success;
+		return (all_success && n_match);
 	}
 
 	char modfile[MAXBUF];
