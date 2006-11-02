@@ -78,7 +78,7 @@ class UserResolver : public Resolver
 	int bound_fd;
 	bool fwd;
  public:
-	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward);
+	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt);
 
 	void OnLookupComplete(const std::string &result);
 	void OnError(ResolverError e, const std::string &errormessage);

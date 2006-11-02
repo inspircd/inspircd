@@ -153,7 +153,7 @@ void userrec::StartDNSLookup()
 	try
 	{
 		ServerInstance->Log(DEBUG,"Passing instance: %08x",this->ServerInstance);
-		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), false);
+		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE);
 		this->ServerInstance->AddResolver(res_reverse);
 	}
 	catch (ModuleException& e)
@@ -162,10 +162,10 @@ void userrec::StartDNSLookup()
 	}
 }
 
-UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, bool forward) :
-	Resolver(Instance, to_resolve, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), bound_user(user)
+UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt) :
+	Resolver(Instance, to_resolve, qt), bound_user(user)
 {
-	this->fwd = forward;
+	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
 	this->bound_fd = user->GetFd();
 }
 
@@ -180,7 +180,8 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			/* Check we didnt time out */
 			if (this->bound_user->registered != REG_ALL)
 			{
-				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, true);
+				const char *ip = this->bound_user->GetIPString();
+				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA));
 				this->ServerInstance->AddResolver(bound_user->res_forward);
 			}
 		}
@@ -192,7 +193,9 @@ void UserResolver::OnLookupComplete(const std::string &result)
 	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		/* Both lookups completed */
-		if (this->bound_user->GetIPString() == result)
+		std::string result2 = "0::ffff:";
+		result2.append(result);
+		if (this->bound_user->GetIPString() == result || this->bound_user->GetIPString() == result2)
 		{
 			std::string hostname = this->bound_user->stored_host;
 			if (hostname.length() < 65)
