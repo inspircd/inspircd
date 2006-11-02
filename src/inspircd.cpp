@@ -30,6 +30,7 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <signal.h>
+#include <dirent.h>
 #include <exception>
 #include <fstream>
 #include "modules.h"
@@ -536,28 +537,41 @@ bool InspIRCd::UnloadModule(const char* filename)
 
 bool InspIRCd::LoadModule(const char* filename)
 {
+	if (strchr(filename,'*') || (strchr(filename,'?')))
+	{
+		bool all_success = true;
+		DIR* library = opendir(Config->ModPath);
+	        if (library)
+	        {
+			dirent* entry = NULL;
+			while ((entry = readdir(library)))
+			{
+				if (this->MatchText(entry->d_name, filename))
+				{
+					if (!this->LoadModule(entry->d_name))
+						all_success = false;
+				}
+			}
+			closedir(library);
+		}
+		return all_success;
+	}
+
 	char modfile[MAXBUF];
-#ifdef STATIC_LINK
-	strlcpy(modfile,filename,MAXBUF);
-#else
 	snprintf(modfile,MAXBUF,"%s/%s",Config->ModPath,filename);
-#endif
 	std::string filename_str = filename;
-#ifndef STATIC_LINK
-#ifndef IS_CYGWIN
+
 	if (!ServerConfig::DirValid(modfile))
 	{
 		this->Log(DEFAULT,"Module %s is not within the modules directory.",modfile);
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
 		return false;
 	}
-#endif
-#endif
 	this->Log(DEBUG,"Loading module: %s",modfile);
-#ifndef STATIC_LINK
+
 	if (ServerConfig::FileExists(modfile))
 	{
-#endif
+
 		for (unsigned int j = 0; j < Config->module_names.size(); j++)
 		{
 			if (Config->module_names[j] == filename_str)
@@ -623,7 +637,6 @@ bool InspIRCd::LoadModule(const char* filename)
 			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
 			return false;
 		}
-#ifndef STATIC_LINK
 	}
 	else
 	{
@@ -631,7 +644,6 @@ bool InspIRCd::LoadModule(const char* filename)
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
 	}
-#endif
 	this->ModCount++;
 	FOREACH_MOD_I(this,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
 	// now work out which modules, if any, want to move to the back of the queue,
