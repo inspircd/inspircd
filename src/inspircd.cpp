@@ -537,26 +537,33 @@ bool InspIRCd::UnloadModule(const char* filename)
 
 bool InspIRCd::LoadModule(const char* filename)
 {
+	/* Do we have a glob pattern in the filename?
+	 * The user wants to load multiple modules which
+	 * match the pattern.
+	 */
 	if (strchr(filename,'*') || (strchr(filename,'?')))
 	{
-		bool all_success = true;
 		int n_match = 0;
 		DIR* library = opendir(Config->ModPath);
 	        if (library)
 	        {
+			/* Try and locate and load all modules matching the pattern */
 			dirent* entry = NULL;
 			while ((entry = readdir(library)))
 			{
 				if (this->MatchText(entry->d_name, filename))
 				{
-					n_match++;
 					if (!this->LoadModule(entry->d_name))
-						all_success = false;
+						n_match++;
 				}
 			}
 			closedir(library);
 		}
-		return (all_success && n_match);
+		/* Loadmodule will now return false if any one of the modules failed
+		 * to load (but wont abort when it encounters a bad one) and when 1 or
+		 * more modules were actually loaded.
+		 */
+		return (n_match > 0);
 	}
 
 	char modfile[MAXBUF];
