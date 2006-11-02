@@ -743,6 +743,10 @@
 #  http://www.inspircd.org/wiki/Modules_List for a list of modules and#
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
+#  You may use wildcards in a <module> tag to load all modules which  #
+#  match a glob pattern (e.g. m_sa????.so would load m_sajoin,        #
+#  m_sapart, m_saquit and m_sanick)                                   #
+#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -813,6 +817,10 @@
 #<alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
 #<alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
 #<alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $3" requires="NickServ" uline="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Alltime module: Shows time on all connected servers at once
+# #<module name="m_alltime.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Antibear security module: Prevents 'bear.txt' based trojans from
