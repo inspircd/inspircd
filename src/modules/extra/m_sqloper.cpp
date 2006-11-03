@@ -23,6 +23,7 @@
 
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
+#include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
