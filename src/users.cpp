@@ -2043,7 +2043,7 @@ void userrec::HandleEvent(EventType et, int errornum)
 				this->FlushWriteBuf();
 			break;
 			case EVENT_ERROR:
-				this->SetWriteError(errnum ? strerror(errornum) : "EOF from client");
+				this->SetWriteError(errornum ? strerror(errornum) : "EOF from client");
 			break;
 		}
 	}
