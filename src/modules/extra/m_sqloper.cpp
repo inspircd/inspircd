@@ -61,12 +61,12 @@ public:
 
 	void Implements(char* List)
 	{
-		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
+		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
-		if ((result == CMD_FAILURE) && (command == "OPER"))
+		if ((validated) && (command == "OPER"))
 		{
 			if (LookupOper(user, parameters[0], parameters[1]))
 			{	
@@ -78,6 +78,7 @@ public:
 				return 1;
 			}
 		}
+		return 0;
 	}
 
 	bool LookupOper(userrec* user, const std::string &username, const std::string &password)
@@ -85,7 +86,7 @@ public:
 		Module* target;
 		
 		target = Srv->FindFeature("SQL");
-		
+
 		if (target)
 		{
 			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password=md5('?')", username, password);
@@ -102,6 +103,9 @@ public:
 				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", req.id);
 				
 				AssociateUser(this, SQLutils, req.id, user).Send();
+
+				user->Extend("oper_user", strdup(username.c_str()));
+				user->Extend("oper_pass", strdup(password.c_str()));
 					
 				return true;
 			}
@@ -131,6 +135,12 @@ public:
 			
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
+
+			char* tried_user = NULL;
+			char* tried_pass = NULL;
+
+			user->GetExt("oper_user", tried_user);
+			user->GetExt("oper_pass", tried_pass);
 			
 			if (user)
 			{
@@ -171,8 +181,14 @@ public:
 						 * we should have already checked the o:lines so now we need an
 						 * "insufficient awesomeness" (invalid credentials) error
 						 */
-						
-						LoginFail(user, row["username"].d, row["password"].d);
+						if (tried_user && tried_pass)
+						{
+							LoginFail(user, tried_user, tried_pass);
+							free(tried_user);
+							free(tried_pass);
+							user->Shrink("oper_user");
+							user->Shrink("oper_pass");
+						}
 					}
 				}
 				else
@@ -183,7 +199,15 @@ public:
 					 */
 					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
 
-					LoginFail(user, row["username"].d, row["password"].d);
+					if (tried_user && tried_pass)
+					{
+						LoginFail(user, tried_user, tried_pass);
+						free(tried_user);
+						free(tried_pass);
+						user->Shrink("oper_user");
+						user->Shrink("oper_pass");
+					}
+
 				}
 			}
 			else
@@ -195,17 +219,17 @@ public:
 		}
 		
 		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-		
+
 		return NULL;
 	}
 
-	void LoginFail(userrec* user, const std::string &user, const std::string &pass)
+	void LoginFail(userrec* user, const std::string &username, const std::string &pass)
 	{
-		command_t* oper_command = ServerInstance->Parser->GetCommand("OPER");
+		command_t* oper_command = ServerInstance->Parser->GetHandler("OPER");
 
 		if (oper_command)
 		{
-			const char* params = { user.c_str(), pass.c_str() };
+			const char* params[] = { username.c_str(), pass.c_str() };
 			oper_command->Handle(params, 2, user);
 		}
 		else
