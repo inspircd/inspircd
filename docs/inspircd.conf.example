@@ -1408,9 +1408,18 @@
 #<module name="m_silence.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQLutils module: Provides some utilities to SQL client modules, such
+# as mapping queries to users and channels. You must copy the source
+# for this module from the directory src/modules/extra/m_sqlutils.cpp
+# and src/modules/extra/m_sqlutils.h into /src/modules
+# Needed for, and loaded before: SQLauth and SQLoper
+#<module name="m_sqlutils.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL authentication module: Allows IRCd connections to be tied into
 # a database table (for example a forum). You must copy the source for
 # this module from the directory src/modules/extra
+# Depends on the SQLutils module being loaded first.
 #<module name="m_sqlauth.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1435,6 +1444,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
 # You must copy the source for this module from the directory src/modules/extra
+# Depends on the SQLutils module being loaded first.
 #<module name="m_sqloper.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
