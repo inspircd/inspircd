@@ -62,23 +62,15 @@ public:
 
 	void Implements(char* List)
 	{
-		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
+		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
 	{
-		if (validated && (command == "OPER"))
+		if ((result == CMD_FAILURE) && (command == "OPER"))
 		{
-			if (LookupOper(user, parameters[0], parameters[1]))
-			{	
-				/* Returning true here just means the query is in progress, or on it's way to being
-				 * in progress. Nothing about the /oper actually being successful..
-				 */
-				return 1;
-			}
+			LookupOper(user, parameters[0], parameters[1]);
 		}
-
-		return 0;
 	}
 
 	bool LookupOper(userrec* user, const std::string &username, const std::string &password)
