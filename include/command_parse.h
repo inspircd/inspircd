@@ -108,6 +108,8 @@ class CommandParser : public classbase
 	 */
 	CmdResult CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
 
+	command_t* GetHandler(const std::string &commandname);
+
 	/** This function returns true if a command is valid with the given number of parameters and user.
 	 * @param commandname The command name to check
 	 * @param pcnt The parameter count

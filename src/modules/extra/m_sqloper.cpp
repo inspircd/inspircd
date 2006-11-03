@@ -69,7 +69,19 @@ public:
 	{
 		if ((result == CMD_FAILURE) && (command == "OPER"))
 		{
+<<<<<<< .mine
+			if (LookupOper(user, parameters[0], parameters[1]))
+			{	
+				/* Returning true here just means the query is in progress, or on it's way to being
+				 * in progress. Nothing about the /oper actually being successful..
+				 * If the oper lookup fails later, we pass the command to the original handler
+				 * for /oper by calling its Handle method directly.
+				 */
+				return 1;
+			}
+=======
 			LookupOper(user, parameters[0], parameters[1]);
+>>>>>>> .r5635
 		}
 	}
 
@@ -165,9 +177,7 @@ public:
 						 * "insufficient awesomeness" (invalid credentials) error
 						 */
 						
-						user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-						Srv->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s!", user->nick, user->ident, user->host);
-						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
+						LoginFail(user, row["username"].d, row["password"].d);
 					}
 				}
 				else
@@ -178,9 +188,7 @@ public:
 					 */
 					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
 
-					user->WriteServ( "491 %s :Invalid oper credentials", user->nick);
-					Srv->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s! (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
-					ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: user, host or password did not match.", user->nick, user->ident, user->host);
+					LoginFail(user, row["username"].d, row["password"].d);
 				}
 			}
 			else
@@ -194,7 +202,22 @@ public:
 		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		
 		return NULL;
-	}	
+	}
+
+	void LoginFail(userrec* user, const std::string &user, const std::string &pass)
+	{
+		command_t* oper_command = ServerInstance->Parser->GetCommand("OPER");
+
+		if (oper_command)
+		{
+			const char* params = { user.c_str(), pass.c_str() };
+			oper_command->Handle(params, 2, user);
+		}
+		else
+		{
+			ServerInstance->Log(DEBUG, "WHAT?! Why do we have no OPER command?!");
+		}
+	}
 
 	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{

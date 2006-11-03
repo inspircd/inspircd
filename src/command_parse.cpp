@@ -281,6 +281,15 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 	return false;
 }
 
+command_t* CommandParser::GetHandler(const std::string &commandname)
+{
+	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	if (n != cmdlist.end())
+		return n->second;
+
+	return NULL;
+}
+
 // calls a handler function for a command
 
 CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
