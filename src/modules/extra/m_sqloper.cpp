@@ -68,7 +68,6 @@ public:
 	{
 		if ((result == CMD_FAILURE) && (command == "OPER"))
 		{
-<<<<<<< .mine
 			if (LookupOper(user, parameters[0], parameters[1]))
 			{	
 				/* Returning true here just means the query is in progress, or on it's way to being
@@ -78,9 +77,6 @@ public:
 				 */
 				return 1;
 			}
-=======
-			LookupOper(user, parameters[0], parameters[1]);
->>>>>>> .r5635
 		}
 	}
 
