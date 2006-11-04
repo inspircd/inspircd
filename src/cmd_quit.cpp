@@ -56,7 +56,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting at %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,parameters[0]);
 				user->WriteCommonExcept("QUIT :%s",parameters[0]);
 			}
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,std::string(ServerInstance->Config->PrefixQuit)+std::string(parameters[0])));
@@ -71,7 +71,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting at %s: %s!%s@%s [Client exited]",user->server,user->nick,user->ident,user->host);
+				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [Client exited]",user->server,user->nick,user->ident,user->host);
 			}
 			user->WriteCommonExcept("QUIT :Client exited");
 			FOREACH_MOD(I_OnUserQuit,OnUserQuit(user,"Client exited"));
