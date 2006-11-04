@@ -599,14 +599,14 @@ void XLineManager::expire_lines()
 	while ((glines.size()) && (current > (*glines.begin())->expiry))
 	{
 		std::vector<GLine*>::iterator i = glines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed G-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		glines.erase(i);
 	}
 
 	while ((elines.size()) && (current > (*elines.begin())->expiry))
 	{
 		std::vector<ELine*>::iterator i = elines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed E-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		elines.erase(i);
 	}
 
@@ -620,7 +620,7 @@ void XLineManager::expire_lines()
 	while ((klines.size()) && (current > (*klines.begin())->expiry))
 	{
 		std::vector<KLine*>::iterator i = klines.begin();
-		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s (set by %s %d seconds ago)",(*i)->hostmask,(*i)->source,(*i)->duration);
+		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed K-Line %s@%s (set by %s %d seconds ago)",(*i)->identmask,(*i)->hostmask,(*i)->source,(*i)->duration);
 		klines.erase(i);
 	}
 
