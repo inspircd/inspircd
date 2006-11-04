@@ -515,11 +515,17 @@ class userrec : public connection
 	 */
 	char* MakeWildHost();
 
-	/** Creates a host.
-	 * Takes a buffer to use and fills the given buffer with the host in the format nick!user@host
-	 * @param Buffer to fill with host information
+	/** Creates a usermask with real host.
+	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user@host
+	 * @return the usermask in the format user@host
 	 */
-	void MakeHost(char* nhost);
+	char* MakeHost();
+
+	/** Creates a usermask with real ip.
+	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user@ip
+	 * @return the usermask in the format user@ip
+	 */
+	char* MakeHostIP();
 
 	/** Shuts down and closes the user's socket
 	 * This will not cause the user to be deleted. Use InspIRCd::QuitUser for this,

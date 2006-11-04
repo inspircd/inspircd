@@ -339,9 +339,9 @@ userrec::~userrec()
 	}
 }
 
-/* XXX - minor point, other *Host functions return a char *, this one creates it. Might be nice to be consistant? */
-void userrec::MakeHost(char* nhost)
+char* userrec::MakeHost()
 {
+	static char nhost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = nhost;
 	for(char* n = ident; *n; n++)
@@ -350,6 +350,21 @@ void userrec::MakeHost(char* nhost)
 	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
+	return nhost;
+}
+
+char* userrec::MakeHostIP()
+{
+	static char ihost[MAXBUF];
+	/* This is much faster than snprintf */
+	char* t = ihost;
+	for(char* n = ident; *n; n++)
+		*t++ = *n;
+	*t++ = '@';
+	for(const char* n = this->GetIPString(); *n; n++)
+		*t++ = *n;
+	*t = 0;
+	return ihost;
 }
 
 void userrec::CloseSocket()
