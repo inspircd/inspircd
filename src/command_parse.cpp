@@ -214,7 +214,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	irc::commasepstream items1(parameters[splithere]);
 	irc::commasepstream items2(parameters[extra]);
-	std::string item = "";
+	std::string item = "*";
 	unsigned int max = 0;
 
 	/* Attempt to iterate these lists and call the command objech
@@ -223,10 +223,17 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
+		const char* new_parameters[127];
+
+		for (int t = 0; (t < pcnt) && (t < 127); t++)
+			new_parameters[t] = parameters[t];
+
 		std::string extrastuff = items2.GetToken();
-		parameters[splithere] = item.c_str();
-		parameters[extra] = extrastuff.c_str();
-		CommandObj->Handle(parameters,pcnt,user);
+
+		new_parameters[splithere] = item.c_str();
+		new_parameters[extra] = extrastuff.c_str();
+
+		CommandObj->Handle(new_parameters,pcnt,user);
 	}
 	return 1;
 }
@@ -240,8 +247,9 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 		return 0;
 
 	/* Only one commasepstream here */
+	ServerInstance->Log(DEBUG,"Splitting '%s'",parameters[splithere]);
 	irc::commasepstream items1(parameters[splithere]);
-	std::string item = "";
+	std::string item = "*";
 	unsigned int max = 0;
 
 	/* Parse the commasepstream until there are no tokens remaining.
@@ -250,8 +258,15 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
+		const char* new_parameters[127];
+
+		for (int t = 0; (t < pcnt) && (t < 127); t++)
+			new_parameters[t] = parameters[t];
+
+		new_parameters[splithere] = item.c_str();
+
 		parameters[splithere] = item.c_str();
-		CommandObj->Handle(parameters,pcnt,user);
+		CommandObj->Handle(new_parameters,pcnt,user);
 	}
 	/* By returning 1 we tell our caller that nothing is to be done,
 	 * as all the previous calls handled the data. This makes the parent
