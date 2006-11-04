@@ -3423,7 +3423,8 @@ class TreeSocket : public InspSocket
 						}
 						else
 						{
-							Instance->Log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
+							if (!prefix.empty())
+								Instance->Log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
 							return true;
 						}
 					}
