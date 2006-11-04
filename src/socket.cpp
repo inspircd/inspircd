@@ -389,19 +389,21 @@ bool InspIRCd::HasPort(int port, char* addr)
 }
 
 /* XXX: Probably belongs in class InspIRCd */
-int InspIRCd::BindPorts(bool bail)
+int InspIRCd::BindPorts(bool bail, int &ports_found)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	insp_sockaddr client, server;
 	int clientportcount = 0;
 	int BoundPortCount = 0;
 
+	ports_found = 0;
+
 	if (!bail)
 	{
 		int InitialPortCount = stats->BoundPortCount;
 		this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
 
-		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
+		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++, ports_found++)
 		{
 			Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 			Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
@@ -460,7 +462,7 @@ int InspIRCd::BindPorts(bool bail)
 		return InitialPortCount;
 	}
 
-	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++, ports_found++)
 	{
 		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);

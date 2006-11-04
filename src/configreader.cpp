@@ -771,7 +771,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	if (!bail)
 	{
-		ServerInstance->stats->BoundPortCount = ServerInstance->BindPorts(false);
+		int found_ports;
+		ServerInstance->stats->BoundPortCount = ServerInstance->BindPorts(false, found_ports);
 
 		if (!removed_modules.empty())
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)

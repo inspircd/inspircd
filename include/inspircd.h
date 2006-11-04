@@ -448,9 +448,10 @@ class InspIRCd : public classbase
 
 	/** Bind all ports specified in the configuration file.
 	 * @param bail True if the function should bail back to the shell on failure
+	 * @param found_ports The actual number of ports found in the config, as opposed to the number actually bound
 	 * @return The number of ports actually bound without error
 	 */
-	int BindPorts(bool bail);
+	int BindPorts(bool bail, int &found_ports);
 
 	/** Returns true if this server has the given port bound to the given address
 	 * @param port The port number

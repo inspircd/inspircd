@@ -182,6 +182,8 @@ std::string InspIRCd::GetRevision()
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
+	int found_ports = 0;
+
 	modules.resize(255);
 	factory.resize(255);
 	
@@ -257,7 +259,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->AddServerName(Config->ServerName);	
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
-	stats->BoundPortCount = BindPorts(true);
+	stats->BoundPortCount = BindPorts(true, found_ports);
 
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
@@ -288,10 +290,15 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
-	if (!stats->BoundPortCount)
+	if ((stats->BoundPortCount == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Exit(ERROR);
+	}
+	
+	if (stats->BoundPortCount != (unsigned int)found_ports)
+	{
+		printf("\nWARNING: Not all your ports could be bound -- starting anyway with %ld of %d ports bound.\n", stats->BoundPortCount, found_ports);
 	}
 
 	/* Add the listening sockets used for client inbound connections
