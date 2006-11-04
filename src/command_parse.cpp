@@ -210,6 +210,12 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	if (!strchr(parameters[splithere],','))
 		return 0;
 
+	/** Some lame ircds will weed out dupes using some shitty O(n^2) algorithm.
+	 * By using std::map (thanks for the idea w00t) we can cut this down a ton.
+	 * ...VOOODOOOO!
+	 */
+	std::map<std::string, bool> dupes;
+
 	/* Create two lists, one for channel names, one for keys
 	 */
 	irc::commasepstream items1(parameters[splithere]);
@@ -223,17 +229,22 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
-		const char* new_parameters[127];
+		if (dupes.find(item) == dupes.end())
+		{
+			const char* new_parameters[127];
 
-		for (int t = 0; (t < pcnt) && (t < 127); t++)
-			new_parameters[t] = parameters[t];
+			for (int t = 0; (t < pcnt) && (t < 127); t++)
+				new_parameters[t] = parameters[t];
 
-		std::string extrastuff = items2.GetToken();
+			std::string extrastuff = items2.GetToken();
 
-		new_parameters[splithere] = item.c_str();
-		new_parameters[extra] = extrastuff.c_str();
+			new_parameters[splithere] = item.c_str();
+			new_parameters[extra] = extrastuff.c_str();
 
-		CommandObj->Handle(new_parameters,pcnt,user);
+			CommandObj->Handle(new_parameters,pcnt,user);
+
+			dupes[item] = true;
+		}
 	}
 	return 1;
 }
@@ -245,6 +256,8 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	if (!strchr(parameters[splithere],','))
 		return 0;
+
+	std::map<std::string, bool> dupes;
 
 	/* Only one commasepstream here */
 	ServerInstance->Log(DEBUG,"Splitting '%s'",parameters[splithere]);
@@ -258,15 +271,20 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
-		const char* new_parameters[127];
+		if (dupes.find(item) == dupes.end())
+		{
+			const char* new_parameters[127];
 
-		for (int t = 0; (t < pcnt) && (t < 127); t++)
-			new_parameters[t] = parameters[t];
+			for (int t = 0; (t < pcnt) && (t < 127); t++)
+				new_parameters[t] = parameters[t];
 
-		new_parameters[splithere] = item.c_str();
+			new_parameters[splithere] = item.c_str();
 
-		parameters[splithere] = item.c_str();
-		CommandObj->Handle(new_parameters,pcnt,user);
+			parameters[splithere] = item.c_str();
+			CommandObj->Handle(new_parameters,pcnt,user);
+
+			dupes[item] = true;
+		}
 	}
 	/* By returning 1 we tell our caller that nothing is to be done,
 	 * as all the previous calls handled the data. This makes the parent
