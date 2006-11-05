@@ -403,7 +403,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 		int InitialPortCount = stats->BoundPortCount;
 		this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
 
-		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++, ports_found++)
+		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 		{
 			Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 			Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
@@ -411,6 +411,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 			if (((!*Type) || (!strcmp(Type,"clients"))) && (!HasPort(atoi(configToken),Addr)))
 			{
+				ports_found++;
 				// modules handle server bind types now
 				Config->ports[clientportcount+InitialPortCount] = atoi(configToken);
 				if (*Addr == '*')
@@ -462,7 +463,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 		return InitialPortCount;
 	}
 
-	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++, ports_found++)
+	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
 		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
@@ -470,6 +471,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
+			ports_found++;
 			// modules handle server bind types now
 			Config->ports[clientportcount] = atoi(configToken);
 
