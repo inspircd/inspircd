@@ -701,6 +701,14 @@
 #                  new TS values in the timestamp. If you think this  #
 #                  is just pointless noise, define the value to 0.    #
 #                                                                     #
+#  notimesync    - If this value is 'yes', 'true', or '1', time       #
+#                  synchronization is disabled on this server. This   #
+#                  means any servers you are linked to will not       #
+#                  automatically synchronize time with you, and in    #
+#                  most cases will just result in more bounced modes  #
+#                  on netsplits. This option should be the same on    #
+#                  all servers.                                       #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -708,7 +716,7 @@
          maxwho="128"
          noservices="no"
          qaprefixes="no"
-	 deprotectself="no"
+         deprotectself="no"
          somaxconn="128"
          softlimit="12800"
          userstats="Pu"
@@ -720,10 +728,11 @@
          hidewhois=""
          flatlinks="no"
          hideulines="no"
-	 nouserdns="no"
-	 syntaxhints="no"
-	 cyclehosts="yes"
-	 announcets="yes"
+         nouserdns="no"
+         syntaxhints="no"
+         cyclehosts="yes"
+         announcets="yes"
+         notimesync="no"
          allowhalfop="yes">
 
 
