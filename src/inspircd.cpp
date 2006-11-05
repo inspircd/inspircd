@@ -299,7 +299,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	
 	if (stats->BoundPortCount != (unsigned int)found_ports)
 	{
-		printf("\nWARNING: Not all your ports could be bound -- starting anyway with %ld of %d ports bound.\n", stats->BoundPortCount, found_ports);
+		printf("\nWARNING: Not all your client ports could be bound --\n         starting anyway with %ld of %d client ports bound.\n", stats->BoundPortCount, found_ports);
 	}
 
 	/* Add the listening sockets used for client inbound connections
