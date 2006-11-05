@@ -1592,7 +1592,7 @@ class TreeSocket : public InspSocket
 		/* default TS is a high value, which if we dont have this
 		 * channel will let the other side apply their modes.
 		 */
-		time_t ourTS = time(NULL)+600;
+		time_t ourTS = Instance->Time(true)+600;
 
 		/* Does this channel exist? if it does, get its REAL timestamp */
 		if (chan)
@@ -2062,7 +2062,7 @@ class TreeSocket : public InspSocket
 	 */
 	void DoBurst(TreeServer* s)
 	{
-		std::string burst = "BURST "+ConvToStr(time(NULL));
+		std::string burst = "BURST "+ConvToStr(Instance->Time(true));
 		std::string endburst = "ENDBURST";
 		// Because by the end of the netburst, it  could be gone!
 		std::string name = s->GetName();
@@ -2631,7 +2631,7 @@ class TreeSocket : public InspSocket
 					char idle[MAXBUF];
 
 					snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
-					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-time(NULL)));
+					snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-Instance->Time(true)));
 					std::deque<std::string> par;
 					par.push_back(prefix);
 					par.push_back(signon);
@@ -2691,6 +2691,45 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	bool HandleSetTime(const std::string &prefix, std::deque<std::string> &params)
+	{
+		if (!params.size())
+			return true;
+		
+		bool force = false;
+		
+		if ((params.size() == 2) && (params[1] == "force"))
+			force = true;
+		
+		time_t rts = atoi(params[0].c_str());
+		time_t us = Instance->Time(true);
+		
+		if (rts == us)
+		{
+			Instance->Log(DEBUG, "Timestamp from %s is equal", prefix.c_str());
+			
+			Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
+		}
+		else if (force || (rts < us))
+		{
+			int old = Instance->SetTimeDelta(rts - us);
+			Instance->Log(DEBUG, "%s TS (diff %d) from %s applied (old delta was %d)", (force) ? "Forced" : "Lower", rts - us, prefix.c_str(), old);
+			
+			Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
+		}
+		else
+		{
+			Instance->Log(DEBUG, "Higher TS (diff %d) from %s overridden", us - rts, prefix.c_str());
+			
+			std::deque<std::string> oparams;
+			oparams.push_back(ConvToStr(us));
+			
+			Utils->DoOneToMany(prefix, "TIMESET", oparams);
+		}
+		
+		return true;
+	}
+
 	bool Time(const std::string &prefix, std::deque<std::string> &params)
 	{
 		// :source.server TIME remote.server sendernick
@@ -2703,9 +2742,7 @@ class TreeSocket : public InspSocket
 				userrec* u = this->Instance->FindNick(params[1]);
 				if (u)
 				{
-					char curtime[256];
-					snprintf(curtime,256,"%lu",(unsigned long)time(NULL));
-					params.push_back(curtime);
+					params.push_back(ConvToStr(Instance->Time(true)));
 					params[0] = prefix;
 					Utils->DoOneToOne(this->Instance->Config->ServerName,"TIME",params,params[0]);
 				}
@@ -3078,18 +3115,38 @@ class TreeSocket : public InspSocket
 				{
 					if (params.size())
 					{
-						/* If a time stamp is provided, try and check syncronization */
-						time_t THEM = atoi(params[0].c_str());
-						long delta = THEM-time(NULL);
+						/* If a time stamp is provided, apply synchronization */
+						bool force = false;
+						time_t them = atoi(params[0].c_str());
+						time_t us = Instance->Time(true);
+						int delta = them - us;
+
+						if ((params.size() == 2) && (params[1] == "force"))
+							force = true;
+
 						if ((delta < -600) || (delta > 600))
 						{
 							this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
 							this->WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 							return false;
 						}
-						else if ((delta < -60) || (delta > 60))
+						
+						if (us == them)
 						{
-							this->Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds, please consider synching your clocks.",abs(delta));
+							this->Instance->Log(DEBUG, "Timestamps are equal; pat yourself on the back");
+						}
+						else if (force || (us > them))
+						{
+							this->Instance->Log(DEBUG, "Remote server has lower TS (%d seconds)", them - us);
+							this->Instance->SetTimeDelta(them - us);
+							// Send this new timestamp to any other servers
+							Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
+						}
+						else
+						{
+							// Override the timestamp
+							this->Instance->Log(DEBUG, "We have a higher timestamp (by %d seconds), not updating delta", us - them);
+							this->WriteLine(":" + Utils->TreeRoot->GetName() + " TIMESET " + ConvToStr(us));
 						}
 					}
 					this->LinkState = CONNECTED;
@@ -3298,6 +3355,10 @@ class TreeSocket : public InspSocket
 				{
 					return this->Push(prefix,params);
 				}
+				else if (command == "TIMESET")
+				{
+					return this->HandleSetTime(prefix, params);
+				}
 				else if (command == "TIME")
 				{
 					return this->Time(prefix,params);
@@ -3423,8 +3484,7 @@ class TreeSocket : public InspSocket
 						}
 						else
 						{
-							if (!prefix.empty())
-								Instance->Log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
+							Instance->Log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
 							return true;
 						}
 					}
@@ -3912,7 +3972,19 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	DELETE(Conf);
 }
 
-
+/** To create a timer which recurs every second, we inherit from InspTimer.
+ * InspTimer is only one-shot however, so at the end of each Tick() we simply
+ * insert another of ourselves into the pending queue :)
+ */
+class TimeSyncTimer : public InspTimer
+{
+ private:
+	InspIRCd *Instance;
+	ModuleSpanningTree *Module;
+ public:
+	TimeSyncTimer(InspIRCd *Instance, ModuleSpanningTree *Mod);
+	virtual void Tick(time_t TIME);
+};
 
 class ModuleSpanningTree : public Module
 {
@@ -3924,6 +3996,7 @@ class ModuleSpanningTree : public Module
 	SpanningTreeUtilities* Utils;
 
  public:
+	TimeSyncTimer *SyncTimer;
 
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
@@ -3932,6 +4005,9 @@ class ModuleSpanningTree : public Module
 
 		command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 		ServerInstance->AddCommand(command_rconnect);
+
+		SyncTimer = new TimeSyncTimer(ServerInstance, this);
+		ServerInstance->Timers->AddTimer(SyncTimer);
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
@@ -4424,6 +4500,13 @@ class ModuleSpanningTree : public Module
 		}
 		user->WriteServ("NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
 		return 1;
+	}
+
+	void BroadcastTimeSync()
+	{
+		std::deque<std::string> params;
+		params.push_back(ConvToStr(ServerInstance->Time(true)));
+		Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
 	}
 
 	virtual int OnStats(char statschar, userrec* user, string_list &results)
@@ -5004,7 +5087,7 @@ class ModuleSpanningTree : public Module
 				return;
 			(*params)[1] = ":" + (*params)[1];
 			params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
-			params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time()));
+			params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time(true)));
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FTOPIC",*params);
 		}
 		else if (event->GetEventID() == "send_mode")
@@ -5049,6 +5132,8 @@ class ModuleSpanningTree : public Module
 		ServerInstance->Log(DEBUG,"Performing unload of spanningtree!");
 		/* This will also free the listeners */
 		delete Utils;
+		if (SyncTimer)
+			ServerInstance->Timers->DelTimer(SyncTimer);
 	}
 
 	virtual Version GetVersion()
@@ -5079,6 +5164,17 @@ class ModuleSpanningTree : public Module
 		return PRIORITY_LAST;
 	}
 };
+
+TimeSyncTimer::TimeSyncTimer(InspIRCd *Inst, ModuleSpanningTree *Mod) : InspTimer(43200, Inst->Time()), Instance(Inst), Module(Mod)
+{
+}
+
+void TimeSyncTimer::Tick(time_t TIME)
+{
+	Module->BroadcastTimeSync();
+	Module->SyncTimer = new TimeSyncTimer(Instance, Module);
+	Instance->Timers->AddTimer(Module->SyncTimer);
+}
 
 void SpanningTreeUtilities::DoFailOver(Link* x)
 {
@@ -5113,7 +5209,6 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	}
 	return NULL;
 }
-
 
 class ModuleSpanningTreeFactory : public ModuleFactory
 {

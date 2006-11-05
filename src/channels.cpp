@@ -30,6 +30,7 @@ chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 	created = topicset = limit = 0;
 	internal_userlist.clear();
 	memset(&modes,0,64);
+	age = ServerInstance->Time(true);
 }
 
 void chanrec::SetMode(char mode,bool mode_on)

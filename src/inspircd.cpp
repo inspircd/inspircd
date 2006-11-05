@@ -193,6 +193,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->SNO = new SnomaskManager(this);
 	this->Start();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
+	this->time_delta = 0;
 	this->next_call = this->TIME + 3;
 	srand(this->TIME);
 	this->Log(DEBUG,"*** InspIRCd starting up!");
@@ -804,9 +805,19 @@ int InspIRCd::GetModuleCount()
 	return this->ModCount;
 }
 
-time_t InspIRCd::Time()
+time_t InspIRCd::Time(bool delta)
 {
+	if (delta)
+		return TIME + time_delta;
 	return TIME;
+}
+
+int InspIRCd::SetTimeDelta(int delta)
+{
+	int old = time_delta;
+	time_delta += delta;
+	this->Log(DEBUG, "Time delta set to %d (was %d)", time_delta, old);
+	return old;
 }
 
 bool FileLogger::Readable()

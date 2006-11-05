@@ -293,6 +293,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
+	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	haspassed = dns_done = false;
