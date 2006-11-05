@@ -533,7 +533,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"files",		"motd",				&this->motd,			DT_CHARPTR, ValidateMotd},
 		{"files",		"rules",			&this->rules,			DT_CHARPTR, ValidateRules},
 		{"power",		"diepass",			&this->diepass,			DT_CHARPTR, NoValidation},	
-		{"power",		"pauseval",			&this->DieDelay,		DT_INTEGER, NoValidation},
+		{"power",		"pause",			&this->DieDelay,		DT_INTEGER, NoValidation},
 		{"power",		"restartpass",			&this->restartpass,		DT_CHARPTR, NoValidation},
 		{"options",		"prefixquit",			&this->PrefixQuit,		DT_CHARPTR, NoValidation},
 		{"die",			"value",			&this->DieValue,		DT_CHARPTR, NoValidation},
