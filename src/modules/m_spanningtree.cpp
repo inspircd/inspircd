@@ -2701,7 +2701,7 @@ class TreeSocket : public InspSocket
 		
 		bool force = false;
 		
-		if ((params.size() == 2) && (params[1] == "force"))
+		if ((params.size() == 2) && (params[1] == "FORCE"))
 			force = true;
 		
 		time_t rts = atoi(params[0].c_str());
@@ -3124,7 +3124,7 @@ class TreeSocket : public InspSocket
 						time_t us = Instance->Time(true);
 						int delta = them - us;
 
-						if ((params.size() == 2) && (params[1] == "force"))
+						if ((params.size() == 2) && (params[1] == "FORCE"))
 							force = true;
 
 						if ((delta < -600) || (delta > 600))
