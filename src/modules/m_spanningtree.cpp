@@ -125,6 +125,9 @@ class SpanningTreeUtilities
 	/** Announce TS changes to channels on merge
 	 */
 	bool AnnounceTSChange;
+	/** Synchronize timestamps between servers
+	 */
+	bool EnableTimeSync;
 	/** Socket bindings for listening sockets
 	 */
 	std::vector<TreeSocket*> Bindings;
@@ -2693,7 +2696,7 @@ class TreeSocket : public InspSocket
 
 	bool HandleSetTime(const std::string &prefix, std::deque<std::string> &params)
 	{
-		if (!params.size())
+		if (!params.size() || !Utils->EnableTimeSync)
 			return true;
 		
 		bool force = false;
@@ -3113,7 +3116,7 @@ class TreeSocket : public InspSocket
 				}
 				else if (command == "BURST")
 				{
-					if (params.size())
+					if (params.size() && Utils->EnableTimeSync)
 					{
 						/* If a time stamp is provided, apply synchronization */
 						bool force = false;
@@ -3895,6 +3898,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	HideULines = Conf->ReadFlag("options","hideulines",0);
 	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
+	EnableTimeSync = !(Conf->ReadFlag("options","notimesync",0));
 	LinkBlocks.clear();
 	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)
@@ -4006,8 +4010,13 @@ class ModuleSpanningTree : public Module
 		command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 		ServerInstance->AddCommand(command_rconnect);
 
-		SyncTimer = new TimeSyncTimer(ServerInstance, this);
-		ServerInstance->Timers->AddTimer(SyncTimer);
+		if (Utils->EnableTimeSync)
+		{
+			SyncTimer = new TimeSyncTimer(ServerInstance, this);
+			ServerInstance->Timers->AddTimer(SyncTimer);
+		}
+		else
+			SyncTimer = NULL;
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
