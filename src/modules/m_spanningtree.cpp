@@ -2745,7 +2745,7 @@ class TreeSocket : public InspSocket
 				userrec* u = this->Instance->FindNick(params[1]);
 				if (u)
 				{
-					params.push_back(ConvToStr(Instance->Time(true)));
+					params.push_back(ConvToStr(Instance->Time(false)));
 					params[0] = prefix;
 					Utils->DoOneToOne(this->Instance->Config->ServerName,"TIME",params,params[0]);
 				}

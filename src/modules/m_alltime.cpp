@@ -21,11 +21,14 @@ class cmd_alltime : public command_t
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
 	{
 		char fmtdate[64];
-		time_t time = ServerInstance->Time();
-		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&time));
+		time_t now = ServerInstance->Time();
+		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
+		
+		// I'm too lazy to add a function to fetch the delta, so lets just cheat..
+		int delta = time(NULL) - now;
 		
 		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :Time for " +
-			ServerInstance->Config->ServerName + " is: " + fmtdate;
+			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds)";
 		
 		if (IS_LOCAL(user))
 		{
