@@ -214,7 +214,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 * By using std::map (thanks for the idea w00t) we can cut this down a ton.
 	 * ...VOOODOOOO!
 	 */
-	std::map<std::string, bool> dupes;
+	std::map<irc::string, bool> dupes;
 
 	/* Create two lists, one for channel names, one for keys
 	 */
@@ -229,7 +229,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
-		if (dupes.find(item) == dupes.end())
+		if (dupes.find(item.c_str()) == dupes.end())
 		{
 			const char* new_parameters[127];
 
@@ -243,7 +243,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 
 			CommandObj->Handle(new_parameters,pcnt,user);
 
-			dupes[item] = true;
+			dupes[item.c_str()] = true;
 		}
 	}
 	return 1;
@@ -257,7 +257,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	if (!strchr(parameters[splithere],','))
 		return 0;
 
-	std::map<std::string, bool> dupes;
+	std::map<irc::string, bool> dupes;
 
 	/* Only one commasepstream here */
 	ServerInstance->Log(DEBUG,"Splitting '%s'",parameters[splithere]);
@@ -271,7 +271,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
 	{
-		if (dupes.find(item) == dupes.end())
+		if (dupes.find(item.c_str()) == dupes.end())
 		{
 			const char* new_parameters[127];
 
@@ -283,7 +283,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			parameters[splithere] = item.c_str();
 			CommandObj->Handle(new_parameters,pcnt,user);
 
-			dupes[item] = true;
+			dupes[item.c_str()] = true;
 		}
 	}
 	/* By returning 1 we tell our caller that nothing is to be done,
