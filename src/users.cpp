@@ -181,7 +181,11 @@ void UserResolver::OnLookupComplete(const std::string &result)
 			if (this->bound_user->registered != REG_ALL)
 			{
 				const char *ip = this->bound_user->GetIPString();
+#ifdef IPv6
 				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA));
+#else
+				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A);
+#endif
 				this->ServerInstance->AddResolver(bound_user->res_forward);
 			}
 		}
