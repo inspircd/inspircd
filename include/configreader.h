@@ -75,7 +75,7 @@ typedef std::map<irc::string,char*> opertype_t;
 
 /** A Set of oper classes
  */
-typedef opertype_t operclass_t;
+typedef std::map<irc::string,char*> operclass_t;
 
 
 /** This class holds the bulk of the runtime configuration for the ircd.
@@ -115,10 +115,19 @@ class ServerConfig : public Extensible
 
 	InspIRCd* GetInstance();
 	  
+
+	/** All oper class definitions from the config file
+	 */
+	operclass_t operclass;
+
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
 	 */
 	ConfigDataHash config_data;
+
+	/* All oper type definitions from the config file
+	 */
+	opertype_t opertypes;
 
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
@@ -391,14 +400,6 @@ class ServerConfig : public Extensible
 	 * This keeps clients synchronized properly.
 	 */
 	bool CycleHosts;
-
-	/* All oper type definitions from the config file
-	 */
-	opertype_t opertypes;
-
-	/** All oper class definitions from the config file
-	 */
-	operclass_t operclass;
 
 	/** Construct a new ServerConfig
 	 */
