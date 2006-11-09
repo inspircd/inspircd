@@ -115,19 +115,10 @@ class ServerConfig : public Extensible
 
 	InspIRCd* GetInstance();
 	  
-
-	/** All oper class definitions from the config file
-	 */
-	operclass_t operclass;
-
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
 	 */
 	ConfigDataHash config_data;
-
-	/* All oper type definitions from the config file
-	 */
-	opertype_t opertypes;
 
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
@@ -400,6 +391,22 @@ class ServerConfig : public Extensible
 	 * This keeps clients synchronized properly.
 	 */
 	bool CycleHosts;
+
+
+#if __GNUC__ == 3 && __GNUC_MINOR__ == 3
+	/** if we're being compiled with GCC 3.3 add
+	 *  dummy opertype on heap to fix GCC 3.3 crash
+	 */
+	opertype_t dummyopertype;
+#endif
+
+	/** All oper type definitions from the config file
+	 */
+	opertype_t opertypes;
+
+	/** All oper class definitions from the config file
+	 */
+	operclass_t operclass;
 
 	/** Construct a new ServerConfig
 	 */
