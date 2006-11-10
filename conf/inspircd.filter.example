@@ -1,24 +1,38 @@
-# Configuration file for m_filter.so (2.0.0.0)
-# C.J.Edwards April 2004.
-#
+# Configuration file for m_filter.so and m_filter_pcre.so
 
 # The tags for this module are formatted as follows:
 #
-# <keyword	pattern="any glob pattern here"
-#		reason="reason for filtering"
-#		action="action to take">
+# <keyword      pattern="any glob pattern here"
+#               reason="reason for filtering"
+#               action="action to take"
+#		duration="optional length of gline">
 #
 # Valid actions for 'action' are:
 #
-# block		This blocks the line, sends out a notice to all opers with
-#		+s and informs the user that their message was blocked.
+# block         This blocks the line, sends out a notice to all opers with
+#               +s and informs the user that their message was blocked.
 #
-# none		This action causes nothing to be done except logging. This
-#		is the default action if none is specified.
+# none          This action causes nothing to be done except logging. This
+#               is the default action if none is specified.
 #
-# kill		This disconnects the user, with the 'reason' parameter as
-#		the kill reason.
+# kill          This disconnects the user, with the 'reason' parameter as
+#               the kill reason.
+#
+# gline         G-LINE the user for 'duration' length of time. Durations may
+#               be specified using the notation 1y2d3h4m6s in a similar way to
+#               other glines, omitting the duration or setting it to 0 makes
+#               any glines set by this filter be permenant.
+#
+# You can add filters from IRC using the /FILTER command. If you do this, they
+# will be set globally to your entire network.
 
-<keyword pattern="*qwerty*" reason="You qwertied!" action="block">
-<keyword pattern="*killmenow*" reason="As you request." action="kill">
+# Example filters for m_filter:
+#
+# <keyword pattern="*qwerty*" reason="You qwertied!" action="block">
+# <keyword pattern="*killmenow*" reason="As you request." action="kill">
+# <keyword pattern="*blah*" reason="Dont blah!" action="gline" duration="1d6h">
+
+# An example regexp filter for m_filter_pcre:
+#
+# <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h">
 
