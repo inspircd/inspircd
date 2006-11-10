@@ -62,7 +62,7 @@ class FilterBase : public Module
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 
-	virtual int OnStats(char symbol, userrec* user, string_list &results);
+	virtual int OnStats(char symbol, userrec* user, string_list &results) = 0;
 };
 
 class cmd_filter : public command_t
@@ -161,11 +161,6 @@ FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module::Module
 
 FilterBase::~FilterBase()
 {
-}
-
-int FilterBase::OnStats(char symbol, userrec* user, string_list &results)
-{
-	return 0;
 }
 
 void FilterBase::Implements(char* List)

@@ -131,7 +131,6 @@ class ModuleFilter : public FilterBase
 			{
 				results.push_back(sn+" 223 "+user->nick+" :"+n->second->freeform+" "+n->second->action+" "+ConvToStr(n->second->gline_time)+" :"+n->second->reason);
 			}
-			return 1;
 		}
 		return 0;
 	}

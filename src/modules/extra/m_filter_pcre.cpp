@@ -159,7 +159,6 @@ class ModuleFilterPCRE : public FilterBase
 			{
 				results.push_back(sn+" 223 "+user->nick+" :"+i->freeform+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 			}
-			return 1;
 		}
 		return 0;
 	}
