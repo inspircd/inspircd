@@ -19,11 +19,12 @@
 class FilterResult : public classbase
 {
  public:
+	std::string freeform;
 	std::string reason;
 	std::string action;
 	long gline_time;
 
-	FilterResult(const std::string &rea, const std::string &act, long gt) : reason(rea), action(act), gline_time(gt)
+	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt) : freeform(free), reason(rea), action(act), gline_time(gt)
 	{
 	}
 
@@ -46,12 +47,20 @@ class FilterBase : public Module
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status);
+
 	virtual FilterResult* FilterMatch(const std::string &text) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
+	virtual void SyncFilters(Module* proto, void* opaque) = 0;
+
+	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration) = 0;
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status);
 	virtual void OnRehash(const std::string &parameter);
 	virtual Version GetVersion();
+	std::string EncodeFilter(FilterResult* filter);
+	FilterResult DecodeFilter(const std::string &data);
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
+	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 };
 
 class cmd_filter : public command_t
@@ -208,5 +217,43 @@ void FilterBase::OnRehash(const std::string &parameter)
 Version FilterBase::GetVersion()
 {
 	return Version(1,1,0,2,VF_VENDOR,API_VERSION);
+}
+
+
+std::string FilterBase::EncodeFilter(FilterResult* filter)
+{
+	std::ostringstream stream;
+	stream << filter->freeform << " " << filter->action << " " << filter->gline_time << " " << filter->reason;
+	return stream.str();
+}
+
+FilterResult FilterBase::DecodeFilter(const std::string &data)
+{
+	FilterResult res;
+	std::istringstream stream(data);
+	stream >> res.freeform;
+	stream >> res.action;
+	stream >> res.gline_time;
+	res.reason = stream.str();
+	return res;
+}
+
+void FilterBase::OnSyncOtherMetaData(Module* proto, void* opaque)
+{
+	this->SyncFilters(proto, opaque);
+}
+
+void FilterBase::SendFilter(Module* proto, void* opaque, FilterResult* iter)
+{
+	proto->ProtoSendMetaData(opaque, TYPE_OTHER, NULL, "filter", EncodeFilter(iter));
+}
+
+void FilterBase::OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
+{
+	if ((target_type == TYPE_OTHER) && (extname == "filter"))
+	{
+		FilterResult data = DecodeFilter(extdata);
+		this->AddFilter(data.freeform, data.action, data.reason, data.gline_time);
+	}
 }
 

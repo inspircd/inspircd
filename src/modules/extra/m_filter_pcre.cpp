@@ -36,10 +36,9 @@ class PCREFilter : public FilterResult
 {
  public:
 	 pcre* regexp;
-	 std::string pattern;
 
 	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat)
-		 : FilterResult::FilterResult(rea, act, gline_time), regexp(r), pattern(pat)
+		 : FilterResult::FilterResult(pat, rea, act, gline_time), regexp(r)
 	 {
 	 }
 };
@@ -80,7 +79,7 @@ class ModuleFilterPCRE : public FilterBase
 	{
 		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			if (i->pattern == freeform)
+			if (i->freeform == freeform)
 			{
 				filters.erase(i);
 				return true;
@@ -89,11 +88,19 @@ class ModuleFilterPCRE : public FilterBase
 		return false;
 	}
 
+	virtual void SyncFilters(Module* proto, void* opaque)
+	{
+		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		{
+			this->SendFilter(proto, opaque, &(*i));
+		}
+	}
+
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration)
 	{
 		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			if (i->pattern == freeform)
+			if (i->freeform == freeform)
 			{
 				return std::make_pair(false, "Filter already exists");
 			}

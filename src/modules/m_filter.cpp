@@ -83,9 +83,18 @@ class ModuleFilter : public FilterBase
 		x->reason = reason;
 		x->action = type;
 		x->gline_time = duration;
+		x->freeform = freeform;
 		filters[freeform] = x;
 
 		return std::make_pair(true, "");
+	}
+
+	virtual void SyncFilters(Module* proto, void* opaque)
+	{
+		for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
+		{
+			this->SendFilter(proto, opaque, n->second);
+		}
 	}
 
 	virtual void OnRehash(const std::string &parameter)
@@ -109,6 +118,7 @@ class ModuleFilter : public FilterBase
 			x->reason = reason;
 			x->action = do_action;
 			x->gline_time = gline_time;
+			x->freeform = pattern;
 			filters[pattern] = x;
 		}
 		DELETE(MyConf);
