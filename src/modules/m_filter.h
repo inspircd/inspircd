@@ -218,7 +218,7 @@ void FilterBase::OnRehash(const std::string &parameter)
 	
 Version FilterBase::GetVersion()
 {
-	return Version(1,1,0,2,VF_VENDOR,API_VERSION);
+	return Version(1,1,0,2,VF_VENDOR|VF_COMMON,API_VERSION);
 }
 
 
