@@ -176,7 +176,7 @@ int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::
 int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
 {
 	/* Leave ulines alone */
-	if (ServerInstance->ULine(user->server))
+	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
 		return 0;
 
 	FilterResult* f = this->FilterMatch(text);
