@@ -1021,9 +1021,11 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides glob-based message filtering
 #<module name="m_filter.so">
-#OR
+# OR
 # PCRE filter module: Filters messages using regular expressions
 #<module name="m_filter_pcre.so">
+#
+# You may only use one or the other with these modules, network-wide.
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

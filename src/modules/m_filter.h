@@ -163,7 +163,7 @@ FilterBase::~FilterBase()
 
 void FilterBase::Implements(char* List)
 {
-	List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+	List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
 int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
