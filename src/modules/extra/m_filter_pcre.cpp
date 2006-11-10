@@ -81,6 +81,7 @@ class ModuleFilterPCRE : public FilterBase
 		{
 			if (i->freeform == freeform)
 			{
+				pcre_free((*i).regexp);
 				filters.erase(i);
 				return true;
 			}
@@ -125,13 +126,10 @@ class ModuleFilterPCRE : public FilterBase
 	{		
 		ConfigReader MyConf(ServerInstance);
 
-		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-			pcre_free((*i).regexp);
-
-		filters.clear();
-
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
 		{
+			this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
+
 			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
 			std::string reason = MyConf.ReadValue("keyword", "reason", index);
 			std::string action = MyConf.ReadValue("keyword", "action", index);

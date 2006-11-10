@@ -66,6 +66,7 @@ class ModuleFilter : public FilterBase
 	{
 		if (filters.find(freeform) != filters.end())
 		{
+			delete (filters.find(freeform))->second;
 			filters.erase(filters.find(freeform));
 			return true;
 		}
@@ -99,15 +100,12 @@ class ModuleFilter : public FilterBase
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		// this automatically re-reads the configuration file into the class
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
-		for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
-		{
-			DELETE(n->second);
-		}
-		filters.clear();
+
 		for (int index = 0; index < MyConf->Enumerate("keyword"); index++)
 		{
+			this->DeleteFilter(MyConf->ReadValue("keyword","pattern",index));
+
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
 			std::string reason = MyConf->ReadValue("keyword","reason",index);
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
