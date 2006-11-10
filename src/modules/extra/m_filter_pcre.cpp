@@ -25,113 +25,61 @@
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "m_filter.h"
 
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: `pcre-config --cflags` */
 /* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
+/* $ModDep: ../m_filter.h */
 
-class ModuleFilterPCRE : public Module
+class PCREFilter : public FilterResult
 {
-	class Filter
-	{
-	 public:
-		pcre* regexp;
-	 	std::string reason;
-		std::string action;
-		
-		Filter(pcre* r, const std::string &rea, const std::string &act)
-		: regexp(r), reason(rea), action(act)
-		{
-		}
-	};
-	
-	InspIRCd* Srv;
-	std::vector<Filter> filters;
+ public:
+	 pcre* regexp;
+
+	 PCREFilter(pcre* r, const std::string &rea, const std::string &act)
+		 : FilterResult::FilterResult(rea, act), regexp(r)
+	 {
+	 }
+};
+
+class ModuleFilterPCRE : public FilterBase
+{
+	std::vector<PCREFilter> filters;
 	pcre *re;
 	const char *error;
 	int erroffset;
- 
+
  public:
 	ModuleFilterPCRE(InspIRCd* Me)
-	: Module::Module(Me), Srv(Me)
+	: FilterBase::FilterBase(Me)
 	{
 		OnRehash("");
 	}
-	
+
 	virtual ~ModuleFilterPCRE()
 	{
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
-	}
-
-	// format of a config entry is <keyword pattern="^regexp$" reason="Some reason here" action="kill/block">
-	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
-	{
-		return OnUserPreNotice(user,dest,target_type,text,status);
-	}
-	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual FilterResult* FilterMatch(const std::string &text)
 	{
 		for (unsigned int index = 0; index < filters.size(); index++)
 		{
-			Filter& filt = filters[index];
+			PCREFilter& filt = filters[index];
 			
 			if (pcre_exec(filt.regexp,NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
 			{
-				const char* target;
-				
-				if(filt.action.empty())
-					filt.action = "none";
-					
-				if (target_type == TYPE_USER)
-				{
-					userrec* t = (userrec*)dest;
-					target = t->nick;
-				}
-				else if (target_type == TYPE_CHANNEL)
-				{
-					chanrec* t = (chanrec*)dest;
-					target = t->name;
-				}
-				else
-				{
-					target = "";
-				}
-				
-				ServerInstance->Log(DEFAULT, "Filter: %s had their notice filtered, target was %s: %s Action: %s", user->nick, target, filt.reason.c_str(), filt.action.c_str());
-				
-				if (filt.action == "block")
-				{	
-					Srv->WriteOpers("Filter: %s had their notice filtered, target was %s: %s", user->nick, target, filt.reason.c_str());
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+filt.reason);
-    			}
-				else if (filt.action == "kill")
-				{
-					userrec::QuitUser(Srv, user, filt.reason);
-				}
-				
-				return 1;
+				return &filt;
 			}
 		}
-		return 0;
+		return NULL;
 	}
 	
 	virtual void OnRehash(const std::string &parameter)
-	{
-		/* Read the configuration file on startup and rehash.
-		 * It is perfectly valid to set <filter file> to the value of the
-		 * main config file, then append your <keyword> tags to the bottom
-		 * of the main config... but rather messy. That's why the capability
-		 * of using a seperate config file is provided.
-		 */
-		
-		ConfigReader MyConf(Srv);
+	{		
+		ConfigReader MyConf(ServerInstance);
 
-		for (std::vector<Filter>::iterator i = filters.begin(); i != filters.end(); i++)
+		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 			pcre_free((*i).regexp);
 
 		filters.clear();
@@ -151,21 +99,13 @@ class ModuleFilterPCRE : public Module
 			}
 			else
 			{
-				filters.push_back(Filter(re, reason, action));
+				filters.push_back(PCREFilter(re, reason, action));
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}
 	}
-	
-	virtual Version GetVersion()
-	{
-		/* Version 1.x is the unreleased unrealircd module */
-		return Version(3,2,1,0,VF_VENDOR,API_VERSION);
-	}
-	
 };
-
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
+	
 
 class ModuleFilterPCREFactory : public ModuleFactory
 {

@@ -26,37 +26,27 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "m_filter.h"
 
-/* $ModDesc: An enhanced version of the unreal m_filter.so used by chatspike.net */
+/* $ModDesc: An advanced spam filtering module */
+/* $ModDep: m_filter.h */
 
+typedef std::map<std::string,FilterResult*> filter_t;
 
-
-/** Holds a filter pattern and reason
- */
-class Filter : public classbase
-{
- public:
-	std::string reason;
-	std::string action;
-};
-
-typedef std::map<std::string,Filter*> filter_t;
-
-class ModuleFilter : public Module
+class ModuleFilter : public FilterBase
 {
  
  filter_t filters;
- 
+
  public:
 	ModuleFilter(InspIRCd* Me)
-		: Module::Module(Me)
+		: FilterBase::FilterBase(Me)
 	{
 		// read the configuration file on startup.
 		// it is perfectly valid to set <filter file> to the value of the
 		// main config file, then append your <keyword> tags to the bottom
 		// of the main config... but rather messy. That's why the capability
 		// of using a seperate config file is provided.
-		
 		OnRehash("");
 	}
 	
@@ -64,54 +54,17 @@ class ModuleFilter : public Module
 	{
 	}
 
-	void Implements(char* List)
-	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
-	}
-	
-	// format of a config entry is <keyword pattern="*glob*" reason="Some reason here" action="kill/block">
-	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
-	{
-		return OnUserPreNotice(user,dest,target_type,text,status);
-	}
-	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual FilterResult* FilterMatch(const std::string &text)
 	{
 		std::string text2 = text+" ";
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
 			if ((ServerInstance->MatchText(text2,index->first)) || (ServerInstance->MatchText(text,index->first)))
 			{
-				Filter* f = (Filter*)index->second;
-				std::string target = "";
-
-				if (target_type == TYPE_USER)
-				{
-					userrec* t = (userrec*)dest;
-					target = std::string(t->nick);
-				}
-				else if (target_type == TYPE_CHANNEL)
-				{
-					chanrec* t = (chanrec*)dest;
-					target = std::string(t->name);
-				}
-
-				if (f->action == "block")
-	      			{	
-					ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their notice filtered, target was "+target+": "+f->reason);
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+f->reason);
-    				}
-				ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their notice filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
-
-				if (f->action == "kill")
-				{
-					userrec::QuitUser(ServerInstance,user,f->reason);
-				}
-				return 1;
+				return index->second;
 			}
 		}
-		return 0;
+		return NULL;
 	}
 	
 	virtual void OnRehash(const std::string &parameter)
@@ -130,20 +83,13 @@ class ModuleFilter : public Module
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
 			if (do_action == "")
 				do_action = "none";
-			Filter* x = new Filter;
+			FilterResult* x = new FilterResult;
 			x->reason = reason;
 			x->action = do_action;
 			filters[pattern] = x;
 		}
 		DELETE(MyConf);
 	}
-	
-	virtual Version GetVersion()
-	{
-		// This is version 2 because version 1.x is the unreleased unrealircd module
-		return Version(2,1,0,2,VF_VENDOR,API_VERSION);
-	}
-	
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.
