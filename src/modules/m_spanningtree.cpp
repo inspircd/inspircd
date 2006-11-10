@@ -4932,26 +4932,38 @@ class ModuleSpanningTree : public Module
 
 	void OnLine(userrec* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason)
 	{
-		if (IS_LOCAL(source))
+		if (!source)
 		{
-			char type[8];
-			snprintf(type,8,"%cLINE",linetype);
-			std::string stype = type;
-			if (adding)
+			/* Server-set lines */
+			char data[MAXBUF];
+			snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", linetype, host.c_str(), ServerInstance->Config->ServerName, ServerInstance->Time(false), duration, reason.c_str());
+			std::deque<std::string> params;
+			params.push_back(data);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName, "ADDLINE", params);
+		}
+		else
+		{
+			if (IS_LOCAL(source))
 			{
-				char sduration[MAXBUF];
-				snprintf(sduration,MAXBUF,"%ld",duration);
-				std::deque<std::string> params;
-				params.push_back(host);
-				params.push_back(sduration);
-				params.push_back(":"+reason);
-				Utils->DoOneToMany(source->nick,stype,params);
-			}
-			else
-			{
-				std::deque<std::string> params;
-				params.push_back(host);
-				Utils->DoOneToMany(source->nick,stype,params);
+				char type[8];
+				snprintf(type,8,"%cLINE",linetype);
+				std::string stype = type;
+				if (adding)
+				{
+					char sduration[MAXBUF];
+					snprintf(sduration,MAXBUF,"%ld",duration);
+					std::deque<std::string> params;
+					params.push_back(host);
+					params.push_back(sduration);
+					params.push_back(":"+reason);
+					Utils->DoOneToMany(source->nick,stype,params);
+				}
+				else
+				{
+					std::deque<std::string> params;
+					params.push_back(host);
+					Utils->DoOneToMany(source->nick,stype,params);
+				}
 			}
 		}
 	}

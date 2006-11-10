@@ -37,8 +37,8 @@ class PCREFilter : public FilterResult
  public:
 	 pcre* regexp;
 
-	 PCREFilter(pcre* r, const std::string &rea, const std::string &act)
-		 : FilterResult::FilterResult(rea, act), regexp(r)
+	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time)
+		 : FilterResult::FilterResult(rea, act, gline_time), regexp(r)
 	 {
 	 }
 };
@@ -86,12 +86,13 @@ class ModuleFilterPCRE : public FilterBase
 
 		for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
 		{
-			std::string pattern = MyConf.ReadValue("keyword","pattern",index);
-			std::string reason = MyConf.ReadValue("keyword","reason",index);
-			std::string action = MyConf.ReadValue("keyword","action",index);
-			
+			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
+			std::string reason = MyConf.ReadValue("keyword", "reason", index);
+			std::string action = MyConf.ReadValue("keyword", "action", index);
+			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index).c_str());
+
 			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
-			
+
 			if (!re)
 			{
 				ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", pattern.c_str(), erroffset, error);
@@ -99,7 +100,7 @@ class ModuleFilterPCRE : public FilterBase
 			}
 			else
 			{
-				filters.push_back(PCREFilter(re, reason, action));
+				filters.push_back(PCREFilter(re, reason, action, gline_time));
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}

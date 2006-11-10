@@ -81,11 +81,13 @@ class ModuleFilter : public FilterBase
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
 			std::string reason = MyConf->ReadValue("keyword","reason",index);
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
+			long gline_time = ServerInstance->Duration(MyConf->ReadValue("keyword","duration",index).c_str());
 			if (do_action == "")
 				do_action = "none";
 			FilterResult* x = new FilterResult;
 			x->reason = reason;
 			x->action = do_action;
+			x->gline_time = gline_time;
 			filters[pattern] = x;
 		}
 		DELETE(MyConf);

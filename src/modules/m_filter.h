@@ -14,13 +14,16 @@
  * ---------------------------------------------------
  */
 
+#include "xline.h"
+
 class FilterResult : public classbase
 {
  public:
 	std::string reason;
 	std::string action;
+	long gline_time;
 
-	FilterResult(const std::string &rea, const std::string &act) : reason(rea), action(act)
+	FilterResult(const std::string &rea, const std::string &act, long gt) : reason(rea), action(act), gline_time(gt)
 	{
 	}
 
@@ -84,6 +87,15 @@ class FilterBase : public Module
 			if (f->action == "kill")
 			{
 				userrec::QuitUser(ServerInstance,user,f->reason);
+			}
+
+			if (f->action == "gline")
+			{
+				if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
+				{
+					ServerInstance->XLines->apply_lines(APPLY_GLINES);
+					FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
+				}
 			}
 			return 1;
 		}
