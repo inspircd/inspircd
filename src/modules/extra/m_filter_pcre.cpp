@@ -157,7 +157,7 @@ class ModuleFilterPCRE : public FilterBase
 			std::string sn = ServerInstance->Config->ServerName;
 			for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 			{
-				results.push_back(sn+" 223 "+user->nick+" :"+i->freeform+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+				results.push_back(sn+" 223 "+user->nick+" :REGEXP:"+i->freeform+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 			}
 		}
 		return 0;

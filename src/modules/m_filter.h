@@ -127,7 +127,7 @@ class cmd_filter : public command_t
 				std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration);
 				if (result.first)
 				{
-					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s%s%s', reason: '%s'", user->nick, freeform.c_str(),
+					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, reason: '%s'", user->nick, freeform.c_str(),
 							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[2] : ""),
 							reason.c_str());
 					return CMD_SUCCESS;

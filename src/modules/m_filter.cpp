@@ -129,7 +129,7 @@ class ModuleFilter : public FilterBase
 			std::string sn = ServerInstance->Config->ServerName;
 			for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
 			{
-				results.push_back(sn+" 223 "+user->nick+" :"+n->second->freeform+" "+n->second->action+" "+ConvToStr(n->second->gline_time)+" :"+n->second->reason);
+				results.push_back(sn+" 223 "+user->nick+" :GLOB:"+n->second->freeform+" "+n->second->action+" "+ConvToStr(n->second->gline_time)+" :"+n->second->reason);
 			}
 		}
 		return 0;
