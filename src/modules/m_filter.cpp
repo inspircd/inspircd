@@ -121,6 +121,20 @@ class ModuleFilter : public FilterBase
 		}
 		DELETE(MyConf);
 	}
+
+	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	{
+		if (symbol == 's')
+		{
+			std::string sn = ServerInstance->Config->ServerName;
+			for (filter_t::iterator n = filters.begin(); n != filters.end(); n++)
+			{
+				results.push_back(sn+" 223 "+user->nick+" :"+n->second->freeform+" "+n->second->action+" "+ConvToStr(n->second->gline_time)+" :"+n->second->reason);
+			}
+			return 1;
+		}
+		return 0;
+	}
 };
 
 // stuff down here is the module-factory stuff. For basic modules you can ignore this.

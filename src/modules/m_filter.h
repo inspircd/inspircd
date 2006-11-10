@@ -61,6 +61,8 @@ class FilterBase : public Module
 	FilterResult DecodeFilter(const std::string &data);
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
+
+	virtual int OnStats(char symbol, userrec* user, string_list &results);
 };
 
 class cmd_filter : public command_t
@@ -126,7 +128,7 @@ class cmd_filter : public command_t
 				if (result.first)
 				{
 					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s%s%s', reason: '%s'", user->nick, freeform.c_str(),
-							type.c_str(), (duration ? " duration: " : ""), (duration ? ConvToStr(duration).c_str() : ""),
+							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[2] : ""),
 							reason.c_str());
 					return CMD_SUCCESS;
 				}
@@ -161,9 +163,14 @@ FilterBase::~FilterBase()
 {
 }
 
+int FilterBase::OnStats(char symbol, userrec* user, string_list &results)
+{
+	return 0;
+}
+
 void FilterBase::Implements(char* List)
 {
-	List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+	List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
 int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
