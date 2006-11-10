@@ -31,7 +31,7 @@ class MyV6Resolver : public Resolver
 {
 	bool fw;
  public:
-	MyV6Resolver(const std::string &source, bool forward) : Resolver(ServerInstance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6)
+	MyV6Resolver(Module* me, const std::string &source, bool forward) : Resolver(ServerInstance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6, me)
 	{
 		fw = forward;
 	}
@@ -51,9 +51,10 @@ class MyV6Resolver : public Resolver
  */
 class cmd_woot : public command_t
 {
+	Module* Creator;
  public:
 	/* Command 'woot', takes no parameters and needs no special modes */
-	cmd_woot (InspIRCd* Instance) : command_t(Instance,"WOOT", 0, 0)
+	cmd_woot (InspIRCd* Instance, Module* maker) : command_t(Instance,"WOOT", 0, 0), Creator(maker)
 	{
 		this->source = "m_testcommand.so";
 	}
@@ -64,9 +65,9 @@ class cmd_woot : public command_t
 		 * do it for us as required.*/
 		try
 		{
-			MyV6Resolver* r = new MyV6Resolver("shake.stacken.kth.se", true);
+			MyV6Resolver* r = new MyV6Resolver(Creator, "shake.stacken.kth.se", true);
 			ServerInstance->AddResolver(r);
-			r = new MyV6Resolver("2001:6b0:1:ea:202:a5ff:fecd:13a6", false);
+			r = new MyV6Resolver(Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false);
 			ServerInstance->AddResolver(r);
 		}
 		catch (ModuleException& e)
@@ -87,7 +88,7 @@ class ModuleTestCommand : public Module
 	{
 		
 		// Create a new command
-		newcommand = new cmd_woot(ServerInstance);
+		newcommand = new cmd_woot(ServerInstance, this);
 		ServerInstance->AddCommand(newcommand);
 	}
 

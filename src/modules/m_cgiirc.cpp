@@ -55,8 +55,8 @@ class CGIResolver : public Resolver
 	userrec* them;
 	bool notify;
  public:
-	CGIResolver(InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type)
-		: Resolver(ServerInstance, source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type)
+		: Resolver(ServerInstance, source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result)
 	{
@@ -263,7 +263,7 @@ public:
 
 				try
 				{
-					CGIResolver* r = new CGIResolver(ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS");
+					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS");
 					ServerInstance->AddResolver(r);
 				}
 				catch (ModuleException& e)
@@ -319,7 +319,7 @@ public:
 		try
 		{
 			ServerInstance->Log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->GetFd(), "IDENT");
-			CGIResolver* r = new CGIResolver(ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT");
+			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT");
 			ServerInstance->AddResolver(r);
 		}
 		catch (ModuleException& e)

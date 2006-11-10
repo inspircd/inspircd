@@ -870,7 +870,7 @@ DNS::~DNS()
 }
 
 /** High level abstraction of dns used by application at large */
-Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt) : ServerInstance(Instance), input(source), querytype(qt)
+Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, Module* creator) : ServerInstance(Instance), Creator(creator), input(source), querytype(qt)
 {
 	ServerInstance->Log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
 
@@ -948,6 +948,11 @@ int Resolver::GetId()
 	return this->myid;
 }
 
+Module* Resolver::GetCreator()
+{
+	return this->Creator;
+}
+
 /** Process a socket read event */
 void DNS::HandleEvent(EventType et, int errornum)
 {
@@ -1022,6 +1027,22 @@ bool DNS::AddResolverClass(Resolver* r)
 			delete r;
 
 		return false;
+	}
+}
+
+void DNS::CleanResolvers(Module* module)
+{
+	for (int i = 0; i < MAX_REQUEST_ID; i++)
+	{
+		if (Classes[i])
+		{
+			if (Classes[i]->GetCreator() == module)
+			{
+				Classes[i]->OnError(RESLOVER_FORCEUNLOAD, "Parent module is unloading");
+				delete Classes[i];
+				Classes[i] = NULL;
+			}
+		}
 	}
 }
 

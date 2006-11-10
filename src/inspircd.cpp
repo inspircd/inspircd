@@ -508,6 +508,9 @@ bool InspIRCd::UnloadModule(const char* filename)
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
 
+			/* Tidy up any dangling resolvers */
+			this->Res->CleanResolvers(modules[j]);
+
 			FOREACH_MOD_I(this,I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
 
 			for(int t = 0; t < 255; t++)

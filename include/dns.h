@@ -48,6 +48,7 @@ using irc::sockets::insp_sockaddr;
 using irc::sockets::insp_inaddr;
 
 class InspIRCd;
+class Module;
 
 /**
  * Result status, used internally
@@ -69,7 +70,8 @@ enum ResolverError
 	RESOLVER_NXDOMAIN	=	2,
 	RESOLVER_NOTREADY	=	3,
 	RESOLVER_BADIP		=	4,
-	RESOLVER_TIMEOUT	=	5
+	RESOLVER_TIMEOUT	=	5,
+	RESLOVER_FORCEUNLOAD	=	6
 };
 
 /**
@@ -147,6 +149,10 @@ class Resolver : public Extensible
 	 */
 	InspIRCd* ServerInstance;
 	/**
+	 * Pointer to creator module (if any, or NULL)
+	 */
+	Module* Creator;
+	/**
 	 * The input data, either a host or an IP address
 	 */
 	std::string input;
@@ -193,8 +199,14 @@ class Resolver : public Extensible
 	 * event a lookup could not be allocated, or a similar hard error occurs such as
 	 * the network being down. This will also be thrown if an invalid IP address is
 	 * passed when resolving a 'PTR' record.
+	 *
+	 * NOTE: If you are instantiating your DNS lookup from a module, you should set the
+	 * value of creator to point at your Module class. This way if your module is unloaded
+	 * whilst lookups are in progress, they can be safely removed and your module will not
+	 * crash the server.
 	 */
-	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt);
+	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, Module* creator = NULL);
+
 	/**
 	 * The default destructor does nothing.
 	 */
@@ -220,6 +232,11 @@ class Resolver : public Extensible
 	 * this method will return -1.
 	 */
 	int GetId();
+
+	/**
+	 * Returns the creator module, or NULL
+	 */
+	Module* GetCreator();
 };
 
 /** DNS is a singleton class used by the core to dispatch dns
@@ -364,6 +381,13 @@ class DNS : public EventHandler
 	 * Turn an in6_addr into a .ip6.arpa domain
 	 */
 	static void MakeIP6Int(char* query, const in6_addr *ip);
+
+	/**
+	 * Clean out all dns resolvers owned by a particular
+	 * module, to make unloading a module safe if there
+	 * are dns requests currently in progress.
+	 */
+	void CleanResolvers(Module* module);
 };
 
 #endif
