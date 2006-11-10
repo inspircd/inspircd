@@ -104,7 +104,19 @@ class ListTimer : public InspTimer
 					chan = ServerInstance->GetChannelIndex(ld->list_position);
 					/* spool details */
 					bool has_user = (chan && chan->HasUser(u));
-					if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
+					if ((chan) && (chan->modes[CM_PRIVATE]))
+					{
+						bool display = match(chan->name, ld->glob.c_str());
+						long users = chan->GetUserCounter();
+						if ((users) && (display))
+						{
+							int counter = snprintf(buffer, MAXBUF, "322 %s *", u->nick);
+							amount_sent += counter + ServerNameSize;
+							ServerInstance->Log(DEBUG, "m_safelist.so: Sent %ld of safe %ld / 4", amount_sent, u->sendqmax);
+							u->WriteServ(std::string(buffer));
+						}
+					}
+					else if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 					{
 						bool display = match(chan->name, ld->glob.c_str());
 						long users = chan->GetUserCounter();
