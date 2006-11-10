@@ -42,7 +42,7 @@ class FilterBase : public Module
 {
 	cmd_filter* filtcommand;
  public:
-	FilterBase(InspIRCd* Me);
+	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status);
@@ -58,8 +58,10 @@ class cmd_filter : public command_t
 {
 	FilterBase* Base;
  public:
-	cmd_filter(FilterBase* f, InspIRCd* Me) : command_t(Me, "FILTER", 'o', 1), Base(f)
+	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : command_t(Me, "FILTER", 'o', 1), Base(f)
 	{
+		this->source = source;
+		this->syntax = "<filter-definition> <type> [<gline-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
@@ -140,9 +142,9 @@ class cmd_filter : public command_t
 	}
 };
 
-FilterBase::FilterBase(InspIRCd* Me) : Module::Module(Me)
+FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module::Module(Me)
 {
-	filtcommand = new cmd_filter(this, Me);
+	filtcommand = new cmd_filter(this, Me, source);
 	ServerInstance->AddCommand(filtcommand);
 }
 

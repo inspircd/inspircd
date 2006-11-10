@@ -40,13 +40,8 @@ class ModuleFilter : public FilterBase
 
  public:
 	ModuleFilter(InspIRCd* Me)
-		: FilterBase::FilterBase(Me)
+	: FilterBase::FilterBase(Me, "m_filter.so")
 	{
-		// read the configuration file on startup.
-		// it is perfectly valid to set <filter file> to the value of the
-		// main config file, then append your <keyword> tags to the bottom
-		// of the main config... but rather messy. That's why the capability
-		// of using a seperate config file is provided.
 		OnRehash("");
 	}
 	

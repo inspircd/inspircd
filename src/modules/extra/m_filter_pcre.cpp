@@ -53,7 +53,7 @@ class ModuleFilterPCRE : public FilterBase
 
  public:
 	ModuleFilterPCRE(InspIRCd* Me)
-	: FilterBase::FilterBase(Me)
+	: FilterBase::FilterBase(Me, "m_filter_pcre.so")
 	{
 		OnRehash("");
 	}
