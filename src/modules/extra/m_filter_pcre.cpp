@@ -30,15 +30,16 @@
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: `pcre-config --cflags` */
 /* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
-/* $ModDep: ../m_filter.h */
+/* $ModDep: m_filter.h */
 
 class PCREFilter : public FilterResult
 {
  public:
 	 pcre* regexp;
+	 std::string pattern;
 
-	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time)
-		 : FilterResult::FilterResult(rea, act, gline_time), regexp(r)
+	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat)
+		 : FilterResult::FilterResult(rea, act, gline_time), regexp(r), pattern(pat)
 	 {
 	 }
 };
@@ -74,7 +75,45 @@ class ModuleFilterPCRE : public FilterBase
 		}
 		return NULL;
 	}
-	
+
+	virtual bool DeleteFilter(const std::string &freeform)
+	{
+		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		{
+			if (i->pattern == freeform)
+			{
+				filters.erase(i);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration)
+	{
+		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		{
+			if (i->pattern == freeform)
+			{
+				return std::make_pair(false, "Filter already exists");
+			}
+		}
+
+		re = pcre_compile(freeform.c_str(),0,&error,&erroffset,NULL);
+
+		if (!re)
+		{
+			ServerInstance->Log(DEFAULT,"Error in regular expression: %s at offset %d: %s\n", freeform.c_str(), erroffset, error);
+			ServerInstance->Log(DEFAULT,"Regular expression %s not loaded.", freeform.c_str());
+			return std::make_pair(false, "Error in regular expression at offset " + ConvToStr(erroffset) + ": "+error);
+		}
+		else
+		{
+			filters.push_back(PCREFilter(re, reason, type, duration, freeform));
+			return std::make_pair(true, "");
+		}
+	}
+
 	virtual void OnRehash(const std::string &parameter)
 	{		
 		ConfigReader MyConf(ServerInstance);
@@ -100,7 +139,7 @@ class ModuleFilterPCRE : public FilterBase
 			}
 			else
 			{
-				filters.push_back(PCREFilter(re, reason, action, gline_time));
+				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern));
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}

@@ -66,7 +66,33 @@ class ModuleFilter : public FilterBase
 		}
 		return NULL;
 	}
-	
+
+	virtual bool DeleteFilter(const std::string &freeform)
+	{
+		if (filters.find(freeform) != filters.end())
+		{
+			filters.erase(filters.find(freeform));
+			return true;
+		}
+		return false;
+	}
+
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration)
+	{
+		if (filters.find(freeform) != filters.end())
+		{
+			return std::make_pair(false, "Filter already exists");
+		}
+
+		FilterResult* x = new FilterResult;
+		x->reason = reason;
+		x->action = type;
+		x->gline_time = duration;
+		filters[freeform] = x;
+
+		return std::make_pair(true, "");
+	}
+
 	virtual void OnRehash(const std::string &parameter)
 	{
 		// this automatically re-reads the configuration file into the class
