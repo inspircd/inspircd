@@ -143,51 +143,18 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
-				irc::commasepstream portrange(port);
-				std::string portno = "*";
-				while ((portno = portrange.GetToken()) != "")
+				irc::portparser portrange(port);
+				long portno = -1;
+				while ((portno = portrange.GetToken()))
 				{
-					std::string::size_type dash = portno.rfind('-');
-					if (dash != std::string::npos)
+					if (ServerInstance->Config->AddIOHook(portno, this))
 					{
-						std::string sbegin = portno.substr(0, dash);
-						std::string send = portno.substr(dash+1, portno.length());
-						long begin = atoi(sbegin.c_str());
-						long end = atoi(send.c_str());
-						if ((begin < 0) || (end < 0) || (begin > 65535) || (end > 65535) || (begin >= end))
-						{
-							ServerInstance->Log(DEFAULT,"WARNING: Port range \"%d-%d\" discarded. begin >= end, or begin/end out of range.", begin, end);
-						}
-						else
-						{
-							for (int portval = begin; portval <= end; ++portval)
-							{
-								if (ServerInstance->Config->AddIOHook(portval, this))
-								{
-									listenports.push_back(portval);
-									ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portval);
-								}
-								else
-								{
-									ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?",
-												portval);
-								}
-							}
-						}
+						listenports.push_back(portno);
+						ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portno);
 					}
 					else
 					{
-						if (ServerInstance->Config->AddIOHook(atoi(portno.c_str()), this))
-						{
-							// We keep a record of which ports we're listening on with SSL
-							listenports.push_back(atoi(portno.c_str()));
-
-							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portno.c_str());
-						}
-						else
-						{
-							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %s, maybe you have another ssl or similar module loaded?", portno.c_str());
-						}
+						ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?",	portno);
 					}
 				}
 			}

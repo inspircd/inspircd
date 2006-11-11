@@ -409,55 +409,20 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
-			irc::commasepstream portrange(configToken);
-			std::string portno = "*";
-			while ((portno = portrange.GetToken()) != "")
+			irc::portparser portrange(configToken);
+			long portno = -1;
+			while (portno = portrange.GetToken())
 			{
-				std::string::size_type dash = portno.rfind('-');
-				if (dash != std::string::npos)
+				if (!HasPort(portno, Addr))
 				{
-					this->Log(DEBUG,"Port range, %s", portno.c_str());
-					/* Range of ports */
-					std::string sbegin = portno.substr(0, dash);
-					std::string send = portno.substr(dash+1, portno.length());
-					long begin = atoi(sbegin.c_str());
-					long end = atoi(send.c_str());
-					if ((begin < 0) || (end < 0) || (begin > 65535) || (end > 65535) || (begin >= end))
-					{
-						this->Log(DEFAULT,"WARNING: Port range \"%d-%d\" discarded. begin >= end, or begin/end out of range.", begin, end);
-					}
-					else
-					{
-						for (int portval = begin; portval <= end; ++portval)
-						{
-							if (!HasPort(portval, Addr))
-							{
-								ports_found++;
-								Config->ports[clientportcount+InitialPortCount] = portval;
-								if (*Addr == '*')
-									*Addr = 0;
+					ports_found++;
+					Config->ports[clientportcount+InitialPortCount] = portno;
+					if (*Addr == '*')
+						*Addr = 0;
 
-								strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
-								clientportcount++;
-								this->Log(DEBUG,"NEW binding %s:%d [%s] from config (part of port range %s)",Addr, portval, Type, portno.c_str());
-							}
-						}
-					}
-				}
-				else
-				{
-					this->Log(DEBUG,"Single port, %s", portno.c_str());
-					/* Single port */
-					if (!HasPort(atoi(portno.c_str()), Addr))
-					{
-						ports_found++;
-						Config->ports[clientportcount+InitialPortCount] = atoi(portno.c_str());
-						if (*Addr == '*')
-							*Addr = 0;
-						strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
-						clientportcount++;
-						this->Log(DEBUG,"NEW binding %s:%s [%s] from config (single port)",Addr, portno.c_str(), Type);
-					}
+					strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
+					clientportcount++;
+					this->Log(DEBUG,"NEW binding %s:%d [%s] from config",Addr, portno, Type);
 				}
 			}
 		}

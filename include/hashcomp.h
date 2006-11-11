@@ -292,6 +292,18 @@ namespace irc
 		}
 	};
 
+	class portparser : public classbase
+	{
+	 private:
+		commasepstream* sep;
+		long in_range;
+		long range_begin;
+		long range_end;
+	 public:
+		portparser(const std::string &source);
+		~portparser();
+		long GetToken();
+	};
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-

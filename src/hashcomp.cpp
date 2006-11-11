@@ -386,3 +386,53 @@ std::string& irc::stringjoiner::GetJoined()
 	return joined;
 }
 
+irc::portparser::portparser(const std::string &source) : in_range(0), range_begin(0), range_end(0)
+{
+	sep = new irc::commasepstream(source);
+}
+
+irc::portparser::~portparser()
+{
+	delete sep;
+}
+
+long irc::portparser::GetToken()
+{
+	if (in_range > 0)
+	{
+		in_range++;
+		if (in_range <= range_end)
+			return in_range;
+		else
+			in_range = 0;
+	}
+
+	std::string x = sep->GetToken();
+
+	if (x == "")
+		return 0;
+
+	std::string::size_type dash = x.rfind('-');
+	if (dash != std::string::npos)
+	{
+		std::string sbegin = x.substr(0, dash);
+		std::string send = x.substr(dash+1, x.length());
+		long range_begin = atoi(sbegin.c_str());
+		long range_end = atoi(send.c_str());
+
+		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
+		{
+			in_range = range_begin;
+			return in_range;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		return atoi(x.c_str());
+	}
+}
+
