@@ -386,14 +386,29 @@ std::string& irc::stringjoiner::GetJoined()
 	return joined;
 }
 
-irc::portparser::portparser(const std::string &source) : in_range(0), range_begin(0), range_end(0)
+irc::portparser::portparser(const std::string &source, bool allow_overlapped) : in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
 {
 	sep = new irc::commasepstream(source);
+	overlap_set.clear();
 }
 
 irc::portparser::~portparser()
 {
 	delete sep;
+}
+
+bool irc::portparser::Overlaps(long val)
+{
+	if (!overlapped)
+		return false;
+
+	if (overlap_set.find(val) == overlap_set.end())
+	{
+		overlap_set[val] = true;
+		return false;
+	}
+	else
+		return true;
 }
 
 long irc::portparser::GetToken()
@@ -402,7 +417,20 @@ long irc::portparser::GetToken()
 	{
 		in_range++;
 		if (in_range <= range_end)
-			return in_range;
+		{
+			if (!Overlaps(in_range))
+			{
+				return in_range;
+			}
+			else
+			{
+				while (((Overlaps(in_range)) && (in_range <= range_end)))
+					in_range++;
+				
+				if (in_range <= range_end)
+					return in_range;
+			}
+		}
 		else
 			in_range = 0;
 	}
@@ -411,6 +439,14 @@ long irc::portparser::GetToken()
 
 	if (x == "")
 		return 0;
+
+	while (Overlaps(atoi(x.c_str())))
+	{
+		x = sep->GetToken();
+
+		if (x == "")
+			return 0;
+	}
 
 	std::string::size_type dash = x.rfind('-');
 	if (dash != std::string::npos)

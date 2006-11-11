@@ -333,10 +333,22 @@ namespace irc
 		/** Ending port in a range of ports
 		 */
 		long range_end;
+		/** Allow overlapped port ranges
+		 */
+		bool overlapped;
+		/** Used to determine overlapping of ports
+		 * without O(n) algorithm being used
+		 */
+		std::map<long, bool> overlap_set;
+		/** Returns true if val overlaps an existing range
+		 */
+		bool Overlaps(long val);
 	 public:
 		/** Create a portparser and fill it with the provided data
+		 * @param source The source text to parse from
+		 * @param allow_overlapped Allow overlapped ranges
 		 */
-		portparser(const std::string &source);
+		portparser(const std::string &source, bool allow_overlapped = true);
 		/** Frees the internal commasepstream object
 		 */
 		~portparser();
