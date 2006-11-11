@@ -82,7 +82,14 @@
 #  bind address - specifies which address ports bind to. Leaving this #
 #                 field blank binds the port to all IPs available.    #
 #                                                                     #
-#  port         - The port number to bind to                          #
+#  port         - The port number to bind to. You may specify a port  #
+#                 range here, e.g. "6667-6669,7000,7001". If you do   #
+#                 this, the server will count each port within your   #
+#                 range as a seperate binding, making the above       #
+#                 example equivalent to five seperate bind tags.      #
+#                 A failure on one port in the range does not prevent #
+#                 the entire range from being bound, just that one    #
+#                 port number.                                        #
 #                                                                     #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
 #                 a standard tcp based socket, the servers type is a  #
@@ -116,9 +123,8 @@
 # default) then you do not need to prefix your addresses like this.   #
 #                                                                     #
 
-<bind address="" port="6660" type="clients">
-<bind address="" port="7000" type="servers">
-<bind address="" port="7001" type="servers">
+<bind address="" port="6660-6669" type="clients">
+<bind address="" port="7000,7001" type="servers">
 
 
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
