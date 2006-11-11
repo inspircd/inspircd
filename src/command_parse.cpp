@@ -241,7 +241,8 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			new_parameters[splithere] = item.c_str();
 			new_parameters[extra] = extrastuff.c_str();
 
-			CommandObj->Handle(new_parameters,pcnt,user);
+			if (CommandObj->Handle(new_parameters,pcnt,user) == CMD_USER_DELETED)
+				return 1;
 
 			dupes[item.c_str()] = true;
 		}
@@ -281,7 +282,13 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			new_parameters[splithere] = item.c_str();
 
 			parameters[splithere] = item.c_str();
-			CommandObj->Handle(new_parameters,pcnt,user);
+
+			/* Execute the command handler over and over. If someone pulls our user
+			 * record out from under us (e.g. if we /kill a comma sep list, and we're
+			 * in that list ourselves) abort if we're gone.
+			 */
+			if (CommandObj->Handle(new_parameters,pcnt,user) == CMD_USER_DELETED)
+				return 1;
 
 			dupes[item.c_str()] = true;
 		}
