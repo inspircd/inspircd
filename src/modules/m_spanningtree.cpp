@@ -3874,7 +3874,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			std::string Port = Conf->ReadValue("bind","port",j);
 			if (Type == "servers")
 			{
-				irc::portparser portrange(Port);
+				irc::portparser portrange(Port, false);
 				int portno = -1;
 				while ((portno = portrange.GetToken()))
 				{

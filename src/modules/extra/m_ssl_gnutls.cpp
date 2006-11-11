@@ -118,7 +118,7 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
-				irc::portparser portrange(port);
+				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{

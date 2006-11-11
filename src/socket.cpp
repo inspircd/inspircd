@@ -409,7 +409,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
-			irc::portparser portrange(configToken);
+			irc::portparser portrange(configToken, false);
 			long portno = -1;
 			while (portno = portrange.GetToken())
 			{
