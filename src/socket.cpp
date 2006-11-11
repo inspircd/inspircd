@@ -398,70 +398,8 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 	ports_found = 0;
 
-	if (!bail)
-	{
-		int InitialPortCount = stats->BoundPortCount;
-		this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
-
-		for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
-		{
-			Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
-			Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
-			Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
-
-			if (((!*Type) || (!strcmp(Type,"clients"))) && (!HasPort(atoi(configToken),Addr)))
-			{
-				ports_found++;
-				// modules handle server bind types now
-				Config->ports[clientportcount+InitialPortCount] = atoi(configToken);
-				if (*Addr == '*')
-					*Addr = 0;
-
-				strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
-				clientportcount++;
-				this->Log(DEBUG,"NEW binding %s:%s [%s] from config",Addr,configToken, Type);
-			}
-		}
-		int PortCount = clientportcount;
-		if (PortCount)
-		{
-			BoundPortCount = stats->BoundPortCount;
-			for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
-			{
-				int fd = OpenTCPSocket();
-				if (fd == ERROR)
-				{
-					this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
-				}
-				else
-				{
-					Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
-					if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
-					{
-						if (!SE->AddFd(Config->openSockfd[BoundPortCount]))
-						{
-							this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
-							shutdown(Config->openSockfd[BoundPortCount]->GetFd(),2);
-							close(Config->openSockfd[BoundPortCount]->GetFd());
-							delete Config->openSockfd[BoundPortCount];
-						}
-						else
-							BoundPortCount++;
-					}
-					/*if (!BindSocket(Config->openSockfd[count],client,server,Config->ports[count],Config->addrs[count]))
-					{
-						this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
-					}*/
-				}
-			}
-			return InitialPortCount + BoundPortCount;
-		}
-		else
-		{
-			this->Log(DEBUG,"There is nothing new to bind!");
-		}
-		return InitialPortCount;
-	}
+	int InitialPortCount = stats->BoundPortCount;
+	this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
@@ -471,20 +409,96 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
-			ports_found++;
-			// modules handle server bind types now
-			Config->ports[clientportcount] = atoi(configToken);
+			irc::commasepstream portrange(configToken);
+			std::string portno = "*";
+			while ((portno = portrange.GetToken()) != "")
+			{
+				std::string::size_type dash = portno.rfind('-');
+				if (dash != std::string::npos)
+				{
+					this->Log(DEBUG,"Port range, %s", portno.c_str());
+					/* Range of ports */
+					std::string sbegin = portno.substr(0, dash);
+					std::string send = portno.substr(dash+1, portno.length());
+					long begin = atoi(sbegin.c_str());
+					long end = atoi(send.c_str());
+					if ((begin < 0) || (end < 0) || (begin > 65535) || (end > 65535) || (begin >= end))
+					{
+						this->Log(DEFAULT,"WARNING: Port range \"%d-%d\" discarded. begin >= end, or begin/end out of range.", begin, end);
+					}
+					else
+					{
+						for (int portval = begin; portval <= end; ++portval)
+						{
+							if (!HasPort(portval, Addr))
+							{
+								ports_found++;
+								Config->ports[clientportcount+InitialPortCount] = portval;
+								if (*Addr == '*')
+									*Addr = 0;
 
-			// If the client put bind "*", this is an unrealism.
-			// We don't actually support this as documented, but
-			// i got fed up of people trying it, so now it converts
-			// it to an empty string meaning the same 'bind to all'.
-			if (*Addr == '*')
-				*Addr = 0;
+								strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
+								clientportcount++;
+								this->Log(DEBUG,"NEW binding %s:%d [%s] from config (part of port range %s)",Addr, portval, Type, portno.c_str());
+							}
+						}
+					}
+				}
+				else
+				{
+					this->Log(DEBUG,"Single port, %s", portno.c_str());
+					/* Single port */
+					if (!HasPort(atoi(portno.c_str()), Addr))
+					{
+						ports_found++;
+						Config->ports[clientportcount+InitialPortCount] = atoi(portno.c_str());
+						if (*Addr == '*')
+							*Addr = 0;
+						strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
+						clientportcount++;
+						this->Log(DEBUG,"NEW binding %s:%s [%s] from config (single port)",Addr, portno.c_str(), Type);
+					}
+				}
+			}
+		}
 
-			strlcpy(Config->addrs[clientportcount],Addr,256);
-			clientportcount++;
-			this->Log(DEBUG,"Binding %s:%s [%s] from config",Addr,configToken, Type);
+		if (!bail)
+		{
+			int PortCount = clientportcount;
+			if (PortCount)
+			{
+				BoundPortCount = stats->BoundPortCount;
+				for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
+				{
+					int fd = OpenTCPSocket();
+					if (fd == ERROR)
+					{
+						this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
+					}
+					else
+					{
+						Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
+						if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
+						{
+							if (!SE->AddFd(Config->openSockfd[BoundPortCount]))
+							{
+								this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
+								shutdown(Config->openSockfd[BoundPortCount]->GetFd(),2);
+								close(Config->openSockfd[BoundPortCount]->GetFd());
+								delete Config->openSockfd[BoundPortCount];
+							}
+							else
+								BoundPortCount++;
+						}
+					}
+				}
+				return InitialPortCount + BoundPortCount;
+			}
+			else
+			{
+				this->Log(DEBUG,"There is nothing new to bind!");
+			}
+			return InitialPortCount;
 		}
 	}
 
@@ -504,10 +518,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 			{
 				BoundPortCount++;
 			}
-			/*if (!BindSocket(Config->openSockfd[BoundPortCount],client,server,Config->ports[count],Config->addrs[count]))
-			{
-				this->Log(DEFAULT,"Failed to bind port [%s:%d]: %s",Config->addrs[count],Config->ports[count],strerror(errno));
-			}*/
 		}
 	}
 	return BoundPortCount;
