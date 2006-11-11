@@ -3871,27 +3871,71 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		{
 			std::string Type = Conf->ReadValue("bind","type",j);
 			std::string IP = Conf->ReadValue("bind","address",j);
-			int Port = Conf->ReadInteger("bind","port",j,true);
+			std::string Port = Conf->ReadValue("bind","port",j);
 			if (Type == "servers")
 			{
-				ServerInstance->Log(DEBUG,"m_spanningtree: Binding server port %s:%d", IP.c_str(), Port);
-				if (IP == "*")
+				irc::commasepstream portrange(Port);
+				std::string portno = "*";
+				while ((portno = portrange.GetToken()) != "")
 				{
-					IP = "";
+					std::string::size_type dash = portno.rfind('-');
+					if (dash != std::string::npos)
+					{
+						std::string sbegin = portno.substr(0, dash);
+						std::string send = portno.substr(dash+1, portno.length());
+						long begin = atoi(sbegin.c_str());
+						long end = atoi(send.c_str());
+
+						if ((begin < 0) || (end < 0) || (begin > 65535) || (end > 65535) || (begin >= end))
+						{
+							ServerInstance->Log(DEFAULT,"WARNING: Port range \"%d-%d\" discarded. begin >= end, or begin/end out of range.", begin, end);
+						}
+						else
+						{
+							for (long port = begin; port <= end; ++port)
+							{
+								ServerInstance->Log(DEBUG,"m_spanningtree: Binding server port %s:%d (part of range %s)", IP.c_str(), port, portno.c_str());
+								if (IP == "*")
+									IP = "";
+
+								TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), port, true, 10);
+								if (listener->GetState() == I_LISTENING)
+								{
+									ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), port);
+									Bindings.push_back(listener);
+								}
+								else
+								{
+									ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %s:%d (forms part of range '%s')",IP.c_str(),
+											port, portno.c_str());
+									listener->Close();
+									DELETE(listener);
+								}
+								ServerInstance->Log(DEBUG,"Done with this binding");
+							}
+						}
+					}
+					else
+					{
+						ServerInstance->Log(DEBUG,"m_spanningtree: Binding server port %s:%s (single port %s)", IP.c_str(), portno.c_str(), portno.c_str());
+						if (IP == "*")
+							IP = "";
+
+						TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(),atoi(portno.c_str()),true,10);
+						if (listener->GetState() == I_LISTENING)
+						{
+							ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%s successful!", IP.c_str(), portno.c_str());
+							Bindings.push_back(listener);
+						}
+						else
+						{
+							ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %s:%s",IP.c_str(), portno.c_str());
+							listener->Close();
+							DELETE(listener);
+						}
+						ServerInstance->Log(DEBUG,"Done with this binding");
+					}
 				}
-				TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(),Port,true,10);
-				if (listener->GetState() == I_LISTENING)
-				{
-					ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), Port);
-					Bindings.push_back(listener);
-				}
-				else
-				{
-					ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %d",Port);
-					listener->Close();
-					DELETE(listener);
-				}
-				ServerInstance->Log(DEBUG,"Done with this binding");
 			}
 		}
 	}
