@@ -392,7 +392,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				if (!user->IsModeSet(cm->second->flags_needed))
 				{
-					user->WriteServ("481 %s :Permission Denied- You do not have the required operator privilages",user->nick);
+					user->WriteServ("481 %s :Permission Denied- You do not have the required operator privileges",user->nick);
 					return;
 				}
 				if (!user->HasPermission(command))
