@@ -427,7 +427,8 @@ long irc::portparser::GetToken()
 		}
 		else
 		{
-			return 0;
+			/* Assume its just the one port */
+			return atoi(sbegin.c_str());
 		}
 	}
 	else
