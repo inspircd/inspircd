@@ -4940,7 +4940,8 @@ class ModuleSpanningTree : public Module
 		{
 			/* Server-set lines */
 			char data[MAXBUF];
-			snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", linetype, host.c_str(), ServerInstance->Config->ServerName, ServerInstance->Time(false), duration, reason.c_str());
+			snprintf(data,MAXBUF,"%c %s %s %lu %lu :%s", linetype, host.c_str(), ServerInstance->Config->ServerName, (unsigned long)ServerInstance->Time(false),
+					(unsigned long)duration, reason.c_str());
 			std::deque<std::string> params;
 			params.push_back(data);
 			Utils->DoOneToMany(ServerInstance->Config->ServerName, "ADDLINE", params);
