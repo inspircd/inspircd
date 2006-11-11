@@ -417,8 +417,8 @@ long irc::portparser::GetToken()
 	{
 		std::string sbegin = x.substr(0, dash);
 		std::string send = x.substr(dash+1, x.length());
-		long range_begin = atoi(sbegin.c_str());
-		long range_end = atoi(send.c_str());
+		range_begin = atoi(sbegin.c_str());
+		range_end = atoi(send.c_str());
 
 		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
 		{
