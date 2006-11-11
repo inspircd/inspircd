@@ -411,7 +411,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 		{
 			irc::portparser portrange(configToken, false);
 			long portno = -1;
-			while (portno = portrange.GetToken())
+			while ((portno = portrange.GetToken()))
 			{
 				if (!HasPort(portno, Addr))
 				{
