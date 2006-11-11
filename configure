@@ -46,6 +46,7 @@ GetOptions (
 	'module-dir=s' => \$opt_module_dir,
 	'binary-dir=s' => \$opt_binary_dir,
 	'library-dir=s' => \$opt_library_dir,
+	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'modupdate' => sub { modupdate(); },
 	'update' => sub { update(); },
@@ -136,7 +137,14 @@ if (defined $opt_use_openssl)
 
 # no, let's not change these.
 $config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
-$config{OPTIMISATI}         = "-g";                             		# Optimisation Flag
+if (!defined $opt_disable_debug)
+{
+	$config{OPTIMISATI}         = "-g";                             	# Optimisation Flag
+}
+else
+{
+	$config{OPTIMISATI}         = "";					# DEBUGGING OFF!
+}
 
 $config{NICK_LENGT}         = "31";                             		# Default Nick Length
 if (defined $opt_nick_length)
@@ -303,6 +311,12 @@ sub update
 		# We've Loaded the cache file and all our variables..
 		print "Updating Files..\n";
 		getosflags();
+		if ($opt_disable_debug == 1)
+		{
+			print "Disabling debug information (-g).\n";
+			$config{OPTIMISATI} = "";
+			getosflags();
+		}
 		$has_epoll = $config{HAS_EPOLL};
 		$has_kqueue = $config{HAS_KQUEUE};
 		writefiles(1);
