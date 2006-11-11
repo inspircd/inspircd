@@ -49,18 +49,18 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
+		ServerInstance->Log(DEBUG,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
 	}
 	if (GetRemainingFds() <= 1)
 	{
-		ServerInstance->Log(DEFAULT,"ERROR: System out of file descriptors!");
+		ServerInstance->Log(DEBUG,"ERROR: System out of file descriptors!");
 		return false;
 	}
 
 	if (ref[fd])
 	{
-		ServerInstance->Log(DEFAULT,"ERROR: Slot already occupied");
+		ServerInstance->Log(DEBUG,"ERROR: Slot already occupied");
 		return false;
 	}
 

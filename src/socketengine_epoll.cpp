@@ -43,17 +43,17 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Log(DEFAULT,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
+		ServerInstance->Log(DEBUG,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
 	}
 	if (GetRemainingFds() <= 1)
 	{
-		ServerInstance->Log(DEFAULT,"ERROR: System out of file descriptors!");
+		ServerInstance->Log(DEBUG,"ERROR: System out of file descriptors!");
 		return false;
 	}
 	if (ref[fd])
 	{
-		ServerInstance->Log(DEFAULT,"Slot %d already occupied",fd);
+		ServerInstance->Log(DEBUG,"Slot %d already occupied",fd);
 		return false;
 	}
 
