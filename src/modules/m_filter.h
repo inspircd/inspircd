@@ -201,7 +201,7 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 		ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their notice filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
 		if (f->action == "kill")
 		{
-			userrec::QuitUser(ServerInstance,user,f->reason);
+			userrec::QuitUser(ServerInstance,user,"Filtered: "+f->reason);
 		}
 		if (f->action == "gline")
 		{
