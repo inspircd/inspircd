@@ -132,6 +132,8 @@ namespace irc
 	class stringjoiner
 	{
 	 private:
+		/** Output string
+		 */
 		std::string joined;
 	 public:
 		/** Join elements of a vector, between (and including) begin and end
@@ -232,9 +234,17 @@ namespace irc
 	class tokenstream
 	{
 	 private:
+		/** Original string
+		 */
 		std::string tokens;
+		/** Last position of a seperator token
+		 */
 		std::string::iterator last_starting_position;
+		/** Current string position
+		 */
 		std::string::iterator n;
+		/** True if the last value was an ending value
+		 */
 		bool last_pushed;
 	 public:
 		/** Create a tokenstream and fill it with the provided data
@@ -256,9 +266,17 @@ namespace irc
 	class sepstream : public classbase
 	{
 	 private:
+		/** Original string
+		 */
 		std::string tokens;
+		/** Last position of a seperator token
+		 */
 		std::string::iterator last_starting_position;
+		/** Current string position
+		 */
 		std::string::iterator n;
+		/** Seperator value
+		 */
 		char sep;
 	 public:
 		/** Create a sepstream and fill it with the provided data
@@ -292,16 +310,39 @@ namespace irc
 		}
 	};
 
+	/** The portparser class seperates out a port range into integers.
+	 * A port range may be specified in the input string in the form
+	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by
+	 * a return value of 0 from portparser::GetToken(). If you attempt
+	 * to specify an illegal range (e.g. one where start >= end, or
+	 * start or end < 0) then GetToken() will return the first element
+	 * of the pair of numbers.
+	 */
 	class portparser : public classbase
 	{
 	 private:
+		/** Used to split on commas
+		 */
 		commasepstream* sep;
+		/** Current position in a range of ports
+		 */
 		long in_range;
+		/** Starting port in a range of ports
+		 */
 		long range_begin;
+		/** Ending port in a range of ports
+		 */
 		long range_end;
 	 public:
+		/** Create a portparser and fill it with the provided data
+		 */
 		portparser(const std::string &source);
+		/** Frees the internal commasepstream object
+		 */
 		~portparser();
+		/** Fetch the next token from the stream
+		 * @returns The next port number is returned, or 0 if none remain
+		 */
 		long GetToken();
 	};
 
