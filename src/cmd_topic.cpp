@@ -75,25 +75,36 @@ CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 					return CMD_FAILURE;
 				}
 			}
+
 			char topic[MAXTOPIC];
-			strlcpy(topic,parameters[1],MAXTOPIC-1);
 
 			if (IS_LOCAL(user))
 			{
+				/* XXX: we need two string copies for a local topic, because we cant
+				 * let a module see the topic as longer than it actually is
+				 */
 				int MOD_RESULT = 0;
+
+				strlcpy(topic,parameters[1],MAXTOPIC-1);
 				FOREACH_RESULT(I_OnLocalTopicChange,OnLocalTopicChange(user,Ptr,topic));
 				if (MOD_RESULT)
 					return CMD_FAILURE;
+
+				strlcpy(Ptr->topic,topic,MAXTOPIC-1);
+			}
+			else
+			{
+				/* Sneaky shortcut, one string copy for a remote topic */
+				strlcpy(Ptr->topic, parameters[1], MAXTOPIC-1);
 			}
 
-			strlcpy(Ptr->topic,topic,MAXTOPIC-1);
 			strlcpy(Ptr->setby,user->nick,NICKMAX-1);
 			Ptr->topicset = ServerInstance->Time();
 			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
+
 			if (IS_LOCAL(user))
-			{
-				FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(user,Ptr,topic));
-			}
+				/* We know 'topic' will contain valid data here */
+				FOREACH_MOD(I_OnPostLocalTopicChange,OnPostLocalTopicChange(user, Ptr, topic));
 		}
 		else
 		{
