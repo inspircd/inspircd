@@ -3410,7 +3410,7 @@ class TreeSocket : public InspSocket
 						sourceserv = this->InboundServerName;
 
 					if (params.size() >= 1)
-						Instance->WriteOpers("*** From " + sourceserv + ": " + params[1]);
+						Instance->WriteOpers("*** From " + sourceserv + ": " + params[0]);
 
 					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 				}
