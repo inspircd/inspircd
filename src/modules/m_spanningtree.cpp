@@ -3402,6 +3402,18 @@ class TreeSocket : public InspSocket
 					}
 					return true;
 				}
+				else if (command == "OPERNOTICE")
+				{
+					std::string sourceserv = this->myhost;
+
+					if (this->InboundServerName != "")
+						sourceserv = this->InboundServerName;
+
+					if (params.size() >= 1)
+						Instance->WriteOpers("*** From " + sourceserv + ": " + params[1]);
+
+					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+				}
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
@@ -5161,8 +5173,13 @@ class ModuleSpanningTree : public Module
 		{
 			if (params->size() < 2)
 				return;
-			// Insert the TS value of the object, either userrec or chanrec
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
+		}
+		else if (event->GetEventID() == "send_opers")
+		{
+			if (params->size() < 1)
+				return;
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"OPERNOTICE",*params);
 		}
 		else if (event->GetEventID() == "send_push")
 		{
