@@ -60,9 +60,12 @@ class cmd_samode : public command_t
 		delete n;
 
 		if (ServerInstance->Modes->GetLastParse().length())
+		{
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SAMODE: "+ServerInstance->Modes->GetLastParse());
+			return CMD_SUCCESS;
+		}
 
-		return CMD_SUCCESS;
+		return CMD_FAILURE;
 	}
 };
 
