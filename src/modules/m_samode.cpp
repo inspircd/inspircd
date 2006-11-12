@@ -62,7 +62,21 @@ class cmd_samode : public command_t
 		if (ServerInstance->Modes->GetLastParse().length())
 		{
 			ServerInstance->WriteOpers(std::string(user->nick)+" used SAMODE: "+ServerInstance->Modes->GetLastParse());
-			return CMD_SUCCESS;
+
+			std::deque<std::string> n;
+			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());
+			std::string one = "*";
+			while ((one = spaced.GetToken()) != "")
+				n.push_back(one);
+
+			Event rmode((char *)&n, NULL, "send_mode_explicit");
+			rmode.Send(ServerInstance);
+
+			/* XXX: Yes, this is right. We dont want to propogate the
+			 * actual SAMODE command, just the MODE command generated
+			 * by the send_mode_explicit
+			 */
+			return CMD_FAILURE;
 		}
 
 		return CMD_FAILURE;
