@@ -1284,6 +1284,12 @@
 #<module name="m_remove.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Restrict banned users module:
+# Disallows banned users on a channel from messaging the channel,
+# changing nick, or changing the topic, if loaded.
+#<module name="m_restrictbanned.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restricted channels module: Allows only opers to create channels
 #<module name="m_restrictchans.so">
 
