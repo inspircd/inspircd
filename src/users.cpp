@@ -1816,7 +1816,8 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing hosts");
 
-	strlcpy(this->dhost,host,63);
+	/* Fix by Om: userrec::dhost is 65 long, this was truncating some long hosts */
+	strlcpy(this->dhost,host,64);
 
 	if (this->ServerInstance->Config->CycleHosts)
 	{
@@ -2072,4 +2073,3 @@ void userrec::HandleEvent(EventType et, int errornum)
 		ServerInstance->Log(DEBUG,"Exception in userrec::HandleEvent intercepted");
 	}
 }
-
