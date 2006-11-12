@@ -5173,13 +5173,13 @@ class ModuleSpanningTree : public Module
 		{
 			if (params->size() < 2)
 				return;
-			(*params)[0] = ":" + (*params)[0];
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 		}
 		else if (event->GetEventID() == "send_opers")
 		{
 			if (params->size() < 1)
 				return;
+			(*params)[0] = ":" + (*params)[0];
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"OPERNOTICE",*params);
 		}
 		else if (event->GetEventID() == "send_push")
