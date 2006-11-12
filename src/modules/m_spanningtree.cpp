@@ -3414,6 +3414,30 @@ class TreeSocket : public InspSocket
 
 					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 				}
+				else if (command == "MODENOTICE")
+				{
+					std::string sourceserv = this->myhost;
+					if (this->InboundServerName != "")
+						sourceserv = this->InboundServerName;
+					if (params.size() >= 2)
+					{
+						Instance->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", sourceserv.c_str(), params[1].c_str());
+					}
+
+					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+				}
+				else if (command == "SNONOTICE")
+				{
+					std::string sourceserv = this->myhost;
+					if (this->InboundServerName != "")
+						sourceserv = this->InboundServerName;
+					if (params.size() >= 2)
+					{
+						Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + sourceserv + ": "+ params[1]);
+					}
+
+					return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
+				}
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
@@ -5181,6 +5205,20 @@ class ModuleSpanningTree : public Module
 				return;
 			(*params)[0] = ":" + (*params)[0];
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"OPERNOTICE",*params);
+		}
+		else if (event->GetEventID() == "send_modeset")
+		{
+			if (params->size() < 2)
+				return;
+			(*params)[1] = ":" + (*params)[1];
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODENOTICE",*params);
+		}
+		else if (event->GetEventID() == "send_snoset")
+		{
+			if (params->size() < 2)
+				return;
+			(*params)[1] = ":" + (*params)[1];
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"SNONOTICE",*params);
 		}
 		else if (event->GetEventID() == "send_push")
 		{
