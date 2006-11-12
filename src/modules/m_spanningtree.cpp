@@ -1927,6 +1927,25 @@ class TreeSocket : public InspSocket
 		if (numusers)
 			buffer.append(list).append("\r\n");
 
+		/* Sorry for the hax. Because newly created channels assume +nt,
+		 * if this channel doesnt have +nt, explicitly send -n and -t for the missing modes.
+		 */
+		bool inverted = false;
+		if (!c->IsModeSet('n'))
+		{
+			modes.append("-n");
+			inverted = true;
+		}
+		if (!c->IsModeSet('t'))
+		{
+			modes.append("-t");
+			inverted = true;
+		}
+		if (inverted)
+		{
+			modes.append("+");
+		}
+
 		for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 		{
 			modes.append("b");
