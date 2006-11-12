@@ -3443,6 +3443,9 @@ class TreeSocket : public InspSocket
 							this->Instance->SendMode(modelist, params.size(), fake);
 	
 							delete fake;
+
+							/* Hot potato! pass it on! */
+							return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 						}
 					}
 					if (who)
