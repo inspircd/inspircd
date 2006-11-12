@@ -301,7 +301,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if (stats->BoundPortCount != (unsigned int)found_ports)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %ld of %d client ports bound.\n\n", stats->BoundPortCount, found_ports);
-		printf("The following %lu port%s failed to bind:\n", found_ports - stats->BoundPortCount, found_ports - stats->BoundPortCount != 1 ? "s" : "");
+		printf("The following port%s failed to bind:\n", found_ports - stats->BoundPortCount != 1 ? "s" : "");
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
