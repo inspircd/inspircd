@@ -61,7 +61,7 @@ class cmd_samode : public command_t
 
 		if (ServerInstance->Modes->GetLastParse().length())
 		{
-			ServerInstance->WriteOpers(std::string(user->nick)+" used SAMODE: "+ServerInstance->Modes->GetLastParse());
+			ServerInstance->WriteOpers("*** " + std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 
 			std::deque<std::string> n;
 			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());
@@ -77,6 +77,10 @@ class cmd_samode : public command_t
 			 * by the send_mode_explicit
 			 */
 			return CMD_FAILURE;
+		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** Invalid SAMODE sequence.", user->nick);
 		}
 
 		return CMD_FAILURE;
