@@ -31,7 +31,7 @@
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  */
-const long ProtocolVersion = 1101;
+const long ProtocolVersion = 1102;
 
 /*
  * The server list in InspIRCd is maintained as two structures
