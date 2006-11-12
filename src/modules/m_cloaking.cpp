@@ -342,7 +342,7 @@ class CloakUser : public ModeHandler
 					 * vhost.
 					 */
 
-					if ((insp_aton(dest->host,&testaddr) < 1) && (hostcloak.length() < 64))
+					if ((insp_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
 					{
 						// if they have a hostname, make something appropriate
 						b = hostcloak;
