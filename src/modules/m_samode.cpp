@@ -75,7 +75,7 @@ class cmd_samode : public command_t
 			n.clear();
 			n.push_back(std::string(user->nick) + " used SAMODE: " + ServerInstance->Modes->GetLastParse());
 			Event rmode2((char *)&n, NULL, "send_opers");
-			rmode.Send(ServerInstance);
+			rmode2.Send(ServerInstance);
 
 			/* XXX: Yes, this is right. We dont want to propogate the
 			 * actual SAMODE command, just the MODE command generated
