@@ -389,7 +389,7 @@ bool InspIRCd::HasPort(int port, char* addr)
 }
 
 /* XXX: Probably belongs in class InspIRCd */
-int InspIRCd::BindPorts(bool bail, int &ports_found)
+int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	insp_sockaddr client, server;
@@ -439,6 +439,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 					if (fd == ERROR)
 					{
 						this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
+						failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 					}
 					else
 					{
@@ -451,6 +452,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 								shutdown(Config->openSockfd[BoundPortCount]->GetFd(),2);
 								close(Config->openSockfd[BoundPortCount]->GetFd());
 								delete Config->openSockfd[BoundPortCount];
+								failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 							}
 							else
 								BoundPortCount++;
@@ -475,6 +477,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 		if (fd == ERROR)
 		{
 			this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
+			failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 		}
 		else
 		{
@@ -483,6 +486,8 @@ int InspIRCd::BindPorts(bool bail, int &ports_found)
 			{
 				BoundPortCount++;
 			}
+			else
+				failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 		}
 	}
 	return BoundPortCount;

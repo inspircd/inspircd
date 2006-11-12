@@ -190,6 +190,9 @@ class FileLogger : public EventHandler
 	virtual ~FileLogger();
 };
 
+/** A list of failed port bindings, used for informational purposes on startup */
+typedef std::vector<std::pair<std::string, long> > FailedPortList;
+
 class XLineManager;
 
 /** The main class of the irc server.
@@ -465,7 +468,7 @@ class InspIRCd : public classbase
 	 * @param found_ports The actual number of ports found in the config, as opposed to the number actually bound
 	 * @return The number of ports actually bound without error
 	 */
-	int BindPorts(bool bail, int &found_ports);
+	int BindPorts(bool bail, int &found_ports, FailedPortList &failed_ports);
 
 	/** Returns true if this server has the given port bound to the given address
 	 * @param port The port number

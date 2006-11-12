@@ -183,6 +183,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
 {
 	int found_ports = 0;
+	FailedPortList pl;
 
 	modules.resize(255);
 	factory.resize(255);
@@ -260,7 +261,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->AddServerName(Config->ServerName);	
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
-	stats->BoundPortCount = BindPorts(true, found_ports);
+	stats->BoundPortCount = BindPorts(true, found_ports, pl);
 
 	for(int t = 0; t < 255; t++)
 		Config->global_implementation[t] = 0;
@@ -299,7 +300,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	
 	if (stats->BoundPortCount != (unsigned int)found_ports)
 	{
-		printf("\nWARNING: Not all your client ports could be bound --\n         starting anyway with %ld of %d client ports bound.\n", stats->BoundPortCount, found_ports);
+		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %ld of %d client ports bound.\n\n", stats->BoundPortCount, found_ports);
+		printf("The following %lu port%s failed to bind:\n", found_ports - stats->BoundPortCount, found_ports - stats->BoundPortCount != 1 ? "s" : "");
+		int j = 1;
+		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+		{
+			printf("%d.\tIP: %s\tPort: %lu\n", j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+		}
 	}
 
 	/* Add the listening sockets used for client inbound connections
