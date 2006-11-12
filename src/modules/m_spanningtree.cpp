@@ -4848,6 +4848,14 @@ class ModuleSpanningTree : public Module
 			params.push_back(ConvToStr(channel->age));
 			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->nick));
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
+			if (channel->GetUserCounter() == 1)
+			{
+				/* First user in, sync the modes for the channel */
+				params.pop_back();
+				/* This is safe, all inspircd servers default to +nt */
+				params.push_back("+nt");
+				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
+			}
 		}
 	}
 
