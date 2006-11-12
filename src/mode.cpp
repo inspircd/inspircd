@@ -244,7 +244,7 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	{
 		/* Display channel's current mode string */
 		user->WriteServ("324 %s %s +%s",user->nick, targetchannel->name, targetchannel->ChanModes(targetchannel->HasUser(user)));
-		user->WriteServ("329 %s %s %d", user->nick, targetchannel->name, targetchannel->created);
+		user->WriteServ("329 %s %s %lu", user->nick, targetchannel->name, (unsigned long)targetchannel->age);
 		return;
 	}
 	else if (targetuser)
