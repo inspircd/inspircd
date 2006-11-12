@@ -771,9 +771,20 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	if (!bail)
 	{
-		int found_ports;
+		int found_ports = 0;
 		FailedPortList pl;
 		ServerInstance->stats->BoundPortCount = ServerInstance->BindPorts(false, found_ports, pl);
+
+		if (pl.size())
+		{
+			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
+			user->WriteServ("NOTICE %s :*** The following port%s failed to bind:", user->nick, found_ports - ServerInstance->stats->BoundPortCount != 1 ? "s" : "");
+			int j = 1;
+			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
+			{
+				user->WriteServ("NOTICE %s :*** %d.   IP: %s     Port: %lu", user->nick, j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
+			}
+		}
 
 		if (!removed_modules.empty())
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
