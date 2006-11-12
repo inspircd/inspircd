@@ -3429,6 +3429,22 @@ class TreeSocket : public InspSocket
 					{
 						sourceserv = this->InboundServerName;
 					}
+					if ((!who) && (command == "MODE"))
+					{
+						if (Utils->IsServer(prefix))
+						{
+							const char* modelist[127];
+							for (size_t i = 0; i < params.size(); i++)
+								modelist[i] = params[i].c_str();
+
+							userrec* fake = new userrec(Instance);
+							fake->SetFd(FD_MAGIC_NUMBER);
+
+							this->Instance->SendMode(modelist, params.size(), fake);
+	
+							delete fake;
+						}
+					}
 					if (who)
 					{
 						if ((command == "NICK") && (params.size() > 0))
@@ -5137,6 +5153,13 @@ class ModuleSpanningTree : public Module
 			}
 			params->insert(params->begin() + 1,ConvToStr(ourTS));
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
+		}
+		else if (event->GetEventID() == "send_mode_explicit")
+		{
+			if (params->size() < 2)
+				return;
+			// Insert the TS value of the object, either userrec or chanrec
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 		}
 		else if (event->GetEventID() == "send_push")
 		{
