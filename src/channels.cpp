@@ -226,7 +226,11 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		Instance->chanlist[cname] = Ptr;
 
 		strlcpy(Ptr->name, cname,CHANMAX);
-		Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
+
+		/* As spotted by jilles, dont bother to set this on remote users */
+		if (IS_LOCAL(user))
+			Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
+
 		Ptr->created = Instance->Time();
 		*Ptr->topic = 0;
 		*Ptr->setby = 0;
