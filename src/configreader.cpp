@@ -334,8 +334,11 @@ bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, void
 		conf->WhoWasMaxGroups = 0;
 
 	if (conf->WhoWasMaxKeep < 3600)
+	{
 		conf->WhoWasMaxKeep = 3600;
-
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
+	}
+	conf->GetInstance()->Log(DEBUG,"whowas:groupsize:%d maxgroups:%d maxkeep:%d",conf->WhoWasGroupSize,conf->WhoWasMaxGroups,conf->WhoWasMaxKeep);
 	irc::whowas::PruneWhoWas(conf->GetInstance(), conf->GetInstance()->Time());
 	return true;
 }

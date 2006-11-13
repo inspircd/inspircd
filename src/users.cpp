@@ -861,7 +861,7 @@ namespace irc
 				free(gecos);
 		}
 
-		/* every hour, run this function which removes all entries over 3 days */
+		/* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
 		void MaintainWhoWas(InspIRCd* ServerInstance, time_t t)
 		{
 			for (whowas_users::iterator iter = ServerInstance->whowas.begin(); iter != ServerInstance->whowas.end(); iter++)
@@ -881,15 +881,19 @@ namespace irc
 		/* on rehash, refactor maps according to new conf values */
 		void PruneWhoWas(InspIRCd* ServerInstance, time_t t)
 		{
+			/* config values */
 			int groupsize = ServerInstance->Config->WhoWasGroupSize;
 			int maxgroups = ServerInstance->Config->WhoWasMaxGroups;
 			int maxkeep =   ServerInstance->Config->WhoWasMaxKeep;
 
-			int groupcount = 0;
+			int groupcount = ServerInstance->whowas.size();
+			/* iterate whowas_fifo oldest first */
 			for (whowas_users_fifo::iterator iter = ServerInstance->whowas_fifo.begin(); iter != ServerInstance->whowas_fifo.end(); iter++)
 			{
-				groupcount++;
-
+				/** prune all groups that has expired due to new maxkeep time and
+				 *  also any group number higher than new maxgroups. The oldest are
+				 *  removed first due to iteration over whowas_fifo 
+				 */
 				if (groupcount > maxgroups || iter->first < t - maxkeep)
 				{
 					whowas_set* n = (whowas_set*)ServerInstance->whowas.find(iter->second)->second;
@@ -906,21 +910,21 @@ namespace irc
 					ServerInstance->whowas_fifo.erase(iter->first);
 				}
 				else {
+					/* also trim individual groupsizes in case groupsize should have been lowered */
 					whowas_set* n = (whowas_set*)ServerInstance->whowas.find(iter->second)->second;
 					if (n->size())
 					{
-						int nickcount = 0;
-						while (n->begin() != n->end())
+						int nickcount = n->size();
+						while (n->begin() != n->end() && nickcount > groupsize)
 						{
-							nickcount++;
-							if (nickcount > groupsize){
-								WhoWasGroup *a = *(n->begin());
-								DELETE(a);
-								n->erase(n->begin());
-							}
+							WhoWasGroup *a = *(n->begin());
+							DELETE(a);
+							n->erase(n->begin());
+							nickcount--;
 						}
 					}
 				}
+				groupcount--;
 			}
 		}
 	};
@@ -929,6 +933,12 @@ namespace irc
 /* adds or updates an entry in the whowas list */
 void userrec::AddToWhoWas()
 {
+	/* if whowas disabled */
+	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
+	{
+		return;
+	}
+
 	irc::whowas::whowas_users::iterator iter = ServerInstance->whowas.find(this->nick);
 
 	ServerInstance->Log(DEBUG,"Add to whowas lists");
@@ -943,6 +953,7 @@ void userrec::AddToWhoWas()
 		ServerInstance->whowas_fifo[ServerInstance->Time()] = this->nick;
 		if ((int)(ServerInstance->whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
 		{
+			ServerInstance->Log(DEBUG,"Maxgroups of %d reached deleting oldest group '%s'",ServerInstance->Config->WhoWasMaxGroups, ServerInstance->whowas_fifo.begin()->second.c_str());
 			ServerInstance->whowas.erase(ServerInstance->whowas_fifo.begin()->second);
 			ServerInstance->whowas_fifo.erase(ServerInstance->whowas_fifo.begin());
 		}
@@ -953,9 +964,9 @@ void userrec::AddToWhoWas()
 
 		ServerInstance->Log(DEBUG,"Using existing whowas group for %s",this->nick);
 
-		if ((int)(group->size()) > ServerInstance->Config->WhoWasMaxGroups)
+		if ((int)(group->size()) >= ServerInstance->Config->WhoWasGroupSize)
 		{
-			ServerInstance->Log(DEBUG,"Trimming existing group to ten entries for %s",this->nick);
+			ServerInstance->Log(DEBUG,"Trimming existing group '%s' to %d entries",this->nick, ServerInstance->Config->WhoWasGroupSize);
 			irc::whowas::WhoWasGroup *a = (irc::whowas::WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();

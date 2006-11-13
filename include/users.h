@@ -830,7 +830,7 @@ namespace irc
 
 		/** Sets of time and users in whowas list
 		 */
-		typedef std::map<time_t, irc::string> whowas_users_fifo;
+		typedef std::map<time_t,irc::string> whowas_users_fifo;
 
 		/** Called every hour by the core to remove expired entries
 		 */
