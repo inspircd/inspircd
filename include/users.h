@@ -828,9 +828,18 @@ namespace irc
 		 */
 		typedef std::map<irc::string,whowas_set*> whowas_users;
 
+		/** Sets of time and users in whowas list
+		 */
+		typedef std::map<time_t, irc::string> whowas_users_fifo;
+
 		/** Called every hour by the core to remove expired entries
 		 */
 		void MaintainWhoWas(InspIRCd* ServerInstance, time_t TIME);
+
+		/** Prune for WhoWasGroupSize, WhoWasMaxGroups and
+		 *  WhoWasMaxKeep on rehash
+		 */
+		void PruneWhoWas(InspIRCd* ServerInstance, time_t TIME);
 	};
 };
 

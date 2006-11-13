@@ -741,6 +741,32 @@
          notimesync="no"
          allowhalfop="yes">
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This tag lets you define the behaviour of the /whowas command of    #
+# your server.                                                        #
+#                                                                     #
+# groupsize      - Controls the maximum entries per nick shown when   #
+#                  performing a /whowas nick.                         #
+#                                                                     #
+# maxgroups      - The maximum number of nickgroups that can be added #
+#                  to the list. If max is reached, oldest group will  #
+#                  be deleted first like a FIFO. A groupsize of 3 and #
+#                  a maxgroups of 5000 will allow for 5000 nicks to   #
+#                  be stored with a history of 3, thus giving a total #
+#                  of 3 * 5000 = 15000 entries.                       #
+#                                                                     #
+# maxkeep        - The maximum time a nick is kept in the whowas list #
+#                  before being pruned. Time may be specified in      #
+#                  seconds, or in the following format: 1y2w3d4h5m6s  #
+#                  meaning one year, two weeks, three days, 4 hours,  #
+#                  5 minutes and 6 seconds. All fields in this format #
+#                  are optional. Minimum is 1 hour, if less InspIRCd  #
+#                  will default back to 1 hour.                       #
+#                                                                     #
+#<whowas groupsize="10"                                               #
+#        maxgroups="100000"                                           #
+#        maxkeep="3d">                                                #
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  MODULE OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#

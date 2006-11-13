@@ -41,6 +41,9 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	debugging = 0;
 	LogLevel = DEFAULT;
 	maxbans.clear();
+	WhoWasGroupSize = 10;
+	WhoWasMaxGroups = WhoWasGroupSize * MAXCLIENTS;
+	WhoWasMaxKeep = 3600*24*3; // 3 days
 }
 
 void ServerConfig::ClearStack()
@@ -319,6 +322,24 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void*
 	return true;
 }
 
+bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, void* data)
+{
+	const char* max = (const char*)data;
+	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(max);
+
+	if (conf->WhoWasGroupSize < 0)
+		conf->WhoWasGroupSize = 0;
+
+	if (conf->WhoWasMaxGroups < 0)
+		conf->WhoWasMaxGroups = 0;
+
+	if (conf->WhoWasMaxKeep < 3600)
+		conf->WhoWasMaxKeep = 3600;
+
+	irc::whowas::PruneWhoWas(conf->GetInstance(), conf->GetInstance()->Time());
+	return true;
+}
+
 /* Callback called before processing the first <connect> tag
  */
 bool InitConnect(ServerConfig* conf, const char* tag)
@@ -511,6 +532,7 @@ bool DoneMaxBans(ServerConfig* conf, const char* tag)
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	char debug[MAXBUF];		/* Temporary buffer for debugging value */
+	char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	char* data[12];			/* Temporary buffers for reading multiple occurance tags into */
 	void* ptr[12];			/* Temporary pointers for passing to callbacks */
 	int r_i[12];			/* Temporary array for casting */
@@ -545,7 +567,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"dns",			"timeout",			&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
 		{"options",		"moduledir",			&this->ModPath,			DT_CHARPTR, ValidateModPath},
 		{"disabled",		"commands",			&this->DisabledCommands,	DT_CHARPTR, NoValidation},
-		{"options",		"userstats",		&this->UserStats,		DT_CHARPTR, NoValidation},
+		{"options",		"userstats",			&this->UserStats,		DT_CHARPTR, NoValidation},
 		{"options",		"customversion",		&this->CustomVersion,		DT_CHARPTR, NoValidation},
 		{"options",		"hidesplits",			&this->HideSplits,		DT_BOOLEAN, NoValidation},
 		{"options",		"hidebans",			&this->HideBans,		DT_BOOLEAN, NoValidation},
@@ -556,6 +578,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"syntaxhints",			&this->SyntaxHints,		DT_BOOLEAN, NoValidation},
 		{"options",		"cyclehosts",			&this->CycleHosts,		DT_BOOLEAN, NoValidation},
 		{"pid",			"file",				&this->PID,			DT_CHARPTR, NoValidation},
+		{"whowas",		"groupsize",			&this->WhoWasGroupSize,		DT_INTEGER, NoValidation},
+		{"whowas",		"maxgroups",			&this->WhoWasMaxGroups,		DT_INTEGER, NoValidation},
+		{"whowas",		"maxkeep",			&maxkeep,			DT_CHARPTR, ValidateWhoWas},
 		{NULL}
 	};
 
