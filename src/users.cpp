@@ -910,7 +910,7 @@ namespace irc
 					ServerInstance->whowas.erase(iter->second);
 					/* use a safe iter copy for erase and set the orig iter old valid ref by decrementing it */
 					safeiter = iter;
-					iter--;
+					--iter;
 					ServerInstance->whowas_fifo.erase(safeiter);
 				}
 				else {
