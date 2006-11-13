@@ -25,6 +25,13 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 {
+	/* if whowas disabled in config */
+	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
+	{
+		user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
+		return CMD_FAILURE;
+	}
+                        
 	irc::whowas::whowas_users::iterator i = ServerInstance->whowas.find(parameters[0]);
 
 	ServerInstance->Log(DEBUG,"Entered cmd_whowas");
