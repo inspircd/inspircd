@@ -888,7 +888,8 @@ namespace irc
 
 			int groupcount = ServerInstance->whowas.size();
 			/* iterate whowas_fifo oldest first */
-			for (whowas_users_fifo::iterator iter = ServerInstance->whowas_fifo.begin(); iter != ServerInstance->whowas_fifo.end(); iter++)
+			whowas_users_fifo::iterator iter, safeiter;
+			for (iter = ServerInstance->whowas_fifo.begin(); iter != ServerInstance->whowas_fifo.end(); iter++)
 			{
 				/** prune all groups that has expired due to new maxkeep time and
 				 *  also any group number higher than new maxgroups. The oldest are
@@ -907,7 +908,10 @@ namespace irc
 						}
 					}
 					ServerInstance->whowas.erase(iter->second);
-					ServerInstance->whowas_fifo.erase(iter->first);
+					/* use a safe iter copy for erase and set the orig iter old valid ref by decrementing it */
+					safeiter = iter;
+					iter--;
+					ServerInstance->whowas_fifo.erase(safeiter);
 				}
 				else {
 					/* also trim individual groupsizes in case groupsize should have been lowered */
