@@ -531,8 +531,8 @@ bool DoneMaxBans(ServerConfig* conf, const char* tag)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-	char debug[MAXBUF];		/* Temporary buffer for debugging value */
-	char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
+	static char debug[MAXBUF];		/* Temporary buffer for debugging value */
+	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	char* data[12];			/* Temporary buffers for reading multiple occurance tags into */
 	void* ptr[12];			/* Temporary pointers for passing to callbacks */
 	int r_i[12];			/* Temporary array for casting */
