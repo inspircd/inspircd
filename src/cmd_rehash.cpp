@@ -30,6 +30,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 	std::string parameter = "";
+	std::string old_disabled = ServerInstance->Config->DisabledCommands;
 	if (pcnt)
 	{
 		parameter = parameters[0];
@@ -39,7 +40,9 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 		ServerInstance->Config->Read(false,user);
 	}
-	InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
+	if (old_disabled != ServerInstance->Config->DisabledCommands)
+		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
+
 	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
 
 	return CMD_SUCCESS;
