@@ -313,7 +313,7 @@ class Event : public ModuleMessage
  * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
  * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
  */
-class ModuleException : public classbase
+class ModuleException : public std::exception
 {
  private:
 	/** Holds the error message to be displayed
@@ -328,8 +328,9 @@ class ModuleException : public classbase
 	ModuleException(std::string message) : err(message) {}
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
+	 * @throws Nothing!
 	 */
-	virtual ~ModuleException() {};
+	virtual ~ModuleException() throw() {};
 	/** Returns the reason for the exception.
 	 * The module should probably put something informative here as the user will see this upon failure.
 	 */

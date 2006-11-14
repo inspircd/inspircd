@@ -70,6 +70,8 @@ class RandquoteException : public ModuleException
  public:
 	RandquoteException(const std::string &message) : err(message) { }
 
+	~RandquoteException() throw () { }
+
 	virtual const char* GetReason()
 	{
 		return err.c_str();

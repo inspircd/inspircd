@@ -192,6 +192,7 @@ class HelpopException : public ModuleException
 	std::string err;
  public:
 	HelpopException(std::string message) : err(message) { }
+	~HelpopException() throw() { };
 	virtual const char* GetReason() { return err.c_str(); }
 };
 
