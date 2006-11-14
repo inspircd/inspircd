@@ -845,10 +845,5 @@ namespace irc
 
 /* Configuration callbacks */
 class ServerConfig;
-bool InitTypes(ServerConfig* conf, const char* tag);
-bool InitClasses(ServerConfig* conf, const char* tag);
-bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
-bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
-bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
 
 #endif

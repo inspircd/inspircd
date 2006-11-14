@@ -324,7 +324,7 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void*
 
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, void* data)
 {
-	const char* max = (const char*)data;
+	char* max = (char*)data;
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(max);
 
 	if (conf->WhoWasGroupSize < 0)
@@ -354,34 +354,34 @@ bool InitConnect(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <connect> tag
  */
-bool DoConnect(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
 	ConnectClass c;
-	char* allow = (char*)values[0]; /* Yeah, there are a lot of values. Live with it. */
-	char* deny = (char*)values[1];
-	char* password = (char*)values[2];
-	int* timeout = (int*)values[3];
-	int* pingfreq = (int*)values[4];
-	int* flood = (int*)values[5];
-	int* threshold = (int*)values[6];
-	int* sendq = (int*)values[7];
-	int* recvq = (int*)values[8];
-	int* localmax = (int*)values[9];
-	int* globalmax = (int*)values[10];
+	const char* allow = values[0].GetString(); /* Yeah, there are a lot of values. Live with it. */
+	const char* deny = values[1].GetString();
+	const char* password = values[2].GetString();
+	int timeout = values[3].GetInteger();
+	int pingfreq = values[4].GetInteger();
+	int flood = values[5].GetInteger();
+	int threshold = values[6].GetInteger();
+	int sendq = values[7].GetInteger();
+	int recvq = values[8].GetInteger();
+	int localmax = values[9].GetInteger();
+	int globalmax = values[10].GetInteger();
 
 	if (*allow)
 	{
 		c.host = allow;
 		c.type = CC_ALLOW;
 		c.pass = password;
-		c.registration_timeout = *timeout;
-		c.pingtime = *pingfreq;
-		c.flood = *flood;
-		c.threshold = *threshold;
-		c.sendqmax = *sendq;
-		c.recvqmax = *recvq;
-		c.maxlocal = *localmax;
-		c.maxglobal = *globalmax;
+		c.registration_timeout = timeout;
+		c.pingtime = pingfreq;
+		c.flood = flood;
+		c.threshold = threshold;
+		c.sendqmax = sendq;
+		c.recvqmax = recvq;
+		c.maxlocal = localmax;
+		c.maxglobal = globalmax;
 
 
 		if (c.maxlocal == 0)
@@ -433,9 +433,9 @@ bool InitULine(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <uline> tag
  */
-bool DoULine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoULine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
-	char* server = (char*)values[0];
+	const char* server = values[0].GetString();
 	conf->GetInstance()->Log(DEBUG,"Read ULINE '%s'",server);
 	conf->ulines.push_back(server);
 	return true;
@@ -465,9 +465,9 @@ bool InitModule(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <module> tag
  */
-bool DoModule(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoModule(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
-	char* modname = (char*)values[0];
+	const char* modname = values[0].GetString();
 	new_module_names.push_back(modname);
 	return true;
 }
@@ -517,11 +517,11 @@ bool InitMaxBans(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <banlist> tag
  */
-bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
-	char* channel = (char*)values[0];
-	int* limit = (int*)values[1];
-	conf->maxbans[channel] = *limit;
+	const char* channel = values[0].GetString();
+	int limit = values[1].GetInteger();
+	conf->maxbans[channel] = limit;
 	return true;
 }
 
@@ -534,11 +534,8 @@ bool DoneMaxBans(ServerConfig* conf, const char* tag)
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-	static char debug[MAXBUF];		/* Temporary buffer for debugging value */
+	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
-	char* data[12];			/* Temporary buffers for reading multiple occurance tags into */
-	void* ptr[12];			/* Temporary pointers for passing to callbacks */
-	int r_i[12];			/* Temporary array for casting */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 
@@ -724,12 +721,12 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 			case DT_INTEGER:
 				ConfValueInteger(this->config_data, Values[Index].tag, Values[Index].value, 0, *((int*)Values[Index].val));
-				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((int*)Values[Index].val));
+				ServerInstance->Log(DEBUG,"Data type DT_INTEGER item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((int*)Values[Index].val));
 			break;
 
 			case DT_BOOLEAN:
 				*((bool*)(Values[Index].val)) = (ConfValueBool(this->config_data, Values[Index].tag, Values[Index].value, 0));
-				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((bool*)(Values[Index].val)));
+				ServerInstance->Log(DEBUG,"Data type DT_BOOLEAN item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((bool*)(Values[Index].val)));
 			break;
 
 			case DT_NOTHING:
@@ -738,11 +735,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
-
-	/* Claim memory for use when reading multiple tags
-	 */
-	for (int n = 0; n < 12; n++)
-		data[n] = new char[MAXBUF];
 
 	/* Read the multiple-tag items (class tags, connect tags, etc)
 	 * and call the callbacks associated with them. We have three
@@ -758,37 +750,44 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
 		{
+			ValueList vl;
 			for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
 			{
-				ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, data[valuenum], MAXBUF);
-
 				switch (MultiValues[Index].datatype[valuenum])
 				{
 					case DT_CHARPTR:
-						ptr[valuenum] = data[valuenum];
+						{
+							char item[MAXBUF];
+							ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF);
+							ServerInstance->Log(DEBUG,"Data type DT_CHARPTR multi-item <%s:%s>[%d] = '%s'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
+							vl.push_back(ValueItem(item));
+						}
 					break;
 					case DT_INTEGER:
-						r_i[valuenum] = atoi(data[valuenum]);
-						ptr[valuenum] = &r_i[valuenum];
+						{
+							int item;
+							ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item);
+							ServerInstance->Log(DEBUG,"Data type DT_INTEGER multi-item <%s:%s>[%d] = '%d'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
+							vl.push_back(ValueItem(item));
+						}
 					break;
 					case DT_BOOLEAN:
-						r_i[valuenum] = ((*data[valuenum] == tolower('y')) || (*data[valuenum] == tolower('t')) || (*data[valuenum] == '1'));
-						ptr[valuenum] = &r_i[valuenum];
+						{
+							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum);
+							ServerInstance->Log(DEBUG,"Data type DT_BOOLEAN multi-item <%s:%s>[%d] = '%d'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
+							vl.push_back(ValueItem(item));
+						}
 					break;
 					default:
 					break;
 				}
 			}
-			MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, ptr, MultiValues[Index].datatype);
+			ServerInstance->Log(DEBUG,"Call validation function for multi-value <%s>", MultiValues[Index].tag);
+			MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 		}
 
 		MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 	}
-
-	/* Free any memory we claimed
-	 */
-	for (int n = 0; n < 12; n++)
-		delete[] data[n];
 
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);

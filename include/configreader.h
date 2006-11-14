@@ -31,19 +31,52 @@
 class ServerConfig;
 class InspIRCd;
 
+/** Types of data in the core config
+ */
+enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
+
+class ValueItem
+{
+	std::string v;
+ public:
+	ValueItem(int value)
+	{
+		std::stringstream n;
+		n << value;
+		v = n.str();
+	}
+
+	ValueItem(bool value)
+	{
+		std::stringstream n;
+		n << value;
+		v = n.str();
+	}
+
+	ValueItem(char* value)
+	{
+		v = value;
+	}
+
+	int GetInteger() { return atoi(v.c_str()); };
+
+	const char* GetString() { return v.c_str(); };
+
+	bool GetBool() { return GetInteger(); };
+};
+
+typedef std::deque<ValueItem> ValueList;
+
 /** A callback for validating a single value
  */
 typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, void*);
 /** A callback for validating multiple value entries
  */
-typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, void**, int*);
+typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, ValueList&, int*);
 /** A callback indicating the end of a group of entries
  */
 typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
 
-/** Types of data in the core config
- */
-enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
 /** Holds a core configuration item and its callbacks
  */
@@ -497,5 +530,11 @@ class ServerConfig : public Extensible
 };
 
 bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
+
+bool InitTypes(ServerConfig* conf, const char* tag);
+bool InitClasses(ServerConfig* conf, const char* tag);
+bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
 
 #endif

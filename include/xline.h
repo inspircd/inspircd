@@ -191,10 +191,10 @@ class InspIRCd;
 bool InitXLine(ServerConfig* conf, const char* tag);
 bool DoneXLine(ServerConfig* conf, const char* tag);
 
-bool DoZLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
-bool DoQLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
-bool DoKLine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
-bool DoELine(ServerConfig* conf, const char* tag, char** entries, void** values, int* types);
+bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 
 typedef std::pair<std::string, std::string> IdentHostPair;
 

@@ -61,20 +61,20 @@ bool InitClasses(ServerConfig* conf, const char* tag)
 	return true;
 }
 
-bool DoType(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
-	char* TypeName = (char*)values[0];
-	char* Classes = (char*)values[1];
+	const char* TypeName = values[0].GetString();
+	const char* Classes = values[1].GetString();
 	
 	conf->opertypes[TypeName] = strdup(Classes);
 	conf->GetInstance()->Log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
 }
 
-bool DoClass(ServerConfig* conf, const char* tag, char** entries, void** values, int* types)
+bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
-	char* ClassName = (char*)values[0];
-	char* CommandList = (char*)values[1];
+	const char* ClassName = values[0].GetString();
+	const char* CommandList = values[1].GetString();
 	
 	conf->operclass[ClassName] = strdup(CommandList);
 	conf->GetInstance()->Log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
