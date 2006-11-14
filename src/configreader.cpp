@@ -714,22 +714,22 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	for (int Index = 0; Values[Index].tag; Index++)
 	{
-		int* val_i = (int*) Values[Index].val;
-		char* val_c = (char*) Values[Index].val;
-
 		switch (Values[Index].datatype)
 		{
 			case DT_CHARPTR:
 				/* Assuming MAXBUF here, potentially unsafe */
-				ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, val_c, MAXBUF);
+				ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, ((char*)Values[Index].val), MAXBUF);
+				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%s'", Values[Index].tag, Values[Index].value, ((char*)Values[Index].val));
 			break;
 
 			case DT_INTEGER:
-				ConfValueInteger(this->config_data, Values[Index].tag, Values[Index].value, 0, *val_i);
+				ConfValueInteger(this->config_data, Values[Index].tag, Values[Index].value, 0, *((int*)Values[Index].val));
+				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((int*)Values[Index].val));
 			break;
 
 			case DT_BOOLEAN:
-				*val_i = ConfValueBool(this->config_data, Values[Index].tag, Values[Index].value, 0);
+				*((bool*)(Values[Index].val)) = (ConfValueBool(this->config_data, Values[Index].tag, Values[Index].value, 0));
+				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((bool*)(Values[Index].val)));
 			break;
 
 			case DT_NOTHING:
@@ -793,7 +793,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
-	ServerInstance->Log(DEFAULT,"Done reading configuration file, InspIRCd is now starting.");
+	ServerInstance->Log(DEFAULT,"Done reading configuration file.");
 
 	/* If we're rehashing, let's load any new modules, and unload old ones
 	 */
