@@ -289,10 +289,10 @@ class ModuleChanProtect : public Module
 	
  public:
  
-	ModuleChanProtect(InspIRCd* Me) : Module::Module(Me)
+	ModuleChanProtect(InspIRCd* Me)
+		: Module::Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), booting(true)
 	{	
 		/* Load config stuff */
-		booting = true;
 		OnRehash("");
 		booting = false;
 

@@ -155,6 +155,7 @@ int EPollEngine::DispatchEvents()
 		if (events[j].events & EPOLLOUT)
 		{
 			struct epoll_event ev;
+			memset(&ev,0,sizeof(struct epoll_event));
 			ev.events = EPOLLIN;
 			ev.data.fd = events[j].data.fd;
 			int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, events[j].data.fd, &ev);
