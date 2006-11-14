@@ -438,13 +438,14 @@ class ServerConfig : public Extensible
 	 */
 	bool CycleHosts;
 
-
+/*
 #if __GNUC__ == 3 && __GNUC_MINOR__ == 3
-	/** if we're being compiled with GCC 3.3 add
+	 ** if we're being compiled with GCC 3.3 add
 	 *  dummy opertype on heap to fix GCC 3.3 crash
-	 */
+	 *
 	opertype_t dummyopertype;
 #endif
+*/
 
 	/** All oper type definitions from the config file
 	 */
