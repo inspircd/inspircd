@@ -58,6 +58,18 @@ class ValueItem
 		v = value;
 	}
 
+	void Set(const std::string &value)
+	{
+		v = value;
+	}
+
+	void Set(int value)
+	{
+		std::stringstream n;
+		n << value;
+		v = n.str();
+	}
+
 	int GetInteger() { return atoi(v.c_str()); };
 
 	const char* GetString() { return v.c_str(); };
@@ -69,7 +81,7 @@ typedef std::deque<ValueItem> ValueList;
 
 /** A callback for validating a single value
  */
-typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, void*);
+typedef bool (*Validator)(ServerConfig* conf, const char*, const char*, ValueItem&);
 /** A callback for validating multiple value entries
  */
 typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, ValueList&, int*);

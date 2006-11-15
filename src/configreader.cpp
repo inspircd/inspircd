@@ -134,57 +134,52 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	return true;
 }
 
-bool NoValidation(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool NoValidation(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->GetInstance()->Log(DEBUG,"No validation for <%s:%s>",tag,value);
 	return true;
 }
 
-bool ValidateTempDir(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateTempDir(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	char* x = (char*)data;
-	if (!*x)
-		strlcpy(x,"/tmp",1024);
+	if (!*(data.GetString()))
+		data.Set("/tmp");
 	return true;
 }
  
-bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	int* x = (int*)data;
-	if ((*x < 0) || (*x > 31))
+	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
 	{
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:maxtargets> value is greater than 31 or less than 0, set to 20.");
-		*x = 20;
+		data.Set(20);
 	}
 	return true;
 }
 
-bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	int* x = (int*)data;	
-	if ((*x < 1) || (*x > MAXCLIENTS))
+	if ((data.GetInteger() < 1) || (data.GetInteger() > MAXCLIENTS))
 	{
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:softlimit> value is greater than %d or less than 0, set to %d.",MAXCLIENTS,MAXCLIENTS);
-		*x = MAXCLIENTS;
+		data.Set(MAXCLIENTS);
 	}
 	return true;
 }
 
-bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	int* x = (int*)data;	
-	if (*x > SOMAXCONN)
+	if (data.GetInteger() > SOMAXCONN)
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-	if (!*x)
-		*x = SOMAXCONN;
+	if (!data.GetInteger())
+		data.Set(SOMAXCONN);
 	return true;
 }
 
-bool ValidateDnsTimeout(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateDnsTimeout(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	int* x = (int*)data;
-	if (!*x)
-		*x = 5;
+	if (!data.GetInteger())
+		data.Set(5);
 	return true;
 }
 
@@ -210,10 +205,9 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	return true;
 }
 
-bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	char* x = (char*)data;
-	if (!*x)
+	if (!*(data.GetString()))
 	{
 		// attempt to look up their nameserver from /etc/resolv.conf
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
@@ -228,7 +222,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 				if ((nameserver == "nameserver") && (!found_server))
 				{
 					resolv >> nameserver;
-					strlcpy(x,nameserver.c_str(),MAXBUF);
+					data.Set(nameserver);
 					found_server = true;
 					conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
@@ -237,95 +231,92 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, v
 			if (!found_server)
 			{
 				conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
-				strlcpy(x,"127.0.0.1",MAXBUF);
+				data.Set("127.0.0.1");
 			}
 		}
 		else
 		{
 			conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
-			strlcpy(x,"127.0.0.1",MAXBUF);
+			data.Set("127.0.0.1");
 		}
 	}
 	return true;
 }
 
-bool ValidateModPath(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateModPath(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	char* x = (char*)data;	
-	if (!*x)
-		strlcpy(x,MOD_PATH,MAXBUF);
+	if (!*(data.GetString()))
+		data.Set(MOD_PATH);
 	return true;
 }
 
 
-bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	char* x = (char*)data;
-	if (!strchr(x,'.'))
+	if (!strchr(data.GetString(),'.'))
 	{
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",x,x,'.');
-		charlcat(x,'.',MAXBUF);
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
+		data.Set(std::string(data.GetString()) + ".");
 	}
-	//strlower(x);
 	return true;
 }
 
-bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	if ((!conf->NetBufferSize) || (conf->NetBufferSize > 65535) || (conf->NetBufferSize < 1024))
+	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1024))
 	{
 		conf->GetInstance()->Log(DEFAULT,"No NetBufferSize specified or size out of range, setting to default of 10240.");
-		conf->NetBufferSize = 10240;
+		data.Set(10240);
 	}
 	return true;
 }
 
-bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	if ((!conf->MaxWhoResults) || (conf->MaxWhoResults > 65535) || (conf->MaxWhoResults < 1))
+	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
 		conf->GetInstance()->Log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
-		conf->MaxWhoResults = 128;
+		data.Set(128);
 	}
 	return true;
 }
 
-bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	const char* dbg = (const char*)data;
+	std::string dbg = data.GetString();
 	conf->LogLevel = DEFAULT;
-	if (!strcmp(dbg,"debug"))
-	{
+
+	if (dbg == "debug")
 		conf->LogLevel = DEBUG;
-		conf->debugging = 1;
-	}
-	else if (!strcmp(dbg,"verbose"))
+	else if (dbg  == "verbose")
 		conf->LogLevel = VERBOSE;
-	else if (!strcmp(dbg,"default"))
+	else if (dbg == "default")
 		conf->LogLevel = DEFAULT;
-	else if (!strcmp(dbg,"sparse"))
+	else if (dbg == "sparse")
 		conf->LogLevel = SPARSE;
-	else if (!strcmp(dbg,"none"))
+	else if (dbg == "none")
 		conf->LogLevel = NONE;
+
+	conf->debugging = (conf->LogLevel == DEBUG);
+
 	return true;
 }
 
-bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	conf->ReadFile(conf->MOTD,conf->motd);
+	conf->ReadFile(conf->MOTD, data.GetString());
 	return true;
 }
 
-bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	conf->ReadFile(conf->RULES,conf->rules);
+	conf->ReadFile(conf->RULES, data.GetString());
 	return true;
 }
 
-bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, void* data)
+bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	char* max = (char*)data;
-	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(max);
+	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
 
 	if (conf->WhoWasGroupSize < 0)
 		conf->WhoWasGroupSize = 0;
@@ -711,37 +702,32 @@ void ServerConfig::Read(bool bail, userrec* user)
 	 */
 	for (int Index = 0; Values[Index].tag; Index++)
 	{
+		char item[MAXBUF];
+		ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, item, MAXBUF);
+		ValueItem vi(item);
+
+		Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi);
+
 		switch (Values[Index].datatype)
 		{
 			case DT_CHARPTR:
-				/* Assuming MAXBUF here, potentially unsafe */
-				ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, ((char*)Values[Index].val), MAXBUF);
-				ServerInstance->Log(DEBUG,"Data type DT_CHARPTR item <%s:%s> = '%s'", Values[Index].tag, Values[Index].value, ((char*)Values[Index].val));
+				strlcpy((char*)Values[Index].val, vi.GetString(), MAXBUF);
 			break;
-
 			case DT_INTEGER:
-				ConfValueInteger(this->config_data, Values[Index].tag, Values[Index].value, 0, *((int*)Values[Index].val));
-				ServerInstance->Log(DEBUG,"Data type DT_INTEGER item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((int*)Values[Index].val));
+				*((int*)Values[Index].val) = vi.GetInteger();
 			break;
-
 			case DT_BOOLEAN:
-				*((bool*)(Values[Index].val)) = (ConfValueBool(this->config_data, Values[Index].tag, Values[Index].value, 0));
-				ServerInstance->Log(DEBUG,"Data type DT_BOOLEAN item <%s:%s> = '%d'", Values[Index].tag, Values[Index].value, *((bool*)(Values[Index].val)));
+				*((bool*)(Values[Index].val)) = vi.GetBool();
 			break;
-
-			case DT_NOTHING:
+			default:
 			break;
 		}
-
-		Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, Values[Index].val);
 	}
 
 	/* Read the multiple-tag items (class tags, connect tags, etc)
 	 * and call the callbacks associated with them. We have three
 	 * callbacks for these, a 'start', 'item' and 'end' callback.
 	 */
-	
-	/* XXX - Make this use ConfValueInteger and so on */
 	for (int Index = 0; MultiValues[Index].tag; Index++)
 	{
 		MultiValues[Index].init_function(this, MultiValues[Index].tag);
