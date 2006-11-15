@@ -37,13 +37,34 @@ static char *getlastchanname(userrec *u)
 	return "*";
 }
 
-bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_showrealhost)
+bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_showrealhost, bool opt_mode)
 {
 	bool realhost = false;
 	bool realname = false;
+	bool positive = true;
 
 	if (user->registered != REG_ALL)
 		return false;
+
+	if (opt_mode)
+	{
+		for (const char* n = matchtext; *n; n++)
+		{
+			if (*n == '+')
+			{
+				positive = true;
+				continue;
+			}
+			else if (*n == '-')
+			{
+				positive = false;
+				continue;
+			}
+			if (user->IsModeSet(*n) != positive)
+				return false;
+		}
+		return true;
+	}
 
 	if (opt_realname)
 		realname = match(user->fullname, matchtext);
@@ -75,6 +96,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	bool opt_showrealhost = false;
 	bool opt_unlimit = false;
 	bool opt_realname = false;
+	bool opt_mode = false;
 
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -109,6 +131,9 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				break;
 				case 'r':
 					opt_realname = true;
+				break;
+				case 'm':
+					opt_mode = true;
 				break;
 			}
 
@@ -168,7 +193,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				userrec* oper = *i;
 
-				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost))
+				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
 					std::string wholine = initial;
 	
@@ -202,7 +227,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
 			{
-				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost))
+				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
 					std::string wholine = initial;
 	
