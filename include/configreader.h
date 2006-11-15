@@ -35,6 +35,12 @@ class InspIRCd;
  */
 enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
 
+/** Holds a config value, either string, integer or boolean.
+ * Callback functions receive one or more of these, either on
+ * their own as a reference, or in a reference to a deque of them.
+ * The callback function can then alter the values of the ValueItem
+ * classes to validate the settings.
+ */
 class ValueItem
 {
 	std::string v;
@@ -91,6 +97,9 @@ class ValueItem
 	}
 };
 
+/** The base class of the container 'ValueContainer'
+ * used internally by the core to hold core values.
+ */
 class ValueContainerBase
 {
  public:
@@ -103,6 +112,14 @@ class ValueContainerBase
 	}
 };
 
+/** ValueContainer is used to contain pointers to different
+ * core values such as the server name, maximum number of
+ * clients etc.
+ * It is specialized to hold a data type, then pointed at
+ * a value in the ServerConfig class. When the value has been
+ * read and validated, the Set method is called to write the
+ * value safely in a type-safe manner.
+ */
 template<typename T> class ValueContainer : public ValueContainerBase
 {
 	T val;
@@ -125,11 +142,27 @@ template<typename T> class ValueContainer : public ValueContainerBase
 	}
 };
 
+/** A specialization of ValueContainer to hold a pointer to a bool
+ */
 typedef ValueContainer<bool*> ValueContainerBool;
+
+/** A specialization of ValueContainer to hold a pointer to
+ * an unsigned int
+ */
 typedef ValueContainer<unsigned int*> ValueContainerUInt;
+
+/** A specialization of ValueContainer to hold a pointer to
+ * a char array.
+ */
 typedef ValueContainer<char*> ValueContainerChar;
+
+/** A specialization of ValueContainer to hold a pointer to
+ * an int
+ */
 typedef ValueContainer<int*> ValueContainerInt;
 
+/** A set of ValueItems used by multi-value validator functions
+ */
 typedef std::deque<ValueItem> ValueList;
 
 /** A callback for validating a single value
@@ -141,7 +174,6 @@ typedef bool (*MultiValidator)(ServerConfig* conf, const char*, char**, ValueLis
 /** A callback indicating the end of a group of entries
  */
 typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
-
 
 /** Holds a core configuration item and its callbacks
  */
@@ -159,9 +191,9 @@ struct InitialConfig
  */
 struct MultiConfig
 {
-	const char* tag;
-	char* items[12];
-	int datatype[12];
+	const char*	tag;
+	char*		items[12];
+	int		datatype[12];
 	MultiNotify	init_function;
 	MultiValidator	validation_function;
 	MultiNotify	finish_function;
