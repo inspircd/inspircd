@@ -58,7 +58,12 @@ class ValueItem
 		v = value;
 	}
 
-	void Set(const std::string &value)
+	void Set(char* value)
+	{
+		v = value;
+	}
+
+	void Set(const char* value)
 	{
 		v = value;
 	}
@@ -70,12 +75,60 @@ class ValueItem
 		v = n.str();
 	}
 
-	int GetInteger() { return atoi(v.c_str()); };
+	int GetInteger()
+	{
+		return atoi(v.c_str());
+	}
 
-	const char* GetString() { return v.c_str(); };
+	char* GetString()
+	{
+		return (char*)v.c_str();
+	}
 
-	bool GetBool() { return GetInteger(); };
+	bool GetBool()
+	{
+		return (GetInteger() || v == "yes" || v == "true");
+	}
 };
+
+class ValueContainerBase
+{
+ public:
+	ValueContainerBase()
+	{
+	}
+
+	virtual ~ValueContainerBase()
+	{
+	}
+};
+
+template<typename T> class ValueContainer : public ValueContainerBase
+{
+	T val;
+
+ public:
+
+	ValueContainer()
+	{
+		val = NULL;
+	}
+
+	ValueContainer(T Val)
+	{
+		val = Val;
+	}
+
+	void Set(T newval, size_t s)
+	{
+		memcpy(val, newval, s);
+	}
+};
+
+typedef ValueContainer<bool*> ValueContainerBool;
+typedef ValueContainer<unsigned int*> ValueContainerUInt;
+typedef ValueContainer<char*> ValueContainerChar;
+typedef ValueContainer<int*> ValueContainerInt;
 
 typedef std::deque<ValueItem> ValueList;
 
@@ -96,7 +149,7 @@ struct InitialConfig
 {
 	char* tag;
 	char* value;
-	void* val;
+	ValueContainerBase* val;
 	ConfigDataType datatype;
 	Validator validation_function;
 };

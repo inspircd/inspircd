@@ -222,7 +222,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 				if ((nameserver == "nameserver") && (!found_server))
 				{
 					resolv >> nameserver;
-					data.Set(nameserver);
+					data.Set(nameserver.c_str());
 					found_server = true;
 					conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
 				}
@@ -256,7 +256,8 @@ bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, 
 	if (!strchr(data.GetString(),'.'))
 	{
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
-		data.Set(std::string(data.GetString()) + ".");
+		std::string moo = std::string(data.GetString()).append(".");
+		data.Set(moo.c_str());
 	}
 	return true;
 }
@@ -535,43 +536,42 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	/* These tags can occur ONCE or not at all */
 	static InitialConfig Values[] = {
-		{"options",		"softlimit",			&this->SoftLimit,		DT_INTEGER, ValidateSoftLimit},
-		{"options",		"somaxconn",			&this->MaxConn,			DT_INTEGER, ValidateMaxConn},
-		{"server",		"name",				&this->ServerName,		DT_CHARPTR, ValidateServerName},
-		{"server",		"description",			&this->ServerDesc,		DT_CHARPTR, NoValidation},
-		{"server",		"network",			&this->Network,			DT_CHARPTR, NoValidation},
-		{"admin",		"name",				&this->AdminName,		DT_CHARPTR, NoValidation},
-		{"admin",		"email",			&this->AdminEmail,		DT_CHARPTR, NoValidation},
-		{"admin",		"nick",				&this->AdminNick,		DT_CHARPTR, NoValidation},
-		{"files",		"motd",				&this->motd,			DT_CHARPTR, ValidateMotd},
-		{"files",		"rules",			&this->rules,			DT_CHARPTR, ValidateRules},
-		{"power",		"diepass",			&this->diepass,			DT_CHARPTR, NoValidation},	
-		{"power",		"pause",			&this->DieDelay,		DT_INTEGER, NoValidation},
-		{"power",		"restartpass",			&this->restartpass,		DT_CHARPTR, NoValidation},
-		{"options",		"prefixquit",			&this->PrefixQuit,		DT_CHARPTR, NoValidation},
-		{"die",			"value",			&this->DieValue,		DT_CHARPTR, NoValidation},
-		{"options",		"loglevel",			&debug,				DT_CHARPTR, ValidateLogLevel},
-		{"options",		"netbuffersize",		&this->NetBufferSize,		DT_INTEGER, ValidateNetBufferSize},
-		{"options",		"maxwho",			&this->MaxWhoResults,		DT_INTEGER, ValidateMaxWho},
-		{"options",		"allowhalfop",			&this->AllowHalfop,		DT_BOOLEAN, NoValidation},
-		{"dns",			"server",			&this->DNSServer,		DT_CHARPTR, ValidateDnsServer},
-		{"dns",			"timeout",			&this->dns_timeout,		DT_INTEGER, ValidateDnsTimeout},
-		{"options",		"moduledir",			&this->ModPath,			DT_CHARPTR, ValidateModPath},
-		{"disabled",		"commands",			&this->DisabledCommands,	DT_CHARPTR, NoValidation},
-		{"options",		"userstats",			&this->UserStats,		DT_CHARPTR, NoValidation},
-		{"options",		"customversion",		&this->CustomVersion,		DT_CHARPTR, NoValidation},
-		{"options",		"hidesplits",			&this->HideSplits,		DT_BOOLEAN, NoValidation},
-		{"options",		"hidebans",			&this->HideBans,		DT_BOOLEAN, NoValidation},
-		{"options",		"hidewhois",			&this->HideWhoisServer,		DT_CHARPTR, NoValidation},
-		{"options",		"operspywhois",			&this->OperSpyWhois,		DT_BOOLEAN, NoValidation},
-		{"options",		"tempdir",			&this->TempDir,			DT_CHARPTR, ValidateTempDir},
-		{"options",		"nouserdns",			&this->NoUserDns,		DT_BOOLEAN, NoValidation},
-		{"options",		"syntaxhints",			&this->SyntaxHints,		DT_BOOLEAN, NoValidation},
-		{"options",		"cyclehosts",			&this->CycleHosts,		DT_BOOLEAN, NoValidation},
-		{"pid",			"file",				&this->PID,			DT_CHARPTR, NoValidation},
-		{"whowas",		"groupsize",			&this->WhoWasGroupSize,		DT_INTEGER, NoValidation},
-		{"whowas",		"maxgroups",			&this->WhoWasMaxGroups,		DT_INTEGER, NoValidation},
-		{"whowas",		"maxkeep",			&maxkeep,			DT_CHARPTR, ValidateWhoWas},
+		{"options",		"softlimit",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
+		{"options",		"somaxconn",			new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
+		{"server",		"name",				new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
+		{"server",		"description",			new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
+		{"server",		"network",			new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
+		{"admin",		"name",				new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
+		{"admin",		"email",			new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
+		{"admin",		"nick",				new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
+		{"files",		"motd",				new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
+		{"files",		"rules",			new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
+		{"power",		"diepass",			new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},	
+		{"power",		"pause",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
+		{"power",		"restartpass",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
+		{"options",		"prefixquit",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
+		{"options",		"loglevel",			new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
+		{"options",		"netbuffersize",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
+		{"options",		"maxwho",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
+		{"options",		"allowhalfop",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
+		{"dns",			"server",			new ValueContainerChar (this->DNSServer),		DT_CHARPTR, ValidateDnsServer},
+		{"dns",			"timeout",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, ValidateDnsTimeout},
+		{"options",		"moduledir",			new ValueContainerChar (this->ModPath),			DT_CHARPTR, ValidateModPath},
+		{"disabled",		"commands",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},
+		{"options",		"userstats",			new ValueContainerChar (this->UserStats),		DT_CHARPTR, NoValidation},
+		{"options",		"customversion",		new ValueContainerChar (this->CustomVersion),		DT_CHARPTR, NoValidation},
+		{"options",		"hidesplits",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN, NoValidation},
+		{"options",		"hidebans",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
+		{"options",		"hidewhois",			new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
+		{"options",		"operspywhois",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
+		{"options",		"tempdir",			new ValueContainerChar (this->TempDir),			DT_CHARPTR, ValidateTempDir},
+		{"options",		"nouserdns",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
+		{"options",		"syntaxhints",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
+		{"options",		"cyclehosts",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
+		{"pid",			"file",				new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
+		{"whowas",		"groupsize",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
+		{"whowas",		"maxgroups",			new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
+		{"whowas",		"maxkeep",			new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
 		{NULL}
 	};
 
@@ -695,7 +695,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	/* Check we dont have more than one of singular tags, or any of them missing
 	 */
 	for (int Index = 0; Once[Index]; Index++)
-		if (!CheckOnce(Once[Index],bail,user))
+		if (!CheckOnce(Once[Index], bail, user))
 			return;
 
 	/* Read the values of all the tags which occur once or not at all, and call their callbacks.
@@ -711,17 +711,32 @@ void ServerConfig::Read(bool bail, userrec* user)
 		switch (Values[Index].datatype)
 		{
 			case DT_CHARPTR:
-				strlcpy((char*)Values[Index].val, vi.GetString(), MAXBUF);
+				{
+					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
+					vcc->Set(vi.GetString(), strlen(vi.GetString()));
+				}
 			break;
 			case DT_INTEGER:
-				*((int*)Values[Index].val) = vi.GetInteger();
+				{
+					int val = vi.GetInteger();
+					ValueContainerInt* vci = (ValueContainerInt*)Values[Index].val;
+					vci->Set(&val, sizeof(int));
+				}
 			break;
 			case DT_BOOLEAN:
-				*((bool*)(Values[Index].val)) = vi.GetBool();
+				{
+					bool val = vi.GetBool();
+					ValueContainerBool* vcb = (ValueContainerBool*)Values[Index].val;
+					vcb->Set(&val, sizeof(bool));
+				}
 			break;
 			default:
+				/* You don't want to know what happens if someones bad code sends us here. */
 			break;
 		}
+
+		/* We're done with this now */
+		delete Values[Index].val;
 	}
 
 	/* Read the multiple-tag items (class tags, connect tags, etc)
@@ -745,7 +760,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 						{
 							char item[MAXBUF];
 							ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF);
-							ServerInstance->Log(DEBUG,"Data type DT_CHARPTR multi-item <%s:%s>[%d] = '%s'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
 							vl.push_back(ValueItem(item));
 						}
 					break;
@@ -753,22 +767,21 @@ void ServerConfig::Read(bool bail, userrec* user)
 						{
 							int item;
 							ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item);
-							ServerInstance->Log(DEBUG,"Data type DT_INTEGER multi-item <%s:%s>[%d] = '%d'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
 							vl.push_back(ValueItem(item));
 						}
 					break;
 					case DT_BOOLEAN:
 						{
 							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum);
-							ServerInstance->Log(DEBUG,"Data type DT_BOOLEAN multi-item <%s:%s>[%d] = '%d'", MultiValues[Index].tag, MultiValues[Index].items[valuenum],tagnum, item);
 							vl.push_back(ValueItem(item));
 						}
 					break;
 					default:
+						/* Someone was smoking craq if we got here, and we're all gonna die. */
 					break;
 				}
 			}
-			ServerInstance->Log(DEBUG,"Call validation function for multi-value <%s>", MultiValues[Index].tag);
+
 			MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 		}
 
@@ -800,6 +813,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		}
 
 		if (!removed_modules.empty())
+		{
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 			{
 				if (ServerInstance->UnloadModule(removing->c_str()))
@@ -817,23 +831,26 @@ void ServerConfig::Read(bool bail, userrec* user)
 						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
 				}
 			}
+		}
 
 		if (!added_modules.empty())
-		for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 		{
-			if (ServerInstance->LoadModule(adding->c_str()))
+			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 			{
-				ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
-
-				if (user)
-					user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
-
-				add++;
-			}
-			else
-			{
-				if (user)
-					user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+				if (ServerInstance->LoadModule(adding->c_str()))
+				{
+					ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
+	
+					if (user)
+						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
+	
+					add++;
+				}
+				else
+				{
+					if (user)
+						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+				}
 			}
 		}
 
