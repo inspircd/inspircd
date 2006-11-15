@@ -535,7 +535,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	static char* Once[] = { "server", "admin", "files", "power", "options", NULL };
 
 	/* These tags can occur ONCE or not at all */
-	static InitialConfig Values[] = {
+	InitialConfig Values[] = {
 		{"options",		"softlimit",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
 		{"options",		"somaxconn",			new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
 		{"server",		"name",				new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
@@ -578,7 +578,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	/* These tags can occur multiple times, and therefore they have special code to read them
 	 * which is different to the code for reading the singular tags listed above.
 	 */
-	static MultiConfig MultiValues[] = {
+	MultiConfig MultiValues[] = {
 
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
