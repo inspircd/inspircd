@@ -45,56 +45,15 @@ class ValueItem
 {
 	std::string v;
  public:
-	ValueItem(int value)
-	{
-		std::stringstream n;
-		n << value;
-		v = n.str();
-	}
-
-	ValueItem(bool value)
-	{
-		std::stringstream n;
-		n << value;
-		v = n.str();
-	}
-
-	ValueItem(char* value)
-	{
-		v = value;
-	}
-
-	void Set(char* value)
-	{
-		v = value;
-	}
-
-	void Set(const char* value)
-	{
-		v = value;
-	}
-
-	void Set(int value)
-	{
-		std::stringstream n;
-		n << value;
-		v = n.str();
-	}
-
-	int GetInteger()
-	{
-		return atoi(v.c_str());
-	}
-
-	char* GetString()
-	{
-		return (char*)v.c_str();
-	}
-
-	bool GetBool()
-	{
-		return (GetInteger() || v == "yes" || v == "true");
-	}
+	ValueItem(int value);
+	ValueItem(bool value);
+	ValueItem(char* value);
+	void Set(char* value);
+	void Set(const char* val);
+	void Set(int value);
+	int GetInteger();
+	char* GetString();
+	bool GetBool();
 };
 
 /** The base class of the container 'ValueContainer'
@@ -103,13 +62,8 @@ class ValueItem
 class ValueContainerBase
 {
  public:
-	ValueContainerBase()
-	{
-	}
-
-	virtual ~ValueContainerBase()
-	{
-	}
+	ValueContainerBase() { }
+	virtual ~ValueContainerBase() { }
 };
 
 /** ValueContainer is used to contain pointers to different

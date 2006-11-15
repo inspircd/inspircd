@@ -1465,3 +1465,55 @@ InspIRCd* ServerConfig::GetInstance()
 	return ServerInstance;
 }
 
+
+ValueItem::ValueItem(int value)
+{
+	std::stringstream n;
+	n << value;
+	v = n.str();
+}
+
+ValueItem::ValueItem(bool value)
+{
+	std::stringstream n;
+	n << value;
+	v = n.str();
+}
+
+ValueItem::ValueItem(char* value)
+{
+	v = value;
+}
+
+void ValueItem::Set(char* value)
+{
+	v = value;
+}
+
+void ValueItem::Set(const char* value)
+{
+	v = value;
+}
+
+void ValueItem::Set(int value)
+{
+	std::stringstream n;
+	n << value;
+	v = n.str();
+}
+
+int ValueItem::GetInteger()
+{
+	return atoi(v.c_str());
+}
+
+char* ValueItem::GetString()
+{
+	return (char*)v.c_str();
+}
+
+bool ValueItem::GetBool()
+{
+	return (GetInteger() || v == "yes" || v == "true");
+}
+
