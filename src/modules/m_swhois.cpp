@@ -100,7 +100,7 @@ class ModuleSWhois : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnOper] = 1;
+		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
@@ -187,32 +187,50 @@ class ModuleSWhois : public Module
 		}
 	}
 	
-	virtual void OnOper(userrec* user, const std::string &opertype)
+	virtual void OnPostCommand(const std::string &command, const char **params, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
 	{
-		for(int i =0; i < Conf->Enumerate("type"); i++)
+		if ((command != "OPER") || (result != CMD_SUCCESS))
+			return;
+		
+		std::string swhois;
+		
+		for (int i = 0; i < Conf->Enumerate("oper"); i++)
 		{
-			std::string type = Conf->ReadValue("type", "name", i);
+			std::string name = Conf->ReadValue("oper", "name", i);
 			
-			if(strcmp(type.c_str(), user->oper) == 0)
+			if (name == params[0])
 			{
-				std::string swhois = Conf->ReadValue("type", "swhois", i);
+				swhois = Conf->ReadValue("oper", "swhois", i);
+				break;
+			}
+		}
+		
+		if (!swhois.length())
+		{
+			for (int i = 0; i < Conf->Enumerate("type"); i++)
+			{
+				std::string type = Conf->ReadValue("type", "name", i);
 				
-				if(swhois.length())
+				if (type == user->oper)
 				{
-					std::string* old;
-					if(user->GetExt("swhois", old))
-					{
-						user->Shrink("swhois");
-						DELETE(old);
-					}
-			
-					std::string* text = new std::string(swhois);
-					user->Extend("swhois", text);
-					
+					swhois = Conf->ReadValue("type", "swhois", i);
 					break;
 				}
 			}
-		}		
+		}
+
+		std::string *old;
+		if (user->GetExt("swhois", old))
+		{
+			user->Shrink("swhois");
+			DELETE(old);
+		}
+		
+		if (!swhois.length())
+			return;
+		
+		std::string *text = new std::string(swhois);
+		user->Extend("swhois", text);
 	}
 	
 	virtual ~ModuleSWhois()
