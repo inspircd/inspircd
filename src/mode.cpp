@@ -249,11 +249,18 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	}
 	else if (targetuser)
 	{
-		/* Display user's current mode string */
-		user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
-		if (*targetuser->oper)
-			user->WriteServ("008 %s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
-		return;
+		if ((targetuser == user) || (*user->oper))
+		{
+			/* Display user's current mode string */
+			user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
+			if (*targetuser->oper)
+				user->WriteServ("008 %s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
+			return;
+		}
+		else
+		{
+			user->WriteServ("502 %s :Can't change mode for other users", user->nick);
+		}
 	}
 
 	/* No such nick/channel */
@@ -340,6 +347,11 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		{
 			type = MODETYPE_USER;
 			mask = MASK_USER;
+			if ((user != targetuser) && (!ServerInstance->ULine(user->server)))
+			{
+				user->WriteServ("502 %s :Can't change mode for other users", user->nick);
+				return;
+			}
 		}
 		else
 		{
