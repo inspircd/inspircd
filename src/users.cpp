@@ -2000,7 +2000,7 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	
 			if (line.length() + namelen + length - start > 510)
 			{
-				this->Write(line);
+				ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 				line = prefix.str();
 			}
 	
