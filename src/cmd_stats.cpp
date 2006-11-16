@@ -79,6 +79,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		}
 		break;
 
+		case 'n':
 		case 'c':
 		{
 			/* This stats symbol must be handled by a linking module */
@@ -90,7 +91,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			int idx = 0;
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
-				results.push_back(sn+" 215 "+user->nick+" I * * * "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
+				results.push_back(sn+" 215 "+user->nick+" I NOMATCH * "+i->host+" "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
 				idx++;
 			}
 		}
@@ -101,7 +102,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			int idx = 0;
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
-				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" 120 0 "+ConvToStr(i->flood)+" "+ConvToStr(i->registration_timeout));
+				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(i->pingtime)+" 0 "+ConvToStr(i->sendqmax)+" :"+ConvToStr(i->flood)+" "+ConvToStr(i->registration_timeout));
 				idx++;
 			}
 		}

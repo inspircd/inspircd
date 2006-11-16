@@ -4623,12 +4623,13 @@ class ModuleSpanningTree : public Module
 
 	virtual int OnStats(char statschar, userrec* user, string_list &results)
 	{
-		if (statschar == 'c')
+		if ((statschar == 'c') || (statschar == 'n'))
 		{
 			for (unsigned int i = 0; i < Utils->LinkBlocks.size(); i++)
 			{
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" C *@"+(Utils->LinkBlocks[i].HiddenFromStats ? "<hidden>" : Utils->LinkBlocks[i].IPAddr)+" * "+Utils->LinkBlocks[i].Name.c_str()+" "+ConvToStr(Utils->LinkBlocks[i].Port)+" "+(Utils->LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(Utils->LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" "+statschar+" *@"+(Utils->LinkBlocks[i].HiddenFromStats ? "<hidden>" : Utils->LinkBlocks[i].IPAddr)+" * "+Utils->LinkBlocks[i].Name.c_str()+" "+ConvToStr(Utils->LinkBlocks[i].Port)+" "+(Utils->LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(Utils->LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
+				if (statschar == 'c')
+					results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 			}
 			results.push_back(std::string(ServerInstance->Config->ServerName)+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 			ServerInstance->SNO->WriteToSnoMask('t',"Notice: %s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
