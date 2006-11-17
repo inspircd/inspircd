@@ -495,19 +495,25 @@ irc::dynamicbitmask::~dynamicbitmask()
 		          
 irc::bitfield irc::dynamicbitmask::Allocate()
 {
+	/* Yeah, this isnt too efficient, however a module or the core
+	 * should only be allocating bitfields on load, the Toggle and
+	 * Get methods are O(1) as these are called much more often.
+	 */
 	for (size_t i = 0; i < bits_size; i++)
 	{
+		/* Yes, this is right. You'll notice we terminate the  loop when !current_pos,
+		 * this is because we logic shift our bit off the end of unsigned char, and its
+		 * lost, making the loop counter 0 when we're done.
+		 */
 		for (unsigned char current_pos = 1; current_pos; current_pos = current_pos << 1)
 		{
 			if (!(freebits[i] & current_pos))
 			{
 				freebits[i] |= current_pos;
-				printf("Just allocate at %d:%2x\n", i, current_pos);
 				return std::make_pair(i, current_pos);
 			}
 		}
 	}
-	printf("Grow set to size %d\n", bits_size + 1);
 	/* We dont have any free space left, increase by one */
 	int old_bits_size = bits_size;
 	bits_size++;
@@ -560,6 +566,7 @@ bool irc::dynamicbitmask::Deallocate(irc::bitfield &pos)
 
 void irc::dynamicbitmask::Toggle(irc::bitfield &pos, bool state)
 {
+	/* Range check the value */
 	if (pos.first < bits_size)
 	{
 		if (state)
@@ -573,10 +580,15 @@ void irc::dynamicbitmask::Toggle(irc::bitfield &pos, bool state)
 
 bool irc::dynamicbitmask::Get(irc::bitfield &pos)
 {
+	/* Range check the value */
 	if (pos.first < bits_size)
 		return (bits[pos.first] & pos.second);
 	else
-		return false;
+		/* We can't return false, otherwise we can't
+		 * distinguish between failure and a cleared bit!
+		 * Our only sensible choice is to throw (ew).
+		 */
+		throw ModuleException("irc::dynamicbitmask::Get(): Invalid bitfield, out of range");
 }
 
 size_t irc::dynamicbitmask::GetSize()
