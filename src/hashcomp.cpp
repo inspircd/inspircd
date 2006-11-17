@@ -473,12 +473,13 @@ long irc::portparser::GetToken()
 	}
 }
 
-irc::dynamicbitmask::dynamicbitmask() : bits_size(4)
+irc::dynamicbitmask::dynamicbitmask()
 {
 	/* We start with 4 bytes allocated which is room
 	 * for 4 items. Something makes me doubt its worth
 	 * allocating less than 4 bytes.
 	 */
+	bits_size = 4;
 	bits = new unsigned char[bits_size];
 	freebits = new unsigned char[bits_size];
 	memset(bits, 0, bits_size);
@@ -501,10 +502,12 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 			if (!(freebits[i] & current_pos))
 			{
 				freebits[i] |= current_pos;
+				printf("Just allocate at %d:%2x\n", i, current_pos);
 				return std::make_pair(i, current_pos);
 			}
 		}
 	}
+	printf("Grow set to size %d\n", bits_size + 1);
 	/* We dont have any free space left, increase by one */
 	int old_bits_size = bits_size;
 	bits_size++;
@@ -527,7 +530,7 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 	 * for this allocation
 	 */
 	bits[old_bits_size] = 0;
-	bits[old_bits_size] = 1;
+	freebits[old_bits_size] = 1;
 	/* We already know where we just allocated
 	 * the bitfield, so no loop needed
 	 */
@@ -566,5 +569,18 @@ void irc::dynamicbitmask::Toggle(irc::bitfield &pos, bool state)
 			/* Clear state, AND the !state out */
 			bits[pos.first] &= ~pos.second;
 	}
+}
+
+bool irc::dynamicbitmask::Get(irc::bitfield &pos)
+{
+	if (pos.first < bits_size)
+		return (bits[pos.first] & pos.second);
+	else
+		return false;
+}
+
+size_t irc::dynamicbitmask::GetSize()
+{
+	return bits_size;
 }
 

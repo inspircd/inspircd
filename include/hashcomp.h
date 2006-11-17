@@ -376,6 +376,10 @@ namespace irc
 		bool Deallocate(bitfield &pos);
 
 		void Toggle(bitfield &pos, bool state);
+
+		bool Get(bitfield &pos);
+
+		size_t GetSize();
 	};
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
