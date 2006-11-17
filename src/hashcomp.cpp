@@ -473,3 +473,98 @@ long irc::portparser::GetToken()
 	}
 }
 
+irc::dynamicbitmask::dynamicbitmask() : bits_size(4)
+{
+	/* We start with 4 bytes allocated which is room
+	 * for 4 items. Something makes me doubt its worth
+	 * allocating less than 4 bytes.
+	 */
+	bits = new unsigned char[bits_size];
+	freebits = new unsigned char[bits_size];
+	memset(bits, 0, bits_size);
+	memset(freebits, 0, bits_size);
+}
+
+irc::dynamicbitmask::~dynamicbitmask()
+{
+	/* Tidy up the entire used memory on delete */
+	delete[] bits;
+	delete[] freebits;
+}
+		          
+irc::bitfield irc::dynamicbitmask::Allocate()
+{
+	for (size_t i = 0; i < bits_size; i++)
+	{
+		for (unsigned char current_pos = 1; current_pos; current_pos = current_pos << 1)
+		{
+			if (!(freebits[i] & current_pos))
+			{
+				freebits[i] |= current_pos;
+				return std::make_pair(i, current_pos);
+			}
+		}
+	}
+	/* We dont have any free space left, increase by one */
+	int old_bits_size = bits_size;
+	bits_size++;
+	/* Allocate new bitfield space */
+	unsigned char* temp_bits = new unsigned char[bits_size];
+	unsigned char* temp_freebits = new unsigned char[bits_size];
+	/* Copy the old data in */
+	memcpy(temp_bits, bits, old_bits_size);
+	memcpy(temp_freebits, freebits, old_bits_size);
+	/* Delete the old data pointers */
+	delete[] bits;
+	delete[] freebits;
+	/* Swap the pointers over so now the new 
+	 * pointers point to our member values
+	 */
+	bits = temp_bits;
+	freebits = temp_freebits;
+	/* Initialize the new byte on the end of
+	 * the bitfields, pre-allocate the one bit
+	 * for this allocation
+	 */
+	bits[old_bits_size] = 0;
+	bits[old_bits_size] = 1;
+	/* We already know where we just allocated
+	 * the bitfield, so no loop needed
+	 */
+	return std::make_pair(old_bits_size, 1);
+}
+
+bool irc::dynamicbitmask::Deallocate(irc::bitfield &pos)
+{
+	/* We dont bother to shrink the bitfield
+	 * on deallocation, the most we could do
+	 * is save one byte (!) and this would cost
+	 * us a loop (ugly O(n) stuff) so we just
+	 * clear the bit and leave the memory
+	 * claimed -- nobody will care about one
+	 * byte.
+	 */
+	if (pos.first < bits_size)
+	{
+		freebits[pos.first] &= ~pos.second;
+		return true;
+	}
+	/* They gave a bitfield outside of the
+	 * length of our array. BAD programmer.
+	 */
+	return false;
+}
+
+void irc::dynamicbitmask::Toggle(irc::bitfield &pos, bool state)
+{
+	if (pos.first < bits_size)
+	{
+		if (state)
+			/* Set state, OR the state in */
+			bits[pos.first] |= pos.second;
+		else
+			/* Clear state, AND the !state out */
+			bits[pos.first] &= ~pos.second;
+	}
+}
+

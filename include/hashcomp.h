@@ -358,6 +358,26 @@ namespace irc
 		long GetToken();
 	};
 
+	typedef std::pair<size_t, unsigned char> bitfield;
+
+	class dynamicbitmask : public classbase
+	{
+	 private:
+		unsigned char* bits;
+		unsigned char* freebits;
+		size_t bits_size;
+	 public:
+		dynamicbitmask();
+
+		~dynamicbitmask();
+
+		bitfield Allocate();
+
+		bool Deallocate(bitfield &pos);
+
+		void Toggle(bitfield &pos, bool state);
+	};
+
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-
 	 * comparing string class.
