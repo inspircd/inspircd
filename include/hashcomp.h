@@ -390,6 +390,7 @@ namespace irc
 	 * just required to make the pointer static and specific to this class
 	 * type.
 	 *
+	 * \code
 	 * class mydbitmask : public irc::dynamicbitmask
 	 * {
 	 *  private:
@@ -419,6 +420,7 @@ namespace irc
 	 *          freebits = freebt;
 	 *      }
 	 * };
+	 * \endcode
 	 */
 	class dynamicbitmask : public classbase
 	{
