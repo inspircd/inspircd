@@ -473,24 +473,20 @@ long irc::portparser::GetToken()
 	}
 }
 
-irc::dynamicbitmask::dynamicbitmask()
+irc::dynamicbitmask::dynamicbitmask() : bits_size(4)
 {
 	/* We start with 4 bytes allocated which is room
 	 * for 4 items. Something makes me doubt its worth
 	 * allocating less than 4 bytes.
 	 */
-	bits_size = 4;
 	bits = new unsigned char[bits_size];
-	freebits = new unsigned char[bits_size];
 	memset(bits, 0, bits_size);
-	memset(freebits, 0, bits_size);
 }
 
 irc::dynamicbitmask::~dynamicbitmask()
 {
 	/* Tidy up the entire used memory on delete */
 	delete[] bits;
-	delete[] freebits;
 }
 		          
 irc::bitfield irc::dynamicbitmask::Allocate()
@@ -499,6 +495,7 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 	 * should only be allocating bitfields on load, the Toggle and
 	 * Get methods are O(1) as these are called much more often.
 	 */
+	unsigned char* freebits = this->GetFreeBits();
 	for (unsigned char i = 0; i < bits_size; i++)
 	{
 		/* Yes, this is right. You'll notice we terminate the  loop when !current_pos,
@@ -536,6 +533,7 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 	 */
 	bits = temp_bits;
 	freebits = temp_freebits;
+	this->SetFreeBits(freebits);
 	/* Initialize the new byte on the end of
 	 * the bitfields, pre-allocate the one bit
 	 * for this allocation
@@ -560,7 +558,7 @@ bool irc::dynamicbitmask::Deallocate(irc::bitfield &pos)
 	 */
 	if (pos.first < bits_size)
 	{
-		freebits[pos.first] &= ~pos.second;
+		this->GetFreeBits()[pos.first] &= ~pos.second;
 		return true;
 	}
 	/* They gave a bitfield outside of the

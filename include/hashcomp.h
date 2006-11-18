@@ -378,6 +378,47 @@ namespace irc
 	 * bit values in a bitmap dynamically, rather than having to define
 	 * costs in a fixed size unsigned integer and having the possibility
 	 * of collisions of values in different third party modules.
+	 *
+	 * IMPORTANT NOTE:
+	 *
+	 * To use this class, you must derive from it.
+	 * This is because each derived instance has its own freebits array
+	 * which can determine what bitfields are allocated on a TYPE BY TYPE
+	 * basis, e.g. an irc::dynamicbitmask type for userrecs, and one for
+	 * chanrecs, etc. You should inheret it in a very simple way as follows.
+	 * The base class will resize and maintain freebits as required, you are
+	 * just required to make the pointer static and specific to this class
+	 * type.
+	 *
+	 * class mydbitmask : public irc::dynamicbitmask
+	 * {
+	 *  private:
+	 *
+	 *      static unsigned char* freebits;
+	 *
+	 *  public:
+	 *
+	 *      mydbitmask() : irc::dynamicbitmask()
+	 *      {
+	 *          freebits = new unsigned char[this->bits_size];
+	 *          memset(freebits, 0, this->bits_size);
+	 *      }
+	 *
+	 *      ~mydbitmask()
+	 *      {
+	 *          delete[] freebits;
+	 *      }
+	 *
+	 *      unsigned char* GetFreeBits()
+	 *      {
+	 *          return freebits;
+	 *      }
+	 *
+	 *      void SetFreeBits(unsigned char* freebt)
+	 *      {
+	 *          freebits = freebt;
+	 *      }
+	 * };
 	 */
 	class dynamicbitmask : public classbase
 	{
@@ -387,12 +428,6 @@ namespace irc
 		 * more than 32 entries with Allocate().
 		 */
 		unsigned char* bits;
-		/** A bitmask containing 1's for allocated
-		 * bits and 0's for free bits. When we
-		 * allocate a bit using Allocate(), we OR
-		 * its position in here to 1.
-		 */
-		unsigned char* freebits;
 		/** Current set size (size of freebits and bits).
 		 * Both freebits and bits will ALWAYS be the
 		 * same length.
@@ -406,7 +441,7 @@ namespace irc
 
 		/** Free the memory used by bits and freebits
 		 */
-		~dynamicbitmask();
+		virtual ~dynamicbitmask();
 
 		/** Allocate an irc::bitfield.
 		 * @return An irc::bitfield which can be used
@@ -447,6 +482,10 @@ namespace irc
 		 * for the freebits array.
 		 */
 		unsigned char GetSize();
+
+		virtual unsigned char* GetFreeBits() { return NULL; }
+
+		virtual void SetFreeBits(unsigned char* freebits) { }
 	};
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
