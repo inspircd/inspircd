@@ -1072,6 +1072,7 @@ sub getosflags {
 	if ($config{OSNAME} =~ /BSD$/) {
 		$config{LDLIBS} = "-lstdc++";
 		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{MAKEPROG} = "gmake";
 		if ($config{OSNAME} eq "OpenBSD") {
 			chomp($foo = `eg++ -dumpversion | cut -c 1`);
@@ -1088,6 +1089,7 @@ sub getosflags {
 	} else {
 		$config{LDLIBS} = "-ldl -lstdc++";
 		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{MAKEPROG} = "make";
 		if ($config{OSNAME} =~ /CYGWIN/) {
 			$config{FLAGS}  = "-Wall -Woverloaded-virtual $config{OPTIMISATI}";
