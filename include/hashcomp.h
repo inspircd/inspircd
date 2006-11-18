@@ -430,6 +430,7 @@ namespace irc
 		 * more than 32 entries with Allocate().
 		 */
 		unsigned char* bits;
+	 protected:
 		/** Current set size (size of freebits and bits).
 		 * Both freebits and bits will ALWAYS be the
 		 * same length.
