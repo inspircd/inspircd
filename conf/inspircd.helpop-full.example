@@ -2,7 +2,7 @@
 #  Helpop Standard  #
 #####################
 
-<start line1="     InspIRCd help system"
+<helpop_start line1="     InspIRCd help system"
 	line2="     --------------------"
 	line3="-"
 	line4="This system provides help for commands and modes."
@@ -15,10 +15,10 @@
 	line11="/HELPOP UMODES        -      To see a list of user modes"
 	line12="/HELPOP CHMODES       -      To see a list of channel modes">
 
-<nohelp line1="There is no help for the topic"
+<helpop_nohelp line1="There is no help for the topic"
 	line2="You searched for. Please try again.">
 
-<nohelpo line1="There is no help for the topic"
+<helpop_nohelpo line1="There is no help for the topic"
 	line2="You searched for. Please try again."
 	line3="-"
 	line4="Your Query has been forwarded to the IRCops">
@@ -27,7 +27,7 @@
 #   User Commands   #
 #####################
 
-<commands line1="User Commands"
+<helpop_commands line1="User Commands"
 	line2="-------------"
 	line3="USER      NICK     QUIT     VERSION    PING"
 	line4="PONG      ADMIN    PRIVMSG  INFO       TIME"
@@ -40,169 +40,169 @@
 	line11="REMOVE    PARK     UNPARK   UNINVITE   VHOST"
 	line12="WATCH     USERIP">
 	
-<watch line1="/WATCH [C|S|+/-[NICK]]"
+<helpop_watch line1="/WATCH [C|S|+/-[NICK]]"
 	line2="Adds or deletes a user from the watch list. C clears the list"
 	line3="and S queries the status.">
 	
-<vhost line1="/VHOST [username] [password]"
+<helpop_vhost line1="/VHOST [username] [password]"
 	line2="Authenticate for a vhost.">
 
-<park line1="/PARK"
+<helpop_park line1="/PARK"
 	line2="Parks the nickname which issues the command. The session's"
 	line3="connection is closed, but the session remains as a ghost, to"
 	line4="be reclaimed later. When the user quits, they will be given a" 
 	line5="key which is random.">
 	
-<unpark line1="/UNPARK [nickname] [key]"
+<helpop_unpark line1="/UNPARK [nickname] [key]"
 	line2="Unparks the nickname specified. The nickname must already"
 	line3="be previously parked, and the key must match the one for"
 	line4="this nickname.">
 
-<kick line1="/REMOVE [channel] [nick] {[reason]}"
+<helpop_kick line1="/REMOVE [channel] [nick] {[reason]}"
 	line2="Removes a user from a channel you specify. You must be"
 	line3="At least a channel halfoperator to remove a user."
 	line4="A removed user will part with a message stating they"
 	line5="were removed from the channel and by whom.">
 
-<devoice line1="/DEVOICE [channel]"
+<helpop_devoice line1="/DEVOICE [channel]"
 	line2="Devoices yourself from the specified channel.">
 
-<silence line1="/SILENCE +/-[nick]"
+<helpop_silence line1="/SILENCE +/-[nick]"
 	line2="A serverside /ignore of the given nick. It does not follow"
 	line3="the users nick so if they change their nick you will recieve"
 	line4="their messages. /SILENCE without a parameter will list the nicks"
 	line5="that you have silenced.">
 
-<knock line1="/KNOCK [channel]"
+<helpop_knock line1="/KNOCK [channel]"
 	line2="Sends a notice to a channel indicating you wish to join.">
 
-<user line1="/USER [ident] [local host] [remote host] :[GECOS]"
+<helpop_user line1="/USER [ident] [local host] [remote host] :[GECOS]"
 	line2="This command is used by your client to register your irc session."
 	line3="You should not use it during an established connection.">
 
-<nick line1="/NICK [new nick]"
+<helpop_nick line1="/NICK [new nick]"
 	line2="Change your nickname to [new nick].">
 
-<quit line1="/QUIT [reason]"
+<helpop_quit line1="/QUIT [reason]"
 	line2="Quit from IRC and end your current session.">
 
-<version line1="/VERSION"
+<helpop_version line1="/VERSION"
 	line2="Returns the server's version number.">
 
-<ping line1="/PING [server]"
+<helpop_ping line1="/PING [server]"
 	line2="Ping a server. Target server will answer with a PONG.">
 
-<pong line2="/PONG [server]"
+<helpop_pong line2="/PONG [server]"
 	line2="Your client should send this to answer server PINGs. You"
 	line3="should not issue this command manually.">
 
-<admin line1="/ADMIN [server]"
+<helpop_admin line1="/ADMIN [server]"
 	line2="Fetches the administrative information on the given server.">
 
-<privmsg line1="/MSG [target] [text]"
+<helpop_privmsg line1="/MSG [target] [text]"
 	line2="Sends a message to a user or channel specified in [target].">
 
-<notice line1="/NOTICE [target] [text]"
+<helpop_notice line1="/NOTICE [target] [text]"
 	line2="Sends a notice to a user or channel specified in [target].">
 
-<join line1="/JOIN [channel]{,[channel]} [key]{,[key]}"
+<helpop_join line1="/JOIN [channel]{,[channel]} [key]{,[key]}"
 	line2="Joins one or more channels you provide the names for.">
 
-<names line1="/NAMES [channel]{,[channel]}"
+<helpop_names line1="/NAMES [channel]{,[channel]}"
 	line2="Return a list of users on the channels you provide.">
 
-<part line1="/PART [channel]{,[channel] [reason]}"
+<helpop_part line1="/PART [channel]{,[channel] [reason]}"
 	line2="Leaves one or more channels you specify.">
 
-<kick line1="/KICK [channel] [nick] {[reason]}"
+<helpop_kick line1="/KICK [channel] [nick] {[reason]}"
 	line2="Kicks a user from a channel you specify. You must be"
 	line3="At least a channel halfoperator to kick a user.">
 
-<mode line1="/MODE [target] [+|-][modes]{[+|-][modes]} {mode parameters}"
+<helpop_mode line1="/MODE [target] [+|-][modes]{[+|-][modes]} {mode parameters}"
 	line2="Sets the mode for a channel or a nickname specified in [target]"
 	line3="A user may only set modes upon themselves, and may not set the"
 	line4="+o usermode, and a user may only change channel modes of"
 	line5="channels where they are at least a halfoperator.">
 
-<topic line1="/TOPIC [channel] {topic}"
+<helpop_topic line1="/TOPIC [channel] {topic}"
 	line2="Sets or retrieves the channel topic. If a channel topic is"
 	line3="given in teh command and the channel is either not +t, or"
 	line4="You are at least a halfoperator, the channel topic will be"
 	line5="changed to the new one you provide.">
 
-<who line1="/WHO [channel|nick|servermask|o 0]"
+<helpop_who line1="/WHO [channel|nick|servermask|o 0]"
 	line2="Looks up the information of users matching the range you"
 	line3="provide. You may only /WHO nicknames in channels or on servers"
 	line4="where you share a common channel with them."
 	line5="The syntax '/WHO o 0' shows a list of online IRC operators.">
 
-<motd line1="/MOTD [server]"
+<helpop_motd line1="/MOTD [server]"
 	line2="Show the message of the day for [server]. Messages of the"
 	line3="day contain important server rules and notice and should be"
 	line4="read before using a server in any way!">
 
-<rules line1="/RULES"
+<helpop_rules line1="/RULES"
 	line2="Show the rules file for the local server. This is similar in"
 	line3="effect to /MOTD except that rules are optional. All users are"
 	line4="sent the MOTD when they connect without having to request it.">
 
-<oper line1="/OPER [login] [password]"
+<helpop_oper line1="/OPER [login] [password]"
 	line2="Attempts to authenticate a user as an IRC operator."
 	line3="Please be aware that both successful and unsucessful oper attempts"
 	line4="Are logged, and sent to online IRC operators.">
 
-<list line1="/LIST [pattern]"
+<helpop_list line1="/LIST [pattern]"
 	line2="Creates a list of all existing channels matching the glob pattern"
 	line3="[pattern], e.g. *chat* or bot*.">
 
-<lusers line1="/LUSERS"
+<helpop_lusers line1="/LUSERS"
 	line2="Shows a count of local and remote users, servers and channels.">
 
-<userhost line1="/USERHOST [nickname]"
+<helpop_userhost line1="/USERHOST [nickname]"
 	line2="Returns the hostname and nickname of a user, and some other"
 	line3="miscellanious information.">
 	
-<userip line1="/USERIP [nickname]"
-	line2="Returns the ip and nickname of a user."
+<helpop_userip line1="/USERIP [nickname]"
+	line2="Returns the ip and nickname of a user.">
 
-<away line1="/AWAY {message}"
+<helpop_away line1="/AWAY {message}"
 	line2="If a message is given, marks you as being away, otherwise"
 	line3="removes your away status and previous message.">
 
-<ison line1="/ISON [nick] {[nick]...}"
+<helpop_ison line1="/ISON [nick] {[nick]...}"
 	line2="Returns a subset of the nicks you give, showing only those"
 	line3="that are currently online.">
 
-<summon line1="/SUMMON [user]"
+<helpop_summon line1="/SUMMON [user]"
 	line2="Summons a user from the shell where the ircd is running onto irc"
 	line3="This command is deprecated in the current protocol.">
 
-<users line1="/USERS"
+<helpop_users line1="/USERS"
 	line2="Shows users logged into the shell where the ircd is running."
 	line3="This command is deprecated in the current protocol.">
 
-<invite line1="/INVITE [nick] [channel]"
+<helpop_invite line1="/INVITE [nick] [channel]"
 	line2="Invites a user to a channel. If the channel is NOT +i, any"
 	line3="user, channel op or not, may invite any other user to the"
 	line4="channel, so long as they are a member of that channel."
 	line5="Otherwise, if +i is set only channel halfoperators"
 	line6="and above may invite users into the channel.">
 
-<pass line1="/PASS [password]"
+<helpop_pass line1="/PASS [password]"
 	line2="This command is used by your irc client when setting up"
 	line3="your irc session, and should not be issued by a fully"
 	line4="connected client.">
 
-<whowas line1="/WHOWAS [nick]"
+<helpop_whowas line1="/WHOWAS [nick]"
 	line2="Returns a list of times the user was last seen on irc"
 	line3="along with the time they were last seen and their server.">
 
-<links line1="/LINKS"
+<helpop_links line1="/LINKS"
 	line2="Shows all servers linked to this one. Note that in this"
 	line3="server implementation all links will be flattened as"
 	line4="a tree based layout is not in use.">
 
-<map line1="/MAP"
+<helpop_map line1="/MAP"
 	line2="Shows a graphical representation of all users and servers"
 	line3="on the network. The tree diagram is inaccurate in this"
 	line4="implementation as a tree based network is not in place.">
@@ -211,7 +211,7 @@
 #   Oper Commands   #
 #####################
 
-<coper line1="Oper Commands"
+<helpop_coper line1="Oper Commands"
 	line2="-------------"
 	line3="DIE        RESTART     KILL         REHASH         TRACE"
 	line4="CONNECT    SQUIT       MODULES      MKPASSWD       SHUN"
@@ -223,95 +223,95 @@
 	line10="SPYLIST    SPYNAMES    GLOADMODULE  GUNLOADMODULE  MKSHA256"
 	line11="PARKSTATS  FREEZE      UNFREEZE     OPERPERMS      RCONNECT">
 
-<rconnect line1="/RCONNECT [source mask] [target mask]"
+<helpop_rconnect line1="/RCONNECT [source mask] [target mask]"
 	line2="All servers matching [source mask] will try to connect to"
 	line3="the first server in the config file matching [target mask].">
 
-<operperms line1="/OPERPERMS [nick]"
+<helpop_operperms line1="/OPERPERMS [nick]"
 	line2="List all commands an oper has access to use.">
 
-<freeze line1="/FREEZE [nick]"
+<helpop_freeze line1="/FREEZE [nick]"
 	line2="Prevents the user from sending commands until they reconnect."
 	line3="User is also notified they have been frozen.">
 	
-<unfreeze line1="/UNFREEZE [nick]"
+<helpop_unfreeze line1="/UNFREEZE [nick]"
 	line2="Unfreezes a user frozen by the /FREEZE command.">
 
-<parkstats line1="/PARKSTATS"
+<helpop_parkstats line1="/PARKSTATS"
 	line2="Displays the park module's statistics">
 
-<spylist line1="/SPYLIST"
+<helpop_spylist line1="/SPYLIST"
 	line2="Operates the same as /LIST but includes +s and +p channels.">
 	
-<spynames line1="/SPYNAMES [channel]"
+<helpop_spynames line1="/SPYNAMES [channel]"
 	line2="Operates the same as /name but works on +s and +p channels.">
 
-<globops line1="/GLOBOPS [message]"
+<helpop_globops line1="/GLOBOPS [message]"
 	line2="Sends a message to all +g users.">
 
-<cban   line1="/CBAN [channel] {[duration] :[reason]}"
+<helpop_cban   line1="/CBAN [channel] {[duration] :[reason]}"
 	line2="Sets or removes a channel ban. You must specify at least"
 	line3="3 parameters to add a ban, and one parameter to remove a ban."
 	line4="The duration may be specified in seconds, or in the following format"
 	line5="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
 	line6="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<sajoin line1="/SAJOIN [nick] [channel]"
+<helpop_sajoin line1="/SAJOIN [nick] [channel]"
 	line2="Forces the user to join the channel.">
 	
-<sapart line1="/SAPART [nick] [channel]"
+<helpop_sapart line1="/SAPART [nick] [channel]"
 	line2="Forces the user to part the channel.">
 	
-<samode line1="/SAMODE [#chan/nick] +/-[modes] {[parameters for modes]}"
+<helpop_samode line1="/SAMODE [#chan/nick] +/-[modes] {[parameters for modes]}"
 	line2="Gives the channel or nick the modes specified.">
 	
-<sanick line1="/SANICK [nick] [new nick]"
+<helpop_sanick line1="/SANICK [nick] [new nick]"
 	line2="Changes the users nick to the new nick.">
 
-<saquit line1="/SAQUIT [nick] [reason]"
+<helpop_saquit line1="/SAQUIT [nick] [reason]"
 	line2="Forces user to quit with the specified reason.">
 	
-<setidle line1="/SETIDLE [idle time]"
+<helpop_setidle line1="/SETIDLE [idle time]"
 	line2="Sets your idle time (in seconds).">
 	
-<sethost line1="/SETHOST [host]"
+<helpop_sethost line1="/SETHOST [host]"
 	line2="Sets your host to the specified host.">
 	
-<setident line1="/SETIDENT [ident]"
+<helpop_setident line1="/SETIDENT [ident]"
 	line2="Sets your ident to the specified ident.">
 	
-<setname line1="/SETNAME [name]"
+<helpop_setname line1="/SETNAME [name]"
 	line2="Sets your name to the specified name.">
 	
-<swhois line="/SWHOIS [nick] [swhois]"
+<helpop_swhois line="/SWHOIS [nick] [swhois]"
 	line2="Sets the users swhois field to the given swhois.">
 
-<mkpasswd line1="/MKPASSWD [plaintext]"
+<helpop_mkpasswd line1="/MKPASSWD [plaintext]"
 	line2="Encodes the plaintext to an MD5 hash and displays the result.">
 	
-<mksha256 line1="/MKSHA256 [plaintext]"
+<helpop_mksha256 line1="/MKSHA256 [plaintext]"
 	line2="Encodes the plaintext to an SHA-256 hash and displays the result.">
 
-<opermotd line1="/OPERMOTD"
+<helpop_opermotd line1="/OPERMOTD"
 	line2="Re-displays the Oper MOTD.">
 
-<nicklock line1="/NICKLOCK [nick] [new nick]"
+<helpop_nicklock line1="/NICKLOCK [nick] [new nick]"
 	line2="Changes user's nick to the new nick, and forces"
 	line3="it to remain as such for the remainder of the session.">
 	
-<nickunlock line1="/NICKUNLOCK [nick]"
+<helpop_nickunlock line1="/NICKUNLOCK [nick]"
 	line2="Allows the user to change nicks.">
 
-<chghost line1="/CHGHOST [nickname] [new hostname]"
+<helpop_chghost line1="/CHGHOST [nickname] [new hostname]"
 	line2="Changes the hostname of the user to the new hostname>.">
 	
-<chgname line1="/CHGNAME [nickname] [new name]"
+<helpop_chgname line1="/CHGNAME [nickname] [new name]"
 	line2="Changes the name of the user to the new name>.">
 
-<chgident line1="/CHGIDENT [nickname] [new ident]"
+<helpop_chgident line1="/CHGIDENT [nickname] [new ident]"
 	line2="Changes the ident of the user to the new ident.">
 
-<shun line1="/SHUN [user@host] {[duration] :[reason]}"
+<helpop_shun line1="/SHUN [user@host] {[duration] :[reason]}"
 	line2="Sets or removes a shun (serverside ignore) on a host and ident mask."
 	line3="You must specify at least 3 parameters to add a shun, and one"
 	line4="parameter to remove a shun (just the user@host section)."
@@ -319,57 +319,57 @@
 	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
 	line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<die line1="/DIE [password]"
+<helpop_die line1="/DIE [password]"
 	line2="If the correct password is provided, and you are an operator,"
 	line3="This command will shut down the local server.">
 
-<restart line1="/RESTART [password]"
+<helpop_restart line1="/RESTART [password]"
 	line2="If the correct password is provided, and you are an operator,"
 	line3="This command will restart the local server.">
 
-<commands line1="/COMMANDS"
+<helpop_commands line1="/COMMANDS"
 	line2="Shows all currently available commands.">
 
-<kill line1="/KILL [user] [reason]"
+<helpop_kill line1="/KILL [user] [reason]"
 	line2="This command will disconnect a user from IRC with the given reason.">
 
-<rehash line1="/REHASH"
+<helpop_rehash line1="/REHASH"
 	line2="This command will cause the server configuration file to be"
 	line3="re-read and values re-initialised.">
 
-<trace line1="/TRACE [nick|user@host|servermask]"
+<helpop_trace line1="/TRACE [nick|user@host|servermask]"
 	line2="This command will provide a list of all users and servers which"
 	line3="must be passed through or over to reach a given object (server or user).">
 
-<connect line1="/CONNECT [servermask]"
+<helpop_connect line1="/CONNECT [servermask]"
 	line2="Create a mesh connection to the given servermask. You must have"
 	line3="configured the server for linking in your configuration file,"
 	line4="and provided a password.">
 
-<squit line1="/SQUIT"
+<helpop_squit line1="/SQUIT"
 	line2="Disconnects the local server from the mesh network, causing every"
 	line3="other server in the mesh to drop it.">
 
-<modules line1="/MODULES"
+<helpop_modules line1="/MODULES"
 	line2="Lists currently loaded modules, their memory offsets and version"
 	line3="numbers and flags. If you are not an operator, you will see reduced"
 	line4="detail.">
 
-<loadmodule line1="/LOADMODULE [filename.so]"
+<helpop_loadmodule line1="/LOADMODULE [filename.so]"
 	line2="Loads a module into the IRCd.">
 
-<unloadmodule line1="/UNLOADMODULE [filename.so]"
+<helpop_unloadmodule line1="/UNLOADMODULE [filename.so]"
 	line3="Unloads a module from the IRCd. The module cannot have the static"
 	line4="flag set (see the output of /MODULES).">
 	
-<gloadmodule line1="/GLOADMODULE [filename.so]"
+<helpop_gloadmodule line1="/GLOADMODULE [filename.so]"
 	line2="Globally loads a module into the network.">
 
-<gunloadmodule line1="/GUNLOADMODULE [filename.so]"
+<helpop_gunloadmodule line1="/GUNLOADMODULE [filename.so]"
 	line3="Globally unloads a module from the network. The module cannot "
 	line4="have the static flag set (see the output of /MODULES).">
 	
-<kline line1="/KLINE [user@host] {[duration] :[reason]}"
+<helpop_kline line1="/KLINE [user@host] {[duration] :[reason]}"
 	line2="Sets or removes a k-line (host based ban) on a host and ident mask."
 	line3="You must specify at least 3 parameters to add a ban, and one"
 	line4="parameter to remove a ban (just the user@host section)."
@@ -377,7 +377,7 @@
 	line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
 	line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<zline line1="/ZLINE [ipmask] {[duration] :[reason]}"
+<helpop_zline line1="/ZLINE [ipmask] {[duration] :[reason]}"
         line2="Sets or removes a z-line (ip based ban) on an ip range mask."
         line3="You must specify at least 3 parameters to add a ban, and one"
         line4="parameter to remove a ban (just the user@host section)."
@@ -385,7 +385,7 @@
         line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
         line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<qline line1="/QLINE [nickmask] {[duration] :[reason]}"
+<helpop_qline line1="/QLINE [nickmask] {[duration] :[reason]}"
         line2="Sets or removes a q-line (nick based ban) on a nick mask."
         line3="You must specify at least 3 parameters to add a ban, and one"
         line4="parameter to remove a ban (just the user@host section)."
@@ -393,7 +393,7 @@
         line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
         line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<gline line1="/GLINE [user@host] {[duration] :[reason]}"
+<helpop_gline line1="/GLINE [user@host] {[duration] :[reason]}"
         line2="Sets or removes a g-line (global host based ban) on host mask."
         line3="You must specify at least 3 parameters to add a ban, and one"
         line4="parameter to remove a ban (just the user@host section)."
@@ -401,7 +401,7 @@
         line6="1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,"
         line7="5 minutes and 6 seconds. All fields in this format are optional.">
 
-<eline line1="/ELINE [user@host] {[duration] :[reason]}"
+<helpop_eline line1="/ELINE [user@host] {[duration] :[reason]}"
 	line2="Sets or removes a e-line (local ban exception) on host mask."
 	line3="You must specify at least 3 parameters to add an exception, and one"
 	line4="parameter to remove an exception (just the user@host section)."
@@ -413,7 +413,7 @@
 # User/Channel Modes #
 ######################
 
-<umodes line1="User Modes"
+<helpop_umodes line1="User Modes"
 	line2="----------"
 	line3="o                Is an IRC operator"
 	line4="i                Is invisible to /WHO"
@@ -431,7 +431,7 @@
 	line16="S                mIRC colour codes are stripped to the user"
 	line17="D                User can not recieve PRIVMSGs">
 
-<chmodes line1="Channel Modes"
+<helpop_chmodes line1="Channel Modes"
 	line2="-------------"
 	line3="v [nickname]       Gives voice to [nickname] (can talk on +m channel)"
 	line4="h [nickname]       Gives halfops to [nickname]"
@@ -479,7 +479,7 @@
 #   Stats Symbols    #
 ######################
 
-<stats line1="/STATS [symbol]"
+<helpop_stats line1="/STATS [symbol]"
 	line2="Shows various server statistics. Depending on configuration this"
 	line3="command may be reserved for oper-only use."
 	line4="-"
