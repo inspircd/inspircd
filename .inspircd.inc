@@ -236,7 +236,7 @@ sub getpidfile {
       }
     } else {
       # End of includes / No includes found.
-      return;
+      return $confpath . "inspircd.pid";
     }
   }
 }
