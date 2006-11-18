@@ -253,7 +253,7 @@ namespace irc
 		~tokenstream();
 
 		/** Fetch the next token from the stream
-		 * @returns The next token is returned, or an empty string if none remain
+		 * @return The next token is returned, or an empty string if none remain
 		 */
 		const std::string GetToken();
 	};
@@ -285,7 +285,7 @@ namespace irc
 		virtual ~sepstream();
 
 		/** Fetch the next token from the stream
-		 * @returns The next token is returned, or an empty string if none remain
+		 * @return The next token is returned, or an empty string if none remain
 		 */
 		virtual const std::string GetToken();
 	};
@@ -353,32 +353,99 @@ namespace irc
 		 */
 		~portparser();
 		/** Fetch the next token from the stream
-		 * @returns The next port number is returned, or 0 if none remain
+		 * @return The next port number is returned, or 0 if none remain
 		 */
 		long GetToken();
 	};
 
+	/** Used to hold a bitfield definition in dynamicbitmask.
+	 * You must be allocated one of these by dynamicbitmask::Allocate(),
+	 * you should not fill the values yourself!
+	 */
 	typedef std::pair<size_t, unsigned char> bitfield;
 
+	/** The irc::dynamicbitmask class is used to maintain a bitmap of
+	 * boolean values, which can grow to any reasonable size no matter
+	 * how many bitfields are in it.
+	 *
+	 * It starts off at 32 bits in size, large enough to hold 32 boolean
+	 * values, with a memory allocation of 8 bytes. If you allocate more
+	 * than 32 bits, the class will grow the bitmap by 8 bytes at a time
+	 * for each set of 8 bitfields you allocate with the Allocate()
+	 * method.
+	 *
+	 * This method is designed so that multiple modules can be allocated
+	 * bit values in a bitmap dynamically, rather than having to define
+	 * costs in a fixed size unsigned integer and having the possibility
+	 * of collisions of values in different third party modules.
+	 */
 	class dynamicbitmask : public classbase
 	{
 	 private:
+		/** Data bits. We start with four of these,
+		 * and we grow the bitfield as we allocate
+		 * more than 32 entries with Allocate().
+		 */
 		unsigned char* bits;
+		/** A bitmask containing 1's for allocated
+		 * bits and 0's for free bits. When we
+		 * allocate a bit using Allocate(), we OR
+		 * its position in here to 1.
+		 */
 		unsigned char* freebits;
+		/** Current set size (size of freebits and bits).
+		 * Both freebits and bits will ALWAYS be the
+		 * same length.
+		 */
 		size_t bits_size;
 	 public:
+		/** Allocate the initial memory for bits and
+		 * freebits and zero the memory.
+		 */
 		dynamicbitmask();
 
+		/** Free the memory used by bits and freebits
+		 */
 		~dynamicbitmask();
 
+		/** Allocate an irc::bitfield.
+		 * @return An irc::bitfield which can be used
+		 * with Get, Deallocate and Toggle methods.
+		 * @throw Can throw std::bad_alloc if there is
+		 * no ram left to grow the bitmask.
+		 */
 		bitfield Allocate();
 
+		/** Deallocate an irc::bitfield.
+		 * @param An irc::bitfield to deallocate.
+		 * @return True if the bitfield could be
+		 * deallocated, false if it could not.
+		 */
 		bool Deallocate(bitfield &pos);
 
+		/** Toggle the value of a bitfield.
+		 * @param pos A bitfield to allocate, previously
+		 * allocated by dyamicbitmask::Allocate().
+		 * @param state The state to set the field to.
+		 */
 		void Toggle(bitfield &pos, bool state);
 
+		/** Get the value of a bitfield.
+		 * @param pos A bitfield to retrieve, previously
+		 * allocated by dyamicbitmask::Allocate().
+		 * @return The value of the bitfield.
+		 * @throw Will throw ModuleException if the bitfield
+		 * you provide is outside of the range
+		 * 0 >= bitfield.first < size_bits.
+		 */
 		bool Get(bitfield &pos);
 
+		/** Return the size in bytes allocated to the bits
+		 * array.
+		 * Note that the actual allocation is twice this,
+		 * as there are an equal number of bytes allocated
+		 * for the freebits array.
+		 */
 		size_t GetSize();
 	};
 
