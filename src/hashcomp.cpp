@@ -499,7 +499,7 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 	 * should only be allocating bitfields on load, the Toggle and
 	 * Get methods are O(1) as these are called much more often.
 	 */
-	for (size_t i = 0; i < bits_size; i++)
+	for (unsigned char i = 0; i < bits_size; i++)
 	{
 		/* Yes, this is right. You'll notice we terminate the  loop when !current_pos,
 		 * this is because we logic shift our bit off the end of unsigned char, and its
@@ -515,7 +515,12 @@ irc::bitfield irc::dynamicbitmask::Allocate()
 		}
 	}
 	/* We dont have any free space left, increase by one */
-	int old_bits_size = bits_size;
+
+	if (bits_size == 255)
+		/* Oh dear, cant grow it any further */
+		throw std::bad_alloc();
+
+	unsigned char old_bits_size = bits_size;
 	bits_size++;
 	/* Allocate new bitfield space */
 	unsigned char* temp_bits = new unsigned char[bits_size];
@@ -591,7 +596,7 @@ bool irc::dynamicbitmask::Get(irc::bitfield &pos)
 		throw ModuleException("irc::dynamicbitmask::Get(): Invalid bitfield, out of range");
 }
 
-size_t irc::dynamicbitmask::GetSize()
+unsigned char irc::dynamicbitmask::GetSize()
 {
 	return bits_size;
 }

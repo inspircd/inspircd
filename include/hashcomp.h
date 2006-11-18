@@ -397,7 +397,7 @@ namespace irc
 		 * Both freebits and bits will ALWAYS be the
 		 * same length.
 		 */
-		size_t bits_size;
+		unsigned char bits_size;
 	 public:
 		/** Allocate the initial memory for bits and
 		 * freebits and zero the memory.
@@ -446,7 +446,7 @@ namespace irc
 		 * as there are an equal number of bytes allocated
 		 * for the freebits array.
 		 */
-		size_t GetSize();
+		unsigned char GetSize();
 	};
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
