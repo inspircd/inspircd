@@ -1128,8 +1128,7 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 #ifdef PGSQL_HAS_ESCAPECONN
 						len = PQescapeStringConn(sql, queryend, req.query.p.front().c_str(), req.query.p.front().length(), &error);
 #else
-						len = PQescapeStringConn(queryend, req.query.p.front().c_str(), req.query.p.front().length());
-						error = 0;
+						len = PQescapeString         (queryend, req.query.p.front().c_str(), req.query.p.front().length());
 #endif
 						if(error)
 						{
