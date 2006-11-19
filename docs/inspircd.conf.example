@@ -1245,7 +1245,7 @@
 #                                                                     #
 # If you are using the m_opermotd.so module, specify the motd here    #
 #                                                                     #
-#<opermotd file="/path/to/oper.motd">
+#<opermotd file="oper.motd">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
@@ -1300,7 +1300,7 @@
 # Optional - If you specify to use the m_randquote.so module, then    #
 # specify below the path to the randquotes.conf file.                 #
 #                                                                     #
-#<randquote file="/path/to/inspircd/randquotes.conf">
+#<randquote file="randquotes.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Redirect module: Adds channel redirection (mode +L)
