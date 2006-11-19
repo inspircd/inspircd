@@ -17,8 +17,8 @@
 #include "ssl_cert.h"
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: -I/usr/include -I/usr/local/include */
-/* $LinkerFlags: -L/usr/local/lib -Wl,--rpath -Wl,/usr/local/lib -L/usr/lib -Wl,--rpath -Wl,/usr/lib -lssl */
+/* $CompileFlags: `pkg-config --cflags openssl` */
+/* $LinkerFlags: `pkg-config --libs openssl` */
 
 
 
