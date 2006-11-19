@@ -35,7 +35,7 @@ using irc::sockets::MatchCIDR;
 
 bool match(const char *str, const char *mask)
 {
-	unsigned char *cp, *mp;
+	unsigned char *cp = NULL, *mp = NULL;
 	unsigned char* string = (unsigned char*)str;
 	unsigned char* wild = (unsigned char*)mask;
 

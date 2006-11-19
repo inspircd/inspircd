@@ -731,7 +731,11 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	int curanswer, o;
 	ResourceRecord rr;
  	unsigned short ptr;
-			
+
+	/* This is just to keep _FORTIFY_SOURCE happy */
+	rr.type = DNS_QUERY_NONE;
+	rr.rdlength = 0;
+
 	if (!(header.flags1 & FLAGS_MASK_QR))
 		return std::make_pair((unsigned char*)NULL,"Not a query result");
 

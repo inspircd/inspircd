@@ -1310,7 +1310,7 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
  */
 bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 {
-	FILE* file;
+	FILE* file = NULL;
 	char linebuf[MAXBUF];
 
 	F.clear();
@@ -1334,8 +1334,10 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 	{
 		while (!feof(file))
 		{
-			fgets(linebuf, sizeof(linebuf), file);
-			linebuf[strlen(linebuf)-1] = 0;
+			if (fgets(linebuf, sizeof(linebuf), file))
+				linebuf[strlen(linebuf)-1] = 0;
+			else
+				*linebuf = 0;
 
 			if (!feof(file))
 			{
@@ -1399,12 +1401,14 @@ bool ServerConfig::DirValid(const char* dirandfile)
 	if (getcwd(buffer, MAXBUF ) == NULL )
 		return false;
 
-	chdir(work);
+	if (chdir(work) == -1)
+		return false;
 
 	if (getcwd(otherdir, MAXBUF ) == NULL )
 		return false;
 
-	chdir(buffer);
+	if (chdir(buffer) == -1)
+		return false;
 
 	size_t t = strlen(work);
 
@@ -1451,12 +1455,15 @@ std::string ServerConfig::GetFullProgDir(char** argv, int argc)
 	if (getcwd(buffer, MAXBUF) == NULL)
 		return "";
 
-	chdir(work);
+	if (chdir(work) == -1)
+		return "";
 
 	if (getcwd(otherdir, MAXBUF) == NULL)
 		return "";
 
-	chdir(buffer);
+	if (chdir(buffer) == -1)
+		return "";
+
 	return otherdir;
 }
 

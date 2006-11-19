@@ -104,6 +104,7 @@ typedef requestlist::iterator requestlist_iter;
  */
 enum QueryType
 {
+	DNS_QUERY_NONE  = 0,      /* Uninitialized Query */
 	DNS_QUERY_A     = 1,      /* 'A' record: an ipv4 address */
 	DNS_QUERY_CNAME = 5,      /* 'CNAME' record: An alias */
 	DNS_QUERY_PTR   = 12,     /* 'PTR' record: a hostname */
