@@ -1071,7 +1071,7 @@ sub dir_check {
 sub getosflags {
 	if ($config{OSNAME} =~ /BSD$/) {
 		$config{LDLIBS} = "-lstdc++";
-		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{MAKEPROG} = "gmake";
 		if ($config{OSNAME} eq "OpenBSD") {
@@ -1088,17 +1088,17 @@ sub getosflags {
 		return $config{OSNAME};
 	} else {
 		$config{LDLIBS} = "-ldl -lstdc++";
-		$config{FLAGS}  = "-fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{MAKEPROG} = "make";
 		if ($config{OSNAME} =~ /CYGWIN/) {
-			$config{FLAGS}  = "-Wall -Woverloaded-virtual $config{OPTIMISATI}";
+			$config{FLAGS}  = "-fno-strict-aliasing -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 			$config{LDLIBS} = "";
 			$config{MAKEPROG} = "/usr/bin/make";
 			$config{MAKEORDER} = "ircd mods";
 			return "Cygwin";
 		} elsif ($config{OSNAME} eq "CYG-STATIC") {
-			$config{FLAGS} = "-Wall -Woverloaded-virtual $config{OPTIMISATI}";
+			$config{FLAGS} = "-fno-strict-aliasing -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 			$config{LDLIBS} = "";
 			$config{MAKEPROG} = "/usr/bin/make";
 			$config{MAKEORDER} = "mods ircd";
