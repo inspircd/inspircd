@@ -1072,7 +1072,6 @@ sub getosflags {
 	if ($config{OSNAME} =~ /BSD$/) {
 		$config{LDLIBS} = "-lstdc++";
 		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
-		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{MAKEPROG} = "gmake";
 		if ($config{OSNAME} eq "OpenBSD") {
 			chomp($foo = `eg++ -dumpversion | cut -c 1`);
@@ -1106,6 +1105,7 @@ sub getosflags {
 			$config{STATIC_LINK} = "yes";
 			return "Cygwin-Static";
 		}
+		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		return "Linux";
 	}
 	
