@@ -1591,6 +1591,7 @@ class TreeSocket : public InspSocket
 		userrec* who = NULL;			/* User we are currently checking */
 		std::string channel = params[0];	/* Channel name, as a string */
 		time_t TS = atoi(params[1].c_str());	/* Timestamp given to us for remote side */
+		bool created = false;
 		
 		/* Try and find the channel */
 		chanrec* chan = this->Instance->FindChan(channel);
@@ -1606,6 +1607,8 @@ class TreeSocket : public InspSocket
 		/* Does this channel exist? if it does, get its REAL timestamp */
 		if (chan)
 			ourTS = chan->age;
+		else
+			created = true; /* don't perform deops, and set TS to correct time after processing. */
 
 		/* In 1.1, if they have the newer channel, we immediately clear
 		 * all status modes from our users. We then accept their modes.
@@ -1617,18 +1620,19 @@ class TreeSocket : public InspSocket
 		{
 			std::deque<std::string> param_list;
 
-			if (chan)
-				chan->age = TS;
-
 			/* Lower the TS here */
 			if (Utils->AnnounceTSChange && chan)
 				chan->WriteChannelWithServ(Instance->Config->ServerName,
 				"NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, ourTS, TS);
 			ourTS = TS;
-
 			param_list.push_back(channel);
-			/* Zap all the privilage modes on our side */
-			this->RemoveStatus(Instance->Config->ServerName, param_list);
+
+			/* Zap all the privilage modes on our side, if the channel exists here */
+			if (!created)
+			{
+				this->RemoveStatus(Instance->Config->ServerName, param_list);
+				chan->age = TS;
+			}
 		}
 
 		/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
@@ -1799,6 +1803,12 @@ class TreeSocket : public InspSocket
 			/* Free anything we have left to free */
 			for (unsigned int f = 2; f < modectr; f++)
 				free(mode_users[f]);
+		}
+
+		/* if we newly created the channel, set it's TS properly. */
+		if (created)
+		{
+			chan->age = TS;
 		}
 
 		/* All done. That wasnt so bad was it, you can wipe
