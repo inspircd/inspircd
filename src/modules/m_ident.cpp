@@ -208,7 +208,7 @@ class ModuleIdent : public Module
 		ReadSettings();
 	}
 
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		/*
 		 * when the new user connects, before they authenticate with USER/NICK/PASS, we do
@@ -231,6 +231,7 @@ class ModuleIdent : public Module
 			strlcpy(user->ident,newident,IDENTMAX);
 			delete ident;
 		}
+		return 0;
 	}
 
 	virtual bool OnCheckReady(userrec* user)

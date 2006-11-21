@@ -74,7 +74,7 @@ public:
 		first = ServerInstance->Time();
 	}
  
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		time_t next = ServerInstance->Time();
 		if (!first)
@@ -93,10 +93,10 @@ public:
 				/* expire throttle */
 				throttled = 0;
 				ServerInstance->WriteOpers("*** Connection throttle deactivated");
-				return;
+				return 0;
 			}
 			userrec::QuitUser(ServerInstance, user, quitmsg);
-			return;
+			return 1;
 		}
 
 		if (tdiff <= seconds)
@@ -106,7 +106,7 @@ public:
 				throttled = 1;
 				ServerInstance->WriteOpers("*** Connection throttle activated");
 				userrec::QuitUser(ServerInstance, user, quitmsg);
-				return;
+				return 1;
 			}
 		}
 		else
@@ -114,6 +114,7 @@ public:
 			conns = 1;
 			first = next;
 		}
+		return 0;
 	}
 
 	virtual void OnRehash(const std::string &parameter)

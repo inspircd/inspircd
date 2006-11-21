@@ -47,10 +47,11 @@ class ModuleAntiBear : public Module
 		List[I_OnUserRegister] = 1;
 	}
 	
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		user->WriteServ("439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
 		user->WriteServ("931 %s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);
+		return 0;
 	}
 };
 

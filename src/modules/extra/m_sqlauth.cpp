@@ -87,18 +87,20 @@ public:
 		}
 	}	
 
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		if ((allowpattern != "") && (Srv->MatchText(user->nick,allowpattern)))
 		{
 			user->Extend("sqlauthed");
-			return;
+			return 0;
 		}
 		
 		if (!CheckCredentials(user))
 		{
 			userrec::QuitUser(Srv,user,killreason);
+			return 1;
 		}
+		return 0;
 	}
 
 	bool CheckCredentials(userrec* user)

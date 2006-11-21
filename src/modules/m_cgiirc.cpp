@@ -196,7 +196,7 @@ public:
 	}
 	
 
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		ServerInstance->Log(DEBUG, "m_cgiirc.so: User %s registering, %s %s", user->nick,user->host,user->GetIPString());
 		
@@ -227,10 +227,10 @@ public:
 					// If the ident lookup fails, try the password.
 					CheckPass(user);
 				}
-				
-				return;
+				return 0;
 			}
 		}
+		return 0;
 	}
 
 	bool CheckPass(userrec* user)

@@ -54,10 +54,14 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	/* parameters 2 and 3 are local and remote hosts, ignored when sent by client connection */
 	if (user->registered == REG_NICKUSER)
 	{
+		int MOD_RESULT = 0;
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		if (ServerInstance->next_call > ServerInstance->Time() + ServerInstance->Config->dns_timeout)
 			ServerInstance->next_call = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
-		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
+		FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
+		if (MOD_RESULT > 0)
+			return CMD_FAILURE;
+
 	}
 
 	return CMD_SUCCESS;

@@ -74,7 +74,7 @@ enum TargetTypeFlags {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11003
+#define NATIVE_API_VERSION 11004
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -1062,8 +1062,9 @@ class Module : public Extensible
 	 * Note that you should NOT delete the user record here by causing a disconnection!
 	 * Use OnUserConnect for that instead.
 	 * @param user The user registering
+	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual void OnUserRegister(userrec* user);
+	virtual int OnUserRegister(userrec* user);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and

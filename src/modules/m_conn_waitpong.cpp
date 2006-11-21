@@ -67,7 +67,7 @@ class ModuleWaitPong : public Module
 		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = List[I_OnUserDisconnect] = List[I_OnCleanup] = 1;
 	}
 
-	virtual void OnUserRegister(userrec* user)
+	virtual int OnUserRegister(userrec* user)
 	{
 		char* pingrpl = RandString(10);
 		
@@ -77,6 +77,7 @@ class ModuleWaitPong : public Module
 			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
 			
 		user->Extend("waitpong_pingstr", pingrpl);
+		return 0;
 	}
 	
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec* user, bool validated, const std::string &original_line)
