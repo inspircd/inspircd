@@ -686,10 +686,6 @@
 #                  opers. Please be aware that this will also hide    #
 #                  any leaf servers of a U-lined server, e.g. jupes.  #
 #                                                                     #
-#  tempdir       - If defined, indicates a path where modules will be #
-#                  temporarily copied before loading. If not defined, #
-#                  defaults to /tmp.                                  #
-#                                                                     #
 #  nouserdns     - If set to 'yes', 'true' or '1', no user dns        #
 #                  lookups will be performed for connecting users.    #
 #                  this can save a lot of resources on very busy irc  #

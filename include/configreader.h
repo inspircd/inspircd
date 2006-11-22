@@ -292,10 +292,6 @@ class ServerConfig : public Extensible
 	 */
 	char ModPath[1024];
 
-	/** The temporary directory where modules are copied
-	 */
-	char TempDir[1024];
-
 	/** The full pathname to the executable, as
 	 * given in argv[0] when the program starts.
 	 */

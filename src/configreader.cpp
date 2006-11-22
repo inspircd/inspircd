@@ -25,7 +25,7 @@ std::vector<std::string> old_module_names, new_module_names, added_modules, remo
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->ClearStack();
-	*TempDir = *ServerName = *Network = *ServerDesc = *AdminName = '\0';
+	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
@@ -140,13 +140,6 @@ bool NoValidation(ServerConfig* conf, const char* tag, const char* value, ValueI
 	return true;
 }
 
-bool ValidateTempDir(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
-{
-	if (!*(data.GetString()))
-		data.Set("/tmp");
-	return true;
-}
- 
 bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
@@ -564,7 +557,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",		"hidebans",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
 		{"options",		"hidewhois",			new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
 		{"options",		"operspywhois",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
-		{"options",		"tempdir",			new ValueContainerChar (this->TempDir),			DT_CHARPTR, ValidateTempDir},
 		{"options",		"nouserdns",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
 		{"options",		"syntaxhints",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
 		{"options",		"cyclehosts",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
