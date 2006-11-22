@@ -610,8 +610,9 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
+	 * A mode prefix of '#' will mess up /whois and /privmsg
 	 */
-	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':'))
+	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
 		return false;
 
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
