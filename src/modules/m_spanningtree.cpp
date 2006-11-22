@@ -1808,6 +1808,8 @@ class TreeSocket : public InspSocket
 		/* if we newly created the channel, set it's TS properly. */
 		if (created)
 		{
+			/* find created channel .. */
+			chan = this->Instance->FindChan(channel);
 			chan->age = TS;
 		}
 
