@@ -1810,7 +1810,8 @@ class TreeSocket : public InspSocket
 		{
 			/* find created channel .. */
 			chan = this->Instance->FindChan(channel);
-			chan->age = TS;
+			if (chan) /* shouldn't be needed, seems it is */
+				chan->age = TS;
 		}
 
 		/* All done. That wasnt so bad was it, you can wipe
