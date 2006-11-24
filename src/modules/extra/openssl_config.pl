@@ -18,3 +18,4 @@ else
 		$ret = "-lssl -lcrypto -ldl";
 	}
 }
+print "$ret\n";
