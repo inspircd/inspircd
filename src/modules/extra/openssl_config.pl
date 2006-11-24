@@ -1,8 +1,15 @@
 #!/usr/bin/perl
 
-$ENV{PKG_CONFIG_PATH} = "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
+if (!exists $ENV{PKG_CONFIG_PATH})
+{
+	$ENV{PKG_CONFIG_PATH} = "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
+}
+else
+{
+	$ENV{PKG_CONFIG_PATH} .= ":/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
+}
 
-if ($ARGV[1] eq "compile")
+if ($ARGV[0] eq "compile")
 {
 	$ret = `pkg-config --cflags openssl`;
 	if ((undef $ret) || ($ret eq ""))
