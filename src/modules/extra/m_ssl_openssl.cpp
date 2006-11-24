@@ -17,8 +17,8 @@
 #include "ssl_cert.h"
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: `pkg-config --cflags openssl` */
-/* $LinkerFlags: `pkg-config --libs openssl` */
+/* $CompileFlags: `perl extra/openssl_config.pl compile` */
+/* $LinkerFlags: `perl extra/openssl_config.pl link` */
 
 
 
