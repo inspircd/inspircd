@@ -12,7 +12,7 @@ else
 if ($ARGV[0] eq "compile")
 {
 	$ret = `pkg-config --cflags openssl 2>/dev/null`;
-	if ((undef $ret) || ($ret eq ""))
+	if ((!defined $ret) || ($ret eq ""))
 	{
 		$foo = `locate "openssl/ssl.h"`;
 		$foo =~ s/\/openssl\/ssl\.h//;
@@ -22,7 +22,7 @@ if ($ARGV[0] eq "compile")
 else
 {
 	$ret = `pkg-config --libs openssl 2>/dev/null`;
-	if ((undef $ret) || ($ret eq ""))
+	if ((!defined $ret) || ($ret eq ""))
 	{
 		$foo = `locate "/libssl.so" | head -n 1`;
 		$foo =~ /(.+)\/libssl\.so/;
