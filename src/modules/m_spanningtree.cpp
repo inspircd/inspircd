@@ -1810,7 +1810,12 @@ class TreeSocket : public InspSocket
 		{
 			/* find created channel .. */
 			chan = this->Instance->FindChan(channel);
-			if (chan) /* shouldn't be needed, seems it is */
+			if (chan)
+				/* w00t said this shouldnt be needed but it is.
+				 * This isnt strictly true, as chan can be NULL
+				 * if a nick collision has occured and therefore
+				 * the channel was never created.
+				 */
 				chan->age = TS;
 		}
 
