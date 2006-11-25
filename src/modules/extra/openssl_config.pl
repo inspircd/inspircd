@@ -14,9 +14,17 @@ if ($ARGV[0] eq "compile")
 	$ret = `pkg-config --cflags openssl 2>/dev/null`;
 	if ((!defined $ret) || ($ret eq ""))
 	{
-		$foo = `locate "openssl/ssl.h"`;
-		$foo =~ s/\/openssl\/ssl\.h//;
-		$ret = "-I$foo";
+		$foo = `locate "/openssl/ssl.h" | head -n 1`;
+		$foo =~ /(.+)\/openssl\/ssl\.h/;
+		if (defined $1)
+		{
+			$foo = "-I$1";
+		}
+		else
+		{
+			$foo = "";
+		}
+		$ret = "$foo\n";
 	}
 }
 else
