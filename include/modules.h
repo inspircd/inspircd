@@ -611,6 +611,8 @@ class Module : public Extensible
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
+	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
+	 * It will be ignored for private messages.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
@@ -630,6 +632,8 @@ class Module : public Extensible
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
+	 * @param exempt_list A list of users not to send to. For channel notices, this will usually contain just the sender.
+	 * It will be ignored for private notices.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);

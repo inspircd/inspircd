@@ -395,7 +395,7 @@ class chanrec : public Extensible
 
 	/** Write to a channel, from a server, using va_args for text
 	 * @param ServName Server name to prefix the line with
-	 * @param text A printf-style format string which builds the output line without prefi
+	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
 	void WriteChannelWithServ(const char* ServName, const char* text, ...);
@@ -406,19 +406,30 @@ class chanrec : public Extensible
 	 */
 	void WriteChannelWithServ(const char* ServName, const std::string &text);
 
-	/** Write to all users on a channel except a specific user, using va_args for text
+	/** Write to all users on a channel except a specific user, using va_args for text.
+	 * Internally, this calls WriteAllExcept().
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
 	 * use the nick!user@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
-	 * @param text A printf-style format string which builds the output line without prefi
+	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
 	void WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...);
 
+	/** Write to all users on a channel except a list of users, using va_args for text
+	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
+	 * use the nick!user@host of the user.          
+	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
+	 * @param except_list A list of users NOT to send the text to
+	 * @param text A printf-style format string which builds the output line without prefix
+	 * @param ... Zero or more POD type
+	 */
 	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, char* text, ...);
 
-	/** Write to all users on a channel except a specific user, using std::string for text
+	/** Write to all users on a channel except a specific user, using std::string for text.
+	 * Internally, this calls WriteAllExcept().
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
 	 * use the nick!user@host of the user.          
@@ -427,6 +438,14 @@ class chanrec : public Extensible
 	 */
 	void WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text);
 
+	/** Write to all users on a channel except a list of users, using std::string for text
+	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
+	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
+	 * use the nick!user@host of the user.          
+	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
+	 * @param except_list A list of users NOT to send the text to
+	 * @param text A std::string containing the output line without prefix
+	 */
 	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
 	/** Returns the maximum number of bans allowed to be set on this channel
