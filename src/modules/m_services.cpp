@@ -227,7 +227,7 @@ class ModuleServices : public Module
 		}
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -262,9 +262,9 @@ class ModuleServices : public Module
 		return 0;
 	}
  	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return OnUserPreMessage(user,dest,target_type,text,status);
+		return OnUserPreMessage(user,dest,target_type,text,status, exempt_list);
 	}
  	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)

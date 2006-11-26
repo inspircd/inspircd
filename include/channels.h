@@ -416,6 +416,8 @@ class chanrec : public Extensible
 	 */
 	void WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...);
 
+	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, char* text, ...);
+
 	/** Write to all users on a channel except a specific user, using std::string for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
@@ -424,6 +426,8 @@ class chanrec : public Extensible
 	 * @param text A std::string containing the output line without prefix
 	 */
 	void WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text);
+
+	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
 	/** Returns the maximum number of bans allowed to be set on this channel
 	 * @return The maximum number of bans allowed

@@ -32,6 +32,8 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	userrec *dest;
 	chanrec *chan;
 
+	CUList exempt_list;
+
 	user->idle_lastmsg = ServerInstance->Time();
 	
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
@@ -40,7 +42,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		int MOD_RESULT = 0;
                 std::string temp = parameters[1];
-                FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0));
+                FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0,exempt_list));
                 if (MOD_RESULT)
                         return CMD_FAILURE;
                 parameters[1] = (char*)temp.c_str();
@@ -62,6 +64,9 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	if (*parameters[0] == '#')
 	{
 		chan = ServerInstance->FindChan(parameters[0]);
+
+		exempt_list[user] = user;
+
 		if (chan)
 		{
 			if (IS_LOCAL(user))
@@ -81,7 +86,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 			int MOD_RESULT = 0;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp,status));
+			FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,chan,TYPE_CHANNEL,temp,status, exempt_list));
 			if (MOD_RESULT) {
 				return CMD_FAILURE;
 			}
@@ -93,7 +98,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 				return CMD_FAILURE;
 			}
 
-			chan->WriteAllExceptSender(user, false, status, "NOTICE %s :%s", chan->name, parameters[1]);
+			chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, parameters[1]);
 
 			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status));
 		}
@@ -112,7 +117,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 		int MOD_RESULT = 0;
 		
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp,0));
+		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp,0,exempt_list));
 		if (MOD_RESULT) {
 			return CMD_FAILURE;
 		}

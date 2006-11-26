@@ -166,7 +166,7 @@ class ModuleSilence : public Module
 		output = output + " SILENCE=999";
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		// im not sure how unreal's silence operates but ours is sensible. It blocks notices and
 		// privmsgs from people on the silence list, directed privately at the user.
@@ -191,9 +191,9 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return OnUserPreNotice(user,dest,target_type,text,status);
+		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}
 
 	virtual ~ModuleSilence()

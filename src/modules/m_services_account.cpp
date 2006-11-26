@@ -150,7 +150,7 @@ class ModuleServicesAccount : public Module
 		List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnDecodeMetaData] = 1;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		std::string *account;
 		user->GetExt("accountname", account);
@@ -192,9 +192,9 @@ class ModuleServicesAccount : public Module
 		return 0;
 	}
 	 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return OnUserPreMessage(user, dest, target_type, text, status);
+		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 	 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)

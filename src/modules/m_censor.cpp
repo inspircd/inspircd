@@ -139,7 +139,7 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		bool active = false;
 		irc::string text2 = text.c_str();
@@ -168,9 +168,9 @@ class ModuleCensor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return OnUserPreMessage(user,dest,target_type,text,status);
+		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 	
 	virtual void OnRehash(const std::string &parameter)

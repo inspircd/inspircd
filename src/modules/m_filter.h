@@ -46,7 +46,7 @@ class FilterBase : public Module
 	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status);
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 
 	virtual FilterResult* FilterMatch(const std::string &text) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
@@ -54,7 +54,7 @@ class FilterBase : public Module
 
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration) = 0;
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status);
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual void OnRehash(const std::string &parameter);
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
@@ -168,12 +168,12 @@ void FilterBase::Implements(char* List)
 	List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
-int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
-	return OnUserPreNotice(user,dest,target_type,text,status);
+	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
-int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))

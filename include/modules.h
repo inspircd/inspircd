@@ -74,7 +74,7 @@ enum TargetTypeFlags {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11004
+#define NATIVE_API_VERSION 11005
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -613,7 +613,7 @@ class Module : public Extensible
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status);
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
@@ -632,7 +632,7 @@ class Module : public Extensible
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status);
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

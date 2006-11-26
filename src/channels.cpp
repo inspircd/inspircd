@@ -695,7 +695,22 @@ void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status
 	this->WriteAllExceptSender(user, serversource, status, std::string(textbuffer));
 }
 
-void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text)
+void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, char* text, ...)
+{
+	char textbuffer[MAXBUF];
+	va_list argsPtr;
+
+	if (!text)
+		return;
+
+	va_start(argsPtr, text);
+	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	va_end(argsPtr);
+
+	this->WriteAllExcept(user, serversource, status, except_list, std::string(textbuffer));
+}
+
+void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
 	CUList *ulist;
 
@@ -717,7 +732,7 @@ void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((IS_LOCAL(i->second)) && (user != i->second))
+		if ((IS_LOCAL(i->second)) && (except_list.find(i->second) == except_list.end()))
 		{
 			if (serversource)
 				i->second->WriteServ(text);
@@ -725,6 +740,13 @@ void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status
 				i->second->WriteFrom(user,text);
 		}
 	}
+}
+
+void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text)
+{
+	CUList except_list;
+	except_list[user] = user;
+	this->WriteAllExcept(user, serversource, status, except_list, std::string(text));
 }
 
 /*

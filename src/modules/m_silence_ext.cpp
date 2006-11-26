@@ -276,7 +276,7 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=999";
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -285,7 +285,7 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return MatchPattern((userrec*)dest, user, SILENCE_NOTICE);
 	}
@@ -325,6 +325,9 @@ class ModuleSilence : public Module
 		 * on the channel. This code is from channels.cpp, and should also be changed if channels.cpp
 		 * updates it's corresponding code
 		 */
+
+		CUList fixme;
+
 		if ((validated) && (command == "PRIVMSG"))
 		{
 			char status = 0;
@@ -356,7 +359,7 @@ class ModuleSilence : public Module
 					int MOD_RESULT = 0;
 
 					std::string temp = parameters[1];
-					FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status));
+					FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status,fixme));
 					if (MOD_RESULT) {
 						return 1;
 					}

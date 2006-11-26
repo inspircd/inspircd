@@ -33,6 +33,8 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	userrec *dest;
 	chanrec *chan;
 
+	CUList except_list;
+
 	user->idle_lastmsg = ServerInstance->Time();
 	
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
@@ -42,7 +44,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0));
+		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0,except_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 		parameters[1] = (char*)temp.c_str();
@@ -64,6 +66,9 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	if (parameters[0][0] == '#')
 	{
 		chan = ServerInstance->FindChan(parameters[0]);
+
+		except_list[user] = user;
+
 		if (chan)
 		{
 			if (IS_LOCAL(user))
@@ -82,7 +87,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			int MOD_RESULT = 0;
 
 			std::string temp = parameters[1];
-			FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status));
+			FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status,except_list));
 			if (MOD_RESULT) {
 				return CMD_FAILURE;
 			}
@@ -93,8 +98,8 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 				user->WriteServ("412 %s No text to send", user->nick);
 				return CMD_FAILURE;
 			}
-			
-			chan->WriteAllExceptSender(user, false, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
+
+			chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, parameters[1]);
 			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status));
 		}
 		else
@@ -118,7 +123,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		int MOD_RESULT = 0;
 		
 		std::string temp = parameters[1];
-		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,dest,TYPE_USER,temp,0));
+		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,dest,TYPE_USER,temp,0,except_list));
 		if (MOD_RESULT) {
 			return CMD_FAILURE;
 		}

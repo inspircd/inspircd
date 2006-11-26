@@ -73,12 +73,12 @@ class ModuleNoCTCP : public Module
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return OnUserPreNotice(user,dest,target_type,text,status);
+		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status)
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
