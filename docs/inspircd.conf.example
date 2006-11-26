@@ -1455,6 +1455,11 @@
 #<module name="m_silence.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Extended SILENCE module: Adds support for /SILENCE with additional
+# features to silence based on invites, channel messages, etc.
+#<module name="m_silence_ext.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLutils module: Provides some utilities to SQL client modules, such
 # as mapping queries to users and channels. You must copy the source
 # for this module from the directory src/modules/extra/m_sqlutils.cpp
