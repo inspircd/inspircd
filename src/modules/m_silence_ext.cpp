@@ -59,8 +59,9 @@ static int SILENCE_PRIVATE	= 0x0001; /* p  private messages      */
 static int SILENCE_CHANNEL	= 0x0002; /* c  channel messages      */
 static int SILENCE_INVITE	= 0x0004; /* i  invites               */
 static int SILENCE_NOTICE	= 0x0008; /* n  notices               */
-static int SILENCE_ALL		= 0x0010; /* a  all, (pcin)           */
-static int SILENCE_EXCLUDE	= 0x0020; /* x  exclude this pattern  */
+static int SILENCE_CNOTICE	= 0x0010; /* t  channel notices       */
+static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
+static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
 
 class cmd_silence : public command_t
@@ -69,7 +70,7 @@ class cmd_silence : public command_t
 	cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
 	{
 		this->source = "m_silence_ext.so";
-		syntax = "{[+|-]<mask> <p|c|i|n|a|x>}";
+		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
@@ -183,9 +184,9 @@ class cmd_silence : public command_t
 	int CompilePattern(const char* pattern)
 	{
 		int p = 0;
-		for (uint n = 0; n < strlen(pattern); n++)
+		for (const char* n = pattern; *n; n++)
 		{
-			switch (pattern[n])
+			switch (*n)
 			{
 				case 'p':
 					p |= SILENCE_PRIVATE;
@@ -198,6 +199,9 @@ class cmd_silence : public command_t
 					break;
 				case 'n':
 					p |= SILENCE_NOTICE;
+					break;
+				case 't':
+					p |= SILENCE_CNOTICE;
 					break;
 				case 'a':
 					p |= SILENCE_ALL;
@@ -217,13 +221,15 @@ class cmd_silence : public command_t
 	{
 		std::string out = "";
 		if ((pattern & SILENCE_PRIVATE) > 0)
-			out += ",private";
+			out += ",privatemessages";
 		if ((pattern & SILENCE_CHANNEL) > 0)
-			out += ",channel";
+			out += ",channelmessages";
 		if ((pattern & SILENCE_INVITE) > 0)
 			out += ",invites";
 		if ((pattern & SILENCE_NOTICE) > 0)
-			out += ",notices";
+			out += ",privatenotices";
+		if ((pattern & SILENCE_CNOTICE) > 0)
+			out += ",channelnotices";
 		if ((pattern & SILENCE_ALL) > 0)
 			out = ",all";
 		if ((pattern & SILENCE_EXCLUDE) > 0)
@@ -303,7 +309,7 @@ class ModuleSilence : public Module
 				{
 					if ((IS_LOCAL(i->second)) && (user != i->second))
 					{
-						if (MatchPattern(i->second, user, SILENCE_CHANNEL) == 1)
+						if (MatchPattern(i->second, user, silence_type == SILENCE_PRIVATE ? SILENCE_CHANNEL : SILENCE_CNOTICE) == 1)
 						{
 							exempt_list[i->second] = i->second;
 						}
