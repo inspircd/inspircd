@@ -123,16 +123,13 @@ class cmd_silence : public command_t
 				{
 					if (sl->size())
 					{
-						silencelist::iterator i,safei;
-						for (i = sl->begin(); i != sl->end(); i++)
+						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
 						{
 							// search through for the item
 							irc::string listitem = i->first.c_str();
 							if (listitem == mask && i->second == pattern)
 							{
-								safei = i;
-								--i;
-								sl->erase(safei);
+								sl->erase(i);
 								user->WriteServ("950 %s %s :Removed %s %s from silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
 								break;
 							}
@@ -252,15 +249,12 @@ class ModuleSilence : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
-		List[I_OnUserPreInvite] = 1;
-		List[I_OnPreCommand] = 1;
+		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
-		// and to prevent a HONKING BIG MEMORY LEAK!
 		silencelist* sl;
 		user->GetExt("silence_list", sl);
 		if (sl)
@@ -281,6 +275,40 @@ class ModuleSilence : public Module
 		if (target_type == TYPE_USER)
 		{
 			return MatchPattern((userrec*)dest, user, SILENCE_PRIVATE);
+		}
+		else if (target_type == TYPE_CHANNEL)
+		{
+			chanrec* chan = (chanrec*)dest;
+			if (chan)
+			{
+				CUList *ulist;
+				switch (status)
+				{
+					case '@':
+						ulist = chan->GetOppedUsers();
+						break;
+					case '%':
+						ulist = chan->GetHalfoppedUsers();
+						break;
+					case '+':
+						ulist = chan->GetVoicedUsers();
+						break;
+					default:
+						ulist = chan->GetUsers();
+						break;
+				}
+	
+				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+				{
+					if ((IS_LOCAL(i->second)) && (user != i->second))
+					{
+						if (MatchPattern(i->second, user, SILENCE_CHANNEL) == 1)
+						{
+							exempt_list[i->second] = i->second;
+						}
+					}
+				}
+			}
 		}
 		return 0;
 	}
@@ -316,148 +344,6 @@ class ModuleSilence : public Module
 			}
 		}
 		return 0;
-	}
-
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
-	{
-		/* Implement the part of cmd_privmsg.cpp that handles *channel* messages, if cmd_privmsg.cpp
-		 * is changed this probably needs updating too. Also implement the actual write to the users
-		 * on the channel. This code is from channels.cpp, and should also be changed if channels.cpp
-		 * updates it's corresponding code
-		 */
-
-		CUList fixme;
-
-		if ((validated) && (command == "PRIVMSG"))
-		{
-			char status = 0;
-			if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))
-			{
-				status = *parameters[0];
-				parameters[0]++;
-			}
-			if (parameters[0][0] == '#')
-			{
-				chanrec *chan;
-				user->idle_lastmsg = ServerInstance->Time();
-				chan = ServerInstance->FindChan(parameters[0]);
-				if (chan)
-				{
-					if (IS_LOCAL(user))
-					{
-						if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
-						{
-							user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
-							return 1;
-						}
-						if ((chan->modes[CM_MODERATED]) && (chan->GetStatus(user) < STATUS_VOICE))
-						{
-							user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
-							return 1;
-						}
-					}
-					int MOD_RESULT = 0;
-
-					std::string temp = parameters[1];
-					FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status,fixme));
-					if (MOD_RESULT) {
-						return 1;
-					}
-					parameters[1] = temp.c_str();
-
-					if (temp == "")
-					{
-						user->WriteServ("412 %s No text to send", user->nick);
-						return 1;
-					}
-
-					/* This next call into channel.cpp is the one that gets replaced by our modified method
-					 * chan->WriteAllExceptSender(user, false, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
-					 */
-					WriteAllExceptSenderAndSilenced(chan, user, false, status, "PRIVMSG %s :%s", chan->name, parameters[1]);
-
-					FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status));
-					return 1;
-				}
-				else
-				{
-					/* no such nick/channel */
-					user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
-					return 1;
-				}
-				return 1;
-			}
-			else
-			{
-				command_t* privmsg_command = ServerInstance->Parser->GetHandler("PRIVMSG");
-				if (privmsg_command)
-				{
-					privmsg_command->Handle(parameters, pcnt, user);
-					return 1;
-				}
-				else
-				{
-					ServerInstance->Log(DEBUG, "Could not find PRIVMSG Command!");
-				}
-			}
-		}
-		return 0;
-	}
-
-	/* Taken from channels.cpp and slightly modified, see OnPreCommand above*/
-	void WriteAllExceptSenderAndSilenced(chanrec* chan, userrec* user, bool serversource, char status, char* text, ...)
-	{
-		char textbuffer[MAXBUF];
-		va_list argsPtr;
-
-		if (!text)
-			return;
-
-		va_start(argsPtr, text);
-		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-		va_end(argsPtr);
-
-		this->WriteAllExceptSenderAndSilenced(chan, user, serversource, status, std::string(textbuffer));
-	}
-
-	/* Taken from channels.cpp and slightly modified, see OnPreCommand above*/
-	void WriteAllExceptSenderAndSilenced(chanrec* chan, userrec* user, bool serversource, char status, const std::string& text)
-	{
-		CUList *ulist;
-
-		switch (status)
-		{
-			case '@':
-				ulist = chan->GetOppedUsers();
-				break;
-			case '%':
-				ulist = chan->GetHalfoppedUsers();
-				break;
-			case '+':
-				ulist = chan->GetVoicedUsers();
-				break;
-			default:
-				ulist = chan->GetUsers();
-				break;
-		}
-	
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-		{
-			if ((IS_LOCAL(i->second)) && (user != i->second))
-			{
-				if (serversource)
-				{
-					i->second->WriteServ(text);
-				}
-				else
-				{
-					if (MatchPattern(i->second, user, SILENCE_CHANNEL) == 0)
-					{
-						i->second->WriteFrom(user,text);
-					}
-				}
-			}
-		}
 	}
 
 	virtual ~ModuleSilence()
