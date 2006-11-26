@@ -28,11 +28,10 @@ using namespace std;
 
 /* $ModDesc: Provides support for the /SILENCE command */
 
-
 // This typedef holds a silence list. Each user may or may not have a
 // silencelist, if a silence list is empty for a user, he/she does not
 // have one of these structures associated with their user record.
-typedef std::vector<std::string> silencelist;
+typedef std::map<irc::string, time_t> silencelist;
 
 class cmd_silence : public command_t
 {
@@ -54,9 +53,9 @@ class cmd_silence : public command_t
 			// if the user has a silence list associated with their user record, show it
 			if (sl)
 			{
-				for (silencelist::const_iterator c = sl->begin(); c < sl->end(); c++)
+				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					user->WriteServ("271 %s %s %s",user->nick, user->nick,c->c_str());
+					user->WriteServ("271 %s %s %s :%lu",user->nick, user->nick, c->first.c_str(), (unsigned long)c->second);
 				}
 			}
 			user->WriteServ("272 %s :End of Silence List",user->nick);
@@ -87,16 +86,11 @@ class cmd_silence : public command_t
 				{
 					if (sl->size())
 					{
-						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
-			     		 	{
-							// search through for the item
-							irc::string listitem = i->c_str();
-							if (listitem == mask)
-							{
-	       							sl->erase(i);
-								user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
-								break;
-							}
+						silencelist::iterator i = sl->find(mask.c_str());
+						if (i != sl->end())
+						{
+       							sl->erase(i);
+							user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
 						}
 					}
 					else
@@ -119,16 +113,13 @@ class cmd_silence : public command_t
 					sl = new silencelist;
 					user->Extend("silence_list", sl);
 				}
-				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
+				silencelist::iterator n = sl->find(mask.c_str());
+				if (n != sl->end())
 				{
-					irc::string listitem = n->c_str();
-					if (listitem == mask)
-					{
-						user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
-						return CMD_SUCCESS;
-					}
+					user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
+					return CMD_FAILURE;
 				}
-				sl->push_back(mask);
+				sl->insert(std::make_pair<irc::string, time_t>(mask.c_str(), ServerInstance->Time()));
 				user->WriteServ("951 %s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
 				return CMD_SUCCESS;
 			}
@@ -190,7 +181,7 @@ class ModuleSilence : public Module
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					if (match(user->GetFullHost(), c->c_str()))
+					if (match(user->GetFullHost(), c->first.c_str()))
 					{
 						return 1;
 					}
