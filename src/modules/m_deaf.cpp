@@ -117,7 +117,6 @@ class ModuleDeaf : public Module
 		return 0;
 	}
 
-
 	virtual ~ModuleDeaf()
 	{
 		ServerInstance->Modes->DelMode(m1);
