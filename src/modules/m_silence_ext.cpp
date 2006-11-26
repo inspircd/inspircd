@@ -30,7 +30,7 @@ using namespace std;
 /* $ModDesc: Provides support for the /SILENCE command */
 
 /* Improved drop-in replacement for the /SILENCE command
- * syntax: /SILENCE [+|-]<mask> <p|c|i|n|a|x> as in <private|channel|invites|notices|all|exclude>
+ * syntax: /SILENCE [+|-]<mask> <p|c|i|n|t|a|x> as in <privatemessage|channelmessage|invites|privatenotice|channelnotice|all|exclude>
  *
  * example that blocks all except private messages
  *  /SILENCE +*!*@* a
