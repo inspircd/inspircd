@@ -60,7 +60,7 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (c->HasUser(u))
 	 	{
-	 		user->WriteServ("443 %s %s %s :Is already on channel %s",user->nick,u->nick,c->name,c->name);
+	 		user->WriteServ("443 %s %s %s :is already on channel",user->nick,u->nick,c->name);
 	 		return CMD_FAILURE;
 		}
 
