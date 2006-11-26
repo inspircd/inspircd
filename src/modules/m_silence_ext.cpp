@@ -273,7 +273,7 @@ class ModuleSilence : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
-		output = output + " SILENCE=999";
+		output = output + " ESILENCE SILENCE=999";
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status)
