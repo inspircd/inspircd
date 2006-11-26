@@ -124,22 +124,22 @@ class ModuleSSLOpenSSL : public Module
 	
 	virtual void OnRehash(const std::string &param)
 	{
-		if(param != "ssl")
+		if (param != "ssl")
 			return;
 	
 		Conf = new ConfigReader(ServerInstance);
 			
-		for(unsigned int i = 0; i < listenports.size(); i++)
+		for (unsigned int i = 0; i < listenports.size(); i++)
 		{
 			ServerInstance->Config->DelIOHook(listenports[i]);
 		}
 		
 		listenports.clear();
 		
-		for(int i = 0; i < Conf->Enumerate("bind"); i++)
+		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			if(((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "openssl"))
+			if (((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "openssl"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
@@ -164,57 +164,53 @@ class ModuleSSLOpenSSL : public Module
 		// +1 so we the path ends with a /
 		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
 		
-		cafile	= Conf->ReadValue("openssl", "cafile", 0);
-		// crlfile	= Conf->ReadValue("openssl", "crlfile", 0);
-		certfile	= Conf->ReadValue("openssl", "certfile", 0);
-		keyfile	= Conf->ReadValue("openssl", "keyfile", 0);
-		dhfile	= Conf->ReadValue("openssl", "dhfile", 0);
+		cafile	 = Conf->ReadValue("openssl", "cafile", 0);
+		certfile = Conf->ReadValue("openssl", "certfile", 0);
+		keyfile	 = Conf->ReadValue("openssl", "keyfile", 0);
+		dhfile	 = Conf->ReadValue("openssl", "dhfile", 0);
 		
 		// Set all the default values needed.
-		if(cafile == "")
+		if (cafile == "")
 			cafile = "ca.pem";
 			
-		//if(crlfile == "")
-		//	crlfile = "crl.pem";
-			
-		if(certfile == "")
+		if (certfile == "")
 			certfile = "cert.pem";
 			
-		if(keyfile == "")
+		if (keyfile == "")
 			keyfile = "key.pem";
 			
-		if(dhfile == "")
+		if (dhfile == "")
 			dhfile = "dhparams.pem";
 			
 		// Prepend relative paths with the path to the config directory.	
-		if(cafile[0] != '/')
+		if (cafile[0] != '/')
 			cafile = confdir + cafile;
 		
 		//if(crlfile[0] != '/')
 		//	crlfile = confdir + crlfile;
 			
-		if(certfile[0] != '/')
+		if (certfile[0] != '/')
 			certfile = confdir + certfile;
 			
-		if(keyfile[0] != '/')
+		if (keyfile[0] != '/')
 			keyfile = confdir + keyfile;
 			
-		if(dhfile[0] != '/')
+		if (dhfile[0] != '/')
 			dhfile = confdir + dhfile;
 
 		/* Load our keys and certificates*/
-		if(!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str()))
+		if (!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str()))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s", certfile.c_str());
 		}
 
-		if(!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))
+		if (!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s", keyfile.c_str());
 		}
 
 		/* Load the CAs we trust*/
-		if(!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))
+		if (!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
 		}
@@ -222,10 +218,10 @@ class ModuleSSLOpenSSL : public Module
 		FILE* dhpfile = fopen(dhfile.c_str(), "r");
 		DH* ret;
 
-		if(dhpfile == NULL)
+		if (dhpfile == NULL)
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
-			throw ModuleException();
+			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
 		}
 		else
 		{
@@ -250,11 +246,11 @@ class ModuleSSLOpenSSL : public Module
 	
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		if(target_type == TYPE_USER)
+		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
 			
-			if(user->GetExt("ssl", dummy) && IS_LOCAL(user) && isin(user->GetPort(), listenports))
+			if (user->GetExt("ssl", dummy) && IS_LOCAL(user) && isin(user->GetPort(), listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -273,7 +269,7 @@ class ModuleSSLOpenSSL : public Module
 	
 	virtual void OnUnloadModule(Module* mod, const std::string &name)
 	{
-		if(mod == this)
+		if (mod == this)
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
 			int numusers = culllist->Apply();
@@ -305,13 +301,13 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 	
-		if(session->sess == NULL)
+		if (session->sess == NULL)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl.so: Couldn't create SSL object: %s", get_error());
 			return;
 		}
 		
-		if(SSL_set_fd(session->sess, fd) == 0)
+		if (SSL_set_fd(session->sess, fd) == 0)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl.so: Couldn't set fd for SSL object: %s", get_error());
 			return;
@@ -340,7 +336,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		issl_session* session = &sessions[fd];
 		
-		if(!session->sess)
+		if (!session->sess)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: No session to read from");
 			readresult = 0;
@@ -348,12 +344,12 @@ class ModuleSSLOpenSSL : public Module
 			return 1;
 		}
 		
-		if(session->status == ISSL_HANDSHAKING)
+		if (session->status == ISSL_HANDSHAKING)
 		{
-			if(session->rstat == ISSL_READ || session->wstat == ISSL_READ)
+			if (session->rstat == ISSL_READ || session->wstat == ISSL_READ)
 			{
 				// The handshake isn't finished and it wants to read, try to finish it.
-				if(Handshake(session))
+				if (Handshake(session))
 				{
 					// Handshake successfully resumed.
 					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketRead: successfully resumed handshake");
@@ -374,21 +370,21 @@ class ModuleSSLOpenSSL : public Module
 
 		// If we resumed the handshake then session->status will be ISSL_OPEN
 				
-		if(session->status == ISSL_OPEN)
+		if (session->status == ISSL_OPEN)
 		{
-			if(session->wstat == ISSL_READ)
+			if (session->wstat == ISSL_READ)
 			{
 				if(DoWrite(session) == 0)
 					return 0;
 			}
 			
-			if(session->rstat == ISSL_READ)
+			if (session->rstat == ISSL_READ)
 			{
 				int ret = DoRead(session);
 			
-				if(ret > 0)
+				if (ret > 0)
 				{
-					if(count <= session->inbufoffset)
+					if (count <= session->inbufoffset)
 					{
 						memcpy(buffer, session->inbuf, count);
 						// Move the stuff left in inbuf to the beginning of it
@@ -424,7 +420,7 @@ class ModuleSSLOpenSSL : public Module
 	{		
 		issl_session* session = &sessions[fd];
 
-		if(!session->sess)
+		if (!session->sess)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: No session to write to");
 			CloseSession(session);
@@ -433,12 +429,12 @@ class ModuleSSLOpenSSL : public Module
 
 		session->outbuf.append(buffer, count);
 		
-		if(session->status == ISSL_HANDSHAKING)
+		if (session->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
-			if(session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
+			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
 			{
-				if(Handshake(session))
+				if (Handshake(session))
 				{
 					// Handshake successfully resumed.
 					ServerInstance->Log(DEBUG, "m_ssl_openssl.so: OnRawSocketWrite: successfully resumed handshake");
@@ -455,14 +451,14 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 		
-		if(session->status == ISSL_OPEN)
+		if (session->status == ISSL_OPEN)
 		{
-			if(session->rstat == ISSL_WRITE)
+			if (session->rstat == ISSL_WRITE)
 			{
 				DoRead(session);
 			}
 			
-			if(session->wstat == ISSL_WRITE)
+			if (session->wstat == ISSL_WRITE)
 			{
 				return DoWrite(session);
 			}
@@ -475,23 +471,23 @@ class ModuleSSLOpenSSL : public Module
 	{
 		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
 		
-		if(ret == 0)
+		if (ret == 0)
 		{
 			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Client closed the connection");
 			CloseSession(session);
 			return 0;
 		}
-		else if(ret < 0)
+		else if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
 			
-			if(err == SSL_ERROR_WANT_WRITE)
+			if (err == SSL_ERROR_WANT_WRITE)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written, need to retry: %s", get_error());
 				session->wstat = ISSL_WRITE;
 				return -1;
 			}
-			else if(err == SSL_ERROR_WANT_READ)
+			else if (err == SSL_ERROR_WANT_READ)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoWrite: Not all SSL data written but the damn thing wants to read instead: %s", get_error());
 				session->wstat = ISSL_READ;
@@ -518,24 +514,24 @@ class ModuleSSLOpenSSL : public Module
 			
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
-		if(ret == 0)
+		if (ret == 0)
 		{
 			// Client closed connection.
 			ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Client closed the connection");
 			CloseSession(session);
 			return 0;
 		}
-		else if(ret < 0)
+		else if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
 				
-			if(err == SSL_ERROR_WANT_READ)
+			if (err == SSL_ERROR_WANT_READ)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read, need to retry: %s", get_error());
 				session->rstat = ISSL_READ;
 				return -1;
 			}
-			else if(err == SSL_ERROR_WANT_WRITE)
+			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: DoRead: Not all SSL data read but the damn thing wants to write instead: %s", get_error());
 				session->rstat = ISSL_WRITE;
@@ -564,7 +560,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
 		// Bugfix, only send this numeric for *our* SSL users
-		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
+		if (dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
 		}
@@ -573,7 +569,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
 		// check if the linking module wants to know about OUR metadata
-		if(extname == "ssl")
+		if (extname == "ssl")
 		{
 			// check if this user has an swhois field to send
 			if(user->GetExt(extname, dummy))
@@ -603,17 +599,17 @@ class ModuleSSLOpenSSL : public Module
 	{		
 		int ret = SSL_accept(session->sess);
       
-		if(ret < 0)
+		if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
 				
-			if(err == SSL_ERROR_WANT_READ)
+			if (err == SSL_ERROR_WANT_READ)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to read again: %s", get_error());
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 			}
-			else if(err == SSL_ERROR_WANT_WRITE)
+			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				ServerInstance->Log(DEBUG, "m_ssl_openssl.so: Handshake: Not completed, need to write more data: %s", get_error());
 				session->wstat = ISSL_WRITE;
@@ -676,13 +672,13 @@ class ModuleSSLOpenSSL : public Module
 	
 	void CloseSession(issl_session* session)
 	{
-		if(session->sess)
+		if (session->sess)
 		{
 			SSL_shutdown(session->sess);
 			SSL_free(session->sess);
 		}
 		
-		if(session->inbuf)
+		if (session->inbuf)
 		{
 			delete[] session->inbuf;
 		}
