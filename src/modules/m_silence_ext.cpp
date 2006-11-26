@@ -125,14 +125,14 @@ class cmd_silence : public command_t
 					{
 						silencelist::iterator i,safei;
 						for (i = sl->begin(); i != sl->end(); i++)
-			     		 {
+						{
 							// search through for the item
 							irc::string listitem = i->first.c_str();
 							if (listitem == mask && i->second == pattern)
 							{
 								safei = i;
 								--i;
-	       						sl->erase(safei);
+								sl->erase(safei);
 								user->WriteServ("950 %s %s :Removed %s %s from silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
 								break;
 							}
