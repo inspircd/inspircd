@@ -270,11 +270,12 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=999";
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+
+	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
 	{
 		if (target_type == TYPE_USER)
 		{
-			return MatchPattern((userrec*)dest, user, SILENCE_PRIVATE);
+			return MatchPattern((userrec*)dest, user, silence_type);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
@@ -313,9 +314,14 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
+	}
+
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return MatchPattern((userrec*)dest, user, SILENCE_NOTICE);
+		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
 	virtual int OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel)
