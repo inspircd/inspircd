@@ -345,12 +345,12 @@ class ModuleSilence : public Module
 						if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
 						{
 							user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
-							return CMD_FAILURE;
+							return 1;
 						}
 						if ((chan->modes[CM_MODERATED]) && (chan->GetStatus(user) < STATUS_VOICE))
 						{
 							user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
-							return CMD_FAILURE;
+							return 1;
 						}
 					}
 					int MOD_RESULT = 0;
@@ -358,14 +358,14 @@ class ModuleSilence : public Module
 					std::string temp = parameters[1];
 					FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,chan,TYPE_CHANNEL,temp,status));
 					if (MOD_RESULT) {
-						return CMD_FAILURE;
+						return 1;
 					}
 					parameters[1] = temp.c_str();
 
 					if (temp == "")
 					{
 						user->WriteServ("412 %s No text to send", user->nick);
-						return CMD_FAILURE;
+						return 1;
 					}
 
 					/* This next call into channel.cpp is the one that gets replaced by our modified method
