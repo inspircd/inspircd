@@ -157,8 +157,8 @@ void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { 
 int		Module::OnRawSocketWrite(int fd, const char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
 int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
-void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status) { };
-void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status) { };
+void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };
+void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };
 void 		Module::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason) { };
 void		Module::OnUserInvite(userrec* source,userrec* dest,chanrec* channel) { };
 void		Module::OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { };

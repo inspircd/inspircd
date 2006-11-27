@@ -74,7 +74,7 @@ enum TargetTypeFlags {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11005
+#define NATIVE_API_VERSION 11006
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -659,7 +659,7 @@ class Module : public Extensible
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status);
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
 	/** Called after any NOTICE sent from a user.
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
@@ -670,7 +670,7 @@ class Module : public Extensible
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status);
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
 	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*

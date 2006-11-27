@@ -52,7 +52,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
                 {
                         user->NoticeAll("%s",parameters[1]);
                 }
-                FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
+                FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
                 return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -100,7 +100,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 
 			chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, parameters[1]);
 
-			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status));
+			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status,exempt_list));
 		}
 		else
 		{
@@ -129,7 +129,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteTo(dest, "NOTICE %s :%s", dest->nick, parameters[1]);
 		}
 
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1],0));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,parameters[1],0,exempt_list));
 	}
 	else
 	{

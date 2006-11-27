@@ -182,7 +182,7 @@ class SpanningTreeUtilities
 	void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list);
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list);
+	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, const CUList &exempt_list);
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
@@ -3789,12 +3789,12 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, std::deque<TreeSer
 }
 
 /** returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list)
+void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, const CUList &exempt_list)
 {
 	CUList *ulist = c->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (i->second->GetFd() < 0)
+		if ((i->second->GetFd() < 0) && (exempt_list.find(i->second) == exempt_list.end()))
 		{
 			TreeServer* best = this->BestRouteTo(i->second->server);
 			if (best)
@@ -3842,8 +3842,9 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 				chanrec* c = ServerInstance->FindChan(params[0]);
 				if (c)
 				{
+					CUList empty;
 					std::deque<TreeServer*> list;
-					GetListOfServersForChannel(c,list);
+					GetListOfServersForChannel(c,list,empty);
 					unsigned int lsize = list.size();
 					for (unsigned int i = 0; i < lsize; i++)
 					{
@@ -4783,7 +4784,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status)
+	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -4808,7 +4809,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					Utils->GetListOfServersForChannel(c,list);
+					Utils->GetListOfServersForChannel(c,list,exempt_list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{
@@ -4832,7 +4833,7 @@ class ModuleSpanningTree : public Module
 		}
 	}
 
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status)
+	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -4859,7 +4860,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					Utils->GetListOfServersForChannel(c,list);
+					Utils->GetListOfServersForChannel(c,list,exempt_list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{

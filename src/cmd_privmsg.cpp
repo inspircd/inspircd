@@ -54,7 +54,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			ServerInstance->ServerPrivmsgAll("%s",parameters[1]);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,except_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -100,7 +100,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 
 			chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, parameters[1]);
-			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status));
+			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
 		}
 		else
 		{
@@ -135,7 +135,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick, parameters[1]);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1],0));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,dest,TYPE_USER,parameters[1],0,except_list));
 	}
 	else
 	{
