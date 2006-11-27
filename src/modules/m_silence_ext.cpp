@@ -317,37 +317,9 @@ class ModuleSilence : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* chan = (chanrec*)dest;
-			int public_silence = (silence_type == SILENCE_PRIVATE ? SILENCE_CHANNEL : SILENCE_CNOTICE);
-
 			if (chan)
 			{
-				CUList *ulist;
-				switch (status)
-				{
-					case '@':
-						ulist = chan->GetOppedUsers();
-						break;
-					case '%':
-						ulist = chan->GetHalfoppedUsers();
-						break;
-					case '+':
-						ulist = chan->GetVoicedUsers();
-						break;
-					default:
-						ulist = chan->GetUsers();
-						break;
-				}
-	
-				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-				{
-					if ((IS_LOCAL(i->second)) && (user != i->second))
-					{
-						if (MatchPattern(i->second, user, public_silence) == 1)
-						{
-							exempt_list[i->second] = i->second;
-						}
-					}
-				}
+				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list);
 			}
 		}
 		return 0;
