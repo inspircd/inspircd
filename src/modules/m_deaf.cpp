@@ -116,7 +116,7 @@ class ModuleDeaf : public Module
 			chanrec* chan = (chanrec*)dest;
 			if (chan)
 			{
-				this->OnBuildExemptList(chan, status, exempt_list);
+				this->OnBuildExemptList(MSG_PRIVMSG, chan, user, status, exempt_list);
 			}
 		}
 		return 0;
