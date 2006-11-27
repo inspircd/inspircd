@@ -358,7 +358,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
-			I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine };
+			I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -637,6 +637,13 @@ class Module : public Extensible
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+
+	/** Called whenever the server wants to build the exemption list for a channel, but is not directly doing a PRIVMSG or NOTICE.
+	 * For example, the spanningtree protocol will call this event when passing a privmsg on (but not processing it directly).
+	 * @param chan The channel to build the exempt list of
+	 * @param exempt_list The exempt list to be populated
+	 */
+	virtual void OnBuildExemptList(chanrec* chan, CUList &exempt_list);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

@@ -192,6 +192,7 @@ void		Module::OnSetAway(userrec* user) { };
 void		Module::OnCancelAway(userrec* user) { };
 int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
 int		Module::OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text) { return 0; };
+void		Module::OnBuildExemptList(chanrec* chan, CUList &exempt_list) { };
 
 long InspIRCd::PriorityAfter(const std::string &modulename)
 {
