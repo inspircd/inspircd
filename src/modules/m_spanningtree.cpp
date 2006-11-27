@@ -86,6 +86,7 @@ class ModuleSpanningTree;
  */
 typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::StrHashComp> server_hash;
 
+typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 
 /** The Link class might as well be a struct,
  * but this is C++ and we don't believe in structs (!).
@@ -179,10 +180,10 @@ class SpanningTreeUtilities
 	void ReadConfiguration(bool rebind);
 	/** Add a server to the server list for GetListOfServersForChannel
 	 */
-	void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list);
+	void AddThisServer(TreeServer* server, TreeServerList &list);
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, char status, const CUList &exempt_list);
+	void GetListOfServersForChannel(chanrec* c, TreeServerList &list, char status, const CUList &exempt_list);
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
@@ -3776,20 +3777,14 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	delete TreeRoot;
 }
 
-void SpanningTreeUtilities::AddThisServer(TreeServer* server, std::deque<TreeServer*> &list)
+void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
 {
-	for (unsigned int c = 0; c < list.size(); c++)
-	{
-		if (list[c] == server)
-		{
-			return;
-		}
-	}
-	list.push_back(server);
+	if (list.find(server) == list.end())
+		list[server] = server;
 }
 
 /** returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, char status, const CUList &exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
 	CUList *ulist;
 	switch (status)
@@ -3861,14 +3856,14 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 				if (c && u)
 				{
 					CUList elist;
-					std::deque<TreeServer*> list;
+					TreeServerList list;
 					FOREACH_MOD(I_OnBuildExemptList, OnBuildExemptList((command == "PRIVMSG" ? MSG_PRIVMSG : MSG_NOTICE), c, u, pfx, elist));
 					GetListOfServersForChannel(c,list,pfx,elist);
-					unsigned int lsize = list.size();
-					for (unsigned int i = 0; i < lsize; i++)
+
+					for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 					{
-						TreeSocket* Sock = list[i]->GetSocket();
-						if ((Sock) && (list[i]->GetName() != omit) && (omitroute != list[i]))
+						TreeSocket* Sock = i->second->GetSocket();
+						if ((Sock) && (i->second->GetName() != omit) && (omitroute != i->second))
 						{
 							Sock->WriteLine(data);
 						}
@@ -4827,12 +4822,12 @@ class ModuleSpanningTree : public Module
 					std::string cname = c->name;
 					if (status)
 						cname = status + cname;
-					std::deque<TreeServer*> list;
+					TreeServerList list;
 					Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-					unsigned int ucount = list.size();
-					for (unsigned int i = 0; i < ucount; i++)
+
+					for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 					{
-						TreeSocket* Sock = list[i]->GetSocket();
+						TreeSocket* Sock = i->second->GetSocket();
 						if (Sock)
 							Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
 					}
@@ -4878,12 +4873,12 @@ class ModuleSpanningTree : public Module
 					std::string cname = c->name;
 					if (status)
 						cname = status + cname;
-					std::deque<TreeServer*> list;
+					TreeServerList list;
 					Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-					unsigned int ucount = list.size();
-					for (unsigned int i = 0; i < ucount; i++)
+
+					for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 					{
-						TreeSocket* Sock = list[i]->GetSocket();
+						TreeSocket* Sock = i->second->GetSocket();
 						if (Sock)
 							Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
 					}
