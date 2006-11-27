@@ -65,7 +65,7 @@ class ModuleDeaf : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnBuildExemptList] = 1;
 	}
 
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -78,6 +78,37 @@ class ModuleDeaf : public Module
 		return PreText(user, dest, target_type, text, status, exempt_list);
 	}
 
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list)
+	{
+		CUList *ulist;
+		switch (status)
+		{
+			case '@':
+				ulist = chan->GetOppedUsers();
+				break;
+			case '%':
+				ulist = chan->GetHalfoppedUsers();
+				break;
+			case '+':
+				ulist = chan->GetVoicedUsers();
+				break;
+			default:
+				ulist = chan->GetUsers();
+				break;
+		}
+
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			if (IS_LOCAL(i->second))
+			{
+				if (i->second->IsModeSet('d'))
+				{
+					exempt_list[i->second] = i->second;
+				}
+			}
+		}
+	}
+
 	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
@@ -85,33 +116,7 @@ class ModuleDeaf : public Module
 			chanrec* chan = (chanrec*)dest;
 			if (chan)
 			{
-				CUList *ulist;
-				switch (status)
-				{
-					case '@':
-						ulist = chan->GetOppedUsers();
-						break;
-					case '%':
-						ulist = chan->GetHalfoppedUsers();
-						break;
-					case '+':
-						ulist = chan->GetVoicedUsers();
-						break;
-					default:
-						ulist = chan->GetUsers();
-						break;
-				}
-
-				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-				{
-					if ((IS_LOCAL(i->second)) && (user != i->second))
-					{
-						if (i->second->IsModeSet('d'))
-						{
-							exempt_list[i->second] = i->second;
-						}
-					}
-				}
+				this->OnBuildExemptList(chan, status, exempt_list);
 			}
 		}
 		return 0;

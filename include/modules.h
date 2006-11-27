@@ -56,6 +56,11 @@ enum TargetTypeFlags {
 	TYPE_OTHER
 };
 
+enum MessageType {
+	MSG_PRIVMSG = 0,
+	MSG_NOTICE = 1
+};
+
 #include "globals.h"
 #include "dynamic.h"
 #include "base.h"
@@ -640,10 +645,13 @@ class Module : public Extensible
 
 	/** Called whenever the server wants to build the exemption list for a channel, but is not directly doing a PRIVMSG or NOTICE.
 	 * For example, the spanningtree protocol will call this event when passing a privmsg on (but not processing it directly).
+	 * @param message_type The message type, either MSG_PRIVMSG or MSG_NOTICE
 	 * @param chan The channel to build the exempt list of
+	 * @param sender The original sender of the PRIVMSG or NOTICE
+	 * @param status The status char to be used for the channel list
 	 * @param exempt_list The exempt list to be populated
 	 */
-	virtual void OnBuildExemptList(chanrec* chan, CUList &exempt_list);
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

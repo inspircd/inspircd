@@ -255,7 +255,7 @@ class ModuleSilence : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
+		List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
@@ -276,6 +276,37 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=999";
 	}
 
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list)
+	{
+		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
+		CUList *ulist;
+		switch (status)
+		{
+			case '@':
+				ulist = chan->GetOppedUsers();
+				break;
+			case '%':
+				ulist = chan->GetHalfoppedUsers();
+				break;
+			case '+':
+				ulist = chan->GetVoicedUsers();
+				break;
+			default:
+				ulist = chan->GetUsers();
+				break;
+		}
+
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			if (IS_LOCAL(i->second))
+			{
+				if (MatchPattern(i->second, sender, public_silence) == 1)
+				{
+					exempt_list[i->second] = i->second;
+				}
+			}
+		}
+	}
 
 	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
 	{

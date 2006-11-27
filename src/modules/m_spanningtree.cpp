@@ -182,7 +182,7 @@ class SpanningTreeUtilities
 	void AddThisServer(TreeServer* server, std::deque<TreeServer*> &list);
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, const CUList &exempt_list);
+	void GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, char status, const CUList &exempt_list);
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
@@ -3789,9 +3789,24 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, std::deque<TreeSer
 }
 
 /** returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, const CUList &exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<TreeServer*> &list, char status, const CUList &exempt_list)
 {
-	CUList *ulist = c->GetUsers();
+	CUList *ulist;
+	switch (status)
+	{
+		case '@':
+			ulist = c->GetOppedUsers();
+		break;
+		case '%':
+			ulist = c->GetHalfoppedUsers();
+		break;
+		case '+':
+			ulist = c->GetVoicedUsers();
+		break;
+		default:
+			ulist = c->GetUsers();
+		break;
+	}
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if ((i->second->GetFd() < 0) && (exempt_list.find(i->second) == exempt_list.end()))
@@ -3806,6 +3821,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, std::deque<Tr
 
 bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, std::deque<std::string> &params)
 {
+	char pfx = 0;
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	if ((command == "NOTICE") || (command == "PRIVMSG"))
 	{
@@ -3814,6 +3830,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 			/* Prefixes */
 			if ((*(params[0].c_str()) == '@') || (*(params[0].c_str()) == '%') || (*(params[0].c_str()) == '+'))
 			{
+				pfx = params[0][0];
 				params[0] = params[0].substr(1, params[0].length()-1);
 			}
 			if ((*(params[0].c_str()) != '#') && (*(params[0].c_str()) != '$'))
@@ -3840,11 +3857,13 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 			else
 			{
 				chanrec* c = ServerInstance->FindChan(params[0]);
-				if (c)
+				userrec* u = ServerInstance->FindNick(prefix);
+				if (c && u)
 				{
-					CUList empty;
+					CUList elist;
 					std::deque<TreeServer*> list;
-					GetListOfServersForChannel(c,list,empty);
+					FOREACH_MOD(I_OnBuildExemptList, OnBuildExemptList((command == "PRIVMSG" ? MSG_PRIVMSG : MSG_NOTICE), c, u, pfx, elist));
+					GetListOfServersForChannel(c,list,pfx,elist);
 					unsigned int lsize = list.size();
 					for (unsigned int i = 0; i < lsize; i++)
 					{
@@ -4809,7 +4828,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					Utils->GetListOfServersForChannel(c,list,exempt_list);
+					Utils->GetListOfServersForChannel(c,list,status,exempt_list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{
@@ -4860,7 +4879,7 @@ class ModuleSpanningTree : public Module
 					if (status)
 						cname = status + cname;
 					std::deque<TreeServer*> list;
-					Utils->GetListOfServersForChannel(c,list,exempt_list);
+					Utils->GetListOfServersForChannel(c,list,status,exempt_list);
 					unsigned int ucount = list.size();
 					for (unsigned int i = 0; i < ucount; i++)
 					{
