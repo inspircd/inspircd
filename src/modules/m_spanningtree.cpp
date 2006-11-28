@@ -3064,10 +3064,10 @@ class TreeSocket : public InspSocket
 		irc::string command;
 		std::string prefix;
 		
+		line = line.substr(0, line.find_first_of("\r\n"));
+		
 		if (line.empty())
 			return true;
-		
-		line = line.substr(0, line.find_first_of("\r\n"));
 		
 		Instance->Log(DEBUG,"IN: %s", line.c_str());
 		
