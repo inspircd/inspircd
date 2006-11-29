@@ -830,6 +830,11 @@ int InspIRCd::SetTimeDelta(int delta)
 	return old;
 }
 
+int InspIRCd::GetTimeDelta()
+{
+	return time_delta;
+}
+
 bool FileLogger::Readable()
 {
 	return false;

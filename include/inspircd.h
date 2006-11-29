@@ -449,6 +449,11 @@ class InspIRCd : public classbase
 	 */
 	int SetTimeDelta(int delta);
 
+	/** Get the time offset in seconds
+	 * @return The current time delta (in seconds)
+	 */
+	int GetTimeDelta();
+
 	/** Process a user whos socket has been flagged as active
 	 * @param cu The user to process
 	 * @return There is no actual return value, however upon exit, the user 'cu' may have been deleted

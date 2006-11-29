@@ -24,8 +24,7 @@ class cmd_alltime : public command_t
 		time_t now = ServerInstance->Time();
 		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
 		
-		// I'm too lazy to add a function to fetch the delta, so lets just cheat..
-		int delta = time(NULL) - now;
+		int delta = ServerInstance->GetTimeDelta();
 		
 		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :Time for " +
 			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds)";
