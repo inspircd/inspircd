@@ -77,8 +77,11 @@ class cmd_sajoin : public command_t
 				return CMD_FAILURE;
 			}
 		}
-
-		return CMD_FAILURE;
+		else
+		{
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** No such nickname "+parameters[0]);
+			return CMD_FAILURE;
+		}
 	}
 };
 
