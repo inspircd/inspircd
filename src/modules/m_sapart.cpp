@@ -72,6 +72,10 @@ class cmd_sapart : public command_t
 
 			return CMD_SUCCESS;
 		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick);
+		}
 
 		return CMD_FAILURE;
 	}
