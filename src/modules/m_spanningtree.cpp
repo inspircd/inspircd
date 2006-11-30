@@ -5225,15 +5225,15 @@ class ModuleSpanningTree : public Module
 				userrec* u = (userrec*)target;
 				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+u->nick+" "+extname+" :"+extdata);
 			}
-			else if (target_type == TYPE_OTHER)
-			{
-				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA * "+extname+" :"+extdata);
-			}
 			else if (target_type == TYPE_CHANNEL)
 			{
 				chanrec* c = (chanrec*)target;
 				s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+c->name+" "+extname+" :"+extdata);
 			}
+		}
+		if (target_type == TYPE_OTHER)
+		{
+			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA * "+extname+" :"+extdata);
 		}
 	}
 
