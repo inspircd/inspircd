@@ -291,14 +291,19 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	if (!rawsz)
 		return "";
 
+	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
+	
+	const char *hex = "0123456789abcdef";
+	
 	char buf[rawsz*2+1];
-	size_t i;
 
-	for (i = 0; i < rawsz; i++)
+	size_t i, j;
+	for (i = 0, j = 0; j < rawsz; ++j)
 	{
-		sprintf (&(buf[i*2]), "%02x", raw[i]);
+		buf[i++] = hex[raw[j] / 16];
+		buf[i++] = hex[raw[j] % 16];
 	}
-	buf[i*2] = 0;
+	buf[i] = '\0';
 
 	return buf;
 }
