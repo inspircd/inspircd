@@ -289,14 +289,20 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	{
 		ServerInstance->Log(DEBUG,"Spool list");
 		const char* mode = parameters[1];
-		if (*mode == '+')
-			mode++;
-		unsigned char handler_id = ((*mode) - 65) | MASK_CHANNEL;
-		ModeHandler* mh = modehandlers[handler_id];
-		if ((mh) && (mh->IsListMode()))
+
+		while (mode && *mode)
 		{
-			mh->DisplayList(user, targetchannel);
-			return;
+			if (*mode == '+')
+				continue;
+
+			ModeHandler *mh = this->FindMode(*mode, MODETYPE_CHANNEL);
+
+			if ((mh) && (mh->IsListMode()))
+			{
+				mh->DisplayList(user, targetchannel);
+			}
+
+			mode++;
 		}
 	}
 
