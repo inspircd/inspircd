@@ -293,7 +293,10 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		while (mode && *mode)
 		{
 			if (*mode == '+')
+			{
+				mode++;
 				continue;
+			}
 
 			ModeHandler *mh = this->FindMode(*mode, MODETYPE_CHANNEL);
 
