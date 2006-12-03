@@ -2412,6 +2412,54 @@ class TreeSocket : public InspSocket
 		return true;
 	}
 
+	/*
+	 * Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
+	 * then let that server do the dirty work (squit it!). Example:
+	 * A -> B -> C -> D: oper on A squits D, A routes to B, B routes to C, C notices D connected locally, kills it. -- w00t
+	 */
+	bool RemoteSquit(const std::string &prefix, std::deque<std::string> &params)
+	{
+		/* ok.. :w00t RSQUIT jupe.barafranca.com :reason here */
+		if (params.size() < 2)
+			return true;
+
+		TreeServer* s = Utils->FindServerMask(params[0]);
+
+		if (s)
+		{
+			if (s == Utils->TreeRoot)
+			{
+				this->Instance->SNO->WriteToSnoMask('l',"What the fuck, I recieved a remote SQUIT for myself? :< (from %s", prefix.c_str());
+				return true;
+			}
+
+			TreeSocket* sock = s->GetSocket();
+
+			if (sock)
+			{
+				/* it's locally connected, KILL IT! */
+				Instance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
+				Instance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s: %s", params[0].c_str(), prefix.c_str(), params[1].c_str());
+				sock->Squit(s,"Server quit by " + prefix + ": " + params[1]);
+				Instance->SE->DelFd(sock);
+				sock->Close();
+				delete sock;
+			}
+			else
+			{
+				/* route the rsquit */
+				params[1] = ":" + params[1];
+				Utils->DoOneToOne(prefix, "RSQUIT", params, params[0]);
+			}
+		}
+		else
+		{
+			/* mother fucker! it doesn't exist */
+		}
+
+		return true;
+	}
+
 	bool ServiceJoin(const std::string &prefix, std::deque<std::string> &params)
 	{
 		if (params.size() < 2)
@@ -3393,6 +3441,10 @@ class TreeSocket : public InspSocket
 						prefix = this->GetName();
 					}
 					return this->ForceNick(prefix,params);
+				}
+				else if (command == "RSQUIT")
+				{
+					return this->RemoteSquit(prefix, params);
 				}
 				else if (command == "IDLE")
 				{
@@ -4420,7 +4472,7 @@ class ModuleSpanningTree : public Module
 		{
 			if (s == Utils->TreeRoot)
 			{
-				 user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+				user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
 				return 1;
 			}
 			TreeSocket* sock = s->GetSocket();
@@ -4428,14 +4480,18 @@ class ModuleSpanningTree : public Module
 			{
 				ServerInstance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
-				sock->Squit(s,"Server quit by "+std::string(user->nick)+"!"+std::string(user->ident)+"@"+std::string(user->host));
+				sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 				ServerInstance->SE->DelFd(sock);
 				sock->Close();
 				delete sock;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 is not directly connected.",user->nick,parameters[0]);
+				/* route it */
+				std::deque<std::string> params;
+				params.push_back(parameters[0]);
+				params.push_back(std::string(":Server quit by ") + user->GetFullRealHost());
+				Utils->DoOneToOne(user->nick, "RSQUIT", params, parameters[0]);
 			}
 		}
 		else
