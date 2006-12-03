@@ -1104,8 +1104,8 @@ class TreeSocket : public InspSocket
 		/* Chances are this is a 1.0 FMODE without TS */
 		if (params.size() < 3)
 		{
-			this->WriteLine("ERROR :Version 1.0 FMODE sent to version 1.1 server");
-			return false;
+			/* No modes were in the command, probably a channel with no modes set on it */
+			return true;
 		}
 		
 		bool smode = false;
