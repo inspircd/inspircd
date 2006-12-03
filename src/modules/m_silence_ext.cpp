@@ -219,7 +219,7 @@ class cmd_silence : public command_t
 	/* turn the mask into a nice human readable format */
 	std::string DecompPattern (const int pattern)
 	{
-		std::string out = "";
+		std::string out;
 		if ((pattern & SILENCE_PRIVATE) > 0)
 			out += ",privatemessages";
 		if ((pattern & SILENCE_CHANNEL) > 0)
