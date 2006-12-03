@@ -213,7 +213,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	{
 		privs = "@";
 
-		if (IS_LOCAL(user))
+		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,NULL,cname,privs));
@@ -248,7 +248,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		 * remote users are allowed us to bypass channel modes
 		 * and bans (used by servers)
 		 */
-		if (IS_LOCAL(user)) /* was a check on fd > -1 */
+		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
 			FOREACH_RESULT_I(Instance,I_OnUserPreJoin,OnUserPreJoin(user,Ptr,cname,privs));
@@ -333,7 +333,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	 * and put the channel in here. Same for remote users which are not bound by
 	 * the channel limits. Otherwise, nope, youre boned.
 	 */
-	if (!IS_LOCAL(user)) /* was a check on fd < 0 */
+	if (!IS_LOCAL(user) || override == true) /* was a check on fd < 0 */
 	{
 		ucrec* a = new ucrec();
 		chanrec* c = chanrec::ForceChan(Instance, Ptr, a, user, privs);
