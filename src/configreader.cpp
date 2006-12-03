@@ -308,6 +308,17 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, Value
 	return true;
 }
 
+bool ValidateDie(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	if (!*data.GetString())
+	{
+		conf->GetInstance()->Log(DEFAULT,"Die value is set: \"%s\", terminating.", data.GetString());
+		printf("\n\nERROR: %s\n\n", data.GetString());
+		exit(ERROR);
+	}
+	return true;
+}
+
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
@@ -564,6 +575,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"whowas",		"groupsize",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",		"maxgroups",			new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
 		{"whowas",		"maxkeep",			new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
+		{"die",			"value",			new ValueContainerChar (this->DieValue),		DT_CHARPTR, ValidateDie},
 		{NULL}
 	};
 
