@@ -1880,7 +1880,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 		FOREACH_MOD(I_OnChangeHost,OnChangeHost(this,host));
 	}
 	if (this->ServerInstance->Config->CycleHosts)
-		this->WriteCommonExcept("%s","QUIT :Changing hosts");
+		this->WriteCommonExcept("QUIT :Changing hosts");
 
 	/* Fix by Om: userrec::dhost is 65 long, this was truncating some long hosts */
 	strlcpy(this->dhost,host,64);
