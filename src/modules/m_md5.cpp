@@ -25,8 +25,9 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
+
+#include "m_md5.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
@@ -289,18 +290,19 @@ class ModuleMD5 : public Module
 	
 	virtual char* OnRequest(Request* request)
 	{
-		if (strcmp("MD5_SETKEY", request->GetId()) == 0)
+		MD5Request* MD5 = (MD5Request*)request;
+		if (strcmp("MD5_KEY", request->GetId()) == 0)
 		{
-			this->key = (unsigned int*)request->GetData();
+			this->key = (unsigned int*)MD5->GetKeyData();
 		}
-		else if (strcmp("MD5_SETCHARS", request->GetId()) == 0)
+		else if (strcmp("MD5_HEX", request->GetId()) == 0)
 		{
-			this->chars = (char*)request->GetData();
+			this->chars = (char*)MD5->GetOutputs();
 		}
 		else if (strcmp("MD5_SUM", request->GetId()) == 0)
 		{
 			static char data[MAXBUF];
-			GenHash((const char*)request->GetData(), data, chars ? chars : "0123456789abcdef", key);
+			GenHash((const char*)MD5->GetHashData(), data, chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
 		else if (strcmp("MD5_RESET", request->GetId()) == 0)
