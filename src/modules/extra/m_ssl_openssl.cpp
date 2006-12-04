@@ -19,7 +19,7 @@
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `perl extra/openssl_config.pl compile` */
 /* $LinkerFlags: `perl extra/openssl_config.pl link` */
-
+/* $ModDep: ssl_cert.h */
 
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };

@@ -26,6 +26,7 @@ using namespace std;
 #include "dns.h"
 
 /* $ModDesc: Provides /sslinfo command used to test who a mask matches */
+/* $ModDep: ssl_cert.h */
 
 /** Handle /SSLINFO
  */
