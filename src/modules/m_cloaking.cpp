@@ -24,6 +24,7 @@
 #include "m_md5.h"
 
 /* $ModDesc: Provides masking of user hostnames */
+/* $ModDep: m_md5.h */
 
 static const char* xtab[] = {"F92E45D871BCA630", "A1B9D80C72E653F4", "1ABC078934DEF562", "ABCDEF5678901234"};
 

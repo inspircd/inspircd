@@ -34,6 +34,7 @@
 /* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */
 /* $CompileFlags: -I`pg_config --includedir` `perl extra/pgsql_config.pl` */
 /* $LinkerFlags: -L`pg_config --libdir` -lpq */
+/* $ModDep: m_sqlv2.h */
 
 /* UGH, UGH, UGH, UGH, UGH, UGH
  * I'm having trouble seeing how I

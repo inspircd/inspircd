@@ -30,8 +30,7 @@
 #include "m_sqlutils.h"
 
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */
-
-
+/* $ModDep: m_sqlutils.h */
 
 typedef std::map<unsigned long, userrec*> IdUserMap;
 typedef std::map<unsigned long, chanrec*> IdChanMap;

@@ -26,6 +26,7 @@
 #include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
+/* $ModDep: m_sqlv2.h m_sqlutils.h */
 
 class ModuleSQLOper : public Module
 {

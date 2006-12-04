@@ -26,6 +26,7 @@
 #include "m_sqlutils.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
+/* $ModDep: m_sqlv2.h m_sqlutils.h */
 
 class ModuleSQLAuth : public Module
 {

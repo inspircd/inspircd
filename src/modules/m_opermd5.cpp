@@ -15,6 +15,7 @@
  */
 
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
+/* $ModDep: m_md5.h */
 
 using namespace std;
 
