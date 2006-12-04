@@ -83,7 +83,7 @@ if ($arg eq "Cheese-Sandwich") {
 # If we get here.. bad / no parameters.
 ###
 print "Invalid Argument: $arg\n";
-print "Usage: inspircd (start|stop|restart|rehash|status|cron)\n";
+print "Usage: inspircd (start|stop|restart|rehash|status|cron|version)\n";
 exit();
 
 ###
