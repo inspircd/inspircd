@@ -171,14 +171,14 @@ class RemoveBase
 		hasnokicks = (ServerInstance->FindModule("m_nokicks.so") && channel->IsModeSet('Q'));
 		
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
-		if(!supportnokicks || !hasnokicks || (ulevel == ULINE))
+		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks || (ulevel == ULINE)))
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
 			 * Nobody may remove a founder.
 			 */
-			if ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER))
+			if ((!IS_LOCAL(user)) || ((ulevel > PEON) && (ulevel >= tlevel) && (tlevel != OWNER)))
 			{
 				// no you can't just go from a std::ostringstream to a std::string, Om. -nenolod
 				// but you can do this, nenolod -brain
