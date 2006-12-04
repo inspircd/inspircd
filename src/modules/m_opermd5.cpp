@@ -59,6 +59,7 @@ class ModuleOperMD5 : public Module
 	ModuleOperMD5(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+		/* Try to find the md5 service provider, bail if it can't be found */
 		MD5Provider = ServerInstance->FindModule("m_md5.so");
 		if (!MD5Provider)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_opermd5.so.");
@@ -78,9 +79,11 @@ class ModuleOperMD5 : public Module
 
 	virtual int OnOperCompare(const std::string &data, const std::string &input)
 	{
+		/* always always reset first */
 		MD5ResetRequest(this, MD5Provider).Send();
 		if (data.length() == 32) // if its 32 chars long, try it as an md5
 		{
+			/* Does it match the md5 sum? */
 			if (!strcasecmp(data.c_str(), MD5SumRequest(this, MD5Provider, input.c_str()).Send()))
 			{
 				return 1;
