@@ -67,12 +67,6 @@ if ($arg eq "restart") {
 	exit();
 }
 
-if ($arg eq "version") {
-	system("sh src/version.sh");
-	system("svn info | grep Revision");
-	exit();
-}
-
 if ($arg eq "Cheese-Sandwich") {
 	print "Creating Cheese Sandwich..\n";
 	print "Done.\n";
@@ -83,7 +77,7 @@ if ($arg eq "Cheese-Sandwich") {
 # If we get here.. bad / no parameters.
 ###
 print "Invalid Argument: $arg\n";
-print "Usage: inspircd (start|stop|restart|rehash|status|cron|version)\n";
+print "Usage: inspircd (start|stop|restart|rehash|status|cron)\n";
 exit();
 
 ###
