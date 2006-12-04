@@ -15,11 +15,12 @@
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 
-my $basepath = "@BASE_DIR@";
-my $confpath = "@CONFIG_DIR@/";
-my $binpath = "@BINARY_DIR@";
-my $libpath = "@LIBRARY_DIR@";
-my $executable = "@EXECUTABLE@";
+my $basepath	=	"@BASE_DIR@";
+my $confpath	=	"@CONFIG_DIR@/";
+my $binpath	=	"@BINARY_DIR@";
+my $libpath	=	"@LIBRARY_DIR@";
+my $executable	=	"@EXECUTABLE@";
+my $version	=	"@VERSION@";
 my @filesparsed;
 
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
@@ -56,6 +57,11 @@ if ($arg eq "rehash") {
 
 if ($arg eq "cron") {
 	if (getstatus() == 0) { start(); }
+	exit();
+}
+
+if ($arg eq "version") {
+	print "InspIRCd version: $version\n";
 	exit();
 }
 

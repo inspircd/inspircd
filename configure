@@ -1311,6 +1311,18 @@ EOF
 
 	opendir(DIRHANDLE, $this);
 
+	# Do this once here, and cache it in the .*.inc files,
+	# rather than attempting to read src/version.sh from
+	# compiled code -- we might not have the source to hand.
+	# Fix for bug#177 by Brain.
+
+	chomp(my $version = `sh ./src/version.sh`);
+	chomp(my $revision = getrevision());
+	$version = "$version(r$revision)";
+
+	# We can actually parse any file starting with . and ending with .inc,
+	# but right now we only parse .inspircd.inc to form './inspircd'
+
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^\.(.+)\.inc$/) {
 			$file = $1;
@@ -1335,6 +1347,7 @@ EOF
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
+			$tmp =~ s/\@VERSION\@/$version/;
 
 			print "Writing \033[1;32m$file\033[0m\n";
 			open(FILEHANDLE, ">$file");
