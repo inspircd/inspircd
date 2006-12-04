@@ -19,7 +19,7 @@
 
 #include "modules.h"
 
-/* MD5Request is the base class used to send MD5 requests to m_md5.so.
+/** MD5Request is the base class used to send MD5 requests to m_md5.so.
  * You should not instantiate classes of type MD5Request directly, instead
  * you should instantiate classes of type MD5ResetRequest, MD5SumRequest,
  * MD5KeyRequest and MD5HexRequest, shown below.
