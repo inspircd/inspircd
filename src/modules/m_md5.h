@@ -59,6 +59,7 @@ class MD5SumRequest : public MD5Request
 
 class MD5KeyRequest : public MD5Request
 {
+ public:
 	MD5KeyRequest(Module* Me, Module* Target, unsigned int* data) : MD5Request(Me, Target, data)
 	{
 	}
@@ -66,6 +67,7 @@ class MD5KeyRequest : public MD5Request
 
 class MD5HexRequest : public MD5Request
 {
+ public:
 	MD5HexRequest(Module* Me, Module* Target, const char* data) : MD5Request(Me, Target, data)
 	{
 	}
