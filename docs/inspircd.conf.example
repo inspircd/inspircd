@@ -804,6 +804,17 @@
 #
 #<module name="m_spanningtree.so">
 
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MD5 Module - Allows other modules to generate MD5 hashes, usually for
+# cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules such as m_cloaking.so and m_opermd5.so rely on this
+# module being loaded to function.
+#
+#<module name="m_md5.so">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases
 #<module name="m_alias.so">
@@ -937,7 +948,9 @@
 #<module name="m_chgident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Cloaking module: Adds usermode +x and cloaking support
+# Cloaking module: Adds usermode +x and cloaking support.
+# Relies on the module m_md5.so being loaded before m_cloaking.so in
+# the configuration file.
 #<module name="m_cloaking.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
@@ -1265,6 +1278,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MD5 module: Allows MD5 hashed oper passwords
+# Relies on the module m_md5.so being loaded before m_opermd5.so in
+# the configuration file.
 #<module name="m_opermd5.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
