@@ -327,17 +327,7 @@ class CloakUser : public ModeHandler
 					}
 					else
 					{
-						if (b.find(':') == std::string::npos)
-						{
-							/* IP4 ip */
-							b = Cloak4(dest->host);
-						}
-						else
-						{
-							/* IP6 ip */
-							b.append(ra).append(".").append(prefix).append(".cloak");
-
-						}
+						b = ((b.find(':') == std::string::npos) ? Cloak4(dest->host) : Cloak6(dest->host));
 					}
 					ServerInstance->Log(DEBUG,"cloak: allocated "+b);
 					dest->ChangeDisplayedHost(b.c_str());
@@ -388,19 +378,56 @@ class CloakUser : public ModeHandler
 		return std::string().append(ra1).append(".").append(ra2).append(".").append(ra3).append(".").append(ra4);
 	}
 
-	/* XXX: Uncomment and call to use the test suite for ipv4 cloaking
-	void C4TestSuite()
+	std::string Cloak6(const char* ip)
 	{
-		printf("%s %s\n", "192.168.1.1", cu->Cloak4("192.168.1.1").c_str());
-		printf("%s %s\n", "192.168.1.2", cu->Cloak4("192.168.1.2").c_str());
-		printf("%s %s\n", "192.168.10.1", cu->Cloak4("192.168.10.1").c_str());
-		printf("%s %s\n", "192.168.10.1", cu->Cloak4("192.168.10.2").c_str());
-		printf("%s %s\n", "192.169.1.1", cu->Cloak4("192.169.1.1").c_str());
-		printf("%s %s\n", "192.169.2.1", cu->Cloak4("192.169.2.1").c_str());
-		printf("%s %s\n", "200.168.1.1", cu->Cloak4("200.168.1.1").c_str());
-		printf("%s %s\n", "200.168.1.3", cu->Cloak4("200.168.1.3").c_str());
-		printf("%s %s\n", "200.168.3.3", cu->Cloak4("200.168.3.3").c_str());
-		printf("%s %s\n", "200.169.4.3", cu->Cloak4("200.169.4.3").c_str());
+		std::vector<std::string> hashies;
+		std::string item = "";
+		int rounds = 0;
+		for (const char* input = ip; *input; input++)
+		{
+			item += *input;
+			if (item.length() > 5)
+			{
+				char ra[64];
+				this->GenHash(item.c_str(), ra, (key1+rounds) % 4);
+				ra[9] = 0;
+				hashies.push_back(ra);
+				item = "";
+			}
+			rounds++;
+		}
+		if (!item.empty())
+		{
+			char ra[64];
+			this->GenHash(item.c_str(), ra, (key1+rounds) % 4);
+			ra[9] = 0;
+			hashies.push_back(ra);
+		}
+		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
+	}
+
+	/* XXX: Uncomment and call to use the test suite
+	void TestSuite()
+	{
+		printf("%s %s\n", "192.168.1.1", Cloak4("192.168.1.1").c_str());
+		printf("%s %s\n", "192.168.1.2", Cloak4("192.168.1.2").c_str());
+		printf("%s %s\n", "192.168.10.1", Cloak4("192.168.10.1").c_str());
+		printf("%s %s\n", "192.168.10.1", Cloak4("192.168.10.2").c_str());
+		printf("%s %s\n", "192.169.1.1", Cloak4("192.169.1.1").c_str());
+		printf("%s %s\n", "192.169.2.1", Cloak4("192.169.2.1").c_str());
+		printf("%s %s\n", "200.168.1.1", Cloak4("200.168.1.1").c_str());
+		printf("%s %s\n", "200.168.1.3", Cloak4("200.168.1.3").c_str());
+		printf("%s %s\n", "200.168.3.3", Cloak4("200.168.3.3").c_str());
+		printf("%s %s\n", "200.169.4.3", Cloak4("200.169.4.3").c_str());
+		printf("---\n");
+		printf("%s %s\n", "9a05:2f00:3f11::5f12::1", Cloak6("9a05:2f00:3f11::5f12::1").c_str());
+		printf("%s %s\n", "9a05:2f00:3f11::5f12::2", Cloak6("9a05:2f00:3f11::5f12::2").c_str());
+		printf("%s %s\n", "9a05:2f00:3f11::5a12::1", Cloak6("9a05:2f00:3f11::5a12::1").c_str());
+		printf("%s %s\n", "9a05:2f00:3f11::5a12::2", Cloak6("9a05:2f00:3f11::5a12::2").c_str());
+		printf("%s %s\n", "9a05:3f01:3f11::5f12::1", Cloak6("9a05:3f01:3f11::5f12::1").c_str());
+		printf("%s %s\n", "9a05:4f00:3f11::5f13::2", Cloak6("9a05:4f00:3f11::5f13::2").c_str());
+		printf("%s %s\n", "ffff:2f00:3f11::5f12::1", Cloak6("ffff:2f00:3f11::5f12::1").c_str());
+		printf("%s %s\n", "ffff:2f00:3f11::5f13::2", Cloak6("ffff:2f00:3f11::5f13::2").c_str());
 		exit(0);
 	}
 	*/
