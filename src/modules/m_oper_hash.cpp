@@ -15,7 +15,7 @@
  */
 
 /* $ModDesc: Allows for hashed oper passwords */
-/* $ModDep: m_md5.h m_sha256.h */
+/* $ModDep: m_hash.h */
 
 using namespace std;
 
@@ -25,8 +25,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-#include "m_md5.h"
-#include "m_sha256.h"
+#include "m_hash.h"
 
 enum ProviderTypes
 {
@@ -50,31 +49,21 @@ class cmd_mkpasswd : public command_t
 		syntax = "<hashtype> <any-text>";
 	}
 
+	void MakeHash(userrec* user, Module* ProviderMod, const char* algo, const char* stuff)
+	{
+		HashResetRequest(Sender, ProviderMod);
+		user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, ProviderMod, stuff).Send() );
+	}
+
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (!strcasecmp(parameters[0], "md5"))
+		if ((!strcasecmp(parameters[0], "MD5")) && ((Prov & PROV_MD5) > 0))
 		{
-			if ((Prov & PROV_MD5) > 0)
-			{
-				MD5ResetRequest(Sender, MD5Provider).Send();
-				user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick, parameters[1], MD5SumRequest(Sender, MD5Provider, parameters[1]).Send() );
-			}
-			else
-			{
-				user->WriteServ("NOTICE %s :MD5 hashing is not available (m_md5.so not loaded)");
-			}
+			MakeHash(user, MD5Provider, "MD5", parameters[1]);
 		}
-		else if (!strcasecmp(parameters[0], "sha256"))
+		else if ((!strcasecmp(parameters[0], "SHA256")) && ((Prov & PROV_SHA) > 0))
 		{
-			if ((Prov & PROV_SHA) > 0)
-			{
-				SHA256ResetRequest(Sender, SHAProvider).Send();
-				user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s",user->nick, parameters[1], SHA256SumRequest(Sender, SHAProvider, parameters[1]).Send() );
-			}
-			else
-			{
-				user->WriteServ("NOTICE %s :SHA256 hashing is not available (m_sha256.so not loaded)");
-			}
+			MakeHash(user, SHAProvider, "SHA256", parameters[1]);
 		}
 		else
 		{
@@ -140,20 +129,24 @@ class ModuleOperHash : public Module
 	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
 	{
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
+		Module* ModPtr = NULL;
+
 		if ((hashtype == "sha256") && (data.length() == SHA256_BLOCK_SIZE) && ((ID & PROV_SHA) > 0))
 		{
-			SHA256ResetRequest(this, SHAProvider).Send();
-			if (!strcasecmp(data.c_str(), SHA256SumRequest(this, SHAProvider, input.c_str()).Send()))
-				return 1;
-			else return -1;
+			ModPtr = SHAProvider;
 		}
 		else if ((hashtype == "md5") && (data.length() == 32) && ((ID & PROV_MD5) > 0))
 		{
-			MD5ResetRequest(this, MD5Provider).Send();
-			if (!strcasecmp(data.c_str(), MD5SumRequest(this, MD5Provider, input.c_str()).Send()))
+			ModPtr = MD5Provider;
+		}
+		if (ModPtr)
+		{
+			HashResetRequest(this, ModPtr).Send();
+			if (!strcasecmp(data.c_str(), HashSumRequest(this, ModPtr, input.c_str()).Send()))
 				return 1;
 			else return -1;
 		}
+
 		return 0;
 	}
 	

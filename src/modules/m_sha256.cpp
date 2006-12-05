@@ -51,7 +51,7 @@
  */
 
 /* $ModDesc: Allows for SHA-256 encrypted oper passwords */
-/* $ModDep: m_sha256.h */
+/* $ModDep: m_hash.h */
 
 #include "inspircd_config.h"
 #ifdef HAS_STDINT
@@ -62,7 +62,7 @@
 #include "modules.h"
 #include "inspircd.h"
 
-#include "m_sha256.h"
+#include "m_hash.h"
 
 #ifndef HAS_STDINT
 typedef unsigned int uint32_t;
@@ -262,22 +262,22 @@ class ModuleSHA256 : public Module
 
 	virtual char* OnRequest(Request* request)
 	{
-		SHA256Request* SHA = (SHA256Request*)request;
-		if (strcmp("SHA256_KEY", request->GetId()) == 0)
+		HashRequest* SHA = (HashRequest*)request;
+		if (strcmp("KEY", request->GetId()) == 0)
 		{
 			this->key = (unsigned int*)SHA->GetKeyData();
 		}
-		else if (strcmp("SHA256_HEX", request->GetId()) == 0)
+		else if (strcmp("HEX", request->GetId()) == 0)
 		{
 			this->chars = (char*)SHA->GetOutputs();
 		}
-		else if (strcmp("SHA256_SUM", request->GetId()) == 0)
+		else if (strcmp("SUM", request->GetId()) == 0)
 		{
 			static char data[MAXBUF];
 			SHA256((const char*)SHA->GetHashData(), data, strlen(SHA->GetHashData()), chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
-		else if (strcmp("SHA256_RESET", request->GetId()) == 0)
+		else if (strcmp("RESET", request->GetId()) == 0)
 		{
 			this->chars = NULL;
 			this->key = NULL;

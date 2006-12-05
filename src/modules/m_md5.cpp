@@ -15,7 +15,7 @@
  */
 
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
-/* $ModDep: m_md5.h */
+/* $ModDep: m_hash.h */
 
 using namespace std;
 
@@ -28,7 +28,7 @@ using namespace std;
 #include "modules.h"
 #include "inspircd.h"
 
-#include "m_md5.h"
+#include "m_hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
@@ -291,22 +291,22 @@ class ModuleMD5 : public Module
 	
 	virtual char* OnRequest(Request* request)
 	{
-		MD5Request* MD5 = (MD5Request*)request;
-		if (strcmp("MD5_KEY", request->GetId()) == 0)
+		HashRequest* MD5 = (HashRequest*)request;
+		if (strcmp("KEY", request->GetId()) == 0)
 		{
 			this->key = (unsigned int*)MD5->GetKeyData();
 		}
-		else if (strcmp("MD5_HEX", request->GetId()) == 0)
+		else if (strcmp("HEX", request->GetId()) == 0)
 		{
 			this->chars = (char*)MD5->GetOutputs();
 		}
-		else if (strcmp("MD5_SUM", request->GetId()) == 0)
+		else if (strcmp("SUM", request->GetId()) == 0)
 		{
 			static char data[MAXBUF];
 			GenHash((const char*)MD5->GetHashData(), data, chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
-		else if (strcmp("MD5_RESET", request->GetId()) == 0)
+		else if (strcmp("RESET", request->GetId()) == 0)
 		{
 			this->chars = NULL;
 			this->key = NULL;

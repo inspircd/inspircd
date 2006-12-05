@@ -21,10 +21,10 @@
 #include "channels.h"
 #include "modules.h"
 
-#include "m_md5.h"
+#include "m_hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
-/* $ModDep: m_md5.h */
+/* $ModDep: m_hash.h */
 
 /* Used to vary the output a little more depending on the cloak keys */
 static const char* xtab[] = {"F92E45D871BCA630", "A1B9D80C72E653F4", "1ABC078934DEF562", "ABCDEF5678901234"};
@@ -40,10 +40,10 @@ class CloakUser : public ModeHandler
 	unsigned int key3;
 	unsigned int key4;
 	Module* Sender;
-	Module* MD5Provider;
+	Module* HashProvider;
 	
  public:
-	CloakUser(InspIRCd* Instance, Module* Source, Module* MD5) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Sender(Source), MD5Provider(MD5)
+	CloakUser(InspIRCd* Instance, Module* Source, Module* Hash) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Sender(Source), HashProvider(Hash)
 	{
 	}
 
@@ -90,13 +90,13 @@ class CloakUser : public ModeHandler
 					std::string b;
 					insp_inaddr testaddr;
 
-					/** Reset the MD5 module, and send it our IV and hex table */
-					MD5ResetRequest(Sender, MD5Provider).Send();
-					MD5KeyRequest(Sender, MD5Provider, iv).Send();
-					MD5HexRequest(Sender, MD5Provider, xtab[0]);
+					/** Reset the Hash module, and send it our IV and hex table */
+					HashResetRequest(Sender, HashProvider).Send();
+					HashKeyRequest(Sender, HashProvider, iv).Send();
+					HashHexRequest(Sender, HashProvider, xtab[0]);
 
-					/* Generate a cloak using specialized MD5 */
-					std::string hostcloak = prefix + "-" + MD5SumRequest(Sender, MD5Provider, dest->host).Send() + a;
+					/* Generate a cloak using specialized Hash */
+					std::string hostcloak = prefix + "-" + HashSumRequest(Sender, HashProvider, dest->host).Send() + a;
 
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
@@ -154,22 +154,22 @@ class CloakUser : public ModeHandler
 		octet3 = octet1 + "." + octet2 + "." + octet3;
 		octet2 = octet1 + "." + octet2;
 
-		/* Reset the MD5 module and send it our IV */
-		MD5ResetRequest(Sender, MD5Provider).Send();
-		MD5KeyRequest(Sender, MD5Provider, iv).Send();
+		/* Reset the Hash module and send it our IV */
+		HashResetRequest(Sender, HashProvider).Send();
+		HashKeyRequest(Sender, HashProvider, iv).Send();
 
-		/* Send the MD5 module a different hex table for each octet group's MD5 sum */
-		MD5HexRequest(Sender, MD5Provider, xtab[(key1+i1) % 4]).Send();
-		ra1 = std::string(MD5SumRequest(Sender, MD5Provider, octet1).Send()).substr(0,6);
+		/* Send the Hash module a different hex table for each octet group's Hash sum */
+		HashHexRequest(Sender, HashProvider, xtab[(key1+i1) % 4]).Send();
+		ra1 = std::string(HashSumRequest(Sender, HashProvider, octet1).Send()).substr(0,6);
 
-		MD5HexRequest(Sender, MD5Provider, xtab[(key2+i2) % 4]).Send();
-		ra2 = std::string(MD5SumRequest(Sender, MD5Provider, octet2).Send()).substr(0,6);
+		HashHexRequest(Sender, HashProvider, xtab[(key2+i2) % 4]).Send();
+		ra2 = std::string(HashSumRequest(Sender, HashProvider, octet2).Send()).substr(0,6);
 
-		MD5HexRequest(Sender, MD5Provider, xtab[(key3+i3) % 4]).Send();
-		ra3 = std::string(MD5SumRequest(Sender, MD5Provider, octet3).Send()).substr(0,6);
+		HashHexRequest(Sender, HashProvider, xtab[(key3+i3) % 4]).Send();
+		ra3 = std::string(HashSumRequest(Sender, HashProvider, octet3).Send()).substr(0,6);
 
-		MD5HexRequest(Sender, MD5Provider, xtab[(key4+i4) % 4]).Send();
-		ra4 = std::string(MD5SumRequest(Sender, MD5Provider, octet4).Send()).substr(0,6);
+		HashHexRequest(Sender, HashProvider, xtab[(key4+i4) % 4]).Send();
+		ra4 = std::string(HashSumRequest(Sender, HashProvider, octet4).Send()).substr(0,6);
 
 		/* Stick them all together */
 		return std::string().append(ra1).append(".").append(ra2).append(".").append(ra3).append(".").append(ra4);
@@ -182,27 +182,27 @@ class CloakUser : public ModeHandler
 		std::string item = "";
 		int rounds = 0;
 
-		/* Reset the MD5 module and send it our IV */
-		MD5ResetRequest(Sender, MD5Provider).Send();
-		MD5KeyRequest(Sender, MD5Provider, iv).Send();
+		/* Reset the Hash module and send it our IV */
+		HashResetRequest(Sender, HashProvider).Send();
+		HashKeyRequest(Sender, HashProvider, iv).Send();
 
 		for (const char* input = ip; *input; input++)
 		{
 			item += *input;
 			if (item.length() > 5)
 			{
-				/* Send the MD5 module a different hex table for each octet group's MD5 sum */
-				MD5HexRequest(Sender, MD5Provider, xtab[(key1+rounds) % 4]).Send();
-				hashies.push_back(std::string(MD5SumRequest(Sender, MD5Provider, item).Send()).substr(0,10));
+				/* Send the Hash module a different hex table for each octet group's Hash sum */
+				HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
+				hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,10));
 				item = "";
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			/* Send the MD5 module a different hex table for each octet group's MD5 sum */
-			MD5HexRequest(Sender, MD5Provider, xtab[(key1+rounds) % 4]).Send();
-			hashies.push_back(std::string(MD5SumRequest(Sender, MD5Provider, item).Send()).substr(0,10));
+			/* Send the Hash module a different hex table for each octet group's Hash sum */
+			HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
+			hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,10));
 			item = "";
 		}
 		/* Stick them all together */
@@ -236,19 +236,19 @@ class ModuleCloaking : public Module
  private:
 	
  	CloakUser* cu;
-	Module* MD5Module;
+	Module* HashModule;
 
  public:
 	ModuleCloaking(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		/* Attempt to locate the MD5 service provider, bail if we can't find it */
-		MD5Module = ServerInstance->FindModule("m_md5.so");
-		if (!MD5Module)
+		/* Attempt to locate the Hash service provider, bail if we can't find it */
+		HashModule = ServerInstance->FindModule("m_md5.so");
+		if (!HashModule)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
 
 		/* Create new mode handler object */
-		cu = new CloakUser(ServerInstance, this, MD5Module);
+		cu = new CloakUser(ServerInstance, this, HashModule);
 
 		/* Register it with the core */		
 		ServerInstance->AddMode(cu, 'x');
