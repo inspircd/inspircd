@@ -71,8 +71,11 @@ class CloakUser : public ModeHandler
 				 * naming in their hostname (e.g. if they are on a lan or
 				 * are connecting via localhost) -- this doesnt matter much.
 				 */
+
+				char* n1 = strchr(dest->host,'.');
+				char* n2 = strchr(dest->host,':');
 			
-				if (strchr(dest->host,'.') || strchr(dest->host,':'))
+				if (n1 || n2)
 				{
 					/* InspIRCd users have two hostnames; A displayed
 					 * hostname which can be modified by modules (e.g.
@@ -81,19 +84,14 @@ class CloakUser : public ModeHandler
 					 */
 
 					unsigned int iv[] = { key1, key2, key3, key4 };
-					char* n = strstr(dest->host,".");
-					if (!n)
-						n = strstr(dest->host,":");
-
-					std::string a = n;
-
+					std::string a = (n1 ? n1 : n2);
 					std::string b;
 					insp_inaddr testaddr;
 
 					/** Reset the Hash module, and send it our IV and hex table */
 					HashResetRequest(Sender, HashProvider).Send();
 					HashKeyRequest(Sender, HashProvider, iv).Send();
-					HashHexRequest(Sender, HashProvider, xtab[0]);
+					HashHexRequest(Sender, HashProvider, xtab[(*dest->host) % 4]);
 
 					/* Generate a cloak using specialized Hash */
 					std::string hostcloak = prefix + "-" + HashSumRequest(Sender, HashProvider, dest->host).Send() + a;
@@ -216,10 +214,7 @@ class CloakUser : public ModeHandler
 			prefix = ServerInstance->Config->Network;
 
 		if (!key1 && !key2 && !key3 && !key4)
-		{
-			ModuleException ex("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
-			throw (ex);
-		}
+			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
 	}
 };
 
