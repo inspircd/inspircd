@@ -27,49 +27,38 @@ using namespace std;
 
 #include "m_hash.h"
 
-enum ProviderTypes
-{
-	PROV_MD5 = 1,
-	PROV_SHA = 2
-};
-
 /* Handle /MKPASSWD
  */
 class cmd_mkpasswd : public command_t
 {
-	Module* MD5Provider;
-	Module* SHAProvider;
 	Module* Sender;
-	int Prov;
+	std::map<std::string, Module*> &hashers;
+	std::deque<std::string> &names;
  public:
-	cmd_mkpasswd (InspIRCd* Instance, Module* Sender, Module* MD5Hasher, Module* SHAHasher, int P)
-		: command_t(Instance,"MKPASSWD", 'o', 2), MD5Provider(MD5Hasher), SHAProvider(SHAHasher), Prov(P)
+	cmd_mkpasswd (InspIRCd* Instance, Module* S, std::map<std::string, Module*> &h, std::deque<std::string> &n)
+		: command_t(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
 		this->source = "m_oper_hash.so";
 		syntax = "<hashtype> <any-text>";
 	}
 
-	void MakeHash(userrec* user, Module* ProviderMod, const char* algo, const char* stuff)
+	void MakeHash(userrec* user, const char* algo, const char* stuff)
 	{
-		HashResetRequest(Sender, ProviderMod).Send();
-		user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, ProviderMod, stuff).Send() );
+		std::map<std::string, Module*>::iterator x = hashers.find(algo);
+		if (x != hashers.end())
+		{
+			HashResetRequest(Sender, x->second).Send();
+			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
+		}
+		else
+		{
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are: %s", user->nick, irc::stringjoiner(",", names, 0, names.size() - 1).GetJoined().c_str() );
+		}
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if ((!strcasecmp(parameters[0], "MD5")) && ((Prov & PROV_MD5) > 0))
-		{
-			MakeHash(user, MD5Provider, "MD5", parameters[1]);
-		}
-		else if ((!strcasecmp(parameters[0], "SHA256")) && ((Prov & PROV_SHA) > 0))
-		{
-			MakeHash(user, SHAProvider, "SHA256", parameters[1]);
-		}
-		else
-		{
-			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are:%s%s", user->nick, ((Prov & PROV_MD5) > 0) ? " MD5" : "", ((Prov & PROV_SHA) > 0) ? " SHA256" : "");
-		}
-
+		MakeHash(user, parameters[0], parameters[1]);
 		/* NOTE: Don't propogate this across the network!
 		 * We dont want plaintext passes going all over the place...
 		 * To make sure it goes nowhere, return CMD_FAILURE!
@@ -82,20 +71,16 @@ class ModuleOperHash : public Module
 {
 	
 	cmd_mkpasswd* mycommand;
-	Module* MD5Provider;
-	Module* SHAProvider;
-	std::string providername;
-	int ID;
 	ConfigReader* Conf;
-
 	std::map<std::string, Module*> hashers;
+	std::deque<std::string> names;
+	modulelist* ml;
 
  public:
 
 	ModuleOperHash(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		ID = 0;
 		Conf = NULL;
 		OnRehash("");
 
@@ -109,20 +94,12 @@ class ModuleOperHash : public Module
 			{
 				std::string name = HashNameRequest(this, *m).Send();
 				hashers[name] = *m;
+				names.push_back(name);
 				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
 			}
 		}
 
-		/* Try to find the md5 service provider, bail if it can't be found */
-		MD5Provider = ServerInstance->FindModule("m_md5.so");
-		if (MD5Provider)
-			ID |= PROV_MD5;
-
-		SHAProvider = ServerInstance->FindModule("m_sha256.so");
-		if (SHAProvider)
-			ID |= PROV_SHA;
-
-		mycommand = new cmd_mkpasswd(ServerInstance, this, MD5Provider, SHAProvider, ID);
+		mycommand = new cmd_mkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
 	}
 	
@@ -146,27 +123,19 @@ class ModuleOperHash : public Module
 	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
 	{
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
-		Module* ModPtr = NULL;
+		std::map<std::string, Module*>::iterator x = hashers.find(hashtype);
 
-		if ((hashtype == "sha256") && (data.length() == SHA256_BLOCK_SIZE) && ((ID & PROV_SHA) > 0))
+		if (x != hashers.end())
 		{
-			ModPtr = SHAProvider;
-		}
-		else if ((hashtype == "md5") && (data.length() == 32) && ((ID & PROV_MD5) > 0))
-		{
-			ModPtr = MD5Provider;
-		}
-		if (ModPtr)
-		{
-			HashResetRequest(this, ModPtr).Send();
-			if (!strcasecmp(data.c_str(), HashSumRequest(this, ModPtr, input.c_str()).Send()))
+			HashResetRequest(this, x->second).Send();
+			if (!strcasecmp(data.c_str(), HashSumRequest(this, x->second, input.c_str()).Send()))
 				return 1;
 			else return -1;
 		}
 
 		return 0;
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);

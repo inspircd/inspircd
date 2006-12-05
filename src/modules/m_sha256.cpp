@@ -281,7 +281,7 @@ class ModuleSHA256 : public Module
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)
 		{
-			return "SHA256";
+			return "sha256";
 		}
 		else if (strcmp("RESET", request->GetId()) == 0)
 		{

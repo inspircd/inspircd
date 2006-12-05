@@ -312,7 +312,7 @@ class ModuleMD5 : public Module
 		}
 		else if (strcmp("NAME", request->GetId()) == 0)
 		{
-			return "MD5";
+			return "md5";
 		}
 		else if (strcmp("RESET", request->GetId()) == 0)
 		{
