@@ -32,10 +32,10 @@ using namespace std;
 class cmd_mkpasswd : public command_t
 {
 	Module* Sender;
-	std::map<std::string, Module*> &hashers;
+	std::map<irc::string, Module*> &hashers;
 	std::deque<std::string> &names;
  public:
-	cmd_mkpasswd (InspIRCd* Instance, Module* S, std::map<std::string, Module*> &h, std::deque<std::string> &n)
+	cmd_mkpasswd (InspIRCd* Instance, Module* S, std::map<irc::string, Module*> &h, std::deque<std::string> &n)
 		: command_t(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
 		this->source = "m_oper_hash.so";
@@ -44,7 +44,7 @@ class cmd_mkpasswd : public command_t
 
 	void MakeHash(userrec* user, const char* algo, const char* stuff)
 	{
-		std::map<std::string, Module*>::iterator x = hashers.find(algo);
+		std::map<irc::string, Module*>::iterator x = hashers.find(algo);
 		if (x != hashers.end())
 		{
 			HashResetRequest(Sender, x->second).Send();
@@ -72,7 +72,7 @@ class ModuleOperHash : public Module
 	
 	cmd_mkpasswd* mycommand;
 	ConfigReader* Conf;
-	std::map<std::string, Module*> hashers;
+	std::map<irc::string, Module*> hashers;
 	std::deque<std::string> names;
 	modulelist* ml;
 
@@ -93,7 +93,7 @@ class ModuleOperHash : public Module
 			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
 			{
 				std::string name = HashNameRequest(this, *m).Send();
-				hashers[name] = *m;
+				hashers[name.c_str()] = *m;
 				names.push_back(name);
 				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
 			}
@@ -123,7 +123,7 @@ class ModuleOperHash : public Module
 	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
 	{
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
-		std::map<std::string, Module*>::iterator x = hashers.find(hashtype);
+		std::map<irc::string, Module*>::iterator x = hashers.find(hashtype.c_str());
 
 		if (x != hashers.end())
 		{
