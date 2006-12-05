@@ -810,10 +810,20 @@
 # cryptographic uses and security.
 #
 # IMPORTANT:
-# Other modules such as m_cloaking.so and m_opermd5.so rely on this
-# module being loaded to function.
+# Other modules such as m_cloaking.so and m_opermd5.so may rely on
+# this module being loaded to function.
 #
 #<module name="m_md5.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SHA256 Module - Allows other modules to generate SHA256 hashes,
+# usually for cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules such as m_opermd5.so may rely on this module being
+# loaded to function.
+#
+#<module name="m_sha256.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alias module: Allows you to define server-side command aliases
