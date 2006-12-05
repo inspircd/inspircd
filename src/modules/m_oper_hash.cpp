@@ -51,7 +51,7 @@ class cmd_mkpasswd : public command_t
 
 	void MakeHash(userrec* user, Module* ProviderMod, const char* algo, const char* stuff)
 	{
-		HashResetRequest(Sender, ProviderMod);
+		HashResetRequest(Sender, ProviderMod).Send();
 		user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, ProviderMod, stuff).Send() );
 	}
 
@@ -67,7 +67,7 @@ class cmd_mkpasswd : public command_t
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are:%s%s", (Prov & PROV_MD5) > 0 ? " MD5" : "", (Prov & PROV_SHA) > 0 ? " SHA256" : "");
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are:%s%s", user->nick, ((Prov & PROV_MD5) > 0) ? " MD5" : "", ((Prov & PROV_SHA) > 0) ? " SHA256" : "");
 		}
 
 		/* NOTE: Don't propogate this across the network!
@@ -93,6 +93,7 @@ class ModuleOperHash : public Module
 	ModuleOperHash(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+		ID = 0;
 		Conf = NULL;
 		OnRehash("");
 

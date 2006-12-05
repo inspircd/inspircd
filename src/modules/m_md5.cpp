@@ -292,6 +292,7 @@ class ModuleMD5 : public Module
 	virtual char* OnRequest(Request* request)
 	{
 		HashRequest* MD5 = (HashRequest*)request;
+		ServerInstance->Log(DEBUG,"MD5 REQUEST type %s", request->GetId());
 		if (strcmp("KEY", request->GetId()) == 0)
 		{
 			this->key = (unsigned int*)MD5->GetKeyData();
@@ -302,12 +303,14 @@ class ModuleMD5 : public Module
 		}
 		else if (strcmp("SUM", request->GetId()) == 0)
 		{
+			ServerInstance->Log(DEBUG,"MD5 SUM!");
 			static char data[MAXBUF];
 			GenHash((const char*)MD5->GetHashData(), data, chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
 		else if (strcmp("RESET", request->GetId()) == 0)
 		{
+			ServerInstance->Log(DEBUG,"MD5 RESET!");
 			this->chars = NULL;
 			this->key = NULL;
 		}
