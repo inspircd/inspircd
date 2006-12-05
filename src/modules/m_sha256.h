@@ -14,20 +14,20 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SHA256_H__
-#define __SHA256_H__
+#ifndef __HASH_H__
+#define __HASH_H__
 
 #include "modules.h"
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
 
-/** SHA256Request is the base class used to send SHA256 requests to m_sha256.so.
- * You should not instantiate classes of type SHA256Request directly, instead
- * you should instantiate classes of type SHA256ResetRequest, SHA256SumRequest,
- * SHA256KeyRequest and SHA256HexRequest, shown below.
+/** HashRequest is the base class used to send Hash requests to hashing.so.
+ * You should not instantiate classes of type HashRequest directly, instead
+ * you should instantiate classes of type HashResetRequest, HashSumRequest,
+ * HashKeyRequest and HashHexRequest, shown below.
  */
-class SHA256Request : public Request
+class HashRequest : public Request
 {
 	/** The keys (IV) to use */
 	unsigned int* keys;
@@ -36,23 +36,23 @@ class SHA256Request : public Request
 	/** The string to hash */
 	std::string tohash;
  public:
-	/** Initialize SHA256Request as an SHA256_RESET message */
-	SHA256Request(Module* Me, Module* Target) : Request(Me, Target, "SHA256_RESET")
+	/** Initialize HashRequest as an Hash_RESET message */
+	HashRequest(Module* Me, Module* Target) : Request(Me, Target, "RESET")
 	{
 	}
 
-	/** Initialize SHA256Request as an SHA256_SUM message */
-	SHA256Request(Module* Me, Module* Target, const std::string &hashable) : Request(Me, Target, "SHA256_SUM"), keys(NULL), outputs(NULL), tohash(hashable)
+	/** Initialize HashRequest as an Hash_SUM message */
+	HashRequest(Module* Me, Module* Target, const std::string &hashable) : Request(Me, Target, "SUM"), keys(NULL), outputs(NULL), tohash(hashable)
 	{
 	}
 
-	/** Initialize SHA256Request as an SHA256_KEY message */
-	SHA256Request(Module* Me, Module* Target, unsigned int* k) : Request(Me, Target, "SHA256_KEY"), keys(k), outputs(NULL), tohash("")
+	/** Initialize HashRequest as an Hash_KEY message */
+	HashRequest(Module* Me, Module* Target, unsigned int* k) : Request(Me, Target, "KEY"), keys(k), outputs(NULL), tohash("")
 	{
 	}
 
-	/** Initialize SHA256Request as an SHA256_HEX message */
-	SHA256Request(Module* Me, Module* Target, const char* out) : Request(Me, Target, "SHA256_HEX"), keys(NULL), outputs(out), tohash("")
+	/** Initialize HashRequest as an Hash_HEX message */
+	HashRequest(Module* Me, Module* Target, const char* out) : Request(Me, Target, "HEX"), keys(NULL), outputs(out), tohash("")
 	{
 	}
 
@@ -75,103 +75,103 @@ class SHA256Request : public Request
 	}
 };
 
-/** Send this class to m_sha256.so to reset the SHA256 module to a known state.
- * This will reset the IV to the defaults specified by the SHA256 spec,
+/** Send this class to hashing.so to reset the Hash module to a known state.
+ * This will reset the IV to the defaults specified by the Hash spec,
  * and reset the hex sequence to "0123456789abcdef". It should be sent before
  * ANY other Request types.
  *
  * Example:
  * \code
- * // Reset the SHA256 module.
- * SHA256ResetRequest(this, SHA256Module).Send();
+ * // Reset the Hash module.
+ * HashResetRequest(this, HashModule).Send();
  * \endcode
  */
-class SHA256ResetRequest : public SHA256Request
+class HashResetRequest : public HashRequest
 {
  public:
-	/** Initialize SHA256ResetRequest for sending.
+	/** Initialize HashResetRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the m_sha256.so module
+	 * @param Target A pointer to the hashing.so module
 	 */
-	SHA256ResetRequest(Module* Me, Module* Target) : SHA256Request(Me, Target)
+	HashResetRequest(Module* Me, Module* Target) : HashRequest(Me, Target)
 	{
 	}
 };
 
-/** Send this class to m_sha256.so to SHA256SUM a std::string.
+/** Send this class to hashing.so to HashSUM a std::string.
  * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an SHA256ResetRequest class. The hash will be
+ * class, e.g. by first sending an HashResetRequest class. The hash will be
  * returned when you call Send().
  *
  * Example:
  * \code
  * // ALWAYS ALWAYS reset first, or set your own IV and hex chars.
- * SHA256ResetRequest(this, SHA256Module).Send();
- * // Get the SHA256 sum of the string 'doodads'.
- * std::string result = SHA256SumRequest(this, SHA256Module, "doodads").Send();
+ * HashResetRequest(this, HashModule).Send();
+ * // Get the Hash sum of the string 'doodads'.
+ * std::string result = HashSumRequest(this, HashModule, "doodads").Send();
  * \endcode
  */
-class SHA256SumRequest : public SHA256Request
+class HashSumRequest : public HashRequest
 {
  public:
-	/** Initialize SHA256SumRequest for sending.
+	/** Initialize HashSumRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the m_sha256.so module
+	 * @param Target A pointer to the hashing.so module
 	 * @param data The data to be hashed
 	 */
-	SHA256SumRequest(Module* Me, Module* Target, const std::string &data) : SHA256Request(Me, Target, data)
+	HashSumRequest(Module* Me, Module* Target, const std::string &data) : HashRequest(Me, Target, data)
 	{
 	}
 };
 
-/** Send this class to m_sha256.so to change the IVs (keys) to use for hashing.
+/** Send this class to hashing.so to change the IVs (keys) to use for hashing.
  * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an SHA256ResetRequest class. The default values for
- * the IV's are those specified in the SHA256 specification. Only in very special
+ * class, e.g. by first sending an HashResetRequest class. The default values for
+ * the IV's are those specified in the Hash specification. Only in very special
  * circumstances should you need to change the IV's (see for example m_cloaking.cpp)
  *
  * Example:
  * \code
  * unsigned int iv[] = { 0xFFFFFFFF, 0x00000000, 0xAAAAAAAA, 0xCCCCCCCC };
- * SHA256KeyRequest(this, SHA256Module, iv);
+ * HashKeyRequest(this, HashModule, iv);
  * \endcode
  */
-class SHA256KeyRequest : public SHA256Request
+class HashKeyRequest : public HashRequest
 {
  public:
-	/** Initialize SHA256KeyRequest for sending.
+	/** Initialize HashKeyRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the m_sha256.so module
+	 * @param Target A pointer to the hashing.so module
 	 * @param data The new IV's. This should be an array of exactly four 32 bit values.
 	 * On 64-bit architectures, the upper 32 bits of the values will be discarded.
 	 */
-	SHA256KeyRequest(Module* Me, Module* Target, unsigned int* data) : SHA256Request(Me, Target, data)
+	HashKeyRequest(Module* Me, Module* Target, unsigned int* data) : HashRequest(Me, Target, data)
 	{
 	}
 };
 
-/** Send this class to m_sha256.so to change the hex sequence to use for generating the returned value.
+/** Send this class to hashing.so to change the hex sequence to use for generating the returned value.
  * You should make sure you know the state of the module before you send this
- * class, e.g. by first sending an SHA256ResetRequest class. The default value for
+ * class, e.g. by first sending an HashResetRequest class. The default value for
  * the hex sequence is "0123456789abcdef". Only in very special circumstances should
  * you need to change the hex sequence (see for example m_cloaking.cpp).
  *
  * Example:
  * \code
  * static const char tab[] = "fedcba9876543210";
- * SHA256HexRequest(this, SHA256Module, tab);
+ * HashHexRequest(this, HashModule, tab);
  * \endcode
  */
-class SHA256HexRequest : public SHA256Request
+class HashHexRequest : public HashRequest
 {
  public:
-	/** Initialize SHA256HexRequest for sending.
+	/** Initialize HashHexRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the m_sha256.so module
+	 * @param Target A pointer to the hashing.so module
 	 * @param data The hex sequence to use. This should contain exactly 16 ASCII characters,
 	 * terminated by a NULL char.
 	 */
-	SHA256HexRequest(Module* Me, Module* Target, const char* data) : SHA256Request(Me, Target, data)
+	HashHexRequest(Module* Me, Module* Target, const char* data) : HashRequest(Me, Target, data)
 	{
 	}
 };
