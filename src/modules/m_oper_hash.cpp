@@ -27,15 +27,17 @@ using namespace std;
 
 #include "m_hash.h"
 
+typedef std::map<irc::string, Module*> hashymodules;
+
 /* Handle /MKPASSWD
  */
 class cmd_mkpasswd : public command_t
 {
 	Module* Sender;
-	std::map<irc::string, Module*> &hashers;
+	hashymodules &hashers;
 	std::deque<std::string> &names;
  public:
-	cmd_mkpasswd (InspIRCd* Instance, Module* S, std::map<irc::string, Module*> &h, std::deque<std::string> &n)
+	cmd_mkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
 		: command_t(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
 		this->source = "m_oper_hash.so";
@@ -45,7 +47,7 @@ class cmd_mkpasswd : public command_t
 	void MakeHash(userrec* user, const char* algo, const char* stuff)
 	{
 		/* Lets see if they gave us an algorithm which has been implemented */
-		std::map<irc::string, Module*>::iterator x = hashers.find(algo);
+		hashymodules::iterator x = hashers.find(algo);
 		if (x != hashers.end())
 		{
 			/* Yup, reset it first (Always ALWAYS do this) */
@@ -76,7 +78,7 @@ class ModuleOperHash : public Module
 	
 	cmd_mkpasswd* mycommand;
 	ConfigReader* Conf;
-	std::map<irc::string, Module*> hashers; /* List of modules which implement HashRequest */
+	hashymodules hashers; /* List of modules which implement HashRequest */
 	std::deque<std::string> names; /* Module names which implement HashRequest */
 
  public:
@@ -139,7 +141,7 @@ class ModuleOperHash : public Module
 	{
 		/* First, lets see what hash theyre using on this oper */
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
-		std::map<irc::string, Module*>::iterator x = hashers.find(hashtype.c_str());
+		hashymodules::iterator x = hashers.find(hashtype.c_str());
 
 		/* Is this a valid hash name? (case insensitive) */
 		if (x != hashers.end())
