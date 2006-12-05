@@ -108,6 +108,10 @@ class ModuleOperHash : public Module
 				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
 			}
 		}
+		else
+		{
+			throw ModuleException("I can't find any modules loaded which implement the HashRequest interface! You probably forgot to load a hashing module such as m_md5.so or m_sha256.so.");
+		}
 
 		mycommand = new cmd_mkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
