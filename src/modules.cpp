@@ -280,6 +280,8 @@ bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
 		if (*x == Mod)
 		{
 			iter->second.erase(x);
+			if (iter->second.empty())
+				Interfaces.erase(InterfaceName);
 			return true;
 		}
 	}

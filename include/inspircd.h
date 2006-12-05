@@ -711,6 +711,20 @@ class InspIRCd : public classbase
 	 */
 	bool PublishFeature(const std::string &FeatureName, Module* Mod);
 
+	/** Publish a module to an 'interface'.
+	 * Modules which implement the same interface (the same way of communicating
+	 * with other modules) can publish themselves to an interface, using this
+	 * method. When they do so, they become part of a list of related or
+	 * compatible modules, and a third module may then query for that list
+	 * and know that all modules within that list offer the same API.
+	 * A prime example of this is the hashing modules, which all accept the
+	 * same types of Request class. Consider this to be similar to PublishFeature,
+	 * except for that multiple modules may publish the same 'feature'.
+	 * @param InterfaceName The case sensitive interface name to make available
+	 * @param Mod a pointer to your module class
+	 * @returns True on success, false on failure (there are currently no failure
+	 * cases)
+	 */
 	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
 
 	/** Unpublish a 'feature'.
@@ -720,6 +734,14 @@ class InspIRCd : public classbase
 	 */
 	bool UnpublishFeature(const std::string &FeatureName);
 
+	/** Unpublish your module from an interface
+	 * When your module exits, it must call this method for every interface
+	 * it is part of so that the interfaces table is cleaned up. Only when
+	 * the last item is deleted from an interface does the interface get
+	 * removed.
+	 * @param InterfaceName the interface to be removed from
+	 * @param Mod The module to remove from the interface list
+	 */
 	bool UnpublishInterface(const std::string &InterfaceName, Module* Mod);
 
 	/** Find a 'feature'.
@@ -736,6 +758,13 @@ class InspIRCd : public classbase
 	 */
 	Module* FindFeature(const std::string &FeatureName);
 
+	/** Find an 'interface'.
+	 * An interface is a list of modules which all implement the same API.
+	 * @param InterfaceName The Interface you wish to obtain the module
+	 * list of.
+	 * @return A pointer to a deque of Module*, or NULL if the interface
+	 * does not exist.
+	 */
 	modulelist* FindInterface(const std::string &InterfaceName);
 
 	/** Given a pointer to a Module, return its filename
