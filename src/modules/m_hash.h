@@ -92,7 +92,7 @@ class HashNameRequest : public HashRequest
 	HashNameRequest(Module* Me, Module* Target) : HashRequest("NAME", Me, Target)
 	{
 	}
-}
+};
 
 /** Send this class to the hashing module to reset the Hash module to a known state.
  * This will reset the IV to the defaults specified by the Hash spec,
