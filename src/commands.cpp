@@ -32,16 +32,14 @@ bool InspIRCd::ULine(const char* server)
 	return (find(Config->ulines.begin(),Config->ulines.end(),server) != Config->ulines.end());
 }
 
-int InspIRCd::OperPassCompare(const char* data,const char* input)
+int InspIRCd::OperPassCompare(const char* data,const char* input, int tagnum)
 {
 	int MOD_RESULT = 0;
-	FOREACH_RESULT_I(this,I_OnOperCompare,OnOperCompare(data,input))
-	Log(DEBUG,"OperPassCompare: %d",MOD_RESULT);
+	FOREACH_RESULT_I(this,I_OnOperCompare,OnOperCompare(data, input, tagnum))
 	if (MOD_RESULT == 1)
 		return 0;
 	if (MOD_RESULT == -1)
 		return 1;
-	Log(DEBUG,"strcmp fallback: '%s' '%s' %d",data,input,strcmp(data,input));
 	return strcmp(data,input);
 }
 

@@ -56,8 +56,8 @@ class cmd_mkpasswd : public command_t
 		{
 			if ((Prov & PROV_MD5) > 0)
 			{
-				MD5ResetRequest(Sender, Provider).Send();
-				user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick, parameters[1], MD5SumRequest(Sender, Provider, parameters[1]).Send() );
+				MD5ResetRequest(Sender, MD5Provider).Send();
+				user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick, parameters[1], MD5SumRequest(Sender, MD5Provider, parameters[1]).Send() );
 			}
 			else
 			{
@@ -68,8 +68,8 @@ class cmd_mkpasswd : public command_t
 		{
 			if ((Prov & PROV_SHA) > 0)
 			{
-				SHA256ResetRequest(Sender, Provider).Send();
-				user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s",user->nick, parameters[1], SHA256SumRequest(Sender, Provider, parameters[1]).Send() );
+				SHA256ResetRequest(Sender, SHAProvider).Send();
+				user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s",user->nick, parameters[1], SHA256SumRequest(Sender, SHAProvider, parameters[1]).Send() );
 			}
 			else
 			{
@@ -78,7 +78,7 @@ class cmd_mkpasswd : public command_t
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are 'sha256' and 'md5'");
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are:%s%s", (Prov & PROV_MD5) > 0 ? " MD5" : "", (Prov & PROV_SHA) > 0 ? " SHA256" : "");
 		}
 
 		/* NOTE: Don't propogate this across the network!
@@ -93,7 +93,8 @@ class ModuleOperHash : public Module
 {
 	
 	cmd_mkpasswd* mycommand;
-	Module* MD5Provider, SHAProvider;
+	Module* MD5Provider;
+	Module* SHAProvider;
 	std::string providername;
 	int ID;
 	ConfigReader* Conf;
@@ -101,8 +102,9 @@ class ModuleOperHash : public Module
  public:
 
 	ModuleOperHash(InspIRCd* Me)
-		: Module::Module(Me), Conf(NULL)
+		: Module::Module(Me)
 	{
+		Conf = NULL;
 		OnRehash("");
 
 		/* Try to find the md5 service provider, bail if it can't be found */
@@ -140,15 +142,15 @@ class ModuleOperHash : public Module
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
 		if ((hashtype == "sha256") && (data.length() == SHA256_BLOCK_SIZE) && ((ID & PROV_SHA) > 0))
 		{
-			SHA256ResetRequest(this, Provider).Send();
-			if (!strcasecmp(data.c_str(), SHA256SumRequest(this, Provider, input.c_str()).Send()))
+			SHA256ResetRequest(this, SHAProvider).Send();
+			if (!strcasecmp(data.c_str(), SHA256SumRequest(this, SHAProvider, input.c_str()).Send()))
 				return 1;
 			else return -1;
 		}
 		else if ((hashtype == "md5") && (data.length() == 32) && ((ID & PROV_MD5) > 0))
 		{
-			MD5ResetRequest(this, Provider).Send();
-			if (!strcasecmp(data.c_str(), MD5SumRequest(this, Provider, input.c_str()).Send()))
+			MD5ResetRequest(this, MD5Provider).Send();
+			if (!strcasecmp(data.c_str(), MD5SumRequest(this, MD5Provider, input.c_str()).Send()))
 				return 1;
 			else return -1;
 		}

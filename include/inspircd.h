@@ -945,9 +945,10 @@ class InspIRCd : public classbase
 	 * against possible hashed equivalents in the input string.
 	 * @param data The data from the config file
 	 * @param input The data input by the oper
+	 * @param tagnum the tag number of the oper's tag in the config file
 	 * @return 0 if the strings match, 1 or -1 if they do not
 	 */
-	int OperPassCompare(const char* data,const char* input);
+	int OperPassCompare(const char* data,const char* input, int tagnum);
 
 	/** Check if a given server is a uline.
 	 * An empty string returns true, this is by design.

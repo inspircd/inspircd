@@ -143,7 +143,7 @@ class ModuleOperSSLCert : public Module
 				
 				if (*FingerPrint)
 				{
-					if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1])) && (OneOfMatches(TheHost,TheIP,HostName)))
+					if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1], i)) && (OneOfMatches(TheHost,TheIP,HostName)))
 					{
 						/* This oper would match */
 						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
