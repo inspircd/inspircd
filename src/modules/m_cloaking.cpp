@@ -140,39 +140,32 @@ class CloakUser : public ModeHandler
 	{
 		unsigned int iv[] = { key1, key2, key3, key4 };
 		irc::sepstream seps(ip, '.');
-		std::string ra1, ra2, ra3, ra4;
-		std::string octet1 = seps.GetToken();
-		std::string octet2 = seps.GetToken();
-		std::string octet3 = seps.GetToken();
-		std::string octet4 = seps.GetToken();
-		int i1 = atoi(octet1.c_str());
-		int i2 = atoi(octet2.c_str());
-		int i3 = atoi(octet3.c_str());
-		int i4 = atoi(octet4.c_str());
+		std::string ra[4];;
+		std::string octet[4];
+		int i[4];
 
-		octet4 = octet1 + "." + octet2 + "." + octet3 + "." + octet4;
-		octet3 = octet1 + "." + octet2 + "." + octet3;
-		octet2 = octet1 + "." + octet2;
+		for (int j = 0; j < 4; j++)
+		{
+			octet[j] = seps.GetToken();
+			i[j] = atoi(octet[j].c_str());
+		}
+
+		octet[3] = octet[0] + "." + octet[1] + "." + octet[2] + "." + octet[3];
+		octet[2] = octet[0] + "." + octet[1] + "." + octet[2];
+		octet[1] = octet[0] + "." + octet[1];
 
 		/* Reset the Hash module and send it our IV */
 		HashResetRequest(Sender, HashProvider).Send();
 		HashKeyRequest(Sender, HashProvider, iv).Send();
 
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
-		HashHexRequest(Sender, HashProvider, xtab[(key1+i1) % 4]).Send();
-		ra1 = std::string(HashSumRequest(Sender, HashProvider, octet1).Send()).substr(0,6);
-
-		HashHexRequest(Sender, HashProvider, xtab[(key2+i2) % 4]).Send();
-		ra2 = std::string(HashSumRequest(Sender, HashProvider, octet2).Send()).substr(0,6);
-
-		HashHexRequest(Sender, HashProvider, xtab[(key3+i3) % 4]).Send();
-		ra3 = std::string(HashSumRequest(Sender, HashProvider, octet3).Send()).substr(0,6);
-
-		HashHexRequest(Sender, HashProvider, xtab[(key4+i4) % 4]).Send();
-		ra4 = std::string(HashSumRequest(Sender, HashProvider, octet4).Send()).substr(0,6);
-
+		for (int k = 0; k < 3; k++)
+		{
+			HashHexRequest(Sender, HashProvider, xtab[(iv[k]+i[k]) % 4]).Send();
+			ra[k] = std::string(HashSumRequest(Sender, HashProvider, octet[k]).Send()).substr(0,6);
+		}
 		/* Stick them all together */
-		return std::string().append(ra1).append(".").append(ra2).append(".").append(ra3).append(".").append(ra4);
+		return std::string().append(ra[0]).append(".").append(ra[1]).append(".").append(ra[2]).append(".").append(ra[3]);
 	}
 
 	std::string Cloak6(const char* ip)
