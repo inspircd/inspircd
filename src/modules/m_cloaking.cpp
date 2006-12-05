@@ -157,7 +157,7 @@ class CloakUser : public ModeHandler
 		HashKeyRequest(Sender, HashProvider, iv).Send();
 
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
-		for (int k = 0; k < 3; k++)
+		for (int k = 0; k < 4; k++)
 		{
 			HashHexRequest(Sender, HashProvider, xtab[(iv[k]+i[k]) % 4]).Send();
 			ra[k] = std::string(HashSumRequest(Sender, HashProvider, octet[k]).Send()).substr(0,6);
