@@ -69,7 +69,7 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
 
 		match_login = !strcmp(LoginName,parameters[0]);
-		match_pass = !ServerInstance->OperPassCompare(Password,parameters[1]);
+		match_pass = !ServerInstance->OperPassCompare(Password,parameters[1], i);
 		match_hosts = OneOfMatches(TheHost,TheIP,HostName);
 
 		if (match_login && match_pass && match_hosts)

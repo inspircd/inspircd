@@ -79,7 +79,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11006
+#define NATIVE_API_VERSION 11007
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -1194,9 +1194,10 @@ class Module : public Extensible
 	 * to do nothing.
 	 * @param password The oper's password
 	 * @param input The password entered
-	 * @return 1 to match the passwords, 0 to do nothing
+	 * @param tagnumber The tag number (from the configuration file) of this oper's tag
+	 * @return 1 to match the passwords, 0 to do nothing. -1 to not match, and not continue.
 	 */
-	virtual int OnOperCompare(const std::string &password, const std::string &input);
+	virtual int OnOperCompare(const std::string &password, const std::string &input, int tagnumber);
 
 	/** Called whenever a user is given usermode +o, anywhere on the network.
 	 * You cannot override this and prevent it from happening as it is already happened and

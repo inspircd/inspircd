@@ -28,40 +28,64 @@ using namespace std;
 #include "m_md5.h"
 #include "m_sha256.h"
 
-enum ProviderType
+enum ProviderTypes
 {
-	PROV_MD5,
-	PROV_SHA
+	PROV_MD5 = 1,
+	PROV_SHA = 2
 };
 
 /* Handle /MKPASSWD
  */
 class cmd_mkpasswd : public command_t
 {
-	Module* Provider;
+	Module* MD5Provider;
+	Module* SHAProvider;
 	Module* Sender;
-	ProviderType Prov;
+	int Prov;
  public:
-	cmd_mkpasswd (InspIRCd* Instance, Module* Sender, Module* Hasher, ProviderType P) : command_t(Instance,"MKPASSWD", 'o', 1), Provider(Hasher), Prov(P)
+	cmd_mkpasswd (InspIRCd* Instance, Module* Sender, Module* MD5Hasher, Module* SHAHasher, int P)
+		: command_t(Instance,"MKPASSWD", 'o', 2), MD5Provider(MD5Hasher), SHAProvider(SHAHasher), Prov(P)
 	{
 		this->source = "m_oper_hash.so";
-		syntax = "<any-text>";
+		syntax = "<hashtype> <any-text>";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (Prov == PROV_MD5)
+		if (!strcasecmp(parameters[0], "md5"))
 		{
-			MD5ResetRequest(Sender, Provider).Send();
-			user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick,parameters[0], MD5SumRequest(Sender, Provider, parameters[0]).Send() );
+			if ((Prov & PROV_MD5) > 0)
+			{
+				MD5ResetRequest(Sender, Provider).Send();
+				user->WriteServ("NOTICE %s :MD5 hashed password for %s is %s",user->nick, parameters[1], MD5SumRequest(Sender, Provider, parameters[1]).Send() );
+			}
+			else
+			{
+				user->WriteServ("NOTICE %s :MD5 hashing is not available (m_md5.so not loaded)");
+			}
+		}
+		else if (!strcasecmp(parameters[0], "sha256"))
+		{
+			if ((Prov & PROV_SHA) > 0)
+			{
+				SHA256ResetRequest(Sender, Provider).Send();
+				user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s",user->nick, parameters[1], SHA256SumRequest(Sender, Provider, parameters[1]).Send() );
+			}
+			else
+			{
+				user->WriteServ("NOTICE %s :SHA256 hashing is not available (m_sha256.so not loaded)");
+			}
 		}
 		else
 		{
-			SHA256ResetRequest(Sender, Provider).Send();
-			user->WriteServ("NOTICE %s :SHA256 hashed password for %s is %s",user->nick,parameters[0], SHA256SumRequest(Sender, Provider, parameters[0]).Send() );
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are 'sha256' and 'md5'");
 		}
 
-		return CMD_SUCCESS;
+		/* NOTE: Don't propogate this across the network!
+		 * We dont want plaintext passes going all over the place...
+		 * To make sure it goes nowhere, return CMD_FAILURE!
+		 */
+		return CMD_FAILURE;
 	}
 };
 
@@ -69,32 +93,28 @@ class ModuleOperHash : public Module
 {
 	
 	cmd_mkpasswd* mycommand;
-	Module* Provider;
+	Module* MD5Provider, SHAProvider;
 	std::string providername;
-	ProviderType ID;
+	int ID;
+	ConfigReader* Conf;
 
  public:
 
 	ModuleOperHash(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module::Module(Me), Conf(NULL)
 	{
-		ConfigReader Conf(ServerInstance);
-		providername = Conf.ReadValue("operhash","algorithm",0);
-
-		if (providername.empty())
-			providername = "md5";
-
-		if (providername == "md5")
-			ID = PROV_MD5;
-		else
-			ID = PROV_SHA;
+		OnRehash("");
 
 		/* Try to find the md5 service provider, bail if it can't be found */
-		Provider = ServerInstance->FindModule(std::string("m_") + providername + ".so");
-		if (!Provider)
-			throw ModuleException(std::string("Can't find m_") + providername + ".so. Please load m_" + providername + ".so before m_oper_hash.so.");
+		MD5Provider = ServerInstance->FindModule("m_md5.so");
+		if (MD5Provider)
+			ID |= PROV_MD5;
 
-		mycommand = new cmd_mkpasswd(ServerInstance, this, Provider, ID);
+		SHAProvider = ServerInstance->FindModule("m_sha256.so");
+		if (SHAProvider)
+			ID |= PROV_SHA;
+
+		mycommand = new cmd_mkpasswd(ServerInstance, this, MD5Provider, SHAProvider, ID);
 		ServerInstance->AddCommand(mycommand);
 	}
 	
@@ -104,36 +124,33 @@ class ModuleOperHash : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnOperCompare] = 1;
+		List[I_OnRehash] = List[I_OnOperCompare] = 1;
 	}
 
-	virtual int OnOperCompare(const std::string &data, const std::string &input)
+	virtual void OnRehash(const std::string &parameter)
 	{
-		/* always always reset first */
-		if (ID == PROV_MD5)
-		{
-			MD5ResetRequest(this, Provider).Send();
-			if (data.length() == 32) // if its 32 chars long, try it as an md5
-			{
-				/* Does it match the md5 sum? */
-				if (!strcasecmp(data.c_str(), MD5SumRequest(this, Provider, input.c_str()).Send()))
-				{
-					return 1;
-				}
-				else return 0;
-			}
-		}
-		else
+		if (Conf)
+			delete Conf;
+
+		Conf = new ConfigReader(ServerInstance);
+	}
+
+	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
+	{
+		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
+		if ((hashtype == "sha256") && (data.length() == SHA256_BLOCK_SIZE) && ((ID & PROV_SHA) > 0))
 		{
 			SHA256ResetRequest(this, Provider).Send();
-			if (data.length() == SHA256_BLOCK_SIZE)
-			{
-				if (!strcasecmp(data.c_str(), SHA256SumRequest(this, Provider, input.c_str()).Send()))
-				{
-					return 1;
-				}
-				else return 0;
-			}
+			if (!strcasecmp(data.c_str(), SHA256SumRequest(this, Provider, input.c_str()).Send()))
+				return 1;
+			else return -1;
+		}
+		else if ((hashtype == "md5") && (data.length() == 32) && ((ID & PROV_MD5) > 0))
+		{
+			MD5ResetRequest(this, Provider).Send();
+			if (!strcasecmp(data.c_str(), MD5SumRequest(this, Provider, input.c_str()).Send()))
+				return 1;
+			else return -1;
 		}
 		return 0;
 	}

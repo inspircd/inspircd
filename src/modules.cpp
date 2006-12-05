@@ -148,7 +148,7 @@ int		Module::OnChangeLocalUserGECOS(userrec* user, const std::string &newhost) {
 int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { return 0; };
 void		Module::OnEvent(Event* event) { return; };
 char*		Module::OnRequest(Request* request) { return NULL; };
-int		Module::OnOperCompare(const std::string &password, const std::string &input) { return 0; };
+int		Module::OnOperCompare(const std::string &password, const std::string &input, int tagnumber) { return 0; };
 void		Module::OnGlobalOper(userrec* user) { };
 void		Module::OnPostConnect(userrec* user) { };
 int		Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
