@@ -251,8 +251,21 @@ Module* InspIRCd::FindFeature(const std::string &FeatureName)
 
 bool InspIRCd::PublishInterface(const std::string &InterfaceName, Module* Mod)
 {
-	Interfaces[InterfaceName].push_back(Mod);
-	return true;
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+
+	if (iter == Interfaces.end())
+	{
+		modulelist ml;
+		ml.push_back(Mod);
+		Interfaces[InterfaceName] = ml;
+		return true;
+	}
+	else
+	{
+		iter->second.push_back(Mod);
+		return true;
+	}
+	return false;
 }
 
 bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)

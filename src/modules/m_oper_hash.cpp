@@ -105,7 +105,7 @@ class ModuleOperHash : public Module
 		{
 			ServerInstance->Log(DEBUG, "Found interface 'HashRequest' containing %d modules", ml->size());
 
-			for (modulelist::iterator m = ml->begin(); m != ml->end(); ml++)
+			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
 			{
 				std::string name = HashNameRequest(this, *m).Send();
 				hashers[name] = *m;

@@ -279,7 +279,7 @@ class ModuleSHA256 : public Module
 			SHA256((const char*)SHA->GetHashData(), data, strlen(SHA->GetHashData()), chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
-		else if (strcmp("SUM", request->GetId()) == 0)
+		else if (strcmp("NAME", request->GetId()) == 0)
 		{
 			return "SHA256";
 		}
