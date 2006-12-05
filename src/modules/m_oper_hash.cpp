@@ -97,6 +97,13 @@ class ModuleOperHash : public Module
 		Conf = NULL;
 		OnRehash("");
 
+		modulelist* ml = ServerInstance->FindInterface("HashRequest");
+
+		if (ml)
+		{
+			ServerInstance->Log(DEBUG, "Found interface 'HashRequest' containing %d modules", ml->size());
+		}
+
 		/* Try to find the md5 service provider, bail if it can't be found */
 		MD5Provider = ServerInstance->FindModule("m_md5.so");
 		if (MD5Provider)

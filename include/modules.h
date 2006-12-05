@@ -101,6 +101,14 @@ typedef file_cache string_list;
  */
 typedef std::map<std::string,Module*> featurelist;
 
+/** Holds a list of modules which implement an interface
+ */
+typedef std::deque<Module*> modulelist;
+
+/** Holds a list of all modules which implement interfaces, by interface name
+ */
+typedef std::map<std::string, modulelist> interfacelist;
+
 /**
  * This #define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:

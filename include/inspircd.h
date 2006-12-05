@@ -298,6 +298,10 @@ class InspIRCd : public classbase
 	 */
 	featurelist Features;
 
+	/** The interface names published by various modules
+	 */
+	interfacelist Interfaces;
+
 	/** The current time, updated in the mainloop
 	 */
 	time_t TIME;
@@ -707,12 +711,16 @@ class InspIRCd : public classbase
 	 */
 	bool PublishFeature(const std::string &FeatureName, Module* Mod);
 
+	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
+
 	/** Unpublish a 'feature'.
 	 * When your module exits, it must call this method for every feature it
 	 * is providing so that the feature table is cleaned up.
 	 * @param FeatureName the feature to remove
 	 */
 	bool UnpublishFeature(const std::string &FeatureName);
+
+	bool UnpublishInterface(const std::string &InterfaceName, Module* Mod);
 
 	/** Find a 'feature'.
 	 * There are two ways for a module to find another module it depends on.
@@ -727,6 +735,8 @@ class InspIRCd : public classbase
 	 * @returns A pointer to a valid module class on success, NULL on failure.
 	 */
 	Module* FindFeature(const std::string &FeatureName);
+
+	modulelist* FindInterface(const std::string &InterfaceName);
 
 	/** Given a pointer to a Module, return its filename
 	 * @param m The module pointer to identify

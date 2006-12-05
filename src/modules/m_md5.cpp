@@ -278,10 +278,12 @@ class ModuleMD5 : public Module
 	ModuleMD5(InspIRCd* Me)
 		: Module::Module(Me), key(NULL), chars(NULL)
 	{
+		ServerInstance->PublishInterface("HashRequest", this);
 	}
 	
 	virtual ~ModuleMD5()
 	{
+		ServerInstance->UnpublishInterface("HashRequest", this);
 	}
 
 	void Implements(char* List)

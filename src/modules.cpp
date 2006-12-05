@@ -249,6 +249,39 @@ Module* InspIRCd::FindFeature(const std::string &FeatureName)
 	return iter->second;
 }
 
+bool InspIRCd::PublishInterface(const std::string &InterfaceName, Module* Mod)
+{
+	Interfaces[InterfaceName].push_back(Mod);
+	return true;
+}
+
+bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
+{
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+
+	if (iter == Interfaces.end())
+		return false;
+
+	for (modulelist::iterator x = iter->second.begin(); x != iter->second.end(); x++)
+	{
+		if (*x == Mod)
+		{
+			iter->second.erase(x);
+			return true;
+		}
+	}
+	return false;
+}
+
+modulelist* InspIRCd::FindInterface(const std::string &InterfaceName)
+{
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+	if (iter == Interfaces.end())
+		return NULL;
+	else
+		return &(iter->second);
+}
+
 const std::string& InspIRCd::GetModuleName(Module* m)
 {
 	static std::string nothing = ""; /* Prevent compiler warning */
