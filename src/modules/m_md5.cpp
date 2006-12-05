@@ -310,6 +310,10 @@ class ModuleMD5 : public Module
 			GenHash((const char*)MD5->GetHashData(), data, chars ? chars : "0123456789abcdef", key);
 			return data;
 		}
+		else if (strcmp("NAME", request->GetId()) == 0)
+		{
+			return "MD5";
+		}
 		else if (strcmp("RESET", request->GetId()) == 0)
 		{
 			ServerInstance->Log(DEBUG,"MD5 RESET!");

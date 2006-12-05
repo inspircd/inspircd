@@ -37,7 +37,7 @@ class HashRequest : public Request
 	std::string tohash;
  public:
 	/** Initialize HashRequest as an Hash_RESET message */
-	HashRequest(Module* Me, Module* Target) : Request(Me, Target, "RESET")
+	HashRequest(const char* req, Module* Me, Module* Target) : Request(Me, Target, req)
 	{
 	}
 
@@ -75,7 +75,26 @@ class HashRequest : public Request
 	}
 };
 
-/** Send this class to hashing.so to reset the Hash module to a known state.
+/** Send this class to the hashing module to query for its name.
+ *
+ * Example:
+ * \code
+ * cout << "Using hash algorithm: " << HashNameRequest(this, HashModule).Send();
+ * \endcode
+ */
+class HashNameRequest : public HashRequest
+{
+ public:
+	/** Initialize HashNameRequest for sending.
+	 * @param Me A pointer to the sending module
+	 * @param Target A pointer to the hashing module
+	 */
+	HashNameRequest(Module* Me, Module* Target) : HashRequest("NAME", Me, Target)
+	{
+	}
+}
+
+/** Send this class to the hashing module to reset the Hash module to a known state.
  * This will reset the IV to the defaults specified by the Hash spec,
  * and reset the hex sequence to "0123456789abcdef". It should be sent before
  * ANY other Request types.
@@ -91,14 +110,14 @@ class HashResetRequest : public HashRequest
  public:
 	/** Initialize HashResetRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing.so module
+	 * @param Target A pointer to the hashing module
 	 */
-	HashResetRequest(Module* Me, Module* Target) : HashRequest(Me, Target)
+	HashResetRequest(Module* Me, Module* Target) : HashRequest("RESET", Me, Target)
 	{
 	}
 };
 
-/** Send this class to hashing.so to HashSUM a std::string.
+/** Send this class to the hashing module to HashSUM a std::string.
  * You should make sure you know the state of the module before you send this
  * class, e.g. by first sending an HashResetRequest class. The hash will be
  * returned when you call Send().
@@ -116,7 +135,7 @@ class HashSumRequest : public HashRequest
  public:
 	/** Initialize HashSumRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing.so module
+	 * @param Target A pointer to the hashing module
 	 * @param data The data to be hashed
 	 */
 	HashSumRequest(Module* Me, Module* Target, const std::string &data) : HashRequest(Me, Target, data)
@@ -124,7 +143,7 @@ class HashSumRequest : public HashRequest
 	}
 };
 
-/** Send this class to hashing.so to change the IVs (keys) to use for hashing.
+/** Send this class to hashing module to change the IVs (keys) to use for hashing.
  * You should make sure you know the state of the module before you send this
  * class, e.g. by first sending an HashResetRequest class. The default values for
  * the IV's are those specified in the Hash specification. Only in very special
@@ -141,7 +160,7 @@ class HashKeyRequest : public HashRequest
  public:
 	/** Initialize HashKeyRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing.so module
+	 * @param Target A pointer to the hashing module
 	 * @param data The new IV's. This should be an array of exactly four 32 bit values.
 	 * On 64-bit architectures, the upper 32 bits of the values will be discarded.
 	 */
@@ -150,7 +169,7 @@ class HashKeyRequest : public HashRequest
 	}
 };
 
-/** Send this class to hashing.so to change the hex sequence to use for generating the returned value.
+/** Send this class to the hashing module to change the hex sequence to use for generating the returned value.
  * You should make sure you know the state of the module before you send this
  * class, e.g. by first sending an HashResetRequest class. The default value for
  * the hex sequence is "0123456789abcdef". Only in very special circumstances should
@@ -167,7 +186,7 @@ class HashHexRequest : public HashRequest
  public:
 	/** Initialize HashHexRequest for sending.
 	 * @param Me A pointer to the sending module
-	 * @param Target A pointer to the hashing.so module
+	 * @param Target A pointer to the hashing module
 	 * @param data The hex sequence to use. This should contain exactly 16 ASCII characters,
 	 * terminated by a NULL char.
 	 */
