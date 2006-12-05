@@ -1251,6 +1251,20 @@
 #<module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Oper hash module: Allows hashed oper passwords
+# Relies on the module m_md5.so or m_sha256.so being loaded before
+# m_oper_hash.so in the configuration file.
+#<module name="m_oper_hash.so">
+#
+#-#-#-#-#-#-#-#-#-#-# OPER HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#
+# To use this module, you must define which hashing algorithm you want
+# to use. This must correspond to either of m_sha256.so or m_md5.so
+# modules that you have loaded.
+#
+#<operhash algorithm="md5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper Join module: Forces opers to join a channel on oper-up
 #<module name="m_operjoin.so">
 #
@@ -1285,17 +1299,6 @@
 # actions being taken against higher level opers
 # Specify the level as the 'level' parameter of the <type> tag
 #<module name="m_operlevels.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MD5 module: Allows MD5 hashed oper passwords
-# Relies on the module m_md5.so being loaded before m_opermd5.so in
-# the configuration file.
-#<module name="m_opermd5.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper SHA256 module: Allows SHA256 hashed oper passwords
-# This module is in src/modules/extra
-#<module name="m_opersha256.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper modes module: Allows you to specify modes to add/remove on oper
