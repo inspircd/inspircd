@@ -88,6 +88,8 @@ class ModuleOperHash : public Module
 	int ID;
 	ConfigReader* Conf;
 
+	std::map<std::string, Module*> hashers;
+
  public:
 
 	ModuleOperHash(InspIRCd* Me)
@@ -102,6 +104,13 @@ class ModuleOperHash : public Module
 		if (ml)
 		{
 			ServerInstance->Log(DEBUG, "Found interface 'HashRequest' containing %d modules", ml->size());
+
+			for (modulelist::iterator m = ml->begin(); m != ml->end(); ml++)
+			{
+				std::string name = HashNameRequest(this, *m).Send();
+				hashers[name] = *m;
+				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
+			}
 		}
 
 		/* Try to find the md5 service provider, bail if it can't be found */
