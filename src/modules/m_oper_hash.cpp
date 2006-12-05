@@ -44,15 +44,19 @@ class cmd_mkpasswd : public command_t
 
 	void MakeHash(userrec* user, const char* algo, const char* stuff)
 	{
+		/* Lets see if they gave us an algorithm which has been implemented */
 		std::map<irc::string, Module*>::iterator x = hashers.find(algo);
 		if (x != hashers.end())
 		{
+			/* Yup, reset it first (Always ALWAYS do this) */
 			HashResetRequest(Sender, x->second).Send();
+			/* Now attempt to generate a hash */
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",user->nick, algo, stuff, HashSumRequest(Sender, x->second, stuff).Send() );
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are: %s", user->nick, irc::stringjoiner(",", names, 0, names.size() - 1).GetJoined().c_str() );
+			/* I dont do flying, bob. */
+			user->WriteServ("NOTICE %s :Unknown hash type, valid hash types are: %s", user->nick, irc::stringjoiner(", ", names, 0, names.size() - 1).GetJoined().c_str() );
 		}
 	}
 
@@ -72,27 +76,33 @@ class ModuleOperHash : public Module
 	
 	cmd_mkpasswd* mycommand;
 	ConfigReader* Conf;
-	std::map<irc::string, Module*> hashers;
-	std::deque<std::string> names;
-	modulelist* ml;
+	std::map<irc::string, Module*> hashers; /* List of modules which implement HashRequest */
+	std::deque<std::string> names; /* Module names which implement HashRequest */
 
  public:
 
 	ModuleOperHash(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+
+		/* Read the config file first */
 		Conf = NULL;
 		OnRehash("");
 
+		/* Find all modules which implement the interface 'HashRequest' */
 		modulelist* ml = ServerInstance->FindInterface("HashRequest");
 
+		/* Did we find any modules? */
 		if (ml)
 		{
-			ServerInstance->Log(DEBUG, "Found interface 'HashRequest' containing %d modules", ml->size());
-
+			/* Yes, enumerate them all to find out the hashing algorithm name */
 			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
 			{
+				/* Make a request to it for its name, its implementing
+				 * HashRequest so we know its safe to do this
+				 */
 				std::string name = HashNameRequest(this, *m).Send();
+				/* Build a map of them */
 				hashers[name.c_str()] = *m;
 				names.push_back(name);
 				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
@@ -114,6 +124,7 @@ class ModuleOperHash : public Module
 
 	virtual void OnRehash(const std::string &parameter)
 	{
+		/* Re-read configuration file */
 		if (Conf)
 			delete Conf;
 
@@ -122,17 +133,23 @@ class ModuleOperHash : public Module
 
 	virtual int OnOperCompare(const std::string &data, const std::string &input, int tagnumber)
 	{
+		/* First, lets see what hash theyre using on this oper */
 		std::string hashtype = Conf->ReadValue("oper", "hash", tagnumber);
 		std::map<irc::string, Module*>::iterator x = hashers.find(hashtype.c_str());
 
+		/* Is this a valid hash name? (case insensitive) */
 		if (x != hashers.end())
 		{
+			/* Reset the hashing module */
 			HashResetRequest(this, x->second).Send();
+			/* Compare the hash in the config to the generated hash */
 			if (!strcasecmp(data.c_str(), HashSumRequest(this, x->second, input.c_str()).Send()))
 				return 1;
+			/* No match, and must be hashed, forbid */
 			else return -1;
 		}
 
+		/* Not a hash, fall through to strcmp in core */
 		return 0;
 	}
 
