@@ -82,6 +82,19 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_who(Instance);
 }
 
+bool cmd_who::CanView(chanrec* chan, userrec* user)
+{
+	/* Execute items in fastest-to-execute first order */
+	if (*user->oper)
+		return true;
+	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
+		return true;
+	else if (chan->HasUser(user))
+		return true;
+
+	return false;
+}
+
 CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	/*
@@ -145,7 +158,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	/* who on a channel? */
 	ch = ServerInstance->FindChan(matchtext);
 
-	if (ch)
+	if ((ch) && (CanView(ch,user)))
 	{
 		/* who on a channel. */
 		CUList *cu = ch->GetUsers();

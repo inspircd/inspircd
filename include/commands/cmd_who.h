@@ -26,6 +26,7 @@
  */
 class cmd_who : public command_t
 {
+	bool CanView(chanrec* chan, userrec* user);
  public:
         cmd_who (InspIRCd* Instance) : command_t(Instance,"WHO",0,1) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohur]"; }
         CmdResult Handle(const char** parameters, int pcnt, userrec *user);
