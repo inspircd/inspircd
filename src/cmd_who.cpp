@@ -84,6 +84,9 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 bool cmd_who::CanView(chanrec* chan, userrec* user)
 {
+	if (!user || !chan)
+		return false;
+
 	/* Execute items in fastest-to-execute first order */
 	if (*user->oper)
 		return true;
