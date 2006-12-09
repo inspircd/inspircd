@@ -3831,7 +3831,7 @@ class SecurityIPResolver : public Resolver
 SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
 {
 	Bindings.clear();
-	this->ReadConfiguration(true);
+
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 
 	modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
@@ -3852,6 +3852,8 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 			ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
 		}
 	}
+
+	this->ReadConfiguration(true);
 }
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
