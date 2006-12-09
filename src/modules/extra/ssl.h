@@ -149,5 +149,42 @@ class ssl_cert
 	}
 };
 
+class ISHRequest : public Request
+{
+ public:
+	const InspSocket* Sock;
+
+	ISHRequest(Module* Me, Module* Target, const char* rtype, InspSocket* sock) : Request(Me, Target, rtype), Sock(sock)
+	{
+	}
+};
+
+class InspSocketHookRequest : public ISHRequest
+{
+ public:
+	/** Initialize request as a hook message */
+	InspSocketHookRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HOOK", is)
+	{
+	}
+};
+
+class InspSocketUnhookRequest : public ISHRequest
+{
+ public:
+	/** Initialize request as an unhook message */
+	InspSocketUnhookRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_UNHOOK", is)
+	{
+	}
+};
+
+class InspSocketNameRequest : public ISHRequest
+{
+ public:
+	/** Initialize request as a get name message */
+	InspSocketNameRequest(Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_NAME", NULL)
+	{
+	}
+};
+
 #endif
 

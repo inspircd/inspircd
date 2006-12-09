@@ -77,6 +77,8 @@ class ModuleSSLGnuTLS : public Module
 		
 
 		culllist = new CullList(ServerInstance);
+
+		ServerInstance->PublishInterface("InspSocketHook", this);
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -253,8 +255,27 @@ class ModuleSSLGnuTLS : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
+		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
+
+        virtual char* OnRequest(Request* request)
+	{
+		ISHRequest* ISR = (ISHRequest*)request;
+		if (strcmp("IS_NAME", request->GetId()) == 0)
+		{
+			return "gnutls";
+		}
+		else if (strcmp("IS_HOOK", request->GetId()) == 0)
+		{
+			return ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+		}
+		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
+		{
+			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+		}
+		return NULL;
+	}
+
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
@@ -633,7 +654,7 @@ class ModuleSSLGnuTLS : public Module
 		session->status = ISSL_NONE;
 	}
 
-	void VerifyCertificate(issl_session* session, userrec* user)
+	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		unsigned int status;
 		const gnutls_datum_t* cert_list;
@@ -743,7 +764,6 @@ class ModuleSSLGnuTLS : public Module
 		else
 		{
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(digest, digest_size)));
-			user->WriteServ("NOTICE %s :*** Your SSL Certificate fingerprint is: %s", user->nick, irc::hex(digest, digest_size).c_str());
 		}
 
 		/* Beware here we do not check for errors.

@@ -105,6 +105,8 @@ class ModuleSSLOpenSSL : public Module
 		: Module::Module(Me)
 	{
 		culllist = new CullList(ServerInstance);
+
+		ServerInstance->PublishInterface("InspSocketHook", this);
 		
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -288,8 +290,27 @@ class ModuleSSLOpenSSL : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
+		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
+
+	virtual char* OnRequest(Request* request)
+	{
+		ISHRequest* ISR = (ISHRequest*)request;
+		if (strcmp("IS_NAME", request->GetId()) == 0)
+		{
+			return "openssl";
+		}
+		else if (strcmp("IS_HOOK", request->GetId()) == 0)
+		{
+			return ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+		}
+		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
+		{
+			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+		}
+		return NULL;
+	}
+
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
@@ -714,7 +735,7 @@ class ModuleSSLOpenSSL : public Module
 		session->status = ISSL_NONE;
 	}
 
-	void VerifyCertificate(issl_session* session, userrec* user)
+	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
@@ -756,8 +777,6 @@ class ModuleSSLOpenSSL : public Module
 		{
 			certinfo->data.insert(std::make_pair("fingerprint",irc::hex(md, n)));
 		}
-
-		user->WriteServ("NOTICE %s :*** Your SSL Certificate fingerprint is: %s", user->nick, irc::hex(md, n).c_str());
 
 		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), time(NULL)) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), time(NULL)) == 0))
 		{

@@ -564,7 +564,7 @@ class ServerConfig : public Extensible
 	bool AddIOHook(int port, Module* iomod);
 	bool DelIOHook(int port);
 	Module* GetIOHook(InspSocket* is);
-	bool AddIOHook(InspSocket* is, Module* iomod);
+	bool AddIOHook(Module* iomod, InspSocket* is);
 	bool DelIOHook(InspSocket* is);
 
 	static std::string GetFullProgDir(char** argv, int argc);

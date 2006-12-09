@@ -77,7 +77,7 @@ bool ServerConfig::AddIOHook(int port, Module* iomod)
 	}
 }
 
-bool ServerConfig::AddIOHook(InspSocket* is, Module* iomod)
+bool ServerConfig::AddIOHook(Module* iomod, InspSocket* is)
 {
 	if (!GetIOHook(is))
 	{
