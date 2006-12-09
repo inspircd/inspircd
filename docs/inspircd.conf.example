@@ -98,6 +98,24 @@
 #                 enable SSL support, please read the module section  #
 #                 of this configuration file.                         #
 #                                                                     #
+#  ssl          - When using m_ssl_gnutls.so or m_ssl_openssl.so      #
+#                 modules, you must define this value to use ssl on   #
+#                 that port. valid values are 'gnutls' or 'openssl'   #
+#                 respectively. If the module is not loaded, this     #
+#                 setting is ignored.                                 #
+#                                                                     #
+#  transport    - If you have m_spanningtree.so loaded, along with    #
+#                 either of the SSL modules (m_ssl_gnutls or          #
+#                 m_ssl_openssl) then you may make use of this value. #
+#                 setting it to 'openssl' or 'gnutls' indicates that  #
+#                 the port should accept connections using the given  #
+#                 transport name only. Transports are layers which    #
+#                 sit on top of a socket and change the way data is   #
+#                 sent and received, e.g. encryption, compression,    #
+#                 and other such things. Because this may not be      #
+#                 limited in use to just encryption, the 'ssl' value  #
+#                 used for client ports  does not exist for servers,  #
+#                 and this value is used instead.                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -123,8 +141,10 @@
 # default) then you do not need to prefix your addresses like this.   #
 #                                                                     #
 
-<bind address="" port="6660-6669" type="clients">
+<bind address="" port="6000" type="clients">
+<bind address="" port="6660-6669" type="clients" ssl="gnutls">
 <bind address="" port="7000,7001" type="servers">
+<bind address="1.2.3.4" port="7005" type="servers" transport="openssl">
 
 
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
@@ -382,11 +402,14 @@
 # autoconnect -   Sets the server to autoconnect. Where x is the num. #
 # (optional)      of seconds between attempts. e.g. 300 = 5 minutes.  #
 #                                                                     #
-# encryptionkey - Encryption key to be used for AES encryption, where #
-#                 supported. Links using the spanning tree protocol   #
-#                 support AES. The encryption key must be EXACTLY 8,  #
-#                 16 or 32 characters in length for a 64, 128 or 256  #
-#                 bit key, respectively.                              #
+# transport     - If defined, this is a transport name implemented by #
+#                 another module. Transports are layers on top of     #
+#                 plaintext connections, which alter them in certain  #
+#                 ways. Currently the two supported transports are    #
+#                 'openssl' and 'gnutls' which are types of SSL       #
+#                 encryption. If you define a transport, both ends of #
+#                 the connection must use that same transport for the #
+#                 link to succeed.                                    #
 #                                                                     #
 # hidden        - When using m_spanningtree.so for linking. you may   #
 #                 set this to 'yes', and if you do, the IP address/   #
@@ -453,6 +476,12 @@
 #  information on how to load this module! If you do not load this    #
 #  module, server links will NOT work!                                #
 #                                                                     #
+#  Also, if you define any transports, you must load the modules for  #
+#  these transports BEFORE you load m_spanningtree, e.g. place them   #
+#  above it in the configuration file. Currently this means the two   #
+#  modules m_ssl_gnutls and m_ssl_openssl, depending on which you     #
+#  choose to use.                                                     #
+#                                                                     #
 
 <link name="hub.penguin.org"
         ipaddr="penguin.box.com"
@@ -461,6 +490,7 @@
         autoconnect="300"
 	failover="hub.other.net"
 	timeout="15"
+	transport="gnutls"
         sendpass="outgoing!password"
         recvpass="incoming!password">
 
@@ -1457,6 +1487,10 @@
 #                                                                     #
 # m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
 # http://www.inspircd.org/wiki/GnuTLS_SSL_Module                      #
+#                                                                     #
+# NOTE: If you want to use this module to encrypt and sign your       #
+# server to server traffic, you MUST load it before m_spanningtree in #
+# your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Info module: Allows users to retrieve information about other
@@ -1477,6 +1511,10 @@
 #                                                                     #
 # m_ssl_openssl.so is too complex it describe here, see the wiki:     #
 # http://www.inspircd.org/wiki/OpenSSL_SSL_Module                     #
+#                                                                     #
+# NOTE: If you want to use this module to encrypt and sign your       #
+# server to server traffic, you MUST load it before m_spanningtree in #
+# your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Cert Oper module: Allows opers to oper up using the key fingerprint
