@@ -20,13 +20,13 @@ using namespace std;
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "ssl_cert.h"
+#include "ssl.h"
 #include "wildcard.h"
 #include "inspircd.h"
 #include "dns.h"
 
 /* $ModDesc: Provides /sslinfo command used to test who a mask matches */
-/* $ModDep: ssl_cert.h */
+/* $ModDep: ssl.h */
 
 /** Handle /SSLINFO
  */

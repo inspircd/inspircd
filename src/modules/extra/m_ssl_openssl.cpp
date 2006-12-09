@@ -14,12 +14,12 @@
 #include "hashcomp.h"
 #include "inspircd.h"
 
-#include "ssl_cert.h"
+#include "cert.h"
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `perl extra/openssl_config.pl compile` */
 /* $LinkerFlags: `perl extra/openssl_config.pl link` */
-/* $ModDep: ssl_cert.h */
+/* $ModDep: ssl.h */
 
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };

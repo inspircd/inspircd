@@ -15,7 +15,7 @@
  */
 
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
-/* $ModDep: ssl_cert.h */
+/* $ModDep: ssl.h */
 
 using namespace std;
 
@@ -25,7 +25,7 @@ using namespace std;
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
-#include "ssl_cert.h"
+#include "ssl.h"
 #include "wildcard.h"
 
 /** Handle /FINGERPRINT
