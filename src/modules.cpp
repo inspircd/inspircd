@@ -156,6 +156,7 @@ int		Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banma
 void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { };
 int		Module::OnRawSocketWrite(int fd, const char* buffer, int count) { return 0; };
 void		Module::OnRawSocketClose(int fd) { };
+void		Module::OnRawSocketConnect(int fd) { };
 int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
 void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };
 void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };

@@ -252,7 +252,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
+		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
 		List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
@@ -279,6 +279,25 @@ class ModuleSSLGnuTLS : public Module
 		 * With testing this seems to...not work :/
 		 */
 		
+		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+
+		Handshake(session);
+	}
+
+	virtual void OnRawSocketConnect(int fd)
+	{
+		issl_session* session = &sessions[fd];
+
+		session->fd = fd;
+		session->inbuf = new char[inbufsize];
+		session->inbufoffset = 0;
+
+		gnutls_init(&session->sess, GNUTLS_SERVER);
+
+		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
+		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
+		gnutls_dh_set_prime_bits(session->sess, dh_bits);
+
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
 
 		Handshake(session);

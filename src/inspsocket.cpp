@@ -483,6 +483,17 @@ bool InspSocket::Poll()
 				if (!this->Instance->SE->AddFd(this))
 					return false;
 			}
+			if (this->IsIOHooked)
+			{
+				try
+				{
+					Instance->Config->GetIOHook(this)->OnRawSocketConnect(this->fd);
+				}
+				catch (ModuleException& modexcept)
+				{
+					Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				}
+			}
 			return this->OnConnected();
 		break;
 		case I_LISTENING:
