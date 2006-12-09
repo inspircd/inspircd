@@ -26,7 +26,6 @@
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"
-#include "aes.h"
 #include "ssl.h"
 
 /** If you make a change which breaks the protocol, increment this.
@@ -38,7 +37,7 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1102;
+const long ProtocolVersion = 1103;
 
 /*
  * The server list in InspIRCd is maintained as two structures
@@ -111,7 +110,6 @@ class Link : public classbase
 	std::string RecvPass;
 	unsigned long AutoConnect;
 	time_t NextConnectTime;
-	std::string EncryptionKey;
 	bool HiddenFromStats;
 	std::string FailOver;
 	std::string Hook;
@@ -673,8 +671,6 @@ class TreeSocket : public InspSocket
 	time_t NextPing;
 	bool LastPingWasGood;
 	bool bursting;
-	AES* ctx_in;
-	AES* ctx_out;
 	unsigned int keylength;
 	std::string ModuleList;
 	std::map<std::string,std::string> CapKeys;
@@ -692,8 +688,6 @@ class TreeSocket : public InspSocket
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
-		this->ctx_in = NULL;
-		this->ctx_out = NULL;
 
 		Instance->Log(DEBUG, "HOOK = %08x", Hook);
 
@@ -706,8 +700,6 @@ class TreeSocket : public InspSocket
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
-		this->ctx_in = NULL;
-		this->ctx_out = NULL;
 	}
 
 	/** When a listening socket gives us a new file descriptor,
@@ -718,8 +710,6 @@ class TreeSocket : public InspSocket
 		: InspSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 	{
 		this->LinkState = WAIT_AUTH_1;
-		this->ctx_in = NULL;
-		this->ctx_out = NULL;
 
 		Instance->Log(DEBUG, "HOOK = %08x", Hook);
 
@@ -742,41 +732,8 @@ class TreeSocket : public InspSocket
 
 	~TreeSocket()
 	{
-		if (ctx_in)
-			DELETE(ctx_in);
-		if (ctx_out)
-			DELETE(ctx_out);
-
 		if (Hook)
 			InspSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
-	}
-
-	void InitAES(std::string key,std::string SName)
-	{
-		if (key == "")
-			return;
-
-		ctx_in = new AES();
-		ctx_out = new AES();
-		Instance->Log(DEBUG,"Initialized AES key %s",key.c_str());
-		// key must be 16, 24, 32 etc bytes (multiple of 8)
-		keylength = key.length();
-		if (!(keylength == 16 || keylength == 24 || keylength == 32))
-		{
-			this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Key length for encryptionkey is not 16, 24 or 32 bytes in length!");
-			Instance->Log(DEBUG,"Key length not 16, 24 or 32 characters!");
-		}
-		else
-		{
-			if (this->GetState() != I_ERROR)
-			{
-				this->Instance->SNO->WriteToSnoMask('l',"\2AES\2: Initialized %d bit encryption to server %s",keylength*8,SName.c_str());
-				ctx_in->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
-					\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
-				ctx_out->MakeKey(key.c_str(), "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
-					\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", keylength, keylength);
-			}
-		}
 	}
 	
 	/** When an outbound connection finishes connecting, we receive
@@ -801,18 +758,6 @@ class TreeSocket : public InspSocket
 					else
 						this->SendCapabilities();
 
-					if (x->EncryptionKey != "")
-					{
-						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
-						{
-							this->Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your encryption key is NOT 16, 24 or 32 characters in length, encryption will \2NOT\2 be enabled.");
-						}
-						else
-						{
-							this->WriteLine(std::string("AES ")+this->Instance->Config->ServerName);
-							this->InitAES(x->EncryptionKey,x->Name.c_str());
-						}
-					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 					if (Hook)
 						Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
@@ -2220,34 +2165,6 @@ class TreeSocket : public InspSocket
 				/* Process this one, abort if it
 				 * didnt return true.
 				 */
-				if (this->ctx_in)
-				{
-					char out[1024];
-					char result[1024];
-					memset(result,0,1024);
-					memset(out,0,1024);
-					/* ERROR + CAPAB is still allowed unencryped */
-					if ((ret.substr(0,7) != "ERROR :") && (ret.substr(0,6) != "CAPAB "))
-					{
-						int nbytes = from64tobits(out, ret.c_str(), 1024);
-						if ((nbytes > 0) && (nbytes < 1024))
-						{
-							ctx_in->Decrypt(out, result, nbytes, 0);
-							for (int t = 0; t < nbytes; t++)
-							{
-								if (result[t] == '\7')
-								{
-									/* We only need to stick a \0 on the
-									 * first \7, the rest will be lost
-									 */
-									result[t] = 0;
-									break;
-								}
-							}
-							ret = result;
-						}
-					}
-				}
 				if (!this->ProcessLine(ret))
 				{
 					return false;
@@ -2264,22 +2181,6 @@ class TreeSocket : public InspSocket
 	int WriteLine(std::string line)
 	{
 		Instance->Log(DEBUG,"OUT: %s",line.c_str());
-		if (this->ctx_out)
-		{
-			char result[10240];
-			char result64[10240];
-			if (this->keylength)
-			{
-				// pad it to the key length
-				int n = this->keylength - (line.length() % this->keylength);
-				if (n)
-					line.append(n,'\7');
-			}
-			unsigned int ll = line.length();
-			ctx_out->Encrypt(line.c_str(), result, ll, 0);
-			to64frombits((unsigned char*)result64,(unsigned char*)result,ll);
-			line = result64;
-		}
 		line.append("\r\n");
 		return this->Write(line);
 	}
@@ -3130,16 +3031,6 @@ class TreeSocket : public InspSocket
 					this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 					return false;
 				}
-				/* If the config says this link is encrypted, but the remote side
-				 * hasnt bothered to send the AES command before SERVER, then we
-				 * boot them off as we MUST have this connection encrypted.
-				 */
-				if ((x->EncryptionKey != "") && (!this->ctx_in))
-				{
-					this->WriteLine("ERROR :This link requires AES encryption to be enabled. Plaintext connection refused.");
-					this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, remote server did not enable AES.");
-					return false;
-				}
 				this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 				this->InboundServerName = sname;
 				this->InboundDescription = description;
@@ -3189,24 +3080,6 @@ class TreeSocket : public InspSocket
 
 		command = params[0].c_str();
 		params.pop_front();
-
-		if ((!this->ctx_in) && (command == "AES"))
-		{
-			std::string sserv = params[0];
-			for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
-			{
-				if ((x->EncryptionKey != "") && (x->Name == sserv))
-				{
-					this->InitAES(x->EncryptionKey,sserv);
-				}
-			}
-
-			return true;
-		}
-		else if ((this->ctx_in) && (command == "AES"))
-		{
-			this->Instance->SNO->WriteToSnoMask('l',"\2AES\2: Encryption already enabled on this connection yet %s is trying to enable it twice!",params[0].c_str());
-		}
 
 		switch (this->LinkState)
 		{
@@ -4138,9 +4011,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' - maybe you forgot to load it BEFORE m_spanningtree in your config file?",
-								transport.c_str());
-						continue;
+						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for port %s:%s - maybe you forgot\
+								to load it BEFORE m_spanningtree in your config file?",
+								transport.c_str(), IP.c_str(), Port.c_str());
+						break;
 					}
 
 					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10, transport.empty() ? NULL : hooks[transport.c_str()]);
@@ -4177,7 +4051,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.SendPass = Conf->ReadValue("link","sendpass",j);
 		L.RecvPass = Conf->ReadValue("link","recvpass",j);
 		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
-		L.EncryptionKey =  Conf->ReadValue("link","encryptionkey",j);
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
@@ -4267,6 +4140,7 @@ void HandshakeTimer::Tick(time_t TIME)
 	{
 		if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
 		{
+			Instance->Log(DEBUG,"Handshake timer activated, sending SERVER and/or CAPAB");
 			InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 			sock->SendCapabilities();
 			if (sock->GetLinkState() == CONNECTING)
@@ -4842,7 +4716,7 @@ class ModuleSpanningTree : public Module
 		{
 			for (unsigned int i = 0; i < Utils->LinkBlocks.size(); i++)
 			{
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" "+statschar+" *@"+(Utils->LinkBlocks[i].HiddenFromStats ? "<hidden>" : Utils->LinkBlocks[i].IPAddr)+" * "+Utils->LinkBlocks[i].Name.c_str()+" "+ConvToStr(Utils->LinkBlocks[i].Port)+" "+(Utils->LinkBlocks[i].EncryptionKey != "" ? 'e' : '-')+(Utils->LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" "+statschar+" *@"+(Utils->LinkBlocks[i].HiddenFromStats ? "<hidden>" : Utils->LinkBlocks[i].IPAddr)+" * "+Utils->LinkBlocks[i].Name.c_str()+" "+ConvToStr(Utils->LinkBlocks[i].Port)+" "+(Utils->LinkBlocks[i].Hook.empty() ? "plaintext" : Utils->LinkBlocks[i].Hook)+" "+(Utils->LinkBlocks[i].AutoConnect ? 'a' : '-')+'s');
 				if (statschar == 'c')
 					results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+Utils->LinkBlocks[i].Name.c_str());
 			}
