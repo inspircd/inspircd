@@ -259,7 +259,7 @@ void InspSocket::Close()
 {
 	if (this->fd > -1)
 	{
-                if (this->IsIOHooked)
+                if (this->IsIOHooked && Instance->Config->GetIOHook(this))
 		{
 			try
 			{
@@ -367,7 +367,30 @@ bool InspSocket::FlushWriteBuffer()
 			{
 				try
 				{
-					Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
+					Instance->Log(DEBUG,"To write: %s", outbuffer[0].c_str());
+					int result = Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
+					if (result > 0)
+					{
+						if ((unsigned int)result == outbuffer[0].length())
+						{
+							outbuffer.pop_front();
+						}
+						else
+						{
+							std::string temp = outbuffer[0].substr(result);
+							outbuffer[0] = temp;
+							errno = EAGAIN;
+						}
+					}
+					else if ((result == -1) && (errno != EAGAIN))
+					{
+						this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
+						this->OnError(I_ERR_WRITE);
+						this->state = I_ERROR;
+						this->Instance->SE->DelFd(this);
+						this->Close();
+						return true;
+					}
 				}
 				catch (ModuleException& modexcept)
 				{
@@ -500,6 +523,12 @@ bool InspSocket::Poll()
 			length = sizeof (client);
 			incoming = accept (this->fd, (sockaddr*)&client,&length);
 
+#ifdef IPV6
+			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin6_addr));
+#else
+			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin_addr));
+#endif
+
 			if (this->IsIOHooked)
 			{
 				try
@@ -517,11 +546,6 @@ bool InspSocket::Poll()
 			}
 
 			this->SetQueues(incoming);
-#ifdef IPV6
-			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin6_addr));
-#else
-			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin_addr));
-#endif
 			return true;
 		break;
 		case I_CONNECTED:

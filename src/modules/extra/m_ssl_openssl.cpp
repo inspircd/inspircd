@@ -296,16 +296,19 @@ class ModuleSSLOpenSSL : public Module
 	virtual char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
+		ServerInstance->Log(DEBUG, "hook OnRequest");
 		if (strcmp("IS_NAME", request->GetId()) == 0)
 		{
 			return "openssl";
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
+			ServerInstance->Log(DEBUG, "Hooking socket %08x", ISR->Sock);
 			return ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
+			ServerInstance->Log(DEBUG, "Unhooking socket %08x", ISR->Sock);
 			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
 		return NULL;
@@ -314,6 +317,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
+		ServerInstance->Log(DEBUG, "Hook accept %d", fd);
 		issl_session* session = &sessions[fd];
 	
 		session->fd = fd;
@@ -515,6 +519,10 @@ class ModuleSSLOpenSSL : public Module
 	
 	int DoWrite(issl_session* session)
 	{
+		if (!session->outbuf.size())
+			return -1;
+
+		ServerInstance->Log(DEBUG, "m_ssl_openssl.so: To write: %d", session->outbuf.size());
 		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
 		
 		if (ret == 0)

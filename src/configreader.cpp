@@ -81,6 +81,7 @@ bool ServerConfig::AddIOHook(Module* iomod, InspSocket* is)
 {
 	if (!GetIOHook(is))
 	{
+		ServerInstance->Log(DEBUG,"Hooked inspsocket %08x", is);
 		SocketIOHookModule[is] = iomod;
 		is->IsIOHooked = true;
 		return true;

@@ -445,7 +445,10 @@ class ModuleSSLGnuTLS : public Module
 	}
 	
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
-	{		
+	{
+		if (!count)
+			return 0;
+
 		issl_session* session = &sessions[fd];
 		const char* sendbuffer = buffer;
 

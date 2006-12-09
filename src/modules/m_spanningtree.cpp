@@ -680,8 +680,10 @@ class TreeSocket : public InspSocket
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
 
-		if (Hook)
-			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
+		Instance->Log(DEBUG, "HOOK = %08x", Hook);
+
+		if (listening && Hook)
+			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 	}
 
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName, Module* HookMod = NULL)
@@ -691,9 +693,6 @@ class TreeSocket : public InspSocket
 		this->LinkState = CONNECTING;
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
-
-		if (Hook)
-			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
 	}
 
 	/** When a listening socket gives us a new file descriptor,
@@ -701,16 +700,18 @@ class TreeSocket : public InspSocket
 	 * connection. This constructor is used for this purpose.
 	 */
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod = NULL)
-		: InspSocket(SI, newfd, ip), Utils(Util)
+		: InspSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 	{
 		this->LinkState = WAIT_AUTH_1;
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
 
-		if (Hook)
-			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
+		Instance->Log(DEBUG, "HOOK = %08x", Hook);
 
-		this->SendCapabilities();
+		if (Hook)
+			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+
+		//this->SendCapabilities();
 	}
 
 	~TreeSocket()
@@ -721,7 +722,7 @@ class TreeSocket : public InspSocket
 			DELETE(ctx_out);
 
 		if (Hook)
-			InspSocketUnhookRequest(this, Hook, (Module*)Utils->Creator).Send();
+			InspSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
 	}
 
 	void InitAES(std::string key,std::string SName)
@@ -768,7 +769,11 @@ class TreeSocket : public InspSocket
 				if (x->Name == this->myhost)
 				{
 					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] started.");
-					this->SendCapabilities();
+
+					if (Hook)
+						InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+
+					//this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
 						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
@@ -4100,8 +4105,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					if (IP == "*")
 						IP = "";
 
-		                        if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
-						return;
+					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
+					{
+						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' - maybe you forgot to load it BEFORE m_spanningtree in your config file?",
+								transport.c_str());
+						continue;
+					}
 
 					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10, transport.empty() ? NULL : hooks[transport.c_str()]);
 					if (listener->GetState() == I_LISTENING)
