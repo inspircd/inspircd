@@ -14,7 +14,7 @@
 #include "hashcomp.h"
 #include "inspircd.h"
 
-#include "cert.h"
+#include "ssl.h"
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `perl extra/openssl_config.pl compile` */
