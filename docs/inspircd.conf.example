@@ -131,8 +131,8 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-# <bind address="ip or host" port="port" type="clients">              #
-# <bind address="ip or host" port="port" type="servers">              #
+# <bind address="ip address" port="port" type="clients">              #
+# <bind address="ip address" port="port" type="servers">              #
 #                                                                     #
 # If InspIRCd is built for IPV6, and you wish to accept IPV4 clients, #
 # then you must specify your IPV6 clients in the following form:      #
@@ -143,6 +143,11 @@
 
 <bind address="" port="6000" type="clients">
 <bind address="" port="6660-6669" type="clients" ssl="gnutls">
+
+# When linking servers, the openssl and gnutls transports are largely
+# link-compatible and can be used alongside each other or either/or
+# on each end of the link without any significant issues.
+
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" transport="openssl">
 
