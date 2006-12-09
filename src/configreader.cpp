@@ -57,6 +57,12 @@ Module* ServerConfig::GetIOHook(int port)
 	return (x != IOHookModule.end() ? x->second : NULL);
 }
 
+Module* ServerConfig::GetIOHook(InspSocket* is)
+{
+	std::map<InspSocket*,Module*>::iterator x = SocketIOHookModule.find(is);
+	return (x != SocketIOHookModule.end() ? x->second : NULL);
+}
+
 bool ServerConfig::AddIOHook(int port, Module* iomod)
 {
 	if (!GetIOHook(port))
@@ -66,8 +72,22 @@ bool ServerConfig::AddIOHook(int port, Module* iomod)
 	}
 	else
 	{
-		ModuleException err("Port already hooked by another module");
-		throw(err);
+		throw ModuleException("Port already hooked by another module");
+		return false;
+	}
+}
+
+bool ServerConfig::AddIOHook(InspSocket* is, Module* iomod)
+{
+	if (!GetIOHook(is))
+	{
+		SocketIOHookModule[is] = iomod;
+		is->IsIOHooked = true;
+		return true;
+	}
+	else
+	{
+		throw ModuleException("InspSocket derived class already hooked by another module");
 		return false;
 	}
 }
@@ -78,6 +98,17 @@ bool ServerConfig::DelIOHook(int port)
 	if (x != IOHookModule.end())
 	{
 		IOHookModule.erase(x);
+		return true;
+	}
+	return false;
+}
+
+bool ServerConfig::DelIOHook(InspSocket* is)
+{
+	std::map<InspSocket*,Module*>::iterator x = SocketIOHookModule.find(is);
+	if (x != SocketIOHookModule.end())
+	{
+		SocketIOHookModule.erase(x);
 		return true;
 	}
 	return false;

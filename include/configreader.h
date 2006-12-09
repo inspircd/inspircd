@@ -30,6 +30,7 @@
 
 class ServerConfig;
 class InspIRCd;
+class InspSocket;
 
 /** Types of data in the core config
  */
@@ -445,6 +446,8 @@ class ServerConfig : public Extensible
 	 */
 	std::map<int,Module*> IOHookModule;
 
+	std::map<InspSocket*, Module*> SocketIOHookModule;
+
 	/** The 005 tokens of this server (ISUPPORT)
 	 * populated/repopulated upon loading or unloading
 	 * modules.
@@ -560,6 +563,9 @@ class ServerConfig : public Extensible
 	Module* GetIOHook(int port);
 	bool AddIOHook(int port, Module* iomod);
 	bool DelIOHook(int port);
+	Module* GetIOHook(InspSocket* is);
+	bool AddIOHook(InspSocket* is, Module* iomod);
+	bool DelIOHook(InspSocket* is);
 
 	static std::string GetFullProgDir(char** argv, int argc);
 	static bool DirValid(const char* dirandfile);

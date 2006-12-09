@@ -35,6 +35,7 @@ InspSocket::InspSocket(InspIRCd* SI)
 	this->fd = -1;
 	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
+	this->IsIOHooked = false;
 }
 
 InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
@@ -44,6 +45,7 @@ InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 	strlcpy(this->IP,ip,MAXBUF);
 	this->WaitingForWriteEvent = false;
 	this->Instance = SI;
+	this->IsIOHooked = false;
 	if (this->fd > -1)
 		this->Instance->SE->AddFd(this);
 }
@@ -54,6 +56,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->WaitingForWriteEvent = false;
+	this->IsIOHooked = false;
 	if (listening)
 	{
 		if ((this->fd = OpenTCPSocket()) == ERROR)
@@ -256,6 +259,17 @@ void InspSocket::Close()
 {
 	if (this->fd > -1)
 	{
+                if (this->IsIOHooked)
+		{
+			try
+			{
+				Instance->Config->GetIOHook(this)->OnRawSocketClose(this->fd);
+			}
+			catch (ModuleException& modexcept)
+			{
+				Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+			}
+		}
 		this->OnClose();
 		shutdown(this->fd,2);
 		close(this->fd);
@@ -271,7 +285,36 @@ char* InspSocket::Read()
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return NULL;
-	int n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
+
+	int n = 0;
+
+	if (this->IsIOHooked)
+	{
+		int result2 = 0;
+		int MOD_RESULT = 0;
+		try
+		{
+			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd,this->ibuf,sizeof(this->ibuf),result2);
+		}
+		catch (ModuleException& modexcept)
+		{
+			Instance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+		}
+		if (MOD_RESULT < 0)
+		{
+			n = -1;
+			errno = EAGAIN;
+		}
+		else
+		{
+			n = result2;
+		}
+	}
+	else
+	{
+		n = recv(this->fd,this->ibuf,sizeof(this->ibuf),0);
+	}
+
 	if ((n > 0) && (n <= (int)sizeof(this->ibuf)))
 	{
 		ibuf[n] = 0;
@@ -318,44 +361,62 @@ bool InspSocket::FlushWriteBuffer()
 	errno = 0;
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
 	{
-		/* If we have multiple lines, try to send them all,
-		 * not just the first one -- Brain
-		 */
-		while (outbuffer.size() && (errno != EAGAIN))
+		if (this->IsIOHooked)
 		{
-			/* Send a line */
-			int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
-			if (result > 0)
+			while (outbuffer.size() && (errno != EAGAIN))
 			{
-				if ((unsigned int)result == outbuffer[0].length())
+				try
 				{
-					/* The whole block was written (usually a line)
-					 * Pop the block off the front of the queue,
-					 * dont set errno, because we are clear of errors
-					 * and want to try and write the next block too.
-					 */
-					outbuffer.pop_front();
+					Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
 				}
-				else
+				catch (ModuleException& modexcept)
 				{
-					std::string temp = outbuffer[0].substr(result);
-					outbuffer[0] = temp;
-					/* We didnt get the whole line out. arses.
-					 * Try again next time, i guess. Set errno,
-					 * because we shouldnt be writing any more now,
-					 * until the socketengine says its safe to do so.
-					 */
-					errno = EAGAIN;
+					Instance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+					return true;
 				}
 			}
-			else if ((result == -1) && (errno != EAGAIN))
+		}
+		else
+		{
+			/* If we have multiple lines, try to send them all,
+			 * not just the first one -- Brain
+			 */
+			while (outbuffer.size() && (errno != EAGAIN))
 			{
-				this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
-				this->OnError(I_ERR_WRITE);
-				this->state = I_ERROR;
-				this->Instance->SE->DelFd(this);
-				this->Close();
-				return true;
+				/* Send a line */
+				int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
+				if (result > 0)
+				{
+					if ((unsigned int)result == outbuffer[0].length())
+					{
+						/* The whole block was written (usually a line)
+						 * Pop the block off the front of the queue,
+						 * dont set errno, because we are clear of errors
+						 * and want to try and write the next block too.
+						 */
+						outbuffer.pop_front();
+					}
+					else
+					{
+						std::string temp = outbuffer[0].substr(result);
+						outbuffer[0] = temp;
+						/* We didnt get the whole line out. arses.
+						 * Try again next time, i guess. Set errno,
+						 * because we shouldnt be writing any more now,
+						 * until the socketengine says its safe to do so.
+						 */
+						errno = EAGAIN;
+					}
+				}
+				else if ((result == -1) && (errno != EAGAIN))
+				{
+					this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
+					this->OnError(I_ERR_WRITE);
+					this->state = I_ERROR;
+					this->Instance->SE->DelFd(this);
+					this->Close();
+					return true;
+				}
 			}
 		}
 	}
@@ -427,11 +488,28 @@ bool InspSocket::Poll()
 		case I_LISTENING:
 			length = sizeof (client);
 			incoming = accept (this->fd, (sockaddr*)&client,&length);
+
+			if (this->IsIOHooked)
+			{
+				try
+				{
+#ifdef IPV6
+					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, insp_ntoa(client.sin6_addr), this->port);
+#else
+					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, insp_ntoa(client.sin_addr), this->port);
+#endif
+				}
+				catch (ModuleException& modexcept)
+				{
+					Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				}
+			}
+
 			this->SetQueues(incoming);
 #ifdef IPV6
-			this->OnIncomingConnection(incoming,(char*)insp_ntoa(client.sin6_addr));
+			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin6_addr));
 #else
-			this->OnIncomingConnection(incoming,(char*)insp_ntoa(client.sin_addr));
+			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin_addr));
 #endif
 			return true;
 		break;

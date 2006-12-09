@@ -71,6 +71,9 @@ class SocketTimeout : public InspTimer
 class InspSocket : public EventHandler
 {
  public:
+
+	bool IsIOHooked;
+
 	InspIRCd* Instance;
 
 	SocketTimeout* Timeout;
