@@ -89,6 +89,11 @@ typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::St
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 
+/** A group of modules that implement InspSocketHook
+ * that we can use to hook our server to server connections.
+ */
+typedef std::map<irc::string, Module*> hookmodules;
+
 /** The Link class might as well be a struct,
  * but this is C++ and we don't believe in structs (!).
  * It holds the entire information of one <link>
@@ -4185,6 +4190,8 @@ class ModuleSpanningTree : public Module
 
  public:
 	TimeSyncTimer *SyncTimer;
+	hookmodules hooks;
+	std::vector<std::string> hooknames;
 
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
@@ -4201,6 +4208,26 @@ class ModuleSpanningTree : public Module
 		}
 		else
 			SyncTimer = NULL;
+
+                modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
+
+		/* Did we find any modules? */
+		if (ml)
+		{
+			/* Yes, enumerate them all to find out the hook name */
+			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
+			{
+				/* Make a request to it for its name, its implementing
+				 * InspSocketHook so we know its safe to do this
+				 */
+				std::string name = InspSocketNameRequest(this, *m).Send();
+				/* Build a map of them */
+				hooks[name.c_str()] = *m;
+				hooknames.push_back(name);
+
+				ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
+			}
+		}
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
