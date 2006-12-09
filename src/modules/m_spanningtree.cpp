@@ -113,6 +113,7 @@ class Link : public classbase
 	std::string EncryptionKey;
 	bool HiddenFromStats;
 	std::string FailOver;
+	std::string Hook;
 	int Timeout;
 };
 
@@ -156,6 +157,9 @@ class SpanningTreeUtilities
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
+
+	hookmodules hooks;
+	std::vector<std::string> hooknames;
 
 	/** Initialise utility class
 	 */
@@ -3734,7 +3738,9 @@ class TreeSocket : public InspSocket
 				return false;
 			}
 		}
-		TreeSocket* s = new TreeSocket(this->Utils, this->Instance, newsock, ip);
+
+		TreeSocket* s = new TreeSocket(this->Utils, this->Instance, newsock, ip, this->Hook);
+
 		s = s; /* Whinge whinge whinge, thats all GCC ever does. */
 		return true;
 	}
@@ -3770,7 +3776,12 @@ class ServernameResolver : public Resolver
 		TreeServer* CheckDupe = Utils->FindServer(MyLink.Name.c_str());
 		if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 		{
-			TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str());
+
+			if ((!MyLink.Hook.empty()) && (Utils->hooks.find(MyLink.Hook.c_str()) ==  Utils->hooks.end()))
+				return;
+
+			TreeSocket* newsocket = new TreeSocket(this->Utils, ServerInstance, result,MyLink.Port,false,MyLink.Timeout ? MyLink.Timeout : 10,MyLink.Name.c_str(),
+					MyLink.Hook.empty() ? NULL : Utils->hooks[MyLink.Hook.c_str()]);
 			if (newsocket->GetFd() > -1)
 			{
 				/* We're all OK */
@@ -4057,6 +4068,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			std::string Type = Conf->ReadValue("bind","type",j);
 			std::string IP = Conf->ReadValue("bind","address",j);
 			std::string Port = Conf->ReadValue("bind","port",j);
+			std::string transport = Conf->ReadValue("bind","transport",j);
 			if (Type == "servers")
 			{
 				irc::portparser portrange(Port, false);
@@ -4067,7 +4079,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					if (IP == "*")
 						IP = "";
 
-					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10);
+		                        if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
+						return;
+
+					TreeSocket* listener = new TreeSocket(this, ServerInstance, IP.c_str(), portno, true, 10, transport.empty() ? NULL : hooks[transport.c_str()]);
 					if (listener->GetState() == I_LISTENING)
 					{
 						ServerInstance->Log(DEFAULT,"m_spanningtree: Binding server port %s:%d successful!", IP.c_str(), portno);
@@ -4104,6 +4119,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.EncryptionKey =  Conf->ReadValue("link","encryptionkey",j);
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
+		L.Hook = Conf->ReadValue("link", "transport", j);
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
@@ -4190,8 +4206,6 @@ class ModuleSpanningTree : public Module
 
  public:
 	TimeSyncTimer *SyncTimer;
-	hookmodules hooks;
-	std::vector<std::string> hooknames;
 
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
@@ -4222,8 +4236,8 @@ class ModuleSpanningTree : public Module
 				 */
 				std::string name = InspSocketNameRequest(this, *m).Send();
 				/* Build a map of them */
-				hooks[name.c_str()] = *m;
-				hooknames.push_back(name);
+				Utils->hooks[name.c_str()] = *m;
+				Utils->hooknames.push_back(name);
 
 				ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
 			}
@@ -4626,7 +4640,11 @@ class ModuleSpanningTree : public Module
 		/* Do we already have an IP? If so, no need to resolve it. */
 		if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
 		{
-			TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,x->Timeout ? x->Timeout : 10,x->Name.c_str());
+			/* Gave a hook, but it wasnt one we know */
+			if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
+				return;
+
+			TreeSocket* newsocket = new TreeSocket(Utils, ServerInstance, x->IPAddr,x->Port,false,x->Timeout ? x->Timeout : 10,x->Name.c_str(), x->Hook.empty() ? NULL : Utils->hooks[x->Hook.c_str()]);
 			if (newsocket->GetFd() > -1)
 			{
 				/* Handled automatically on success */
