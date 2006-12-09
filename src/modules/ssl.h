@@ -152,9 +152,27 @@ class ssl_cert
 class ISHRequest : public Request
 {
  public:
-	const InspSocket* Sock;
+	InspSocket* Sock;
 
 	ISHRequest(Module* Me, Module* Target, const char* rtype, InspSocket* sock) : Request(Me, Target, rtype), Sock(sock)
+	{
+	}
+};
+
+class InspSocketAttachCertRequest : public ISHRequest
+{
+ public:
+	/** Initialize the request as an attach cert message */
+	InspSocketAttachCertRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_ATTACH", is)
+	{
+	}
+};
+
+class InspSocketHSCompleteRequest : public ISHRequest
+{
+ public:
+	/** Initialize the request as a 'handshake complete?' message */
+	InspSocketHSCompleteRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HSDONE", is)
 	{
 	}
 };

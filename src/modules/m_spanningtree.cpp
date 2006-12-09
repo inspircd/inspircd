@@ -81,6 +81,7 @@ class TreeServer;
 class TreeSocket;
 class Link;
 class ModuleSpanningTree;
+class SpanningTreeUtilities;
 
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
@@ -116,6 +117,20 @@ class Link : public classbase
 	std::string Hook;
 	int Timeout;
 };
+
+class HandshakeTimer : public InspTimer
+{
+ private:
+	InspIRCd* Instance;
+	TreeSocket* sock;
+	Link* lnk;
+	SpanningTreeUtilities* Utils;
+	int thefd;
+ public:
+	HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u);
+	virtual void Tick(time_t TIME);
+};
+
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -709,9 +724,20 @@ class TreeSocket : public InspSocket
 		Instance->Log(DEBUG, "HOOK = %08x", Hook);
 
 		if (Hook)
+		{
 			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+			Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
+		}
+	}
 
-		//this->SendCapabilities();
+	ServerState GetLinkState()
+	{
+		return this->LinkState;
+	}
+
+	Module* GetHook()
+	{
+		return this->Hook;
 	}
 
 	~TreeSocket()
@@ -772,8 +798,9 @@ class TreeSocket : public InspSocket
 
 					if (Hook)
 						InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+					else
+						this->SendCapabilities();
 
-					//this->SendCapabilities();
 					if (x->EncryptionKey != "")
 					{
 						if (!(x->EncryptionKey.length() == 16 || x->EncryptionKey.length() == 24 || x->EncryptionKey.length() == 32))
@@ -787,7 +814,11 @@ class TreeSocket : public InspSocket
 						}
 					}
 					/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-					this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+x->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
+					if (Hook)
+						Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
+					else
+						this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+x->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
+
 					return true;
 				}
 			}
@@ -4224,6 +4255,31 @@ class TimeSyncTimer : public InspTimer
 	TimeSyncTimer(InspIRCd *Instance, ModuleSpanningTree *Mod);
 	virtual void Tick(time_t TIME);
 };
+
+HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u) : InspTimer(1, time(NULL)), Instance(Inst), sock(s), lnk(l), Utils(u)
+{
+	thefd = sock->GetFd();
+}
+
+void HandshakeTimer::Tick(time_t TIME)
+{
+	if (Instance->SE->GetRef(thefd) == sock)
+	{
+		if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+		{
+			InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
+			sock->SendCapabilities();
+			if (sock->GetLinkState() == CONNECTING)
+			{
+				sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+lnk->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
+			}
+		}
+		else
+		{
+			Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils));
+		}
+	}
+}
 
 class ModuleSpanningTree : public Module
 {

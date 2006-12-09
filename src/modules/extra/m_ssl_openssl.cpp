@@ -311,6 +311,20 @@ class ModuleSSLOpenSSL : public Module
 			ServerInstance->Log(DEBUG, "Unhooking socket %08x", ISR->Sock);
 			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
+		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
+		{
+			issl_session* session = &sessions[ISR->Sock->GetFd()];
+			return (session->status == ISSL_HANDSHAKING) ? NULL : (char*)"OK";
+		}
+		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
+		{
+			issl_session* session = &sessions[ISR->Sock->GetFd()];
+			if (session)
+			{
+				VerifyCertificate(session, (InspSocket*)ISR->Sock);
+				return "OK";
+			}
+		}
 		return NULL;
 	}
 

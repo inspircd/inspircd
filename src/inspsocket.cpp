@@ -367,7 +367,6 @@ bool InspSocket::FlushWriteBuffer()
 			{
 				try
 				{
-					Instance->Log(DEBUG,"To write: %s", outbuffer[0].c_str());
 					int result = Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
 					if (result > 0)
 					{
