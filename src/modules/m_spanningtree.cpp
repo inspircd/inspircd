@@ -754,7 +754,10 @@ class TreeSocket : public InspSocket
 					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] started.");
 
 					if (Hook)
+					{
 						InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+						this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+x->Hook+"\2");
+					}
 					else
 						this->SendCapabilities();
 
@@ -3032,6 +3035,13 @@ class TreeSocket : public InspSocket
 					return false;
 				}
 				this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
+
+				if (this->Hook)
+				{
+					std::string name = InspSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
+					this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
+				}
+
 				this->InboundServerName = sname;
 				this->InboundDescription = description;
 				// this is good. Send our details: Our server name and description and hopcount of 0,
