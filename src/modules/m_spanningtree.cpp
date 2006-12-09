@@ -3833,6 +3833,25 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 	Bindings.clear();
 	this->ReadConfiguration(true);
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
+
+	modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
+
+	/* Did we find any modules? */
+	if (ml)
+	{
+		/* Yes, enumerate them all to find out the hook name */
+		for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
+		{
+			/* Make a request to it for its name, its implementing
+			 * InspSocketHook so we know its safe to do this
+			 */
+			std::string name = InspSocketNameRequest((Module*)Creator, *m).Send();
+			/* Build a map of them */
+			hooks[name.c_str()] = *m;
+			hooknames.push_back(name);
+			ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
+		}
+	}
 }
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
@@ -4222,26 +4241,6 @@ class ModuleSpanningTree : public Module
 		}
 		else
 			SyncTimer = NULL;
-
-                modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
-
-		/* Did we find any modules? */
-		if (ml)
-		{
-			/* Yes, enumerate them all to find out the hook name */
-			for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
-			{
-				/* Make a request to it for its name, its implementing
-				 * InspSocketHook so we know its safe to do this
-				 */
-				std::string name = InspSocketNameRequest(this, *m).Send();
-				/* Build a map of them */
-				Utils->hooks[name.c_str()] = *m;
-				Utils->hooknames.push_back(name);
-
-				ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
-			}
-		}
 	}
 
 	void ShowLinks(TreeServer* Current, userrec* user, int hops)
