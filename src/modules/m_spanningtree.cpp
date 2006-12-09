@@ -4021,8 +4021,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for port %s:%s - maybe you forgot\
-								to load it BEFORE m_spanningtree in your config file?",
+						ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for port %s:%s - maybe you forgot to load it BEFORE m_spanningtree in your config file? - Skipping this port binding",
 								transport.c_str(), IP.c_str(), Port.c_str());
 						break;
 					}
@@ -4064,6 +4063,15 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
+
+		if ((!L.Hook.empty()) && (hooks.find(L.Hook.c_str()) ==  hooks.end()))
+		{
+			ServerInstance->Log(DEFAULT,"m_spanningtree: WARNING: Can't find transport type '%s' for link '%s' - maybe you forgot to load it BEFORE m_spanningtree in your config file? Skipping <link> tag completely.",
+					L.Hook.c_str(), L.Name.c_str());
+			continue;
+
+		}
+
 		L.NextConnectTime = time(NULL) + L.AutoConnect;
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
