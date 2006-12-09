@@ -654,6 +654,7 @@ class TreeSocket : public InspSocket
 	unsigned int keylength;
 	std::string ModuleList;
 	std::map<std::string,std::string> CapKeys;
+	Module* Hook;
 
  public:
 
@@ -662,34 +663,44 @@ class TreeSocket : public InspSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime)
-		: InspSocket(SI, host, port, listening, maxtime), Utils(Util)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, Module* HookMod = NULL)
+		: InspSocket(SI, host, port, listening, maxtime), Utils(Util), Hook(HookMod)
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
+
+		if (Hook)
+			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
 	}
 
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName)
-		: InspSocket(SI, host, port, listening, maxtime), Utils(Util)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName, Module* HookMod = NULL)
+		: InspSocket(SI, host, port, listening, maxtime), Utils(Util), Hook(HookMod)
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
+
+		if (Hook)
+			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
 	}
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip)
+	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod = NULL)
 		: InspSocket(SI, newfd, ip), Utils(Util)
 	{
 		this->LinkState = WAIT_AUTH_1;
 		this->ctx_in = NULL;
 		this->ctx_out = NULL;
+
+		if (Hook)
+			InspSocketHookRequest(this, Hook, (Module*)Utils->Creator).Send();
+
 		this->SendCapabilities();
 	}
 
@@ -699,6 +710,9 @@ class TreeSocket : public InspSocket
 			DELETE(ctx_in);
 		if (ctx_out)
 			DELETE(ctx_out);
+
+		if (Hook)
+			InspSocketUnhookRequest(this, Hook, (Module*)Utils->Creator).Send();
 	}
 
 	void InitAES(std::string key,std::string SName)
