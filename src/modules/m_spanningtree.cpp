@@ -27,6 +27,7 @@
 #include "wildcard.h"
 #include "xline.h"
 #include "aes.h"
+#include "ssl.h"
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
