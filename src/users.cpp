@@ -2130,7 +2130,8 @@ void userrec::HandleEvent(EventType et, int errornum)
 				this->FlushWriteBuf();
 			break;
 			case EVENT_ERROR:
-				this->SetWriteError(errornum ? strerror(errornum) : "EOF from client");
+				/** This should be safe, but dont DARE do anything after it -- Brain */
+				userrec::QuitUser(ServerInstance, this, errornum ? strerror(errornum) : "EOF from client");
 			break;
 		}
 	}
