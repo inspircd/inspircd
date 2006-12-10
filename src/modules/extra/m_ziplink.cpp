@@ -67,7 +67,7 @@ class ModuleZLib : public Module
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)
 		{
-			return "gnutls";
+			return "zip";
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
