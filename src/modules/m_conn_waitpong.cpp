@@ -1,6 +1,21 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                     E-mail:
+ *              <brain@chatspike.net>
+ *                <Craig@chatspike.net>
+ *     
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *           the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 #include <stdlib.h>
 #include <string>
-#include "aes.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -13,19 +28,11 @@
 
 char* RandString(unsigned int length)
 {
-	unsigned char* tmp = new unsigned char[(length/4)*3];
-	
-	for(unsigned int i = 0; i < (length/4)*3; i++)
-		tmp[i] = (unsigned char)rand();
-		
 	unsigned char* out = new unsigned char[length+1];
-
-	to64frombits(out, tmp, (length/4)*3);
-	
+	for(unsigned int i = 0; i < length; i++)
+		out[i] = ((rand() % 26) + 65);
 	out[length] = '\0';
-	
-	DELETE(tmp);
-	
+
 	return (char*)out;
 }
 

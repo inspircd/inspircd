@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include <openssl/transport.h>
+#include <openssl/ssl.h>
 #include <openssl/err.h>
 
 #include "inspircd_config.h"
