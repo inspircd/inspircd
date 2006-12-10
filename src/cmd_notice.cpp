@@ -98,7 +98,14 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 				return CMD_FAILURE;
 			}
 
-			chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, parameters[1]);
+			if (status)
+			{
+				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %c%s :%c %s", status, chan->name, status, parameters[1]);
+			}
+			else
+			{
+				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name, parameters[1]);
+			}
 
 			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,parameters[1],status,exempt_list));
 		}
