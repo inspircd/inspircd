@@ -106,16 +106,17 @@
 #                                                                     #
 #  transport    - If you have m_spanningtree.so loaded, along with    #
 #                 either of the SSL modules (m_ssl_gnutls or          #
-#                 m_ssl_openssl) then you may make use of this value. #
-#                 setting it to 'openssl' or 'gnutls' indicates that  #
-#                 the port should accept connections using the given  #
-#                 transport name only. Transports are layers which    #
-#                 sit on top of a socket and change the way data is   #
-#                 sent and received, e.g. encryption, compression,    #
-#                 and other such things. Because this may not be      #
-#                 limited in use to just encryption, the 'ssl' value  #
-#                 used for client ports  does not exist for servers,  #
-#                 and this value is used instead.                     #
+#                 m_ssl_openssl) or m_ziplinks.so, then you may make  #
+#                 use of this value.                                  #
+#                 setting it to 'openssl' or 'gnutls' or 'zip'        #
+#                 indicates that the port should accept connections   #
+#                 using the given transport name. Transports are      #
+#                 layers which sit on top of a socket and change the  #
+#                 way data is sent and received, e.g. encryption,     #
+#                 compression, and other such things. Because this    #
+#                 may not be limited in use to just encryption,       #
+#                 the 'ssl' value used for client ports does not      #
+#                 exist for servers, and this value is used instead.  #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -410,11 +411,13 @@
 # transport     - If defined, this is a transport name implemented by #
 #                 another module. Transports are layers on top of     #
 #                 plaintext connections, which alter them in certain  #
-#                 ways. Currently the two supported transports are    #
+#                 ways. Currently the three supported transports are  #
 #                 'openssl' and 'gnutls' which are types of SSL       #
-#                 encryption. If you define a transport, both ends of #
-#                 the connection must use that same transport for the #
-#                 link to succeed.                                    #
+#                 encryption, and 'zip' which is for compression.     #
+#                 If you define a transport, both ends of the         #
+#                 connection must use a compatible transport for the  #
+#                 link to succeed. OpenSSL and GnuTLS are link-       #
+#                 compatible with each other.                         #
 #                                                                     #
 # hidden        - When using m_spanningtree.so for linking. you may   #
 #                 set this to 'yes', and if you do, the IP address/   #
@@ -483,9 +486,9 @@
 #                                                                     #
 #  Also, if you define any transports, you must load the modules for  #
 #  these transports BEFORE you load m_spanningtree, e.g. place them   #
-#  above it in the configuration file. Currently this means the two   #
-#  modules m_ssl_gnutls and m_ssl_openssl, depending on which you     #
-#  choose to use.                                                     #
+#  above it in the configuration file. Currently this means the three #
+#  modules m_ssl_gnutls, m_ziplinks and m_ssl_openssl, depending on   #
+#  which you choose to use.                                           #
 #                                                                     #
 
 <link name="hub.penguin.org"
@@ -1636,6 +1639,17 @@
 # Watch module: Adds the WATCH command, which is used by clients to 
 # maintain notify lists.
 #<module name="m_watch.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# ZipLinks module: Adds support for zlib deflate on server to server
+# connections. Both ends of the connection must load this module.
+#
+#<module name="m_ziplink.so">
+#
+# To use this module, you must enable it as a transport type in your
+# <link> tags or <bind> tags using the transport name 'zip'.
+# See the documentation of <link> and <bind>, respectively.
+#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-  BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
