@@ -99,7 +99,15 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 				return CMD_FAILURE;
 			}
 
-			chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, parameters[1]);
+			if (status)
+			{
+				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, parameters[1]);
+			}
+			else 
+			{
+				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name, parameters[1]);
+			}
+
 			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
 		}
 		else
