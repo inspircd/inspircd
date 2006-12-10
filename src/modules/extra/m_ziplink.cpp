@@ -129,21 +129,31 @@ class ModuleZLib : public Module
 		if (session->status == IZIP_CLOSED)
 			return 1;
 
-		readresult = read(fd, buffer, count);
+		int size = 0;
+		if (read(fd, &size, sizeof(size)) != sizeof(size))
+			return 0;
 
-		if (readresult > 0)
+		size = ntohl(size);
+
+		ServerInstance->Log(DEBUG,"Size of frame to read: %d", size);
+
+		unsigned char compr[size+1];
+
+		readresult = read(fd, compr, size);
+
+		if (readresult == size)
 		{
-			unsigned char uncompr[count];
-
-			if(session->status != IZIP_WAITFIRST)
+			if(session->status == IZIP_WAITFIRST)
 			{
-				session->d_stream.next_in  = (Bytef*)buffer;
-				session->d_stream.avail_in = 0;
-				session->d_stream.next_out = uncompr;
-				if (inflateInit(&session->d_stream) != Z_OK)
-					return -EBADF;
 				session->status = IZIP_OPEN;
 			}
+				
+			session->d_stream.next_in  = (Bytef*)compr;
+			session->d_stream.avail_in = 0;
+			session->d_stream.next_out = (Bytef*)buffer;
+			if (inflateInit(&session->d_stream) != Z_OK)
+				return -EBADF;
+			session->status = IZIP_OPEN;
 
 			while ((session->d_stream.total_out < count) && (session->d_stream.total_in < (unsigned int)readresult))
 			{
@@ -152,28 +162,51 @@ class ModuleZLib : public Module
 					break;
 			}
 
+			inflateEnd(&session->d_stream);
+
 			readresult = session->d_stream.total_out;
 		}
+		else
+		{
+			/* XXX: We need to buffer here, really. */
+			ServerInstance->Log(DEBUG,"Didnt read whole frame!");
+		}
+
 		return (readresult > 0);
 	}
 
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
+		int ocount = count;
+		ServerInstance->Log(DEBUG,"Write event of %d uncompressed bytes: '%s'", count, buffer);
+
 		if (!count)
-			return 0;
+		{
+			ServerInstance->Log(DEBUG,"Nothing to do!");
+			return 1;
+		}
 
 		unsigned char compr[count*2];
 
 		izip_session* session = &sessions[fd];
 
-		if(session->status != IZIP_WAITFIRST)
+		if(session->status == IZIP_WAITFIRST)
 		{
-			deflateInit(&session->c_stream, Z_DEFAULT_COMPRESSION);
 			session->status = IZIP_OPEN;
 		}
 
+		// Z_BEST_COMPRESSION
+		if (deflateInit(&session->c_stream, Z_BEST_COMPRESSION) != Z_OK)
+		{
+			ServerInstance->Log(DEBUG,"Deflate init failed");
+		}
+
 		if(session->status != IZIP_OPEN)
-			return 1;
+		{
+			ServerInstance->Log(DEBUG,"State not open!");
+			CloseSession(session);
+			return 0;
+		}
 
 		session->c_stream.next_in  = (Bytef*)buffer;
 		session->c_stream.next_out = compr;
@@ -182,7 +215,11 @@ class ModuleZLib : public Module
 		{
 			session->c_stream.avail_in = session->c_stream.avail_out = 1; /* force small buffers */
 			if (deflate(&session->c_stream, Z_NO_FLUSH) != Z_OK)
+			{
+				ServerInstance->Log(DEBUG,"Couldnt deflate!");
+				CloseSession(session);
 				return 0;
+			}
 		}
 	        /* Finish the stream, still forcing small buffers: */
 		for (;;)
@@ -192,16 +229,18 @@ class ModuleZLib : public Module
 				break;
 		}
 
-		return write(fd, compr, session->c_stream.total_out);
+		ServerInstance->Log(DEBUG,"Write %d compressed bytes", session->c_stream.total_out);
+		unsigned int x = htonl(session->c_stream.total_out);
+		write(fd, &x, sizeof(x));
+		write(fd, compr, session->c_stream.total_out);
+
+		deflateEnd(&session->c_stream);
+
+		return ocount;
 	}
 	
 	void CloseSession(izip_session* session)
 	{
-		if(session->status == IZIP_OPEN)
-		{
-			deflateEnd(&session->c_stream);
-			inflateEnd(&session->d_stream);
-		}
 		session->status = IZIP_CLOSED;
 	}
 
