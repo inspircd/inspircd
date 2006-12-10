@@ -333,13 +333,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 */
 		
 				curr->FlushWriteBuf();
-				if (*curr->GetWriteError())
-				{
-					GlobalGoners.AddItem(curr,curr->GetWriteError());
-					continue;
-				}
 			}
-	
 		}
 	
 		/* If theres nothing to do, trigger in the next second, something might come up */

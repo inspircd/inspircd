@@ -673,7 +673,10 @@ void userrec::FlushWriteBuf()
 					this->ServerInstance->SE->WantWrite(this);
 				}
 				else
-					this->SetWriteError(strerror(errno));
+				{
+					this->QuitUser(ServerInstance, this, strerror(errno));
+					return;
+				}
 			}
 			else
 			{
@@ -785,9 +788,6 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
 		user->WriteCommonExcept("QUIT :%s",reason.c_str());
 	}
-
-	if (IS_LOCAL(user))
-		user->FlushWriteBuf();
 
 	FOREACH_MOD_I(Instance,I_OnUserDisconnect,OnUserDisconnect(user));
 
