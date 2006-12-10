@@ -89,7 +89,7 @@ class ModuleZLib : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = 1;
-		List[I_OnRequest] = 1;
+		List[I_OnStats] = List[I_OnRequest] = 1;
 	}
 
         virtual char* OnRequest(Request* request)
@@ -118,6 +118,39 @@ class ModuleZLib : public Module
 		return NULL;
 	}
 
+	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	{
+		if (symbol == 'C')
+		{
+			std::string sn = ServerInstance->Config->ServerName;
+
+			float outbound_r = 100 - ((total_out_compressed / (total_out_uncompressed + 0.001)) * 100);
+			float inbound_r = 100 - ((total_in_compressed / (total_in_uncompressed + 0.001)) * 100);
+
+			float total_compressed = total_in_compressed + total_out_compressed;
+			float total_uncompressed = total_in_uncompressed + total_out_uncompressed;
+
+			float total_r = 100 - ((total_compressed / (total_uncompressed + 0.001)) * 100);
+
+			char outbound_ratio[MAXBUF], inbound_ratio[MAXBUF], combined_ratio[MAXBUF];
+
+			sprintf(outbound_ratio, "%3.2f%%", outbound_r);
+			sprintf(inbound_ratio, "%3.2f%%", inbound_r);
+			sprintf(combined_ratio, "%3.2f%%", total_r);
+
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS outbound_compressed   = "+ConvToStr(total_out_compressed));
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS inbound_compressed    = "+ConvToStr(total_in_compressed));
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS outbound_uncompressed = "+ConvToStr(total_out_uncompressed));
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS inbound_uncompressed  = "+ConvToStr(total_in_uncompressed));
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS ----------------------------");
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS OUTBOUND RATIO        = "+outbound_ratio);
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS INBOUND RATIO         = "+inbound_ratio);
+			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS COMBINED RATIO        = "+combined_ratio);
+			return 0;
+		}
+
+		return 0;
+	}
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
