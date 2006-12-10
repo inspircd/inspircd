@@ -120,7 +120,7 @@ class ModuleZLib : public Module
 
 	virtual int OnStats(char symbol, userrec* user, string_list &results)
 	{
-		if (symbol == 'C')
+		if (symbol == 'z')
 		{
 			std::string sn = ServerInstance->Config->ServerName;
 
@@ -138,14 +138,13 @@ class ModuleZLib : public Module
 			sprintf(inbound_ratio, "%3.2f%%", inbound_r);
 			sprintf(combined_ratio, "%3.2f%%", total_r);
 
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS outbound_compressed   = "+ConvToStr(total_out_compressed));
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS inbound_compressed    = "+ConvToStr(total_in_compressed));
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS outbound_uncompressed = "+ConvToStr(total_out_uncompressed));
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS inbound_uncompressed  = "+ConvToStr(total_in_uncompressed));
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS ----------------------------");
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS OUTBOUND RATIO        = "+outbound_ratio);
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS INBOUND RATIO         = "+inbound_ratio);
-			results.push_back(sn+" 304 "+user->nick+" : ZIPSTATS COMBINED RATIO        = "+combined_ratio);
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS outbound_compressed   = "+ConvToStr(total_out_compressed));
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS inbound_compressed    = "+ConvToStr(total_in_compressed));
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS outbound_uncompressed = "+ConvToStr(total_out_uncompressed));
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS inbound_uncompressed  = "+ConvToStr(total_in_uncompressed));
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS outbound_ratio        = "+outbound_ratio);
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS inbound_ratio         = "+inbound_ratio);
+			results.push_back(sn+" 304 "+user->nick+" :ZIPSTATS combined_ratio        = "+combined_ratio);
 			return 0;
 		}
 
