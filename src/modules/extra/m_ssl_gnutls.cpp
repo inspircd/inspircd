@@ -276,7 +276,7 @@ class ModuleSSLGnuTLS : public Module
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			return (session->status == ISSL_HANDSHAKING_READ || session->status == ISSL_HANDSHAKING_WRITE || session->status == ISSL_HANDSHAKEN) ? NULL : (char*)"OK";
+			return (session->status == ISSL_HANDSHAKING_READ || session->status == ISSL_HANDSHAKING_WRITE) ? NULL : (char*)"OK";
 		}
 		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
 		{
