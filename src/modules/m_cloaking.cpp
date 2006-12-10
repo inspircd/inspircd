@@ -94,7 +94,7 @@ class CloakUser : public ModeHandler
 					HashHexRequest(Sender, HashProvider, xtab[(*dest->host) % 4]);
 
 					/* Generate a cloak using specialized Hash */
-					std::string hostcloak = prefix + "-" + HashSumRequest(Sender, HashProvider, dest->host).Send() + a;
+					std::string hostcloak = prefix + "-" + std::string(HashSumRequest(Sender, HashProvider, dest->host).Send()).substr(0,8) + a;
 
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
