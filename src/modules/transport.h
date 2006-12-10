@@ -1,5 +1,21 @@
-#ifndef __SSL_CERT_H__
-#define __SSL_CERT_H__
+/*      +------------------------------------+
+ *      | Inspire Internet Relay Chat Daemon |
+ *      +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                   E-mail:
+ *             <brain@chatspike.net>
+ *             <Craig@chatspike.net>
+ * 
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ * the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
+#ifndef __TRANSPORT_H__
+#define __TRANSPORT_H__
 
 #include <map>
 #include <string>
@@ -149,6 +165,8 @@ class ssl_cert
 	}
 };
 
+/** Used to represent a request to a transport provider module
+ */
 class ISHRequest : public Request
 {
  public:
@@ -159,6 +177,8 @@ class ISHRequest : public Request
 	}
 };
 
+/** Used to represent a request to attach a cert to an InspSocket
+ */
 class InspSocketAttachCertRequest : public ISHRequest
 {
  public:
@@ -168,6 +188,8 @@ class InspSocketAttachCertRequest : public ISHRequest
 	}
 };
 
+/** Used to check if a handshake is complete on an InspSocket yet
+ */
 class InspSocketHSCompleteRequest : public ISHRequest
 {
  public:
@@ -177,6 +199,8 @@ class InspSocketHSCompleteRequest : public ISHRequest
 	}
 };
 
+/** Used to hook a transport provider to an InspSocket
+ */
 class InspSocketHookRequest : public ISHRequest
 {
  public:
@@ -186,6 +210,8 @@ class InspSocketHookRequest : public ISHRequest
 	}
 };
 
+/** Used to unhook a transport provider from an InspSocket
+ */
 class InspSocketUnhookRequest : public ISHRequest
 {
  public:
