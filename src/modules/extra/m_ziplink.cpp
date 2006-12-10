@@ -61,6 +61,10 @@ class izip_session : public classbase
 class ModuleZLib : public Module
 {
 	izip_session sessions[MAX_DESCRIPTORS];
+	float total_out_compressed;
+	float total_in_compressed;
+	float total_out_uncompressed;
+	float total_in_uncompressed;
 	
  public:
 	
@@ -68,8 +72,11 @@ class ModuleZLib : public Module
 		: Module::Module(Me)
 	{
 		ServerInstance->PublishInterface("InspSocketHook", this);
+
+		total_out_compressed = total_in_compressed = 0;
+		total_out_uncompressed = total_out_uncompressed = 0;
 	}
-	
+
 	virtual ~ModuleZLib()
 	{
 	}
@@ -198,7 +205,9 @@ class ModuleZLib : public Module
 
 			inflateEnd(&session->d_stream);
 
+			total_in_compressed += readresult;
 			readresult = session->d_stream.total_out;
+			total_in_uncompressed += session->d_stream.total_out;
 
 			buffer[readresult] = 0;
 			session->need_bytes = 0;
@@ -270,6 +279,11 @@ class ModuleZLib : public Module
 				break;
 		}
 
+		deflateEnd(&session->c_stream);
+
+		total_out_uncompressed += ocount;
+		total_out_compressed += session->c_stream.total_out;
+
 		int x = htonl(session->c_stream.total_out);
 		/** XXX: We memcpy it onto the start of the buffer like this to save ourselves a write().
 		 * A memcpy of 4 or so bytes is less expensive and gives the tcp stack more chance of
@@ -277,8 +291,6 @@ class ModuleZLib : public Module
 		 */
 		memcpy(compr, &x, sizeof(x));
 		write(fd, compr, session->c_stream.total_out+4);
-
-		deflateEnd(&session->c_stream);
 
 		return ocount;
 	}
