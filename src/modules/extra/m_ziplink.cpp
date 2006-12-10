@@ -32,7 +32,9 @@ class izip_session : public classbase
 	z_stream c_stream; /* compression stream */
 	z_stream d_stream; /* decompress stream */
 	izip_status status;
+	int need_bytes;
 	int fd;
+	std::string inbuf;
 };
 
 class ModuleZLib : public Module
@@ -97,19 +99,16 @@ class ModuleZLib : public Module
 		session->fd = fd;
 		session->status = IZIP_WAITFIRST;
 
+		session->need_bytes = 0;
+
 		session->c_stream.zalloc = (alloc_func)0;
 		session->c_stream.zfree = (free_func)0;
 		session->c_stream.opaque = (voidpf)0;
-
-	        if (deflateInit(&session->c_stream, Z_DEFAULT_COMPRESSION) != Z_OK)
-			return;
 
 		session->d_stream.zalloc = (alloc_func)0;
 		session->d_stream.zfree = (free_func)0;
 		session->d_stream.opaque = (voidpf)0;
 
-		if (deflateInit(&session->d_stream, Z_DEFAULT_COMPRESSION) != Z_OK)
-			return;
 	}
 
 	virtual void OnRawSocketConnect(int fd)
@@ -130,16 +129,23 @@ class ModuleZLib : public Module
 			return 1;
 
 		int size = 0;
-		if (read(fd, &size, sizeof(size)) != sizeof(size))
-			return 0;
 
-		size = ntohl(size);
+		if (session->need_bytes)
+		{
+			size = session->need_bytes;
+		}
+		else
+		{
+			if (read(fd, &size, sizeof(size)) != sizeof(size))
+				return 0;
+			size = ntohl(size);
+		}
 
-		ServerInstance->Log(DEBUG,"Size of frame to read: %d", size);
+		ServerInstance->Log(DEBUG,"Size of frame to read: %d%s", size, session->need_bytes ? " (remainder of last frame)" : "");
 
-		unsigned char compr[size+1];
+		unsigned char compr[size+1+session->need_bytes];
 
-		readresult = read(fd, compr, size);
+		readresult = read(fd, compr + session->need_bytes, size);
 
 		if (readresult == size)
 		{
@@ -147,7 +153,14 @@ class ModuleZLib : public Module
 			{
 				session->status = IZIP_OPEN;
 			}
-				
+
+			/* Reassemble first part of last frame */
+			if (session->need_bytes)
+			{
+				for (size_t i = 0; i < session->inbuf.length(); i++)
+					compr[i] = session->inbuf[i];
+			}
+
 			session->d_stream.next_in  = (Bytef*)compr;
 			session->d_stream.avail_in = 0;
 			session->d_stream.next_out = (Bytef*)buffer;
@@ -167,19 +180,19 @@ class ModuleZLib : public Module
 			readresult = session->d_stream.total_out;
 
 			buffer[readresult] = 0;
-
-			ServerInstance->Log(DEBUG,"DECOMPRESSED: '%s'", buffer);
+			session->need_bytes = 0;
 		}
 		else
 		{
-			/* XXX: We need to buffer here, really. */
-			if (readresult == -1)
-			{
-				ServerInstance->Log(DEBUG,"Error: %s", strerror(errno));
-				if (errno == EAGAIN)
-					ServerInstance->Log(DEBUG,"(EAGAIN)");
-			}
+			/* We need to buffer here */
 			ServerInstance->Log(DEBUG,"Didnt read whole frame, got %d bytes of %d!", readresult, size);
+			session->need_bytes = ((readresult > -1) ? (size - readresult) : (size));
+			if (readresult > 0)
+			{
+				/* Do it this way because it needs to be binary safe */
+				for (int i = 0; i < readresult; i++)
+					session->inbuf += compr[i];
+			}
 		}
 
 		return (readresult > 0);
@@ -188,8 +201,6 @@ class ModuleZLib : public Module
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
 		int ocount = count;
-		ServerInstance->Log(DEBUG,"Write event of %d uncompressed bytes: '%s'", count, buffer);
-
 		if (!count)
 		{
 			ServerInstance->Log(DEBUG,"Nothing to do!");
@@ -205,7 +216,6 @@ class ModuleZLib : public Module
 			session->status = IZIP_OPEN;
 		}
 
-		// Z_BEST_COMPRESSION
 		if (deflateInit(&session->c_stream, Z_BEST_COMPRESSION) != Z_OK)
 		{
 			ServerInstance->Log(DEBUG,"Deflate init failed");
@@ -239,8 +249,11 @@ class ModuleZLib : public Module
 				break;
 		}
 
-		ServerInstance->Log(DEBUG,"Write %d compressed bytes", session->c_stream.total_out);
 		int x = htonl(session->c_stream.total_out);
+		/** XXX: We memcpy it onto the start of the buffer like this to save ourselves a write().
+		 * A memcpy of 4 or so bytes is less expensive and gives the tcp stack more chance of
+		 * assembling the frame size into the same packet as the compressed frame.
+		 */
 		memcpy(compr, &x, sizeof(x));
 		write(fd, compr, session->c_stream.total_out+4);
 
