@@ -165,11 +165,21 @@ class ModuleZLib : public Module
 			inflateEnd(&session->d_stream);
 
 			readresult = session->d_stream.total_out;
+
+			buffer[readresult] = 0;
+
+			ServerInstance->Log(DEBUG,"DECOMPRESSED: '%s'", buffer);
 		}
 		else
 		{
 			/* XXX: We need to buffer here, really. */
-			ServerInstance->Log(DEBUG,"Didnt read whole frame!");
+			if (readresult == -1)
+			{
+				ServerInstance->Log(DEBUG,"Error: %s", strerror(errno));
+				if (errno == EAGAIN)
+					ServerInstance->Log(DEBUG,"(EAGAIN)");
+			}
+			ServerInstance->Log(DEBUG,"Didnt read whole frame, got %d bytes of %d!", readresult, size);
 		}
 
 		return (readresult > 0);
@@ -186,7 +196,7 @@ class ModuleZLib : public Module
 			return 1;
 		}
 
-		unsigned char compr[count*2];
+		unsigned char compr[count*2+4];
 
 		izip_session* session = &sessions[fd];
 
@@ -209,7 +219,7 @@ class ModuleZLib : public Module
 		}
 
 		session->c_stream.next_in  = (Bytef*)buffer;
-		session->c_stream.next_out = compr;
+		session->c_stream.next_out = compr+4;
 
 		while ((session->c_stream.total_in < (unsigned int)count) && (session->c_stream.total_out < (unsigned int)count*2))
 		{
@@ -230,9 +240,9 @@ class ModuleZLib : public Module
 		}
 
 		ServerInstance->Log(DEBUG,"Write %d compressed bytes", session->c_stream.total_out);
-		unsigned int x = htonl(session->c_stream.total_out);
-		write(fd, &x, sizeof(x));
-		write(fd, compr, session->c_stream.total_out);
+		int x = htonl(session->c_stream.total_out);
+		memcpy(compr, &x, sizeof(x));
+		write(fd, compr, session->c_stream.total_out+4);
 
 		deflateEnd(&session->c_stream);
 
