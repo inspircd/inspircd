@@ -505,6 +505,17 @@ bool InspIRCd::UnloadModule(const char* filename)
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
 				return false;
 			}
+			std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modules[j]);
+			if (intercount.first > 0)
+			{
+				this->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
+				snprintf(MODERR,MAXBUF,"Module not unloadable (Still in use by %d other module%s which %s using its interface '%s') -- unload dependent modules first!",
+						intercount.first,
+						intercount.first > 1 ? "s" : "",
+						intercount.first > 1 ? "are" : "is",
+						intercount.second.c_str());
+				return false;
+			}
 			/* Give the module a chance to tidy out all its metadata */
 			for (chan_hash::iterator c = this->chanlist.begin(); c != this->chanlist.end(); c++)
 			{

@@ -258,12 +258,12 @@ bool InspIRCd::PublishInterface(const std::string &InterfaceName, Module* Mod)
 	{
 		modulelist ml;
 		ml.push_back(Mod);
-		Interfaces[InterfaceName] = ml;
+		Interfaces[InterfaceName] = std::make_pair(0, ml);
 		return true;
 	}
 	else
 	{
-		iter->second.push_back(Mod);
+		iter->second.second.push_back(Mod);
 		return true;
 	}
 	return false;
@@ -276,12 +276,12 @@ bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
 	if (iter == Interfaces.end())
 		return false;
 
-	for (modulelist::iterator x = iter->second.begin(); x != iter->second.end(); x++)
+	for (modulelist::iterator x = iter->second.second.begin(); x != iter->second.second.end(); x++)
 	{
 		if (*x == Mod)
 		{
-			iter->second.erase(x);
-			if (iter->second.empty())
+			iter->second.second.erase(x);
+			if (iter->second.second.empty())
 				Interfaces.erase(InterfaceName);
 			return true;
 		}
@@ -295,7 +295,37 @@ modulelist* InspIRCd::FindInterface(const std::string &InterfaceName)
 	if (iter == Interfaces.end())
 		return NULL;
 	else
-		return &(iter->second);
+		return &(iter->second.second);
+}
+
+void InspIRCd::UseInterface(const std::string &InterfaceName)
+{
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+	if (iter != Interfaces.end())
+		iter->second.first++;
+
+}
+
+void InspIRCd::DoneWithInterface(const std::string &InterfaceName)
+{
+	interfacelist::iterator iter = Interfaces.find(InterfaceName);
+	if (iter != Interfaces.end())
+		iter->second.first--;
+}
+
+std::pair<int,std::string> InspIRCd::GetInterfaceInstanceCount(Module* m)
+{
+	for (interfacelist::iterator iter = Interfaces.begin(); iter != Interfaces.end(); iter++)
+	{
+		for (modulelist::iterator x = iter->second.second.begin(); x != iter->second.second.end(); x++)
+		{
+			if (*x == m)
+			{
+				return std::make_pair(iter->second.first, iter->first);
+			}
+		}
+	}
+	return std::make_pair(0, "");
 }
 
 const std::string& InspIRCd::GetModuleName(Module* m)

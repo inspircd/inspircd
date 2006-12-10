@@ -727,6 +727,31 @@ class InspIRCd : public classbase
 	 */
 	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
 
+	/** Return a pair saying how many other modules are currently using the
+	 * interfaces provided by module m.
+	 * @param m The module to count usage for
+	 * @return A pair, where the first value is the number of uses of the interface,
+	 * and the second value is the interface name being used.
+	 */
+	std::pair<int,std::string> GetInterfaceInstanceCount(Module* m);
+
+	/** Mark your module as using an interface.
+	 * If you mark your module as using an interface, then that interface
+	 * module may not unload until your module has unloaded first.
+	 * This can be used to prevent crashes by ensuring code you depend on
+	 * is always in memory while your module is active.
+	 * @param InterfaceName The interface to use
+	 */
+	void UseInterface(const std::string &InterfaceName);
+
+	/** Mark your module as finished with an interface.
+	 * If you used UseInterface() above, you should use this method when
+	 * your module is finished with the interface (usually in its destructor)
+	 * to allow the modules which implement the given interface to be unloaded.
+	 * @param InterfaceName The interface you are finished with using.
+	 */
+	void DoneWithInterface(const std::string &InterfaceName);
+
 	/** Unpublish a 'feature'.
 	 * When your module exits, it must call this method for every feature it
 	 * is providing so that the feature table is cleaned up.

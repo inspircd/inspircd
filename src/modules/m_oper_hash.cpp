@@ -91,6 +91,8 @@ class ModuleOperHash : public Module
 		Conf = NULL;
 		OnRehash("");
 
+		ServerInstance->UseInterface("HashRequest");
+
 		/* Find all modules which implement the interface 'HashRequest' */
 		modulelist* ml = ServerInstance->FindInterface("HashRequest");
 
@@ -121,6 +123,7 @@ class ModuleOperHash : public Module
 	
 	virtual ~ModuleOperHash()
 	{
+		ServerInstance->DoneWithInterface("HashRequest");
 	}
 
 	void Implements(char* List)

@@ -107,7 +107,7 @@ typedef std::deque<Module*> modulelist;
 
 /** Holds a list of all modules which implement interfaces, by interface name
  */
-typedef std::map<std::string, modulelist> interfacelist;
+typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 
 /**
  * This #define allows us to call a method in all

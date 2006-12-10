@@ -4188,6 +4188,8 @@ class ModuleSpanningTree : public Module
 	ModuleSpanningTree(InspIRCd* Me)
 		: Module::Module(Me), max_local(0), max_global(0)
 	{
+		ServerInstance->UseInterface("InspSocketHook");
+
 		Utils = new SpanningTreeUtilities(Me, this);
 
 		command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
@@ -5402,6 +5404,8 @@ class ModuleSpanningTree : public Module
 		delete Utils;
 		if (SyncTimer)
 			ServerInstance->Timers->DelTimer(SyncTimer);
+
+		ServerInstance->DoneWithInterface("InspSocketHook");
 	}
 
 	virtual Version GetVersion()
