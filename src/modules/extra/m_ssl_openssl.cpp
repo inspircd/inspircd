@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include <openssl/ssl.h>
+#include <openssl/transport.h>
 #include <openssl/err.h>
 
 #include "inspircd_config.h"
@@ -14,13 +14,12 @@
 #include "hashcomp.h"
 #include "inspircd.h"
 
-#include "ssl.h"
+#include "transport.h"
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `perl extra/openssl_config.pl compile` */
 /* $LinkerFlags: `perl extra/openssl_config.pl link` */
-/* $ModDep: ssl.h */
-
+/* $ModDep: transport.h */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };

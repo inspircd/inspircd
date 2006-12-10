@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"
-#include "ssl.h"
+#include "transport.h"
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.

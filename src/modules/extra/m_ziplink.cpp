@@ -13,11 +13,32 @@
 #include "hashcomp.h"
 #include "inspircd.h"
 
-#include "ssl.h"
+#include "transport.h"
 
 /* $ModDesc: Provides zlib link support for servers */
 /* $LinkerFlags: -lz */
-/* $ModDep: ssl.h */
+/* $ModDep: transport.h */
+
+/*
+ * Compressed data is transmitted across the link in the following format:
+ *
+ *   0   1   2   3   4 ... n
+ * +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ * | n | n | n | n |              Z0 -> Zn                         |
+ * +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+ *
+ * Where: n is the size of a frame, in network byte order, 4 bytes.
+ * Z0 through Zn are Zlib compressed data, n bytes in length.
+ *
+ * If the module fails to read the entire frame, then it will buffer
+ * the portion of the last frame it received, then attempt to read
+ * the next part of the frame next time a write notification arrives.
+ *
+ * ZLIB_BEST_COMPRESSION (9) is used for all sending of data with
+ * a flush after each frame. A frame may contain multiple lines
+ * and should be treated as raw binary data.
+ *
+ */
 
 
 enum izip_status { IZIP_WAITFIRST, IZIP_OPEN, IZIP_CLOSED };
