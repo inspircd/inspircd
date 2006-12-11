@@ -148,7 +148,6 @@ class izip_session : public classbase
 	z_stream c_stream; /* compression stream */
 	z_stream d_stream; /* decompress stream */
 	izip_status status;
-	int need_bytes;
 	int fd;
 	CountedBuffer* inbuf;
 };
@@ -196,7 +195,16 @@ class ModuleZLib : public Module
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
-			return ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			char* ret = "OK";
+			try
+			{
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			}
+			catch (ModuleException& e)
+			{
+				return NULL;
+			}
+			return ret;
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
@@ -255,6 +263,7 @@ class ModuleZLib : public Module
 		session->status = IZIP_OPEN;
 
 		session->inbuf = new CountedBuffer();
+		ServerInstance->Log(DEBUG,"session->inbuf ALLOC = %d, %08x", fd, session->inbuf);
 
 		session->c_stream.zalloc = (alloc_func)0;
 		session->c_stream.zfree = (free_func)0;
@@ -263,7 +272,6 @@ class ModuleZLib : public Module
 		session->d_stream.zalloc = (alloc_func)0;
 		session->d_stream.zfree = (free_func)0;
 		session->d_stream.opaque = (voidpf)0;
-
 	}
 
 	virtual void OnRawSocketConnect(int fd)
@@ -289,6 +297,8 @@ class ModuleZLib : public Module
 
 		if (readresult > 0)
 		{
+			ServerInstance->Log(DEBUG,"session->inbuf PTR = %d, %08x", fd, session->inbuf);
+
 			session->inbuf->AddData(compr, readresult);
 	
 			int size = session->inbuf->GetFrame(compr, CHUNK);
@@ -315,6 +325,8 @@ class ModuleZLib : public Module
 				total_in_uncompressed += session->d_stream.total_out;
 	
 				buffer[session->d_stream.total_out] = 0;
+
+				ServerInstance->Log(DEBUG,"Decompressed %d bytes", session->d_stream.total_out);
 			}
 		}
 		return (readresult > 0);
@@ -322,6 +334,8 @@ class ModuleZLib : public Module
 
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
+		ServerInstance->Log(DEBUG,"Compressing %d bytes", count);
+
 		izip_session* session = &sessions[fd];
 		int ocount = count;
 

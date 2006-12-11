@@ -302,8 +302,17 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
-			ServerInstance->Log(DEBUG, "Hooking socket %08x", ISR->Sock);
-			return ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			char* ret = "OK";
+			try
+			{
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			}
+			catch (ModuleException &e)
+			{
+				return NULL;
+			}
+
+			return ret;
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{

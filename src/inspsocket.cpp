@@ -505,7 +505,7 @@ bool InspSocket::Poll()
 				if (!this->Instance->SE->AddFd(this))
 					return false;
 			}
-			if (this->IsIOHooked)
+			if (Instance->Config->GetIOHook(this))
 			{
 				try
 				{

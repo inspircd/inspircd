@@ -700,6 +700,9 @@ class TreeSocket : public InspSocket
 	{
 		myhost = ServerName;
 		this->LinkState = CONNECTING;
+
+		if (Hook)
+			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 	}
 
 	/** When a listening socket gives us a new file descriptor,
