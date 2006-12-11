@@ -541,4 +541,7 @@ irc::string operator+ (irc::string& leftval, std::string& rightval);
 bool operator== (std::string& leftval, irc::string& rightval);
 bool operator== (irc::string& leftval, std::string& rightval);
 
+std::string assign(const irc::string &other);
+irc::string assign(const std::string &other);
+
 #endif

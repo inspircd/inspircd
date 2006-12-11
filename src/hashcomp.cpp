@@ -604,3 +604,13 @@ unsigned char irc::dynamicbitmask::GetSize()
 	return bits_size;
 }
 
+std::string assign(const irc::string &other)
+{
+	return other.c_str();
+}
+
+irc::string assign(const std::string &other)
+{
+	return other.c_str();
+}
+
