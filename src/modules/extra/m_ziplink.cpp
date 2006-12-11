@@ -347,7 +347,8 @@ class ModuleZLib : public Module
 
 				ServerInstance->Log(DEBUG,"Decompressed %d bytes, total_decomp=%d: '%s'", session->d_stream.total_out, total_decomp, buffer);
 
-				size = session->inbuf->GetFrame(compr, CHUNK);
+				if (total_decomp < count)
+					size = session->inbuf->GetFrame(compr, CHUNK);
 			}
 
 			buffer[total_decomp] = 0;
