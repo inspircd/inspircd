@@ -131,12 +131,11 @@ class CountedBuffer : public classbase
 		SI->Log(DEBUG,"Removing first frame from buffer sized %d", amount_expected);
 		unsigned char* temp = buffer;
 
-		bufsz -= (amount_expected + 4);
 		buffer = new unsigned char[bufsz + 1];
 
 		SI->Log(DEBUG,"Shrunk buffer to %d", bufsz);
 
-		memcpy(buffer, temp + amount_expected + 4, bufsz);
+		memcpy(buffer, temp + amount_expected, bufsz - amount_expected);
 
 		amount_read -= (amount_expected + 4);
 		SI->Log(DEBUG,"Amount read now %d", amount_read);
