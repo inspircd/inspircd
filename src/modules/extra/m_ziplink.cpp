@@ -62,8 +62,8 @@ const unsigned int CHUNK = 128 * 1024;
 
 class CountedBuffer : public classbase
 {
-	std::deque<unsigned char> buffer; /* Current buffer contents */
-	unsigned int amount_expected;   /* Amount of data expected */
+	std::string buffer;		/* Current buffer contents */
+	unsigned int amount_expected;	/* Amount of data expected */
  public:
 	CountedBuffer()
 	{
@@ -72,25 +72,26 @@ class CountedBuffer : public classbase
 
 	void AddData(unsigned char* data, int data_length)
 	{
-		for (int i = 0; i < data_length; i++)
-			buffer.push_back(data[i]);
-
+		//printf("ADDDATA\n");
+		buffer.append((const char*)data, data_length);
 		this->NextFrameSize();
+		//printf("SIZE=%d %d\n",buffer.length(), data_length);
 	}
 
 	void NextFrameSize()
 	{
-		if ((!amount_expected) && (buffer.size() >= 4))
+		if ((!amount_expected) && (buffer.length() >= 4))
 		{
-			/* We have enough to read an int */
-			char sz[4];
-			for (int i = 0; i < 4; i++)
-			{
-				sz[i] = buffer.front();
-				buffer.pop_front();
-			}
-			int* size = (int*)sz;
-			amount_expected = ntohl(*size);
+			/* We have enough to read an int -
+			 * Yes, this is safe, but its ugly. Give me
+			 * a nicer way to read 4 bytes from a binary
+			 * stream, and push them into a 32 bit int,
+			 * and i'll consider replacing this.
+			 */
+			amount_expected = ntohl((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | buffer[0]);
+			//printf("EXPECT: %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3]);
+			buffer = buffer.substr(4);
+			//printf("NEXTFRAME FS=%d SIZE=%d\n",amount_expected, buffer.length());
 		}
 	}
 
@@ -101,18 +102,15 @@ class CountedBuffer : public classbase
 			/* We know how much we're expecting...
 			 * Do we have enough yet?
 			 */
-			if (buffer.size() >= amount_expected)
+			if (buffer.length() >= amount_expected)
 			{
 				int j = 0;
 				for (unsigned int i = 0; i < amount_expected; i++, j++)
-				{
-					frame[i] = buffer.front();
-					buffer.pop_front();
-				}
+					frame[i] = buffer[i];
 
+				buffer = buffer.substr(j);
 				amount_expected = 0;
 				NextFrameSize();
-
 				return j;
 			}
 		}
@@ -374,8 +372,7 @@ class ModuleZLib : public Module
 		 */
 		memcpy(compr, &x, sizeof(x));
 
-		const char* string_likes_signed_chars = (const char*)compr;
-		session->outbuf.append(string_likes_signed_chars, session->c_stream.total_out+4);
+		session->outbuf.append((const char*)compr, session->c_stream.total_out+4);
 
 		int ret = write(fd, session->outbuf.data(), session->outbuf.length());
 
@@ -386,7 +383,10 @@ class ModuleZLib : public Module
 			if (ret == -1)
 				return errno == EAGAIN;
 			else
+			{
+				session->outbuf = "";
 				return 0;
+			}
 		}
 
 		ServerInstance->Log(DEBUG,"Sending frame of size %d", ntohl(x));
