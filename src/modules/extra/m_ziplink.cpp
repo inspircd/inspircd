@@ -329,7 +329,7 @@ class ModuleZLib : public Module
 		if(session->status != IZIP_OPEN)
 		{
 			CloseSession(session);
-			return 0;
+			return -1;
 		}
 
 		unsigned char compr[CHUNK];
@@ -381,11 +381,19 @@ class ModuleZLib : public Module
 		else if (ret < 1)
 		{
 			if (ret == -1)
-				return errno == EAGAIN;
+			{
+				if (errno == EAGAIN)
+					return 0;
+				else
+				{
+					session->outbuf = "";
+					return -1;
+				}
+			}
 			else
 			{
 				session->outbuf = "";
-				return 0;
+				return -1;
 			}
 		}
 
