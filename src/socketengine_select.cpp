@@ -148,7 +148,7 @@ int SelectEngine::DispatchEvents()
 					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 						errcode = errno;
 
-					v[i]->HandleEvent(EVENT_ERROR, errcode);
+					ev[i]->HandleEvent(EVENT_ERROR, errcode);
 				}
 				continue;
 			}
