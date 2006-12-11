@@ -401,8 +401,6 @@ class ModuleZLib : public Module
 			}
 		}
 
-		ServerInstance->Log(DEBUG,"Sending frame of size %d", ntohl(x));
-
 		/* ALL LIES the lot of it, we havent really written
 		 * this amount, but the layer above doesnt need to know.
 		 */
