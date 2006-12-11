@@ -56,10 +56,18 @@
  *
  */
 
+/* Status of a connection */
 enum izip_status { IZIP_OPEN, IZIP_CLOSED };
 
+/* Maximum transfer size per read operation */
 const unsigned int CHUNK = 128 * 1024;
 
+/* This class manages a compressed chunk of data preceeded by
+ * a length count.
+ *
+ * It can handle having multiple chunks of data in the buffer
+ * at any time.
+ */
 class CountedBuffer : public classbase
 {
 	std::string buffer;		/* Current buffer contents */
@@ -130,12 +138,12 @@ class CountedBuffer : public classbase
 class izip_session : public classbase
 {
  public:
-	z_stream c_stream; /* compression stream */
-	z_stream d_stream; /* decompress stream */
-	izip_status status;
-	int fd;
-	CountedBuffer* inbuf;
-	std::string outbuf;
+	z_stream c_stream;	/* compression stream */
+	z_stream d_stream;	/* decompress stream */
+	izip_status status;	/* Connection status */
+	int fd;			/* File descriptor */
+	CountedBuffer* inbuf;	/* Holds input buffer */
+	std::string outbuf;	/* Holds output buffer */
 };
 
 class ModuleZLib : public Module
@@ -180,10 +188,12 @@ class ModuleZLib : public Module
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)
 		{
+			/* Return name */
 			return "zip";
 		}
 		else if (strcmp("IS_HOOK", request->GetId()) == 0)
 		{
+			/* Attach to an inspsocket */
 			char* ret = "OK";
 			try
 			{
@@ -197,14 +207,21 @@ class ModuleZLib : public Module
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
+			/* Detatch from an inspsocket */
 			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
+			/* Check for completion of handshake
+			 * (actually, this module doesnt handshake)
+			 */
 			return "OK";
 		}
 		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
 		{
+			/* Attach certificate data to the inspsocket
+			 * (this module doesnt do that, either)
+			 */
 			return NULL;
 		}
 		return NULL;
@@ -339,26 +356,32 @@ class ModuleZLib : public Module
 		izip_session* session = &sessions[fd];
 		int ocount = count;
 
-		if (!count)
+		if (!count)	/* Nothing to do! */
 			return 0;
-	
+
 		if(session->status != IZIP_OPEN)
 		{
+			/* Seriously, wtf? */
 			CloseSession(session);
 			return 0;
 		}
 
 		unsigned char compr[CHUNK + 4];
 
+		/* Gentlemen, start your engines! */
 		if (deflateInit(&session->c_stream, Z_BEST_COMPRESSION) != Z_OK)
 		{
 			CloseSession(session);
 			return 0;
 		}
 
+		/* Set buffer sizes (we reserve 4 bytes at the start of the
+		 * buffer for the length counters)
+		 */
 		session->c_stream.next_in  = (Bytef*)buffer;
 		session->c_stream.next_out = compr + 4;
 
+		/* Compress the text */
 		while ((session->c_stream.total_in < (unsigned int)count) && (session->c_stream.total_out < CHUNK))
 		{
 			session->c_stream.avail_in = session->c_stream.avail_out = 1;
@@ -381,10 +404,15 @@ class ModuleZLib : public Module
 		compr[2] = (session->c_stream.total_out >> 8);
 		compr[3] = (session->c_stream.total_out & 0xFF);
 
+		/* Add compressed data plus leading length to the output buffer -
+		 * Note, we may have incomplete half-sent frames in here.
+		 */
 		session->outbuf.append((const char*)compr, session->c_stream.total_out + 4);
 
+		/* Lets see how much we can send out */
 		int ret = write(fd, session->outbuf.data(), session->outbuf.length());
 
+		/* Check for errors, and advance the buffer if any was sent */
 		if (ret > 0)
 			session->outbuf = session->outbuf.substr(ret);
 		else if (ret < 1)
