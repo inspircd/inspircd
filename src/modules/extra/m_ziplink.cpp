@@ -273,10 +273,9 @@ class ModuleZLib : public Module
 		{
 			session->inbuf->AddData(compr, readresult);
 	
-			int size = session->inbuf->GetFrame(compr, CHUNK);
-			while ((size) && (total_decomp < count))
+			int size = 0;
+			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
-	
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
 				session->d_stream.next_out = (Bytef*)(buffer + total_decomp);
@@ -297,14 +296,9 @@ class ModuleZLib : public Module
 				total_in_uncompressed += session->d_stream.total_out;
 	
 				total_decomp += session->d_stream.total_out;
-
-				buffer[total_decomp] = 0;
-
-				ServerInstance->Log(DEBUG,"Decompressed %d bytes, total_decomp=%d: '%s'", session->d_stream.total_out, total_decomp, buffer);
-
-				if (total_decomp < count)
-					size = session->inbuf->GetFrame(compr, CHUNK);
 			}
+
+			buffer[total_decomp] = 0;
 
 			ServerInstance->Log(DEBUG,"Complete buffer: '%s' size=%d", buffer, total_decomp);
 		}
