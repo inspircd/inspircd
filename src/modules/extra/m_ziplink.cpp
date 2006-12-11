@@ -307,11 +307,11 @@ class ModuleZLib : public Module
 
 				total_in_compressed += readresult;
 				total_size += session->d_stream.total_out;
-				readresult = session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 			}
 
 			buffer[total_size] = 0;
+			readresult = total_size;
 
 		}
 		return (readresult > 0);
