@@ -150,7 +150,8 @@ int KQueueEngine::DispatchEvents()
 			 * Unlike smelly epoll and select, where we have to getsockopt
 			 * to get the error, this saves us time and cpu cycles. Go BSD!
 			 */
-			ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
+			if (ref[ke_list[j].ident])
+				ref[ke_list[j].ident]->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
 			continue;
 		}
 		if (ke_list[j].flags & EVFILT_WRITE)

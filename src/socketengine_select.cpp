@@ -147,22 +147,26 @@ int SelectEngine::DispatchEvents()
 				{
 					if (getsockopt(ev[i]->GetFd(), SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 						errcode = errno;
-					ev[i]->HandleEvent(EVENT_ERROR, errcode);
+
+					v[i]->HandleEvent(EVENT_ERROR, errcode);
 				}
 				continue;
 			}
-			ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
-			if (writeable[ev[i]->GetFd()])
+			if (ev[i])
 			{
-				if (ev[i])
-					ev[i]->HandleEvent(EVENT_WRITE);
-				writeable[ev[i]->GetFd()] = false;
-	
-			}
-			else
-			{
-				if (ev[i])
-					ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+				ServerInstance->Log(DEBUG,"Handle %s event on fd %d",writeable[ev[i]->GetFd()] || !ev[i]->Readable() ? "write" : "read", ev[i]->GetFd());
+				if (writeable[ev[i]->GetFd()])
+				{
+					if (ev[i])
+						ev[i]->HandleEvent(EVENT_WRITE);
+					writeable[ev[i]->GetFd()] = false;
+		
+				}
+				else
+				{
+					if (ev[i])
+						ev[i]->HandleEvent(ev[i]->Readable() ? EVENT_READ : EVENT_WRITE);
+				}
 			}
 		}
 	}
