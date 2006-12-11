@@ -370,12 +370,11 @@ class ModuleZLib : public Module
 		total_out_uncompressed += ocount;
 		total_out_compressed += session->c_stream.total_out;
 
-		int x = htonl(session->c_stream.total_out);
-		/** XXX: We memcpy it onto the start of the buffer like this to save ourselves a write().
-		 * A memcpy of 4 or so bytes is less expensive and gives the tcp stack more chance of
-		 * assembling the frame size into the same packet as the compressed frame.
-		 */
-		memcpy(compr, &x, sizeof(x));
+		/** Assemble the frame length onto the frame, in network byte order */
+		compr[0] = (session->c_stream.total_out >> 24);
+		compr[1] = (session->c_stream.total_out >> 16);
+		compr[2] = (session->c_stream.total_out >> 8);
+		compr[3] = (session->c_stream.total_out & 0xFF);
 
 		session->outbuf.append((const char*)compr, session->c_stream.total_out+4);
 
@@ -392,13 +391,13 @@ class ModuleZLib : public Module
 				else
 				{
 					session->outbuf = "";
-					return -1;
+					return 0;
 				}
 			}
 			else
 			{
 				session->outbuf = "";
-				return -1;
+				return 0;
 			}
 		}
 
