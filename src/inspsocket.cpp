@@ -390,6 +390,15 @@ bool InspSocket::FlushWriteBuffer()
 						this->Close();
 						return true;
 					}
+					else if (result == 0)
+					{
+						this->Instance->Log(DEBUG,"Write error on socket: EOF");
+						this->OnError(I_ERR_WRITE);
+						this->state = I_ERROR;
+						this->Instance->SE->DelFd(this);
+						this->Close();
+						return true;
+					}
 				}
 				catch (ModuleException& modexcept)
 				{
