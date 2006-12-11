@@ -136,7 +136,7 @@ class CountedBuffer : public classbase
 
 		SI->Log(DEBUG,"Shrunk buffer to %d", bufsz);
 
-		memcpy(buffer, temp + amount_expected, bufsz);
+		memcpy(buffer, temp + amount_expected + 4, bufsz);
 
 		amount_read -= (amount_expected + 4);
 		SI->Log(DEBUG,"Amount read now %d", amount_read);
