@@ -40,6 +40,7 @@
  *
  */
 
+static InspIRCd* SI;
 
 enum izip_status { IZIP_OPEN, IZIP_CLOSED };
 
@@ -59,6 +60,7 @@ class CountedBuffer : public classbase
 		buffer = new unsigned char[bufsz + 1];
 		bufptr = 0;
 		amount_read = 0;
+		amount_expected = 0;
 	}
 
 	~CountedBuffer()
@@ -68,8 +70,10 @@ class CountedBuffer : public classbase
 
 	void AddData(unsigned char* data, int data_length)
 	{
+		SI->Log(DEBUG,"AddData, %d bytes to add", data_length);
 		if ((data_length + bufptr) > bufsz)
 		{
+			SI->Log(DEBUG,"Need to extend buffer to %d, is now %d", data_length + bufptr, bufsz);
 			/* Buffer is too small, enlarge it and copy contents */
 			int old_bufsz = bufsz;
 			unsigned char* temp = buffer;
@@ -82,15 +86,21 @@ class CountedBuffer : public classbase
 			delete[] temp;
 		}
 
+		SI->Log(DEBUG,"Copy data in at pos %d", bufptr);
+
 		memcpy(buffer + bufptr, data, data_length);
 		bufptr += data_length;
 		amount_read += data_length;
 
+		SI->Log(DEBUG,"Amount read is now %d, bufptr is now %d", amount_read, bufptr);
+
 		if ((!amount_expected) && (amount_read >= 4))
 		{
+			SI->Log(DEBUG,"We dont yet have an expected amount");
 			/* We have enough to read an int */
 			int* size = (int*)buffer;
 			amount_expected = ntohl(*size);
+			SI->Log(DEBUG,"Expected amount is %d", amount_expected);
 		}
 	}
 
@@ -98,11 +108,13 @@ class CountedBuffer : public classbase
 	{
 		if (amount_expected)
 		{
+			SI->Log(DEBUG,"Were expecting a frame of size %d", amount_expected);
 			/* We know how much we're expecting...
 			 * Do we have enough yet?
 			 */
 			if ((amount_read - 4) >= amount_expected)
 			{
+				SI->Log(DEBUG,"We have enough for the frame (have %d)", (amount_read - 4));
 				int amt_ex = amount_expected;
 				/* Yes, we have enough now */
 				memcpy(frame, buffer + 4, amount_expected > maxsize ? maxsize : amount_expected);
@@ -116,15 +128,19 @@ class CountedBuffer : public classbase
 
 	void RemoveFirstFrame()
 	{
+		SI->Log(DEBUG,"Removing first frame");
 		unsigned char* temp = buffer;
 
 		bufsz -= (amount_expected + 4);
 		buffer = new unsigned char[bufsz + 1];
 
+		SI->Log(DEBUG,"Shrunk buffer to %d", bufsz);
+
 		memcpy(buffer, temp + amount_expected, bufsz);
 
 		amount_read -= (amount_expected + 4);
-		
+		SI->Log(DEBUG,"Amount read now %d", amount_read);
+
 		if (amount_read >= 4)
 		{
 			/* We have enough to read an int */
@@ -133,6 +149,8 @@ class CountedBuffer : public classbase
 		}
 		else
 			amount_expected = 0;
+
+		SI->Log(DEBUG,"Amount expected now %d", amount_expected);
 
 		bufptr = 0;
 
@@ -169,6 +187,8 @@ class ModuleZLib : public Module
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
+
+		SI = ServerInstance;
 	}
 
 	virtual ~ModuleZLib()
