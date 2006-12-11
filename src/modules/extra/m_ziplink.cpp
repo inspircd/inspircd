@@ -44,7 +44,7 @@ static InspIRCd* SI;
 
 enum izip_status { IZIP_OPEN, IZIP_CLOSED };
 
-const unsigned int CHUNK = 16384;
+const unsigned int CHUNK = 128 * 1024;
 
 class CountedBuffer : public classbase
 {
@@ -376,7 +376,7 @@ class ModuleZLib : public Module
 			return 0;
 		}
 
-		unsigned char compr[count*2+4];
+		unsigned char compr[CHUNK];
 
 		if (deflateInit(&session->c_stream, Z_BEST_COMPRESSION) != Z_OK)
 		{
@@ -386,7 +386,7 @@ class ModuleZLib : public Module
 		session->c_stream.next_in  = (Bytef*)buffer;
 		session->c_stream.next_out = compr+4;
 
-		while ((session->c_stream.total_in < (unsigned int)count) && (session->c_stream.total_out < (unsigned int)count*2))
+		while ((session->c_stream.total_in < (unsigned int)count) && (session->c_stream.total_out < CHUNK))
 		{
 			session->c_stream.avail_in = session->c_stream.avail_out = 1; /* force small buffers */
 			if (deflate(&session->c_stream, Z_NO_FLUSH) != Z_OK)
@@ -416,6 +416,8 @@ class ModuleZLib : public Module
 		 */
 		memcpy(compr, &x, sizeof(x));
 		write(fd, compr, session->c_stream.total_out+4);
+
+		ServerInstance->Log(DEBUG,"Sending frame of size %d", x);
 
 		return ocount;
 	}
