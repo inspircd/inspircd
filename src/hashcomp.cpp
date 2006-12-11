@@ -171,12 +171,12 @@ irc::string operator+ (irc::string& leftval, std::string& rightval)
 
 bool operator== (std::string& leftval, irc::string& rightval)
 {
-	return (leftval == std::string(rightval.c_str()));
+	return (leftval.c_str() == rightval);
 }
 
 bool operator== (irc::string& leftval, std::string& rightval)
 {
-	return (rightval == std::string(leftval.c_str()));
+	return (leftval == rightval.c_str());
 }
 
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
