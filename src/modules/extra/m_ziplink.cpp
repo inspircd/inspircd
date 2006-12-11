@@ -128,7 +128,7 @@ class CountedBuffer : public classbase
 
 	void RemoveFirstFrame()
 	{
-		SI->Log(DEBUG,"Removing first frame");
+		SI->Log(DEBUG,"Removing first frame from buffer sized %d", amount_expected);
 		unsigned char* temp = buffer;
 
 		bufsz -= (amount_expected + 4);
@@ -312,22 +312,21 @@ class ModuleZLib : public Module
 			return 1;
 
 		unsigned char compr[CHUNK + 1];
+		unsigned int total_decomp = 0;
 
 		readresult = read(fd, compr, CHUNK);
 
 		if (readresult > 0)
 		{
-			ServerInstance->Log(DEBUG,"session->inbuf PTR = %d, %08x", fd, session->inbuf);
-
 			session->inbuf->AddData(compr, readresult);
 	
 			int size = session->inbuf->GetFrame(compr, CHUNK);
-			if (size)
+			while ((size) && (total_decomp < count))
 			{
 	
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
-				session->d_stream.next_out = (Bytef*)buffer;
+				session->d_stream.next_out = (Bytef*)(buffer + total_decomp);
 				if (inflateInit(&session->d_stream) != Z_OK)
 					return -EBADF;
 	
@@ -344,10 +343,14 @@ class ModuleZLib : public Module
 				readresult = session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 	
-				buffer[session->d_stream.total_out] = 0;
+				total_decomp += session->d_stream.total_out;
 
 				ServerInstance->Log(DEBUG,"Decompressed %d bytes", session->d_stream.total_out);
+
+				size = session->inbuf->GetFrame(compr, CHUNK);
 			}
+
+			buffer[total_decomp] = 0;
 		}
 		return (readresult > 0);
 	}
