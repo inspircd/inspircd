@@ -263,7 +263,6 @@ class ModuleZLib : public Module
 			return 1;
 
 		unsigned char compr[CHUNK + 1];
-		unsigned int total_decomp = 0;
 
 		readresult = read(fd, compr, CHUNK);
 
@@ -272,13 +271,15 @@ class ModuleZLib : public Module
 			session->inbuf->AddData(compr, readresult);
 	
 			int size = 0;
+			std::string str_out;
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
+				unsigned char localbuf[count + 1];
 				ServerInstance->Log(DEBUG,"Got size %d", size);
 
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
-				session->d_stream.next_out = (Bytef*)(buffer + total_decomp);
+				session->d_stream.next_out = (Bytef*)localbuf;
 				if (inflateInit(&session->d_stream) != Z_OK)
 					return -EBADF;
 	
@@ -290,17 +291,24 @@ class ModuleZLib : public Module
 				}
 	
 				inflateEnd(&session->d_stream);
+
+				ServerInstance->Log(DEBUG,"Decompressed size: %d", session->d_stream.total_out);
+
+				localbuf[session->d_stream.total_out] = 0;
+				str_out.append((const char*)localbuf);
+
+				ServerInstance->Log(DEBUG,"str_out size: %d", str_out.length());
 	
 				total_in_compressed += readresult;
 				readresult = session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
-	
-				total_decomp += session->d_stream.total_out;
 			}
 
-			buffer[total_decomp] = 0;
+			memcpy(buffer, str_out.data(), str_out.length() > count ? count : str_out.length());
 
-			ServerInstance->Log(DEBUG,"Complete buffer: '%s' size=%d", buffer, total_decomp);
+			ServerInstance->Log(DEBUG,"Complete buffer size=%d: '%s'\r\n\r\n", str_out.length(), buffer);
+
+			readresult = str_out.length();
 		}
 		return (readresult > 0);
 	}

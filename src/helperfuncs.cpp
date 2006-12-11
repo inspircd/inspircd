@@ -33,10 +33,10 @@ static time_t LAST = 0;
 void InspIRCd::Log(int level, const char* text, ...)
 {
 	va_list argsPtr;
-	char textbuffer[MAXBUF];
+	char textbuffer[65536];
 
 	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+	vsnprintf(textbuffer, 65536, text, argsPtr);
 	va_end(argsPtr);
 
 	this->Log(level, std::string(textbuffer));
