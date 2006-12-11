@@ -363,10 +363,21 @@ class ModuleZLib : public Module
 
 		int ret = write(fd, session->outbuf.data(), session->outbuf.length());
 
+		if (ret > 0)
+			session->outbuf = session->outbuf.substr(ret);
+		else if (ret < 1)
+		{
+			if (ret == -1)
+				return errno == EAGAIN;
+			else
+				return 0;
+		}
+
 		ServerInstance->Log(DEBUG,"Sending frame of size %d", ntohl(x));
 
-		session->outbuf = session->outbuf.substr(ret);
-
+		/* ALL LIES the lot of it, we havent really written
+		 * this amount, but the layer above doesnt need to know.
+		 */
 		return ocount;
 	}
 	
