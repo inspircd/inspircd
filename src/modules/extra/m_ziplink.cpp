@@ -115,6 +115,7 @@ class izip_session : public classbase
 	izip_status status;
 	int fd;
 	CountedBuffer* inbuf;
+	std::string outbuf;
 };
 
 class ModuleZLib : public Module
@@ -356,9 +357,15 @@ class ModuleZLib : public Module
 		 * assembling the frame size into the same packet as the compressed frame.
 		 */
 		memcpy(compr, &x, sizeof(x));
-		write(fd, compr, session->c_stream.total_out+4);
+
+		const char* string_likes_signed_chars = (const char*)compr;
+		session->outbuf.append(string_likes_signed_chars, session->c_stream.total_out+4);
+
+		int ret = write(fd, session->outbuf.data(), session->outbuf.length());
 
 		ServerInstance->Log(DEBUG,"Sending frame of size %d", ntohl(x));
+
+		session->outbuf = session->outbuf.substr(ret);
 
 		return ocount;
 	}
@@ -368,6 +375,7 @@ class ModuleZLib : public Module
 		if (session->status = IZIP_OPEN)
 		{
 			session->status = IZIP_CLOSED;
+			session->outbuf = "";
 			delete session->inbuf;
 		}
 	}
