@@ -40,8 +40,6 @@
  *
  */
 
-static InspIRCd* SI;
-
 enum izip_status { IZIP_OPEN, IZIP_CLOSED };
 
 const unsigned int CHUNK = 128 * 1024;
@@ -58,7 +56,6 @@ class CountedBuffer : public classbase
 
 	void AddData(unsigned char* data, int data_length)
 	{
-		SI->Log(DEBUG,"AddData, %d bytes to add", data_length);
 		for (int i = 0; i < data_length; i++)
 			buffer.push_back(data[i]);
 
@@ -85,7 +82,6 @@ class CountedBuffer : public classbase
 	{
 		if (amount_expected)
 		{
-			SI->Log(DEBUG,"Were expecting a frame of size %d", amount_expected);
 			/* We know how much we're expecting...
 			 * Do we have enough yet?
 			 */
@@ -138,8 +134,6 @@ class ModuleZLib : public Module
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
-
-		SI = ServerInstance;
 	}
 
 	virtual ~ModuleZLib()
@@ -254,7 +248,7 @@ class ModuleZLib : public Module
 	{
 		CloseSession(&sessions[fd]);
 	}
-	
+
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		izip_session* session = &sessions[fd];
@@ -275,7 +269,6 @@ class ModuleZLib : public Module
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
 				unsigned char localbuf[count + 1];
-				ServerInstance->Log(DEBUG,"Got size %d", size);
 
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
@@ -292,22 +285,14 @@ class ModuleZLib : public Module
 	
 				inflateEnd(&session->d_stream);
 
-				ServerInstance->Log(DEBUG,"Decompressed size: %d", session->d_stream.total_out);
-
 				localbuf[session->d_stream.total_out] = 0;
 				str_out.append((const char*)localbuf);
-
-				ServerInstance->Log(DEBUG,"str_out size: %d", str_out.length());
-	
 				total_in_compressed += readresult;
 				readresult = session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 			}
 
 			memcpy(buffer, str_out.data(), str_out.length() > count ? count : str_out.length());
-
-			ServerInstance->Log(DEBUG,"Complete buffer size=%d: '%s'\r\n\r\n", str_out.length(), buffer);
-
 			readresult = str_out.length();
 		}
 		return (readresult > 0);
