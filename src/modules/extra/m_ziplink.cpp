@@ -125,7 +125,7 @@ class CountedBuffer : public classbase
 	}
 };
 
-/** Represents an ZIP user's extra data
+/** Represents an zipped connections extra data
  */
 class izip_session : public classbase
 {
@@ -141,6 +141,8 @@ class izip_session : public classbase
 class ModuleZLib : public Module
 {
 	izip_session sessions[MAX_DESCRIPTORS];
+
+	/* Used for stats z extensions */
 	float total_out_compressed;
 	float total_in_compressed;
 	float total_out_uncompressed;
@@ -172,6 +174,7 @@ class ModuleZLib : public Module
 		List[I_OnStats] = List[I_OnRequest] = 1;
 	}
 
+	/* Handle InspSocketHook API requests */
         virtual char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
@@ -207,12 +210,20 @@ class ModuleZLib : public Module
 		return NULL;
 	}
 
+	/* Handle stats z (misc stats) */
 	virtual int OnStats(char symbol, userrec* user, string_list &results)
 	{
 		if (symbol == 'z')
 		{
 			std::string sn = ServerInstance->Config->ServerName;
 
+			/* Yeah yeah, i know, floats are ew.
+			 * We used them here because we'd be casting to float anyway to do this maths,
+			 * and also only floating point numbers can deal with the pretty large numbers
+			 * involved in the total throughput of a server over a large period of time.
+			 * (we dont count 64 bit ints because not all systems have 64 bit ints, and floats
+			 * can still hold more.
+			 */
 			float outbound_r = 100 - ((total_out_compressed / (total_out_uncompressed + 0.001)) * 100);
 			float inbound_r = 100 - ((total_in_compressed / (total_in_uncompressed + 0.001)) * 100);
 
@@ -244,12 +255,10 @@ class ModuleZLib : public Module
 	{
 		izip_session* session = &sessions[fd];
 	
-		/* allocate deflate state */
+		/* allocate state and buffers */
 		session->fd = fd;
 		session->status = IZIP_OPEN;
-
 		session->inbuf = new CountedBuffer();
-		ServerInstance->Log(DEBUG,"session->inbuf ALLOC = %d, %08x", fd, session->inbuf);
 
 		session->c_stream.zalloc = (alloc_func)0;
 		session->c_stream.zfree = (free_func)0;
@@ -262,6 +271,7 @@ class ModuleZLib : public Module
 
 	virtual void OnRawSocketConnect(int fd)
 	{
+		/* Nothing special needs doing here compared to accept() */
 		OnRawSocketAccept(fd, "", 0);
 	}
 
@@ -272,27 +282,33 @@ class ModuleZLib : public Module
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
+		/* Find the sockets session */
 		izip_session* session = &sessions[fd];
 
 		if (session->status == IZIP_CLOSED)
-			return 1;
+			return 0;
 
-		unsigned char compr[CHUNK + 1];
+		unsigned char compr[CHUNK + 4];
 		unsigned int offset = 0;
 		unsigned int total_size = 0;
 
+		/* Read CHUNK bytes at a time to the buffer (usually 128k) */
 		readresult = read(fd, compr, CHUNK);
 
+		/* Did we get anything? */
 		if (readresult > 0)
 		{
+			/* Add it to the frame queue */
 			session->inbuf->AddData(compr, readresult);
 	
+			/* Parse all completed frames */
 			int size = 0;
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
 				session->d_stream.next_out = (Bytef*)(buffer + offset);
+
 				if (inflateInit(&session->d_stream) != Z_OK)
 					return -EBADF;
 	
@@ -320,51 +336,40 @@ class ModuleZLib : public Module
 
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
-		ServerInstance->Log(DEBUG,"Compressing %d bytes", count);
-
 		izip_session* session = &sessions[fd];
 		int ocount = count;
 
 		if (!count)
-		{
-			ServerInstance->Log(DEBUG,"Nothing to do!");
-			return 1;
-		}
-
+			return 0;
+	
 		if(session->status != IZIP_OPEN)
 		{
 			CloseSession(session);
-			return -1;
+			return 0;
 		}
 
-		unsigned char compr[CHUNK];
+		unsigned char compr[CHUNK + 4];
 
 		if (deflateInit(&session->c_stream, Z_BEST_COMPRESSION) != Z_OK)
 		{
-			ServerInstance->Log(DEBUG,"Deflate init failed");
+			CloseSession(session);
+			return 0;
 		}
 
 		session->c_stream.next_in  = (Bytef*)buffer;
-		session->c_stream.next_out = compr+4;
+		session->c_stream.next_out = compr + 4;
 
 		while ((session->c_stream.total_in < (unsigned int)count) && (session->c_stream.total_out < CHUNK))
 		{
-			session->c_stream.avail_in = session->c_stream.avail_out = 1; /* force small buffers */
+			session->c_stream.avail_in = session->c_stream.avail_out = 1;
 			if (deflate(&session->c_stream, Z_NO_FLUSH) != Z_OK)
 			{
-				ServerInstance->Log(DEBUG,"Couldnt deflate!");
 				CloseSession(session);
 				return 0;
 			}
 		}
-	        /* Finish the stream, still forcing small buffers: */
-		for (;;)
-		{
-			session->c_stream.avail_out = 1;
-			if (deflate(&session->c_stream, Z_FINISH) == Z_STREAM_END)
-				break;
-		}
-
+	        /* Finish the stream */
+		for (session->c_stream.avail_out = 1; deflate(&session->c_stream, Z_FINISH) != Z_STREAM_END; session->c_stream.avail_out = 1);
 		deflateEnd(&session->c_stream);
 
 		total_out_uncompressed += ocount;
@@ -376,7 +381,7 @@ class ModuleZLib : public Module
 		compr[2] = (session->c_stream.total_out >> 8);
 		compr[3] = (session->c_stream.total_out & 0xFF);
 
-		session->outbuf.append((const char*)compr, session->c_stream.total_out+4);
+		session->outbuf.append((const char*)compr, session->c_stream.total_out + 4);
 
 		int ret = write(fd, session->outbuf.data(), session->outbuf.length());
 
