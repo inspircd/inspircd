@@ -48,57 +48,36 @@ const unsigned int CHUNK = 128 * 1024;
 
 class CountedBuffer : public classbase
 {
-	int bufptr;            /* Current tail location */
-	unsigned char* buffer; /* Current buffer contents */
-	int bufsz;             /* Current buffer size */
-	int amount_expected;   /* Amount of data expected */
-	int amount_read;       /* Amount of data read so far */
+	std::deque<unsigned char> buffer; /* Current buffer contents */
+	unsigned int amount_expected;   /* Amount of data expected */
  public:
 	CountedBuffer()
 	{
-		bufsz = 1024;
-		buffer = new unsigned char[bufsz + 1];
-		bufptr = 0;
-		amount_read = 0;
 		amount_expected = 0;
-	}
-
-	~CountedBuffer()
-	{
-		delete[] buffer;
 	}
 
 	void AddData(unsigned char* data, int data_length)
 	{
 		SI->Log(DEBUG,"AddData, %d bytes to add", data_length);
-		if ((data_length + bufptr) > bufsz)
-		{
-			SI->Log(DEBUG,"Need to extend buffer to %d, is now %d", data_length + bufptr, bufsz);
-			/* Buffer is too small, enlarge it and copy contents */
-			int old_bufsz = bufsz;
-			unsigned char* temp = buffer;
+		for (int i = 0; i < data_length; i++)
+			buffer.push_back(data[i]);
 
-			bufsz += data_length;
-			buffer = new unsigned char[bufsz + 1];
+		this->NextFrameSize();
+	}
 
-			memcpy(buffer, temp, old_bufsz);
-
-			delete[] temp;
-		}
-
-		SI->Log(DEBUG,"Copy data in at pos %d", bufptr);
-
-		memcpy(buffer + bufptr, data, data_length);
-		bufptr += data_length;
-		amount_read += data_length;
-
-		SI->Log(DEBUG,"Amount read is now %d, bufptr is now %d", amount_read, bufptr);
-
-		if ((!amount_expected) && (amount_read >= 4))
+	void NextFrameSize()
+	{
+		if ((!amount_expected) && (buffer.size() >= 4))
 		{
 			SI->Log(DEBUG,"We dont yet have an expected amount");
 			/* We have enough to read an int */
-			int* size = (int*)buffer;
+			char sz[4];
+			for (int i = 0; i < 4; i++)
+			{
+				sz[i] = buffer.front();
+				buffer.pop_front();
+			}
+			int* size = (int*)sz;
 			amount_expected = ntohl(*size);
 			SI->Log(DEBUG,"Expected amount is %d", amount_expected);
 		}
@@ -112,48 +91,22 @@ class CountedBuffer : public classbase
 			/* We know how much we're expecting...
 			 * Do we have enough yet?
 			 */
-			if ((amount_read - 4) >= amount_expected)
+			if (buffer.size() >= amount_expected)
 			{
-				SI->Log(DEBUG,"We have enough for the frame (have %d)", (amount_read - 4));
-				int amt_ex = amount_expected;
-				/* Yes, we have enough now */
-				memcpy(frame, buffer + 4, amount_expected > maxsize ? maxsize : amount_expected);
-				RemoveFirstFrame();
-				return (amt_ex > maxsize) ? maxsize : amt_ex;
+				int j = 0;
+				for (unsigned int i = 0; i < amount_expected; i++, j++)
+				{
+					frame[i] = buffer.front();
+					buffer.pop_front();
+				}
+
+				NextFrameSize();
+
+				return j;
 			}
 		}
 		/* Not enough for a frame yet, COME AGAIN! */
 		return 0;
-	}
-
-	void RemoveFirstFrame()
-	{
-		SI->Log(DEBUG,"Removing first frame from buffer sized %d", amount_expected);
-		unsigned char* temp = buffer;
-
-		buffer = new unsigned char[bufsz + 1];
-
-		SI->Log(DEBUG,"Shrunk buffer to %d", bufsz);
-
-		memcpy(buffer, temp + amount_expected, bufsz - amount_expected);
-
-		amount_read -= (amount_expected + 4);
-		SI->Log(DEBUG,"Amount read now %d", amount_read);
-
-		if (amount_read >= 4)
-		{
-			/* We have enough to read an int */
-			int* size = (int*)buffer;
-			amount_expected = ntohl(*size);
-		}
-		else
-			amount_expected = 0;
-
-		SI->Log(DEBUG,"Amount expected now %d", amount_expected);
-
-		bufptr = 0;
-
-		delete[] temp;
 	}
 };
 
