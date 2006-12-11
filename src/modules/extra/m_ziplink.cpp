@@ -69,7 +69,6 @@ class CountedBuffer : public classbase
 	{
 		if ((!amount_expected) && (buffer.size() >= 4))
 		{
-			SI->Log(DEBUG,"We dont yet have an expected amount");
 			/* We have enough to read an int */
 			char sz[4];
 			for (int i = 0; i < 4; i++)
@@ -79,7 +78,6 @@ class CountedBuffer : public classbase
 			}
 			int* size = (int*)sz;
 			amount_expected = ntohl(*size);
-			SI->Log(DEBUG,"Expected amount is %d", amount_expected);
 		}
 	}
 
@@ -276,6 +274,8 @@ class ModuleZLib : public Module
 			int size = 0;
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
+				ServerInstance->Log(DEBUG,"Got size %d", size);
+
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
 				session->d_stream.next_out = (Bytef*)(buffer + total_decomp);
@@ -365,7 +365,7 @@ class ModuleZLib : public Module
 		memcpy(compr, &x, sizeof(x));
 		write(fd, compr, session->c_stream.total_out+4);
 
-		ServerInstance->Log(DEBUG,"Sending frame of size %d", x);
+		ServerInstance->Log(DEBUG,"Sending frame of size %d", ntohl(x));
 
 		return ocount;
 	}
