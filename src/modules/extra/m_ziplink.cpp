@@ -345,12 +345,14 @@ class ModuleZLib : public Module
 	
 				total_decomp += session->d_stream.total_out;
 
-				ServerInstance->Log(DEBUG,"Decompressed %d bytes", session->d_stream.total_out);
+				ServerInstance->Log(DEBUG,"Decompressed %d bytes, total_decomp=%d: '%s'", session->d_stream.total_out, total_decomp, buffer);
 
 				size = session->inbuf->GetFrame(compr, CHUNK);
 			}
 
 			buffer[total_decomp] = 0;
+
+			ServerInstance->Log(DEBUG,"Complete buffer: '%s' size=%d", buffer, total_decomp);
 		}
 		return (readresult > 0);
 	}
