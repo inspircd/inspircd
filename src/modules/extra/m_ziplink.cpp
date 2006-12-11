@@ -70,14 +70,17 @@ class CountedBuffer : public classbase
 		amount_expected = 0;
 	}
 
+	/** Adds arbitrary compressed data to the buffer.
+	 * - Binsry safe, of course.
+	 */
 	void AddData(unsigned char* data, int data_length)
 	{
-		//printf("ADDDATA\n");
 		buffer.append((const char*)data, data_length);
 		this->NextFrameSize();
-		//printf("SIZE=%d %d\n",buffer.length(), data_length);
 	}
 
+	/** Works out the size of the next compressed frame
+	 */
 	void NextFrameSize()
 	{
 		if ((!amount_expected) && (buffer.length() >= 4))
@@ -89,12 +92,15 @@ class CountedBuffer : public classbase
 			 * and i'll consider replacing this.
 			 */
 			amount_expected = ntohl((buffer[3] << 24) | (buffer[2] << 16) | (buffer[1] << 8) | buffer[0]);
-			//printf("EXPECT: %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3]);
 			buffer = buffer.substr(4);
-			//printf("NEXTFRAME FS=%d SIZE=%d\n",amount_expected, buffer.length());
 		}
 	}
 
+	/** Gets the next frame and returns its size, or returns
+	 * zero if there isnt one available yet.
+	 * A frame can contain multiple plaintext lines.
+	 * - Binary safe.
+	 */
 	int GetFrame(unsigned char* frame, int maxsize)
 	{
 		if (amount_expected)
@@ -272,6 +278,8 @@ class ModuleZLib : public Module
 			return 1;
 
 		unsigned char compr[CHUNK + 1];
+		unsigned int offset = 0;
+		unsigned int total_size = 0;
 
 		readresult = read(fd, compr, CHUNK);
 
@@ -280,14 +288,11 @@ class ModuleZLib : public Module
 			session->inbuf->AddData(compr, readresult);
 	
 			int size = 0;
-			std::string str_out;
 			while ((size = session->inbuf->GetFrame(compr, CHUNK)) != 0)
 			{
-				unsigned char localbuf[count + 1];
-
 				session->d_stream.next_in  = (Bytef*)compr;
 				session->d_stream.avail_in = 0;
-				session->d_stream.next_out = (Bytef*)localbuf;
+				session->d_stream.next_out = (Bytef*)(buffer + offset);
 				if (inflateInit(&session->d_stream) != Z_OK)
 					return -EBADF;
 	
@@ -300,15 +305,14 @@ class ModuleZLib : public Module
 	
 				inflateEnd(&session->d_stream);
 
-				localbuf[session->d_stream.total_out] = 0;
-				str_out.append((const char*)localbuf);
 				total_in_compressed += readresult;
+				total_size += session->d_stream.total_out;
 				readresult = session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 			}
 
-			memcpy(buffer, str_out.data(), str_out.length() > count ? count : str_out.length());
-			readresult = str_out.length();
+			buffer[total_size] = 0;
+
 		}
 		return (readresult > 0);
 	}
