@@ -21,6 +21,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+
 #include "socket.h"
 #include "hashcomp.h"
 #include "inspircd.h"
