@@ -45,9 +45,9 @@ class FounderProtectBase
 	int end;
 	char* dummyptr;
  protected:
-	bool remove_own_privs;
+	bool& remove_own_privs;
  public:
-	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool remove_own) :
+	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own) :
 		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own)
 	{
 	}
