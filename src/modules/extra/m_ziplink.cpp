@@ -318,6 +318,7 @@ class ModuleZLib : public Module
 		{
 			/* Add it to the frame queue */
 			session->inbuf->AddData(compr, readresult);
+			total_in_compressed += readresult;
 	
 			/* Parse all completed frames */
 			int size = 0;
@@ -339,7 +340,6 @@ class ModuleZLib : public Module
 	
 				inflateEnd(&session->d_stream);
 
-				total_in_compressed += readresult;
 				total_size += session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 				offset += session->d_stream.total_out;
