@@ -199,7 +199,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		}
 
 		 // source is a server, or ulined, we'll let them +-q the user.
-		if ((unload_kludge) || ((source == theuser) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
+		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
