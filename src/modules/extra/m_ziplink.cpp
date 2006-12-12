@@ -169,6 +169,7 @@ class ModuleZLib : public Module
 
 	virtual ~ModuleZLib()
 	{
+		ServerInstance->UnpublishInterface("InspSocketHook", this);
 	}
 
 	virtual Version GetVersion()
