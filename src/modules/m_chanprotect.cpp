@@ -257,7 +257,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
-		if ((unload_kludge) || ((source == theuser) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
+		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
 			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
 		}
