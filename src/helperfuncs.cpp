@@ -32,6 +32,10 @@ static time_t LAST = 0;
  */
 void InspIRCd::Log(int level, const char* text, ...)
 {
+	/* Do this check again here so that we save pointless vsnprintf calls */
+	if ((level < Config->LogLevel) && !Config->forcedebug)
+		return;
+
 	va_list argsPtr;
 	char textbuffer[65536];
 
