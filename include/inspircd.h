@@ -193,6 +193,9 @@ class FileLogger : public EventHandler
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, long> > FailedPortList;
 
+/** A list of ip addresses cross referenced against clone counts */
+typedef std::map<irc::string, unsigned int> clonemap;
+
 class XLineManager;
 
 /** The main class of the irc server.
@@ -401,6 +404,10 @@ class InspIRCd : public classbase
 	 */
 	std::vector<userrec*> all_opers;
 
+	clonemap local_clones;
+
+	clonemap global_clones;
+
 	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
 	 */
 	irc::whowas::whowas_users whowas;
@@ -452,6 +459,10 @@ class InspIRCd : public classbase
 	 * @return The old time delta
 	 */
 	int SetTimeDelta(int delta);
+
+	void AddLocalClone(userrec* user);
+
+	void AddGlobalClone(userrec* user);
 
 	/** Get the time offset in seconds
 	 * @return The current time delta (in seconds)

@@ -841,6 +841,24 @@ int InspIRCd::SetTimeDelta(int delta)
 	return old;
 }
 
+void InspIRCd::AddLocalClone(userrec* user)
+{
+	clonemap::iterator x = local_clones.find(user->GetIPString());
+	if (x != local_clones.end())
+		x->second++;
+	else
+		local_clones[user->GetIPString()] = 1;
+}
+
+void InspIRCd::AddGlobalClone(userrec* user)
+{
+	clonemap::iterator y = global_clones.find(user->GetIPString());
+	if (y != global_clones.end())
+		y->second++;
+	else
+		global_clones[user->GetIPString()] = 1;
+}
+
 int InspIRCd::GetTimeDelta()
 {
 	return time_delta;

@@ -331,6 +331,26 @@ userrec::~userrec()
 
 	if (ip)
 	{
+		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
+		if (x != ServerInstance->local_clones.end())
+		{
+			x->second--;
+			if (!x->second)
+			{
+				ServerInstance->local_clones.erase(x);
+			}
+		}
+	
+		clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
+		if (y != ServerInstance->global_clones.end())
+		{
+			y->second--;
+			if (!y->second)
+			{
+				ServerInstance->global_clones.erase(y);
+			}
+		}
+
 		if (this->GetProtocolFamily() == AF_INET)
 		{
 			delete (sockaddr_in*)ip;
@@ -1032,6 +1052,9 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	
 	Instance->Log(DEBUG,"Hosts set.");
 
+	Instance->AddLocalClone(New);
+	Instance->AddGlobalClone(New);
+
 	// set the registration timeout for this user
 	unsigned long class_regtimeout = 90;
 	int class_flood = 0;
@@ -1130,42 +1153,20 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 long userrec::GlobalCloneCount()
 {
-	char u2[128];
-	long x = 0;
-	strlcpy(u2, this->GetIPString(), 64);
-
-	for (user_hash::const_iterator a = ServerInstance->clientlist.begin(); a != ServerInstance->clientlist.end(); a++)
-	{
-		/* We have to match ip's as strings - we don't know what protocol
-		 * a remote user may be using
-		 */
-		if (strcasecmp(a->second->GetIPString(), u2) == 0)
-			x++;
-	}
-
-	return x;
+	clonemap::iterator x = ServerInstance->global_clones.find(this->GetIPString());
+	if (x != ServerInstance->global_clones.end())
+		return x->second;
+	else
+		return 0;
 }
 
 long userrec::LocalCloneCount()
 {
-	long x = 0;
-	for (std::vector<userrec*>::const_iterator a = ServerInstance->local_users.begin(); a != ServerInstance->local_users.end(); a++)
-	{
-		userrec* comp = *a;
-#ifdef IPV6
-		/* I dont think theres any faster way of matching two ipv6 addresses than memcmp */
-		in6_addr* s1 = &(((sockaddr_in6*)comp->ip)->sin6_addr);
-		in6_addr* s2 = &(((sockaddr_in6*)this->ip)->sin6_addr);
-		if (!memcmp(s1->s6_addr, s2->s6_addr, sizeof(in6_addr)))
-			x++;
-#else
-		in_addr* s1 = &((sockaddr_in*)comp->ip)->sin_addr;
-		in_addr* s2 = &((sockaddr_in*)this->ip)->sin_addr;
-		if (s1->s_addr == s2->s_addr)
-			x++;
-#endif
-	}
-	return x;
+	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
+	if (x != ServerInstance->local_clones.end())
+		return x->second;
+	else
+		return 0;
 }
 
 void userrec::FullConnect(CullList* Goners)
