@@ -348,6 +348,14 @@ class userrec : public connection
 	 */
 	long recvqmax;
 
+	/** This is true if the user matched an exception when they connected to the ircd.
+	 * It isnt valid after this point, and you should not attempt to do anything with it
+	 * after this point, because the eline might be removed at a later time, and/or no
+	 * longer be applicable to this user. It is only used to save doing the eline lookup
+	 * twice (instead we do it once and set this value).
+	 */
+	bool exempt;
+
 	/** Default constructor
 	 * @throw Nothing at present
 	 */

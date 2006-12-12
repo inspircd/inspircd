@@ -300,7 +300,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	haspassed = dns_done = false;
+	exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq = "";
 	sendq = "";
@@ -1027,7 +1027,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	}
 
 	Instance->Log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
-	
+
 	New = new userrec(Instance);
 	Instance->clientlist[tempnick] = New;
 	New->fd = socket;
@@ -1041,16 +1041,12 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->signon = Instance->Time() + Instance->Config->dns_timeout;
 	New->lastping = 1;
 
-	Instance->Log(DEBUG,"Setting socket addresses");
 	New->SetSockAddr(AF_FAMILY, ipaddr, port);
-	Instance->Log(DEBUG,"Socket addresses set.");
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)
 		New->dhost[j] = New->host[j] = *temp;
 	New->dhost[j] = New->host[j] = 0;
-	
-	Instance->Log(DEBUG,"Hosts set.");
 
 	Instance->AddLocalClone(New);
 	Instance->AddGlobalClone(New);
@@ -1061,8 +1057,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	long class_threshold = 5;
 	long class_sqmax = 262144;      // 256kb
 	long class_rqmax = 4096;	// 4k
-
-	Instance->Log(DEBUG,"Class stuff set.");
 
 	for (ClassVector::iterator i = Instance->Config->Classes.begin(); i != Instance->Config->Classes.end(); i++)
 	{
@@ -1078,8 +1072,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		}
 	}
 
-	Instance->Log(DEBUG,"nping etc set.");
-
 	New->nping = Instance->Time() + New->pingmax + Instance->Config->dns_timeout;
 	New->timeout = Instance->Time() + class_regtimeout;
 	New->flood = class_flood;
@@ -1087,19 +1079,14 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->sendqmax = class_sqmax;
 	New->recvqmax = class_rqmax;
 
-	Instance->Log(DEBUG,"Push back to local users.");
 	Instance->local_users.push_back(New);
 
-	Instance->Log(DEBUG,"Check softlimit: %d %d %d",Instance->local_users.size(), Instance->Config->SoftLimit, MAXCLIENTS);
 	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
 	{
-		Instance->Log(DEBUG,"Check softlimit failed");
 		Instance->WriteOpers("*** Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
 		userrec::QuitUser(Instance, New,"No more connections allowed");
 		return;
 	}
-
-	Instance->Log(DEBUG,"Softlimit passed.");
 
 	/*
 	 * XXX -
@@ -1117,37 +1104,31 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		return;
 	}
 
-	Instance->Log(DEBUG,"socket < MAX_DESCRIPTORS passed.");
-
-	ELine* e = Instance->XLines->matches_exception(New);
-	if (!e)
+	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
+	if (!New->exempt)
 	{
-		Instance->Log(DEBUG,"Doesnt match eline.");
 		ZLine* r = Instance->XLines->matches_zline(ipaddr);
 		if (r)
 		{
-			Instance->Log(DEBUG,"Matches zline.");
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
 			userrec::QuitUser(Instance, New, reason);
 			return;
 		}
-		Instance->Log(DEBUG,"Doesnt match zline.");
 	}
-
-	Instance->Log(DEBUG,"Check before AddFd.");
 
 	if (socket > -1)
 	{
-		Instance->Log(DEBUG,"Adding fd.");
 		if (!Instance->SE->AddFd(New))
 		{
-			Instance->Log(DEBUG,"Oops, fd already exists");
 			userrec::QuitUser(Instance, New, "Internal error handling connection");
 			return;
 		}
 	}
 
+	/* NOTE: even if dns lookups are *off*, we still need to display this.
+	 * BOPM and other stuff requires it.
+	 */
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 }
 
@@ -1201,9 +1182,7 @@ void userrec::FullConnect(CullList* Goners)
 		return;
 	}
 
-	ELine* e = ServerInstance->XLines->matches_exception(this);
-
-	if (!e)
+	if (!this->exempt)
 	{
 		GLine* r = ServerInstance->XLines->matches_gline(this);
 		
