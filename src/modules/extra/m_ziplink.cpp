@@ -328,8 +328,9 @@ class ModuleZLib : public Module
 				session->d_stream.avail_in = 0;
 				session->d_stream.next_out = (Bytef*)(buffer + offset);
 
+				/* If we cant call this, well, we're boned. */
 				if (inflateInit(&session->d_stream) != Z_OK)
-					return -EBADF;
+					return 0;
 	
 				while ((session->d_stream.total_out < count) && (session->d_stream.total_in < (unsigned int)size))
 				{
@@ -338,14 +339,19 @@ class ModuleZLib : public Module
 						break;
 				}
 	
+				/* Stick a fork in me, i'm done */
 				inflateEnd(&session->d_stream);
 
+				/* Update counters and offsets */
 				total_size += session->d_stream.total_out;
 				total_in_uncompressed += session->d_stream.total_out;
 				offset += session->d_stream.total_out;
 			}
 
+			/* Null-terminate the buffer -- this doesnt harm binary data */
 			buffer[total_size] = 0;
+
+			/* Set the read size to the correct total size */
 			readresult = total_size;
 
 		}
