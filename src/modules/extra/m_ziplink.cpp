@@ -14,9 +14,6 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
-
 #include "zlib.h"
 
 #include "inspircd_config.h"
