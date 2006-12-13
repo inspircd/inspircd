@@ -3,13 +3,13 @@
  *       +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
+ *       E-mail:
+ *<brain@chatspike.net>
+ *   	  <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -27,24 +27,123 @@ using namespace std;
 
 /* $ModDesc: Provides support for the /watch command */
 
-/** A watchlist entry
- */
-class watchentry : public classbase
-{
- public:
-	userrec* watcher;
-	std::string target;
-};
+/*       nickname             list of users watching the nick               */
+typedef std::map<irc::string, std::deque<userrec*> >                        watchentries;
 
-typedef std::vector<watchentry*> watchlist;
-watchlist watches;
+/*       nickname             'ident host signon', or empty if not online   */
+typedef std::map<irc::string, std::string>                                  watchlist;
+
+/* Whos watching each nickname */
+watchentries whos_watching_me;
 
 /** Handle /WATCH
  */
 class cmd_watch : public command_t
 {
+	unsigned int& MAX_WATCH;
  public:
-	cmd_watch (InspIRCd* Instance) : command_t(Instance,"WATCH",0,0)
+	CmdResult remove_watch(userrec* user, const char* nick)
+	{
+		// removing an item from the list
+		if (!ServerInstance->IsNick(nick))
+		{
+			user->WriteServ("942 %s %s :Invalid nickname", user->nick, nick);
+			return CMD_FAILURE;
+		}
+
+		watchlist* wl;
+		if (user->GetExt("watchlist", wl))
+		{
+			/* Yup, is on my list */
+			watchlist::iterator n = wl->find(nick);
+			if (n != wl->end())
+			{
+				if (!n->second.empty())
+					user->WriteServ("602 %s %s %s :stopped watching", user->nick, n->first.c_str(), n->second.c_str());
+				else
+					user->WriteServ("602 %s %s * * 0 :stopped watching", user->nick, nick);
+
+				wl->erase(n);
+			}
+
+			if (!wl->size())
+			{
+				user->Shrink("watchlist");
+				delete wl;
+			}
+
+			watchentries::iterator x = whos_watching_me.find(nick);
+			if (x != whos_watching_me.end())
+			{
+				/* People are watching this user, am i one of them? */
+				std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+				if (n != x->second.end())
+					/* I'm no longer watching you... */
+					x->second.erase(n);
+
+				if (!x->second.size())
+					whos_watching_me.erase(nick);
+			}
+		}
+
+		return CMD_SUCCESS;
+	}
+
+	CmdResult add_watch(userrec* user, const char* nick)
+	{
+		if (!ServerInstance->IsNick(nick))
+		{
+			user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
+			return CMD_FAILURE;
+		}
+
+		watchlist* wl;
+		if (!user->GetExt("watchlist", wl))
+		{
+			wl = new watchlist();
+			user->Extend("watchlist", wl);
+		}
+
+		if (wl->size() == MAX_WATCH)
+		{
+			user->WriteServ("942 %s %s :Too many WATCH entries", user->nick, nick);
+			return CMD_FAILURE;
+		}
+
+		watchlist::iterator n = wl->find(nick);
+		if (n == wl->end())
+		{
+			/* Don't already have the user on my watch list, proceed */
+			watchentries::iterator x = whos_watching_me.find(nick);
+			if (x != whos_watching_me.end())
+			{
+				/* People are watching this user, add myself */
+				x->second.push_back(user);
+			}
+			else
+			{
+				std::deque<userrec*> newlist;
+				newlist.push_back(user);
+				whos_watching_me[nick] = newlist;
+			}
+
+			userrec* target = ServerInstance->FindNick(nick);
+			if (target)
+			{
+				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
+				user->WriteServ("604 %s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
+			}
+			else
+			{
+				(*wl)[nick] = "";
+				user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
+			}
+		}
+
+		return CMD_SUCCESS;
+	}
+
+	cmd_watch (InspIRCd* Instance, unsigned int &maxwatch) : command_t(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
@@ -54,16 +153,13 @@ class cmd_watch : public command_t
 	{
 		if (!pcnt)
 		{
-			for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			watchlist* wl;
+			if (user->GetExt("watchlist", wl))
 			{
-				watchentry* a = (watchentry*)(*q);
-				if (a->watcher == user)
+				for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 				{
-					userrec* targ = ServerInstance->FindNick(a->target);
-					if (targ)
-					{
-						user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
-					}
+					if (!q->second.empty())
+						user->WriteServ("604 %s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
 				}
 			}
 			user->WriteServ("607 %s :End of WATCH list",user->nick);
@@ -76,130 +172,59 @@ class cmd_watch : public command_t
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
-					bool done = false;
-					while (!done)
+					watchlist* wl;
+					if (user->GetExt("watchlist", wl))
 					{
-						done = true;
-						for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-						{
-							watchentry* a = (watchentry*)(*q);
-							if (a->watcher == user)
-							{
-								done = false;
-								watches.erase(q);
-								delete a;
-								break;
-							}
-						}
+						delete wl;
+						user->Shrink("watchlist");
 					}
 				}
 				else if (!strcasecmp(nick,"L"))
 				{
-					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					watchlist* wl;
+					if (user->GetExt("watchlist", wl))
 					{
-						watchentry* a = (watchentry*)(*q);
-						if (a->watcher == user)
+						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
-							userrec* targ = ServerInstance->FindNick(a->target);
-							if (targ)
-							{
-								user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,targ->nick,targ->ident,targ->dhost,targ->age);
-							}
+							if (!q->second.empty())
+								user->WriteServ("604 %s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
 						}
 					}
 					user->WriteServ("607 %s :End of WATCH list",user->nick);
 				}
 				else if (!strcasecmp(nick,"S"))
 				{
-					std::string list = "";
-					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+					watchlist* wl;
+					int you_have = 0;
+					int youre_on = 0;
+					std::string list;
+
+					if (user->GetExt("watchlist", wl))
 					{
-						watchentry* a = (watchentry*)(*q);
-						if (a->watcher == user)
-						{
-							list.append(" ").append(a->target);
-						}
+						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
+							if (!q->second.empty())
+								list.append(q->first.c_str()).append(" ");
+						you_have = wl->size();
 					}
-					char* l = (char*)list.c_str();
-					if (*l == ' ')
-						l++;
-					user->WriteServ("606 %s :%s",user->nick,l);
+
+					watchentries::iterator x = whos_watching_me.find(user->nick);
+					if (x != whos_watching_me.end())
+						youre_on = x->second.size();
+
+					user->WriteServ("603 %s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
+					if (!list.empty())
+						user->WriteServ("606 %s :%s",user->nick, list.c_str());
 					user->WriteServ("607 %s :End of WATCH S",user->nick);
 				}
 				else if (nick[0] == '-')
 				{
-					// removing an item from the list
 					nick++;
-					if (!ServerInstance->IsNick(nick))
-					{
-						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
-						return CMD_FAILURE;
-					}
-					irc::string n1 = nick;
-					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-					{
-						watchentry* b = (watchentry*)(*q);
-						if (b->watcher == user)
-						{
-							irc::string n2 = b->target.c_str();
-							userrec* a = ServerInstance->FindNick(b->target);
-							if (a)
-							{
-								user->WriteServ("602 %s %s %s %s %lu :stopped watching",user->nick,a->nick,a->ident,a->dhost,a->age);
-							}
-							else
-							{
-								user->WriteServ("602 %s %s * * 0 :stopped watching",user->nick,b->target.c_str());
-							}
-							if (n1 == n2)
-							{
-								watches.erase(q);
-								delete b;
-								break;
-							}
-						}
-					}
+					return remove_watch(user, nick);
 				}
 				else if (nick[0] == '+')
 				{
 					nick++;
-					if (!ServerInstance->IsNick(nick))
-					{
-						user->WriteServ("942 %s %s :Invalid nickname",user->nick,nick);
-						return CMD_FAILURE;
-					}
-					irc::string n1 = nick;
-					bool exists = false;
-					for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
-					{
-						watchentry* a = (watchentry*)(*q);
-						if (a->watcher == user)
-						{
-							irc::string n2 = a->target.c_str();
-							if (n1 == n2)
-							{
-								// already on watch list
-								exists = true;
-							}
-						}
-					}
-					if (!exists)
-					{
-						watchentry* w = new watchentry();
-						w->watcher = user;
-						w->target = nick;
-						watches.push_back(w);
-						ServerInstance->Log(DEBUG,"*** Added %s to watchlist of %s",nick,user->nick);
-					}
-		       			userrec* a = ServerInstance->FindNick(nick);
-		       			if (a)
-		       			{
-		       				user->WriteServ("604 %s %s %s %s %lu :is online",user->nick,a->nick,a->ident,a->dhost,a->age);
-					}
-					else
-					{
-						user->WriteServ("605 %s %s * * 0 :is offline",user->nick,nick);
-					}
+					return add_watch(user, nick);
 				}
 			}
 		}
@@ -211,13 +236,13 @@ class cmd_watch : public command_t
 class Modulewatch : public Module
 {
 	cmd_watch* mycommand;
+	unsigned int maxwatch;
  public:
 
 	Modulewatch(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module::Module(Me), maxwatch(32)
 	{
-		
-		mycommand = new cmd_watch(ServerInstance);
+		mycommand = new cmd_watch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
 	}
 
@@ -229,30 +254,37 @@ class Modulewatch : public Module
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
-		irc::string n2 = user->nick;
-		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+		watchentries::iterator x = whos_watching_me.find(user->nick);
+		if (x != whos_watching_me.end())
 		{
-			watchentry* a = (watchentry*)(*q);
-			irc::string n1 = a->target.c_str();
-			if (n1 == n2)
+			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s is in notify of %s",user->nick,a->watcher->nick);
-				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,user->nick,user->ident,user->dhost,time(NULL));
+				(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
+				watchlist* wl;
+				if ((*n)->GetExt("watchlist", wl))
+					/* We were on somebody's notify list, set ourselves offline */
+					(*wl)[user->nick] = "";
 			}
 		}
-		bool done = false;
-		while (!done)
+
+		/* Now im quitting, if i have a notify list, im no longer watching anyone */
+		watchlist* wl;
+		if (user->GetExt("watchlist", wl))
 		{
-			done = true;
-			for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+			/* Iterate every user on my watch list, and take me out of the whos_watching_me map for each one we're watching */
+			for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 			{
-				watchentry* a = (watchentry*)(*q);
-				if (a->watcher == user)
+				watchentries::iterator x = whos_watching_me.find(i->first);
+				if (x != whos_watching_me.end())
 				{
-					done = false;
-					watches.erase(q);
-					delete a;
-					break;
+						/* People are watching this user, am i one of them? */
+						std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+						if (n != x->second.end())
+							/* I'm no longer watching you... */
+							x->second.erase(n);
+	
+						if (!x->second.size())
+							whos_watching_me.erase(user->nick);
 				}
 			}
 		}
@@ -260,40 +292,51 @@ class Modulewatch : public Module
 
 	virtual void OnPostConnect(userrec* user)
 	{
-		irc::string n2 = user->nick;
 		ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
-		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+		watchentries::iterator x = whos_watching_me.find(user->nick);
+		if (x != whos_watching_me.end())
 		{
-			watchentry* a = (watchentry*)(*q);
-			irc::string n1 = a->target.c_str();
-			if (n1 == n2)
+			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s is in notify of %s",user->nick,a->watcher->nick);
-				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
+				watchlist* wl;
+				if ((*n)->GetExt("watchlist", wl))
+					/* We were on somebody's notify list, set ourselves online */
+					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
 			}
 		}
 	}
 
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
-		irc::string n2 = oldnick.c_str();
-		irc::string n3 = user->nick;
 		ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
-		for (watchlist::iterator q = watches.begin(); q != watches.end(); q++)
+
+		watchentries::iterator new_online = whos_watching_me.find(user->nick);
+		watchentries::iterator new_offline = whos_watching_me.find(assign(oldnick));
+
+		if (new_online != whos_watching_me.end())
 		{
-			watchentry* a = (watchentry*)(*q);
-			irc::string n1 = a->target.c_str();
-			// changed from a nick on the watchlist to one that isnt
-			if (n1 == n2)
+			for (std::deque<userrec*>::iterator n = new_online->second.begin(); n != new_online->second.end(); n++)
 			{
-				ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick %s was on notify list of %s",oldnick.c_str(),a->watcher->nick);
-				a->watcher->WriteServ("601 %s %s %s %s %lu :went offline",a->watcher->nick,oldnick.c_str(),user->ident,user->dhost,time(NULL));
+				watchlist* wl;
+				if ((*n)->GetExt("watchlist", wl))
+				{
+					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
+					(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, (*wl)[user->nick].c_str());
+				}
 			}
-			else if (n1 == n3)
+		}
+
+		if (new_offline != whos_watching_me.end())
+		{
+			for (std::deque<userrec*>::iterator n = new_offline->second.begin(); n != new_offline->second.end(); n++)
 			{
-				// changed from a nick not on notify to one that is
-				ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: new nick %s is on notify list of %s",user->nick,a->watcher->nick);
-				a->watcher->WriteServ("600 %s %s %s %s %lu :arrived online",a->watcher->nick,user->nick,user->ident,user->dhost,user->age);
+				watchlist* wl;
+				if ((*n)->GetExt("watchlist", wl))
+				{
+ 					(*n)->WriteServ("601 %s %s %s :went offline", (*n)->nick, (*wl)[user->nick].c_str());
+					(*wl)[user->nick] = "";
+				}
 			}
 		}
 	}	
@@ -301,7 +344,7 @@ class Modulewatch : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
-		output = output + " WATCH=999";
+		output = output + " WATCH=32";
 	}
 	
 	virtual ~Modulewatch()
