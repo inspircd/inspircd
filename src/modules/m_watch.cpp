@@ -312,7 +312,7 @@ class Modulewatch : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
+		List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
@@ -350,6 +350,24 @@ class Modulewatch : public Module
 						if (!x->second.size())
 							whos_watching_me.erase(user->nick);
 				}
+			}
+
+			/* User's quitting, we're done with this. */
+			delete wl;
+		}
+	}
+
+        virtual void OnCleanup(int target_type, void* item)
+	{
+		if (target_type == TYPE_USER)
+		{
+			watchlist* wl;
+			userrec* user = (userrec*)item;
+
+			if (user->GetExt("watchlist", wl))
+			{
+				user->Shrink("watchlist");
+				delete wl;
 			}
 		}
 	}
