@@ -1679,7 +1679,7 @@ channels.o: channels.cpp ../include/base.h ../include/channels.h ../include/insp
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
 
 mode.o: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES) modes/modeclasses.a
-	\${MAKE} -C "modes" DIRNAME="src/modes" \$(MAKEARGS)
+	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS)
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
 
 xline.o: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
@@ -1812,7 +1812,7 @@ libIRCDchannels.so: channels.cpp ../include/base.h ../include/channels.h ../incl
 
 libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES)
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
-	\${MAKE} -C "modes" DIRNAME="src/modes" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
+	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDmode.so mode.o modes/modeclasses.a
 
 libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
