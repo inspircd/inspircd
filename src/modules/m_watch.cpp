@@ -1,39 +1,76 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
+/*        +------------------------------------+
+ *        | Inspire Internet Relay Chat Daemon |
+ *        +------------------------------------+
  *
  *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *       E-mail:
- *<brain@chatspike.net>
- *   	  <Craig@chatspike.net>
+ *                     E-mail:
+ *              <brain@chatspike.net>
+ *              <Craig@chatspike.net>
  *     
  * Written by Craig Edwards, Craig McLure, and others.
  * This program is free but copyrighted software; see
- *    the file COPYING for details.
+ *           the file COPYING for details.
  *
  * ---------------------------------------------------
  */
 
-using namespace std;
-
-#include <stdio.h>
-#include <string>
-#include <vector>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the /watch command */
+/* $ModDesc: Provides support for the /WATCH command */
 
-/*                       nickname     list of users watching the nick                       */
+/* This module has been refactored to provide a very efficient (in terms of cpu time)
+ * implementation of /WATCH.
+ *
+ * To improve the efficiency of watch, many lists are kept. The first primary list is
+ * a hash_map of who's being watched by who. For example:
+ *
+ * KEY: Brain   --->  Watched by:  Boo, w00t, Om
+ * KEY: Boo     --->  Watched by:  Brain, w00t
+ * 
+ * This is used when we want to tell all the users that are watching someone that
+ * they are now available or no longer available. For example, if the hash was
+ * populated as shown above, then when Brain signs on, messages are sent to Boo, w00t
+ * and Om by reading their 'watched by' list. When this occurs, their online status
+ * in each of these users lists (see below) is also updated.
+ *
+ * Each user also has a seperate (smaller) map attached to their userrec whilst they
+ * have any watch entries, which is managed by class Extensible. When they add or remove
+ * a watch entry from their list, it is inserted here, as well as the main list being
+ * maintained. This map also contains the user's online status. For users that are
+ * offline, the key points at an empty string, and for users that are online, the key
+ * points at a string containing "users-ident users-host users-signon-time". This is
+ * stored in this manner so that we don't have to FindUser() to fetch this info, the
+ * users signon can populate the field for us.
+ *
+ * For example, going again on the example above, this would be w00t's watchlist:
+ *
+ * KEY: Boo    --->  Status: "Boo brains.sexy.babe 535342348"
+ * KEY: Brain  --->  Status: ""
+ *
+ * In this list we can see that Boo is online, and Brain is offline. We can then
+ * use this list for 'WATCH L', and 'WATCH S' can be implemented as a combination
+ * of the above two data structures, with minimum CPU penalty for doing so.
+ *
+ * In short, the least efficient this ever gets is O(n), and thats only because
+ * there are parts that *must* loop (e.g. telling all users that are watching a
+ * nick that the user online), however this is a *major* improvement over the
+ * 1.0 implementation, which in places had O(n^n) and worse in it, because this
+ * implementation scales based upon the sizes of the watch entries, whereas the
+ * old system would scale (or not as the case may be) according to the total number
+ * of users using WATCH.
+ */
+
 typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> >     watchentries;
-
-/*               nickname    'ident host signon', or empty if not online                    */
 typedef std::map<irc::string, std::string>                                                  watchlist;
 
-/* Whos watching each nickname */
+/* Who's watching each nickname.
+ * NOTE: We do NOT iterate this to display a user's WATCH list!
+ * See the comments above!
+ */
 watchentries whos_watching_me;
 
 /** Handle /WATCH
