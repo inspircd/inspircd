@@ -92,6 +92,14 @@ size_t nspace::hash<string>::operator()(const string &s) const
 	return t;
 }
 
+size_t nspace::hash<irc::string>::operator()(const irc::string &s) const
+{
+	register size_t t = 0;
+	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
+		t = 5 * t + lowermap[(unsigned char)*x];
+	return t;
+}
+
 bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) const
 {
 	unsigned char* n1 = (unsigned char*)s1.c_str();

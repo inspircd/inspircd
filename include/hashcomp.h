@@ -544,4 +544,14 @@ bool operator== (irc::string& leftval, std::string& rightval);
 std::string assign(const irc::string &other);
 irc::string assign(const std::string &other);
 
+namespace nspace
+{
+	/** Hashing function to hash irc::string
+	 */
+	template<> struct hash<irc::string>
+	{
+		size_t operator()(const irc::string &s) const;
+	};
+}
+
 #endif
