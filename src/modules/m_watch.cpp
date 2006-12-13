@@ -86,7 +86,11 @@ class cmd_watch : public command_t
 			}
 		}
 
-		return CMD_SUCCESS;
+		/* This might seem confusing, but we return CMD_FAILURE
+		 * to indicate that this message shouldnt be routed across
+		 * the network to other linked servers.
+		 */
+		return CMD_FAILURE;
 	}
 
 	CmdResult add_watch(userrec* user, const char* nick)
@@ -100,19 +104,21 @@ class cmd_watch : public command_t
 		watchlist* wl;
 		if (!user->GetExt("watchlist", wl))
 		{
+			ServerInstance->Log(DEBUG,"Allocate new watchlist");
 			wl = new watchlist();
 			user->Extend("watchlist", wl);
 		}
 
 		if (wl->size() == MAX_WATCH)
 		{
-			user->WriteServ("942 %s %s :Too many WATCH entries", user->nick, nick);
+			user->WriteServ("512 %s %s :Too many WATCH entries", user->nick, nick);
 			return CMD_FAILURE;
 		}
 
 		watchlist::iterator n = wl->find(nick);
 		if (n == wl->end())
 		{
+			ServerInstance->Log(DEBUG,"*** Add to WATCH: '%s'", nick);
 			/* Don't already have the user on my watch list, proceed */
 			watchentries::iterator x = whos_watching_me.find(nick);
 			if (x != whos_watching_me.end())
@@ -139,8 +145,12 @@ class cmd_watch : public command_t
 				user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
 			}
 		}
+		else
+		{
+			ServerInstance->Log(DEBUG,"*** WATCH entry '%s' already exists!", nick);
+		}
 
-		return CMD_SUCCESS;
+		return CMD_FAILURE;
 	}
 
 	cmd_watch (InspIRCd* Instance, unsigned int &maxwatch) : command_t(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
@@ -169,12 +179,29 @@ class cmd_watch : public command_t
 			for (int x = 0; x < pcnt; x++)
 			{
 				const char *nick = parameters[x];
+				ServerInstance->Log(DEBUG,"WATCH iterate item '%s'", nick);
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
 					watchlist* wl;
 					if (user->GetExt("watchlist", wl))
 					{
+						for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
+						{
+							watchentries::iterator x = whos_watching_me.find(i->first);
+							if (x != whos_watching_me.end())
+							{
+								/* People are watching this user, am i one of them? */
+								std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+								if (n != x->second.end())
+									/* I'm no longer watching you... */
+									x->second.erase(n);
+
+								if (!x->second.size())
+									whos_watching_me.erase(user->nick);
+							}
+						}
+
 						delete wl;
 						user->Shrink("watchlist");
 					}
@@ -212,19 +239,18 @@ class cmd_watch : public command_t
 						youre_on = x->second.size();
 
 					user->WriteServ("603 %s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
-					if (!list.empty())
-						user->WriteServ("606 %s :%s",user->nick, list.c_str());
+					user->WriteServ("606 %s :%s",user->nick, list.c_str());
 					user->WriteServ("607 %s :End of WATCH S",user->nick);
 				}
 				else if (nick[0] == '-')
 				{
 					nick++;
-					return remove_watch(user, nick);
+					remove_watch(user, nick);
 				}
 				else if (nick[0] == '+')
 				{
 					nick++;
-					return add_watch(user, nick);
+					add_watch(user, nick);
 				}
 			}
 		}
