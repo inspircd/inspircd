@@ -215,6 +215,8 @@ class cmd_watch : public command_t
 						{
 							if (!q->second.empty())
 								user->WriteServ("604 %s %s %s :is online", user->nick, q->first.c_str(), q->second.c_str());
+							else
+								user->WriteServ("605 %s %s * * 0 :is offline", user->nick, q->first.c_str());
 						}
 					}
 					user->WriteServ("607 %s :End of WATCH list",user->nick);
@@ -229,8 +231,7 @@ class cmd_watch : public command_t
 					if (user->GetExt("watchlist", wl))
 					{
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
-							if (!q->second.empty())
-								list.append(q->first.c_str()).append(" ");
+							list.append(q->first.c_str()).append(" ");
 						you_have = wl->size();
 					}
 
