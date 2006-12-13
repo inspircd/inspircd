@@ -361,7 +361,7 @@ class Modulewatch : public Module
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 				{
- 					(*n)->WriteServ("601 %s %s %s :went offline", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
+ 					(*n)->WriteServ("601 %s %s %s %s %s %lu :went offline", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
 					(*wl)[user->nick] = "";
 				}
 			}
