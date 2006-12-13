@@ -1212,27 +1212,8 @@ void userrec::FullConnect(CullList* Goners)
 	this->WriteServ("003 %s :This server was created %s %s", this->nick, __TIME__, __DATE__);
 	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
-	// anfl @ #ratbox, efnet reminded me that according to the RFC this cant contain more than 13 tokens per line...
-	// so i'd better split it :)
-	std::stringstream out(ServerInstance->Config->data005);
-	std::string token = "";
-	std::string line5 = "";
-	int token_counter = 0;
-	
-	while (!out.eof())
-	{
-		out >> token;
-		line5 = line5 + token + " ";
-		token_counter++;
-		
-		if ((token_counter >= 13) || (out.eof() == true))
-		{
-			this->WriteServ("005 %s %s:are supported by this server", this->nick, line5.c_str());
-			line5 = "";
-			token_counter = 0;
-		}
-	}
-	
+	ServerInstance->Config->Send005(this);
+
 	this->ShowMOTD();
 
 	/*

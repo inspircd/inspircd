@@ -490,6 +490,7 @@ void InspIRCd::BuildISupport()
 	v << MAXAWAY << " CHANMODES=" << this->Modes->ChanModes() << " FNC NETWORK=" << Config->Network << " MAXPARA=32";
 	Config->data005 = v.str();
 	FOREACH_MOD_I(this,I_On005Numeric,On005Numeric(Config->data005));
+	Config->Update005();
 }
 
 bool InspIRCd::UnloadModule(const char* filename)

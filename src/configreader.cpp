@@ -115,6 +115,37 @@ bool ServerConfig::DelIOHook(InspSocket* is)
 	return false;
 }
 
+void ServerConfig::Update005()
+{
+	std::stringstream out(data005);
+	std::string token;
+	std::string line5;
+	int token_counter = 0;
+	isupport.clear();
+	while (out >> token)
+	{
+		line5 = line5 + token + " ";
+		token_counter++;
+		if (token_counter >= 13)
+		{
+			char buf[MAXBUF];
+			snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
+			isupport.push_back(buf);
+			line5 = "";
+			token_counter = 0;
+		}
+	}
+	char buf[MAXBUF];
+	snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
+	isupport.push_back(buf);
+}
+
+void ServerConfig::Send005(userrec* user)
+{
+	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
+		user->WriteServ("005 %s %s", user->nick, line->c_str());
+}
+
 bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
 	int count = ConfValueEnum(this->config_data, tag);

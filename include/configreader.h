@@ -453,6 +453,7 @@ class ServerConfig : public Extensible
 	 * modules.
 	 */
 	std::string data005;
+	std::vector<std::string> isupport;
 
 	/** STATS characters in this list are available
 	 * only to operators.
@@ -503,6 +504,14 @@ class ServerConfig : public Extensible
 	/** Clears the include stack in preperation for a Read() call.
 	 */
 	void ClearStack();
+
+	/** Update the 005 vector
+	 */
+	void Update005();
+
+	/** Send the 005 numerics (ISUPPORT) to a user
+	 */
+	void Send005(userrec* user);
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
