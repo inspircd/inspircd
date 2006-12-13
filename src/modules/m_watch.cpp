@@ -27,11 +27,11 @@ using namespace std;
 
 /* $ModDesc: Provides support for the /watch command */
 
-/*                       nickname             list of users watching the nick               */
-typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> >               watchentries;
+/*                       nickname     list of users watching the nick                       */
+typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> >     watchentries;
 
-/*                       nickname             'ident host signon', or empty if not online   */
-typedef nspace::hash_map<irc::string, std::string, nspace::hash<irc::string> >                        watchlist;
+/*               nickname    'ident host signon', or empty if not online                    */
+typedef std::map<irc::string, std::string>                                                  watchlist;
 
 /* Whos watching each nickname */
 watchentries whos_watching_me;
