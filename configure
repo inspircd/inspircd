@@ -1069,23 +1069,25 @@ sub dir_check {
 }
 
 sub getosflags {
-	if ($config{OSNAME} =~ /BSD$/) {
-		$config{LDLIBS} = "-lstdc++";
-		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+
+	$config{LDLIBS} = "-lstdc++";
+	$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+	$config{MAKEPROG} = "make";
+
+	if ($config{OSNAME} eq "OpenBSD") {
 		$config{MAKEPROG} = "gmake";
-		if ($config{OSNAME} eq "OpenBSD") {
-			chomp($foo = `eg++ -dumpversion | cut -c 1`);
-			# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
-			# if theyre not running this, configure lets the build continue but they probably wont manage to
-			# compile as this standard version is 2.95.3!
-			if ($foo ne "") {
-				$config{CC} = "eg++";
-				chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
-			}
-			return "OpenBSD";
+		chomp($foo = `eg++ -dumpversion | cut -c 1`);
+		# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
+		# if theyre not running this, configure lets the build continue but they probably wont manage to
+		# compile as this standard version is 2.95.3!
+		if ($foo ne "") {
+			$config{CC} = "eg++";
+			chomp($config{GCCVER}       = `eg++ -dumpversion | cut -c 1`); # we must redo these if we change the compiler path
 		}
-		return $config{OSNAME};
-	} else {
+		return "OpenBSD";
+	}
+
+	if ($config{OSNAME} =~ /Linux/) {
 		$config{LDLIBS} = "-ldl -lstdc++";
 		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
@@ -1106,7 +1108,6 @@ sub getosflags {
 			return "Cygwin-Static";
 		}
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
-		return "Linux";
 	}
 	
 	if ($config{OSNAME} =~ /SunOS/)
@@ -1116,6 +1117,7 @@ sub getosflags {
 		# nsl = dns stuff
 		# rt = POSIX realtime extensions
 		# resolv = inet_aton only (why isnt this in nsl?!)
+		$config{MAKEPROG} = "gmake";
 		$config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
 		return "Solaris";
 	}
@@ -1126,6 +1128,8 @@ sub getosflags {
 		$config{FLAGS} =~ s/-fPIC //;
 		return "MinGW";
 	}
+
+	return $config{OSNAME};
 }
 
 sub is_dir {
