@@ -667,21 +667,26 @@ void userrec::FlushWriteBuf()
 			{
 				if (errno == EAGAIN)
 				{
+					/* The socket buffer is full. This isnt fatal,
+					 * try again later.
+					 */
 					ServerInstance->Log(DEBUG,"EAGAIN, want write");
 					this->ServerInstance->SE->WantWrite(this);
 				}
 				else
 				{
-					this->QuitUser(ServerInstance, this, strerror(errno));
+					/* Fatal error, set write error and bail
+					 */
+					this->SetWriteError(strerror(errno));
 					return;
 				}
 			}
 			else
 			{
-				// advance the queue
+				/* advance the queue */
 				if (n_sent)
 					this->sendq = this->sendq.substr(n_sent);
-				// update the user's stats counters
+				/* update the user's stats counters */
 				this->bytes_out += n_sent;
 				this->cmds_out++;
 				if (n_sent != old_sendq_length)
@@ -703,7 +708,6 @@ void userrec::SetWriteError(const std::string &error)
 {
 	try
 	{
-		ServerInstance->Log(DEBUG,"SetWriteError: %s",error.c_str());
 		// don't try to set the error twice, its already set take the first string.
 		if (this->WriteError.empty())
 		{
@@ -2031,13 +2035,14 @@ void userrec::HandleEvent(EventType et, int errornum)
 		{
 			case EVENT_READ:
 				ServerInstance->ProcessUser(this);
+
 			break;
 			case EVENT_WRITE:
 				this->FlushWriteBuf();
 			break;
 			case EVENT_ERROR:
 				/** This should be safe, but dont DARE do anything after it -- Brain */
-				userrec::QuitUser(ServerInstance, this, errornum ? strerror(errornum) : "EOF from client");
+				this->SetWriteError(errornum ? strerror(errornum) : "EOF from client");
 			break;
 		}
 	}
@@ -2045,4 +2050,9 @@ void userrec::HandleEvent(EventType et, int errornum)
 	{
 		ServerInstance->Log(DEBUG,"Exception in userrec::HandleEvent intercepted");
 	}
+
+	/* If the user has raised an error whilst being processed, quit them now we're safe to */
+	if (!WriteError.empty())
+		userrec::QuitUser(ServerInstance, this, GetWriteError());
 }
+
