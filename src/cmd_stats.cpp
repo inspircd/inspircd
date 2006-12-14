@@ -184,6 +184,17 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(R.ru_majflt));
 				results.push_back(sn+" 249 "+user->nick+" :Swaps:            "+ConvToStr(R.ru_nswap));
 				results.push_back(sn+" 249 "+user->nick+" :Context Switches: "+ConvToStr(R.ru_nvcsw+R.ru_nivcsw));
+
+				timeval tv;
+				char percent[30];
+				gettimeofday(&tv, NULL);
+			
+				float n_elapsed = ((tv.tv_sec - ServerInstance->stats->LastSampled.tv_sec) * 1000000 + tv.tv_usec - ServerInstance->stats->LastSampled.tv_usec);
+				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats->LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats->LastCPU.tv_usec);
+				float per = (n_eaten / n_elapsed) * 100;
+
+				snprintf(percent, 30, "%03.5f%%", per);
+				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: "+percent);
 			}
 		}
 		break;

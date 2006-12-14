@@ -119,6 +119,14 @@ class serverstats : public classbase
 	 */
 	unsigned long BoundPortCount;
 
+	/** Cpu usage at last sample
+	 */
+	timeval LastCPU;
+
+	/** Time last sample was read
+	 */
+	timeval LastSampled;
+
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()

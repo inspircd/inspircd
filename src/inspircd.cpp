@@ -716,6 +716,8 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
+	static rusage ru;
+
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 	 * Once per loop iteration is pleanty.
 	 */
@@ -743,6 +745,12 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			XLines->expire_lines();
 			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 			Timers->TickMissedTimers(TIME);
+		}
+
+		if (!getrusage(0, &ru))
+		{
+			gettimeofday(&this->stats->LastSampled, NULL);
+			this->stats->LastCPU = ru.ru_utime;
 		}
 	}
 
