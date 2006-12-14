@@ -369,6 +369,9 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 	Ptr->AddUser(user);
 	user->ModChannelCount(1);
 
+	/* Just in case they have no permissions */
+	user->chans[Ptr] = 0;
+
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
 		const char status = *x;

@@ -112,7 +112,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					{
 						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						userrec::QuitUser(this, current,"Excess flood");
+						current->SetWriteError("Excess flood");
 						return;
 					}
 					else
@@ -136,7 +136,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 			{
 				if (current->registered == REG_ALL)
 				{
-					userrec::QuitUser(this, current,"RecvQ exceeded");
+					current->SetWriteError("RecvQ exceeded");
 				}
 				else
 				{
@@ -162,7 +162,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				{
 					this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 					this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-					userrec::QuitUser(this, current,"Excess flood");
+					current->SetWriteError("Excess flood");
 					return;
 				}
 
@@ -172,7 +172,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					{
 						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
 						SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						userrec::QuitUser(this, current,"Excess flood");
+						current->SetWriteError("Excess flood");
 					}
 					else
 					{
@@ -211,7 +211,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
 			this->Log(DEBUG,"killing: %s",cu->nick);
-			userrec::QuitUser(this,cu,strerror(errno));
+			cu->SetWriteError(strerror(errno));
 			return;
 		}
 	}
@@ -223,7 +223,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		userrec::QuitUser(this,cu,"Client exited");
+		cu->SetWriteError("Client exited");
 		this->Log(DEBUG,"Bailing from client exit");
 		return;
 	}

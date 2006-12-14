@@ -786,8 +786,12 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 	if (user->registered == REG_ALL)
 	{
 		user->PurgeEmptyChannels();
-		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
 		user->WriteCommonExcept("QUIT :%s",reason.c_str());
+		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
+	}
+	else
+	{
+		Instance->Log(DEBUG,"FULL'O'FAIL! user->registered is %d, REG_ALL is %d", user->registered, REG_ALL);
 	}
 
 	FOREACH_MOD_I(Instance,I_OnUserDisconnect,OnUserDisconnect(user));
@@ -1331,7 +1335,6 @@ int userrec::GetPort()
 		}
 		break;
 		default:
-			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return 0;
@@ -1381,7 +1384,6 @@ const char* userrec::GetIPString()
 		}
 		break;
 		default:
-			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return "";
@@ -1424,7 +1426,6 @@ const char* userrec::GetIPString(char* buf)
 		break;
 
 		default:
-			ServerInstance->Log(DEBUG,"Ut oh, '%s' has an unknown protocol family!",this->nick);
 		break;
 	}
 	return "";
@@ -1961,11 +1962,13 @@ ConnectClass& userrec::GetClass()
 
 void userrec::PurgeEmptyChannels()
 {
+	ServerInstance->Log(DEBUG,"In PurgeEmptyChannels");
 	std::vector<chanrec*> to_delete;
 
 	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
+		ServerInstance->Log(DEBUG,"Iterate channel %s", f->first->name);
 		f->first->RemoveAllPrefixes(this);
 		if (f->first->DelUser(this) == 0)
 		{
@@ -2053,6 +2056,9 @@ void userrec::HandleEvent(EventType et, int errornum)
 
 	/* If the user has raised an error whilst being processed, quit them now we're safe to */
 	if (!WriteError.empty())
+	{
+		ServerInstance->Log(DEBUG,"Write error is set, quitting user with error '%s'", GetWriteError());
 		userrec::QuitUser(ServerInstance, this, GetWriteError());
+	}
 }
 
