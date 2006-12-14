@@ -331,7 +331,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 * We can flush the write buffer as the last thing we do, because if they
 				 * match any of the above conditions its no use flushing their buffer anyway.
 				 */
-				curr->FlushWriteBuf();
+				//curr->FlushWriteBuf();
 			}
 		}
 	
