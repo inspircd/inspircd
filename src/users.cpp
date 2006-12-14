@@ -653,16 +653,9 @@ void userrec::AddWriteBuf(const std::string &data)
 	try 
 	{
 		if (data.length() > 512)
-		{
-			std::string newdata(data);
-			newdata.resize(510);
-			newdata.append("\r\n");
-			sendq.append(newdata);
-		}
+			sendq.append(data.substr(0,510)).append("\r\n");
 		else
-		{
 			sendq.append(data);
-		}
 	}
 	catch (...)
 	{
@@ -683,8 +676,7 @@ void userrec::FlushWriteBuf()
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
 			int old_sendq_length = sendq.length();
-			const char* tb = this->sendq.c_str();
-			int n_sent = write(this->fd,tb,this->sendq.length());
+			int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
 			if (n_sent == -1)
 			{
 				if (errno == EAGAIN)
@@ -700,10 +692,9 @@ void userrec::FlushWriteBuf()
 			}
 			else
 			{
-				/*ServerInstance->Log(DEBUG,"Wrote: %d of %d: %s", n_sent, old_sendq_length, sendq.substr(0, n_sent).c_str());*/
 				// advance the queue
-				tb += n_sent;
-				this->sendq = tb;
+				if (n_sent)
+					this->sendq = this->sendq.substr(n_sent);
 				// update the user's stats counters
 				this->bytes_out += n_sent;
 				this->cmds_out++;
@@ -728,7 +719,7 @@ void userrec::SetWriteError(const std::string &error)
 	{
 		ServerInstance->Log(DEBUG,"SetWriteError: %s",error.c_str());
 		// don't try to set the error twice, its already set take the first string.
-		if (!this->WriteError.length())
+		if (this->WriteError.empty())
 		{
 			ServerInstance->Log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 			this->WriteError = error;
@@ -2056,8 +2047,8 @@ void userrec::ShowMOTD()
 	}
 	this->WriteServ("375 %s :%s message of the day", this->nick, ServerInstance->Config->ServerName);
 
-	for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
-		this->WriteServ("372 %s :- %s",this->nick,ServerInstance->Config->MOTD[i].c_str());
+	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
+		this->WriteServ("372 %s :- %s",this->nick,i->c_str());
 
 	this->WriteServ("376 %s :End of message of the day.", this->nick);
 }
@@ -2071,8 +2062,8 @@ void userrec::ShowRULES()
 	}
 	this->WriteServ("NOTICE %s :%s rules",this->nick,ServerInstance->Config->ServerName);
 
-	for (unsigned int i = 0; i < ServerInstance->Config->RULES.size(); i++)
-		this->WriteServ("NOTICE %s :%s",this->nick,ServerInstance->Config->RULES[i].c_str());
+	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
+		this->WriteServ("NOTICE %s :%s",this->nick,i->c_str());
 
 	this->WriteServ("NOTICE %s :End of %s rules.",this->nick,ServerInstance->Config->ServerName);
 }
