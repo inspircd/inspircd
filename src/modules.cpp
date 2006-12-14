@@ -472,20 +472,17 @@ bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &
 	}
 	// Fix by brain - cant write the user until their fd table entry is updated
 	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
-	for (std::vector<ucrec*>::const_iterator i = zombie->chans.begin(); i != zombie->chans.end(); i++)
+	for (UCListIter i = zombie->chans.begin(); i != zombie->chans.end(); i++)
 	{
-		if (((ucrec*)(*i))->channel != NULL)
+		chanrec* Ptr = i->first;
+		zombie->WriteFrom(zombie,"JOIN %s",Ptr->name);
+		if (Ptr->topicset)
 		{
-				chanrec* Ptr = ((ucrec*)(*i))->channel;
-				zombie->WriteFrom(zombie,"JOIN %s",Ptr->name);
-				if (Ptr->topicset)
-				{
-					zombie->WriteServ("332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
-					zombie->WriteServ("333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
-				}
-				Ptr->UserList(zombie);
-				zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
+			zombie->WriteServ("332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
+			zombie->WriteServ("333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
 		}
+		Ptr->UserList(zombie);
+		zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
 	}
 	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->GetFd() != FD_MAGIC_NUMBER))
 		local_users.push_back(zombie);

@@ -175,31 +175,28 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 	if (!chan)
 		return "";
 
-	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
+	UCListIter n = d->chans.find(chan);
+	if (n != d->chans.end())
 	{
-		ucrec* n = (ucrec*)(*i);
-		if (n->channel == chan)
+		if (n->second & MASK)
 		{
-			if (n->uc_modes & MASK)
-			{
-				return "";
-			}
-			n->uc_modes = n->uc_modes | MASK;
-			switch (MASK)
-			{
-				case UCMODE_OP:
-					n->channel->AddOppedUser(d);
-				break;
-				case UCMODE_HOP:
-					n->channel->AddHalfoppedUser(d);
-				break;
-				case UCMODE_VOICE:
-					n->channel->AddVoicedUser(d);
-				break;
-			}
-			ServerInstance->Log(DEBUG,"grant: %s %s",n->channel->name,d->nick);
-			return d->nick;
+			return "";
 		}
+		n->second = n->second | MASK;
+		switch (MASK)
+		{
+			case UCMODE_OP:
+				n->first->AddOppedUser(d);
+			break;
+			case UCMODE_HOP:
+				n->first->AddHalfoppedUser(d);
+			break;
+			case UCMODE_VOICE:
+				n->first->AddVoicedUser(d);
+			break;
+		}
+		ServerInstance->Log(DEBUG,"grant: %s %s",n->first->name,d->nick);
+		return d->nick;
 	}
 	return "";
 }
@@ -209,31 +206,28 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 	if (!chan)
 		return "";
 
-	for (std::vector<ucrec*>::const_iterator i = d->chans.begin(); i != d->chans.end(); i++)
+	UCListIter n = d->chans.find(chan);
+	if (n != d->chans.end())
 	{
-		ucrec* n = (ucrec*)(*i);
-		if (n->channel == chan)
+		if ((n->second & MASK) == 0)
 		{
-			if ((n->uc_modes & MASK) == 0)
-			{
-				return "";
-			}
-			n->uc_modes ^= MASK;
-			switch (MASK)
-			{
-				case UCMODE_OP:
-					n->channel->DelOppedUser(d);
-				break;
-				case UCMODE_HOP:
-					n->channel->DelHalfoppedUser(d);
-				break;
-				case UCMODE_VOICE:
-					n->channel->DelVoicedUser(d);
-				break;
-			}
-			ServerInstance->Log(DEBUG,"revoke: %s %s",n->channel->name,d->nick);
-			return d->nick;
+			return "";
 		}
+		n->second ^= MASK;
+		switch (MASK)
+		{
+			case UCMODE_OP:
+				n->first->DelOppedUser(d);
+			break;
+			case UCMODE_HOP:
+				n->first->DelHalfoppedUser(d);
+			break;
+			case UCMODE_VOICE:
+				n->first->DelVoicedUser(d);
+			break;
+		}
+		ServerInstance->Log(DEBUG,"revoke: %s %s",n->first->name,d->nick);
+		return d->nick;
 	}
 	return "";
 }

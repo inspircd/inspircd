@@ -146,7 +146,8 @@ typedef std::vector<ConnectClass> ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-typedef std::vector<ucrec*> UserChanList;
+typedef std::map<chanrec*, char> UserChanList;
+typedef UserChanList::iterator UCListIter;
 
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a

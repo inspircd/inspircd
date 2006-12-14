@@ -320,37 +320,27 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 	}
 
-	for (UserChanList::const_iterator index = user->chans.begin(); index != user->chans.end(); index++)
-	{
-		if ((*index)->channel == NULL)
-		{
-			return chanrec::ForceChan(Instance, Ptr, *index, user, privs);
-		}
-	}
-
-	/*
-	 * XXX: If the user is an oper here, we can just extend their user->chans vector by one
-	 * and put the channel in here. Same for remote users which are not bound by
-	 * the channel limits. Otherwise, nope, youre boned.
+	/* NOTE: If the user is an oper here, we can extend their user->chans by up to
+	 * OPERMAXCHANS. For remote users which are not bound by the channel limits,
+	 * we can extend infinitely. Otherwise, nope, youre restricted to MAXCHANS.
 	 */
 	if (!IS_LOCAL(user) || override == true) /* was a check on fd < 0 */
 	{
-		ucrec* a = new ucrec();
-		chanrec* c = chanrec::ForceChan(Instance, Ptr, a, user, privs);
-		user->chans.push_back(a);
-		return c;
+		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
 	else if (*user->oper)
 	{
 		/* Oper allows extension up to the OPERMAXCHANS value */
 		if (user->chans.size() < OPERMAXCHANS)
 		{
-			ucrec* a = new ucrec();
-			chanrec* c = chanrec::ForceChan(Instance, Ptr, a, user, privs);
-			user->chans.push_back(a);
-			return c;
+			return chanrec::ForceChan(Instance, Ptr, user, privs);
 		}
 	}
+	else if (user->chans.size() < MAXCHANS)
+	{
+		return chanrec::ForceChan(Instance, Ptr, user, privs);
+	}
+
 
 	user->WriteServ("405 %s %s :You are on too many channels",user->nick, cname);
 
@@ -364,39 +354,18 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 			Ptr->DelUser(user);
 			DELETE(Ptr);
 			Instance->chanlist.erase(n);
-			for (unsigned int index =0; index < user->chans.size(); index++)
-			{
-				if (user->chans[index]->channel == Ptr)
-				{
-					user->chans[index]->channel = NULL;
-					user->chans[index]->uc_modes = 0;	
-				}
-			}
 		}
 	}
-	else
-	{
-		for (unsigned int index =0; index < user->chans.size(); index++)
-		{
-			if (user->chans[index]->channel == Ptr)
-			{
-				user->chans[index]->channel = NULL;
-				user->chans[index]->uc_modes = 0;
-			}
-		}
-	}
+
 	return NULL;
 }
 
-chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, const std::string &privs)
+chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs)
 {
 	userrec* dummyuser = new userrec(Instance);
 	std::string nick = user->nick;
 
-	a->uc_modes = 0;
 	dummyuser->SetFd(FD_MAGIC_NUMBER);
-
-	a->channel = Ptr;
 	Ptr->AddUser(user);
 	user->ModChannelCount(1);
 
@@ -409,6 +378,27 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* u
 			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
 			/* Make sure that the mode handler knows this mode was now set */
 			mh->OnModeChange(dummyuser, dummyuser, Ptr, nick, true);
+
+			switch (mh->GetPrefix())
+			{
+				/* These logic ops are SAFE IN THIS CASE
+				 * because if the entry doesnt exist,
+				 * addressing operator[] creates it.
+				 * If they do exist, it points to it.
+				 * At all other times where we dont want
+				 * to create an item if it doesnt exist, we
+				 * must stick to ::find().
+				 */
+				case '@':
+					user->chans[Ptr] |= STATUS_OP;
+				break;
+				case '%':
+					user->chans[Ptr] |= STATUS_HOP;
+				break;
+				case '+':
+					user->chans[Ptr] |= STATUS_VOICE;
+				break;
+			}
 		}
 	}
 
@@ -468,19 +458,14 @@ long chanrec::PartUser(userrec *user, const char* reason)
 	if (!user)
 		return this->GetUserCounter();
 
-	for (unsigned int i =0; i < user->chans.size(); i++)
+	UCListIter i = user->chans.find(this);
+	if (i != user->chans.end())
 	{
-		/* zap it from the channel list of the user */
-		if (user->chans[i]->channel == this)
-		{
-			FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : ""));
-			this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
-			user->chans[i]->uc_modes = 0;
-			user->chans[i]->channel = NULL;
-			user->ModChannelCount(-1);
-			this->RemoveAllPrefixes(user);
-			break;
-		}
+		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : ""));
+		this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
+		user->chans.erase(i);
+		user->ModChannelCount(-1);
+		this->RemoveAllPrefixes(user);
 	}
 
 	if (!this->DelUser(user)) /* if there are no users left on the channel... */
@@ -518,16 +503,12 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL,user,this,reason));
 	}
 
-	for (unsigned int i =0; i < user->chans.size(); i++)
+	UCListIter i = user->chans.find(this);
+	if (i != user->chans.end())
 	{
-		if (user->chans[i]->channel == this)
-		{
-			this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
-			user->chans[i]->uc_modes = 0;
-			user->chans[i]->channel = NULL;
-			this->RemoveAllPrefixes(user);
-			break;
-		}
+		this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
+		user->chans.erase(i);
+		this->RemoveAllPrefixes(user);
 	}
 
 	if (!this->DelUser(user))
@@ -592,18 +573,14 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	}
 
 	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,this,reason));
-			
-	for (UserChanList::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+
+	UCListIter i = user->chans.find(this);
+	if (i != user->chans.end())
 	{
 		/* zap it from the channel list of the user */
-		if ((*i)->channel == this)
-		{
-			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
-			(*i)->uc_modes = 0;
-			(*i)->channel = NULL;
-			this->RemoveAllPrefixes(user);
-			break;
-		}
+		this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
+		user->chans.erase(i);
+		this->RemoveAllPrefixes(user);
 	}
 
 	if (!this->DelUser(user))
@@ -960,43 +937,37 @@ unsigned int chanrec::GetPrefixValue(userrec* user)
 	return 0;
 }
 
-
 int chanrec::GetStatusFlags(userrec *user)
 {
-	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	UCListIter i = user->chans.find(this);
+	if (i != user->chans.end())
 	{
-		if ((*i)->channel == this)
-		{
-			return (*i)->uc_modes;
-		}
+		return i->second;
 	}
 	return 0;
 }
-
 
 int chanrec::GetStatus(userrec *user)
 {
 	if (ServerInstance->ULine(user->server))
 		return STATUS_OP;
 
-	for (std::vector<ucrec*>::const_iterator i = user->chans.begin(); i != user->chans.end(); i++)
+	UCListIter i = user->chans.find(this);
+	if (i != user->chans.end())
 	{
-		if ((*i)->channel == this)
+		if ((i->second & UCMODE_OP) > 0)
 		{
-			if (((*i)->uc_modes & UCMODE_OP) > 0)
-			{
-				return STATUS_OP;
-			}
-			if (((*i)->uc_modes & UCMODE_HOP) > 0)
-			{
-				return STATUS_HOP;
-			}
-			if (((*i)->uc_modes & UCMODE_VOICE) > 0)
-			{
-				return STATUS_VOICE;
-			}
-			return STATUS_NORMAL;
+			return STATUS_OP;
 		}
+		if ((i->second & UCMODE_HOP) > 0)
+		{
+			return STATUS_HOP;
+		}
+		if ((i->second & UCMODE_VOICE) > 0)
+		{
+			return STATUS_VOICE;
+		}
+		return STATUS_NORMAL;
 	}
 	return STATUS_NORMAL;
 }

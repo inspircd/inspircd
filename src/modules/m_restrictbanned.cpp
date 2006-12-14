@@ -69,15 +69,10 @@ class ModuleRestrictBanned : public Module
 			return 0;
 
 		/* bit of a special case. */
-		for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			if (((ucrec*)(*i))->channel != NULL)
-			{
-				chanrec *channel = ((ucrec*)(*i))->channel;
-
-				if (CheckRestricted(user, channel, "change your nickname") == 1)
-					return 1;
-			}
+			if (CheckRestricted(user, i->first, "change your nickname") == 1)
+				return 1;
 		}
 
 		return 0;

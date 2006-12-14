@@ -95,33 +95,6 @@ enum UserChannelModes {
 	UCMODE_HOP     = 4
 };
 
-/** Holds a user's modes on a channel
- * This class associates a users privilages with a channel by creating a pointer link between
- * a userrec and chanrec class. The uc_modes member holds a bitmask of which privilages the user
- * has on the channel, such as op, voice, etc.
- */
-class ucrec : public classbase
-{
- public:
-	/** Contains a bitmask of the UCMODE_OP ... UCMODE_FOUNDER values.
-	 * If this value is zero, the user has no privilages upon the channel.
-	 */
-	char uc_modes;
-
-	/** Points to the channel record where the given modes apply.
-	 * If the record is not in use, this value will be NULL.
-	 */
-	chanrec *channel;
-
-	/** Constructor for ucrec
-	 */
-	ucrec() : uc_modes(0), channel(NULL) { /* stub */ }
-
-	/** Destructor for ucrec
-	 */
-	virtual ~ucrec() { /* stub */ }
-};
-
 class InspIRCd;
 
 /** A stored prefix and its rank
@@ -150,7 +123,7 @@ class chanrec : public Extensible
 
 	/** Connect a chanrec to a userrec
 	 */
-	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr,ucrec *a,userrec* user, const std::string &privs);
+	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs);
 
 	prefixlist prefixes;
 

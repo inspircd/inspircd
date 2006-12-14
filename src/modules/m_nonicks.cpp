@@ -87,18 +87,15 @@ class ModuleNoNickChange : public Module
 		irc::string me = ServerInstance->Config->ServerName;
 		if (server == me)
 		{
-			for (std::vector<ucrec*>::iterator i = user->chans.begin(); i != user->chans.end(); i++)
+			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 			{
-				if (((ucrec*)(*i))->channel != NULL)
+				chanrec* curr = i->first;
+				if ((curr->IsModeSet('N')) && (!*user->oper))
 				{
-					chanrec* curr = ((ucrec*)(*i))->channel;
-					if ((curr->IsModeSet('N')) && (!*user->oper))
-					{
-						// don't allow the nickchange, theyre on at least one channel with +N set
-						// and theyre not an oper
-						user->WriteServ("447 %s :Can't change nickname while on %s (+N is set)",user->nick,curr->name);
-						return 1;
-					}
+					// don't allow the nickchange, theyre on at least one channel with +N set
+					// and theyre not an oper
+					user->WriteServ("447 %s :Can't change nickname while on %s (+N is set)", user->nick, curr->name);
+					return 1;
 				}
 			}
 		}

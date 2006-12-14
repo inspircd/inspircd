@@ -23,15 +23,11 @@
 /* get the last 'visible' chan of a user */
 static char *getlastchanname(userrec *u)
 {
-	for (std::vector<ucrec*>::const_iterator v = u->chans.begin(); v != u->chans.end(); v++)
+	UCListIter i = u->chans.begin();
+	if (i != u->chans.end())
 	{
-		ucrec* temp = (ucrec*)*v;
-
-		if (temp->channel)
-		{
-			if (!temp->channel->IsModeSet('s'))
-				return temp->channel->name;
-		}
+		if (!i->first->IsModeSet('s'))
+			return i->first->name;
 	}
 
 	return "*";

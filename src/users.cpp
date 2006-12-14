@@ -309,26 +309,12 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	ip = NULL;
 	chans.clear();
 	invites.clear();
-	chans.resize(MAXCHANS);
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
-	
-	for (unsigned int n = 0; n < MAXCHANS; n++)
-	{
-		chans[n] = new ucrec();
-		chans[n]->channel = NULL;
-		chans[n]->uc_modes = 0;
-	}
 }
 
 userrec::~userrec()
 {
-	for (std::vector<ucrec*>::iterator n = chans.begin(); n != chans.end(); n++)
-	{
-		ucrec* x = (ucrec*)*n;
-		delete x;
-	}
-
 	if (ip)
 	{
 		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
@@ -1589,21 +1575,16 @@ void userrec::WriteCommon(const std::string &text)
 	
 		uniq_id++;
 	
-		for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
+		for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 		{
-			ucrec *n = *v;
-			if (n->channel)
+			CUList* ulist = v->first->GetUsers();
+			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				CUList *ulist= n->channel->GetUsers();
-		
-				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
-					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
-					{
-						already_sent[i->second->fd] = uniq_id;
-						i->second->WriteFrom(this, std::string(text));
-						sent_to_at_least_one = true;
-					}
+					already_sent[i->second->fd] = uniq_id;
+					i->second->WriteFrom(this, std::string(text));
+					sent_to_at_least_one = true;
 				}
 			}
 		}
@@ -1692,25 +1673,20 @@ void userrec::WriteCommonExcept(const std::string &text)
 		}
 	}
 
-	for (std::vector<ucrec*>::const_iterator v = this->chans.begin(); v != this->chans.end(); v++)
+	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		ucrec* n = *v;
-		if (n->channel)
+		CUList *ulist = v->first->GetUsers();
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			CUList *ulist= n->channel->GetUsers();
-
-			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+			if (this != i->second)
 			{
-				if (this != i->second)
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
-					if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
-					{
-						already_sent[i->second->fd] = uniq_id;
-						if (quit_munge)
-							i->second->WriteFrom(this, *i->second->oper ? std::string(oper_quit) : std::string(textbuffer));
-						else
-							i->second->WriteFrom(this, std::string(textbuffer));
-					}
+					already_sent[i->second->fd] = uniq_id;
+					if (quit_munge)
+						i->second->WriteFrom(this, *i->second->oper ? std::string(oper_quit) : std::string(textbuffer));
+					else
+						i->second->WriteFrom(this, std::string(textbuffer));
 				}
 			}
 		}
@@ -1774,19 +1750,13 @@ bool userrec::SharesChannelWith(userrec *other)
 		return false;
 
 	/* Outer loop */
-	for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
-		/* Fetch the channel from the user */
-		ucrec* user_channel = *i;
-
-		if (user_channel->channel)
-		{
-			/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
-			 * by replacing it with a map::find which *should* be more efficient
-			 */
-			if (user_channel->channel->HasUser(other))
-				return true;
-		}
+		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
+		 * by replacing it with a map::find which *should* be more efficient
+		 */
+		if (i->first->HasUser(other))
+			return true;
 	}
 	return false;
 }
@@ -1839,15 +1809,12 @@ bool userrec::ChangeDisplayedHost(const char* host)
 
 	if (this->ServerInstance->Config->CycleHosts)
 	{
-		for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			if ((*i)->channel)
-			{
-				(*i)->channel->WriteAllExceptSender(this, false, 0, "JOIN %s", (*i)->channel->name);
-				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
-				if (n.length() > 0)
-					(*i)->channel->WriteAllExceptSender(this, true, 0, "MODE %s +%s", (*i)->channel->name, n.c_str());
-			}
+			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name);
+			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
+			if (n.length() > 0)
+				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
 		}
 	}
 
@@ -1869,15 +1836,12 @@ bool userrec::ChangeIdent(const char* newident)
 
 	if (this->ServerInstance->Config->CycleHosts)
 	{
-		for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			if ((*i)->channel)
-			{
-				(*i)->channel->WriteAllExceptSender(this, false, 0, "JOIN %s", (*i)->channel->name);
-				std::string n = this->ServerInstance->Modes->ModeString(this, (*i)->channel);
-				if (n.length() > 0)
-					(*i)->channel->WriteAllExceptSender(this, true, 0, "MODE %s +%s", (*i)->channel->name, n.c_str());
-			}
+			i->first->WriteAllExceptSender(this, false, 0, "JOIN %s", i->first->name);
+			std::string n = this->ServerInstance->Modes->ModeString(this, i->first);
+			if (n.length() > 0)
+				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
 		}
 	}
 
@@ -1909,20 +1873,15 @@ std::string userrec::ChannelList(userrec* source)
 	try
 	{
 		std::string list;
-		for (std::vector<ucrec*>::const_iterator i = this->chans.begin(); i != this->chans.end(); i++)
+		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 		{
-			ucrec* rec = *i;
-	
-			if(rec->channel && rec->channel->name)
+			/* If the target is the same as the sender, let them see all their channels.
+			 * If the channel is NOT private/secret OR the user shares a common channel
+			 * If the user is an oper, and the <options:operspywhois> option is set.
+			 */
+			if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!i->first->modes[CM_PRIVATE]) && (!i->first->modes[CM_SECRET])) || (i->first->HasUser(source))))
 			{
-				/* If the target is the same as the sender, let them see all their channels.
-				 * If the channel is NOT private/secret OR the user shares a common channel
-				 * If the user is an oper, and the <options:operspywhois> option is set.
-				 */
-				if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!rec->channel->modes[CM_PRIVATE]) && (!rec->channel->modes[CM_SECRET])) || (rec->channel->HasUser(source))))
-				{
-					list.append(rec->channel->GetPrefixChar(this)).append(rec->channel->name).append(" ");
-				}
+				list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
 			}
 		}
 		return list;
@@ -2001,24 +1960,19 @@ void userrec::PurgeEmptyChannels()
 	std::vector<chanrec*> to_delete;
 
 	// firstly decrement the count on each channel
-	for (std::vector<ucrec*>::iterator f = this->chans.begin(); f != this->chans.end(); f++)
+	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
-		ucrec* uc = *f;
-		if (uc->channel)
+		f->first->RemoveAllPrefixes(this);
+		if (f->first->DelUser(this) == 0)
 		{
-			uc->channel->RemoveAllPrefixes(this);
-			if (uc->channel->DelUser(this) == 0)
+			/* No users left in here, mark it for deletion */
+			try
 			{
-				/* No users left in here, mark it for deletion */
-				try
-				{
-					to_delete.push_back(uc->channel);
-				}
-				catch (...)
-				{
-					ServerInstance->Log(DEBUG,"Exception in userrec::PurgeEmptyChannels to_delete.push_back()");
-				}
-				uc->channel = NULL;
+				to_delete.push_back(f->first);
+			}
+			catch (...)
+			{
+				ServerInstance->Log(DEBUG,"Exception in userrec::PurgeEmptyChannels to_delete.push_back()");
 			}
 		}
 	}

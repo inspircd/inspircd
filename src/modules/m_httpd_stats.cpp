@@ -212,16 +212,13 @@ class ModuleHttpStats : public Module
 
 	void OnUserQuit(userrec* user, const std::string &message)
 	{
-		for (std::vector<ucrec*>::const_iterator v = user->chans.begin(); v != user->chans.end(); v++)
+		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
-			if (((ucrec*)(*v))->channel)
+			chanrec* c = v->first;
+			StatsIter a = sh->find(c->name);
+			if (a != sh->end())
 			{
-				chanrec* c = ((ucrec*)(*v))->channel;
-				StatsIter a = sh->find(c->name);
-				if (a != sh->end())
-				{
-					a->second--;
-				}
+				a->second--;
 			}
 		}
 		this->changed = true;

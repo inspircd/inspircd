@@ -122,9 +122,7 @@ public:
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
 					
-			for(std::vector<ucrec*>::iterator f = user->chans.begin(); f != user->chans.end(); f++)
-				if(((ucrec*)(*f))->channel)
-					userchans++;
+			userchans = user->chans.size();
 
 			// Check that this message wasn't already sent within a few seconds.
 			BlockedMessage* m;
