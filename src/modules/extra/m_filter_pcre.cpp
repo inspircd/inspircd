@@ -2,21 +2,14 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd is copyright (C) 2002-2004 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
- *     
- * Written by Craig Edwards, Craig McLure, and others.
+ *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
  */
-
-// Message and notice filtering using regex patterns
-// a module based on the original work done by Craig Edwards in 2003
-// for the chatspike network.
 
 #include <stdio.h>
 #include <string>

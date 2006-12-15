@@ -45,7 +45,6 @@
  *
  ******************************************************/
 
-using namespace std;
 using namespace irc::sockets;
 
 /* convert a string to lowercase. Note following special circumstances
