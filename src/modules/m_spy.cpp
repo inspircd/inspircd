@@ -2,14 +2,11 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *		       E-mail:
- *		<brain@chatspike.net>
- *	   	  <Craig@chatspike.net>
- *     
- * Written by Craig Edwards, Craig McLure, and others.
+ *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
  * This program is free but copyrighted software; see
- *	    the file COPYING for details.
+ *            the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -18,8 +15,6 @@
  * IT JUST ALLOWS OPERS TO SEE +s CHANNELS IN LIST AND
  * WHOIS, WHICH IS SUPPORTED BY MOST IRCDS IN CORE.
  */
-
-using namespace std;
 
 /* $ModDesc: Provides SPYLIST and SPYNAMES capability, allowing opers to see who's in +s channels */
 

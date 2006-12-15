@@ -2,20 +2,14 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
- *                       E-mail:
- *                <brain@chatspike.net>
- *           	  <Craig@chatspike.net>
- *						<omster@gmail.com>
- *     
- * Written by Craig Edwards, Craig McLure, and others.
+ *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
  * This program is free but copyrighted software; see
  *            the file COPYING for details.
  *
  * ---------------------------------------------------
  */
- 
-/* <3's to Lauren for original info on mIRC's weird behaviour */
 
 #include <string>
 #include <time.h>

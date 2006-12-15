@@ -1,7 +1,16 @@
-/*
- * Formerly written and maintained by satmd.
- * This version written and maintained by w00t.
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
  */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
