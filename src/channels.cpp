@@ -28,7 +28,6 @@ chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	*name = *topic = *setby = *key = 0;
 	created = topicset = limit = 0;
-	internal_userlist.clear();
 	memset(&modes,0,64);
 	age = ServerInstance->Time(true);
 }
@@ -274,11 +273,10 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 				if (Ptr->modes[CM_INVITEONLY])
 				{
 					MOD_RESULT = 0;
-					irc::string xname(Ptr->name);
 					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						if (user->IsInvited(xname))
+						if (user->IsInvited(Ptr->name))
 						{
 							/* user was invited to channel */
 							/* there may be an optional channel NOTICE here */
@@ -289,7 +287,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 							return NULL;
 						}
 					}
-					user->RemoveInvite(xname);
+					user->RemoveInvite(Ptr->name);
 				}
 				if (Ptr->limit)
 				{
@@ -367,7 +365,6 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 
 	dummyuser->SetFd(FD_MAGIC_NUMBER);
 	Ptr->AddUser(user);
-	user->ModChannelCount(1);
 
 	/* Just in case they have no permissions */
 	user->chans[Ptr] = 0;
@@ -467,7 +464,6 @@ long chanrec::PartUser(userrec *user, const char* reason)
 		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : ""));
 		this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
 		user->chans.erase(i);
-		user->ModChannelCount(-1);
 		this->RemoveAllPrefixes(user);
 	}
 

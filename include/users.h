@@ -57,14 +57,6 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
-/** Holds a channel name to which a user has been invited.
- */
-class Invited : public classbase
-{
- public:
-	 irc::string channel;
-};
-
 class InspIRCd;
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
@@ -136,9 +128,7 @@ class ConnectClass : public classbase
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined.
  */
-typedef std::vector<Invited> InvitedList;
-
-
+typedef std::vector<irc::string> InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
@@ -423,19 +413,19 @@ class userrec : public connection
 	 * @param channel A channel name to look up
 	 * @return True if the user is invited to the given channel
 	 */
-	virtual bool IsInvited(irc::string &channel);
+	virtual bool IsInvited(const irc::string &channel);
 	
 	/** Adds a channel to a users invite list (invites them to a channel)
 	 * @param channel A channel name to add
 	 */
-	virtual void InviteTo(irc::string &channel);
+	virtual void InviteTo(const irc::string &channel);
 	
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 * @param channel The channel to remove the invite to
 	 */
-	virtual void RemoveInvite(irc::string &channel);
+	virtual void RemoveInvite(const irc::string &channel);
 	
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from userrec::oper, then referencing
@@ -729,17 +719,6 @@ class userrec : public connection
 	 * @return True if the change succeeded, false if otherwise
 	 */
 	bool ChangeName(const char* gecos);
-
-	/** Return the total number of channels this user is on.
-	 * @return The number of channels the user is on
-	 */
-	int CountChannels();
-
-	/** Modify the number of channels this user is on (used by CountChannels).
-	 * Pass a positive number to increment the counter, or a negative number
-	 * to decrement it.
-	 */
-	void ModChannelCount(int n);
 
 	/** Send a notice to all local users from this user
 	 * @param text The text format string to send

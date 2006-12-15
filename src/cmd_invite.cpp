@@ -90,7 +90,7 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			user->WriteServ("346 %s :%s",user->nick,i->channel.c_str());
+			user->WriteServ("346 %s :%s",user->nick,i->c_str());
 		}
 		user->WriteServ("347 %s :End of INVITE list",user->nick);
 	}

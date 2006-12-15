@@ -439,13 +439,11 @@ char* userrec::GetFullRealHost()
 	return fresult;
 }
 
-bool userrec::IsInvited(irc::string &channel)
+bool userrec::IsInvited(const irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
-		irc::string compare = i->channel;
-		
-		if (compare == channel)
+		if (channel == *i)
 		{
 			return true;
 		}
@@ -458,30 +456,22 @@ InvitedList* userrec::GetInviteList()
 	return &invites;
 }
 
-void userrec::InviteTo(irc::string &channel)
+void userrec::InviteTo(const irc::string &channel)
 {
-	Invited i;
-	i.channel = channel;
-	invites.push_back(i);
+	invites.push_back(channel);
 }
 
-void userrec::RemoveInvite(irc::string &channel)
+void userrec::RemoveInvite(const irc::string &channel)
 {
 	ServerInstance->Log(DEBUG,"Removing invites");
-	
-	if (invites.size())
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
-		for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+		if (channel == *i)
 		{
-			irc::string compare = i->channel;
-			
-			if (compare == channel)
-			{
-				invites.erase(i);
-				return;
-       		 	}
-       		}
-       	}
+			invites.erase(i);
+			return;
+	 	}
+	}
 }
 
 bool userrec::HasPermission(const std::string &command)
@@ -1760,16 +1750,6 @@ bool userrec::SharesChannelWith(userrec *other)
 			return true;
 	}
 	return false;
-}
-
-int userrec::CountChannels()
-{
-	return ChannelCount;
-}
-
-void userrec::ModChannelCount(int n)
-{
-	ChannelCount += n;
 }
 
 bool userrec::ChangeName(const char* gecos)
