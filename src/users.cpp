@@ -771,7 +771,11 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 		reason.resize(MAXQUIT - 1);
 	
 	if (IS_LOCAL(user))
+	{
 		user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
+		if ((!user->sendq.empty()) && (!(*user->GetWriteError())))
+			user->FlushWriteBuf();
+	}
 
 	if (user->registered == REG_ALL)
 	{
