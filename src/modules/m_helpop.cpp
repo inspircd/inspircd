@@ -99,18 +99,6 @@ class cmd_helpop : public command_t
 	}
 };
 
-/** Thrown by m_helpop
- */
-class HelpopException : public ModuleException
-{
- private:
-	std::string err;
- public:
-	HelpopException(std::string message) : err(message) { }
-	~HelpopException() throw() { };
-	virtual const char* GetReason() { return err.c_str(); }
-};
-
 class ModuleHelpop : public Module
 {
 	private:
@@ -142,8 +130,7 @@ class ModuleHelpop : public Module
 
 				if (key == "index")
 				{
-					HelpopException e("m_helpop: The key 'index' is reserved for internal purposes. Please remove it.");
-					throw(e);
+					throw ModuleException("m_helpop: The key 'index' is reserved for internal purposes. Please remove it.");
 				}
 
 				helpop_map[key] = value;
@@ -152,14 +139,12 @@ class ModuleHelpop : public Module
 			if (helpop_map.find("start") == helpop_map.end())
 			{
 				// error!
-				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
-				throw(e);
+				throw ModuleException("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 			}
 			else if (helpop_map.find("nohelp") == helpop_map.end())
 			{
 				// error!
-				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
-				throw(e);
+				throw ModuleException("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 			}
 
 		}
