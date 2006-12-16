@@ -583,7 +583,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 	if (bail)
 	{
 		/* Unneeded because of the ServerInstance->Log() aboive? */
-		printf("There were errors in your configuration:\n%s",errormessage.c_str());
+		printf("There were errors in your configuration:\n%s\n\n",errormessage.c_str());
 		InspIRCd::Exit(ERROR);
 	}
 	else
