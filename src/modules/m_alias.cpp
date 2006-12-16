@@ -47,20 +47,18 @@ class ModuleAlias : public Module
 		ConfigReader MyConf(ServerInstance);
 
 		Aliases.clear();
-	
 		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
 		{
 			Alias a;
 			std::string txt;
 			txt = MyConf.ReadValue("alias", "text", i);
 			a.text = txt.c_str();
-			a.replace_with = MyConf.ReadValue("alias", "replace", i);
+			a.replace_with = MyConf.ReadValue("alias", "replace", i, true);
 			a.requires = MyConf.ReadValue("alias", "requires", i);
 			a.uline = MyConf.ReadFlag("alias", "uline", i);
 			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
 			Aliases.push_back(a);
 		}
-
 	}
 
  public:
