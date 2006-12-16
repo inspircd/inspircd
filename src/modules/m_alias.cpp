@@ -34,11 +34,14 @@ class Alias : public classbase
 	bool uline;
 	/** Requires oper? */
 	bool operonly;
+	/** Format that must be matched for use */
+	std::string format;
 };
 
 class ModuleAlias : public Module
 {
  private:
+	/** We cant use a map, there may be multiple aliases with the same name */
 	std::vector<Alias> Aliases;
 	std::vector<std::string> pars;
 
@@ -57,6 +60,7 @@ class ModuleAlias : public Module
 			a.requires = MyConf.ReadValue("alias", "requires", i);
 			a.uline = MyConf.ReadFlag("alias", "uline", i);
 			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
+			a.format = MyConf.ReadValue("alias", "format", i);
 			Aliases.push_back(a);
 		}
 	}
@@ -127,18 +131,30 @@ class ModuleAlias : public Module
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		userrec *u = NULL;
-		irc::string c = command.c_str();
+
 		/* If the command is valid, we dont want to know,
 		 * and if theyre not registered yet, we dont want
 		 * to know either
 		 */
 		if ((validated) || (user->registered != REG_ALL))
 			return 0;
+
+		irc::string c = command.c_str();
+		/* The parameters for the command in their original form, with the command stripped off */
+		std::string compare = original_line.substr(command.length());
+		while (*(compare.c_str()) == ' ')
+			compare.erase(compare.begin());
 		
 		for (unsigned int i = 0; i < Aliases.size(); i++)
 		{
 			if (Aliases[i].text == c)
 			{
+				/* Does it match the pattern? */
+				if ((!Aliases[i].format.empty()) && (!ServerInstance->MatchText(compare, Aliases[i].format)))
+				{
+					continue;
+				}
+
 				if ((Aliases[i].operonly) && (!*user->oper))
 					return 0;
 
