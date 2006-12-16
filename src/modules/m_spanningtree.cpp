@@ -711,8 +711,9 @@ class TreeSocket : public InspSocket
 	{
 		this->LinkState = WAIT_AUTH_1;
 
-		Instance->Log(DEBUG, "HOOK = %08x", Hook);
-
+		/* If we have a transport module hooked to the parent, hook the same module to this
+		 * socket, and set a timer waiting for handshake before we send CAPAB etc.
+		 */
 		if (Hook)
 		{
 			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
@@ -720,6 +721,9 @@ class TreeSocket : public InspSocket
 		}
 		else
 		{
+			/* Otherwise, theres no lower layer transport in plain TCP/IP,
+			 * so just send the capabilities right now.
+			 */
 			this->SendCapabilities();
 		}
 	}
