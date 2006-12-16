@@ -65,18 +65,20 @@ class cmd_helpop : public command_t
 	{		
 		irc::string parameter = parameters[0];
 
-		user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameters[0]);
-
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
+			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick);
 			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
 			{
-				user->WriteServ("NOTICE %s :HELPOP KEY: %s", user->nick, iter->first.c_str());				
+				user->WriteServ("NOTICE %s :    %s", user->nick, iter->first.c_str());				
 			}
+			user->WriteServ("NOTICE %s :*** End of HELPOP topic index", user->nick);
 		}
 		else
 		{
+			user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameters[0]);
+
 			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
 
 			if (iter == helpop_map.end())
@@ -92,10 +94,14 @@ class cmd_helpop : public command_t
 			{
 				user->WriteServ("NOTICE %s :%s", user->nick, token.c_str());
 			}
+
+			user->WriteServ("NOTICE %s :*** End of HELPOP", user->nick);
 		}
 
-		user->WriteServ("NOTICE %s :*** HELPOP End", user->nick);
-		return CMD_SUCCESS;
+		/* We dont want these going out over the network, return CMD_FAILURE
+		 * to make sure the protocol module thinks theyre not worth sending.
+		 */
+		return CMD_FAILURE;
 	}
 };
 
@@ -126,7 +132,7 @@ class ModuleHelpop : public Module
 			for (int i = 0; i < MyConf->Enumerate("helpop"); i++)
 			{
 				irc::string key = assign(MyConf->ReadValue("helpop", "key", i));
-				std::string value = MyConf->ReadValue("helpop", "value", i);
+				std::string value = MyConf->ReadValue("helpop", "value", i, true); /* Linefeeds allowed! */
 
 				if (key == "index")
 				{
