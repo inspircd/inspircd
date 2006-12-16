@@ -492,6 +492,11 @@ class ServerConfig : public Extensible
 	 */
 	bool CycleHosts;
 
+	/** If set to true, prefixed channel NOTICEs and PRIVMSGs will have the prefix
+	 *  added to the outgoing text for undernet style msg prefixing.
+	 */
+	bool UndernetMsgPrefix;
+
 	/** All oper type definitions from the config file
 	 */
 	opertype_t opertypes;

@@ -98,7 +98,14 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 
 			if (status)
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, parameters[1]);
+				if (ServerInstance->Config->UndernetMsgPrefix)
+				{
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name, status, parameters[1]);
+				}
+				else
+				{
+					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name, parameters[1]);
+				}
 			}
 			else 
 			{

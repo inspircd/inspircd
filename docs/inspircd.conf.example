@@ -741,6 +741,11 @@
 #                  new TS values in the timestamp. If you think this  #
 #                  is just pointless noise, define the value to 0.    #
 #                                                                     #
+#  ircumsgprefix - Use undernet style message prefix for channel      #
+#                  NOTICE and PRIVMSG adding the prefix to the line   #
+#                  of text sent out. Eg. NOTICE @#test :@ testing     #
+#                  vs off: NOTICE @#test :testing                     #
+#
 #  notimesync    - If this value is 'yes', 'true', or '1', time       #
 #                  synchronization is disabled on this server. This   #
 #                  means any servers you are linked to will not       #
@@ -771,6 +776,7 @@
          nouserdns="no"
          syntaxhints="no"
          cyclehosts="yes"
+         ircumsgprefix="no"
          announcets="yes"
          notimesync="no"
          allowhalfop="yes">
