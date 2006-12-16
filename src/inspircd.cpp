@@ -653,10 +653,10 @@ bool InspIRCd::LoadModule(const char* filename)
 				return false;
 			}
 		}
-		catch (ModuleException& modexcept)
+		catch (CoreException& modexcept)
 		{
 			this->Log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
-			snprintf(MODERR,MAXBUF,"Factory function threw an exception: %s",modexcept.GetReason());
+			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			return false;
 		}
 	}

@@ -153,7 +153,7 @@ void userrec::StartDNSLookup()
 		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE);
 		this->ServerInstance->AddResolver(res_reverse);
 	}
-	catch (ModuleException& e)
+	catch (CoreException& e)
 	{
 		ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 	}
@@ -186,7 +186,7 @@ void UserResolver::OnLookupComplete(const std::string &result)
 				this->ServerInstance->AddResolver(bound_user->res_forward);
 			}
 		}
-		catch (ModuleException& e)
+		catch (CoreException& e)
 		{
 			ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 		}
@@ -791,9 +791,9 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 			{
 				Instance->Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
 			}
-			catch (ModuleException& modexcept)
+			catch (CoreException& modexcept)
 			{
-				Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				Instance->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
 		
@@ -1445,9 +1445,9 @@ void userrec::Write(std::string text)
 		{
 			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, text.data(), text.length());
 		}
-		catch (ModuleException& modexcept)
+		catch (CoreException& modexcept)
 		{
-			ServerInstance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+			ServerInstance->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
 	else

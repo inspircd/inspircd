@@ -262,9 +262,9 @@ void InspSocket::Close()
 			{
 				Instance->Config->GetIOHook(this)->OnRawSocketClose(this->fd);
 			}
-			catch (ModuleException& modexcept)
+			catch (CoreException& modexcept)
 			{
-				Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
 		this->OnClose();
@@ -293,9 +293,9 @@ char* InspSocket::Read()
 		{
 			MOD_RESULT = Instance->Config->GetIOHook(this)->OnRawSocketRead(this->fd,this->ibuf,sizeof(this->ibuf),result2);
 		}
-		catch (ModuleException& modexcept)
+		catch (CoreException& modexcept)
 		{
-			Instance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+			Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 		if (MOD_RESULT < 0)
 		{
@@ -397,9 +397,9 @@ bool InspSocket::FlushWriteBuffer()
 						return true;
 					}
 				}
-				catch (ModuleException& modexcept)
+				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 					return true;
 				}
 			}
@@ -517,9 +517,9 @@ bool InspSocket::Poll()
 				{
 					Instance->Config->GetIOHook(this)->OnRawSocketConnect(this->fd);
 				}
-				catch (ModuleException& modexcept)
+				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 				}
 			}
 			return this->OnConnected();
@@ -544,9 +544,9 @@ bool InspSocket::Poll()
 					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, insp_ntoa(client.sin_addr), this->port);
 #endif
 				}
-				catch (ModuleException& modexcept)
+				catch (CoreException& modexcept)
 				{
-					Instance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+					Instance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 				}
 			}
 
@@ -637,7 +637,6 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 			}
 			else
 			{
-				Instance->Log(DEBUG,"State=%d CONNECTED=%d", this->state, I_CONNECTED);
 				if (this->FlushWriteBuffer())
 				{
 					this->Instance->SE->DelFd(this);

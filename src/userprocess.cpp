@@ -37,9 +37,9 @@ void InspIRCd::ProcessUser(userrec* cu)
 		{
 			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
 		}
-		catch (ModuleException& modexcept)
+		catch (CoreException& modexcept)
 		{
-			this->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason());
+			this->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 
 		if (MOD_RESULT < 0)

@@ -117,9 +117,9 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		{ \
 			ServerInstance->modules[_i]->x ; \
 		} \
-		catch (ModuleException& modexcept) \
+		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
 		} \
 	} \
   }
@@ -131,9 +131,9 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		{ \
 			z->modules[_i]->x ; \
 		} \
-		catch (ModuleException& modexcept) \
+		catch (CoreException& modexcept) \
 		{ \
-			z->Log(DEBUG,"Module exception caught: %s",modexcept.GetReason()); \
+			z->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
 		} \
 	} \
 }
@@ -154,9 +154,9 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 						break; \
 					} \
 				} \
-				catch (ModuleException& modexcept) \
+				catch (CoreException& modexcept) \
 				{ \
-					ServerInstance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+					ServerInstance->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
@@ -175,9 +175,9 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 						break; \
 					} \
 				} \
-				catch (ModuleException& modexcept) \
+				catch (CoreException& modexcept) \
 				{ \
-					z->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason()); \
+					z->Log(DEBUG,"Exception cought: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
@@ -328,13 +328,18 @@ class CoreException : public std::exception
 	/** Holds the error message to be displayed
 	 */
 	const std::string err;
+	const std::string source;
  public:
 	/** Default constructor, just uses the error mesage 'Core threw an exception'.
 	 */
-	CoreException() : err("Core threw an exception") {}
+	CoreException() : err("Core threw an exception"), source("The core") {}
 	/** This constructor can be used to specify an error message before throwing.
 	 */
-	CoreException(const std::string &message) : err(message) {}
+	CoreException(const std::string &message) : err(message), source("The core") {}
+	/** This constructor can be used to specify an error message before throwing,
+	 * and to specify the source of the exception.
+	 */
+	CoreException(const std::string &message, const std::string &src) : err(message), source(src) {}
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
@@ -347,6 +352,11 @@ class CoreException : public std::exception
 	{
 		return err.c_str();
 	}
+
+	virtual const char* GetSource()
+	{
+		return source.c_str();
+	}
 };
 
 class ModuleException : public CoreException
@@ -354,11 +364,11 @@ class ModuleException : public CoreException
  public:
 	/** Default constructor, just uses the error mesage 'Module threw an exception'.
 	 */
-	ModuleException() : CoreException("Module threw an exception") {}
+	ModuleException() : CoreException("Module threw an exception", "A Module") {}
 
 	/** This constructor can be used to specify an error message before throwing.
 	 */
-	ModuleException(const std::string &message) : CoreException(message) {}
+	ModuleException(const std::string &message) : CoreException(message, "A Module") {}
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!

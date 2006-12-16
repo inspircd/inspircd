@@ -80,9 +80,9 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin_addr), in_port);
 #endif
 			}
-			catch (ModuleException& modexcept)
+			catch (CoreException& modexcept)
 			{
-				ServerInstance->Log(DEBUG,"Module exception cought: %s",modexcept.GetReason());
+				ServerInstance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
 		ServerInstance->stats->statsAccept++;
