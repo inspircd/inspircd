@@ -135,6 +135,7 @@ class JoinFlood : public ModeHandler
 				else data++;
 			}
 			if (secs)
+
 			{
 				/* Set up the flood parameters for this channel */
 				int njoins = atoi(joins);

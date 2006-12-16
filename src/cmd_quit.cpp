@@ -79,7 +79,6 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 
 	FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(user));
 
-	/* push the socket on a stack of sockets due to be closed at the next opportunity */
 	if (IS_LOCAL(user))
 	{
 		ServerInstance->SE->DelFd(user);
