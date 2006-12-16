@@ -577,6 +577,45 @@ bool DoneMaxBans(ServerConfig* conf, const char* tag)
 	return true;
 }
 
+void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, userrec* user)
+{
+	ServerInstance->Log(DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
+	if (bail)
+	{
+		/* Unneeded because of the ServerInstance->Log() aboive? */
+		printf("There were errors in your configuration:\n%s",errormessage.c_str());
+		InspIRCd::Exit(ERROR);
+	}
+	else
+	{
+		std::string errors = errormessage;
+		std::string::size_type start;
+		unsigned int prefixlen;
+		start = 0;
+		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
+		prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
+		if (user)
+		{
+			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
+			while (start < errors.length())
+			{
+				user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
+				start += 510 - prefixlen;
+			}
+		}
+		else
+		{
+			ServerInstance->WriteOpers("There were errors in the configuration file:");
+			while (start < errors.length())
+			{
+				ServerInstance->WriteOpers(errors.substr(start, 360).c_str());
+				start += 360;
+			}
+		}
+		return;
+	}
+}
+
 void ServerConfig::Read(bool bail, userrec* user)
 {
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
@@ -702,143 +741,123 @@ void ServerConfig::Read(bool bail, userrec* user)
 	}
 	else
 	{
-		ServerInstance->Log(DEFAULT, "There were errors in your configuration:\n%s", errstr.str().c_str());
-
-		if (bail)
-		{
-			/* Unneeded because of the ServerInstance->Log() aboive? */
-			printf("There were errors in your configuration:\n%s",errstr.str().c_str());
-			InspIRCd::Exit(ERROR);
-		}
-		else
-		{
-			std::string errors = errstr.str();
-			std::string::size_type start;
-			unsigned int prefixlen;
-			
-			start = 0;
-			/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
-			prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
-	
-			if (user)
-			{
-				user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
-				
-				while(start < errors.length())
-				{
-					user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
-					start += 510 - prefixlen;
-				}
-			}
-			else
-			{
-				ServerInstance->WriteOpers("There were errors in the configuration file:");
-				
-				while(start < errors.length())
-				{
-					ServerInstance->WriteOpers(errors.substr(start, 360).c_str());
-					start += 360;
-				}
-			}
-
-			return;
-		}
+		ReportConfigError(errstr.str(), bail, user);
+		return;
 	}
 
-	/* Check we dont have more than one of singular tags, or any of them missing
-	 */
-	for (int Index = 0; Once[Index]; Index++)
-		if (!CheckOnce(Once[Index], bail, user))
-			return;
-
-	/* Read the values of all the tags which occur once or not at all, and call their callbacks.
-	 */
-	for (int Index = 0; Values[Index].tag; Index++)
+	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
+	try
 	{
-		char item[MAXBUF];
-		ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, item, MAXBUF);
-		ValueItem vi(item);
+		/* Check we dont have more than one of singular tags, or any of them missing
+		 */
+		for (int Index = 0; Once[Index]; Index++)
+			if (!CheckOnce(Once[Index], bail, user))
+				return;
 
-		Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi);
-
-		switch (Values[Index].datatype)
+		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
+		 */
+		for (int Index = 0; Values[Index].tag; Index++)
 		{
-			case DT_CHARPTR:
+			char item[MAXBUF];
+			int dt = Values[Index].datatype;
+			bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
+			dt &= ~DT_ALLOW_NEWLINE;
+
+			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, item, MAXBUF, allow_newlines);
+			ValueItem vi(item);
+
+			Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi);
+
+			switch (Values[Index].datatype)
+			{
+				case DT_CHARPTR:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
 					vcc->Set(vi.GetString(), strlen(vi.GetString()));
 				}
-			break;
-			case DT_INTEGER:
+				break;
+				case DT_INTEGER:
 				{
 					int val = vi.GetInteger();
 					ValueContainerInt* vci = (ValueContainerInt*)Values[Index].val;
 					vci->Set(&val, sizeof(int));
 				}
-			break;
-			case DT_BOOLEAN:
+				break;
+				case DT_BOOLEAN:
 				{
 					bool val = vi.GetBool();
 					ValueContainerBool* vcb = (ValueContainerBool*)Values[Index].val;
 					vcb->Set(&val, sizeof(bool));
 				}
-			break;
-			default:
-				/* You don't want to know what happens if someones bad code sends us here. */
-			break;
+				break;
+				default:
+					/* You don't want to know what happens if someones bad code sends us here. */
+				break;
+			}
+	
+			/* We're done with this now */
+			delete Values[Index].val;
 		}
 
-		/* We're done with this now */
-		delete Values[Index].val;
-	}
-
-	/* Read the multiple-tag items (class tags, connect tags, etc)
-	 * and call the callbacks associated with them. We have three
-	 * callbacks for these, a 'start', 'item' and 'end' callback.
-	 */
-	for (int Index = 0; MultiValues[Index].tag; Index++)
-	{
-		MultiValues[Index].init_function(this, MultiValues[Index].tag);
-
-		int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
-
-		for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
+		/* Read the multiple-tag items (class tags, connect tags, etc)
+		 * and call the callbacks associated with them. We have three
+		 * callbacks for these, a 'start', 'item' and 'end' callback.
+		 */
+		for (int Index = 0; MultiValues[Index].tag; Index++)
 		{
-			ValueList vl;
-			for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
+			MultiValues[Index].init_function(this, MultiValues[Index].tag);
+
+			int number_of_tags = ConfValueEnum(this->config_data, MultiValues[Index].tag);
+
+			for (int tagnum = 0; tagnum < number_of_tags; tagnum++)
 			{
-				switch (MultiValues[Index].datatype[valuenum])
+				ValueList vl;
+				for (int valuenum = 0; MultiValues[Index].items[valuenum]; valuenum++)
 				{
-					case DT_CHARPTR:
+					int dt = MultiValues[Index].datatype[valuenum];
+					bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
+					dt &= ~DT_ALLOW_NEWLINE;
+
+					switch (dt)
+					{
+						case DT_CHARPTR:
 						{
 							char item[MAXBUF];
-							ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF);
+							ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF, allow_newlines);
 							vl.push_back(ValueItem(item));
 						}
-					break;
-					case DT_INTEGER:
+						break;
+						case DT_INTEGER:
 						{
 							int item;
 							ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item);
 							vl.push_back(ValueItem(item));
 						}
-					break;
-					case DT_BOOLEAN:
+						break;
+						case DT_BOOLEAN:
 						{
 							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum);
 							vl.push_back(ValueItem(item));
 						}
-					break;
-					default:
-						/* Someone was smoking craq if we got here, and we're all gonna die. */
-					break;
+						break;
+						default:
+							/* Someone was smoking craq if we got here, and we're all gonna die. */
+						break;
+					}
 				}
+	
+				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
-
-			MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
+	
+			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 		}
 
-		MultiValues[Index].finish_function(this, MultiValues[Index].tag);
+	}
+
+	catch (CoreException &ce)
+	{
+		ReportConfigError(ce.GetReason(), bail, user);
+		return;
 	}
 
 	// write once here, to try it out and make sure its ok
@@ -1267,30 +1286,37 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	return LoadConf(target, newfile, errorstream);
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length)
+bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)
 {
 	std::string value;
-	bool r = ConfValue(target, std::string(tag), std::string(var), index, value);
+	bool r = ConfValue(target, std::string(tag), std::string(var), index, value, allow_linefeeds);
 	strlcpy(result, value.c_str(), length);
 	return r;
 }
 
-bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result)
+bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds)
 {
 	ConfigDataHash::size_type pos = index;
 	if((pos >= 0) && (pos < target.count(tag)))
 	{
 		ConfigDataHash::const_iterator iter = target.find(tag);
-		
+
 		for(int i = 0; i < index; i++)
 			iter++;
-		
+
 		for(KeyValList::const_iterator j = iter->second.begin(); j != iter->second.end(); j++)
 		{
 			if(j->first == var)
 			{
-				result = j->second;
-				return true;
+ 				if ((!allow_linefeeds) && (j->second.find('\n') != std::string::npos))
+				{
+					throw CoreException("Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted");
+				}
+				else
+				{
+					result = j->second;
+					return true;
+				}
 			}
 		}
 	}
@@ -1302,7 +1328,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	{
 		ServerInstance->Log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
-	
+
 	return false;
 }
 	

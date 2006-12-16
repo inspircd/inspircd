@@ -619,12 +619,12 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 		this->error = CONF_FILE_NOT_FOUND;
 };
 
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index)
+std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
 {
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
 	std::string result;
 	
-	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, index, result))
+	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, index, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return "";
@@ -666,46 +666,7 @@ long ConfigReader::GetError()
 
 void ConfigReader::DumpErrors(bool bail, userrec* user)
 {
-	/* XXX - Duplicated code */
-	
-	if (bail)
-	{
-		printf("There were errors in your configuration:\n%s", this->errorlog->str().c_str());
-		InspIRCd::Exit(ERROR);
-	}
-	else
-	{
-		std::string errors = this->errorlog->str();
-		std::string::size_type start;
-		unsigned int prefixlen;
-		
-		start = 0;
-		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
-		prefixlen = strlen(ServerInstance->Config->ServerName) + strlen(user->nick) + 11;
-	
-		if (user)
-		{
-			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
-			
-			while(start < errors.length())
-			{
-				user->WriteServ("NOTICE %s :%s",user->nick, errors.substr(start, 510 - prefixlen).c_str());
-				start += 510 - prefixlen;
-			}
-		}
-		else
-		{
-			ServerInstance->WriteOpers("There were errors in the configuration file:");
-			
-			while(start < errors.length())
-			{
-				ServerInstance->WriteOpers(errors.substr(start, 360).c_str());
-				start += 360;
-			}
-		}
-
-		return;
-	}
+	ServerInstance->Config->ReportConfigError(this->errorlog->str(), bail, user);
 }
 
 

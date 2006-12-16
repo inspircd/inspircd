@@ -322,24 +322,24 @@ class Event : public ModuleMessage
  * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
  * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
  */
-class ModuleException : public std::exception
+class CoreException : public std::exception
 {
- private:
+ protected:
 	/** Holds the error message to be displayed
 	 */
-	std::string err;
+	const std::string err;
  public:
-	/** Default constructor, just uses the error mesage 'Module threw an exception'.
+	/** Default constructor, just uses the error mesage 'Core threw an exception'.
 	 */
-	ModuleException() : err("Module threw an exception") {}
+	CoreException() : err("Core threw an exception") {}
 	/** This constructor can be used to specify an error message before throwing.
 	 */
-	ModuleException(std::string message) : err(message) {}
+	CoreException(const std::string &message) : err(message) {}
 	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
 	 * Actually no, it does nothing. Never mind.
 	 * @throws Nothing!
 	 */
-	virtual ~ModuleException() throw() {};
+	virtual ~CoreException() throw() {};
 	/** Returns the reason for the exception.
 	 * The module should probably put something informative here as the user will see this upon failure.
 	 */
@@ -347,6 +347,23 @@ class ModuleException : public std::exception
 	{
 		return err.c_str();
 	}
+};
+
+class ModuleException : public CoreException
+{
+ public:
+	/** Default constructor, just uses the error mesage 'Module threw an exception'.
+	 */
+	ModuleException() : CoreException("Module threw an exception") {}
+
+	/** This constructor can be used to specify an error message before throwing.
+	 */
+	ModuleException(const std::string &message) : CoreException(message) {}
+	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
+	 * Actually no, it does nothing. Never mind.
+	 * @throws Nothing!
+	 */
+	virtual ~ModuleException() throw() {};
 };
 
 /** Priority types which can be returned from Module::Prioritize()
@@ -1364,7 +1381,7 @@ class ConfigReader : public classbase
 	 * This method retrieves a value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve.
 	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, int index);
+	std::string ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds = false);
 	/** Retrieves a boolean value from the config file.
 	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"

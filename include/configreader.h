@@ -30,7 +30,14 @@ class InspSocket;
 
 /** Types of data in the core config
  */
-enum ConfigDataType { DT_NOTHING, DT_INTEGER, DT_CHARPTR, DT_BOOLEAN };
+enum ConfigDataType
+{
+	DT_NOTHING       = 0,
+	DT_INTEGER       = 1,
+	DT_CHARPTR       = 2,
+	DT_BOOLEAN       = 3,
+	DT_ALLOW_NEWLINE = 128
+};
 
 /** Holds a config value, either string, integer or boolean.
  * Callback functions receive one or more of these, either on
@@ -522,7 +529,20 @@ class ServerConfig : public Extensible
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
+
+	/** Report a configuration error given in errormessage.
+	 * @param bail If this is set to true, the error is sent to the console, and the program exits
+	 * @param user If this is set to a non-null value, and bail is false, the errors are spooled to
+	 * this user as SNOTICEs.
+	 * If the parameter is NULL, the messages are spooled to all users via WriteOpers as SNOTICEs.
+	 */
+	void ReportConfigError(const std::string &errormessage, bool bail, userrec* user);
+
+	/** Load 'filename' into 'target', with the new config parser everything is parsed into
+	 * tag/key/value at load-time rather than at read-value time.
+	 */
 	bool LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream);
+
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.
 	 */
@@ -532,10 +552,10 @@ class ServerConfig : public Extensible
 	
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length);
+	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
 	/** Writes 'length' chars into 'result' as a string
 	 */
-	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result);
+	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
 	
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
