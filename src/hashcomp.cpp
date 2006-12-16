@@ -310,7 +310,7 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	return buf;
 }
 
-const char* irc::Spacify(char* n)
+const char* irc::Spacify(const char* n)
 {
 	static char x[MAXBUF];
 	strlcpy(x,n,MAXBUF);
