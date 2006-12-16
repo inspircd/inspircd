@@ -16,13 +16,9 @@
 #include "modules.h"
 #include "inspircd.h"
 
-// Global Vars
-static ConfigReader *helpop;
-
-/*bool do_helpop(const char**, int, userrec*);
-void sendtohelpop(userrec*, int, const char**);*/
-
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
+static std::map<irc::string, std::string> helpop_map;
+
 
 /** Handles user mode +h
  */
@@ -62,120 +58,44 @@ class cmd_helpop : public command_t
 	 cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 1)
 	 {
 		 this->source = "m_helpop.so";
-		 syntax = "[?|!]<any-text>";
+		 syntax = "<any-text>";
 	 }
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
-	{
-		char a[MAXBUF];
-		std::string output = " ";
+	{		
+		irc::string parameter = parameters[0];
 
-		if (!helpop)
-			return CMD_FAILURE;
+		user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameters[0]);
 
-		if (pcnt < 1)
+		if (parameter == "index")
 		{
-	 		do_helpop(NULL,pcnt,user);
-			return CMD_SUCCESS;
-	   	}
-
-		if (*parameters[0] == '!')
-		{
-			// Force send to all +h users
-			sendtohelpop(user, pcnt, parameters);
-		}
-		else if (*parameters[0] == '?')
-		{
-			// Force to the helpop system with no forward if not found.
-			if (do_helpop(parameters, pcnt, user) == false)
+			/* iterate over all helpop items */
+			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
 			{
-				// Not handled by the Database, Tell the user, and bail.
-				for (int i = 1; output != ""; i++)
-				{
-					snprintf(a,MAXBUF,"line%d",i);
-					output = helpop->ReadValue("helpop_nohelp", a, 0);
-	
-					if(output != "")
-					{
-						user->WriteServ("290 "+std::string(user->nick)+" :"+output);
-					}
-				}
+				user->WriteServ("NOTICE %s :HELPOP KEY: %s", user->nick, iter->first.c_str());				
 			}
 		}
 		else
 		{
-			// Check with the helpop database, if not found send to +h
-			if (do_helpop(parameters, pcnt, user) == false)
+			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
+
+			if (iter == helpop_map.end())
 			{
-				// Not handled by the Database, Tell the user, and forward.
-				for (int i = 1; output != ""; i++)
-	  			{
-					snprintf(a,MAXBUF,"line%d",i);
-					/* "nohelpo" for opers "nohelp" for users */
-	   				output = helpop->ReadValue("helpop_nohelpo", a, 0);
-					if (output != "")
-					{
-						user->WriteServ("290 "+std::string(user->nick)+" :"+output);
-					}
-	  			}
-				// Forward.
-				sendtohelpop(user, pcnt, parameters);
+				iter = helpop_map.find("nohelp");
+			}
+
+			std::string value = iter->second;
+			irc::sepstream stream(value, '\n');
+			std::string token = "*";
+
+			while ((token = stream.GetToken()) != "")
+			{
+				user->WriteServ("NOTICE %s :%s", user->nick, token.c_str());
 			}
 		}
 
+		user->WriteServ("NOTICE %s :*** HELPOP End", user->nick);
 		return CMD_SUCCESS;
-	}
-
-
-	bool do_helpop(const char** parameters, int pcnt, userrec *src)
-	{
-		char search[MAXBUF];
-		std::string output = " "; // a fix bought to you by brain :p
-		char a[MAXBUF];
-		int nlines = 0;
-
-		if (!pcnt)
-		{
-	 		strcpy(search,"helpop_start");
-	  	}
-		else
-		{
-			if (*parameters[0] == '?')
-				parameters[0]++;
-			strlcpy(search, "helpop_", MAXBUF);
-	 		strlcat(search, parameters[0], MAXBUF);
-	   	}
-
-		for (char* n = search; *n; n++)
-			*n = tolower(*n);
-
-		for (int i = 1; output != ""; i++)
-		{
-			snprintf(a,MAXBUF,"line%d",i);
-			output = helpop->ReadValue(search, a, 0);
-			if (output != "")
-			{
-				src->WriteServ("290 "+std::string(src->nick)+" :"+output);
-				nlines++;
-			}
-		}
-		return (nlines>0);
-	}
-
-	void sendtohelpop(userrec *src, int pcnt, const char **params)
-	{
-		const char* first = params[0];
-		if (*first == '!')
-		{
-			first++;
-		}
-
-		std::string line = "*** HELPOPS - From "+std::string(src->nick)+": "+std::string(first)+" ";
-		for (int i = 1; i < pcnt; i++)
-		{
-			line = line + std::string(params[i]) + " ";
-		}
-		ServerInstance->WriteMode("oh",WM_AND,line.c_str());
 	}
 };
 
@@ -211,14 +131,37 @@ class ModuleHelpop : public Module
 
 		virtual void ReadConfig()
 		{
-			helpop = new ConfigReader(ServerInstance);
-			if ((helpop->ReadValue("helpop_nohelp",  "line1", 0) == "") ||
-				(helpop->ReadValue("helpop_nohelpo", "line1", 0) == "") ||
-				(helpop->ReadValue("helpop_start",   "line1", 0) == ""))
+			ConfigReader *MyConf = new ConfigReader(ServerInstance);
+
+			helpop_map.clear();
+
+			for (int i = 0; i < MyConf->Enumerate("helpop"); i++)
 			{
+				irc::string key = assign(MyConf->ReadValue("helpop", "key", i));
+				std::string value = MyConf->ReadValue("helpop", "value", i);
+
+				if (key == "index")
+				{
+					HelpopException e("m_helpop: The key 'index' is reserved for internal purposes. Please remove it.");
+					throw(e);
+				}
+
+				helpop_map[key] = value;
+			}
+
+			if (helpop_map.find("start") == helpop_map.end())
+			{
+				// error!
 				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
 				throw(e);
 			}
+			else if (helpop_map.find("nohelp") == helpop_map.end())
+			{
+				// error!
+				HelpopException e("m_helpop: Helpop file is missing important entries. Please check the example conf.");
+				throw(e);
+			}
+
 		}
 
 		void Implements(char* List)
@@ -228,8 +171,6 @@ class ModuleHelpop : public Module
 
 		virtual void OnRehash(const std::string &parameter)
 		{
-			if (helpop)
-				DELETE(helpop);
 			ReadConfig();
 		}
 
@@ -244,7 +185,6 @@ class ModuleHelpop : public Module
 		virtual ~ModuleHelpop()
 		{
 			ServerInstance->Modes->DelMode(ho);
-			DELETE(helpop);
 			DELETE(ho);
 		}
 	
