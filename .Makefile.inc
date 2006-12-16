@@ -47,7 +47,6 @@ install: all
 	@-mkdir -p $(BINPATH)
 	@-mkdir -p $(CONPATH)
 	@-mkdir -p ${MODPATH}
-	-install -m $(INSTMODE) src/libIRCDaes.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDasyncdns.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDbase.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDchannels.so $(LIBPATH)
