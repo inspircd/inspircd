@@ -169,15 +169,18 @@ class ModuleAlias : public Module
 
 				if (crlf == std::string::npos)
 				{
+					ServerInstance->Log(DEBUG,"Single line alias: '%s'", Aliases[i].replace_with.c_str());
 					DoCommand(Aliases[i].replace_with, user, original_line);
 					return 1;
 				}
 				else
 				{
+					ServerInstance->Log(DEBUG,"Multi line alias: '%s'", Aliases[i].replace_with.c_str());
 					irc::sepstream commands(Aliases[i].replace_with, '\n');
 					std::string command = "*";
 					while ((command = commands.GetToken()) != "")
 					{
+						ServerInstance->Log(DEBUG,"Execute: '%s'", command.c_str());
 						DoCommand(command, user, original_line);
 					}
 					return 1;

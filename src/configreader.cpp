@@ -963,18 +963,24 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if((ch == '#') && !in_quote)
 			in_comment = true;
 		
-		if(((ch == '\n') || (ch == '\r')) && in_quote)
+		/*if(((ch == '\n') || (ch == '\r')) && in_quote)
 		{
 			errorstream << "Got a newline within a quoted section, this is probably a typo: " << filename << ":" << linenumber << std::endl;
 			return false;
-		}
+		}*/
 		
 		switch(ch)
 		{
 			case '\n':
+				if (in_quote)
+				{
+					ServerInstance->Log(DEBUG, "Got \\n inside value");
+					line += '\n';
+				}
 				linenumber++;
 			case '\r':
-				in_comment = false;
+				if (!in_quote)
+					in_comment = false;
 			case '\0':
 				continue;
 			case '\t':
@@ -1012,7 +1018,8 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 		}
 
-		line += ch;
+		if (ch != '\r')
+			line += ch;
 		
 		if(ch == '<')
 		{
@@ -1112,8 +1119,8 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 	bool in_quote;
 	
 	got_name = got_key = in_quote = false;
-	
-	// std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
+
+	//std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
 	
 	for(std::string::iterator c = line.begin(); c != line.end(); c++)
 	{
@@ -1172,6 +1179,16 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 						current_value += *c;
 					continue;
 				}
+				else if ((*c == '\n') && (in_quote))
+				{
+					/* Got a 'real' \n, treat it as part of the value */
+					current_value += '\n';
+					continue;
+				}
+				else if ((*c == '\r') && (in_quote))
+					/* Got a \r, drop it */
+					continue;
+
 				if (*c == '"')
 				{
 					if (!in_quote)
@@ -1183,7 +1200,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 					{
 						/* Leaving quotes, we have the value */
 						results.push_back(KeyVal(current_key, current_value));
-						
+
 						// std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
 						
 						in_quote = false;
