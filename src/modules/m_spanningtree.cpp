@@ -718,6 +718,10 @@ class TreeSocket : public InspSocket
 			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 			Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
 		}
+		else
+		{
+			this->SendCapabilities();
+		}
 	}
 
 	ServerState GetLinkState()
