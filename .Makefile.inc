@@ -33,12 +33,20 @@ finishmessage: ircd mods
 	@echo ""
 	@echo "*************************************"
 	@echo "*        BUILD COMPLETE!            *"
+	@echo "*                                   *"
 	@echo "*   To install InspIRCd, type:      *"
 	@echo "*         make install              *"
 	@echo "*************************************"
 
 ircd:
-	@echo "Making ircd..."
+	@echo "*************************************"
+	@echo "*       BUILDING INSPIRCD           *"
+	@echo "*                                   *"
+	@echo "*   This will take a *long* time.   *"
+	@echo "*     Why not read our wiki at      *"
+	@echo "*   http://www.inspircd.org/wiki    *"
+	@echo "*  while you wait for make to run?  *"
+	@echo "*************************************"
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all
@@ -139,8 +147,9 @@ install: all
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
+	@echo "*                                   *"
 	@echo "* It is safe to ignore any messages *"
-	@echo "* related to copying of files.      *"
+	@echo "* related to copying of conf files. *"
 	@echo "*                                   *"
 	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
