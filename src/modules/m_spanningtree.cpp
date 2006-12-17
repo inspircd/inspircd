@@ -5014,6 +5014,7 @@ class ModuleSpanningTree : public Module
 			{
 				std::deque<std::string> params;
 				params.push_back(channel->name);
+				params.push_back(ConvToStr(channel->age));
 				Utils->DoOneToMany(ServerInstance->Config->ServerName,"JOIN",params);
 			}
 		}
