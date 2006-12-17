@@ -209,7 +209,7 @@ $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
-chomp($config{OSNAME}       = `uname`);                              		# Operating System Name
+$config{OSNAME}       	    = $^O;                              		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
 if (defined $opt_cc)
 {
@@ -264,22 +264,9 @@ if ($config{GCCVER} eq "") {
 # Keep my dynamic module experiments here for later
 # concideration!
 
-if ($config{OSNAME} =~ /CYGWIN/)
+if ($config{OSNAME} =~ /CYGWIN/i)
 {
 	$config{OSNAME} = "CYG-STATIC";
-}
-elsif($config{OSNAME} =~ /^MINGW32/)
-{
-	$config{OSNAME} = "MINGW32";
-}
-elsif ((!$config{OSNAME}) || ($config{OSNAME} eq ""))
-{
-	chomp($config{OSNAME} = `/usr/bin/uname`);
-	
-	if((!$config{OSNAME}) || ($config{OSNAME} eq ""))
-	{
-		$config{OSNAME} = "Unknown";
-	}	
 }
 
 if (!$config{MAX_CLIENT_T}) { 
@@ -481,7 +468,7 @@ if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPE
 if ($interactive)
 {
 	system("clear");
-	chomp($wholeos = `uname -sr`);
+	$wholeos = $^O;
 
 	my $rev = getrevision();
 	# Display Introduction Message..
@@ -1029,7 +1016,7 @@ sub dir_check {
 			# Convert it to a full path..
 			$var = resolve_directory($ENV{HOME} . "/" . $1);
 		}
-		elsif ((($config{OSNAME} == "MINGW32") and ($var !~ /^[A-Z]{1}:\\.*/)) and (substr($var,0,1) ne "/"))
+		elsif ((($config{OSNAME} =~ /MINGW32/i) and ($var !~ /^[A-Z]{1}:\\.*/)) and (substr($var,0,1) ne "/"))
 		{
 			# Assume relative Path was given.. fill in the rest.
 			$var = $this . "/$var";
@@ -1074,7 +1061,7 @@ sub getosflags {
 	$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 	$config{MAKEPROG} = "make";
 
-	if ($config{OSNAME} eq "OpenBSD") {
+	if ($config{OSNAME} =~ /OpenBSD/i) {
 		$config{MAKEPROG} = "gmake";
 		chomp($foo = `eg++ -dumpversion | cut -c 1`);
 		# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
@@ -1087,7 +1074,7 @@ sub getosflags {
 		return "OpenBSD";
 	}
 
-	if ($config{OSNAME} =~ /Linux/) {
+	if ($config{OSNAME} =~ /Linux/i) {
 		$config{LDLIBS} = "-ldl -lstdc++";
 		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
@@ -1110,7 +1097,7 @@ sub getosflags {
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 	}
 	
-	if ($config{OSNAME} =~ /SunOS/)
+	if ($config{OSNAME} =~ /SunOS/i)
 	{
 		# solaris/sunos needs these
 		# socket = bsd sockets api
@@ -1122,7 +1109,7 @@ sub getosflags {
 		return "Solaris";
 	}
 	
-	if($config{OSNAME} eq "MINGW32")
+	if($config{OSNAME} =~ /MINGW32/i)
 	{
 		# All code is position-independent on windows
 		$config{FLAGS} =~ s/-fPIC //;
@@ -1222,17 +1209,17 @@ sub writefiles {
 #define SYSTEM "$incos"
 #define MAXBUF 514
 EOF
-		if ($config{OSNAME} =~ /SunOS/) {
+		if ($config{OSNAME} =~ /SunOS/i) {
 			print FILEHANDLE "#define IS_SOLARIS\n";
 		}
-		if ($config{OSNAME} =~ /CYGWIN/) {
+		if ($config{OSNAME} =~ /CYGWIN/i) {
 			print FILEHANDLE "#define IS_CYGWIN\n";
 			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE	1024\n#endif\n";
 		}
-		if ($config{OSNAME} eq "MINGW32") {
+		if ($config{OSNAME} =~ /MINGW32/i) {
 			print FILEHANDLE "#define IS_MINGW\n";
 		}
-		if ($config{OSNAME} eq "CYG-STATIC") {
+		if ($config{OSNAME} =~ /CYG-STATIC/i) {
 			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
 		}
 		if ($config{STATIC_LINK} eq "yes") {
@@ -1309,7 +1296,7 @@ EOF
 	my $file = "";
 	my $exe = "inspircd";
 
-	if ($config{OSNAME} =~ /CYGWIN/) {
+	if ($config{OSNAME} =~ /CYGWIN/i) {
 		$exe = "inspircd.exe";
 	}
 
@@ -1367,7 +1354,7 @@ EOF
 		print "Writing static-build \033[1;32msrc/Makefile\033[0m\n";
 		write_static_makefile();
 		write_static_modules_makefile();
-	} elsif ($config{OSNAME} =~ /CYGWIN/) {
+	} elsif ($config{OSNAME} =~ /CYGWIN/i) {
 		print "Writing cygwin-build \033[1;32msrc/Makefile\033[0m\n";
 		write_static_makefile();
 		write_dynamic_modules_makefile();
@@ -1536,7 +1523,7 @@ sub write_dynamic_modules_makefile {
 	open(FILEHANDLE, ">src/modules/Makefile");
 	my $extra = "";
 
-	if ($config{OSNAME} =~ /CYGWIN/) {
+	if ($config{OSNAME} =~ /CYGWIN/i) {
 		$extra = "../inspircd.dll.a";
 	}
 
@@ -1637,7 +1624,7 @@ elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 	# make this work :)
 	###
 
-	if ($config{OSNAME} =~ /CYGWIN/) {
+	if ($config{OSNAME} =~ /CYGWIN/i) {
 		print FH <<EOM;
 all: timer.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o configreader.o inspsocket.o $cmdobjs commands.o dynamic.o users.o modules.o wildcard.o helperfuncs.o snomasks.o inspircd.exe
 
