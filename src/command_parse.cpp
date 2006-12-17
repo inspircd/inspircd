@@ -1,4 +1,4 @@
-/*       +------------------------------------+
+	/*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -452,25 +452,21 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 
 bool CommandParser::RemoveCommands(const char* source)
 {
-	bool go_again = true;
+	nspace::hash_map<std::string,command_t*>::iterator i, safeiter, last_iter;
+	last_iter = cmdlist.begin();
 
-	while (go_again)
+	for (i = cmdlist.begin(); i != cmdlist.end(); i++)
 	{
-		go_again = false;
-
-		for (nspace::hash_map<std::string,command_t*>::iterator i = cmdlist.begin(); i != cmdlist.end(); i++)
+		if (i->second->source == std::string(source))
 		{
-			command_t* x = i->second;
-			if (x->source == std::string(source))
-			{
-				ServerInstance->Log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
-				cmdlist.erase(i);
-				go_again = true;
-				break;
-			}
+			ServerInstance->Log(DEBUG, "removecommands(%s) Removing dependent command: %s", i->second->source.c_str(), i->second->command.c_str());
+			safeiter = i;
+			i = last_iter;
+			cmdlist.erase(safeiter);
+			continue;
 		}
+		last_iter = i;
 	}
-
 	return true;
 }
 
