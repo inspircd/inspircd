@@ -1300,18 +1300,21 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	ConfigDataHash::size_type pos = index;
 	if((pos >= 0) && (pos < target.count(tag)))
 	{
-		ConfigDataHash::const_iterator iter = target.find(tag);
+		ConfigDataHash::iterator iter = target.find(tag);
 
 		for(int i = 0; i < index; i++)
 			iter++;
 
-		for(KeyValList::const_iterator j = iter->second.begin(); j != iter->second.end(); j++)
+		for(KeyValList::iterator j = iter->second.begin(); j != iter->second.end(); j++)
 		{
 			if(j->first == var)
 			{
  				if ((!allow_linefeeds) && (j->second.find('\n') != std::string::npos))
 				{
-					throw CoreException("Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted");
+					ServerInstance->Log(DEFAULT, "Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
+					for (std::string::iterator n = j->second.begin(); n != j->second.end(); n++)
+						if (*n == '\n')
+							*n == ' ';
 				}
 				else
 				{
