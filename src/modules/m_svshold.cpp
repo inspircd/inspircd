@@ -76,8 +76,16 @@ class cmd_svshold : public command_t
 				{
 					if (parameters[0] == assign((*iter)->nickname))
 					{
-						unsigned long remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
-						user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), remaining, (*iter)->reason.c_str());
+						unsigned long remaining = 0;
+						if ((*iter)->length)
+						{
+							remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
+							user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), remaining, (*iter)->reason.c_str());
+						}
+						else
+						{
+							user->WriteServ( "386 %s %s :Removed permenant SVSHOLD (%s)", user->nick, (*iter)->nickname.c_str(), (*iter)->reason.c_str());
+						}
 						SVSHolds.erase(iter);
 						break;
 					}
