@@ -32,6 +32,15 @@ enum CmdResult
 	CMD_USER_DELETED = 3,	/* User was deleted! */
 };
 
+/* For commands which should not be replicated to other
+ * servers, we usually return CMD_FAILURE. this isnt readable,
+ * so we define this alias for CMD_FAILURE called
+ * CMD_LOCALONLY, which of course does the same thing but is
+ * much more readable.
+ */
+#define CMD_LOCALONLY CMD_FAILURE
+
+
 /** A structure that defines a command
  */
 class command_t : public Extensible
