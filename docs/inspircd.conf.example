@@ -1253,6 +1253,31 @@
 
 <exception host="*@ircop.host.com" reason="Opers hostname">
 
+#-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This optional tag allows you to specify how wide a gline, eline,    #
+# kline, zline or qline can be before it is forbidden from being      #
+# set. By setting hostmasks="yes", you can allow all G, K, E lines,   #
+# no matter how many users the ban would cover. This is not           #
+# recommended! By setting ipmasks="yes", you can allow all Z lines,   #
+# no matter how many users these cover too. Needless to say we        #
+# don't recommend you do this, or, set nickmasks="yes", which will    #
+# allow any qline.                                                    #
+#                                                                     #
+# The trigger value indicates how wide any mask will be before it is  #
+# prevented from being set. The default value is 95.5% if this tag is #
+# not defined in your configuration file, meaning that if your        #
+# network has 1000 users, a gline matching over 955 of them will be   #
+# prevented from being added.                                         #
+#                                                                     #
+# Please note that remote servers (and services) are exempt from      #
+# these restrictions and expected to enforce their own policies       #
+# locally!                                                            #
+#                                                                     #
+
+<insane hostmasks="no" ipmasks="no" nickmasks="no" trigger="95.5">
+
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#- YAWN  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   You should already know what to do here :)                        #
