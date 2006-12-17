@@ -41,12 +41,14 @@ public:
 };
 
 
-bool SVSHoldComp(const SVSHold &ban1, const SVSHold &ban2);
+bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2);
 
-typedef std::vector<SVSHold> SVSHoldlist;
+typedef std::vector<SVSHold*> SVSHoldlist;
+typedef std::map<irc::string, SVSHold*> SVSHoldMap;
 
 /* SVSHolds is declared here, as our type is right above. Don't try move it. */
 SVSHoldlist SVSHolds;
+SVSHoldMap HoldMap;
 
 /** Handle /SVSHold
  */
@@ -56,8 +58,7 @@ class cmd_svshold : public command_t
 	cmd_svshold(InspIRCd* Me) : command_t(Me, "SVSHOLD", 'o', 1)
 	{
 		this->source = "m_svshold.so";
-		this->
-		syntax = "<nickname> [<duration> :<reason>]";
+		this->syntax = "<nickname> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
@@ -67,16 +68,23 @@ class cmd_svshold : public command_t
 
 		if (pcnt == 1)
 		{
-			/* form: svshold nickname removes a hold. */
-			for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
+			SVSHoldMap::iterator n = HoldMap.find(parameters[0]);
+			if (n != HoldMap.end())
 			{
-				if (irc::string(parameters[0]) == irc::string(iter->nickname.c_str()))
+				/* form: svshold nickname removes a hold. */
+				for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 				{
-					unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
-					user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, iter->nickname.c_str(), remaining, iter->reason.c_str());
-					SVSHolds.erase(iter);
-					break;
+					if (parameters[0] == assign((*iter)->nickname))
+					{
+						unsigned long remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
+						user->WriteServ( "386 %s %s :Removed SVSHOLD with %lu seconds left before expiry (%s)", user->nick, (*iter)->nickname.c_str(), remaining, (*iter)->reason.c_str());
+						SVSHolds.erase(iter);
+						break;
+					}
 				}
+
+				HoldMap.erase(n);
+				delete n->second;
 			}
 		}
 		else if (pcnt >= 2)
@@ -87,13 +95,23 @@ class cmd_svshold : public command_t
 				// parameters[0] = w00t
 				// parameters[1] = 1h3m2s
 				// parameters[2] = Registered nickname
+				
+				/* Already exists? */
+				if (HoldMap.find(parameters[0]) != HoldMap.end())
+				{
+					user->WriteServ( "385 %s %s :SVSHOLD already exists", user->nick, parameters[0]);
+					return CMD_FAILURE;
+				}
+
 				long length = ServerInstance->Duration(parameters[1]);
 				std::string reason = (pcnt > 2) ? parameters[2] : "No reason supplied";
 				
-				SVSHolds.push_back(SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason));
-					
+				SVSHold* S = new SVSHold(parameters[0], user->nick, ServerInstance->Time(), length, reason);
+				SVSHolds.push_back(S);
+				HoldMap[parameters[0]] = S;
+
 				std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
-				
+
 				if(length > 0)
 				{
 					user->WriteServ( "385 %s %s :Added %lu second SVSHOLD (%s)", user->nick, parameters[0], length, reason.c_str());
@@ -116,9 +134,9 @@ class cmd_svshold : public command_t
 	}
 };
 
-bool SVSHoldComp(const SVSHold &ban1, const SVSHold &ban2)
+bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2)
 {
-	return ((ban1.set_on + ban1.length) < (ban2.set_on + ban2.length));
+	return ((ban1->set_on + ban1->length) < (ban2->set_on + ban2->length));
 }
 
 class ModuleSVSHold : public Module
@@ -146,8 +164,8 @@ class ModuleSVSHold : public Module
 		{
 			for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 			{
-				unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+iter->nickname.c_str()+" "+iter->set_by+" "+ConvToStr(iter->set_on)+" "+ConvToStr(iter->length)+" "+ConvToStr(remaining)+" :"+iter->reason);
+				unsigned long remaining = ((*iter)->set_on + (*iter)->length) - ServerInstance->Time();
+				results.push_back(std::string(ServerInstance->Config->ServerName)+" 210 "+user->nick+" "+(*iter)->nickname.c_str()+" "+(*iter)->set_by+" "+ConvToStr((*iter)->set_on)+" "+ConvToStr((*iter)->length)+" "+ConvToStr(remaining)+" :"+(*iter)->reason);
 			}
 		}
 		
@@ -159,32 +177,38 @@ class ModuleSVSHold : public Module
 		ExpireBans();
 	
 		/* check SVSHolds in here, and apply as necessary. */
-		for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
+		SVSHoldMap::iterator n = HoldMap.find(assign(newnick));
+		if (n != HoldMap.end())
 		{
-			if (irc::string(iter->nickname.c_str()) == irc::string(newnick.c_str()))
-			{
-				// nope, boned.
-				user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick, newnick.c_str(), iter->reason.c_str());
-				return 1;
-			}
+			user->WriteServ( "432 %s %s :Reserved nickname: %s", user->nick, newnick.c_str(), n->second->reason.c_str());
+			return 1;
 		}
 		return 0;
 	}
 	
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque)
 	{
-		for(SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
+		for(SVSHoldMap::iterator iter = HoldMap.begin(); iter != HoldMap.end(); iter++)
 		{
-			proto->ProtoSendMetaData(opaque, TYPE_OTHER, NULL, "SVSHold", EncodeSVSHold(*iter));
+			proto->ProtoSendMetaData(opaque, TYPE_OTHER, NULL, "SVSHold", EncodeSVSHold(iter->second));
 		}
 	}
-	
+
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		if((target_type == TYPE_OTHER) && (extname == "SVSHold"))
 		{
-			SVSHolds.push_back(DecodeSVSHold(extdata));
-			std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
+			SVSHold* S = DecodeSVSHold(extdata); /* NOTE: Allocates a new SVSHold* */
+			if (HoldMap.find(assign(S->nickname)) == HoldMap.end())
+			{
+				SVSHolds.push_back(S);
+				HoldMap[assign(S->nickname)] = S;
+				std::sort(SVSHolds.begin(), SVSHolds.end(), SVSHoldComp);
+			}
+			else
+			{
+				delete S;
+			}
 		}
 	}
 
@@ -197,23 +221,22 @@ class ModuleSVSHold : public Module
 		return Version(1,1,0,1,VF_VENDOR|VF_COMMON,API_VERSION);
 	}
 
-	std::string EncodeSVSHold(const SVSHold &ban)
+	std::string EncodeSVSHold(const SVSHold* ban)
 	{
 		std::ostringstream stream;	
-		stream << ban.nickname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
+		stream << ban->nickname << " " << ban->set_by << " " << ban->set_on << " " << ban->length << " " << ban->reason;
 		return stream.str();	
 	}
 
-	SVSHold DecodeSVSHold(const std::string &data)
+	SVSHold* DecodeSVSHold(const std::string &data)
 	{
-		SVSHold res;
+		SVSHold* res = new SVSHold();
 		std::istringstream stream(data);
-		stream >> res.nickname;
-		stream >> res.set_by;
-		stream >> res.set_on;
-		stream >> res.length;
-		res.reason = stream.str();
-	
+		stream >> res->nickname;
+		stream >> res->set_by;
+		stream >> res->set_on;
+		stream >> res->length;
+		res->reason = stream.str();
 		return res;
 	}
 
@@ -228,13 +251,18 @@ class ModuleSVSHold : public Module
 			for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 			{
 				/* 0 == permanent, don't mess with them! -- w00t */
-				if (iter->length != 0)
+				if ((*iter)->length != 0)
 				{
-					if (iter->set_on + iter->length <= ServerInstance->Time())
+					if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
 					{
-						ServerInstance->Log(DEBUG, "m_svshold.so: hold on %s expired, removing...", iter->nickname.c_str());
-						ServerInstance->WriteOpers("*** %li second SVSHOLD on %s (%s) set %u seconds ago expired", iter->length, iter->nickname.c_str(), iter->reason.c_str(), ServerInstance->Time() - iter->set_on);
+						ServerInstance->Log(DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
+						ServerInstance->WriteOpers("*** %li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
+						HoldMap.erase(assign((*iter)->nickname));
+
+						delete *iter;
+
 						SVSHolds.erase(iter);
+
 						go_again = true;
 					}
 				}
