@@ -4994,24 +4994,27 @@ class ModuleSpanningTree : public Module
 		// Only do this for local users
 		if (IS_LOCAL(user))
 		{
-			std::deque<std::string> params;
-			params.clear();
-			params.push_back(channel->name);
-			// set up their permissions and the channel TS with FJOIN.
-			// All users are FJOINed now, because a module may specify
-			// new joining permissions for the user.
-			params.clear();
-			params.push_back(channel->name);
-			params.push_back(ConvToStr(channel->age));
-			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->nick));
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 			if (channel->GetUserCounter() == 1)
 			{
+				std::deque<std::string> params;
+				// set up their permissions and the channel TS with FJOIN.
+				// All users are FJOINed now, because a module may specify
+				// new joining permissions for the user.
+				params.push_back(channel->name);
+				params.push_back(ConvToStr(channel->age));
+				params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->nick));
+				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 				/* First user in, sync the modes for the channel */
 				params.pop_back();
 				/* This is safe, all inspircd servers default to +nt */
 				params.push_back("+nt");
 				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
+			}
+			else
+			{
+				std::deque<std::string> params;
+				params.push_back(channel->name);
+				Utils->DoOneToMany(ServerInstance->Config->ServerName,"JOIN",params);
 			}
 		}
 	}
