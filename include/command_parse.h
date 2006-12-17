@@ -175,6 +175,8 @@ class CommandParser : public classbase
 	 */
 	bool RemoveCommands(const char* source);
 
+	void RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source);
+
 	/** Add a new command to the commands hash
 	 * @param f The new command_t to add to the list
 	 * @param so_handle The handle to the shared object where the command can be found.

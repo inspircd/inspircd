@@ -452,22 +452,32 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 
 bool CommandParser::RemoveCommands(const char* source)
 {
-	nspace::hash_map<std::string,command_t*>::iterator i, safeiter, last_iter;
-	last_iter = cmdlist.begin();
-
+	nspace::hash_map<std::string,command_t*>::iterator i,safei;
 	for (i = cmdlist.begin(); i != cmdlist.end(); i++)
 	{
-		if (i->second->source == std::string(source))
+		safei = i;
+		safei++;
+		if (safei != cmdlist.end())
 		{
-			ServerInstance->Log(DEBUG, "removecommands(%s) Removing dependent command: %s", i->second->source.c_str(), i->second->command.c_str());
-			safeiter = i;
-			i = last_iter;
-			cmdlist.erase(safeiter);
-			continue;
+			RemoveCommand(safei, source);
 		}
-		last_iter = i;
+	}
+	safei = cmdlist.begin();
+	if (safei != cmdlist.end())
+	{
+		RemoveCommand(safei, source);
 	}
 	return true;
+}
+
+void CommandParser::RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source)
+{
+	command_t* x = safei->second;
+	if (x->source == std::string(source))
+	{
+		ServerInstance->Log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
+		cmdlist.erase(safei);
+	}
 }
 
 void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
