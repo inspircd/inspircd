@@ -119,7 +119,7 @@ class cmd_svshold : public command_t
 				}
 				else
 				{
-					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteServ( "385 %s %s :Added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], parameters[0], reason.c_str());
 					ServerInstance->WriteOpers("*** %s added permanent SVSHOLD on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
