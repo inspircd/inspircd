@@ -1314,7 +1314,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 					ServerInstance->Log(DEFAULT, "Value of <" + tag + ":" + var+ "> contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 					for (std::string::iterator n = j->second.begin(); n != j->second.end(); n++)
 						if (*n == '\n')
-							*n == ' ';
+							*n = ' ';
 				}
 				else
 				{
