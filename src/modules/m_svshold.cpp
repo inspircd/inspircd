@@ -242,33 +242,22 @@ class ModuleSVSHold : public Module
 
 	void ExpireBans()
 	{
-		bool go_again = true;
-
-		while (go_again)
+		SVSHoldlist::iterator iter,safeiter;
+		for (iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
 		{
-			go_again = false;
-	
-			for (SVSHoldlist::iterator iter = SVSHolds.begin(); iter != SVSHolds.end(); iter++)
+			/* 0 == permanent, don't mess with them! -- w00t */
+			if ((*iter)->length != 0)
 			{
-				/* 0 == permanent, don't mess with them! -- w00t */
-				if ((*iter)->length != 0)
+				if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
 				{
-					if ((*iter)->set_on + (*iter)->length <= ServerInstance->Time())
-					{
-						ServerInstance->Log(DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
-						ServerInstance->WriteOpers("*** %li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
-						HoldMap.erase(assign((*iter)->nickname));
-
-						delete *iter;
-
-						SVSHolds.erase(iter);
-
-						go_again = true;
-					}
+					ServerInstance->Log(DEBUG, "m_svshold.so: hold on %s expired, removing...", (*iter)->nickname.c_str());
+					ServerInstance->WriteOpers("*** %li second SVSHOLD on %s (%s) set %u seconds ago expired", (*iter)->length, (*iter)->nickname.c_str(), (*iter)->reason.c_str(), ServerInstance->Time() - (*iter)->set_on);
+					HoldMap.erase(assign((*iter)->nickname));
+					delete *iter;
+					safeiter = iter;
+					--iter;
+					SVSHolds.erase(safeiter);
 				}
-	
-				if (go_again == true)
-					break;
 			}
 		}
 	}
