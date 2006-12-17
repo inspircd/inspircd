@@ -51,12 +51,15 @@ class ModuleOperLog : public Module
  
 		if ((*user->oper) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
-			std::string plist = "";
-			for (int j = 0; j < pcnt; j++)
+			command_t* thiscommand = ServerInstance->Parser->GetHandler(command);
+			if ((thiscommand) && (thiscommand->flags_needed = 'o'))
 			{
-				plist.append(std::string(" ")+std::string(parameters[j]));
+				std::string plist = "";
+				for (int j = 0; j < pcnt; j++)
+					plist.append(std::string(" ")+std::string(parameters[j]));
+
+				ServerInstance->Log(DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
 			}
-			ServerInstance->Log(DEFAULT,"OPERLOG: [%s!%s@%s] %s%s",user->nick,user->ident,user->host,command.c_str(),plist.c_str());
 		}
 
 		return 0;
