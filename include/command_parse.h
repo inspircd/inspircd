@@ -72,6 +72,12 @@ class CommandParser : public classbase
 	 */
 	void LoadCommand(const char* name);
 
+	/** Removes a command if the sources match. Used as a helper for
+	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
+	 */
+	void RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source);
+
+
  public:
 	/** Command list, a hash_map of command names to command_t*
 	 */
@@ -174,8 +180,6 @@ class CommandParser : public classbase
 	 * @return True This function returns true if commands were removed
 	 */
 	bool RemoveCommands(const char* source);
-
-	void RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source);
 
 	/** Add a new command to the commands hash
 	 * @param f The new command_t to add to the list
