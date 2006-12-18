@@ -312,13 +312,7 @@ int InspIRCd::UserCount()
 int InspIRCd::RegisteredUserCount()
 {
 	int c = 0;
-
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
-	{
-		c += (i->second->registered == REG_ALL);
-	}
-
-	return c;
+	return this->UnregisteredUserCount() - clientlist.size();
 }
 
 int InspIRCd::InvisibleUserCount()
