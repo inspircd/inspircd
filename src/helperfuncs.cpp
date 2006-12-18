@@ -311,7 +311,6 @@ int InspIRCd::UserCount()
 // this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
 int InspIRCd::RegisteredUserCount()
 {
-	int c = 0;
 	return clientlist.size() - this->UnregisteredUserCount();
 }
 
