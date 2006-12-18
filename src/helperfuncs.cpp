@@ -76,7 +76,7 @@ void InspIRCd::Log(int level, const std::string &text)
 
 std::string InspIRCd::GetServerDescription(const char* servername)
 {
-	std::string description = "";
+	std::string description;
 
 	FOREACH_MOD_I(this,I_OnGetServerDescription,OnGetServerDescription(servername,description));
 
@@ -238,12 +238,7 @@ userrec* InspIRCd::FindNick(const std::string &nick)
 
 userrec* InspIRCd::FindNick(const char* nick)
 {
-	user_hash::iterator iter;
-
-	if (!nick)
-		return NULL;
-
-	iter = clientlist.find(nick);
+	user_hash::iterator iter = clientlist.find(nick);
 	
 	if (iter == clientlist.end())
 		return NULL;
@@ -255,12 +250,7 @@ userrec* InspIRCd::FindNick(const char* nick)
 
 chanrec* InspIRCd::FindChan(const char* chan)
 {
-	chan_hash::iterator iter;
-
-	if (!chan)
-		return NULL;
-
-	iter = chanlist.find(chan);
+	chan_hash::iterator iter = chanlist.find(chan);
 
 	if (iter == chanlist.end())
 		/* Couldn't find it */
@@ -279,7 +269,6 @@ chanrec* InspIRCd::FindChan(const std::string &chan)
 
 	return iter->second;
 }
-
 
 /*
  * sends out an error notice to all connected clients (not to be used
