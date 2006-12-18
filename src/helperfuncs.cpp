@@ -312,7 +312,7 @@ int InspIRCd::UserCount()
 int InspIRCd::RegisteredUserCount()
 {
 	int c = 0;
-	return this->UnregisteredUserCount() - clientlist.size();
+	return clientlist.size() - this->UnregisteredUserCount();
 }
 
 int InspIRCd::InvisibleUserCount()
