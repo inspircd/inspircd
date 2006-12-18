@@ -249,6 +249,7 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 		else
 		{
 			user->WriteServ("502 %s :Can't change mode for other users", user->nick);
+			return;
 		}
 	}
 
