@@ -95,7 +95,7 @@ class DNSRequest
 	insp_inaddr     myserver;       /* DNS server address*/
 	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
 
-	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, requestlist &requests);
+	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id);
 	~DNSRequest();
 	DNSInfo ResultIsReady(DNSHeader &h, int length);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
@@ -106,30 +106,26 @@ class RequestTimeout : public InspTimer
 	InspIRCd* ServerInstance;
 	DNSRequest* watch;
 	int watchid;
-	requestlist &rl;
  public:
-	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id, requestlist &requests) : InspTimer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id), rl(requests)
+	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : InspTimer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id)
 	{
 		ServerInstance->Log(DEBUG, "New DNS timeout set on %08x", watching);
 	}
 
 	void Tick(time_t TIME)
 	{
-		if (rl.find(watchid) != rl.end())
+		if (ServerInstance->Res->requests[watchid] == watch)
 		{
 			/* Still exists, whack it */
-			if (rl.find(watchid)->second == watch)
+			if (ServerInstance->Res->Classes[watchid])
 			{
-				if (ServerInstance->Res->Classes[watchid])
-				{
-					ServerInstance->Res->Classes[watchid]->OnError(RESOLVER_TIMEOUT, "Request timed out");
-					delete ServerInstance->Res->Classes[watchid];
-					ServerInstance->Res->Classes[watchid] = NULL;
-				}
-				rl.erase(rl.find(watchid));
-				delete watch;
-				ServerInstance->Log(DEBUG, "DNS timeout on %08x squished pointer", watch);
+				ServerInstance->Res->Classes[watchid]->OnError(RESOLVER_TIMEOUT, "Request timed out");
+				delete ServerInstance->Res->Classes[watchid];
+				ServerInstance->Res->Classes[watchid] = NULL;
 			}
+			ServerInstance->Res->requests[watchid] = NULL;
+			delete watch;
+			ServerInstance->Log(DEBUG, "DNS timeout on %08x squished pointer", watch);
 			return;
 		}
 		ServerInstance->Log(DEBUG, "DNS timeout on %08x: result already received!", watch);
@@ -137,12 +133,12 @@ class RequestTimeout : public InspTimer
 };
 
 /* Allocate the processing buffer */
-DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, requestlist &requests) : dnsobj(dns)
+DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id) : dnsobj(dns)
 {
 	res = new unsigned char[512];
 	*res = 0;
 	memcpy(&myserver, &server, sizeof(insp_inaddr));
-	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, id, requests);
+	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, id);
 	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
 }
 
@@ -226,19 +222,15 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	/* Is the DNS connection down? */
 	if (this->GetFd() == -1)
 		return NULL;
-
-	/* Are there already the max number of requests on the go? */
-	if (requests.size() == DNS::MAX_REQUEST_ID + 1)
-		return NULL;
 	
 	/* Create an id */
 	id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
 	/* If this id is already 'in flight', pick another. */
-	while (requests.find(id) != requests.end())
+	while (requests[id])
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	DNSRequest* req = new DNSRequest(ServerInstance, this, this->myserver, id, requests);
+	DNSRequest* req = new DNSRequest(ServerInstance, this, this->myserver, id);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -267,6 +259,9 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 
 	/* Clear the Resolver class table */
 	memset(Classes,0,sizeof(Classes));
+
+	/* Clear the requests class table */
+	memset(requests,0,sizeof(requests));
 
 	/* Set the id of the next request to 0
 	 */
@@ -617,8 +612,7 @@ DNSResult DNS::GetResult()
 	unsigned long this_id = header.id[1] + (header.id[0] << 8);
 
 	/* Do we have a pending request matching this id? */
-	requestlist_iter n_iter = requests.find(this_id);
-	if (n_iter == requests.end())
+	if (!requests[this_id])
 	{
 		/* Somehow we got a DNS response for a request we never made... */
 		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",this->GetFd(),this_id);
@@ -627,8 +621,8 @@ DNSResult DNS::GetResult()
 	else
 	{
 		/* Remove the query from the list of pending queries */
-		req = (DNSRequest*)n_iter->second;
-		requests.erase(n_iter);
+		req = requests[this_id];
+		requests[this_id] = NULL;
 	}
 
 	/* Inform the DNSRequest class that it has a result to be read.
@@ -954,7 +948,6 @@ Module* Resolver::GetCreator()
 /** Process a socket read event */
 void DNS::HandleEvent(EventType et, int errornum)
 {
-	ServerInstance->Log(DEBUG,"Marshall reads: %d",this->GetFd());
 	/* Fetch the id and result of the next available packet */
 	DNSResult res = this->GetResult();
 	/* Is there a usable request id? */

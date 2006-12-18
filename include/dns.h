@@ -87,16 +87,6 @@ class DNSHeader;
 class ResourceRecord;
 
 /**
- * A set of requests keyed by request id
- */
-typedef std::map<int,DNSRequest*> requestlist;
-
-/**
- * An iterator into a set of requests
- */
-typedef requestlist::iterator requestlist_iter;
-
-/**
  * Query and resource record types
  */
 enum QueryType
@@ -255,11 +245,6 @@ class DNS : public EventHandler
 	static const int MAX_REQUEST_ID = 0xFFFF;
 
 	/**
-	 * Requests that are currently 'in flight'
-	 */
-	requestlist requests;
-
-	/**
 	 * Server address being used currently
 	 */
 	insp_inaddr myserver;
@@ -287,6 +272,10 @@ class DNS : public EventHandler
 	 * Currently active Resolver classes
 	 */
 	Resolver* Classes[MAX_REQUEST_ID];
+	/**
+	 * Requests that are currently 'in flight'
+	 */
+	DNSRequest* requests[MAX_REQUEST_ID];
 	/**
 	 * The port number DNS requests are made on,
 	 * and replies have as a source-port number.
