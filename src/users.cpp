@@ -2013,7 +2013,7 @@ void userrec::HandleEvent(EventType et, int errornum)
 		{
 			case EVENT_READ:
 				ServerInstance->ProcessUser(this);
-
+				return;
 			break;
 			case EVENT_WRITE:
 				this->FlushWriteBuf();
