@@ -279,9 +279,7 @@ getmodules();
 
 sub clean
 {
-	if ($arg eq "-clean") {
-		system("rm -rf .config.cache");
-	}
+	system("rm -rf .config.cache");
 }
 
 sub update
