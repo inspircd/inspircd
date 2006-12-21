@@ -61,14 +61,24 @@ class KickRejoin : public ModeHandler
 		{
 			// Taking the mode off, we need to clean up.
 			delaylist* dl;
-
+			
 			if (channel->GetExt("norejoinusers", dl))
 			{
 				DELETE(dl);
 				channel->Shrink("norejoinusers");
 			}
+			
+			if (!channel->IsModeSet('J'))
+			{
+				return MODEACTION_DENY;
+			}
+			else
+			{
+				channel->SetMode('J', false);
+				return MODEACTION_ALLOW;
+			}
 		}
-		if ((!adding) || (atoi(parameter.c_str()) > 0))
+		else if (atoi(parameter.c_str()) > 0)
 		{
 			ServerInstance->Log(DEBUG,"Got parameter: '%s'",parameter.c_str());
 
@@ -81,12 +91,6 @@ class KickRejoin : public ModeHandler
 			}
 			else
 			{
-				if (!adding)
-				{
-					channel->SetModeParam('J', parameter.c_str(), adding);
-					return MODEACTION_ALLOW;
-				}
-
 				std::string cur_param = channel->GetModeParameter('J');
 				if (cur_param == parameter)
 				{
