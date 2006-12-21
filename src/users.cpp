@@ -1667,9 +1667,6 @@ void userrec::WriteCommonExcept(const std::string &text)
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		chanrec* c = ServerInstance->FindChan(v->first->name);
-		if (!c)
-			continue;
 		CUList *ulist = v->first->GetUsers();
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
@@ -1971,6 +1968,7 @@ void userrec::PurgeEmptyChannels()
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
 			DELETE(i2->second);
 			ServerInstance->chanlist.erase(i2);
+			this->chans.erase(*n);
 		}
 	}
 
