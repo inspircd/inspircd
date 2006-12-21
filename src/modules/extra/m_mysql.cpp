@@ -195,6 +195,8 @@ pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t results_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_mutex_t logging_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 /** Represents a mysql result set
  */
 class MySQLresult : public SQLresult
@@ -581,24 +583,20 @@ void ConnectDatabases(InspIRCd* ServerInstance)
 	for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
 	{
 		i->second->SetEnable(true);
-		if (i->second->Connect())
+		if (!i->second->Connect())
 		{
-			ServerInstance->Log(DEFAULT,"SQL: Successfully connected database "+i->second->GetHost());
-		}
-		else
-		{
+			/* XXX: MUTEX */
+			pthread_mutex_lock(&logging_mutex);
 			ServerInstance->Log(DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
 			i->second->SetEnable(false);
+			pthread_mutex_unlock(&logging_mutex);
 		}
 	}
 }
 
-
 void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 {
-	ServerInstance->Log(DEFAULT,"SQL: Loading database settings");
 	Connections.clear();
-	ServerInstance->Log(DEBUG,"Cleared connections");
 	for (int j =0; j < ThisConf->Enumerate("database"); j++)
 	{
 		std::string db = ThisConf->ReadValue("database","name",j);
@@ -606,13 +604,10 @@ void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 		std::string pass = ThisConf->ReadValue("database","password",j);
 		std::string host = ThisConf->ReadValue("database","hostname",j);
 		std::string id = ThisConf->ReadValue("database","id",j);
-		ServerInstance->Log(DEBUG,"Read database settings");
 		if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
 		{
 			SQLConnection* ThisSQL = new SQLConnection(host,user,pass,db,id);
-			ServerInstance->Log(DEFAULT,"Loaded database: "+ThisSQL->GetHost());
 			Connections[id] = ThisSQL;
-			ServerInstance->Log(DEBUG,"Pushed back connection");
 		}
 	}
 	ConnectDatabases(ServerInstance);
