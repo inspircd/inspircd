@@ -1667,6 +1667,9 @@ void userrec::WriteCommonExcept(const std::string &text)
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
+		chanrec* c = ServerInstance->FindChan(v->first->name);
+		if (!c)
+			continue;
 		CUList *ulist = v->first->GetUsers();
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
