@@ -71,6 +71,13 @@ template<typename T> inline std::string ConvToStr(const T &in)
 	return tmp.str();
 }
 
+template<typename T> inline long ConvToInt(const T &in)
+{
+	std::stringstream tmp;
+	if (!(tmp << in)) return 0;
+	return atoi(tmp.str().c_str());
+}
+
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
