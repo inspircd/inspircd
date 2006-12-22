@@ -792,15 +792,19 @@ void ServerConfig::Read(bool bail, userrec* user)
 						case DT_CHARPTR:
 						{
 							char item[MAXBUF];
-							ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF, allow_newlines);
-							vl.push_back(ValueItem(item));
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF, allow_newlines))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(""));
 						}
 						break;
 						case DT_INTEGER:
 						{
-							int item;
-							ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item);
-							vl.push_back(ValueItem(item));
+							int item = 0;
+							if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item))
+								vl.push_back(ValueItem(item));
+							else
+								vl.push_back(ValueItem(0));
 						}
 						break;
 						case DT_BOOLEAN:
