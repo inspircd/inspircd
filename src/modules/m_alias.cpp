@@ -144,7 +144,13 @@ class ModuleAlias : public Module
 		std::string compare = original_line.substr(command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
-		
+
+		std::string safe(original_line);
+
+		/* Escape out any $ symbols in the user provided text */
+
+		SearchAndReplace(safe, "$", "\r");
+
 		for (unsigned int i = 0; i < Aliases.size(); i++)
 		{
 			if (Aliases[i].text == c)
@@ -184,7 +190,7 @@ class ModuleAlias : public Module
 				if (crlf == std::string::npos)
 				{
 					ServerInstance->Log(DEBUG,"Single line alias: '%s'", Aliases[i].replace_with.c_str());
-					DoCommand(Aliases[i].replace_with, user, original_line);
+					DoCommand(Aliases[i].replace_with, user, safe);
 					return 1;
 				}
 				else
@@ -195,7 +201,7 @@ class ModuleAlias : public Module
 					while ((command = commands.GetToken()) != "")
 					{
 						ServerInstance->Log(DEBUG,"Execute: '%s'", command.c_str());
-						DoCommand(command, user, original_line);
+						DoCommand(command, user, safe);
 					}
 					return 1;
 				}
@@ -237,6 +243,9 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "$ident", user->ident);
 		SearchAndReplace(newline, "$host", user->host);
 		SearchAndReplace(newline, "$vhost", user->dhost);
+
+		/* Unescape any variable names in the user text before sending */
+		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
 		const char* parv[127];
