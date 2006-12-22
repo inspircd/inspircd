@@ -267,8 +267,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
 	ServerInstance->Log(DEBUG,"ModeParser::Process start: pcnt=%d",pcnt);
-	for (int j = 0; j < pcnt; j++)
-		ServerInstance->Log(DEBUG,"    parameters[%d] = '%s'", j, parameters[j]);
 
 	LastParse = "";
 
@@ -375,8 +373,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
 			unsigned char modechar = *letter;
-
-			ServerInstance->Log(DEBUG,"Process letter %c", modechar);
 
 			switch (modechar)
 			{
