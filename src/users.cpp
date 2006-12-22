@@ -1025,8 +1025,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 	ConnectClass* i = New->GetClass();
 
-	Instance->Log(DEBUG,"Class=%08x", i);
-
 	if ((!i) || (i->GetType() == CC_DENY))
 	{
 		userrec::QuitUser(Instance, New,"Unauthorised connection");
@@ -1920,15 +1918,9 @@ ConnectClass* userrec::GetClass()
 {
 	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 	{
-		ServerInstance->Log(DEBUG, "IP=%s, HOST=%s, CLASS=%s", this->GetIPString(), this->host,i->GetHost().c_str());
 		if ((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str())))
-		{
-			ServerInstance->Log(DEBUG, "Matches!");
 			return &(*i);
-		}
 	}
-
-	ServerInstance->Log(DEBUG, "You get nowt!");
 	return NULL;
 }
 
