@@ -1579,6 +1579,8 @@ void ValueItem::Set(int value)
 
 int ValueItem::GetInteger()
 {
+	if (v.empty())
+		return 0;
 	return atoi(v.c_str());
 }
 
