@@ -271,18 +271,17 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
-inline void irc::sockets::Blocking(int s)
+void irc::sockets::Blocking(int s)
 {
 	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 }
 
-inline void irc::sockets::NonBlocking(int s)
+void irc::sockets::NonBlocking(int s)
 {
 	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 }
-
 
 /** This will bind a socket to a port. It works for UDP/TCP.
  * It can only bind to IP addresses, if you wish to bind to hostnames
