@@ -29,9 +29,12 @@ CmdResult cmd_pass::Handle (const char** parameters, int pcnt, userrec *user)
 		user->WriteServ("462 %s :You may not reregister",user->nick);
 		return CMD_FAILURE;
 	}
-	ConnectClass a = user->GetClass();
+	ConnectClass* a = user->GetClass();
+	if (!a)
+		return CMD_FAILURE;
+
 	strlcpy(user->password,parameters[0],63);
-	if (!strcmp(parameters[0],a.pass.c_str()))
+	if (a->GetPass() == parameters[0])
 	{
 		user->haspassed = true;
 	}

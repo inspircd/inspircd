@@ -416,45 +416,13 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 
 	if (*allow)
 	{
-		c.host = allow;
-		c.type = CC_ALLOW;
-		c.pass = password;
-		c.registration_timeout = timeout;
-		c.pingtime = pingfreq;
-		c.flood = flood;
-		c.threshold = threshold;
-		c.sendqmax = sendq;
-		c.recvqmax = recvq;
-		c.maxlocal = localmax;
-		c.maxglobal = globalmax;
-
-
-		if (c.maxlocal == 0)
-			c.maxlocal = 3;
-		if (c.maxglobal == 0)
-			c.maxglobal = 3;
-		if (c.threshold == 0)
-		{
-			c.threshold = 1;
-			c.flood = 999;
-			conf->GetInstance()->Log(DEFAULT,"Warning: Connect allow line '%s' has no flood/threshold settings. Setting this tag to 999 lines in 1 second.",c.host.c_str());
-		}
-		if (c.sendqmax == 0)
-			c.sendqmax = 262114;
-		if (c.recvqmax == 0)
-			c.recvqmax = 4096;
-		if (c.registration_timeout == 0)
-			c.registration_timeout = 90;
-		if (c.pingtime == 0)
-			c.pingtime = 120;
+		ConnectClass c(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
 		conf->Classes.push_back(c);
 	}
 	else
 	{
-		c.host = deny;
-		c.type = CC_DENY;
+		ConnectClass c(deny);
 		conf->Classes.push_back(c);
-		conf->GetInstance()->Log(DEBUG,"Read connect class type DENY, host=%s",deny);
 	}
 
 	return true;

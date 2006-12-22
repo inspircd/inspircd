@@ -78,48 +78,113 @@ class UserResolver : public Resolver
  */
 class ConnectClass : public classbase
 {
- public:
+ private:
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
 	char type;
 	/** Max time to register the connection in seconds
 	 */
-	int registration_timeout;
+	unsigned int registration_timeout;
 	/** Number of lines in buffer before excess flood is triggered
 	 */
-	int flood;
+	unsigned int flood;
 	/** Host mask for this line
 	 */
 	std::string host;
 	/** Number of seconds between pings for this line
 	 */
-	int pingtime;
+	unsigned int pingtime;
 	/** (Optional) Password for this line
 	 */
 	std::string pass;
 
 	/** Threshold value for flood disconnect
 	 */
-	int threshold;
+	unsigned int threshold;
 
 	/** Maximum size of sendq for users in this class (bytes)
 	 */
-	long sendqmax;
+	unsigned long sendqmax;
 
 	/** Maximum size of recvq for users in this class (bytes)
 	 */
-	long recvqmax;
+	unsigned long recvqmax;
 
 	/** Local max when connecting by this connection class
 	 */
-	long maxlocal;
+	unsigned long maxlocal;
 
 	/** Global max when connecting by this connection class
 	 */
-	long maxglobal;
-	
-	ConnectClass() : registration_timeout(0), flood(0), host(""), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0)
+	unsigned long maxglobal;
+
+public:
+
+	ConnectClass() : type(CC_DENY), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
+			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
+
+	ConnectClass(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
+			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
+			unsigned long maxl, unsigned long maxg) :
+			type(CC_ALLOW), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
+			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg) { }
+
+	ConnectClass(const std::string &hst) : type(CC_DENY), registration_timeout(0), flood(0), host(hst), pingtime(0),
+			pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
+
+	char GetType()
 	{
+		return (type == CC_ALLOW ? CC_ALLOW : CC_DENY);
+	}
+
+	unsigned int GetRegTimeout()
+	{
+		return (registration_timeout ? registration_timeout : 90);
+	}
+
+	unsigned int GetFlood()
+	{
+		return (threshold ? flood : 999);
+	}
+
+	const std::string& GetHost()
+	{
+		return host;
+	}
+
+	unsigned int GetPingTime()
+	{
+		return (pingtime ? pingtime : 120);
+	}
+
+	const std::string& GetPass()
+	{
+		return pass;
+	}
+
+	unsigned int GetThreshold()
+	{
+		return (threshold ? threshold : 1);
+	}
+
+	unsigned long GetSendqMax()
+	{
+		return (sendqmax ? sendqmax : 262114);
+	}
+
+	unsigned long GetRecvqMax()
+	{
+		return (recvqmax ? recvqmax : 4096);
+	}
+
+	unsigned long GetMaxLocal()
+	{
+		return (maxlocal ? maxlocal : 1);
+	}
+
+	unsigned long GetMaxGlobal()
+	{
+		return (maxglobal ? maxglobal : 1);
 	}
 };
 
@@ -593,12 +658,12 @@ class userrec : public connection
 	/** Return the number of global clones of this user
 	 * @return The global clone count of this user
 	 */
-	long GlobalCloneCount();
+	unsigned long GlobalCloneCount();
 
 	/** Return the number of local clones of this user
 	 * @return The local clone count of this user
 	 */
-	long LocalCloneCount();
+	unsigned long LocalCloneCount();
 
 	/** Write text to this user, appending CR/LF.
 	 * @param text A std::string to send to the user
@@ -745,7 +810,7 @@ class userrec : public connection
 	/** Get the connect class which matches this user's host or IP address
 	 * @return A reference to this user's connect class
 	 */
-	ConnectClass& GetClass();
+	ConnectClass* GetClass();
 
 	/** Show the message of the day to this user
 	 */

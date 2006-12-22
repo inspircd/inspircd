@@ -1023,33 +1023,23 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	Instance->AddLocalClone(New);
 	Instance->AddGlobalClone(New);
 
-	// set the registration timeout for this user
-	unsigned long class_regtimeout = 90;
-	int class_flood = 0;
-	long class_threshold = 5;
-	long class_sqmax = 262144;      // 256kb
-	long class_rqmax = 4096;	// 4k
+	ConnectClass* i = New->GetClass();
 
-	for (ClassVector::iterator i = Instance->Config->Classes.begin(); i != Instance->Config->Classes.end(); i++)
+	Instance->Log(DEBUG,"Class=%08x", i);
+
+	if ((!i) || (i->GetType() == CC_DENY))
 	{
-		if ((i->type == CC_ALLOW) && (match(ipaddr,i->host.c_str(),true)))
-		{
-			class_regtimeout = (unsigned long)i->registration_timeout;
-			class_flood = i->flood;
-			New->pingmax = i->pingtime;
-			class_threshold = i->threshold;
-			class_sqmax = i->sendqmax;
-			class_rqmax = i->recvqmax;
-			break;
-		}
+		userrec::QuitUser(Instance, New,"Unauthorised connection");
+		return;
 	}
 
-	New->nping = Instance->Time() + New->pingmax + Instance->Config->dns_timeout;
-	New->timeout = Instance->Time() + class_regtimeout;
-	New->flood = class_flood;
-	New->threshold = class_threshold;
-	New->sendqmax = class_sqmax;
-	New->recvqmax = class_rqmax;
+	New->pingmax = i->GetPingTime();
+	New->nping = Instance->Time() + i->GetPingTime() + Instance->Config->dns_timeout;
+	New->timeout = Instance->Time() + i->GetRegTimeout();
+	New->flood = i->GetFlood();
+	New->threshold = i->GetThreshold();
+	New->sendqmax = i->GetSendqMax();
+	New->recvqmax = i->GetRecvqMax();
 
 	Instance->local_users.push_back(New);
 
@@ -1104,7 +1094,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 }
 
-long userrec::GlobalCloneCount()
+unsigned long userrec::GlobalCloneCount()
 {
 	clonemap::iterator x = ServerInstance->global_clones.find(this->GetIPString());
 	if (x != ServerInstance->global_clones.end())
@@ -1113,7 +1103,7 @@ long userrec::GlobalCloneCount()
 		return 0;
 }
 
-long userrec::LocalCloneCount()
+unsigned long userrec::LocalCloneCount()
 {
 	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
 	if (x != ServerInstance->local_clones.end())
@@ -1127,30 +1117,30 @@ void userrec::FullConnect(CullList* Goners)
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
-	ConnectClass a = this->GetClass();
+	ConnectClass* a = this->GetClass();
 
-	if (a.type == CC_DENY)
+	if ((!a) || (a->GetType() == CC_DENY))
 	{
 		Goners->AddItem(this,"Unauthorised connection");
 		return;
 	}
-	
-	if ((*(a.pass.c_str())) && (!this->haspassed))
+
+	if ((!a->GetPass().empty()) && (!this->haspassed))
 	{
 		Goners->AddItem(this,"Invalid password");
 		return;
 	}
 	
-	if (this->LocalCloneCount() > a.maxlocal)
+	if (this->LocalCloneCount() > a->GetMaxLocal())
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a.maxlocal, this->GetIPString());
+		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
-	else if (this->GlobalCloneCount() > a.maxglobal)
+	else if (this->GlobalCloneCount() > a->GetMaxGlobal())
 	{
 		Goners->AddItem(this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a.maxglobal, this->GetIPString());
+		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
 
@@ -1926,15 +1916,20 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-ConnectClass& userrec::GetClass()
+ConnectClass* userrec::GetClass()
 {
 	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 	{
-		if ((match(this->GetIPString(),i->host.c_str(),true)) || (match(this->host,i->host.c_str())))
-			return *i;
+		ServerInstance->Log(DEBUG, "IP=%s, HOST=%s, CLASS=%s", this->GetIPString(), this->host,i->GetHost().c_str());
+		if ((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str())))
+		{
+			ServerInstance->Log(DEBUG, "Matches!");
+			return &(*i);
+		}
 	}
 
-	return *(ServerInstance->Config->Classes.begin());
+	ServerInstance->Log(DEBUG, "You get nowt!");
+	return NULL;
 }
 
 void userrec::PurgeEmptyChannels()
