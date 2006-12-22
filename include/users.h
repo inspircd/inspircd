@@ -305,11 +305,11 @@ class userrec : public connection
 	 */
 	int flood;
 	
-	/** Number of seconds this user is given to send USER/NICK
-	 * If they do not send their details in this time limit they
-	 * will be disconnected
+	/** Timestamp of current time + connection class timeout.
+	 * This user must send USER/NICK before this timestamp is
+	 * reached or they will be disconnected.
 	 */
-	unsigned int timeout;
+	time_t timeout;
 	
 	/** The oper type they logged in as, if they are an oper.
 	 * This is used to check permissions in operclasses, so that

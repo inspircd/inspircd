@@ -254,7 +254,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 * registration timeout -- didnt send USER/NICK/HOST
 				 * in the time specified in their connection class.
 				 */
-				if (((unsigned)TIME > (unsigned)curr->timeout) && (curr->registered != REG_ALL))
+				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
 					this->Log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 					GlobalGoners.AddItem(curr,"Registration timeout");
