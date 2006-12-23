@@ -71,30 +71,41 @@ void InspIRCd::Restart(const std::string &reason)
 	std::vector<std::string> mymodnames;
 	int MyModCount = ModCount;
 
+	/* SendError flushes each client's queue,
+	 * regardless of writeability state
+	 */
 	this->SendError(reason);
 
-	this->Log(DEBUG,"Closing listening client sockets...");
 	for (unsigned int i = 0; i < stats->BoundPortCount; i++)
 		/* This calls the constructor and closes the listening socket */
 		delete Config->openSockfd[i];
 
-	/* Unload all modules, so they get a chance to clean up their listeners */
-	for (int j = 0; j < ModCount; j++)
-		mymodnames.push_back(Config->module_names[j]);
+	/* We do this twice, so that any service providers get a chance to be
+	 * unhooked by the modules using them, but then get a chance to be
+	 * removed themsleves.
+	 */
+	for (int tries = 0; tries < 2; tries++)
+	{
+		mymodnames.clear();
 
-	this->Log(DEBUG,"Unloading modules...");
-	for (int k = 0; k < MyModCount; k++)
-		this->UnloadModule(mymodnames[k].c_str());
+		/* Unload all modules, so they get a chance to clean up their listeners */
+		for (int j = 0; j < ModCount; j++)
+			mymodnames.push_back(Config->module_names[j]);
 
-	this->Log(DEBUG,"Closing client sockets...");
+		for (int k = 0; k < MyModCount; k++)
+			this->UnloadModule(mymodnames[k].c_str());
+	}
+
+	/* Close all client sockets, or the new process inherits them */
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 		(*i)->CloseSocket();
 
+	/* Figure out our filename (if theyve renamed it, we're boned) */
 	std::string me = Config->MyDir + "/inspircd";
 
-	this->Log(DEBUG,"Closing log and calling execv to start new instance of '%s'...", me.c_str());
-
+	/* Close logging */
 	this->Logger->Close();
+
 	if (execv(me.c_str(), Config->argv) == -1)
 	{
 		/* Will raise a SIGABRT if not trapped */

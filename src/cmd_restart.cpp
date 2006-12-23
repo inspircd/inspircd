@@ -28,7 +28,16 @@ CmdResult cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 	if (!strcmp(parameters[0],ServerInstance->Config->restartpass))
 	{
 		ServerInstance->WriteOpers("*** RESTART command from %s!%s@%s, restarting server.",user->nick,user->ident,user->host);
-		ServerInstance->Restart("Server restarting");
+
+		try
+		{
+			ServerInstance->Restart("Server restarting.");
+		}
+		catch (CoreException &e)
+		{
+			/* We dont actually get here unless theres some fatal and unrecoverable error. */
+			exit(0);
+		}
 	}
 	else
 	{
