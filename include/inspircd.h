@@ -1121,6 +1121,12 @@ class InspIRCd : public classbase
 	 */
 	void Restart(const std::string &reason);
 
+	/** Prepare the ircd for restart or shutdown.
+	 * This function unloads all modules which can be unloaded,
+	 * closes all open sockets, and closes the logfile.
+	 */
+	void Cleanup();
+
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * after performing some initialisation routines,

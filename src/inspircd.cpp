@@ -63,25 +63,26 @@ bool InspIRCd::FindServerName(const std::string &servername)
 
 void InspIRCd::Exit(int status)
 {
+	if (SI)
+	{
+		SI->SendError("Exiting with status " + ConvToStr(status));
+		SI->Cleanup();
+	}
+
 	exit (status);
 }
 
-void InspIRCd::Restart(const std::string &reason)
+void InspIRCd::Cleanup()
 {
 	std::vector<std::string> mymodnames;
 	int MyModCount = this->GetModuleCount();
-
-	/* SendError flushes each client's queue,
-	 * regardless of writeability state
-	 */
-	this->SendError(reason);
 
 	for (unsigned int i = 0; i < stats->BoundPortCount; i++)
 		/* This calls the constructor and closes the listening socket */
 		delete Config->openSockfd[i];
 
 	/* We do this more than once, so that any service providers get a
-	 * chance to be* unhooked by the modules using them, but then get
+	 * chance to be unhooked by the modules using them, but then get
 	 * a chance to be removed themsleves.
 	 */
 	for (int tries = 0; tries < 3; tries++)
@@ -101,11 +102,21 @@ void InspIRCd::Restart(const std::string &reason)
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 		(*i)->CloseSocket();
 
-	/* Figure out our filename (if theyve renamed it, we're boned) */
-	std::string me = Config->MyDir + "/inspircd";
-
 	/* Close logging */
 	this->Logger->Close();
+}
+
+void InspIRCd::Restart(const std::string &reason)
+{
+	/* SendError flushes each client's queue,
+	 * regardless of writeability state
+	 */
+	this->SendError(reason);
+
+	this->Cleanup();
+
+	/* Figure out our filename (if theyve renamed it, we're boned) */
+	std::string me = Config->MyDir + "/inspircd";
 
 	if (execv(me.c_str(), Config->argv) == -1)
 	{
