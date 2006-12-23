@@ -266,6 +266,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->chanlist = new chan_hash();
 
 	this->Config = new ServerConfig(this);
+
+	this->Config->argv = argv;
+	this->Config->argc = argc;
+
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
 	this->SNO = new SnomaskManager(this);

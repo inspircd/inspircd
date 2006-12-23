@@ -429,8 +429,6 @@ bool InspIRCd::IsNick(const char* n)
 void InspIRCd::OpenLog(char** argv, int argc)
 {
 	Config->MyDir = ServerConfig::GetFullProgDir(argv,argc);
-	Config->argv = argv;
-	Config->argc = argc;
 
 	if (!*this->LogFileName)
 	{
