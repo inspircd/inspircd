@@ -959,7 +959,8 @@ bool FileLogger::Readable()
 void FileLogger::HandleEvent(EventType et, int errornum)
 {
 	this->WriteLogLine("");
-	ServerInstance->SE->DelFd(this);
+	if (log)
+		ServerInstance->SE->DelFd(this);
 }
 
 void FileLogger::WriteLogLine(const std::string &line)
@@ -1000,18 +1001,24 @@ void FileLogger::Close()
 		fcntl(fileno(log), F_SETFL, flags ^ O_NONBLOCK);
 		if (buffer.size())
 			fprintf(log,"%s",buffer.c_str());
+
+		ServerInstance->SE->DelFd(this);
+
 		fflush(log);
 		fclose(log);
 	}
+
 	buffer = "";
-	ServerInstance->SE->DelFd(this);
 }
 
 FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Instance), log(logfile), writeops(0)
 {
-	irc::sockets::NonBlocking(fileno(log));
-	this->SetFd(fileno(log));
-	buffer = "";
+	if (log)
+	{
+		irc::sockets::NonBlocking(fileno(log));
+		this->SetFd(fileno(log));
+		buffer = "";
+	}
 }
 
 FileLogger::~FileLogger()
