@@ -167,7 +167,7 @@ bool InspIRCd::DaemonSeed()
 		 */
 		while (kill(childpid, 0) != -1)
 			sleep(1);
-		Exit(EXIT_STATUS_FORK);
+		exit(0);
 	}
 	setsid ();
 	umask (007);

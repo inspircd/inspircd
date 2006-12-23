@@ -26,8 +26,7 @@
 #include "command_parse.h"
 #include "snomasks.h"
 
-/** Returned by some functions to indicate failure,
- * and the exit code of the program if it terminates.
+/** Returned by some functions to indicate failure.
  */
 #define ERROR -1
 
@@ -655,6 +654,7 @@ class InspIRCd : public classbase
 
 	/** Causes the server to exit immediately
 	 * @param The exit code to give to the operating system
+	 * (See the ExitStatus enum for valid values)
 	 */
 	static void Exit(int status);
 
