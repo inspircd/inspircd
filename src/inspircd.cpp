@@ -69,7 +69,7 @@ void InspIRCd::Exit(int status)
 void InspIRCd::Restart(const std::string &reason)
 {
 	std::vector<std::string> mymodnames;
-	int MyModCount = 0;
+	int MyModCount = this->GetModuleCount();
 
 	/* SendError flushes each client's queue,
 	 * regardless of writeability state
@@ -86,7 +86,7 @@ void InspIRCd::Restart(const std::string &reason)
 	 */
 	for (int tries = 0; tries < 2; tries++)
 	{
-		MyModCount = ModCount;
+		MyModCount = this->GetModuleCount();
 		mymodnames.clear();
 
 		/* Unload all modules, so they get a chance to clean up their listeners */
