@@ -78,7 +78,7 @@ class ListTimer : public InspTimer
 				userrec* u = (userrec*)(*iter);
 				ListData* ld;
 				u->GetExt("safelist_cache", ld);
-				if ((size_t)ld->list_position > ServerInstance->chanlist.size())
+				if ((size_t)ld->list_position > ServerInstance->chanlist->size())
 				{
 					u->Shrink("safelist_cache");
 					DELETE(ld);

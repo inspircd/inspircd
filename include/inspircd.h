@@ -401,11 +401,11 @@ class InspIRCd : public classbase
 
 	/** Client list, a hash_map containing all clients, local and remote
 	 */
-	user_hash clientlist;
+	user_hash* clientlist;
 
 	/** Channel list, a hash_map containing all channels
 	 */
-	chan_hash chanlist;
+	chan_hash* chanlist;
 
 	/** Local client list, a vector containing only local clients
 	 */
@@ -1128,6 +1128,12 @@ class InspIRCd : public classbase
 	 * closes all open sockets, and closes the logfile.
 	 */
 	void Cleanup();
+
+	/** This copies the user and channel hash_maps into new hash maps.
+	 * This frees memory used by the hash_map allocator (which it neglects
+	 * to free, most of the time, using tons of ram)
+	 */
+	void RehashUsersAndChans();
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,

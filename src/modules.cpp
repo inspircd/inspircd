@@ -345,6 +345,7 @@ const std::string& InspIRCd::GetModuleName(Module* m)
 void InspIRCd::RehashServer()
 {
 	this->WriteOpers("*** Rehashing config file");
+	this->RehashUsersAndChans();
 	this->Config->Read(false,NULL);
 }
 
@@ -358,7 +359,7 @@ void InspIRCd::RehashServer()
 chanrec* InspIRCd::GetChannelIndex(long index)
 {
 	int target = 0;
-	for (chan_hash::iterator n = this->chanlist.begin(); n != this->chanlist.end(); n++, target++)
+	for (chan_hash::iterator n = this->chanlist->begin(); n != this->chanlist->end(); n++, target++)
 	{
 		if (index == target)
 			return n->second;

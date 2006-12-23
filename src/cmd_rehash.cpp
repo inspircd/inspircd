@@ -37,6 +37,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->WriteOpers("%s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
 		ServerInstance->CloseLog();
 		ServerInstance->OpenLog(NULL,0);
+		ServerInstance->RehashUsersAndChans();
 		ServerInstance->Config->Read(false,user);
 	}
 	if (old_disabled != ServerInstance->Config->DisabledCommands)

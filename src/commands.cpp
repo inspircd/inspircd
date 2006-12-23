@@ -113,7 +113,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","hostmasks", 0))
 		return false;
 	
-	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
 	{
 		strlcpy(buffer,u->second->ident,MAXBUF);
 		charlcat(buffer,'@',MAXBUF);
@@ -121,7 +121,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 		if (match(buffer,mask.c_str()))
 			matches++;
 	}
-	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		WriteOpers("*** \2WARNING\2: %s tried to set a G/K/E line mask of %s, which covers %.2f%% of the network!",user->nick,mask.c_str(),percent);
@@ -141,13 +141,13 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","ipmasks",0))
 		return false;
 	
-	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
 	{
 		if (match(u->second->GetIPString(),ip.c_str(),true))
 			matches++;
 	}
 	
-	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		WriteOpers("*** \2WARNING\2: %s tried to set a Z line mask of %s, which covers %.2f%% of the network!",user->nick,ip.c_str(),percent);
@@ -167,13 +167,13 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
 	if (Config->ConfValueBool(Config->config_data, "insane","nickmasks",0))
 		return false;
 
-	for (user_hash::iterator u = clientlist.begin(); u != clientlist.end(); u++)
+	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
 	{
 		if (match(u->second->nick,nick.c_str()))
 			matches++;
 	}
 	
-	float percent = ((float)matches / (float)clientlist.size()) * 100;
+	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
 		WriteOpers("*** \2WARNING\2: %s tried to set a Q line mask of %s, which covers %.2f%% of the network!",user->nick,nick.c_str(),percent);

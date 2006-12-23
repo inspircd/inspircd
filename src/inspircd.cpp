@@ -138,8 +138,35 @@ void InspIRCd::Rehash(int status)
 	SI->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
 	SI->CloseLog();
 	SI->OpenLog(NULL,0);
+	SI->RehashUsersAndChans();
 	SI->Config->Read(false,NULL);
 	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
+}
+
+/** Because hash_map doesnt free its buckets when we delete items (this is a 'feature')
+ * we must occasionally rehash the hash (yes really).
+ * We do this by copying the entries from the old hash to a new hash, causing all
+ * empty buckets to be weeded out of the hash. We dont do this on a timer, as its
+ * very expensive, so instead we do it when the user types /REHASH and expects a
+ * short delay anyway.
+ */
+void InspIRCd::RehashUsersAndChans()
+{
+	user_hash* old_users = this->clientlist;
+	chan_hash* old_chans = this->chanlist;
+
+	this->clientlist = new user_hash();
+	this->chanlist = new chan_hash();
+
+	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
+		this->clientlist->insert(*n);
+
+	delete old_users;
+
+	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
+		this->chanlist->insert(*n);
+
+	delete old_chans;
 }
 
 void InspIRCd::CloseLog()
@@ -234,7 +261,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	modules.resize(255);
 	factory.resize(255);
-	
+
+	this->clientlist = new user_hash();
+	this->chanlist = new chan_hash();
+
 	this->Config = new ServerConfig(this);
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
@@ -565,11 +595,11 @@ bool InspIRCd::UnloadModule(const char* filename)
 				return false;
 			}
 			/* Give the module a chance to tidy out all its metadata */
-			for (chan_hash::iterator c = this->chanlist.begin(); c != this->chanlist.end(); c++)
+			for (chan_hash::iterator c = this->chanlist->begin(); c != this->chanlist->end(); c++)
 			{
 				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
 			}
-			for (user_hash::iterator u = this->clientlist.begin(); u != this->clientlist.end(); u++)
+			for (user_hash::iterator u = this->clientlist->begin(); u != this->clientlist->end(); u++)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}

@@ -228,9 +228,9 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 userrec* InspIRCd::FindNick(const std::string &nick)
 {
-	user_hash::iterator iter = clientlist.find(nick);
+	user_hash::iterator iter = clientlist->find(nick);
 
-	if (iter == clientlist.end())
+	if (iter == clientlist->end())
 		/* Couldn't find it */
 		return NULL;
 
@@ -239,9 +239,9 @@ userrec* InspIRCd::FindNick(const std::string &nick)
 
 userrec* InspIRCd::FindNick(const char* nick)
 {
-	user_hash::iterator iter = clientlist.find(nick);
+	user_hash::iterator iter = clientlist->find(nick);
 	
-	if (iter == clientlist.end())
+	if (iter == clientlist->end())
 		return NULL;
 
 	return iter->second;
@@ -251,9 +251,9 @@ userrec* InspIRCd::FindNick(const char* nick)
 
 chanrec* InspIRCd::FindChan(const char* chan)
 {
-	chan_hash::iterator iter = chanlist.find(chan);
+	chan_hash::iterator iter = chanlist->find(chan);
 
-	if (iter == chanlist.end())
+	if (iter == chanlist->end())
 		/* Couldn't find it */
 		return NULL;
 
@@ -262,9 +262,9 @@ chanrec* InspIRCd::FindChan(const char* chan)
 
 chanrec* InspIRCd::FindChan(const std::string &chan)
 {
-	chan_hash::iterator iter = chanlist.find(chan);
+	chan_hash::iterator iter = chanlist->find(chan);
 
-	if (iter == chanlist.end())
+	if (iter == chanlist->end())
 		/* Couldn't find it */
 		return NULL;
 
@@ -299,20 +299,20 @@ void InspIRCd::SendError(const std::string &s)
 // this function counts all users connected, wether they are registered or NOT.
 int InspIRCd::UserCount()
 {
-	return clientlist.size();
+	return clientlist->size();
 }
 
 // this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
 int InspIRCd::RegisteredUserCount()
 {
-	return clientlist.size() - this->UnregisteredUserCount();
+	return clientlist->size() - this->UnregisteredUserCount();
 }
 
 int InspIRCd::InvisibleUserCount()
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::const_iterator i = clientlist->begin(); i != clientlist->end(); i++)
 	{
 		c += ((i->second->registered == REG_ALL) && (i->second->modes[UM_INVISIBLE]));
 	}
@@ -324,7 +324,7 @@ int InspIRCd::OperCount()
 {
 	int c = 0;
 
-	for (user_hash::const_iterator i = clientlist.begin(); i != clientlist.end(); i++)
+	for (user_hash::const_iterator i = clientlist->begin(); i != clientlist->end(); i++)
 	{
 		if (*(i->second->oper))
 			c++;
@@ -348,7 +348,7 @@ int InspIRCd::UnregisteredUserCount()
 
 long InspIRCd::ChannelCount()
 {
-	return chanlist.size();
+	return chanlist->size();
 }
 
 long InspIRCd::LocalUserCount()

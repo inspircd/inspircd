@@ -234,7 +234,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+			for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 			{
 				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{

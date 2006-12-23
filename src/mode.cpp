@@ -638,13 +638,13 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	switch (mh->GetModeType())
 	{
 		case MODETYPE_USER:
-			for (user_hash::iterator i = ServerInstance->clientlist.begin(); i != ServerInstance->clientlist.end(); i++)
+			for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 			{
 				mh->RemoveMode(i->second);
 			}
 		break;
 		case MODETYPE_CHANNEL:
-			for (chan_hash::iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
+			for (chan_hash::iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 			{
 				mh->RemoveMode(i->second);
 			}

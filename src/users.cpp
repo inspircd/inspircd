@@ -761,7 +761,7 @@ void userrec::UnOper()
 
 void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason)
 {
-	user_hash::iterator iter = Instance->clientlist.find(user->nick);
+	user_hash::iterator iter = Instance->clientlist->find(user->nick);
 	std::string reason = quitreason;
 
 	if (reason.length() > MAXQUIT - 1)
@@ -814,15 +814,16 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 		user->AddToWhoWas();
 	}
 
-	if (iter != Instance->clientlist.end())
+	if (iter != Instance->clientlist->end())
 	{
 		Instance->Log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
-			if (find(Instance->local_users.begin(),Instance->local_users.end(),user) != Instance->local_users.end())
-				Instance->local_users.erase(find(Instance->local_users.begin(),Instance->local_users.end(),user));
+			std::vector<userrec*>::iterator x = find(Instance->local_users.begin(),Instance->local_users.end(),user);
+			if (x != Instance->local_users.end())
+				Instance->local_users.erase(x);
 		}
-		Instance->clientlist.erase(iter);
+		Instance->clientlist->erase(iter);
 		DELETE(user);
 	}
 }
@@ -977,7 +978,7 @@ void userrec::AddToWhoWas()
 void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
-	user_hash::iterator iter = Instance->clientlist.find(tempnick);
+	user_hash::iterator iter = Instance->clientlist->find(tempnick);
 	const char *ipaddr = insp_ntoa(ip);
 	userrec* New;
 	int j = 0;
@@ -991,17 +992,17 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 * this was probably the cause of 'server ignores me when i hammer it with reconnects'
 	 * issue in earlier alphas/betas
 	 */
-	if (iter != Instance->clientlist.end())
+	if (iter != Instance->clientlist->end())
 	{
 		userrec* goner = iter->second;
 		DELETE(goner);
-		Instance->clientlist.erase(iter);
+		Instance->clientlist->erase(iter);
 	}
 
 	Instance->Log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 
 	New = new userrec(Instance);
-	Instance->clientlist[tempnick] = New;
+	(*(Instance->clientlist))[tempnick] = New;
 	New->fd = socket;
 	strlcpy(New->nick,tempnick.c_str(),NICKMAX-1);
 
@@ -1198,18 +1199,18 @@ userrec* userrec::UpdateNickHash(const char* New)
 	try
 	{
 		//user_hash::iterator newnick;
-		user_hash::iterator oldnick = ServerInstance->clientlist.find(this->nick);
+		user_hash::iterator oldnick = ServerInstance->clientlist->find(this->nick);
 
 		if (!strcasecmp(this->nick,New))
 			return oldnick->second;
 
-		if (oldnick == ServerInstance->clientlist.end())
+		if (oldnick == ServerInstance->clientlist->end())
 			return NULL; /* doesnt exist */
 
 		userrec* olduser = oldnick->second;
-		ServerInstance->clientlist[New] = olduser;
-		ServerInstance->clientlist.erase(oldnick);
-		return ServerInstance->clientlist[New];
+		(*(ServerInstance->clientlist))[New] = olduser;
+		ServerInstance->clientlist->erase(oldnick);
+		return olduser;
 	}
 
 	catch (...)
@@ -1949,12 +1950,12 @@ void userrec::PurgeEmptyChannels()
 	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
 	{
 		chanrec* thischan = *n;
-		chan_hash::iterator i2 = ServerInstance->chanlist.find(thischan->name);
-		if (i2 != ServerInstance->chanlist.end())
+		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
+		if (i2 != ServerInstance->chanlist->end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
 			DELETE(i2->second);
-			ServerInstance->chanlist.erase(i2);
+			ServerInstance->chanlist->erase(i2);
 			this->chans.erase(*n);
 		}
 	}

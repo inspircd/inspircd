@@ -26,7 +26,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user_hash::iterator iter = ServerInstance->clientlist.find(user->nick);
+	user_hash::iterator iter = ServerInstance->clientlist->find(user->nick);
 	char reason[MAXBUF];
 	std::string quitmsg = "Client exited";
 
@@ -82,17 +82,18 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	if (IS_LOCAL(user))
 	{
 		ServerInstance->SE->DelFd(user);
-		if (find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user) != ServerInstance->local_users.end())
+		std::vector<userrec*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user);
+		if (x != ServerInstance->local_users.end())
 		{
 			ServerInstance->Log(DEBUG,"Delete local user");
-			ServerInstance->local_users.erase(find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user));
+			ServerInstance->local_users.erase(x);
 		}
 		user->CloseSocket();
 	}
 	
-	if (iter != ServerInstance->clientlist.end())
+	if (iter != ServerInstance->clientlist->end())
 	{
-		ServerInstance->clientlist.erase(iter);
+		ServerInstance->clientlist->erase(iter);
 	}
 
 	if (user->registered == REG_ALL) {

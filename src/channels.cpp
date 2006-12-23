@@ -217,7 +217,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 		/* create a new one */
 		Ptr = new chanrec(Instance);
-		Instance->chanlist[cname] = Ptr;
+		(*(Instance->chanlist))[cname] = Ptr;
 
 		strlcpy(Ptr->name, cname,CHANMAX);
 
@@ -341,12 +341,12 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	{
 		Instance->Log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
-		chan_hash::iterator n = Instance->chanlist.find(cname);
-		if (n != Instance->chanlist.end())
+		chan_hash::iterator n = Instance->chanlist->find(cname);
+		if (n != Instance->chanlist->end())
 		{
 			Ptr->DelUser(user);
 			DELETE(Ptr);
-			Instance->chanlist.erase(n);
+			Instance->chanlist->erase(n);
 		}
 	}
 
@@ -464,13 +464,13 @@ long chanrec::PartUser(userrec *user, const char* reason)
 
 	if (!this->DelUser(user)) /* if there are no users left on the channel... */
 	{
-		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
 		/* kill the record */
-		if (iter != ServerInstance->chanlist.end())
+		if (iter != ServerInstance->chanlist->end())
 		{
 			ServerInstance->Log(DEBUG,"del_channel: destroyed: %s", this->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			ServerInstance->chanlist.erase(iter);
+			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;
 	}
@@ -507,12 +507,12 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 
 	if (!this->DelUser(user))
 	{
-		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
 		/* kill the record */
-		if (iter != ServerInstance->chanlist.end())
+		if (iter != ServerInstance->chanlist->end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			ServerInstance->chanlist.erase(iter);
+			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;
 	}
@@ -580,13 +580,13 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	if (!this->DelUser(user))
 	/* if there are no users left on the channel */
 	{
-		chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
 
 		/* kill the record */
-		if (iter != ServerInstance->chanlist.end())
+		if (iter != ServerInstance->chanlist->end())
 		{
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
-			ServerInstance->chanlist.erase(iter);
+			ServerInstance->chanlist->erase(iter);
 		}
 		return 0;
 	}

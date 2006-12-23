@@ -102,8 +102,8 @@ class ModuleHttpStats : public Module
 				data << "<div class='totals'>";
 				data << "<h2>Totals</h2>";
 				data << "<table>";
-				data << "<tr><td>Users</td><td>" << ServerInstance->clientlist.size() << "</td></tr>";
-				data << "<tr><td>Channels</td><td>" << ServerInstance->chanlist.size() << "</td></tr>";
+				data << "<tr><td>Users</td><td>" << ServerInstance->clientlist->size() << "</td></tr>";
+				data << "<tr><td>Channels</td><td>" << ServerInstance->chanlist->size() << "</td></tr>";
 				data << "<tr><td>Opers</td><td>" << ServerInstance->all_opers.size() << "</td></tr>";
 				data << "<tr><td>Sockets</td><td>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</td></tr>";
 				data << "</table>";

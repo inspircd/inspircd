@@ -85,7 +85,7 @@ class cmd_spylist : public command_t
 	{
 		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
-		for (chan_hash::const_iterator i = ServerInstance->chanlist.begin(); i != ServerInstance->chanlist.end(); i++)
+		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 		{
 			if (pcnt && !match(i->second->name, parameters[0]))
 				continue;

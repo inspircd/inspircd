@@ -56,12 +56,12 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
-			user_hash::iterator iter = ServerInstance->clientlist.find(u->nick);
+			user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
 
-			if (iter != ServerInstance->clientlist.end())
+			if (iter != ServerInstance->clientlist->end())
 			{
 				ServerInstance->Log(DEBUG,"deleting user hash value %d", iter->second);
-				ServerInstance->clientlist.erase(iter);
+				ServerInstance->clientlist->erase(iter);
 			}
 
 			if (u->registered == REG_ALL)

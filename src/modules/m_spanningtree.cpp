@@ -357,7 +357,7 @@ class TreeServer : public classbase
 		ServerInstance->Log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
 		const char* reason_s = reason.c_str();
 		std::vector<userrec*> time_to_die;
-		for (user_hash::iterator n = ServerInstance->clientlist.begin(); n != ServerInstance->clientlist.end(); n++)
+		for (user_hash::iterator n = ServerInstance->clientlist->begin(); n != ServerInstance->clientlist->end(); n++)
 		{
 			if (!strcmp(n->second->server, this->ServerName.c_str()))
 			{
@@ -1880,9 +1880,9 @@ class TreeSocket : public InspSocket
 		const char* tempnick = params[1].c_str();
 		Instance->Log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
 		
-		user_hash::iterator iter = this->Instance->clientlist.find(tempnick);
+		user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
 		
-		if (iter != this->Instance->clientlist.end())
+		if (iter != this->Instance->clientlist->end())
 		{
 			// nick collision
 			Instance->Log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,params[4].c_str(),params[2].c_str(),(unsigned long)age,(unsigned long)iter->second->age);
@@ -1892,7 +1892,7 @@ class TreeSocket : public InspSocket
 		}
 
 		userrec* _new = new userrec(this->Instance);
-		this->Instance->clientlist[tempnick] = _new;
+		(*(this->Instance->clientlist))[tempnick] = _new;
 		_new->SetFd(FD_MAGIC_NUMBER);
 		strlcpy(_new->nick, tempnick,NICKMAX-1);
 		strlcpy(_new->host, params[2].c_str(),63);
@@ -2027,44 +2027,44 @@ class TreeSocket : public InspSocket
 		std::string buffer;
 		std::string n = this->Instance->Config->ServerName;
 		const char* sn = n.c_str();
-		int iterations = 0;
+
 		/* Yes, these arent too nice looking, but they get the job done */
-		for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++, iterations++)
+		for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<QLine*>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++, iterations++)
+		for (std::vector<QLine*>::iterator i = Instance->XLines->qlines.begin(); i != Instance->XLines->qlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\r\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<GLine*>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++, iterations++)
+		for (std::vector<GLine*>::iterator i = Instance->XLines->glines.begin(); i != Instance->XLines->glines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<ELine*>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++, iterations++)
+		for (std::vector<ELine*>::iterator i = Instance->XLines->elines.begin(); i != Instance->XLines->elines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<ZLine*>::iterator i = Instance->XLines->pzlines.begin(); i != Instance->XLines->pzlines.end(); i++, iterations++)
+		for (std::vector<ZLine*>::iterator i = Instance->XLines->pzlines.begin(); i != Instance->XLines->pzlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Z %s %s %lu %lu :%s\r\n",sn,(*i)->ipaddr,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<QLine*>::iterator i = Instance->XLines->pqlines.begin(); i != Instance->XLines->pqlines.end(); i++, iterations++)
+		for (std::vector<QLine*>::iterator i = Instance->XLines->pqlines.begin(); i != Instance->XLines->pqlines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE Q %s %s %lu %lu :%s\r\n",sn,(*i)->nick,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<GLine*>::iterator i = Instance->XLines->pglines.begin(); i != Instance->XLines->pglines.end(); i++, iterations++)
+		for (std::vector<GLine*>::iterator i = Instance->XLines->pglines.begin(); i != Instance->XLines->pglines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE G %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
 		}
-		for (std::vector<ELine*>::iterator i = Instance->XLines->pelines.begin(); i != Instance->XLines->pelines.end(); i++, iterations++)
+		for (std::vector<ELine*>::iterator i = Instance->XLines->pelines.begin(); i != Instance->XLines->pelines.end(); i++)
 		{
 			snprintf(data,MAXBUF,":%s ADDLINE E %s@%s %s %lu %lu :%s\r\n",sn,(*i)->identmask,(*i)->hostmask,(*i)->source,(unsigned long)(*i)->set_time,(unsigned long)(*i)->duration,(*i)->reason);
 			buffer.append(data);
@@ -2079,10 +2079,9 @@ class TreeSocket : public InspSocket
 	{
 		char data[MAXBUF];
 		std::deque<std::string> list;
-		int iterations = 0;
 		std::string n = this->Instance->Config->ServerName;
 		const char* sn = n.c_str();
-		for (chan_hash::iterator c = this->Instance->chanlist.begin(); c != this->Instance->chanlist.end(); c++, iterations++)
+		for (chan_hash::iterator c = this->Instance->chanlist->begin(); c != this->Instance->chanlist->end(); c++)
 		{
 			SendFJoins(Current, c->second);
 			if (*c->second->topic)
@@ -2106,8 +2105,7 @@ class TreeSocket : public InspSocket
 		char data[MAXBUF];
 		std::deque<std::string> list;
 		std::string dataline;
-		int iterations = 0;
-		for (user_hash::iterator u = this->Instance->clientlist.begin(); u != this->Instance->clientlist.end(); u++, iterations++)
+		for (user_hash::iterator u = this->Instance->clientlist->begin(); u != this->Instance->clientlist->end(); u++)
 		{
 			if (u->second->registered == REG_ALL)
 			{
@@ -4342,13 +4340,13 @@ class ModuleSpanningTree : public Module
 
 			float percent;
 			char text[80];
-			if (ServerInstance->clientlist.size() == 0) {
+			if (ServerInstance->clientlist->size() == 0) {
 				// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
 				percent = 0;
 			}
 			else
 			{
-				percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist.size()) * 100;
+				percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
 			}
 			snprintf(text, 80, "%s %s%5d [%5.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
 			totusers += Current->GetUserCount();

@@ -25,22 +25,8 @@ bool CullList::IsValid(userrec* user)
 	if (es != exempt.end())
 		esignon = es->second;
 
-	for (user_hash::iterator u = ServerInstance->clientlist.begin(); u != ServerInstance->clientlist.end(); u++)
+	for (user_hash::iterator u = ServerInstance->clientlist->begin(); u != ServerInstance->clientlist->end(); u++)
 	{
-		/*
-		 * BUGFIX
-		 *
-		 * Because there is an undetermined period of time between a user existing,
-		 * and this function being called, we have to check for the following condition:
-		 *
-		 * Between CullList::AddItem(u) being called, and CullList::IsValid(u) being called,
-		 * the user with the pointer u has quit, but only to be REPLACED WITH A NEW USER WHO
-		 * BECAUSE OF ALLOCATION RULES, HAS THE SAME MEMORY ADDRESS! To prevent this, we
-		 * cross reference each pointer to the user's signon time, and if the signon times
-		 * do not match, we return false here to indicate this user is NOT valid as it
-		 * seems to differ from the pointer snapshot we got a few seconds earlier. Should
-		 * prevent a few random crashes during netsplits.
-		 */
 		if (user == u->second)
 			return (u->second->signon == esignon);
 	}
