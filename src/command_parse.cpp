@@ -475,7 +475,6 @@ void CommandParser::RemoveCommand(nspace::hash_map<std::string,command_t*>::iter
 	command_t* x = safei->second;
 	if (x->source == std::string(source))
 	{
-		ServerInstance->Log(DEBUG,"removecommands(%s) Removing dependent command: %s",x->source.c_str(),x->command.c_str());
 		cmdlist.erase(safei);
 	}
 }

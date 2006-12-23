@@ -579,11 +579,8 @@ bool InspIRCd::UnloadModule(const char* filename)
 			}
 
 			// found the module
-			this->Log(DEBUG,"Removing dependent commands...");
 			Parser->RemoveCommands(filename);
-			this->Log(DEBUG,"Deleting module...");
 			this->EraseModule(j);
-			this->Log(DEBUG,"Erasing module entry...");
 			this->EraseFactory(j);
 			this->Log(DEFAULT,"Module %s unloaded",filename);
 			this->ModCount--;
