@@ -93,8 +93,6 @@ void EPollEngine::WantWrite(EventHandler* eh)
 
 bool EPollEngine::DelFd(EventHandler* eh)
 {
-	ServerInstance->Log(DEBUG,"EPollEngine::DelFd(%d)",eh->GetFd());
-
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
@@ -106,10 +104,7 @@ bool EPollEngine::DelFd(EventHandler* eh)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
 	if (i < 0)
-	{
-		ServerInstance->Log(DEBUG,"epoll: List deletion failure: %s",strerror(errno));
 		return false;
-	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;

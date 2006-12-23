@@ -84,8 +84,6 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	ServerInstance->Log(DEBUG,"KQueueEngine::DelFd(%d)",fd);
-
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 

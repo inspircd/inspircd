@@ -64,17 +64,12 @@ bool SelectEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	ServerInstance->Log(DEBUG,"SelectEngine::DelFd(%d)",fd);
-
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
 	std::map<int,int>::iterator t = fds.find(fd);
 	if (t != fds.end())
-	{
 		fds.erase(t);
-		ServerInstance->Log(DEBUG,"Deleted fd %d",fd);
-	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
