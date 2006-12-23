@@ -25,6 +25,7 @@
 #include "socket.h"
 #include "typedefs.h"
 #include "command_parse.h"
+#include "exitcodes.h"
 #include <dlfcn.h>
 
 using irc::sockets::NonBlocking;
@@ -65,10 +66,9 @@ void InspIRCd::Exit(int status)
 {
 	if (SI)
 	{
-		SI->SendError("Exiting with status " + ConvToStr(status));
+		SI->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
 		SI->Cleanup();
 	}
-
 	exit (status);
 }
 
@@ -167,7 +167,7 @@ bool InspIRCd::DaemonSeed()
 		 */
 		while (kill(childpid, 0) != -1)
 			sleep(1);
-		exit(ERROR);
+		Exit(EXIT_STATUS_FORK);
 	}
 	setsid ();
 	umask (007);
@@ -212,7 +212,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	{
 		printf("Failed to write PID-file '%s', exiting.\n",fname.c_str());
 		this->Log(DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
-		Exit(0);
+		Exit(EXIT_STATUS_PID);
 	}
 }
 
@@ -245,7 +245,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
 		this->Log(DEFAULT,"main: no config");
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
-		Exit(ERROR);
+		Exit(EXIT_STATUS_CONFIG);
 	}
 	*this->LogFileName = 0;
 	if (argc > 1) {
@@ -277,14 +277,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 				else
 				{
 					printf("ERROR: The -logfile parameter must be followed by a log file name and path.\n");
-					Exit(ERROR);
+					Exit(EXIT_STATUS_CONFIG);
 				}
 				i++;
 			}
 			else
 			{
 				printf("Usage: %s [-nofork] [-nolog] [-debug] [-wait] [-logfile <filename>]\n",argv[0]);
-				Exit(ERROR);
+				Exit(EXIT_STATUS_ARGV);
 			}
 		}
 	}
@@ -317,7 +317,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (!this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
-			Exit(ERROR);
+			Exit(EXIT_STATUS_FORK);
 		}
 	}
 
@@ -337,7 +337,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if ((stats->BoundPortCount == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
-		Exit(ERROR);
+		Exit(EXIT_STATUS_BIND);
 	}
 	
 	if (stats->BoundPortCount != (unsigned int)found_ports)
@@ -361,7 +361,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (!SE->AddFd(Config->openSockfd[count]))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
-			Exit(ERROR);
+			Exit(EXIT_STATUS_INTERNAL);
 		}
 	}
 

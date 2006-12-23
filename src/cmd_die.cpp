@@ -14,6 +14,7 @@
 #include "configreader.h"
 #include "users.h"
 #include "commands/cmd_die.h"
+#include "exitcodes.h"
 
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
@@ -44,7 +45,7 @@ CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		
 		sleep(ServerInstance->Config->DieDelay);
-		InspIRCd::Exit(ERROR);
+		InspIRCd::Exit(EXIT_STATUS_DIE);
 	}
 	else
 	{

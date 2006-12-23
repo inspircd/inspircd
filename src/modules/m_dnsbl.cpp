@@ -71,7 +71,8 @@ class DNSBLResolver : public Resolver
 				while(tmp.length()>0)
 				{
 					std::string octet;
-					unsigned int lastdot = tmp.rfind(".");
+					/* Fix by brain, npos is -1, so unsigned int will never match */
+					std::string::size_type lastdot = tmp.rfind(".");
 
 					if (lastdot == std::string::npos)
 					{

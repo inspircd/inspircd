@@ -19,6 +19,7 @@
 #include "mode.h"
 #include "xline.h"
 #include "inspircd.h"
+#include "exitcodes.h"
 
 static char TIMESTR[26];
 static time_t LAST = 0;
@@ -448,7 +449,7 @@ void InspIRCd::OpenLog(char** argv, int argc)
 	if (!Config->log_file)
 	{
 		printf("ERROR: Could not write to logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
-		Exit(ERROR);
+		Exit(EXIT_STATUS_LOG);
 	}
 
 	this->Logger = new FileLogger(this, Config->log_file);
@@ -460,7 +461,7 @@ void InspIRCd::CheckRoot()
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
 		this->Log(DEFAULT,"Cant start as root");
-		Exit(ERROR);
+		Exit(EXIT_STATUS_ROOT);
 	}
 }
 
@@ -470,7 +471,7 @@ void InspIRCd::CheckDie()
 	{
 		printf("WARNING: %s\n\n",Config->DieValue);
 		this->Log(DEFAULT,"Died because of <die> tag: %s",Config->DieValue);
-		Exit(ERROR);
+		Exit(EXIT_STATUS_DIETAG);
 	}
 }
 
@@ -490,7 +491,7 @@ void InspIRCd::LoadAllModules()
 		{
 			this->Log(DEFAULT,"There was an error loading a module: %s", this->ModuleError());
 			printf("\nThere was an error loading a module: %s\n\n",this->ModuleError());
-			Exit(ERROR);
+			Exit(EXIT_STATUS_MODULE);
 		}
 	}
 	printf("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");

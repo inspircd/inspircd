@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "exitcodes.h"
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
@@ -27,7 +28,7 @@ KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		printf("ERROR: this is a fatal error, exiting now.");
-		InspIRCd::Exit(ERROR);
+		InspIRCd::Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 }

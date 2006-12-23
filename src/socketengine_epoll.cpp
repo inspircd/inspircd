@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "exitcodes.h"
 #include <sys/epoll.h>
 #include "socketengine_epoll.h"
 
@@ -25,7 +26,7 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		printf("ERROR: this is a fatal error, exiting now.");
-		InspIRCd::Exit(ERROR);
+		InspIRCd::Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 }

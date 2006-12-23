@@ -16,6 +16,7 @@
 #include <fstream>
 #include "inspircd.h"
 #include "xline.h"
+#include "exitcodes.h"
 
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
@@ -152,7 +153,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		if (bail)
 		{
 			printf("There were errors in your configuration:\nYou have more than one <%s> tag, this is not permitted.\n",tag);
-			InspIRCd::Exit(ERROR);
+			InspIRCd::Exit(EXIT_STATUS_CONFIG);
 		}
 		else
 		{
@@ -174,7 +175,7 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 		if (bail)
 		{
 			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.\n",tag);
-			InspIRCd::Exit(ERROR);
+			InspIRCd::Exit(EXIT_STATUS_CONFIG);
 		}
 		else
 		{
@@ -552,7 +553,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 	{
 		/* Unneeded because of the ServerInstance->Log() aboive? */
 		printf("There were errors in your configuration:\n%s\n\n",errormessage.c_str());
-		InspIRCd::Exit(ERROR);
+		InspIRCd::Exit(EXIT_STATUS_CONFIG);
 	}
 	else
 	{
