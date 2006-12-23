@@ -136,10 +136,15 @@ void InspIRCd::Start()
 void InspIRCd::Rehash(int status)
 {
 	SI->WriteOpers("Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
-	fclose(SI->Config->log_file);
+	SI->CloseLog();
 	SI->OpenLog(NULL,0);
 	SI->Config->Read(false,NULL);
 	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
+}
+
+void InspIRCd::CloseLog()
+{
+	this->Logger->Close();
 }
 
 void InspIRCd::SetSignals()

@@ -604,6 +604,8 @@ class InspIRCd : public classbase
 	 */
 	void OpenLog(char** argv, int argc);
 
+	void CloseLog();
+
 	/** Convert a user to a pseudoclient, disconnecting the real user
 	 * @param user The user to convert
 	 * @param message The quit message to display when exiting the user
