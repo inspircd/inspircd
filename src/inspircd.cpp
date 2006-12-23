@@ -68,8 +68,28 @@ void InspIRCd::Exit(int status)
 
 void InspIRCd::Restart(const std::string &reason)
 {
+	std::vector<std::string> mymodnames;
+	int MyModCount = ModCount;
+
 	this->SendError(reason);
+
+	this->Log(DEBUG,"Closing listening client sockets...");
+	for (unsigned int i = 0; i < stats->BoundPortCount; i++)
+		/* This calls the constructor and closes the listening socket */
+		delete Config->openSockfd[i];
+
+	/* Unload all modules, so they get a chance to clean up their listeners */
+	for (int j = 0; j < ModCount; j++)
+		mymodnames.push_back(Config->module_names[j]);
+
+	this->Log(DEBUG,"Unloading modules...");
+	for (int k = 0; k < MyModCount; k++)
+		this->UnloadModule(mymodnames[k].c_str());
+
 	std::string me = Config->MyDir + "/inspircd";
+
+	this->Log(DEBUG,"Closing log and calling execv to start new instance of '%s'...", me.c_str());
+
 	this->Logger->Close();
 	if (execv(me.c_str(), Config->argv) == -1)
 	{

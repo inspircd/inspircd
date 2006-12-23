@@ -152,6 +152,9 @@ class ListenSocket : public EventHandler
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
+	/** Close the socket
+	 */
+	~ListenSocket();
 };
 
 #endif

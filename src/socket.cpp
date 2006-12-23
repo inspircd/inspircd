@@ -47,6 +47,16 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client,
 	}
 }
 
+ListenSocket::~ListenSocket()
+{
+	if (this->GetFd() > -1)
+	{
+		shutdown(this->fd, 2);
+		close(this->fd);
+		this->fd = -1;
+	}
+}
+
 void ListenSocket::HandleEvent(EventType et, int errornum)
 {
 	insp_sockaddr sock_us;	// our port number
