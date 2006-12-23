@@ -80,20 +80,20 @@ void InspIRCd::Restart(const std::string &reason)
 		/* This calls the constructor and closes the listening socket */
 		delete Config->openSockfd[i];
 
-	/* We do this twice, so that any service providers get a chance to be
-	 * unhooked by the modules using them, but then get a chance to be
-	 * removed themsleves.
+	/* We do this more than once, so that any service providers get a
+	 * chance to be* unhooked by the modules using them, but then get
+	 * a chance to be removed themsleves.
 	 */
-	for (int tries = 0; tries < 2; tries++)
+	for (int tries = 0; tries < 3; tries++)
 	{
 		MyModCount = this->GetModuleCount();
 		mymodnames.clear();
 
 		/* Unload all modules, so they get a chance to clean up their listeners */
-		for (int j = 0; j < ModCount; j++)
+		for (int j = 0; j <= MyModCount; j++)
 			mymodnames.push_back(Config->module_names[j]);
 
-		for (int k = 0; k < MyModCount; k++)
+		for (int k = 0; k <= MyModCount; k++)
 			this->UnloadModule(mymodnames[k].c_str());
 	}
 

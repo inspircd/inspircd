@@ -328,6 +328,10 @@ std::pair<int,std::string> InspIRCd::GetInterfaceInstanceCount(Module* m)
 const std::string& InspIRCd::GetModuleName(Module* m)
 {
 	static std::string nothing = ""; /* Prevent compiler warning */
+
+	if (!this->GetModuleCount())
+		return nothing;
+
 	for (int i = 0; i <= this->GetModuleCount(); i++)
 	{
 		if (this->modules[i] == m)
