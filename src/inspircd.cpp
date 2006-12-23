@@ -86,6 +86,10 @@ void InspIRCd::Restart(const std::string &reason)
 	for (int k = 0; k < MyModCount; k++)
 		this->UnloadModule(mymodnames[k].c_str());
 
+	this->Log(DEBUG,"Closing client sockets...");
+	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+		(*i)->CloseSocket();
+
 	std::string me = Config->MyDir + "/inspircd";
 
 	this->Log(DEBUG,"Closing log and calling execv to start new instance of '%s'...", me.c_str());
