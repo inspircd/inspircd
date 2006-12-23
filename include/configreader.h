@@ -479,6 +479,10 @@ class ServerConfig : public Extensible
 	 */
 	std::map<std::string,int> maxbans;
 
+	/** Directory where the inspircd binary resides
+	 */
+	std::string MyDir;
+
 	/** If set to true, no user DNS lookups are to be performed
 	 */
 	bool NoUserDns;
@@ -504,6 +508,14 @@ class ServerConfig : public Extensible
 	/** All oper class definitions from the config file
 	 */
 	operclass_t operclass;
+
+	/** Saved argv from startup
+	 */
+	char** argv;
+
+	/** Saved argc from startup
+	 */
+	int argc;
 
 	/** Construct a new ServerConfig
 	 */

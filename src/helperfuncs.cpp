@@ -274,20 +274,24 @@ chanrec* InspIRCd::FindChan(const std::string &chan)
  * sends out an error notice to all connected clients (not to be used
  * lightly!)
  */
-void InspIRCd::SendError(const char *s)
+void InspIRCd::SendError(const std::string &s)
 {
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 	{
-		userrec* t = (userrec*)(*i);
-		if (t->registered == REG_ALL)
+		if ((*i)->registered == REG_ALL)
 		{
-		   	t->WriteServ("NOTICE %s :%s",t->nick,s);
+		   	(*i)->WriteServ("NOTICE %s :%s",(*i)->nick,s.c_str());
 	   	}
 		else
 		{
-			// fix - unregistered connections receive ERROR, not NOTICE
-			t->Write("ERROR :%s",s);
+			/* Unregistered connections receive ERROR, not a NOTICE */
+			(*i)->Write("ERROR :" + s);
 		}
+		/* This might generate a whole load of EAGAIN, but we dont really
+		 * care about this, as if we call SendError something catastrophic
+		 * has occured anyway, and we wont receive the events for these.
+		 */
+		(*i)->FlushWriteBuf();
 	}
 }
 
@@ -423,11 +427,15 @@ bool InspIRCd::IsNick(const char* n)
 
 void InspIRCd::OpenLog(char** argv, int argc)
 {
+	Config->MyDir = ServerConfig::GetFullProgDir(argv,argc);
+	Config->argv = argv;
+	Config->argc = argc;
+
 	if (!*this->LogFileName)
 	{
 		if (Config->logpath == "")
 		{
-			Config->logpath = ServerConfig::GetFullProgDir(argv,argc) + "/ircd.log";
+			Config->logpath = Config->MyDir + "/ircd.log";
 		}
 
 		Config->log_file = fopen(Config->logpath.c_str(),"a+");

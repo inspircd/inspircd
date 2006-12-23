@@ -66,6 +66,18 @@ void InspIRCd::Exit(int status)
 	exit (status);
 }
 
+void InspIRCd::Restart(const std::string &reason)
+{
+	this->SendError(reason);
+	std::string me = Config->MyDir + "/inspircd";
+	this->Logger->Close();
+	if (execv(me.c_str(), Config->argv) == -1)
+	{
+		/* Will raise a SIGABRT if not trapped */
+		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
+	}
+}
+
 void InspIRCd::Start()
 {
 	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);

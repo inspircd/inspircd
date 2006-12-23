@@ -443,7 +443,7 @@ class ModuleZLib : public Module
 	
 	void CloseSession(izip_session* session)
 	{
-		if (session->status = IZIP_OPEN)
+		if (session->status == IZIP_OPEN)
 		{
 			session->status = IZIP_CLOSED;
 			session->outbuf = "";

@@ -696,7 +696,7 @@ class InspIRCd : public classbase
 	/** Send an error notice to all local users, opered and unopered
 	 * @param s The error string to send
 	 */
-	void SendError(const char *s);
+	void SendError(const std::string &s);
 
 	/** For use with Module::Prioritize().
 	 * When the return value of this function is returned from
@@ -1112,6 +1112,14 @@ class InspIRCd : public classbase
 	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const std::string &text);
 
 	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const char* format, ...);
+
+	/** Restart the server.
+	 * This function will not return. If an error occurs,
+	 * it will throw an instance of CoreException.
+	 * @param reason The restart reason to show to all clients
+	 * @throw CoreException An instance of CoreException indicating the error from execv().
+	 */
+	void Restart(const std::string &reason);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
