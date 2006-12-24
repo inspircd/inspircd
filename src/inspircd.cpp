@@ -814,6 +814,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		if ((TIME % 3600) == 0)
 		{
 			irc::whowas::MaintainWhoWas(this, TIME);
+			this->RehashUsersAndChans();
 		}
 		Timers->TickTimers(TIME);
 		this->DoBackgroundUserStuff(TIME);
