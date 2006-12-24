@@ -17,6 +17,7 @@
 #include <dirent.h>
 #include <exception>
 #include <fstream>
+#include <unistd.h>
 #include "modules.h"
 #include "mode.h"
 #include "xline.h"
@@ -27,6 +28,10 @@
 #include "command_parse.h"
 #include "exitcodes.h"
 #include <dlfcn.h>
+
+#ifdef _GNU_SOURCE
+#include <getopt.h>
+#endif
 
 using irc::sockets::NonBlocking;
 using irc::sockets::Blocking;
@@ -259,6 +264,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
+	int do_nofork = 0, do_debug = 0, do_nolog = 0;    /* flag variables */
+	char c = 0;
 
 	modules.resize(255);
 	factory.resize(255);
@@ -287,47 +294,42 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
 		Exit(EXIT_STATUS_CONFIG);
 	}
+
 	*this->LogFileName = 0;
-	if (argc > 1) {
-		for (int i = 1; i < argc; i++)
+
+	struct option longopts[] =
+	{
+		{ "nofork",	no_argument,		&do_nofork,	1	},
+		{ "logfile",	required_argument,	NULL,		'f'	},
+		{ "debug",	no_argument,		&do_debug,	1	},
+		{ "nolog",	no_argument,		&do_nolog,	1	},
+		{ 0, 0, 0, 0 }
+	};
+
+	while ((c = getopt_long_only(argc, argv, ":f:", longopts, NULL)) != -1)
+	{
+		switch (c)
 		{
-			if (!strcmp(argv[i],"-nofork"))
-			{
-				Config->nofork = true;
-			}
-			else if(!strcmp(argv[i],"-debug"))
-			{
-				Config->forcedebug = true;
-			}
-			else if(!strcmp(argv[i],"-nolog"))
-			{
-				Config->writelog = false;
-			}
-			else if (!strcmp(argv[i],"-wait"))
-			{
-				sleep(6);
-			}
-			else if (!strcmp(argv[i],"-logfile"))
-			{
-				if (argc > i+1)
-				{
-					strlcpy(LogFileName,argv[i+1],MAXBUF);
-					printf("LOG: Setting logfile to %s\n",LogFileName);
-				}
-				else
-				{
-					printf("ERROR: The -logfile parameter must be followed by a log file name and path.\n");
-					Exit(EXIT_STATUS_CONFIG);
-				}
-				i++;
-			}
-			else
-			{
-				printf("Usage: %s [-nofork] [-nolog] [-debug] [-wait] [-logfile <filename>]\n",argv[0]);
+			case 'f':
+				/* Log filename was set */
+				strlcpy(LogFileName, optarg, MAXBUF);
+				printf("LOG: Setting logfile to %s\n", LogFileName);
+			break;
+			case 0:
+				/* getopt_long_only() set an int variable, just keep going */
+			break;
+			default:
+				/* Unknown parameter! DANGER, INTRUDER.... err.... yeah. */
+				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
-			}
+			break;
 		}
 	}
+
+	/* Set the finished argument values */
+	Config->nofork = do_nofork;
+	Config->forcedebug = do_debug;
+	Config->writelog = !do_nolog;
 
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 
