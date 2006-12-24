@@ -231,7 +231,8 @@ sub getpidfile {
   my $tmp = join("",@lines);
 
   # Does this file have a pid?
-  if (($tmp =~ /<pid file=\"(\S+)\">/i) && ($tmp !~ /^#/)) {
+  if (($tmp =~ /<pid file=\"(\S+)\">/i) && ($tmp !~ /^#/))
+  {
     # Set the PID file and return.
     $pidfile = $1;
     return;
@@ -240,7 +241,7 @@ sub getpidfile {
   # If we get here, NO PID FILE! -- Check for includes (Seeing as we will eventually return,
   # The while (1) is safe.)
   while (1) {
-    if ($tmp =~ s/\<include file=\"(.+?)\"\>//i)
+    if (($tmp =~ s/\<include file=\"(.+?)\"\>//i) && ($tmp !~ /^#/))
     {
       # Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
       getpidfile($1);
