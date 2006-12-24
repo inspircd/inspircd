@@ -1996,13 +1996,14 @@ void userrec::ShowRULES()
 void userrec::HandleEvent(EventType et, int errornum)
 {
 	/* WARNING: May delete this user! */
+	int thisfd = this->GetFd();
+
 	try
 	{
 		switch (et)
 		{
 			case EVENT_READ:
 				ServerInstance->ProcessUser(this);
-				return;
 			break;
 			case EVENT_WRITE:
 				this->FlushWriteBuf();
@@ -2019,9 +2020,12 @@ void userrec::HandleEvent(EventType et, int errornum)
 	}
 
 	/* If the user has raised an error whilst being processed, quit them now we're safe to */
-	if (!WriteError.empty())
+	if ((ServerInstance->SE->GetRef(thisfd) == this))
 	{
-		userrec::QuitUser(ServerInstance, this, GetWriteError());
+		if (!WriteError.empty())
+		{
+			userrec::QuitUser(ServerInstance, this, GetWriteError());
+		}
 	}
 }
 
