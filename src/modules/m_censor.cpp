@@ -33,17 +33,17 @@ class CensorUser : public ModeHandler
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('G'))
+			if (!dest->IsModeSet('G'))
 			{
-				channel->SetMode('G',true);
+				dest->SetMode('G',true);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (channel->IsModeSet('G'))
+			if (dest->IsModeSet('G'))
 			{
-				channel->SetMode('G',false);
+				dest->SetMode('G',false);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -65,7 +65,7 @@ class CensorChannel : public ModeHandler
 		{
 			if (!channel->IsModeSet('G'))
 			{
-				channel->SetMode('G',false);
+				channel->SetMode('G',true);
 				return MODEACTION_ALLOW;
 			}
 		}
