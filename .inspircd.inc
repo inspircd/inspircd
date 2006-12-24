@@ -222,7 +222,7 @@ sub getpidfile {
   my $tmp = join("",@lines);
 
   # Does this file have a pid?
-  if ($tmp =~ /<pid file=\"(\S+)\">/i) {
+  if (($tmp =~ /<pid file=\"(\S+)\">/i) && ($tmp !~ /^#/)) {
     # Set the PID file and return.
     $pidfile = $1;
     return;
@@ -242,7 +242,8 @@ sub getpidfile {
       }
     } else {
       # End of includes / No includes found.
-      return $confpath . "inspircd.pid";
+      $pidfile = $confpath . "inspircd.pid";
+      return;
     }
   }
 }
