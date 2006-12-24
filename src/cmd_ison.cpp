@@ -24,23 +24,30 @@ extern "C" command_t* init_command(InspIRCd* Instance)
  */
 CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	char retbuf[MAXBUF];
+	std::map<userrec*,userrec*> ison_already;
 	userrec *u;
-
-	snprintf(retbuf, MAXBUF, "303 %s :", user->nick);
+	std::string reply = std::string("303 ") + user->nick + " :";
 
 	for (int i = 0; i < pcnt; i++)
 	{
 		u = ServerInstance->FindNick(parameters[i]);
+		if (ison_already.find(u) != ison_already.end())
+			continue;
 
 		if (u)
 		{
-			strlcat(retbuf, u->nick, MAXBUF);
-			charlcat(retbuf, ' ', MAXBUF);
+			reply.append(u->nick).append(" ");
+			if (reply.length() > 450)
+			{
+				user->WriteServ(reply);
+				reply = std::string("303 ") + user->nick + " :";
+			}
+			ison_already[u] = u;
 		}
 	}
 
-	user->WriteServ(retbuf);
+	if (!reply.empty())
+		user->WriteServ(reply);
 
 	return CMD_SUCCESS;
 }
