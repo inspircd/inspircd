@@ -68,7 +68,7 @@ typedef std::map<irc::string, std::string>                                      
  * NOTE: We do NOT iterate this to display a user's WATCH list!
  * See the comments above!
  */
-watchentries whos_watching_me;
+watchentries* whos_watching_me;
 
 /** Handle /WATCH
  */
@@ -106,8 +106,8 @@ class cmd_watch : public command_t
 				delete wl;
 			}
 
-			watchentries::iterator x = whos_watching_me.find(nick);
-			if (x != whos_watching_me.end())
+			watchentries::iterator x = whos_watching_me->find(nick);
+			if (x != whos_watching_me->end())
 			{
 				/* People are watching this user, am i one of them? */
 				std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
@@ -116,7 +116,7 @@ class cmd_watch : public command_t
 					x->second.erase(n);
 
 				if (!x->second.size())
-					whos_watching_me.erase(nick);
+					whos_watching_me->erase(nick);
 			}
 		}
 
@@ -154,8 +154,8 @@ class cmd_watch : public command_t
 		{
 			ServerInstance->Log(DEBUG,"*** Add to WATCH: '%s'", nick);
 			/* Don't already have the user on my watch list, proceed */
-			watchentries::iterator x = whos_watching_me.find(nick);
-			if (x != whos_watching_me.end())
+			watchentries::iterator x = whos_watching_me->find(nick);
+			if (x != whos_watching_me->end())
 			{
 				/* People are watching this user, add myself */
 				x->second.push_back(user);
@@ -164,7 +164,7 @@ class cmd_watch : public command_t
 			{
 				std::deque<userrec*> newlist;
 				newlist.push_back(user);
-				whos_watching_me[nick] = newlist;
+				(*(whos_watching_me))[nick] = newlist;
 			}
 
 			userrec* target = ServerInstance->FindNick(nick);
@@ -222,8 +222,8 @@ class cmd_watch : public command_t
 					{
 						for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 						{
-							watchentries::iterator x = whos_watching_me.find(i->first);
-							if (x != whos_watching_me.end())
+							watchentries::iterator x = whos_watching_me->find(i->first);
+							if (x != whos_watching_me->end())
 							{
 								/* People are watching this user, am i one of them? */
 								std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
@@ -232,7 +232,7 @@ class cmd_watch : public command_t
 									x->second.erase(n);
 
 								if (!x->second.size())
-									whos_watching_me.erase(user->nick);
+									whos_watching_me->erase(user->nick);
 							}
 						}
 
@@ -269,8 +269,8 @@ class cmd_watch : public command_t
 						you_have = wl->size();
 					}
 
-					watchentries::iterator x = whos_watching_me.find(user->nick);
-					if (x != whos_watching_me.end())
+					watchentries::iterator x = whos_watching_me->find(user->nick);
+					if (x != whos_watching_me->end())
 						youre_on = x->second.size();
 
 					user->WriteServ("603 %s :You have %d and are on %d WATCH entries", user->nick, you_have, youre_on);
@@ -303,20 +303,21 @@ class Modulewatch : public Module
 	Modulewatch(InspIRCd* Me)
 		: Module::Module(Me), maxwatch(32)
 	{
+		whos_watching_me = new watchentries();
 		mycommand = new cmd_watch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
+		List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
 		ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
-		watchentries::iterator x = whos_watching_me.find(user->nick);
-		if (x != whos_watching_me.end())
+		watchentries::iterator x = whos_watching_me->find(user->nick);
+		if (x != whos_watching_me->end())
 		{
 			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
@@ -335,8 +336,8 @@ class Modulewatch : public Module
 			/* Iterate every user on my watch list, and take me out of the whos_watching_me map for each one we're watching */
 			for (watchlist::iterator i = wl->begin(); i != wl->end(); i++)
 			{
-				watchentries::iterator x = whos_watching_me.find(i->first);
-				if (x != whos_watching_me.end())
+				watchentries::iterator x = whos_watching_me->find(i->first);
+				if (x != whos_watching_me->end())
 				{
 						/* People are watching this user, am i one of them? */
 						std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
@@ -345,13 +346,24 @@ class Modulewatch : public Module
 							x->second.erase(n);
 	
 						if (!x->second.size())
-							whos_watching_me.erase(user->nick);
+							whos_watching_me->erase(user->nick);
 				}
 			}
 
 			/* User's quitting, we're done with this. */
 			delete wl;
 		}
+	}
+
+	virtual void OnGarbageCollect()
+	{
+		watchentries* old_watch = whos_watching_me;
+	        whos_watching_me = new watchentries();
+
+		for (watchentries::const_iterator n = old_watch->begin(); n != old_watch->end(); n++)
+			whos_watching_me->insert(*n);
+
+	        delete old_watch;
 	}
 
         virtual void OnCleanup(int target_type, void* item)
@@ -372,8 +384,8 @@ class Modulewatch : public Module
 	virtual void OnPostConnect(userrec* user)
 	{
 		ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
-		watchentries::iterator x = whos_watching_me.find(user->nick);
-		if (x != whos_watching_me.end())
+		watchentries::iterator x = whos_watching_me->find(user->nick);
+		if (x != whos_watching_me->end())
 		{
 			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
@@ -390,10 +402,10 @@ class Modulewatch : public Module
 	{
 		ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
 
-		watchentries::iterator new_online = whos_watching_me.find(user->nick);
-		watchentries::iterator new_offline = whos_watching_me.find(assign(oldnick));
+		watchentries::iterator new_online = whos_watching_me->find(user->nick);
+		watchentries::iterator new_offline = whos_watching_me->find(assign(oldnick));
 
-		if (new_online != whos_watching_me.end())
+		if (new_online != whos_watching_me->end())
 		{
 			for (std::deque<userrec*>::iterator n = new_online->second.begin(); n != new_online->second.end(); n++)
 			{
@@ -406,7 +418,7 @@ class Modulewatch : public Module
 			}
 		}
 
-		if (new_offline != whos_watching_me.end())
+		if (new_offline != whos_watching_me->end())
 		{
 			for (std::deque<userrec*>::iterator n = new_offline->second.begin(); n != new_offline->second.end(); n++)
 			{
@@ -430,6 +442,7 @@ class Modulewatch : public Module
 	
 	virtual ~Modulewatch()
 	{
+		delete whos_watching_me;
 	}
 	
 	virtual Version GetVersion()
