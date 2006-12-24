@@ -38,6 +38,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->CloseLog();
 		ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc);
 		ServerInstance->RehashUsersAndChans();
+		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		ServerInstance->Config->Read(false,user);
 	}
 	if (old_disabled != ServerInstance->Config->DisabledCommands)
