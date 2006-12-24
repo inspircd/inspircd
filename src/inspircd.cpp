@@ -815,6 +815,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		{
 			irc::whowas::MaintainWhoWas(this, TIME);
 			this->RehashUsersAndChans();
+			FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		}
 		Timers->TickTimers(TIME);
 		this->DoBackgroundUserStuff(TIME);
