@@ -118,11 +118,11 @@ class ModuleCensor : public Module
 
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
 	{
-		if ((pattern != "") && (text != ""))
+		if ((!pattern.empty()) && (!text.empty()))
 		{
-			while (text.find(pattern) != irc::string::npos)
+			std::string::size_type pos;
+			while ((pos = text.find(pattern)) != irc::string::npos)
 			{
-				int pos = text.find(pattern);
 				text.erase(pos,pattern.length());
 				text.insert(pos,replace);
 			}
@@ -133,29 +133,24 @@ class ModuleCensor : public Module
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		bool active = false;
+
+		if (target_type == TYPE_USER)
+			active = ((userrec*)dest)->IsModeSet('G');
+		else if (target_type == TYPE_CHANNEL)
+			active = ((chanrec*)dest)->IsModeSet('G');
+
+		if (!active)
+			return 0;
+
 		irc::string text2 = text.c_str();
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
 		{ 
 			if (text2.find(index->first) != irc::string::npos)
 			{
-				if (target_type == TYPE_USER)
-				{
-					userrec* t = (userrec*)dest;
-					active = t->IsModeSet('G');
-				}
-				else if (target_type == TYPE_CHANNEL)
-				{
-					chanrec* t = (chanrec*)dest;
-					active = t->IsModeSet('G');
-				}
-				
-				if (active)
-				{
-					this->ReplaceLine(text2,index->first,index->second);
-					text = text2.c_str();
-				}
+				this->ReplaceLine(text2,index->first,index->second);
 			}
 		}
+		text = text2.c_str();
 		return 0;
 	}
 	
