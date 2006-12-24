@@ -283,7 +283,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->time_delta = 0;
 	this->next_call = this->TIME + 3;
 	srand(this->TIME);
-	this->Log(DEBUG,"*** InspIRCd starting up!");
+
 	if (!ServerConfig::FileExists(CONFIG_FILE))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
