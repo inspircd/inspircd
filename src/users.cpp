@@ -947,12 +947,12 @@ void userrec::AddToWhoWas()
 		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
 		n->push_back(a);
 		ServerInstance->whowas[this->nick] = n;
-		ServerInstance->whowas_fifo[ServerInstance->Time()] = this->nick;
+		ServerInstance->whowas_fifo.push_back(std::make_pair(ServerInstance->Time(),this->nick));
 		if ((int)(ServerInstance->whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
 		{
 			ServerInstance->Log(DEBUG,"Maxgroups of %d reached deleting oldest group '%s'",ServerInstance->Config->WhoWasMaxGroups, ServerInstance->whowas_fifo.begin()->second.c_str());
 			ServerInstance->whowas.erase(ServerInstance->whowas_fifo.begin()->second);
-			ServerInstance->whowas_fifo.erase(ServerInstance->whowas_fifo.begin());
+			ServerInstance->whowas_fifo.pop_front();
 		}
 	}
 	else
