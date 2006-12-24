@@ -30,6 +30,7 @@
 #include <dlfcn.h>
 
 #ifdef _GNU_SOURCE
+/* GNUs smell. */
 #include <getopt.h>
 #endif
 
