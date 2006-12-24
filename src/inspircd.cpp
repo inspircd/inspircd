@@ -28,7 +28,6 @@
 #include "command_parse.h"
 #include "exitcodes.h"
 #include <dlfcn.h>
-/* GNUs smell. */
 #include <getopt.h>
 
 using irc::sockets::NonBlocking;
