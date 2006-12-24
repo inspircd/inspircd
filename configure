@@ -25,7 +25,7 @@ GetOptions (
 	'with-channel-length=i' => \$opt_chan_length,
 	'with-max-channels=i' => \$opt_maxchans,
 	'with-max-oper-channels=i' => \$opt_opermaxchans,
-	'with-max-clients' => \$opt_maxclients,
+	'with-max-clients=i' => \$opt_maxclients,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
 	'disable-epoll' => \$opt_noepoll,
