@@ -47,7 +47,7 @@ if ($arg eq "rehash") {
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
 	        system("kill -HUP $pid >/dev/null 2>&1");
-		print "InspIRCd rehashed.\n";
+		print "InspIRCd rehashed (pid: $pid).\n";
 		exit();
 	} else {
 		print "InspIRCd is not running. (Or PID File not found)\n";
@@ -169,11 +169,13 @@ sub stop {
         if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
         # Get to here, we have something to kill.
         my $pid = getprocessid();
-	print "Stopping InspIRCd...\n";
+	print "Stopping InspIRCd (pid: $pid)...\n";
         system("kill -TERM $pid >/dev/null 2>&1");
+	# Give it a second to exit
+	sleep(1);
 	if (getstatus() == 1)
 	{
-		print "InspIRCd not dying Quietly -- Forcing Kill\n";
+		print "InspIRCd not dying quietly -- forcing kill\n";
 		system("kill -9 $pid >/dev/null 2>&1");
 	}
         print "InspIRCd Stopped.\n";
@@ -183,6 +185,13 @@ sub stop {
 # I beg for months for include support in insp, then.. 
 # when it is added, it comes around and BITES ME IN THE ASS,
 # because i then have to code support into this script.. Evil.
+
+# Craig got bitten in the ass again --
+# in 1.1 beta the include file is manditory, therefore
+# if we cant find it, default to %conf%/inspircd.pid.
+# Note, this also contains a fix for when the pid file is
+# defined, but defined in a comment (line starts with #)
+# -- Brain
 
 sub getpidfile {
   my ($file) = @_;
@@ -208,7 +217,7 @@ sub getpidfile {
   $filesparsed[$filesparsed] = $file;
 
   # Open the File..
-  open INFILE, "< $file" or die "Unable to Open file $file\n";
+  open INFILE, "< $file" or die "Unable to open file $file\n";
   # Grab entire file contents..
   my(@lines) = <INFILE>;
   # Close the file
