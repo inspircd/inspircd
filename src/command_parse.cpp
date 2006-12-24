@@ -422,7 +422,7 @@ bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 		if (RFCCommands.find(f->command) == RFCCommands.end())
 		{
 			RFCCommands[f->command] = so_handle;
-			ServerInstance->Log(DEFAULT,"Monitoring RFC-specified reloadable command at %8x",so_handle);
+			ServerInstance->Log(DEBUG,"Monitoring RFC-specified reloadable command at %8x",so_handle);
 		}
 		else
 		{
@@ -435,7 +435,7 @@ bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 	if (cmdlist.find(f->command) == cmdlist.end())
 	{
 		cmdlist[f->command] = f;
-		ServerInstance->Log(DEBUG,"Added command %s (%lu parameters)",f->command.c_str(),(unsigned long)f->min_params);
+		ServerInstance->Log(DEBUG,"Added command %s (%d parameters)", f->command.c_str(), f->min_params);
 		return true;
 	}
 	else return false;
