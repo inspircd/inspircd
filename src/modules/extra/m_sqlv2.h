@@ -185,18 +185,18 @@ public:
 	
 	/** An overloaded operator for pushing parameters onto the parameter list
 	 */
-	SQLquery& operator,(const std::string &foo)
+	template<typename T> SQLquery& operator,(const T &foo)
 	{
-		p.push_back(foo);
+		p.push_back(ConvToStr(foo));
 		return *this;
 	}
 	
 	/** An overloaded operator for pushing parameters onto the parameter list.
 	 * This has higher precedence than 'operator,' and can save on parenthesis.
 	 */
-	SQLquery& operator%(const std::string &foo)
+	template<typename T> SQLquery& operator%(const T &foo)
 	{
-		p.push_back(foo);
+		p.push_back(ConvToStr(foo));
 		return *this;
 	}
 };
