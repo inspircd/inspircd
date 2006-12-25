@@ -167,7 +167,6 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-
 			rusage R;
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
 			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes, "+ConvToStr(ServerInstance->clientlist->bucket_count())+" buckets)");
@@ -192,8 +191,8 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			}
 
 			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
-			results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->modules.size())+" ("+ConvToStr(ServerInstance->modules.size()*sizeof(Module))+") bytes");
-			results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+") bytes");
+			results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->modules.size())+" ("+ConvToStr(ServerInstance->modules.size()*sizeof(Module))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+" bytes)");
 
 			if (!getrusage(0,&R))	/* RUSAGE_SELF */
 			{
