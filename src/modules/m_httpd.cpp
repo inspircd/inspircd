@@ -92,9 +92,9 @@ class HttpSocket : public InspSocket
 
 	~HttpSocket()
 	{
-		if (Instance->Time() < Timeout->GetTimer())
+		if (Timeout)
 		{
-			if (Timeout)
+			if (Instance->Time() < Timeout->GetTimer())
 				Instance->Timers->DelTimer(Timeout);
 			Timeout = NULL;
 		}
