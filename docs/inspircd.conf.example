@@ -991,10 +991,10 @@
 # percent        - How many percent of text must be caps before text  #
 #                  will be blocked.                                   #
 #                                                                     #
-# minlen         - The minimum length. Shorter lines than minlen will #
-#                  be allowed even though percent is reached.         #
+# minlen         - The minimum length a line must be for the block    #
+#                  percent to have any effect.                        #
 #                                                                     #
-#<blockcaps percent="94" minlen="6">
+#<blockcaps percent="95" minlen="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c

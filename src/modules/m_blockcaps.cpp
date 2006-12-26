@@ -92,7 +92,7 @@ public:
 					if ( (*i >= 'A') && (*i <= 'Z'))
 						caps++;
 				}
-				if ( (caps * 100 / text.size()) > percent )
+				if ( (caps * 100 / text.size()) >= percent )
 				{
 					user->WriteServ( "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
 					return 1;
