@@ -1035,7 +1035,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If ypu specify the m_cloaking.so module as above, you    #
+# Optional - If you specify the m_cloaking.so module as above, you    #
 # must define cloak keys, and optionally a cloak prefix as shown      #
 # below. When using cloaking, the cloak keys are MANDITORY and must   #
 # be included. However, if prefix is not included, it will default    #
