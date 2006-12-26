@@ -985,6 +985,16 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block CAPS module: Blocking all-CAPS messages with cmode +P
 #<module name="m_blockcaps.so">
+#                                                                     #
+#-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# percent        - How many percent of text must be caps before text  #
+#                  will be blocked.                                   #
+#                                                                     #
+# minlen         - The minimum length. Shorter lines than minlen will #
+#                  be allowed even though percent is reached.         #
+#                                                                     #
+#<blockcaps percent="94" minlen="6">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c
