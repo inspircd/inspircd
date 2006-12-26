@@ -27,8 +27,9 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
+	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
-	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = false;
+	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
 	CycleHosts = writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
@@ -39,9 +40,6 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	debugging = 0;
 	LogLevel = DEFAULT;
 	maxbans.clear();
-	WhoWasGroupSize = 10;
-	WhoWasMaxGroups = WhoWasGroupSize * MAXCLIENTS;
-	WhoWasMaxKeep = 3600*24*3; // 3 days
 }
 
 void ServerConfig::ClearStack()
