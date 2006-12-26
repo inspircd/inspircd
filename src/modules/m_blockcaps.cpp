@@ -86,8 +86,7 @@ public:
 			if (c->IsModeSet('P'))
 			{
 				int caps = 0;
-				const char* i = text.c_str();
-				for (; *i; i++)
+				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
 					if ( (*i >= 'A') && (*i <= 'Z'))
 						caps++;
