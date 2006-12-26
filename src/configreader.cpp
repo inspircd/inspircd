@@ -223,15 +223,6 @@ bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, Val
 {
 	if (data.GetInteger() > SOMAXCONN)
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
-	if (!data.GetInteger())
-		data.Set(SOMAXCONN);
-	return true;
-}
-
-bool ValidateDnsTimeout(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
-{
-	if (!data.GetInteger())
-		data.Set(5);
 	return true;
 }
 
@@ -585,8 +576,10 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 
 void ServerConfig::Read(bool bail, userrec* user)
 {
-	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
+	static char debug[MAXBUF];		/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
+	static char softlimit[MAXBUF];	/* Temporary buffer for softlimit default */
+	static char somax[MAXBUF];		/* Temporary buffer for somax default */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 
@@ -595,8 +588,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
-		{"options",	"softlimit",	"",		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
-		{"options",	"somaxconn",	"",		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
+		{"options",	"softlimit",	itoa(MAXCLIENTS, softlimit, 10),		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
+		{"options",	"somaxconn",	itoa(SOMAXCONN, somax, 10),		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
 		{"server",	"name",		"",		new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
 		{"server",	"description",	"",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
 		{"server",	"network",	"",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
@@ -610,11 +603,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"power",	"restartpass",	"",		new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
 		{"options",	"prefixquit",	"",		new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
 		{"options",	"loglevel",	"",		new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
-		{"options",	"netbuffersize","",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
-		{"options",	"maxwho",	"",		new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
+		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
+		{"options",	"maxwho",	"128",		new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
 		{"options",	"allowhalfop",	"",		new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
 		{"dns",		"server",	"",		new ValueContainerChar (this->DNSServer),		DT_CHARPTR, ValidateDnsServer},
-		{"dns",		"timeout",	"",		new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, ValidateDnsTimeout},
+		{"dns",		"timeout",	"5",		new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, NoValidation},
 		{"options",	"moduledir",	"",		new ValueContainerChar (this->ModPath),			DT_CHARPTR, ValidateModPath},
 		{"disabled",	"commands",	"",		new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},
 		{"options",	"userstats",	"",		new ValueContainerChar (this->UserStats),		DT_CHARPTR, NoValidation},
@@ -1314,13 +1307,19 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 				}
 			}
 		}
+		if (!default_value.empty())
+		{
+			result = default_value;
+			ServerInstance->Log(DEBUG, "No config option for '%s' in tag <%s> using default: %s", var.c_str(), tag.c_str(), default_value.c_str());
+			return true;
+		}
 	}
 	else if(pos == 0)
 	{
 		if (!default_value.empty())
 		{
 			result = default_value;
-			ServerInstance->Log(DEBUG, "No <%s> tags in config file using default.", tag.c_str());
+			ServerInstance->Log(DEBUG, "No <%s:%s> tags in config file using default: %s", tag.c_str(), var.c_str(), default_value.c_str());
 			return true;
 		}
 		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
@@ -1329,7 +1328,6 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	{
 		ServerInstance->Log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
-
 	return false;
 }
 	
