@@ -643,16 +643,22 @@ std::string ConfigReader::ReadValue(const std::string &tag, const std::string &n
 	return ReadValue(tag, name, "", index, allow_linefeeds);
 }
 
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
+bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
 {
-	return ServerInstance->Config->ConfValueBool(*this->data, tag, name, index);
+	return ServerInstance->Config->ConfValueBool(*this->data, tag, name, default_value, index);
 }
 
-long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
+bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
+{
+	return ReadFlag(tag, name, "", index);
+}
+
+
+long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool needs_unsigned)
 {
 	int result;
 	
-	if(!ServerInstance->Config->ConfValueInteger(*this->data, tag, name, index, result))
+	if(!ServerInstance->Config->ConfValueInteger(*this->data, tag, name, default_value, index, result))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
 		return 0;
@@ -665,6 +671,11 @@ long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, 
 	}
 	
 	return result;
+}
+
+long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
+{
+	return ReadInteger(tag, name, "", index, needs_unsigned);
 }
 
 long ConfigReader::GetError()

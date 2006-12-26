@@ -152,6 +152,7 @@ struct MultiConfig
 {
 	const char*	tag;
 	char*		items[12];
+	char*		items_default[12];
 	int		datatype[12];
 	MultiNotify	init_function;
 	MultiValidator	validation_function;
@@ -581,16 +582,20 @@ class ServerConfig : public Extensible
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result);
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
+	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
 	
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index);
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
+	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index);
 	
 	/** Returns the number of occurences of tag in the config file
 	 */

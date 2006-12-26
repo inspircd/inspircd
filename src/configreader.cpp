@@ -643,52 +643,62 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
 				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	NULL},
+				{"", "", "", "", "", "", "", "", "", "", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",
 				{"server",	NULL},
+				{"", NULL},
 				{DT_CHARPTR},
 				InitULine,DoULine,DoneULine},
 
 		{"banlist",
 				{"chan",	"limit",	NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_INTEGER},
 				InitMaxBans, DoMaxBans, DoneMaxBans},
 
 		{"module",
 				{"name",	NULL},
+				{"", NULL},
 				{DT_CHARPTR},
 				InitModule, DoModule, DoneModule},
 
 		{"badip",
 				{"reason",	"ipmask",	NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoZLine, DoneXLine},
 
 		{"badnick",
 				{"reason",	"nick",		NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoQLine, DoneXLine},
 
 		{"badhost",
 				{"reason",	"host",		NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoKLine, DoneXLine},
 
 		{"exception",
 				{"reason",	"host",		NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitXLine, DoELine, DoneXLine},
 
 		{"type",
 				{"name",	"classes",	NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitTypes, DoType, DoneClassesAndTypes},
 
 		{"class",
 				{"name",	"commands",	NULL},
+				{"", "", NULL},
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
 
@@ -791,7 +801,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 						case DT_CHARPTR:
 						{
 							char item[MAXBUF];
-							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item, MAXBUF, allow_newlines))
+							if (ConfValue(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item, MAXBUF, allow_newlines))
 								vl.push_back(ValueItem(item));
 							else
 								vl.push_back(ValueItem(""));
@@ -800,7 +810,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 						case DT_INTEGER:
 						{
 							int item = 0;
-							if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum, item))
+							if (ConfValueInteger(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum, item))
 								vl.push_back(ValueItem(item));
 							else
 								vl.push_back(ValueItem(0));
@@ -808,7 +818,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 						break;
 						case DT_BOOLEAN:
 						{
-							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], tagnum);
+							bool item = ConfValueBool(this->config_data, MultiValues[Index].tag, MultiValues[Index].items[valuenum], MultiValues[Index].items_default[valuenum], tagnum);
 							vl.push_back(ValueItem(item));
 						}
 						break;
@@ -1325,29 +1335,50 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	
 bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result)
 {
-	return ConfValueInteger(target, std::string(tag), std::string(var), index, result);
+	return ConfValueInteger(target, std::string(tag), std::string(var), "", index, result);
+}
+
+bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result)
+{
+	return ConfValueInteger(target, std::string(tag), std::string(var), std::string(default_value), index, result);
 }
 
 bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result)
 {
+	return ConfValueInteger(target, tag, var, "", index, result);
+}
+
+bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result)
+{
 	std::string value;
 	std::istringstream stream;
-	bool r = ConfValue(target, tag, var, index, value);
+	bool r = ConfValue(target, tag, var, default_value, index, value);
 	stream.str(value);
 	if(!(stream >> result))
 		return false;
 	return r;
 }
+
 	
 bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index)
 {
-	return ConfValueBool(target, std::string(tag), std::string(var), index);
+	return ConfValueBool(target, std::string(tag), std::string(var), "", index);
+}
+
+bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index)
+{
+	return ConfValueBool(target, std::string(tag), std::string(var), std::string(default_value), index);
 }
 
 bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index)
 {
+	return ConfValueBool(target, tag, var, "", index);
+}
+
+bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index)
+{
 	std::string result;
-	if(!ConfValue(target, tag, var, index, result))
+	if(!ConfValue(target, tag, var, default_value, index, result))
 		return false;
 	
 	return ((result == "yes") || (result == "true") || (result == "1"));

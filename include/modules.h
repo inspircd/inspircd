@@ -1397,21 +1397,30 @@ class ConfigReader : public classbase
 
 	/** Retrieves a value from the config file.
 	 * This method retrieves a value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve.
+	 */
+	std::string ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds = false);
+	/** Retrieves a value from the config file.
+	 * This method retrieves a value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. If the
 	 * tag is not found the default value is returned instead.
 	 */
 	std::string ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds = false);
-	/** Retrieves a value from the config file.
-	 * This method retrieves a value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve.
-	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds = false);
+
 	/** Retrieves a boolean value from the config file.
 	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
 	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
 	 */
 	bool ReadFlag(const std::string &tag, const std::string &name, int index);
+	/** Retrieves a boolean value from the config file.
+	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
+	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
+	 * If the tag is not found, the default value is used instead.
+	 */
+	bool ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index);
+
 	/** Retrieves an integer value from the config file.
 	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
@@ -1421,6 +1430,16 @@ class ConfigReader : public classbase
 	 * will return CONF_NOT_UNSIGNED
 	 */
 	long ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned);
+	/** Retrieves an integer value from the config file.
+	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
+	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
+	 * return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned.
+	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
+	 * will return CONF_NOT_UNSIGNED. If the tag is not found, the default value is used instead.
+	 */
+	long ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool needs_unsigned);
+
 	/** Returns the last error to occur.
 	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
 	 * A call to GetError() resets the error flag back to 0.
