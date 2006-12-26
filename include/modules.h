@@ -1394,6 +1394,13 @@ class ConfigReader : public classbase
 	 * This method destroys the ConfigReader class.
 	 */
 	~ConfigReader();
+
+	/** Retrieves a value from the config file.
+	 * This method retrieves a value from the config file. Where multiple copies of the tag
+	 * exist in the config file, index indicates which of the values to retrieve. If the
+	 * tag is not found the default value is returned instead.
+	 */
+	std::string ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds = false);
 	/** Retrieves a value from the config file.
 	 * This method retrieves a value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve.

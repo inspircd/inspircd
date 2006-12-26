@@ -139,6 +139,7 @@ struct InitialConfig
 {
 	char* tag;
 	char* value;
+	char* default_value;
 	ValueContainerBase* val;
 	ConfigDataType datatype;
 	Validator validation_function;
@@ -570,9 +571,12 @@ class ServerConfig : public Extensible
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
+	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
+
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
+	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
 	
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */

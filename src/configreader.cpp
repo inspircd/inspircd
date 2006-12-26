@@ -597,43 +597,43 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 	/* These tags can occur ONCE or not at all */
 	InitialConfig Values[] = {
-		{"options",		"softlimit",			new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
-		{"options",		"somaxconn",			new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
-		{"server",		"name",				new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
-		{"server",		"description",			new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
-		{"server",		"network",			new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
-		{"admin",		"name",				new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
-		{"admin",		"email",			new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
-		{"admin",		"nick",				new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
-		{"files",		"motd",				new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
-		{"files",		"rules",			new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
-		{"power",		"diepass",			new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},	
-		{"power",		"pause",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
-		{"power",		"restartpass",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
-		{"options",		"prefixquit",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
-		{"options",		"loglevel",			new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
-		{"options",		"netbuffersize",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
-		{"options",		"maxwho",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
-		{"options",		"allowhalfop",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
-		{"dns",			"server",			new ValueContainerChar (this->DNSServer),		DT_CHARPTR, ValidateDnsServer},
-		{"dns",			"timeout",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, ValidateDnsTimeout},
-		{"options",		"moduledir",			new ValueContainerChar (this->ModPath),			DT_CHARPTR, ValidateModPath},
-		{"disabled",		"commands",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},
-		{"options",		"userstats",			new ValueContainerChar (this->UserStats),		DT_CHARPTR, NoValidation},
-		{"options",		"customversion",		new ValueContainerChar (this->CustomVersion),		DT_CHARPTR, NoValidation},
-		{"options",		"hidesplits",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN, NoValidation},
-		{"options",		"hidebans",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
-		{"options",		"hidewhois",			new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
-		{"options",		"operspywhois",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
-		{"options",		"nouserdns",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
-		{"options",		"syntaxhints",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
-		{"options",		"cyclehosts",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
-		{"options",		"ircumsgprefix",		new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
-		{"pid",			"file",				new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
-		{"whowas",		"groupsize",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
-		{"whowas",		"maxgroups",			new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
-		{"whowas",		"maxkeep",			new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
-		{"die",			"value",			new ValueContainerChar (this->DieValue),		DT_CHARPTR, NoValidation},
+		{"options",	"softlimit",	"",		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
+		{"options",	"somaxconn",	"",		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
+		{"server",	"name",		"",		new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
+		{"server",	"description",	"",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
+		{"server",	"network",	"",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
+		{"admin",	"name",		"",		new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
+		{"admin",	"email",	"",		new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
+		{"admin",	"nick",		"",		new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
+		{"files",	"motd",		"",		new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
+		{"files",	"rules",	"",		new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
+		{"power",	"diepass",	"",		new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},	
+		{"power",	"pause",	"",		new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
+		{"power",	"restartpass",	"",		new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
+		{"options",	"prefixquit",	"",		new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
+		{"options",	"loglevel",	"",		new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
+		{"options",	"netbuffersize","",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
+		{"options",	"maxwho",	"",		new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
+		{"options",	"allowhalfop",	"",		new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
+		{"dns",		"server",	"",		new ValueContainerChar (this->DNSServer),		DT_CHARPTR, ValidateDnsServer},
+		{"dns",		"timeout",	"",		new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, ValidateDnsTimeout},
+		{"options",	"moduledir",	"",		new ValueContainerChar (this->ModPath),			DT_CHARPTR, ValidateModPath},
+		{"disabled",	"commands",	"",		new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},
+		{"options",	"userstats",	"",		new ValueContainerChar (this->UserStats),		DT_CHARPTR, NoValidation},
+		{"options",	"customversion","",		new ValueContainerChar (this->CustomVersion),		DT_CHARPTR, NoValidation},
+		{"options",	"hidesplits",	"",		new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN, NoValidation},
+		{"options",	"hidebans",	"",		new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
+		{"options",	"hidewhois",	"",		new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
+		{"options",	"operspywhois",	"",		new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
+		{"options",	"nouserdns",	"",		new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
+		{"options",	"syntaxhints",	"",		new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
+		{"options",	"cyclehosts",	"",		new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
+		{"options",	"ircumsgprefix","0",		new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
+		{"pid",		"file",		"",		new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
+		{"whowas",	"groupsize",	"10",		new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
+		{"whowas",	"maxgroups",	"10240",	new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
+		{"whowas",	"maxkeep",	"3600",		new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
+		{"die",		"value",	"",		new ValueContainerChar (this->DieValue),		DT_CHARPTR, NoValidation},
 		{NULL}
 	};
 
@@ -733,7 +733,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 			bool allow_newlines =  ((dt & DT_ALLOW_NEWLINE) > 0);
 			dt &= ~DT_ALLOW_NEWLINE;
 
-			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, 0, item, MAXBUF, allow_newlines);
+			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
 
 			Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi);
@@ -1262,13 +1262,23 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 
 bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds)
 {
+	return ConfValue(target, tag, var, "", index, result, length, allow_linefeeds);
+}
+
+bool ServerConfig::ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds)
+{
 	std::string value;
-	bool r = ConfValue(target, std::string(tag), std::string(var), index, value, allow_linefeeds);
+	bool r = ConfValue(target, std::string(tag), std::string(var), std::string(default_value), index, value, allow_linefeeds);
 	strlcpy(result, value.c_str(), length);
 	return r;
 }
 
 bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds)
+{
+	return ConfValue(target, tag, var, "", index, result, allow_linefeeds);
+}
+
+bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds)
 {
 	ConfigDataHash::size_type pos = index;
 	if((pos >= 0) && (pos < target.count(tag)))
@@ -1299,6 +1309,12 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	}
 	else if(pos == 0)
 	{
+		if (!default_value.empty())
+		{
+			result = default_value;
+			ServerInstance->Log(DEBUG, "No <%s> tags in config file using default.", tag.c_str());
+			return true;
+		}
 		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
 	}
 	else

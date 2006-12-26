@@ -625,18 +625,22 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 		this->error = CONF_FILE_NOT_FOUND;
 };
 
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
+
+std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
 {
 	/* Don't need to strlcpy() tag and name anymore, ReadConf() takes const char* */ 
 	std::string result;
 	
-	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, index, result, allow_linefeeds))
+	if (!ServerInstance->Config->ConfValue(*this->data, tag, name, default_value, index, result, allow_linefeeds))
 	{
 		this->error = CONF_VALUE_NOT_FOUND;
-		return "";
 	}
-	
 	return result;
+}
+
+std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
+{
+	return ReadValue(tag, name, "", index, allow_linefeeds);
 }
 
 bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
