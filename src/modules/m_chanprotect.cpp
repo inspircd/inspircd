@@ -163,7 +163,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool depriv_self)
+	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool &depriv_self)
 		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0),
 		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self) { }
 
@@ -221,7 +221,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool depriv_self)
+	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool &depriv_self)
 		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0),
 		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self) { }
 
