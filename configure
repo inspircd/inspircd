@@ -14,6 +14,7 @@
 
 
 require 5.6.0;
+use Socket;
 use Cwd;
 use Getopt::Long;
 
@@ -209,6 +210,7 @@ $config{STATIC_LINK}	    = "no";						# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
+$config{_SOMAXCONN} = SOMAXCONN;						# Max connections in accept queue
 $config{OSNAME}       	    = $^O;                              		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
 if (defined $opt_cc)
@@ -1191,6 +1193,7 @@ sub writefiles {
 #define REVISION "$revision2"
 #define MAXCLIENTS $config{MAX_CLIENT}
 #define MAXCLIENTS_S "$config{MAX_CLIENT}"
+#define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
 #define NICKMAX $NL
 #define CHANMAX $CL
