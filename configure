@@ -1190,6 +1190,7 @@ sub writefiles {
 #define VERSION "$version"
 #define REVISION "$revision2"
 #define MAXCLIENTS $config{MAX_CLIENT}
+#define MAXCLIENTS_S "$config{MAX_CLIENT}"
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
 #define NICKMAX $NL
 #define CHANMAX $CL
