@@ -211,7 +211,7 @@
 #   You should also include a flood="x" line which indicates          #
 #   the number of lines a user may place into their buffer at once    #
 #   before they are disconnected for excess flood. This feature can   #
-#   not be disabled, however it can be set to exremely high values,   #
+#   not be disabled, however it can be set to extremely high values,  #
 #   rendering it effectively disabled. A recommended value is 10.     #
 #   A counter is maintained for each user which is reset every        #
 #   'threshold' seconds and specifying this threshold value with      #
@@ -231,7 +231,7 @@
 #   The optional recvq value is the maximum size which users in this  #
 #   group may grow their receive queue to. This is recommended to be  #
 #   kept pretty low compared to the sendq, as users will always       #
-#   recieve more than they send in normal circumstances. The default  #
+#   receive more than they send in normal circumstances. The default  #
 #   if not specified is 4096.                                         #
 #                                                                     #
 #   IMPORTANT NOTE, CALL THE CONFUSION POLICE!                        #
@@ -308,7 +308,7 @@
 #               what commands. Class names are case sensitive,        #
 #               seperate multiple class names with spaces.            #
 #                                                                     #
-#  host       - optional hostmask operators will recieve on oper-up.  #
+#  host       - optional hostmask operators will receive on oper-up.  #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
