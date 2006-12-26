@@ -363,7 +363,7 @@
 #                is not loaded, this configuration option has no      #
 #                effect and will be ignored.                          #
 #                                                                     #
-#  type        - Sefines the kind of operator. This must match a type #
+#  type        - Defines the kind of operator. This must match a type #
 #                tag you defined above, and is case sensitive.        #
 #                                                                     #
 #  Syntax is as follows:                                              #
