@@ -184,6 +184,7 @@ class ModuleDNSBL : public Module
 	
 	virtual ~ModuleDNSBL()
 	{
+		ClearEntries();
 	}
 	
 	virtual Version GetVersion()
@@ -196,13 +197,26 @@ class ModuleDNSBL : public Module
 		List[I_OnRehash] = List[I_OnUserRegister] = 1;
 	}
 
+
+	void ClearEntries()
+	{
+		std::vector<DNSBLConfEntry *>::iterator i, safei;
+		while ((i = DNSBLConfEntries.begin()) != DNSBLConfEntries.end())
+		{
+			DNSBLConfEntries.erase(i);
+			delete *i;
+		}
+		
+	}
+
+
 	/*
 	 * Fill our conf vector with data
 	 */	
 	virtual void ReadConf()
 	{
 		ConfigReader *MyConf = new ConfigReader(ServerInstance);
-		DNSBLConfEntries.clear();
+		ClearEntries();
 
 		for (int i=0; i< MyConf->Enumerate("dnsbl"); i++)
 		{
