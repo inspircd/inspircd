@@ -1157,6 +1157,14 @@
 #<module name="m_devoice.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# DNS Blacklist Module: Provides support for looking up IPs on one or #
+# more blacklists.                                                    #
+#<module name="m_dnsbl.so">                                           #
+#                                                                     #
+# For configuration options please see the wiki page for m_dnsbl at   #
+# http://inspircd.org/wiki/DNS_Blacklist_Module                       #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Filter module: Provides glob-based message filtering
 #<module name="m_filter.so">
 # OR
