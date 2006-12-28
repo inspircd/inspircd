@@ -200,7 +200,7 @@ class ModuleDNSBL : public Module
 
 	void ClearEntries()
 	{
-		std::vector<DNSBLConfEntry *>::iterator i, safei;
+		std::vector<DNSBLConfEntry *>::iterator i;
 		while ((i = DNSBLConfEntries.begin()) != DNSBLConfEntries.end())
 		{
 			DNSBLConfEntries.erase(i);
