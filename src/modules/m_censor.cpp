@@ -99,8 +99,8 @@ class ModuleCensor : public Module
 		OnRehash("");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
-		ServerInstance->AddMode(cu, 'G');
-		ServerInstance->AddMode(cc, 'G');
+		if (!ServerInstance->AddMode(cu, 'G') || !ServerInstance->AddMode(cc, 'G'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

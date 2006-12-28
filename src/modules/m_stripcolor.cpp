@@ -99,8 +99,8 @@ class ModuleStripColor : public Module
 		usc = new UserStripColor(ServerInstance);
 		csc = new ChannelStripColor(ServerInstance);
 
-		ServerInstance->AddMode(usc, 'S');
-		ServerInstance->AddMode(csc, 'S');
+		if (!ServerInstance->AddMode(usc, 'S') || !ServerInstance->AddMode(csc, 'S'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

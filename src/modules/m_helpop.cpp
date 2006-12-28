@@ -118,7 +118,8 @@ class ModuleHelpop : public Module
 		{
 			ReadConfig();
 			ho = new Helpop(ServerInstance);
-			ServerInstance->AddMode(ho, 'h');
+			if (!ServerInstance->AddMode(ho, 'h'))
+				throw ModuleException("Could not add new modes!");
 			mycommand = new cmd_helpop(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}

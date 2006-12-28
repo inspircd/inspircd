@@ -65,7 +65,8 @@ class ModuleBotMode : public Module
 	{
 		
 		bm = new BotMode(ServerInstance);
-		ServerInstance->AddMode(bm, 'B');
+		if (!ServerInstance->AddMode(bm, 'B'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

@@ -61,7 +61,8 @@ class ModuleNoKicks : public Module
 	{
 		
 		nk = new NoKicks(ServerInstance);
-		ServerInstance->AddMode(nk, 'Q');
+		if (!ServerInstance->AddMode(nk, 'Q'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

@@ -49,7 +49,8 @@ public:
 	ModuleInviteException(InspIRCd* Me) : Module(Me)
 	{
 		ie = new InviteException(ServerInstance);
-		ServerInstance->AddMode(ie, 'I');
+		if (!ServerInstance->AddMode(ie, 'I'))
+			throw ModuleException("Could not add new modes!");
 	}
 	
 	virtual void Implements(char* List)

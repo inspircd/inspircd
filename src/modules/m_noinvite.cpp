@@ -54,7 +54,8 @@ class ModuleNoInvite : public Module
 	ModuleNoInvite(InspIRCd* Me) : Module::Module(Me)
 	{
 		ni = new NoInvite(ServerInstance);
-		ServerInstance->AddMode(ni, 'V');
+		if (!ServerInstance->AddMode(ni, 'V'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

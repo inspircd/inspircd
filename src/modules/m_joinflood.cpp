@@ -223,7 +223,8 @@ class ModuleJoinFlood : public Module
 	{
 		
 		jf = new JoinFlood(ServerInstance);
-		ServerInstance->AddMode(jf, 'j');
+		if (!ServerInstance->AddMode(jf, 'j'))
+			throw ModuleException("Could not add new modes!");
 	}
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)

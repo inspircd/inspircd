@@ -62,7 +62,8 @@ class ModuleHideOper : public Module
 	{
 		
 		hm = new HideOper(ServerInstance);
-		ServerInstance->AddMode(hm, 'H');
+		if (!ServerInstance->AddMode(hm, 'H'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

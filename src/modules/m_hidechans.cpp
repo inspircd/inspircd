@@ -62,7 +62,8 @@ class ModuleHideChans : public Module
 	{
 		
 		hm = new HideChans(ServerInstance);
-		ServerInstance->AddMode(hm, 'I');
+		if (!ServerInstance->AddMode(hm, 'I'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

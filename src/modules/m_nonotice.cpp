@@ -57,7 +57,8 @@ class ModuleNoNotice : public Module
 	{
 		
 		nt = new NoNotice(ServerInstance);
-		ServerInstance->AddMode(nt, 'T');
+		if (!ServerInstance->AddMode(nt, 'T'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

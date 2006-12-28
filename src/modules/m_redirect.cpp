@@ -108,7 +108,8 @@ class ModuleRedirect : public Module
 	{
 		
 		re = new Redirect(ServerInstance);
-		ServerInstance->AddMode(re, 'L');
+		if (!ServerInstance->AddMode(re, 'L'))
+			throw ModuleException("Could not add new modes!");
 	}
 	
 	void Implements(char* List)

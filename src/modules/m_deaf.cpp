@@ -55,7 +55,8 @@ class ModuleDeaf : public Module
 		: Module::Module(Me)
 	{
 		m1 = new User_d(ServerInstance);
-		ServerInstance->AddMode(m1, 'd');
+		if (!ServerInstance->AddMode(m1, 'd'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

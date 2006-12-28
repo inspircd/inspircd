@@ -57,7 +57,8 @@ class ModuleOperChans : public Module
 	{
 				
 		oc = new OperChans(ServerInstance);
-		ServerInstance->AddMode(oc, 'O');
+		if (!ServerInstance->AddMode(oc, 'O'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)

@@ -70,7 +70,8 @@ class ModuleChanFilter : public Module
 		: Module::Module(Me)
 	{
 		cf = new ChanFilter(ServerInstance);
-		ServerInstance->AddMode(cf, 'g');
+		if (!ServerInstance->AddMode(cf, 'g'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List) 

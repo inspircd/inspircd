@@ -200,7 +200,8 @@ class ModuleMsgFlood : public Module
 	{
 		
 		mf = new MsgFlood(ServerInstance);
-		ServerInstance->AddMode(mf, 'f');
+		if (!ServerInstance->AddMode(mf, 'f'))
+			throw ModuleException("Could not add new modes!");
 	}
 	
 	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)

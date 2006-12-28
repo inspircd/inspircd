@@ -135,7 +135,8 @@ public:
 	{
 		
 		kr = new KickRejoin(ServerInstance);
-		ServerInstance->AddMode(kr, 'J');
+		if (!ServerInstance->AddMode(kr, 'J'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)

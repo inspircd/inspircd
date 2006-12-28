@@ -185,11 +185,13 @@ class ModuleServices : public Module
 		m3 = new Channel_M(ServerInstance);
 		m4 = new User_r(ServerInstance);
 		m5 = new User_R(ServerInstance);
-		ServerInstance->AddMode(m1, 'r');
-		ServerInstance->AddMode(m2, 'R');
-		ServerInstance->AddMode(m3, 'M');
-		ServerInstance->AddMode(m4, 'r');
-		ServerInstance->AddMode(m5, 'R');
+
+		if (!ServerInstance->AddMode(m1, 'r') || !ServerInstance->AddMode(m2, 'R') || !ServerInstance->AddMode(m3, 'M')
+			|| !ServerInstance->AddMode(m4, 'r') || !ServerInstance->AddMode(m5, 'R'))
+		{
+			throw ModuleException("Could not add user and channel modes!");
+		}
+	
 		kludgeme = false;
 	}
 

@@ -52,7 +52,8 @@ public:
 	: Module::Module(Me)
 	{
 		be = new BanException(ServerInstance);
-		ServerInstance->AddMode(be, 'e');
+		if (!ServerInstance->AddMode(be, 'e'))
+			throw ModuleException("Could not add new modes!");
 	}
 	
 	virtual void Implements(char* List)

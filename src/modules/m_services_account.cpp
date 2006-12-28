@@ -122,9 +122,8 @@ class ModuleServicesAccount : public Module
 		m1 = new AChannel_R(ServerInstance);
 		m2 = new AChannel_M(ServerInstance);
 		m3 = new AUser_R(ServerInstance);
-		ServerInstance->AddMode(m1, 'R');
-		ServerInstance->AddMode(m2, 'M');
-		ServerInstance->AddMode(m3, 'R');
+		if (!ServerInstance->AddMode(m1, 'R') || !ServerInstance->AddMode(m2, 'M') || !ServerInstance->AddMode(m3, 'R'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

@@ -60,7 +60,8 @@ class ModuleBlockColour : public Module
 	{
 		
 		bc = new BlockColor(ServerInstance);
-		ServerInstance->AddMode(bc, 'c');
+		if (!ServerInstance->AddMode(bc, 'c'))
+			throw ModuleException("Could not add new modes!");
 	}
 
 	void Implements(char* List)
