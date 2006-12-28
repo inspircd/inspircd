@@ -38,7 +38,7 @@ public:
 class cmd_unlockserv : public command_t
 {
 private:
-        bool& locked;
+	bool& locked;
 
 public:
 	cmd_unlockserv (InspIRCd* Instance, bool &lock)
@@ -81,9 +81,9 @@ public:
 		ServerInstance->AddCommand(unlockcommand);
 	}
 
-    virtual ~ModuleLockserv()
-    {
-    }
+	virtual ~ModuleLockserv()
+	{
+	}
 
 	void Implements(char* List)
 	{
@@ -96,7 +96,7 @@ public:
 	}
 
 	virtual int OnUserRegister(userrec* user)
-    {
+	{
 		if (locked)
 		{
 			userrec::QuitUser(ServerInstance, user, "Server is temporarily closed. Please try again later.");
@@ -112,7 +112,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version(1,0,0,1,0, API_VERSION);
+		return Version(1, 0, 0, 1, VF_VENDOR, API_VERSION);
 	}
 };
 
