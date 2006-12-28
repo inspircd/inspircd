@@ -12,7 +12,6 @@
  */
 
 #include <string>
-
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
@@ -28,6 +27,7 @@ class ModuleSQLAuth : public Module
 {
 	InspIRCd* Srv;
 	Module* SQLutils;
+	Module* SQLprovider;
 
 	std::string usertable;
 	std::string userfield;
@@ -43,19 +43,20 @@ public:
 	ModuleSQLAuth(InspIRCd* Me)
 	: Module::Module(Me), Srv(Me)
 	{
-		SQLutils = Srv->FindFeature("SQLutils");
-		
-		if(SQLutils)
-		{
-			ServerInstance->Log(DEBUG, "Successfully got SQLutils pointer");
-		}
-		else
-		{
-			ServerInstance->Log(DEFAULT, "ERROR: This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
-			throw ModuleException("This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
-		}
-				
+		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->UseInterface("SQL");
+
+		SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		if (!SQLutils)
+			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
+
 		OnRehash("");
+	}
+
+	virtual ~ModuleSQLAuth()
+	{
+		ServerInstance->DoneWithInterface("SQL");
+		ServerInstance->DoneWithInterface("SQLutils");
 	}
 
 	void Implements(char* List)
@@ -210,10 +211,6 @@ public:
 		return user->GetExt("sqlauthed");
 	}
 
-	virtual ~ModuleSQLAuth()
-	{
-	}
-	
 	virtual Version GetVersion()
 	{
 		return Version(1,1,1,0,VF_VENDOR,API_VERSION);

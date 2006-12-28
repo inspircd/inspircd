@@ -518,14 +518,29 @@ public:
 	ModulePgSQL(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
-		ServerInstance->Log(DEBUG, "%s 'SQL' feature", ServerInstance->PublishFeature("SQL", this) ? "Published" : "Couldn't publish");
-		
+		ServerInstance->UseInterface("SQLutils");
+
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
 		
 		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS)+1);
 
+		if (!ServerInstance->PublishFeature("SQL", this))
+		{
+			throw ModuleException("m_pgsql: Unable to publish feature 'SQL'");
+		}
+
 		OnRehash("");
+
+		ServerInstance->PublishInterface("SQL", this);
 	}
+
+	virtual ~ModulePgSQL()
+	{
+		DELETE(sqlsuccess);
+		ServerInstance->UnpublishInterface("SQL", this);
+		ServerInstance->DoneWithInterface("SQLutils");
+	}	
+
 
 	void Implements(char* List)
 	{
@@ -658,11 +673,7 @@ public:
 	{
 		return Version(1, 1, 0, 0, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
-	
-	virtual ~ModulePgSQL()
-	{
-		DELETE(sqlsuccess);
-	}	
+
 };
 
 SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hi)

@@ -35,19 +35,25 @@ public:
 	ModuleSQLOper(InspIRCd* Me)
 	: Module::Module(Me), Srv(Me)
 	{
-		SQLutils = Srv->FindFeature("SQLutils");
-		
-		if (SQLutils)
-		{
-			ServerInstance->Log(DEBUG, "Successfully got SQLutils pointer");
-		}
-		else
-		{
-			ServerInstance->Log(DEFAULT, "ERROR: This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
-			throw ModuleException("This module requires a module offering the 'SQLutils' feature (usually m_sqlutils.so). Please load it and try again.");
-		}
-		
+		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->UseInterface("SQL");
+
+		SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		if (!SQLutils)
+			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
+
 		OnRehash("");
+	}
+
+	virtual ~ModuleSQLOper()
+	{
+		ServerInstance->DoneWithInterface("SQL");
+		ServerInstance->DoneWithInterface("SQLutils");
+	}
+
+	void Implements(char* List)
+	{
+		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
 	virtual void OnRehash(const std::string &parameter)
@@ -55,11 +61,6 @@ public:
 		ConfigReader Conf(Srv);
 		
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
-	}
-
-	void Implements(char* List)
-	{
-		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -272,10 +273,6 @@ public:
 		return false;
 	}
 
-	virtual ~ModuleSQLOper()
-	{
-	}
-	
 	virtual Version GetVersion()
 	{
 		return Version(1,1,1,0,VF_VENDOR,API_VERSION);

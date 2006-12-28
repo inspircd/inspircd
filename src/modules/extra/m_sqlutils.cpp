@@ -35,8 +35,6 @@ typedef std::list<unsigned long> AssocIdList;
 class ModuleSQLutils : public Module
 {
 private:
-	
-
 	IdUserMap iduser;
 	IdChanMap idchan;
 
@@ -44,8 +42,13 @@ public:
 	ModuleSQLutils(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		ServerInstance->Log(DEBUG, "%s 'SQLutils' feature", ServerInstance->PublishFeature("SQLutils", this) ? "Published" : "Couldn't publish");
+		ServerInstance->PublishInterface("SQLutils", this);
 	}
+
+	virtual ~ModuleSQLutils()
+	{
+		ServerInstance->UnpublishInterface("SQLutils", this);
+	}	
 
 	void Implements(char* List)
 	{
@@ -263,12 +266,9 @@ public:
 			
 	virtual Version GetVersion()
 	{
-		return Version(1, 1, 0, 0, VF_STATIC|VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
+		return Version(1, 1, 0, 0, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
 	}
 	
-	virtual ~ModuleSQLutils()
-	{
-	}	
 };
 
 class ModuleSQLutilsFactory : public ModuleFactory

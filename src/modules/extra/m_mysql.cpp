@@ -725,6 +725,47 @@ class ModuleSQL : public Module
 	pthread_t Dispatcher;
 	int currid;
 
+	ModuleSQL(InspIRCd* Me)
+	: Module::Module(Me)
+	{
+		ServerInstance->UseInterface("SQLutils");
+
+		Conf = new ConfigReader(ServerInstance);
+		PublicServerInstance = ServerInstance;
+		currid = 0;
+		SQLModule = this;
+
+		MessagePipe = new Notifier(ServerInstance);
+		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
+		
+		pthread_attr_t attribs;
+		pthread_attr_init(&attribs);
+		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
+		if (pthread_create(&this->Dispatcher, &attribs, DispatcherThread, (void *)this) != 0)
+		{
+			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
+		}
+
+		if (!ServerInstance->PublishFeature("SQL", this))
+		{
+			/* Tell worker thread to exit NOW */
+			giveup = true;
+			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
+		}
+
+		ServerInstance->PublishInterface("SQL", this);
+	}
+
+	virtual ~ModuleSQL()
+	{
+		giveup = true;
+		ClearDatabases();
+		DELETE(Conf);
+		ServerInstance->UnpublishInterface("SQL", this);
+		ServerInstance->DoneWithInterface("SQLutils");
+	}
+
+
 	void Implements(char* List)
 	{
 		List[I_OnRehash] = List[I_OnRequest] = 1;
@@ -774,40 +815,6 @@ class ModuleSQL : public Module
 		return NULL;
 	}
 
-	ModuleSQL(InspIRCd* Me)
-		: Module::Module(Me)
-	{
-		
-		Conf = new ConfigReader(ServerInstance);
-		PublicServerInstance = ServerInstance;
-		currid = 0;
-		SQLModule = this;
-
-		MessagePipe = new Notifier(ServerInstance);
-		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
-		
-		pthread_attr_t attribs;
-		pthread_attr_init(&attribs);
-		pthread_attr_setdetachstate(&attribs, PTHREAD_CREATE_DETACHED);
-		if (pthread_create(&this->Dispatcher, &attribs, DispatcherThread, (void *)this) != 0)
-		{
-			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
-		}
-		if (!ServerInstance->PublishFeature("SQL", this))
-		{
-			/* Tell worker thread to exit NOW */
-			giveup = true;
-			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
-		}
-	}
-	
-	virtual ~ModuleSQL()
-	{
-		giveup = true;
-		ClearDatabases();
-		DELETE(Conf);
-	}
-	
 	virtual void OnRehash(const std::string &parameter)
 	{
 		/* TODO: set rehash bool here, which makes the dispatcher thread rehash at next opportunity */
