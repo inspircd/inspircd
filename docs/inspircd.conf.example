@@ -1287,6 +1287,16 @@
 #<module name="m_knock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Lock server module: adds /LOCKSERV and /UNLOCKSERV commands that is #
+# used to temporarily close/open for new connections to the server.   #
+# These commands require OPER status and that the LOCKSERV UNLOCKSERV #
+# are specified in a <class> tag that the oper is part of. This is so #
+# you can control who has access to this possible dangerous command.  #
+# If your server is locked and you got disconnected, do a REHASH from #
+# shell to open up again.
+#<module name="m_lockserv.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Msg flood module: Adds message/notice flood protection (+f)
 #<module name="m_messageflood.so">
 
