@@ -242,7 +242,6 @@ class ModuleDNSBL : public Module
 
 				/* add it, all is ok */
 				DNSBLConfEntries.push_back(e);
-				delete MyConf;
 				continue;
 			}
 
