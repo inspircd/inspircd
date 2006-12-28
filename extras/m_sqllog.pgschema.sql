@@ -1,3 +1,7 @@
+--
+-- PostgreSQL database dump
+--
+
 CREATE TABLE ircd_log (
     id serial NOT NULL,
     category_id bigint,
