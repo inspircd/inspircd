@@ -189,7 +189,7 @@ class ModuleDNSBL : public Module
 	
 	virtual Version GetVersion()
 	{
-		return Version(2, 0, 0, 0, 0, API_VERSION);
+		return Version(2, 0, 0, 1, VF_VENDOR, API_VERSION);
 	}
 
 	void Implements(char* List)
@@ -197,7 +197,8 @@ class ModuleDNSBL : public Module
 		List[I_OnRehash] = List[I_OnUserRegister] = 1;
 	}
 
-
+	/** Clear entries and free the mem it was using
+	 */
 	void ClearEntries()
 	{
 		std::vector<DNSBLConfEntry *>::iterator i;
@@ -206,12 +207,9 @@ class ModuleDNSBL : public Module
 			DNSBLConfEntries.erase(i);
 			delete *i;
 		}
-		
 	}
 
-
-	/*
-	 * Fill our conf vector with data
+	/** Fill our conf vector with data
 	 */	
 	virtual void ReadConf()
 	{
@@ -265,8 +263,7 @@ class ModuleDNSBL : public Module
 
 		delete MyConf;
 	}
-	
-	
+
 	virtual void OnRehash(const std::string &parameter)
 	{
 		ReadConf();
@@ -299,30 +296,6 @@ class ModuleDNSBL : public Module
 			snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
 			reversedip = std::string(reversedipbuf);
 
-/*
-	this is satmd's old code
-			std::string reversedip;
-			std::string userip = user->GetIPString();
-			std::string tempip = userip;
-
-			// reversedip will created in there
-			while (tempip.length()>0)
-			{
-				unsigned int lastdot=tempip.rfind(".");
-				if (lastdot == std::string::npos)
-				{
-					reversedip+=tempip;
-					tempip.clear();
-				}
-				else
-				{
-					reversedip += tempip.substr(lastdot+1,tempip.length()-lastdot+1);
-					reversedip += ".";
-					tempip.resize(lastdot);
-				}
-			}
-*/
-		
 			// For each DNSBL, we will run through this lookup
 			for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
 			{
@@ -367,4 +340,3 @@ extern "C" void * init_module( void )
 {
 	return new ModuleDNSBLFactory;
 }
-
