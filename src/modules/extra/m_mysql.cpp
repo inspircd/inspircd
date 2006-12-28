@@ -594,9 +594,19 @@ void ConnectDatabases(InspIRCd* ServerInstance)
 	}
 }
 
+void ClearDatabases()
+{
+	ConnMap::iterator i;
+	while ((i = Connections.begin()) != Connections.end())
+	{
+		Connections.erase(i);
+		delete i->second;
+	}
+}
+
 void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
 {
-	Connections.clear();
+	ClearDatabases();
 	for (int j =0; j < ThisConf->Enumerate("database"); j++)
 	{
 		std::string db = ThisConf->ReadValue("database","name",j);
@@ -793,6 +803,8 @@ class ModuleSQL : public Module
 	
 	virtual ~ModuleSQL()
 	{
+		giveup = true;
+		ClearDatabases();
 		DELETE(Conf);
 	}
 	
