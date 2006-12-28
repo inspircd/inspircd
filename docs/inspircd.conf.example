@@ -1287,7 +1287,7 @@
 #<module name="m_knock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Lock server module: adds /LOCKSERV and /UNLOCKSERV commands that is #
+# Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
 # used to temporarily close/open for new connections to the server.   #
 # These commands require OPER status and that the LOCKSERV UNLOCKSERV #
 # are specified in a <class> tag that the oper is part of. This is so #
