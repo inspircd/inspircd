@@ -131,9 +131,12 @@ void ServerConfig::Update005()
 			token_counter = 0;
 		}
 	}
-	char buf[MAXBUF];
-	snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
-	isupport.push_back(buf);
+	if (!line5.empty())
+	{
+		char buf[MAXBUF];
+		snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
+		isupport.push_back(buf);
+	}
 }
 
 void ServerConfig::Send005(userrec* user)
