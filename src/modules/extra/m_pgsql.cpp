@@ -1110,7 +1110,7 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 			 * The +1 is for null-terminating the string for PQsendQuery()
 			 */
 			
-			query = new char[req.query.q.length() + (paramlen*2)];
+			query = new char[req.query.q.length() + (paramlen*2) + 1];
 			queryend = query;
 			
 			/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
