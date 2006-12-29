@@ -310,7 +310,7 @@ int InspIRCd::RegisteredUserCount()
 
 int InspIRCd::ModeCount(const char mode)
 {
-	ModeHandler* mh = this->Modes->GetHandler(mode, MODETYPE_USER);
+	ModeHandler* mh = this->Modes->FindMode(mode, MODETYPE_USER);
 
 	if (mh)
 		return mh->GetCount();
