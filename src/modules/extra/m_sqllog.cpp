@@ -252,24 +252,31 @@ class ModuleSQLLog : public Module
 	ConfigReader* Conf;
 
  public:
-	bool ReadConfig()
-	{
-		ConfigReader Conf(Srv);
-		
-		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
-		
-		SQLModule = Srv->FindFeature("SQL");
-		if (!SQLModule)
-			ServerInstance->Log(DEFAULT,"WARNING: m_sqllog.so could not initialize because an SQL module is not loaded. Load the module and rehash your server.");
-		return (SQLModule);
-	}
-
 	ModuleSQLLog(InspIRCd* Me)
 	: Module::Module(Me), Srv(Me)
 	{
+		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->UseInterface("SQL");
+
+		Module* SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		if (!SQLutils)
+			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
+
 		ReadConfig();
 		MyMod = this;
 		active_queries.clear();
+	}
+
+	virtual ~ModuleSQLLog()
+	{
+		ServerInstance->DoneWithInterface("SQL");
+		ServerInstance->DoneWithInterface("SQLutils");
+	}
+
+	void ReadConfig()
+	{
+		ConfigReader Conf(Srv);
+		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 	}
 
 	void Implements(char* List)
@@ -374,10 +381,6 @@ class ModuleSQLLog : public Module
 		AddLogEntry(LT_LOADMODULE,name,Srv->Config->ServerName, Srv->Config->ServerName);
 	}
 
-	virtual ~ModuleSQLLog()
-	{
-	}
-	
 	virtual Version GetVersion()
 	{
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
