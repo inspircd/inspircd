@@ -95,7 +95,8 @@ class DNSBLResolver : public Resolver
 				{
 					std::string reason = ConfEntry->reason;
 
-					while (int pos = reason.find("%ip%") != std::string::npos)
+					std::string::size_type pos;
+					while ((pos = reason.find("%ip%")) != std::string::npos)
 					{
 						reason.replace(pos, 4, them->GetIPString());
 					}
@@ -106,7 +107,7 @@ class DNSBLResolver : public Resolver
 					{
 						case DNSBLConfEntry::I_KILL:
 						{
-							them->QuitUser(ServerInstance, them, std::string("Killed (") + reason + ")");
+							userrec::QuitUser(ServerInstance, them, std::string("Killed (") + reason + ")");
 							break;
 						}
 						case DNSBLConfEntry::I_KLINE:
