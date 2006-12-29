@@ -619,12 +619,22 @@ class cmd_rconnect : public command_t
 	cmd_rconnect (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util) : command_t(Instance, "RCONNECT", 'o', 2), Creator(Callback), Utils(Util)
 	{
 		this->source = "m_spanningtree.so";
-		syntax = "<remote-server-mask> <servermask>";
+		syntax = "<remote-server-mask> <target-server-mask>";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
+		if (IS_LOCAL(user))
+		{
+			if (!Utils->FindServer(parameters[0]))
+			{
+				user->WriteServ("NOTICE %s :*** RCONNECT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
+				return CMD_FAILURE;
+			}
+			
+			user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick,parameters[0],parameters[1]);
+		}
+		
 		/* Is this aimed at our server? */
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
@@ -634,11 +644,9 @@ class cmd_rconnect : public command_t
 			para[0] = parameters[1];
 			std::string original_command = std::string("CONNECT ") + parameters[1];
 			Creator->OnPreCommand("CONNECT", para, 1, user, true, original_command);
-
-			return CMD_SUCCESS;
 		}
-
-		return CMD_FAILURE;
+		
+		return CMD_SUCCESS;
 	}
 };
  
