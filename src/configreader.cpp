@@ -573,7 +573,6 @@ void ServerConfig::Read(bool bail, userrec* user)
 {
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
-	static char somax[MAXBUF];	/* Temporary buffer for SOMAXCONN default */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 

@@ -94,11 +94,12 @@ class DNSBLResolver : public Resolver
 				if (bitmask != 0)
 				{
 					std::string reason = ConfEntry->reason;
-
-					std::string::size_type pos;
-					while ((pos = reason.find("%ip%")) != std::string::npos)
+					std::string::size_type x = reason.find("%ip%");
+					while (x != std::string::npos)
 					{
-						reason.replace(pos, 4, them->GetIPString());
+						reason.erase(x, 4);
+						reason.insert(x, "%ip%");
+						x = reason.find("%ip%");
 					}
 
 					ServerInstance->WriteOpers("*** Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
