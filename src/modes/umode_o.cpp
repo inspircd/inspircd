@@ -43,7 +43,7 @@ ModeAction ModeUserOperator::OnModeChange(userrec* source, userrec* dest, chanre
 	return MODEACTION_ALLOW;
 }
 
-unsigned int GetCount()
+unsigned int ModeUserOperator::GetCount()
 {
 	return ServerInstance->all_opers.size();
 }

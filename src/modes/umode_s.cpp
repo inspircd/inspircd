@@ -39,7 +39,7 @@ ModeAction ModeUserServerNotice::OnModeChange(userrec* source, userrec* dest, ch
 	return MODEACTION_DENY;
 }
 
-unsigned int GetCount()
+unsigned int ModeUserServerNotice::GetCount()
 {
 	return count;
 }

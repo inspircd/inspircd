@@ -39,7 +39,7 @@ ModeAction ModeUserInvisible::OnModeChange(userrec* source, userrec* dest, chanr
 	return MODEACTION_DENY;
 }
 
-unsigned int GetCount()
+unsigned int ModeUserInvisible::GetCount()
 {
 	return count;
 }

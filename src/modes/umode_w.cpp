@@ -39,7 +39,7 @@ ModeAction ModeUserWallops::OnModeChange(userrec* source, userrec* dest, chanrec
 	return MODEACTION_DENY;
 }
 
-unsigned int GetCount()
+unsigned int ModeUserWallops::GetCount()
 {
 	return count;
 }
