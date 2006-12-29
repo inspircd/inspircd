@@ -132,6 +132,10 @@ class ModeHandler : public Extensible
 	 */
 	char prefix;
 
+	/** Number of items with this mode set on them
+	 */
+	static unsigned int count;
+
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -164,6 +168,9 @@ class ModeHandler : public Extensible
 	 * value for this mode prefix.
 	 */
 	char GetPrefix();
+	/** Get number of items with this mode set on them
+	 */
+	virtual unsigned int GetCount();
 	/**
 	 * Get the 'value' of this modes prefix.
 	 * determines which to display when there are multiple.

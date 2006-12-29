@@ -31,9 +31,15 @@ ModeAction ModeUserServerNotice::OnModeChange(userrec* source, userrec* dest, ch
 	if (dest->modes[UM_SERVERNOTICE] != adding)
 	{
 		dest->modes[UM_SERVERNOTICE] = adding;
+		this->count += (adding ? 1: -1);
 		return MODEACTION_ALLOW;
 	}
 
 	/* Allow the change */
 	return MODEACTION_DENY;
+}
+
+unsigned int GetCount()
+{
+	return count;
 }

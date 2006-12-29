@@ -494,6 +494,10 @@ class InspIRCd : public classbase
 
 	void AddGlobalClone(userrec* user);
 
+	/** Number of users with a certain mode set on them
+	 */
+	int ModeCount(const char mode);
+
 	/** Get the time offset in seconds
 	 * @return The current time delta (in seconds)
 	 */

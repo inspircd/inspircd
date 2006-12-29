@@ -308,28 +308,24 @@ int InspIRCd::RegisteredUserCount()
 	return clientlist->size() - this->UnregisteredUserCount();
 }
 
+int InspIRCd::ModeCount(const char mode)
+{
+	ModeHandler* mh = this->Modes->GetHandler(mode, MODETYPE_USER);
+
+	if (mh)
+		return mh->GetCount();
+	else
+		return 0;
+}
+
 int InspIRCd::InvisibleUserCount()
 {
-	int c = 0;
-
-	for (user_hash::const_iterator i = clientlist->begin(); i != clientlist->end(); i++)
-	{
-		c += ((i->second->registered == REG_ALL) && (i->second->modes[UM_INVISIBLE]));
-	}
-
-	return c;
+	return ModeCount('i');
 }
 
 int InspIRCd::OperCount()
 {
-	int c = 0;
-
-	for (user_hash::const_iterator i = clientlist->begin(); i != clientlist->end(); i++)
-	{
-		if (*(i->second->oper))
-			c++;
-	}
-	return c;
+	return ModeCount('o');
 }
 
 int InspIRCd::UnregisteredUserCount()

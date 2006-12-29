@@ -31,9 +31,15 @@ ModeAction ModeUserInvisible::OnModeChange(userrec* source, userrec* dest, chanr
 	if (dest->modes[UM_INVISIBLE] != adding)
 	{
 		dest->modes[UM_INVISIBLE] = adding;
+		this->count += (adding ? 1: -1);
 		return MODEACTION_ALLOW;
 	}
 
 	/* Allow the change */
 	return MODEACTION_DENY;
+}
+
+unsigned int GetCount()
+{
+	return count;
 }
