@@ -1241,4 +1241,4 @@ class ModulePgSQLFactory : public ModuleFactory
 extern "C" void * init_module( void )
 {
 	return new ModulePgSQLFactory;
-i}
+}
