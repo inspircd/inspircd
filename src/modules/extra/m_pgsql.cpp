@@ -561,13 +561,9 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		
-		ServerInstance->Log(DEBUG, "<*********> OnRehash parameter: " + parameter);
-		
 		ConfigReader conf(ServerInstance);
 
 		ClearConnections();		
-
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;			
