@@ -238,6 +238,7 @@ class QueryInfo
 				}
 			break;
 			case DONE:
+				delete active_queries[req.id];
 				active_queries[req.id] = NULL;
 			break;
 		}
@@ -262,7 +263,9 @@ class ModuleSQLLog : public Module
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		ReadConfig();
+		SQLModule = Srv->FindFeature("SQL");
+
+		OnRehash("");
 		MyMod = this;
 		active_queries.clear();
 	}
@@ -273,17 +276,17 @@ class ModuleSQLLog : public Module
 		ServerInstance->DoneWithInterface("SQLutils");
 	}
 
-	void ReadConfig()
-	{
-		ConfigReader Conf(Srv);
-		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
-	}
-
 	void Implements(char* List)
 	{
 		List[I_OnRehash] = List[I_OnOper] = List[I_OnGlobalOper] = List[I_OnKill] = 1;
 		List[I_OnPreCommand] = List[I_OnUserConnect] = 1;
 		List[I_OnUserQuit] = List[I_OnLoadModule] = List[I_OnRequest] = 1;
+	}
+
+	void ReadConfig()
+	{
+		ConfigReader Conf(Srv);
+		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 	}
 
 	virtual void OnRehash(const std::string &parameter)
@@ -293,7 +296,6 @@ class ModuleSQLLog : public Module
 
 	virtual char* OnRequest(Request* request)
 	{
-		ServerInstance->Log(DEBUG,"OnRequest in m_sqllog.so");
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
 			SQLresult* res;
@@ -312,8 +314,13 @@ class ModuleSQLLog : public Module
 				std::map<unsigned long, QueryInfo*>::iterator n = active_queries.find(res->id);
 				active_queries.erase(n);
 			}
+
+			return SQLSUCCESS;
 		}
-		return SQLSUCCESS;
+
+		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+
+		return NULL;
 	}
 
 	void AddLogEntry(int category, const std::string &nick, const std::string &host, const std::string &source)
@@ -359,7 +366,7 @@ class ModuleSQLLog : public Module
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
-		if ((command == "GLINE") || (command == "KLINE") || (command == "ELINE") || (command == "ZLINE"))
+		if ((command == "GLINE" || command == "KLINE" || command == "ELINE" || command == "ZLINE") && validated)
 		{
 			AddLogEntry(LT_XLINE,user->nick,command[0]+std::string(":")+std::string(parameters[0]),user->server);
 		}
