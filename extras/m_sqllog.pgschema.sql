@@ -41,3 +41,11 @@ INSERT INTO ircd_log_categories VALUES (8, 'Load Module');
 ALTER TABLE ONLY ircd_log_categories
     ADD CONSTRAINT ircd_log_categories_pkey PRIMARY KEY (category_id);
 
+
+
+CREATE TABLE ircd_log_hosts (
+    id serial NOT NULL,
+    hostname text
+);
+ALTER TABLE ONLY ircd_log_hosts
+    ADD CONSTRAINT ircd_log_hosts_pkey PRIMARY KEY (id);
