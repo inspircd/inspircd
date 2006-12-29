@@ -537,7 +537,9 @@ public:
 	virtual ~ModulePgSQL()
 	{
 		DELETE(sqlsuccess);
+		ClearConnections();
 		ServerInstance->UnpublishInterface("SQL", this);
+		ServerInstance->UnpublishFeature("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
 	}	
 
@@ -547,21 +549,24 @@ public:
 		List[I_OnUnloadModule] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	void ClearConnections()
 	{
-		ConfigReader conf(ServerInstance);
-		
-		/* Delete all the SQLConn objects in the connection lists,
-		 * this will call their destructors where they can handle
-		 * closing connections and such.
-		 */
-		for(ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		ConnMap::iterator iter;
+		while ((iter = connections.begin()) != connections.end())
 		{
+			connections.erase(iter);
 			DELETE(iter->second);
 		}
+	}
+
+	virtual void OnRehash(const std::string &parameter)
+	{
 		
-		/* Empty out our list of connections */
-		connections.clear();
+		ServerInstance->Log(DEBUG, "<*********> OnRehash parameter: " + parameter);
+		
+		ConfigReader conf(ServerInstance);
+
+		ClearConnections();		
 
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
@@ -693,7 +698,6 @@ SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hi)
 			
 	Instance->Log(DEBUG,"No need to resolve %s", this->host);
 	
-		
 	if(!this->DoConnect())
 	{
 		throw ModuleException("Connect failed");
@@ -764,6 +768,10 @@ void SQLConn::Close()
 {
 	Instance->Log(DEBUG,"SQLConn::Close");
 
+	if (!this->Instance->SE->DelFd(this))
+	{
+		Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+	}
 	this->fd = -1;
 	this->state = I_ERROR;
 	this->OnError(I_ERR_SOCKET);
@@ -774,8 +782,6 @@ void SQLConn::Close()
 		PQfinish(sql);
 		sql = NULL;
 	}
-	
-	return;
 }
 
 bool SQLConn::DoPoll()
@@ -1239,4 +1245,4 @@ class ModulePgSQLFactory : public ModuleFactory
 extern "C" void * init_module( void )
 {
 	return new ModulePgSQLFactory;
-}
+i}
