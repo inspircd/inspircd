@@ -134,7 +134,7 @@ class ModeHandler : public Extensible
 
 	/** Number of items with this mode set on them
 	 */
-	static unsigned int count;
+	unsigned int count;
 
  public:
 	/**
