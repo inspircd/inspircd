@@ -97,7 +97,15 @@ class ModuleModesOnOper : public Module
 							i++;
 						}
 					}
-					
+					std::deque<std::string> n;
+					Event rmode((char *)&n, NULL, "send_mode");
+					n.push_back(user->nick);
+					n.push_back(modes[0]);
+					for (unsigned int j = 1; j < tokens.size(); j++)
+					{
+						n.push_back(modes[j]);
+					}
+					rmode.Send(ServerInstance);
 					ServerInstance->Log(DEBUG, "m_opermodes.so: new modes for %s: %s", modes[0], modes[1]);
 					ServerInstance->SendMode(modes, size, user);
 				}
