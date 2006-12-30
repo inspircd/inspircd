@@ -1021,7 +1021,6 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 		}
 	}
 
-	Instance->Log(DEBUG, "Can't query until connection is complete");
 	return SQLerror(BAD_CONN, "Can't query until connection is complete");
 }
 
@@ -1309,6 +1308,6 @@ class ModulePgSQLFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	PQregisterThreadLock(pgthreadlock_t(1));
+//	PQregisterThreadLock(pgthreadlock_t(1));
 	return new ModulePgSQLFactory;
 }
