@@ -132,8 +132,8 @@ int KQueueEngine::GetRemainingFds()
 
 int KQueueEngine::DispatchEvents()
 {
-	ts.tv_nsec = 5000L;
-	ts.tv_sec = 0;
+	ts.tv_nsec = 0;
+	ts.tv_sec = 1;
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
 	{

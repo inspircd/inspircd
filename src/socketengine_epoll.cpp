@@ -126,7 +126,7 @@ int EPollEngine::DispatchEvents()
 {
 	socklen_t codesize;
 	int errcode;
-	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 150);
+	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 1000);
 	for (int j = 0; j < i; j++)
 	{
 		if (events[j].events & EPOLLHUP)

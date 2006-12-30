@@ -110,8 +110,8 @@ int SelectEngine::DispatchEvents()
 
 		FD_SET (a->second, &errfdset);
 	}
-	tval.tv_sec = 0;
-	tval.tv_usec = 50L;
+	tval.tv_sec = 1;
+	tval.tv_usec = 0;
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
 	if (sresult > 0)
 	{
