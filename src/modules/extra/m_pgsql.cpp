@@ -476,33 +476,35 @@ public:
 	bool DoConnect();
 
 	virtual void Close();
-	
+
+	void DoClose();
+
 	bool DoPoll();
-	
+
 	bool DoConnectedPoll();
 
 	bool DoResetPoll();
-	
+
 	void ShowStatus();	
-	
+
 	virtual bool OnDataReady();
 
 	virtual bool OnWriteReady();
-	
+
 	virtual bool OnConnected();
-	
+
 	bool DoEvent();
-	
+
 	bool Reconnect();
-	
+
 	std::string MkInfoStr();
-	
+
 	const char* StatusStr();
-	
+
 	SQLerror DoQuery(SQLrequest &req);
-	
+
 	SQLerror Query(const SQLrequest &req);
-	
+
 	void OnUnloadModule(Module* mod);
 
 	const SQLhost GetConfHost();
@@ -534,7 +536,7 @@ SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi, const SQLhost& c
 
 SQLConn::~SQLConn()
 {
-	Close();
+	DoClose();
 }
 
 bool SQLConn::DoConnect()
@@ -544,14 +546,14 @@ bool SQLConn::DoConnect()
 	if(!(sql = PQconnectStart(MkInfoStr().c_str())))
 	{
 		Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
-		Close();
+		DoClose();
 		return false;
 	}
 	
 	if(PQstatus(sql) == CONNECTION_BAD)
 	{
 		Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
-		Close();
+		DoClose();
 		return false;
 	}
 	
@@ -560,7 +562,7 @@ bool SQLConn::DoConnect()
 	if(PQsetnonblocking(sql, 1) == -1)
 	{
 		Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
-		Close();
+		DoClose();
 		return false;
 	}
 	
@@ -575,7 +577,7 @@ bool SQLConn::DoConnect()
 	if(this->fd <= -1)
 	{
 		Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
-		Close();
+		DoClose();
 		return false;
 	}
 	
@@ -583,7 +585,7 @@ bool SQLConn::DoConnect()
 	if (!this->Instance->SE->AddFd(this))
 	{
 		Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
-		Close();
+		DoClose();
 		return false;
 	}
 	
@@ -592,24 +594,8 @@ bool SQLConn::DoConnect()
 	return DoPoll();
 }
 
-void SQLConn::Close()
-{
-	Instance->Log(DEBUG,"SQLConn::Close");
-
-	if (!this->Instance->SE->DelFd(this))
-	{
-		Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
-	}
-	this->fd = -1;
-	this->state = I_ERROR;
-	this->OnError(I_ERR_SOCKET);
-	this->ClosePending = true;
-	
-	if(sql)
-	{
-		PQfinish(sql);
-		sql = NULL;
-	}
+void SQLConn::Close() {
+	DoClose();
 }
 
 bool SQLConn::DoPoll()
@@ -1055,6 +1041,7 @@ class ModulePgSQL : public Module
 private:
 	
 	ConnMap connections;
+	ConnMap deadconnections;
 	unsigned long currid;
 	char* sqlsuccess;
 
@@ -1099,6 +1086,7 @@ public:
 
 	bool HasHost(const SQLhost &host)
 	{
+		ClearDeadConnections();
 		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
 		{
 			if (host == iter->second->GetConfHost())
@@ -1109,6 +1097,7 @@ public:
 
 	bool HostInConf(const SQLhost &h)
 	{
+		ClearDeadConnections();
 		ConfigReader conf(ServerInstance);
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
@@ -1128,6 +1117,7 @@ public:
 
 	void ReadConf()
 	{
+		ClearDeadConnections();
 		ConfigReader conf(ServerInstance);
 
 		for(int i = 0; i < conf.Enumerate("database"); i++)
@@ -1182,6 +1172,7 @@ public:
 
 	void ClearOldConnections()
 	{
+		ClearDeadConnections();
 		ConnMap::iterator iter,safei;
 		for (iter = connections.begin(); iter != connections.end(); iter++)
 		{
@@ -1197,12 +1188,46 @@ public:
 	
 	void ClearAllConnections()
 	{
+		ClearDeadConnections();
 		ConnMap::iterator iter;
 		while ((iter = connections.begin()) != connections.end())
 		{
 			connections.erase(iter);
 			DELETE(iter->second);
 		}
+	}
+
+	void ClearDeadConnections()
+	{
+/*
+		ConnMap::iterator iter,safei;
+		for (iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			if (sizeof(iter->second) <= 0)
+			{
+				safei = iter;
+				--iter;
+				connections.erase(safei);
+			}
+			ServerInstance->Log(DEBUG, "<*********> sizeof(iter->second): %d", sizeof(iter->second));
+		}
+*/
+		ConnMap::iterator di;
+		while ((di = deadconnections.begin()) != deadconnections.end())
+		{
+			ConnMap::iterator iter = connections.find(di->first);
+			if (iter != connections.end())
+			{
+				connections.erase(iter);
+				ServerInstance->Log(DEBUG, "<*********> sizeof(iter->second): %d", sizeof(iter->second));
+			}
+			deadconnections.erase(di);
+		}
+	}
+
+	void AddDeadConn(std::string id, SQLConn* conn)
+	{
+		deadconnections[id] = conn;
 	}
 
 	void AddConn(const SQLhost& hi, const SQLhost& ci)
@@ -1286,6 +1311,29 @@ void SQLresolver::OnLookupComplete(const std::string &result)
 	host.host = result;
 	((ModulePgSQL*)mod)->AddConn(host, confhost);
 	((ModulePgSQL*)mod)->ClearOldConnections();
+}
+
+/* move this here too, to use AddDeadConn */
+void SQLConn::DoClose() 
+{
+	Instance->Log(DEBUG,"SQLConn::Close");
+
+	if (!this->Instance->SE->DelFd(this))
+	{
+		Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+	}
+	this->fd = -1;
+	this->state = I_ERROR;
+	this->OnError(I_ERR_SOCKET);
+	this->ClosePending = true;
+	
+	if(sql)
+	{
+		PQfinish(sql);
+		sql = NULL;
+	}
+
+	((ModulePgSQL*)us)->AddDeadConn(confhost.id, this);
 }
 
 class ModulePgSQLFactory : public ModuleFactory
