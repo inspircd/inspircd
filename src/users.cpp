@@ -1560,11 +1560,15 @@ void userrec::WriteCommon(const std::string &text)
 	try
 	{
 		bool sent_to_at_least_one = false;
+		char tb[MAXBUF];
 	
 		if (this->registered != REG_ALL)
 			return;
 	
 		uniq_id++;
+
+		/* We dont want to be doing this n times, just once */
+		snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
 	
 		for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 		{
@@ -1574,7 +1578,7 @@ void userrec::WriteCommon(const std::string &text)
 				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
-					i->second->WriteFrom(this, std::string(text));
+					i->second->Write(std::string(tb));
 					sent_to_at_least_one = true;
 				}
 			}
@@ -1586,7 +1590,7 @@ void userrec::WriteCommon(const std::string &text)
 		 */
 		if (!sent_to_at_least_one)
 		{
-			this->WriteFrom(this,std::string(text));
+			this->WriteFrom(this,std::string(tb));
 		}
 	}
 
@@ -1618,6 +1622,8 @@ void userrec::WriteCommonExcept(const std::string &text)
 	bool quit_munge = false;
 	char oper_quit[MAXBUF];
 	char textbuffer[MAXBUF];
+	char tb1[MAXBUF];
+	char tb2[MAXBUF];
 
 	strlcpy(textbuffer, text.c_str(), MAXBUF);
 
@@ -1625,6 +1631,8 @@ void userrec::WriteCommonExcept(const std::string &text)
 		return;
 
 	uniq_id++;
+
+	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost(),textbuffer);
 
 	/* TODO: We need some form of WriteCommonExcept that will send two lines, one line to
 	 * opers and the other line to non-opers, then all this hidebans and hidesplits gunk
@@ -1648,6 +1656,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 				strlcpy(oper_quit,textbuffer,MAXQUIT);
 				strlcpy(check,"*.net *.split",MAXQUIT);
 				quit_munge = true;
+				snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
 			}
 		}
 	}
@@ -1661,6 +1670,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 			strlcpy(oper_quit,textbuffer,MAXQUIT);
 			*check = 0;  // We don't need to strlcpy, we just chop it from the :
 			quit_munge = true;
+			snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
 		}
 	}
 
@@ -1675,9 +1685,9 @@ void userrec::WriteCommonExcept(const std::string &text)
 				{
 					already_sent[i->second->fd] = uniq_id;
 					if (quit_munge)
-						i->second->WriteFrom(this, *i->second->oper ? std::string(oper_quit) : std::string(textbuffer));
+						i->second->Write(*i->second->oper ? std::string(tb2) : std::string(tb1));
 					else
-						i->second->WriteFrom(this, std::string(textbuffer));
+						i->second->Write(std::string(tb1));
 				}
 			}
 		}

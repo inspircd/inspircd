@@ -137,7 +137,6 @@ int KQueueEngine::DispatchEvents()
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], MAX_DESCRIPTORS, &ts);
 	for (int j = 0; j < i; j++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",ke_list[j].flags & EVFILT_WRITE ? "write" : "read", ke_list[j].ident);
 		if (ke_list[j].flags & EV_EOF)
 		{
 			ServerInstance->Log(DEBUG,"kqueue: Error on FD %d", ke_list[j].ident);

@@ -129,7 +129,6 @@ int EPollEngine::DispatchEvents()
 	int i = epoll_wait(EngineHandle, events, MAX_DESCRIPTORS, 150);
 	for (int j = 0; j < i; j++)
 	{
-		ServerInstance->Log(DEBUG,"Handle %s event on fd %d",events[j].events & EPOLLOUT ? "write" : "read", events[j].data.fd);
 		if (events[j].events & EPOLLHUP)
 		{
 			ServerInstance->Log(DEBUG,"Handle error event on fd %d", events[j].data.fd);

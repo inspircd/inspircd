@@ -612,14 +612,17 @@ void chanrec::WriteChannel(userrec* user, char* text, ...)
 void chanrec::WriteChannel(userrec* user, const std::string &text)
 {
 	CUList *ulist = this->GetUsers();
+	char tb[MAXBUF];
 
 	if (!user)
 		return;
 
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (IS_LOCAL(i->second))
-			user->WriteTo(i->second,text);
+			i->second->Write(std::string(tb));
 	}
 }
 
@@ -684,6 +687,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
 	CUList *ulist;
+	char tb[MAXBUF];
 
 	switch (status)
 	{
@@ -701,6 +705,8 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 			break;
 	}
 
+	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if ((IS_LOCAL(i->second)) && (except_list.find(i->second) == except_list.end()))
@@ -708,7 +714,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 			if (serversource)
 				i->second->WriteServ(text);
 			else
-				i->second->WriteFrom(user,text);
+				i->second->Write(std::string(tb));
 		}
 	}
 }
