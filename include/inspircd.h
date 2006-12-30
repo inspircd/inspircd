@@ -30,9 +30,10 @@
  */
 #define ERROR -1
 
-/** Crucial defines
+/** Support for librodent -
+ * see http://www.chatspike.net/index.php?z=64
  */
-#define ETIREDGERBILS EAGAIN
+#define ETIREDHAMSTERS EAGAIN
 
 /** Debug levels for use with InspIRCd::Log()
  */
