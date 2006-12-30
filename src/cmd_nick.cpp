@@ -109,13 +109,13 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	/* change the nick of the user in the users_hash */
 	user = user->UpdateNickHash(parameters[0]);
 
-	user->InvalidateCache();
-
 	/* actually change the nick within the record */
 	if (!user) return CMD_FAILURE;
 	if (!*user->nick) return CMD_FAILURE;
 
 	strlcpy(user->nick, parameters[0], NICKMAX - 1);
+
+	user->InvalidateCache();
 
 	ServerInstance->Log(DEBUG,"new nick set: %s",user->nick);
 	
