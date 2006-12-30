@@ -111,7 +111,12 @@ namespace irc
 		 * @param a A human-readable address
 		 * @param n An insp_inaddr struct which the result
 		 * will be copied into on success.
-		 * @return This function will return 0 upon success,
+		 * @return This method will return a negative value if address
+		 * does not contain a valid address family. 0 if the address is
+		 * does not contain a valid string representing a valid network
+		 * address. A positive value is returned if the network address
+		 * was successfully converted.
+
 		 * or any other number upon failure.
 		 */
 		int insp_aton(const char* a, insp_inaddr* n);
