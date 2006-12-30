@@ -43,8 +43,6 @@
 
 /* Forward declare, so we can have the typedef neatly at the top */
 class SQLConn;
-/* Also needs forward declaration, as it's used inside SQLconn */
-class ModulePgSQL;
 
 typedef std::map<std::string, SQLConn*> ConnMap;
 
@@ -90,9 +88,9 @@ class SQLresolver : public Resolver
 {
  private:
 	SQLhost host;
-	ModulePgSQL* mod;
+	Module* mod;
  public:
-	SQLresolver(ModulePgSQL* m, InspIRCd* Instance, const SQLhost& hi)
+	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi)
 	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), mod(m)
 	{
 	}
@@ -104,9 +102,6 @@ class SQLresolver : public Resolver
 		ServerInstance->Log(DEBUG, "DNS lookup failed (%s), dying horribly", errormessage.c_str());
 	}
 
-	virtual ~SQLresolver()
-	{
-	}
 };
 
 /** QueryQueue, a queue of queries waiting to be executed.
@@ -452,7 +447,7 @@ public:
 class SQLConn : public InspSocket
 {
 private:
-	ModulePgSQL* us;		/* Pointer to the SQL provider itself */
+	Module*			us;		/* Pointer to the SQL provider itself */
 	std::string 	dbhost;	/* Database server hostname */
 	unsigned int	dbport;	/* Database server port */
 	std::string 	dbname;	/* Database name */
@@ -469,7 +464,7 @@ public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hostinfo);
+	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo);
 
 	~SQLConn();
 
@@ -506,178 +501,7 @@ public:
 	void OnUnloadModule(Module* mod);
 };
 
-class ModulePgSQL : public Module
-{
-private:
-	
-	ConnMap connections;
-	unsigned long currid;
-	char* sqlsuccess;
-
-public:
-	ModulePgSQL(InspIRCd* Me)
-	: Module::Module(Me), currid(0)
-	{
-		ServerInstance->UseInterface("SQLutils");
-
-		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
-		
-		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS)+1);
-
-		if (!ServerInstance->PublishFeature("SQL", this))
-		{
-			throw ModuleException("m_pgsql: Unable to publish feature 'SQL'");
-		}
-
-		OnRehash("");
-
-		ServerInstance->PublishInterface("SQL", this);
-	}
-
-	virtual ~ModulePgSQL()
-	{
-		DELETE(sqlsuccess);
-		ClearConnections();
-		ServerInstance->UnpublishInterface("SQL", this);
-		ServerInstance->UnpublishFeature("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
-	}	
-
-
-	void Implements(char* List)
-	{
-		List[I_OnUnloadModule] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
-	}
-
-	void ClearConnections()
-	{
-		ConnMap::iterator iter;
-		while ((iter = connections.begin()) != connections.end())
-		{
-			connections.erase(iter);
-			DELETE(iter->second);
-		}
-	}
-
-	virtual void OnRehash(const std::string &parameter)
-	{
-		ConfigReader conf(ServerInstance);
-
-		ClearConnections();		
-		for(int i = 0; i < conf.Enumerate("database"); i++)
-		{
-			SQLhost host;			
-			int ipvalid;
-			insp_inaddr blargle;
-			
-			host.id		= conf.ReadValue("database", "id", i);
-			host.host	= conf.ReadValue("database", "hostname", i);
-			host.port	= conf.ReadInteger("database", "port", i, true);
-			host.name	= conf.ReadValue("database", "name", i);
-			host.user	= conf.ReadValue("database", "username", i);
-			host.pass	= conf.ReadValue("database", "password", i);
-			host.ssl	= conf.ReadFlag("database", "ssl", i);
-			
-			ipvalid = insp_aton(host.host.c_str(), &blargle);
-			
-			if(ipvalid > 0)
-			{
-				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-				this->AddConn(host);
-			}
-			else if(ipvalid == 0)
-			{
-				/* Conversion failed, assume it's a host */
-				SQLresolver* resolver;
-				
-				try
-				{
-					resolver = new SQLresolver(this, ServerInstance, host);
-					
-					ServerInstance->AddResolver(resolver);
-				}
-				catch(...)
-				{
-					ServerInstance->Log(DEBUG, "Couldn't make a SQLresolver..this connection is gonna diiiiiie...actually we just won't create it");
-				}
-			}
-			else
-			{
-				/* Invalid address family, die horribly. */
-				ServerInstance->Log(DEBUG, "insp_aton failed returning -1, oh noes.");
-			}
-		}	
-	}
-	
-	void AddConn(const SQLhost& hi)
-	{
-		SQLConn* newconn;
-				
-		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-		newconn = new SQLConn(ServerInstance, this, hi);
-				
-		connections.insert(std::make_pair(hi.id, newconn));
-	}
-	
-	virtual char* OnRequest(Request* request)
-	{
-		if(strcmp(SQLREQID, request->GetId()) == 0)
-		{
-			SQLrequest* req = (SQLrequest*)request;
-			ConnMap::iterator iter;
-		
-			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
-
-			if((iter = connections.find(req->dbid)) != connections.end())
-			{
-				/* Execute query */
-				req->id = NewID();
-				req->error = iter->second->Query(*req);
-				
-				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
-			}
-			else
-			{
-				req->error.Id(BAD_DBID);
-				return NULL;
-			}
-		}
-
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-		
-		return NULL;
-	}
-	
-	virtual void OnUnloadModule(Module* mod, const std::string&	name)
-	{
-		/* When a module unloads we have to check all the pending queries for all our connections
-		 * and set the Module* specifying where the query came from to NULL. If the query has already
-		 * been dispatched then when it is processed it will be dropped if the pointer is NULL.
-		 *
-		 * If the queries we find are not already being executed then we can simply remove them immediately.
-		 */
-		for(ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
-		{
-			iter->second->OnUnloadModule(mod);
-		}
-	}
-
-	unsigned long NewID()
-	{
-		if (currid+1 == 0)
-			currid++;
-		
-		return ++currid;
-	}
-		
-	virtual Version GetVersion()
-	{
-		return Version(1, 1, 0, 0, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
-	}
-
-};
-
-SQLConn::SQLConn(InspIRCd* SI, ModulePgSQL* self, const SQLhost& hi)
+SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
 : InspSocket::InspSocket(SI), us(self), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
 {
 	//ServerInstance->Log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
@@ -1214,10 +1038,194 @@ void SQLConn::OnUnloadModule(Module* mod)
 	queue.PurgeModule(mod);
 }
 
+class ModulePgSQL : public Module
+{
+private:
+	
+	ConnMap connections;
+	unsigned long currid;
+	bool modloading;
+	char* sqlsuccess;
+
+public:
+	ModulePgSQL(InspIRCd* Me)
+	: Module::Module(Me), currid(0), modloading(true)
+	{
+		ServerInstance->UseInterface("SQLutils");
+
+		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
+		
+		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS)+1);
+
+		if (!ServerInstance->PublishFeature("SQL", this))
+		{
+			throw ModuleException("m_pgsql: Unable to publish feature 'SQL'");
+		}
+
+		ReadConf();
+
+		ServerInstance->PublishInterface("SQL", this);
+	}
+
+	virtual ~ModulePgSQL()
+	{
+		ClearConnections();
+		DELETE(sqlsuccess);
+		ServerInstance->UnpublishInterface("SQL", this);
+		ServerInstance->UnpublishFeature("SQL");
+		ServerInstance->DoneWithInterface("SQLutils");
+	}	
+
+	void Implements(char* List)
+	{
+		List[I_OnUnloadModule] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
+	}
+
+	virtual void OnRehash(const std::string &parameter)
+	{
+		if (modloading)
+		{
+			modloading = false;
+			return;
+		}
+
+		ReadConf();
+	}
+
+	void ReadConf()
+	{
+		ConfigReader conf(ServerInstance);
+
+		ClearConnections();		
+		for(int i = 0; i < conf.Enumerate("database"); i++)
+		{
+			SQLhost host;			
+			int ipvalid;
+			insp_inaddr blargle;
+			
+			host.id		= conf.ReadValue("database", "id", i);
+			host.host	= conf.ReadValue("database", "hostname", i);
+			host.port	= conf.ReadInteger("database", "port", i, true);
+			host.name	= conf.ReadValue("database", "name", i);
+			host.user	= conf.ReadValue("database", "username", i);
+			host.pass	= conf.ReadValue("database", "password", i);
+			host.ssl	= conf.ReadFlag("database", "ssl", i);
+			
+			ipvalid = insp_aton(host.host.c_str(), &blargle);
+			
+			if(ipvalid > 0)
+			{
+				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
+				this->AddConn(host);
+			}
+			else if(ipvalid == 0)
+			{
+				/* Conversion failed, assume it's a host */
+				SQLresolver* resolver;
+				
+				try
+				{
+					resolver = new SQLresolver(this, ServerInstance, host);
+					
+					ServerInstance->AddResolver(resolver);
+				}
+				catch(...)
+				{
+					ServerInstance->Log(DEBUG, "Couldn't make a SQLresolver..this connection is gonna diiiiiie...actually we just won't create it");
+				}
+			}
+			else
+			{
+				/* Invalid address family, die horribly. */
+				ServerInstance->Log(DEBUG, "insp_aton failed returning -1, oh noes.");
+			}
+		}	
+	}
+	
+	void ClearConnections()
+	{
+		ConnMap::iterator iter;
+		while ((iter = connections.begin()) != connections.end())
+		{
+			connections.erase(iter);
+			DELETE(iter->second);
+		}
+	}
+
+	void AddConn(const SQLhost& hi)
+	{
+		SQLConn* newconn;
+				
+		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
+		newconn = new SQLConn(ServerInstance, this, hi);
+				
+		connections.insert(std::make_pair(hi.id, newconn));
+	}
+	
+	virtual char* OnRequest(Request* request)
+	{
+		if(strcmp(SQLREQID, request->GetId()) == 0)
+		{
+			SQLrequest* req = (SQLrequest*)request;
+			ConnMap::iterator iter;
+		
+			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
+
+			if((iter = connections.find(req->dbid)) != connections.end())
+			{
+				/* Execute query */
+				req->id = NewID();
+				req->error = iter->second->Query(*req);
+				
+				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
+			}
+			else
+			{
+				req->error.Id(BAD_DBID);
+				return NULL;
+			}
+		}
+
+		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
+		
+		return NULL;
+	}
+	
+	virtual void OnUnloadModule(Module* mod, const std::string&	name)
+	{
+		/* When a module unloads we have to check all the pending queries for all our connections
+		 * and set the Module* specifying where the query came from to NULL. If the query has already
+		 * been dispatched then when it is processed it will be dropped if the pointer is NULL.
+		 *
+		 * If the queries we find are not already being executed then we can simply remove them immediately.
+		 */
+		for(ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			iter->second->OnUnloadModule(mod);
+		}
+	}
+
+	unsigned long NewID()
+	{
+		if (currid+1 == 0)
+			currid++;
+		
+		return ++currid;
+	}
+		
+	virtual Version GetVersion()
+	{
+		return Version(1, 1, 0, 0, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
+	}
+};
+
+/* move this here to use AddConn, rather that than having the whole
+ * module above SQLConn, since this is buggin me right now :/
+ */
 void SQLresolver::OnLookupComplete(const std::string &result)
 {
 	host.host = result;
-	mod->AddConn(host);
+	((ModulePgSQL*)mod)->AddConn(host);
 }
 
 class ModulePgSQLFactory : public ModuleFactory
