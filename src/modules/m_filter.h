@@ -254,7 +254,10 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				params[item] = parameters[item];
 			params[replacepoint] = "Reason filtered";
 
-			if (f->action == "block")
+			/* We're blocking, OR theyre quitting and its a KILL action
+			 * (we cant kill someone whos already quitting, so filter them anyway)
+			 */
+			if ((f->action == "block") || (((!parting) && (f->action == "kill"))))
 			{
 				c->Handle(params, pcnt, user);
 				return 1;
