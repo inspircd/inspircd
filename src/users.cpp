@@ -1200,8 +1200,8 @@ void userrec::FullConnect(CullList* Goners)
 			Goners->AddItem(this, reason);
 			return;
 		}
-	}
 
+	}
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);
 	this->WriteServ("001 %s :Welcome to the %s IRC Network %s!%s@%s",this->nick, ServerInstance->Config->Network, this->nick, this->ident, this->host);
@@ -1829,6 +1829,7 @@ bool userrec::ChangeName(const char* gecos)
 		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
 	}
 	strlcpy(this->fullname,gecos,MAXGECOS+1);
+
 	return true;
 }
 
@@ -1836,9 +1837,6 @@ bool userrec::ChangeDisplayedHost(const char* host)
 {
 	if (!strcmp(host, this->dhost))
 		return true;
-
-	/* Invalidate cache */
-	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
 	{
@@ -1865,6 +1863,8 @@ bool userrec::ChangeDisplayedHost(const char* host)
 		}
 	}
 
+	this->InvalidateCache();
+
 	if (IS_LOCAL(this))
 		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);
 
@@ -1875,9 +1875,6 @@ bool userrec::ChangeIdent(const char* newident)
 {
 	if (!strcmp(newident, this->ident))
 		return true;
-
-	/* Invalidate cache */
-	this->InvalidateCache();
 
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
@@ -1894,6 +1891,8 @@ bool userrec::ChangeIdent(const char* newident)
 				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
 		}
 	}
+
+	this->InvalidateCache();
 
 	return true;
 }
