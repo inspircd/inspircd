@@ -540,7 +540,7 @@ SQLConn::~SQLConn()
 bool SQLConn::DoConnect()
 {
 	//ServerInstance->Log(DEBUG, "SQLConn::DoConnect()");
-	
+
 	if(!(sql = PQconnectStart(MkInfoStr().c_str())))
 	{
 		Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
@@ -1309,5 +1309,6 @@ class ModulePgSQLFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
+	PQregisterThreadLock(pgthreadlock_t(1));
 	return new ModulePgSQLFactory;
 }
