@@ -1209,7 +1209,7 @@ public:
 	{
 		if (HasHost(ci))
 		{
-			ServerInstance->Log(DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possible due to DNS delay, aborting.", hi.id.c_str());
+			ServerInstance->Log(DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possibly due to DNS delay. Aborting connection attempt.", hi.id.c_str());
 			return;
 		}
 
