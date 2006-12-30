@@ -44,11 +44,9 @@ class FilterBase : public Module
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-
 	virtual FilterResult* FilterMatch(const std::string &text) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
 	virtual void SyncFilters(Module* proto, void* opaque) = 0;
-
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration) = 0;
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
@@ -58,8 +56,8 @@ class FilterBase : public Module
 	FilterResult DecodeFilter(const std::string &data);
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
-
 	virtual int OnStats(char symbol, userrec* user, string_list &results) = 0;
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
 };
 
 class cmd_filter : public command_t
@@ -162,7 +160,7 @@ FilterBase::~FilterBase()
 
 void FilterBase::Implements(char* List)
 {
-	List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+	List[I_OnPreCommand] = List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
 int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -209,6 +207,82 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 			}
 		}
 		return 1;
+	}
+	return 0;
+}
+
+int FilterBase::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+{
+	if ((validated == 1) && (IS_LOCAL(user)))
+	{
+		std::string checkline;
+		int replacepoint = 0;
+		bool parting = false;
+	
+		if (command == "QUIT")
+		{
+			checkline = parameters[0];
+			replacepoint = 0;
+			parting = false;
+		}
+		else if (command == "PART")
+		{
+			checkline = parameters[1];
+			replacepoint = 1;
+			parting = true;
+		}
+		else
+			/* We're only messing with PART and QUIT */
+			return 0;
+
+		FilterResult* f = this->FilterMatch(checkline);
+
+		if (!f)
+			/* PART or QUIT reason doesnt match a filter */
+			return 0;
+
+		ServerInstance->Log(DEBUG,"Match block text");
+
+		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
+		command_t* c = ServerInstance->Parser->GetHandler(command);
+		if (c)
+		{
+			ServerInstance->Log(DEBUG,"Found handler");
+
+			const char* params[127];
+			for (int item = 0; item < pcnt; item++)
+				params[item] = parameters[item];
+			params[replacepoint] = "Reason filtered";
+
+			if (f->action == "block")
+			{
+				c->Handle(params, pcnt, user);
+				return 1;
+			}
+			else
+			{
+				/* Are they parting, if so, kill is applicable */
+				if ((parting) && (f->action == "kill"))
+				{
+					user->SetWriteError("Filtered: "+f->reason);
+					/* This WriteServ causes the write error to be applied.
+					 * Its not safe to kill here with QuitUser in a PreCommand handler,
+					 * so we do it this way, which is safe just about anywhere.
+					 */
+					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
+				}
+				if (f->action == "gline")
+				{
+					if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
+					{
+						ServerInstance->XLines->apply_lines(APPLY_GLINES);
+						FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
+					}
+				}
+				return 1;
+			}
+		}
+		return 0;
 	}
 	return 0;
 }
