@@ -1569,6 +1569,7 @@ void userrec::WriteCommon(const std::string &text)
 
 		/* We dont want to be doing this n times, just once */
 		snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
+		std::string out = tb;
 	
 		for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 		{
@@ -1578,7 +1579,7 @@ void userrec::WriteCommon(const std::string &text)
 				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
-					i->second->Write(std::string(tb));
+					i->second->Write(out);
 					sent_to_at_least_one = true;
 				}
 			}
@@ -1624,6 +1625,8 @@ void userrec::WriteCommonExcept(const std::string &text)
 	char textbuffer[MAXBUF];
 	char tb1[MAXBUF];
 	char tb2[MAXBUF];
+	std::string out1;
+	std::string out2;
 
 	strlcpy(textbuffer, text.c_str(), MAXBUF);
 
@@ -1657,6 +1660,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 				strlcpy(check,"*.net *.split",MAXQUIT);
 				quit_munge = true;
 				snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
+				out2 = tb2;
 			}
 		}
 	}
@@ -1671,8 +1675,11 @@ void userrec::WriteCommonExcept(const std::string &text)
 			*check = 0;  // We don't need to strlcpy, we just chop it from the :
 			quit_munge = true;
 			snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
+			out2 = tb2;
 		}
 	}
+
+	out1 = tb1;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
@@ -1685,9 +1692,9 @@ void userrec::WriteCommonExcept(const std::string &text)
 				{
 					already_sent[i->second->fd] = uniq_id;
 					if (quit_munge)
-						i->second->Write(*i->second->oper ? std::string(tb2) : std::string(tb1));
+						i->second->Write(*i->second->oper ? out2 : out1);
 					else
-						i->second->Write(std::string(tb1));
+						i->second->Write(out1);
 				}
 			}
 		}
@@ -1849,12 +1856,12 @@ void userrec::NoticeAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $* :%s",textbuffer);
+	snprintf(formatbuffer,MAXBUF,":%s NOTICE $* :%s", this->GetFullHost(), textbuffer);
+	std::string fmt = formatbuffer;
 
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
-		userrec* t = *i;
-		t->WriteFrom(this, std::string(formatbuffer));
+		(*i)->Write(fmt);
 	}
 }
 

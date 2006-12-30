@@ -618,11 +618,12 @@ void chanrec::WriteChannel(userrec* user, const std::string &text)
 		return;
 
 	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	std::string out = tb;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (IS_LOCAL(i->second))
-			i->second->Write(std::string(tb));
+			i->second->Write(out);
 	}
 }
 
@@ -706,6 +707,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 	}
 
 	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
+	std::string out = tb;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
@@ -714,7 +716,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 			if (serversource)
 				i->second->WriteServ(text);
 			else
-				i->second->Write(std::string(tb));
+				i->second->Write(out);
 		}
 	}
 }
