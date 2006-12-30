@@ -82,16 +82,22 @@ class SQLhost
 	}
 };
 
+bool operator== (const SQLhost& l, const SQLhost& r)
+{
+	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
+}
+
 /** Used to resolve sql server hostnames
  */
 class SQLresolver : public Resolver
 {
  private:
 	SQLhost host;
+	SQLhost confhost;
 	Module* mod;
  public:
-	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi)
-	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), mod(m)
+	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi, const SQLhost& ci)
+	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), confhost(ci), mod(m)
 	{
 	}
 
@@ -101,7 +107,6 @@ class SQLresolver : public Resolver
 	{
 		ServerInstance->Log(DEBUG, "DNS lookup failed (%s), dying horribly", errormessage.c_str());
 	}
-
 };
 
 /** QueryQueue, a queue of queries waiting to be executed.
@@ -447,24 +452,24 @@ public:
 class SQLConn : public InspSocket
 {
 private:
-	Module*			us;		/* Pointer to the SQL provider itself */
-	std::string 	dbhost;	/* Database server hostname */
-	unsigned int	dbport;	/* Database server port */
-	std::string 	dbname;	/* Database name */
-	std::string 	dbuser;	/* Database username */
-	std::string 	dbpass;	/* Database password */
-	bool			ssl;	/* If we should require SSL */
-	PGconn* 		sql;	/* PgSQL database connection handle */
-	SQLstatus		status;	/* PgSQL database connection status */
-	bool			qinprog;/* If there is currently a query in progress */
-	QueryQueue		queue;	/* Queue of queries waiting to be executed on this connection */
-	time_t			idle;	/* Time we last heard from the database */
-
+	Module*			us;			/* Pointer to the SQL provider itself */
+	std::string 	dbhost;		/* Database server hostname */
+	unsigned int	dbport;		/* Database server port */
+	std::string 	dbname;		/* Database name */
+	std::string 	dbuser;		/* Database username */
+	std::string 	dbpass;		/* Database password */
+	bool			ssl;		/* If we should require SSL */
+	PGconn* 		sql;		/* PgSQL database connection handle */
+	SQLstatus		status;		/* PgSQL database connection status */
+	bool			qinprog;	/* If there is currently a query in progress */
+	QueryQueue		queue;		/* Queue of queries waiting to be executed on this connection */
+	time_t			idle;		/* Time we last heard from the database */
+	SQLhost			confhost;	/* A copy of the config <database> entry for conf checks */
 public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo);
+	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo, const SQLhost& confinfo);
 
 	~SQLConn();
 
@@ -499,9 +504,11 @@ public:
 	SQLerror Query(const SQLrequest &req);
 	
 	void OnUnloadModule(Module* mod);
+
+	const SQLhost GetConfHost();
 };
 
-SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
+SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi, const SQLhost& ci)
 : InspSocket::InspSocket(SI), us(self), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
 {
 	//ServerInstance->Log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
@@ -509,6 +516,7 @@ SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
 	/* Some of this could be reviewed, unsure if I need to fill 'host' etc...
 	 * just copied this over from the InspSocket constructor.
 	 */
+	confhost = ci;
 	strlcpy(this->host, dbhost.c_str(), MAXBUF);
 	strlcpy(this->IP, dbhost.c_str(), MAXBUF);
 	this->port = dbport;
@@ -1038,18 +1046,22 @@ void SQLConn::OnUnloadModule(Module* mod)
 	queue.PurgeModule(mod);
 }
 
+const SQLhost SQLConn::GetConfHost()
+{
+	return confhost;
+}
+
 class ModulePgSQL : public Module
 {
 private:
 	
 	ConnMap connections;
 	unsigned long currid;
-	bool modloading;
 	char* sqlsuccess;
 
 public:
 	ModulePgSQL(InspIRCd* Me)
-	: Module::Module(Me), currid(0), modloading(true)
+	: Module::Module(Me), currid(0)
 	{
 		ServerInstance->UseInterface("SQLutils");
 
@@ -1069,12 +1081,12 @@ public:
 
 	virtual ~ModulePgSQL()
 	{
-		ClearConnections();
+		ClearAllConnections();
 		DELETE(sqlsuccess);
 		ServerInstance->UnpublishInterface("SQL", this);
 		ServerInstance->UnpublishFeature("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
-	}	
+	}
 
 	void Implements(char* List)
 	{
@@ -1083,20 +1095,42 @@ public:
 
 	virtual void OnRehash(const std::string &parameter)
 	{
-		if (modloading)
-		{
-			modloading = false;
-			return;
-		}
-
 		ReadConf();
+	}
+
+	bool HasHost(const SQLhost &host)
+	{
+		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			if (host == iter->second->GetConfHost())
+				return true;
+		}
+		return false;
+	}
+
+	bool HostInConf(const SQLhost &h)
+	{
+		ConfigReader conf(ServerInstance);
+		for(int i = 0; i < conf.Enumerate("database"); i++)
+		{
+			SQLhost host;			
+			host.id		= conf.ReadValue("database", "id", i);
+			host.host	= conf.ReadValue("database", "hostname", i);
+			host.port	= conf.ReadInteger("database", "port", i, true);
+			host.name	= conf.ReadValue("database", "name", i);
+			host.user	= conf.ReadValue("database", "username", i);
+			host.pass	= conf.ReadValue("database", "password", i);
+			host.ssl	= conf.ReadFlag("database", "ssl", i);
+			if (h == host)
+				return true;
+		}
+		return false;
 	}
 
 	void ReadConf()
 	{
 		ConfigReader conf(ServerInstance);
 
-		ClearConnections();		
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;			
@@ -1111,12 +1145,15 @@ public:
 			host.pass	= conf.ReadValue("database", "password", i);
 			host.ssl	= conf.ReadFlag("database", "ssl", i);
 			
+			if (HasHost(host))
+				continue;
+
 			ipvalid = insp_aton(host.host.c_str(), &blargle);
-			
+
 			if(ipvalid > 0)
 			{
 				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-				this->AddConn(host);
+				this->AddConn(host, host);
 			}
 			else if(ipvalid == 0)
 			{
@@ -1125,7 +1162,7 @@ public:
 				
 				try
 				{
-					resolver = new SQLresolver(this, ServerInstance, host);
+					resolver = new SQLresolver(this, ServerInstance, host, host);
 					
 					ServerInstance->AddResolver(resolver);
 				}
@@ -1139,10 +1176,26 @@ public:
 				/* Invalid address family, die horribly. */
 				ServerInstance->Log(DEBUG, "insp_aton failed returning -1, oh noes.");
 			}
-		}	
+		}
+		ClearOldConnections();
+	}
+
+	void ClearOldConnections()
+	{
+		ConnMap::iterator iter,safei;
+		for (iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			if (!HostInConf(iter->second->GetConfHost()))
+			{
+				DELETE(iter->second);
+				safei = iter;
+				--iter;
+				connections.erase(safei);
+			}
+		}
 	}
 	
-	void ClearConnections()
+	void ClearAllConnections()
 	{
 		ConnMap::iterator iter;
 		while ((iter = connections.begin()) != connections.end())
@@ -1152,12 +1205,18 @@ public:
 		}
 	}
 
-	void AddConn(const SQLhost& hi)
+	void AddConn(const SQLhost& hi, const SQLhost& ci)
 	{
+		if (HasHost(ci))
+		{
+			ServerInstance->Log(DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possible due to DNS delay, aborting.", hi.id.c_str());
+			return;
+		}
+
 		SQLConn* newconn;
 				
 		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-		newconn = new SQLConn(ServerInstance, this, hi);
+		newconn = new SQLConn(ServerInstance, this, hi, ci);
 				
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
@@ -1225,7 +1284,8 @@ public:
 void SQLresolver::OnLookupComplete(const std::string &result)
 {
 	host.host = result;
-	((ModulePgSQL*)mod)->AddConn(host);
+	((ModulePgSQL*)mod)->AddConn(host, confhost);
+	((ModulePgSQL*)mod)->ClearOldConnections();
 }
 
 class ModulePgSQLFactory : public ModuleFactory
