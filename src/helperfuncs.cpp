@@ -330,16 +330,7 @@ int InspIRCd::OperCount()
 
 int InspIRCd::UnregisteredUserCount()
 {
-	int c = 0;
-
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-	{
-		userrec* t = (userrec*)(*i);
-		if (t->registered != REG_ALL)
-			c++;
-	}
-
-	return c;
+	return this->unregistered_count;
 }
 
 long InspIRCd::ChannelCount()
@@ -349,18 +340,10 @@ long InspIRCd::ChannelCount()
 
 long InspIRCd::LocalUserCount()
 {
-	int c = 0;
-
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-	{
-		userrec* t = (userrec*)(*i);
-		if (t->registered == REG_ALL)
-			c++;
-	}
-
-	return c;
+	/* Doesnt count unregistered clients */
+	return (local_users.size() - this->UnregisteredUserCount());
 }
-
+	
 bool InspIRCd::IsChannel(const char *chname)
 {
 	char *c;

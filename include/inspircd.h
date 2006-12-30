@@ -385,6 +385,12 @@ class InspIRCd : public classbase
 	int time_delta;
 
  public:
+
+	/** Number of unregistered users online right now.
+	 * (Unregistered means before USER/NICK/dns)
+	 */
+	int unregistered_count;
+
         /** List of server names we've seen.
 	 */
 	servernamelist servernames;

@@ -267,6 +267,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	modules.resize(255);
 	factory.resize(255);
 
+	this->unregistered_count = 0;
+
 	this->clientlist = new user_hash();
 	this->chanlist = new chan_hash();
 

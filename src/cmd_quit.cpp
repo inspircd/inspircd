@@ -106,6 +106,10 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_MOD(I_OnPostCommand,OnPostCommand("QUIT", parameters, pcnt, user, CMD_SUCCESS, original_command));
 	}
 
+	if (user->registered != REG_ALL)
+		if (ServerInstance->unregistered_count)
+			ServerInstance->unregistered_count--;
+
 	DELETE(user);
 	return CMD_USER_DELETED;
 }

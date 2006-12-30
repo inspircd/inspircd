@@ -766,7 +766,11 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 
 	if (reason.length() > MAXQUIT - 1)
 		reason.resize(MAXQUIT - 1);
-	
+
+	if (user->registered != REG_ALL)
+		if (Instance->unregistered_count)
+			Instance->unregistered_count--;
+
 	if (IS_LOCAL(user))
 	{
 		user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
@@ -983,6 +987,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	userrec* New;
 	int j = 0;
 
+	Instance->unregistered_count++;
+
 	/*
 	 * fix by brain.
 	 * as these nicknames are 'RFC impossible', we can be sure nobody is going to be
@@ -1176,6 +1182,10 @@ void userrec::FullConnect(CullList* Goners)
 	ServerInstance->Config->Send005(this);
 
 	this->ShowMOTD();
+
+	/* Now registered */
+	if (ServerInstance->unregistered_count)
+		ServerInstance->unregistered_count--;
 
 	/*
 	 * fix 3 by brain, move registered = 7 below these so that spurious modes and host
