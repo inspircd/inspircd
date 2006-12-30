@@ -226,6 +226,11 @@ class userrec : public connection
 	/** Number of channels this user is currently on
 	 */
 	unsigned int ChannelCount;
+
+	char* cached_fullhost;
+	char* cached_hostip;
+	char* cached_makehost;
+	char* cached_fullrealhost;
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
@@ -428,6 +433,11 @@ class userrec : public connection
 	 * @return The full real host of the user
 	 */
 	virtual char* GetFullRealHost();
+
+	/** This clears any cached results that are used for GetFullRealHost() etc.
+	 * The results of these calls are cached as generating them can be generally expensive.
+	 */
+	void InvalidateCache();
 
 	/** Create a displayable mode string for this users snomasks
 	 * @return The notice mask character sequence

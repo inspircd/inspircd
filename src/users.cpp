@@ -212,6 +212,8 @@ void UserResolver::OnLookupComplete(const std::string &result)
 					this->bound_user->dns_done = true;
 					strlcpy(this->bound_user->dhost, hostname.c_str(),64);
 					strlcpy(this->bound_user->host, hostname.c_str(),64);
+					/* Invalidate cache */
+					this->bound_user->InvalidateCache();
 				}
 			}
 			else
@@ -231,7 +233,7 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
 	{
 		/* Error message here */
-		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname, using your IP address (%s) instead.", this->bound_user->GetIPString());
+		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
 		this->bound_user->dns_done = true;
 	}
 }
@@ -308,10 +310,14 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	invites.clear();
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
+	/* Invalidate cache */
+	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 }
 
 userrec::~userrec()
 {
+	this->InvalidateCache();
+
 	if (ip)
 	{
 		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
@@ -349,7 +355,10 @@ userrec::~userrec()
 
 char* userrec::MakeHost()
 {
-	static char nhost[MAXBUF];
+	if (this->cached_makehost)
+		return this->cached_makehost;
+
+	char nhost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = nhost;
 	for(char* n = ident; *n; n++)
@@ -358,12 +367,18 @@ char* userrec::MakeHost()
 	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
-	return nhost;
+
+	this->cached_makehost = strdup(nhost);
+
+	return this->cached_makehost;
 }
 
 char* userrec::MakeHostIP()
 {
-	static char ihost[MAXBUF];
+	if (this->cached_hostip)
+		return this->cached_hostip;
+
+	char ihost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = ihost;
 	for(char* n = ident; *n; n++)
@@ -372,7 +387,10 @@ char* userrec::MakeHostIP()
 	for(const char* n = this->GetIPString(); *n; n++)
 		*t++ = *n;
 	*t = 0;
-	return ihost;
+
+	this->cached_hostip = strdup(ihost);
+
+	return this->cached_hostip;
 }
 
 void userrec::CloseSocket()
@@ -383,7 +401,10 @@ void userrec::CloseSocket()
  
 char* userrec::GetFullHost()
 {
-	static char result[MAXBUF];
+	if (this->cached_fullhost)
+		return this->cached_fullhost;
+
+	char result[MAXBUF];
 	char* t = result;
 	for(char* n = nick; *n; n++)
 		*t++ = *n;
@@ -394,7 +415,10 @@ char* userrec::GetFullHost()
 	for(char* n = dhost; *n; n++)
 		*t++ = *n;
 	*t = 0;
-	return result;
+
+	this->cached_fullhost = strdup(result);
+
+	return this->cached_fullhost;
 }
 
 char* userrec::MakeWildHost()
@@ -422,7 +446,10 @@ int userrec::ReadData(void* buffer, size_t size)
 
 char* userrec::GetFullRealHost()
 {
-	static char fresult[MAXBUF];
+	if (this->cached_fullrealhost)
+		return this->cached_fullrealhost;
+
+	char fresult[MAXBUF];
 	char* t = fresult;
 	for(char* n = nick; *n; n++)
 		*t++ = *n;
@@ -433,7 +460,10 @@ char* userrec::GetFullRealHost()
 	for(char* n = host; *n; n++)
 		*t++ = *n;
 	*t = 0;
-	return fresult;
+
+	this->cached_fullrealhost = strdup(fresult);
+
+	return this->cached_fullrealhost;
 }
 
 bool userrec::IsInvited(const irc::string &channel)
@@ -1230,11 +1260,27 @@ userrec* userrec::UpdateNickHash(const char* New)
 	}
 }
 
+void userrec::InvalidateCache()
+{
+	/* Invalidate cache */
+	if (cached_fullhost)
+		free(cached_fullhost);
+	if (cached_hostip)
+		free(cached_hostip);
+	if (cached_makehost)
+		free(cached_makehost);
+	if (cached_fullrealhost)
+		free(cached_fullrealhost);
+	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+}
+
 bool userrec::ForceNickChange(const char* newnick)
 {
 	try
 	{
 		int MOD_RESULT = 0;
+
+		this->InvalidateCache();
 	
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
 
@@ -1791,6 +1837,9 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	if (!strcmp(host, this->dhost))
 		return true;
 
+	/* Invalidate cache */
+	this->InvalidateCache();
+
 	if (IS_LOCAL(this))
 	{
 		int MOD_RESULT = 0;
@@ -1826,6 +1875,9 @@ bool userrec::ChangeIdent(const char* newident)
 {
 	if (!strcmp(newident, this->ident))
 		return true;
+
+	/* Invalidate cache */
+	this->InvalidateCache();
 
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
