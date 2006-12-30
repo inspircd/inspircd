@@ -411,6 +411,11 @@ class SQLConnection : public classbase
 	{
 	}
 
+	~SQLConnection()
+	{
+		Close();
+	}
+
 	// This method connects to the database using the credentials supplied to the constructor, and returns
 	// true upon success.
 	bool Connect()
@@ -574,6 +579,11 @@ class SQLConnection : public classbase
 		return Enabled;
 	}
 
+	void Close()
+	{
+		mysql_close(&connection);
+	}
+
 };
 
 ConnMap Connections;
@@ -600,7 +610,7 @@ void ClearDatabases()
 	while ((i = Connections.begin()) != Connections.end())
 	{
 		Connections.erase(i);
-		delete i->second;
+		DELETE(i->second);
 	}
 }
 
@@ -762,6 +772,7 @@ class ModuleSQL : public Module
 		ClearDatabases();
 		DELETE(Conf);
 		ServerInstance->UnpublishInterface("SQL", this);
+		ServerInstance->UnpublishFeature("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
 	}
 
