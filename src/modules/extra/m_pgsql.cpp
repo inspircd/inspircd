@@ -1168,6 +1168,7 @@ public:
 				}
 				catch(...)
 				{
+					/* THE WORLD IS COMING TO AN END! */
 					ServerInstance->Log(DEBUG, "Couldn't make a SQLresolver..this connection is gonna diiiiiie...actually we just won't create it");
 				}
 			}
