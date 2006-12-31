@@ -257,6 +257,8 @@ void DNS::Rehash()
 
 	if (this->GetFd() > -1)
 	{
+		if (ServerInstance && ServerInstance->SE)
+			ServerInstance->SE->DelFd(this);
 		shutdown(this->GetFd(), 2);
 		close(this->GetFd());
 		this->SetFd(-1);
