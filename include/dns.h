@@ -353,6 +353,11 @@ class DNS : public EventHandler
 	DNS(InspIRCd* Instance);
 
 	/**
+	 * Re-initialize the DNS subsystem.
+	 */
+	void Rehash();
+
+	/**
 	 * Destructor
 	 */
 	~DNS();

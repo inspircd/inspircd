@@ -348,6 +348,7 @@ void InspIRCd::RehashServer()
 	this->WriteOpers("*** Rehashing config file");
 	this->RehashUsersAndChans();
 	this->Config->Read(false,NULL);
+	this->Res->Rehash();
 }
 
 /* This is ugly, yes, but hash_map's arent designed to be

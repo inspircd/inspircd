@@ -250,40 +250,23 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id)
 	return req;
 }
 
-/** Initialise the DNS UDP socket so that we can send requests */
-DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
+void DNS::Rehash()
 {
-	ServerInstance->Log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
-
 	insp_inaddr addr;
-
-	/* Clear the Resolver class table */
-	memset(Classes,0,sizeof(Classes));
-
-	/* Clear the requests class table */
-	memset(requests,0,sizeof(requests));
-
-	/* Set the id of the next request to 0
-	 */
-	currid = 0;
-
-	/* By default we're not munging ip's
-	 */
 	ip6munge = false;
 
-	/* Clear the namesever address */
-	memset(&myserver,0,sizeof(insp_inaddr));
+	if (this->GetFd() > -1)
+	{
+		shutdown(this->GetFd(), 2);
+		close(this->GetFd());
+		this->SetFd(-1);
+	}
 
-	/* Convert the nameserver address into an insp_inaddr */
 	if (insp_aton(ServerInstance->Config->DNSServer,&addr) > 0)
 	{
 		memcpy(&myserver,&addr,sizeof(insp_inaddr));
 		if ((strstr(ServerInstance->Config->DNSServer,"::ffff:") == (char*)&ServerInstance->Config->DNSServer) ||  (strstr(ServerInstance->Config->DNSServer,"::FFFF:") == (char*)&ServerInstance->Config->DNSServer))
 		{
-			/* These dont come back looking like they did when they went in.
-			 * We're forced to turn some checks off.
-			 * If anyone knows how to fix this, let me know. --Brain
-			 */
 			ServerInstance->Log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
 			ServerInstance->Log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
 			ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
@@ -313,6 +296,7 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	{
 		ServerInstance->Log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
 	}
+
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
 	{
@@ -355,6 +339,26 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 			}
 		}
 	}
+}
+
+/** Initialise the DNS UDP socket so that we can send requests */
+DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
+{
+	ServerInstance->Log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
+
+	/* Clear the Resolver class table */
+	memset(Classes,0,sizeof(Classes));
+
+	/* Clear the requests class table */
+	memset(requests,0,sizeof(requests));
+
+	/* Set the id of the next request to 0
+	 */
+	currid = 0;
+	
+	this->SetFd(-1);
+
+	this->Rehash();
 }
 
 /** Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */

@@ -143,6 +143,7 @@ void InspIRCd::Rehash(int status)
 	SI->RehashUsersAndChans();
 	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
 	SI->Config->Read(false,NULL);
+	SI->Res->Rehash();
 	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
 }
 

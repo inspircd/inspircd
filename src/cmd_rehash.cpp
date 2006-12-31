@@ -40,6 +40,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		ServerInstance->Config->Read(false,user);
+		ServerInstance->Res->Rehash();
 	}
 	if (old_disabled != ServerInstance->Config->DisabledCommands)
 		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
