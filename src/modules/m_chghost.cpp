@@ -25,26 +25,25 @@
  */
 class cmd_chghost : public command_t
 {
+ private:
+	char*& hostmap;
  public:
- cmd_chghost (InspIRCd* Instance) : command_t(Instance,"CHGHOST",'o',2)
+	cmd_chghost (InspIRCd* Instance, char* &hmap) : command_t(Instance,"CHGHOST",'o',2), hostmap(hmap)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";
 	}
-	 
+ 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
 		const char * x = parameters[1];
 
 		for (; *x; x++)
 		{
-			if (((tolower(*x) < 'a') || (tolower(*x) > 'z')) && (*x != '.'))
+			if (!strchr(hostmap, *x))
 			{
-				if (((*x < '0') || (*x > '9')) && (*x != '-'))
-				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
-					return CMD_FAILURE;
-				}
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				return CMD_FAILURE;
 			}
 		}
 		if ((parameters[1] - x) > 63)
@@ -71,31 +70,44 @@ class cmd_chghost : public command_t
 class ModuleChgHost : public Module
 {
 	cmd_chghost* mycommand;
+	char* hostmap;
+	std::string hmap;
  public:
 	ModuleChgHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
-		mycommand = new cmd_chghost(ServerInstance);
+		OnRehash("");
+		mycommand = new cmd_chghost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)
 	{
+		List[I_OnRehash] = 1;
 	}
 	
-	virtual ~ModuleChgHost()
+	void OnRehash(const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+		hmap = Conf.ReadValue("hostname", "charmap", 0);
+
+		if (hmap.empty())
+			hostmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
+		else
+			hostmap = (char*)hmap.c_str();
+	}
+
+	~ModuleChgHost()
 	{
 	}
 	
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
+		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
 	}
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
 class ModuleChgHostFactory : public ModuleFactory
 {

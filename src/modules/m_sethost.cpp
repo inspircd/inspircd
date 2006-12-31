@@ -25,8 +25,10 @@
  */
 class cmd_sethost : public command_t
 {
+ private:
+	char*& hostmap;
  public:
-	cmd_sethost (InspIRCd* Instance) : command_t(Instance,"SETHOST",'o',1)
+	cmd_sethost (InspIRCd* Instance, char*& hmap) : command_t(Instance,"SETHOST",'o',1), hostmap(hmap)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
@@ -37,13 +39,10 @@ class cmd_sethost : public command_t
 		size_t len = 0;
 		for (const char* x = parameters[0]; *x; x++, len++)
 		{
-			if (((tolower(*x) < 'a') || (tolower(*x) > 'z')) && (*x != '.'))
+			if (!strchr(hostmap, *x))
 			{
-				if (((*x < '0') || (*x> '9')) && (*x != '-'))
-				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
-					return CMD_FAILURE;
-				}
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				return CMD_FAILURE;
 			}
 		}
 		if (len > 64)
@@ -64,16 +63,34 @@ class cmd_sethost : public command_t
 
 class ModuleSetHost : public Module
 {
-	cmd_sethost*	mycommand;
+	cmd_sethost* mycommand;
+	char* hostmap;
+	std::string hmap;
  public:
 	ModuleSetHost(InspIRCd* Me)
 		: Module::Module(Me)
-	{
-		
-		mycommand = new cmd_sethost(ServerInstance);
+	{	
+		OnRehash("");
+		mycommand = new cmd_sethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
 	}
-	
+
+	void Implements(char* List)
+	{
+		List[I_OnRehash] = 1;
+	}
+
+	void OnRehash(const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+		hmap = Conf.ReadValue("hostname", "charmap", 0);
+
+		if (hmap.empty())
+			hostmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
+		else
+			hostmap = (char*)hmap.c_str();
+	}
+
 	virtual ~ModuleSetHost()
 	{
 	}
@@ -84,8 +101,6 @@ class ModuleSetHost : public Module
 	}
 	
 };
-
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
 class ModuleSetHostFactory : public ModuleFactory
 {
