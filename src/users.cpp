@@ -1852,6 +1852,8 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	/* Fix by Om: userrec::dhost is 65 long, this was truncating some long hosts */
 	strlcpy(this->dhost,host,64);
 
+	this->InvalidateCache();
+
 	if (this->ServerInstance->Config->CycleHosts)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
@@ -1862,8 +1864,6 @@ bool userrec::ChangeDisplayedHost(const char* host)
 				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
 		}
 	}
-
-	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
 		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);
@@ -1881,6 +1881,8 @@ bool userrec::ChangeIdent(const char* newident)
 
 	strlcpy(this->ident, newident, IDENTMAX+2);
 
+	this->InvalidateCache();
+
 	if (this->ServerInstance->Config->CycleHosts)
 	{
 		for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
@@ -1891,8 +1893,6 @@ bool userrec::ChangeIdent(const char* newident)
 				i->first->WriteAllExceptSender(this, true, 0, "MODE %s +%s", i->first->name, n.c_str());
 		}
 	}
-
-	this->InvalidateCache();
 
 	return true;
 }
