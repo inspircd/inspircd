@@ -40,7 +40,7 @@ class cmd_chghost : public command_t
 
 		for (; *x; x++)
 		{
-			if (!hostmap[*x])
+			if (!hostmap[(unsigned char)*x])
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -96,7 +96,7 @@ class ModuleChgHost : public Module
 
 		memset(&hostmap, 0, sizeof(hostmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
-			hostmap[*n] = 1;
+			hostmap[(unsigned char)*n] = 1;
 	}
 
 	~ModuleChgHost()
