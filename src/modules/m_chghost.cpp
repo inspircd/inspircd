@@ -40,7 +40,7 @@ class cmd_chghost : public command_t
 
 		for (; *x; x++)
 		{
-			if (!strchr(hostmap, *x))
+			if (!hostmap[*x])
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -71,11 +71,11 @@ class ModuleChgHost : public Module
 {
 	cmd_chghost* mycommand;
 	char* hostmap;
-	std::string hmap;
  public:
 	ModuleChgHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{
+		hostmap = new char[256];
 		OnRehash("");
 		mycommand = new cmd_chghost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
@@ -89,16 +89,19 @@ class ModuleChgHost : public Module
 	void OnRehash(const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		hmap = Conf.ReadValue("hostname", "charmap", 0);
+		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
 
 		if (hmap.empty())
 			hostmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
-		else
-			hostmap = (char*)hmap.c_str();
+
+		memset(&hostmap, 0, sizeof(hostmap));
+		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
+			hostmap[*n] = 1;
 	}
 
 	~ModuleChgHost()
 	{
+		delete[] hostmap;
 	}
 	
 	Version GetVersion()

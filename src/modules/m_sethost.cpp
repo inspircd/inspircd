@@ -39,7 +39,7 @@ class cmd_sethost : public command_t
 		size_t len = 0;
 		for (const char* x = parameters[0]; *x; x++, len++)
 		{
-			if (!strchr(hostmap, *x))
+			if (!hostmap[(unsigned char)*x])
 			{
 				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
 				return CMD_FAILURE;
@@ -65,11 +65,11 @@ class ModuleSetHost : public Module
 {
 	cmd_sethost* mycommand;
 	char* hostmap;
-	std::string hmap;
  public:
 	ModuleSetHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{	
+		hostmap = new char[256];
 		OnRehash("");
 		mycommand = new cmd_sethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
@@ -83,16 +83,19 @@ class ModuleSetHost : public Module
 	void OnRehash(const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
-		hmap = Conf.ReadValue("hostname", "charmap", 0);
+		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
 
 		if (hmap.empty())
-			hostmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
-		else
-			hostmap = (char*)hmap.c_str();
+			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
+
+		memset(&hostmap, 0, sizeof(hostmap));
+		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
+			hostmap[(unsigned char)*n] = 1;
 	}
 
 	virtual ~ModuleSetHost()
 	{
+		delete[] hostmap;
 	}
 	
 	virtual Version GetVersion()
