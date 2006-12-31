@@ -71,10 +71,10 @@ class SQLhost
 	std::string	user;	/* Database username */
 	std::string	pass;	/* Database password */
 	bool		ssl;	/* If we should require SSL */
- 
+
 	SQLhost()
 	{
-	}		
+	}
 
 	SQLhost(const std::string& i, const std::string& h, unsigned int p, const std::string& n, const std::string& u, const std::string& pa, bool s)
 	: id(i), host(h), port(p), name(n), user(u), pass(pa), ssl(s)
@@ -137,7 +137,7 @@ class SQLresolver : public Resolver
 class QueryQueue : public classbase
 {
 private:
-	typedef std::deque<SQLrequest> ReqDeque;	
+	typedef std::deque<SQLrequest> ReqDeque;
 
 	ReqDeque priority;	/* The priority queue */
 	ReqDeque normal;	/* The 'normal' queue */
@@ -148,17 +148,17 @@ public:
 	: which(NON)
 	{
 	}
-	
+
 	void push(const SQLrequest &q)
 	{
 		//ServerInstance->Log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.q.c_str());
-		
+
 		if(q.pri)
 			priority.push_back(q);
 		else
 			normal.push_back(q);
 	}
-	
+
 	void pop()
 	{
 		if((which == PRI) && priority.size())
@@ -169,13 +169,13 @@ public:
 		{
 			normal.pop_front();
 		}
-		
+
 		/* Reset this */
 		which = NON;
-		
+
 		/* Silently do nothing if there was no element to pop() */
 	}
-	
+
 	SQLrequest& front()
 	{
 		switch(which)
@@ -190,38 +190,38 @@ public:
 					which = PRI;
 					return priority.front();
 				}
-				
+
 				if(normal.size())
 				{
 					which = NOR;
 					return normal.front();
 				}
-				
+
 				/* This will probably result in a segfault,
 				 * but the caller should have checked totalsize()
 				 * first so..meh - moron :p
 				 */
-				
+
 				return priority.front();
 		}
 	}
-	
+
 	std::pair<int, int> size()
 	{
 		return std::make_pair(priority.size(), normal.size());
 	}
-	
+
 	int totalsize()
 	{
 		return priority.size() + normal.size();
 	}
-	
+
 	void PurgeModule(Module* mod)
 	{
 		DoPurgeModule(mod, priority);
 		DoPurgeModule(mod, normal);
 	}
-	
+
 private:
 	void DoPurgeModule(Module* mod, ReqDeque& q)
 	{
@@ -257,7 +257,7 @@ class PgSQLresult : public SQLresult
 	int currentrow;
 	int rows;
 	int cols;
-	
+
 	SQLfieldList* fieldlist;
 	SQLfieldMap* fieldmap;
 public:
@@ -266,22 +266,22 @@ public:
 	{
 		rows = PQntuples(res);
 		cols = PQnfields(res);
-		
+
 		//ServerInstance->Log(DEBUG, "Created new PgSQL result; %d rows, %d columns, %s affected", rows, cols, PQcmdTuples(res));
 	}
-	
+
 	~PgSQLresult()
 	{
 		/* If we allocated these, free them... */
 		if(fieldlist)
 			DELETE(fieldlist);
-		
+
 		if(fieldmap)
 			DELETE(fieldmap);
-		
+
 		PQclear(res);
 	}
-	
+
 	virtual int Rows()
 	{
 		if(!cols && !rows)
@@ -293,23 +293,23 @@ public:
 			return rows;
 		}
 	}
-	
+
 	virtual int Cols()
 	{
 		return PQnfields(res);
 	}
-	
+
 	virtual std::string ColName(int column)
 	{
 		char* name = PQfname(res, column);
-		
+
 		return (name) ? name : "";
 	}
-	
+
 	virtual int ColNum(const std::string &column)
 	{
 		int n = PQfnumber(res, column.c_str());
-		
+
 		if(n == -1)
 		{
 			throw SQLbadColName();
@@ -319,11 +319,11 @@ public:
 			return n;
 		}
 	}
-	
+
 	virtual SQLfield GetValue(int row, int column)
 	{
 		char* v = PQgetvalue(res, row, column);
-		
+
 		if(v)
 		{
 			return SQLfield(std::string(v, PQgetlength(res, row, column)), PQgetisnull(res, row, column));
@@ -334,7 +334,7 @@ public:
 			throw SQLbadColName();
 		}
 	}
-	
+
 	virtual SQLfieldList& GetRow()
 	{
 		/* In an effort to reduce overhead we don't actually allocate the list
@@ -348,22 +348,22 @@ public:
 		{
 			fieldlist = new SQLfieldList;
 		}
-		
+
 		if(currentrow < PQntuples(res))
 		{
 			int cols = PQnfields(res);
-			
+
 			for(int i = 0; i < cols; i++)
 			{
 				fieldlist->push_back(GetValue(currentrow, i));
 			}
-			
+
 			currentrow++;
 		}
-		
+
 		return *fieldlist;
 	}
-	
+
 	virtual SQLfieldMap& GetRowMap()
 	{
 		/* In an effort to reduce overhead we don't actually allocate the map
@@ -377,65 +377,65 @@ public:
 		{
 			fieldmap = new SQLfieldMap;
 		}
-		
+
 		if(currentrow < PQntuples(res))
 		{
 			int cols = PQnfields(res);
-			
+
 			for(int i = 0; i < cols; i++)
 			{
 				fieldmap->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
 			}
-			
+
 			currentrow++;
 		}
-		
+
 		return *fieldmap;
 	}
-	
+
 	virtual SQLfieldList* GetRowPtr()
 	{
 		SQLfieldList* fl = new SQLfieldList;
-		
+
 		if(currentrow < PQntuples(res))
 		{
 			int cols = PQnfields(res);
-			
+
 			for(int i = 0; i < cols; i++)
 			{
 				fl->push_back(GetValue(currentrow, i));
 			}
-			
+
 			currentrow++;
 		}
-		
+
 		return fl;
 	}
-	
+
 	virtual SQLfieldMap* GetRowMapPtr()
 	{
 		SQLfieldMap* fm = new SQLfieldMap;
-		
+
 		if(currentrow < PQntuples(res))
 		{
 			int cols = PQnfields(res);
-			
+
 			for(int i = 0; i < cols; i++)
 			{
 				fm->insert(std::make_pair(ColName(i), GetValue(currentrow, i)));
 			}
-			
+
 			currentrow++;
 		}
-		
+
 		return fm;
 	}
-	
+
 	virtual void Free(SQLfieldMap* fm)
 	{
 		DELETE(fm);
 	}
-	
+
 	virtual void Free(SQLfieldList* fl)
 	{
 		DELETE(fl);
@@ -485,7 +485,7 @@ public:
 
 	bool DoResetPoll();
 
-	void ShowStatus();	
+	void ShowStatus();
 
 	virtual bool OnDataReady();
 
@@ -523,11 +523,11 @@ SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi, const SQLhost& c
 	strlcpy(this->IP, dbhost.c_str(), MAXBUF);
 	this->port = dbport;
 	idle = this->Instance->Time();
-	
+
 	this->ClosePending = false;
-			
+
 	Instance->Log(DEBUG,"No need to resolve %s", this->host);
-	
+
 	if(!this->DoConnect())
 	{
 		throw ModuleException("Connect failed");
@@ -549,38 +549,38 @@ bool SQLConn::DoConnect()
 		DoClose();
 		return false;
 	}
-	
+
 	if(PQstatus(sql) == CONNECTION_BAD)
 	{
 		Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
 		DoClose();
 		return false;
 	}
-	
+
 	ShowStatus();
-	
+
 	if(PQsetnonblocking(sql, 1) == -1)
 	{
 		Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
 		DoClose();
 		return false;
 	}
-	
+
 	/* OK, we've initalised the connection, now to get it hooked into the socket engine
 	 * and then start polling it.
 	 */
-	
+
 	//ServerInstance->Log(DEBUG, "Old DNS socket: %d", this->fd);
 	this->fd = PQsocket(sql);
 	Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
-	
+
 	if(this->fd <= -1)
 	{
 		Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
 		DoClose();
 		return false;
 	}
-	
+
 	this->state = I_CONNECTING;
 	if (!this->Instance->SE->AddFd(this))
 	{
@@ -588,9 +588,9 @@ bool SQLConn::DoConnect()
 		DoClose();
 		return false;
 	}
-	
+
 	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-	
+
 	return DoPoll();
 }
 
@@ -632,16 +632,16 @@ bool SQLConn::DoConnectedPoll()
 		SQLrequest& query = queue.front();
 		DoQuery(query);
 	}
-	
+
 	if(PQconsumeInput(sql))
 	{
 		Instance->Log(DEBUG, "PQconsumeInput succeeded");
-		
+
 		/* We just read stuff from the server, that counts as it being alive
 		 * so update the idle-since time :p
 		 */
 		idle = this->Instance->Time();
-			
+
 		if(PQisBusy(sql))
 		{
 			//ServerInstance->Log(DEBUG, "Still busy processing command though");
@@ -649,18 +649,18 @@ bool SQLConn::DoConnectedPoll()
 		else if(qinprog)
 		{
 			//ServerInstance->Log(DEBUG, "Looks like we have a result to process!");
-			
+
 			/* Grab the request we're processing */
 			SQLrequest& query = queue.front();
-			
+
 			Instance->Log(DEBUG, "ID is %lu", query.id);
-			
+
 			/* Get a pointer to the module we're about to return the result to */
 			Module* to = query.GetSource();
-			
+
 			/* Fetch the result.. */
 			PGresult* result = PQgetResult(sql);
-			
+
 			/* PgSQL would allow a query string to be sent which has multiple
 			 * queries in it, this isn't portable across database backends and
 			 * we don't want modules doing it. But just in case we make sure we
@@ -672,7 +672,7 @@ bool SQLConn::DoConnectedPoll()
 				PQclear(result);
 				result = temp;
 			}
-			
+
 			if(to)
 			{
 				/* ..and the result */
@@ -680,9 +680,9 @@ bool SQLConn::DoConnectedPoll()
 
 				/* Fix by brain, make sure the original query gets sent back in the reply */
 				reply.query = query.query.q;
-				
-				Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));	
-				
+
+				Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
+
 				switch(PQresultStatus(result))
 				{
 					case PGRES_EMPTY_QUERY:
@@ -693,9 +693,9 @@ bool SQLConn::DoConnectedPoll()
 					default:;
 						/* No action, other values are not errors */
 				}
-				
+
 				reply.Send();
-				
+
 				/* PgSQLresult's destructor will free the PGresult */
 			}
 			else
@@ -707,16 +707,16 @@ bool SQLConn::DoConnectedPoll()
 				Instance->Log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: %lu", query.id);
 				PQclear(result);
 			}
-			
+
 			qinprog = false;
-			queue.pop();				
+			queue.pop();
 			DoConnectedPoll();
 		}
 		else
 		{
 			Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
 		}
-		
+
 		return true;
 	}
 	else
@@ -769,23 +769,23 @@ void SQLConn::ShowStatus()
 		case CONNECTION_MADE:
 			Instance->Log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
 			break;
-		
+
 		case CONNECTION_AWAITING_RESPONSE:
 			Instance->Log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
 			break;
-		
+
 		case CONNECTION_AUTH_OK:
 			Instance->Log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
 			break;
-		
+
 		case CONNECTION_SSL_STARTUP:
 			Instance->Log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
 			break;
-		
+
 		case CONNECTION_SETENV:
 			Instance->Log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
 			break;
-		
+
 		default:
 			Instance->Log(DEBUG, "PQstatus: ???");
 	}
@@ -795,7 +795,7 @@ bool SQLConn::OnDataReady()
 {
 	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
 	Instance->Log(DEBUG, "OnDataReady(): status = %s", StatusStr());
-	
+
 	return DoEvent();
 }
 
@@ -803,21 +803,21 @@ bool SQLConn::OnWriteReady()
 {
 	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
 	Instance->Log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
-	
+
 	return DoEvent();
 }
 
 bool SQLConn::OnConnected()
 {
 	Instance->Log(DEBUG, "OnConnected(): status = %s", StatusStr());
-	
+
 	return DoEvent();
 }
 
 bool SQLConn::Reconnect()
 {
 	Instance->Log(DEBUG, "Initiating reconnect");
-	
+
 	if(PQresetStart(sql))
 	{
 		/* Successfully initiatied database reconnect,
@@ -831,13 +831,13 @@ bool SQLConn::Reconnect()
 	{
 		Instance->Log(DEBUG, "Failed to initiate reconnect...fun");
 		return false;
-	}	
+	}
 }
 
 bool SQLConn::DoEvent()
 {
 	bool ret;
-	
+
 	if((status == CREAD) || (status == CWRITE))
 	{
 		ret = DoPoll();
@@ -850,7 +850,7 @@ bool SQLConn::DoEvent()
 	{
 		ret = DoConnectedPoll();
 	}
-	
+
 	switch(PQflush(sql))
 	{
 		case -1:
@@ -869,27 +869,27 @@ bool SQLConn::DoEvent()
 }
 
 std::string SQLConn::MkInfoStr()
-{			
+{
 	std::ostringstream conninfo("connect_timeout = '2'");
-	
+
 	if(dbhost.length())
 		conninfo << " hostaddr = '" << dbhost << "'";
-	
+
 	if(dbport)
 		conninfo << " port = '" << dbport << "'";
-	
+
 	if(dbname.length())
 		conninfo << " dbname = '" << dbname << "'";
-	
+
 	if(dbuser.length())
 		conninfo << " user = '" << dbuser << "'";
-	
+
 	if(dbpass.length())
 		conninfo << " password = '" << dbpass << "'";
-	
+
 	if(ssl)
 		conninfo << " sslmode = 'require'";
-	
+
 	return conninfo.str();
 }
 
@@ -909,34 +909,34 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 		if(!qinprog)
 		{
 			/* Parse the command string and dispatch it */
-			
+
 			/* Pointer to the buffer we screw around with substitution in */
 			char* query;
 			/* Pointer to the current end of query, where we append new stuff */
 			char* queryend;
 			/* Total length of the unescaped parameters */
 			unsigned int paramlen;
-			
+
 			paramlen = 0;
-			
+
 			for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
 			{
 				paramlen += i->size();
 			}
-			
+
 			/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
 			 * sizeofquery + (totalparamlength*2) + 1
-			 * 
+			 *
 			 * The +1 is for null-terminating the string for PQsendQuery()
 			 */
-			
+
 			query = new char[req.query.q.length() + (paramlen*2) + 1];
 			queryend = query;
-			
+
 			/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
 			 * the parameters into it...
 			 */
-			
+
 			for(unsigned int i = 0; i < req.query.q.length(); i++)
 			{
 				if(req.query.q[i] == '?')
@@ -947,7 +947,7 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 					 * then we "just" need to make sure queryend is
 					 * pointing at the right place.
 					 */
-					
+
 					if(req.query.p.size())
 					{
 						int error = 0;
@@ -962,12 +962,12 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 						{
 							Instance->Log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
 						}
-						
+
 						Instance->Log(DEBUG, "Appended %d bytes of escaped string onto the query", len);
-						
+
 						/* Incremenet queryend to the end of the newly escaped parameter */
 						queryend += len;
-						
+
 						/* Remove the parameter we just substituted in */
 						req.query.p.pop_front();
 					}
@@ -983,12 +983,12 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 					queryend++;
 				}
 			}
-			
+
 			/* Null-terminate the query */
 			*queryend = 0;
-	
+
 			Instance->Log(DEBUG, "Attempting to dispatch query: %s", query);
-			
+
 			req.query.q = query;
 
 			if(PQsendQuery(sql, query))
@@ -1013,7 +1013,7 @@ SQLerror SQLConn::DoQuery(SQLrequest &req)
 SQLerror SQLConn::Query(const SQLrequest &req)
 {
 	queue.push(req);
-	
+
 	if(!qinprog && queue.totalsize())
 	{
 		/* There's no query currently in progress, and there's queries in the queue. */
@@ -1039,7 +1039,7 @@ const SQLhost SQLConn::GetConfHost()
 class ModulePgSQL : public Module
 {
 private:
-	
+
 	ConnMap connections;
 	ConnMap deadconnections;
 	unsigned long currid;
@@ -1052,8 +1052,8 @@ public:
 		ServerInstance->UseInterface("SQLutils");
 
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
-		
-		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS)+1);
+
+		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS));
 
 		if (!ServerInstance->PublishFeature("SQL", this))
 		{
@@ -1068,7 +1068,7 @@ public:
 	virtual ~ModulePgSQL()
 	{
 		ClearAllConnections();
-		DELETE(sqlsuccess);
+		delete[] sqlsuccess;
 		ServerInstance->UnpublishInterface("SQL", this);
 		ServerInstance->UnpublishFeature("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
@@ -1101,7 +1101,7 @@ public:
 		ConfigReader conf(ServerInstance);
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
-			SQLhost host;			
+			SQLhost host;
 			host.id		= conf.ReadValue("database", "id", i);
 			host.host	= conf.ReadValue("database", "hostname", i);
 			host.port	= conf.ReadInteger("database", "port", i, true);
@@ -1122,10 +1122,10 @@ public:
 
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
-			SQLhost host;			
+			SQLhost host;
 			int ipvalid;
 			insp_inaddr blargle;
-			
+
 			host.id		= conf.ReadValue("database", "id", i);
 			host.host	= conf.ReadValue("database", "hostname", i);
 			host.port	= conf.ReadInteger("database", "port", i, true);
@@ -1133,7 +1133,7 @@ public:
 			host.user	= conf.ReadValue("database", "username", i);
 			host.pass	= conf.ReadValue("database", "password", i);
 			host.ssl	= conf.ReadFlag("database", "ssl", i);
-			
+
 			if (HasHost(host))
 				continue;
 
@@ -1148,11 +1148,11 @@ public:
 			{
 				/* Conversion failed, assume it's a host */
 				SQLresolver* resolver;
-				
+
 				try
 				{
 					resolver = new SQLresolver(this, ServerInstance, host, host);
-					
+
 					ServerInstance->AddResolver(resolver);
 				}
 				catch(...)
@@ -1178,14 +1178,14 @@ public:
 		{
 			if (!HostInConf(iter->second->GetConfHost()))
 			{
-				DELETE(iter->second);
+				delete iter->second;
 				safei = iter;
 				--iter;
 				connections.erase(safei);
 			}
 		}
 	}
-	
+
 	void ClearAllConnections()
 	{
 		ClearDeadConnections();
@@ -1193,25 +1193,12 @@ public:
 		while ((iter = connections.begin()) != connections.end())
 		{
 			connections.erase(iter);
-			DELETE(iter->second);
+			delete iter->second;
 		}
 	}
 
 	void ClearDeadConnections()
 	{
-/*
-		ConnMap::iterator iter,safei;
-		for (iter = connections.begin(); iter != connections.end(); iter++)
-		{
-			if (sizeof(iter->second) <= 0)
-			{
-				safei = iter;
-				--iter;
-				connections.erase(safei);
-			}
-			ServerInstance->Log(DEBUG, "<*********> sizeof(iter->second): %d", sizeof(iter->second));
-		}
-*/
 		ConnMap::iterator di;
 		while ((di = deadconnections.begin()) != deadconnections.end())
 		{
@@ -1219,7 +1206,6 @@ public:
 			if (iter != connections.end())
 			{
 				connections.erase(iter);
-				ServerInstance->Log(DEBUG, "<*********> sizeof(iter->second): %d", sizeof(iter->second));
 			}
 			deadconnections.erase(di);
 		}
@@ -1239,20 +1225,20 @@ public:
 		}
 
 		SQLConn* newconn;
-				
+
 		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
 		newconn = new SQLConn(ServerInstance, this, hi, ci);
-				
+
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
-	
+
 	virtual char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLREQID, request->GetId()) == 0)
 		{
 			SQLrequest* req = (SQLrequest*)request;
 			ConnMap::iterator iter;
-		
+
 			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
 
 			if((iter = connections.find(req->dbid)) != connections.end())
@@ -1260,7 +1246,7 @@ public:
 				/* Execute query */
 				req->id = NewID();
 				req->error = iter->second->Query(*req);
-				
+
 				return (req->error.Id() == NO_ERROR) ? sqlsuccess : NULL;
 			}
 			else
@@ -1271,10 +1257,10 @@ public:
 		}
 
 		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-		
+
 		return NULL;
 	}
-	
+
 	virtual void OnUnloadModule(Module* mod, const std::string&	name)
 	{
 		/* When a module unloads we have to check all the pending queries for all our connections
@@ -1293,10 +1279,10 @@ public:
 	{
 		if (currid+1 == 0)
 			currid++;
-		
+
 		return ++currid;
 	}
-		
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_VENDOR|VF_SERVICEPROVIDER, API_VERSION);
@@ -1314,7 +1300,7 @@ void SQLresolver::OnLookupComplete(const std::string &result)
 }
 
 /* move this here too, to use AddDeadConn */
-void SQLConn::DoClose() 
+void SQLConn::DoClose()
 {
 	Instance->Log(DEBUG,"SQLConn::Close");
 
@@ -1326,7 +1312,7 @@ void SQLConn::DoClose()
 	this->state = I_ERROR;
 	this->OnError(I_ERR_SOCKET);
 	this->ClosePending = true;
-	
+
 	if(sql)
 	{
 		PQfinish(sql);
@@ -1342,11 +1328,11 @@ class ModulePgSQLFactory : public ModuleFactory
 	ModulePgSQLFactory()
 	{
 	}
-	
+
 	~ModulePgSQLFactory()
 	{
 	}
-	
+
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModulePgSQL(Me);
