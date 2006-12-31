@@ -221,12 +221,20 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 	
 		if (command == "QUIT")
 		{
+			/* QUIT with no reason: nothing to do */
+			if (pcnt < 1)
+				return 0;
+
 			checkline = parameters[0];
 			replacepoint = 0;
 			parting = false;
 		}
 		else if (command == "PART")
 		{
+			/* PART with no reason: nothing to do */
+			if (pcnt < 2)
+				return 0;
+
 			checkline = parameters[1];
 			replacepoint = 1;
 			parting = true;
