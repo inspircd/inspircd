@@ -26,9 +26,9 @@
 class cmd_sethost : public command_t
 {
  private:
-	char*& hostmap;
+	char* hostmap;
  public:
-	cmd_sethost (InspIRCd* Instance, char*& hmap) : command_t(Instance,"SETHOST",'o',1), hostmap(hmap)
+	cmd_sethost (InspIRCd* Instance, char* hmap) : command_t(Instance,"SETHOST",'o',1), hostmap(hmap)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
@@ -64,12 +64,11 @@ class cmd_sethost : public command_t
 class ModuleSetHost : public Module
 {
 	cmd_sethost* mycommand;
-	char* hostmap;
+	char hostmap[256];
  public:
 	ModuleSetHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{	
-		hostmap = new char[256];
 		OnRehash("");
 		mycommand = new cmd_sethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
@@ -88,14 +87,13 @@ class ModuleSetHost : public Module
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
 
-		memset(&hostmap, 0, sizeof(hostmap));
+		memset(&hostmap, 0, 255);
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			hostmap[(unsigned char)*n] = 1;
 	}
 
 	virtual ~ModuleSetHost()
 	{
-		delete[] hostmap;
 	}
 	
 	virtual Version GetVersion()

@@ -26,9 +26,9 @@
 class cmd_chghost : public command_t
 {
  private:
-	char*& hostmap;
+	char* hostmap;
  public:
-	cmd_chghost (InspIRCd* Instance, char* &hmap) : command_t(Instance,"CHGHOST",'o',2), hostmap(hmap)
+	cmd_chghost (InspIRCd* Instance, char* hmap) : command_t(Instance,"CHGHOST",'o',2), hostmap(hmap)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";
@@ -70,12 +70,11 @@ class cmd_chghost : public command_t
 class ModuleChgHost : public Module
 {
 	cmd_chghost* mycommand;
-	char* hostmap;
+	char hostmap[256];
  public:
 	ModuleChgHost(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		hostmap = new char[256];
 		OnRehash("");
 		mycommand = new cmd_chghost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
@@ -92,9 +91,9 @@ class ModuleChgHost : public Module
 		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
 
 		if (hmap.empty())
-			hostmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
+			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
 
-		memset(&hostmap, 0, sizeof(hostmap));
+		memset(&hostmap, 0, 255);
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			hostmap[(unsigned char)*n] = 1;
 	}
