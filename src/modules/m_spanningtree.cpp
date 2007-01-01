@@ -1643,6 +1643,7 @@ class TreeSocket : public InspSocket
 		 */
 		if (ourTS > TS)
 		{
+			Instance->Log(DEBUG,"************ WE LOST TS COMPARE, DEOPPING EVERYONE ********************* ");
 			std::deque<std::string> param_list;
 
 			/* Lower the TS here */
@@ -1652,12 +1653,9 @@ class TreeSocket : public InspSocket
 			ourTS = TS;
 
 			/* Zap all the privilage modes on our side, if the channel exists here */
-			if (!created)
-			{
-				param_list.push_back(channel);
-				this->RemoveStatus(Instance->Config->ServerName, param_list);
-				chan->age = TS;
-			}
+			param_list.push_back(channel);
+			this->RemoveStatus(Instance->Config->ServerName, param_list);
+			chan->age = TS;
 		}
 
 		/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
