@@ -241,7 +241,7 @@ class ModuleCloaking : public Module
 		if (!ServerInstance->AddMode(cu, 'x'))
 			throw ModuleException("Could not add new modes!");
 
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 	
 	virtual ~ModuleCloaking()
@@ -258,7 +258,7 @@ class ModuleCloaking : public Module
 		return Version(1,1,0,2,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		cu->DoRehash();
 	}

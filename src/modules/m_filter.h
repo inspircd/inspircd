@@ -50,7 +50,7 @@ class FilterBase : public Module
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration) = 0;
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual void OnRehash(const std::string &parameter);
+	virtual void OnRehash(userrec* user, const std::string &parameter);
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
@@ -298,7 +298,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 	return 0;
 }
 
-void FilterBase::OnRehash(const std::string &parameter)
+void FilterBase::OnRehash(userrec* user, const std::string &parameter)
 {
 }
 	

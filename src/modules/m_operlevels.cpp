@@ -50,7 +50,7 @@ class ModuleOperLevels : public Module
 			List[I_OnRehash] = List[I_OnKill] = 1;
 		}
 
-		virtual void OnRehash(const std::string &parameter)
+		virtual void OnRehash(userrec* user, const std::string &parameter)
 		{
 			DELETE(conf);
 			conf = new ConfigReader(ServerInstance);

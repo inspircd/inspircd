@@ -133,10 +133,10 @@ class ModuleSSLOpenSSL : public Module
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
 		// Needs the flag as it ignores a plain /rehash
-		OnRehash("ssl");
+		OnRehash(NULL,"ssl");
 	}
 	
-	virtual void OnRehash(const std::string &param)
+	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		if (param != "ssl")
 			return;

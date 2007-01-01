@@ -144,7 +144,7 @@ void InspIRCd::Rehash(int status)
 	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
 	SI->Config->Read(false,NULL);
 	SI->Res->Rehash();
-	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(""));
+	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(NULL,""));
 }
 
 /** Because hash_map doesnt free its buckets when we delete items (this is a 'feature')

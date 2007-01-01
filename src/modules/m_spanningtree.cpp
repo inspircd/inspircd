@@ -2467,7 +2467,7 @@ class TreeSocket : public InspSocket
 
 		if (this->Instance->MatchText(this->Instance->Config->ServerName,servermask))
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated from server \002"+prefix+"\002.");
+			this->Instance->SNO->WriteToSnoMask('l',"Remote rehash initiated by \002"+prefix+"\002.");
 			this->Instance->RehashServer();
 			Utils->ReadConfiguration(false);
 			InitializeDisabledCommands(Instance->Config->DisabledCommands, Instance);
@@ -5128,17 +5128,17 @@ class ModuleSpanningTree : public Module
 		Utils->DoOneToMany(source->nick,"KILL",params);
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		if (parameter != "")
 		{
 			std::deque<std::string> params;
 			params.push_back(parameter);
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"REHASH",params);
+			Utils->DoOneToMany(user ? user->nick : ServerInstance->Config->ServerName, "REHASH", params);
 			// check for self
 			if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
 			{
-				ServerInstance->WriteOpers("*** Remote rehash initiated from server \002%s\002",ServerInstance->Config->ServerName);
+				ServerInstance->WriteOpers("*** Remote rehash initiated locally by \002%s\002", user ? user->nick : ServerInstance->Config->ServerName);
 				ServerInstance->RehashServer();
 			}
 		}

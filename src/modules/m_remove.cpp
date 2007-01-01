@@ -262,7 +262,7 @@ class ModuleRemove : public Module
 		mycommand2 = new cmd_fpart(ServerInstance, supportnokicks);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 
 	void Implements(char* List)
@@ -275,7 +275,7 @@ class ModuleRemove : public Module
 		output.append(" REMOVE");
 	}
 	
-	virtual void OnRehash(const std::string&)
+	virtual void OnRehash(userrec* user, const std::string&)
 	{
 		ConfigReader conf(ServerInstance);
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);

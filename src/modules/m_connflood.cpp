@@ -110,7 +110,7 @@ public:
 		return 0;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		InitConf();
 	}

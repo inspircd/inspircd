@@ -43,9 +43,8 @@ class ModuleHostChange : public Module
 	ModuleHostChange(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
 		Conf = new ConfigReader(ServerInstance);
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 	
 	virtual ~ModuleHostChange()
@@ -63,7 +62,7 @@ class ModuleHostChange : public Module
 		List[I_OnRehash] = List[I_OnUserConnect] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);

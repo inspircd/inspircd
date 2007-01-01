@@ -85,7 +85,7 @@ class ModuleChanFilter : public Module
 		cf->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		cf->DoRehash();
 	}

@@ -104,7 +104,7 @@ public:
 		ie->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(const std::string &param)
+	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		ie->DoRehash();
 	}

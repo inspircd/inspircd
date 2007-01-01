@@ -45,11 +45,10 @@ class ModuleWaitPong : public Module
 	ModuleWaitPong(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 	
-	virtual void OnRehash(const std::string &param)
+	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		Conf = new ConfigReader(ServerInstance);
 		

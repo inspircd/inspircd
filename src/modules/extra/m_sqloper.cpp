@@ -42,7 +42,7 @@ public:
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 
 	virtual ~ModuleSQLOper()
@@ -56,7 +56,7 @@ public:
 		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader Conf(Srv);
 		

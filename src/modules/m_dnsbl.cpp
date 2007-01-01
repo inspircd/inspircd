@@ -266,7 +266,7 @@ class ModuleDNSBL : public Module
 		delete MyConf;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ReadConf();
 	}

@@ -47,7 +47,7 @@ class ModuleFilterPCRE : public FilterBase
 	ModuleFilterPCRE(InspIRCd* Me)
 	: FilterBase::FilterBase(Me, "m_filter_pcre.so")
 	{
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 
 	virtual ~ModuleFilterPCRE()
@@ -115,7 +115,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{		
 		ConfigReader MyConf(ServerInstance);
 

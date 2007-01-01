@@ -75,7 +75,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11009
+#define NATIVE_API_VERSION 11010
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -518,9 +518,11 @@ class Module : public Extensible
 	 * system. You should use it to reload any files so that your module keeps in step with the
 	 * rest of the application. If a parameter is given, the core has done nothing. The module
 	 * receiving the event can decide if this parameter has any relevence to it.
+	 * @param user The user performing the rehash, if any -- if this is server initiated, the
+	 * value of this variable will be NULL.
 	 * @param parameter The (optional) parameter given to REHASH from the user.
 	 */
- 	virtual void OnRehash(const std::string &parameter);
+ 	virtual void OnRehash(userrec* user, const std::string &parameter);
 
 	/** Called when a raw command is transmitted or received.
 	 * This method is the lowest level of handler available to a module. It will be called with raw

@@ -106,13 +106,13 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters");
 
 		// Needs the flag as it ignores a plain /rehash
-		OnRehash("ssl");
+		OnRehash(NULL,"ssl");
 		
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 	
-	virtual void OnRehash(const std::string &param)
+	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		if(param != "ssl")
 			return;

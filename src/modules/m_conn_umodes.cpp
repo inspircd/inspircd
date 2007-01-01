@@ -40,7 +40,7 @@ class ModuleModesOnConnect : public Module
 		List[I_OnPostConnect] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);

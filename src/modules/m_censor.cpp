@@ -96,7 +96,7 @@ class ModuleCensor : public Module
 	{
 		/* Read the configuration file on startup.
 		 */
-		OnRehash("");
+		OnRehash(NULL,"");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
 		if (!ServerInstance->AddMode(cu, 'G') || !ServerInstance->AddMode(cc, 'G'))
@@ -159,7 +159,7 @@ class ModuleCensor : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 	
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes

@@ -36,13 +36,13 @@ class ModuleOverride : public Module
 		: Module::Module(Me)
 	{		
 		// read our config options (main config file)
-		OnRehash("");
+		OnRehash(NULL,"");
 		ServerInstance->SNO->EnableSnomask('O',"OVERRIDE");
 		OverriddenMode = false;
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 	}
 	
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader* Conf = new ConfigReader(ServerInstance);

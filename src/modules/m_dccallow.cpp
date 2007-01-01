@@ -267,7 +267,7 @@ class ModuleDCCAllow : public Module
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserQuit] = List[I_OnUserPreNick] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);

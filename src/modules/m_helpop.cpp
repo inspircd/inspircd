@@ -55,11 +55,11 @@ class Helpop : public ModeHandler
 class cmd_helpop : public command_t
 {
  public:
-	 cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 1)
-	 {
-		 this->source = "m_helpop.so";
-		 syntax = "<any-text>";
-	 }
+	cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 1)
+	{
+		this->source = "m_helpop.so";
+		syntax = "<any-text>";
+	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{		
@@ -161,7 +161,7 @@ class ModuleHelpop : public Module
 			List[I_OnRehash] = List[I_OnWhois] = 1;
 		}
 
-		virtual void OnRehash(const std::string &parameter)
+		virtual void OnRehash(userrec* user, const std::string &parameter)
 		{
 			ReadConfig();
 		}

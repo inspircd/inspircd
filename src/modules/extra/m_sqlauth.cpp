@@ -50,7 +50,7 @@ public:
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 
 	virtual ~ModuleSQLAuth()
@@ -64,7 +64,7 @@ public:
 		List[I_OnUserDisconnect] = List[I_OnCheckReady] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader Conf(Srv);
 		

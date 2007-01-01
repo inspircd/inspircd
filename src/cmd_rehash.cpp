@@ -45,7 +45,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	if (old_disabled != ServerInstance->Config->DisabledCommands)
 		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 
-	FOREACH_MOD(I_OnRehash,OnRehash(parameter));
+	FOREACH_MOD(I_OnRehash,OnRehash(user, parameter));
 
 	return CMD_SUCCESS;
 }

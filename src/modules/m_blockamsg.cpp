@@ -48,7 +48,7 @@ public:
 	ModuleBlockAmsg(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		this->OnRehash("");
+		this->OnRehash(NULL,"");
 	}
 
 	void Implements(char* List)
@@ -65,7 +65,7 @@ public:
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader* Conf = new ConfigReader(ServerInstance);
 		

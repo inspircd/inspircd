@@ -61,7 +61,7 @@ class ModuleOperjoin : public Module
 			List[I_OnPostOper] = List[I_OnRehash] = 1;
 		}
 
-		virtual void OnRehash(const std::string &parameter)
+		virtual void OnRehash(userrec* user, const std::string &parameter)
 		{
 			DELETE(conf);
 			conf = new ConfigReader(ServerInstance);

@@ -89,7 +89,7 @@ class ModuleSWhois : public Module
 		ServerInstance->AddCommand(mycommand);
 	}
 
-	void OnRehash(const std::string &parameter)
+	void OnRehash(userrec* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);

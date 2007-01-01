@@ -91,7 +91,7 @@ public:
 	ModuleCgiIRC(InspIRCd* Me) : Module::Module(Me)
 	{
 		
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 
 	void Implements(char* List)
@@ -105,7 +105,7 @@ public:
 		return PRIORITY_FIRST;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		

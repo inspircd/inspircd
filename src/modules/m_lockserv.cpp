@@ -103,7 +103,7 @@ public:
 		List[I_OnUserRegister] = List[I_OnRehash] = List[I_OnCheckReady] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ResetLocked();
 	}

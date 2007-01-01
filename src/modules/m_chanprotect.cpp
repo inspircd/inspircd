@@ -290,7 +290,7 @@ class ModuleChanProtect : public Module
 		: Module::Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), booting(true)
 	{	
 		/* Load config stuff */
-		OnRehash("");
+		OnRehash(NULL,"");
 		booting = false;
 
 		/* Initialise module variables */
@@ -321,7 +321,7 @@ class ModuleChanProtect : public Module
 		user->Shrink("cm_protect_"+std::string(channel->name));
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		/* Create a configreader class and read our flag,
 		 * in old versions this was heap-allocated and the

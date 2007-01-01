@@ -105,7 +105,7 @@ class ModuleOpermotd : public Module
 		ShowOperMOTD(user);
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		LoadOperMOTD();
 	}

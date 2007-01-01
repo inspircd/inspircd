@@ -826,7 +826,7 @@ class ModuleSQL : public Module
 		return NULL;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		/* TODO: set rehash bool here, which makes the dispatcher thread rehash at next opportunity */
 	}

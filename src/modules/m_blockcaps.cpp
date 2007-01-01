@@ -59,7 +59,7 @@ public:
 	
 	ModuleBlockCAPS(InspIRCd* Me) : Module::Module(Me)
 	{
-		OnRehash("");
+		OnRehash(NULL,"");
 		bc = new BlockCaps(ServerInstance);
 		if (!ServerInstance->AddMode(bc, 'P'))
 			throw ModuleException("Could not add new modes!");
@@ -70,7 +70,7 @@ public:
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(const std::string &param)
+	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		ReadConf();
 	}

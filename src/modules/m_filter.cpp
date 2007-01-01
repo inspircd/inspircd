@@ -33,7 +33,7 @@ class ModuleFilter : public FilterBase
 	ModuleFilter(InspIRCd* Me)
 	: FilterBase::FilterBase(Me, "m_filter.so")
 	{
-		OnRehash("");
+		OnRehash(NULL,"");
 	}
 	
 	virtual ~ModuleFilter()
@@ -89,7 +89,7 @@ class ModuleFilter : public FilterBase
 		}
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 

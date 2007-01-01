@@ -84,7 +84,7 @@ class ModuleOperHash : public Module
 
 		/* Read the config file first */
 		Conf = NULL;
-		OnRehash("");
+		OnRehash(NULL,"");
 
 		ServerInstance->UseInterface("HashRequest");
 
@@ -126,7 +126,7 @@ class ModuleOperHash : public Module
 		List[I_OnRehash] = List[I_OnOperCompare] = 1;
 	}
 
-	virtual void OnRehash(const std::string &parameter)
+	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		/* Re-read configuration file */
 		if (Conf)
