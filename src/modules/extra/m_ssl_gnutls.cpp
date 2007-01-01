@@ -141,7 +141,7 @@ class ModuleSSLGnuTLS : public Module
 					{
 						listenports.push_back(portno);
 						for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
-							if (ServerInstance->Config->ports[i])
+							if (ServerInstance->Config->ports[i] == portno)
 								ServerInstance->Config->openSockfd[i]->SetDescription("ssl");
 						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
 					}
@@ -259,7 +259,12 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)
+			{
 				ServerInstance->Config->DelIOHook(listenports[i]);
+				for (unsigned int j = 0; j < ServerInstance->stats->BoundPortCount; j++)
+					if (ServerInstance->Config->ports[j] == listenports[i])
+						ServerInstance->Config->openSockfd[j]->SetDescription("plaintext");
+			}
 		}
 	}
 	
