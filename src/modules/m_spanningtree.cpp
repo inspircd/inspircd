@@ -1635,20 +1635,6 @@ class TreeSocket : public InspSocket
 		else
 			created = true; /* don't perform deops, and set TS to correct time after processing. */
 
-		/* Check if there are any local users on this channel. If there are not, set created = true.
-		 * If there are no local users here, theres no need for us to bounce the modes, we leave this
-		 * to servers which do have local users and save some bandwidth and prevent spurious deops
-		 */
-		if (!created)
-		{
-			CUList elist;
-			TreeServerList list;
-			Utils->GetListOfServersForChannel(chan, list, 0, elist);
-			if (list.find(Utils->TreeRoot) == list.end())
-				created = true;
-		}
-
-
 		/* In 1.1, if they have the newer channel, we immediately clear
 		 * all status modes from our users. We then accept their modes.
 		 * If WE have the newer channel its the other side's job to do this.
