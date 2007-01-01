@@ -118,6 +118,7 @@ class ModuleSWhois : public Module
 	// it is ours.
 	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
+		ServerInstance->Log(DEBUG,"Sync user metadata type '%s'", extname.c_str());
 		// check if the linking module wants to know about OUR metadata
 		if (extname == "swhois")
 		{
@@ -129,6 +130,10 @@ class ModuleSWhois : public Module
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
 				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*swhois);
+			}
+			else
+			{
+				ServerInstance->Log(DEBUG,"User has a null swhois string!");
 			}
 		}
 	}
@@ -173,6 +178,7 @@ class ModuleSWhois : public Module
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "swhois"))
 		{
+			ServerInstance->Log(DEBUG,"Extend with swhois");
 			userrec* dest = (userrec*)target;
 			// if they dont already have an swhois field, accept the remote server's
 			std::string* text;
@@ -180,6 +186,7 @@ class ModuleSWhois : public Module
 			{
 				std::string* text = new std::string(extdata);
 				dest->Extend("swhois",text);
+				ServerInstance->Log(DEBUG,"extended: %s %s", dest->nick, dest->text.c_str());
 			}
 		}
 	}
