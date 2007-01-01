@@ -1653,9 +1653,12 @@ class TreeSocket : public InspSocket
 			ourTS = TS;
 
 			/* Zap all the privilage modes on our side, if the channel exists here */
-			param_list.push_back(channel);
-			this->RemoveStatus(Instance->Config->ServerName, param_list);
-			chan->age = TS;
+			if (!created)
+			{
+				param_list.push_back(channel);
+				this->RemoveStatus(Instance->Config->ServerName, param_list);
+				chan->age = TS;
+			}
 		}
 
 		/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
