@@ -163,6 +163,8 @@ modclean:
 	rm -rf modules/*.so
 	rm -rf src/modules/*.so
 	rm -rf src/modules/*.o
+	rm -rf lib/*.so
+	rm -f bin/inspircd
 
 squeakyclean: distclean
 
