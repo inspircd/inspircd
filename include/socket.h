@@ -150,6 +150,7 @@ class ListenSocket : public EventHandler
 	/** The creator/owner of this object
 	 */
 	InspIRCd* ServerInstance;
+	std::string desc;
  public:
 	/** Create a new listening socket
 	 */
@@ -160,6 +161,17 @@ class ListenSocket : public EventHandler
 	/** Close the socket
 	 */
 	~ListenSocket();
+	/** Set descriptive text
+	 */
+	void SetDescription(const std::string &description)
+	{
+		desc = description;
+	}
+
+	const std::string& GetDescription()
+	{
+		return desc;
+	}
 };
 
 #endif

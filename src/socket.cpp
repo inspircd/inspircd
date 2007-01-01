@@ -36,7 +36,7 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 };
 
 
-ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance)
+ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance), desc("plaintext")
 {
 	this->SetFd(sockfd);
 	Instance->Log(DEBUG,"Binding to port %s:%d",addr,port);

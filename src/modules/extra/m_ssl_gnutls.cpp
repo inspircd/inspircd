@@ -140,6 +140,9 @@ class ModuleSSLGnuTLS : public Module
 					if (ServerInstance->Config->AddIOHook(portno, this))
 					{
 						listenports.push_back(portno);
+						for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
+							if (ServerInstance->Config->ports[i])
+								ServerInstance->Config->openSockfd[i]->SetDescription("ssl");
 						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
 					}
 					else

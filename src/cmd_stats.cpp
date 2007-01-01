@@ -60,18 +60,16 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		case 'p':
 		{
 			std::map<int,int> pc;
-	
 			for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 			{
 				userrec* t = (userrec*)(*i);
 				if (t->registered == REG_ALL)
 					pc[t->GetPort()]++;
 			}
-	
 			for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
 			{
 				results.push_back(sn+" 249 "+user->nick+" :p:"+ConvToStr(ServerInstance->Config->ports[i])+" (" + ConvToStr(pc[ServerInstance->Config->ports[i]])+" client" +
-						(pc[ServerInstance->Config->ports[i]] != 1 ? "s" : "") + ")");
+						(pc[ServerInstance->Config->ports[i]] != 1 ? "s" : "") + "), "+ServerInstance->Config->openSockfd[i]->GetDescription());
 			}
 		}
 		break;
