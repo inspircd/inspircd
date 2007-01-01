@@ -186,7 +186,7 @@ class ModuleSWhois : public Module
 			{
 				std::string* text = new std::string(extdata);
 				dest->Extend("swhois",text);
-				ServerInstance->Log(DEBUG,"extended: %s %s", dest->nick, dest->text.c_str());
+				ServerInstance->Log(DEBUG,"extended: %s %s", dest->nick, text->c_str());
 			}
 		}
 	}
