@@ -97,18 +97,25 @@ class ModuleSWhois : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnDecodeMetaData] = List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
+		List[I_OnDecodeMetaData] = List[I_OnWhoisLine] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	virtual void OnWhois(userrec* source, userrec* dest)
+	int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text)
 	{
-		std::string* swhois;
-		dest->GetExt("swhois", swhois);
-		if (swhois)
+		/* We use this and not OnWhois because this triggers for remote, too */
+		if (numeric == 312)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :%s",source->nick,dest->nick,swhois->c_str());
+			/* Insert our numeric before 312 */
+			std::string* swhois;
+			dest->GetExt("swhois", swhois);
+			if (swhois)
+			{
+				ServerInstance->SendWhoisLine(user, dest, 320, "%s %s :%s",user->nick,dest->nick,swhois->c_str());
+			}
 		}
+		/* Dont block anything */
+		return 0;
 	}
 
 	// Whenever the linking module wants to send out data, but doesnt know what the data
