@@ -97,7 +97,7 @@ class ModuleSWhois : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
+		List[I_OnDecodeMetaData] = List[I_OnWhois] = List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnRehash] = List[I_OnPostCommand] = 1;
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
