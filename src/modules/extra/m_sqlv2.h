@@ -428,4 +428,43 @@ public:
 	virtual void Free(SQLfieldList* fl) = 0;
 };
 
+
+/** SQLHost represents a <database> config line and is useful
+ * for storing in a map and iterating on rehash to see which
+ * <database> tags was added/removed/unchanged.
+ */
+class SQLhost
+{
+ public:
+	std::string		id;		/* Database handle id */
+	std::string		host;	/* Database server hostname */
+	std::string		ip;		/* resolved IP, needed for at least pgsql.so */
+	unsigned int	port;	/* Database server port */
+	std::string		name;	/* Database name */
+	std::string		user;	/* Database username */
+	std::string		pass;	/* Database password */
+	bool			ssl;	/* If we should require SSL */
+
+	SQLhost()
+	{
+	}
+
+	SQLhost(const std::string& i, const std::string& h, unsigned int p, const std::string& n, const std::string& u, const std::string& pa, bool s)
+	: id(i), host(h), port(p), name(n), user(u), pass(pa), ssl(s)
+	{
+	}
+
+	/** Overload this to return a correct Data source Name (DSN) for
+	 * the current SQL module.
+	 */
+	std::string GetDSN();
+};
+
+/** Overload operator== for two SQLhost objects for easy comparison.
+ */
+bool operator== (const SQLhost& l, const SQLhost& r)
+{
+	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
+}
+
 #endif
