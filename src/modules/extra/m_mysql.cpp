@@ -393,13 +393,9 @@ class SQLConnection : public classbase
 	MYSQL connection;
 	MYSQL_RES *res;
 	MYSQL_ROW row;
-	std::string host;
-	std::string user;
-	std::string pass;
-	std::string db;
+	SQLhost host;
 	std::map<std::string,std::string> thisrow;
 	bool Enabled;
-	std::string id;
 
  public:
 
@@ -407,7 +403,7 @@ class SQLConnection : public classbase
 	ResultQueue rq;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(const std::string &thishost, const std::string &thisuser, const std::string &thispass, const std::string &thisdb, const std::string &myid) : host(thishost), user(thisuser), pass(thispass), db(thisdb), Enabled(true), id(myid)
+	SQLConnection(const SQLhost &hi) : host(hi), Enabled(true)
 	{
 	}
 
@@ -423,7 +419,7 @@ class SQLConnection : public classbase
 		unsigned int timeout = 1;
 		mysql_init(&connection);
 		mysql_options(&connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
-		return mysql_real_connect(&connection, host.c_str(), user.c_str(), pass.c_str(), db.c_str(), 0, NULL, 0);
+		return mysql_real_connect(&connection, host.host.c_str(), host.user.c_str(), host.pass.c_str(), host.name.c_str(), host.port, NULL, 0);
 	}
 
 	void DoLeadingQuery()
@@ -561,12 +557,12 @@ class SQLConnection : public classbase
 
 	const std::string& GetID()
 	{
-		return id;
+		return host.id;
 	}
 
 	std::string GetHost()
 	{
-		return host;
+		return host.host;
 	}
 
 	void SetEnable(bool Enable)
@@ -614,20 +610,23 @@ void ClearDatabases()
 	}
 }
 
-void LoadDatabases(ConfigReader* ThisConf, InspIRCd* ServerInstance)
+void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance)
 {
 	ClearDatabases();
-	for (int j =0; j < ThisConf->Enumerate("database"); j++)
+	for (int j =0; j < conf->Enumerate("database"); j++)
 	{
-		std::string db = ThisConf->ReadValue("database","name",j);
-		std::string user = ThisConf->ReadValue("database","username",j);
-		std::string pass = ThisConf->ReadValue("database","password",j);
-		std::string host = ThisConf->ReadValue("database","hostname",j);
-		std::string id = ThisConf->ReadValue("database","id",j);
-		if ((db != "") && (host != "") && (user != "") && (id != "") && (pass != ""))
+		SQLhost host;
+		host.id		= conf->ReadValue("database", "id", j);
+		host.host	= conf->ReadValue("database", "hostname", j);
+		host.port	= conf->ReadInteger("database", "port", j, true);
+		host.name	= conf->ReadValue("database", "name", j);
+		host.user	= conf->ReadValue("database", "username", j);
+		host.pass	= conf->ReadValue("database", "password", j);
+
+		if (!host.id.empty() && !host.host.empty() && !host.name.empty() && !host.user.empty() && !host.pass.empty())
 		{
-			SQLConnection* ThisSQL = new SQLConnection(host,user,pass,db,id);
-			Connections[id] = ThisSQL;
+			SQLConnection* ThisSQL = new SQLConnection(host);
+			Connections[host.id] = ThisSQL;
 		}
 	}
 	ConnectDatabases(ServerInstance);
