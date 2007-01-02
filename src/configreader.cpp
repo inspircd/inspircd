@@ -1348,6 +1348,42 @@ bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &t
 	stream.str(value);
 	if(!(stream >> result))
 		return false;
+	else
+	{
+		if (!value.empty())
+		{
+			if (value.substr(0,2) == "0x")
+			{
+				char* endptr;
+
+				value.erase(0,2);
+				result = strtol(value.c_str(), &endptr, 16);
+
+				/* No digits found */
+				if (endptr == value.c_str())
+					return false;
+			}
+			else
+			{
+				char denominator = *(value.end() - 1);
+				switch (toupper(denominator))
+				{
+					case 'K':
+						/* Kilobytes -> bytes */
+						result = result * 1024;
+					break;
+					case 'M':
+						/* Megabytes -> bytes */
+						result = result * 1024 * 1024;
+					break;
+					case 'G':
+						/* Gigabytes -> bytes */
+						result = result * 1024 * 1024 * 1024;
+					break;
+				}
+			}
+		}
+	}
 	return r;
 }
 
