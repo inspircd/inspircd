@@ -1051,15 +1051,17 @@
 # be included. However, if prefix is not included, it will default    #
 # to your networks name from the <server> tag.                        #
 #                                                                     #
-# <cloak key1="543241423"                                             #
-#        key2="5378410432"                                            #
-#        key3="1143242382"                                            #
-#        key4="9504324581"                                            #
+# <cloak key1="0x2AF39F40"                                            #
+#        key2="0x78E10B32"                                            #
+#        key3="0x4F2D2E82"                                            #
+#        key4="0x043A4C81"                                            #
 #        prefix="mynet">                                              #
 #                                                                     #
 # Please note that the key values will accept any number, and should  #
 # be large numbers. Using small numbers such as "7" or "1924" will    #
-# seriously weaken the security of your cloak.                        #
+# seriously weaken the security of your cloak. It is recommended you  #
+# use hexdecimal numbers prefixed by "0x", as shown in this example,  #
+# with each key eight hex digits long.                                #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Lusers: Shows the LUSERS output on connect
