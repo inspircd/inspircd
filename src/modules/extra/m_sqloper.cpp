@@ -172,6 +172,14 @@ public:
 								/* If/when one of the rows matches, stop checking and return */
 								return SQLSUCCESS;
 							}
+							if (tried_user && tried_pass)
+							{
+								LoginFail(user, tried_user, tried_pass);
+								free(tried_user);
+								free(tried_pass);
+								user->Shrink("oper_user");
+								user->Shrink("oper_pass");
+							}
 						}
 					}
 					else
