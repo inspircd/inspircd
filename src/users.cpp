@@ -913,49 +913,61 @@ namespace irc
 			int maxgroups = ServerInstance->Config->WhoWasMaxGroups;
 			int maxkeep =   ServerInstance->Config->WhoWasMaxKeep;
 
-			int groupcount = ServerInstance->whowas.size();
-			/* iterate whowas_fifo oldest first */
-			whowas_users_fifo::iterator iter, safeiter;
-			for (iter = ServerInstance->whowas_fifo.begin(); iter != ServerInstance->whowas_fifo.end(); iter++)
+			/* first cut the list to new size (maxgroups) and also prune entries that are timed out. */
+			whowas_users::iterator iter;
+			int fifosize;
+			while ((fifosize = (int)ServerInstance->whowas_fifo.size()) > 0)
 			{
-				/** prune all groups that has expired due to new maxkeep time and
-				 *  also any group number higher than new maxgroups. The oldest are
-				 *  removed first due to iteration over whowas_fifo 
-				 */
-				if (groupcount > maxgroups || iter->first < t - maxkeep)
+				if (fifosize > maxgroups || ServerInstance->whowas_fifo[0].first < t - maxkeep)
 				{
-					whowas_set* n = (whowas_set*)ServerInstance->whowas.find(iter->second)->second;
+					iter = ServerInstance->whowas.find(ServerInstance->whowas_fifo[0].second);
+					/* hopefully redundant integrity check, but added while debugging r6216 */
+					if (iter == ServerInstance->whowas.end())
+					{
+						/* this should never happen, if it does maps are corrupt */
+						ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (1)");
+						return;
+					}
+					whowas_set* n = (whowas_set*)iter->second;
 					if (n->size())
 					{
 						while (n->begin() != n->end())
 						{
 							WhoWasGroup *a = *(n->begin());
 							DELETE(a);
-							n->erase(n->begin());
+							n->pop_front();
 						}
 					}
-					ServerInstance->whowas.erase(iter->second);
-					/* use a safe iter copy for erase and set the orig iter old valid ref by decrementing it */
-					safeiter = iter;
-					--iter;
-					ServerInstance->whowas_fifo.erase(safeiter);
+					ServerInstance->whowas.erase(iter);
+					ServerInstance->whowas_fifo.pop_front();
 				}
-				else {
-					/* also trim individual groupsizes in case groupsize should have been lowered */
-					whowas_set* n = (whowas_set*)ServerInstance->whowas.find(iter->second)->second;
-					if (n->size())
+				else
+					break;
+			}
+
+			/* Then cut the whowas sets to new size (groupsize) */
+			for (int i = 0; i < fifosize; i++)
+			{
+				iter = ServerInstance->whowas.find(ServerInstance->whowas_fifo[0].second);
+				/* hopefully redundant integrity check, but added while debugging r6216 */
+				if (iter == ServerInstance->whowas.end())
+				{
+					/* this should never happen, if it does maps are corrupt */
+					ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (2)");
+					return;
+				}
+				whowas_set* n = (whowas_set*)iter->second;
+				if (n->size())
+				{
+					int nickcount = n->size();
+					while (n->begin() != n->end() && nickcount > groupsize)
 					{
-						int nickcount = n->size();
-						while (n->begin() != n->end() && nickcount > groupsize)
-						{
-							WhoWasGroup *a = *(n->begin());
-							DELETE(a);
-							n->erase(n->begin());
-							nickcount--;
-						}
+						WhoWasGroup *a = *(n->begin());
+						DELETE(a);
+						n->pop_front();
+						nickcount--;
 					}
 				}
-				groupcount--;
 			}
 		}
 	};
@@ -977,15 +989,32 @@ void userrec::AddToWhoWas()
 	if (iter == ServerInstance->whowas.end())
 	{
 		ServerInstance->Log(DEBUG,"Adding new whowas set for %s",this->nick);
+
 		irc::whowas::whowas_set* n = new irc::whowas::whowas_set;
 		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
 		n->push_back(a);
 		ServerInstance->whowas[this->nick] = n;
 		ServerInstance->whowas_fifo.push_back(std::make_pair(ServerInstance->Time(),this->nick));
+
 		if ((int)(ServerInstance->whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
 		{
-			ServerInstance->Log(DEBUG,"Maxgroups of %d reached deleting oldest group '%s'",ServerInstance->Config->WhoWasMaxGroups, ServerInstance->whowas_fifo.begin()->second.c_str());
-			ServerInstance->whowas.erase(ServerInstance->whowas_fifo.begin()->second);
+			ServerInstance->Log(DEBUG,"Maxgroups of %d reached deleting oldest group '%s'",ServerInstance->Config->WhoWasMaxGroups, ServerInstance->whowas_fifo[0].second.c_str());
+
+			irc::whowas::whowas_users::iterator iter = ServerInstance->whowas.find(ServerInstance->whowas_fifo[0].second);
+			if (iter != ServerInstance->whowas.end())
+			{
+				irc::whowas::whowas_set* n = (irc::whowas::whowas_set*)iter->second;
+				if (n->size())
+				{
+					while (n->begin() != n->end())
+					{
+						irc::whowas::WhoWasGroup *a = *(n->begin());
+						DELETE(a);
+						n->pop_front();
+					}
+				}
+				ServerInstance->whowas.erase(iter);
+			}
 			ServerInstance->whowas_fifo.pop_front();
 		}
 	}
@@ -995,16 +1024,16 @@ void userrec::AddToWhoWas()
 
 		ServerInstance->Log(DEBUG,"Using existing whowas group for %s",this->nick);
 
-		if ((int)(group->size()) >= ServerInstance->Config->WhoWasGroupSize)
+		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
+		group->push_back(a);
+
+		if ((int)(group->size()) > ServerInstance->Config->WhoWasGroupSize)
 		{
 			ServerInstance->Log(DEBUG,"Trimming existing group '%s' to %d entries",this->nick, ServerInstance->Config->WhoWasGroupSize);
 			irc::whowas::WhoWasGroup *a = (irc::whowas::WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();
 		}
-
-		irc::whowas::WhoWasGroup *a = new irc::whowas::WhoWasGroup(this);
-		group->push_back(a);
 	}
 }
 
