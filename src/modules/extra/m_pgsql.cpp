@@ -55,36 +55,31 @@ typedef std::map<std::string, SQLConn*> ConnMap;
  */
 enum SQLstatus { CREAD, CWRITE, WREAD, WWRITE, RREAD, RWRITE };
 
-/** SQLhost, simple structure to store information about a SQL-connection-to-be
- * We use this struct simply to make it neater passing around host information
- * when we're creating connections and resolving hosts.
- * Rather than giving SQLresolver a parameter for every field here so it can in
- * turn call SQLConn's constructor with them all, both can simply use a SQLhost.
+/** SQLhost::GetDSN() - Overload to return correct DSN for PostgreSQL
  */
-class SQLhost
+std::string SQLhost::GetDSN()
 {
- public:
-	std::string	id;	/* Database handle id */
-	std::string	host;	/* Database server hostname */
-	unsigned int	port;	/* Database server port */
-	std::string	name;	/* Database name */
-	std::string	user;	/* Database username */
-	std::string	pass;	/* Database password */
-	bool		ssl;	/* If we should require SSL */
+	std::ostringstream conninfo("connect_timeout = '2'");
 
-	SQLhost()
-	{
-	}
+	if (ip.length())
+		conninfo << " hostaddr = '" << ip << "'";
 
-	SQLhost(const std::string& i, const std::string& h, unsigned int p, const std::string& n, const std::string& u, const std::string& pa, bool s)
-	: id(i), host(h), port(p), name(n), user(u), pass(pa), ssl(s)
-	{
-	}
-};
+	if (port)
+		conninfo << " port = '" << port << "'";
 
-bool operator== (const SQLhost& l, const SQLhost& r)
-{
-	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
+	if (name.length())
+		conninfo << " dbname = '" << name << "'";
+
+	if (user.length())
+		conninfo << " user = '" << user << "'";
+
+	if (pass.length())
+		conninfo << " password = '" << pass << "'";
+
+	if (ssl)
+		conninfo << " sslmode = 'require'";
+
+	return conninfo.str();
 }
 
 /** Used to resolve sql server hostnames
@@ -93,11 +88,10 @@ class SQLresolver : public Resolver
 {
  private:
 	SQLhost host;
-	SQLhost confhost;
 	Module* mod;
  public:
-	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi, const SQLhost& ci)
-	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), confhost(ci), mod(m)
+	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi)
+	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), mod(m)
 	{
 	}
 
@@ -452,24 +446,18 @@ public:
 class SQLConn : public InspSocket
 {
 private:
+	SQLhost			confhost;	/* The <database> entry */
 	Module*			us;			/* Pointer to the SQL provider itself */
-	std::string 	dbhost;		/* Database server hostname */
-	unsigned int	dbport;		/* Database server port */
-	std::string 	dbname;		/* Database name */
-	std::string 	dbuser;		/* Database username */
-	std::string 	dbpass;		/* Database password */
-	bool			ssl;		/* If we should require SSL */
 	PGconn* 		sql;		/* PgSQL database connection handle */
 	SQLstatus		status;		/* PgSQL database connection status */
 	bool			qinprog;	/* If there is currently a query in progress */
 	QueryQueue		queue;		/* Queue of queries waiting to be executed on this connection */
 	time_t			idle;		/* Time we last heard from the database */
-	SQLhost			confhost;	/* A copy of the config <database> entry for conf checks */
 public:
 
 	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
 
-	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo, const SQLhost& confinfo);
+	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo);
 
 	~SQLConn();
 
@@ -497,8 +485,6 @@ public:
 
 	bool Reconnect();
 
-	std::string MkInfoStr();
-
 	const char* StatusStr();
 
 	SQLerror DoQuery(SQLrequest &req);
@@ -510,27 +496,15 @@ public:
 	const SQLhost GetConfHost();
 };
 
-SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi, const SQLhost& ci)
-: InspSocket::InspSocket(SI), us(self), dbhost(hi.host), dbport(hi.port), dbname(hi.name), dbuser(hi.user), dbpass(hi.pass), ssl(hi.ssl), sql(NULL), status(CWRITE), qinprog(false)
+SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
+: InspSocket::InspSocket(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 {
-	//ServerInstance->Log(DEBUG, "Creating new PgSQL connection to database %s on %s:%u (%s/%s)", dbname.c_str(), dbhost.c_str(), dbport, dbuser.c_str(), dbpass.c_str());
-
-	/* Some of this could be reviewed, unsure if I need to fill 'host' etc...
-	 * just copied this over from the InspSocket constructor.
-	 */
-	confhost = ci;
-	strlcpy(this->host, dbhost.c_str(), MAXBUF);
-	strlcpy(this->IP, dbhost.c_str(), MAXBUF);
-	this->port = dbport;
 	idle = this->Instance->Time();
-
 	this->ClosePending = false;
-
-	Instance->Log(DEBUG,"No need to resolve %s", this->host);
 
 	if(!this->DoConnect())
 	{
-		throw ModuleException("Connect failed");
+		Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
 	}
 }
 
@@ -541,9 +515,7 @@ SQLConn::~SQLConn()
 
 bool SQLConn::DoConnect()
 {
-	//ServerInstance->Log(DEBUG, "SQLConn::DoConnect()");
-
-	if(!(sql = PQconnectStart(MkInfoStr().c_str())))
+	if(!(sql = PQconnectStart(confhost.GetDSN().c_str())))
 	{
 		Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
 		DoClose();
@@ -868,31 +840,6 @@ bool SQLConn::DoEvent()
 	return ret;
 }
 
-std::string SQLConn::MkInfoStr()
-{
-	std::ostringstream conninfo("connect_timeout = '2'");
-
-	if(dbhost.length())
-		conninfo << " hostaddr = '" << dbhost << "'";
-
-	if(dbport)
-		conninfo << " port = '" << dbport << "'";
-
-	if(dbname.length())
-		conninfo << " dbname = '" << dbname << "'";
-
-	if(dbuser.length())
-		conninfo << " user = '" << dbuser << "'";
-
-	if(dbpass.length())
-		conninfo << " password = '" << dbpass << "'";
-
-	if(ssl)
-		conninfo << " sslmode = 'require'";
-
-	return conninfo.str();
-}
-
 const char* SQLConn::StatusStr()
 {
 	if(status == CREAD) return "CREAD";
@@ -1142,7 +1089,8 @@ public:
 			if(ipvalid > 0)
 			{
 				/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-				this->AddConn(host, host);
+				host.ip = host.host;
+				this->AddConn(host);
 			}
 			else if(ipvalid == 0)
 			{
@@ -1151,7 +1099,7 @@ public:
 
 				try
 				{
-					resolver = new SQLresolver(this, ServerInstance, host, host);
+					resolver = new SQLresolver(this, ServerInstance, host);
 
 					ServerInstance->AddResolver(resolver);
 				}
@@ -1216,9 +1164,9 @@ public:
 		deadconnections[id] = conn;
 	}
 
-	void AddConn(const SQLhost& hi, const SQLhost& ci)
+	void AddConn(const SQLhost& hi)
 	{
-		if (HasHost(ci))
+		if (HasHost(hi))
 		{
 			ServerInstance->Log(DEFAULT, "WARNING: A pgsql connection with id: %s already exists, possibly due to DNS delay. Aborting connection attempt.", hi.id.c_str());
 			return;
@@ -1227,7 +1175,7 @@ public:
 		SQLConn* newconn;
 
 		/* The conversion succeeded, we were given an IP and we can give it straight to SQLConn */
-		newconn = new SQLConn(ServerInstance, this, hi, ci);
+		newconn = new SQLConn(ServerInstance, this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
@@ -1294,8 +1242,8 @@ public:
  */
 void SQLresolver::OnLookupComplete(const std::string &result)
 {
-	host.host = result;
-	((ModulePgSQL*)mod)->AddConn(host, confhost);
+	host.ip = result;
+	((ModulePgSQL*)mod)->AddConn(host);
 	((ModulePgSQL*)mod)->ClearOldConnections();
 }
 
