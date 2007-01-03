@@ -1666,7 +1666,7 @@ void userrec::WriteCommon(const std::string &text)
 		 */
 		if (!sent_to_at_least_one)
 		{
-			this->WriteFrom(this,std::string(tb));
+			this->Write(std::string(tb));
 		}
 	}
 
