@@ -171,6 +171,9 @@ class ModeHandler : public Extensible
 	/** Get number of items with this mode set on them
 	 */
 	virtual unsigned int GetCount();
+	/** Adjust usage count returned by GetCount
+	 */
+	virtual void ChangeCount(int modifier);
 	/**
 	 * Get the 'value' of this modes prefix.
 	 * determines which to display when there are multiple.

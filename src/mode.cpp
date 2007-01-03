@@ -76,6 +76,11 @@ unsigned int ModeHandler::GetCount()
 	return 0;
 }
 
+void ModeHandler::ChangeCount(int modifier)
+{
+	count += modifier;
+}
+
 ModeType ModeHandler::GetModeType()
 {
 	return m_type;

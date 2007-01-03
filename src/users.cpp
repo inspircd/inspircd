@@ -289,6 +289,19 @@ const char* userrec::FormatModes()
 	return data;
 }
 
+void userrec::DecrementModes()
+{
+	for (int n = 0; n < 64; n++)
+	{
+		if (modes[n])
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(n+65, MODETYPE_USER);
+			if (mh)
+				mh->ChangeCount(-1);
+		}
+	}
+}
+
 userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	ServerInstance->Log(DEBUG,"userrec::userrec(): Instance: %08x",ServerInstance);
@@ -317,7 +330,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 userrec::~userrec()
 {
 	this->InvalidateCache();
-
+	this->DecrementModes();
 	if (ip)
 	{
 		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());

@@ -231,6 +231,12 @@ class userrec : public connection
 	char* cached_hostip;
 	char* cached_makehost;
 	char* cached_fullrealhost;
+
+	/** When we erase the user (in the destructor),
+	 * we call this method to subtract one from all
+	 * mode characters this user is making use of.
+	 */
+	void DecrementModes();
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
