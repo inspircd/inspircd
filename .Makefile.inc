@@ -12,11 +12,11 @@ MAKE = @MAKEPROG@
 PROGS = inspircd
 FLAGS = @FLAGS@
 LDLIBS = @LDLIBS@
-BASE = @BASE_DIR@
-CONPATH = @CONFIG_DIR@
-MODPATH = @MODULE_DIR@
-BINPATH = @BINARY_DIR@
-LIBPATH = @LIBRARY_DIR@
+BASE = $(DESTDIR)@BASE_DIR@
+CONPATH = $(DESTDIR)@CONFIG_DIR@
+MODPATH = $(DESTDIR)@MODULE_DIR@
+BINPATH = $(DESTDIR)@BINARY_DIR@
+LIBPATH = $(DESTDIR)@LIBRARY_DIR@
 MODULES = @MODULES@
 STATICLIBS = @STATICLIBS@
 INSTMODE = 0700
@@ -50,11 +50,11 @@ ircd:
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
 install: all
-	@-mkdir -p ${BASE}
-	@-mkdir -p $(LIBPATH)
-	@-mkdir -p $(BINPATH)
-	@-mkdir -p $(CONPATH)
-	@-mkdir -p ${MODPATH}
+	@-install -d -m $(INSTMODE) ${BASE}
+	@-install -d -m $(INSTMODE) $(LIBPATH)
+	@-install -d -m $(INSTMODE) $(BINPATH)
+	@-install -d -m $(INSTMODE) $(CONPATH)
+	@-install -d -m $(INSTMODE) ${MODPATH}
 	-install -m $(INSTMODE) src/libIRCDasyncdns.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDbase.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDchannels.so $(LIBPATH)
