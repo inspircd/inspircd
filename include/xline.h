@@ -22,11 +22,12 @@
 #include "users.h"
 #include "channels.h"
 
-const int APPLY_GLINES	= 1;
-const int APPLY_KLINES	= 2;
-const int APPLY_QLINES	= 4;
-const int APPLY_ZLINES	= 8;
-const int APPLY_ALL	= APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES;
+const int APPLY_GLINES		= 1;
+const int APPLY_KLINES		= 2;
+const int APPLY_QLINES		= 4;
+const int APPLY_ZLINES		= 8;
+const int APPLY_PERM_ONLY	= 16;
+const int APPLY_ALL		= APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES;
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  */
@@ -186,7 +187,11 @@ class ServerConfig;
 class InspIRCd;
 
 bool InitXLine(ServerConfig* conf, const char* tag);
-bool DoneXLine(ServerConfig* conf, const char* tag);
+
+bool DoneZLine(ServerConfig* conf, const char* tag);
+bool DoneQLine(ServerConfig* conf, const char* tag);
+bool DoneKLine(ServerConfig* conf, const char* tag);
+bool DoneELine(ServerConfig* conf, const char* tag);
 
 bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
@@ -344,31 +349,31 @@ class XLineManager
 	 * @return nick The nick to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	QLine* matches_qline(const char* nick);
+	QLine* matches_qline(const char* nick, bool permonly = false);
 
 	/** Check if a hostname matches a GLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	GLine* matches_gline(userrec* user);
+	GLine* matches_gline(userrec* user, bool permonly = false);
 
 	/** Check if a IP matches a ZLine
 	 * @param ipaddr The IP to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ZLine* matches_zline(const char* ipaddr);
+	ZLine* matches_zline(const char* ipaddr, bool permonly = false);
 
 	/** Check if a hostname matches a KLine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	KLine* matches_kline(userrec* user);
+	KLine* matches_kline(userrec* user, bool permonly = false);
 
 	/** Check if a hostname matches a ELine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ELine* matches_exception(userrec* user);
+	ELine* matches_exception(userrec* user, bool permonly = false);
 
 	/** Expire any pending non-permenant lines
 	 */
@@ -377,6 +382,7 @@ class XLineManager
 	/** Apply any new lines
 	 * @param What The types of lines to apply, from the set
 	 * APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES | APPLY_ALL
+	 * | APPLY_LOCAL_ONLY
 	 */
 	void apply_lines(const int What);
 
