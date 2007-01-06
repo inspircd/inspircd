@@ -122,7 +122,8 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			{
 				if ((*i->second->oper) && (!ServerInstance->ULine(i->second->server)))
 				{
-					results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg));
+					results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+
+							(IS_LOCAL(user) ? ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg) : "unavailable"));
 					idx++;
 				}
 			}
