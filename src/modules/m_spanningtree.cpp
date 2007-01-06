@@ -1904,7 +1904,7 @@ class TreeSocket : public InspSocket
 		{
 			_new->modes[(*v)-65] = 1;
 			/* For each mode thats set, increase counter */
-			ModeHandler* mh = Instance->Modes->FindMode((*v)-65, MODETYPE_USER);
+			ModeHandler* mh = Instance->Modes->FindMode(*v, MODETYPE_USER);
 			if (mh)
 				mh->ChangeCount(1);
 		}
