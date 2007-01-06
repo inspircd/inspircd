@@ -185,6 +185,7 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 	{
 		if (n->second & MASK)
 		{
+			ServerInstance->Log(DEBUG,"User already has privilage %d (privset: %d)", MASK, n->second);
 			return "";
 		}
 		n->second = n->second | MASK;
@@ -202,6 +203,10 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 		}
 		ServerInstance->Log(DEBUG,"grant: %s %s",n->first->name,d->nick);
 		return d->nick;
+	}
+	else
+	{
+		ServerInstance->Log(DEBUG,"Channel %s not in users joined list", chan->name);
 	}
 	return "";
 }

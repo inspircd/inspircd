@@ -385,13 +385,13 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 				 * must stick to ::find().
 				 */
 				case '@':
-					user->chans[Ptr] |= STATUS_OP;
+					user->chans[Ptr] |= UCMODE_OP;
 				break;
 				case '%':
-					user->chans[Ptr] |= STATUS_HOP;
+					user->chans[Ptr] |= UCMODE_HOP;
 				break;
 				case '+':
-					user->chans[Ptr] |= STATUS_VOICE;
+					user->chans[Ptr] |= UCMODE_VOICE;
 				break;
 			}
 		}
@@ -976,6 +976,7 @@ int chanrec::GetStatus(userrec *user)
 
 void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
 {
+	ServerInstance->Log(DEBUG,"Setting prefix: %c on user %s in %s to %d", prefix, user->nick, this->name, adding);
 	prefixlist::iterator n = prefixes.find(user);
 	prefixtype pfx = std::make_pair(prefix,prefix_value);
 	if (adding)
