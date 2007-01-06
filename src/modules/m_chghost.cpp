@@ -100,7 +100,6 @@ class ModuleChgHost : public Module
 
 	~ModuleChgHost()
 	{
-		delete[] hostmap;
 	}
 	
 	Version GetVersion()
