@@ -380,10 +380,13 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		unsigned char handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
 		int parameter_count = 0;
+		bool last_successful_state_change = false;
 
 		/* A mode sequence that doesnt start with + or -. Assume +. - Thanks for the suggestion spike (bug#132) */
 		if ((*mode_sequence.begin() != '+') && (*mode_sequence.begin() != '-'))
 			mode_sequence.insert(0, "+");
+
+		last_successful_state_change = (mode_sequence[0] == '-');
 
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
@@ -483,7 +486,11 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 							{
 								/* We're about to output a valid mode letter - was there previously a pending state-change? */
 								if (state_change)
-									output_sequence.append(adding ? "+" : "-");
+								{
+									if (adding != last_successful_state_change)
+										output_sequence.append(adding ? "+" : "-");
+									last_successful_state_change = adding;
+								}
 								
 								/* Add the mode letter */
 								output_sequence.push_back(modechar);
