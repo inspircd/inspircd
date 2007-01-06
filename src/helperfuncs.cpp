@@ -325,7 +325,7 @@ int InspIRCd::InvisibleUserCount()
 
 int InspIRCd::OperCount()
 {
-	return this->all_opers.count();
+	return this->all_opers.size();
 }
 
 int InspIRCd::UnregisteredUserCount()
