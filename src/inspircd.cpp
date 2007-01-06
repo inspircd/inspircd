@@ -80,8 +80,12 @@ void InspIRCd::Cleanup()
 	int MyModCount = this->GetModuleCount();
 
 	for (unsigned int i = 0; i < stats->BoundPortCount; i++)
+	{
 		/* This calls the constructor and closes the listening socket */
 		delete Config->openSockfd[i];
+		Config->openSockfd[i] = NULL;
+	}
+	stats->BoundPortCount = 0;
 
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get

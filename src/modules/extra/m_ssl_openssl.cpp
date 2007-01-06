@@ -297,7 +297,8 @@ class ModuleSSLOpenSSL : public Module
 				ServerInstance->Config->DelIOHook(listenports[i]);
 				for (unsigned int j = 0; j < ServerInstance->stats->BoundPortCount; j++)
 					if (ServerInstance->Config->ports[j] == listenports[i])
-						ServerInstance->Config->openSockfd[j]->SetDescription("plaintext");
+						if (ServerInstance->Config->openSockfd[j])
+							ServerInstance->Config->openSockfd[j]->SetDescription("plaintext");
 			}
 		}
 	}
