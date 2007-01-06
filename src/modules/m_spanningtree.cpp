@@ -2463,7 +2463,9 @@ class TreeSocket : public InspSocket
 
 		if (u)
 		{
-			chanrec::JoinUser(this->Instance, u, params[1].c_str(), false);
+			/* only join if it's local, otherwise just pass it on! */
+			if (IS_LOCAL(u))
+				chanrec::JoinUser(this->Instance, u, params[1].c_str(), false);
 			Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 		}
 		return true;
