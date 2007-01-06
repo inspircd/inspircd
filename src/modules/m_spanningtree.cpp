@@ -1901,7 +1901,13 @@ class TreeSocket : public InspSocket
 		
 
 		for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
+		{
 			_new->modes[(*v)-65] = 1;
+			/* For each mode thats set, increase counter */
+			ModeHandler* mh = Instance->Modes->FindMode((*v)-65, MODETYPE_USER);
+			if (mh)
+				mh->ChangeCount(1);
+		}
 
 		/* now we've done with modes processing, put the + back for remote servers */
 		params[5] = "+" + params[5];
