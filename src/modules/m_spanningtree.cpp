@@ -1866,13 +1866,6 @@ class TreeSocket : public InspSocket
 		//       0    1   2     3     4      5   6     7
 		time_t age = atoi(params[0].c_str());
 		
-		/* This used to have a pretty craq'y loop doing the same thing,
-		 * now we just let the STL do the hard work (more efficiently)
-		 */
-		std::string::size_type pos_after_plus = params[5].find_first_not_of('+');
-		if (pos_after_plus != std::string::npos)
-			params[5] = params[5].substr(pos_after_plus);
-		
 		const char* tempnick = params[1].c_str();
 		Instance->Log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
 		
@@ -1899,8 +1892,19 @@ class TreeSocket : public InspSocket
 		_new->registered = REG_ALL;
 		_new->signon = age;
 		
+		/*
+		 * we need to remove the + from the modestring, so we can do our stuff
+		 */
+		std::string::size_type pos_after_plus = params[5].find_first_not_of('+');
+		if (pos_after_plus != std::string::npos)
+			params[5] = params[5].substr(pos_after_plus);
+		
+
 		for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
 			_new->modes[(*v)-65] = 1;
+
+		/* now we've done with modes processing, put the + back for remote servers */
+		params[5] = "+" + params[5];
 
 #ifdef SUPPORT_IP6LINKS
 		if (params[6].find_first_of(":") != std::string::npos)
@@ -1914,7 +1918,7 @@ class TreeSocket : public InspSocket
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
 
 		params[7] = ":" + params[7];
-		Utils->DoOneToAllButSender(source,"NICK",params,source);
+		Utils->DoOneToAllButSender(source,"NICK", params, source);
 
 		// Increment the Source Servers User Count..
 		TreeServer* SourceServer = Utils->FindServer(source);
