@@ -2367,6 +2367,7 @@ class TreeSocket : public InspSocket
 		if (u)
 		{
 			u->modes[UM_OPERATOR] = 1;
+			this->Instance->all_opers.push_back(u);
 			strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 			Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 			this->Instance->SNO->WriteToSnoMask('o',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick,u->ident,u->host,irc::Spacify(opertype.c_str()));
