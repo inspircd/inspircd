@@ -1656,8 +1656,9 @@ class TreeSocket : public InspSocket
 			if (!created)
 			{
 				param_list.push_back(channel);
-				this->RemoveStatus(Instance->Config->ServerName, param_list);
+				/* Do this first! */
 				chan->age = TS;
+				this->RemoveStatus(Instance->Config->ServerName, param_list);
 			}
 		}
 
@@ -2927,8 +2928,7 @@ class TreeSocket : public InspSocket
 				Instance->Log(DEBUG,"Stacked line size %d",stackresult.size());
 				stackresult.push_front(ConvToStr(c->age));
 				stackresult.push_front(c->name);
-				// dont echo this out, at best its just going to be bounced back -- Brain
-				//Utils->DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
+				Utils->DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
 				stackresult.erase(stackresult.begin() + 1);
 				Instance->Log(DEBUG,"Stacked items:");
 				for (size_t z = 0; z < stackresult.size(); z++)
