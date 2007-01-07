@@ -30,6 +30,7 @@
 #include <dlfcn.h>
 #include <getopt.h>
 
+
 using irc::sockets::NonBlocking;
 using irc::sockets::Blocking;
 using irc::sockets::insp_ntoa;
@@ -339,8 +340,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->OpenLog(argv, argc);
 	this->stats = new serverstats();
-	this->Parser = new CommandParser(this);
 	this->Timers = new TimerManager();
+	this->Parser = new CommandParser(this);
 	this->XLines = new XLineManager(this);
 	Config->ClearStack();
 	Config->Read(true, NULL);
@@ -820,7 +821,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
 		if ((TIME % 3600) == 0)
 		{
-			irc::whowas::MaintainWhoWas(this, TIME);
+			//MaintainWhoWas(this, TIME);
 			this->RehashUsersAndChans();
 			FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
 		}

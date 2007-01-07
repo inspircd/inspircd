@@ -846,69 +846,6 @@ class userrec : public connection
 	virtual ~userrec();
 };
 
-
-namespace irc
-{
-	/** Holds whowas related functions and classes
-	 */
-	namespace whowas
-	{
-
-		/** Used to hold WHOWAS information
-		 */
-		class WhoWasGroup : public classbase
-		{
-		 public:
-			/** Real host
-			 */
-			char* host;
-			/** Displayed host
-			 */
-			char* dhost;
-			/** Ident
-			 */
-			char* ident;
-			/** Server name
-			 */
-			const char* server;
-			/** Fullname (GECOS)
-			 */
-			char* gecos;
-			/** Signon time
-			 */
-			time_t signon;
-	
-			/** Initialize this WhoQasFroup with a user
-			 */
-			WhoWasGroup(userrec* user);
-			/** Destructor
-			 */
-			~WhoWasGroup();
-		};
-
-		/** A group of users related by nickname
-		 */
-		typedef std::deque<WhoWasGroup*> whowas_set;
-
-		/** Sets of users in the whowas system
-		 */
-		typedef std::map<irc::string,whowas_set*> whowas_users;
-
-		/** Sets of time and users in whowas list
-		 */
-		typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
-
-		/** Called every hour by the core to remove expired entries
-		 */
-		void MaintainWhoWas(InspIRCd* ServerInstance, time_t TIME);
-
-		/** Prune for WhoWasGroupSize, WhoWasMaxGroups and
-		 *  WhoWasMaxKeep on rehash
-		 */
-		void PruneWhoWas(InspIRCd* ServerInstance, time_t TIME);
-	};
-};
-
 /* Configuration callbacks */
 class ServerConfig;
 

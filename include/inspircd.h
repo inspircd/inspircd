@@ -445,14 +445,6 @@ class InspIRCd : public classbase
 
 	clonemap global_clones;
 
-	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
-	 */
-	irc::whowas::whowas_users whowas;
-
-	/** Whowas container, contains a map of time_t to users tracked by WHOWAS
-	 */
-	irc::whowas::whowas_users_fifo whowas_fifo;
-
 	/** DNS class, provides resolver facilities to the core and modules
 	 */
 	DNS* Res;

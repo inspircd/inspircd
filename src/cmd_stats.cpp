@@ -18,7 +18,7 @@
 #include "modules.h"
 #include "xline.h"
 #include "commands/cmd_stats.h"
-
+#include "commands/cmd_whowas.h"
 
 
 extern "C" command_t* init_command(InspIRCd* Instance)
@@ -174,19 +174,20 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
-				int whowas_size = 0;
-				int whowas_bytes = 0;
-				irc::whowas::whowas_users_fifo::iterator iter;
-				for (iter = ServerInstance->whowas_fifo.begin(); iter != ServerInstance->whowas_fifo.end(); iter++)
+				command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
+				if (whowas_command)
 				{
-					irc::whowas::whowas_set* n = (irc::whowas::whowas_set*)ServerInstance->whowas.find(iter->second)->second;
-					if (n->size())
+					std::deque<classbase*> params;
+					Extensible whowas_stats;
+					params.push_back(&whowas_stats);
+					whowas_command->HandleInternal(WHOWAS_STATS, params);
+					if (whowas_stats.GetExt("stats"))
 					{
-						whowas_size += n->size();
-						whowas_bytes += (sizeof(irc::whowas::whowas_set) + ( sizeof(irc::whowas::WhoWasGroup) * n->size() ) );
+						char* stats;
+						whowas_stats.GetExt("stats", stats);
+						results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(stats));
 					}
 				}
-				results.push_back(sn+" 249 "+user->nick+" :Whowas(MAPSETS) "+ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)");
 			}
 
 			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
