@@ -136,7 +136,7 @@ class cmd_check : public command_t
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
 				}
 				/* IP address */
-				else if (match(a->second->GetIPString(), parameters[0]))
+				else if (match(a->second->GetIPString(), parameters[0], true))
 				{
 					/* same IP. */
 					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
