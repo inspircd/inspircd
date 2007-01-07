@@ -914,7 +914,7 @@ void DNS::DelCache(const std::string &source)
 void Resolver::TriggerCachedResult()
 {
 	if (CQ)
-		OnLookupComplete(CQ->data, time_left);
+		OnLookupComplete(CQ->data, time_left, true);
 }
 
 /** High level abstraction of dns used by application at large */
@@ -1060,7 +1060,7 @@ void DNS::HandleEvent(EventType et, int errornum)
 					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
 				}
 
-				Classes[res.id]->OnLookupComplete(res.result, res.ttl);
+				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
 				delete Classes[res.id];
 				Classes[res.id] = NULL;
 			}

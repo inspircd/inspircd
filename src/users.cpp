@@ -168,7 +168,7 @@ UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_res
 	this->bound_fd = user->GetFd();
 }
 
-void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl)
+void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 {
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
@@ -211,7 +211,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl)
 					if (*(hostname.c_str()) == ':')
 						hostname = "0" + hostname;
 
-					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)", hostname.c_str());
+					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
 					this->bound_user->dns_done = true;
 					strlcpy(this->bound_user->dhost, hostname.c_str(),64);
 					strlcpy(this->bound_user->host, hostname.c_str(),64);

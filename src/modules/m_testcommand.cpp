@@ -31,9 +31,9 @@ class MyV6Resolver : public Resolver
 		fw = forward;
 	}
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl)
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
-		ServerInstance->Log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s' TTL=%lu",fw ? "FORWARD" : "REVERSE", result.c_str(), ttl);
+		ServerInstance->Log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s' TTL=%lu CACHED=%d",fw ? "FORWARD" : "REVERSE", result.c_str(), ttl, cached);
 	}
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)

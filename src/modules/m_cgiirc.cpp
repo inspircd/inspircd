@@ -54,7 +54,7 @@ class CGIResolver : public Resolver
 	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type, bool &cached)
 		: Resolver(ServerInstance, source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl)
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Check the user still exists */
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))

@@ -228,6 +228,14 @@ class Resolver : public Extensible
 	 * To get around this automatic behaviour, you must use one of the values
 	 * DNS_QUERY_PTR4 or DNS_QUERY_PTR6 to force ipv4 or ipv6 behaviour on the lookup,
 	 * irrespective of what protocol InspIRCd has been built for.
+	 * @param cached The constructor will set this boolean to true or false depending
+	 * on whether the DNS lookup you are attempting is cached (and not expired) or not.
+	 * If the value is cached, upon return this will be set to true, otherwise it will
+	 * be set to false. You should pass this value to InspIRCd::AddResolver(), which
+	 * will then influence the behaviour of the method and determine whether a cached
+	 * or non-cached result is obtained. The value in this variable is always correct
+	 * for the given request when the constructor exits.
+	 * @param creator See the note below.
 	 * @throw ModuleException This class may throw an instance of ModuleException, in the
 	 * event a lookup could not be allocated, or a similar hard error occurs such as
 	 * the network being down. This will also be thrown if an invalid IP address is
@@ -247,8 +255,12 @@ class Resolver : public Extensible
 	/**
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
+	 * @param ttl The time-to-live value of the result, in the instance of a cached
+	 * result, this is the number of seconds remaining before refresh/expiry.
+	 * @param cached True if the result is a cached result, false if it was requested
+	 * from the DNS server.
 	 */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl) = 0;
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached) = 0;
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.

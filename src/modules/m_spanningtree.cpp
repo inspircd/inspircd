@@ -3719,7 +3719,7 @@ class ServernameResolver : public Resolver
 		/* Nothing in here, folks */
 	}
 
-	void OnLookupComplete(const std::string &result, unsigned int ttl)
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Initiate the connection, now that we have an IP to use.
 		 * Passing a hostname directly to InspSocket causes it to
@@ -3768,7 +3768,7 @@ class SecurityIPResolver : public Resolver
 	{
 	}
 
-	void OnLookupComplete(const std::string &result, unsigned int ttl)
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		ServerInstance->Log(DEBUG,"Security IP cache: Adding IP address '%s' for Link '%s'",result.c_str(),MyLink.Name.c_str());
 		Utils->ValidIPs.push_back(result);

@@ -885,7 +885,15 @@ class InspIRCd : public classbase
 
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add
-	 * @param cached The value of 'cached' which you passed to the Resolver constructor before this function.
+	 * @param cached If this value is true, then the cache will
+	 * be searched for the DNS result, immediately. If the value is
+	 * false, then a request will be sent to the nameserver, and the
+	 * result will not be immediately available. You should usually
+	 * use the boolean value which you passed to the Resolver
+	 * constructor, which Resolver will set appropriately depending
+	 * on if cached results are available and haven't expired. It is
+	 * however safe to force this value to false, forcing a remote DNS
+	 * lookup, but not an update of the cache.
 	 * @return True if the resolver was added
 	 */
         bool AddResolver(Resolver* r, bool cached);
