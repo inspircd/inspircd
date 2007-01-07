@@ -894,7 +894,10 @@ class InspIRCd : public classbase
 	 * on if cached results are available and haven't expired. It is
 	 * however safe to force this value to false, forcing a remote DNS
 	 * lookup, but not an update of the cache.
-	 * @return True if the resolver was added
+	 * @return True if the operation completed successfully. Note that
+	 * if this method returns true, you should not attempt to access
+	 * the resolver class you pass it after this call, as depending upon
+	 * the request given, the object may be deleted!
 	 */
         bool AddResolver(Resolver* r, bool cached);
 
