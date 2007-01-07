@@ -17,7 +17,7 @@
 /* Written by Special (john@yarbbles.com) */
 
 #include "inspircd.h"
-#include "http.h"
+#include "httpclient.h"
 
 /* $ModDesc: HTTP client service provider */
 
