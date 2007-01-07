@@ -18,9 +18,9 @@
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
 
-class ModuleHttp;
+class ModuleHttpServer;
 
-static ModuleHttp* HttpModule;
+static ModuleHttpServer* HttpModule;
 static bool claimed;
 
 /** HTTP socket states
@@ -33,23 +33,23 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 3
 };
 
-class HttpSocket;
+class HttpServerSocket;
 
 /** This class is used to handle HTTP socket timeouts
  */
-class HTTPTimeout : public InspTimer
+class HttpServerTimeout : public InspTimer
 {
  private:
-	/** HttpSocket we are attached to
+	/** HttpServerSocket we are attached to
 	 */
-	HttpSocket* s;
+	HttpServerSocket* s;
 	/** Socketengine the file descriptor is in
 	 */
 	SocketEngine* SE;
  public:
-	/** Attach timeout to HttpSocket
+	/** Attach timeout to HttpServerSocket
 	 */
-	HTTPTimeout(HttpSocket* sock, SocketEngine* engine);
+	HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine);
 	/** Handle timer tick
 	 */
 	void Tick(time_t TIME);
@@ -57,7 +57,7 @@ class HTTPTimeout : public InspTimer
 
 /** A socket used for HTTP transport
  */
-class HttpSocket : public InspSocket
+class HttpServerSocket : public InspSocket
 {
 	FileReader* index;
 	HttpState InternalState;
@@ -67,21 +67,21 @@ class HttpSocket : public InspSocket
 	std::string uri;
 	std::string http_version;
 	unsigned int postsize;
-	HTTPTimeout* Timeout;
+	HttpServerTimeout* Timeout;
 
  public:
 
-	HttpSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
+	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
 	{
-		SI->Log(DEBUG,"HttpSocket constructor");
+		SI->Log(DEBUG,"HttpServerSocket constructor");
 		InternalState = HTTP_LISTEN;
 		Timeout = NULL;
 	}
 
-	HttpSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
+	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
-		Timeout = new HTTPTimeout(this, Instance->SE);
+		Timeout = new HttpServerTimeout(this, Instance->SE);
 		Instance->Timers->AddTimer(Timeout);
 	}
 
@@ -90,7 +90,7 @@ class HttpSocket : public InspSocket
 		return index;
 	}
 
-	~HttpSocket()
+	~HttpServerSocket()
 	{
 		if (Timeout)
 		{
@@ -104,7 +104,7 @@ class HttpSocket : public InspSocket
 	{
 		if (InternalState == HTTP_LISTEN)
 		{
-			HttpSocket* s = new HttpSocket(this->Instance, newsock, ip, index);
+			HttpServerSocket* s = new HttpServerSocket(this->Instance, newsock, ip, index);
 			s = s; /* Stop GCC whining */
 		}
 		return true;
@@ -262,7 +262,7 @@ class HttpSocket : public InspSocket
 					{
 						InternalState = HTTP_SERVE_SEND_DATA;
 						SendHeaders(0, 400, "");
-						Timeout = new HTTPTimeout(this, Instance->SE);
+						Timeout = new HttpServerTimeout(this, Instance->SE);
 						Instance->Timers->AddTimer(Timeout);
 					}
 					else
@@ -329,7 +329,7 @@ class HttpSocket : public InspSocket
 				}
 			}
 		}
-		Timeout = new HTTPTimeout(this, Instance->SE);
+		Timeout = new HttpServerTimeout(this, Instance->SE);
 		Instance->Timers->AddTimer(Timeout);
 	}
 
@@ -341,20 +341,20 @@ class HttpSocket : public InspSocket
 	}
 };
 
-HTTPTimeout::HTTPTimeout(HttpSocket* sock, SocketEngine* engine) : InspTimer(60, time(NULL)), s(sock), SE(engine)
+HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : InspTimer(60, time(NULL)), s(sock), SE(engine)
 {
 }
 
-void HTTPTimeout::Tick(time_t TIME)
+void HttpServerTimeout::Tick(time_t TIME)
 {
 	SE->DelFd(s);
 	s->Close();
 	delete s;
 }
 
-class ModuleHttp : public Module
+class ModuleHttpServer : public Module
 {
-	std::vector<HttpSocket*> httpsocks;
+	std::vector<HttpServerSocket*> httpsocks;
  public:
 
 	void ReadConfig()
@@ -364,7 +364,7 @@ class ModuleHttp : public Module
 		std::string bindip;
 		std::string indexfile;
 		FileReader* index;
-		HttpSocket* http;
+		HttpServerSocket* http;
 		ConfigReader c(ServerInstance);
 
 		httpsocks.clear();
@@ -376,12 +376,12 @@ class ModuleHttp : public Module
 			port = c.ReadInteger("http", "port", i, true);
 			indexfile = c.ReadValue("http", "index", i);
 			index = new FileReader(ServerInstance, indexfile);
-			http = new HttpSocket(ServerInstance, bindip, port, true, 0, index);
+			http = new HttpServerSocket(ServerInstance, bindip, port, true, 0, index);
 			httpsocks.push_back(http);
 		}
 	}
 
-	ModuleHttp(InspIRCd* Me) : Module::Module(Me)
+	ModuleHttpServer(InspIRCd* Me) : Module::Module(Me)
 	{
 		ReadConfig();
 	}
@@ -395,7 +395,7 @@ class ModuleHttp : public Module
 		ServerInstance->Log(DEBUG,"Got HTTPDocument object");
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();
-		HttpSocket* sock = (HttpSocket*)doc->sock;
+		HttpServerSocket* sock = (HttpServerSocket*)doc->sock;
 		sock->Page(doc->GetDocument(), doc->GetResponseCode(), doc->GetExtraHeaders());
 		return NULL;
 	}
@@ -405,7 +405,7 @@ class ModuleHttp : public Module
 		List[I_OnEvent] = List[I_OnRequest] = 1;
 	}
 
-	virtual ~ModuleHttp()
+	virtual ~ModuleHttpServer()
 	{
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
@@ -422,20 +422,20 @@ class ModuleHttp : public Module
 };
 
 
-class ModuleHttpFactory : public ModuleFactory
+class ModuleHttpServerFactory : public ModuleFactory
 {
  public:
-	ModuleHttpFactory()
+	ModuleHttpServerFactory()
 	{
 	}
 	
-	~ModuleHttpFactory()
+	~ModuleHttpServerFactory()
 	{
 	}
 	
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
-		HttpModule = new ModuleHttp(Me);
+		HttpModule = new ModuleHttpServer(Me);
 		return HttpModule;
 	}
 };
@@ -443,5 +443,5 @@ class ModuleHttpFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-	return new ModuleHttpFactory;
+	return new ModuleHttpServerFactory;
 }

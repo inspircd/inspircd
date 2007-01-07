@@ -34,7 +34,7 @@ class HTTPSocket : public InspSocket
  private:
 	InspIRCd *Server;
 	class ModuleHTTPClient *Mod;
-	HTTPClientRequest *req;
+	HTTPClientRequest req;
 	HTTPClientResponse *response;
 	URL url;
 	enum { HTTP_CLOSED, HTTP_REQSENT, HTTP_HEADERS, HTTP_DATA } status;
@@ -134,9 +134,14 @@ HTTPSocket::~HTTPSocket()
 
 bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 {
-	this->req = req;
-	
-	if (!ParseURL(req->GetURL()))
+	/* Tweak by brain - we take a copy of this,
+	 * so that the caller doesnt need to leave
+	 * pointers knocking around, less chance of
+	 * a memory leak.
+	 */
+	this->req = *req;
+
+	if (!ParseURL(this->req.GetURL()))
 		return false;
 	
 	this->port = url.port;
@@ -234,7 +239,7 @@ bool HTTPSocket::OnConnected()
 	std::string request = "GET " + url.request + " HTTP/1.1\r\n";
 
 	// Dump headers into the request
-	HeaderMap headers = req->GetHeaders();
+	HeaderMap headers = req.GetHeaders();
 	
 	for (HeaderMap::iterator i = headers.begin(); i != headers.end(); i++)
 		request += i->first + ": " + i->second + "\r\n";
@@ -280,7 +285,7 @@ bool HTTPSocket::OnDataReady()
 			{
 				// HTTP reply (HTTP/1.1 200 msg)
 				data += 9;
-				response = new HTTPClientResponse((Module*)Mod, req->GetSource() , url.url, atoi(data), data + 4);
+				response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, atoi(data), data + 4);
 				this->status = HTTP_HEADERS;
 				continue;
 			}

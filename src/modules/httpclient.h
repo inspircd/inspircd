@@ -29,6 +29,10 @@ class HTTPClientRequest : public Request
 		Headers["Accept"] = "*/*";
 	}
 
+	HTTPClientRequest() : Request(NULL, NULL, HTTP_CLIENT_REQUEST)
+	{
+	}
+
 	const std::string &GetURL()
 	{
 		return url;
@@ -65,7 +69,11 @@ class HTTPClientResponse : public Request
 		: Request(src, target, HTTP_CLIENT_RESPONSE), url(url), response(response), responsestr(responsestr)
 	{
 	}
-	
+
+	HTTPClientResponse() : Request(NULL, NULL, HTTP_CLIENT_RESPONSE)
+	{
+	}
+
 	void SetData(const std::string &ndata)
 	{
 		data = ndata;
