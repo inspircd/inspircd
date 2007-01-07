@@ -94,6 +94,7 @@ class DNSRequest
 	QueryType       type;		/* Request type */
 	insp_inaddr     myserver;       /* DNS server address*/
 	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
+	unsigned long	ttl;		/* Time to live */
 
 	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id);
 	~DNSRequest();
@@ -576,7 +577,7 @@ DNSResult DNS::GetResult()
 	{
 		/* Nope - something screwed up. */
 		ServerInstance->Log(DEBUG,"Whole header not read!");
-		return std::make_pair(-1,"");
+		return DNSResult(-1,"",0);
 	}
 
 	/* Check wether the reply came from a different DNS
@@ -604,7 +605,7 @@ DNSResult DNS::GetResult()
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
 			ServerInstance->Log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, ServerInstance->Config->DNSServer);
-			return std::make_pair(-1,"");
+			return DNSResult(-1,"",0);
 		}
 	}
 
@@ -622,7 +623,7 @@ DNSResult DNS::GetResult()
 	{
 		/* Somehow we got a DNS response for a request we never made... */
 		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",this->GetFd(),this_id);
-		return std::make_pair(-1,"");
+		return DNSResult(-1,"",0);
 	}
 	else
 	{
@@ -648,10 +649,11 @@ DNSResult DNS::GetResult()
 		 * Put the error message in the second field.
 		 */
 		delete req;
-		return std::make_pair(this_id | ERROR_MASK, data.second);
+		return DNSResult(this_id | ERROR_MASK, data.second, 0);
 	}
 	else
 	{
+		unsigned long ttl = req->ttl;
 		char formatted[128];
 
 		/* Forward lookups come back as binary data. We must format them into ascii */
@@ -713,7 +715,7 @@ DNSResult DNS::GetResult()
 
 		/* Build the reply with the id and hostname/ip in it */
 		delete req;
-		return std::make_pair(this_id,resultstr);
+		return DNSResult(this_id,resultstr,ttl);
 	}
 }
 
@@ -810,6 +812,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 
 	if (rr.rdlength > 1023)
 		return std::make_pair((unsigned char*)NULL,"Resource record too large");
+
+	this->ttl = rr.ttl;
 
 	switch (rr.type)
 	{
@@ -957,36 +961,36 @@ void DNS::HandleEvent(EventType et, int errornum)
 	/* Fetch the id and result of the next available packet */
 	DNSResult res = this->GetResult();
 	/* Is there a usable request id? */
-	if (res.first != -1)
+	if (res.id != -1)
 	{
 		/* Its an error reply */
-		if (res.first & ERROR_MASK)
+		if (res.id & ERROR_MASK)
 		{
 			/* Mask off the error bit */
-			res.first -= ERROR_MASK;
+			res.id -= ERROR_MASK;
 			/* Marshall the error to the correct class */
-			ServerInstance->Log(DEBUG,"Error available, id=%d",res.first);
-			if (Classes[res.first])
+			ServerInstance->Log(DEBUG,"Error available, id=%d",res.id);
+			if (Classes[res.id])
 			{
 				if (ServerInstance && ServerInstance->stats)
 					ServerInstance->stats->statsDnsBad++;
-				Classes[res.first]->OnError(RESOLVER_NXDOMAIN, res.second);
-				delete Classes[res.first];
-				Classes[res.first] = NULL;
+				Classes[res.id]->OnError(RESOLVER_NXDOMAIN, res.result);
+				delete Classes[res.id];
+				Classes[res.id] = NULL;
 			}
 		}
 		else
 		{
 			/* It is a non-error result */
-			ServerInstance->Log(DEBUG,"Result available, id=%d",res.first);
+			ServerInstance->Log(DEBUG,"Result available, id=%d",res.id);
 			/* Marshall the result to the correct class */
-			if (Classes[res.first])
+			if (Classes[res.id])
 			{
 				if (ServerInstance && ServerInstance->stats)
 					ServerInstance->stats->statsDnsGood++;
-				Classes[res.first]->OnLookupComplete(res.second);
-				delete Classes[res.first];
-				Classes[res.first] = NULL;
+				Classes[res.id]->OnLookupComplete(res.result, res.ttl);
+				delete Classes[res.id];
+				Classes[res.id] = NULL;
 			}
 		}
 

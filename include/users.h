@@ -69,7 +69,7 @@ class UserResolver : public Resolver
  public:
 	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt);
 
-	void OnLookupComplete(const std::string &result);
+	void OnLookupComplete(const std::string &result, unsigned int ttl);
 	void OnError(ResolverError e, const std::string &errormessage);
 };
 

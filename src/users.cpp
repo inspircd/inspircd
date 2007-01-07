@@ -166,7 +166,7 @@ UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_res
 	this->bound_fd = user->GetFd();
 }
 
-void UserResolver::OnLookupComplete(const std::string &result)
+void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl)
 {
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{

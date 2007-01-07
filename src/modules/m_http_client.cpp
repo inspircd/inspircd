@@ -60,7 +60,7 @@ class HTTPResolver : public Resolver
 	{
 	}
 	
-	void OnLookupComplete(const string &result)
+	void OnLookupComplete(const string &result, unsigned int ttl)
 	{
 		socket->Connect(result);
 	}

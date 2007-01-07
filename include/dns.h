@@ -50,7 +50,15 @@ class Module;
 /**
  * Result status, used internally
  */
-typedef std::pair<int,std::string> DNSResult;
+class DNSResult : public classbase
+{
+ public:
+	int id;
+	std::string result;
+	unsigned long ttl;
+
+	DNSResult(int i, const std::string &res, unsigned long timetolive) : id(i), result(res), ttl(timetolive) { }
+};
 
 /**
  * Information on a completed lookup, used internally
@@ -203,7 +211,7 @@ class Resolver : public Extensible
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
 	 */
-	virtual void OnLookupComplete(const std::string &result) = 0;
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl) = 0;
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.
