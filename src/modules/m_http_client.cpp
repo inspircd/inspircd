@@ -151,10 +151,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	{
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
-		if (!cached)
-			Instance->AddResolver(r);
-		else
-			delete r;
+		Instance->AddResolver(r, cached);
 		return true;
 	}
 	else

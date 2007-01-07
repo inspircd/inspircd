@@ -1101,10 +1101,7 @@ public:
 				{
 					bool cached;
 					resolver = new SQLresolver(this, ServerInstance, host, cached);
-					if (!cached)
-						ServerInstance->AddResolver(resolver);
-					else
-						delete resolver;
+					ServerInstance->AddResolver(resolver, cached);
 				}
 				catch(...)
 				{

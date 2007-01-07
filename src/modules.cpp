@@ -434,9 +434,16 @@ bool InspIRCd::DelModeWatcher(ModeWatcher* mw)
 	return this->Modes->DelModeWatcher(mw);
 }
 
-bool InspIRCd::AddResolver(Resolver* r)
+bool InspIRCd::AddResolver(Resolver* r, bool cached)
 {
-	return this->Res->AddResolverClass(r);
+	if (!cached)
+		return this->Res->AddResolverClass(r);
+	else
+	{
+		r->TriggerCachedResult();
+		delete r;
+		return true;
+	}
 }
 
 bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)

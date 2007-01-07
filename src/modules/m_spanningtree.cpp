@@ -4124,10 +4124,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					{
 						bool cached;
 						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached);
-						if (!cached)
-							ServerInstance->AddResolver(sr);
-						else
-							delete sr;
+						ServerInstance->AddResolver(sr, cached);
 					}
 					catch (ModuleException& e)
 					{
@@ -4659,10 +4656,7 @@ class ModuleSpanningTree : public Module
 			{
 				bool cached;
 				ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached);
-				if (!cached)
-					ServerInstance->AddResolver(snr);
-				else
-					delete snr;
+				ServerInstance->AddResolver(snr, cached);
 			}
 			catch (ModuleException& e)
 			{

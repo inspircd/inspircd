@@ -911,9 +911,10 @@ void DNS::DelCache(const std::string &source)
 	cache->erase(source.c_str());
 }
 
-void Resolver::OnLookupComplete(const std::string &result, unsigned int ttl)
+void Resolver::TriggerCachedResult()
 {
-	throw CoreException("Someone didnt define an OnLookupComplete method for their Resolver class!");
+	if (CQ)
+		OnLookupComplete(CQ->data, time_left);
 }
 
 /** High level abstraction of dns used by application at large */
@@ -923,10 +924,10 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 
 	cached = false;
 
-	CachedQuery* CQ = ServerInstance->Res->GetCache(source);
+	CQ = ServerInstance->Res->GetCache(source);
 	if (CQ)
 	{
-		int time_left = CQ->CalcTTLRemaining();
+		time_left = CQ->CalcTTLRemaining();
 		if (!time_left)
 		{
 			ServerInstance->Log(DEBUG,"Cached but EXPIRED result: %s", CQ->data.c_str());
@@ -936,7 +937,6 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		{
 			cached = true;
 			ServerInstance->Log(DEBUG,"Cached result: %s", CQ->data.c_str());
-			OnLookupComplete(CQ->data, time_left);
 			return;
 		}
 	}

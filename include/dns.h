@@ -194,6 +194,16 @@ class Resolver : public Extensible
 	 * The core uses this to route results to the correct objects.
 	 */
 	int myid;
+
+	/**
+	 * Cached result, if there is one
+	 */
+	CachedQuery *CQ;
+
+	/**
+	 * Time left before cache expiry
+	 */
+	int time_left;
  public:
 	/**
 	 * Initiate DNS lookup. Your class should not attempt to delete or free these
@@ -238,7 +248,7 @@ class Resolver : public Extensible
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
 	 */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl);
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl) = 0;
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.
@@ -260,6 +270,8 @@ class Resolver : public Extensible
 	 * Returns the creator module, or NULL
 	 */
 	Module* GetCreator();
+
+	void TriggerCachedResult();
 };
 
 /** DNS is a singleton class used by the core to dispatch dns

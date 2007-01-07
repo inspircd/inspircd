@@ -309,10 +309,7 @@ class ModuleDNSBL : public Module
 				/* now we'd need to fire off lookups for `hostname'. */
 				bool cached;
 				DNSBLResolver *r = new DNSBLResolver(this, ServerInstance, hostname, user, user->GetFd(), *i, cached);
-				if (!cached)
-					ServerInstance->AddResolver(r);
-				else
-					delete r;
+				ServerInstance->AddResolver(r, cached);
 			}
 		}
 

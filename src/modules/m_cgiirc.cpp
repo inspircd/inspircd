@@ -261,10 +261,7 @@ public:
 				{
 					bool cached;
 					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
-					if (!cached)
-						ServerInstance->AddResolver(r);
-					else
-						delete r;
+					ServerInstance->AddResolver(r, cached);
 				}
 				catch (ModuleException& e)
 				{
@@ -321,10 +318,7 @@ public:
 			ServerInstance->Log(DEBUG,"MAKE RESOLVER: %s %d %s",newip, user->GetFd(), "IDENT");
 			bool cached;
 			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT", cached);
-			if (!cached)
-				ServerInstance->AddResolver(r);
-			else
-				delete r;
+			ServerInstance->AddResolver(r, cached);
 		}
 		catch (ModuleException& e)
 		{

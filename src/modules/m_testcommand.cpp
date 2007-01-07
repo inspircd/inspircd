@@ -60,24 +60,11 @@ class cmd_woot : public command_t
 		 * do it for us as required.*/
 		try
 		{
-			bool cached1, cached2;
-			MyV6Resolver* r = new MyV6Resolver(ServerInstance, Creator, "shake.stacken.kth.se", true, cached1);
-			if (!cached1)
-				ServerInstance->AddResolver(r);
-			else
-			{
-				ServerInstance->Log(DEBUG,"Result was cached, delete object");
-				delete r;
-			}
-
-			r = new MyV6Resolver(ServerInstance, Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false, cached2);
-			if (!cached2)
-				ServerInstance->AddResolver(r);
-			else
-			{
-				ServerInstance->Log(DEBUG,"Result was cached, delete object");
-				delete r;
-			}
+			bool cached;
+			MyV6Resolver* r = new MyV6Resolver(ServerInstance, Creator, "shake.stacken.kth.se", true, cached);
+			ServerInstance->AddResolver(r, cached);
+			r = new MyV6Resolver(ServerInstance, Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false, cached);
+			ServerInstance->AddResolver(r, cached);
 		}
 		catch (ModuleException& e)
 		{

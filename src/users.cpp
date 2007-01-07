@@ -153,10 +153,7 @@ void userrec::StartDNSLookup()
 		ServerInstance->Log(DEBUG,"Passing instance: %08x",this->ServerInstance);
 		bool cached;
 		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE, cached);
-		if (!cached)
-			this->ServerInstance->AddResolver(res_reverse);
-		else
-			delete res_reverse;
+		this->ServerInstance->AddResolver(res_reverse, cached);
 	}
 	catch (CoreException& e)
 	{
@@ -189,10 +186,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl)
 #else
 				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
 #endif
-				if (!cached)
-					this->ServerInstance->AddResolver(bound_user->res_forward);
-				else
-					delete bound_user->res_forward;
+				this->ServerInstance->AddResolver(bound_user->res_forward, cached);
 			}
 		}
 		catch (CoreException& e)

@@ -885,9 +885,10 @@ class InspIRCd : public classbase
 
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add
+	 * @param cached The value of 'cached' which you passed to the Resolver constructor before this function.
 	 * @return True if the resolver was added
 	 */
-        bool AddResolver(Resolver* r);
+        bool AddResolver(Resolver* r, bool cached);
 
 	/** Add a command to this server's command parser
 	 * @param f A command_t command handler object to add
