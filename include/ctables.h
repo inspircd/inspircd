@@ -86,6 +86,11 @@ class command_t : public Extensible
 
 	virtual CmdResult Handle(const char** parameters, int pcnt, userrec* user) = 0;
 
+	virtual CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &params)
+	{
+		return CMD_INVALID;
+	}
+
 	virtual CmdResult HandleServer(const char** parameters, int pcnt, const std::string &servername)
 	{
 		return CMD_INVALID;
