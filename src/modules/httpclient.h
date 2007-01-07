@@ -1,0 +1,121 @@
+#include "base.h"
+
+#ifndef HTTPCLIENT_H__
+#define HTTPCLIENT_H__
+
+#include <string>
+#include <map>
+
+typedef std::map<std::string,std::string> HeaderMap;
+
+/** This class represents an outgoing HTTP request
+ */
+class HTTPClientRequest : public classbase
+{
+ protected:
+	std::string url;
+	InspIRCd *Instance;
+	Module *src;
+	HeaderMap Headers;
+ public:
+	HTTPClientRequest(InspIRCd *Instance, Module *src, const std::string &url)
+		: url(url), Instance(Instance), src(src)
+	{
+		Headers["User-Agent"] = "InspIRCd (m_http_client.so)";
+		Headers["Connection"] = "Close";
+		Headers["Accept"] = "*/*";
+	}
+
+	const std::string &GetURL()
+	{
+		return url;
+	}
+	
+	Module *GetSrc()
+	{
+		return src;
+	}
+
+	void AddHeader(std::string &header, std::string &data)
+	{
+		Headers[header] = data;
+	}
+	
+	void DeleteHeader(std::string &header)
+	{
+		Headers.erase(header);
+	}
+
+	HeaderMap GetHeaders()
+	{
+		return Headers;
+	}
+	
+	void SendRequest()
+	{
+		Module *HTTPModule = Instance->FindModule("m_http_client.so");
+		if (!HTTPModule)
+		{
+			Instance->Log(DEFAULT, "HTTP module not loaded!");
+			return;
+		}
+		
+		Request req((char *)this, src, HTTPModule);
+		req.Send();
+	}
+};
+
+class HTTPClientResponse : public classbase
+{
+ protected:
+	friend class HTTPSocket;
+	
+	std::string url;
+	std::string data;
+	int response;
+	std::string responsestr;
+	HeaderMap Headers;
+ public:
+	HTTPClientResponse(std::string &url, int response, std::string responsestr)
+		: url(url), response(response), responsestr(responsestr)
+	{
+	}
+	
+	void SetData(const std::string &ndata)
+	{
+		data = ndata;
+	}
+	
+	void AddHeader(const std::string &header, const std::string &data)
+	{
+		Headers[header] = data;
+	}
+	
+	const std::string &GetURL()
+	{
+		return url;
+	}
+	
+	const std::string &GetData()
+	{
+		return data;
+	}
+	
+	int GetResponse(std::string &str)
+	{
+		str = responsestr;
+		return response;
+	}
+	
+	std::string GetHeader(const std::string &header)
+	{
+		HeaderMap::iterator i = Headers.find(header);
+		
+		if (i != Headers.end())
+			return i->second;
+		else
+			return "";
+	}
+};
+
+#endif

@@ -1,0 +1,342 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *                       E-mail:
+ *                <brain@chatspike.net>
+ *           	  <Craig@chatspike.net>
+ *     
+ * Written by Craig Edwards, Craig McLure, and others.
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
+/* Written by Special (john@yarbbles.com) */
+
+#include "inspircd.h"
+#include "http.h"
+
+/* $ModDesc: HTTP client service provider */
+
+class URL
+{
+ public:
+	std::string url;
+	std::string protocol, username, password, domain, request;
+	int port;
+};
+
+class HTTPSocket : public InspSocket
+{
+ private:
+	InspIRCd *Server;
+	class ModuleHTTPClient *Mod;
+	HTTPClientRequest *req;
+	HTTPClientResponse *response;
+	URL url;
+	enum { HTTP_CLOSED, HTTP_REQSENT, HTTP_HEADERS, HTTP_DATA } status;
+	std::string data;
+
+ public:
+	HTTPSocket(InspIRCd *Instance, class ModuleHTTPClient *Mod);
+	virtual ~HTTPSocket();
+	virtual bool DoRequest(HTTPClientRequest *req);
+	virtual bool ParseURL(const std::string &url);
+	virtual void Connect(const std::string &ip);
+	virtual bool OnConnected();
+	virtual bool OnDataReady();
+	virtual void OnClose();
+};
+
+class HTTPResolver : public Resolver
+{
+ private:
+	HTTPSocket *socket;
+ public:
+	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), socket(socket)
+	{
+	}
+	
+	void OnLookupComplete(const string &result)
+	{
+		socket->Connect(result);
+	}
+	
+	void OnError(ResolverError e, const string &errmsg)
+	{
+		delete socket;
+	}
+};
+
+typedef vector<HTTPSocket*> HTTPList;
+
+class ModuleHTTPClient : public Module
+{
+ public:
+	HTTPList sockets;
+
+	ModuleHTTPClient(InspIRCd *Me)
+		: Module::Module(Me)
+	{
+	}
+	
+	virtual ~ModuleHTTPClient()
+	{
+		for (HTTPList::iterator i = sockets.begin(); i != sockets.end(); i++)
+			delete *i;
+	}
+	
+	virtual Version GetVersion()
+	{
+		return Version(1, 0, 0, 0, VF_SERVICEPROVIDER | VF_VENDOR, API_VERSION);
+	}
+
+	void Implements(char* List)
+	{
+		List[I_OnRequest] = 1;
+	}
+	
+	char *OnRequest(Request *req)
+	{
+		HTTPClientRequest *httpreq = (HTTPClientRequest *) req->GetData();
+		HTTPSocket *sock = new HTTPSocket(ServerInstance, this);
+		sock->DoRequest(httpreq);
+		// No return value
+		return NULL;
+	}
+	
+	void SendReply(Module *to, HTTPClientResponse *data)
+	{
+		Request req((char *) data, this, to);
+		req.Send();
+	}
+};
+
+HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
+		: InspSocket(Instance), Server(Instance), Mod(Mod), status(HTTP_CLOSED)
+{
+	this->ClosePending = false;
+	this->port = 80;
+}
+
+HTTPSocket::~HTTPSocket()
+{
+	Close();
+	for (HTTPList::iterator i = Mod->sockets.begin(); i != Mod->sockets.end(); i++)
+	{
+		if (*i == this)
+		{
+			Mod->sockets.erase(i);
+			break;
+		}
+	}
+}
+
+bool HTTPSocket::DoRequest(HTTPClientRequest *req)
+{
+	this->req = req;
+	
+	if (!ParseURL(req->GetURL()))
+		return false;
+	
+	this->port = url.port;
+	strlcpy(this->host, url.domain.c_str(), MAXBUF);
+
+	if (!inet_aton(this->host, &this->addy))
+	{
+		new HTTPResolver(this, Server, url.domain);
+		return true;
+	}
+	else
+	{
+		this->Connect(url.domain);
+	}
+	
+	return true;
+}
+
+bool HTTPSocket::ParseURL(const std::string &iurl)
+{
+	url.url = iurl;
+	url.port = 80;
+	
+	// Tokenize by slashes (protocol:, blank, domain, request..)
+	int pos = 0, pstart = 0, pend = 0;
+	
+	for (; ; pend = url.url.find('/', pstart))
+	{
+		string part = url.url.substr(pstart, pend);
+
+		switch (pos)
+		{
+			case 0:
+				// Protocol
+				if (part[part.length()-1] != ':')
+					return false;
+				url.protocol = part.substr(0, part.length() - 1);
+				break;
+			case 1:
+				// Empty, skip
+				break;
+			case 2:
+				// User and password (user:pass@)
+				string::size_type aend = part.find('@', 0);
+				if (aend != string::npos)
+				{
+					// Technically, it is valid to not have a password (username@domain)
+					string::size_type usrend = part.find(':', 0);
+					
+					if ((usrend != string::npos) && (usrend < aend))
+						url.password = part.substr(usrend + 1, aend);
+					else
+						usrend = aend;
+					
+					url.username = part.substr(0, usrend);
+				}
+				else
+					aend = 0;
+				
+				// Port (:port)
+				string::size_type dend = part.find(':', aend);
+				if (dend != string::npos)
+					url.port = atoi(part.substr(dend + 1).c_str());
+
+				// Domain
+				url.domain = part.substr(aend + 1, dend);
+				
+				// The rest of the string is the request
+				url.request = url.url.substr(pend);
+				break;
+		}
+		
+		if (pos++ == 2)
+			break;
+
+		pstart = pend + 1;
+	}
+	
+	return true;
+}
+
+void HTTPSocket::Connect(const string &ip)
+{
+	strlcpy(this->IP, ip.c_str(), MAXBUF);
+	
+	if (!this->DoConnect())
+	{
+		Server->Log(DEBUG, "Unable to connect HTTPSocket to %s", this->host);
+		delete this;
+	}
+}
+
+bool HTTPSocket::OnConnected()
+{
+	std::string request = "GET " + url.request + " HTTP/1.1\r\n";
+
+	// Dump headers into the request
+	HeaderMap headers = req->GetHeaders();
+	
+	for (HeaderMap::iterator i = headers.begin(); i != headers.end(); i++)
+		request += i->first + ": " + i->second + "\r\n";
+
+	// The Host header is required for HTTP 1.1 and isn't known when the request is created; if they didn't overload it
+	// manually, add it here
+	if (headers.find("Host") == headers.end())
+		request += "Host: " + url.domain + "\r\n"; 
+	
+	request += "\r\n";
+	
+	this->status = HTTP_REQSENT;
+	
+	return this->Write(request);
+}
+
+bool HTTPSocket::OnDataReady()
+{
+	char *data = this->Read();
+
+	if (!data)
+	{
+		this->Close();
+		return false;
+	}
+	
+	// Needs buffering for incomplete reads..
+	char *lend;
+	
+	if (this->status < HTTP_DATA)
+	{
+		while ((lend = strstr(data, "\r\n")) != NULL)
+		{
+			if (strncmp(data, "\r\n", 2) == 0)
+			{
+				this->status = HTTP_DATA;
+				break;
+			}
+			
+			*lend = '\0';
+			
+			if (this->status == HTTP_REQSENT)
+			{
+				// HTTP reply (HTTP/1.1 200 msg)
+				data += 9;
+				response = new HTTPClientResponse(url.url, atoi(data), data + 4);
+				this->status = HTTP_HEADERS;
+				continue;
+			}
+			
+			char *hdata = strchr(data, ':');
+			
+			if (!hdata)
+				continue;
+			
+			*hdata = '\0';
+			
+			response->AddHeader(data, hdata + 2);
+			
+			data = lend + 2;
+		}
+	}
+	
+	this->data += data;
+	return true;
+}
+
+void HTTPSocket::OnClose()
+{
+	if (!data.length())
+	{
+		Server->Log(DEBUG, "HTTP socket closed unexpectedly (no content recieved)");
+		return;
+	}
+	Server->Log(DEBUG, "Got file from HTTP successfully");
+	response->data = data;
+	Mod->SendReply(req->GetSrc(), response);
+}
+
+class ModuleHTTPClientFactory : public ModuleFactory
+{
+ public:
+	ModuleHTTPClientFactory()
+	{
+	}
+	
+	~ModuleHTTPClientFactory()
+	{
+	}
+	
+	Module *CreateModule(InspIRCd* Me)
+	{
+		return new ModuleHTTPClient(Me);
+	}
+};
+
+extern "C" void *init_module(void)
+{
+	return new ModuleHTTPClientFactory;
+}
+
+
