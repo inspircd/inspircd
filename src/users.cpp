@@ -151,8 +151,12 @@ void userrec::StartDNSLookup()
 	try
 	{
 		ServerInstance->Log(DEBUG,"Passing instance: %08x",this->ServerInstance);
-		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE);
-		this->ServerInstance->AddResolver(res_reverse);
+		bool cached;
+		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE, cached);
+		if (!cached)
+			this->ServerInstance->AddResolver(res_reverse);
+		else
+			delete res_reverse;
 	}
 	catch (CoreException& e)
 	{
@@ -160,8 +164,8 @@ void userrec::StartDNSLookup()
 	}
 }
 
-UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt) :
-	Resolver(Instance, to_resolve, qt), bound_user(user)
+UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt, bool &cache) :
+	Resolver(Instance, to_resolve, qt, cache), bound_user(user)
 {
 	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
 	this->bound_fd = user->GetFd();
@@ -178,13 +182,17 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl)
 			/* Check we didnt time out */
 			if (this->bound_user->registered != REG_ALL)
 			{
+				bool cached;
 #ifdef IPV6
 				const char *ip = this->bound_user->GetIPString();
-				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA));
+				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
 #else
-				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A);
+				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
 #endif
-				this->ServerInstance->AddResolver(bound_user->res_forward);
+				if (!cached)
+					this->ServerInstance->AddResolver(bound_user->res_forward);
+				else
+					delete bound_user->res_forward;
 			}
 		}
 		catch (CoreException& e)

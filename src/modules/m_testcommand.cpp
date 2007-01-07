@@ -26,7 +26,7 @@ class MyV6Resolver : public Resolver
 {
 	bool fw;
  public:
-	MyV6Resolver(InspIRCd* Instance, Module* me, const std::string &source, bool forward) : Resolver(Instance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6, me)
+	MyV6Resolver(InspIRCd* Instance, Module* me, const std::string &source, bool forward, bool &cached) : Resolver(Instance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6, cached, me)
 	{
 		fw = forward;
 	}
@@ -60,10 +60,24 @@ class cmd_woot : public command_t
 		 * do it for us as required.*/
 		try
 		{
-			MyV6Resolver* r = new MyV6Resolver(ServerInstance, Creator, "shake.stacken.kth.se", true);
-			ServerInstance->AddResolver(r);
-			r = new MyV6Resolver(ServerInstance, Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false);
-			ServerInstance->AddResolver(r);
+			bool cached1, cached2;
+			MyV6Resolver* r = new MyV6Resolver(ServerInstance, Creator, "shake.stacken.kth.se", true, cached1);
+			if (!cached1)
+				ServerInstance->AddResolver(r);
+			else
+			{
+				ServerInstance->Log(DEBUG,"Result was cached, delete object");
+				delete r;
+			}
+
+			r = new MyV6Resolver(ServerInstance, Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false, cached2);
+			if (!cached2)
+				ServerInstance->AddResolver(r);
+			else
+			{
+				ServerInstance->Log(DEBUG,"Result was cached, delete object");
+				delete r;
+			}
 		}
 		catch (ModuleException& e)
 		{

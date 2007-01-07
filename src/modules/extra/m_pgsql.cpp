@@ -90,8 +90,8 @@ class SQLresolver : public Resolver
 	SQLhost host;
 	Module* mod;
  public:
-	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi)
-	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, (Module*)m), host(hi), mod(m)
+	SQLresolver(Module* m, InspIRCd* Instance, const SQLhost& hi, bool &cached)
+	: Resolver(Instance, hi.host, DNS_QUERY_FORWARD, cached, (Module*)m), host(hi), mod(m)
 	{
 	}
 
@@ -1099,9 +1099,12 @@ public:
 
 				try
 				{
-					resolver = new SQLresolver(this, ServerInstance, host);
-
-					ServerInstance->AddResolver(resolver);
+					bool cached;
+					resolver = new SQLresolver(this, ServerInstance, host, cached);
+					if (!cached)
+						ServerInstance->AddResolver(resolver);
+					else
+						delete resolver;
 				}
 				catch(...)
 				{

@@ -3714,7 +3714,7 @@ class ServernameResolver : public Resolver
 	Link MyLink;
 	SpanningTreeUtilities* Utils;
  public: 
-	ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, me), MyLink(x), Utils(Util)
+	ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), MyLink(x), Utils(Util)
 	{
 		/* Nothing in here, folks */
 	}
@@ -3764,7 +3764,7 @@ class SecurityIPResolver : public Resolver
 	Link MyLink;
 	SpanningTreeUtilities* Utils;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, me), MyLink(x), Utils(U)
+	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), MyLink(x), Utils(U)
 	{
 	}
 
@@ -4122,8 +4122,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				{
 					try
 					{
-						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L);
-						ServerInstance->AddResolver(sr);
+						bool cached;
+						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached);
+						if (!cached)
+							ServerInstance->AddResolver(sr);
+						else
+							delete sr;
 					}
 					catch (ModuleException& e)
 					{
@@ -4653,8 +4657,12 @@ class ModuleSpanningTree : public Module
 		{
 			try
 			{
-				ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x);
-				ServerInstance->AddResolver(snr);
+				bool cached;
+				ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached);
+				if (!cached)
+					ServerInstance->AddResolver(snr);
+				else
+					delete snr;
 			}
 			catch (ModuleException& e)
 			{

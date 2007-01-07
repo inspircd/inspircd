@@ -37,6 +37,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "base.h"
 #include "socketengine.h"
 #include "socket.h"
+#include "hash_map.h"
+#include "hashcomp.h"
 
 using namespace std;
 using irc::sockets::insp_aton;
@@ -56,14 +58,39 @@ class DNSResult : public classbase
 	int id;
 	std::string result;
 	unsigned long ttl;
+	std::string original;
 
-	DNSResult(int i, const std::string &res, unsigned long timetolive) : id(i), result(res), ttl(timetolive) { }
+	DNSResult(int i, const std::string &res, unsigned long timetolive, const std::string &orig) : id(i), result(res), ttl(timetolive), original(orig) { }
 };
 
 /**
  * Information on a completed lookup, used internally
  */
 typedef std::pair<unsigned char*, std::string> DNSInfo;
+
+/** Cached item
+ */
+class CachedQuery
+{
+ public:
+	std::string data;
+	time_t expires;
+
+	CachedQuery(const std::string &res, unsigned int ttl) : data(res)
+	{
+		expires = time(NULL) + ttl;
+	}
+
+	int CalcTTLRemaining()
+	{
+		int n = expires - time(NULL);
+		return (n < 0 ? 0 : n);
+	}
+};
+
+/** DNS cache information
+ */
+typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
 
 /**
  * Error types that class Resolver can emit to its error method.
@@ -201,7 +228,7 @@ class Resolver : public Extensible
 	 * whilst lookups are in progress, they can be safely removed and your module will not
 	 * crash the server.
 	 */
-	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, Module* creator = NULL);
+	Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, bool &cached, Module* creator = NULL);
 
 	/**
 	 * The default destructor does nothing.
@@ -211,7 +238,7 @@ class Resolver : public Extensible
 	 * When your lookup completes, this method will be called.
 	 * @param result The resulting DNS lookup, either an IP address or a hostname.
 	 */
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl) = 0;
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl);
 	/**
 	 * If an error occurs (such as NXDOMAIN, no domain name found) then this method
 	 * will be called.
@@ -269,6 +296,11 @@ class DNS : public EventHandler
 	 * to fix it.
 	 */
 	bool ip6munge;
+
+	/**
+	 * Currently cached items
+	 */
+	dnscache* cache;
 
 	/**
 	 * Build a dns packet payload
@@ -352,7 +384,7 @@ class DNS : public EventHandler
 	/**
 	 * Add a query to the list to be sent
 	 */
-	DNSRequest* AddQuery(DNSHeader *header, int &id);
+	DNSRequest* AddQuery(DNSHeader *header, int &id, const char* original);
 
 	/**
 	 * The constructor initialises the dns socket,
@@ -388,6 +420,10 @@ class DNS : public EventHandler
 	 * are dns requests currently in progress.
 	 */
 	void CleanResolvers(Module* module);
+
+	CachedQuery* GetCache(const std::string &source);
+
+	void DelCache(const std::string &source);
 };
 
 #endif

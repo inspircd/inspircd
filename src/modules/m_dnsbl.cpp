@@ -46,8 +46,8 @@ class DNSBLResolver : public Resolver
 	DNSBLConfEntry *ConfEntry;
 
     public:
-	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, userrec* u, int userfd, DNSBLConfEntry *conf)
-		: Resolver(ServerInstance, hostname, DNS_QUERY_A, me)
+	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, userrec* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+		: Resolver(ServerInstance, hostname, DNS_QUERY_A, cached, me)
 	{
 		theirfd = userfd;
 		them = u;
@@ -307,8 +307,12 @@ class ModuleDNSBL : public Module
 				ServerInstance->Log(DEBUG, "m_dnsbl: sending %s for resolution", hostname.c_str());
 
 				/* now we'd need to fire off lookups for `hostname'. */
-				DNSBLResolver *r = new DNSBLResolver(this, ServerInstance, hostname, user, user->GetFd(), *i);
-				ServerInstance->AddResolver(r);
+				bool cached;
+				DNSBLResolver *r = new DNSBLResolver(this, ServerInstance, hostname, user, user->GetFd(), *i, cached);
+				if (!cached)
+					ServerInstance->AddResolver(r);
+				else
+					delete r;
 			}
 		}
 

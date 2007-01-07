@@ -56,7 +56,7 @@ class HTTPResolver : public Resolver
  private:
 	HTTPSocket *socket;
  public:
-	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname) : Resolver(Instance, hostname, DNS_QUERY_FORWARD), socket(socket)
+	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
 	{
 	}
 	
@@ -149,7 +149,12 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 
 	if (!inet_aton(this->host, &this->addy))
 	{
-		new HTTPResolver(this, Server, url.domain);
+		bool cached;
+		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
+		if (!cached)
+			Instance->AddResolver(r);
+		else
+			delete r;
 		return true;
 	}
 	else
