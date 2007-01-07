@@ -131,15 +131,22 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->Config->NoUserDns)
 		{
 			user->dns_done = true;
+			ServerInstance->next_call = ServerInstance->Time();
 		}
 		else
 		{
 			user->StartDNSLookup();
 			if (user->dns_done)
-				ServerInstance->Log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
+			{
+				/* Cached result or instant failure - fall right through if possible */
+				ServerInstance->next_call = ServerInstance->Time();
+			}
+			else
+			{
+				if (ServerInstance->next_call > ServerInstance->Time() + ServerInstance->Config->dns_timeout)
+					ServerInstance->next_call = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
+			}
 		}
-		if (ServerInstance->next_call > ServerInstance->Time() + ServerInstance->Config->dns_timeout)
-			ServerInstance->next_call = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
 	}
 	if (user->registered == REG_NICKUSER)
 	{
