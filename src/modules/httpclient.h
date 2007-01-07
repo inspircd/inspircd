@@ -8,9 +8,12 @@
 
 typedef std::map<std::string,std::string> HeaderMap;
 
+const char* HTTP_CLIENT_RESPONSE = "HTTPCLIENT_RESPONSE";
+const char* HTTP_CLIENT_REQUEST = "HTTPCLIENT_REQUEST";
+
 /** This class represents an outgoing HTTP request
  */
-class HTTPClientRequest : public classbase
+class HTTPClientRequest : public Request
 {
  protected:
 	std::string url;
@@ -18,8 +21,8 @@ class HTTPClientRequest : public classbase
 	Module *src;
 	HeaderMap Headers;
  public:
-	HTTPClientRequest(InspIRCd *Instance, Module *src, const std::string &url)
-		: url(url), Instance(Instance), src(src)
+	HTTPClientRequest(InspIRCd *Instance, Module *src, Module* target, const std::string &url)
+		: Request(src, target, HTTP_CLIENT_REQUEST), url(url), Instance(Instance), src(src)
 	{
 		Headers["User-Agent"] = "InspIRCd (m_http_client.so)";
 		Headers["Connection"] = "Close";
@@ -29,11 +32,6 @@ class HTTPClientRequest : public classbase
 	const std::string &GetURL()
 	{
 		return url;
-	}
-	
-	Module *GetSrc()
-	{
-		return src;
 	}
 
 	void AddHeader(std::string &header, std::string &data)
@@ -50,22 +48,9 @@ class HTTPClientRequest : public classbase
 	{
 		return Headers;
 	}
-	
-	void SendRequest()
-	{
-		Module *HTTPModule = Instance->FindModule("m_http_client.so");
-		if (!HTTPModule)
-		{
-			Instance->Log(DEFAULT, "HTTP module not loaded!");
-			return;
-		}
-		
-		Request req((char *)this, src, HTTPModule);
-		req.Send();
-	}
 };
 
-class HTTPClientResponse : public classbase
+class HTTPClientResponse : public Request
 {
  protected:
 	friend class HTTPSocket;
@@ -76,8 +61,8 @@ class HTTPClientResponse : public classbase
 	std::string responsestr;
 	HeaderMap Headers;
  public:
-	HTTPClientResponse(std::string &url, int response, std::string responsestr)
-		: url(url), response(response), responsestr(responsestr)
+	HTTPClientResponse(Module* src, Module* target, std::string &url, int response, std::string responsestr)
+		: Request(src, target, HTTP_CLIENT_RESPONSE), url(url), response(response), responsestr(responsestr)
 	{
 	}
 	

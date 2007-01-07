@@ -98,20 +98,17 @@ class ModuleHTTPClient : public Module
 	{
 		List[I_OnRequest] = 1;
 	}
-	
-	char *OnRequest(Request *req)
+
+	char* OnRequest(Request *req)
 	{
-		HTTPClientRequest *httpreq = (HTTPClientRequest *) req->GetData();
-		HTTPSocket *sock = new HTTPSocket(ServerInstance, this);
-		sock->DoRequest(httpreq);
-		// No return value
+		HTTPClientRequest *httpreq = (HTTPClientRequest *)req;
+		if (!strcmp(httpreq->GetId(), HTTP_CLIENT_REQUEST))
+		{
+			HTTPSocket *sock = new HTTPSocket(ServerInstance, this);
+			sock->DoRequest(httpreq);
+			// No return value
+		}
 		return NULL;
-	}
-	
-	void SendReply(Module *to, HTTPClientResponse *data)
-	{
-		Request req((char *) data, this, to);
-		req.Send();
 	}
 };
 
@@ -283,7 +280,7 @@ bool HTTPSocket::OnDataReady()
 			{
 				// HTTP reply (HTTP/1.1 200 msg)
 				data += 9;
-				response = new HTTPClientResponse(url.url, atoi(data), data + 4);
+				response = new HTTPClientResponse((Module*)Mod, req->GetSource() , url.url, atoi(data), data + 4);
 				this->status = HTTP_HEADERS;
 				continue;
 			}
@@ -314,7 +311,8 @@ void HTTPSocket::OnClose()
 	}
 	Server->Log(DEBUG, "Got file from HTTP successfully");
 	response->data = data;
-	Mod->SendReply(req->GetSrc(), response);
+	response->Send();
+	delete response;
 }
 
 class ModuleHTTPClientFactory : public ModuleFactory
