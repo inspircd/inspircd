@@ -116,7 +116,7 @@ class MaintainTimer : public InspTimer
 	InspIRCd* ServerInstance;
   public:
 	MaintainTimer(InspIRCd* Instance, long interval)
-	: InspTimer(interval, Instance->Time()), ServerInstance(Instance)
+	: InspTimer(interval, Instance->Time(), true), ServerInstance(Instance)
 	{
 	}
 	virtual void Tick(time_t TIME);

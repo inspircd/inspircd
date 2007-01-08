@@ -350,7 +350,4 @@ void MaintainTimer::Tick(time_t t)
 		std::deque<classbase*> params;
 		whowas_command->HandleInternal(WHOWAS_MAINTAIN, params);
 	}
-
-	timer = new MaintainTimer(ServerInstance, 3600);
-	ServerInstance->Timers->AddTimer(timer);
 }
