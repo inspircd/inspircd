@@ -90,7 +90,7 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 
 	user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 	return CMD_SUCCESS;
-};
+}
 
 CmdResult cmd_whowas::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
 {
@@ -108,11 +108,15 @@ CmdResult cmd_whowas::HandleInternal(const unsigned int id, const std::deque<cla
 			PruneWhoWas(ServerInstance->Time());
 		break;
 
+		case WHOWAS_MAINTAIN:
+			MaintainWhoWas(ServerInstance->Time());
+		break;
+
 		default:
 		break;
 	}
 	return CMD_SUCCESS;
-};
+}
 
 void cmd_whowas::GetStats(Extensible* ext)
 {
@@ -263,6 +267,24 @@ void cmd_whowas::PruneWhoWas(time_t t)
 	}
 }
 
+/* call maintain once an hour to remove expired nicks */
+void cmd_whowas::MaintainWhoWas(time_t t)
+{
+	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
+	{
+		whowas_set* n = (whowas_set*)iter->second;
+		if (n->size())
+		{
+			while ((n->begin() != n->end()) && ((*n->begin())->signon < t - ServerInstance->Config->WhoWasMaxKeep))
+			{
+				WhoWasGroup *a = *(n->begin());
+				DELETE(a);
+				n->erase(n->begin());
+			}
+		}
+	}
+}
+
 cmd_whowas::~cmd_whowas()
 {
 	if (timer)
@@ -279,7 +301,7 @@ cmd_whowas::~cmd_whowas()
 		if (iter == whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
-			ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (1)");
+			ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (3)");
 			return;
 		}
 		whowas_set* n = (whowas_set*)iter->second;
@@ -322,19 +344,13 @@ WhoWasGroup::~WhoWasGroup()
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
 void MaintainTimer::Tick(time_t t)
 {
-	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
+	command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
+	if (whowas_command)
 	{
-		whowas_set* n = (whowas_set*)iter->second;
-		if (n->size())
-		{
-			while ((n->begin() != n->end()) && ((*n->begin())->signon < t - ServerInstance->Config->WhoWasMaxKeep))
-			{
-				WhoWasGroup *a = *(n->begin());
-				DELETE(a);
-				n->erase(n->begin());
-			}
-		}
+		std::deque<classbase*> params;
+		whowas_command->HandleInternal(WHOWAS_MAINTAIN, params);
 	}
+
 	timer = new MaintainTimer(ServerInstance, 3600);
 	ServerInstance->Timers->AddTimer(timer);
 }

@@ -23,16 +23,50 @@
 #include "users.h"
 #include "channels.h"
 
+/* list of available internal commands */
+enum Internals
+{
+	WHOWAS_ADD = 1,
+	WHOWAS_STATS = 2,
+	WHOWAS_PRUNE = 3,
+	WHOWAS_MAINTAIN = 4
+};
+
+/* Forward ref for timer */
 class MaintainTimer;
+
+/* Forward ref for typedefs */
+class WhoWasGroup;
 
 /** InspTimer that is used to maintain the whowas list, called once an hour
  */
 MaintainTimer* timer;
 
+/** A group of users related by nickname
+ */
+typedef std::deque<WhoWasGroup*> whowas_set;
+
+/** Sets of users in the whowas system
+ */
+typedef std::map<irc::string,whowas_set*> whowas_users;
+
+/** Sets of time and users in whowas list
+ */
+typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
+
 /** Handle /WHOWAS
  */
 class cmd_whowas : public command_t
 {
+  private:
+	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
+	 */
+	whowas_users whowas;
+	
+	/** Whowas container, contains a map of time_t to users tracked by WHOWAS
+	 */
+	whowas_users_fifo whowas_fifo;
+
   public:
 	cmd_whowas(InspIRCd* Instance);
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
@@ -40,16 +74,9 @@ class cmd_whowas : public command_t
 	void AddToWhoWas(userrec* user);
 	void GetStats(Extensible* ext);
 	void PruneWhoWas(time_t t);
+	void MaintainWhoWas(time_t t);
 	virtual ~cmd_whowas();
 };
-
-enum Internals
-{
-	WHOWAS_ADD = 1,
-	WHOWAS_STATS = 2,
-	WHOWAS_PRUNE = 3
-};
-
 
 /** Used to hold WHOWAS information
  */
@@ -94,29 +121,5 @@ class MaintainTimer : public InspTimer
 	}
 	virtual void Tick(time_t TIME);
 };
-
-/** A group of users related by nickname
- */
-typedef std::deque<WhoWasGroup*> whowas_set;
-
-/** Sets of users in the whowas system
- */
-typedef std::map<irc::string,whowas_set*> whowas_users;
-
-/** Sets of time and users in whowas list
- */
-typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
-
-/** Called every hour by the core to remove expired entries
- */
-void MaintainWhoWas(InspIRCd* ServerInstance, time_t TIME);
-
-/** Whowas container, contains a map of vectors of users tracked by WHOWAS
- */
-whowas_users whowas;
-
-/** Whowas container, contains a map of time_t to users tracked by WHOWAS
- */
-whowas_users_fifo whowas_fifo;
 
 #endif
