@@ -170,6 +170,7 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 						n->pop_front();
 					}
 				}
+				DELETE(n);
 				whowas.erase(iter);
 			}
 			whowas_fifo.pop_front();
