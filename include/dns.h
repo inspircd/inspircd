@@ -448,6 +448,8 @@ class DNS : public EventHandler
 	CachedQuery* GetCache(const std::string &source);
 
 	void DelCache(const std::string &source);
+
+	int ClearCache();
 };
 
 #endif
