@@ -25,7 +25,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
  */
 CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ( "371 %s :. o O (The Inspire Internet Relay Chat Server) O o .", user->nick);
+	user->WriteServ( "371 %s :. o O ( The Inspire Internet Relay Chat Server  ) O o .", user->nick);
+	user->WriteServ( "371 %s :      ( Putting the ricer into ircer since 2007 )", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :Core Developers:", user->nick);
 	user->WriteServ( "371 %s :        Craig Edwards (Brain)", user->nick);
