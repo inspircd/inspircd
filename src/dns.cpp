@@ -269,7 +269,9 @@ void DNS::Rehash()
 		/* Rehash the cache */
 		dnscache* newcache = new dnscache();
 		for (dnscache::iterator i = this->cache->begin(); i != this->cache->end(); i++)
-			newcache->insert(*i);
+			/* Dont include expired items (theres no point) */
+			if (i->second.CalcTTLRemaining())
+				newcache->insert(*i);
 
 		delete this->cache;
 		this->cache = newcache;
