@@ -81,6 +81,7 @@ install: all
 	-install -m $(INSTMODE) inspircd $(BASE) 2>/dev/null
 	-install -m $(INSTMODE) src/cmd_admin.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_away.so $(LIBPATH)
+	-install -m $(INSTMODE) src/cmd_clearcache.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_commands.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_connect.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_die.so $(LIBPATH)
