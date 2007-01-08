@@ -386,8 +386,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		if ((*mode_sequence.begin() != '+') && (*mode_sequence.begin() != '-'))
 			mode_sequence.insert(0, "+");
 
-		last_successful_state_change = (mode_sequence[0] == '-');
-
 		for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 		{
 			unsigned char modechar = *letter;
@@ -408,12 +406,16 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					if ((!adding) || (!output_sequence.length()))
 						state_change = true;
 					adding = true;
+					if (!output_sequence.length())
+						last_successful_state_change = false;
 					continue;
 				break;
 				case '-':
 					if ((adding) || (!output_sequence.length()))
 						state_change = true;
 					adding = false;
+					if (!output_sequence.length())
+						last_successful_state_change = true;
 					continue;
 				break;
 				default:
