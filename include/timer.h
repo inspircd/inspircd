@@ -30,12 +30,19 @@ class InspTimer : public Extensible
 	/** The triggering time
 	 */
 	time_t trigger;
+	long secs;
+	bool repeat;
  public:
 	/** Default constructor, initializes the triggering time
+	 * @param secs_from_now The number of seconds from now to trigger the timer
+	 * @param now The time now
+	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	InspTimer(long secs_from_now,time_t now)
+	InspTimer(long secs_from_now,time_t now, bool repeating = false)
 	{
 		trigger = now + secs_from_now;
+		secs = secs_from_now;
+		repeat = repeating;
 	}
 	/** Default destructor, does nothing.
 	 */
@@ -49,6 +56,16 @@ class InspTimer : public Extensible
 	/** Called when the timer ticks.
 	 */
 	virtual void Tick(time_t TIME) = 0;
+
+	bool GetRepeat()
+	{
+		return repeat;
+	}
+
+	long GetSecs()
+	{
+		return secs;
+	}
 };
 
 
@@ -79,8 +96,13 @@ class TimerManager : public Extensible
 	void TickTimers(time_t TIME);
 	/** Add an InspTimer
 	 * @param T an InspTimer derived class to add
+	 * @param secs_from_now You may set this to the number of seconds
+	 * from the current time when the timer will tick, or you may just
+	 * leave this unset and the values set by the InspTimers constructor
+	 * will be used. This is used internally for re-triggering repeating
+	 * timers.
 	 */
-	void AddTimer(InspTimer* T);
+	void AddTimer(InspTimer* T, long secs_from_now = 0);
 	/** Delete an InspTimer
 	 * @param T an InspTimer derived class to delete
 	 */

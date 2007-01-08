@@ -103,6 +103,21 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
+class CacheTimer : public InspTimer
+{
+ private:
+	InspIRCd* ServerInstance;
+	DNS* dns;
+ public:
+	CacheTimer(InspIRCd* Instance, DNS* thisdns)
+		: InspTimer(3600, Instance->Time(), true), ServerInstance(Instance), dns(thisdns) { }
+
+	virtual void Tick(time_t TIME)
+	{
+		dns->PruneCache();
+	}
+};
+
 class RequestTimeout : public InspTimer
 {
 	InspIRCd* ServerInstance;
@@ -262,6 +277,23 @@ int DNS::ClearCache()
 	return rv;
 }
 
+int DNS::PruneCache()
+{
+	int n = 0;
+	dnscache* newcache = new dnscache();
+	for (dnscache::iterator i = this->cache->begin(); i != this->cache->end(); i++)
+		/* Dont include expired items (theres no point) */
+		if (i->second.CalcTTLRemaining())
+			newcache->insert(*i);
+		else
+			n++;
+
+	delete this->cache;
+	this->cache = newcache;
+	ServerInstance->Log(DEBUG,"Prune %d expired cache items", n);
+	return n;
+}
+
 void DNS::Rehash()
 {
 	insp_inaddr addr;
@@ -276,14 +308,7 @@ void DNS::Rehash()
 		this->SetFd(-1);
 
 		/* Rehash the cache */
-		dnscache* newcache = new dnscache();
-		for (dnscache::iterator i = this->cache->begin(); i != this->cache->end(); i++)
-			/* Dont include expired items (theres no point) */
-			if (i->second.CalcTTLRemaining())
-				newcache->insert(*i);
-
-		delete this->cache;
-		this->cache = newcache;
+		this->PruneCache();
 	}
 	else
 	{
@@ -397,6 +422,10 @@ DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 	/* Actually read the settings
 	 */
 	this->Rehash();
+
+	this->PruneTimer = new CacheTimer(ServerInstance, this);
+
+	ServerInstance->Timers->AddTimer(this->PruneTimer);
 }
 
 /** Build a payload to be placed after the header, based upon input data, a resource type, a class and a pointer to a buffer */
@@ -906,6 +935,8 @@ DNS::~DNS()
 {
 	shutdown(this->GetFd(), 2);
 	close(this->GetFd());
+	ServerInstance->Timers->DelTimer(this->PruneTimer);
+	delete this->PruneTimer;
 }
 
 CachedQuery* DNS::GetCache(const std::string &source)

@@ -326,6 +326,8 @@ class DNS : public EventHandler
 	 */
 	dnscache* cache;
 
+	class CacheTimer* PruneTimer;
+
 	/**
 	 * Build a dns packet payload
 	 */
@@ -450,6 +452,7 @@ class DNS : public EventHandler
 	void DelCache(const std::string &source);
 
 	int ClearCache();
+	int PruneCache();
 };
 
 #endif

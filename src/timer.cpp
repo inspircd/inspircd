@@ -28,7 +28,14 @@ void TimerManager::TickTimers(time_t TIME)
 		{
 			InspTimer* n = *y;
 			n->Tick(TIME);
-			DELETE(n);
+			if (n->GetRepeat())
+			{
+				AddTimer(n, n->GetSecs());
+			}
+			else
+			{
+				DELETE(n);
+			}
 		}
 
 		Timers.erase(found);
@@ -78,7 +85,14 @@ void TimerManager::TickMissedTimers(time_t TIME)
 			{
 				InspTimer* z = *y;
 				z->Tick(TIME);
-				DELETE(z);
+				if (z->GetRepeat())
+				{
+					AddTimer(z, z->GetSecs());
+				}
+				else
+				{
+					DELETE(z);
+				}
 			}
 
 			Timers.erase(found);
@@ -87,12 +101,18 @@ void TimerManager::TickMissedTimers(time_t TIME)
 	}
 }
 
-void TimerManager::AddTimer(InspTimer* T)
+void TimerManager::AddTimer(InspTimer* T, long secs_from_now)
 {
 	timergroup* x = NULL;
 
-	timerlist::iterator found = Timers.find(T->GetTimer());
-	
+	int time_to_trigger = 0;
+	if (!secs_from_now)
+		time_to_trigger = T->GetTimer();
+	else
+		time_to_trigger = secs_from_now + time(NULL);
+
+	timerlist::iterator found = Timers.find(time_to_trigger);
+
 	if (found != Timers.end())
 	{
 		x = found->second;
@@ -100,7 +120,7 @@ void TimerManager::AddTimer(InspTimer* T)
 	else
 	{
 		x = new timergroup;
-		Timers[T->GetTimer()] = x;
+		Timers[time_to_trigger] = x;
 	}
 
 	x->push_back(T);
