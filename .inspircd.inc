@@ -223,25 +223,24 @@ sub getpidfile {
   # Close the file
   close INFILE;
 
-  # Clean up the file, no newlines etc..
+  # remove trailing spaces
   chomp(@lines);
   foreach $i (@lines) {
+    # clean it up
     $i =~ s/[^=]+=\s(.*)/\1/;
-  }
-  my $tmp = join("",@lines);
-
-  # Does this file have a pid?
-  if (($tmp =~ /<pid file=\"(\S+)\">/i) && ($tmp !~ /^#/))
-  {
-    # Set the PID file and return.
-    $pidfile = $1;
-    return;
+    # Does this file have a pid?
+    if (($i =~ /<pid file=\"(\S+)\">/i) && ($i !~ /^#/))
+    {
+      # Set the PID file and return.
+      $pidfile = $1;
+      return;
+    }
   }
 
-  # If we get here, NO PID FILE! -- Check for includes (Seeing as we will eventually return,
-  # The while (1) is safe.)
-  while (1) {
-    if (($tmp =~ s/\<include file=\"(.+?)\"\>//i) && ($tmp !~ /^#/))
+  # If we get here, NO PID FILE! -- Check for includes
+  foreach $i (@lines) {
+    $i =~ s/[^=]+=\s(.*)/\1/;
+    if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
     {
       # Decend into that file, and check for PIDs.. (that sounds like an STD ;/)
       getpidfile($1);
@@ -250,12 +249,11 @@ sub getpidfile {
         # Yes, Return.
         return;
       }
-    } else {
-      # End of includes / No includes found.
-      $pidfile = $confpath . "inspircd.pid";
-      return;
     }
   }
+
+  # End of includes / No includes found. Using default.
+  $pidfile = $confpath . "inspircd.pid";
 }
 
 sub getstatus {
