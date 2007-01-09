@@ -66,6 +66,11 @@ class InspTimer : public Extensible
 	{
 		return secs;
 	}
+
+	void CancelRepeat()
+	{
+		repeat = false;
+	}
 };
 
 

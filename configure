@@ -1681,7 +1681,7 @@ xline.o: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ..
 inspstring.o: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
 
-dns.o: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+dns.o: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
 
 base.o: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
@@ -1690,16 +1690,16 @@ base.o: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_conf
 configreader.o: configreader.cpp ../include/base.h ../include/configreader.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
 
-commands.o: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h $srcobjs
+commands.o: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h $srcobjs
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp $cmdobjs
 
 dynamic.o: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
 
-users.o: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+users.o: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
 
-modules.o: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+modules.o: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
 
 wildcard.o: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
@@ -1708,10 +1708,10 @@ wildcard.o: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/insp
 socket.o: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
 	
-inspsocket.o: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+inspsocket.o: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspsocket.cpp
 
-timer.o: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+timer.o: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
 
 EOM
@@ -1808,7 +1808,7 @@ libIRCDmode.so: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd
 	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS) CPPFILES="\$(CPPFILES)"
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDmode.so mode.o modes/modeclasses.a
 
-libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDxline.so: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDxline.so xline.o
 
@@ -1816,7 +1816,7 @@ libIRCDstring.so: inspstring.cpp ../include/base.h ../include/inspstring.h ../in
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDstring.so inspstring.o
 
-libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDasyncdns.so: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDasyncdns.so dns.o
 
@@ -1828,7 +1828,7 @@ libIRCDconfigreader.so: configreader.cpp ../include/base.h ../include/configread
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDconfigreader.so configreader.o
 
-libIRCDcommands.so: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDcommands.so: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDcommands.so commands.o
 
@@ -1836,11 +1836,11 @@ libIRCDdynamic.so: dynamic.cpp ../include/base.h ../include/dynamic.h ../include
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDdynamic.so dynamic.o
 
-libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDusers.so: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDusers.so users.o
 
-libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
+libIRCDmodules.so: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDmodules.so modules.o
 
@@ -1852,11 +1852,11 @@ libIRCDsocket.so: socket.cpp ../include/base.h ../include/inspircd.h ../include/
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDsocket.so socket.o
 
-libIRCDinspsocket.so: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+libIRCDinspsocket.so: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspsocket.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDinspsocket.so inspsocket.o
 
-libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
+libIRCDtimer.so: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
 	\$(CC) -pipe -Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared -o libIRCDtimer.so timer.o
 
