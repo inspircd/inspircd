@@ -70,22 +70,18 @@ bool chanrec::IsModeSet(char mode)
 
 std::string chanrec::GetModeParameter(char mode)
 {
-	if (mode == 'k')
+	switch (mode)
 	{
-		return this->key;
-	}
-	else if (mode == 'l')
-	{
-		return ConvToStr(this->limit);
-	}
-	else
-	{
-		CustomModeList::iterator n = custom_mode_params.find(mode);
-		if (n != custom_mode_params.end())
-		{
-			return n->second;
-		}
-		return "";
+		case 'k':
+			return this->key;
+		case 'l':
+			return ConvToStr(this->limit);
+		default:
+			CustomModeList::iterator n = custom_mode_params.find(mode);
+			if (n != custom_mode_params.end())
+				return n->second;
+			return "";
+		break;
 	}
 }
 
