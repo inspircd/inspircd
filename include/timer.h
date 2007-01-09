@@ -30,7 +30,11 @@ class InspTimer : public Extensible
 	/** The triggering time
 	 */
 	time_t trigger;
+	/** Number of seconds between triggers
+	 */
 	long secs;
+	/** True if this is a repeating timer
+	 */
 	bool repeat;
  public:
 	/** Default constructor, initializes the triggering time
@@ -44,29 +48,49 @@ class InspTimer : public Extensible
 		secs = secs_from_now;
 		repeat = repeating;
 	}
+
 	/** Default destructor, does nothing.
 	 */
 	virtual ~InspTimer() { }
+
 	/** Retrieve the current triggering time
 	 */
 	virtual time_t GetTimer()
 	{
 		return trigger;
 	}
+
 	/** Called when the timer ticks.
+	 * You should override this method with some useful code to
+	 * handle the tick event.
 	 */
 	virtual void Tick(time_t TIME) = 0;
 
+	/** Returns true if this timer is set to repeat
+	 */
 	bool GetRepeat()
 	{
 		return repeat;
 	}
 
+	/** Returns the interval (number of seconds between ticks)
+	 * of this timer object.
+	 */
 	long GetSecs()
 	{
 		return secs;
 	}
 
+	/** Cancels the repeat state of a repeating timer.
+	 * If you call this method, then the next time your
+	 * timer ticks, it will be removed immediately after.
+	 * You should use this method call to remove a recurring
+	 * timer if you wish to do so within the timer's Tick
+	 * event, as calling TimerManager::DelTimer() from within
+	 * the InspTimer::Tick() method is dangerous and may
+	 * cause a segmentation fault. Calling CancelRepeat()
+	 * is safe in this case.
+	 */
 	void CancelRepeat()
 	{
 		repeat = false;

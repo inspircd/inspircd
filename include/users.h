@@ -120,68 +120,107 @@ class ConnectClass : public classbase
 
 public:
 
+	/** Create a new connect class with no settings.
+	 */
 	ConnectClass() : type(CC_DENY), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
 			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
 
+	/** Create a new connect class to ALLOW connections.
+	 * @param timeout The registration timeout
+	 * @param fld The flood value
+	 * @param hst The IP mask to allow
+	 * @param ping The ping frequency
+	 * @param pas The password to be used
+	 * @param thres The flooding threshold
+	 * @param sendq The maximum sendq value
+	 * @param recvq The maximum recvq value
+	 * @param maxl The maximum local sessions
+	 * @param maxg The maximum global sessions
+	 */
 	ConnectClass(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
 			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
 			unsigned long maxl, unsigned long maxg) :
 			type(CC_ALLOW), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
 			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg) { }
 
+	/** Create a new connect class to DENY  connections
+	 * @param hst The IP mask to deny
+	 */
 	ConnectClass(const std::string &hst) : type(CC_DENY), registration_timeout(0), flood(0), host(hst), pingtime(0),
 			pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
 
+	/** Returns the type, CC_ALLOW or CC_DENY
+	 */
 	char GetType()
 	{
 		return (type == CC_ALLOW ? CC_ALLOW : CC_DENY);
 	}
 
+	/** Returns the registration timeout
+	 */
 	unsigned int GetRegTimeout()
 	{
 		return (registration_timeout ? registration_timeout : 90);
 	}
 
+	/** Returns the flood limit
+	 */
 	unsigned int GetFlood()
 	{
 		return (threshold ? flood : 999);
 	}
 
+	/** Returns the allowed or denied IP mask
+	 */
 	const std::string& GetHost()
 	{
 		return host;
 	}
 
+	/** Returns the ping frequency
+	 */
 	unsigned int GetPingTime()
 	{
 		return (pingtime ? pingtime : 120);
 	}
 
+	/** Returns the password or an empty string
+	 */
 	const std::string& GetPass()
 	{
 		return pass;
 	}
 
+	/** Returns the flood threshold value
+	 */
 	unsigned int GetThreshold()
 	{
 		return (threshold ? threshold : 1);
 	}
 
+	/** Returns the maximum sendq value
+	 */
 	unsigned long GetSendqMax()
 	{
 		return (sendqmax ? sendqmax : 262114);
 	}
 
+	/** Returns the maximum recvq value
+	 */
 	unsigned long GetRecvqMax()
 	{
 		return (recvqmax ? recvqmax : 4096);
 	}
 
+	/** Returusn the maximum number of local sessions
+	 */
 	unsigned long GetMaxLocal()
 	{
 		return (maxlocal ? maxlocal : 1);
 	}
 
+	/** Returns the maximum number of global sessions
+	 */
 	unsigned long GetMaxGlobal()
 	{
 		return (maxglobal ? maxglobal : 1);
@@ -227,8 +266,16 @@ class userrec : public connection
 	 */
 	unsigned int ChannelCount;
 
+	/** Cached nick!ident@host value using the real hostname
+	 */
 	char* cached_fullhost;
+
+	/** Cached nick!ident@ip value using the real IP address
+	 */
 	char* cached_hostip;
+
+	/** Cached nick!ident@host value using the masked hostname
+	 */
 	char* cached_makehost;
 	char* cached_fullrealhost;
 
@@ -368,7 +415,8 @@ class userrec : public connection
 	 */
 	long threshold;
 
-	/** IPV4 or IPV6 ip address
+	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
+	 * GetIPString/GetPort to obtain its values.
 	 */
 	sockaddr* ip;
 
@@ -404,11 +452,13 @@ class userrec : public connection
 	 */
 	std::string WriteError;
 
-	/** Maximum size this user's sendq can become
+	/** Maximum size this user's sendq can become.
+	 * Copied from the connect class on connect.
 	 */
 	long sendqmax;
 
-	/** Maximum size this user's recvq can become
+	/** Maximum size this user's recvq can become.
+	 * Copied from the connect class on connect.
 	 */
 	long recvqmax;
 
@@ -838,6 +888,8 @@ class userrec : public connection
 
 	/** Handle socket event.
 	 * From EventHandler class.
+	 * @param et Event type
+	 * @param errornum Error number for EVENT_ERROR events
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
 

@@ -55,11 +55,25 @@ class Module;
 class DNSResult : public classbase
 {
  public:
+	/** Result ID
+	 */
 	int id;
+	/** Result body, a hostname or IP address
+	 */
 	std::string result;
+	/** Time-to-live value of the result
+	 */
 	unsigned long ttl;
+	/** The original request, a hostname or IP address
+	 */
 	std::string original;
 
+	/** Build a DNS result.
+	 * @param i The request ID
+	 * @param res The request result, a hostname or IP
+	 * @param timetolive The request time-to-live
+	 * @param orig The original request, a hostname or IP
+	 */
 	DNSResult(int i, const std::string &res, unsigned long timetolive, const std::string &orig) : id(i), result(res), ttl(timetolive), original(orig) { }
 };
 
@@ -68,19 +82,30 @@ class DNSResult : public classbase
  */
 typedef std::pair<unsigned char*, std::string> DNSInfo;
 
-/** Cached item
+/** Cached item stored in the query cache.
  */
 class CachedQuery
 {
  public:
+	/** The cached result data, an IP or hostname
+	 */
 	std::string data;
+	/** The time when the item is due to expire
+	 */
 	time_t expires;
 
+	/** Build a cached query
+	 * @param res The result data, an IP or hostname
+	 * @param ttl The time-to-live value of the query result
+	 */
 	CachedQuery(const std::string &res, unsigned int ttl) : data(res)
 	{
 		expires = time(NULL) + ttl;
 	}
 
+	/** Returns the number of seconds remaining before this
+	 * cache item has expired and should be removed.
+	 */
 	int CalcTTLRemaining()
 	{
 		int n = expires - time(NULL);
@@ -88,7 +113,7 @@ class CachedQuery
 	}
 };
 
-/** DNS cache information
+/** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.
  */
 typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
 
@@ -277,12 +302,15 @@ class Resolver : public Extensible
 	 * this method will return -1.
 	 */
 	int GetId();
-
 	/**
 	 * Returns the creator module, or NULL
 	 */
 	Module* GetCreator();
-
+	/**
+	 * If the result is a cached result, this triggers the objects
+	 * OnLookupComplete. This is done because it is not safe to call
+	 * the abstract virtual method from the constructor.
+	 */
 	void TriggerCachedResult();
 };
 
@@ -295,6 +323,9 @@ class DNS : public EventHandler
 {
  private:
 
+	/**
+	 * Creator/Owner object
+	 */
 	InspIRCd* ServerInstance;
 
 	/**
@@ -326,6 +357,9 @@ class DNS : public EventHandler
 	 */
 	dnscache* cache;
 
+	/** A timer which ticks every hour to remove expired
+	 * items from the DNS cache.
+	 */
 	class CacheTimer* PruneTimer;
 
 	/**
@@ -334,14 +368,17 @@ class DNS : public EventHandler
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
+
 	/**
 	 * Currently active Resolver classes
 	 */
 	Resolver* Classes[MAX_REQUEST_ID];
+
 	/**
 	 * Requests that are currently 'in flight'
 	 */
 	DNSRequest* requests[MAX_REQUEST_ID];
+
 	/**
 	 * The port number DNS requests are made on,
 	 * and replies have as a source-port number.
@@ -352,14 +389,17 @@ class DNS : public EventHandler
 	 * Fill an rr (resource record) with data from input
 	 */
 	static void FillResourceRecord(ResourceRecord* rr, const unsigned char* input);
+
 	/**
 	 * Fill a header with data from input limited by a length
 	 */
 	static void FillHeader(DNSHeader *header, const unsigned char *input, const int length);
+
 	/**
 	 * Empty out a header into a data stream ready for transmission "on the wire"
 	 */
 	static void EmptyHeader(unsigned char *output, const DNSHeader *header, const int length);
+
 	/**
 	 * Start the lookup of an ipv4 from a hostname
 	 */
@@ -447,11 +487,26 @@ class DNS : public EventHandler
 	 */
 	void CleanResolvers(Module* module);
 
+	/** Return the cached value of an IP or hostname
+	 * @param source An IP or hostname to find in the cache.
+	 * @return A pointer to a CachedQuery if the item exists,
+	 * otherwise NULL.
+	 */
 	CachedQuery* GetCache(const std::string &source);
 
+	/** Delete a cached item from the DNS cache.
+	 * @param source An IP or hostname to remove
+	 */
 	void DelCache(const std::string &source);
 
+	/** Clear all items from the DNS cache immediately.
+	 */
 	int ClearCache();
+
+	/** Prune the DNS cache, e.g. remove all expired
+	 * items and rehash the cache buckets, but leave
+	 * items in the hash which are still valid.
+	 */
 	int PruneCache();
 };
 
