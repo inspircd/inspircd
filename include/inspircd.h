@@ -106,6 +106,11 @@ inline std::string ConvToStr(const bool in)
 	return (in ? "1" : "0");
 }
 
+inline std::string ConvToStr(char in)
+{
+	return std::string(in,1);
+}
+
 template <class T> inline std::string ConvToStr(const T &in)
 {
 	std::stringstream tmp;
