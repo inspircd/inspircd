@@ -5460,15 +5460,13 @@ class ModuleSpanningTree : public Module
 	}
 };
 
-TimeSyncTimer::TimeSyncTimer(InspIRCd *Inst, ModuleSpanningTree *Mod) : InspTimer(43200, Inst->Time()), Instance(Inst), Module(Mod)
+TimeSyncTimer::TimeSyncTimer(InspIRCd *Inst, ModuleSpanningTree *Mod) : InspTimer(43200, Inst->Time(), true), Instance(Inst), Module(Mod)
 {
 }
 
 void TimeSyncTimer::Tick(time_t TIME)
 {
 	Module->BroadcastTimeSync();
-	Module->SyncTimer = new TimeSyncTimer(Instance, Module);
-	Instance->Timers->AddTimer(Module->SyncTimer);
 }
 
 void SpanningTreeUtilities::DoFailOver(Link* x)
