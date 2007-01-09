@@ -66,6 +66,7 @@ template<typename T> inline void DELETE(T* x)
  */
 template<typename T> inline std::string ConvNumeric(const T &in)
 {
+	if (in == 0) return "0";
 	char res[MAXBUF];
 	char* out = res;
 	T quotient = in;
