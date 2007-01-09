@@ -13,16 +13,16 @@
 
 #include "configreader.h"
 #include "users.h"
-#include "commands/cmd_admin.h"
+#include "commands/cmd_clearcache.h"
 
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
-	return new cmd_admin(Instance);
+	return new cmd_clearcache(Instance);
 }
 
-/** Handle /ADMIN
+/** Handle /CLEARCACHE
  */
-CmdResult cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_clearcache::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	int n = ServerInstance->Res->ClearCache();
 	user->WriteServ("NOTICE %s :*** Cleared DNS cache of %d items.", user->nick, n);
