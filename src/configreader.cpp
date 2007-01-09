@@ -594,7 +594,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
-		{"admin",	"name",		"Miss Configured",	new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
+		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
 		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
 		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},

@@ -27,7 +27,8 @@ CmdResult cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
 	if (!pcnt)
 	{
 		user->WriteServ("256 %s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
-		user->WriteServ("257 %s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
+		if (*ServerInstance->Config->AdminName)
+			user->WriteServ("257 %s :Name     - %s",user->nick,ServerInstance->Config->AdminName);
 		user->WriteServ("258 %s :Nickname - %s",user->nick,ServerInstance->Config->AdminNick);
 		user->WriteServ("258 %s :E-Mail   - %s",user->nick,ServerInstance->Config->AdminEmail);
 	}

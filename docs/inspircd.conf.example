@@ -61,8 +61,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#   Describes the Server Administrator's real name, nick              #
-#   and email address.                                                #
+#   Describes the Server Administrator's real name (optionally),      #
+#   nick, and email address.                                          #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #       <admin name="real name"                                       #
