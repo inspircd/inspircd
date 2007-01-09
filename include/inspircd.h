@@ -80,19 +80,29 @@ template<typename N> std::string ConvNumeric(N in)
 	return std::reverse(res,out);
 }
 
-template <typename T> inline std::string ConvToStr(const int in)
+template <int> inline std::string ConvToStr(const int in)
 {
 	return ConvNumeric(in);
 }
 
-template <typename T> inline std::string ConvToStr(const long in)
+template <long> inline std::string ConvToStr(const long in)
 {
 	return ConvNumeric(in);
 }
 
-template <typename T> inline std::string ConvToStr(const unsigned long in)
+template <unsigned long> inline std::string ConvToStr(const unsigned long in)
 {
 	return ConvNumeric(in);
+}
+
+template <const char*> inline std::string ConvToStr(const char* in)
+{
+	return in;
+}
+
+template <bool> inline std::string ConvToStr(const long in)
+{
+	return (in ? "1" : "0");
 }
 
 template <typename T> inline std::string ConvToStr(const T &in)
