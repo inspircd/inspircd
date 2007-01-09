@@ -62,9 +62,40 @@ template<typename T> inline void DELETE(T* x)
 	x = NULL;
 }
 
-/** Template function to convert any input type to std::string
+/** Template functions to convert any input type to std::string
  */
-template<typename T> inline std::string ConvToStr(const T &in)
+template<typename N> std::string ConvNumeric(N in)
+{
+	char res[MAXBUF];
+	char* out = res;
+	long quotient = in;
+	while (quotient) {
+		*out = "0123456789"[ std::abs( quotient % 10 ) ];
+		++out;
+		quotient /= 10;
+	}
+	if ( in < 0)
+		*out++ = '-';
+	*out = 0;
+	return std::reverse(res,out);
+}
+
+template <typename T> inline std::string ConvToStr(const int in)
+{
+	return ConvNumeric(in);
+}
+
+template <typename T> inline std::string ConvToStr(const long in)
+{
+	return ConvNumeric(in);
+}
+
+template <typename T> inline std::string ConvToStr(const unsigned long in)
+{
+	return ConvNumeric(in);
+}
+
+template <typename T> inline std::string ConvToStr(const T &in)
 {
 	std::stringstream tmp;
 	if (!(tmp << in)) return std::string();
