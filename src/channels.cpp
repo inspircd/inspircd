@@ -22,7 +22,7 @@
 chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	*name = *topic = *setby = *key = 0;
-	created = topicset = limit = 0;
+	maxbans = created = topicset = limit = 0;
 	memset(&modes,0,64);
 	age = ServerInstance->Time(true);
 }
@@ -870,16 +870,29 @@ void chanrec::UserList(userrec *user)
 
 long chanrec::GetMaxBans()
 {
+	/* Return the cached value if there is one */
+	if (this->maxbans)
+		return this->maxbans;
+
+	/* If there isnt one, we have to do some O(n) hax to find it the first time. (ick) */
 	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
 	{
 		if (match(this->name,n->first.c_str()))
 		{
+			this->maxbans = n->second;
 			return n->second;
 		}
 	}
-	return 64;
+
+	/* Screw it, just return the default of 64 */
+	this->maxbans = 64;
+	return this->maxbans;
 }
 
+void chanrec::ResetMaxBans()
+{
+	this->maxbans = 0;
+}
 
 /* returns the status character for a given user on a channel, e.g. @ for op,
  * % for halfop etc. If the user has several modes set, the highest mode

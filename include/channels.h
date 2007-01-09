@@ -124,6 +124,10 @@ class chanrec : public Extensible
 
 	prefixlist prefixes;
 
+	/** Maximum number of bans (cached)
+	 */
+	int maxbans;
+
  public:
 	/** The channels name.
 	 */
@@ -509,6 +513,10 @@ class chanrec : public Extensible
 	 * @returns True if the user given is banned
 	 */
 	bool IsBanned(userrec* user);
+
+	/** Clears the cached max bans value
+	 */
+	void ResetMaxBans();
 
 	/** Destructor for chanrec
 	 */

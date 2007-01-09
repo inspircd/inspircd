@@ -1169,6 +1169,11 @@ class InspIRCd : public classbase
 	 */
 	void RehashUsersAndChans();
 
+	/** Resets the cached max bans value on all channels.
+	 * Called by rehash.
+	 */
+	void ResetMaxBans();
+
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * after performing some initialisation routines,

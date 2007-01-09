@@ -5158,6 +5158,7 @@ class ModuleSpanningTree : public Module
 			}
 		}
 		Utils->ReadConfiguration(false);
+		InitializeDisabledCommands(ServerInstance->Config->DisabledCommands, ServerInstance);
 	}
 
 	// note: the protocol does not allow direct umode +o except
