@@ -15,8 +15,8 @@
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
-
 #include "inspircd.h"
+#include "wildcard.h"
 
 /* $ModDesc: Implements config tags which allow blocking of joins to channels */
 
@@ -59,9 +59,7 @@ class ModuleDenyChannels : public Module
 	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{
-			irc::string cn = Conf->ReadValue("badchan","name",j).c_str();
-			irc::string thischan = cname;
-			if (thischan == cn)
+			if (match(cname, Conf->ReadValue("badchan","name",j).c_str()))
 			{
 				if ((Conf->ReadFlag("badchan","allowopers",j)) && *user->oper)
 				{
