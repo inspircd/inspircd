@@ -39,6 +39,8 @@ UserList listusers;    /* vector of people doing a /list */
 class ListTimer *timer;
 
 /** To create a timer which recurs every second, we inherit from InspTimer.
+ * InspTimer is only one-shot however, so at the end of each Tick() we simply
+ * insert another of ourselves into the pending queue :)
  */
 class ListTimer : public InspTimer
 {
@@ -52,7 +54,7 @@ class ListTimer : public InspTimer
 
  public:
 
-	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,Instance->Time(), true), ServerInstance(Instance)
+	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,Instance->Time()), ServerInstance(Instance)
 	{
 		ServerNameSize = 4 + strlen(ServerInstance->Config->ServerName);
 	}
@@ -141,7 +143,12 @@ class ListTimer : public InspTimer
 			}
 		}
 
-		if (!listusers.size())
+		if (listusers.size())
+		{
+			timer = new ListTimer(ServerInstance,1);
+			ServerInstance->Timers->AddTimer(timer);
+		}
+		else
 		{
 			timer = NULL;
 		}
