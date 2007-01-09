@@ -750,7 +750,7 @@ char* chanrec::ChanModes(bool showkey)
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
 	char* offset = scratch;
-	std::string extparam = "";
+	std::string extparam;
 
 	*scratch = '\0';
 	*sparam = '\0';
