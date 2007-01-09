@@ -641,11 +641,15 @@ void chanrec::WriteChannelWithServ(const char* ServName, const char* text, ...)
 void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text)
 {
 	CUList *ulist = this->GetUsers();
+	char tb[MAXBUF];
+
+	snprintf(tb,MAXBUF,":%s %s",ServName ? ServName : ServerInstance->Config->ServerName, text.c_str());
+	std::string out = tb;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		if (IS_LOCAL(i->second))
-			i->second->WriteServ(text);
+			i->second->Write(out);
 	}
 }
 
