@@ -167,6 +167,11 @@ class SpanningTreeUtilities
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
+	/** Holds a bitmask of queued xline types waiting to be applied.
+	 * Will be a mask containing values APPLY_GLINES, APPLY_KLINES,
+	 * APPLY_QLINES and APPLY_ZLINES.
+	 */
+	int lines_to_apply;
 
 	hookmodules hooks;
 	std::vector<std::string> hooknames;
@@ -2635,15 +2640,20 @@ class TreeSocket : public InspSocket
 
 		bool propogate = false;
 
+		if (!this->bursting)
+			Utils->lines_to_apply = 0;
+
 		switch (*(params[0].c_str()))
 		{
 			case 'Z':
 				propogate = Instance->XLines->add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				Utils->lines_to_apply |= APPLY_ZLINES;
 			break;
 			case 'Q':
 				propogate = Instance->XLines->add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				Utils->lines_to_apply |= APPLY_QLINES;
 			break;
 			case 'E':
 				propogate = Instance->XLines->add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
@@ -2652,9 +2662,11 @@ class TreeSocket : public InspSocket
 			case 'G':
 				propogate = Instance->XLines->add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
+				Utils->lines_to_apply |= APPLY_GLINES;
 			break;
 			case 'K':
 				propogate = Instance->XLines->add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
+				Utils->lines_to_apply |= APPLY_KLINES;
 			break;
 			default:
 				/* Just in case... */
@@ -2679,8 +2691,9 @@ class TreeSocket : public InspSocket
 		}
 		if (!this->bursting)
 		{
-			Instance->Log(DEBUG,"Applying lines...");
-			Instance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+			Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
+			Instance->XLines->apply_lines(Utils->lines_to_apply);
+			Utils->lines_to_apply = 0;
 		}
 		return true;
 	}
@@ -3368,7 +3381,9 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						Instance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+						Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
+						Instance->XLines->apply_lines(Utils->lines_to_apply);
+						Utils->lines_to_apply = 0;
 					}
 					if (prefix == "")
 					{
@@ -3386,7 +3401,9 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						Instance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+						Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
+						Instance->XLines->apply_lines(Utils->lines_to_apply);
+						Utils->lines_to_apply = 0;
 					}
 					if (prefix == "")
 					{
@@ -3513,7 +3530,9 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
-					Instance->XLines->apply_lines(APPLY_ZLINES|APPLY_GLINES|APPLY_QLINES);
+					Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
+					Instance->XLines->apply_lines(Utils->lines_to_apply);
+					Utils->lines_to_apply = 0;
 					std::string sourceserv = this->myhost;
 					if (this->InboundServerName != "")
 					{
@@ -3783,6 +3802,8 @@ class SecurityIPResolver : public Resolver
 SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* C) : ServerInstance(Instance), Creator(C)
 {
 	Bindings.clear();
+
+	lines_to_apply = 0;
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 
