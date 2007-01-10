@@ -665,6 +665,9 @@ void XLineManager::expire_lines()
 
 void XLineManager::apply_lines(const int What)
 {
+	if (!What)
+		return;
+
 	if (What & APPLY_PERM_ONLY)
 	{
 		char reason[MAXBUF];
