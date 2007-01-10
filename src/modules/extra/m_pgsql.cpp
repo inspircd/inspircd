@@ -81,6 +81,20 @@ std::string SQLhost::GetDSN()
 	return conninfo.str();
 }
 
+class ReconnectTimer : public InspTimer
+{
+  private:
+	SQLConn* conn;
+	Module* mod;
+  public:
+	ReconnectTimer(InspIRCd* SI, SQLConn* c, Module* m)
+	: InspTimer(5, SI->Time(), false), conn(c), mod(m)
+	{
+	}
+	virtual void Tick(time_t TIME);
+};
+
+
 /** Used to resolve sql server hostnames
  */
 class SQLresolver : public Resolver
@@ -449,15 +463,11 @@ class SQLConn : public EventHandler
 	QueryQueue		queue;		/* Queue of queries waiting to be executed on this connection */
 	time_t			idle;		/* Time we last heard from the database */
 
-	bool			wantwrite;
-
   public:
 	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
 	: EventHandler(), Instance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
-		wantwrite = false;
 		idle = this->Instance->Time();
-
 		if(!DoConnect())
 		{
 			Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
@@ -469,32 +479,21 @@ class SQLConn : public EventHandler
 		Close();
 	}
 
-	virtual bool Writeable()
-	{
-		return wantwrite;
-	}
-
-	virtual bool Readable()
-	{
-		return !wantwrite;
-	}
-
 	virtual void HandleEvent(EventType et, int errornum)
 	{
 		switch (et)
 		{
 			case EVENT_READ:
 				OnDataReady();
-				wantwrite = true;
 			break;
 
 			case EVENT_WRITE:
 				OnWriteReady();
-				wantwrite = false;
 			break;
 
 			case EVENT_ERROR:
-				Reconnect();
+				Close();
+				DelayReconnect();
 			break;
 
 			default:
@@ -523,13 +522,13 @@ class SQLConn : public EventHandler
 			Close();
 			return false;
 		}
-		this->fd = PQsocket(sql);
+		SetFd(PQsocket(sql));
 
-		Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
+		Instance->Log(DEBUG, "New SQL socket: %d", GetFd());
 
-		if(this->fd <= -1)
+		if(GetFd() <= -1)
 		{
-			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
+			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", GetFd());
 			Close();
 			return false;
 		}
@@ -551,7 +550,7 @@ class SQLConn : public EventHandler
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				wantwrite = true;
+				Instance->SE->WantWrite(this);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
@@ -668,8 +667,9 @@ class SQLConn : public EventHandler
 			 * Returning true so the core doesn't try and close the connection.
 			 */
 			Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-			Reconnect();
-			return true;
+			//Reconnect();
+			DelayReconnect();
+			return false;
 		}
 	}
 
@@ -679,7 +679,7 @@ class SQLConn : public EventHandler
 		{
 			case PGRES_POLLING_WRITING:
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
-				wantwrite = true;
+				Instance->SE->WantWrite(this);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
@@ -771,6 +771,12 @@ class SQLConn : public EventHandler
 		}
 	}
 
+	void DelayReconnect()
+	{
+		ReconnectTimer* timer = new ReconnectTimer(Instance, this, us);
+		Instance->Timers->AddTimer(timer);
+	}
+
 	bool DoEvent()
 	{
 		bool ret;
@@ -798,7 +804,7 @@ class SQLConn : public EventHandler
 				break;
 			case 1:
 				Instance->Log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
-				wantwrite = true;
+				Instance->SE->WantWrite(this);
 				break;
 		}
 
@@ -918,7 +924,6 @@ class SQLConn : public EventHandler
 				}
 			}
 		}
-
 		return SQLerror(BAD_CONN, "Can't query until connection is complete");
 	}
 
@@ -961,7 +966,7 @@ class SQLConn : public EventHandler
 		{
 			Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
 		}
-		this->fd = -1;
+		SetFd(-1);
 
 		if(sql)
 		{
@@ -972,12 +977,10 @@ class SQLConn : public EventHandler
 
 };
 
-
 class ModulePgSQL : public Module
 {
   private:
 	ConnMap connections;
-	ConnMap deadconnections;
 	unsigned long currid;
 	char* sqlsuccess;
 
@@ -1145,6 +1148,20 @@ class ModulePgSQL : public Module
 		connections.insert(std::make_pair(hi.id, newconn));
 	}
 
+	void ReconnectConn(SQLConn* conn)
+	{
+		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			if (conn == iter->second)
+			{
+				DELETE(iter->second);
+				connections.erase(iter);
+				break;
+			}
+		}
+		ReadConf();
+	}
+
 	virtual char* OnRequest(Request* request)
 	{
 		if(strcmp(SQLREQID, request->GetId()) == 0)
@@ -1211,6 +1228,12 @@ void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, 
 	((ModulePgSQL*)mod)->AddConn(host);
 	((ModulePgSQL*)mod)->ClearOldConnections();
 }
+
+void ReconnectTimer::Tick(time_t time)
+{
+	((ModulePgSQL*)mod)->ReconnectConn(conn);
+}
+
 
 class ModulePgSQLFactory : public ModuleFactory
 {
