@@ -32,13 +32,12 @@
 /* $LinkerFlags: -L`pg_config --libdir` -lpq */
 /* $ModDep: m_sqlv2.h */
 
-/* UGH, UGH, UGH, UGH, UGH, UGH
- * I'm having trouble seeing how I
- * can avoid this. The core-defined
- * constructors for InspSocket just
- * aren't suitable...and if I'm
- * reimplementing them I need this so
- * I can access the socket engine :\
+
+/* SQLConn rewritten by peavey to
+ * use EventHandler instead of
+ * InspSocket. This is much neater
+ * and gives total control of destroy
+ * and delete of resources.
  */
 
 /* Forward declare, so we can have the typedef neatly at the top */
@@ -437,15 +436,11 @@ public:
 };
 
 /** SQLConn represents one SQL session.
- * Each session has its own persistent connection to the database.
- * This is a subclass of InspSocket so it can easily recieve read/write events from the core socket
- * engine, unlike the original MySQL module this module does not block. Ever. It gets a mild stabbing
- * if it dares to.
  */
-
-class SQLConn : public InspSocket
+class SQLConn : public EventHandler
 {
-private:
+  private:
+  	InspIRCd*		Instance;
 	SQLhost			confhost;	/* The <database> entry */
 	Module*			us;			/* Pointer to the SQL provider itself */
 	PGconn* 		sql;		/* PgSQL database connection handle */
@@ -453,546 +448,540 @@ private:
 	bool			qinprog;	/* If there is currently a query in progress */
 	QueryQueue		queue;		/* Queue of queries waiting to be executed on this connection */
 	time_t			idle;		/* Time we last heard from the database */
-public:
 
-	/* This class should only ever be created inside this module, using this constructor, so we don't have to worry about the default ones */
+	bool			wantwrite;
 
-	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hostinfo);
-
-	~SQLConn();
-
-	bool DoConnect();
-
-	virtual void Close();
-
-	void DoClose();
-
-	bool DoPoll();
-
-	bool DoConnectedPoll();
-
-	bool DoResetPoll();
-
-	void ShowStatus();
-
-	virtual bool OnDataReady();
-
-	virtual bool OnWriteReady();
-
-	virtual bool OnConnected();
-
-	bool DoEvent();
-
-	bool Reconnect();
-
-	const char* StatusStr();
-
-	SQLerror DoQuery(SQLrequest &req);
-
-	SQLerror Query(const SQLrequest &req);
-
-	void OnUnloadModule(Module* mod);
-
-	const SQLhost GetConfHost();
-};
-
-SQLConn::SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
-: InspSocket::InspSocket(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
-{
-	idle = this->Instance->Time();
-	this->ClosePending = false;
-
-	if(!this->DoConnect())
+  public:
+	SQLConn(InspIRCd* SI, Module* self, const SQLhost& hi)
+	: EventHandler(), Instance(SI), confhost(hi), us(self), sql(NULL), status(CWRITE), qinprog(false)
 	{
-		Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
-	}
-}
-
-SQLConn::~SQLConn()
-{
-	DoClose();
-}
-
-bool SQLConn::DoConnect()
-{
-	if(!(sql = PQconnectStart(confhost.GetDSN().c_str())))
-	{
-		Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
-		DoClose();
-		return false;
-	}
-
-	if(PQstatus(sql) == CONNECTION_BAD)
-	{
-		Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
-		DoClose();
-		return false;
-	}
-
-	ShowStatus();
-
-	if(PQsetnonblocking(sql, 1) == -1)
-	{
-		Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
-		DoClose();
-		return false;
-	}
-
-	/* OK, we've initalised the connection, now to get it hooked into the socket engine
-	 * and then start polling it.
-	 */
-
-	//ServerInstance->Log(DEBUG, "Old DNS socket: %d", this->fd);
-	this->fd = PQsocket(sql);
-	Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
-
-	if(this->fd <= -1)
-	{
-		Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
-		DoClose();
-		return false;
-	}
-
-	this->state = I_CONNECTING;
-	if (!this->Instance->SE->AddFd(this))
-	{
-		Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
-		DoClose();
-		return false;
-	}
-
-	/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-
-	return DoPoll();
-}
-
-void SQLConn::Close() {
-	DoClose();
-}
-
-bool SQLConn::DoPoll()
-{
-	switch(PQconnectPoll(sql))
-	{
-		case PGRES_POLLING_WRITING:
-			//ServerInstance->Log(DEBUG, "PGconnectPoll: PGRES_POLLING_WRITING");
-			WantWrite();
-			status = CWRITE;
-			return DoPoll();
-		case PGRES_POLLING_READING:
-			//ServerInstance->Log(DEBUG, "PGconnectPoll: PGRES_POLLING_READING");
-			status = CREAD;
-			return true;
-		case PGRES_POLLING_FAILED:
-			//ServerInstance->Log(DEBUG, "PGconnectPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
-			return false;
-		case PGRES_POLLING_OK:
-			//ServerInstance->Log(DEBUG, "PGconnectPoll: PGRES_POLLING_OK");
-			status = WWRITE;
-			return DoConnectedPoll();
-		default:
-			//ServerInstance->Log(DEBUG, "PGconnectPoll: wtf?");
-			return true;
-	}
-}
-
-bool SQLConn::DoConnectedPoll()
-{
-	if(!qinprog && queue.totalsize())
-	{
-		/* There's no query currently in progress, and there's queries in the queue. */
-		SQLrequest& query = queue.front();
-		DoQuery(query);
-	}
-
-	if(PQconsumeInput(sql))
-	{
-		Instance->Log(DEBUG, "PQconsumeInput succeeded");
-
-		/* We just read stuff from the server, that counts as it being alive
-		 * so update the idle-since time :p
-		 */
+		wantwrite = false;
 		idle = this->Instance->Time();
 
-		if(PQisBusy(sql))
+		if(!DoConnect())
 		{
-			//ServerInstance->Log(DEBUG, "Still busy processing command though");
+			Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
 		}
-		else if(qinprog)
+	}
+
+	~SQLConn()
+	{
+		Close();
+	}
+
+	virtual bool Writeable()
+	{
+		return wantwrite;
+	}
+
+	virtual bool Readable()
+	{
+		return !wantwrite;
+	}
+
+	virtual void HandleEvent(EventType et, int errornum)
+	{
+		switch (et)
 		{
-			//ServerInstance->Log(DEBUG, "Looks like we have a result to process!");
+			case EVENT_READ:
+				OnDataReady();
+				wantwrite = true;
+			break;
 
-			/* Grab the request we're processing */
+			case EVENT_WRITE:
+				OnWriteReady();
+				wantwrite = false;
+			break;
+
+			case EVENT_ERROR:
+				Reconnect();
+			break;
+
+			default:
+			break;
+		}
+	}
+
+	bool DoConnect()
+	{
+		if(!(sql = PQconnectStart(confhost.GetDSN().c_str())))
+		{
+			Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
+			Close();
+			return false;
+		}
+		if(PQstatus(sql) == CONNECTION_BAD)
+		{
+			Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
+			Close();
+			return false;
+		}
+		ShowStatus();
+		if(PQsetnonblocking(sql, 1) == -1)
+		{
+			Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
+			Close();
+			return false;
+		}
+		this->fd = PQsocket(sql);
+
+		Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
+
+		if(this->fd <= -1)
+		{
+			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
+			Close();
+			return false;
+		}
+
+		if (!this->Instance->SE->AddFd(this))
+		{
+			Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
+			Close();
+			return false;
+		}
+
+		/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
+
+		return DoPoll();
+	}
+
+	bool DoPoll()
+	{
+		switch(PQconnectPoll(sql))
+		{
+			case PGRES_POLLING_WRITING:
+				wantwrite = true;
+				status = CWRITE;
+				return DoPoll();
+			case PGRES_POLLING_READING:
+				status = CREAD;
+				return true;
+			case PGRES_POLLING_FAILED:
+				return false;
+			case PGRES_POLLING_OK:
+				status = WWRITE;
+				return DoConnectedPoll();
+			default:
+				return true;
+		}
+	}
+
+	bool DoConnectedPoll()
+	{
+		if(!qinprog && queue.totalsize())
+		{
+			/* There's no query currently in progress, and there's queries in the queue. */
 			SQLrequest& query = queue.front();
+			DoQuery(query);
+		}
 
-			Instance->Log(DEBUG, "ID is %lu", query.id);
+		if(PQconsumeInput(sql))
+		{
+			Instance->Log(DEBUG, "PQconsumeInput succeeded");
 
-			/* Get a pointer to the module we're about to return the result to */
-			Module* to = query.GetSource();
-
-			/* Fetch the result.. */
-			PGresult* result = PQgetResult(sql);
-
-			/* PgSQL would allow a query string to be sent which has multiple
-			 * queries in it, this isn't portable across database backends and
-			 * we don't want modules doing it. But just in case we make sure we
-			 * drain any results there are and just use the last one.
-			 * If the module devs are behaving there will only be one result.
+			/* We just read stuff from the server, that counts as it being alive
+			 * so update the idle-since time :p
 			 */
-			while (PGresult* temp = PQgetResult(sql))
+			idle = this->Instance->Time();
+
+			if(PQisBusy(sql))
 			{
-				PQclear(result);
-				result = temp;
+				//ServerInstance->Log(DEBUG, "Still busy processing command though");
 			}
-
-			if(to)
+			else if(qinprog)
 			{
-				/* ..and the result */
-				PgSQLresult reply(us, to, query.id, result);
+				//ServerInstance->Log(DEBUG, "Looks like we have a result to process!");
 
-				/* Fix by brain, make sure the original query gets sent back in the reply */
-				reply.query = query.query.q;
+				/* Grab the request we're processing */
+				SQLrequest& query = queue.front();
 
-				Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
+				Instance->Log(DEBUG, "ID is %lu", query.id);
 
-				switch(PQresultStatus(result))
+				/* Get a pointer to the module we're about to return the result to */
+				Module* to = query.GetSource();
+
+				/* Fetch the result.. */
+				PGresult* result = PQgetResult(sql);
+
+				/* PgSQL would allow a query string to be sent which has multiple
+				 * queries in it, this isn't portable across database backends and
+				 * we don't want modules doing it. But just in case we make sure we
+				 * drain any results there are and just use the last one.
+				 * If the module devs are behaving there will only be one result.
+				 */
+				while (PGresult* temp = PQgetResult(sql))
 				{
-					case PGRES_EMPTY_QUERY:
-					case PGRES_BAD_RESPONSE:
-					case PGRES_FATAL_ERROR:
-						reply.error.Id(QREPLY_FAIL);
-						reply.error.Str(PQresultErrorMessage(result));
-					default:;
-						/* No action, other values are not errors */
+					PQclear(result);
+					result = temp;
 				}
 
-				reply.Send();
-
-				/* PgSQLresult's destructor will free the PGresult */
-			}
-			else
-			{
-				/* If the client module is unloaded partway through a query then the provider will set
-				 * the pointer to NULL. We cannot just cancel the query as the result will still come
-				 * through at some point...and it could get messy if we play with invalid pointers...
-				 */
-				Instance->Log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: %lu", query.id);
-				PQclear(result);
-			}
-
-			qinprog = false;
-			queue.pop();
-			DoConnectedPoll();
-		}
-		else
-		{
-			Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
-		}
-
-		return true;
-	}
-	else
-	{
-		/* I think we'll assume this means the server died...it might not,
-		 * but I think that any error serious enough we actually get here
-		 * deserves to reconnect [/excuse]
-		 * Returning true so the core doesn't try and close the connection.
-		 */
-		Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-		Reconnect();
-		return true;
-	}
-}
-
-bool SQLConn::DoResetPoll()
-{
-	switch(PQresetPoll(sql))
-	{
-		case PGRES_POLLING_WRITING:
-			//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
-			WantWrite();
-			status = CWRITE;
-			return DoPoll();
-		case PGRES_POLLING_READING:
-			//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
-			status = CREAD;
-			return true;
-		case PGRES_POLLING_FAILED:
-			//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
-			return false;
-		case PGRES_POLLING_OK:
-			//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_OK");
-			status = WWRITE;
-			return DoConnectedPoll();
-		default:
-			//ServerInstance->Log(DEBUG, "PGresetPoll: wtf?");
-			return true;
-	}
-}
-
-void SQLConn::ShowStatus()
-{
-	switch(PQstatus(sql))
-	{
-		case CONNECTION_STARTED:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
-			break;
-
-		case CONNECTION_MADE:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
-			break;
-
-		case CONNECTION_AWAITING_RESPONSE:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
-			break;
-
-		case CONNECTION_AUTH_OK:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
-			break;
-
-		case CONNECTION_SSL_STARTUP:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
-			break;
-
-		case CONNECTION_SETENV:
-			Instance->Log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
-			break;
-
-		default:
-			Instance->Log(DEBUG, "PQstatus: ???");
-	}
-}
-
-bool SQLConn::OnDataReady()
-{
-	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-	Instance->Log(DEBUG, "OnDataReady(): status = %s", StatusStr());
-
-	return DoEvent();
-}
-
-bool SQLConn::OnWriteReady()
-{
-	/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-	Instance->Log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
-
-	return DoEvent();
-}
-
-bool SQLConn::OnConnected()
-{
-	Instance->Log(DEBUG, "OnConnected(): status = %s", StatusStr());
-
-	return DoEvent();
-}
-
-bool SQLConn::Reconnect()
-{
-	Instance->Log(DEBUG, "Initiating reconnect");
-
-	if(PQresetStart(sql))
-	{
-		/* Successfully initiatied database reconnect,
-		 * set flags so PQresetPoll() will be called appropriately
-		 */
-		status = RWRITE;
-		qinprog = false;
-		return true;
-	}
-	else
-	{
-		Instance->Log(DEBUG, "Failed to initiate reconnect...fun");
-		return false;
-	}
-}
-
-bool SQLConn::DoEvent()
-{
-	bool ret;
-
-	if((status == CREAD) || (status == CWRITE))
-	{
-		ret = DoPoll();
-	}
-	else if((status == RREAD) || (status == RWRITE))
-	{
-		ret = DoResetPoll();
-	}
-	else
-	{
-		ret = DoConnectedPoll();
-	}
-
-	switch(PQflush(sql))
-	{
-		case -1:
-			Instance->Log(DEBUG, "Error flushing write queue: %s", PQerrorMessage(sql));
-			break;
-		case 0:
-			Instance->Log(DEBUG, "Successfully flushed write queue (or there was nothing to write)");
-			break;
-		case 1:
-			Instance->Log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
-			WantWrite();
-			break;
-	}
-
-	return ret;
-}
-
-const char* SQLConn::StatusStr()
-{
-	if(status == CREAD) return "CREAD";
-	if(status == CWRITE) return "CWRITE";
-	if(status == WREAD) return "WREAD";
-	if(status == WWRITE) return "WWRITE";
-	return "Err...what, erm..BUG!";
-}
-
-SQLerror SQLConn::DoQuery(SQLrequest &req)
-{
-	if((status == WREAD) || (status == WWRITE))
-	{
-		if(!qinprog)
-		{
-			/* Parse the command string and dispatch it */
-
-			/* Pointer to the buffer we screw around with substitution in */
-			char* query;
-			/* Pointer to the current end of query, where we append new stuff */
-			char* queryend;
-			/* Total length of the unescaped parameters */
-			unsigned int paramlen;
-
-			paramlen = 0;
-
-			for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
-			{
-				paramlen += i->size();
-			}
-
-			/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
-			 * sizeofquery + (totalparamlength*2) + 1
-			 *
-			 * The +1 is for null-terminating the string for PQsendQuery()
-			 */
-
-			query = new char[req.query.q.length() + (paramlen*2) + 1];
-			queryend = query;
-
-			/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
-			 * the parameters into it...
-			 */
-
-			for(unsigned int i = 0; i < req.query.q.length(); i++)
-			{
-				if(req.query.q[i] == '?')
+				if(to)
 				{
-					/* We found a place to substitute..what fun.
-					 * Use the PgSQL calls to escape and write the
-					 * escaped string onto the end of our query buffer,
-					 * then we "just" need to make sure queryend is
-					 * pointing at the right place.
-					 */
+					/* ..and the result */
+					PgSQLresult reply(us, to, query.id, result);
 
-					if(req.query.p.size())
+					/* Fix by brain, make sure the original query gets sent back in the reply */
+					reply.query = query.query.q;
+
+					Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
+
+					switch(PQresultStatus(result))
 					{
-						int error = 0;
-						size_t len = 0;
-
-#ifdef PGSQL_HAS_ESCAPECONN
-						len = PQescapeStringConn(sql, queryend, req.query.p.front().c_str(), req.query.p.front().length(), &error);
-#else
-						len = PQescapeString         (queryend, req.query.p.front().c_str(), req.query.p.front().length());
-#endif
-						if(error)
-						{
-							Instance->Log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
-						}
-
-						Instance->Log(DEBUG, "Appended %d bytes of escaped string onto the query", len);
-
-						/* Incremenet queryend to the end of the newly escaped parameter */
-						queryend += len;
-
-						/* Remove the parameter we just substituted in */
-						req.query.p.pop_front();
+						case PGRES_EMPTY_QUERY:
+						case PGRES_BAD_RESPONSE:
+						case PGRES_FATAL_ERROR:
+							reply.error.Id(QREPLY_FAIL);
+							reply.error.Str(PQresultErrorMessage(result));
+						default:;
+							/* No action, other values are not errors */
 					}
-					else
-					{
-						Instance->Log(DEBUG, "Found a substitution location but no parameter to substitute :|");
-						break;
-					}
+
+					reply.Send();
+
+					/* PgSQLresult's destructor will free the PGresult */
 				}
 				else
 				{
-					*queryend = req.query.q[i];
-					queryend++;
+					/* If the client module is unloaded partway through a query then the provider will set
+					 * the pointer to NULL. We cannot just cancel the query as the result will still come
+					 * through at some point...and it could get messy if we play with invalid pointers...
+					 */
+					Instance->Log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: %lu", query.id);
+					PQclear(result);
 				}
-			}
-
-			/* Null-terminate the query */
-			*queryend = 0;
-
-			Instance->Log(DEBUG, "Attempting to dispatch query: %s", query);
-
-			req.query.q = query;
-
-			if(PQsendQuery(sql, query))
-			{
-				Instance->Log(DEBUG, "Dispatched query successfully");
-				qinprog = true;
-				delete[] query;
-				return SQLerror();
+				qinprog = false;
+				queue.pop();
+				DoConnectedPoll();
 			}
 			else
 			{
-				Instance->Log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
-				delete[] query;
-				return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+				Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
 			}
+			return true;
+		}
+		else
+		{
+			/* I think we'll assume this means the server died...it might not,
+			 * but I think that any error serious enough we actually get here
+			 * deserves to reconnect [/excuse]
+			 * Returning true so the core doesn't try and close the connection.
+			 */
+			Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
+			Reconnect();
+			return true;
 		}
 	}
 
-	return SQLerror(BAD_CONN, "Can't query until connection is complete");
-}
-
-SQLerror SQLConn::Query(const SQLrequest &req)
-{
-	queue.push(req);
-
-	if(!qinprog && queue.totalsize())
+	bool DoResetPoll()
 	{
-		/* There's no query currently in progress, and there's queries in the queue. */
-		SQLrequest& query = queue.front();
-		return DoQuery(query);
+		switch(PQresetPoll(sql))
+		{
+			case PGRES_POLLING_WRITING:
+				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
+				wantwrite = true;
+				status = CWRITE;
+				return DoPoll();
+			case PGRES_POLLING_READING:
+				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
+				status = CREAD;
+				return true;
+			case PGRES_POLLING_FAILED:
+				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
+				return false;
+			case PGRES_POLLING_OK:
+				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_OK");
+				status = WWRITE;
+				return DoConnectedPoll();
+			default:
+				//ServerInstance->Log(DEBUG, "PGresetPoll: wtf?");
+				return true;
+		}
 	}
-	else
+
+	void ShowStatus()
 	{
-		return SQLerror();
+		switch(PQstatus(sql))
+		{
+			case CONNECTION_STARTED:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
+				break;
+
+			case CONNECTION_MADE:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
+				break;
+
+			case CONNECTION_AWAITING_RESPONSE:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
+				break;
+
+			case CONNECTION_AUTH_OK:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
+				break;
+
+			case CONNECTION_SSL_STARTUP:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
+				break;
+
+			case CONNECTION_SETENV:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
+				break;
+
+			default:
+				Instance->Log(DEBUG, "PQstatus: ???");
+		}
 	}
-}
 
-void SQLConn::OnUnloadModule(Module* mod)
-{
-	queue.PurgeModule(mod);
-}
+	bool OnDataReady()
+	{
+		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
+		Instance->Log(DEBUG, "OnDataReady(): status = %s", StatusStr());
+		return DoEvent();
+	}
 
-const SQLhost SQLConn::GetConfHost()
-{
-	return confhost;
-}
+	bool OnWriteReady()
+	{
+		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
+		Instance->Log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
+		return DoEvent();
+	}
+
+	bool OnConnected()
+	{
+		Instance->Log(DEBUG, "OnConnected(): status = %s", StatusStr());
+		return DoEvent();
+	}
+
+	bool Reconnect()
+	{
+		Instance->Log(DEBUG, "Initiating reconnect");
+		if(PQresetStart(sql))
+		{
+			/* Successfully initiatied database reconnect,
+			 * set flags so PQresetPoll() will be called appropriately
+			 */
+			status = RWRITE;
+			qinprog = false;
+			return true;
+		}
+		else
+		{
+			Instance->Log(DEBUG, "Failed to initiate reconnect...fun");
+			return false;
+		}
+	}
+
+	bool DoEvent()
+	{
+		bool ret;
+
+		if((status == CREAD) || (status == CWRITE))
+		{
+			ret = DoPoll();
+		}
+		else if((status == RREAD) || (status == RWRITE))
+		{
+			ret = DoResetPoll();
+		}
+		else
+		{
+			ret = DoConnectedPoll();
+		}
+
+		switch(PQflush(sql))
+		{
+			case -1:
+				Instance->Log(DEBUG, "Error flushing write queue: %s", PQerrorMessage(sql));
+				break;
+			case 0:
+				Instance->Log(DEBUG, "Successfully flushed write queue (or there was nothing to write)");
+				break;
+			case 1:
+				Instance->Log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
+				wantwrite = true;
+				break;
+		}
+
+		return ret;
+	}
+
+	const char* StatusStr()
+	{
+		if(status == CREAD) return "CREAD";
+		if(status == CWRITE) return "CWRITE";
+		if(status == WREAD) return "WREAD";
+		if(status == WWRITE) return "WWRITE";
+		return "Err...what, erm..BUG!";
+	}
+
+	SQLerror DoQuery(SQLrequest &req)
+	{
+		if((status == WREAD) || (status == WWRITE))
+		{
+			if(!qinprog)
+			{
+				/* Parse the command string and dispatch it */
+
+				/* Pointer to the buffer we screw around with substitution in */
+				char* query;
+				/* Pointer to the current end of query, where we append new stuff */
+				char* queryend;
+				/* Total length of the unescaped parameters */
+				unsigned int paramlen;
+
+				paramlen = 0;
+
+				for(ParamL::iterator i = req.query.p.begin(); i != req.query.p.end(); i++)
+				{
+					paramlen += i->size();
+				}
+
+				/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
+				 * sizeofquery + (totalparamlength*2) + 1
+				 *
+				 * The +1 is for null-terminating the string for PQsendQuery()
+				 */
+
+				query = new char[req.query.q.length() + (paramlen*2) + 1];
+				queryend = query;
+
+				/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
+				 * the parameters into it...
+				 */
+
+				for(unsigned int i = 0; i < req.query.q.length(); i++)
+				{
+					if(req.query.q[i] == '?')
+					{
+						/* We found a place to substitute..what fun.
+						 * Use the PgSQL calls to escape and write the
+						 * escaped string onto the end of our query buffer,
+						 * then we "just" need to make sure queryend is
+						 * pointing at the right place.
+						 */
+
+						if(req.query.p.size())
+						{
+							int error = 0;
+							size_t len = 0;
+
+#ifdef PGSQL_HAS_ESCAPECONN
+							len = PQescapeStringConn(sql, queryend, req.query.p.front().c_str(), req.query.p.front().length(), &error);
+#else
+							len = PQescapeString         (queryend, req.query.p.front().c_str(), req.query.p.front().length());
+#endif
+							if(error)
+							{
+								Instance->Log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+							}
+
+							Instance->Log(DEBUG, "Appended %d bytes of escaped string onto the query", len);
+
+							/* Incremenet queryend to the end of the newly escaped parameter */
+							queryend += len;
+
+							/* Remove the parameter we just substituted in */
+							req.query.p.pop_front();
+						}
+						else
+						{
+							Instance->Log(DEBUG, "Found a substitution location but no parameter to substitute :|");
+							break;
+						}
+					}
+					else
+					{
+						*queryend = req.query.q[i];
+						queryend++;
+					}
+				}
+
+				/* Null-terminate the query */
+				*queryend = 0;
+
+				Instance->Log(DEBUG, "Attempting to dispatch query: %s", query);
+
+				req.query.q = query;
+
+				if(PQsendQuery(sql, query))
+				{
+					Instance->Log(DEBUG, "Dispatched query successfully");
+					qinprog = true;
+					delete[] query;
+					return SQLerror();
+				}
+				else
+				{
+					Instance->Log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
+					delete[] query;
+					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
+				}
+			}
+		}
+
+		return SQLerror(BAD_CONN, "Can't query until connection is complete");
+	}
+
+	SQLerror Query(const SQLrequest &req)
+	{
+		queue.push(req);
+
+		if(!qinprog && queue.totalsize())
+		{
+			/* There's no query currently in progress, and there's queries in the queue. */
+			SQLrequest& query = queue.front();
+			return DoQuery(query);
+		}
+		else
+		{
+			return SQLerror();
+		}
+	}
+
+
+	void OnUnloadModule(Module* mod)
+	{
+		queue.PurgeModule(mod);
+	}
+
+	const SQLhost GetConfHost()
+	{
+		return confhost;
+	}
+
+	void Close() {
+		DoClose();
+	}
+
+	void DoClose()
+	{
+		Instance->Log(DEBUG,"SQLConn::Close");
+
+		if (!this->Instance->SE->DelFd(this))
+		{
+			Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+		}
+		this->fd = -1;
+
+		if(sql)
+		{
+			PQfinish(sql);
+			sql = NULL;
+		}
+	}
+
+};
+
 
 class ModulePgSQL : public Module
 {
-private:
-
+  private:
 	ConnMap connections;
 	ConnMap deadconnections;
 	unsigned long currid;
 	char* sqlsuccess;
 
-public:
+  public:
 	ModulePgSQL(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
@@ -1033,7 +1022,6 @@ public:
 
 	bool HasHost(const SQLhost &host)
 	{
-		ClearDeadConnections();
 		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
 		{
 			if (host == iter->second->GetConfHost())
@@ -1044,7 +1032,6 @@ public:
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ClearDeadConnections();
 		ConfigReader conf(ServerInstance);
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
@@ -1064,9 +1051,9 @@ public:
 
 	void ReadConf()
 	{
-		ClearDeadConnections();
-		ConfigReader conf(ServerInstance);
+		ClearOldConnections();
 
+		ConfigReader conf(ServerInstance);
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -1115,18 +1102,16 @@ public:
 				ServerInstance->Log(DEBUG, "insp_aton failed returning -1, oh noes.");
 			}
 		}
-		ClearOldConnections();
 	}
 
 	void ClearOldConnections()
 	{
-		ClearDeadConnections();
 		ConnMap::iterator iter,safei;
 		for (iter = connections.begin(); iter != connections.end(); iter++)
 		{
 			if (!HostInConf(iter->second->GetConfHost()))
 			{
-				delete iter->second;
+				DELETE(iter->second);
 				safei = iter;
 				--iter;
 				connections.erase(safei);
@@ -1136,32 +1121,12 @@ public:
 
 	void ClearAllConnections()
 	{
-		ClearDeadConnections();
-		ConnMap::iterator iter;
-		while ((iter = connections.begin()) != connections.end())
+		ConnMap::iterator i;
+		while ((i = connections.begin()) != connections.end())
 		{
-			connections.erase(iter);
-			delete iter->second;
+			connections.erase(i);
+			DELETE(i->second);
 		}
-	}
-
-	void ClearDeadConnections()
-	{
-		ConnMap::iterator di;
-		while ((di = deadconnections.begin()) != deadconnections.end())
-		{
-			ConnMap::iterator iter = connections.find(di->first);
-			if (iter != connections.end())
-			{
-				connections.erase(iter);
-			}
-			deadconnections.erase(di);
-		}
-	}
-
-	void AddDeadConn(std::string id, SQLConn* conn)
-	{
-		deadconnections[id] = conn;
 	}
 
 	void AddConn(const SQLhost& hi)
@@ -1247,29 +1212,6 @@ void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, 
 	((ModulePgSQL*)mod)->ClearOldConnections();
 }
 
-/* move this here too, to use AddDeadConn */
-void SQLConn::DoClose()
-{
-	Instance->Log(DEBUG,"SQLConn::Close");
-
-	if (!this->Instance->SE->DelFd(this))
-	{
-		Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
-	}
-	this->fd = -1;
-	this->state = I_ERROR;
-	this->OnError(I_ERR_SOCKET);
-	this->ClosePending = true;
-
-	if(sql)
-	{
-		PQfinish(sql);
-		sql = NULL;
-	}
-
-	((ModulePgSQL*)us)->AddDeadConn(confhost.id, this);
-}
-
 class ModulePgSQLFactory : public ModuleFactory
 {
  public:
@@ -1290,6 +1232,5 @@ class ModulePgSQLFactory : public ModuleFactory
 
 extern "C" void * init_module( void )
 {
-//	PQregisterThreadLock(pgthreadlock_t(1));
 	return new ModulePgSQLFactory;
 }
