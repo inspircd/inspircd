@@ -38,17 +38,22 @@ CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->IPMatchesEveryone(parameters[0],user))
 			return CMD_FAILURE;
 
-		ServerInstance->XLines->add_zline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD(I_OnAddZLine,OnAddZLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
-		if (!ServerInstance->Duration(parameters[1]))
+		if (ServerInstance->XLines->add_zline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,parameters[0]);
+			int to_apply = APPLY_ZLINES;
+
+			FOREACH_MOD(I_OnAddZLine,OnAddZLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
+			if (!ServerInstance->Duration(parameters[1]))
+			{
+				to_apply |= APPLY_PERM_ONLY;
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,parameters[0]);
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			}
+			ServerInstance->XLines->apply_lines(to_apply);
 		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
-		}
-		ServerInstance->XLines->apply_lines(APPLY_ZLINES);
 	}
 	else
 	{

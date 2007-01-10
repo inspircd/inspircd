@@ -37,19 +37,24 @@ CmdResult cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
 			return CMD_FAILURE;
 		}
 
-		ServerInstance->XLines->add_kline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]);
-		FOREACH_MOD(I_OnAddKLine,OnAddKLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
-
-		if (!ServerInstance->Duration(parameters[1]))
+		if (ServerInstance->XLines->add_kline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick,parameters[0]);
-		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
-		}
+			int to_apply = APPLY_KLINES;
 
-		ServerInstance->XLines->apply_lines(APPLY_KLINES);
+			FOREACH_MOD(I_OnAddKLine,OnAddKLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
+	
+			if (!ServerInstance->Duration(parameters[1]))
+			{
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s.",user->nick,parameters[0]);
+				to_apply |= APPLY_PERM_ONLY;
+			}
+			else
+			{
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+			}
+
+			ServerInstance->XLines->apply_lines(to_apply);
+		}
 	}
 	else
 	{
