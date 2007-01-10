@@ -2648,12 +2648,14 @@ class TreeSocket : public InspSocket
 			case 'Z':
 				propogate = Instance->XLines->add_zline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->zline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-				Utils->lines_to_apply |= APPLY_ZLINES;
+				if (propogate)
+					Utils->lines_to_apply |= APPLY_ZLINES;
 			break;
 			case 'Q':
 				propogate = Instance->XLines->add_qline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->qline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-				Utils->lines_to_apply |= APPLY_QLINES;
+				if (propogate)
+					Utils->lines_to_apply |= APPLY_QLINES;
 			break;
 			case 'E':
 				propogate = Instance->XLines->add_eline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
@@ -2662,11 +2664,13 @@ class TreeSocket : public InspSocket
 			case 'G':
 				propogate = Instance->XLines->add_gline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
 				Instance->XLines->gline_set_creation_time(params[1].c_str(), atoi(params[3].c_str()));
-				Utils->lines_to_apply |= APPLY_GLINES;
+				if (propogate)
+					Utils->lines_to_apply |= APPLY_GLINES;
 			break;
 			case 'K':
 				propogate = Instance->XLines->add_kline(atoi(params[4].c_str()), params[2].c_str(), params[5].c_str(), params[1].c_str());
-				Utils->lines_to_apply |= APPLY_KLINES;
+				if (propogate)
+					Utils->lines_to_apply |= APPLY_KLINES;
 			break;
 			default:
 				/* Just in case... */
