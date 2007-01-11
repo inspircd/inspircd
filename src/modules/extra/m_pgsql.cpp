@@ -690,7 +690,7 @@ class SQLConn : public EventHandler
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
 				Instance->SE->WantWrite(this);
 				status = CWRITE;
-				return true;
+				return DoPoll();
 			case PGRES_POLLING_READING:
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
 				status = CREAD;
@@ -712,6 +712,14 @@ class SQLConn : public EventHandler
 	{
 		switch(PQstatus(sql))
 		{
+			case CONNECTION_OK:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_OK: Can proceed to connect.");
+				break;
+
+			case CONNECTION_BAD:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_BAD: Connection is closed.");
+				break;
+
 			case CONNECTION_STARTED:
 				Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
 				break;
@@ -934,16 +942,24 @@ class SQLConn : public EventHandler
 
 	void DoClose()
 	{
-		Instance->Log(DEBUG,"SQLConn::Close");
-		Instance->Log(DEBUG, "FD IS: %d", this->fd);
+		Instance->Log(DEBUG, "SQLConn::Close - socket: %d", this->fd);
 
-		if (!this->Instance->SE->DelFd(this, true))
+		if (!this->Instance->SE->DelFd(this))
 		{
-			Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+			if (sql && PQstatus(sql) == CONNECTION_BAD)
+			{
+				Instance->Log(DEBUG, "PQsocket was already removed. Forcing removal from the socket engine!");
+				this->Instance->SE->DelFd(this, true);
+			}
+			else
+			{
+				Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+			}
 		}
 		else {
-			Instance->Log(DEBUG, "FD WAS REMOVED!");
+			Instance->Log(DEBUG, "PQsocket could not be removed!");
 		}
+
 		if(sql)
 		{
 			PQfinish(sql);
