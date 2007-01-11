@@ -49,7 +49,7 @@ public:
 	virtual bool AddFd(EventHandler* eh);
 	virtual int GetMaxFds();
 	virtual int GetRemainingFds();
-	virtual bool DelFd(EventHandler* eh, bool force);
+	virtual bool DelFd(EventHandler* eh, bool force = false);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void WantWrite(EventHandler* eh);
