@@ -937,27 +937,22 @@ class SQLConn : public EventHandler
 	}
 
 	void Close() {
-		DoClose();
-	}
-
-	void DoClose()
-	{
 		Instance->Log(DEBUG, "SQLConn::Close - socket: %d", this->fd);
 
 		if (!this->Instance->SE->DelFd(this))
 		{
 			if (sql && PQstatus(sql) == CONNECTION_BAD)
 			{
-				Instance->Log(DEBUG, "PQsocket was already removed. Forcing removal from the socket engine!");
+				Instance->Log(DEBUG, "PQsocket was already removed. Forcing removal from socket engine!");
 				this->Instance->SE->DelFd(this, true);
 			}
 			else
 			{
-				Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
+				Instance->Log(DEBUG, "PQsocket cant be removed from socket engine!");
 			}
 		}
 		else {
-			Instance->Log(DEBUG, "PQsocket could not be removed!");
+			Instance->Log(DEBUG, "PQsocket cant be removed from socket engine!");
 		}
 
 		if(sql)
