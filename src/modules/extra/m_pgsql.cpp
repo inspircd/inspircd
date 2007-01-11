@@ -76,7 +76,13 @@ std::string SQLhost::GetDSN()
 		conninfo << " password = '" << pass << "'";
 
 	if (ssl)
+	{
 		conninfo << " sslmode = 'require'";
+	}
+	else
+	{
+		conninfo << " sslmode = 'disable'";
+	}
 
 	return conninfo.str();
 }
@@ -471,6 +477,8 @@ class SQLConn : public EventHandler
 		if(!DoConnect())
 		{
 			Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
+			Close();
+			DelayReconnect();
 		}
 	}
 
@@ -506,37 +514,32 @@ class SQLConn : public EventHandler
 		if(!(sql = PQconnectStart(confhost.GetDSN().c_str())))
 		{
 			Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
-			Close();
 			return false;
 		}
 		if(PQstatus(sql) == CONNECTION_BAD)
 		{
 			Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
-			Close();
 			return false;
 		}
 		ShowStatus();
 		if(PQsetnonblocking(sql, 1) == -1)
 		{
 			Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
-			Close();
 			return false;
 		}
-		SetFd(PQsocket(sql));
+		this->fd = PQsocket(sql);
 
-		Instance->Log(DEBUG, "New SQL socket: %d", GetFd());
+		Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
 
-		if(GetFd() <= -1)
+		if(this->fd <= -1)
 		{
-			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", GetFd());
-			Close();
+			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
 			return false;
 		}
 
 		if (!this->Instance->SE->AddFd(this))
 		{
 			Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
-			Close();
 			return false;
 		}
 
@@ -547,12 +550,13 @@ class SQLConn : public EventHandler
 
 	bool DoPoll()
 	{
+		ShowStatus();
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
 				Instance->SE->WantWrite(this);
 				status = CWRITE;
-				return DoPoll();
+				return true;
 			case PGRES_POLLING_READING:
 				status = CREAD;
 				return true;
@@ -584,9 +588,11 @@ class SQLConn : public EventHandler
 			 */
 			idle = this->Instance->Time();
 
+			ShowStatus();
+
 			if(PQisBusy(sql))
 			{
-				//ServerInstance->Log(DEBUG, "Still busy processing command though");
+				Instance->Log(DEBUG, "Still busy processing command though");
 			}
 			else if(qinprog)
 			{
@@ -655,6 +661,7 @@ class SQLConn : public EventHandler
 			}
 			else
 			{
+				ShowStatus();
 				Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
 			}
 			return true;
@@ -667,7 +674,7 @@ class SQLConn : public EventHandler
 			 * Returning true so the core doesn't try and close the connection.
 			 */
 			Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-			//Reconnect();
+			Close();
 			DelayReconnect();
 			return false;
 		}
@@ -681,7 +688,7 @@ class SQLConn : public EventHandler
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
 				Instance->SE->WantWrite(this);
 				status = CWRITE;
-				return DoPoll();
+				return DoResetPoll();
 			case PGRES_POLLING_READING:
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
 				status = CREAD;
@@ -703,6 +710,14 @@ class SQLConn : public EventHandler
 	{
 		switch(PQstatus(sql))
 		{
+			case CONNECTION_OK:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_OK: Ok.");
+				break;
+
+			case CONNECTION_BAD:
+				Instance->Log(DEBUG, "PQstatus: CONNECTION_BAD: Bad.");
+				break;
+
 			case CONNECTION_STARTED:
 				Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
 				break;
@@ -752,25 +767,6 @@ class SQLConn : public EventHandler
 		return DoEvent();
 	}
 
-	bool Reconnect()
-	{
-		Instance->Log(DEBUG, "Initiating reconnect");
-		if(PQresetStart(sql))
-		{
-			/* Successfully initiatied database reconnect,
-			 * set flags so PQresetPoll() will be called appropriately
-			 */
-			status = RWRITE;
-			qinprog = false;
-			return true;
-		}
-		else
-		{
-			Instance->Log(DEBUG, "Failed to initiate reconnect...fun");
-			return false;
-		}
-	}
-
 	void DelayReconnect()
 	{
 		ReconnectTimer* timer = new ReconnectTimer(Instance, this, us);
@@ -793,21 +789,6 @@ class SQLConn : public EventHandler
 		{
 			ret = DoConnectedPoll();
 		}
-
-		switch(PQflush(sql))
-		{
-			case -1:
-				Instance->Log(DEBUG, "Error flushing write queue: %s", PQerrorMessage(sql));
-				break;
-			case 0:
-				Instance->Log(DEBUG, "Successfully flushed write queue (or there was nothing to write)");
-				break;
-			case 1:
-				Instance->Log(DEBUG, "Not all of the write queue written, triggering write event so we can have another go");
-				Instance->SE->WantWrite(this);
-				break;
-		}
-
 		return ret;
 	}
 
@@ -943,7 +924,6 @@ class SQLConn : public EventHandler
 		}
 	}
 
-
 	void OnUnloadModule(Module* mod)
 	{
 		queue.PurgeModule(mod);
@@ -961,13 +941,15 @@ class SQLConn : public EventHandler
 	void DoClose()
 	{
 		Instance->Log(DEBUG,"SQLConn::Close");
+		Instance->Log(DEBUG, "FD IS: %d", this->fd);
 
 		if (!this->Instance->SE->DelFd(this))
 		{
 			Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
 		}
-		SetFd(-1);
-
+		else {
+			Instance->Log(DEBUG, "FD WAS REMOVED!");
+		}
 		if(sql)
 		{
 			PQfinish(sql);
@@ -1045,7 +1027,7 @@ class ModulePgSQL : public Module
 			host.name	= conf.ReadValue("database", "name", i);
 			host.user	= conf.ReadValue("database", "username", i);
 			host.pass	= conf.ReadValue("database", "password", i);
-			host.ssl	= conf.ReadFlag("database", "ssl", i);
+			host.ssl	= conf.ReadFlag("database", "ssl", "0", i);
 			if (h == host)
 				return true;
 		}
@@ -1069,7 +1051,7 @@ class ModulePgSQL : public Module
 			host.name	= conf.ReadValue("database", "name", i);
 			host.user	= conf.ReadValue("database", "username", i);
 			host.pass	= conf.ReadValue("database", "password", i);
-			host.ssl	= conf.ReadFlag("database", "ssl", i);
+			host.ssl	= conf.ReadFlag("database", "ssl", "0", i);
 
 			if (HasHost(host))
 				continue;
