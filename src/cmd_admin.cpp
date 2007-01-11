@@ -15,6 +15,7 @@
 #include "users.h"
 #include "commands/cmd_admin.h"
 
+
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_admin(Instance);
