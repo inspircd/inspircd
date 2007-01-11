@@ -516,19 +516,25 @@ class SQLConn : public EventHandler
 			Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
 			return false;
 		}
+
 		if(PQstatus(sql) == CONNECTION_BAD)
 		{
 			Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
 			return false;
 		}
+
 		ShowStatus();
+
 		if(PQsetnonblocking(sql, 1) == -1)
 		{
 			Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
 			return false;
 		}
-		this->fd = PQsocket(sql);
 
+		/* OK, we've initalised the connection, now to get it hooked into the socket engine
+		* and then start polling it.
+		*/
+		this->fd = PQsocket(sql);
 		Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
 
 		if(this->fd <= -1)
@@ -550,7 +556,6 @@ class SQLConn : public EventHandler
 
 	bool DoPoll()
 	{
-		ShowStatus();
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
@@ -588,11 +593,9 @@ class SQLConn : public EventHandler
 			 */
 			idle = this->Instance->Time();
 
-			ShowStatus();
-
 			if(PQisBusy(sql))
 			{
-				Instance->Log(DEBUG, "Still busy processing command though");
+				//Instance->Log(DEBUG, "Still busy processing command though");
 			}
 			else if(qinprog)
 			{
@@ -661,7 +664,6 @@ class SQLConn : public EventHandler
 			}
 			else
 			{
-				ShowStatus();
 				Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
 			}
 			return true;
@@ -688,7 +690,7 @@ class SQLConn : public EventHandler
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
 				Instance->SE->WantWrite(this);
 				status = CWRITE;
-				return DoResetPoll();
+				return true;
 			case PGRES_POLLING_READING:
 				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
 				status = CREAD;
@@ -710,14 +712,6 @@ class SQLConn : public EventHandler
 	{
 		switch(PQstatus(sql))
 		{
-			case CONNECTION_OK:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_OK: Ok.");
-				break;
-
-			case CONNECTION_BAD:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_BAD: Bad.");
-				break;
-
 			case CONNECTION_STARTED:
 				Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
 				break;
@@ -943,7 +937,7 @@ class SQLConn : public EventHandler
 		Instance->Log(DEBUG,"SQLConn::Close");
 		Instance->Log(DEBUG, "FD IS: %d", this->fd);
 
-		if (!this->Instance->SE->DelFd(this))
+		if (!this->Instance->SE->DelFd(this, true))
 		{
 			Instance->Log(DEBUG, "PQsocket cant be removed from the socket engine!");
 		}

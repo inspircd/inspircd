@@ -66,7 +66,7 @@ EventHandler* SocketEngine::GetRef(int fd)
 	return ref[fd];
 }
 
-bool SocketEngine::DelFd(EventHandler* eh)
+bool SocketEngine::DelFd(EventHandler* eh, bool force)
 {
 	return true;
 }

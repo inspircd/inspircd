@@ -80,7 +80,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	return true;
 }
 
-bool KQueueEngine::DelFd(EventHandler* eh)
+bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 
@@ -91,12 +91,12 @@ bool KQueueEngine::DelFd(EventHandler* eh)
 	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-	
+
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 
 	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
-	if ((j < 0) && (i < 0))
+	if ((j < 0) && (i < 0) && !force)
 		return false;
 
 	CurrentSetSize--;
@@ -151,7 +151,7 @@ int KQueueEngine::DispatchEvents()
 		}
 		if (ke_list[j].flags & EVFILT_WRITE)
 		{
-			/* This looks wrong but its right. As above, theres no modify 
+			/* This looks wrong but its right. As above, theres no modify
 			 * call in kqueue. See the manpage.
 			 */
 			struct kevent ke;

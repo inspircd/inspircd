@@ -91,7 +91,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	}
 }
 
-bool EPollEngine::DelFd(EventHandler* eh)
+bool EPollEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
@@ -103,7 +103,7 @@ bool EPollEngine::DelFd(EventHandler* eh)
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
-	if (i < 0)
+	if (i < 0 && !force)
 		return false;
 
 	CurrentSetSize--;

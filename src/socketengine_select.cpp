@@ -60,7 +60,7 @@ void SelectEngine::WantWrite(EventHandler* eh)
 	writeable[eh->GetFd()] = true;
 }
 
-bool SelectEngine::DelFd(EventHandler* eh)
+bool SelectEngine::DelFd(EventHandler* eh, bool force)
 {
 	int fd = eh->GetFd();
 
@@ -151,7 +151,7 @@ int SelectEngine::DispatchEvents()
 					if (ev[i])
 						ev[i]->HandleEvent(EVENT_WRITE);
 					writeable[ev[i]->GetFd()] = false;
-		
+
 				}
 				else
 				{

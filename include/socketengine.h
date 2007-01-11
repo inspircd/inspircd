@@ -94,7 +94,7 @@ class EventHandler : public Extensible
 	 * is still added to a SocketEngine instance!
 	 * If this function is unimplemented, the base class
 	 * will return true.
-	 * 
+	 *
 	 * NOTE: You cannot set both Readable() and
 	 * Writeable() to true. If you wish to receive
 	 * a write event for your object, you must call
@@ -227,7 +227,7 @@ public:
 	 * @param eh The event handler object to remove
 	 * @return True if the event handler was removed
 	 */
-	virtual bool DelFd(EventHandler* eh);
+	virtual bool DelFd(EventHandler* eh, bool force = false);
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.
