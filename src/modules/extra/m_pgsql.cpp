@@ -90,11 +90,10 @@ std::string SQLhost::GetDSN()
 class ReconnectTimer : public InspTimer
 {
   private:
-	SQLConn* conn;
 	Module* mod;
   public:
-	ReconnectTimer(InspIRCd* SI, SQLConn* c, Module* m)
-	: InspTimer(5, SI->Time(), false), conn(c), mod(m)
+	ReconnectTimer(InspIRCd* SI, Module* m)
+	: InspTimer(5, SI->Time(), false), mod(m)
 	{
 	}
 	virtual void Tick(time_t TIME);
@@ -477,7 +476,6 @@ class SQLConn : public EventHandler
 		if(!DoConnect())
 		{
 			Instance->Log(DEFAULT, "WARNING: Could not connect to database with id: " + ConvToStr(hi.id));
-			Close();
 			DelayReconnect();
 		}
 	}
@@ -500,7 +498,6 @@ class SQLConn : public EventHandler
 			break;
 
 			case EVENT_ERROR:
-				Close();
 				DelayReconnect();
 			break;
 
@@ -550,7 +547,6 @@ class SQLConn : public EventHandler
 		}
 
 		/* Socket all hooked into the engine, now to tell PgSQL to start connecting */
-
 		return DoPoll();
 	}
 
@@ -676,9 +672,8 @@ class SQLConn : public EventHandler
 			 * Returning true so the core doesn't try and close the connection.
 			 */
 			Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
-			Close();
 			DelayReconnect();
-			return false;
+			return true;
 		}
 	}
 
@@ -769,11 +764,7 @@ class SQLConn : public EventHandler
 		return DoEvent();
 	}
 
-	void DelayReconnect()
-	{
-		ReconnectTimer* timer = new ReconnectTimer(Instance, this, us);
-		Instance->Timers->AddTimer(timer);
-	}
+	void DelayReconnect();
 
 	bool DoEvent()
 	{
@@ -952,7 +943,7 @@ class SQLConn : public EventHandler
 			}
 		}
 		else {
-			Instance->Log(DEBUG, "PQsocket cant be removed from socket engine!");
+			Instance->Log(DEBUG, "PQsocket removed from socket engine!");
 		}
 
 		if(sql)
@@ -970,6 +961,7 @@ class ModulePgSQL : public Module
 	ConnMap connections;
 	unsigned long currid;
 	char* sqlsuccess;
+	ReconnectTimer* retimer;
 
   public:
 	ModulePgSQL(InspIRCd* Me)
@@ -993,6 +985,8 @@ class ModulePgSQL : public Module
 
 	virtual ~ModulePgSQL()
 	{
+		if (retimer)
+			ServerInstance->Timers->DelTimer(retimer);
 		ClearAllConnections();
 		delete[] sqlsuccess;
 		ServerInstance->UnpublishInterface("SQL", this);
@@ -1146,7 +1140,8 @@ class ModulePgSQL : public Module
 				break;
 			}
 		}
-		ReadConf();
+		retimer = new ReconnectTimer(ServerInstance, this);
+		ServerInstance->Timers->AddTimer(retimer);
 	}
 
 	virtual char* OnRequest(Request* request)
@@ -1218,7 +1213,12 @@ void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, 
 
 void ReconnectTimer::Tick(time_t time)
 {
-	((ModulePgSQL*)mod)->ReconnectConn(conn);
+	((ModulePgSQL*)mod)->ReadConf();
+}
+
+void SQLConn::DelayReconnect()
+{
+	((ModulePgSQL*)us)->ReconnectConn(this);
 }
 
 
