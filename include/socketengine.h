@@ -224,7 +224,15 @@ public:
 	 * and false if it failed. This does not free the
 	 * EventHandler pointer using delete, if this is
 	 * required you must do this yourself.
+	 * Note on forcing deletes. DO NOT DO THIS! This is
+	 * extremely dangerous and will most likely render the
+	 * socketengine dead. This was added only for handling
+	 * very rare cases where broken 3rd party libs destroys
+	 * the OS socket beyond our control. If you can't explain
+	 * in minute details why forcing is absolutely necessary
+	 * then you don't need it. That was a NO!
 	 * @param eh The event handler object to remove
+	 * @param force *DANGEROUS* See method description!
 	 * @return True if the event handler was removed
 	 */
 	virtual bool DelFd(EventHandler* eh, bool force = false);
