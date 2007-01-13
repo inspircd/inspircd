@@ -18,6 +18,9 @@ use Socket;
 use Cwd;
 use Getopt::Long;
 
+# Utility functions for our buildsystem
+use make::utilities;
+
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'enable-openssl' => \$opt_use_openssl,
@@ -264,7 +267,7 @@ if ($config{GCCVER} eq "") {
 
 # Minihack! Convert Cygwin to 'Cyg-Static' so i can
 # Keep my dynamic module experiments here for later
-# concideration!
+# consideration!
 
 if ($config{OSNAME} =~ /CYGWIN/i)
 {
@@ -1372,8 +1375,8 @@ sub getcompilerflags {
 	open(FLAGS, $file);
 	while (<FLAGS>) {
 	if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
-		close(FLAGS);
-			return $1;
+			close(FLAGS);
+			return translate_functions($1);
 		}
 	}
 	close(FLAGS);
@@ -1386,7 +1389,7 @@ sub getlinkerflags {
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
 			close(FLAGS);
-			return $1;
+			return translate_functions($1);
 		}
 	}
 	close(FLAGS);
@@ -1399,7 +1402,7 @@ sub getdependencies {
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
 			close(FLAGS);
-			return $1;
+			return translate_functions($1);
 		}
 	}
 	close(FLAGS);

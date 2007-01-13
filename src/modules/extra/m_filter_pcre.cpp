@@ -22,7 +22,7 @@
 
 /* $ModDesc: m_filter with regexps */
 /* $CompileFlags: `pcre-config --cflags` */
-/* $LinkerFlags: `pcre-config --libs` `perl extra/pcre_rpath.pl` -lpcre */
+/* $LinkerFlags: `pcre-config --libs` rpath("pcre-config --libs") -lpcre */
 /* $ModDep: m_filter.h */
 
 class PCREFilter : public FilterResult

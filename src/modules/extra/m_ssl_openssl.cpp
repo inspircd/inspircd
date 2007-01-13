@@ -30,8 +30,8 @@
 #include "transport.h"
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: `perl extra/openssl_config.pl compile` */
-/* $LinkerFlags: `perl extra/openssl_config.pl link` */
+/* $CompileFlags: pkgconfincludes("openssl","/openssl/ssl.h","") */
+/* $LinkerFlags: pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 /* $ModDep: transport.h */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };

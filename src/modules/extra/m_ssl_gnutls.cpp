@@ -31,7 +31,7 @@
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: `libgnutls-config --cflags` */
-/* $LinkerFlags: `perl extra/gnutls_rpath.pl` */
+/* $LinkerFlags: rpath("libgnutls-config --libs") */
 /* $ModDep: transport.h */
 
 
