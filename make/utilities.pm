@@ -6,12 +6,21 @@ use Exporter 'import';
 # such as pcre_config, take out the -L
 # directive and return an rpath for it.
 
+# \033[1;32msrc/Makefile\033[0m
+
+my %already_added = ();
+
 sub make_rpath($)
 {
 	my ($executable) = @_;
 	chomp($data = `$executable`);
 	$data =~ /-L(\S+)\s/;
 	$libpath = $1;
+	if (!exists $already_added{$libpath})
+	{
+		print "Adding extra library path \033[1;32m$libpath\033[0m ...\n";
+		$already_added{$libpath} = 1;
+	}
 	return "-Wl,--rpath -Wl,$libpath -L$libpath";
 }
 
@@ -31,6 +40,8 @@ sub pkgconfig_get_include_dirs($$$)
 {
 	my ($packagename, $headername, $defaults) = @_;
 	extend_pkg_path();
+
+	print "Locating include directory for package \033[1;32m$packagename\033[0m ... ";
 
 	$ret = `pkg-config --cflags $packagename 2>/dev/null`;
 	if ((!defined $ret) || ($ret eq ""))
@@ -52,6 +63,8 @@ sub pkgconfig_get_include_dirs($$$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
+
+	print "\033[1;32m$ret\033[0m\n";
 	return $ret;
 }
 
@@ -59,6 +72,8 @@ sub pkgconfig_get_lib_dirs($$$)
 {
 	my ($packagename, $libname, $defaults) = @_;
 	extend_pkg_path();
+
+	print "Locating library directory for package \033[1;32m$packagename\033[0m ... ";
 
 	$ret = `pkg-config --libs $packagename 2>/dev/null`;
 	if ((!defined $ret) || ($ret eq ""))
@@ -81,6 +96,7 @@ sub pkgconfig_get_lib_dirs($$$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
+	print "\033[1;32m$ret\033[0m\n";
 	return $ret;
 }
 
