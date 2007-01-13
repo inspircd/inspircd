@@ -147,7 +147,7 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	if (!inet_aton(this->host, &this->addy))
+	if (!insp_aton(this->host, &this->addy))
 	{
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
@@ -343,5 +343,3 @@ extern "C" void *init_module(void)
 {
 	return new ModuleHTTPClientFactory;
 }
-
-
