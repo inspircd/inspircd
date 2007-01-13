@@ -20,6 +20,7 @@
 
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
+#include "m_hash.h"
 #include "commands/cmd_oper.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
@@ -29,6 +30,7 @@ class ModuleSQLOper : public Module
 {
 	InspIRCd* Srv;
 	Module* SQLutils;
+	Module* HashModule;
 	std::string databaseid;
 
 public:
@@ -37,6 +39,12 @@ public:
 	{
 		ServerInstance->UseInterface("SQLutils");
 		ServerInstance->UseInterface("SQL");
+		ServerInstance->UseInterface("HashRequest");
+
+		/* Attempt to locate the md5 service provider, bail if we can't find it */
+		HashModule = ServerInstance->FindModule("m_md5.so");
+		if (!HashModule)
+			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_sqloper.so.");
 
 		SQLutils = ServerInstance->FindModule("m_sqlutils.so");
 		if (!SQLutils)
@@ -49,6 +57,7 @@ public:
 	{
 		ServerInstance->DoneWithInterface("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
+		ServerInstance->DoneWithInterface("HashRequest");
 	}
 
 	void Implements(char* List)
@@ -88,7 +97,12 @@ public:
 
 		if (target)
 		{
-			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password=md5('?')", username, password);
+			/* Reset hash module first back to MD5 standard state */
+			HashResetRequest(this, HashModule).Send();
+			/* Make an MD5 hash of the password for using in the query */
+			std::string md5_pass_hash = HashSumRequest(this, HashModule, password.c_str()).Send();
+
+			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", username, md5_pass_hash);
 			
 			if (req.Send())
 			{
