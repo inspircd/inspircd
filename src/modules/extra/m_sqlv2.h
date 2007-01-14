@@ -82,16 +82,16 @@ public:
 	 */
 	SQLerror(SQLerrorNum i = NO_ERROR, const std::string &s = "")
 	: id(i), str(s)
-	{	
+	{
 	}
-	
+
 	/** Return the ID of the error
 	 */
 	SQLerrorNum Id()
 	{
 		return id;
 	}
-	
+
 	/** Set the ID of an error
 	 * @param i The new error ID to set
 	 * @return the ID which was set
@@ -101,7 +101,7 @@ public:
 		id = i;
 		return id;
 	}
-	
+
 	/** Set the error string for an error
 	 * @param s The new error string to set
 	 */
@@ -109,14 +109,14 @@ public:
 	{
 		str = s;
 	}
-	
+
 	/** Return the error string for an error
 	 */
 	const char* Str()
 	{
 		if(str.length())
 			return str.c_str();
-		
+
 		switch(id)
 		{
 			case NO_ERROR:
@@ -130,7 +130,7 @@ public:
 			case QREPLY_FAIL:
 				return "Getting query result failed";
 			default:
-				return "Unknown error";				
+				return "Unknown error";
 		}
 	}
 };
@@ -155,7 +155,7 @@ public:
  *
  * SQLrequest foo = SQLrequest(this, target, "databaseid", (SQLquery("SELECT.. ?"), parameter, parameter));
  */
-class SQLquery
+class SQLquery : public classbase
 {
 public:
 	/** The query 'format string'
@@ -181,8 +181,8 @@ public:
 	SQLquery(const std::string &query, const ParamL &params)
 	: q(query), p(params)
 	{
-	}	
-	
+	}
+
 	/** An overloaded operator for pushing parameters onto the parameter list
 	 */
 	template<typename T> SQLquery& operator,(const T &foo)
@@ -190,7 +190,7 @@ public:
 		p.push_back(ConvToStr(foo));
 		return *this;
 	}
-	
+
 	/** An overloaded operator for pushing parameters onto the parameter list.
 	 * This has higher precedence than 'operator,' and can save on parenthesis.
 	 */
@@ -229,7 +229,7 @@ public:
 	/** If an error occured, error.id will be any other value than NO_ERROR.
 	 */
 	SQLerror error;
-	
+
 	/** Initialize an SQLrequest.
 	 * For example:
 	 *
@@ -245,14 +245,14 @@ public:
 	: Request(s, d, SQLREQID), query(q), dbid(databaseid), pri(false), id(0)
 	{
 	}
-	
+
 	/** Set the priority of a request.
 	 */
 	void Priority(bool p = true)
 	{
 		pri = p;
 	}
-	
+
 	/** Set the source of a request. You should not need to use this method.
 	 */
 	void SetSource(Module* mod)
@@ -283,7 +283,7 @@ public:
 	SQLfield(const std::string &data = "", bool n = false)
 	: d(data), null(n)
 	{
-		
+
 	}
 };
 
@@ -318,7 +318,7 @@ public:
 	 * If an error occured the value of error.id will be any
 	 * other value than NO_ERROR.
 	 */
-	SQLerror error;	
+	SQLerror error;
 	/**
 	 * This will match  query ID you were given when sending
 	 * the request at an earlier time.
@@ -331,7 +331,7 @@ public:
 	: Request(s, d, SQLRESID), id(i)
 	{
 	}
-	
+
 	/**
 	 * Return the number of rows in the result
 	 * Note that if you have perfomed an INSERT
@@ -343,7 +343,7 @@ public:
 	 * @returns Number of rows in the result set.
 	 */
 	virtual int Rows() = 0;
-	
+
 	/**
 	 * Return the number of columns in the result.
 	 * If you performed an UPDATE or INSERT which
@@ -352,14 +352,14 @@ public:
 	 * @returns Number of columns in the result set.
 	 */
 	virtual int Cols() = 0;
-	
+
 	/**
 	 * Get a string name of the column by an index number
 	 * @param column The id number of a column
 	 * @returns The column name associated with the given ID
 	 */
 	virtual std::string ColName(int column) = 0;
-	
+
 	/**
 	 * Get an index number for a column from a string name.
 	 * An exception of type SQLbadColName will be thrown if
@@ -368,14 +368,14 @@ public:
 	 * @returns The ID number of the column provided
 	 */
 	virtual int ColNum(const std::string &column) = 0;
-	
+
 	/**
 	 * Get a string value in a given row and column
 	 * This does not effect the internal cursor.
 	 * @returns The value stored at [row,column] in the table
 	 */
 	virtual SQLfield GetValue(int row, int column) = 0;
-	
+
 	/**
 	 * Return a list of values in a row, this should
 	 * increment an internal counter so you can repeatedly
@@ -389,14 +389,14 @@ public:
 	 * @returns A reference to the current row's SQLfieldList
 	 */
 	virtual SQLfieldList& GetRow() = 0;
-	
+
 	/**
 	 * As above, but return a map indexed by key name.
 	 * The internal cursor (row counter) is incremented by one.
 	 * @returns A reference to the current row's SQLfieldMap
 	 */
 	virtual SQLfieldMap& GetRowMap() = 0;
-	
+
 	/**
 	 * Like GetRow(), but returns a pointer to a dynamically
 	 * allocated object which must be explicitly freed. For
@@ -405,14 +405,14 @@ public:
 	 * @returns A newly-allocated SQLfieldList
 	 */
 	virtual SQLfieldList* GetRowPtr() = 0;
-	
+
 	/**
 	 * As above, but return a map indexed by key name
 	 * The internal cursor (row counter) is incremented by one.
 	 * @returns A newly-allocated SQLfieldMap
 	 */
 	virtual SQLfieldMap* GetRowMapPtr() = 0;
-	
+
 	/**
 	 * Overloaded function for freeing the lists and maps
 	 * returned by GetRowPtr or GetRowMapPtr.
