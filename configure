@@ -593,9 +593,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 
 	# File Descriptor Settings..
 	promptnumeric("number of clients at any one time", "MAX_CLIENT_T");
-
-	$config{MAX_CLIENT} = $var;
-	$config{MAX_DESCRIPTORS} = $var;
+	$config{MAX_CLIENT} = $config{MAX_CLIENT_T};
+	$config{MAX_DESCRIPTORS} = $config{MAX_CLIENT_T};
 
 	promptnumeric("length of nicknames", "NICK_LENGT");
 	promptnumeric("length of channel names", "CHAN_LENGT");
