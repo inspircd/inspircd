@@ -121,54 +121,75 @@ sub pkgconfig_get_lib_dirs($$$)
 
 # Translate a $CompileFlags etc line and parse out function calls
 # to functions within these modules at configure time.
-sub translate_functions($)
+sub translate_functions($$)
 {
-	my ($line) = @_;
-	while ($line =~ /exec\("(.+?)"\)/)
+	eval
 	{
-		my $replace = `$1`;
-		chomp($replace);
-		$line =~ s/exec\("(.+?)"\)/$replace/;
-	}
-	while ($line =~ /eval\("(.+?)"\)/)
-	{
-		my $tmpfile;
-		do
+		my ($line,$module) = @_;
+
+		# This is only a cursory check, just designed to catch casual accidental use of backticks.
+		# There are pleanty of ways around it, but its not supposed to be for security, just checking
+		# that people are using the new configuration api as theyre supposed to and not just using
+		# backticks instead of eval(), being as eval has accountability. People wanting to get around
+		# the accountability will do so anyway.
+		if (($line =~ /`/) && ($line !~ /eval\(.+?`.+?\)/))
 		{
-			$tmpfile = tmpnam();
-		} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL, 0700);
-		print TF $1;
-		close TF;
-		my $replace = `perl $tmpfile`;
-		chomp($replace);
-		$line =~ s/eval\("(.+?)"\)/$replace/;
-	}
-	while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
+			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
+		}
+		while ($line =~ /exec\("(.+?)"\)/)
+		{
+			print "Executing program ... \033[1;32m$1\033[0m\n";
+			my $replace = `$1`;
+			chomp($replace);
+			$line =~ s/exec\("(.+?)"\)/$replace/;
+		}
+		while ($line =~ /eval\("(.+?)"\)/)
+		{
+			print "Evaluating perl code ... ";
+			my $tmpfile;
+			do
+			{
+				$tmpfile = tmpnam();
+			} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL, 0700);
+			print "(Created and executed \033[1;32m$tmpfile)\033[0m\n";
+			print TF $1;
+			close TF;
+			my $replace = `perl $tmpfile`;
+			chomp($replace);
+			$line =~ s/eval\("(.+?)"\)/$replace/;
+		}
+		while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
+		{
+			my $replace = pkgconfig_get_lib_dirs($1, $2, $3);
+			$line =~ s/pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/$replace/;
+		}
+		while ($line =~ /pkgconflibs\("(.+?)","(.+?)",""\)/)
+		{
+			my $replace = pkgconfig_get_lib_dirs($1, $2, "");
+			$line =~ s/pkgconflibs\("(.+?)","(.+?)",""\)/$replace/;
+		}
+		while ($line =~ /pkgconfincludes\("(.+?)","(.+?)",""\)/)
+		{
+			my $replace = pkgconfig_get_include_dirs($1, $2, "");
+			$line =~ s/pkgconfincludes\("(.+?)","(.+?)",""\)/$replace/;
+		}
+		while ($line =~ /pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/)
+		{
+			my $replace = pkgconfig_get_include_dirs($1, $2, $3);
+			$line =~ s/pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/$replace/;
+		}
+		while ($line =~ /rpath\("(.+?)"\)/)
+		{
+			my $replace = make_rpath($1);
+			$line =~ s/rpath\("(.+?)"\)/$replace/;
+		}
+		return $line;
+	};
+	if ($@)
 	{
-		my $replace = pkgconfig_get_lib_dirs($1, $2, $3);
-		$line =~ s/pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/$replace/;
+		print "\n\nConfiguration failed. The following error occured:\n\n$@\n";
+		exit;
 	}
-	while ($line =~ /pkgconflibs\("(.+?)","(.+?)",""\)/)
-	{
-		my $replace = pkgconfig_get_lib_dirs($1, $2, "");
-		$line =~ s/pkgconflibs\("(.+?)","(.+?)",""\)/$replace/;
-	}
-	while ($line =~ /pkgconfincludes\("(.+?)","(.+?)",""\)/)
-	{
-		my $replace = pkgconfig_get_include_dirs($1, $2, "");
-		$line =~ s/pkgconfincludes\("(.+?)","(.+?)",""\)/$replace/;
-	}
-	while ($line =~ /pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/)
-	{
-		my $replace = pkgconfig_get_include_dirs($1, $2, $3);
-		$line =~ s/pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/$replace/;
-	}
-	while ($line =~ /rpath\("(.+?)"\)/)
-	{
-		my $replace = make_rpath($1);
-		$line =~ s/rpath\("(.+?)"\)/$replace/;
-	}
-	return $line;
 }
 
 1;

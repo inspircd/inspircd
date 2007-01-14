@@ -1376,7 +1376,7 @@ sub getcompilerflags {
 	while (<FLAGS>) {
 	if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
 			close(FLAGS);
-			return translate_functions($1);
+			return translate_functions($1,$file);
 		}
 	}
 	close(FLAGS);
@@ -1389,7 +1389,7 @@ sub getlinkerflags {
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
 			close(FLAGS);
-			return translate_functions($1);
+			return translate_functions($1,$file);
 		}
 	}
 	close(FLAGS);
@@ -1402,7 +1402,7 @@ sub getdependencies {
 	while (<FLAGS>) {
 		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
 			close(FLAGS);
-			return translate_functions($1);
+			return translate_functions($1,$file);
 		}
 	}
 	close(FLAGS);
