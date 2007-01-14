@@ -126,7 +126,7 @@ class ListModeBase : public ModeHandler
 				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
 		}
-		user->WriteServ("%s %s %s %s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
 	virtual void RemoveMode(chanrec* channel)
