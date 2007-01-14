@@ -32,10 +32,61 @@
 
 class SQLConn;
 class SQLite3Result;
+class ResultNotifier;
 
 typedef std::map<std::string, SQLConn*> ConnMap;
 typedef std::deque<classbase*> paramlist;
 typedef std::deque<SQLite3Result*> ResultQueue;
+
+ResultNotifier* resultnotify = NULL;
+
+
+class ResultNotifier : public InspSocket
+{
+	Module* mod;
+	insp_sockaddr sock_us;
+	socklen_t uslen;
+
+ public:
+	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
+#ifdef IPV6
+	ResultNotifier(InspIRCd* SI, Module* m) : InspSocket(SI, "::1", 0, true, 3000), mod(m)
+#else
+	ResultNotifier(InspIRCd* SI, Module* m) : InspSocket(SI, "127.0.0.1", 0, true, 3000), mod(m)
+#endif
+	{
+		uslen = sizeof(sock_us);
+		if (getsockname(this->fd,(sockaddr*)&sock_us,&uslen))
+		{
+			throw ModuleException("Could not create random listening port on localhost");
+		}
+	}
+
+	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : InspSocket(SI, newfd, ip), mod(m)
+	{
+		Instance->Log(DEBUG,"Constructor of new socket");
+	}
+
+	/* Using getsockname and ntohs, we can determine which port number we were allocated */
+	int GetPort()
+	{
+#ifdef IPV6
+		return ntohs(sock_us.sin6_port);
+#else
+		return ntohs(sock_us.sin_port);
+#endif
+	}
+
+	virtual int OnIncomingConnection(int newsock, char* ip)
+	{
+		Instance->Log(DEBUG,"Inbound connection on fd %d!",newsock);
+		Dispatch();
+		return false;
+	}
+
+	void Dispatch();
+};
+
 
 class SQLite3Result : public SQLresult
 {
@@ -53,7 +104,7 @@ class SQLite3Result : public SQLresult
 
   public:
 	SQLite3Result(Module* self, Module* to, unsigned int id)
-	: SQLresult(self, to, id), currentrow(0), rows(0), cols(0)
+	: SQLresult(self, to, id), currentrow(0), rows(0), cols(0), fieldlist(NULL), fieldmap(NULL)
 	{
 	}
 
@@ -225,6 +276,11 @@ class SQLConn : public classbase
 		}
 	}
 
+	~SQLConn()
+	{
+		CloseDB();
+	}
+
 	SQLerror Query(SQLrequest &req)
 	{
 		/* Pointer to the buffer we screw around with substitution in */
@@ -286,6 +342,7 @@ class SQLConn : public classbase
 //		Instance->Log(DEBUG, "<******> Doing query: " + ConvToStr(req.query.q.data()));
 
 		SQLite3Result* res = new SQLite3Result(mod, req.GetSource(), req.id);
+		res->dbid = host.id;
 		res->query = req.query.q;
 		paramlist params;
 		params.push_back(this);
@@ -304,7 +361,7 @@ class SQLConn : public classbase
 		delete[] query;
 
 		results.push_back(res);
-
+		SendNotify();
 		return SQLerror();
 	}
 
@@ -318,13 +375,6 @@ class SQLConn : public classbase
 	void ResultReady(SQLite3Result *res, int cols, char **data, char **colnames)
 	{
 		res->AddRow(cols, data, colnames);
-	}
-
-	void QueryDone(SQLrequest* req, int rows)
-	{
-		SQLite3Result* r = new SQLite3Result(mod, req->GetSource(), req->id);
-		r->dbid = host.id;
-		r->query = req->query.q;
 	}
 
 	int OpenDB()
@@ -345,7 +395,7 @@ class SQLConn : public classbase
 
 	void SendResults()
 	{
-		if (results.size())
+		while (results.size())
 		{
 			SQLite3Result* res = results[0];
 			if (res->GetDest())
@@ -365,6 +415,47 @@ class SQLConn : public classbase
 		}
 	}
 
+	void ClearResults()
+	{
+		while (results.size())
+		{
+			SQLite3Result* res = results[0];
+			delete res;
+			results.pop_front();
+		}
+	}
+
+	void SendNotify()
+	{
+		int QueueFD;
+		if ((QueueFD = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
+		{
+			/* crap, we're out of sockets... */
+			return;
+		}
+
+		insp_sockaddr addr;
+
+#ifdef IPV6
+		insp_aton("::1", &addr.sin6_addr);
+		addr.sin6_family = AF_FAMILY;
+		addr.sin6_port = htons(resultnotify->GetPort());
+#else
+		insp_inaddr ia;
+		insp_aton("127.0.0.1", &ia);
+		addr.sin_family = AF_FAMILY;
+		addr.sin_addr = ia;
+		addr.sin_port = htons(resultnotify->GetPort());
+#endif
+
+		if (connect(QueueFD, (sockaddr*)&addr,sizeof(addr)) == -1)
+		{
+			/* wtf, we cant connect to it, but we just created it! */
+			return;
+		}
+		send(QueueFD, "\n", 2, 0);
+	}
+
 };
 
 
@@ -382,8 +473,11 @@ class ModuleSQLite3 : public Module
 
 		if (!ServerInstance->PublishFeature("SQL", this))
 		{
-			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
+			throw ModuleException("m_sqlite3: Unable to publish feature 'SQL'");
 		}
+
+		resultnotify = new ResultNotifier(ServerInstance, this);
+		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",resultnotify->GetPort());
 
 		ReadConf();
 
@@ -392,6 +486,17 @@ class ModuleSQLite3 : public Module
 
 	virtual ~ModuleSQLite3()
 	{
+		ClearQueue();
+		ClearAllConnections();
+		resultnotify->SetFd(-1);
+		resultnotify->state = I_ERROR;
+		resultnotify->OnError(I_ERR_SOCKET);
+		resultnotify->ClosePending = true;
+		if (!ServerInstance->SE->DelFd(resultnotify))
+		{
+			ServerInstance->Log(DEBUG, "m_sqlite3: unable to remove notifier from socket engine!");
+		}
+		delete resultnotify;
 		ServerInstance->UnpublishInterface("SQL", this);
 		ServerInstance->UnpublishFeature("SQL");
 		ServerInstance->DoneWithInterface("SQLutils");
@@ -399,7 +504,23 @@ class ModuleSQLite3 : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRequest] = 1;
+		List[I_OnRequest] = List[I_OnRequest] = 1;
+	}
+
+	void SendQueue()
+	{
+		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			iter->second->SendResults();
+		}
+	}
+
+	void ClearQueue()
+	{
+		for (ConnMap::iterator iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			iter->second->ClearResults();
+		}
 	}
 
 	bool HasHost(const SQLhost &host)
@@ -433,7 +554,7 @@ class ModuleSQLite3 : public Module
 
 	void ReadConf()
 	{
-		//ClearOldConnections();
+		ClearOldConnections();
 
 		ConfigReader conf(ServerInstance);
 		for(int i = 0; i < conf.Enumerate("database"); i++)
@@ -468,6 +589,36 @@ class ModuleSQLite3 : public Module
 		newconn = new SQLConn(ServerInstance, this, hi);
 
 		connections.insert(std::make_pair(hi.id, newconn));
+	}
+
+	void ClearOldConnections()
+	{
+		ConnMap::iterator iter,safei;
+		for (iter = connections.begin(); iter != connections.end(); iter++)
+		{
+			if (!HostInConf(iter->second->GetConfHost()))
+			{
+				DELETE(iter->second);
+				safei = iter;
+				--iter;
+				connections.erase(safei);
+			}
+		}
+	}
+
+	void ClearAllConnections()
+	{
+		ConnMap::iterator i;
+		while ((i = connections.begin()) != connections.end())
+		{
+			connections.erase(i);
+			DELETE(i->second);
+		}
+	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ReadConf();
 	}
 
 	virtual char* OnRequest(Request* request)
@@ -508,6 +659,10 @@ class ModuleSQLite3 : public Module
 
 };
 
+void ResultNotifier::Dispatch()
+{
+	((ModuleSQLite3*)mod)->SendQueue();
+}
 
 class ModuleSQLite3Factory : public ModuleFactory
 {
