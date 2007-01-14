@@ -293,6 +293,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		ServerInstance->Log(DEBUG,"Spool list");
 		const char* mode = parameters[1];
 
+		mask = MASK_CHANNEL;
+		
 		while (mode && *mode)
 		{
 			if (*mode == '+')
@@ -305,11 +307,25 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 			if ((mh) && (mh->IsListMode()))
 			{
-				mh->DisplayList(user, targetchannel);
+				/** See below for a description of what craq this is :D
+				 */
+				unsigned char handler_id = (*mode - 65) | mask;
+
+				for(ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+				{
+					std::string dummyparam;
+					
+					if((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL) == MODEACTION_ALLOW)
+					{
+						mh->DisplayList(user, targetchannel);
+					}
+				}
 			}
 
 			mode++;
 		}
+		
+		return;
 	}
 
 	if (pcnt == 1)
@@ -456,6 +472,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								}
 
 								bool had_parameter = !parameter.empty();
+								
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
 									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
