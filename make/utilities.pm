@@ -11,9 +11,9 @@ use POSIX;
 
 my %already_added = ();
 
-sub make_rpath($)
+sub make_rpath($;$)
 {
-	my ($executable) = @_;
+	my ($executable, $module) = @_;
 	chomp($data = `$executable`);
 	my $output = "";
 	while ($data =~ /-L(\S+)/)
@@ -21,7 +21,7 @@ sub make_rpath($)
 		$libpath = $1;
 		if (!exists $already_added{$libpath})
 		{
-			print "Adding extra library path \033[1;32m$libpath\033[0m ...\n";
+			print "Adding extra library path to \033[1;32m$module\033[0m ... \033[1;32m$libpath\033[0m\n";
 			$already_added{$libpath} = 1;
 		}
 		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath ";
@@ -42,12 +42,12 @@ sub extend_pkg_path()
 	}
 }
 
-sub pkgconfig_get_include_dirs($$$)
+sub pkgconfig_get_include_dirs($$$;$)
 {
-	my ($packagename, $headername, $defaults) = @_;
+	my ($packagename, $headername, $defaults, $module) = @_;
 	extend_pkg_path();
 
-	print "Locating include directory for package \033[1;32m$packagename\033[0m ... ";
+	print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
 	$ret = `pkg-config --cflags $packagename 2>/dev/null`;
 	if ((!defined $ret) || ($ret eq ""))
@@ -80,12 +80,12 @@ sub pkgconfig_get_include_dirs($$$)
 	return $ret;
 }
 
-sub pkgconfig_get_lib_dirs($$$)
+sub pkgconfig_get_lib_dirs($$$;$)
 {
-	my ($packagename, $libname, $defaults) = @_;
+	my ($packagename, $libname, $defaults, $module) = @_;
 	extend_pkg_path();
 
-	print "Locating library directory for package \033[1;32m$packagename\033[0m ... ";
+	print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
 	$ret = `pkg-config --libs $packagename 2>/dev/null`;
 	if ((!defined $ret) || ($ret eq ""))
@@ -126,6 +126,8 @@ sub translate_functions($$)
 	eval
 	{
 		my ($line,$module) = @_;
+		$module =~ /modules*\/(.+?)$/;
+		$module = $1;
 
 		# This is only a cursory check, just designed to catch casual accidental use of backticks.
 		# There are pleanty of ways around it, but its not supposed to be for security, just checking
@@ -138,14 +140,14 @@ sub translate_functions($$)
 		}
 		while ($line =~ /exec\("(.+?)"\)/)
 		{
-			print "Executing program ... \033[1;32m$1\033[0m\n";
+			print "Executing program for module \033[1;32m$module\033[0m ... \033[1;32m$1\033[0m\n";
 			my $replace = `$1`;
 			chomp($replace);
 			$line =~ s/exec\("(.+?)"\)/$replace/;
 		}
 		while ($line =~ /eval\("(.+?)"\)/)
 		{
-			print "Evaluating perl code ... ";
+			print "Evaluating perl code for module \033[1;32m$module\033[0m ... ";
 			my $tmpfile;
 			do
 			{
@@ -160,27 +162,27 @@ sub translate_functions($$)
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
 		{
-			my $replace = pkgconfig_get_lib_dirs($1, $2, $3);
+			my $replace = pkgconfig_get_lib_dirs($1, $2, $3, $module);
 			$line =~ s/pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/$replace/;
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)",""\)/)
 		{
-			my $replace = pkgconfig_get_lib_dirs($1, $2, "");
+			my $replace = pkgconfig_get_lib_dirs($1, $2, "", $module);
 			$line =~ s/pkgconflibs\("(.+?)","(.+?)",""\)/$replace/;
 		}
 		while ($line =~ /pkgconfincludes\("(.+?)","(.+?)",""\)/)
 		{
-			my $replace = pkgconfig_get_include_dirs($1, $2, "");
+			my $replace = pkgconfig_get_include_dirs($1, $2, "", $module);
 			$line =~ s/pkgconfincludes\("(.+?)","(.+?)",""\)/$replace/;
 		}
 		while ($line =~ /pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/)
 		{
-			my $replace = pkgconfig_get_include_dirs($1, $2, $3);
+			my $replace = pkgconfig_get_include_dirs($1, $2, $3, $module);
 			$line =~ s/pkgconfincludes\("(.+?)","(.+?)","(.+?)"\)/$replace/;
 		}
 		while ($line =~ /rpath\("(.+?)"\)/)
 		{
-			my $replace = make_rpath($1);
+			my $replace = make_rpath($1,$module);
 			$line =~ s/rpath\("(.+?)"\)/$replace/;
 		}
 		return $line;
