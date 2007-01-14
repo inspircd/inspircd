@@ -20,6 +20,7 @@ use Getopt::Long;
 
 # Utility functions for our buildsystem
 use make::utilities;
+use make::configure;
 
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
@@ -593,262 +594,25 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	print "different servers on the network.\n\n";
 
 	# File Descriptor Settings..
-	my $continue = 0;
-	while (!$continue) {
-		print "Maximum number of clients at any one time ($config{MAX_CLIENT_T})\n";
-		print "[\033[1;32m$config{MAX_CLIENT}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_CLIENT};
-		}
-		if ($var =~ /^\d+$/) {
-			if (($var > $config{MAX_CLIENT_T}) && ($fd_scan_fail ne "true")) {
-				# Client has entered a larger number than the 'discovered' value
-				# Confirm.
-				print "WARNING: Our scans have indicated that you are attempting
-to use more sockets than there are avaliable. Are you sure
-you wish to do this? It may cause the IRCd to malfunction [y/n]
-[\033[1;32mn\033[0m] -> $c";
-				chomp($tmp = <STDIN>);
-				if ($tmp ne "y") {
-					print "Please enter the correct value.\n\n";
-					next;
-				}
-			}
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-			next;
-		}
-		# If we get here, we should be good to go.
-		$config{MAX_CLIENT} = $var;
-		$config{MAX_DESCRIPTORS} = $var;
-		$continue = 1;
-		print "\n";
-	}
+	promptnumeric("number of clients at any one time", "MAX_CLIENT_T");
 
-	my $continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of nicknames?\n";
-		print "[\033[1;32m$config{NICK_LENGT}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{NICK_LENGT};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{NICK_LENGT} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
+	$config{MAX_CLIENT} = $var;
+	$config{MAX_DESCRIPTORS} = $var;
 
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of channel names?\n";
-		print "[\033[1;32m$config{CHAN_LENGT}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{CHAN_LENGT};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{CHAN_LENGT} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum number of channels a normal user may join at any one time?\n";
-		print "[\033[1;32m$config{MAX_CHANNE}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_CHANNE};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_CHANNE} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum number of channels an oper may join at any one time?\n";
-		print "[\033[1;32m$config{MAX_OPERCH}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_OPERCH};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_OPERCH} = $var;
-			$continue = 1;
-			print "\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum number of mode changes in one line?\n";
-		print "[\033[1;32m$config{MAXI_MODES}\033[0m] -> ";
-			chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAXI_MODES};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAXI_MODES} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of an ident (username)?\n";
-		print "[\033[1;32m$config{MAX_IDENT}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_IDENT};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_IDENT} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of a quit message?\n";
-		print "[\033[1;32m$config{MAX_QUIT}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_QUIT};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_QUIT} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of a channel topic?\n";
-		print "[\033[1;32m$config{MAX_TOPIC}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_TOPIC};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_TOPIC} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of a kick message?\n";
-		print "[\033[1;32m$config{MAX_KICK}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_KICK};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_KICK} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of a GECOS (real name) field?\n";
-		print "[\033[1;32m$config{MAX_GECOS}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_GECOS};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_GECOS} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-
-	$continue = 0;
-	while (!$continue) {
-		print "What is the maximum length of an away message?\n";
-		print "[\033[1;32m$config{MAX_AWAY}\033[0m] -> ";
-		chomp($var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{MAX_AWAY};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$config{MAX_AWAY} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
+	promptnumeric("length of nicknames", "NICK_LENGT");
+	promptnumeric("length of channel names", "CHAN_LENGT");
+	promptnumeric("number of channels a normal user may join at any one time", "MAX_CHANNE");
+	promptnumeric("number of channels an oper may join at any one time", "MAX_OPERCH");
+	promptnumeric("number of mode changes in one line", "MAXI_MODES");
+	promptnumeric("length of an ident (username)", "MAX_IDENT");
+	promptnumeric("length of a quit message", "MAX_QUIT");
+	promptnumeric("length of a channel topic", "MAX_TOPIC");
+	promptnumeric("length of a kick message", "MAX_KICK");
+	promptnumeric("length of a GECOS (real name)", "MAX_GECOS");
+	promptnumeric("length of an away message", "MAX_AWAY");
 }
 
-print "\n\033[1;32mPre-build configuration is complete!\033[0m\n\n";
-print "\033[0mBase install path:\033[1;32m\t\t$config{BASE_DIR}\033[0m\n";
-print "\033[0mConfig path:\033[1;32m\t\t\t$config{CONFIG_DIR}\033[0m\n";
-print "\033[0mModule path:\033[1;32m\t\t\t$config{MODULE_DIR}\033[0m\n";
-print "\033[0mLibrary path:\033[1;32m\t\t\t$config{LIBRARY_DIR}\033[0m\n";
-print "\033[0mMax connections:\033[1;32m\t\t$config{MAX_CLIENT}\033[0m\n";
-print "\033[0mMax User Channels:\033[1;32m\t\t$config{MAX_CHANNE}\033[0m\n";
-print "\033[0mMax Oper Channels:\033[1;32m\t\t$config{MAX_OPERCH}\033[0m\n";
-print "\033[0mMax nickname length:\033[1;32m\t\t$config{NICK_LENGT}\033[0m\n";
-print "\033[0mMax channel length:\033[1;32m\t\t$config{CHAN_LENGT}\033[0m\n";
-print "\033[0mMax mode length:\033[1;32m\t\t$config{MAXI_MODES}\033[0m\n";
-print "\033[0mMax ident length:\033[1;32m\t\t$config{MAX_IDENT}\033[0m\n";
-print "\033[0mMax quit length:\033[1;32m\t\t$config{MAX_QUIT}\033[0m\n";
-print "\033[0mMax topic length:\033[1;32m\t\t$config{MAX_TOPIC}\033[0m\n";
-print "\033[0mMax kick length:\033[1;32m\t\t$config{MAX_KICK}\033[0m\n";
-print "\033[0mMax name length:\033[1;32m\t\t$config{MAX_GECOS}\033[0m\n";
-print "\033[0mMax away length:\033[1;32m\t\t$config{MAX_AWAY}\033[0m\n";
-print "\033[0mGCC Version Found:\033[1;32m\t\t$config{GCCVER}.x\033[0m\n";
-# and not echo it out so we don't get some ricer fuck complaining
-#print "\033[0mOptimization Flag:\033[1;32m\t\t$config{OPTIMISATI}\033[0m\n";
-print "\033[0mCompiler program:\033[1;32m\t\t$config{CC}\033[0m\n";
-print "\033[0mStatic modules:\033[1;32m\t\t\t$config{STATIC_LINK}\033[0m\n";
-print "\033[0mIPv6 Support:\033[1;32m\t\t\t$config{IPV6}\033[0m\n";
-print "\033[0mIPv6 to IPv4 Links:\033[1;32m\t\t$config{SUPPORT_IP6LINKS}\033[0m\n";
-print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$config{USE_GNUTLS}\033[0m\n";
-print "\033[0mOpenSSL Support:\033[1;32m\t\t$config{USE_OPENSSL}\033[0m\n\n";
+dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
