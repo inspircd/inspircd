@@ -386,6 +386,7 @@ class SQLConn : public classbase
 	{
 		sqlite3_interrupt(conn);
 		sqlite3_close(conn);
+		Instance->Log(DEBUG, "Closed sqlite DB: " + host.host);
 	}
 
 	SQLhost GetConfHost()
@@ -503,7 +504,7 @@ class ModuleSQLite3 : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRequest] = List[I_OnRequest] = 1;
+		List[I_OnRequest] = List[I_OnRehash] = 1;
 	}
 
 	void SendQueue()
