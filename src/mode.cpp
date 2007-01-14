@@ -455,9 +455,16 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 									continue;
 								}
 
+								bool had_parameter = !parameter.empty();
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
 									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
+									{
+										abort = true;
+										break;
+									}
+									/* A module whacked the parameter completely, and there was one. abort. */
+									if ((had_parameter) && (parameter.empty()))
 									{
 										abort = true;
 										break;
