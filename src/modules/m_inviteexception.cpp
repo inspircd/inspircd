@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -51,12 +51,13 @@ public:
 		ie = new InviteException(ServerInstance);
 		if (!ServerInstance->AddMode(ie, 'I'))
 			throw ModuleException("Could not add new modes!");
+		ServerInstance->PublishInterface("ChannelBanList", this);
 	}
-	
+
 	virtual void Implements(char* List)
 	{
 		ie->DoImplements(List);
-		List[I_On005Numeric] = List[I_OnCheckInvite] = 1;
+		List[I_OnRequest] = List[I_On005Numeric] = List[I_OnCheckInvite] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)
@@ -89,6 +90,32 @@ public:
 		return 0;		
 	}
 
+	virtual char* OnRequest(Request* request)
+	{
+		ListModeRequest* LM = (ListModeRequest*)request;
+		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
+		{
+			modelist* list;
+			LM->chan->GetExt(ie->GetInfoKey(), list);
+			if (list)
+			{
+				char mask[MAXBUF];
+				snprintf(mask, MAXBUF, "%s!%s@%s", LM->user->nick, LM->user->ident, LM->user->GetIPString());
+				for (modelist::iterator it = list->begin(); it != list->end(); it++)
+				{
+					if (ServerInstance->MatchText(LM->user->GetFullRealHost(), it->mask) || ServerInstance->MatchText(LM->user->GetFullHost(), it->mask) ||
+						(match(mask, it->mask.c_str(), true)))
+					{
+						// They match an entry
+						return (char*)it->mask.c_str();
+					}
+				}
+				return NULL;
+			}
+		}
+		return NULL;
+	}
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		ie->DoCleanup(target_type, item);
@@ -118,6 +145,7 @@ public:
 	{
 		ServerInstance->Modes->DelMode(ie);
 		DELETE(ie);
+		ServerInstance->UnpublishInterface("ChannelBanList", this);
 	}
 };
 

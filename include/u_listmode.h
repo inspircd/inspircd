@@ -62,6 +62,21 @@ public:
 typedef std::vector<ListItem> modelist;
 typedef std::vector<ListLimit> limitlist;
 
+class ListModeRequest : public Request
+{
+ public:
+	userrec* user;
+	chanrec* chan;
+
+	ListModeRequest(Module* sender, Module* target, userrec* u, chanrec* c) : Request(sender, target, "LM_CHECKLIST"), user(u), chan(c)
+	{
+	}
+
+	~ListModeRequest()
+	{
+	}
+};
+
 /** The base class for listmodes defined by u_listmode.h
  */
 class ListModeBase : public ModeHandler

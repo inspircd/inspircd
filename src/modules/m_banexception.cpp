@@ -54,12 +54,13 @@ public:
 		be = new BanException(ServerInstance);
 		if (!ServerInstance->AddMode(be, 'e'))
 			throw ModuleException("Could not add new modes!");
+		ServerInstance->PublishInterface("ChannelBanList", this);
 	}
 	
 	virtual void Implements(char* List)
 	{
 		be->DoImplements(List);
-		List[I_On005Numeric] = List[I_OnCheckBan] = 1;
+		List[I_OnRequest] = List[I_On005Numeric] = List[I_OnCheckBan] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)
@@ -112,7 +113,33 @@ public:
 	{
 		be->DoRehash();
 	}
-	
+
+        virtual char* OnRequest(Request* request)
+	{
+		ListModeRequest* LM = (ListModeRequest*)request;
+		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
+		{
+                        modelist* list;
+			LM->chan->GetExt(be->GetInfoKey(), list);
+			if (list)
+			{
+				char mask[MAXBUF];
+				snprintf(mask, MAXBUF, "%s!%s@%s", LM->user->nick, LM->user->ident, LM->user->GetIPString());
+				for (modelist::iterator it = list->begin(); it != list->end(); it++)
+				{
+					if (ServerInstance->MatchText(LM->user->GetFullRealHost(), it->mask) || ServerInstance->MatchText(LM->user->GetFullHost(), it->mask) ||
+							(match(mask, it->mask.c_str(), true)))
+					{
+						// They match an entry
+						return (char*)it->mask.c_str();
+					}
+				}
+				return NULL;
+			}
+		}
+		return NULL;
+	}
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 3, VF_COMMON | VF_VENDOR, API_VERSION);
@@ -121,7 +148,8 @@ public:
 	virtual ~ModuleBanException()
 	{
 		ServerInstance->Modes->DelMode(be);
-		DELETE(be);	
+		DELETE(be);
+		ServerInstance->UnpublishInterface("ChannelBanList", this);
 	}
 };
 
