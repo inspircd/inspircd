@@ -324,8 +324,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 			mode++;
 		}
-		
-		return;
 	}
 
 	if (pcnt == 1)
