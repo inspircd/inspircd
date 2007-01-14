@@ -222,8 +222,7 @@ class ModuleBanRedirect : public Module
 			{
 				/* We actually had some ban redirects to check */
 				
-				std::string ipmask(user->nick);
-				ipmask.append('!', 1).append(user->ident).append('@', 1).append(user->GetIPString());
+				std::string ipmask(user->MakeHostIP());
 				
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
