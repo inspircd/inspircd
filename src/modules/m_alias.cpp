@@ -43,6 +43,7 @@ class ModuleAlias : public Module
  private:
 	/** We cant use a map, there may be multiple aliases with the same name */
 	std::vector<Alias> Aliases;
+	std::map<std::string, int> AliasMap;
 	std::vector<std::string> pars;
 
 	virtual void ReadAliases()
@@ -50,6 +51,7 @@ class ModuleAlias : public Module
 		ConfigReader MyConf(ServerInstance);
 
 		Aliases.clear();
+		AliasMap.clear();
 		for (int i = 0; i < MyConf.Enumerate("alias"); i++)
 		{
 			Alias a;
@@ -62,6 +64,7 @@ class ModuleAlias : public Module
 			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
 			a.format = MyConf.ReadValue("alias", "format", i);
 			Aliases.push_back(a);
+			AliasMap[txt] = 1;
 		}
 	}
 
@@ -132,11 +135,14 @@ class ModuleAlias : public Module
 	{
 		userrec *u = NULL;
 
-		/* If the command is valid, we dont want to know,
-		 * and if theyre not registered yet, we dont want
-		 * to know either
+		/* If theyre not registered yet, we dont want
+		 * to know.
 		 */
-		if ((validated) || (user->registered != REG_ALL))
+		if (user->registered != REG_ALL)
+			return 0;
+
+		/* We dont have any commands looking like this, dont bother with the loop */
+		if (AliasMap.find(command) == AliasMap.end())
 			return 0;
 
 		irc::string c = command.c_str();
