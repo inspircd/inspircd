@@ -140,3 +140,9 @@ bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr
 		return true;
 	return csmatch(str, mask);
 }
+
+bool match(bool case_sensitive, const char *str, const char *mask)
+{
+	return case_sensitive ? csmatch(str, mask) : match(str, mask);
+}
+
