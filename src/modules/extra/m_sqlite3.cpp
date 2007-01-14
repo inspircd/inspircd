@@ -126,6 +126,11 @@ class SQLite3Result : public SQLresult
 		rows++;
 	}
 
+	void UpdateAffectedCount()
+	{
+		rows++;
+	}
+
 	virtual int Rows()
 	{
 		return rows;
@@ -339,8 +344,7 @@ class SQLConn : public classbase
 		*queryend = 0;
 		req.query.q = query;
 
-//		Instance->Log(DEBUG, "<******> Doing query: " + ConvToStr(req.query.q.data()));
-
+		//Instance->Log(DEBUG, "<******> Doing query: " + ConvToStr(req.query.q.data()));
 		SQLite3Result* res = new SQLite3Result(mod, req.GetSource(), req.id);
 		res->dbid = host.id;
 		res->query = req.query.q;
@@ -349,6 +353,7 @@ class SQLConn : public classbase
 		params.push_back(res);
 
 		char *errmsg = 0;
+		sqlite3_update_hook(conn, QueryUpdateHook, &params);
 		if (sqlite3_exec(conn, req.query.q.data(), QueryResult, &params, &errmsg) != SQLITE_OK)
 		{
 			Instance->Log(DEBUG, "Query failed: " + ConvToStr(errmsg));
@@ -372,9 +377,20 @@ class SQLConn : public classbase
 		return 0;
 	}
 
+	static void QueryUpdateHook(void *params, int eventid, char const * azSQLite, char const * azColName, sqlite_int64 rowid)
+	{
+		paramlist* p = (paramlist*)params;
+		((SQLConn*)(*p)[0])->AffectedReady(((SQLite3Result*)(*p)[1]));
+	}
+
 	void ResultReady(SQLite3Result *res, int cols, char **data, char **colnames)
 	{
 		res->AddRow(cols, data, colnames);
+	}
+
+	void AffectedReady(SQLite3Result *res)
+	{
+		res->UpdateAffectedCount();
 	}
 
 	int OpenDB()
