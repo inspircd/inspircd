@@ -256,8 +256,6 @@ if (defined $opt_away)
 	$config{MAX_AWAY} = $opt_away;
 }
 
-$no_svn = 0;
-
 $config{HAS_OPENSSL} =~ /OpenSSL ([-[:digit:].]+)([a-z])?(\-[a-z][0-9])? (\w{3}|[0-9]+) (\w{3}|[0-9]+) [0-9]{4}/;
 $config{HAS_OPENSSL} = $1;
 
@@ -886,55 +884,6 @@ sub getosflags {
 	return $config{OSNAME};
 }
 
-sub is_dir {
-	my ($path) = @_;
-	if (chdir($path)) {
-		chdir($this);
-		return 1;
-	} else {
-		# Just in case..
-		chdir($this);
-		return 0;
-	}
-}
-
-sub getmodules {
-	my $i = 0;
-	print "Detecting modules ";
-	opendir(DIRHANDLE, "src/modules");
-	foreach $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^m_(.+)\.cpp$/)
-		{
-			$mod = $1;
-			if ($mod !~ /_static$/) {
-				$modlist[$i++] = $mod;
-				print ".";
-			}
-		}
-	}
-	closedir(DIRHANDLE);
-	print "\nOk, $i modules.\n";
-}
-
-sub getrevision {
-	if ($no_svn) {
-		return "0";
-	}
-	my $data = `svn info`;
-	
-	if ($data eq "") {
-		$no_svn = 1;
-		$rev = "0";
-		return $rev;
-	}
-	$data =~ /Revision: (\d+)/;
-	my $rev = $1;
-	if (!defined($rev)) {
-		$rev = "0";
-	}
-	return $rev;
-}
-
 sub writefiles {
 	my($writeheader) = @_;
 	# First File.. inspircd_config.h
@@ -1132,64 +1081,6 @@ EOF
 		write_dynamic_makefile();
 		write_dynamic_modules_makefile();
 	}
-}
-
-sub getcompilerflags {
-	my ($file) = @_;
-	open(FLAGS, $file);
-	while (<FLAGS>) {
-	if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
-			close(FLAGS);
-			return translate_functions($1,$file);
-		}
-	}
-	close(FLAGS);
-	return undef;
-}
-
-sub getlinkerflags {
-	my ($file) = @_;
-	open(FLAGS, $file);
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
-			close(FLAGS);
-			return translate_functions($1,$file);
-		}
-	}
-	close(FLAGS);
-	return undef;
-}
-
-sub getdependencies {
-	my ($file) = @_;
-	open(FLAGS, $file);
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
-			close(FLAGS);
-			return translate_functions($1,$file);
-		}
-	}
-	close(FLAGS);
-	return undef;
-}
-
-sub resolve_directory {
-	use File::Spec;
-	return File::Spec->rel2abs($_[0]);
-}
-
-sub yesno {
-	my ($flag,$prompt) = @_;
-	print "$prompt [\033[1;32m$config{$flag}\033[0m] -> ";
-	chomp($tmp = <STDIN>);
-	if ($tmp eq "") { $tmp = $config{$flag} }
-
-	if (($tmp eq "") || ($tmp =~ /^y/i)) {
-		$config{$flag} = "y";
-	} else {
-		$config{$flag} = "n";
-        }
-	return;
 }
 
 sub write_static_modules_makefile {

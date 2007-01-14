@@ -1,7 +1,119 @@
 package make::configure;
 use Exporter 'import';
 use POSIX;
-@EXPORT = qw(promptnumeric dumphash);
+use make::utilities;
+@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno);
+
+my $no_svn = 0;
+
+sub yesno {
+	my ($flag,$prompt) = @_;
+	print "$prompt [\033[1;32m$main::config{$flag}\033[0m] -> ";
+	chomp($tmp = <STDIN>);
+	if ($tmp eq "") { $tmp = $main::config{$flag} }
+	if (($tmp eq "") || ($tmp =~ /^y/i))
+	{
+		$main::config{$flag} = "y";
+	}
+	else
+	{
+		$main::config{$flag} = "n";
+	}
+	return;
+}
+
+sub resolve_directory
+{
+	my $ret = $_[0];
+	eval
+	{
+		use File::Spec;
+		$ret = File::Spec->rel2abs($_[0]);
+	};
+	return $ret;
+}
+
+sub getrevision {
+	if ($no_svn)
+	{
+		return "0";
+	}
+	my $data = `svn info`;
+	if ($data eq "")
+	{
+		$no_svn = 1;
+		$rev = "0";
+		return $rev;
+	}
+	$data =~ /Revision: (\d+)/;
+	my $rev = $1;
+	if (!defined($rev))
+	{
+		$rev = "0";
+	}
+	return $rev;
+}
+
+sub getcompilerflags {
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+			close(FLAGS);
+			return translate_functions($1,$file);
+		}
+	}
+	close(FLAGS);
+	return undef;
+}
+
+sub getlinkerflags {
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
+			close(FLAGS);
+			return translate_functions($1,$file);
+		}
+	}
+	close(FLAGS);
+	return undef;
+}
+
+sub getdependencies {
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
+			close(FLAGS);
+			return translate_functions($1,$file);
+		}
+	}
+	close(FLAGS);
+	return undef;
+}
+
+
+sub getmodules
+{
+	my $i = 0;
+	print "Detecting modules ";
+	opendir(DIRHANDLE, "src/modules");
+	foreach $name (sort readdir(DIRHANDLE))
+	{
+		if ($name =~ /^m_(.+)\.cpp$/)
+		{
+			$mod = $1;
+			if ($mod !~ /_static$/)
+			{
+				$main::modlist[$i++] = $mod;
+				print ".";
+			}
+		}
+	}
+	closedir(DIRHANDLE);
+	print "\nOk, $i modules.\n";
+}
 
 sub promptnumeric($$)
 {
@@ -55,4 +167,21 @@ sub dumphash()
 	print "\033[0mOpenSSL Support:\033[1;32m\t\t$main::config{USE_OPENSSL}\033[0m\n\n";
 }
 
+sub is_dir
+{
+	my ($path) = @_;
+	if (chdir($path))
+	{
+		chdir($main::this);
+		return 1;
+	}
+	else
+	{
+		# Just in case..
+		chdir($main::this);
+		return 0;
+	}
+}
+
 1;
+
