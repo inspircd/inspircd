@@ -14,14 +14,20 @@ sub make_rpath($)
 {
 	my ($executable) = @_;
 	chomp($data = `$executable`);
-	$data =~ /-L(\S+)\s/;
-	$libpath = $1;
-	if (!exists $already_added{$libpath})
+	my $output = "";
+	while ($data =~ /-L(\S+)/)
 	{
-		print "Adding extra library path \033[1;32m$libpath\033[0m ...\n";
-		$already_added{$libpath} = 1;
+		$libpath = $1;
+		chomp($libpath);
+		if (!exists $already_added{$libpath})
+		{
+			print "Adding extra library path \033[1;32m$libpath\033[0m ...\n";
+			$already_added{$libpath} = 1;
+		}
+		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath ";
+		$data =~ s/-L(\S+)//;
 	}
-	return "-Wl,--rpath -Wl,$libpath -L$libpath";
+	return $output;
 }
 
 sub extend_pkg_path()
