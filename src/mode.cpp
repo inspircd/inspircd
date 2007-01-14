@@ -304,6 +304,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			}
 
 			ModeHandler *mh = this->FindMode(*mode, MODETYPE_CHANNEL);
+			bool display = true;
 
 			if ((mh) && (mh->IsListMode()))
 			{
@@ -315,11 +316,12 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				{
 					std::string dummyparam;
 					
-					if((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL) == MODEACTION_ALLOW)
-					{
-						mh->DisplayList(user, targetchannel);
-					}
+					if((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL) == MODEACTION_DENY)
+						display = false;
 				}
+
+				if (display)
+					mh->DisplayList(user, targetchannel);
 			}
 
 			mode++;
