@@ -492,10 +492,6 @@ class ModuleSQLite3 : public Module
 		resultnotify->state = I_ERROR;
 		resultnotify->OnError(I_ERR_SOCKET);
 		resultnotify->ClosePending = true;
-		if (!ServerInstance->SE->DelFd(resultnotify))
-		{
-			ServerInstance->Log(DEBUG, "m_sqlite3: unable to remove notifier from socket engine!");
-		}
 		delete resultnotify;
 		ServerInstance->UnpublishInterface("SQL", this);
 		ServerInstance->UnpublishFeature("SQL");
