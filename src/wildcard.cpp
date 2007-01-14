@@ -28,6 +28,55 @@ using irc::sockets::MatchCIDR;
 // (unattributed to any author) all over the 'net.
 // For now, we'll just consider this public domain.
 
+bool csmatch(const char *str, const char *mask)
+{
+	unsigned char *cp = NULL, *mp = NULL;
+	unsigned char* string = (unsigned char*)str;
+	unsigned char* wild = (unsigned char*)mask;
+
+	while ((*string) && (*wild != '*'))
+	{
+		if ((*wild != *string) && (*wild != '?'))
+		{
+			return 0;
+		}
+		wild++;
+		string++;
+	}
+
+	while (*string)
+	{
+		if (*wild == '*')
+		{
+			if (!*++wild)
+			{
+				return 1;
+			}
+			mp = wild;
+			cp = string+1;
+		}
+		else
+		if ((*wild == *string) || (*wild == '?'))
+		{
+			wild++;
+			string++;
+		}
+		else
+		{
+			wild = mp;
+			string = cp++;
+		}
+
+	}
+
+	while (*wild == '*')
+	{
+		wild++;
+	}
+
+	return !*wild;
+}
+
 bool match(const char *str, const char *mask)
 {
 	unsigned char *cp = NULL, *mp = NULL;
@@ -83,4 +132,11 @@ bool match(const char *str, const char *mask, bool use_cidr_match)
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
 	return match(str, mask);
+}
+
+bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match)
+{
+	if (use_cidr_match && MatchCIDR(str, mask, true))
+		return true;
+	return csmatch(str, mask);
 }

@@ -15,6 +15,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "wildcard.h"
 #include <vector>
 
 /* $ModDesc: Provides aliases of commands. */
@@ -34,6 +35,8 @@ class Alias : public classbase
 	bool uline;
 	/** Requires oper? */
 	bool operonly;
+	/* is case sensitive params */
+	bool case_sensitive;
 	/** Format that must be matched for use */
 	std::string format;
 };
@@ -63,6 +66,7 @@ class ModuleAlias : public Module
 			a.uline = MyConf.ReadFlag("alias", "uline", i);
 			a.operonly = MyConf.ReadFlag("alias", "operonly", i);
 			a.format = MyConf.ReadValue("alias", "format", i);
+			a.case_sensitive = MyConf.ReadFlag("alias", "matchcase", i);
 			Aliases.push_back(a);
 			AliasMap[txt] = 1;
 		}
@@ -162,9 +166,10 @@ class ModuleAlias : public Module
 			if (Aliases[i].text == c)
 			{
 				/* Does it match the pattern? */
-				if ((!Aliases[i].format.empty()) && (!ServerInstance->MatchText(compare, Aliases[i].format)))
+				if (!Aliases[i].format.empty())
 				{
-					continue;
+					if (!match(Aliases[i].case_sensitive, compare.c_str(), Aliases[i].format.c_str()))
+						continue;
 				}
 
 				if ((Aliases[i].operonly) && (!*user->oper))
