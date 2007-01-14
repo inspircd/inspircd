@@ -435,12 +435,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					{
 						bool abort = false;
 
-						for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-						{
-							if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
-								abort = true;
-						}
-						if ((modehandlers[handler_id]->GetModeType() == type) && (!abort))
+						if (modehandlers[handler_id]->GetModeType() == type)
 						{
 							if (modehandlers[handler_id]->GetNumParams(adding))
 							{
@@ -459,6 +454,18 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 									/* No parameter, continue to the next mode */
 									continue;
 								}
+
+								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+								{
+									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
+									{
+										abort = true;
+										break;
+									}
+								}
+
+								if (abort)
+									continue;
 							}
 
 							/* It's an oper only mode, check if theyre an oper. If they arent,
