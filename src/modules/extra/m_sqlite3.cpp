@@ -453,7 +453,6 @@ class SQLConn : public classbase
 			/* wtf, we cant connect to it, but we just created it! */
 			return;
 		}
-		send(QueueFD, "\n", 2, 0);
 	}
 
 };
