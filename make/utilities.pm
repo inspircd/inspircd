@@ -18,7 +18,6 @@ sub make_rpath($)
 	while ($data =~ /-L(\S+)/)
 	{
 		$libpath = $1;
-		chomp($libpath);
 		if (!exists $already_added{$libpath})
 		{
 			print "Adding extra library path \033[1;32m$libpath\033[0m ...\n";
