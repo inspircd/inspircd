@@ -24,8 +24,8 @@
 /* VERSION 2 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
-/* $CompileFlags: `mysql_config --include` */
-/* $LinkerFlags: `mysql_config --libs_r` rpath("mysql_config --libs_r") */
+/* $CompileFlags: exec("mysql_config --include") */
+/* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 /* $ModDep: m_sqlv2.h */
 
 /* THE NONBLOCKING MYSQL API!

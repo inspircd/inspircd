@@ -1,5 +1,6 @@
 package make::utilities;
 use Exporter 'import';
+use POSIX;
 @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions);
 
 # Parse the output of a *_config program,
@@ -123,6 +124,25 @@ sub pkgconfig_get_lib_dirs($$$)
 sub translate_functions($)
 {
 	my ($line) = @_;
+	while ($line =~ /exec\("(.+?)"\)/)
+	{
+		my $replace = `$1`;
+		chomp($replace);
+		$line =~ s/exec\("(.+?)"\)/$replace/;
+	}
+	while ($line =~ /eval\("(.+?)"\)/)
+	{
+		my $tmpfile;
+		do
+		{
+			$tmpfile = tmpnam();
+		} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL, 0700);
+		print TF $1;
+		close TF;
+		my $replace = `perl $tmpfile`;
+		chomp($replace);
+		$line =~ s/eval\("(.+?)"\)/$replace/;
+	}
 	while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
 	{
 		my $replace = pkgconfig_get_lib_dirs($1, $2, $3);

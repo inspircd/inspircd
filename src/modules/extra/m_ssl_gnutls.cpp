@@ -30,7 +30,7 @@
 #include "transport.h"
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: `libgnutls-config --cflags` */
+/* $CompileFlags: exec("libgnutls-config --cflags") */
 /* $LinkerFlags: rpath("libgnutls-config --libs") */
 /* $ModDep: transport.h */
 
