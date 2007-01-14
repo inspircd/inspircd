@@ -123,9 +123,10 @@ sub pkgconfig_get_lib_dirs($$$;$)
 # to functions within these modules at configure time.
 sub translate_functions($$)
 {
+	my ($line,$module) = @_;
+
 	eval
 	{
-		my ($line,$module) = @_;
 		$module =~ /modules*\/(.+?)$/;
 		$module = $1;
 
@@ -185,12 +186,15 @@ sub translate_functions($$)
 			my $replace = make_rpath($1,$module);
 			$line =~ s/rpath\("(.+?)"\)/$replace/;
 		}
-		return $line;
 	};
 	if ($@)
 	{
 		print "\n\nConfiguration failed. The following error occured:\n\n$@\n";
 		exit;
+	}
+	else
+	{
+		return $line;
 	}
 }
 

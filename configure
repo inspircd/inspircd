@@ -1491,6 +1491,8 @@ HEADER
 			$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 			$deps = getdependencies("src/modules/m_".$i.".cpp");
 
+			#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
+
 			###
 			# Write Entry to the Makefile
 			###
@@ -1564,6 +1566,9 @@ EOF
 	$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 	$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 	$deps = getdependencies("src/modules/m_".$i.".cpp");
+
+	#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
+
 	print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c m_$i.cpp
