@@ -63,8 +63,14 @@ sub pkgconfig_get_include_dirs($$$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
-
-	print "\033[1;32m$ret\033[0m\n";
+	if (($ret eq " ") || (!defined $ret))
+	{
+		print "\033[1;32mUsing defaults\033[0m\n";
+	}
+	else
+	{
+		print "\033[1;32m$ret\033[0m\n";
+	}
 	return $ret;
 }
 
@@ -96,7 +102,14 @@ sub pkgconfig_get_lib_dirs($$$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
-	print "\033[1;32m$ret\033[0m\n";
+	if (($ret eq " ") || (!defined $ret))
+	{
+		print "\033[1;32mUsing defaults\033[0m\n";
+	}
+	else
+	{
+		print "\033[1;32m$ret\033[0m\n";
+	}
 	return $ret;
 }
 
