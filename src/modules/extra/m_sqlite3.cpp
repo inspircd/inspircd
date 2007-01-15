@@ -269,8 +269,7 @@ class SQLConn : public classbase
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
 	: Instance(SI), mod(m), host(hi)
 	{
-		int result;
-		if ((result = OpenDB()) == SQLITE_OK)
+		if (OpenDB() == SQLITE_OK)
 		{
 			Instance->Log(DEBUG, "Opened sqlite DB: " + host.host);
 		}
@@ -311,7 +310,6 @@ class SQLConn : public classbase
 		 *
 		 * The +1 is for null-terminating the string for mysql_real_escape_string
 		 */
-
 		query = new char[req.query.q.length() + (paramlen*2) + 1];
 		queryend = query;
 
@@ -344,7 +342,6 @@ class SQLConn : public classbase
 		*queryend = 0;
 		req.query.q = query;
 
-		//Instance->Log(DEBUG, "<******> Doing query: " + ConvToStr(req.query.q.data()));
 		SQLite3Result* res = new SQLite3Result(mod, req.GetSource(), req.id);
 		res->dbid = host.id;
 		res->query = req.query.q;
@@ -356,11 +353,12 @@ class SQLConn : public classbase
 		sqlite3_update_hook(conn, QueryUpdateHook, &params);
 		if (sqlite3_exec(conn, req.query.q.data(), QueryResult, &params, &errmsg) != SQLITE_OK)
 		{
-			Instance->Log(DEBUG, "Query failed: " + ConvToStr(errmsg));
+			std::string error(errmsg);
 			sqlite3_free(errmsg);
+			Instance->Log(DEBUG, "Query failed: " + ConvToStr(errmsg));
 			delete[] query;
 			delete res;
-			return SQLerror(QSEND_FAIL, ConvToStr(errmsg));
+			return SQLerror(QSEND_FAIL, error);
 		}
 		Instance->Log(DEBUG, "Dispatched query successfully. ID: %d resulting rows %d", req.id, res->Rows());
 		delete[] query;
