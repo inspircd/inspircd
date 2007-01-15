@@ -96,6 +96,13 @@ class BanRedirect : public ModeWatcher
 			{
 				mask[current].assign(start_pos, param.end());	
 			}
+			
+			/* nick@host wants to be changed to *!nick@host rather than nick!*@host... */
+			if(mask[NICK].length() && mask[HOST].length() && mask[IDENT].empty())
+			{
+				/* std::string::swap() is fast - it runs in constant time */
+				mask[NICK].swap(mask[IDENT]);
+			}
 				
 			for(int i = 0; i < 3; i++)
 			{
