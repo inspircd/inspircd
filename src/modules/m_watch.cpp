@@ -138,7 +138,6 @@ class cmd_watch : public command_t
 		watchlist* wl;
 		if (!user->GetExt("watchlist", wl))
 		{
-			ServerInstance->Log(DEBUG,"Allocate new watchlist");
 			wl = new watchlist();
 			user->Extend("watchlist", wl);
 		}
@@ -152,7 +151,6 @@ class cmd_watch : public command_t
 		watchlist::iterator n = wl->find(nick);
 		if (n == wl->end())
 		{
-			ServerInstance->Log(DEBUG,"*** Add to WATCH: '%s'", nick);
 			/* Don't already have the user on my watch list, proceed */
 			watchentries::iterator x = whos_watching_me->find(nick);
 			if (x != whos_watching_me->end())
@@ -178,10 +176,6 @@ class cmd_watch : public command_t
 				(*wl)[nick] = "";
 				user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
 			}
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG,"*** WATCH entry '%s' already exists!", nick);
 		}
 
 		return CMD_FAILURE;
@@ -213,7 +207,6 @@ class cmd_watch : public command_t
 			for (int x = 0; x < pcnt; x++)
 			{
 				const char *nick = parameters[x];
-				ServerInstance->Log(DEBUG,"WATCH iterate item '%s'", nick);
 				if (!strcasecmp(nick,"C"))
 				{
 					// watch clear
@@ -315,7 +308,6 @@ class Modulewatch : public Module
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason)
 	{
-		ServerInstance->Log(DEBUG,"*** WATCH: On global quit: user %s",user->nick);
 		watchentries::iterator x = whos_watching_me->find(user->nick);
 		if (x != whos_watching_me->end())
 		{
@@ -383,7 +375,6 @@ class Modulewatch : public Module
 
 	virtual void OnPostConnect(userrec* user)
 	{
-		ServerInstance->Log(DEBUG,"*** WATCH: On global connect: user %s",user->nick);
 		watchentries::iterator x = whos_watching_me->find(user->nick);
 		if (x != whos_watching_me->end())
 		{
@@ -400,8 +391,6 @@ class Modulewatch : public Module
 
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
-		ServerInstance->Log(DEBUG,"*** WATCH: On global nickchange: old nick: %s new nick: %s",oldnick.c_str(),user->nick);
-
 		watchentries::iterator new_online = whos_watching_me->find(user->nick);
 		watchentries::iterator new_offline = whos_watching_me->find(assign(oldnick));
 
@@ -425,8 +414,6 @@ class Modulewatch : public Module
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 				{
-					/*ServerInstance->Log(DEBUG,"nick=%s", (*n)->nick);
-					ServerInstance->Log(DEBUG,"nick2=%s", user->nick);*/
  					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
 					(*wl)[user->nick] = "";
 				}
