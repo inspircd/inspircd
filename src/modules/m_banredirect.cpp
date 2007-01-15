@@ -158,7 +158,7 @@ class BanRedirect : public ModeWatcher
 										
 										if(redirects->empty())
 										{
-											delete redirects;
+											DELETE(redirects);
 											channel->Shrink("banredirects");
 										}
 										
@@ -249,8 +249,8 @@ class ModuleBanRedirect : public Module
 					Srv->SendMode(mode_junk, stackresult.size() + 1, myhorriblefakeuser);
 				}
 				
-				delete myhorriblefakeuser;
-				delete redirects;
+				DELETE(myhorriblefakeuser);
+				DELETE(redirects);
 				chan->Shrink("banredirects");
 			}
 		}
