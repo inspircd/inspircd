@@ -56,8 +56,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 		result = cu->ReadData(ReadBuffer, sizeof(ReadBuffer));
 	}
 
-	this->Log(DEBUG,"Read result: %d",result);
-
 	if ((result) && (result != -EAGAIN))
 	{
 		userrec *current;
