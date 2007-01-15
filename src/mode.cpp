@@ -316,7 +316,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				{
 					std::string dummyparam;
 					
-					if((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL) == MODEACTION_DENY)
+					if (!((*watchers)->BeforeMode(user, NULL, targetchannel, dummyparam, true, MODETYPE_CHANNEL)))
 						display = false;
 				}
 
@@ -475,7 +475,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
-									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == MODEACTION_DENY)
+									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
 									{
 										abort = true;
 										break;
