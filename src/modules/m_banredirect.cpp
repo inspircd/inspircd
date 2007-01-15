@@ -97,7 +97,7 @@ class BanRedirect : public ModeWatcher
 				}
 			}
 				
-			param.assign(mask[NICK]).append("!").append(mask[IDENT]).append("@").append(mask[HOST]);
+			param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
 			
 			Srv->Log(DEBUG, "mask[NICK] = '%s', mask[IDENT] = '%s', mask[HOST] = '%s', mask[CHAN] = '%s'", mask[NICK].c_str(), mask[IDENT].c_str(), mask[HOST].c_str(), mask[CHAN].c_str());
 	
@@ -222,7 +222,12 @@ class ModuleBanRedirect : public Module
 			{
 				/* We actually had some ban redirects to check */
 				
-				std::string ipmask(user->MakeHostIP());
+				/* This was replaced with user->MakeHostIP() when I had a snprintf(), but MakeHostIP() doesn't seem to add the nick.
+				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
+				 */
+				std::string ipmask(user->nick);
+				ipmask.append(1, '!').append(user->MakeHostIP());
+				Srv->Log(DEBUG, "Matching against %s, %s and %s", user->GetFullRealHost(), user->GetFullHost(), ipmask.c_str());
 				
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
