@@ -29,17 +29,12 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];
 
-	if (!parameters[0][0])
-	{
-		ServerInstance->Log(DEBUG,"zero length new nick passed to handle_nick");
+	if (!*parameters[0])
 		return CMD_FAILURE;
-	}
+
 	if (!*user->nick)
-	{
-		ServerInstance->Log(DEBUG,"invalid old nick passed to handle_nick");
 		return CMD_FAILURE;
-	}
-	ServerInstance->Log(DEBUG,"Fall through");
+
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
 		/* If its exactly the same, even case, dont do anything. */
@@ -50,7 +45,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * able to do silly things like this even though the RFC says
 		 * the nick AAA is the same as the nick aaa.
 		 */
-		ServerInstance->Log(DEBUG,"old nick is new nick, not updating hash (case change only)");
 		strlcpy(oldnick, user->nick, NICKMAX - 1);
 		int MOD_RESULT = 0;
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
@@ -118,16 +112,9 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	user->InvalidateCache();
 
-	ServerInstance->Log(DEBUG,"new nick set: %s",user->nick);
-	
 	if (user->registered < REG_NICKUSER)
 	{
 		user->registered = (user->registered | REG_NICK);
-		// dont attempt to look up the dns until they pick a nick... because otherwise their pointer WILL change
-		// and unless we're lucky we'll get a duff one later on.
-		//user->dns_done = (!lookup_dns(user->nick));
-		//if (user->dns_done)
-		//	ServerInstance->Log(DEBUG,"Aborting dns lookup of %s because dns server experienced a failure.",user->nick);
 
 		if (ServerInstance->Config->NoUserDns)
 		{

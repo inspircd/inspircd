@@ -18,7 +18,6 @@
 
 SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
-	ServerInstance->Log(DEBUG,"SelectEngine::SelectEngine()");
 	EngineHandle = 0;
 	CurrentSetSize = 0;
 	memset(writeable, 0, sizeof(writeable));
@@ -26,22 +25,16 @@ SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 SelectEngine::~SelectEngine()
 {
-	ServerInstance->Log(DEBUG,"SelectEngine::~SelectEngine()");
 }
 
 bool SelectEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-	{
-		ServerInstance->Log(DEBUG,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
-	}
+
 	if (GetRemainingFds() <= 1)
-	{
-		ServerInstance->Log(DEBUG,"ERROR: System out of file descriptors!");
 		return false;
-	}
 
 	fds[fd] = fd;
 
@@ -49,9 +42,10 @@ bool SelectEngine::AddFd(EventHandler* eh)
 		return false;
 
 	ref[fd] = eh;
-	ServerInstance->Log(DEBUG,"Add socket %d",fd);
 
 	CurrentSetSize++;
+
+	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -73,6 +67,8 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
+
+	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 

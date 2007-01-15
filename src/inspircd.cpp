@@ -41,8 +41,6 @@ InspIRCd* SI = NULL;
 
 void InspIRCd::AddServerName(const std::string &servername)
 {
-	this->Log(DEBUG,"Adding server name: %s",servername.c_str());
-	
 	if(find(servernames.begin(), servernames.end(), servername) == servernames.end())
 		servernames.push_back(servername); /* Wasn't already there. */
 }
@@ -409,10 +407,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Add the listening sockets used for client inbound connections
 	 * to the socket engine
 	 */
-	this->Log(DEBUG,"%d listeners",stats->BoundPortCount);
 	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
 	{
-		this->Log(DEBUG,"Add listener: %d",Config->openSockfd[count]->GetFd());
 		if (!SE->AddFd(Config->openSockfd[count]))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
@@ -530,10 +526,6 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 			Config->implement_lists[v2][n] = Config->implement_lists[slot][n];
 			Config->implement_lists[slot][n] = x;
 		}
-	}
-	else
-	{
-		this->Log(DEBUG,"Move of %s to slot failed!",modulename.c_str());
 	}
 }
 
@@ -700,8 +692,6 @@ bool InspIRCd::LoadModule(const char* filename)
 		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
 		return false;
 	}
-	this->Log(DEBUG,"Loading module: %s",modfile);
-
 	if (ServerConfig::FileExists(modfile))
 	{
 

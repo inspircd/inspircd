@@ -185,7 +185,6 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 	{
 		if (n->second & MASK)
 		{
-			ServerInstance->Log(DEBUG,"User already has privilage %d (privset: %d)", MASK, n->second);
 			return "";
 		}
 		n->second = n->second | MASK;
@@ -201,12 +200,7 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 				n->first->AddVoicedUser(d);
 			break;
 		}
-		ServerInstance->Log(DEBUG,"grant: %s %s",n->first->name,d->nick);
 		return d->nick;
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG,"Channel %s not in users joined list", chan->name);
 	}
 	return "";
 }
@@ -236,7 +230,6 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 				n->first->DelVoicedUser(d);
 			break;
 		}
-		ServerInstance->Log(DEBUG,"revoke: %s %s",n->first->name,d->nick);
 		return d->nick;
 	}
 	return "";
@@ -281,8 +274,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
 	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
-	ServerInstance->Log(DEBUG,"ModeParser::Process start: pcnt=%d",pcnt);
-
 	LastParse = "";
 
 	/* Special case for displaying the list for listmodes,
@@ -290,7 +281,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	 */
 	if ((targetchannel) && (pcnt == 2))
 	{
-		ServerInstance->Log(DEBUG,"Spool list");
 		const char* mode = parameters[1];
 
 		mask = MASK_CHANNEL;
@@ -330,13 +320,10 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 	if (pcnt == 1)
 	{
-		ServerInstance->Log(DEBUG,"Mode list request");
 		this->DisplayCurrentModes(user, targetuser, targetchannel, parameters[0]);
 	}
 	else if (pcnt > 1)
 	{
-		ServerInstance->Log(DEBUG,"More than one parameter");
-
 		if (targetchannel)
 		{
 			type = MODETYPE_CHANNEL;
@@ -349,8 +336,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			if ((IS_LOCAL(user)) && (targetchannel->GetStatus(user) < STATUS_HOP))
 			{
 				/* We don't have halfop */
-				ServerInstance->Log(DEBUG,"The user is not a halfop or above, checking other reasons for being able to set the modes");
-
 				int MOD_RESULT = 0;
 				FOREACH_RESULT(I_OnAccessCheck,OnAccessCheck(user, NULL, targetchannel, AC_GENERAL_MODE));
 				if (MOD_RESULT == ACR_DENY)
@@ -458,7 +443,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								/* This mode expects a parameter, do we have any parameters left in our list to use? */
 								if (parameter_counter < pcnt)
 								{
-									ServerInstance->Log(DEBUG,"parameter_counter = %d, pcnt = %d", parameter_counter, pcnt);
 									parameter = parameters[parameter_counter++];
 
 									/* Yerk, invalid! */
@@ -588,7 +572,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			{
 				if (type == MODETYPE_CHANNEL)
 				{
-					ServerInstance->Log(DEBUG,"Write output sequence and parameters to channel: %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					targetchannel->WriteChannel(user,"MODE %s %s%s",targetchannel->name,output_sequence.c_str(),parameter_list.str().c_str());
 					FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, output_sequence + parameter_list.str()));
 					this->LastParse = targetchannel->name;
@@ -672,7 +655,6 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 		return false;
 
 	modehandlers[pos] = mh;
-	ServerInstance->Log(DEBUG,"ModeParser::AddMode: added mode %c",mh->GetModeChar());
 	return true;
 }
 
@@ -912,8 +894,6 @@ bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 	pos = (mw->GetModeChar()-65) | mask;
 
 	modewatchers[pos].push_back(mw);
-	ServerInstance->Log(DEBUG,"ModeParser::AddModeWatcher: watching mode %c",mw->GetModeChar());
-
 	return true;
 }
 
@@ -935,12 +915,10 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 
 	if (a == modewatchers[pos].end())
 	{
-		ServerInstance->Log(DEBUG, "ModeParser::DelModeWatcher: Couldn't find watcher for mode %c in list", mw->GetModeChar());
 		return false;
 	}
 
 	modewatchers[pos].erase(a);
-	ServerInstance->Log(DEBUG,"ModeParser::DelModeWatcher: stopped watching mode %c",mw->GetModeChar());
 
 	return true;
 }

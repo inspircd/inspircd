@@ -372,10 +372,7 @@ class ModuleChanProtect : public Module
 				// to make it clearer that +q has been given, send that one user the +q notice
 				// so that their client's syncronization and their sanity are left intact.
 				user->WriteServ("MODE %s +q %s",channel->name,user->nick);
-				if (user->Extend("cm_founder_"+std::string(channel->name),fakevalue))
-				{
-					ServerInstance->Log(DEBUG,"Marked user "+std::string(user->nick)+" as founder for "+std::string(channel->name));
-				}
+				user->Extend("cm_founder_"+std::string(channel->name),fakevalue);
 			}
 		}
 	}
@@ -385,8 +382,6 @@ class ModuleChanProtect : public Module
 		// here we perform access checks, this is the important bit that actually stops kicking/deopping
 		// etc of protected users. There are many types of access check, we're going to handle
 		// a relatively small number of them relevent to our module using a switch statement.
-	
-		ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck %d",access_type);
 		// don't allow action if:
 		// (A) Theyre founder (no matter what)
 		// (B) Theyre protected, and you're not
@@ -397,10 +392,7 @@ class ModuleChanProtect : public Module
 		// firstly, if a ulined nick, or a server, is setting the mode, then allow them to set the mode
 		// without any access checks, we're not worthy :p
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server))
-		{
-			ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck returns ALLOW");
 			return ACR_ALLOW;
-		}
 
 		std::string founder = "cm_founder_"+std::string(channel->name);
 		std::string protect = "cm_protect_"+std::string(channel->name);
@@ -409,16 +401,10 @@ class ModuleChanProtect : public Module
 		{
 			// a user has been deopped. Do we let them? hmmm...
 			case AC_DEOP:
-				ServerInstance->Log(DEBUG,"OnAccessCheck AC_DEOP");
 				if (dest->GetExt(founder,dummyptr))
 				{
-					ServerInstance->Log(DEBUG,"Has %s",founder.c_str());
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't deop "+std::string(dest->nick)+" as they're a channel founder");
 					return ACR_DENY;
-				}
-				else
-				{
-					ServerInstance->Log(DEBUG,"Doesnt have %s",founder.c_str());
 				}
 				if ((dest->GetExt(protect,dummyptr)) && (!source->GetExt(protect,dummyptr)))
 				{
@@ -429,7 +415,6 @@ class ModuleChanProtect : public Module
 
 			// a user is being kicked. do we chop off the end of the army boot?
 			case AC_KICK:
-				ServerInstance->Log(DEBUG,"OnAccessCheck AC_KICK");
 				if (dest->GetExt(founder,dummyptr))
 				{
 					source->WriteServ("484 "+std::string(source->nick)+" "+std::string(channel->name)+" :Can't kick "+std::string(dest->nick)+" as they're a channel founder");
@@ -472,7 +457,6 @@ class ModuleChanProtect : public Module
 		}
 		
 		// we dont know what this access check is, or dont care. just carry on, nothing to see here.
-		ServerInstance->Log(DEBUG,"chanprotect OnAccessCheck returns DEFAULT");
 		return ACR_DEFAULT;
 	}
 	

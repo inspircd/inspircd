@@ -201,7 +201,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			this->Log(DEBUG,"killing: %s",cu->nick);
 			cu->SetWriteError(strerror(errno));
 			return;
 		}
@@ -215,7 +214,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 	else if (result == 0)
 	{
 		cu->SetWriteError("Client exited");
-		this->Log(DEBUG,"Bailing from client exit");
 		return;
 	}
 }
@@ -254,7 +252,6 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 */
 				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
-					this->Log(DEBUG,"InspIRCd: registration timeout: %s",curr->nick);
 					GlobalGoners.AddItem(curr,"Registration timeout");
 					continue;
 				}
@@ -284,7 +281,6 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 	
 				if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
 				{
-					this->Log(DEBUG,"dns done, registered=3, and modules ready, OK");
 					curr->FullConnect(&GlobalGoners);
 					continue;
 				}

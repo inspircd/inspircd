@@ -35,7 +35,6 @@ KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 KQueueEngine::~KQueueEngine()
 {
-	ServerInstance->Log(DEBUG,"KQueueEngine::~KQueueEngine()");
 	close(EngineHandle);
 }
 
@@ -43,40 +42,27 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	ServerInstance->Log(DEBUG,"KQueueEngine::AddFd(%d)",fd);
-
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-	{
-		ServerInstance->Log(DEBUG,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
-	}
+
 	if (GetRemainingFds() <= 1)
-	{
-		ServerInstance->Log(DEBUG,"ERROR: System out of file descriptors!");
 		return false;
-	}
 
 	if (ref[fd])
-	{
-		ServerInstance->Log(DEBUG,"ERROR: Slot already occupied");
 		return false;
-	}
 
 	ref[fd] = eh;
-	ServerInstance->Log(DEBUG,"Add socket %d",fd);
 
 	struct kevent ke;
-	ServerInstance->Log(DEBUG,"kqueue: Add socket to events, kq=%d socket=%d",EngineHandle,fd);
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
-	{
-		ServerInstance->Log(DEBUG,"kqueue: List insertion failure!");
 		return false;
-	}
 
 	CurrentSetSize++;
+
+	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -102,6 +88,7 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
+	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 
@@ -113,11 +100,7 @@ void KQueueEngine::WantWrite(EventHandler* eh)
 	 */
 	struct kevent ke;
 	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-	if (i == -1)
-	{
-		ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d for wanting write", eh->GetFd());
-	}
+	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 }
 
 int KQueueEngine::GetMaxFds()
@@ -139,7 +122,6 @@ int KQueueEngine::DispatchEvents()
 	{
 		if (ke_list[j].flags & EV_EOF)
 		{
-			ServerInstance->Log(DEBUG,"kqueue: Error on FD %d", ke_list[j].ident);
 			/* We love you kqueue, oh yes we do *sings*!
 			 * kqueue gives us the error number directly in the EOF state!
 			 * Unlike smelly epoll and select, where we have to getsockopt
@@ -156,11 +138,7 @@ int KQueueEngine::DispatchEvents()
 			 */
 			struct kevent ke;
 			EV_SET(&ke, ke_list[j].ident, EVFILT_READ, EV_ADD, 0, 0, NULL);
-			int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-			if (i == -1)
-			{
-				ServerInstance->Log(DEBUG,"kqueue: Unable to set fd %d back to just wanting to read!", ke_list[j].ident);
-			}
+			kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 			if (ref[ke_list[j].ident])
 				ref[ke_list[j].ident]->HandleEvent(EVENT_WRITE);
 		}

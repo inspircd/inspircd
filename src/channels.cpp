@@ -37,21 +37,12 @@ void chanrec::SetMode(char mode,bool mode_on)
 
 void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 {
-	ServerInstance->Log(DEBUG,"SetModeParam called");
-	
 	CustomModeList::iterator n = custom_mode_params.find(mode);	
 
 	if (mode_on)
 	{
 		if (n == custom_mode_params.end())
-		{
 			custom_mode_params[mode] = strdup(parameter);
-			ServerInstance->Log(DEBUG,"Custom mode parameter %c %s added",mode,parameter);
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG, "Tried to set custom mode parameter for %c '%s' when it was already '%s'", mode, parameter, n->second);
-		}
 	}
 	else
 	{
@@ -225,7 +216,6 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		*Ptr->topic = 0;
 		*Ptr->setby = 0;
 		Ptr->topicset = 0;
-		Instance->Log(DEBUG,"chanrec::JoinUser(): created: %s",cname);
 		new_channel = true;
 	}
 	else
@@ -303,10 +293,6 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 				}
 			}
 		}
-		else
-		{
-			Instance->Log(DEBUG,"chanrec::JoinUser(): Overridden checks");
-		}
 	}
 
 	/* NOTE: If the user is an oper here, we can extend their user->chans by up to
@@ -335,7 +321,6 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (new_channel)
 	{
-		Instance->Log(DEBUG,"BLAMMO, Whacking channel.");
 		/* Things went seriously pear shaped, so take this away. bwahaha. */
 		chan_hash::iterator n = Instance->chanlist->find(cname);
 		if (n != Instance->chanlist->end())
@@ -464,7 +449,6 @@ long chanrec::PartUser(userrec *user, const char* reason)
 		/* kill the record */
 		if (iter != ServerInstance->chanlist->end())
 		{
-			ServerInstance->Log(DEBUG,"del_channel: destroyed: %s", this->name);
 			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
@@ -809,11 +793,8 @@ void chanrec::UserList(userrec *user)
 		return;
 
 	FOREACH_RESULT(I_OnUserList,OnUserList(user, this));
-	ServerInstance->Log(DEBUG,"MOD_RESULT for UserList = %d",MOD_RESULT);
 	if (MOD_RESULT == 1)
 		return;
-
-	ServerInstance->Log(DEBUG,"Using builtin NAMES list generation");
 
 	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
 
@@ -989,7 +970,6 @@ int chanrec::GetStatus(userrec *user)
 
 void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
 {
-	ServerInstance->Log(DEBUG,"Setting prefix: %c on user %s in %s to %d", prefix, user->nick, this->name, adding);
 	prefixlist::iterator n = prefixes.find(user);
 	prefixtype pfx = std::make_pair(prefix,prefix_value);
 	if (adding)
@@ -1023,7 +1003,6 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 				n->second.erase(x);
 		}
 	}
-	ServerInstance->Log(DEBUG,"Added prefix %c to %s for %s, prefixlist size is now %d", prefix, this->name, user->nick, prefixes.size());
 }
 
 void chanrec::RemoveAllPrefixes(userrec* user)
@@ -1031,7 +1010,6 @@ void chanrec::RemoveAllPrefixes(userrec* user)
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
 	{
-		ServerInstance->Log(DEBUG,"Removed prefixes from %s for %s, prefixlist size is now %d", this->name, user->nick, prefixes.size());
 		prefixes.erase(n);
 	}
 }

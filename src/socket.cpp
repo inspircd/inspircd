@@ -39,12 +39,8 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance), desc("plaintext")
 {
 	this->SetFd(sockfd);
-	Instance->Log(DEBUG,"Binding to port %s:%d",addr,port);
 	if (!Instance->BindSocket(this->fd,client,server,port,addr))
-	{
-		Instance->Log(DEBUG,"Binding failed!");
 		this->fd = -1;
-	}
 }
 
 ListenSocket::~ListenSocket()
@@ -64,9 +60,6 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 	insp_sockaddr client;
 	socklen_t length;
 	int incomingSockfd, in_port;
-
-	ServerInstance->Log(DEBUG,"Handle ListenSocket event");
-
 	uslen = sizeof(sock_us);
 	length = sizeof(client);
 	incomingSockfd = accept (this->GetFd(),(struct sockaddr*)&client, &length);
@@ -78,7 +71,6 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 #else
 		in_port = ntohs(sock_us.sin_port);
 #endif
-		ServerInstance->Log(DEBUG,"Accepted socket %d",incomingSockfd);
 		NonBlocking(incomingSockfd);
 		if (ServerInstance->Config->GetIOHook(in_port))
 		{
@@ -97,17 +89,13 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 		}
 		ServerInstance->stats->statsAccept++;
 #ifdef IPV6
-		ServerInstance->Log(DEBUG,"Add ipv6 client");
 		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin6_addr);
 #else
-		ServerInstance->Log(DEBUG,"Add ipv4 client");
 		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin_addr);
 #endif
-		ServerInstance->Log(DEBUG,"Adding client on port %d fd=%d",in_port,incomingSockfd);
 	}
 	else
 	{
-		ServerInstance->Log(DEBUG,"Accept failed on fd %d: %s",incomingSockfd,strerror(errno));
 		shutdown(incomingSockfd,2);
 		close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
@@ -306,10 +294,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 		*addr = 0;
 
 	if ((*addr) && (insp_aton(addr,&addy) < 1))
-	{
-		this->Log(DEBUG,"Invalid IP '%s' given to BindSocket()", addr);
 		return false;;
-	}
 
 #ifdef IPV6
 	server.sin6_family = AF_FAMILY;
@@ -343,7 +328,6 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	}
 	else
 	{
-		this->Log(DEBUG,"Bound port %s:%d",*addr ? addr : "*",port);
 		if (listen(sockfd, Config->MaxConn) == -1)
 		{
 			this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
@@ -404,7 +388,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 	ports_found = 0;
 
 	int InitialPortCount = stats->BoundPortCount;
-	this->Log(DEBUG,"Initial port count: %d",InitialPortCount);
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
@@ -427,7 +410,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 
 					strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
 					clientportcount++;
-					this->Log(DEBUG,"NEW binding %s:%d [%s] from config",Addr, portno, Type);
 				}
 			}
 		}
@@ -443,7 +425,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 					int fd = OpenTCPSocket();
 					if (fd == ERROR)
 					{
-						this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
 						failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 					}
 					else
@@ -466,10 +447,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 				}
 				return InitialPortCount + BoundPortCount;
 			}
-			else
-			{
-				this->Log(DEBUG,"There is nothing new to bind!");
-			}
 			return InitialPortCount;
 		}
 	}
@@ -481,7 +458,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 		int fd = OpenTCPSocket();
 		if (fd == ERROR)
 		{
-			this->Log(DEBUG,"Bad fd %d binding port [%s:%d]",fd,Config->addrs[count],Config->ports[count]);
 			failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 		}
 		else

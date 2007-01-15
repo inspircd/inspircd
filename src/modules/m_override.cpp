@@ -131,7 +131,6 @@ class ModuleOverride : public Module
 				switch (access_type)
 				{
 					case AC_DEOP:
-						ServerInstance->Log(DEBUG,"Override access check AC_DEOP");
 						if (CanOverride(source,"MODEDEOP"))
 						{
 							if (NoisyOverride)
@@ -145,7 +144,6 @@ class ModuleOverride : public Module
 						}
 					break;
 					case AC_OP:
-						ServerInstance->Log(DEBUG,"Override access check AC_OP");
 						if (CanOverride(source,"MODEOP"))
 						{
 							if (NoisyOverride)
@@ -159,7 +157,6 @@ class ModuleOverride : public Module
 						}
 					break;
 					case AC_VOICE:
-						ServerInstance->Log(DEBUG,"Override access check AC_VOICE");
 						if (CanOverride(source,"MODEVOICE"))
 						{
 							if (NoisyOverride)
@@ -173,7 +170,6 @@ class ModuleOverride : public Module
 						}
 					break;
 					case AC_DEVOICE:
-						ServerInstance->Log(DEBUG,"Override access check AC_DEVOICE");
 						if (CanOverride(source,"MODEDEVOICE"))
 						{
 							if (NoisyOverride)
@@ -187,7 +183,6 @@ class ModuleOverride : public Module
 						}
 					break;
 					case AC_HALFOP:
-						ServerInstance->Log(DEBUG,"Override access check AC_HALFOP");
 						if (CanOverride(source,"MODEHALFOP"))
 						{
 							if (NoisyOverride)
@@ -201,7 +196,6 @@ class ModuleOverride : public Module
 						}
 					break;
 					case AC_DEHALFOP:
-						ServerInstance->Log(DEBUG,"Override access check AC_DEHALFOP");
 						if (CanOverride(source,"MODEDEHALFOP"))
 						{
 							if (NoisyOverride)
@@ -221,7 +215,6 @@ class ModuleOverride : public Module
 					if (NoisyOverride)
 					if ((!channel->HasUser(source)) || (mode < STATUS_OP))
 					{
-						ServerInstance->Log(DEBUG,"Overridden mode");
 						OverriddenMode = true;
 						OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 					}

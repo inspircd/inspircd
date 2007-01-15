@@ -93,7 +93,6 @@ class ModuleModesOnOper : public Module
 						for (unsigned int k = 1; k < tokens.size(); k++)
 						{
 							modes[i] = (char*)tokens[k].c_str();
-							ServerInstance->Log(DEBUG, "m_opermodes.so: got mode param: %s", modes[i]);
 							i++;
 						}
 					}
@@ -106,7 +105,6 @@ class ModuleModesOnOper : public Module
 						n.push_back(modes[j]);
 					}
 					rmode.Send(ServerInstance);
-					ServerInstance->Log(DEBUG, "m_opermodes.so: new modes for %s: %s", modes[0], modes[1]);
 					ServerInstance->SendMode(modes, size, user);
 				}
 				break;

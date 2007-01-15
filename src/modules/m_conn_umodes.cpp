@@ -61,13 +61,11 @@ class ModuleModesOnConnect : public Module
 		if (!IS_LOCAL(user))
 			return;
 
-		ServerInstance->Log(DEBUG,"Post connect for mode setting");
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)
 		{
 			std::string hostn = Conf->ReadValue("connect","allow",j);
 			if ((match(user->GetIPString(),hostn.c_str(),true)) || (match(user->host,hostn.c_str())))
 			{
-				ServerInstance->Log(DEBUG,"Found matching connect block '%s'",hostn.c_str());
 				std::string ThisModes = Conf->ReadValue("connect","modes",j);
 				if (ThisModes != "")
 				{
@@ -96,7 +94,6 @@ class ModuleModesOnConnect : public Module
 						}
 					}
 
-					ServerInstance->Log(DEBUG,"Call mode handler to set modes");
 					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
 				}
 				break;

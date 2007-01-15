@@ -40,37 +40,26 @@ bool EPollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-	{
-		ServerInstance->Log(DEBUG,"ERROR: FD of %d added above max of %d",fd,MAX_DESCRIPTORS);
 		return false;
-	}
+
 	if (GetRemainingFds() <= 1)
-	{
-		ServerInstance->Log(DEBUG,"ERROR: System out of file descriptors!");
 		return false;
-	}
+
 	if (ref[fd])
-	{
-		ServerInstance->Log(DEBUG,"Slot %d already occupied",fd);
 		return false;
-	}
 
 	ref[fd] = eh;
-
-	ServerInstance->Log(DEBUG,"***** Add socket %d",fd);
-
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
-	ServerInstance->Log(DEBUG,"epoll: Add socket to events, ep=%d socket=%d",EngineHandle,fd);
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
-		ServerInstance->Log(DEBUG,"epoll: List insertion failure!");
 		return false;
 	}
 
+	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
 	CurrentSetSize++;
 	return true;
 }
@@ -84,11 +73,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	memset(&ev,0,sizeof(struct epoll_event));
 	ev.events = EPOLLOUT;
 	ev.data.fd = eh->GetFd();
-	int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
-	if (i < 0)
-	{
-		ServerInstance->Log(DEBUG,"epoll: Could not set want write on fd %d!",eh->GetFd());
-	}
+	epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 }
 
 bool EPollEngine::DelFd(EventHandler* eh, bool force)
@@ -109,6 +94,7 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
+	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;
 }
 
@@ -131,7 +117,6 @@ int EPollEngine::DispatchEvents()
 	{
 		if (events[j].events & EPOLLHUP)
 		{
-			ServerInstance->Log(DEBUG,"Handle error event on fd %d", events[j].data.fd);
 			if (ref[events[j].data.fd])
 				ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, 0);
 			continue;
@@ -141,7 +126,6 @@ int EPollEngine::DispatchEvents()
 			/* Get error number */
 			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
-			ServerInstance->Log(DEBUG,"Handle error event on fd %d: %s", events[j].data.fd, strerror(errcode));
 			if (ref[events[j].data.fd])
 				ref[events[j].data.fd]->HandleEvent(EVENT_ERROR, errcode);
 			continue;
@@ -152,11 +136,7 @@ int EPollEngine::DispatchEvents()
 			memset(&ev,0,sizeof(struct epoll_event));
 			ev.events = EPOLLIN;
 			ev.data.fd = events[j].data.fd;
-			int i = epoll_ctl(EngineHandle, EPOLL_CTL_MOD, events[j].data.fd, &ev);
-			if (i < 0)
-			{
-				ServerInstance->Log(DEBUG,"epoll: Could not reset fd %d!", events[j].data.fd);
-			}
+			epoll_ctl(EngineHandle, EPOLL_CTL_MOD, events[j].data.fd, &ev);
 			if (ref[events[j].data.fd])
 				ref[events[j].data.fd]->HandleEvent(EVENT_WRITE);
 		}

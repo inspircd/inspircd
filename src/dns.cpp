@@ -126,7 +126,6 @@ class RequestTimeout : public InspTimer
  public:
 	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : InspTimer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id)
 	{
-		ServerInstance->Log(DEBUG, "New DNS timeout set on %08x", watching);
 	}
 
 	void Tick(time_t TIME)
@@ -141,11 +140,9 @@ class RequestTimeout : public InspTimer
 				ServerInstance->Res->Classes[watchid] = NULL;
 			}
 			ServerInstance->Res->requests[watchid] = NULL;
-			delete watch;
-			ServerInstance->Log(DEBUG, "DNS timeout on %08x squished pointer", watch);
+			DELETE(watch);
 			return;
 		}
-		ServerInstance->Log(DEBUG, "DNS timeout on %08x: result already received!", watch);
 	}
 };
 
@@ -290,7 +287,6 @@ int DNS::PruneCache()
 
 	delete this->cache;
 	this->cache = newcache;
-	ServerInstance->Log(DEBUG,"Prune %d expired cache items", n);
 	return n;
 }
 
@@ -326,11 +322,6 @@ void DNS::Rehash()
 			ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
 			this->ip6munge = true;
 		}
-		ServerInstance->Log(DEBUG,"Added nameserver '%s'",ServerInstance->Config->DNSServer);
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG,"GACK! insp_aton says the nameserver '%s' is invalid!",ServerInstance->Config->DNSServer);
 	}
 
 	/* Initialize mastersocket */
@@ -345,10 +336,6 @@ void DNS::Rehash()
 			close(this->GetFd());
 			this->SetFd(-1);
 		}
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG,"I cant socket() this socket! (%s)",strerror(errno));
 	}
 
 	/* Have we got a socket and is it nonblocking? */
@@ -371,7 +358,6 @@ void DNS::Rehash()
 		if (bind(this->GetFd(),(sockaddr *)&addr,sizeof(addr)) != 0)
 		{
 			/* Failed to bind */
-			ServerInstance->Log(DEBUG,"Cant bind DNS fd");
 			shutdown(this->GetFd(),2);
 			close(this->GetFd());
 			this->SetFd(-1);
@@ -379,7 +365,6 @@ void DNS::Rehash()
 
 		if (this->GetFd() >= 0)
 		{
-			ServerInstance->Log(DEBUG,"Add master socket %d",this->GetFd());
 			/* Hook the descriptor into the socket engine */
 			if (ServerInstance && ServerInstance->SE)
 			{
@@ -398,8 +383,6 @@ void DNS::Rehash()
 /** Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	ServerInstance->Log(DEBUG,"DNS::DNS: Instance = %08x",Instance);
-
 	/* Clear the Resolver class table */
 	memset(Classes,0,sizeof(Classes));
 
@@ -584,8 +567,6 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 			return -1;
 	}
 
-	ServerInstance->Log(DEBUG,"DNS::GetNameForce: %s %d",query, fp);
-
 	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
 		return -1;
 
@@ -633,14 +614,10 @@ DNSResult DNS::GetResult()
 
 	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,&from,&x);
 
-	if (length < 0)
-		ServerInstance->Log(DEBUG,"Error in recvfrom()! (%s)",strerror(errno));
-
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
 		/* Nope - something screwed up. */
-		ServerInstance->Log(DEBUG,"Whole header not read!");
 		return DNSResult(-1,"",0,"");
 	}
 
@@ -668,7 +645,6 @@ DNSResult DNS::GetResult()
 	{
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
-			ServerInstance->Log(DEBUG,"port %d is not 53, or %s is not %s",port_from, ipaddr_from, ServerInstance->Config->DNSServer);
 			return DNSResult(-1,"",0,"");
 		}
 	}
@@ -686,7 +662,6 @@ DNSResult DNS::GetResult()
 	if (!requests[this_id])
 	{
 		/* Somehow we got a DNS response for a request we never made... */
-		ServerInstance->Log(DEBUG,"DNS: got a response for a query we didnt send with fd=%d queryid=%d",this->GetFd(),this_id);
 		return DNSResult(-1,"",0,"");
 	}
 	else
@@ -773,7 +748,6 @@ DNSResult DNS::GetResult()
 			break;
 
 			default:
-				ServerInstance->Log(DEBUG,"WARNING: Somehow we made a request for a DNS_QUERY_PTR4 or DNS_QUERY_PTR6, but these arent real rr types!");
 			break;
 			
 		}
@@ -962,8 +936,6 @@ void Resolver::TriggerCachedResult()
 /** High level abstraction of dns used by application at large */
 Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, bool &cached, Module* creator) : ServerInstance(Instance), Creator(creator), input(source), querytype(qt)
 {
-	ServerInstance->Log(DEBUG,"Instance: %08x %08x",Instance, ServerInstance);
-
 	cached = false;
 
 	CQ = ServerInstance->Res->GetCache(source);
@@ -972,13 +944,11 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 		time_left = CQ->CalcTTLRemaining();
 		if (!time_left)
 		{
-			ServerInstance->Log(DEBUG,"Cached but EXPIRED result: %s", CQ->data.c_str());
 			ServerInstance->Res->DelCache(source);
 		}
 		else
 		{
 			cached = true;
-			ServerInstance->Log(DEBUG,"Cached result: %s", CQ->data.c_str());
 			return;
 		}
 	}
@@ -1029,14 +999,11 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 	}
 	if (this->myid == -1)
 	{
-		ServerInstance->Log(DEBUG,"Resolver::Resolver: Could not get an id!");
 		this->OnError(RESOLVER_NSDOWN, "Nameserver is down");
 		throw ModuleException("Resolver: Couldnt get an id to make a request");
 		/* We shouldnt get here really */
 		return;
 	}
-
-	ServerInstance->Log(DEBUG,"Resolver::Resolver: this->myid=%d",this->myid);
 }
 
 /** Called when an error occurs */
@@ -1076,7 +1043,6 @@ void DNS::HandleEvent(EventType et, int errornum)
 			/* Mask off the error bit */
 			res.id -= ERROR_MASK;
 			/* Marshall the error to the correct class */
-			ServerInstance->Log(DEBUG,"Error available, id=%d",res.id);
 			if (Classes[res.id])
 			{
 				if (ServerInstance && ServerInstance->stats)
@@ -1088,19 +1054,14 @@ void DNS::HandleEvent(EventType et, int errornum)
 		}
 		else
 		{
-			/* It is a non-error result */
-			ServerInstance->Log(DEBUG,"Result available, id=%d",res.id);
-			/* Marshall the result to the correct class */
+			/* It is a non-error result, marshall the result to the correct class */
 			if (Classes[res.id])
 			{
 				if (ServerInstance && ServerInstance->stats)
 					ServerInstance->stats->statsDnsGood++;
 
 				if (!this->GetCache(res.original.c_str()))
-				{
-					ServerInstance->Log(DEBUG,"Caching result: %s->%s for %lu secs", res.original.c_str(), res.result.c_str(), res.ttl);
 					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
-				}
 
 				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
 				delete Classes[res.id];

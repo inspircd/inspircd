@@ -31,10 +31,8 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 {
 	if (conf->opertypes.size())
 	{
-		conf->GetInstance()->Log(DEBUG,"Currently %d items to clear",conf->opertypes.size());
 		for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
 		{
-			conf->GetInstance()->Log(DEBUG,"Clear item");
 			if (n->second)
 				delete[] n->second;
 		}
@@ -65,7 +63,6 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &valu
 	const char* Classes = values[1].GetString();
 	
 	conf->opertypes[TypeName] = strdup(Classes);
-	conf->GetInstance()->Log(DEBUG,"Read oper TYPE '%s' with classes '%s'",TypeName,Classes);
 	return true;
 }
 
@@ -75,7 +72,6 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* CommandList = values[1].GetString();
 	
 	conf->operclass[ClassName] = strdup(CommandList);
-	conf->GetInstance()->Log(DEBUG,"Read oper CLASS '%s' with commands '%s'",ClassName,CommandList);
 	return true;
 }
 
@@ -90,12 +86,8 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 	const char *c = sm;
 	std::string output;
 
-	ServerInstance->Log(DEBUG,"Process notice masks");
-
 	while (c && *c)
 	{
-		ServerInstance->Log(DEBUG,"Process notice mask %c",*c);
-		
 		switch (*c)
 		{
 			case '+':
@@ -147,10 +139,8 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 
 void userrec::StartDNSLookup()
 {
-	ServerInstance->Log(DEBUG,"Commencing reverse lookup");
 	try
 	{
-		ServerInstance->Log(DEBUG,"Passing instance: %08x",this->ServerInstance);
 		bool cached;
 		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE, cached);
 		this->ServerInstance->AddResolver(res_reverse, cached);
@@ -172,7 +162,6 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 {
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
-		ServerInstance->Log(DEBUG,"Commencing forward lookup");
 		this->bound_user->stored_host = result;
 		try
 		{
@@ -307,7 +296,6 @@ void userrec::DecrementModes()
 
 userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	ServerInstance->Log(DEBUG,"userrec::userrec(): Instance: %08x",ServerInstance);
 	// the PROPER way to do it, AVOID bzero at *ALL* costs
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
@@ -506,7 +494,6 @@ void userrec::InviteTo(const irc::string &channel)
 
 void userrec::RemoveInvite(const irc::string &channel)
 {
-	ServerInstance->Log(DEBUG,"Removing invites");
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
 		if (channel == *i)
@@ -703,7 +690,6 @@ void userrec::FlushWriteBuf()
 					/* The socket buffer is full. This isnt fatal,
 					 * try again later.
 					 */
-					ServerInstance->Log(DEBUG,"EAGAIN, want write");
 					this->ServerInstance->SE->WantWrite(this);
 				}
 				else
@@ -723,10 +709,7 @@ void userrec::FlushWriteBuf()
 				this->bytes_out += n_sent;
 				this->cmds_out++;
 				if (n_sent != old_sendq_length)
-				{
-					ServerInstance->Log(DEBUG,"Not all written, want write");
 					this->ServerInstance->SE->WantWrite(this);
-				}
 			}
 		}
 	}
@@ -743,10 +726,7 @@ void userrec::SetWriteError(const std::string &error)
 	{
 		// don't try to set the error twice, its already set take the first string.
 		if (this->WriteError.empty())
-		{
-			ServerInstance->Log(DEBUG,"Setting error string for %s to '%s'",this->nick,error.c_str());
 			this->WriteError = error;
-		}
 	}
 
 	catch (...)
@@ -791,7 +771,6 @@ void userrec::UnOper()
 			{
 				if (*a == this)
 				{
-					ServerInstance->Log(DEBUG,"Oper removed from optimization list");
 					ServerInstance->all_opers.erase(a);
 					return;
 				}
@@ -866,7 +845,6 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 
 	if (iter != Instance->clientlist->end())
 	{
-		Instance->Log(DEBUG,"deleting user hash value %lx",(unsigned long)user);
 		if (IS_LOCAL(user))
 		{
 			std::vector<userrec*>::iterator x = find(Instance->local_users.begin(),Instance->local_users.end(),user);
@@ -917,8 +895,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		DELETE(goner);
 		Instance->clientlist->erase(iter);
 	}
-
-	Instance->Log(DEBUG,"AddClient: %d %d %s",socket,port,ipaddr);
 
 	New = new userrec(Instance);
 	(*(Instance->clientlist))[tempnick] = New;
@@ -1203,7 +1179,6 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #ifdef SUPPORT_IP6LINKS
 		case AF_INET6:
 		{
-			ServerInstance->Log(DEBUG,"Set inet6 protocol address");
 			sockaddr_in6* sin = new sockaddr_in6;
 			sin->sin6_family = AF_INET6;
 			sin->sin6_port = port;
@@ -1214,7 +1189,6 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 #endif
 		case AF_INET:
 		{
-			ServerInstance->Log(DEBUG,"Set inet4 protocol address");
 			sockaddr_in* sin = new sockaddr_in;
 			sin->sin_family = AF_INET;
 			sin->sin_port = port;
