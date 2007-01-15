@@ -39,24 +39,19 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
                         
 	whowas_users::iterator i = whowas.find(parameters[0]);
 
-	ServerInstance->Log(DEBUG,"Entered cmd_whowas");
-
 	if (i == whowas.end())
 	{
-		ServerInstance->Log(DEBUG,"No such nick in whowas");
 		user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
 		user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 		return CMD_FAILURE;
 	}
 	else
 	{
-		ServerInstance->Log(DEBUG,"Whowas set found");
 		whowas_set* grp = i->second;
 		if (grp->size())
 		{
 			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
 			{
-				ServerInstance->Log(DEBUG,"Spool whowas entry");
 				WhoWasGroup* u = *ux;
 				time_t rawtime = u->signon;
 				tm *timeinfo;
@@ -81,7 +76,6 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG,"Oops, empty whowas set found");
 			user->WriteServ("406 %s %s :There was no such nickname",user->nick,parameters[0]);
 			user->WriteServ("369 %s %s :End of WHOWAS",user->nick,parameters[0]);
 			return CMD_FAILURE;
@@ -145,12 +139,8 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 
 	whowas_users::iterator iter = whowas.find(user->nick);
 
-	ServerInstance->Log(DEBUG,"Add to whowas lists");
-
 	if (iter == whowas.end())
 	{
-		ServerInstance->Log(DEBUG,"Adding new whowas set for %s",user->nick);
-
 		whowas_set* n = new whowas_set;
 		WhoWasGroup *a = new WhoWasGroup(user);
 		n->push_back(a);
@@ -159,8 +149,6 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 
 		if ((int)(whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
 		{
-			ServerInstance->Log(DEBUG,"Maxgroups of %d reached deleting oldest group '%s'",ServerInstance->Config->WhoWasMaxGroups, whowas_fifo[0].second.c_str());
-
 			whowas_users::iterator iter = whowas.find(whowas_fifo[0].second);
 			if (iter != whowas.end())
 			{
@@ -183,15 +171,11 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 	else
 	{
 		whowas_set* group = (whowas_set*)iter->second;
-
-		ServerInstance->Log(DEBUG,"Using existing whowas group for %s",user->nick);
-
 		WhoWasGroup *a = new WhoWasGroup(user);
 		group->push_back(a);
 
 		if ((int)(group->size()) > ServerInstance->Config->WhoWasGroupSize)
 		{
-			ServerInstance->Log(DEBUG,"Trimming existing group '%s' to %d entries",user->nick, ServerInstance->Config->WhoWasGroupSize);
 			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
 			DELETE(a);
 			group->pop_front();
@@ -219,7 +203,7 @@ void cmd_whowas::PruneWhoWas(time_t t)
 			if (iter == whowas.end())
 			{
 				/* this should never happen, if it does maps are corrupt */
-				ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (1)");
+				ServerInstance->Log(DEBUG, "BUG: Whowas maps got corrupted! (1)");
 				return;
 			}
 			whowas_set* n = (whowas_set*)iter->second;
@@ -249,7 +233,7 @@ void cmd_whowas::PruneWhoWas(time_t t)
 		if (iter == whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
-			ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (2)");
+			ServerInstance->Log(DEBUG, "BUG: Whowas maps got corrupted! (2)");
 			return;
 		}
 		whowas_set* n = (whowas_set*)iter->second;
@@ -301,7 +285,7 @@ cmd_whowas::~cmd_whowas()
 		if (iter == whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
-			ServerInstance->Log(DEBUG, "Whowas maps got corrupted! (3)");
+			ServerInstance->Log(DEBUG, "BUG: Whowas maps got corrupted! (3)");
 			return;
 		}
 		whowas_set* n = (whowas_set*)iter->second;

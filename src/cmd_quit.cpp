@@ -84,10 +84,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 		ServerInstance->SE->DelFd(user);
 		std::vector<userrec*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),user);
 		if (x != ServerInstance->local_users.end())
-		{
-			ServerInstance->Log(DEBUG,"Delete local user");
 			ServerInstance->local_users.erase(x);
-		}
 		user->CloseSocket();
 	}
 	
