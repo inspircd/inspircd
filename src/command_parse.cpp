@@ -410,7 +410,7 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 
 	if (buffer.length())
 	{
-		ServerInstance->Log(DEBUG,"CMDIN: %s %s",user->nick,buffer.c_str());
+		ServerInstance->Log(DEBUG,"-> :%s %s",user->nick,buffer.c_str());
 		this->ProcessCommand(user,buffer);
 	}
 }
