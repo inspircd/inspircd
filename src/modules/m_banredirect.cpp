@@ -114,7 +114,7 @@ class BanRedirect : public ModeWatcher
 				
 			param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
 			
-			Srv->Log(DEBUG, "mask[NICK] = '%s', mask[IDENT] = '%s', mask[HOST] = '%s', mask[CHAN] = '%s'", mask[NICK].c_str(), mask[IDENT].c_str(), mask[HOST].c_str(), mask[CHAN].c_str());
+			// Srv->Log(DEBUG, "mask[NICK] = '%s', mask[IDENT] = '%s', mask[HOST] = '%s', mask[CHAN] = '%s'", mask[NICK].c_str(), mask[IDENT].c_str(), mask[HOST].c_str(), mask[CHAN].c_str());
 	
 			if(mask[CHAN].length())
 			{
