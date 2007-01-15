@@ -32,6 +32,7 @@ class BanRedirectEntry
 };
 
 typedef std::vector<BanRedirectEntry> BanRedirectList;
+typedef std::deque<std::string> StringDeque;
 
 class BanRedirect : public ModeWatcher
 {
@@ -61,7 +62,14 @@ class BanRedirect : public ModeWatcher
 			std::string mask[4];
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = param.begin();
+			long maxbans = channel->GetMaxBans();
 		
+			if(channel->bans.size() > static_cast<unsigned>(maxbans))
+			{
+				source->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %d)", source->nick, channel->name, channel->name, maxbans);
+				return false;
+			}
+			
 			for(std::string::iterator curr = start_pos; curr != param.end(); curr++)
 			{
 				switch(*curr)
@@ -147,13 +155,13 @@ class BanRedirect : public ModeWatcher
 											channel->Shrink("banredirects");
 										}
 										
-										/* Append the channel so the default +b handler can remove the entry too */
-										param.append(mask[CHAN]);
-										
 										break;
 									}
 								}
 							}
+							
+							/* Append the channel so the default +b handler can remove the entry too */
+							param.append(mask[CHAN]);
 						}
 					}
 				}
@@ -205,6 +213,36 @@ class ModuleBanRedirect : public Module
 			
 			if(chan->GetExt("banredirects", redirects))
 			{
+				irc::modestacker modestack(false);
+				StringDeque stackresult;
+				const char* mode_junk[MAXMODES+1];
+				userrec* myhorriblefakeuser = new userrec(Srv);
+				myhorriblefakeuser->SetFd(FD_MAGIC_NUMBER);
+				
+				mode_junk[0] = chan->name;
+				
+				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
+				{
+					modestack.Push('b', i->targetchan.insert(0, i->banmask));
+				}
+				
+				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
+				{
+					modestack.PushPlus();
+					modestack.Push('b', i->banmask);
+				}
+				
+				while(modestack.GetStackedLine(stackresult))
+				{
+					for(StringDeque::size_type i = 0; i < stackresult.size(); i++)
+					{
+						mode_junk[i+1] = stackresult[i].c_str();
+					}
+					
+					Srv->SendMode(mode_junk, stackresult.size() + 1, myhorriblefakeuser);
+				}
+				
+				delete myhorriblefakeuser;
 				delete redirects;
 				chan->Shrink("banredirects");
 			}
