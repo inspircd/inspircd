@@ -153,7 +153,7 @@ sub translate_functions($$)
 			do
 			{
 				$tmpfile = tmpnam();
-			} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL, 0700);
+			} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW, 0700);
 			print "(Created and executed \033[1;32m$tmpfile\033[0m)\n";
 			print TF $1;
 			close TF;
