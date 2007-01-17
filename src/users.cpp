@@ -1333,7 +1333,11 @@ void userrec::Write(std::string text)
 
 	try
 	{
-		ServerInstance->Log(DEBUG,"<- %s", text.c_str());
+		/* ServerInstance->Log(DEBUG,"<- %s", text.c_str());
+		 * WARNING: The above debug line is VERY loud, do NOT
+		 * enable it till we have a good way of filtering it
+		 * out of the logs (e.g. 1.2 would be good).
+		 */
 		text.append("\r\n");
 	}
 	catch (...)
