@@ -254,7 +254,7 @@ class ModuleSSLGnuTLS : public Module
 		if(mod == this)
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
-			int numusers = culllist->Apply();
+			culllist->Apply();
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
