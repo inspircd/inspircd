@@ -71,7 +71,6 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* ipmask = values[1].GetString();
 	
 	conf->GetInstance()->XLines->add_zline(0,"<Config>",reason,ipmask);
-	conf->GetInstance()->Log(DEBUG,"Read Z line (badip tag): ipmask=%s reason=%s",ipmask,reason);
 	return true;
 }
 
@@ -81,7 +80,6 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* nick = values[1].GetString();
 	
 	conf->GetInstance()->XLines->add_qline(0,"<Config>",reason,nick);
-	conf->GetInstance()->Log(DEBUG,"Read Q line (badnick tag): nick=%s reason=%s",nick,reason);
 	return true;
 }
 
@@ -91,7 +89,6 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* host = values[1].GetString();
 	
 	conf->GetInstance()->XLines->add_kline(0,"<Config>",reason,host);
-	conf->GetInstance()->Log(DEBUG,"Read K line (badhost tag): host=%s reason=%s",host,reason);
 	return true;
 }
 
@@ -101,7 +98,6 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* host = values[1].GetString();
 	
 	conf->GetInstance()->XLines->add_eline(0,"<Config>",reason,host);
-	conf->GetInstance()->Log(DEBUG,"Read E line (exception tag): host=%s reason=%s",host,reason);
 	return true;
 }
 

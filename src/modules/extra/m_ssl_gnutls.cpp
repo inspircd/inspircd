@@ -237,7 +237,6 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Adding user %s to cull list", user->nick);
 				culllist->AddItem(user, "SSL module unloading");
 			}
 			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
@@ -256,7 +255,6 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// We're being unloaded, kill all the users added to the cull list in OnCleanup
 			int numusers = culllist->Apply();
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Killed %d users for unload of GnuTLS SSL module", numusers);
 			
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
@@ -371,7 +369,6 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		ServerInstance->Log(DEBUG, "OnRawSocketClose: %d", fd);
 		CloseSession(&sessions[fd]);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
@@ -391,7 +388,6 @@ class ModuleSSLGnuTLS : public Module
 		
 		if (!session->sess)
 		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: No session to read from");
 			readresult = 0;
 			CloseSession(session);
 			return 1;
@@ -401,21 +397,14 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// The handshake isn't finished, try to finish it.
 			
-			if(Handshake(session))
-			{
-				// Handshake successfully resumed.
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: successfully resumed handshake");
-			}
-			else
+			if(!Handshake(session))
 			{
 				// Couldn't resume handshake.	
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: failed to resume handshake");
 				return -1;
 			}
 		}
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: handshake wants to write data but we are currently reading");
 			return -1;
 		}
 		
@@ -425,14 +414,11 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 			// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: gnutls_record_recv(sess, inbuf+%d, %d-%d)", session->inbufoffset, inbufsize, session->inbufoffset);
-			
 			int ret = gnutls_record_recv(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
 			if (ret == 0)
 			{
 				// Client closed connection.
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Client closed the connection");
 				readresult = 0;
 				CloseSession(session);
 				return 1;
@@ -440,13 +426,9 @@ class ModuleSSLGnuTLS : public Module
 			else if (ret < 0)
 			{
 				if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-				{
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Not all SSL data read: %s", gnutls_strerror(ret));
 					return -1;
-				}
 				else
 				{
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: Error reading SSL data: %s", gnutls_strerror(ret));
 					readresult = 0;
 					CloseSession(session);
 				}
@@ -481,10 +463,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 		else if(session->status == ISSL_CLOSING)
-		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketRead: session closing...");
 			readresult = 0;
-		}
 		
 		return 1;
 	}
@@ -499,7 +478,6 @@ class ModuleSSLGnuTLS : public Module
 
 		if(!session->sess)
 		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: No session to write to");
 			CloseSession(session);
 			return 1;
 		}
@@ -507,21 +485,7 @@ class ModuleSSLGnuTLS : public Module
 		if(session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			// The handshake isn't finished, try to finish it.
-			
-			if(Handshake(session))
-			{
-				// Handshake successfully resumed.
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: successfully resumed handshake");
-			}
-			else
-			{
-				// Couldn't resume handshake.	
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: failed to resume handshake"); 
-			}
-		}
-		else if(session->status == ISSL_HANDSHAKING_READ)
-		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: handshake wants to read data but we are currently writing");
+			Handshake(session);
 		}
 
 		session->outbuf.append(sendbuffer, count);
@@ -533,30 +497,16 @@ class ModuleSSLGnuTLS : public Module
 			int ret = gnutls_record_send(session->sess, sendbuffer, count);
 		
 			if(ret == 0)
-			{
-				ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Client closed the connection");
 				CloseSession(session);
-			}
 			else if(ret < 0)
 			{
-				if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
-				{
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Not all SSL data written: %s", gnutls_strerror(ret));
-				}
-				else
-				{
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: Error writing SSL data: %s", gnutls_strerror(ret));
-					CloseSession(session);					
-				}
+				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
+					CloseSession(session);
 			}
 			else
 			{
 				session->outbuf = session->outbuf.substr(ret);
 			}
-		}
-		else if(session->status == ISSL_CLOSING)
-		{
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: OnRawSocketWrite: session closing...");
 		}
 		
 		return 1;
@@ -615,13 +565,11 @@ class ModuleSSLGnuTLS : public Module
 				{
 					// gnutls_handshake() wants to read() again.
 					session->status = ISSL_HANDSHAKING_READ;
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Handshake needs resuming (reading) later, error string: %s", gnutls_strerror(ret));
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
 					session->status = ISSL_HANDSHAKING_WRITE;
-					ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Handshake needs resuming (writing) later, error string: %s", gnutls_strerror(ret));
 					MakePollWrite(session);	
 				}
 			}
@@ -629,8 +577,7 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Handshake failed.
 				CloseSession(session);
-			   ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Handshake failed, error string: %s", gnutls_strerror(ret));
-			   session->status = ISSL_CLOSING;
+				session->status = ISSL_CLOSING;
 			}
 			
 			return false;
@@ -638,8 +585,6 @@ class ModuleSSLGnuTLS : public Module
 		else
 		{
 			// Handshake complete.
-			ServerInstance->Log(DEBUG, "m_ssl_gnutls.so: Handshake completed");
-			
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			userrec* extendme = ServerInstance->FindDescriptor(session->fd);
 			if (extendme)

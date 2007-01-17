@@ -33,13 +33,10 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 	}
 #ifdef STATIC_LINK
 	this->staticname[0] = '\0';
-	ServerInstance->Log(DEBUG,"Loading core-compiled module '%s'",fname);
 	for (int j = 0; modsyms[j].name; j++)
 	{
-		ServerInstance->Log(DEBUG,"Check %s",modsyms[j].name);
 		if (!strcmp(modsyms[j].name,fname))
 		{
-			ServerInstance->Log(DEBUG,"Found %s",fname);
 			strlcpy(this->staticname,fname,1020);
 			err = 0;
 			return;
@@ -51,11 +48,8 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 	if (!h)
 	{
 		err = (char*)dlerror();
-		ServerInstance->Log(DEBUG,"dlerror '%s' occured!", err);
 		return;
 	}
-
-	ServerInstance->Log(DEBUG,"Finished loading '%s': %0x", fname, h);
 #endif
 }
 

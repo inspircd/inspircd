@@ -35,18 +35,12 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 	char killreason[MAXBUF];
 	int MOD_RESULT = 0;
 
-	ServerInstance->Log(DEBUG,"kill: %s %s", parameters[0], parameters[1]);
-
 	if (u)
 	{
-		ServerInstance->Log(DEBUG, "into kill mechanism");
 		FOREACH_RESULT(I_OnKill, OnKill(user, u, parameters[1]));
 
 		if (MOD_RESULT)
-		{
-			ServerInstance->Log(DEBUG, "A module prevented the kill with result %d", MOD_RESULT);
 			return CMD_FAILURE;
-		}
 
 		if (!IS_LOCAL(u))
 		{
@@ -59,10 +53,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
 
 			if (iter != ServerInstance->clientlist->end())
-			{
-				ServerInstance->Log(DEBUG,"deleting user hash value %d", iter->second);
 				ServerInstance->clientlist->erase(iter);
-			}
 
 			if (u->registered == REG_ALL)
 			{

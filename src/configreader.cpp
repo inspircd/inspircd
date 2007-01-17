@@ -78,7 +78,6 @@ bool ServerConfig::AddIOHook(Module* iomod, InspSocket* is)
 {
 	if (!GetIOHook(is))
 	{
-		ServerInstance->Log(DEBUG,"Hooked inspsocket %08x", is);
 		SocketIOHookModule[is] = iomod;
 		is->IsIOHooked = true;
 		return true;
@@ -199,7 +198,6 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 
 bool NoValidation(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	conf->GetInstance()->Log(DEBUG,"No validation for <%s:%s>",tag,value);
 	return true;
 }
 
@@ -245,7 +243,6 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 		nspace::hash_map<std::string,command_t*>::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
 		if (cm != ServerInstance->Parser->cmdlist.end())
 		{
-			ServerInstance->Log(DEBUG,"Disabling command '%s'",cm->second->command.c_str());
 			cm->second->Disable(true);
 		}
 	}
@@ -369,7 +366,6 @@ bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, Valu
 		conf->WhoWasMaxKeep = 3600;
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
 	}
-	conf->GetInstance()->Log(DEBUG,"whowas:groupsize:%d maxgroups:%d maxkeep:%d",conf->WhoWasGroupSize,conf->WhoWasMaxGroups,conf->WhoWasMaxKeep);
 
 	command_t* whowas_command = conf->GetInstance()->Parser->GetHandler("WHOWAS");
 	if (whowas_command)
@@ -425,7 +421,6 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
  */
 bool DoneConnect(ServerConfig* conf, const char* tag)
 {
-	conf->GetInstance()->Log(DEBUG,"DoneConnect called for tag: %s",tag);
 	return true;
 }
 
@@ -442,7 +437,6 @@ bool InitULine(ServerConfig* conf, const char* tag)
 bool DoULine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
 	const char* server = values[0].GetString();
-	conf->GetInstance()->Log(DEBUG,"Read ULINE '%s'",server);
 	conf->ulines.push_back(server);
 	return true;
 }
@@ -969,10 +963,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		{
 			case '\n':
 				if (in_quote)
-				{
-					ServerInstance->Log(DEBUG, "Got \\n inside value");
 					line += '\n';
-				}
 				linenumber++;
 			case '\r':
 				if (!in_quote)
@@ -997,11 +988,9 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if ((ch == '\\') && (in_quote) && (in_tag))
 		{
 			line += ch;
-			ServerInstance->Log(DEBUG,"Escape sequence in config line.");
 			char real_character;
 			if (conf.get(real_character))
 			{
-				ServerInstance->Log(DEBUG,"Escaping %c", real_character);
 				if (real_character == 'n')
 					real_character = '\n';
 				line += real_character;
@@ -1312,7 +1301,6 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 		if (!default_value.empty())
 		{
 			result = default_value;
-			ServerInstance->Log(DEBUG, "No config option for '%s' in tag <%s> using default: %s", var.c_str(), tag.c_str(), default_value.c_str());
 			return true;
 		}
 	}
@@ -1321,14 +1309,8 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 		if (!default_value.empty())
 		{
 			result = default_value;
-			ServerInstance->Log(DEBUG, "No <%s:%s> tags in config file using default: %s", tag.c_str(), var.c_str(), default_value.c_str());
 			return true;
 		}
-		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG, "ConfValue got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	return false;
 }
@@ -1447,14 +1429,6 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 			iter++;
 		
 		return iter->second.size();
-	}
-	else if(pos == 0)
-	{
-		ServerInstance->Log(DEBUG, "No <%s> tags in config file.", tag.c_str());
-	}
-	else
-	{
-		ServerInstance->Log(DEBUG, "ConfVarEnum got an out-of-range index %d, there are only %d occurences of %s", pos, target.count(tag), tag.c_str());
 	}
 	
 	return 0;
