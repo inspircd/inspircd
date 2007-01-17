@@ -359,7 +359,6 @@ class TreeServer : public classbase
 
 	int QuitUsers(const std::string &reason)
 	{
-		ServerInstance->Log(DEBUG,"Removing all users from server %s",this->ServerName.c_str());
 		const char* reason_s = reason.c_str();
 		std::vector<userrec*> time_to_die;
 		for (user_hash::iterator n = ServerInstance->clientlist->begin(); n != ServerInstance->clientlist->end(); n++)
@@ -372,7 +371,6 @@ class TreeServer : public classbase
 		for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
 		{
 			userrec* a = (userrec*)*n;
-			ServerInstance->Log(DEBUG,"Kill %s fd=%d",a->nick,a->GetFd());
 			if (!IS_LOCAL(a))
 				userrec::QuitUser(ServerInstance,a,reason_s);
 		}
@@ -698,9 +696,6 @@ class TreeSocket : public InspSocket
 	{
 		myhost = host;
 		this->LinkState = LISTENER;
-
-		Instance->Log(DEBUG, "HOOK = %08x", Hook);
-
 		if (listening && Hook)
 			InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 	}
@@ -1058,7 +1053,6 @@ class TreeSocket : public InspSocket
 				{
 					std::string var = item.substr(0, equals);
 					std::string value = item.substr(equals+1, item.length());
-					this->Instance->Log(DEBUG,"Key='%s' Value='%s'",var.c_str(),value.c_str());
 					CapKeys[var] = value;
 				}
 			}
@@ -1201,7 +1195,6 @@ class TreeSocket : public InspSocket
 		 */
 		if (TS == ourTS)
 		{
-			Instance->Log(DEBUG,"Entering TS equality check");
 			ModeHandler* mh = NULL;
 			unsigned long paramptr = 3;
 			std::string to_bounce = "";
@@ -1311,7 +1304,6 @@ class TreeSocket : public InspSocket
 	
 									if ((mh->GetNumParams(adding) > 0) && (paramptr < params.size()))
 									{
-										Instance->Log(DEBUG,"Mode removal %d %d",adding, mh->GetNumParams(adding));
 										params_to_keep.push_back(params[paramptr++]);
 									}
 								}
@@ -1345,7 +1337,6 @@ class TreeSocket : public InspSocket
 				newparams.push_back(params[0]);
 				newparams.push_back(ConvToStr(ourTS));
 				newparams.push_back(to_bounce+params_to_bounce);
-				Instance->Log(DEBUG,"BOUNCE BACK: %s",(to_bounce+params_to_bounce).c_str());
 				Utils->DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
 			}
 
@@ -1360,19 +1351,16 @@ class TreeSocket : public InspSocket
 				{
 					for (q = 0; (q < params_to_keep.size()) && (q < 64); q++)
 					{
-						Instance->Log(DEBUG,"KEEP Item %d of %d: %s", q, params_to_keep.size(), params_to_keep[q].c_str());
 						modelist[n++] = params_to_keep[q].c_str();
 					}
 				}
 
                 	        if (smode)
 				{
-					Instance->Log(DEBUG,"Send mode");
 					this->Instance->SendMode(modelist, n, who);
 				}
 				else
 				{
-					Instance->Log(DEBUG,"Send mode client");
 					this->Instance->CallCommandHandler("MODE", modelist, n, who);
 				}
 
@@ -1487,11 +1475,9 @@ class TreeSocket : public InspSocket
 			newparams[2] = modebounce;
 			/* Only send it back the way it came, no need to send it anywhere else */
 			Utils->DoOneToOne(this->Instance->Config->ServerName,"FMODE",newparams,sourceserv);
-			Instance->Log(DEBUG,"FMODE bounced intelligently, our TS less than theirs and the other server is NOT a uline.");
 		}
 		else
 		{
-			Instance->Log(DEBUG,"Allow modes, TS lower for sender");
 			/* The server was ulined, but something iffy is up with the TS.
 			 * Sound the alarm bells!
 			 */
@@ -1648,7 +1634,6 @@ class TreeSocket : public InspSocket
 		 */
 		if (ourTS > TS)
 		{
-			Instance->Log(DEBUG,"************ WE LOST TS COMPARE, DEOPPING EVERYONE ********************* ");
 			std::deque<std::string> param_list;
 
 			/* Lower the TS here */
@@ -1746,7 +1731,6 @@ class TreeSocket : public InspSocket
 					if ((!route_back_again) || (route_back_again->GetSocket() != this))
 					{
 						/* Oh dear oh dear. */
-						Instance->Log(DEBUG,"Fake direction in FJOIN, user '%s'",who->nick);
 						continue;
 					}
 					/* Finally, we can actually place the user into the channel.
@@ -1771,7 +1755,6 @@ class TreeSocket : public InspSocket
 						 */
 						if (ourTS >= TS)
 						{
-							Instance->Log(DEBUG,"Our our channel newer than theirs, accepting their modes");
 							this->Instance->SendMode((const char**)mode_users,modectr,who);
 
 							/* Something stuffed up, and for some reason, the timestamp is
@@ -1872,14 +1855,13 @@ class TreeSocket : public InspSocket
 		time_t age = atoi(params[0].c_str());
 		
 		const char* tempnick = params[1].c_str();
-		Instance->Log(DEBUG,"Introduce client %s!%s@%s",tempnick,params[4].c_str(),params[2].c_str());
+		Instance->Log(DEBUG,"New remote client %s",tempnick);
 		
 		user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
 		
 		if (iter != this->Instance->clientlist->end())
 		{
 			// nick collision
-			Instance->Log(DEBUG,"Nick collision on %s!%s@%s: %lu %lu",tempnick,params[4].c_str(),params[2].c_str(),(unsigned long)age,(unsigned long)iter->second->age);
 			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+tempnick+" :Nickname collision");
 			userrec::QuitUser(this->Instance, iter->second, "Nickname collision");
 			return true;
@@ -1935,7 +1917,6 @@ class TreeSocket : public InspSocket
 		TreeServer* SourceServer = Utils->FindServer(source);
 		if (SourceServer)
 		{
-			Instance->Log(DEBUG,"Found source server of %s",_new->nick);
 			SourceServer->AddUserCount();
 		}
 
@@ -1951,8 +1932,6 @@ class TreeSocket : public InspSocket
 	void SendFJoins(TreeServer* Current, chanrec* c)
 	{
 		std::string buffer;
-
-		Instance->Log(DEBUG,"Sending FJOINs to other server for %s",c->name);
 		char list[MAXBUF];
 		std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
 		
@@ -2216,7 +2195,7 @@ class TreeSocket : public InspSocket
 
 	int WriteLine(std::string line)
 	{
-		Instance->Log(DEBUG,"OUT: %s",line.c_str());
+		Instance->Log(DEBUG, "-> %s", line.c_str());
 		line.append("\r\n");
 		return this->Write(line);
 	}
@@ -2363,10 +2342,7 @@ class TreeSocket : public InspSocket
 	bool OperType(const std::string &prefix, std::deque<std::string> &params)
 	{
 		if (params.size() != 1)
-		{
-			Instance->Log(DEBUG,"Received invalid oper type from %s",prefix.c_str());
 			return true;
-		}
 		std::string opertype = params[0];
 		userrec* u = this->Instance->FindNick(prefix);
 		if (u)
@@ -2438,7 +2414,6 @@ class TreeSocket : public InspSocket
 			if (sock)
 			{
 				/* it's locally connected, KILL IT! */
-				Instance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				Instance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s: %s", params[0].c_str(), prefix.c_str(), params[1].c_str());
 				sock->Squit(s,"Server quit by " + prefix + ": " + params[1]);
 				Instance->SE->DelFd(sock);
@@ -2695,7 +2670,6 @@ class TreeSocket : public InspSocket
 		}
 		if (!this->bursting)
 		{
-			Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
 			Instance->XLines->apply_lines(Utils->lines_to_apply);
 			Utils->lines_to_apply = 0;
 		}
@@ -2723,12 +2697,9 @@ class TreeSocket : public InspSocket
 		if (params.size() < 1)
 			return true;
 
-		Instance->Log(DEBUG,"In IDLE command");
 		userrec* u = this->Instance->FindNick(prefix);
-
 		if (u)
 		{
-			Instance->Log(DEBUG,"USER EXISTS: %s",u->nick);
 			// an incoming request
 			if (params.size() == 1)
 			{
@@ -2814,9 +2785,7 @@ class TreeSocket : public InspSocket
 		time_t us = Instance->Time(true);
 		
 		if (rts == us)
-		{
-			Instance->Log(DEBUG, "Timestamp from %s is equal", prefix.c_str());
-			
+		{			
 			Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
 		}
 		else if (force || (rts < us))
@@ -2937,34 +2906,27 @@ class TreeSocket : public InspSocket
 				std::string modesequence = Instance->Modes->ModeString(i->second, c);
 				if (modesequence.length())
 				{
-					Instance->Log(DEBUG,"Mode sequence = '%s'",modesequence.c_str());
 					irc::spacesepstream sep(modesequence);
 					std::string modeletters = sep.GetToken();
-					Instance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
-					
+
 					while (!modeletters.empty())
 					{
 						char mletter = *(modeletters.begin());
 						modestack.Push(mletter,sep.GetToken());
-						Instance->Log(DEBUG,"Push letter = '%c'",mletter);
 						modeletters.erase(modeletters.begin());
-						Instance->Log(DEBUG,"Mode letters = '%s'",modeletters.c_str());
 					}
 				}
 			}
 
 			while (modestack.GetStackedLine(stackresult))
 			{
-				Instance->Log(DEBUG,"Stacked line size %d",stackresult.size());
 				stackresult.push_front(ConvToStr(c->age));
 				stackresult.push_front(c->name);
 				Utils->DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
 				stackresult.erase(stackresult.begin() + 1);
-				Instance->Log(DEBUG,"Stacked items:");
 				for (size_t z = 0; z < stackresult.size(); z++)
 				{
 					y[z] = stackresult[z].c_str();
-					Instance->Log(DEBUG,"\tstackresult[%d]='%s'",z,stackresult[z].c_str());
 				}
 				userrec* n = new userrec(Instance);
 				n->SetFd(FD_MAGIC_NUMBER);
@@ -3128,7 +3090,7 @@ class TreeSocket : public InspSocket
 		if (line.empty())
 			return true;
 		
-		Instance->Log(DEBUG,"IN: %s", line.c_str());
+		Instance->Log(DEBUG, "<- %s", line.c_str());
 		
 		this->Split(line.c_str(),params);
 			
@@ -3219,13 +3181,8 @@ class TreeSocket : public InspSocket
 							return false;
 						}
 						
-						if (us == them)
+						if (force || (us > them))
 						{
-							this->Instance->Log(DEBUG, "Timestamps are equal; pat yourself on the back");
-						}
-						else if (force || (us > them))
-						{
-							this->Instance->Log(DEBUG, "Remote server has lower TS (%d seconds)", them - us);
 							this->Instance->SetTimeDelta(them - us);
 							// Send this new timestamp to any other servers
 							Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
@@ -3233,7 +3190,6 @@ class TreeSocket : public InspSocket
 						else
 						{
 							// Override the timestamp
-							this->Instance->Log(DEBUG, "We have a higher timestamp (by %d seconds), not updating delta", us - them);
 							this->WriteLine(":" + Utils->TreeRoot->GetName() + " TIMESET " + ConvToStr(us));
 						}
 					}
@@ -3385,7 +3341,6 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
 						Instance->XLines->apply_lines(Utils->lines_to_apply);
 						Utils->lines_to_apply = 0;
 					}
@@ -3405,7 +3360,6 @@ class TreeSocket : public InspSocket
 					if (this->bursting)
 					{
 						this->bursting = false;
-						Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
 						Instance->XLines->apply_lines(Utils->lines_to_apply);
 						Utils->lines_to_apply = 0;
 					}
@@ -3534,7 +3488,6 @@ class TreeSocket : public InspSocket
 				else if (command == "ENDBURST")
 				{
 					this->bursting = false;
-					Instance->Log(DEBUG,"Applying lines with mask %d...", Utils->lines_to_apply);
 					Instance->XLines->apply_lines(Utils->lines_to_apply);
 					Utils->lines_to_apply = 0;
 					std::string sourceserv = this->myhost;
@@ -3632,14 +3585,9 @@ class TreeSocket : public InspSocket
 					{
 						// its not a user. Its either a server, or somethings screwed up.
 						if (Utils->IsServer(prefix))
-						{
 							target = this->Instance->Config->ServerName;
-						}
 						else
-						{
-							Instance->Log(DEBUG,"Command with unknown origin '%s'",prefix.c_str());
 							return true;
-						}
 					}
 					return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 
@@ -3793,13 +3741,12 @@ class SecurityIPResolver : public Resolver
 
 	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
-		ServerInstance->Log(DEBUG,"Security IP cache: Adding IP address '%s' for Link '%s'",result.c_str(),MyLink.Name.c_str());
 		Utils->ValidIPs.push_back(result);
 	}
 
 	void OnError(ResolverError e, const std::string &errormessage)
 	{
-		ServerInstance->Log(DEBUG,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
+		ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };
 
@@ -3826,7 +3773,6 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 			/* Build a map of them */
 			hooks[name.c_str()] = *m;
 			hooknames.push_back(name);
-			ServerInstance->Log(DEBUG, "Found InspSocketHook interface: '%s' -> '%08x'", name.c_str(), *m);
 		}
 	}
 
@@ -3837,16 +3783,13 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 {
 	for (unsigned int i = 0; i < Bindings.size(); i++)
 	{
-		ServerInstance->Log(DEBUG,"Freeing binding %d of %d",i, Bindings.size());
 		ServerInstance->SE->DelFd(Bindings[i]);
 		Bindings[i]->Close();
 		DELETE(Bindings[i]);
 	}
-	ServerInstance->Log(DEBUG,"Freeing connected servers...");
 	while (TreeRoot->ChildCount())
 	{
 		TreeServer* child_server = TreeRoot->GetChild(0);
-		ServerInstance->Log(DEBUG,"Freeing connected server %s", child_server->GetName().c_str());
 		if (child_server)
 		{
 			TreeSocket* sock = child_server->GetSocket();
@@ -4073,7 +4016,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				int portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
-					ServerInstance->Log(DEBUG,"m_spanningtree: Binding server port %s:%d", IP.c_str(), portno);
 					if (IP == "*")
 						IP = "";
 
@@ -4096,7 +4038,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 						listener->Close();
 						DELETE(listener);
 					}
-					ServerInstance->Log(DEBUG,"Done with this binding");
 				}
 			}
 		}
@@ -4153,12 +4094,10 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					}
 					catch (ModuleException& e)
 					{
-						ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
 					}
 				}
 
 				LinkBlocks.push_back(L);
-				ServerInstance->Log(DEBUG,"m_spanningtree: Read server %s with host %s:%d",L.Name.c_str(),L.IPAddr.c_str(),L.Port);
 			}
 			else
 			{
@@ -4217,7 +4156,6 @@ void HandshakeTimer::Tick(time_t TIME)
 	{
 		if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
 		{
-			Instance->Log(DEBUG,"Handshake timer activated, sending SERVER and/or CAPAB");
 			InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 			sock->SendCapabilities();
 			if (sock->GetLinkState() == CONNECTING)
@@ -4553,7 +4491,6 @@ class ModuleSpanningTree : public Module
 			TreeSocket* sock = s->GetSocket();
 			if (sock)
 			{
-				ServerInstance->Log(DEBUG,"Splitting server %s",s->GetName().c_str());
 				ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
 				sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 				ServerInstance->SE->DelFd(sock);
@@ -4685,7 +4622,7 @@ class ModuleSpanningTree : public Module
 			}
 			catch (ModuleException& e)
 			{
-				ServerInstance->Log(DEBUG,"Error in resolver: %s",e.GetReason());
+				ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 				Utils->DoFailOver(x);
 			}
 		}
@@ -4697,7 +4634,6 @@ class ModuleSpanningTree : public Module
 		{
 			if ((x->AutoConnect) && (curtime >= x->NextConnectTime))
 			{
-				ServerInstance->Log(DEBUG,"Auto-Connecting %s",x->Name.c_str());
 				x->NextConnectTime = curtime + x->AutoConnect;
 				TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 				if (x->FailOver.length())
@@ -4874,7 +4810,6 @@ class ModuleSpanningTree : public Module
 					params.push_back(std::string(parameters[j]));
 				}
 			}
-			ServerInstance->Log(DEBUG,"Globally route '%s'",command.c_str());
 			Utils->DoOneToMany(user->nick,command,params);
 		}
 	}
@@ -5447,7 +5382,6 @@ class ModuleSpanningTree : public Module
 
 	virtual ~ModuleSpanningTree()
 	{
-		ServerInstance->Log(DEBUG,"Performing unload of spanningtree!");
 		/* This will also free the listeners */
 		delete Utils;
 		if (SyncTimer)
