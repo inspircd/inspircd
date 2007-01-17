@@ -61,14 +61,12 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 			this->fd = -1;
 			this->state = I_ERROR;
 			this->OnError(I_ERR_SOCKET);
-			this->Instance->Log(DEBUG,"OpenTCPSocket() error");
 			return;
 		}
 		else
 		{
 			if (!SI->BindSocket(this->fd,this->client,this->server,aport,(char*)ipaddr.c_str()))
 			{
-				this->Instance->Log(DEBUG,"BindSocket() error %s",strerror(errno));
 				this->Close();
 				this->fd = -1;
 				this->state = I_ERROR;
@@ -88,7 +86,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 						this->OnError(I_ERR_NOMOREFDS);
 					}
 				}
-				this->Instance->Log(DEBUG,"New socket now in I_LISTENING state");
 				return;
 			}
 		}			
@@ -100,7 +97,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 
 		if (insp_aton(host,&addy) < 1)
 		{
-			this->Instance->Log(DEBUG,"You cannot pass hostnames to InspSocket, resolve them first with Resolver!");
+			this->Instance->Log(DEBUG,"BUG: Hostname passed to InspSocket, rather than an IP address!");
 			this->Close();
 			this->fd = -1;
 			this->state = I_ERROR;
@@ -109,7 +106,6 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		}
 		else
 		{
-			this->Instance->Log(DEBUG,"No need to resolve %s",this->host);
 			strlcpy(this->IP,host,MAXBUF);
 			timeout_val = maxtime;
 			this->DoConnect();
@@ -144,8 +140,6 @@ bool InspSocket::BindAddr()
 {
 	insp_inaddr n;
 	ConfigReader Conf(this->Instance);
-
-	this->Instance->Log(DEBUG,"In InspSocket::BindAddr()");
 	for (int j =0; j < Conf.Enumerate("bind"); j++)
 	{
 		std::string Type = Conf.ReadValue("bind","type",j);
@@ -158,7 +152,6 @@ bool InspSocket::BindAddr()
 
 				if (insp_aton(IP.c_str(),&n) > 0)
 				{
-					this->Instance->Log(DEBUG,"Found an IP to bind to: %s",IP.c_str());
 #ifdef IPV6
 					s.sin6_addr = n;
 					s.sin6_family = AF_FAMILY;
@@ -168,32 +161,23 @@ bool InspSocket::BindAddr()
 #endif
 					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
 					{
-						this->Instance->Log(DEBUG,"Cant bind()");
 						this->state = I_ERROR;
 						this->OnError(I_ERR_BIND);
 						this->fd = -1;
 						return false;
 					}
-					this->Instance->Log(DEBUG,"bind() reports outbound fd bound to ip %s",IP.c_str());
 					return true;
-				}
-				else
-				{
-					this->Instance->Log(DEBUG,"Address '%s' was not an IP address",IP.c_str());
 				}
 			}
 		}
 	}
-	this->Instance->Log(DEBUG,"Found no suitable IPs to bind, binding INADDR_ANY");
 	return true;
 }
 
 bool InspSocket::DoConnect()
 {
-	this->Instance->Log(DEBUG,"In DoConnect()");
 	if ((this->fd = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
 	{
-		this->Instance->Log(DEBUG,"Cant socket()");
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
 		return false;
@@ -205,7 +189,6 @@ bool InspSocket::DoConnect()
 			return false;
 	}
 
-	this->Instance->Log(DEBUG,"Part 2 DoConnect() %s",this->IP);
 	insp_aton(this->IP,&addy);
 #ifdef IPV6
 	addr.sin6_family = AF_FAMILY;
@@ -225,7 +208,6 @@ bool InspSocket::DoConnect()
 	{
 		if (errno != EINPROGRESS)
 		{
-			this->Instance->Log(DEBUG,"Error connect() %d: %s",this->fd,strerror(errno));
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->state = I_ERROR;
@@ -247,7 +229,6 @@ bool InspSocket::DoConnect()
 		}
 		this->SetQueues(this->fd);
 	}
-	this->Instance->Log(DEBUG,"Returning true from InspSocket::DoConnect");
 	return true;
 }
 
@@ -321,23 +302,14 @@ char* InspSocket::Read()
 	{
 		int err = errno;
 		if (err == EAGAIN)
-		{
 			return "";
-		}
 		else
-		{
-			if (!n)
-				this->Instance->Log(DEBUG,"EOF or error on socket: EOF");
-			else
-				this->Instance->Log(DEBUG,"EOF or error on socket: %s",strerror(err));
 			return NULL;
-		}
 	}
 }
 
 void InspSocket::MarkAsClosed()
 {
-	this->Instance->Log(DEBUG,"Marked as closed");
 }
 
 // There are two possible outcomes to this function.
@@ -378,18 +350,8 @@ bool InspSocket::FlushWriteBuffer()
 							errno = EAGAIN;
 						}
 					}
-					else if ((result == -1) && (errno != EAGAIN))
+					else if (((result == -1) && (errno != EAGAIN)) || (result == 0))
 					{
-						this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
-						this->OnError(I_ERR_WRITE);
-						this->state = I_ERROR;
-						this->Instance->SE->DelFd(this);
-						this->Close();
-						return true;
-					}
-					else if (result == 0)
-					{
-						this->Instance->Log(DEBUG,"Write error on socket: EOF");
 						this->OnError(I_ERR_WRITE);
 						this->state = I_ERROR;
 						this->Instance->SE->DelFd(this);
@@ -438,7 +400,6 @@ bool InspSocket::FlushWriteBuffer()
 				}
 				else if ((result == -1) && (errno != EAGAIN))
 				{
-					this->Instance->Log(DEBUG,"Write error on socket: %s",strerror(errno));
 					this->OnError(I_ERR_WRITE);
 					this->state = I_ERROR;
 					this->Instance->SE->DelFd(this);
@@ -460,14 +421,10 @@ bool InspSocket::FlushWriteBuffer()
 void SocketTimeout::Tick(time_t now)
 {
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
-	{
-		ServerInstance->Log(DEBUG,"Our socket has been deleted before the timeout was reached.");
 		return;
-	}
 
 	if (this->sock->state == I_CONNECTING)
 	{
-		ServerInstance->Log(DEBUG,"Timed out, current=%lu",now);
 		// for non-listening sockets, the timeout can occur
 		// which causes termination of the connection after
 		// the given number of seconds without a successful
@@ -500,7 +457,6 @@ bool InspSocket::Poll()
 	switch (this->state)
 	{
 		case I_CONNECTING:
-			this->Instance->Log(DEBUG,"State = I_CONNECTING");
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
@@ -565,7 +521,6 @@ bool InspSocket::Poll()
 
 void InspSocket::SetState(InspSocketState s)
 {
-	this->Instance->Log(DEBUG,"Socket state change");
 	this->state = s;
 }
 
