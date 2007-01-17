@@ -1333,6 +1333,7 @@ void userrec::Write(std::string text)
 
 	try
 	{
+		ServerInstance->Log(DEBUG,"<- :%s %s", this->nick, text.c_str());
 		text.append("\r\n");
 	}
 	catch (...)
