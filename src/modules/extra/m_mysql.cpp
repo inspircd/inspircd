@@ -80,116 +80,6 @@ int QueueFD = -1;
 
 typedef std::deque<SQLresult*> ResultQueue;
 
-/** Represents a mysql query queue
- */
-class QueryQueue : public classbase
-{
-private:
-	typedef std::deque<SQLrequest> ReqDeque;
-
-	ReqDeque priority;      /* The priority queue */
-	ReqDeque normal;	/* The 'normal' queue */
-	enum { PRI, NOR, NON } which;   /* Which queue the currently active element is at the front of */
-
-public:
-	QueryQueue()
-	: which(NON)
-	{
-	}
-
-	void push(const SQLrequest &q)
-	{
-		if(q.pri)
-			priority.push_back(q);
-		else
-			normal.push_back(q);
-	}
-
-	void pop()
-	{
-		if((which == PRI) && priority.size())
-		{
-			priority.pop_front();
-		}
-		else if((which == NOR) && normal.size())
-		{
-			normal.pop_front();
-		}
-
-		/* Reset this */
-		which = NON;
-
-		/* Silently do nothing if there was no element to pop() */
-	}
-
-	SQLrequest& front()
-	{
-		switch(which)
-		{
-			case PRI:
-				return priority.front();
-			case NOR:
-				return normal.front();
-			default:
-				if(priority.size())
-				{
-					which = PRI;
-					return priority.front();
-				}
-
-				if(normal.size())
-				{
-					which = NOR;
-					return normal.front();
-				}
-
-				/* This will probably result in a segfault,
-				 * but the caller should have checked totalsize()
-				 * first so..meh - moron :p
-				 */
-
-				return priority.front();
-		}
-	}
-
-	std::pair<int, int> size()
-	{
-		return std::make_pair(priority.size(), normal.size());
-	}
-
-	int totalsize()
-	{
-		return priority.size() + normal.size();
-	}
-
-	void PurgeModule(Module* mod)
-	{
-		DoPurgeModule(mod, priority);
-		DoPurgeModule(mod, normal);
-	}
-
-private:
-	void DoPurgeModule(Module* mod, ReqDeque& q)
-	{
-		for(ReqDeque::iterator iter = q.begin(); iter != q.end(); iter++)
-		{
-			if(iter->GetSource() == mod)
-			{
-				if(iter->id == front().id)
-				{
-					/* It's the currently active query.. :x */
-					iter->SetSource(NULL);
-				}
-				else
-				{
-					/* It hasn't been executed yet..just remove it */
-					iter = q.erase(iter);
-				}
-			}
-		}
-	}
-};
-
 /* A mutex to wrap around queue accesses */
 pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -202,7 +92,6 @@ pthread_mutex_t logging_mutex = PTHREAD_MUTEX_INITIALIZER;
 class MySQLresult : public SQLresult
 {
 	int currentrow;
-	//std::vector<std::map<std::string,std::string> > results;
 	std::vector<std::string> colnames;
 	std::vector<SQLfieldList> fieldlists;
 	SQLfieldMap* fieldmap;

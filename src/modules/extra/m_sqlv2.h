@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *          the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -466,5 +466,140 @@ bool operator== (const SQLhost& l, const SQLhost& r)
 {
 	return (l.id == r.id && l.host == r.host && l.port == r.port && l.name == r.name && l.user == l.user && l.pass == r.pass && l.ssl == r.ssl);
 }
+
+
+/** QueryQueue, a queue of queries waiting to be executed.
+ * This maintains two queues internally, one for 'priority'
+ * queries and one for less important ones. Each queue has
+ * new queries appended to it and ones to execute are popped
+ * off the front. This keeps them flowing round nicely and no
+ * query should ever get 'stuck' for too long. If there are
+ * queries in the priority queue they will be executed first,
+ * 'unimportant' queries will only be executed when the
+ * priority queue is empty.
+ *
+ * We store lists of SQLrequest's here, by value as we want to avoid storing
+ * any data allocated inside the client module (in case that module is unloaded
+ * while the query is in progress).
+ *
+ * Because we want to work on the current SQLrequest in-situ, we need a way
+ * of accessing the request we are currently processing, QueryQueue::front(),
+ * but that call needs to always return the same request until that request
+ * is removed from the queue, this is what the 'which' variable is. New queries are
+ * always added to the back of one of the two queues, but if when front()
+ * is first called then the priority queue is empty then front() will return
+ * a query from the normal queue, but if a query is then added to the priority
+ * queue then front() must continue to return the front of the *normal* queue
+ * until pop() is called.
+ */
+
+class QueryQueue : public classbase
+{
+private:
+	typedef std::deque<SQLrequest> ReqDeque;
+
+	ReqDeque priority;      /* The priority queue */
+	ReqDeque normal;	/* The 'normal' queue */
+	enum { PRI, NOR, NON } which;   /* Which queue the currently active element is at the front of */
+
+public:
+	QueryQueue()
+	: which(NON)
+	{
+	}
+
+	void push(const SQLrequest &q)
+	{
+		if(q.pri)
+			priority.push_back(q);
+		else
+			normal.push_back(q);
+	}
+
+	void pop()
+	{
+		if((which == PRI) && priority.size())
+		{
+			priority.pop_front();
+		}
+		else if((which == NOR) && normal.size())
+		{
+			normal.pop_front();
+		}
+
+		/* Reset this */
+		which = NON;
+
+		/* Silently do nothing if there was no element to pop() */
+	}
+
+	SQLrequest& front()
+	{
+		switch(which)
+		{
+			case PRI:
+				return priority.front();
+			case NOR:
+				return normal.front();
+			default:
+				if(priority.size())
+				{
+					which = PRI;
+					return priority.front();
+				}
+
+				if(normal.size())
+				{
+					which = NOR;
+					return normal.front();
+				}
+
+				/* This will probably result in a segfault,
+				 * but the caller should have checked totalsize()
+				 * first so..meh - moron :p
+				 */
+
+				return priority.front();
+		}
+	}
+
+	std::pair<int, int> size()
+	{
+		return std::make_pair(priority.size(), normal.size());
+	}
+
+	int totalsize()
+	{
+		return priority.size() + normal.size();
+	}
+
+	void PurgeModule(Module* mod)
+	{
+		DoPurgeModule(mod, priority);
+		DoPurgeModule(mod, normal);
+	}
+
+private:
+	void DoPurgeModule(Module* mod, ReqDeque& q)
+	{
+		for(ReqDeque::iterator iter = q.begin(); iter != q.end(); iter++)
+		{
+			if(iter->GetSource() == mod)
+			{
+				if(iter->id == front().id)
+				{
+					/* It's the currently active query.. :x */
+					iter->SetSource(NULL);
+				}
+				else
+				{
+					/* It hasn't been executed yet..just remove it */
+					iter = q.erase(iter);
+				}
+			}
+		}
+	}
+};
+
 
 #endif
