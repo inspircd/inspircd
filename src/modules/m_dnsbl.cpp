@@ -59,8 +59,6 @@ class DNSBLResolver : public Resolver
 		/* Check the user still exists */
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
-			ServerInstance->Log(DEBUG, "m_dnsbl:  %s got a result from dnsbl %s", them->nick, ConfEntry->name.c_str());
-
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 			if(result.length())
 			{
@@ -139,17 +137,6 @@ class DNSBLResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		/*
-		this just means they don't appear in the respective dnsbl
-		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
-		{
-		}
-		*/
-		/* Check the user still exists */
-		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
-		{
-			ServerInstance->Log(DEBUG, "m_dnsbl:  %s got an error while resolving for dnsbl %s", them->nick, ConfEntry->name.c_str());
-		}
 	}
  
 	virtual ~DNSBLResolver()
@@ -303,8 +290,6 @@ class ModuleDNSBL : public Module
 			{
 				// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
 				std::string hostname=reversedip+"."+ (*i)->domain;
-
-				ServerInstance->Log(DEBUG, "m_dnsbl: sending %s for resolution", hostname.c_str());
 
 				/* now we'd need to fire off lookups for `hostname'. */
 				bool cached;

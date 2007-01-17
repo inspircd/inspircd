@@ -231,23 +231,17 @@ class ModuleSQLLog : public Module
 			std::map<unsigned long, QueryInfo*>::iterator n;
 
 			res = static_cast<SQLresult*>(request);
-			ServerInstance->Log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
-
 			n = active_queries.find(res->id);
 
 			if (n != active_queries.end())
 			{
-				ServerInstance->Log(DEBUG,"This is an active query");
 				n->second->Go(res);
-
 				std::map<unsigned long, QueryInfo*>::iterator n = active_queries.find(res->id);
 				active_queries.erase(n);
 			}
 
 			return SQLSUCCESS;
 		}
-
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 
 		return NULL;
 	}
@@ -264,11 +258,6 @@ class ModuleSQLLog : public Module
 			QueryInfo* i = new QueryInfo(nick, source, host, req.id, category);
 			i->qs = FIND_SOURCE;
 			active_queries[req.id] = i;
-			ServerInstance->Log(DEBUG,"Active query id %d",req.id);
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
 		}
 	}
 

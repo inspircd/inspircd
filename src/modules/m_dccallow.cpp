@@ -94,7 +94,6 @@ class cmd_dccallow : public command_t
 	
 			if (target)
 			{
-				ServerInstance->Log(DEBUG, "m_dccallow.so: got target %s and action %c", target->nick, action);
 				
 				if (action == '-')
 				{
@@ -347,7 +346,6 @@ class ModuleDCCAllow : public Module
 						tokens.push_back(buf);
 		
 					irc::string type = tokens[1].c_str();
-					ServerInstance->Log(DEBUG, "m_dccallow.so: got DCC type %s", type.c_str());
 		
 					bool blockchat = Conf->ReadFlag("dccallow", "blockchat", 0);
 		
@@ -424,7 +422,6 @@ class ModuleDCCAllow : public Module
 			else
 			{
 				RemoveFromUserlist(u);
-				ServerInstance->Log(DEBUG, "m_dccallow.so: UH OH! Couldn't get DCCALLOW list for %s", u->nick);
 			}
 		}
 	}

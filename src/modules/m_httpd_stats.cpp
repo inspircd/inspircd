@@ -164,8 +164,6 @@ class ModuleHttpStats : public Module
 				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html; charset=iso-8859-1\r\n");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
-
-				ServerInstance->Log(DEBUG,"Sent");
 			}
 		}
 	}

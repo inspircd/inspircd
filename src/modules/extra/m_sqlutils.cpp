@@ -61,8 +61,6 @@ public:
 		{
 			AssociateUser* req = (AssociateUser*)request;
 			
-			ServerInstance->Log(DEBUG, "Associated ID %lu with user %s", req->id, req->user->nick);
-			
 			iduser.insert(std::make_pair(req->id, req->user));
 			
 			AttachList(req->user, req->id);
@@ -70,8 +68,6 @@ public:
 		else if(strcmp(SQLUTILAC, request->GetId()) == 0)
 		{
 			AssociateChan* req = (AssociateChan*)request;
-
-			ServerInstance->Log(DEBUG, "Associated ID %lu with channel %s", req->id, req->chan->name);
 			
 			idchan.insert(std::make_pair(req->id, req->chan));			
 			
@@ -85,8 +81,6 @@ public:
 			 * it is associated with.
 			 */
 			
-			ServerInstance->Log(DEBUG, "Unassociating ID %lu with all users and channels", req->id);
-			
 			DoUnAssociate(iduser, req->id);
 			DoUnAssociate(idchan, req->id);
 		}
@@ -96,11 +90,8 @@ public:
 			
 			IdUserMap::iterator iter = iduser.find(req->id);
 			
-			ServerInstance->Log(DEBUG, "Looking up user associated with ID %lu", req->id);
-			
 			if(iter != iduser.end())
 			{
-				ServerInstance->Log(DEBUG, "Found user %s", iter->second->nick);
 				req->user = iter->second;
 			}
 		}
@@ -110,18 +101,10 @@ public:
 			
 			IdChanMap::iterator iter = idchan.find(req->id);
 			
-			ServerInstance->Log(DEBUG, "Looking up channel associated with ID %lu", req->id);
-			
 			if(iter != idchan.end())
 			{
-				ServerInstance->Log(DEBUG, "Found channel %s", iter->second->name);
 				req->chan = iter->second;
 			}
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-			return NULL;
 		}
 		
 		return SQLUTILSUCCESS;
@@ -145,16 +128,12 @@ public:
 			
 				if(iter != iduser.end())
 				{
-					if(iter->second == user)
-					{
-						ServerInstance->Log(DEBUG, "Erased query from map associated with quitting user %s", user->nick);
-					}
-					else
+					if(iter->second != user)
 					{
 						ServerInstance->Log(DEBUG, "BUG: ID associated with user %s doesn't have the same userrec* associated with it in the map (erasing anyway)", user->nick);
 					}
 
-					iduser.erase(iter);					
+					iduser.erase(iter);
 				}
 				else
 				{
@@ -215,12 +194,6 @@ public:
 			 * to the value.
 			 */
 			RemoveFromList(iter->second, id);
-			
-			ServerInstance->Log(DEBUG, "Removed query %lu from map and removed references to it on value", id);
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG, "Nothing associated with query %lu", id);
 		}
 	}
 	
@@ -242,15 +215,10 @@ public:
 			
 				if(iter != idchan.end())
 				{
-					if(iter->second == chan)
-					{
-						ServerInstance->Log(DEBUG, "Erased query from map associated with dying channnel %s", chan->name);
-					}
-					else
+					if(iter->second != chan)
 					{
 						ServerInstance->Log(DEBUG, "BUG: ID associated with channel %s doesn't have the same chanrec* associated with it in the map (erasing anyway)", chan->name);
 					}
-
 					idchan.erase(iter);					
 				}
 				else

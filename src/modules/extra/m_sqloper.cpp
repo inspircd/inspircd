@@ -102,6 +102,10 @@ public:
 			/* Make an MD5 hash of the password for using in the query */
 			std::string md5_pass_hash = HashSumRequest(this, HashModule, password.c_str()).Send();
 
+			/* We generate our own MD5 sum here because some database providers (e.g. SQLite) dont have a builtin md5 function,
+			 * also hashing it in the module and only passing a remote query containing a hash is more secure.
+			 */
+
 			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", username, md5_pass_hash);
 			
 			if (req.Send())
@@ -113,8 +117,6 @@ public:
 				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
 				 * us to discard the query.
 			 	 */
-				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", req.id);
-				
 				AssociateUser(this, SQLutils, req.id, user).Send();
 
 				user->Extend("oper_user", strdup(username.c_str()));
@@ -124,8 +126,6 @@ public:
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
-			
 				return false;
 			}
 		}
@@ -140,12 +140,8 @@ public:
 	{
 		if (strcmp(SQLRESID, request->GetId()) == 0)
 		{
-			SQLresult* res;
-		
-			res = static_cast<SQLresult*>(request);
-			
-			ServerInstance->Log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
-			
+			SQLresult* res = static_cast<SQLresult*>(request);
+
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 
@@ -158,10 +154,7 @@ public:
 			if (user)
 			{
 				if (res->error.Id() == NO_ERROR)
-				{				
-					ServerInstance->Log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
-					ServerInstance->Log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
-			
+				{
 					if (res->Rows())
 					{
 						/* We got a row in the result, this means there was a record for the oper..
@@ -178,9 +171,7 @@ public:
 						 */
 						
 						for (SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
-						{
-							ServerInstance->Log(DEBUG, "Trying to oper user %s with username = '%s', passhash = '%s', hostname = '%s', type = '%s'", user->nick, row["username"].d.c_str(), row["password"].d.c_str(), row["hostname"].d.c_str(), row["type"].d.c_str());
-							
+						{							
 							if (OperUser(user, row["username"].d, row["password"].d, row["hostname"].d, row["type"].d))
 							{
 								/* If/when one of the rows matches, stop checking and return */
@@ -218,8 +209,6 @@ public:
 					 * We have to fail the /oper request and give them the same error
 					 * as above.
 					 */
-					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
-
 					if (tried_user && tried_pass)
 					{
 						LoginFail(user, tried_user, tried_pass);
@@ -231,15 +220,9 @@ public:
 
 				}
 			}
-			else
-			{
-				ServerInstance->Log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
-			}
 		
 			return SQLSUCCESS;
 		}
-		
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 
 		return NULL;
 	}
@@ -255,7 +238,7 @@ public:
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Log(DEBUG, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 
@@ -266,28 +249,24 @@ public:
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{
 			std::string tname = Conf.ReadValue("type","name",j);
-			
-			ServerInstance->Log(DEBUG, "Scanning opertype: %s", tname.c_str());
-			
 			std::string hostname(user->ident);
+
 			hostname.append("@").append(user->host);
 							
 			if ((tname == type) && OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
 			{
 				/* Opertype and host match, looks like this is it. */
-				ServerInstance->Log(DEBUG, "Host (%s matched %s OR %s) and type (%s)", pattern.c_str(), hostname.c_str(), user->GetIPString(), type.c_str());
-				
 				std::string operhost = Conf.ReadValue("type", "host", j);
-							
+
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
-								
+
 				Srv->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
-				
+
 				if (!user->modes[UM_OPERATOR])
 					user->Oper(type);
-								
+
 				return true;
 			}
 		}

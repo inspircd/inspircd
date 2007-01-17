@@ -104,7 +104,6 @@ class ModuleOperHash : public Module
 				/* Build a map of them */
 				hashers[name.c_str()] = *m;
 				names.push_back(name);
-				ServerInstance->Log(DEBUG, "Found HashRequest interface: '%s' -> '%08x'", name.c_str(), *m);
 			}
 		}
 		else

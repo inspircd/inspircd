@@ -80,8 +80,6 @@ class KickRejoin : public ModeHandler
 		}
 		else if (atoi(parameter.c_str()) > 0)
 		{
-			ServerInstance->Log(DEBUG,"Got parameter: '%s'",parameter.c_str());
-
 			if (!channel->IsModeSet('J'))
 			{
 				parameter = ConvToStr(atoi(parameter.c_str()));
@@ -146,18 +144,14 @@ public:
 			delaylist* dl;
 			if (chan->GetExt("norejoinusers", dl))
 			{
-				ServerInstance->Log(DEBUG, "m_kicknorejoin.so: got delay list, iterating over it");
 				std::vector<userrec*> itemstoremove;
 			
 				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 				{
-					ServerInstance->Log(DEBUG, "m_kicknorejoin.so:\t[%s] => %d", iter->first->nick, iter->second);
 					if (iter->second > time(NULL))
 					{
-						ServerInstance->Log(DEBUG, "m_kicknorejoin.so: still inside time slot");
 						if (iter->first == user)					
 						{
-							ServerInstance->Log(DEBUG, "m_kicknorejoin.so: and we have the right user");
 							user->WriteServ( "495 %s %s :You cannot rejoin this channel yet after being kicked (+J)", user->nick, chan->name);
 							return 1;
 						}
@@ -165,7 +159,6 @@ public:
 					else
 					{
 						// Expired record, remove.
-						ServerInstance->Log(DEBUG, "m_kicknorejoin.so: record expired");
 						itemstoremove.push_back(iter->first);
 					}
 				}
@@ -194,8 +187,6 @@ public:
 				dl = new delaylist;
 				chan->Extend("norejoinusers", dl);
 			}
-			
-			ServerInstance->Log(DEBUG, "m_kicknorejoin.so: setting record for %s, %d second delay", user->nick, strtoint(chan->GetModeParameter('J')));
 			(*dl)[user] = time(NULL) + strtoint(chan->GetModeParameter('J'));
 		}
 	}

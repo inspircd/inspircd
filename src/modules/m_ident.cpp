@@ -87,7 +87,6 @@ class RFC1413 : public InspSocket
 									if (this->Instance->IsIdent(section))
 									{
 										strlcpy(u->ident,section,IDENTMAX);
-										Instance->Log(DEBUG,"IDENT SET: "+std::string(u->ident));
 										u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
 									}
 								}
@@ -139,14 +138,13 @@ class RFC1413 : public InspSocket
 
 	virtual bool OnConnected()
 	{
-		Instance->Log(DEBUG,"Ident: connected");
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
 			uslen = sizeof(sock_us);
 			themlen = sizeof(sock_them);
 			if ((getsockname(this->u->GetFd(),(sockaddr*)&sock_us,&uslen) || getpeername(this->u->GetFd(), (sockaddr*)&sock_them, &themlen)))
 			{
-				Instance->Log(DEBUG,"Ident: failed to get socket names, bailing");
+				Instance->Log(DEBUG,"BUG: Ident: failed to get socket names");
 				return false;
 			}
 			else
@@ -158,7 +156,6 @@ class RFC1413 : public InspSocket
 				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
 #endif
 				this->Write(ident_request);
-				Instance->Log(DEBUG,"Sent ident request, waiting for reply");
 				return true;
 			}
 		}

@@ -117,7 +117,7 @@ class SQLresolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		ServerInstance->Log(DEBUG, "DNS lookup failed (%s), dying horribly", errormessage.c_str());
+		ServerInstance->Log(DEBUG, "PgSQL: DNS lookup failed (%s), dying horribly", errormessage.c_str());
 	}
 };
 
@@ -163,8 +163,6 @@ public:
 
 	void push(const SQLrequest &q)
 	{
-		//ServerInstance->Log(DEBUG, "QueryQueue::push(): Adding %s query to queue: %s", ((q.pri) ? "priority" : "non-priority"), q.query.q.c_str());
-
 		if(q.pri)
 			priority.push_back(q);
 		else
@@ -278,8 +276,6 @@ public:
 	{
 		rows = PQntuples(res);
 		cols = PQnfields(res);
-
-		//ServerInstance->Log(DEBUG, "Created new PgSQL result; %d rows, %d columns, %s affected", rows, cols, PQcmdTuples(res));
 	}
 
 	~PgSQLresult()
@@ -342,7 +338,6 @@ public:
 		}
 		else
 		{
-			//ServerInstance->Log(DEBUG, "PQgetvalue returned a null pointer..nobody wants to tell us what this means");
 			throw SQLbadColName();
 		}
 	}
@@ -509,40 +504,25 @@ class SQLConn : public EventHandler
 	bool DoConnect()
 	{
 		if(!(sql = PQconnectStart(confhost.GetDSN().c_str())))
-		{
-			Instance->Log(DEBUG, "Couldn't allocate PGconn structure, aborting: %s", PQerrorMessage(sql));
 			return false;
-		}
 
 		if(PQstatus(sql) == CONNECTION_BAD)
-		{
-			Instance->Log(DEBUG, "PQconnectStart failed: %s", PQerrorMessage(sql));
 			return false;
-		}
-
-		ShowStatus();
 
 		if(PQsetnonblocking(sql, 1) == -1)
-		{
-			Instance->Log(DEBUG, "Couldn't set connection nonblocking: %s", PQerrorMessage(sql));
 			return false;
-		}
 
 		/* OK, we've initalised the connection, now to get it hooked into the socket engine
 		* and then start polling it.
 		*/
 		this->fd = PQsocket(sql);
-		Instance->Log(DEBUG, "New SQL socket: %d", this->fd);
 
 		if(this->fd <= -1)
-		{
-			Instance->Log(DEBUG, "PQsocket says we have an invalid FD: %d", this->fd);
 			return false;
-		}
 
 		if (!this->Instance->SE->AddFd(this))
 		{
-			Instance->Log(DEBUG, "A PQsocket cant be added to the socket engine!");
+			Instance->Log(DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -582,25 +562,19 @@ class SQLConn : public EventHandler
 
 		if(PQconsumeInput(sql))
 		{
-			Instance->Log(DEBUG, "PQconsumeInput succeeded");
-
 			/* We just read stuff from the server, that counts as it being alive
 			 * so update the idle-since time :p
 			 */
 			idle = this->Instance->Time();
 
-			if(PQisBusy(sql))
+			if (PQisBusy(sql))
 			{
-				//Instance->Log(DEBUG, "Still busy processing command though");
+				/* Nothing happens here */
 			}
-			else if(qinprog)
+			else if (qinprog)
 			{
-				//ServerInstance->Log(DEBUG, "Looks like we have a result to process!");
-
 				/* Grab the request we're processing */
 				SQLrequest& query = queue.front();
-
-				Instance->Log(DEBUG, "ID is %lu", query.id);
 
 				/* Get a pointer to the module we're about to return the result to */
 				Module* to = query.GetSource();
@@ -628,8 +602,6 @@ class SQLConn : public EventHandler
 					/* Fix by brain, make sure the original query gets sent back in the reply */
 					reply.query = query.query.q;
 
-					Instance->Log(DEBUG, "Got result, status code: %s; error message: %s", PQresStatus(PQresultStatus(result)), PQresultErrorMessage(result));
-
 					switch(PQresultStatus(result))
 					{
 						case PGRES_EMPTY_QUERY:
@@ -651,16 +623,11 @@ class SQLConn : public EventHandler
 					 * the pointer to NULL. We cannot just cancel the query as the result will still come
 					 * through at some point...and it could get messy if we play with invalid pointers...
 					 */
-					Instance->Log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: %lu", query.id);
 					PQclear(result);
 				}
 				qinprog = false;
 				queue.pop();
 				DoConnectedPoll();
-			}
-			else
-			{
-				Instance->Log(DEBUG, "Eh!? We just got a read event, and connection isn't busy..but no result :(");
 			}
 			return true;
 		}
@@ -671,7 +638,6 @@ class SQLConn : public EventHandler
 			 * deserves to reconnect [/excuse]
 			 * Returning true so the core doesn't try and close the connection.
 			 */
-			Instance->Log(DEBUG, "PQconsumeInput failed: %s", PQerrorMessage(sql));
 			DelayReconnect();
 			return true;
 		}
@@ -682,85 +648,36 @@ class SQLConn : public EventHandler
 		switch(PQresetPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_WRITING");
 				Instance->SE->WantWrite(this);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
-				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_READING");
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
-				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_FAILED: %s", PQerrorMessage(sql));
 				return false;
 			case PGRES_POLLING_OK:
-				//ServerInstance->Log(DEBUG, "PGresetPoll: PGRES_POLLING_OK");
 				status = WWRITE;
 				return DoConnectedPoll();
 			default:
-				//ServerInstance->Log(DEBUG, "PGresetPoll: wtf?");
 				return true;
-		}
-	}
-
-	void ShowStatus()
-	{
-		switch(PQstatus(sql))
-		{
-			case CONNECTION_OK:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_OK: Can proceed to connect.");
-				break;
-
-			case CONNECTION_BAD:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_BAD: Connection is closed.");
-				break;
-
-			case CONNECTION_STARTED:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_STARTED: Waiting for connection to be made.");
-				break;
-
-			case CONNECTION_MADE:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_MADE: Connection OK; waiting to send.");
-				break;
-
-			case CONNECTION_AWAITING_RESPONSE:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_AWAITING_RESPONSE: Waiting for a response from the server.");
-				break;
-
-			case CONNECTION_AUTH_OK:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_AUTH_OK: Received authentication; waiting for backend start-up to finish.");
-				break;
-
-			case CONNECTION_SSL_STARTUP:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_SSL_STARTUP: Negotiating SSL encryption.");
-				break;
-
-			case CONNECTION_SETENV:
-				Instance->Log(DEBUG, "PQstatus: CONNECTION_SETENV: Negotiating environment-driven parameter settings.");
-				break;
-
-			default:
-				Instance->Log(DEBUG, "PQstatus: ???");
 		}
 	}
 
 	bool OnDataReady()
 	{
 		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-		Instance->Log(DEBUG, "OnDataReady(): status = %s", StatusStr());
 		return DoEvent();
 	}
 
 	bool OnWriteReady()
 	{
 		/* Always return true here, false would close the socket - we need to do that ourselves with the pgsql API */
-		Instance->Log(DEBUG, "OnWriteReady(): status = %s", StatusStr());
 		return DoEvent();
 	}
 
 	bool OnConnected()
 	{
-		Instance->Log(DEBUG, "OnConnected(): status = %s", StatusStr());
 		return DoEvent();
 	}
 
@@ -783,15 +700,6 @@ class SQLConn : public EventHandler
 			ret = DoConnectedPoll();
 		}
 		return ret;
-	}
-
-	const char* StatusStr()
-	{
-		if(status == CREAD) return "CREAD";
-		if(status == CWRITE) return "CWRITE";
-		if(status == WREAD) return "WREAD";
-		if(status == WWRITE) return "WWRITE";
-		return "Err...what, erm..BUG!";
 	}
 
 	SQLerror DoQuery(SQLrequest &req)
@@ -852,10 +760,8 @@ class SQLConn : public EventHandler
 #endif
 							if(error)
 							{
-								Instance->Log(DEBUG, "Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
+								Instance->Log(DEBUG, "BUG: Apparently PQescapeStringConn() failed somehow...don't know how or what to do...");
 							}
-
-							Instance->Log(DEBUG, "Appended %d bytes of escaped string onto the query", len);
 
 							/* Incremenet queryend to the end of the newly escaped parameter */
 							queryend += len;
@@ -865,7 +771,7 @@ class SQLConn : public EventHandler
 						}
 						else
 						{
-							Instance->Log(DEBUG, "Found a substitution location but no parameter to substitute :|");
+							Instance->Log(DEBUG, "BUG: Found a substitution location but no parameter to substitute :|");
 							break;
 						}
 					}
@@ -878,21 +784,16 @@ class SQLConn : public EventHandler
 
 				/* Null-terminate the query */
 				*queryend = 0;
-
-				Instance->Log(DEBUG, "Attempting to dispatch query: %s", query);
-
 				req.query.q = query;
 
 				if(PQsendQuery(sql, query))
 				{
-					Instance->Log(DEBUG, "Dispatched query successfully");
 					qinprog = true;
 					delete[] query;
 					return SQLerror();
 				}
 				else
 				{
-					Instance->Log(DEBUG, "Failed to dispatch query: %s", PQerrorMessage(sql));
 					delete[] query;
 					return SQLerror(QSEND_FAIL, PQerrorMessage(sql));
 				}
@@ -928,22 +829,16 @@ class SQLConn : public EventHandler
 	}
 
 	void Close() {
-		Instance->Log(DEBUG, "SQLConn::Close - socket: %d", this->fd);
-
 		if (!this->Instance->SE->DelFd(this))
 		{
 			if (sql && PQstatus(sql) == CONNECTION_BAD)
 			{
-				Instance->Log(DEBUG, "PQsocket was already removed. Forcing removal from socket engine!");
 				this->Instance->SE->DelFd(this, true);
 			}
 			else
 			{
-				Instance->Log(DEBUG, "PQsocket cant be removed from socket engine!");
+				Instance->Log(DEBUG, "BUG: PQsocket cant be removed from socket engine!");
 			}
-		}
-		else {
-			Instance->Log(DEBUG, "PQsocket removed from socket engine!");
 		}
 
 		if(sql)
@@ -975,7 +870,7 @@ class ModulePgSQL : public Module
 
 		if (!ServerInstance->PublishFeature("SQL", this))
 		{
-			throw ModuleException("m_pgsql: Unable to publish feature 'SQL'");
+			throw ModuleException("BUG: PgSQL Unable to publish feature 'SQL'");
 		}
 
 		ReadConf();
@@ -1077,13 +972,12 @@ class ModulePgSQL : public Module
 				catch(...)
 				{
 					/* THE WORLD IS COMING TO AN END! */
-					ServerInstance->Log(DEBUG, "Couldn't make a SQLresolver..this connection is gonna diiiiiie...actually we just won't create it");
 				}
 			}
 			else
 			{
 				/* Invalid address family, die horribly. */
-				ServerInstance->Log(DEBUG, "insp_aton failed returning -1, oh noes.");
+				ServerInstance->Log(DEBUG, "BUG: insp_aton failed returning -1, oh noes.");
 			}
 		}
 	}
@@ -1150,9 +1044,6 @@ class ModulePgSQL : public Module
 		{
 			SQLrequest* req = (SQLrequest*)request;
 			ConnMap::iterator iter;
-
-			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
-
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				/* Execute query */
@@ -1167,9 +1058,6 @@ class ModulePgSQL : public Module
 				return NULL;
 			}
 		}
-
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-
 		return NULL;
 	}
 

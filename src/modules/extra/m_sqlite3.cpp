@@ -64,7 +64,6 @@ class ResultNotifier : public InspSocket
 
 	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : InspSocket(SI, newfd, ip), mod(m)
 	{
-		Instance->Log(DEBUG,"Constructor of new socket");
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -79,7 +78,6 @@ class ResultNotifier : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		Instance->Log(DEBUG,"Inbound connection on fd %d!",newsock);
 		Dispatch();
 		return false;
 	}
@@ -269,11 +267,7 @@ class SQLConn : public classbase
 	SQLConn(InspIRCd* SI, Module* m, const SQLhost& hi)
 	: Instance(SI), mod(m), host(hi)
 	{
-		if (OpenDB() == SQLITE_OK)
-		{
-			Instance->Log(DEBUG, "Opened sqlite DB: " + host.host);
-		}
-		else
+		if (OpenDB() != SQLITE_OK)
 		{
 			Instance->Log(DEFAULT, "WARNING: Could not open DB with id: " + host.id);
 			CloseDB();
@@ -355,12 +349,10 @@ class SQLConn : public classbase
 		{
 			std::string error(errmsg);
 			sqlite3_free(errmsg);
-			Instance->Log(DEBUG, "Query failed: " + ConvToStr(errmsg));
 			delete[] query;
 			delete res;
 			return SQLerror(QSEND_FAIL, error);
 		}
-		Instance->Log(DEBUG, "Dispatched query successfully. ID: %d resulting rows %d", req.id, res->Rows());
 		delete[] query;
 
 		results.push_back(res);
@@ -400,7 +392,6 @@ class SQLConn : public classbase
 	{
 		sqlite3_interrupt(conn);
 		sqlite3_close(conn);
-		Instance->Log(DEBUG, "Closed sqlite DB: " + host.host);
 	}
 
 	SQLhost GetConfHost()
@@ -423,7 +414,6 @@ class SQLConn : public classbase
 				 * the pointer to NULL. We cannot just cancel the query as the result will still come
 				 * through at some point...and it could get messy if we play with invalid pointers...
 				 */
-				Instance->Log(DEBUG, "Looks like we're handling a zombie query from a module which unloaded before it got a result..fun. ID: " + ConvToStr(res->GetId()));
 				delete res;
 			}
 			results.pop_front();
@@ -491,7 +481,6 @@ class ModuleSQLite3 : public Module
 		}
 
 		resultnotify = new ResultNotifier(ServerInstance, this);
-		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",resultnotify->GetPort());
 
 		ReadConf();
 
@@ -637,7 +626,6 @@ class ModuleSQLite3 : public Module
 		{
 			SQLrequest* req = (SQLrequest*)request;
 			ConnMap::iterator iter;
-			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
 			if((iter = connections.find(req->dbid)) != connections.end())
 			{
 				req->id = NewID();
@@ -650,7 +638,6 @@ class ModuleSQLite3 : public Module
 				return NULL;
 			}
 		}
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 		return NULL;
 	}
 

@@ -231,7 +231,6 @@ void HTTPSocket::Connect(const string &ip)
 	
 	if (!this->DoConnect())
 	{
-		Server->Log(DEBUG, "Unable to connect HTTPSocket to %s", this->host);
 		delete this;
 	}
 }
@@ -311,12 +310,9 @@ bool HTTPSocket::OnDataReady()
 
 void HTTPSocket::OnClose()
 {
-	if (!data.length())
-	{
-		Server->Log(DEBUG, "HTTP socket closed unexpectedly (no content recieved)");
+	if (data.empty())
 		return;
-	}
-	Server->Log(DEBUG, "Got file from HTTP successfully");
+
 	response->data = data;
 	response->Send();
 	delete response;

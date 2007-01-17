@@ -729,7 +729,6 @@ class Notifier : public InspSocket
 
 	Notifier(InspIRCd* SI, int newfd, char* ip) : InspSocket(SI, newfd, ip)
 	{
-		Instance->Log(DEBUG,"Constructor of new socket");
 	}
 
 	/* Using getsockname and ntohs, we can determine which port number we were allocated */
@@ -744,7 +743,6 @@ class Notifier : public InspSocket
 
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
-		Instance->Log(DEBUG,"Inbound connection on fd %d!",newsock);
 		Notifier* n = new Notifier(this->Instance, newsock, ip);
 		n = n; /* Stop bitching at me, GCC */
 		return true;
@@ -752,18 +750,14 @@ class Notifier : public InspSocket
 
 	virtual bool OnDataReady()
 	{
-		Instance->Log(DEBUG,"Inbound data!");
 		char* data = this->Read();
 		ConnMap::iterator iter;
 
 		if (data && *data)
 		{
-			Instance->Log(DEBUG,"Looking for connection %s",data);
 			/* We expect to be sent a null terminated string */
 			if((iter = Connections.find(data)) != Connections.end())
 			{
-				Instance->Log(DEBUG,"Found it!");
-
 				/* Lock the mutex, send back the data */
 				pthread_mutex_lock(&results_mutex);
 				ResultQueue::iterator n = iter->second->rq.begin();
@@ -801,7 +795,6 @@ class ModuleSQL : public Module
 		SQLModule = this;
 
 		MessagePipe = new Notifier(ServerInstance);
-		ServerInstance->Log(DEBUG,"Bound notifier to 127.0.0.1:%d",MessagePipe->GetPort());
 		
 		pthread_attr_t attribs;
 		pthread_attr_init(&attribs);
@@ -857,8 +850,6 @@ class ModuleSQL : public Module
 
 			char* returnval = NULL;
 
-			ServerInstance->Log(DEBUG, "Got query: '%s' with %d replacement parameters on id '%s'", req->query.q.c_str(), req->query.p.size(), req->dbid.c_str());
-
 			if((iter = Connections.find(req->dbid)) != Connections.end())
 			{
 				req->id = NewID();
@@ -875,8 +866,6 @@ class ModuleSQL : public Module
 
 			return returnval;
 		}
-
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
 
 		return NULL;
 	}

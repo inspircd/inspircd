@@ -104,8 +104,6 @@ class ModuleAlias : public Module
 		bool everything_after = (varname == "-");
 		std::string word = "";
 
-		ServerInstance->Log(DEBUG,"Get var %d%s", index , everything_after ? " and all after it" : "");
-
 		for (int j = 0; j < index; j++)
 			word = ss.GetToken();
 
@@ -118,8 +116,6 @@ class ModuleAlias : public Module
 				word.append(more);
 			}
 		}
-
-		ServerInstance->Log(DEBUG,"Var is '%s'", word.c_str());
 
 		return word;
 	}
@@ -200,18 +196,15 @@ class ModuleAlias : public Module
 
 				if (crlf == std::string::npos)
 				{
-					ServerInstance->Log(DEBUG,"Single line alias: '%s'", Aliases[i].replace_with.c_str());
 					DoCommand(Aliases[i].replace_with, user, safe);
 					return 1;
 				}
 				else
 				{
-					ServerInstance->Log(DEBUG,"Multi line alias: '%s'", Aliases[i].replace_with.c_str());
 					irc::sepstream commands(Aliases[i].replace_with, '\n');
 					std::string command = "*";
 					while ((command = commands.GetToken()) != "")
 					{
-						ServerInstance->Log(DEBUG,"Execute: '%s'", command.c_str());
 						DoCommand(command, user, safe);
 					}
 					return 1;
@@ -265,20 +258,10 @@ class ModuleAlias : public Module
 		while ((pars[x] = ss.GetToken()) != "")
 		{
 			parv[x] = pars[x].c_str();
-			ServerInstance->Log(DEBUG,"Parameter %d: %s", x, parv[x]);
 			x++;
 		}
 
-		ServerInstance->Log(DEBUG,"Call command handler on %s", parv[0]);
-
-		if (ServerInstance->Parser->CallHandler(parv[0], &parv[1], x-1, user) == CMD_INVALID)
-		{
-			ServerInstance->Log(DEBUG,"Unknown command or not enough parameters");
-		}
-		else
-		{
-			ServerInstance->Log(DEBUG,"Command handler called successfully.");
-		}
+		ServerInstance->Parser->CallHandler(parv[0], &parv[1], x-1, user);
 	}
  
 	virtual void OnRehash(userrec* user, const std::string &parameter)

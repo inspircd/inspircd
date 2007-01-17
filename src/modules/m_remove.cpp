@@ -121,44 +121,36 @@ class RemoveBase
 		
 		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(user->nick))
 		{
-			ServerInstance->Log(DEBUG, "Setting ulevel to U");
 			ulevel = chartolevel("U");
 		}
 		if (user->GetExt(founderkey))
 		{
-			ServerInstance->Log(DEBUG, "Setting ulevel to ~");
 			ulevel = chartolevel("~");
 		}
 		else if (user->GetExt(protectkey))
 		{
-			ServerInstance->Log(DEBUG, "Setting ulevel to &");
 			ulevel = chartolevel("&");
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "Setting ulevel to %s", channel->GetPrefixChar(user));
 			ulevel = chartolevel(channel->GetPrefixChar(user));
 		}
 			
 		/* Now it's the same idea, except for the target. If they're ulined make sure they get a higher level than the sender can */
 		if (ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick))
 		{
-			ServerInstance->Log(DEBUG, "Setting tlevel to U");
 			tlevel = chartolevel("U");
 		}
 		else if (target->GetExt(founderkey))
 		{
-			ServerInstance->Log(DEBUG, "Setting tlevel to ~");
 			tlevel = chartolevel("~");
 		}
 		else if (target->GetExt(protectkey))
 		{
-			ServerInstance->Log(DEBUG, "Setting tlevel to &");
 			tlevel = chartolevel("&");
 		}
 		else
 		{
-			ServerInstance->Log(DEBUG, "Setting tlevel to %s", channel->GetPrefixChar(target));
 			tlevel = chartolevel(channel->GetPrefixChar(target));
 		}
 		

@@ -73,7 +73,6 @@ class HttpServerSocket : public InspSocket
 
 	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
 	{
-		SI->Log(DEBUG,"HttpServerSocket constructor");
 		InternalState = HTTP_LISTEN;
 		Timeout = NULL;
 	}
@@ -267,11 +266,9 @@ class HttpServerSocket : public InspSocket
 					}
 					else
 					{
-						Instance->Log(DEBUG,"%d bytes to read for POST",postsize);
 						std::string::size_type x = headers.str().find("\r\n\r\n");
 						postdata = headers.str().substr(x+4, headers.str().length());
 						/* Get content length and store */
-						Instance->Log(DEBUG,"Initial postdata: '%s'", postdata.c_str());
 						if (postdata.length() >= postsize)
 							ServeData();
 					}
@@ -325,7 +322,6 @@ class HttpServerSocket : public InspSocket
 				if (!claimed)
 				{
 					SendHeaders(0, 404, "");
-					Instance->Log(DEBUG,"Page not claimed, 404");
 				}
 			}
 		}
@@ -335,7 +331,6 @@ class HttpServerSocket : public InspSocket
 
 	void Page(std::stringstream* n, int response, std::string& extraheaders)
 	{
-		Instance->Log(DEBUG,"Sending page");
 		SendHeaders(n->str().length(), response, extraheaders);
 		this->Write(n->str());
 	}
@@ -392,7 +387,6 @@ class ModuleHttpServer : public Module
 
 	char* OnRequest(Request* request)
 	{
-		ServerInstance->Log(DEBUG,"Got HTTPDocument object");
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();
 		HttpServerSocket* sock = (HttpServerSocket*)doc->sock;

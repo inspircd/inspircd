@@ -120,19 +120,14 @@ public:
 				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
 				 * us to discard the query.
 			 	 */
-				ServerInstance->Log(DEBUG, "Sent query, got given ID %lu", req.id);
-				
 				AssociateUser(this, SQLutils, req.id, user).Send();
 					
 				return true;
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "SQLrequest failed: %s", req.error.Str());
-			
 				if (verbose)
 					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
-			
 				return false;
 			}
 		}
@@ -147,22 +142,15 @@ public:
 	{
 		if(strcmp(SQLRESID, request->GetId()) == 0)
 		{
-			SQLresult* res;
-		
-			res = static_cast<SQLresult*>(request);
-			
-			ServerInstance->Log(DEBUG, "Got SQL result (%s) with ID %lu", res->GetId(), res->id);
-			
+			SQLresult* res = static_cast<SQLresult*>(request);
+
 			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 			
 			if(user)
 			{
 				if(res->error.Id() == NO_ERROR)
-				{				
-					ServerInstance->Log(DEBUG, "Associated query ID %lu with user %s", res->id, user->nick);			
-					ServerInstance->Log(DEBUG, "Got result with %d rows and %d columns", res->Rows(), res->Cols());
-			
+				{
 					if(res->Rows())
 					{
 						/* We got a row in the result, this is enough really */
@@ -177,14 +165,12 @@ public:
 				}
 				else if (verbose)
 				{
-					ServerInstance->Log(DEBUG, "Query failed: %s", res->error.Str());
 					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					user->Extend("sqlauth_failed");
 				}
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG, "Got query with unknown ID, this probably means the user quit while the query was in progress");
 				return NULL;
 			}
 
@@ -193,10 +179,7 @@ public:
 				userrec::QuitUser(Srv,user,killreason);
 			}
 			return SQLSUCCESS;
-		}
-		
-		ServerInstance->Log(DEBUG, "Got unsupported API version string: %s", request->GetId());
-		
+		}		
 		return NULL;
 	}
 	

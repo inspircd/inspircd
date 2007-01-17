@@ -46,8 +46,6 @@ class BanRedirect : public ModeWatcher
 
 	bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &param, bool adding, ModeType type)
 	{
-		// Srv->Log(DEBUG, "BeforeMode(%s, %s, %s, %s, %s, %s)", ((source && source->nick) ? source->nick : "NULL"), ((dest && dest->nick) ? dest->nick : "NULL"), ((channel && channel->name) ? channel->name : "NULL"), param.c_str(), (adding ? "true" : "false"), ((type == MODETYPE_CHANNEL) ? "MODETYPE_CHANNEL" : "MODETYPE_USER"));
-
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan
 		 * nick@host#chan -> nick!*@host#chan
@@ -113,8 +111,6 @@ class BanRedirect : public ModeWatcher
 			}
 				
 			param.assign(mask[NICK]).append(1, '!').append(mask[IDENT]).append(1, '@').append(mask[HOST]);
-			
-			// Srv->Log(DEBUG, "mask[NICK] = '%s', mask[IDENT] = '%s', mask[HOST] = '%s', mask[CHAN] = '%s'", mask[NICK].c_str(), mask[IDENT].c_str(), mask[HOST].c_str(), mask[CHAN].c_str());
 	
 			if(mask[CHAN].length())
 			{
@@ -178,8 +174,6 @@ class BanRedirect : public ModeWatcher
 					return false;
 				}
 			}
-				
-			Srv->Log(DEBUG, "Changed param to: %s", param.c_str());
 		}
 		
 		return true;
@@ -272,15 +266,12 @@ class ModuleBanRedirect : public Module
 				 */
 				std::string ipmask(user->nick);
 				ipmask.append(1, '!').append(user->MakeHostIP());
-				Srv->Log(DEBUG, "Matching against %s, %s and %s", user->GetFullRealHost(), user->GetFullHost(), ipmask.c_str());
 				
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
 					if(Srv->MatchText(user->GetFullRealHost(), redir->banmask) || Srv->MatchText(user->GetFullHost(), redir->banmask) || Srv->MatchText(ipmask, redir->banmask))
 					{
 						/* tell them they're banned and are being transferred */
-						Srv->Log(DEBUG, "%s matches ban on %s -- might transferred to %s", user->nick, chan->name, redir->targetchan.c_str());
-						
 						chanrec* destchan = Srv->FindChan(redir->targetchan);
 						
 						if(destchan && Srv->FindModule("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
