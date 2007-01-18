@@ -157,13 +157,15 @@ install: all
 
 clean:
 	@echo Cleaning...
-	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a
+	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
 	@echo Completed.
 
 modclean:
 	rm -rf modules/*.so
 	rm -rf src/modules/*.so
 	rm -rf src/modules/*.o
+	rm -rf src/modules/*/*.so
+	rm -rf src/modules/*/*.o
 	rm -rf lib/*.so
 	rm -f bin/inspircd
 
