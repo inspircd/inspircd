@@ -1,0 +1,24 @@
+m_spanningtree
+--------------
+
+This directory contains all files required to build the m_spanningtree.so module.
+Directories like this one starting with m_ and containing .cpp files are aggregated
+together by the makefile to form a single .so, with the same name as the directory.
+
+This directory contains the following files:
+
+* handshaketimer.cpp		Code for detecting end of ziplink/ssl handshake
+* handshaketimer.h		Header for above code
+* link.h			Contains the definition of the Link block class
+* main.cpp			The main group of classes and code for the module class
+* main.h			The header for the main file
+* resolvers.h			The header file that defines certain DNS utility classes
+* treesocket.cpp		Contains code that inherits InspSocket into a server socket
+* treesocket.h			Header definitions for above code
+* treeserver.cpp		Contains code that defines the behaviour of a single server
+* treeserver.h			Header definitions for above code
+* utils.cpp			Contains general and message routing utility classes
+* utils.h			Header code for general and message routing utilities
+
+Have fun
+  -- Brain :-)
