@@ -1265,7 +1265,7 @@ EOCHEESE
 						$crapola = $crapola . "	\$(CC) -pipe -I../../../include \$(FLAGS) $cmflags -export-dynamic -c $name/$fname\n";
 						$oname = $fname;
 						$oname =~ s/\.cpp$/.o/g;
-						$crap2 = $crap2 . " $name/$oname";
+						$crap2 = $crap2 . " $oname";
 						$crap3 = $crap3 . " $name/$fname";
 					}
 				}
