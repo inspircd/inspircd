@@ -1264,7 +1264,7 @@ EOCHEESE
 						$liflags = getlinkerflags("src/modules/$name/$fname");
 						$deps = getdependencies("src/modules/$name/$fname");
 						print FILEHANDLE " $name/$fname";
-						$crapola = $crapola . "	\$(CC) -pipe -I../../../include \$(FLAGS) $cmflags -export-dynamic -c $name/$fname\n";
+						$crapola = $crapola . "	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c $name/$fname\n";
 						$oname = $fname;
 						$oname =~ s/\.cpp$/.o/g;
 						$crap2 = $crap2 . " $oname";
