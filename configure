@@ -1256,23 +1256,24 @@ EOCHEESE
 			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
 				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... ";
 				my $i = 0;
-				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps"; 
+				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h"; 
 				foreach $fname (sort readdir(MDIRHANDLE)) {
 					if ($fname =~ /\.cpp$/) {
 						$cmflags = getcompilerflags("src/modules/$name/$fname");
 						$liflags = getlinkerflags("src/modules/$name/$fname");
 						$deps = getdependencies("src/modules/$name/$fname");
-						print FILEHANDLE " $name/$fname";
 						$oname = $fname;
 						$oname =~ s/\.cpp$/.o/g;
-						$crapola = $crapola .  "	\$(CC) -pipe -I../../include -I. \$(FLAGS) $cmflags -export-dynamic -o $name/$oname -c $name/$fname\n";
+						print FILEHANDLE " $name/$oname";
+						$crapola = $crapola .  "$name/$oname: $name/$fname ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps\n";
+						$crapola = $crapola .  "	\$(CC) -pipe -I../../include -I. \$(FLAGS) $cmflags -export-dynamic -o $name/$oname -c $name/$fname\n\n";
 						$crap3 = $crap3 . " $name/$oname";
 						$i++;
 					}
 				}
 				print "(\033[1;32m$i files found\033[0m)\n";
-				print FILEHANDLE "\n$crapola";
-				print FILEHANDLE "	\$(CC) -pipe $liflags -shared -o $name.so $crap3\n\n";
+				print FILEHANDLE "\n	\$(CC) -pipe $liflags -shared -o $name.so $crap3\n";
+				print FILEHANDLE "\n$crapola\n";
 				closedir(MDIRHANDLE);
 				$crud = $crud . "	install -m \$(INSTMODE) $name.so \$(MODPATH)\n";
 			}
