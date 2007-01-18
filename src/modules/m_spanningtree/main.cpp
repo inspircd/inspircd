@@ -11,7 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $ModDesc: Povides a spanning tree server link protocol */
+/* $ModDesc: Provides a spanning tree server link protocol */
 
 #include "configreader.h"
 #include "users.h"
