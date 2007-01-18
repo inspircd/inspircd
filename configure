@@ -1250,7 +1250,7 @@ EOCHEESE
 	opendir(DIRHANDLE, "src/modules");
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^m_(.+?)$/) {
-			$crapola = "";
+			$crapola = "	cd $name\n";
 			$crap2 = "ar r $name.a ";
 			$crap3 = "";
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
@@ -1264,7 +1264,7 @@ EOCHEESE
 						$liflags = getlinkerflags("src/modules/$name/$fname");
 						$deps = getdependencies("src/modules/$name/$fname");
 						print FILEHANDLE " $name/$fname";
-						$crapola = $crapola .  "	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c $name/$fname\n";
+						$crapola = $crapola .  "	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags -export-dynamic -c $fname\n";
 						$oname = $fname;
 						$oname =~ s/\.cpp$/.o/g;
 						$crap2 = $crap2 . " $oname";
@@ -1273,7 +1273,7 @@ EOCHEESE
 					}
 				}
 				print "(\033[1;32m$i files found\033[0m)\n";
-				print FILEHANDLE "\n$crapola\n	$crap2\n";
+				print FILEHANDLE "\n$crapola	$crap2\n\n";
 				print FILEHANDLE "$name.so: $name.a ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h$crap3\n";
 				print FILEHANDLE "	ranlib $name.a\n";
 				print FILEHANDLE "	\$(CC) -pipe $liflags -shared -o $name.so $name.a\n";
