@@ -1255,7 +1255,7 @@ EOCHEESE
 			$crap3 = "";
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
 			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
-				print "Composing Makefile rules for folder \033[1;32m$name\033[0m... ";
+				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... ";
 				my $i = 0;
 				print FILEHANDLE "$name.a: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps"; 
 				foreach $fname (sort readdir(MDIRHANDLE)) {
