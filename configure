@@ -1272,7 +1272,7 @@ EOCHEESE
 					}
 				}
 				print "(\033[1;32m$i files found\033[0m)\n";
-				print FILEHANDLE "\n	\$(CC) -pipe $liflags -shared -o $name.so $crap3\n";
+				print FILEHANDLE "\n	\$(CC) -pipe \($FLAGS) -shared $liflags -o $name.so $crap3\n";
 				print FILEHANDLE "\n$crapola\n";
 				closedir(MDIRHANDLE);
 				$crud = $crud . "	install -m \$(INSTMODE) $name.so \$(MODPATH)\n";
