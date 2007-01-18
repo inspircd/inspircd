@@ -1007,6 +1007,17 @@ EOF
 	}
 	chomp($modules);   # Remove Redundant whitespace..
 
+	opendir(DIRHANDLE, "src/modules");
+	foreach $name (sort readdir(DIRHANDLE)) {
+		if ($name =~ /^m_(.+?)$/) {
+			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
+				closedir(MDIRHANDLE);
+				$modules .= "$name.so ";
+			}
+		}
+	}
+	closedir(DIRHANDLE);
+
 
 	# Write all .in files.
 	my $tmp = "";
@@ -1263,6 +1274,7 @@ EOCHEESE
 				print FILEHANDLE "	ranlib $name.a$crap3\n";
 				print FILEHANDLE "	\$(CC) -pipe $liflags -shared -o $name.so $name.a\n";
 				closedir(MDIRHANDLE);
+				$crud = $crud . "	install -m \$(INSTMODE) $name.so \$(MODPATH)\n";
 			}
 		}
 	}
