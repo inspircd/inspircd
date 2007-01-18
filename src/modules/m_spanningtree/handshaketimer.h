@@ -11,14 +11,14 @@ class Link;
 class HandshakeTimer : public InspTimer
 {
  private:
-        InspIRCd* Instance;
-        TreeSocket* sock;
-        Link* lnk;
-        SpanningTreeUtilities* Utils;
-        int thefd;
+	InspIRCd* Instance;
+	TreeSocket* sock;
+	Link* lnk;
+	SpanningTreeUtilities* Utils;
+	int thefd;
  public:
-        HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u);
-        virtual void Tick(time_t TIME);
+	HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u);
+	virtual void Tick(time_t TIME);
 };
 
 #endif

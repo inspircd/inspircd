@@ -10,17 +10,17 @@
 class Link : public classbase
 {
  public:
-        irc::string Name;
-        std::string IPAddr;
-        int Port;
-        std::string SendPass;
-        std::string RecvPass;
-        unsigned long AutoConnect;
-        time_t NextConnectTime;
-        bool HiddenFromStats;
-        std::string FailOver;
-        std::string Hook;
-        int Timeout;
+	irc::string Name;
+	std::string IPAddr;
+	int Port;
+	std::string SendPass;
+	std::string RecvPass;
+	unsigned long AutoConnect;
+	time_t NextConnectTime;
+	bool HiddenFromStats;
+	std::string FailOver;
+	std::string Hook;
+	int Timeout;
 };
 
 #endif

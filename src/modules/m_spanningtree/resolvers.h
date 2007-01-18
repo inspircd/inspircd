@@ -20,24 +20,23 @@
 class SecurityIPResolver : public Resolver
 {
  private:
-        Link MyLink;
-        SpanningTreeUtilities* Utils;
+	Link MyLink;
+	SpanningTreeUtilities* Utils;
  public:
-        SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), 
-MyLink(x),
- Utils(U)
-        {
-        }
+	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached)
+		: Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), MyLink(x), Utils(U)
+	{
+	}
 
-        void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
-        {
-                Utils->ValidIPs.push_back(result);
-        }
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	{
+		Utils->ValidIPs.push_back(result);
+	}
 
-        void OnError(ResolverError e, const std::string &errormessage)
-        {
-                ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
-        }
+	void OnError(ResolverError e, const std::string &errormessage)
+	{
+		ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
+	}
 };
 
 #endif
