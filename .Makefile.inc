@@ -145,6 +145,10 @@ install: all
 	@-cp conf/cert.pem $(CONPATH)
 	@-cp docs/inspircd.conf.example $(CONPATH)
 	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
+	${MAKE} modinstall
+
+modinstall: mods
+	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -154,6 +158,9 @@ install: all
 	@echo "*                                   *"
 	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
+
+module:
+	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) ${name}
 
 clean:
 	@echo Cleaning...
