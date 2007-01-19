@@ -75,7 +75,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				user->WriteServ("433 %s %s :Nickname is already in use.",user->nick,parameters[0]);
+				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;
 			}
 		}
