@@ -144,7 +144,6 @@ install: all
 	@-cp conf/key.pem $(CONPATH)
 	@-cp conf/cert.pem $(CONPATH)
 	@-cp docs/inspircd.conf.example $(CONPATH)
-	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
 	${MAKE} modinstall
 
 modinstall: mods
