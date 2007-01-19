@@ -18,6 +18,8 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/resolvers.h"
 
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+
 /** Yay for fast searches!
  * This is hundreds of times faster than recursion
  * or even scanning a linked list, especially when

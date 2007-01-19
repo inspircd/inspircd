@@ -13,6 +13,8 @@
 #include "m_spanningtree/utils.h"
 #include "m_spanningtree/treeserver.h"
 
+/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
+
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : ServerInstance(Instance), Utils(Util)
 {
 	Parent = NULL;

@@ -19,6 +19,8 @@
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/handshaketimer.h"
 
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+
 int TreeSocket::WriteLine(std::string line)
 {
 	Instance->Log(DEBUG, "-> %s", line.c_str());

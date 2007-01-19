@@ -17,6 +17,8 @@
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/handshaketimer.h"
 
+/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+
 HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u) : InspTimer(1, time(NULL)), Instance(Inst), sock(s), lnk(l), Utils(u)
 {
 	thefd = sock->GetFd();

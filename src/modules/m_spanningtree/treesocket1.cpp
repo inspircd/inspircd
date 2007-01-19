@@ -19,6 +19,8 @@
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/handshaketimer.h"
 
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+
 /** Because most of the I/O gubbins are encapsulated within
  * InspSocket, we just call the superclass constructor for
  * most of the action, and append a few of our own values
