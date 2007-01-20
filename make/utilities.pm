@@ -59,12 +59,12 @@ sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
 
+	my $key = "default_includedir_$packagename";
 	if (exists $main::config{$key})
 	{
 		print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
-		print "\033[1;32m$ret\033[0m (cached)\n";
-		my $key = "default_includedir_$packagename";
 		$ret = $main::config{$key};
+		print "\033[1;32m$ret\033[0m (cached)\n";
 		return $ret;
 	}
 
@@ -105,7 +105,9 @@ sub pkgconfig_get_include_dirs($$$;$)
 		{
 			$headername =~ s/^\///;
 			promptstring("path to the directory containing $headername", $key, "/usr/include");
-			$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
+			$packagename =~ tr/a-z/A-Z/;
+			$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$packagename=\"$v\"";
+			$main::config{$key} =~ s/^\s+//g;
 			$ret = $main::config{$key};
 			return $ret;
 		}
@@ -114,9 +116,13 @@ sub pkgconfig_get_include_dirs($$$;$)
 	{
 		chomp($v);
 		my $key = "default_includedir_$packagename";
-		$main::config{$key} = "$ret -DVERSION_$libname=\"$v\"";
+		$packagename =~ tr/a-z/A-Z/;
+		$main::config{$key} = "$ret -DVERSION_$packagename=\"$v\"";
+		$main::config{$key} =~ s/^\s+//g;
+		$ret = $main::config{$key};
 		print "\033[1;32m$ret\033[0m (version $v)\n";
 	}
+	$ret =~ s/^\s+//g;
 	return $ret;
 }
 
@@ -124,12 +130,12 @@ sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
 
+	my $key = "default_libdir_$packagename";
 	if (exists $main::config{$key})
 	{
 		print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
-		print "\033[1;32m$ret\033[0m (cached)\n";
-		my $key = "default_libdir_$packagename";
 		$ret = $main::config{$key};
+		print "\033[1;32m$ret\033[0m (cached)\n";
 		return $ret;
 	}
 
@@ -171,8 +177,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		{
 			$libname =~ s/^\///;
 			promptstring("path to the directory containing $libname", $key, "/usr/lib");
-			chomp($v);
-			$main::config{$key} = "-L$main::config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
+			$main::config{$key} = "-L$main::config{$key}" . " $defaults";
+			$main::config{$key} =~ s/^\s+//g;
 			$ret = $main::config{$key};
 			return $ret;
 		}
@@ -182,7 +188,9 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		chomp($v);
 		print "\033[1;32m$ret\033[0m (version $v)\n";
 		my $key = "default_libdir_$packagename";
-		$main::config{$key} = "$ret -DVERSION_$libname=\"$v\"";
+		$main::config{$key} = $ret;
+		$main::config{$key} =~ s/^\s+//g;
+		$ret =~ s/^\s+//g;
 	}
 	return "$ret -DVERSION_$libname=\"$v\"";
 }
