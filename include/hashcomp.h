@@ -285,6 +285,11 @@ namespace irc
 		 * @return The next token is returned, or an empty string if none remain
 		 */
 		virtual const std::string GetToken();
+		
+		/** Returns true if the end of the stream has been reached
+		 * @return True if the end of the stream has been reached, otherwise false
+		 */
+		virtual bool StreamEnd();
 	};
 
 	/** A derived form of sepstream, which seperates on commas

@@ -175,65 +175,79 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 {
 	url.url = iurl;
 	url.port = 80;
+	url.protocol = "http";
 
-	Instance->Log(DEBUG,"Parse: "+iurl);
+	irc::sepstream tokenizer(iurl, '/');
 	
-	// Tokenize by slashes (protocol:, blank, domain, request..)
-	int pos = 0, pstart = 0, pend = 0;
-	
-	for (;;)
+	for (int p = 0;; p++)
 	{
-		pend = url.url.find('/', pstart);
-		string part = url.url.substr(pstart, pend);
-
-		switch (pos)
+		std::string part = tokenizer.GetToken();
+		if (part.empty() && tokenizer.StreamEnd())
+			break;
+		
+		if ((p == 0) && (part[part.length() - 1] == ':'))
 		{
-			case 0:
-				Instance->Log(DEBUG,"PART 0: "+part);
-				// Protocol
-				if (part[part.length()-1] != ':')
-					return false;
-				url.protocol = part.substr(0, part.length() - 1);
-				break;
-			case 1:
-				// Empty, skip
-				break;
-			case 2:
-				Instance->Log(DEBUG,"PART 2: "+part);
-				// User and password (user:pass@)
-				string::size_type aend = part.find('@', 0);
-				if (aend != string::npos)
+			// Protocol ('http:')
+			url.protocol = part.substr(0, part.length() - 1);
+		}
+		else if ((p == 1) && (part.empty()))
+		{
+			continue;
+		}
+		else if (url.domain.empty())
+		{
+			// Domain part: [user[:pass]@]domain[:port]
+			std::string::size_type usrpos = part.find('@');
+			if (usrpos != std::string::npos)
+			{
+				// Have a user (and possibly password) part
+				std::string::size_type ppos = part.find(':');
+				if ((ppos != std::string::npos) && (ppos < usrpos))
 				{
-					// Technically, it is valid to not have a password (username@domain)
-					string::size_type usrend = part.find(':', 0);
-					
-					if ((usrend != string::npos) && (usrend < aend))
-						url.password = part.substr(usrend + 1, aend);
-					else
-						usrend = aend;
-					
-					url.username = part.substr(0, usrend);
+					// Have password too
+					url.password = part.substr(ppos + 1, usrpos - ppos - 1);
+					url.username = part.substr(0, ppos);
 				}
 				else
-					aend = 0;
+				{
+					url.username = part.substr(0, usrpos);
+				}
 				
-				// Port (:port)
-				string::size_type dend = part.find(':', aend);
-				if (dend != string::npos)
-					url.port = atoi(part.substr(dend + 1).c_str());
-
-				// Domain
-				url.domain = part.substr(aend + 1, dend);
-				
-				// The rest of the string is the request
-				url.request = url.url.substr(pend);
-				break;
+				part = part.substr(usrpos + 1);
+			}
+			
+			std::string::size_type popos = part.rfind(':');
+			if (popos != std::string::npos)
+			{
+				url.port = atoi(part.substr(popos + 1).c_str());
+				url.domain = part.substr(0, popos);
+			}
+			else
+			{
+				url.domain = part;
+			}
 		}
-		
-		if (pos++ == 2)
-			break;
+		else
+		{
+			// Request (part of it)..
+			url.request.append("/");
+			url.request.append(part);
+		}
+	}
+	
+	if (url.request.empty())
+		url.request = "/";
 
-		pstart = pend + 1;
+	if ((url.domain.empty()) || (!url.port) || (url.protocol.empty()))
+	{
+		Instance->Log(DEFAULT, "Invalid URL (%s): Missing required value", iurl.c_str());
+		return false;
+	}
+	
+	if (url.protocol != "http")
+	{
+		Instance->Log(DEFAULT, "Invalid URL (%s): Unsupported protocol '%s'", iurl.c_str(), url.protocol.c_str());
+		return false;
 	}
 	
 	return true;
