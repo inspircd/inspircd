@@ -19,14 +19,15 @@ sub promptstring($$$$$)
 	if (!$main::interactive)
 	{
 		undef $opt_commandlineswitch;
-		GetOptions ("$commandlineswitch" => \$opt_commandlineswitch);
+		GetOptions ("$commandlineswitch=s" => \$opt_commandlineswitch);
 		if (defined $opt_commandlineswitch)
 		{
+			print "\033[1;32m$opt_commandlineswitch\033[0m\n";
 			$var = $opt_commandlineswitch;
 		}
 		else
 		{
-			die "Could not detect $package! Please specify the $prompt via the command line option $commandlineswitch=\"/path/to/file\"";
+			die "Could not detect $package! Please specify the $prompt via the command line option \033[1;32m--$commandlineswitch=\"/path/to/file\"\033[0m";
 		}
 	}
 	else
@@ -97,13 +98,17 @@ sub pkgconfig_get_include_dirs($$$;$)
 	{
 		$foo = `locate "$headername" | head -n 1`;
 		$foo =~ /(.+)\Q$headername\E/;
-		if (defined $1)
+		$find = $1;
+		chomp($find);
+		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
+			print "(\033[1;32mFound via search\033[0m) ";
 			$foo = "-I$1";
 		}
 		else
 		{
-			$foo = "";
+			$foo = " ";
+			undef $v;
 		}
 		$ret = "$foo";
 	}
@@ -168,13 +173,17 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	{
 		$foo = `locate "$libname" | head -n 1`;
 		$foo =~ /(.+)\Q$libname\E/;
-		if (defined $1)
+		$find = $1;
+		chomp($find);
+		if ((defined $find) && ($find ne "") && ($find ne $packagename))
 		{
+			print "(\033[1;32mFound via search\033[0m) ";
 			$foo = "-L$1";
 		}
 		else
 		{
-			$foo = "";
+			$foo = " ";
+			undef $v;
 		}
 		$ret = "$foo";
 	}
@@ -283,7 +292,9 @@ sub translate_functions($$)
 	};
 	if ($@)
 	{
-		print "\n\nConfiguration failed. The following error occured:\n\n$@\n";
+		$err = $@;
+		$err =~ s/at .+? line \d+.*//g;
+		print "\n\nConfiguration failed. The following error occured:\n\n$err\n";
 		exit;
 	}
 	else
