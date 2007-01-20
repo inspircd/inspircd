@@ -59,12 +59,12 @@ sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
 
-	if (exists $config{$key})
+	if (exists $main::config{$key})
 	{
 		print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 		print "\033[1;32m$ret\033[0m (cached)\n";
 		my $key = "default_includedir_$packagename";
-		$ret = $config{$key};
+		$ret = $main::config{$key};
 		return $ret;
 	}
 
@@ -97,16 +97,16 @@ sub pkgconfig_get_include_dirs($$$;$)
 	if ((($ret eq " ") || (!defined $ret)) && ((!defined $v) || ($v eq "")))
 	{
 		my $key = "default_includedir_$packagename";
-		if (exists $config{$key})
+		if (exists $main::config{$key})
 		{
-			$ret = $config{$key};
+			$ret = $main::config{$key};
 		}
 		else
 		{
 			$headername =~ s/^\///;
 			promptstring("path to the directory containing $headername", $key, "/usr/include");
-			$config{$key} = "-I$config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
-			$ret = $config{$key};
+			$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
+			$ret = $main::config{$key};
 			return $ret;
 		}
 	}
@@ -114,7 +114,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 	{
 		chomp($v);
 		my $key = "default_includedir_$packagename";
-		$config{$key} = "$ret -DVERSION_$libname=\"$v\"";
+		$main::config{$key} = "$ret -DVERSION_$libname=\"$v\"";
 		print "\033[1;32m$ret\033[0m (version $v)\n";
 	}
 	return $ret;
@@ -124,12 +124,12 @@ sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
 
-	if (exists $config{$key})
+	if (exists $main::config{$key})
 	{
 		print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 		print "\033[1;32m$ret\033[0m (cached)\n";
 		my $key = "default_libdir_$packagename";
-		$ret = $config{$key};
+		$ret = $main::config{$key};
 		return $ret;
 	}
 
@@ -163,17 +163,17 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	if ((($ret eq " ") || (!defined $ret)) && ((!defined $v) || ($v eq "")))
 	{
 		my $key = "default_libdir_$packagename";
-		if (exists $config{$key})
+		if (exists $main::config{$key})
 		{
-			$ret = $config{$key};
+			$ret = $main::config{$key};
 		}
 		else
 		{
 			$libname =~ s/^\///;
 			promptstring("path to the directory containing $libname", $key, "/usr/lib");
 			chomp($v);
-			$config{$key} = "-L$config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
-			$ret = $config{$key};
+			$main::config{$key} = "-L$main::config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
+			$ret = $main::config{$key};
 			return $ret;
 		}
 	}
@@ -182,7 +182,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		chomp($v);
 		print "\033[1;32m$ret\033[0m (version $v)\n";
 		my $key = "default_libdir_$packagename";
-		$config{$key} = "$ret -DVERSION_$libname=\"$v\"";
+		$main::config{$key} = "$ret -DVERSION_$libname=\"$v\"";
 	}
 	return "$ret -DVERSION_$libname=\"$v\"";
 }
