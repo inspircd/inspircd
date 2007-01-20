@@ -1438,6 +1438,9 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
  */
 bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 {
+	if (!fname || !*fname)
+		return false;
+
 	FILE* file = NULL;
 	char linebuf[MAXBUF];
 
