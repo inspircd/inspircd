@@ -311,7 +311,13 @@ Version FilterBase::GetVersion()
 std::string FilterBase::EncodeFilter(FilterResult* filter)
 {
 	std::ostringstream stream;
-	stream << filter->freeform << " " << filter->action << " " << filter->gline_time << " " << filter->reason;
+	std::string x = filter->freeform;
+
+	for (std::string::iterator n = x.begin(); n != x.end(); n++)
+		if (*n == ' ')
+			*n = '\7';
+
+	stream << x << " " << filter->action << " " << filter->gline_time << " " << filter->reason;
 	return stream.str();
 }
 
@@ -319,10 +325,16 @@ FilterResult FilterBase::DecodeFilter(const std::string &data)
 {
 	FilterResult res;
 	std::istringstream stream(data);
+
 	stream >> res.freeform;
 	stream >> res.action;
 	stream >> res.gline_time;
 	res.reason = stream.str();
+
+	for (std::string::iterator n = res.freeform.begin(); n != res.freeform.end(); n++)
+		if (*n == '\7')
+			*n = ' ';
+
 	return res;
 }
 
