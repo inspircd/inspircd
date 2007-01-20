@@ -39,6 +39,7 @@ class HTTPSocket : public InspSocket
 	URL url;
 	enum { HTTP_CLOSED, HTTP_REQSENT, HTTP_HEADERS, HTTP_DATA } status;
 	std::string data;
+	std::string buffer;
 
  public:
 	HTTPSocket(InspIRCd *Instance, class ModuleHTTPClient *Mod);
@@ -266,52 +267,65 @@ bool HTTPSocket::OnDataReady()
 		this->Close();
 		return false;
 	}
-	
-	// Needs buffering for incomplete reads..
-	char *lend;
-	
+
 	if (this->status < HTTP_DATA)
 	{
-		while ((lend = strstr(data, "\r\n")) != NULL)
+		std::string line;
+		std::string::size_type pos;
+
+		this->buffer += data;
+		while ((pos = buffer.find("\r\n")) != std::string::npos)
 		{
-			if (strncmp(data, "\r\n", 2) == 0)
+			line = buffer.substr(0, pos);
+			buffer = buffer.substr(pos + 2);
+			if (line.empty())
 			{
 				this->status = HTTP_DATA;
+				this->data += this->buffer;
+				this->buffer = "";
 				break;
 			}
-			
-			*lend = '\0';
+//		while ((line = buffer.sstrstr(data, "\r\n")) != NULL)
+//		{
+//			if (strncmp(data, "\r\n", 2) == 0)
 			
 			if (this->status == HTTP_REQSENT)
 			{
 				// HTTP reply (HTTP/1.1 200 msg)
+				char const* data = line.c_str();
 				data += 9;
 				response = new HTTPClientResponse((Module*)Mod, req.GetSource() , url.url, atoi(data), data + 4);
 				this->status = HTTP_HEADERS;
 				continue;
 			}
 			
-			char *hdata = strchr(data, ':');
+			if ((pos = line.find(':')) != std::string::npos)
+			{
+
+//			char *hdata = strchr(data, ':');
 			
-			if (!hdata)
+//			if (!hdata)
+//				continue;
+			
+//			*hdata = '\0';
+			
+//			response->AddHeader(data, hdata + 2);
+				response->AddHeader(line.substr(0, pos), line.substr(pos + 1));
+			
+//			data = lend + 2;
+			} else
 				continue;
-			
-			*hdata = '\0';
-			
-			response->AddHeader(data, hdata + 2);
-			
-			data = lend + 2;
 		}
+	} else {
+		this->data += data;
 	}
-	
-	this->data += data;
 	return true;
 }
 
 void HTTPSocket::OnClose()
 {
 	if (data.empty())
-		return;
+		return; // notification that request failed?
 
 	response->data = data;
 	response->Send();
