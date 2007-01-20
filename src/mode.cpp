@@ -282,6 +282,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	if ((targetchannel) && (pcnt == 2))
 	{
 		const char* mode = parameters[1];
+		int nonlistmodes_found = 0;
 
 		mask = MASK_CHANNEL;
 		
@@ -313,9 +314,15 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				if (display)
 					mh->DisplayList(user, targetchannel);
 			}
+			else
+				nonlistmodes_found++;
 
 			mode++;
 		}
+
+		/* We didnt have any modes that were non-list, we can return here */
+		if (!nonlistmodes_found)
+			return;
 	}
 
 	if (pcnt == 1)
