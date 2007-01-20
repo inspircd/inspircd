@@ -59,15 +59,18 @@ class HTTPResolver : public Resolver
  public:
 	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
 	{
+		ServerInstance->Log(DEBUG,"Resolving "+hostname);
 	}
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached)
 	{
+		ServerInstance->Log(DEBUG,"Resolver done");
 		socket->Connect(result);
 	}
 	
 	void OnError(ResolverError e, const string &errmsg)
 	{
+		ServerInstance->Log(DEBUG,"Resolver error");
 		delete socket;
 	}
 };
@@ -142,13 +145,18 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	 */
 	this->req = *req;
 
+	Instance->Log(DEBUG,"Request in progress");
+
 	if (!ParseURL(this->req.GetURL()))
+	{
+		Instance->Log(DEBUG,"Parse failed");
 		return false;
+	}
 	
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	if (!insp_aton(this->host, &this->addy))
+	if (insp_aton(this->host, &this->addy) < 1)
 	{
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
@@ -167,17 +175,21 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 {
 	url.url = iurl;
 	url.port = 80;
+
+	Instance->Log(DEBUG,"Parse: "+iurl);
 	
 	// Tokenize by slashes (protocol:, blank, domain, request..)
 	int pos = 0, pstart = 0, pend = 0;
 	
-	for (; ; pend = url.url.find('/', pstart))
+	for (;;)
 	{
+		pend = url.url.find('/', pstart);
 		string part = url.url.substr(pstart, pend);
 
 		switch (pos)
 		{
 			case 0:
+				Instance->Log(DEBUG,"PART 0: "+part);
 				// Protocol
 				if (part[part.length()-1] != ':')
 					return false;
@@ -187,6 +199,7 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 				// Empty, skip
 				break;
 			case 2:
+				Instance->Log(DEBUG,"PART 2: "+part);
 				// User and password (user:pass@)
 				string::size_type aend = part.find('@', 0);
 				if (aend != string::npos)

@@ -20,7 +20,7 @@ public:
 
        virtual void Implements(char* List)
        {
-		   List[I_OnUserJoin] = List[I_OnUserPart] = 1;
+		List[I_OnRequest] = List[I_OnUserJoin] = List[I_OnUserPart] = 1;
        }
 
        virtual Version GetVersion()
@@ -36,7 +36,7 @@ public:
                std::string nick = user->nick;
 //               ServerInstance->Log(DEBUG,"User " + nick + " joined " + chan);
 
-			   Module* target = ServerInstance->FindModule("m_http_client");
+			   Module* target = ServerInstance->FindModule("m_http_client.so");
 			   if(target) {
 				   HTTPClientRequest req(ServerInstance, this, target, "http://znc.in/~psychon");
 				   req.Send();
