@@ -95,21 +95,21 @@ my $interactive = !$non_interactive;
 
 chomp($topdir = getcwd());
 $this = resolve_directory($topdir);						# PWD, Regardless.
-@modlist = ();                                                  		# Declare for Module List..
-%config = ();                                                   		# Initiate Configuration Hash..
-$config{ME}                 = resolve_directory($topdir);			# Present Working Directory
+@modlist = ();						  		# Declare for Module List..
+%config = ();						   		# Initiate Configuration Hash..
+$config{ME}		 = resolve_directory($topdir);			# Present Working Directory
 
-$config{BASE_DIR}           = $config{ME};
+$config{BASE_DIR}	   = $config{ME};
 
 if (defined $opt_base_dir)
 {
 	$config{BASE_DIR} = $opt_base_dir;
 }
 
-$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");		# Configuration Directory
-$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");		# Modules Directory
-$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");		# Library Directory
+$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");		# Configuration Directory
+$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");		# Modules Directory
+$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
+$config{LIBRARY_DIR}	= resolve_directory($config{BASE_DIR}."/lib");		# Library Directory
 
 if (defined $opt_config_dir)
 {
@@ -134,51 +134,51 @@ if (defined $opt_use_gnutls)
 {
 	$config{USE_GNUTLS} = "y";						# Use gnutls.
 }
-$config{USE_OPENSSL}        = "n";						# Use openssl.
+$config{USE_OPENSSL}	= "n";						# Use openssl.
 if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
 }
 
 # no, let's not change these.
-$config{OPTIMITEMP}         = "0";                              		# Default Optimisation Value
+$config{OPTIMITEMP}	 = "0";			      		# Default Optimisation Value
 if (!defined $opt_disable_debug)
 {
-	$config{OPTIMISATI}         = "-g";                             	# Optimisation Flag
+	$config{OPTIMISATI}	 = "-g";			     	# Optimisation Flag
 }
 else
 {
-	$config{OPTIMISATI}         = "";					# DEBUGGING OFF!
+	$config{OPTIMISATI}	 = "";					# DEBUGGING OFF!
 }
 
-$config{NICK_LENGT}         = "31";                             		# Default Nick Length
+$config{NICK_LENGT}	 = "31";			     		# Default Nick Length
 if (defined $opt_nick_length)
 {
 	$config{NICK_LENGT} = $opt_nick_length;
 }
-$config{CHAN_LENGT}         = "64";                             		# Default Channel Name Length
+$config{CHAN_LENGT}	 = "64";			     		# Default Channel Name Length
 if (defined $opt_chan_length)
 {
 	$config{CHAN_LENGT} = $opt_chan_length;
 }
-$config{MAX_CHANNE}         = "20";                             		# Default Max. Channels per user
+$config{MAX_CHANNE}	 = "20";			     		# Default Max. Channels per user
 if (defined $opt_maxchans)
 {
 	$config{MAX_CHANNE} = $opt_maxchans;
 }
-$config{MAX_OPERCH}         = "60"; 						# Default Max. Channels per oper
+$config{MAX_OPERCH}	 = "60"; 						# Default Max. Channels per oper
 if (defined $opt_opermaxchans)
 {
 	$config{MAX_OPERCH} = $opt_opermaxchans;
 }
-$config{MAXI_MODES}         = "20";                             		# Default Max. Number of Modes set at once.
+$config{MAXI_MODES}	 = "20";			     		# Default Max. Number of Modes set at once.
 if (defined $opt_modes)
 {
 	$config{MAXI_MODES} = $opt_modes;
 }
-$config{HAS_STRLCPY}        = "false";                          		# strlcpy Check.
-$config{HAS_STDINT}         = "false";						# stdint.h check
-$config{USE_KQUEUE}         = "y";						# kqueue enabled
+$config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
+$config{HAS_STDINT}	 = "false";						# stdint.h check
+$config{USE_KQUEUE}	 = "y";						# kqueue enabled
 if (defined $opt_kqueue)
 {
 	$config{USE_KQUEUE} = "y";
@@ -187,7 +187,7 @@ if (defined $opt_nokqueue)
 {
 	$config{USE_KQUEUE} = "n";
 }
-$config{USE_EPOLL}          = "y";						# epoll enabled
+$config{USE_EPOLL}	  = "y";						# epoll enabled
 if (defined $opt_epoll)
 {
 	$config{USE_EPOLL} = "y";
@@ -196,7 +196,7 @@ if (defined $opt_noepoll)
 {
 	$config{USE_EPOLL} = "n";
 }
-$config{IPV6}               = "n";						# IPv6 support (experimental)
+$config{IPV6}	       = "n";						# IPv6 support (experimental)
 if (defined $opt_ipv6)
 {
 	$config{IPV6} = "y";
@@ -211,11 +211,11 @@ if (defined $opt_noipv6links)
 	$config{SUPPORT_IP6LINKS} = "n";
 }
 $config{STATIC_LINK}	    = "no";						# are doing static modules?
-chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);           		# FD Limit
+chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);	   		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
 $config{_SOMAXCONN} = SOMAXCONN;						# Max connections in accept queue
-$config{OSNAME}       	    = $^O;                              		# Operating System Name
+$config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{CC} 		    = "g++";						# C++ compiler
 if (defined $opt_cc)
 {
@@ -224,13 +224,13 @@ if (defined $opt_cc)
 $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}       = `$exec`);						# Major GCC Version
 $config{MAKEORDER}	    = "ircd mods";					# build order
-$config{STATICLIBS}         = "";						# library archive path
-$config{MAX_IDENT}          = "12";						# max ident size
-$config{MAX_QUIT}           = "255";						# max quit message size
-$config{MAX_TOPIC}          = "307";						# max topic size
-$config{MAX_KICK}           = "255";						# max kick message size
-$config{MAX_GECOS}          = "128";						# max GECOS size
-$config{MAX_AWAY}           = "200";						# max AWAY size
+$config{STATICLIBS}	 = "";						# library archive path
+$config{MAX_IDENT}	  = "12";						# max ident size
+$config{MAX_QUIT}	   = "255";						# max quit message size
+$config{MAX_TOPIC}	  = "307";						# max topic size
+$config{MAX_KICK}	   = "255";						# max kick message size
+$config{MAX_GECOS}	  = "128";						# max GECOS size
+$config{MAX_AWAY}	   = "200";						# max AWAY size
 if (defined $opt_ident)
 {
 	$config{MAX_IDENT} = $opt_ident;
@@ -274,8 +274,8 @@ if ($config{OSNAME} =~ /CYGWIN/i)
 }
 
 if (!$config{MAX_CLIENT_T}) { 
-	$config{MAX_CLIENT_T} = 1024;                                 # Set a reasonable 'Default'
-	$fd_scan_fail = "true";                                       # Used Later
+	$config{MAX_CLIENT_T} = 1024;				 # Set a reasonable 'Default'
+	$fd_scan_fail = "true";				       # Used Later
 }
 
 # Get and Set some important vars..
@@ -288,54 +288,68 @@ sub clean
 
 sub update
 {
-	chomp($topdir = getcwd());
-	$this = resolve_directory($topdir);                                             # PWD, Regardless.
-	getmodules();
-	# Does the cache file exist?
-	if (!getcache()) {
-		# No, No it doesn't.. *BASH*
-		print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-		exit 0;
-	} else {
-		# We've Loaded the cache file and all our variables..
-		print "Updating Files..\n";
-		getosflags();
-		if ($opt_disable_debug == 1)
-		{
-			print "Disabling debug information (-g).\n";
-			$config{OPTIMISATI} = "";
+	eval {
+		chomp($topdir = getcwd());
+		$this = resolve_directory($topdir);					     # PWD, Regardless.
+		getmodules();
+		# Does the cache file exist?
+		if (!getcache()) {
+			# No, No it doesn't.. *BASH*
+			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+			exit 0;
+		} else {
+			# We've Loaded the cache file and all our variables..
+			print "Updating Files..\n";
 			getosflags();
+			if ($opt_disable_debug == 1)
+			{
+				print "Disabling debug information (-g).\n";
+				$config{OPTIMISATI} = "";
+				getosflags();
+			}
+			$has_epoll = $config{HAS_EPOLL};
+			$has_kqueue = $config{HAS_KQUEUE};
+			writefiles(1);
+			makecache();
+			print "Complete.\n";
+			exit;
 		}
-		$has_epoll = $config{HAS_EPOLL};
-		$has_kqueue = $config{HAS_KQUEUE};
-		writefiles(1);
-		makecache();
-		print "Complete.\n";
-		exit;
+	};
+	if ($@)
+	{
+		print "Configure update failed: $@\n";
 	}
+	exit;
 }
 
 sub modupdate
 {
-	chomp($topdir = getcwd());
-	$this = resolve_directory($topdir);                                             # PWD, Regardless.
-	getmodules();
-        # Does the cache file exist?
-        if (!getcache()) {
-                # No, No it doesn't.. *BASH*
-                print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-                exit 0;
-        } else {
-                # We've Loaded the cache file and all our variables..
-                print "Updating Files..\n";
-                getosflags();
-                $has_epoll = $config{HAS_EPOLL};
-                $has_kqueue = $config{HAS_KQUEUE};
-                writefiles(0);
-		makecache();
-                print "Complete.\n";
-                exit;
-        }
+	eval {
+		chomp($topdir = getcwd());
+		$this = resolve_directory($topdir);					     # PWD, Regardless.
+		getmodules();
+		# Does the cache file exist?
+		if (!getcache()) {
+			# No, No it doesn't.. *BASH*
+			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+			exit 0;
+		} else {
+			# We've Loaded the cache file and all our variables..
+			print "Updating Files..\n";
+			getosflags();
+			$has_epoll = $config{HAS_EPOLL};
+			$has_kqueue = $config{HAS_KQUEUE};
+			writefiles(0);
+			makecache();
+			print "Complete.\n";
+			exit;
+		}
+	};
+	if ($@)
+	{
+		print "Module update failed: $@\n";
+	}
+	exit;
 }
 
 
@@ -409,8 +423,8 @@ $has_kqueue = 0;
 $fail = 0;
 open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
 if (!$fail) {
-        while (chomp($line = <KQUEUE>)) {
-                # try and find the delcaration of:
+	while (chomp($line = <KQUEUE>)) {
+		# try and find the delcaration of:
 		# int kqueue(void);
 		if ($line =~ /int(\0x9|\s)+kqueue/) {
 			$has_kqueue = 1;
@@ -465,7 +479,7 @@ if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPE
 }
 
 ################################################################################
-#                          BEGIN INTERACTIVE PART                              #
+#			  BEGIN INTERACTIVE PART			      #
 ################################################################################
 
 # Clear the Screen..
@@ -530,10 +544,10 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	my $tmpbase = $config{BASE_DIR};
 	dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
 	if ($tmpbase ne $config{BASE_DIR}) {
-		$config{CONFIG_DIR}         = resolve_directory($config{BASE_DIR}."/conf");           # Configuration Dir
-		$config{MODULE_DIR}         = resolve_directory($config{BASE_DIR}."/modules");        # Modules Directory
-		$config{BINARY_DIR}         = resolve_directory($config{BASE_DIR}."/bin");            # Binary Directory
-		$config{LIBRARY_DIR}        = resolve_directory($config{BASE_DIR}."/lib");            # Library Directory
+		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	   # Configuration Dir
+		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
+		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");	    # Binary Directory
+		$config{LIBRARY_DIR}	= resolve_directory($config{BASE_DIR}."/lib");	    # Library Directory
 	}
 
 	dir_check("are the configuration files", "CONFIG_DIR");
@@ -649,7 +663,7 @@ if ($config{USE_GNUTLS} eq "y") {
 * Generating the Private Key may take some time, go grab a  *
 * Coffee. Even better, to generate some more entropy if it  *
 * is taking a while, open another console and type du / a   *
-* few times and get that HD going :) Then answer the        *
+* few times and get that HD going :) Then answer the	*
 * Questions which follow. If you are unsure, just hit enter *
 *************************************************************\n\n";
 			system("certtool --generate-privkey --outfile key.pem");
@@ -689,7 +703,7 @@ if ($config{USE_GNUTLS} eq "y") {
 			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
-* coffee, or something.                                     *
+* coffee, or something.				     *
 *************************************************************\n\n";
 			system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
 			system("openssl dhparam -out dhparams.pem 1024");
@@ -739,7 +753,7 @@ FOO2
 }
 
 ################################################################################
-#                              HELPER FUNCTIONS                                #
+#			      HELPER FUNCTIONS				#
 ################################################################################
 sub getcache {
 	# Retrieves the .config.cache file, and loads values into the main config hash.
@@ -890,7 +904,7 @@ sub writefiles {
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh ./src/version.sh`);
-        chomp(my $revision = getrevision());
+	chomp(my $revision = getrevision());
 	$version = "$version(r$revision)";
 	chomp(my $revision2 = getrevision());
 	if ($writeheader == 1)
@@ -1289,20 +1303,20 @@ EOCHEESE
 
 sub write_static_makefile {
 	open(FH,">src/Makefile") or die("Could not write src/Makefile!");
-        my $i = 0;
-        my @cmdlist = ();
-        opendir(DIRHANDLE, "src");
-        foreach $name (sort readdir(DIRHANDLE)) {
-                if ($name =~ /^cmd_(.+)\.cpp$/) {
-                        $cmdlist[$i++] = $1;
-                }
-        }
-        closedir(DIRHANDLE);
-        my $cmdobjs = "";
+	my $i = 0;
+	my @cmdlist = ();
+	opendir(DIRHANDLE, "src");
+	foreach $name (sort readdir(DIRHANDLE)) {
+		if ($name =~ /^cmd_(.+)\.cpp$/) {
+			$cmdlist[$i++] = $1;
+		}
+	}
+	closedir(DIRHANDLE);
+	my $cmdobjs = "";
 	my $srcobjs = "";
-        foreach my $cmd (@cmdlist) {
-                $cmdobjs = $cmdobjs . "cmd_$cmd.o ";
-                $srcobjs = $srcobjs . "cmd_$cmd.cpp ";
+	foreach my $cmd (@cmdlist) {
+		$cmdobjs = $cmdobjs . "cmd_$cmd.o ";
+		$srcobjs = $srcobjs . "cmd_$cmd.cpp ";
 	}
 	print FH <<EOM;
 # Insp Makefile :p
@@ -1442,7 +1456,7 @@ sub write_dynamic_makefile {
 	opendir(DIRHANDLE, "src");
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^cmd_(.+)\.cpp$/) {
-	                $cmdlist[$i++] = $1;
+			$cmdlist[$i++] = $1;
 	    	}
 	}
 	closedir(DIRHANDLE);

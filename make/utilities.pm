@@ -1,8 +1,7 @@
 package make::utilities;
 use Exporter 'import';
-use make::configure;
 use POSIX;
-@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions);
+@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions promptstring);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -11,6 +10,19 @@ use POSIX;
 # \033[1;32msrc/Makefile\033[0m
 
 my %already_added = ();
+
+sub promptstring($$$)
+{
+	my ($prompt, $configitem, $default) = @_;
+	print "\nPlease enter the $prompt?\n";
+	print "[\033[1;32m$default\033[0m] -> ";
+	chomp($var = <STDIN>);
+	if ($var eq "")
+	{
+		$var = $default;
+	}
+	$main::config{$configitem} = $var;
+}
 
 sub make_rpath($;$)
 {
@@ -60,8 +72,10 @@ sub pkgconfig_get_include_dirs($$$;$)
 
 	print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
+	$v = `pkg-config --modversion $packagename 2>/dev/null`;
 	$ret = `pkg-config --cflags $packagename 2>/dev/null`;
-	if ((!defined $ret) || ($ret eq ""))
+
+	if ((!defined $v) || ($v eq ""))
 	{
 		$foo = `locate "$headername" | head -n 1`;
 		$foo =~ /(.+)\Q$headername\E/;
@@ -80,7 +94,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
-	if (($ret eq " ") || (!defined $ret))
+	if ((($ret eq " ") || (!defined $ret)) && ((!defined $v) || ($v eq "")))
 	{
 		my $key = "default_includedir_$packagename";
 		if (exists $config{$key})
@@ -91,14 +105,17 @@ sub pkgconfig_get_include_dirs($$$;$)
 		{
 			$headername =~ s/^\///;
 			promptstring("path to the directory containing $headername", $key, "/usr/include");
+			$config{$key} = "-I$config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
 			$ret = $config{$key};
+			return $ret;
 		}
 	}
 	else
 	{
+		chomp($v);
 		my $key = "default_includedir_$packagename";
-		$config{$key} = $ret;
-		print "\033[1;32m$ret\033[0m\n";
+		$config{$key} = "$ret -DVERSION_$libname=\"$v\"";
+		print "\033[1;32m$ret\033[0m (version $v)\n";
 	}
 	return $ret;
 }
@@ -120,8 +137,10 @@ sub pkgconfig_get_lib_dirs($$$;$)
 
 	print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
 
+	$v = `pkg-config --modversion $packagename 2>/dev/null`;
 	$ret = `pkg-config --libs $packagename 2>/dev/null`;
-	if ((!defined $ret) || ($ret eq ""))
+
+	if ((!defined $v) || ($v eq ""))
 	{
 		$foo = `locate "$libname" | head -n 1`;
 		$foo =~ /(.+)\Q$libname\E/;
@@ -141,7 +160,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		$ret = "$foo " . $defaults;
 	}
 	chomp($ret);
-	if (($ret eq " ") || (!defined $ret))
+	if ((($ret eq " ") || (!defined $ret)) && ((!defined $v) || ($v eq "")))
 	{
 		my $key = "default_libdir_$packagename";
 		if (exists $config{$key})
@@ -152,16 +171,20 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		{
 			$libname =~ s/^\///;
 			promptstring("path to the directory containing $libname", $key, "/usr/lib");
+			chomp($v);
+			$config{$key} = "-L$config{$key}" . " $defaults -DVERSION_$libname=\"$v\"";
 			$ret = $config{$key};
+			return $ret;
 		}
 	}
 	else
 	{
-		print "\033[1;32m$ret\033[0m\n";
+		chomp($v);
+		print "\033[1;32m$ret\033[0m (version $v)\n";
 		my $key = "default_libdir_$packagename";
-		$config{$key} = $ret;
+		$config{$key} = "$ret -DVERSION_$libname=\"$v\"";
 	}
-	return $ret;
+	return "$ret -DVERSION_$libname=\"$v\"";
 }
 
 # Translate a $CompileFlags etc line and parse out function calls
