@@ -49,6 +49,8 @@ sub pkgconfig_get_include_dirs($$$;$)
 
 	if (exists $config{$key})
 	{
+		print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+		print "\033[1;32m$ret\033[0m (cached)\n";
 		my $key = "default_includedir_$packagename";
 		$ret = $config{$key};
 		return $ret;
@@ -94,6 +96,8 @@ sub pkgconfig_get_include_dirs($$$;$)
 	}
 	else
 	{
+		my $key = "default_includedir_$packagename";
+		$config{$key} = $ret;
 		print "\033[1;32m$ret\033[0m\n";
 	}
 	return $ret;
@@ -105,6 +109,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 
 	if (exists $config{$key})
 	{
+		print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
+		print "\033[1;32m$ret\033[0m (cached)\n";
 		my $key = "default_libdir_$packagename";
 		$ret = $config{$key};
 		return $ret;
@@ -152,6 +158,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	else
 	{
 		print "\033[1;32m$ret\033[0m\n";
+		my $key = "default_libdir_$packagename";
+		$config{$key} = $ret;
 	}
 	return $ret;
 }
