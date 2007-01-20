@@ -46,6 +46,14 @@ sub extend_pkg_path()
 sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
+
+	if (exists $config{$key})
+	{
+		my $key = "default_includedir_$packagename";
+		$ret = $config{$key};
+		return $ret;
+	}
+
 	extend_pkg_path();
 
 	print "Locating include directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
@@ -94,6 +102,14 @@ sub pkgconfig_get_include_dirs($$$;$)
 sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
+
+	if (exists $config{$key})
+	{
+		my $key = "default_libdir_$packagename";
+		$ret = $config{$key};
+		return $ret;
+	}
+
 	extend_pkg_path();
 
 	print "Locating library directory for package \033[1;32m$packagename\033[0m for module \033[1;32m$module\033[0m... ";
