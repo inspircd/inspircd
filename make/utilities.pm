@@ -1,6 +1,7 @@
 package make::utilities;
 use Exporter 'import';
 use POSIX;
+use Getopt::Long;
 @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions promptstring);
 
 # Parse the output of a *_config program,
@@ -11,12 +12,29 @@ use POSIX;
 
 my %already_added = ();
 
-sub promptstring($$$)
+sub promptstring($$$$$)
 {
-	my ($prompt, $configitem, $default) = @_;
-	print "\nPlease enter the $prompt?\n";
-	print "[\033[1;32m$default\033[0m] -> ";
-	chomp($var = <STDIN>);
+	my ($prompt, $configitem, $default, $package, $commandlineswitch) = @_;
+	my $var;
+	if (!$main::interactive)
+	{
+		undef $opt_commandlineswitch;
+		GetOptions ("$commandlineswitch" => \$opt_commandlineswitch);
+		if (defined $opt_commandlineswitch)
+		{
+			$var = $opt_commandlineswitch;
+		}
+		else
+		{
+			die "Could not detect $package! Please specify the $prompt via the command line option $commandlineswitch=\"/path/to/file\"";
+		}
+	}
+	else
+	{
+		print "\nPlease enter the $prompt?\n";
+		print "[\033[1;32m$default\033[0m] -> ";
+		chomp($var = <STDIN>);
+	}
 	if ($var eq "")
 	{
 		$var = $default;
@@ -104,7 +122,7 @@ sub pkgconfig_get_include_dirs($$$;$)
 		else
 		{
 			$headername =~ s/^\///;
-			promptstring("path to the directory containing $headername", $key, "/usr/include");
+			promptstring("path to the directory containing $headername", $key, "/usr/include",$packagename,"$packagename-includes");
 			$packagename =~ tr/a-z/A-Z/;
 			$main::config{$key} = "-I$main::config{$key}" . " $defaults -DVERSION_$packagename=\"$v\"";
 			$main::config{$key} =~ s/^\s+//g;
@@ -176,7 +194,7 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		else
 		{
 			$libname =~ s/^\///;
-			promptstring("path to the directory containing $libname", $key, "/usr/lib");
+			promptstring("path to the directory containing $libname", $key, "/usr/lib",$packagename,"$packagename-libs");
 			$main::config{$key} = "-L$main::config{$key}" . " $defaults";
 			$main::config{$key} =~ s/^\s+//g;
 			$ret = $main::config{$key};
