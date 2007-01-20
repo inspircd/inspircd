@@ -1,5 +1,6 @@
 package make::utilities;
 use Exporter 'import';
+use make::configure;
 use POSIX;
 @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions);
 
@@ -71,7 +72,17 @@ sub pkgconfig_get_include_dirs($$$;$)
 	chomp($ret);
 	if (($ret eq " ") || (!defined $ret))
 	{
-		print "\033[1;32mUsing defaults\033[0m\n";
+		my $key = "default_includedir_$packagename";
+		if (exists $config{$key})
+		{
+			$ret = $config{$key};
+		}
+		else
+		{
+			$headername =~ s/^\///;
+			promptstring("path to the directory containing $headername", $key, "/usr/include");
+			$ret = $config{$key};
+		}
 	}
 	else
 	{
@@ -110,7 +121,17 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	chomp($ret);
 	if (($ret eq " ") || (!defined $ret))
 	{
-		print "\033[1;32mUsing defaults\033[0m\n";
+		my $key = "default_libdir_$packagename";
+		if (exists $config{$key})
+		{
+			$ret = $config{$key};
+		}
+		else
+		{
+			$libname =~ s/^\///;
+			promptstring("path to the directory containing $libname", $key, "/usr/lib");
+			$ret = $config{$key};
+		}
 	}
 	else
 	{

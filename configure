@@ -309,6 +309,7 @@ sub update
 		$has_epoll = $config{HAS_EPOLL};
 		$has_kqueue = $config{HAS_KQUEUE};
 		writefiles(1);
+		makecache();
 		print "Complete.\n";
 		exit;
 	}
@@ -331,6 +332,7 @@ sub modupdate
                 $has_epoll = $config{HAS_EPOLL};
                 $has_kqueue = $config{HAS_KQUEUE};
                 writefiles(0);
+		makecache();
                 print "Complete.\n";
                 exit;
         }
@@ -710,8 +712,8 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 }
 
 getosflags();
-makecache();
 writefiles(1);
+makecache();
 
 print "\n\n";
 print "To build your server with these settings, please type '\033[1;32m$config{MAKEPROG}\033[0m' now.\n";
