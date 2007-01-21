@@ -2,7 +2,7 @@ package make::utilities;
 use Exporter 'import';
 use POSIX;
 use Getopt::Long;
-@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs translate_functions promptstring);
+@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -149,6 +149,59 @@ sub pkgconfig_get_include_dirs($$$;$)
 	return $ret;
 }
 
+sub vcheck($$)
+{
+	my ($version1, $version2) = @_;
+	$version1 =~ s/\-r(\d+)/\.\1/g; # minor revs/patchlevels
+	$version2 =~ s/\-r(\d+)/\.\1/g;
+	$version1 =~ s/p(\d+)/\.\1/g;
+	$version2 =~ s/p(\d+)/\.\1/g;
+	$version1 =~ s/\-//g;
+	$version2 =~ s/\-//g;
+	$version1 =~ s/a-z//g;
+	$version2 =~ s/a-z//g;
+	my @v1 = split('.', $version1);
+	my @v2 = split('.', $version2);
+	for ($curr = 0; $curr < scalar(@v1); $curr++)
+	{
+		if ($v1[$curr] < $v2[$curr])
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+sub pkgconfig_check_version($$;$)
+{
+	my ($packagename, $version, $module) = @_;
+
+	extend_pkg_path();
+
+	print "Checking version of package \033[1;32m$packagename\033[0m is >= \033[1;32m$version\033[0m... ";
+
+	$v = `pkg-config --modversion $packagename 2>/dev/null`;
+	if (defined $v)
+	{
+		chomp($v);
+	}
+	if ((defined $v) && ($v ne ""))
+	{
+		if (vcheck($v,$version) == 1)
+		{
+			print "\033[1;32mYes (version $v)\033[0m\n";
+			return 1;
+		}
+		else
+		{
+			print "\033[1;32mNo (version $v)\033[0m\n";
+			return 0;
+		}
+	}
+	print "\033[1;32mNo (not found)\033[0m\n";
+	return 0;
+}
+
 sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
@@ -269,6 +322,15 @@ sub translate_functions($$)
 		{
 			my $replace = pkgconfig_get_lib_dirs($1, $2, $3, $module);
 			$line =~ s/pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/$replace/;
+		}
+		while ($line =~ /pkgconfversion\("(.+?)","(.+?)"\)/)
+		{
+			if (pkgconfig_check_version($1, $2, $module) != 1)
+			{
+				die "Version of package $1 is too old. Please upgrade it to version \033[1;32m$2\033[0m or greater and try again.";
+			}
+			# This doesnt actually get replaced with anything
+			$line =~ s/pkgconfversion\("(.+?)","(.+?)"\)//;
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)",""\)/)
 		{
