@@ -25,7 +25,7 @@
 #include "m_sqlv2.h"
 
 /* $ModDesc: sqlite3 provider */
-/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
+/* $CompileFlags: pkgconfversion("sqlite3","3.4") pkgconfincludes("sqlite3","/sqlite3.h","") */
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
 /* $ModDep: m_sqlv2.h */
 

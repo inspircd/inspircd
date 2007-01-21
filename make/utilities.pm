@@ -2,7 +2,7 @@ package make::utilities;
 use Exporter 'import';
 use POSIX;
 use Getopt::Long;
-@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
+@EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring vcheck);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -160,8 +160,8 @@ sub vcheck($$)
 	$version2 =~ s/\-//g;
 	$version1 =~ s/a-z//g;
 	$version2 =~ s/a-z//g;
-	my @v1 = split('.', $version1);
-	my @v2 = split('.', $version2);
+	my @v1 = split('\.', $version1);
+	my @v2 = split('\.', $version2);
 	for ($curr = 0; $curr < scalar(@v1); $curr++)
 	{
 		if ($v1[$curr] < $v2[$curr])
