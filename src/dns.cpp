@@ -61,9 +61,8 @@ enum QueryFlags
 
 /** Represents a dns resource record (rr)
  */
-class ResourceRecord
+struct ResourceRecord
 {
- public:
 	QueryType	type;		/* Record type */
 	unsigned int	rr_class;	/* Record class */
 	unsigned long	ttl;		/* Time to live */
@@ -771,6 +770,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	/* This is just to keep _FORTIFY_SOURCE happy */
 	rr.type = DNS_QUERY_NONE;
 	rr.rdlength = 0;
+	rr.ttl = 1;	/* GCC is a whiney bastard -- see the XXX below. */
 
 	if (!(header.flags1 & FLAGS_MASK_QR))
 		return std::make_pair((unsigned char*)NULL,"Not a query result");
@@ -828,6 +828,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 		if (length - i < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
+		/* XXX: We actually initialise 'rr' here including its ttl field */
 		DNS::FillResourceRecord(&rr,&header.payload[i]);
 		i += 10;
 		if (rr.type != this->type)
