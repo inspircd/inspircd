@@ -30,7 +30,7 @@
 #include "transport.h"
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: pkgconfincludes("openssl","/openssl/ssl.h","") */
+/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 /* $ModDep: transport.h */
 

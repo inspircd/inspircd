@@ -198,8 +198,11 @@ sub pkgconfig_check_version($$;$)
 			return 0;
 		}
 	}
+	# If we didnt find it, we  cant definitively say its too old.
+	# Return ok, and let pkgconflibs() or pkgconfincludes() pick up
+	# the missing library later on.
 	print "\033[1;32mNo (not found)\033[0m\n";
-	return 0;
+	return 1;
 }
 
 sub pkgconfig_get_lib_dirs($$$;$)
