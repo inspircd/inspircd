@@ -144,11 +144,11 @@ if (defined $opt_use_openssl)
 $config{OPTIMITEMP}	 = "0";			      		# Default Optimisation Value
 if (!defined $opt_disable_debug)
 {
-	$config{OPTIMISATI}	 = "-g";			     	# Optimisation Flag
+	$config{OPTIMISATI}	 = "-O2 -g1";			     	# Optimisation Flag
 }
 else
 {
-	$config{OPTIMISATI}	 = "";					# DEBUGGING OFF!
+	$config{OPTIMISATI}	 = "-O2";				# DEBUGGING OFF!
 }
 
 $config{NICK_LENGT}	 = "31";			     		# Default Nick Length

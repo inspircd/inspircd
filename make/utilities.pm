@@ -219,7 +219,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 		$main::config{$key} =~ s/^\s+//g;
 		$ret =~ s/^\s+//g;
 	}
-	return "$ret -DVERSION_$libname=\"$v\"";
+	$ret =~ s/^\s+//g;
+	return $ret;
 }
 
 # Translate a $CompileFlags etc line and parse out function calls
