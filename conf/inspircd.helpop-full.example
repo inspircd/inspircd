@@ -297,10 +297,10 @@ it to remain as such for the remainder of the session.">
 Allows the user to change nicks.">
 
 <helpop key="chghost" value="/CHGHOST [nickname] [new hostname]
-Changes the hostname of the user to the new hostname>.">
+Changes the hostname of the user to the new hostname.">
 
 <helpop key="chgname" value="/CHGNAME [nickname] [new name]
-Changes the name of the user to the new name>.">
+Changes the name of the user to the new name.">
 
 <helpop key="chgident" value="/CHGIDENT [nickname] [new ident]
 Changes the ident of the user to the new ident.">
