@@ -6,6 +6,7 @@
 # Original Makefile & ./configure by <Craig@ChatSpike.net>
 # Small modifications by <brain@ChatSpike.net>
 #
+DARWIN = @IS_DARWIN@
 
 CC = @CC@
 MAKE = @MAKEPROG@
@@ -55,6 +56,30 @@ install: all
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) ${MODPATH}
+ifeq ($(DARWIN),YES)
+	-install -m $(INSTMODE) src/libIRCDasyncdns.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDbase.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDchannels.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcommand_parse.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcommands.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDconfigreader.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcull_list.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDdynamic.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDhash.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDhelper.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDinspsocket.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDmode.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDmodules.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsocket.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsocketengine.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDstring.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDuserprocess.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDusers.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDwildcard.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDxline.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDtimer.dylib $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsnomasks.dylib $(LIBPATH)
+else
 	-install -m $(INSTMODE) src/libIRCDasyncdns.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDbase.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDchannels.so $(LIBPATH)
@@ -77,6 +102,7 @@ install: all
 	-install -m $(INSTMODE) src/libIRCDxline.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDtimer.so $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDsnomasks.so $(LIBPATH)
+endif
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	-install -m $(INSTMODE) inspircd $(BASE) 2>/dev/null
 	-install -m $(INSTMODE) src/cmd_admin.so $(LIBPATH)
@@ -163,7 +189,7 @@ module:
 
 clean:
 	@echo Cleaning...
-	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
+	@rm -rvf src/*.dylib src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
 	@echo Completed.
 
 modclean:
