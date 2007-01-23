@@ -1067,7 +1067,7 @@ EOF
 	$version = "$version(r$revision)";
 
 	$modext = "so";
-	if ($config{IS_DARWIN} ne "NO")
+	if ($config{IS_DARWIN} eq "NO")
 	{
 		$modext = "dylib";
 	}
