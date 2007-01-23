@@ -1524,29 +1524,15 @@ CXXFLAGS = -I../include \${FLAGS}
 CPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* //' | grep -v svn)
 RELCPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* /modes\\//' | grep -v svn)
 
-CMD_SRC = \\
-EOM
-
-	foreach my $cmd (@cmdlist) {
-		print FH <<ITEM;
-	cmd_$cmd.cpp \\
-ITEM
-	}
-	print FH <<EOM;
-
 .SUFFIXES: .o .so
 
-CMD_OBJS = \$(CMD_SRC:.cpp=.o)
-
 CPPFILES_OBJS = \$(RELCPPFILES:.cpp=.o)
-
-CMD_LINK_OBJS = \$(CMD_OBJS:.o=.so)
 
 EOM
 
 if ($config{OSNAME} =~ /darwin/) {
 	print FH <<EOM;
-all: \$(CPPFILES_OBJS) \$(CMD_OBJS) \$(CMD_LINK_OBJS) libIRCDtimer.dylib libIRCDcull_list.dylib libIRCDuserprocess.dylib libIRCDsocketengine.dylib libIRCDsocket.dylib libIRCDhash.dylib libIRCDchannels.dylib libIRCDmode.dylib libIRCDxline.dylib libIRCDstring.dylib libIRCDasyncdns.dylib libIRCDbase.dylib libIRCDconfigreader.dylib libIRCDinspsocket.dylib libIRCDcommands.dylib libIRCDdynamic.dylib libIRCDusers.dylib libIRCDmodules.dylib libIRCDwildcard.dylib libIRCDhelper.dylib libIRCDcommand_parse.dylib libIRCDsnomasks.dylib inspircd
+all: \$(CPPFILES_OBJS) $cmdobjs libIRCDtimer.dylib libIRCDcull_list.dylib libIRCDuserprocess.dylib libIRCDsocketengine.dylib libIRCDsocket.dylib libIRCDhash.dylib libIRCDchannels.dylib libIRCDmode.dylib libIRCDxline.dylib libIRCDstring.dylib libIRCDasyncdns.dylib libIRCDbase.dylib libIRCDconfigreader.dylib libIRCDinspsocket.dylib libIRCDcommands.dylib libIRCDdynamic.dylib libIRCDusers.dylib libIRCDmodules.dylib libIRCDwildcard.dylib libIRCDhelper.dylib libIRCDcommand_parse.dylib libIRCDsnomasks.dylib inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h \$(CPPFILES_OBJS) \$(CMD_OBJS) \$(CMD_LINK_OBJS) libIRCDtimer.dylib libIRCDcull_list.dylib libIRCDuserprocess.dylib libIRCDsocketengine.dylib libIRCDsocket.dylib libIRCDhash.dylib libIRCDchannels.dylib libIRCDmode.dylib libIRCDxline.dylib libIRCDstring.dylib libIRCDasyncdns.dylib libIRCDbase.dylib libIRCDconfigreader.dylib libIRCDinspsocket.dylib libIRCDsnomasks.dylib libIRCDcommands.dylib libIRCDdynamic.dylib libIRCDusers.dylib libIRCDmodules.dylib libIRCDwildcard.dylib libIRCDhelper.dylib libIRCDcommand_parse.dylib
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspircd.cpp
@@ -1646,7 +1632,7 @@ EOM
 } else {
 
 	print FH <<EOM;
-all: \$(CPPFILES_OBJS) \$(CMD_OBJS)  \$(CMD_LINK_OBJS) libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so inspircd
+all: \$(CPPFILES_OBJS) $cmdobjs \$(CMD_LINK_OBJS) libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h \$(CPPFILES_OBJS) \$(CMD_OBJS) \$(CMD_LINK_OBJS) libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so
 	\$(CC) -pipe -I../include $extra -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so
