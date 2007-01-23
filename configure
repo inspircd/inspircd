@@ -1066,6 +1066,12 @@ EOF
 	chomp(my $revision = getrevision());
 	$version = "$version(r$revision)";
 
+	$modext = "so";
+	if ($config{IS_DARWIN} ne "NO")
+	{
+		$modext = "dylib";
+	}
+
 	# We can actually parse any file starting with . and ending with .inc,
 	# but right now we only parse .inspircd.inc to form './inspircd'
 
@@ -1087,6 +1093,7 @@ EOF
 			$tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/;
 			$tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
 			$tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
+			$tmp =~ s/\@MODULE_EXT\@/$modext/;
 			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
 			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
 			$tmp =~ s/\@MODULES\@/$modules/;
