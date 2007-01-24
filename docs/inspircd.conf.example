@@ -966,6 +966,11 @@
 #<module name="m_banexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ban redirection module: Allows bans which redirect to a specified
+# channel. e.g. +b nick!ident@host#channelbanneduserissentto
+#<module name="m_banredirect.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block amsg module: Attempt to block all usage of /amsg and /ame
 #<module name="m_blockamsg.so">
 #
