@@ -96,7 +96,7 @@ class DNSBLResolver : public Resolver
 					while (x != std::string::npos)
 					{
 						reason.erase(x, 4);
-						reason.insert(x, "%ip%");
+						reason.insert(x, them->GetIPString());
 						x = reason.find("%ip%");
 					}
 
@@ -138,7 +138,7 @@ class DNSBLResolver : public Resolver
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
 	}
- 
+
 	virtual ~DNSBLResolver()
 	{
 	}
@@ -148,7 +148,7 @@ class ModuleDNSBL : public Module
 {
  private:
 	std::vector<DNSBLConfEntry *> DNSBLConfEntries;
-	
+
 	/*
 	 *	Convert a string to EnumBanaction
 	 */
@@ -162,7 +162,7 @@ class ModuleDNSBL : public Module
 			return DNSBLConfEntry::I_ZLINE;
 		if(action.compare("GLINE")==0)
 			return DNSBLConfEntry::I_GLINE;
-	
+
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
@@ -170,12 +170,12 @@ class ModuleDNSBL : public Module
 	{
 		ReadConf();
 	}
-	
+
 	virtual ~ModuleDNSBL()
 	{
 		ClearEntries();
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(2, 0, 0, 1, VF_VENDOR, API_VERSION);
@@ -199,7 +199,7 @@ class ModuleDNSBL : public Module
 	}
 
 	/** Fill our conf vector with data
-	 */	
+	 */
 	virtual void ReadConf()
 	{
 		ConfigReader *MyConf = new ConfigReader(ServerInstance);
@@ -311,16 +311,16 @@ class ModuleDNSBLFactory : public ModuleFactory
 	ModuleDNSBLFactory()
 	{
 	}
-	
+
 	~ModuleDNSBLFactory()
 	{
 	}
-	
+
 	virtual Module *CreateModule(InspIRCd *Me)
 	{
 		return new ModuleDNSBL(Me);
 	}
-	
+
 };
 
 
