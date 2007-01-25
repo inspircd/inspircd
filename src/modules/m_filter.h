@@ -284,7 +284,11 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				}
 				if (f->action == "gline")
 				{
-					if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
+					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
+					std::string wild = "*@";
+					wild.append(user->GetIPString());
+
+					if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), wild.c_str()))
 					{
 						ServerInstance->XLines->apply_lines(APPLY_GLINES);
 						FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
