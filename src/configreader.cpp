@@ -151,46 +151,12 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 	
 	if (count > 1)
 	{
-		if (bail)
-		{
-			printf("There were errors in your configuration:\nYou have more than one <%s> tag, this is not permitted.\n",tag);
-			InspIRCd::Exit(EXIT_STATUS_CONFIG);
-		}
-		else
-		{
-			if (user)
-			{
-				user->WriteServ("There were errors in your configuration:");
-				user->WriteServ("You have more than one <%s> tag, this is not permitted.\n",tag);
-			}
-			else
-			{
-				ServerInstance->WriteOpers("There were errors in the configuration file:");
-				ServerInstance->WriteOpers("You have more than one <%s> tag, this is not permitted.\n",tag);
-			}
-		}
+		throw CoreException("You have more than one <"+std::string(tag)+"> tag, this is not permitted.");
 		return false;
 	}
 	if (count < 1)
 	{
-		if (bail)
-		{
-			printf("There were errors in your configuration:\nYou have not defined a <%s> tag, this is required.\n",tag);
-			InspIRCd::Exit(EXIT_STATUS_CONFIG);
-		}
-		else
-		{
-			if (user)
-			{
-				user->WriteServ("There were errors in your configuration:");
-				user->WriteServ("You have not defined a <%s> tag, this is required.",tag);
-			}
-			else
-			{
-				ServerInstance->WriteOpers("There were errors in the configuration file:");
-				ServerInstance->WriteOpers("You have not defined a <%s> tag, this is required.",tag);
-			}
-		}
+		throw CoreException("You have not defined a <"+std::string(tag)+"> tag, this is required.");
 		return false;
 	}
 	return true;
@@ -289,6 +255,13 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 
 bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
+	/* If we already have a servername, and they changed it, we should throw an exception. */
+	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName)) 
+	{
+		throw CoreException("Configuration error: You cannot change your servername at runtime! Please restart your server for this change to be applied.");
+		/* XXX: We don't actually reach this return of course... */
+		return false;
+	}
 	if (!strchr(data.GetString(),'.'))
 	{
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <server:name> '%s' is not a fully-qualified domain name. Changed to '%s%c'",data.GetString(),data.GetString(),'.');
@@ -733,7 +706,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 			ConfValue(this->config_data, Values[Index].tag, Values[Index].value, Values[Index].default_value, 0, item, MAXBUF, allow_newlines);
 			ValueItem vi(item);
 
-			Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi);
+			if (!Values[Index].validation_function(this, Values[Index].tag, Values[Index].value, vi))
+				throw CoreException("One or more values in your configuration file failed to validate. Please see your ircd.log for more information.");
 
 			switch (Values[Index].datatype)
 			{
