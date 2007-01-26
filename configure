@@ -24,6 +24,7 @@ use make::configure;
 
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
+	'rebuild' => \$opt_rebuild,
 	'enable-openssl' => \$opt_use_openssl,
 	'disable-interactive' => \$opt_nointeractive,
 	'with-nick-length=i' => \$opt_nick_length,
@@ -362,9 +363,13 @@ sub svnupdate
 		print "This is not an SVN copy of InspIRCd.\n";
 		exit;
 	}
+	else
+	{
+		close(FH);
+	}
 	system("svn update");
 	system("perl configure -update");
-	if ($ARGV[1] eq "rebuild") {
+	if (defined $opt_rebuild) {
 		system("make install");
 	}
 	exit;
