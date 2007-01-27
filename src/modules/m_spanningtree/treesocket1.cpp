@@ -981,12 +981,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			who = this->Instance->FindNick(usr);
 			if (who)
 			{
-				/* Did they get any modes? How many times? */
-				strlcat(modestring, nm, MAXBUF);
-				for (int k = 0; k < ntimes; k++)
-					mode_users[modectr++] = strdup(usr);
-				/* Free temporary buffer used for mode sequence */
-				delete[] nm;
 				/* Check that the user's 'direction' is correct
 				 * based on the server sending the FJOIN. We must
 				 * check each nickname in turn, because the origin of
@@ -997,8 +991,23 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
 				{
 					/* Oh dear oh dear. */
+					delete[] nm;
 					continue;
 				}
+
+				/* NOTE: Moved this below the fake direction check, so that modes
+				 * arent put into the mode list for users that were collided, and
+				 * may reconnect from the other side or our side before the split
+				 * is completed!
+				 */
+
+				/* Did they get any modes? How many times? */
+				strlcat(modestring, nm, MAXBUF);
+				for (int k = 0; k < ntimes; k++)
+					mode_users[modectr++] = strdup(usr);
+				/* Free temporary buffer used for mode sequence */
+				delete[] nm;
+
 				/* Finally, we can actually place the user into the channel.
 				 * We're sure its right. Final answer, phone a friend.
 				 */
@@ -1054,7 +1063,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				 * in case somehow we're desynched, so that other users which might be able to see
 				 * the nickname get their fair chance to process it.
 				 */
-				Instance->Log(SPARSE,"Warning! Invalid user in FJOIN to channel %s IGNORED", channel.c_str());
+				Instance->Log(SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", usr, channel.c_str());
 				continue;
 			}
 		}
