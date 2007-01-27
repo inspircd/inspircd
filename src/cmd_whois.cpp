@@ -56,10 +56,9 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		{
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
 		}
-		if ((!signon) && (!idle))
-		{
-			FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
-		}
+
+		FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
+
 		if (!strcasecmp(user->server,dest->server))
 		{
 			// idle time and signon line can only be sent if youre on the same server (according to RFC)
