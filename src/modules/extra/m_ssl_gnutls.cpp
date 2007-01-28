@@ -356,10 +356,12 @@ class ModuleSSLGnuTLS : public Module
 		session->inbuf = new char[inbufsize];
 		session->inbufoffset = 0;
 
-		gnutls_init(&session->sess, GNUTLS_SERVER);
+		gnutls_init(&session->sess, GNUTLS_CLIENT);
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
+		//TODO: Request server cert here.
+		//gnutls_certificate_request(session->sess, GNUTLS_CERT_REQUEST); // Request server certificate if any.
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
@@ -476,25 +478,29 @@ class ModuleSSLGnuTLS : public Module
 		issl_session* session = &sessions[fd];
 		const char* sendbuffer = buffer;
 
-		if(!session->sess)
+		if (!session->sess)
 		{
 			CloseSession(session);
 			return 1;
-		}
-		
-		if(session->status == ISSL_HANDSHAKING_WRITE)
-		{
-			// The handshake isn't finished, try to finish it.
-			Handshake(session);
 		}
 
 		session->outbuf.append(sendbuffer, count);
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
 
+		if(session->status == ISSL_HANDSHAKING_WRITE)
+		{
+			// The handshake isn't finished, try to finish it.
+			Handshake(session);
+			errno = EAGAIN;
+			return 0;
+		}
+
+		int ret = 0;
+
 		if(session->status == ISSL_HANDSHAKEN)
 		{	
-			int ret = gnutls_record_send(session->sess, sendbuffer, count);
+			ret = gnutls_record_send(session->sess, sendbuffer, count);
 		
 			if(ret == 0)
 				CloseSession(session);
@@ -509,7 +515,10 @@ class ModuleSSLGnuTLS : public Module
 			}
 		}
 		
-		return 1;
+		/* Who's smart idea was it to return 1 when we havent written anything?
+		 * This fucks the buffer up in InspSocket :p
+		 */
+		return ret < 1 ? 0 : ret;
 	}
 	
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
@@ -555,7 +564,7 @@ class ModuleSSLGnuTLS : public Module
 	{		
 		int ret = gnutls_handshake(session->sess);
       
-		if(ret < 0)
+		if (ret < 0)
 		{
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
