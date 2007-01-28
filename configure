@@ -844,6 +844,7 @@ sub getosflags {
 
 	$config{LDLIBS} = "-lstdc++";
 	$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
+	$config{DEVELOPER} = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -g";
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /OpenBSD/i) {
@@ -1077,6 +1078,7 @@ EOF
 			$tmp =~ s/\@CC\@/$config{CC}/;
 			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
 			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/;
+			$tmp =~ s/\@DEVELOPER\@/$config{DEVELOPER}/;
 			$tmp =~ s/\@LDLIBS\@/$config{LDLIBS}/;
 			$tmp =~ s/\@BASE_DIR\@/$config{BASE_DIR}/;
 			$tmp =~ s/\@CONFIG_DIR\@/$config{CONFIG_DIR}/;
