@@ -130,7 +130,9 @@ class ModuleSSLOpenSSL : public Module
 		SSL_library_init();
 		SSL_load_error_strings();
 		
-		/* Build our SSL context*/
+		/* Build our SSL contexts:
+		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
+		 */
 		ctx = SSL_CTX_new( SSLv23_server_method() );
 		clictx = SSL_CTX_new( SSLv23_client_method() );
 
@@ -386,7 +388,6 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketConnect(int fd)
 	{
-		ServerInstance->Log(DEBUG,"ON RAW SOCKET CONNECT WITH FD %d", fd);
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
@@ -395,8 +396,6 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = SSL_new(clictx);
 		session->status = ISSL_NONE;
 		session->outbound = true;
-
-		ServerInstance->Log(DEBUG,"Session: %08x", session->sess);
 
 		if (session->sess == NULL)
 			return;
@@ -413,8 +412,6 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketClose(int fd)
 	{
 		CloseSession(&sessions[fd]);
-
-		ServerInstance->Log(DEBUG,"SSL session close: %d", fd);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
 
@@ -509,14 +506,11 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!session->sess)
 		{
-			ServerInstance->Log(DEBUG,"BUG: file descriptor %d doesn't have an SSL session attached!", fd);
 			CloseSession(session);
 			return -1;
 		}
 
 		session->outbuf.append(buffer, count);
-
-		ServerInstance->Log(DEBUG,"Buffer now: %s", session->outbuf.c_str());
 		
 		if (session->status == ISSL_HANDSHAKING)
 		{
@@ -527,7 +521,6 @@ class ModuleSSLOpenSSL : public Module
 		
 		if (session->status == ISSL_OPEN)
 		{
-			ServerInstance->Log(DEBUG,"Session is open, writing to it");
 			if (session->rstat == ISSL_WRITE)
 				DoRead(session);
 			
@@ -540,7 +533,6 @@ class ModuleSSLOpenSSL : public Module
 	
 	int DoWrite(issl_session* session)
 	{
-		ServerInstance->Log(DEBUG,"DoWrite called");
 		if (!session->outbuf.size())
 			return -1;
 
@@ -548,7 +540,6 @@ class ModuleSSLOpenSSL : public Module
 		
 		if (ret == 0)
 		{
-			ServerInstance->Log(DEBUG,"SSL_write returned 0");
 			CloseSession(session);
 			return 0;
 		}
@@ -568,21 +559,6 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else
 			{
-				char errbuf[1024];
-				ERR_print_errors_fp(stdout);
-				if (err == SSL_ERROR_WANT_CONNECT)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_CONNECT");
-				if (err == SSL_ERROR_WANT_ACCEPT)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_ACCEPT");
-				if (err == SSL_ERROR_ZERO_RETURN)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_ZERO_RETURN");
-				if (err == SSL_ERROR_WANT_X509_LOOKUP)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_X509_LOOKUP");
-				if (err == SSL_ERROR_SSL)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_SSL: %s", ERR_error_string(err, errbuf));
-				if (err == SSL_ERROR_SYSCALL)
-					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_SYSCALL: %d %s", errno, strerror(errno));
-
 				CloseSession(session);
 				return 0;
 			}
@@ -680,7 +656,6 @@ class ModuleSSLOpenSSL : public Module
 	
 	bool Handshake(issl_session* session)
 	{
-		ServerInstance->Log(DEBUG,"Handshake()");
 		int ret;
 
 		if (session->outbound)
@@ -690,25 +665,21 @@ class ModuleSSLOpenSSL : public Module
       
 		if (ret < 0)
 		{
-			ServerInstance->Log(DEBUG,"Handshake ret < 0");
 			int err = SSL_get_error(session->sess, ret);
 				
 			if (err == SSL_ERROR_WANT_READ)
 			{
-				ServerInstance->Log(DEBUG,"Handshake want read");
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
-				ServerInstance->Log(DEBUG,"Handshake want write");
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG,"Handshake other error");
 				CloseSession(session);
 			}
 
@@ -727,17 +698,12 @@ class ModuleSSLOpenSSL : public Module
 			
 			session->status = ISSL_OPEN;
 
-			ServerInstance->Log(DEBUG,"Handshake complete, returned %d", ret);
-			
 			MakePollWrite(session);
 
 			return true;
 		}
 		else if (ret == 0)
 		{
-			int err = SSL_get_error(session->sess, ret);
-			ServerInstance->Log(DEBUG,"Handshake generic failure: %d", err);
-			ERR_print_errors_fp(stdout);
 			CloseSession(session);
 			return true;
 		}
