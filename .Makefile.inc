@@ -24,6 +24,19 @@ INSTMODE = 0700
 MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'STATICLIBS=${STATICLIBS}' 'INSTMODE=${INSTMODE}'
 
 debug:
+	@echo ""
+	@echo "*************************************"
+	@echo "*    BUILDING WITH DEBUG SYMBOLS    *"
+	@echo "*                                   *"
+	@echo "*  Please be aware that this build  *"
+	@echo "*  will consume a very large amount *"
+	@echo "*   of disk space (350mb+) and may  *"
+	@echo "*  run noticably slower. Only build *"
+	@echo "*   InspIRCd with debug symbols if  *"
+	@echo "* you are developing modules or are *"
+	@echo "*      experiencing problems.       *"
+	@echo "*                                   *"
+	@echo "*************************************"
 	${MAKE} -C . 'FLAGS=${DEBUG}' all
 
 all : @MAKEORDER@ finishmessage
