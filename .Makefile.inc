@@ -23,6 +23,8 @@ STATICLIBS = @STATICLIBS@
 INSTMODE = 0700
 MAKEARGS = 'PROGS=${PROGS}' 'FLAGS=${FLAGS}' 'CC=${CC}' 'LDLIBS=${LDLIBS}' 'MODULES=${MODULES}' 'MODPATH=${MODPATH}' 'LIBPATH=${LIBPATH}' 'STATICLIBS=${STATICLIBS}' 'INSTMODE=${INSTMODE}'
 
+all: @MAKEORDER@ finishmessage
+
 debug:
 	@echo ""
 	@echo "*************************************"
@@ -38,8 +40,6 @@ debug:
 	@echo "*                                   *"
 	@echo "*************************************"
 	${MAKE} -C . 'FLAGS=${DEBUG}' all
-
-all : @MAKEORDER@ finishmessage
 
 mods:
 	@echo "Making modules..."
