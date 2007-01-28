@@ -67,9 +67,11 @@ public:
 	char* inbuf; 			// Buffer OpenSSL reads into.
 	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
 	int fd;
+	bool outbound;
 	
 	issl_session()
 	{
+		outbound = false;
 		rstat = ISSL_READ;
 		wstat = ISSL_WRITE;
 	}
@@ -102,6 +104,7 @@ class ModuleSSLOpenSSL : public Module
 	issl_session sessions[MAX_DESCRIPTORS];
 	
 	SSL_CTX* ctx;
+	SSL_CTX* clictx;
 	
 	char* dummy;
 	
@@ -129,8 +132,10 @@ class ModuleSSLOpenSSL : public Module
 		
 		/* Build our SSL context*/
 		ctx = SSL_CTX_new( SSLv23_server_method() );
+		clictx = SSL_CTX_new( SSLv23_client_method() );
 
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash(NULL,"ssl");
@@ -216,18 +221,18 @@ class ModuleSSLOpenSSL : public Module
 			dhfile = confdir + dhfile;
 
 		/* Load our keys and certificates*/
-		if (!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str()))
+		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s", certfile.c_str());
 		}
 
-		if (!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))
+		if ((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM)) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s", keyfile.c_str());
 		}
 
 		/* Load the CAs we trust*/
-		if (!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))
+		if ((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0)) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
 		{
 			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
 		}
@@ -244,7 +249,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
 		
-			if(SSL_CTX_set_tmp_dh(ctx, ret) < 0)
+			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
 				ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
 			}
@@ -258,6 +263,7 @@ class ModuleSSLOpenSSL : public Module
 	virtual ~ModuleSSLOpenSSL()
 	{
 		SSL_CTX_free(ctx);
+		SSL_CTX_free(clictx);
 		delete culllist;
 	}
 	
@@ -364,31 +370,42 @@ class ModuleSSLOpenSSL : public Module
 		session->inbufoffset = 0;		
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
+		session->outbound = false;
 	
 		if (session->sess == NULL)
 			return;
 		
 		if (SSL_set_fd(session->sess, fd) == 0)
+		{
+			ServerInstance->Log(DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
+		}
 
  		Handshake(session);
 	}
 
 	virtual void OnRawSocketConnect(int fd)
 	{
+		ServerInstance->Log(DEBUG,"ON RAW SOCKET CONNECT WITH FD %d", fd);
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
 		session->inbuf = new char[inbufsize];
 		session->inbufoffset = 0;
-		session->sess = SSL_new(ctx);
+		session->sess = SSL_new(clictx);
 		session->status = ISSL_NONE;
+		session->outbound = true;
+
+		ServerInstance->Log(DEBUG,"Session: %08x", session->sess);
 
 		if (session->sess == NULL)
 			return;
 
 		if (SSL_set_fd(session->sess, fd) == 0)
+		{
+			ServerInstance->Log(DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
+		}
 
 		Handshake(session);
 	}
@@ -396,6 +413,8 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketClose(int fd)
 	{
 		CloseSession(&sessions[fd]);
+
+		ServerInstance->Log(DEBUG,"SSL session close: %d", fd);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
 
@@ -485,16 +504,19 @@ class ModuleSSLOpenSSL : public Module
 	}
 	
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
-	{		
+	{
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
 		{
+			ServerInstance->Log(DEBUG,"BUG: file descriptor %d doesn't have an SSL session attached!", fd);
 			CloseSession(session);
-			return 1;
+			return -1;
 		}
 
 		session->outbuf.append(buffer, count);
+
+		ServerInstance->Log(DEBUG,"Buffer now: %s", session->outbuf.c_str());
 		
 		if (session->status == ISSL_HANDSHAKING)
 		{
@@ -505,6 +527,7 @@ class ModuleSSLOpenSSL : public Module
 		
 		if (session->status == ISSL_OPEN)
 		{
+			ServerInstance->Log(DEBUG,"Session is open, writing to it");
 			if (session->rstat == ISSL_WRITE)
 				DoRead(session);
 			
@@ -517,6 +540,7 @@ class ModuleSSLOpenSSL : public Module
 	
 	int DoWrite(issl_session* session)
 	{
+		ServerInstance->Log(DEBUG,"DoWrite called");
 		if (!session->outbuf.size())
 			return -1;
 
@@ -524,6 +548,7 @@ class ModuleSSLOpenSSL : public Module
 		
 		if (ret == 0)
 		{
+			ServerInstance->Log(DEBUG,"SSL_write returned 0");
 			CloseSession(session);
 			return 0;
 		}
@@ -543,6 +568,21 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else
 			{
+				char errbuf[1024];
+				ERR_print_errors_fp(stdout);
+				if (err == SSL_ERROR_WANT_CONNECT)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_CONNECT");
+				if (err == SSL_ERROR_WANT_ACCEPT)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_ACCEPT");
+				if (err == SSL_ERROR_ZERO_RETURN)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_ZERO_RETURN");
+				if (err == SSL_ERROR_WANT_X509_LOOKUP)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_WANT_X509_LOOKUP");
+				if (err == SSL_ERROR_SSL)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_SSL: %s", ERR_error_string(err, errbuf));
+				if (err == SSL_ERROR_SYSCALL)
+					ServerInstance->Log(DEBUG,"Closing in DoWrite() due to error: SSL_ERROR_SYSCALL: %d %s", errno, strerror(errno));
+
 				CloseSession(session);
 				return 0;
 			}
@@ -639,30 +679,42 @@ class ModuleSSLOpenSSL : public Module
 	}
 	
 	bool Handshake(issl_session* session)
-	{		
-		int ret = SSL_accept(session->sess);
+	{
+		ServerInstance->Log(DEBUG,"Handshake()");
+		int ret;
+
+		if (session->outbound)
+			ret = SSL_connect(session->sess);
+		else
+			ret = SSL_accept(session->sess);
       
 		if (ret < 0)
 		{
+			ServerInstance->Log(DEBUG,"Handshake ret < 0");
 			int err = SSL_get_error(session->sess, ret);
 				
 			if (err == SSL_ERROR_WANT_READ)
 			{
+				ServerInstance->Log(DEBUG,"Handshake want read");
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
+				ServerInstance->Log(DEBUG,"Handshake want write");
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
 			}
 			else
+			{
+				ServerInstance->Log(DEBUG,"Handshake other error");
 				CloseSession(session);
+			}
 
 			return false;
 		}
-		else
+		else if (ret > 0)
 		{
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
@@ -674,13 +726,25 @@ class ModuleSSLOpenSSL : public Module
 			}
 			
 			session->status = ISSL_OPEN;
+
+			ServerInstance->Log(DEBUG,"Handshake complete, returned %d", ret);
 			
 			MakePollWrite(session);
-			
+
 			return true;
 		}
+		else if (ret == 0)
+		{
+			int err = SSL_get_error(session->sess, ret);
+			ServerInstance->Log(DEBUG,"Handshake generic failure: %d", err);
+			ERR_print_errors_fp(stdout);
+			CloseSession(session);
+			return true;
+		}
+
+		return true;
 	}
-	
+
 	virtual void OnPostConnect(userrec* user)
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the

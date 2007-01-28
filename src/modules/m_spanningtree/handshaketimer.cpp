@@ -26,10 +26,13 @@ HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningT
 
 void HandshakeTimer::Tick(time_t TIME)
 {
+	Instance->Log(DEBUG,"Tick handshake timer.");
 	if (Instance->SE->GetRef(thefd) == sock)
 	{
+		Instance->Log(DEBUG,"Socket still here");
 		if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
 		{
+			Instance->Log(DEBUG,"request complete");
 			InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 			sock->SendCapabilities();
 			if (sock->GetLinkState() == CONNECTING)
@@ -39,7 +42,9 @@ void HandshakeTimer::Tick(time_t TIME)
 		}
 		else
 		{
+			Instance->Log(DEBUG,"Request not yet complete");
 			Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils));
 		}
 	}
 }
+
