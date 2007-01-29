@@ -71,7 +71,7 @@ class cmd_check : public command_t
 			if (targuser->oper[0] != 0)
 			{
 				/* user is an oper of type ____ */
-				user->WriteServ(checkstr + " opertype " + targuser->oper);
+				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper));
 			}
 			if (IS_LOCAL(targuser))
 			{
