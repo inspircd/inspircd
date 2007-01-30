@@ -31,8 +31,7 @@ RULES     OPER     LIST     LUSERS     STATS
 USERHOST  AWAY     ISON     SUMMON     USERS
 INVITE    PASS     WHOWAS   LINKS      MAP
 COMMANDS  MODULES  KNOCK    SILENCE    DEVOICE
-REMOVE    PARK     UNPARK   UNINVITE   VHOST
-WATCH     USERIP">
+REMOVE    UNINVITE VHOST    WATCH      USERIP">
 
 <helpop key="watch" value="/WATCH [C|S|+/-[NICK]]
 Adds or deletes a user from the watch list. C clears the list
