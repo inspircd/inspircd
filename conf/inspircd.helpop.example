@@ -1,6 +1,6 @@
 # Sample configuration file for m_helpop.so
 # You can either copy this into your conf folder and set up the module to use it,
-# or you can customise the responses for your network and/or add more.
+# or you can customize the responses for your network and/or add more.
 #
 # The way the new helpop system works is simple. You use one or more helpop tags.
 #   <helpop key="moo" value="something here">.

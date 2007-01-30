@@ -51,7 +51,7 @@ Devoices yourself from the specified channel.">
 
 <helpop key="silence" value="/SILENCE +/-[nick]
 A serverside /ignore of the given nick. It does not follow
-the users nick so if they change their nick you will recieve
+the users nick so if they change their nick you will receive
 their messages. /SILENCE without a parameter will list the nicks
 that you have silenced.">
 
@@ -108,7 +108,7 @@ channels where they are at least a halfoperator.">
 
 <helpop key="topic" value="/TOPIC [channel] {topic}
 Sets or retrieves the channel topic. If a channel topic is
-given in teh command and the channel is either not +t, or
+given in the command and the channel is either not +t, or
 You are at least a halfoperator, the channel topic will be
 changed to the new one you provide.">
 
@@ -130,7 +130,7 @@ sent the MOTD when they connect without having to request it.">
 
 <helpop key="oper" value="/OPER [login] [password]
 Attempts to authenticate a user as an IRC operator.
-Please be aware that both successful and unsucessful oper attempts
+Please be aware that both successful and unsuccessful oper attempts
 Are logged, and sent to online IRC operators.">
 
 <helpop key="list" value="/LIST [pattern]
@@ -142,7 +142,7 @@ Shows a count of local and remote users, servers and channels.">
 
 <helpop key="userhost" value="/USERHOST [nickname]
 Returns the hostname and nickname of a user, and some other
-miscellanious information.">
+miscellaneous information.">
 
 <helpop key="userip" value="/USERIP [nickname]
 Returns the ip and nickname of a user.">
@@ -317,7 +317,7 @@ This command will disconnect a user from IRC with the given reason.">
 
 <helpop key="rehash" value="/REHASH
 This command will cause the server configuration file to be
-re-read and values re-initialised.">
+re-read and values re-initialized.">
 
 <helpop key="trace" value="/TRACE [nick|user@host|servermask]
 This command will provide a list of all users and servers which
@@ -401,7 +401,7 @@ o                Is an IRC operator
 i                Is invisible to /WHO
 w                Can receive wallops messages
 s                Can receive server notices
-n [mask]         Can recieve server notices specified by [mask]
+n [mask]         Can receive server notices specified by [mask]
 x                Cloaked hostname (requires cloaking module)
 g                Can receive globops (requires globops module)
 h                Will receive helpops notification (requires helpop module)
@@ -411,7 +411,7 @@ B                Is a bot
 G                Messages are censored to user
 W                Can see when a user uses WHOIS on them
 S                mIRC colour codes are stripped to the user
-D                User can not recieve PRIVMSGs">
+D                User can not receive PRIVMSGs">
 
 <helpop key="chmodes" value="Channel Modes
 -------------
@@ -438,7 +438,7 @@ S                  mIRC colour codes are stripped from the channel
 e [hostmask]       Ban exception on [hostmask]
 K                  No /KNOCK allowed to channel
 L [channel]        If the channel is full, redirect users to [channel]
-N                  No nickchanges while on the channel
+N                  No nick changes while on the channel
 G                  Censors channel based on network censor config
 g [word]           All messages containing the word are blocked
 I [hostmask]       Invite exception allows user to join a channel with +i
