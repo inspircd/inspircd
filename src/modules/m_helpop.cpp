@@ -63,8 +63,9 @@ class cmd_helpop : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
+		irc::string parameter;
 		if (pcnt > 0)
-			irc::string parameter = parameters[0];
+			parameter = parameters[0];
 
 		if (pcnt == 0 || parameter == "index")
 		{
