@@ -146,7 +146,7 @@ bool InspSocket::BindAddr()
 		std::string IP = Conf.ReadValue("bind","address",j);
 		if (Type == "servers")
 		{
-			if ((IP != "*") && (IP != "127.0.0.1") && (IP != ""))
+			if ((IP != "*") && (IP != "127.0.0.1") && (IP != "") && (IP != "::1"))
 			{
 				insp_sockaddr s;
 

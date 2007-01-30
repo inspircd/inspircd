@@ -294,7 +294,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 		*addr = 0;
 
 	if ((*addr) && (insp_aton(addr,&addy) < 1))
-		return false;;
+		return false;
 
 #ifdef IPV6
 	server.sin6_family = AF_FAMILY;
@@ -304,7 +304,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	if (!*addr)
 	{
 #ifdef IPV6
-		memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+		memcpy(&server.sin6_addr, INADDR6_ANY, sizeof(INADDR6_ANY));
 #else
 		server.sin_addr.s_addr = htonl(INADDR_ANY);
 #endif
@@ -312,7 +312,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	else
 	{
 #ifdef IPV6
-		memcpy(&addy, &server.sin6_addr, sizeof(in6_addr));
+		memcpy(&server.sin6_addr, &addy, sizeof(in6_addr));
 #else
 		server.sin_addr = addy;
 #endif
