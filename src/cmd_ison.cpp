@@ -44,6 +44,35 @@ CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			ison_already[u] = u;
 		}
+		else
+		{
+			if ((i == pcnt-1) && (strchr(parameters[i],' ')))
+			{
+				/* Its a space seperated list of nicks (RFC1459 says to support this)
+				 */
+				irc::spacesepstream list(parameters[i]);
+				std::string item = "*";
+				while (((item = list.GetToken()) != ""))
+				{
+					u = ServerInstance->FindNick(parameters[i]);
+					if (ison_already.find(u) != ison_already.end())
+						continue;
+
+					if (u)
+					{
+						reply.append(u->nick).append(" ");
+						if (reply.length() > 450)
+						{
+							user->WriteServ(reply);
+							reply = std::string("303 ") + user->nick + " :";
+						}
+						ison_already[u] = u;
+					}
+				}
+			}
+			/* There will only be one of these, we can bail after. */
+			break;
+		}
 	}
 
 	if (!reply.empty())
