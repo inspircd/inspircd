@@ -235,6 +235,11 @@ bool InspSocket::DoConnect()
 
 void InspSocket::Close()
 {
+	/* Save this, so we dont lose it,
+	 * otherise on failure, error messages
+	 * might be inaccurate.
+	 */
+	int save = errno;
 	if (this->fd > -1)
 	{
                 if (this->IsIOHooked && Instance->Config->GetIOHook(this))
@@ -252,6 +257,7 @@ void InspSocket::Close()
 		shutdown(this->fd,2);
 		close(this->fd);
 	}
+	errno = save;
 }
 
 std::string InspSocket::GetIP()
