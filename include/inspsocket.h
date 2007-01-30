@@ -201,6 +201,7 @@ class InspSocket : public EventHandler
 	 * @param port The port number to connect to, or bind to
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
+	 * @return On exit, GetState() returns I_ERROR if an error occured, and errno can be used to read the socket error.
 	 */
 	InspSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime);
 
