@@ -55,17 +55,18 @@ class Helpop : public ModeHandler
 class cmd_helpop : public command_t
 {
  public:
-	cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 1)
+	cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 0)
 	{
 		this->source = "m_helpop.so";
 		syntax = "<any-text>";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
-	{		
-		irc::string parameter = parameters[0];
+	{
+		if (pcnt > 0)
+			irc::string parameter = parameters[0];
 
-		if (parameter == "index")
+		if (pcnt == 0 || parameter == "index")
 		{
 			/* iterate over all helpop items */
 			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick);
