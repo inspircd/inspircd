@@ -54,7 +54,7 @@ CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 				std::string item = "*";
 				while (((item = list.GetToken()) != ""))
 				{
-					u = ServerInstance->FindNick(parameters[i]);
+					u = ServerInstance->FindNick(item);
 					if (ison_already.find(u) != ison_already.end())
 						continue;
 
