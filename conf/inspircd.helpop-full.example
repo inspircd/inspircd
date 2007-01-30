@@ -41,17 +41,6 @@ and S queries the status.">
 <helpop key="vhost" value="/VHOST [username] [password]
 Authenticate for a vhost.">
 
-<helpop key="park" value="/PARK
-Parks the nickname which issues the command. The session's
-connection is closed, but the session remains as a ghost, to
-be reclaimed later. When the user quits, they will be given a" 
-key which is random.">
-
-<helpop key="unpark" value="/UNPARK [nickname] [key]
-Unparks the nickname specified. The nickname must already
-be previously parked, and the key must match the one for
-this nickname.">
-
 <helpop key="kick" value="/REMOVE [channel] [nick] {[reason]}
 Removes a user from a channel you specify. You must be
 At least a channel halfoperator to remove a user.
