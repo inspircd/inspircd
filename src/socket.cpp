@@ -304,7 +304,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server
 	if (!*addr)
 	{
 #ifdef IPV6
-		memcpy(&server.sin6_addr, INADDR6_ANY, sizeof(INADDR6_ANY));
+		memset(&server.sin6_addr, 0, sizeof(in6_addr));
 #else
 		server.sin_addr.s_addr = htonl(INADDR_ANY);
 #endif
