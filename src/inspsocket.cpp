@@ -153,7 +153,7 @@ bool InspSocket::BindAddr()
 				if (insp_aton(IP.c_str(),&n) > 0)
 				{
 #ifdef IPV6
-					s.sin6_addr = n;
+					memcpy(&s.sin6_addr, &n, sizeof(n));
 					s.sin6_family = AF_FAMILY;
 #else
 					s.sin_addr = n;
@@ -192,7 +192,7 @@ bool InspSocket::DoConnect()
 	insp_aton(this->IP,&addy);
 #ifdef IPV6
 	addr.sin6_family = AF_FAMILY;
-	memcpy(&addr.sin6_addr, &addy, sizeof(insp_inaddr));
+	memcpy(&addr.sin6_addr, &addy, sizeof(addy));
 	addr.sin6_port = htons(this->port);
 #else
 	addr.sin_family = AF_FAMILY;
@@ -200,8 +200,7 @@ bool InspSocket::DoConnect()
 	addr.sin_port = htons(this->port);
 #endif
 
-	int flags;
-	flags = fcntl(this->fd, F_GETFL, 0);
+	int flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 
 	if (connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
