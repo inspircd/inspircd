@@ -353,6 +353,7 @@ sub translate_functions($$)
 		while ($line =~ /rpath\("(.+?)"\)/)
 		{
 			my $replace = make_rpath($1,$module);
+			$replace = "" if ($^O =~ /darwin/i);
 			$line =~ s/rpath\("(.+?)"\)/$replace/;
 		}
 	};

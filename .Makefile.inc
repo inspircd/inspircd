@@ -18,6 +18,7 @@ CONPATH = $(DESTDIR)@CONFIG_DIR@
 MODPATH = $(DESTDIR)@MODULE_DIR@
 BINPATH = $(DESTDIR)@BINARY_DIR@
 LIBPATH = $(DESTDIR)@LIBRARY_DIR@
+LIB_EXT = @LIBRARY_EXT@
 MODULES = @MODULES@
 STATICLIBS = @STATICLIBS@
 INSTMODE = 0700
@@ -72,28 +73,28 @@ install: all
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) ${MODPATH}
-	-install -m $(INSTMODE) src/libIRCDasyncdns.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDbase.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDchannels.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDcommand_parse.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDcommands.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDconfigreader.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDcull_list.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDdynamic.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDhash.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDhelper.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDinspsocket.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDmode.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDmodules.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDsocket.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDsocketengine.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDstring.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDuserprocess.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDusers.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDwildcard.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDxline.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDtimer.so $(LIBPATH)
-	-install -m $(INSTMODE) src/libIRCDsnomasks.so $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDasyncdns.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDbase.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDchannels.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcommand_parse.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcommands.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDconfigreader.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDcull_list.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDdynamic.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDhash.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDhelper.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDinspsocket.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDmode.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDmodules.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsocket.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsocketengine.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDstring.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDuserprocess.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDusers.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDwildcard.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDxline.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDtimer.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDsnomasks.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	-install -m $(INSTMODE) inspircd $(BASE) 2>/dev/null
 	-install -m $(INSTMODE) src/cmd_admin.so $(LIBPATH)
@@ -180,7 +181,7 @@ module:
 
 clean:
 	@echo Cleaning...
-	@rm -rvf src/*.so src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
+	@rm -rvf src/*.so src/*.dylib src/*.o src/inspircd src/modules/*.so src/modules/*.o *~ src/*~ src/modules/*~ src/modules/extra/*~ src/modes/*~ src/modes/*.o src/modes/*.a src/modules/*/*.o src/modules/*/*.so
 	@echo Completed.
 
 modclean:
