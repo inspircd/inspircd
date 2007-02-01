@@ -921,9 +921,7 @@ sub writefiles {
 	my($writeheader) = @_;
 	# First File.. inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
-	chomp(my $version = `sh ./src/version.sh`);
-	chomp(my $revision = getrevision());
-	$version = "$version(r$revision)";
+	chomp($version = `sh src/version.sh`);
 	chomp(my $revision2 = getrevision());
 	if ($writeheader == 1)
 	{

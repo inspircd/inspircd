@@ -440,7 +440,7 @@ std::string InspIRCd::GetVersionString()
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%lu,%s,%s]",VERSION,Config->ServerName,SYSTEM,(unsigned long)OPTIMISATION,SE->GetName().c_str(),dnsengine);
+		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%s]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),dnsengine);
 	}
 	return versiondata;
 }
