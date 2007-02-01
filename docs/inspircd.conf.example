@@ -377,7 +377,7 @@
 <oper   name="katsklaw"
         password="s3cret"
         host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
-	fingerprint="a41d730937a53b79f788c0ab13e9e1d5"
+        fingerprint="a41d730937a53b79f788c0ab13e9e1d5"
         type="NetAdmin">
 
 
@@ -494,18 +494,18 @@
 <link name="hub.penguin.org"
         ipaddr="penguin.box.com"
         port="7000"
-	allowmask="69.58.44.0/24"
+        allowmask="69.58.44.0/24"
         autoconnect="300"
-	failover="hub.other.net"
-	timeout="15"
-	transport="gnutls"
+        failover="hub.other.net"
+        timeout="15"
+        transport="gnutls"
         sendpass="outgoing!password"
         recvpass="incoming!password">
 
 <link name="services.antarctic.com"
         ipaddr="localhost"
         port="7000"
-	allowmask="127.0.0.0/8"
+        allowmask="127.0.0.0/8"
         sendpass="penguins"
         recvpass="polarbears">
 
@@ -1492,10 +1492,18 @@
 # SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
 #<module name="m_saquit.so">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Secure list module: Prevent /LIST in the first minute of connection,
 # crippling most spambots and trojan spreader bots.
 #<module name="m_securelist.so">
+#
+#-#-#-#-#-#-#-#-#-# SECURELIST CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Securelist can be harmful to some irc search engines such as        #
+# netsplit.de and searchirc.com. To prevent securelist blocking these #
+# sites from listing, define exception tags as shown below:           #
+<securelist exception="*@*.searchirc.com">
+<securelist exception="*@*.netsplit.de">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Set Idle module: Adds a command for opers to change their

@@ -23,11 +23,11 @@
 class ModuleSecureList : public Module
 {
  private:
-	 
+	std::vector<std::string> allowlist;
  public:
 	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
 	{
-		
+		OnRehash(NULL,"");
 	}
  
 	virtual ~ModuleSecureList()
@@ -38,10 +38,19 @@ class ModuleSecureList : public Module
 	{
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
+
+	void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader* MyConf = new ConfigReader(ServerInstance);
+		allowlist.clear();
+		for (int i = 0; i < MyConf->Enumerate("securelist"); i++)
+			allowlist.push_back(MyConf->ReadValue("securelist", "exception", i));
+		DELETE(MyConf);
+	}
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_On005Numeric] = 1;
+		List[I_OnRehash] = List[I_OnPreCommand] = List[I_On005Numeric] = 1;
 	}
 
 	/*
@@ -56,6 +65,12 @@ class ModuleSecureList : public Module
  
 		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+60)) && (!*user->oper))
 		{
+			/* Normally wouldnt be allowed here, are they exempt? */
+			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
+				if (ServerInstance->MatchText(user->MakeHost(), *x))
+					return 0;
+
+			/* Not exempt, BOOK EM DANNO! */
 			user->WriteServ("NOTICE %s :*** You cannot list within the first minute of connecting. Please try again later.",user->nick);
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
