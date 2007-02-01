@@ -1502,7 +1502,7 @@
 # Securelist can be harmful to some irc search engines such as        #
 # netsplit.de and searchirc.com. To prevent securelist blocking these #
 # sites from listing, define exception tags as shown below:           #
-<securelist exception="*@*.searchirc.com">
+<securelist exception="*@*.searchirc.org">
 <securelist exception="*@*.netsplit.de">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
