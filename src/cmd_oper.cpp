@@ -79,9 +79,6 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 				if (!strcmp(TypeName,OperType))
 				{
 					/* found this oper's opertype */
-					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
-					if (*HostName)
-						user->ChangeDisplayedHost(HostName);
 					if (!ServerInstance->IsNick(TypeName))
 					{
 						user->WriteServ("491 %s :Invalid oper type (oper types must follow the same syntax as nicknames)",user->nick);
@@ -89,6 +86,9 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 						ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but oper type erroneous.",user->nick,user->ident,user->host);
 						return CMD_FAILURE;
 					}
+					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
+					if (*HostName)
+						user->ChangeDisplayedHost(HostName);
 					found = true;
 					type_invalid = false;
 					break;
