@@ -99,7 +99,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel (+z)", user->nick, cname);
+				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick, cname);
 				return 1;
 			}
 		}
