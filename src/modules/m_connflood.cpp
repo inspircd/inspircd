@@ -70,9 +70,10 @@ public:
 	virtual int OnUserRegister(userrec* user)
 	{
 		time_t next = ServerInstance->Time();
-		if (!first)
-			first = next - boot_wait;
-
+		
+		if ((ServerInstance->startup_time + boot_wait) > next)
+			return 0;
+		
 		/* time difference between first and latest connection */
 		time_t tdiff = next - first;
 
