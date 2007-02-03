@@ -278,7 +278,7 @@ class ModuleDNSBL : public Module
 				/* We could have an ipv6 address here */
 				std::string x = user->GetIPString();
 				/* Is it a 4in6 address? (Compensate for this kernel kludge that people love) */
-				if (x.find("0::ffff:") == x.begin())
+				if (x.find("0::ffff:") == 0)
 				{
 					x.erase(x.begin(), x.begin() + 8);
 					if (inet_aton(x.c_str(), &in))
