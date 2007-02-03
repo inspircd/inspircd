@@ -53,6 +53,8 @@ char* get_error()
 	return ERR_error_string(ERR_get_error(), NULL);
 }
 
+static int error_callback(const char *str, size_t len, void *u);
+
 /** Represents an SSL user's extra data
  */
 class issl_session : public classbase
@@ -115,9 +117,11 @@ class ModuleSSLOpenSSL : public Module
 	std::string dhfile;
 	
  public:
-	
+
+	InspIRCd* PublicInstance;
+
 	ModuleSSLOpenSSL(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module::Module(Me), PublicInstance(Me)
 	{
 		culllist = new CullList(ServerInstance);
 
@@ -222,21 +226,26 @@ class ModuleSSLOpenSSL : public Module
 		if (dhfile[0] != '/')
 			dhfile = confdir + dhfile;
 
-		/* Load our keys and certificates*/
+		/* Load our keys and certificates
+		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
+		 */
 		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s", certfile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
 		}
 
-		if ((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM)) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
+		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s", keyfile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
 		}
 
 		/* Load the CAs we trust*/
-		if ((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0)) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
+		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
 		{
-			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from ", cafile.c_str());
+			ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. %s", cafile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
 		}
 
 		FILE* dhpfile = fopen(dhfile.c_str(), "r");
@@ -250,10 +259,10 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-		
 			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
-				ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters");
+				ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
+				ERR_print_errors_cb(error_callback, this);
 			}
 		}
 		
@@ -806,6 +815,13 @@ class ModuleSSLOpenSSL : public Module
 		X509_free(cert);
 	}
 };
+
+static int error_callback(const char *str, size_t len, void *u)
+{
+	ModuleSSLOpenSSL* mssl = (ModuleSSLOpenSSL*)u;
+	mssl->PublicInstance->Log(DEFAULT, "SSL error: " + std::string(str, len - 1));
+	return 0;
+}
 
 class ModuleSSLOpenSSLFactory : public ModuleFactory
 {
