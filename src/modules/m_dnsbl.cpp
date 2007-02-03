@@ -270,12 +270,29 @@ class ModuleDNSBL : public Module
 			unsigned char a, b, c, d;
 			char reversedipbuf[128];
 			std::string reversedip;
+			bool success = false;
 
 			if (!inet_aton(user->GetIPString(), &in))
 			{
-				ServerInstance->WriteOpers("Invalid IP address in m_dnsbl! Bailing check");
-				return 0;
+#ifdef IPV6
+				/* We could have an ipv6 address here */
+				std::string x = user->GetIPString();
+				/* Is it a 4in6 address? (Compensate for this kernel kludge that people love) */
+				if (x.find("0::ffff:") == x.begin())
+				{
+					x.erase(x.begin(), x.begin() + 8);
+					if (inet_aton(x.c_str(), &in))
+						success = true;
+				}
+#endif
 			}
+			else
+			{
+				success = true;
+			}
+
+			if (!success)
+				return 0;
 
 			d = (unsigned char) (in.s_addr >> 24) & 0xFF;
 			c = (unsigned char) (in.s_addr >> 16) & 0xFF;
@@ -289,7 +306,7 @@ class ModuleDNSBL : public Module
 			for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
 			{
 				// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
-				std::string hostname=reversedip+"."+ (*i)->domain;
+				std::string hostname = reversedip + "." + (*i)->domain;
 
 				/* now we'd need to fire off lookups for `hostname'. */
 				bool cached;
