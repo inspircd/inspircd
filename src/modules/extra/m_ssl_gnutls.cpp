@@ -192,15 +192,17 @@ class ModuleSSLGnuTLS : public Module
 		if(keyfile[0] != '/')
 			keyfile = confdir + keyfile;
 		
-		if(gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file: %s", cafile.c_str());
-			
-		if(gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 CRL file: %s", crlfile.c_str());
-		
+		int ret;
+
+		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
+			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
+
+		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
+			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
+
 		// Guessing on the return value of this, manual doesn't say :|
-		if(gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 certificate and key files: %s and %s", certfile.c_str(), keyfile.c_str());	
+		if((ret = gnutls_certificate_set_x509_key_file (x509_cred, certfile.c_str(), keyfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
+			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to set X.509 certificate and key files '%s' and '%s': %s", certfile.c_str(), keyfile.c_str(), gnutls_strerror(ret));
 			
 		// This may be on a large (once a day or week) timer eventually.
 		GenerateDHParams();
@@ -215,8 +217,10 @@ class ModuleSSLGnuTLS : public Module
 		// once a day, once a week or once a month. Depending on the
 		// security requirements.
 		
-		if(gnutls_dh_params_generate2(dh_params, dh_bits) < 0)
-			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits)", dh_bits);
+		int ret;
+
+		if((ret = gnutls_dh_params_generate2(dh_params, dh_bits)) < 0)
+			ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
 	}
 	
 	virtual ~ModuleSSLGnuTLS()
