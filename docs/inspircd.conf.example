@@ -377,7 +377,6 @@
 <oper   name="katsklaw"
         password="s3cret"
         host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
-        fingerprint="a41d730937a53b79f788c0ab13e9e1d5"
         type="NetAdmin">
 
 
