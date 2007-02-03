@@ -25,7 +25,7 @@
 #include "inspircd.h"
 
 /** Handle /DEVOICE
- */	 
+ */
 class cmd_devoice : public command_t
 {
  public:
@@ -45,7 +45,10 @@ class cmd_devoice : public command_t
 			modes[1] = "-v";
 			modes[2] = user->nick;
 
-			ServerInstance->SendMode(modes,3,user);
+			userrec* n = new userrec(ServerInstance);
+			n->SetFd(FD_MAGIC_NUMBER);
+			ServerInstance->SendMode(modes,3,n);
+			delete n;
 
 			return CMD_SUCCESS;
 		}
@@ -60,15 +63,15 @@ class ModuleDeVoice : public Module
  public:
 	ModuleDeVoice(InspIRCd* Me) : Module::Module(Me)
 	{
-		
+
 		mycommand = new cmd_devoice(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
-	
+
 	virtual ~ModuleDeVoice()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
@@ -82,16 +85,16 @@ class ModuleDeVoiceFactory : public ModuleFactory
 	ModuleDeVoiceFactory()
 	{
 	}
-	
+
 	~ModuleDeVoiceFactory()
 	{
 	}
-	
+
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleDeVoice(Me);
 	}
-	
+
 };
 
 
