@@ -265,7 +265,7 @@ Sets your ident to the specified ident.">
 <helpop key="setname" value="/SETNAME [name]
 Sets your name to the specified name.">
 
-<helpop key="swhois line="/SWHOIS [nick] [swhois]
+<helpop key="swhois" line="/SWHOIS [nick] [swhois]
 Sets the users swhois field to the given swhois.">
 
 <helpop key="mkpasswd" value="/MKPASSWD [plaintext]
