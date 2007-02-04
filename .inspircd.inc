@@ -14,6 +14,7 @@
 #
 #               I HATE PERL.. kthxbye
 # ---------------------------------------------------
+use POSIX;
 
 my $basepath	=	"@BASE_DIR@";
 my $confpath	=	"@CONFIG_DIR@/";
@@ -22,6 +23,7 @@ my $libpath	=	"@LIBRARY_DIR@";
 my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
 my @filesparsed;
+my @filechecked;
 
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = $ARGV[0];
@@ -34,7 +36,7 @@ if ($arg eq "valdebug") { valdebug(); exit(); }
 if ($arg eq "screenvaldebug") { screenvaldebug(); exit(); }
 if ($arg eq "stop") { stop(); exit(); }
 if ($arg eq "status") {
-	if (getstatus() == 1) { 
+	if (getstatus() == 1) {
 		my $pid = getprocessid();
 		print "InspIRCd is running (PID: $pid)\n";
 		exit();
@@ -46,7 +48,7 @@ if ($arg eq "status") {
 if ($arg eq "rehash") {
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
-	        system("kill -HUP $pid >/dev/null 2>&1");
+		system("kill -HUP $pid >/dev/null 2>&1");
 		print "InspIRCd rehashed (pid: $pid).\n";
 		exit();
 	} else {
@@ -73,6 +75,11 @@ if ($arg eq "restart") {
 	exit();
 }
 
+if ($arg eq "checkconf") {
+	checkconf();
+	exit();
+}
+
 if ($arg eq "Cheese-Sandwich") {
 	print "Creating Cheese Sandwich..\n";
 	print "Done.\n";
@@ -83,7 +90,7 @@ if ($arg eq "Cheese-Sandwich") {
 # If we get here.. bad / no parameters.
 ###
 print "Invalid Argument: $arg\n";
-print "Usage: inspircd (start|stop|restart|rehash|status|cron|version)\n";
+print "Usage: inspircd (start|stop|restart|rehash|status|cron|checkconf|version)\n";
 exit();
 
 ###
@@ -91,24 +98,24 @@ exit();
 ###
 
 sub start {
-        # Check to see its not 'running' already.
-        if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
-        # If we are still alive here.. Try starting the IRCd..
+	# Check to see its not 'running' already.
+	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
+	# If we are still alive here.. Try starting the IRCd..
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 
-        system("$binpath/$executable");
-        return 1;
+	system("$binpath/$executable");
+	return 1;
 }
 
 sub debug {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
-	
+
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
-	
+
 	# Check we have gdb
 	checkgdb();
-		
+
 	# If we are still alive here.. Try starting the IRCd..
 	system("gdb --command=$basepath/.gdbargs --args $binpath/$executable -nofork -debug -nolog");
 }
@@ -117,13 +124,13 @@ sub screendebug
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
-	
+
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 
 	#Check we have gdb
 	checkgdb();
 	checkscreen();
-	
+
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
@@ -140,7 +147,7 @@ sub valdebug
 	# Check we have valgrind and gdb
 	checkvalgrind();
 	checkgdb();
-	
+
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
@@ -151,14 +158,14 @@ sub screenvaldebug
 {
 	# Check to see its not 'running' already.
 	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
-	
+
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
 
 	#Check we have gdb
 	checkvalgrind();
 	checkgdb();
 	checkscreen();
-	
+
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
@@ -166,11 +173,11 @@ sub screenvaldebug
 }
 
 sub stop {
-        if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
-        # Get to here, we have something to kill.
-        my $pid = getprocessid();
+	if (getstatus() == 0) { print "InspIRCd is not running. (Or PID File not found)\n"; return 0; }
+	# Get to here, we have something to kill.
+	my $pid = getprocessid();
 	print "Stopping InspIRCd (pid: $pid)...\n";
-        system("kill -TERM $pid >/dev/null 2>&1");
+	system("kill -TERM $pid >/dev/null 2>&1");
 	# Give it a second to exit
 	sleep(1);
 	if (getstatus() == 1)
@@ -178,11 +185,11 @@ sub stop {
 		print "InspIRCd not dying quietly -- forcing kill\n";
 		system("kill -9 $pid >/dev/null 2>&1");
 	}
-        print "InspIRCd Stopped.\n";
+	print "InspIRCd Stopped.\n";
 }
 
 # GetPidfile Version 2 - Now With Include Support..
-# I beg for months for include support in insp, then.. 
+# I beg for months for include support in insp, then..
 # when it is added, it comes around and BITES ME IN THE ASS,
 # because i then have to code support into this script.. Evil.
 
@@ -212,7 +219,7 @@ sub getpidfile {
       return;
     }
   }
-  
+
   # If we get here, Mark as 'Read'
   $filesparsed[$filesparsed] = $file;
 
@@ -246,8 +253,8 @@ sub getpidfile {
       getpidfile($1);
       # Was a PID found?
       if ($pidfile ne "") {
-        # Yes, Return.
-        return;
+	# Yes, Return.
+	return;
       }
     }
   }
@@ -257,11 +264,11 @@ sub getpidfile {
 }
 
 sub getstatus {
-        my $pid = getprocessid();
-        if ($pid == 0) { return 0; }
-        $status = system("kill -0 $pid >/dev/null 2>&1") / 256;
-        if ($status == 0) { return 1; }
-        else { return 0; }
+	my $pid = getprocessid();
+	if ($pid == 0) { return 0; }
+	$status = system("kill -0 $pid >/dev/null 2>&1") / 256;
+	if ($status == 0) { return 1; }
+	else { return 0; }
 }
 
 
@@ -301,4 +308,180 @@ sub checkscreen
 		print "Couldn't start screen: $!\n";
 		exit;
 	}
+}
+
+sub checkxmllint
+{
+	open(FH, "xmllint|") or die "Couldn't start xmllint: $!\n";
+}
+
+sub checkconf
+{
+	checkxmllint();
+	validateconf($confpath."inspircd.conf");
+	print "Config check complete\n";
+}
+
+sub validateconf
+{
+	my ($file) = @_;
+
+	# Are We using a relative path?
+	if ($file !~ /^\//) {
+		# Convert it to a full path..
+		$file = $confpath . $file;
+	}
+
+	# Have we checked this file before?
+	for (my $i = 0; $i < $filechecked; $i++) {
+		if ($filechecked[$i] eq $file) {
+			# Already Parsed, Possible recursive loop..
+			return;
+		}
+	}
+
+	# If we get here, Mark as 'Read'
+	$filechecked[$filechecked] = $file;
+
+	# Open the File..
+	open INFILE, "< $file" or die "Unable to open file $file\n";
+	# Grab entire file contents..
+	my(@lines) = <INFILE>;
+	# Close the file
+	close INFILE;
+
+	# remove trailing spaces
+	chomp(@lines);
+
+	my @newlines = ();
+	my @blanks = ();
+	my $conline;
+
+	push @newlines, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>";
+#       push @newlines, "<!DOCTYPE config SYSTEM \"".$confpath."inspircd.dtd\">";
+	push @newlines, "<config>";
+
+	foreach $i (@lines) {
+		# remove trailing newlines
+		chomp($i);
+
+		# clean up
+		$i =~ s/[^=]+=\s(.*)/\1/;
+
+		# convert tabs to spaces
+		$i =~ s/\t/ /g;
+
+		# remove leading spaces
+		$i =~ s/^ *//;
+
+		# remove comments
+		$i =~ s/^#.*//;
+
+		# remove trailing #s
+		$i =~ s/(.*)#$/\1/;
+
+		# remove trailing spaces
+		$i =~ s/ *$//;
+
+		# include file?
+		if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
+		{
+			# yes, process it
+			validateconf($1);
+		}
+
+		if ($i =~ /^<.*/ && $conline =~ /^<.*/)
+		{
+			push @newlines, $conline;
+			push @newlines, @blanks;
+			$conline = $i;
+		}
+
+		if ($i =~ /^<.*>$/)
+		{
+			$i =~ s/(.*)>$/\1 \/>/;
+			push @newlines, $i;
+		}
+		elsif ($i =~ /.*>$/)
+		{
+			$conline .= " $i";
+			$conline =~ s/(.*)>$/\1 \/>/;
+			push @blanks, "";
+			push @newlines, $conline;
+			push @newlines, @blanks;
+			$conline = "";
+			undef @blanks;
+		}
+		elsif ($i =~ /^<.*/)
+		{
+			$conline = $i;
+		}
+		elsif ($conline =~ /^<.*/ && $i)
+		{
+			$conline .= " $i";
+			push @blanks, "";
+		}
+		else
+		{
+			if ($conline)
+			{
+				push @blanks, $i;
+			}
+			else
+			{
+				push @newlines, $i;
+			}
+		}
+	}
+	if ($conline)
+	{
+		push @newlines, $conline;
+		push @newlines, @blanks;
+	}
+
+	push @newlines, "</config>";
+
+	my $tmpfile;
+	do
+	{
+		$tmpfile = tmpnam();
+	} until sysopen(TF, $tmpfile, O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW, 0700);
+
+	foreach $n (@newlines)
+	{
+		print TF "$n\n";
+	}
+	close TF;
+
+	my @result = `xmllint -noout $tmpfile 2>&1`;
+	chomp(@result);
+
+	my $skip = 0;
+	foreach $n (@result)
+	{
+		if ($skip)
+		{
+			$skip = 0;
+			next;
+		}
+		$n =~ s/$tmpfile\:\d*\: *//g;
+		if ($n =~ /.*config>.*/)
+		{
+			$n = "";
+			$skip = 1;
+		}
+
+		if ($n && !$skip)
+		{
+			if ($n =~ /line \d*/)
+			{
+				my $lineno = $n;
+				$lineno =~ s/.*line (\d*).*/\1/;
+				$lineno = $lineno-2;
+				$n =~ s/line (\d*)/line $lineno/;
+			}
+			print "$file : $n\n";
+		}
+	}
+	unlink($tmpfile);
 }
