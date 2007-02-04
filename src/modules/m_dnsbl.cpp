@@ -112,16 +112,19 @@ class DNSBLResolver : public Resolver
 						case DNSBLConfEntry::I_KLINE:
 						{
 							ServerInstance->AddKLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, std::string("*@") + them->GetIPString());
+							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ServerInstance->Duration(ConfEntry->duration), NULL, reason, std::string("*@") + them->GetIPString()));
 							break;
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
 							ServerInstance->AddGLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, std::string("*@") + them->GetIPString());
+							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ServerInstance->Duration(ConfEntry->duration), NULL, reason, std::string("*@") + them->GetIPString()));
 							break;
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
 							ServerInstance->AddZLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, them->GetIPString());
+				            FOREACH_MOD(I_OnAddZLine,OnAddZLine(ServerInstance->Duration(ConfEntry->duration), NULL, reason, them->GetIPString()));
 							break;
 						}
 						case DNSBLConfEntry::I_UNKNOWN:
