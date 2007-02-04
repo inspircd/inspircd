@@ -197,7 +197,7 @@ implementation as a tree based network is not in place.">
 -------------
 DIE        RESTART     KILL         REHASH         TRACE
 CONNECT    SQUIT       MODULES      MKPASSWD       SHUN
-KLINE      QLINE       GLINE        ELINE          ZLINE"  
+KLINE      QLINE       GLINE        ELINE          ZLINE
 SAJOIN     SAPART      SAMODE       SAQUIT         SANICK
 SETIDLE    SETHOST     SETNAME      SETIDENT       SWHOIS
 OPERMOTD   CHGHOST     CHGNAME      CHGIDENT       CBAN
