@@ -361,7 +361,8 @@ sub validateconf
 #       push @newlines, "<!DOCTYPE config SYSTEM \"".$confpath."inspircd.dtd\">";
 	push @newlines, "<config>";
 
-	foreach $i (@lines) {
+	foreach $i (@lines)
+	{
 		# remove trailing newlines
 		chomp($i);
 
@@ -379,6 +380,16 @@ sub validateconf
 
 		# remove trailing #s
 		$i =~ s/(.*)#$/\1/;
+
+		# remove trailing comments
+		my $line = "";
+		my $quote = 0;
+		for (my $j = 0; $j < length($i); $j++)
+		{
+			if (substr($i,$j, 1) eq '"') { $quote = ($quote) ? 0 : 1; } elsif (substr($i,$j, 1) eq "#" && !$quote) { last; }
+			$line .= substr($i,$j, 1);
+		}
+		$i = $line;
 
 		# remove trailing spaces
 		$i =~ s/ *$//;
