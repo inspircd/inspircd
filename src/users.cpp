@@ -808,7 +808,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	user_hash::iterator iter = Instance->clientlist->find(tempnick);
 	char ipaddr[MAXBUF];
 #ifdef IPV6
-	if (socketfamily = AF_INET6)
+	if (socketfamily == AF_INET6)
 		inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, ipaddr, sizeof(ipaddr));
 	else
 		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
@@ -849,7 +849,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->signon = Instance->Time() + Instance->Config->dns_timeout;
 	New->lastping = 1;
 
-	New->SetSockAddr(AF_FAMILY, ipaddr, port);
+	New->SetSockAddr(socketfamily, ipaddr, port);
 
 	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
 	for (const char* temp = New->GetIPString(); *temp && j < 64; temp++, j++)
