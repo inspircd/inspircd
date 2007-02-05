@@ -141,7 +141,7 @@ void userrec::StartDNSLookup()
 	try
 	{
 		bool cached;
-		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), DNS_QUERY_REVERSE, cached);
+		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
 		this->ServerInstance->AddResolver(res_reverse, cached);
 	}
 	catch (CoreException& e)
@@ -169,9 +169,19 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			{
 				bool cached;
 #ifdef IPV6
-				const char *ip = this->bound_user->GetIPString();
-				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
+				if (this->bound_user->GetProtocolFamily() == AF_INET6)
+				{
+					/* IPV6 forward lookup (with possibility of 4in6) */
+					char* ip = this->bound_user->GetIPString();
+					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
+				}
+				else
+				{
+					/* IPV4 lookup (mixed protocol mode) */
+					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
+				}
 #else
+				/* IPV4 lookup (ipv4 only mode) */
 				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
 #endif
 				this->ServerInstance->AddResolver(bound_user->res_forward, cached);
