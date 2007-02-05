@@ -33,29 +33,29 @@ class CullItem : public classbase
 {
  private:
 	/** Holds a pointer to the user,
-	 * must be valid and can be a local or remote user.
-	 */
-        userrec* user;
+	* must be valid and can be a local or remote user.
+	*/
+	userrec* user;
 	/** Holds the quit reason to use for this user.
-	 */
+	*/
 	std::string reason;
  public:
 	/** Constrcutor.
-	 * Initializes the CullItem with a user pointer
-	 * and their quit reason
-	 * @param u The user to add
-	 * @param r The quit reason of the added user
-	 */
-        CullItem(userrec* u, std::string &r);
+	* Initializes the CullItem with a user pointer
+	* and their quit reason
+	* @param u The user to add
+	* @param r The quit reason of the added user
+	*/
+	CullItem(userrec* u, std::string &r);
 	CullItem(userrec* u, const char* r);
 
 	~CullItem();
 
 	/** Returns a pointer to the user
-	 */
-        userrec* GetUser();
+	*/
+	userrec* GetUser();
 	/** Returns the user's quit reason
-	 */
+	*/
 	std::string& GetReason();
 };
 
@@ -75,50 +75,45 @@ class CullItem : public classbase
 class CullList : public classbase
 {
  private:
-	 /** Creator of this CullList
-	  */
-	 InspIRCd* ServerInstance;
-	 /** Holds a list of users being quit.
-	  * See the information for CullItem for
-	  * more information.
-	  */
-         std::vector<CullItem> list;
-	 /** A list of users who have already been
-	  * placed on the list, as a map for fast
-	  * reference. When deleting an item, the
-	  * time_t value stored here must match
-	  * the one of the actual userrec, otherwise
-	  * we don't delete it (its a different user)
-	  */
-	 std::map<userrec*,time_t> exempt;
-	 
-	 /** Check if a user pointer is valid
-	  * (e.g. it exists in the user hash)
-	  */
-	 bool IsValid(userrec* user);
+	/** Creator of this CullList
+	*/
+	InspIRCd* ServerInstance;
+
+	/** Holds a list of users already added for quick lookup
+	 */
+	std::map<userrec*, userrec*> exempt;
+
+	/** Holds a list of users being quit.
+	* See the information for CullItem for
+	* more information.
+	*/
+	std::vector<CullItem> list;
+
  public:
-	 /** Constructor.
-	  * Clears the CullList::list and CullList::exempt
-	  * items.
-	  * @param Instance Creator of this CullList object
-	  */
-         CullList(InspIRCd* Instance);
-	 /** Adds a user to the cull list for later
-	  * removal via QUIT.
-	  * @param user The user to add
-	  * @param reason The quit reason of the user being added
-	  */
-         void AddItem(userrec* user, std::string &reason);
-	 void AddItem(userrec* user, const char* reason);
-	 /** Applies the cull list, quitting all the users
-	  * on the list with their quit reasons all at once.
-	  * This is a very fast operation compared to
-	  * iterating the user list and comparing each one,
-	  * especially if there are multiple comparisons
-	  * to be done, or recursion.
-	  * @returns The number of users removed from IRC.
-	  */
-         int Apply();
+	/** Constructor.
+	* Clears the CullList::list and CullList::exempt
+	* items.
+	* @param Instance Creator of this CullList object
+	*/
+	CullList(InspIRCd* Instance);
+
+	/** Adds a user to the cull list for later
+	* removal via QUIT.
+	* @param user The user to add
+	* @param reason The quit reason of the user being added
+	*/
+	void AddItem(userrec* user, std::string &reason);
+	void AddItem(userrec* user, const char* reason);
+
+	/** Applies the cull list, quitting all the users
+	* on the list with their quit reasons all at once.
+	* This is a very fast operation compared to
+	* iterating the user list and comparing each one,
+	* especially if there are multiple comparisons
+	* to be done, or recursion.
+	* @returns The number of users removed from IRC.
+	*/
+	int Apply();
 };
 
 #endif

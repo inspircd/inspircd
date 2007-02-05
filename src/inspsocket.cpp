@@ -88,7 +88,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 				}
 				return;
 			}
-		}			
+		}
 	}
 	else
 	{

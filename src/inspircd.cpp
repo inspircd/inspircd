@@ -48,9 +48,9 @@ void InspIRCd::AddServerName(const std::string &servername)
 const char* InspIRCd::FindServerNamePtr(const std::string &servername)
 {
 	servernamelist::iterator iter = find(servernames.begin(), servernames.end(), servername);
-	
+
 	if(iter == servernames.end())
-	{		
+	{
 		AddServerName(servername);
 		iter = --servernames.end();
 	}
@@ -248,7 +248,7 @@ void InspIRCd::WritePID(const std::string &filename)
 			/* Leaves us with just the path */
 			fname = confpath.substr(0, pos) + std::string("/") + fname;
 		}
-	}									
+	}
 	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{
@@ -269,7 +269,7 @@ std::string InspIRCd::GetRevision()
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365)
+	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), GlobalCulls(this)
 {
 	int found_ports = 0;
 	FailedPortList pl;
@@ -353,7 +353,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->Read(true, NULL);
 	this->CheckRoot();
 	this->Modes = new ModeParser(this);
-	this->AddServerName(Config->ServerName);	
+	this->AddServerName(Config->ServerName);
 	CheckDie();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
 	stats->BoundPortCount = BindPorts(true, found_ports, pl);
@@ -392,7 +392,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Exit(EXIT_STATUS_BIND);
 	}
-	
+
 	if (stats->BoundPortCount != (unsigned int)found_ports)
 	{
 		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %ld of %d client ports bound.\n\n", stats->BoundPortCount, found_ports);
@@ -843,10 +843,14 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * file descriptors. The socket engine has everything's
 	 * descriptors in its list... dns, modules, users,
 	 * servers... so its nice and easy, just one call.
-	 * This will cause any read or write events to be 
+	 * This will cause any read or write events to be
 	 * dispatched to their handlers.
 	 */
 	SE->DispatchEvents();
+
+	/* if any users was quit, take them out */
+	GlobalCulls.Apply();
+
 }
 
 bool InspIRCd::IsIdent(const char* n)

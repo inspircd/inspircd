@@ -25,6 +25,7 @@
 #include "socketengine.h"
 #include "command_parse.h"
 #include "snomasks.h"
+#include "cull_list.h"
 
 /** Returned by some functions to indicate failure.
  */
@@ -47,7 +48,7 @@ enum DebugLevel
 };
 
 /**
- * This define is used in place of strcmp when we 
+ * This define is used in place of strcmp when we
  * want to check if a char* string contains only one
  * letter. Pretty fast, its just two compares and an
  * addition.
@@ -296,7 +297,7 @@ class InspIRCd : public classbase
 	/** Holds a string describing the last module error to occur
 	 */
 	char MODERR[MAXBUF];
- 
+
 	/** Remove a ModuleFactory pointer
 	 * @param j Index number of the ModuleFactory to remove
 	 */
@@ -521,6 +522,10 @@ class InspIRCd : public classbase
 	 */
 	time_t next_call;
 
+	/** Global cull list, will be processed on next iteration
+	 */
+	CullList GlobalCulls;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.
@@ -629,7 +634,7 @@ class InspIRCd : public classbase
 	 * @param text The text to send
 	 */
 	void WriteOpers(const std::string &text);
-	
+
 	/** Find a nickname in the nick hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
@@ -705,7 +710,7 @@ class InspIRCd : public classbase
 
 	/** Send text to all users with a specific set of modes
 	 * @param modes The modes to check against, without a +, e.g. 'og'
-	 * @param flags one of WM_OR or WM_AND. If you specify WM_OR, any one of the 
+	 * @param flags one of WM_OR or WM_AND. If you specify WM_OR, any one of the
 	 * mode characters in the first parameter causes receipt of the message, and
 	 * if you specify WM_OR, all the modes must be present.
 	 * @param text The text format string to send
@@ -1061,7 +1066,7 @@ class InspIRCd : public classbase
         bool DelELine(const std::string &hostmask);
 
 	/** Return true if the given parameter is a valid nick!user\@host mask
-	 * @param mask A nick!user\@host masak to match against 
+	 * @param mask A nick!user\@host masak to match against
 	 * @return True i the mask is valid
 	 */
         bool IsValidMask(const std::string &mask);

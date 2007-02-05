@@ -44,7 +44,7 @@ bool isin(int port, const std::vector<int> &portlist)
 	for(unsigned int i = 0; i < portlist.size(); i++)
 		if(portlist[i] == port)
 			return true;
-			
+
 	return false;
 }
 
@@ -70,7 +70,7 @@ public:
 	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
 	int fd;
 	bool outbound;
-	
+
 	issl_session()
 	{
 		outbound = false;
@@ -92,30 +92,28 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 
 	return 1;
 }
-	
+
 class ModuleSSLOpenSSL : public Module
 {
-	
+
 	ConfigReader* Conf;
-	
-	CullList* culllist;
-	
+
 	std::vector<int> listenports;
-	
+
 	int inbufsize;
 	issl_session sessions[MAX_DESCRIPTORS];
-	
+
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
-	
+
 	char* dummy;
-	
+
 	std::string keyfile;
 	std::string certfile;
 	std::string cafile;
 	// std::string crlfile;
 	std::string dhfile;
-	
+
  public:
 
 	InspIRCd* PublicInstance;
@@ -123,17 +121,15 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL(InspIRCd* Me)
 		: Module::Module(Me), PublicInstance(Me)
 	{
-		culllist = new CullList(ServerInstance);
-
 		ServerInstance->PublishInterface("InspSocketHook", this);
-		
+
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
-		
+
 		/* Global SSL library initialization*/
 		SSL_library_init();
 		SSL_load_error_strings();
-		
+
 		/* Build our SSL contexts:
 		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
 		 */
@@ -146,21 +142,21 @@ class ModuleSSLOpenSSL : public Module
 		// Needs the flag as it ignores a plain /rehash
 		OnRehash(NULL,"ssl");
 	}
-	
+
 	virtual void OnRehash(userrec* user, const std::string &param)
 	{
 		if (param != "ssl")
 			return;
-	
+
 		Conf = new ConfigReader(ServerInstance);
-			
+
 		for (unsigned int i = 0; i < listenports.size(); i++)
 		{
 			ServerInstance->Config->DelIOHook(listenports[i]);
 		}
-		
+
 		listenports.clear();
-		
+
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
@@ -187,42 +183,42 @@ class ModuleSSLOpenSSL : public Module
 				}
 			}
 		}
-		
+
 		std::string confdir(CONFIG_FILE);
 		// +1 so we the path ends with a /
 		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
-		
+
 		cafile	 = Conf->ReadValue("openssl", "cafile", 0);
 		certfile = Conf->ReadValue("openssl", "certfile", 0);
 		keyfile	 = Conf->ReadValue("openssl", "keyfile", 0);
 		dhfile	 = Conf->ReadValue("openssl", "dhfile", 0);
-		
+
 		// Set all the default values needed.
 		if (cafile == "")
 			cafile = "ca.pem";
-			
+
 		if (certfile == "")
 			certfile = "cert.pem";
-			
+
 		if (keyfile == "")
 			keyfile = "key.pem";
-			
+
 		if (dhfile == "")
 			dhfile = "dhparams.pem";
-			
-		// Prepend relative paths with the path to the config directory.	
+
+		// Prepend relative paths with the path to the config directory.
 		if (cafile[0] != '/')
 			cafile = confdir + cafile;
-		
+
 		//if(crlfile[0] != '/')
 		//	crlfile = confdir + crlfile;
-			
+
 		if (certfile[0] != '/')
 			certfile = confdir + certfile;
-			
+
 		if (keyfile[0] != '/')
 			keyfile = confdir + keyfile;
-			
+
 		if (dhfile[0] != '/')
 			dhfile = confdir + dhfile;
 
@@ -265,7 +261,7 @@ class ModuleSSLOpenSSL : public Module
 				ERR_print_errors_cb(error_callback, this);
 			}
 		}
-		
+
 		fclose(dhpfile);
 
 		DELETE(Conf);
@@ -275,20 +271,19 @@ class ModuleSSLOpenSSL : public Module
 	{
 		SSL_CTX_free(ctx);
 		SSL_CTX_free(clictx);
-		delete culllist;
 	}
-	
+
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
-			
+
 			if (user->GetExt("ssl", dummy) && IS_LOCAL(user) && isin(user->GetPort(), listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				culllist->AddItem(user, "SSL module unloading");
+				ServerInstance->GlobalCulls.AddItem(user, "SSL module unloading");
 			}
 			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
 			{
@@ -299,14 +294,11 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 	}
-	
+
 	virtual void OnUnloadModule(Module* mod, const std::string &name)
 	{
 		if (mod == this)
 		{
-			// We're being unloaded, kill all the users added to the cull list in OnCleanup
-			culllist->Apply();
-			
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
 				ServerInstance->Config->DelIOHook(listenports[i]);
@@ -317,7 +309,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
@@ -375,17 +367,17 @@ class ModuleSSLOpenSSL : public Module
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
 		issl_session* session = &sessions[fd];
-	
+
 		session->fd = fd;
 		session->inbuf = new char[inbufsize];
-		session->inbufoffset = 0;		
+		session->inbufoffset = 0;
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 		session->outbound = false;
-	
+
 		if (session->sess == NULL)
 			return;
-		
+
 		if (SSL_set_fd(session->sess, fd) == 0)
 		{
 			ServerInstance->Log(DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
@@ -436,14 +428,14 @@ class ModuleSSLOpenSSL : public Module
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
 		issl_session* session = &sessions[fd];
-		
+
 		if (!session->sess)
 		{
 			readresult = 0;
 			CloseSession(session);
 			return 1;
 		}
-		
+
 		if (session->status == ISSL_HANDSHAKING)
 		{
 			if (session->rstat == ISSL_READ || session->wstat == ISSL_READ)
@@ -451,18 +443,18 @@ class ModuleSSLOpenSSL : public Module
 				// The handshake isn't finished and it wants to read, try to finish it.
 				if (!Handshake(session))
 				{
-					// Couldn't resume handshake.	
+					// Couldn't resume handshake.
 					return -1;
 				}
 			}
 			else
 			{
-				return -1;			
+				return -1;
 			}
 		}
 
 		// If we resumed the handshake then session->status will be ISSL_OPEN
-				
+
 		if (session->status == ISSL_OPEN)
 		{
 			if (session->wstat == ISSL_READ)
@@ -470,11 +462,11 @@ class ModuleSSLOpenSSL : public Module
 				if(DoWrite(session) == 0)
 					return 0;
 			}
-			
+
 			if (session->rstat == ISSL_READ)
 			{
 				int ret = DoRead(session);
-			
+
 				if (ret > 0)
 				{
 					if (count <= session->inbufoffset)
@@ -491,12 +483,12 @@ class ModuleSSLOpenSSL : public Module
 					{
 						// There's not as much in the inbuf as there is space in the buffer, so just copy the whole thing.
 						memcpy(buffer, session->inbuf, session->inbufoffset);
-						
+
 						readresult = session->inbufoffset;
 						// Zero the offset, as there's nothing there..
 						session->inbufoffset = 0;
 					}
-				
+
 					return 1;
 				}
 				else
@@ -505,10 +497,10 @@ class ModuleSSLOpenSSL : public Module
 				}
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
 		issl_session* session = &sessions[fd];
@@ -520,33 +512,33 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		session->outbuf.append(buffer, count);
-		
+
 		if (session->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
 			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
 				Handshake(session);
 		}
-		
+
 		if (session->status == ISSL_OPEN)
 		{
 			if (session->rstat == ISSL_WRITE)
 				DoRead(session);
-			
+
 			if (session->wstat == ISSL_WRITE)
 				return DoWrite(session);
 		}
-		
+
 		return 1;
 	}
-	
+
 	int DoWrite(issl_session* session)
 	{
 		if (!session->outbuf.size())
 			return -1;
 
 		int ret = SSL_write(session->sess, session->outbuf.data(), session->outbuf.size());
-		
+
 		if (ret == 0)
 		{
 			CloseSession(session);
@@ -555,7 +547,7 @@ class ModuleSSLOpenSSL : public Module
 		else if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
-			
+
 			if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->wstat = ISSL_WRITE;
@@ -578,12 +570,12 @@ class ModuleSSLOpenSSL : public Module
 			return ret;
 		}
 	}
-	
+
 	int DoRead(issl_session* session)
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
-			
+
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
 		if (ret == 0)
@@ -595,7 +587,7 @@ class ModuleSSLOpenSSL : public Module
 		else if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
-				
+
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				session->rstat = ISSL_READ;
@@ -623,7 +615,7 @@ class ModuleSSLOpenSSL : public Module
 			return ret;
 		}
 	}
-	
+
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
@@ -633,7 +625,7 @@ class ModuleSSLOpenSSL : public Module
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick, dest->nick);
 		}
 	}
-	
+
 	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
 	{
 		// check if the linking module wants to know about OUR metadata
@@ -648,7 +640,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 	}
-	
+
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata)
 	{
 		// check if its our metadata key, and its associated with a user
@@ -662,7 +654,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 	}
-	
+
 	bool Handshake(issl_session* session)
 	{
 		int ret;
@@ -671,11 +663,11 @@ class ModuleSSLOpenSSL : public Module
 			ret = SSL_connect(session->sess);
 		else
 			ret = SSL_accept(session->sess);
-      
+
 		if (ret < 0)
 		{
 			int err = SSL_get_error(session->sess, ret);
-				
+
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				session->rstat = ISSL_READ;
@@ -704,7 +696,7 @@ class ModuleSSLOpenSSL : public Module
 				if (!u->GetExt("ssl", dummy))
 					u->Extend("ssl", "ON");
 			}
-			
+
 			session->status = ISSL_OPEN;
 
 			MakePollWrite(session);
@@ -739,12 +731,12 @@ class ModuleSSLOpenSSL : public Module
 			VerifyCertificate(&sessions[user->GetFd()], user);
 		}
 	}
-	
+
 	void MakePollWrite(issl_session* session)
 	{
 		OnRawSocketWrite(session->fd, NULL, 0);
 	}
-	
+
 	void CloseSession(issl_session* session)
 	{
 		if (session->sess)
@@ -752,12 +744,12 @@ class ModuleSSLOpenSSL : public Module
 			SSL_shutdown(session->sess);
 			SSL_free(session->sess);
 		}
-		
+
 		if (session->inbuf)
 		{
 			delete[] session->inbuf;
 		}
-		
+
 		session->outbuf.clear();
 		session->inbuf = NULL;
 		session->sess = NULL;
@@ -829,11 +821,11 @@ class ModuleSSLOpenSSLFactory : public ModuleFactory
 	ModuleSSLOpenSSLFactory()
 	{
 	}
-	
+
 	~ModuleSSLOpenSSLFactory()
 	{
 	}
-	
+
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleSSLOpenSSL(Me);

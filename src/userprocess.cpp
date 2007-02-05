@@ -19,7 +19,6 @@
 #include "socketengine.h"
 #include "inspircd.h"
 #include "command_parse.h"
-#include "cull_list.h"
 
 void InspIRCd::ProcessUser(userrec* cu)
 {
@@ -230,20 +229,18 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		return;
 	else
 	{
-		CullList GlobalGoners(this);
-	
 		/* Time we actually need to call this again */
 		const time_t DUMMY_VALUE = 32768;
 		next_call = TIME + DUMMY_VALUE;
-	
+
 		/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
 		for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
 		{
 			if (count2 >= this->local_users.size())
 				break;
-	
+
 			userrec* curr = this->local_users[count2];
-	
+
 			if (curr)
 			{
 				/*
@@ -252,7 +249,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 */
 				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
-					GlobalGoners.AddItem(curr,"Registration timeout");
+					GlobalCulls.AddItem(curr,"Registration timeout");
 					continue;
 				}
 				else
@@ -260,7 +257,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 					if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
 						next_call = curr->timeout;
 				}
-	
+
 				/*
 				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
 				 * say this user is ok to proceed, fully connect them.
@@ -270,7 +267,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				{
 					curr->dns_done = true;
 					this->stats->statsDnsBad++;
-					curr->FullConnect(&GlobalGoners);
+					curr->FullConnect();
 					continue;
 				}
 				else
@@ -278,10 +275,10 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
 						next_call = curr->signon;
 				}
-	
+
 				if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
 				{
-					curr->FullConnect(&GlobalGoners);
+					curr->FullConnect();
 					continue;
 				}
 				else
@@ -289,7 +286,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
 						next_call = curr->signon + this->Config->dns_timeout;
 				}
-	
+
 				// It's time to PING this user. Send them a ping.
 				if ((TIME > curr->nping) && (curr->registered == REG_ALL))
 				{
@@ -298,8 +295,8 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 					{
 						/* Everybody loves boobies. */
 						time_t time = this->Time(false) - (curr->nping - curr->pingmax);
-						std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : ""); 
-						GlobalGoners.AddItem(curr, boobies);
+						std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : "");
+						GlobalCulls.AddItem(curr, boobies);
 						curr->lastping = 1;
 						curr->nping = TIME+curr->pingmax;
 						continue;
@@ -315,7 +312,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				}
 			}
 		}
-	
+
 		/* If theres nothing to do, trigger in the next second, something might come up */
 		time_t delta = next_call - TIME;
 		if (delta == DUMMY_VALUE)
@@ -323,9 +320,5 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 			next_call = TIME + 1;
 			delta = 1;
 		}
-	
-		/* Remove all the queued users who are due to be quit, free memory used. */
-		GlobalGoners.Apply();
 	}
 }
-

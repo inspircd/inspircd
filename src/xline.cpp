@@ -16,7 +16,6 @@
 #include "modules.h"
 #include "wildcard.h"
 #include "xline.h"
-#include "cull_list.h"
 
 /* Version two, now with optimized expiry!
  *
@@ -27,7 +26,7 @@
  *     items, and the other list holds permanent items (ones which will expire).
  *     Items which are on the permanent list are NEVER checked at all by the
  *     expire_lines() function.
- * (2) The temporary xline lists are always kept in strict numerical order, keyed by 
+ * (2) The temporary xline lists are always kept in strict numerical order, keyed by
  *     current time + duration. This means that the line which is due to expire the
  *     soonest is always pointed at by vector::begin(), so a simple while loop can
  *     very efficiently, very quickly and above all SAFELY pick off the first few
@@ -69,7 +68,7 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 {
 	const char* reason = values[0].GetString();
 	const char* ipmask = values[1].GetString();
-	
+
 	conf->GetInstance()->XLines->add_zline(0,"<Config>",reason,ipmask);
 	return true;
 }
@@ -78,7 +77,7 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 {
 	const char* reason = values[0].GetString();
 	const char* nick = values[1].GetString();
-	
+
 	conf->GetInstance()->XLines->add_qline(0,"<Config>",reason,nick);
 	return true;
 }
@@ -87,7 +86,7 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 {
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
-	
+
 	conf->GetInstance()->XLines->add_kline(0,"<Config>",reason,host);
 	return true;
 }
@@ -96,7 +95,7 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 {
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
-	
+
 	conf->GetInstance()->XLines->add_eline(0,"<Config>",reason,host);
 	return true;
 }
@@ -129,9 +128,9 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 	IdentHostPair ih = IdentSplit(hostmask);
 
 	bool ret = del_gline(hostmask);
-	
+
 	GLine* item = new GLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
-	
+
 	if (duration)
 	{
 		glines.push_back(item);
@@ -141,7 +140,7 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 	{
 		pglines.push_back(item);
 	}
-	
+
 	return !ret;
 }
 
@@ -414,7 +413,7 @@ GLine* XLineManager::matches_gline(userrec* user, bool permonly)
 }
 
 ELine* XLineManager::matches_exception(userrec* user, bool permonly)
-{			
+{
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
 	char host2[MAXBUF];
@@ -465,7 +464,7 @@ void XLineManager::gline_set_creation_time(const char* host, time_t create_time)
 			return;
 		}
 	}
-	return ;	
+	return ;
 }
 
 void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
@@ -479,7 +478,7 @@ void XLineManager::eline_set_creation_time(const char* host, time_t create_time)
 			return;
 		}
 	}
-	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)	
+	for (std::vector<ELine*>::iterator i = pelines.begin(); i != pelines.end(); i++)
 	{
 		if (!strcasecmp(host,(*i)->hostmask))
 		{
@@ -654,7 +653,7 @@ void XLineManager::expire_lines()
 		ServerInstance->SNO->WriteToSnoMask('x',"Expiring timed Q-Line %s (set by %s %d seconds ago)",(*i)->nick,(*i)->source,(*i)->duration);
 		qlines.erase(i);
 	}
-	
+
 }
 
 // applies lines, removing clients and changing nicks etc as applicable
@@ -671,7 +670,6 @@ void XLineManager::apply_lines(const int What)
 		if ((!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
 			return;
 
-		CullList* Goners = new CullList(ServerInstance);
 		XLine* check = NULL;
 		for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 		{
@@ -686,7 +684,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_gline(u,true)))
 				{
 					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 
@@ -695,7 +693,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_kline(u,true)))
 				{
 					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 
@@ -704,7 +702,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_qline(u->nick,true)))
 				{
 					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 
@@ -713,13 +711,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_zline(u->GetIPString(),true)))
 				{
 					snprintf(reason,MAXBUF,"Z-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 		}
-
-		Goners->Apply();
-		DELETE(Goners);
 	}
 	else
 	{
@@ -728,8 +723,7 @@ void XLineManager::apply_lines(const int What)
 		if ((!glines.size()) && (!klines.size()) && (!zlines.size()) && (!qlines.size()) &&
 		(!pglines.size()) && (!pklines.size()) && (!pzlines.size()) && (!pqlines.size()))
 			return;
-	
-		CullList* Goners = new CullList(ServerInstance);
+
 		XLine* check = NULL;
 		for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 		{
@@ -746,7 +740,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_gline(u)))
 				{
 					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
@@ -754,7 +748,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_kline(u)))
 				{
 					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
@@ -762,7 +756,7 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_qline(u->nick)))
 				{
 					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
@@ -770,13 +764,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_zline(u->GetIPString())))
 				{
 					snprintf(reason,MAXBUF,"Z-Lined: %s",check->reason);
-					Goners->AddItem(u,reason);
+					ServerInstance->GlobalCulls.AddItem(u,reason);
 				}
 			}
 		}
-
-		Goners->Apply();
-		DELETE(Goners);
 	}
 }
 

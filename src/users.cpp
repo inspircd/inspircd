@@ -19,7 +19,6 @@
 #include "socketengine.h"
 #include "wildcard.h"
 #include "xline.h"
-#include "cull_list.h"
 #include "commands/cmd_whowas.h"
 
 static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
@@ -37,7 +36,7 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 				delete[] n->second;
 		}
 	}
-	
+
 	conf->opertypes.clear();
 	return true;
 }
@@ -52,7 +51,7 @@ bool InitClasses(ServerConfig* conf, const char* tag)
 				delete[] n->second;
 		}
 	}
-	
+
 	conf->operclass.clear();
 	return true;
 }
@@ -61,7 +60,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &valu
 {
 	const char* TypeName = values[0].GetString();
 	const char* Classes = values[1].GetString();
-	
+
 	conf->opertypes[TypeName] = strdup(Classes);
 	return true;
 }
@@ -70,7 +69,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 {
 	const char* ClassName = values[0].GetString();
 	const char* CommandList = values[1].GetString();
-	
+
 	conf->operclass[ClassName] = strdup(CommandList);
 	return true;
 }
@@ -333,7 +332,7 @@ userrec::~userrec()
 				ServerInstance->local_clones.erase(x);
 			}
 		}
-	
+
 		clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
 		if (y != ServerInstance->global_clones.end())
 		{
@@ -402,7 +401,7 @@ void userrec::CloseSocket()
 	shutdown(this->fd,2);
 	close(this->fd);
 }
- 
+
 char* userrec::GetFullHost()
 {
 	if (this->cached_fullhost)
@@ -509,7 +508,7 @@ bool userrec::HasPermission(const std::string &command)
 	char* mycmd;
 	char* savept;
 	char* savept2;
-	
+
 	/*
 	 * users on remote servers can completely bypass all permissions based checks.
 	 * This prevents desyncs when one server has different type/class tags to another.
@@ -519,7 +518,7 @@ bool userrec::HasPermission(const std::string &command)
 	 */
 	if (!IS_LOCAL(this))
 		return true;
-	
+
 	// are they even an oper at all?
 	if (*this->oper)
 	{
@@ -566,7 +565,7 @@ bool userrec::AddBuffer(std::string a)
 	try
 	{
 		std::string::size_type i = a.rfind('\r');
-	
+
 		while (i != std::string::npos)
 		{
 			a.erase(i, 1);
@@ -575,14 +574,14 @@ bool userrec::AddBuffer(std::string a)
 
 		if (a.length())
 			recvq.append(a);
-		
+
 		if (recvq.length() > (unsigned)this->recvqmax)
 		{
 			this->SetWriteError("RecvQ exceeded");
 			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
 			return false;
 		}
-	
+
 		return true;
 	}
 
@@ -609,14 +608,14 @@ std::string userrec::GetBuffer()
 	{
 		if (!recvq.length())
 			return "";
-	
+
 		/* Strip any leading \r or \n off the string.
 		 * Usually there are only one or two of these,
 		 * so its is computationally cheap to do.
 		 */
 		while ((*recvq.begin() == '\r') || (*recvq.begin() == '\n'))
 			recvq.erase(recvq.begin());
-	
+
 		for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
 		{
 			/* Find the first complete line, return it as the
@@ -643,7 +642,7 @@ void userrec::AddWriteBuf(const std::string &data)
 {
 	if (*this->GetWriteError())
 		return;
-	
+
 	if (sendq.length() + data.length() > (unsigned)this->sendqmax)
 	{
 		/*
@@ -656,7 +655,7 @@ void userrec::AddWriteBuf(const std::string &data)
 		return;
 	}
 
-	try 
+	try
 	{
 		if (data.length() > 512)
 			sendq.append(data.substr(0,510)).append("\r\n");
@@ -786,74 +785,7 @@ void userrec::UnOper()
 
 void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason)
 {
-	user_hash::iterator iter = Instance->clientlist->find(user->nick);
-	std::string reason = quitreason;
-
-	if (reason.length() > MAXQUIT - 1)
-		reason.resize(MAXQUIT - 1);
-
-	if (user->registered != REG_ALL)
-		if (Instance->unregistered_count)
-			Instance->unregistered_count--;
-
-	if (IS_LOCAL(user))
-	{
-		user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,reason.c_str());
-		if ((!user->sendq.empty()) && (!(*user->GetWriteError())))
-			user->FlushWriteBuf();
-	}
-
-	if (user->registered == REG_ALL)
-	{
-		user->PurgeEmptyChannels();
-		user->WriteCommonExcept("QUIT :%s",reason.c_str());
-		FOREACH_MOD_I(Instance,I_OnUserQuit,OnUserQuit(user,reason));
-	}
-
-	FOREACH_MOD_I(Instance,I_OnUserDisconnect,OnUserDisconnect(user));
-
-	if (IS_LOCAL(user))
-	{
-		if (Instance->Config->GetIOHook(user->GetPort()))
-		{
-			try
-			{
-				Instance->Config->GetIOHook(user->GetPort())->OnRawSocketClose(user->fd);
-			}
-			catch (CoreException& modexcept)
-			{
-				Instance->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			}
-		}
-		
-		Instance->SE->DelFd(user);
-		user->CloseSocket();
-	}
-
-	/*
-	 * this must come before the ServerInstance->SNO->WriteToSnoMaskso that it doesnt try to fill their buffer with anything
-	 * if they were an oper with +sn +qQ.
-	 */
-	if (user->registered == REG_ALL)
-	{
-		if (IS_LOCAL(user))
-			Instance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",user->nick,user->ident,user->host,reason.c_str());
-		else
-			Instance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",user->server,user->nick,user->ident,user->host,reason.c_str());
-		user->AddToWhoWas();
-	}
-
-	if (iter != Instance->clientlist->end())
-	{
-		if (IS_LOCAL(user))
-		{
-			std::vector<userrec*>::iterator x = find(Instance->local_users.begin(),Instance->local_users.end(),user);
-			if (x != Instance->local_users.end())
-				Instance->local_users.erase(x);
-		}
-		Instance->clientlist->erase(iter);
-		DELETE(user);
-	}
+	Instance->GlobalCulls.AddItem(user, quitreason.c_str());
 }
 
 
@@ -1006,7 +938,7 @@ unsigned long userrec::LocalCloneCount()
 		return 0;
 }
 
-void userrec::FullConnect(CullList* Goners)
+void userrec::FullConnect()
 {
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
@@ -1015,25 +947,25 @@ void userrec::FullConnect(CullList* Goners)
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
-		Goners->AddItem(this,"Unauthorised connection");
+		ServerInstance->GlobalCulls.AddItem(this,"Unauthorised connection");
 		return;
 	}
 
 	if ((!a->GetPass().empty()) && (!this->haspassed))
 	{
-		Goners->AddItem(this,"Invalid password");
+		ServerInstance->GlobalCulls.AddItem(this,"Invalid password");
 		return;
 	}
-	
+
 	if (this->LocalCloneCount() > a->GetMaxLocal())
 	{
-		Goners->AddItem(this, "No more connections allowed from your host via this connect class (local)");
+		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if (this->GlobalCloneCount() > a->GetMaxGlobal())
 	{
-		Goners->AddItem(this, "No more connections allowed from your host via this connect class (global)");
+		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (global)");
 		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
@@ -1041,22 +973,22 @@ void userrec::FullConnect(CullList* Goners)
 	if (!this->exempt)
 	{
 		GLine* r = ServerInstance->XLines->matches_gline(this);
-		
+
 		if (r)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
-			Goners->AddItem(this, reason);
+			ServerInstance->GlobalCulls.AddItem(this, reason);
 			return;
 		}
-		
+
 		KLine* n = ServerInstance->XLines->matches_kline(this);
-		
+
 		if (n)
 		{
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
-			Goners->AddItem(this, reason);
+			ServerInstance->GlobalCulls.AddItem(this, reason);
 			return;
 		}
 
@@ -1140,7 +1072,7 @@ bool userrec::ForceNickChange(const char* newnick)
 		int MOD_RESULT = 0;
 
 		this->InvalidateCache();
-	
+
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(this, newnick));
 
 		if (MOD_RESULT)
@@ -1148,7 +1080,7 @@ bool userrec::ForceNickChange(const char* newnick)
 			ServerInstance->stats->statsCollisions++;
 			return false;
 		}
-	
+
 		if (ServerInstance->XLines->matches_qline(newnick))
 		{
 			ServerInstance->stats->statsCollisions++;
@@ -1251,7 +1183,7 @@ const char* userrec::GetIPString()
 		case AF_INET6:
 		{
 			static char temp[1024];
-		
+
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
@@ -1292,7 +1224,7 @@ const char* userrec::GetIPString(char* buf)
 		case AF_INET6:
 		{
 			static char temp[1024];
-		
+
 			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
 			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
 			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
@@ -1408,7 +1340,7 @@ void userrec::WriteFrom(userrec *user, const std::string &text)
 	char tb[MAXBUF];
 
 	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),text.c_str());
-	
+
 	this->Write(std::string(tb));
 }
 
@@ -1469,16 +1401,16 @@ void userrec::WriteCommon(const std::string &text)
 	{
 		bool sent_to_at_least_one = false;
 		char tb[MAXBUF];
-	
+
 		if (this->registered != REG_ALL)
 			return;
-	
+
 		uniq_id++;
 
 		/* We dont want to be doing this n times, just once */
 		snprintf(tb,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
 		std::string out = tb;
-	
+
 		for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 		{
 			CUList* ulist = v->first->GetUsers();
@@ -1492,7 +1424,7 @@ void userrec::WriteCommon(const std::string &text)
 				}
 			}
 		}
-	
+
 		/*
 		 * if the user was not in any channels, no users will receive the text. Make sure the user
 		 * receives their OWN message for WriteCommon
@@ -1637,16 +1569,16 @@ void userrec::WriteWallOps(const std::string &text)
 }
 
 void userrec::WriteWallOps(const char* text, ...)
-{       
+{
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);		
-					
+	va_end(argsPtr);
+
 	this->WriteWallOps(std::string(textbuffer));
-}				       
+}
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices)
@@ -1815,17 +1747,17 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 		prefix << this->nick << " " << dest->nick << " :";
 		line = prefix.str();
 		int namelen = strlen(ServerInstance->Config->ServerName) + 6;
-	
+
 		for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 		{
 			length = (pos == std::string::npos) ? cl.length() : pos;
-	
+
 			if (line.length() + namelen + length - start > 510)
 			{
 				ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 				line = prefix.str();
 			}
-	
+
 			if(pos == std::string::npos)
 			{
 				line.append(cl.substr(start, length - start));
@@ -1836,7 +1768,7 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 				line.append(cl.substr(start, length - start + 1));
 			}
 		}
-	
+
 		if (line.length())
 		{
 			ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());

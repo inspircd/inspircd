@@ -11,18 +11,17 @@
  * ---------------------------------------------------
  */
 
-#ifndef __USERS_H__ 
-#define __USERS_H__ 
+#ifndef __USERS_H__
+#define __USERS_H__
 
 #include <string>
-#include "inspircd_config.h" 
+#include "inspircd_config.h"
 #include "socket.h"
 #include "channels.h"
 #include "inspstring.h"
 #include "connection.h"
 #include "hashcomp.h"
 #include "dns.h"
-#include "cull_list.h"
 
 enum ChanStatus {
 	STATUS_OP     = 4,
@@ -307,13 +306,13 @@ class userrec : public connection
 	 * When complete, these objects set userrec::dns_done to true.
 	 */
 	void StartDNSLookup();
-	
+
 	/** The users nickname.
 	 * An invalid nickname indicates an unregistered connection prior to the NICK command.
 	 * Use InspIRCd::IsNick() to validate nicknames.
 	 */
 	char nick[NICKMAX];
-	
+
 	/** The users ident reply.
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */
@@ -323,11 +322,11 @@ class userrec : public connection
 	 * This usually matches the value of userrec::host.
 	 */
 	char dhost[65];
-	
+
 	/** The users full name (GECOS).
 	 */
 	char fullname[MAXGECOS+1];
-	
+
 	/** The user's mode list.
 	 * This is NOT a null terminated string! In the 1.1 version of InspIRCd
 	 * this is an array of values in a similar way to channel modes.
@@ -347,28 +346,28 @@ class userrec : public connection
 	/** Channels this user is on, and the permissions they have there
 	 */
 	UserChanList chans;
-	
+
 	/** The server the user is connected to.
 	 */
 	const char* server;
-	
+
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
 	 */
 	char awaymsg[MAXAWAY+1];
-	
+
 	/** Number of lines the user can place into the buffer
 	 * (up to the global NetBufferSize bytes) before they
 	 * are disconnected for excess flood
 	 */
 	int flood;
-	
+
 	/** Timestamp of current time + connection class timeout.
 	 * This user must send USER/NICK before this timestamp is
 	 * reached or they will be disconnected.
 	 */
 	time_t timeout;
-	
+
 	/** The oper type they logged in as, if they are an oper.
 	 * This is used to check permissions in operclasses, so that
 	 * we can say 'yay' or 'nay' to any commands they issue.
@@ -474,14 +473,14 @@ class userrec : public connection
 	 * @throw Nothing at present
 	 */
 	userrec(InspIRCd* Instance);
-	
+
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
 	 * on the server, in nick!ident&at;host form.
 	 * @return The full masked host of the user
 	 */
 	virtual char* GetFullHost();
-	
+
 	/** Returns the full real host of the user
 	 * This member function returns the hostname of the user as seen by other users
 	 * on the server, in nick!ident&at;host form. If any form of hostname cloaking is in operation,
@@ -536,25 +535,25 @@ class userrec : public connection
 	 * @param value On or off setting of the mode
 	 */
 	void SetMode(unsigned char m, bool value);
-	
+
 	/** Returns true if a user is invited to a channel.
 	 * @param channel A channel name to look up
 	 * @return True if the user is invited to the given channel
 	 */
 	virtual bool IsInvited(const irc::string &channel);
-	
+
 	/** Adds a channel to a users invite list (invites them to a channel)
 	 * @param channel A channel name to add
 	 */
 	virtual void InviteTo(const irc::string &channel);
-	
+
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 * @param channel The channel to remove the invite to
 	 */
 	virtual void RemoveInvite(const irc::string &channel);
-	
+
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from userrec::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
@@ -679,13 +678,8 @@ class userrec : public connection
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
-	 * @param Goners If the user is disconnected by this method call, the
-	 * value of 'this' will be pushed onto this CullList. This is used by
-	 * the core to connect many users in rapid succession without invalidating
-	 * iterators.
-	 * @param Goners a CullList to use for failed connections
 	 */
-	void FullConnect(CullList* Goners);
+	void FullConnect();
 
 	/** Change this users hash key to a new string.
 	 * You should not call this function directly. It is used by the core
