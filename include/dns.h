@@ -337,7 +337,11 @@ class DNS : public EventHandler
 	/**
 	 * Server address being used currently
 	 */
-	insp_inaddr myserver;
+	int socketfamily;
+#ifdef IPV6
+	in6_addr myserver6;
+#endif
+	in_addr myserver4;
 
 	/**
 	 * A counter used to form part of the pseudo-random id

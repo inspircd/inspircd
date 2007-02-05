@@ -291,7 +291,6 @@ int DNS::PruneCache()
 
 void DNS::Rehash()
 {
-	insp_inaddr addr;
 	ip6munge = false;
 
 	if (this->GetFd() > -1)
@@ -318,6 +317,19 @@ void DNS::Rehash()
 		ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
 		this->ip6munge = true;
 	}
+
+	this->socketfamily = AF_INET;
+#ifdef IPV6
+	if (strchr(ServerInstance->Config->DNSServer,':'))
+	{
+		this->socketfamily = AF_INET6;
+		inet_pton(AF_INET6, &this->myserver6, ServerInstance->Config->DNSServer);
+	}
+	else
+		inet_aton(&this->myserver4, ServerInstance->Config->DNSServer);
+#else
+	inet_aton(&this->myserver4, ServerInstance->Config->DNSServer);
+#endif
 
 	/* Initialize mastersocket */
 	int s = OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
