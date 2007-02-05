@@ -40,7 +40,7 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client,
 {
 	this->SetFd(sockfd);
 	Instance->Log(DEBUG,"CRAP");
-	if (!Instance->BindSocket(this->fd,client,server,port,addr))
+	if (!Instance->BindSocket(this->fd,port,addr))
 		this->fd = -1;
 #ifdef IPV6
 	if ((!*addr) || (strchr(addr,':')))
@@ -312,7 +312,7 @@ void irc::sockets::NonBlocking(int s)
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
  */ 
-bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr servern, int port, char* addr)
+bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 {
 	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
 	sockaddr* server = new sockaddr[2];
@@ -404,22 +404,28 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 	}
 	else
 	{
-		if (listen(sockfd, Config->MaxConn) == -1)
+		if (dolisten)
 		{
-			this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
-			return false;
+			if (listen(sockfd, Config->MaxConn) == -1)
+			{
+				this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
+				return false;
+			}
+			else
+			{
+				NonBlocking(sockfd);
+				return true;
+			}
 		}
 		else
 		{
-			NonBlocking(sockfd);
 			return true;
 		}
 	}
 }
 
-
 // Open a TCP Socket
-int irc::sockets::OpenTCPSocket(char* addr)
+int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 {
 	int sockfd;
 	int on = 1;
@@ -429,16 +435,16 @@ int irc::sockets::OpenTCPSocket(char* addr)
 	if (strchr(addr,':') || (!*addr))
 	{
 		printf("IPV6 OPENTCPSOCKET DO\n");
-		sockfd = socket (PF_INET6, SOCK_STREAM, 0);
+		sockfd = socket (PF_INET6, socktype, 0);
 	}
 	else
 	{
 		printf("IPV6->IPV4 OPENTCPSOCKET DO\n");
-		sockfd = socket (PF_INET, SOCK_STREAM, 0);
+		sockfd = socket (PF_INET, socktype, 0);
 	}
 	if (sockfd < 0)
 #else
-	if ((sockfd = socket (PF_INET, SOCK_STREAM, 0)) < 0)
+	if ((sockfd = socket (PF_INET, socktype, 0)) < 0)
 #endif
 	{
 		printf("SOCKET FAIL: %s\n", strerror(errno));

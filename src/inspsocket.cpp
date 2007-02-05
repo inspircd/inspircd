@@ -65,7 +65,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		}
 		else
 		{
-			if (!SI->BindSocket(this->fd,this->client,this->server,aport,(char*)ipaddr.c_str()))
+			if (!SI->BindSocket(this->fd,aport,(char*)ipaddr.c_str()))
 			{
 				this->Close();
 				this->fd = -1;

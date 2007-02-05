@@ -589,13 +589,11 @@ class InspIRCd : public classbase
 
 	/** Binds a socket on an already open file descriptor
 	 * @param sockfd A valid file descriptor of an open socket
-	 * @param client A sockaddr to use as temporary storage
-	 * @param server A sockaddr to use as temporary storage
 	 * @param port The port number to bind to
 	 * @param addr The address to bind to (IP only)
 	 * @return True if the port was bound successfully
 	 */
-	bool BindSocket(int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr);
+	bool BindSocket(int sockfd, int port, char* addr, bool dolisten = true);
 
 	/** Adds a server name to the list of servers we've seen
 	 * @param The servername to add

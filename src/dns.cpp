@@ -311,50 +311,23 @@ void DNS::Rehash()
 		this->cache = new dnscache();
 	}
 
-	if (insp_aton(ServerInstance->Config->DNSServer,&addr) > 0)
+	if ((strstr(ServerInstance->Config->DNSServer,"::ffff:") == (char*)&ServerInstance->Config->DNSServer) ||  (strstr(ServerInstance->Config->DNSServer,"::FFFF:") == (char*)&ServerInstance->Config->DNSServer))
 	{
-		memcpy(&myserver,&addr,sizeof(insp_inaddr));
-		if ((strstr(ServerInstance->Config->DNSServer,"::ffff:") == (char*)&ServerInstance->Config->DNSServer) ||  (strstr(ServerInstance->Config->DNSServer,"::FFFF:") == (char*)&ServerInstance->Config->DNSServer))
-		{
-			ServerInstance->Log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
-			ServerInstance->Log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
-			ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
-			this->ip6munge = true;
-		}
+		ServerInstance->Log(DEFAULT,"WARNING: Using IPv4 addresses over IPv6 forces some DNS checks to be disabled.");
+		ServerInstance->Log(DEFAULT,"         This should not cause a problem, however it is recommended you migrate");
+		ServerInstance->Log(DEFAULT,"         to a true IPv6 environment.");
+		this->ip6munge = true;
 	}
 
 	/* Initialize mastersocket */
-	this->SetFd(socket(PF_PROTOCOL, SOCK_DGRAM, 0));
-	if (this->GetFd() != -1)
-	{
-		/* Did it succeed? */
-		if (fcntl(this->GetFd(), F_SETFL, O_NONBLOCK) != 0)
-		{
-			/* Couldn't make the socket nonblocking */
-			shutdown(this->GetFd(),2);
-			close(this->GetFd());
-			this->SetFd(-1);
-		}
-	}
+	int s = OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
+	this->SetFd(s);
 
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
 	{
-#ifdef IPV6
-		insp_sockaddr addr;
-		memset(&addr,0,sizeof(addr));
-		addr.sin6_family = AF_FAMILY;
-		addr.sin6_port = 0;
-		addr.sin6_addr = in6addr_any;
-#else
-		insp_sockaddr addr;
-		memset(&addr,0,sizeof(addr));
-		addr.sin_family = AF_FAMILY;
-		addr.sin_port = 0;
-		addr.sin_addr.s_addr = INADDR_ANY;
-#endif
 		/* Bind the port */
-		if (bind(this->GetFd(),(sockaddr *)&addr,sizeof(addr)) != 0)
+		if (!BindSocket(this->GetFd(), 0, ServerInstance->Config->DNSServer, false))
 		{
 			/* Failed to bind */
 			shutdown(this->GetFd(),2);
@@ -536,6 +509,7 @@ int DNS::GetName(const insp_inaddr *ip)
 /** Start lookup of an IP address to a hostname */
 int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 {
+	ServerInstance->Log(DEBUG,"GetNameForce: %s", ip);
 	char query[128];
 	DNSHeader h;
 	int id;
@@ -546,6 +520,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		in6_addr i;
 		if (inet_pton(AF_INET6, ip, &i) > 0)
 		{
+			ServerInstance->Log(DEBUG,"Resolve to ipv6");
 			DNS::MakeIP6Int(query, &i);
 		}
 		else
@@ -558,6 +533,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		in_addr i;
 		if (inet_aton(ip, &i))
 		{
+			ServerInstance->Log(DEBUG,"Resolve to ipv4");
 			unsigned char* c = (unsigned char*)&i.s_addr;
 			sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 		}

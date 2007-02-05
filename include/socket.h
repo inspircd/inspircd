@@ -136,7 +136,7 @@ namespace irc
 		 * or a negative value upon failure (negative values are invalid file
 		 * descriptors)
 		 */
-		int OpenTCPSocket(char* addr);
+		int OpenTCPSocket(char* addr, int socktype = SOCK_STREAM);
 	};
 };
 
