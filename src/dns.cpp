@@ -36,6 +36,7 @@ using irc::sockets::insp_sockaddr;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
+using irc::sockets::OpenTCPSocket;
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */
@@ -91,12 +92,11 @@ class DNSRequest
 	unsigned char*  res;		/* Result processing buffer */
 	unsigned int    rr_class;       /* Request class */
 	QueryType       type;		/* Request type */
-	insp_inaddr     myserver;       /* DNS server address*/
 	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
 	unsigned long	ttl;		/* Time to live */
 	std::string     orig;		/* Original requested name/ip */
 
-	DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, const std::string &original);
+	DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original);
 	~DNSRequest();
 	DNSInfo ResultIsReady(DNSHeader &h, int length);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
@@ -146,11 +146,10 @@ class RequestTimeout : public InspTimer
 };
 
 /* Allocate the processing buffer */
-DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, insp_inaddr server, int id, const std::string &original) : dnsobj(dns)
+DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original) : dnsobj(dns)
 {
 	res = new unsigned char[512];
 	*res = 0;
-	memcpy(&myserver, &server, sizeof(insp_inaddr));
 	orig = original;
 	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, id);
 	Instance->Timers->AddTimer(RT); /* The timer manager frees this */
@@ -206,7 +205,6 @@ inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, con
 /** Send requests we have previously built down the UDP socket */
 int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
-	insp_sockaddr addr;
 	unsigned char payload[sizeof(DNSHeader)];
 
 	this->rr_class = 1;
@@ -214,18 +212,36 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		
 	DNS::EmptyHeader(payload,header,length);
 
-	memset(&addr,0,sizeof(addr));
 #ifdef IPV6
-	memcpy(&addr.sin6_addr,&myserver,sizeof(addr.sin6_addr));
-	addr.sin6_family = AF_FAMILY;
-	addr.sin6_port = htons(DNS::QUERY_PORT);
+	if (this->dnsobj->socketfamily == AF_INET6)
+	{
+		sockaddr_in6 addr;
+		memset(&addr,0,sizeof(addr));
+		memcpy(&addr.sin6_addr,&dnsobj->myserver6,sizeof(addr.sin6_addr));
+		addr.sin6_family = AF_FAMILY;
+		addr.sin6_port = htons(DNS::QUERY_PORT);
+		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+			return -1;
+	}
+	else
+	{
+		sockaddr_in addr;
+		memset(&addr,0,sizeof(addr));
+		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
+		addr.sin_family = AF_FAMILY;
+		addr.sin_port = htons(DNS::QUERY_PORT);
+		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+			return -1;
+	}
 #else
-	memcpy(&addr.sin_addr.s_addr,&myserver,sizeof(addr.sin_addr));
+	sockaddr_in addr;
+	memset(&addr,0,sizeof(addr));
+	memcpy(&addr.sin_addr.s_addr, &dnsobj->myserver4, sizeof(addr.sin_addr));
 	addr.sin_family = AF_FAMILY;
 	addr.sin_port = htons(DNS::QUERY_PORT);
-#endif
 	if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
 		return -1;
+#endif
 
 	return 0;
 }
@@ -244,7 +260,7 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id, const char* original)
 	while (requests[id])
 		id = this->PRNG() & DNS::MAX_REQUEST_ID;
 
-	DNSRequest* req = new DNSRequest(ServerInstance, this, this->myserver, id, original);
+	DNSRequest* req = new DNSRequest(ServerInstance, this, id, original);
 
 	header->id[0] = req->id[0] = id >> 8;
 	header->id[1] = req->id[1] = id & 0xFF;
@@ -326,9 +342,9 @@ void DNS::Rehash()
 		inet_pton(AF_INET6, &this->myserver6, ServerInstance->Config->DNSServer);
 	}
 	else
-		inet_aton(&this->myserver4, ServerInstance->Config->DNSServer);
+		inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
 #else
-	inet_aton(&this->myserver4, ServerInstance->Config->DNSServer);
+	inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
 #endif
 
 	/* Initialize mastersocket */
@@ -339,7 +355,7 @@ void DNS::Rehash()
 	if (this->GetFd() != -1)
 	{
 		/* Bind the port */
-		if (!BindSocket(this->GetFd(), 0, ServerInstance->Config->DNSServer, false))
+		if (!ServerInstance->BindSocket(this->GetFd(), 0, ServerInstance->Config->DNSServer, false))
 		{
 			/* Failed to bind */
 			shutdown(this->GetFd(),2);

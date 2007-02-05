@@ -335,15 +335,6 @@ class DNS : public EventHandler
 	static const int MAX_REQUEST_ID = 0xFFFF;
 
 	/**
-	 * Server address being used currently
-	 */
-	int socketfamily;
-#ifdef IPV6
-	in6_addr myserver6;
-#endif
-	in_addr myserver4;
-
-	/**
 	 * A counter used to form part of the pseudo-random id
 	 */
 	int currid;
@@ -372,6 +363,15 @@ class DNS : public EventHandler
 	int MakePayload(const char* name, const QueryType rr, const unsigned short rr_class, unsigned char* payload);
 
  public:
+
+        /**
+	 * Server address being used currently
+	 */
+	int socketfamily;
+#ifdef IPV6
+	in6_addr myserver6;
+#endif
+	in_addr myserver4;
 
 	/**
 	 * Currently active Resolver classes
