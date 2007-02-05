@@ -802,11 +802,19 @@ void userrec::AddToWhoWas()
 }
 
 /* add a client connection to the sockets list */
-void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip)
+void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
 	std::string tempnick = ConvToStr(socket) + "-unknown";
 	user_hash::iterator iter = Instance->clientlist->find(tempnick);
-	const char *ipaddr = insp_ntoa(ip);
+	char ipaddr[MAXBUF];
+#ifdef IPV6
+	if (socketfamily = AF_INET6)
+		inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, ipaddr, sizeof(ipaddr));
+	else
+		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
+#else
+	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
+#endif
 	userrec* New;
 	int j = 0;
 

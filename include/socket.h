@@ -151,6 +151,7 @@ class ListenSocket : public EventHandler
 	 */
 	InspIRCd* ServerInstance;
 	std::string desc;
+	int family;
  public:
 	/** Create a new listening socket
 	 */

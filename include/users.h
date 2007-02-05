@@ -708,7 +708,7 @@ class userrec : public connection
 	 * @param ip The IP address of the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	static void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, insp_inaddr ip);
+	static void AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip);
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type

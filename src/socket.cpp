@@ -42,6 +42,14 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client,
 	Instance->Log(DEBUG,"CRAP");
 	if (!Instance->BindSocket(this->fd,client,server,port,addr))
 		this->fd = -1;
+#ifdef IPV6
+	if ((!*addr) || (strchr(addr,':')))
+		this->family = AF_INET6;
+	else
+		this->family = AF_INET;
+#else
+	this->family = AF_INET;
+#endif
 }
 
 ListenSocket::~ListenSocket()
@@ -56,32 +64,52 @@ ListenSocket::~ListenSocket()
 
 void ListenSocket::HandleEvent(EventType et, int errornum)
 {
-	insp_sockaddr sock_us;	// our port number
-	socklen_t uslen;	// length of our port number
-	insp_sockaddr client;
-	socklen_t length;
+	sockaddr* sock_us = new sockaddr[2];	// our port number
+	sockaddr* client = new sockaddr[2];
+	socklen_t uslen, length;		// length of our port number
 	int incomingSockfd, in_port;
-	uslen = sizeof(sock_us);
-	length = sizeof(client);
-	incomingSockfd = accept (this->GetFd(),(struct sockaddr*)&client, &length);
-	
-	if ((incomingSockfd > -1) && (!getsockname(incomingSockfd, (sockaddr*)&sock_us, &uslen)))
-	{
+
 #ifdef IPV6
-		in_port = ntohs(sock_us.sin6_port);
+	if (this->family == AF_INET6)
+	{
+		uslen = sizeof(sockaddr_in6);
+		length = sizeof(sockaddr_in6);
+	}
+	else
+	{
+		uslen = sizeof(sockaddr_in);
+		length = sizeof(sockaddr_in);
+	}
 #else
-		in_port = ntohs(sock_us.sin_port);
+	uslen = sizeof(sockaddr_in);
+	length = sizeof(sockaddr_in);
+#endif
+	incomingSockfd = accept (this->GetFd(), (sockaddr*)client, &length);
+
+	if ((incomingSockfd > -1) && (!getsockname(incomingSockfd, sock_us, &uslen)))
+	{
+		char buf[MAXBUF];
+#ifdef IPV6
+		if (this->family == AF_INET6)
+		{
+			inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+			in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
+		}
+		else
+		{
+			inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
+		}
+#else
+		inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+		in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
 #endif
 		NonBlocking(incomingSockfd);
 		if (ServerInstance->Config->GetIOHook(in_port))
 		{
 			try
 			{
-#ifdef IPV6
-				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin6_addr), in_port);
-#else
-				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, insp_ntoa(client.sin_addr), in_port);
-#endif
+				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, buf, in_port);
 			}
 			catch (CoreException& modexcept)
 			{
@@ -89,11 +117,7 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 			}
 		}
 		ServerInstance->stats->statsAccept++;
-#ifdef IPV6
-		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin6_addr);
-#else
-		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, client.sin_addr);
-#endif
+		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client);
 	}
 	else
 	{
@@ -101,6 +125,8 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 		close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 	}
+	delete[] client;
+	delete[] sock_us;
 }
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
