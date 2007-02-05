@@ -148,7 +148,7 @@ void ServerConfig::Send005(userrec* user)
 bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
 {
 	int count = ConfValueEnum(this->config_data, tag);
-	
+
 	if (count > 1)
 	{
 		throw CoreException("You have more than one <"+std::string(tag)+"> tag, this is not permitted.");
@@ -256,7 +256,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	/* If we already have a servername, and they changed it, we should throw an exception. */
-	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName)) 
+	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName))
 	{
 		throw CoreException("Configuration error: You cannot change your servername at runtime! Please restart your server for this change to be applied.");
 		/* XXX: We don't actually reach this return of course... */
@@ -521,9 +521,9 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 		unsigned int prefixlen;
 		start = 0;
 		/* ":ServerInstance->Config->ServerName NOTICE user->nick :" */
-		prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
 		if (user)
 		{
+			prefixlen = strlen(this->ServerName) + strlen(user->nick) + 11;
 			user->WriteServ("NOTICE %s :There were errors in the configuration file:",user->nick);
 			while (start < errors.length())
 			{
@@ -566,7 +566,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
 		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
 		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
-		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},	
+		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},
 		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
 		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
 		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
@@ -670,14 +670,14 @@ void ServerConfig::Read(bool bail, userrec* user)
 	include_stack.clear();
 
 	/* Load and parse the config file, if there are any errors then explode */
-	
+
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
 	ConfigDataHash newconfig;
-	
+
 	if (this->LoadConf(newconfig, CONFIG_FILE, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
-		this->config_data = newconfig;	
+		this->config_data = newconfig;
 	}
 	else
 	{
@@ -735,7 +735,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 					/* You don't want to know what happens if someones bad code sends us here. */
 				break;
 			}
-	
+
 			/* We're done with this now */
 			delete Values[Index].val;
 		}
@@ -790,10 +790,10 @@ void ServerConfig::Read(bool bail, userrec* user)
 						break;
 					}
 				}
-	
+
 				MultiValues[Index].validation_function(this, MultiValues[Index].tag, (char**)MultiValues[Index].items, vl, MultiValues[Index].datatype);
 			}
-	
+
 			MultiValues[Index].finish_function(this, MultiValues[Index].tag);
 		}
 
@@ -857,10 +857,10 @@ void ServerConfig::Read(bool bail, userrec* user)
 				if (ServerInstance->LoadModule(adding->c_str()))
 				{
 					ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
-	
+
 					if (user)
 						user->WriteServ("975 %s %s :Module %s successfully loaded.",user->nick, adding->c_str(), adding->c_str());
-	
+
 					add++;
 				}
 				else
@@ -884,22 +884,22 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	bool in_tag;
 	bool in_quote;
 	bool in_comment;
-	
+
 	linenumber = 1;
 	in_tag = false;
 	in_quote = false;
 	in_comment = false;
-	
+
 	/* Check if the file open failed first */
 	if (!conf)
 	{
 		errorstream << "LoadConf: Couldn't open config file: " << filename << std::endl;
 		return false;
 	}
-	
+
 	/* Fix the chmod of the file to restrict it to the current user and group */
 	chmod(filename,0600);
-	
+
 	for (unsigned int t = 0; t < include_stack.size(); t++)
 	{
 		if (std::string(filename) == include_stack[t])
@@ -908,11 +908,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			return false;
 		}
 	}
-	
+
 	/* It's not already included, add it to the list of files we've loaded */
 	include_stack.push_back(filename);
-	
-	/* Start reading characters... */	
+
+	/* Start reading characters... */
 	while(conf.get(ch))
 	{
 		/*
@@ -923,16 +923,16 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		 * we get a '>' not inside quotes. If we find two '<' and
 		 * no '>' then die with an error.
 		 */
-		
+
 		if((ch == '#') && !in_quote)
 			in_comment = true;
-		
+
 		/*if(((ch == '\n') || (ch == '\r')) && in_quote)
 		{
 			errorstream << "Got a newline within a quoted section, this is probably a typo: " << filename << ":" << linenumber << std::endl;
 			return false;
 		}*/
-		
+
 		switch(ch)
 		{
 			case '\n':
@@ -947,7 +947,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			case '\t':
 				ch = ' ';
 		}
-		
+
 		if(in_comment)
 			continue;
 
@@ -979,7 +979,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 
 		if (ch != '\r')
 			line += ch;
-		
+
 		if(ch == '<')
 		{
 			if(in_tag)
@@ -1044,10 +1044,10 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 					 * If this finds an <include> then ParseLine can simply call
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
-					
+
 					if(!this->ParseLine(target, line, linenumber, errorstream))
 						return false;
-					
+
 					line.clear();
 				}
 				else
@@ -1058,7 +1058,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 		}
 	}
-	
+
 	return true;
 }
 
@@ -1076,17 +1076,17 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 	bool got_name;
 	bool got_key;
 	bool in_quote;
-	
+
 	got_name = got_key = in_quote = false;
 
 	//std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
-	
+
 	for(std::string::iterator c = line.begin(); c != line.end(); c++)
 	{
 		if(!got_name)
 		{
 			/* We don't know the tag name yet. */
-			
+
 			if(*c != ' ')
 			{
 				if(*c != '<')
@@ -1161,16 +1161,16 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 						results.push_back(KeyVal(current_key, current_value));
 
 						// std::cout << "<" << tagname << ":" << current_key << "> " << current_value << std::endl;
-						
+
 						in_quote = false;
 						got_key = false;
-						
+
 						if((tagname == "include") && (current_key == "file"))
 						{
 							if(!this->DoInclude(target, current_value, errorstream))
 								return false;
 						}
-						
+
 						current_key.clear();
 						current_value.clear();
 					}
@@ -1185,10 +1185,10 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 			}
 		}
 	}
-	
+
 	/* Finished parsing the tag, add it to the config hash */
 	target.insert(std::pair<std::string, KeyValList > (tagname, results));
-	
+
 	return true;
 }
 
@@ -1197,10 +1197,10 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	std::string confpath;
 	std::string newfile;
 	std::string::size_type pos;
-	
+
 	confpath = CONFIG_FILE;
 	newfile = file;
-	
+
 	for (std::string::iterator c = newfile.begin(); c != newfile.end(); c++)
 	{
 		if (*c == '\\')
@@ -1222,7 +1222,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 			return false;
 		}
 	}
-	
+
 	return LoadConf(target, newfile, errorstream);
 }
 
@@ -1288,7 +1288,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 	}
 	return false;
 }
-	
+
 bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result)
 {
 	return ConfValueInteger(target, std::string(tag), std::string(var), "", index, result);
@@ -1351,7 +1351,7 @@ bool ServerConfig::ConfValueInteger(ConfigDataHash &target, const std::string &t
 	return r;
 }
 
-	
+
 bool ServerConfig::ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index)
 {
 	return ConfValueBool(target, std::string(tag), std::string(var), "", index);
@@ -1372,10 +1372,10 @@ bool ServerConfig::ConfValueBool(ConfigDataHash &target, const std::string &tag,
 	std::string result;
 	if(!ConfValue(target, tag, var, default_value, index, result))
 		return false;
-	
+
 	return ((result == "yes") || (result == "true") || (result == "1"));
 }
-	
+
 int ServerConfig::ConfValueEnum(ConfigDataHash &target, const char* tag)
 {
 	return target.count(tag);
@@ -1385,7 +1385,7 @@ int ServerConfig::ConfValueEnum(ConfigDataHash &target, const std::string &tag)
 {
 	return target.count(tag);
 }
-	
+
 int ServerConfig::ConfVarEnum(ConfigDataHash &target, const char* tag, int index)
 {
 	return ConfVarEnum(target, std::string(tag), index);
@@ -1394,17 +1394,17 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const char* tag, int index
 int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index)
 {
 	ConfigDataHash::size_type pos = index;
-	
+
 	if((pos >= 0) && (pos < target.count(tag)))
 	{
 		ConfigDataHash::const_iterator iter = target.find(tag);
-		
+
 		for(int i = 0; i < index; i++)
 			iter++;
-		
+
 		return iter->second.size();
 	}
-	
+
 	return 0;
 }
 
@@ -1419,7 +1419,7 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 	char linebuf[MAXBUF];
 
 	F.clear();
-	
+
 	if (*fname != '/')
 	{
 		std::string::size_type pos;
@@ -1429,7 +1429,7 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 			/* Leaves us with just the path */
 			std::string newfile = confpath.substr(0, pos) + std::string("/") + fname;
 			file =  fopen(newfile.c_str(), "r");
-			
+
 		}
 	}
 	else
