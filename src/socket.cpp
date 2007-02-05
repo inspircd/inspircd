@@ -336,12 +336,12 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 	}
 #else
 	/* If we aren't built with ipv6, the choice becomes simple */
-	(sockaddr_in*)server->sin_family = AF_INET;
+	((sockaddr_in*)server)->sin_family = AF_INET;
 	if (*addr)
 	{
 		/* There is an address here. */
 		in_addr addy;
-		inet_pton(AF_INET, &addy, addr);
+		inet_pton(AF_INET, addr, &addy);
 
 		((sockaddr_in*)server)->sin_addr = addy;
 	}
