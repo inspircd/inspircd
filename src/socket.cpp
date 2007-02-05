@@ -288,16 +288,14 @@ void irc::sockets::NonBlocking(int s)
  */ 
 bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr servern, int port, char* addr)
 {
-	sockaddr* server = new sockaddr();
-	memset(server,0,sizeof(server));
+	/* We allocate 2 of these, because sockaddr_in6 is larger than sockaddr (ugh, hax) */
+	sockaddr* server = new sockaddr[2];
+	memset(server,0,sizeof(sockaddr)*2);
+
+	int ret, size;
 
 	if (*addr == '*')
 		*addr = 0;
-
-	Log(DEBUG,"NEW CRAP HERE");
-
-	/*if ((*addr) && (insp_aton(addr,&addy) < 1))
-		return false;*/
 
 #ifdef IPV6
 	if (*addr)
@@ -309,30 +307,43 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 			printf("Address %s is ipv6\n", addr);
 			/* Yes it is */
 			in6_addr addy;
-			inet_pton(AF_INET6, addr, &addy);
+			if (inet_pton(AF_INET6, addr, &addy) < 1)
+			{
+				printf("Failed to interpret address %s", addr);
+				delete[] server;
+				return false;
+			}
 
 			((sockaddr_in6*)server)->sin6_family = AF_INET6;
-			memcpy(&((sockaddr_in6*)server)->sin6_addr, &addy, sizeof(in6_addr));
+			memcpy(&(((sockaddr_in6*)server)->sin6_addr), &addy, sizeof(in6_addr));
 			((sockaddr_in6*)server)->sin6_port = htons(port);
+			size = sizeof(sockaddr_in6);
 		}
 		else
 		{
 			/* No, its not */
 			printf("Address %s is ipv4\n", addr);
 			in_addr addy;
-			inet_pton(AF_INET, addr, &addy);
+			if (inet_pton(AF_INET, addr, &addy) < 1)
+			{
+				delete[] server;
+				return false;
+			}
 
 			((sockaddr_in*)server)->sin_family = AF_INET;
 			((sockaddr_in*)server)->sin_addr = addy;
 			((sockaddr_in*)server)->sin_port = htons(port);
+			size = sizeof(sockaddr_in);
 		}
 	}
 	else
 	{
 		printf("Address empty\n");
 		/* Theres no address here, default to ipv6 bind to all */
-		memset(&((sockaddr_in6*)server)->sin6_addr, 0, sizeof(in6_addr));
+		((sockaddr_in6*)server)->sin6_family = AF_INET6;
+		memset(&(((sockaddr_in6*)server)->sin6_addr), 0, sizeof(in6_addr));
 		((sockaddr_in6*)server)->sin6_port = htons(port);
+		size = sizeof(sockaddr_in6);
 	}
 #else
 	/* If we aren't built with ipv6, the choice becomes simple */
@@ -343,7 +354,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 		in_addr addy;
 		if (inet_pton(AF_INET, addr, &addy) < 1)
 		{
-			delete server;
+			delete[] server;
 			return false;
 		}
 		((sockaddr_in*)server)->sin_addr = addy;
@@ -355,13 +366,14 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 	}
 	/* Bind ipv4 port number */
 	((sockaddr_in*)server)->sin_port = htons(port);
+	size = sizeof(sockaddr_in);
 #endif
-	int ret = bind(sockfd, server, sizeof(sockaddr));
-
-	delete server;
+	ret = bind(sockfd, server, size);
+	delete[] server;
 
 	if (ret < 0)
 	{
+		Log(DEBUG,"Bind fails it! %s", strerror(errno));
 		return false;
 	}
 	else
@@ -381,13 +393,27 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 
 
 // Open a TCP Socket
-int irc::sockets::OpenTCPSocket()
+int irc::sockets::OpenTCPSocket(char* addr)
 {
 	int sockfd;
 	int on = 1;
 	struct linger linger = { 0 };
-  
-	if ((sockfd = socket (AF_FAMILY, SOCK_STREAM, 0)) < 0)
+#ifdef IPV6
+	printf("IPV6 ENABLED OPENTCPSOCKET\n");
+	if (strchr(addr,':') || (!*addr))
+	{
+		printf("IPV6 OPENTCPSOCKET DO\n");
+		sockfd = socket (PF_INET6, SOCK_STREAM, 0);
+	}
+	else
+	{
+		printf("IPV6->IPV4 OPENTCPSOCKET DO\n");
+		sockfd = socket (PF_INET, SOCK_STREAM, 0);
+	}
+	if (sockfd < 0)
+#else
+	if ((sockfd = socket (PF_INET, SOCK_STREAM, 0)) < 0)
+#endif
 	{
 		printf("SOCKET FAIL: %s\n", strerror(errno));
 		return ERROR;
@@ -463,7 +489,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 				BoundPortCount = stats->BoundPortCount;
 				for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
 				{
-					int fd = OpenTCPSocket();
+					int fd = OpenTCPSocket(Config->addrs[count]);
 					if (fd == ERROR)
 					{
 						failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
@@ -498,7 +524,7 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 
 	for (int count = 0; count < PortCount; count++)
 	{
-		int fd = OpenTCPSocket();
+		int fd = OpenTCPSocket(Config->addrs[count]);
 		if (fd == ERROR)
 		{
 			Log(DEBUG,"SOCKET FAIL");

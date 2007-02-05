@@ -56,7 +56,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 	this->IsIOHooked = false;
 	if (listening)
 	{
-		if ((this->fd = OpenTCPSocket()) == ERROR)
+		if ((this->fd = OpenTCPSocket(host)) == ERROR)
 		{
 			this->fd = -1;
 			this->state = I_ERROR;
