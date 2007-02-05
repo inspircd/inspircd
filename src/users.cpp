@@ -172,7 +172,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				if (this->bound_user->GetProtocolFamily() == AF_INET6)
 				{
 					/* IPV6 forward lookup (with possibility of 4in6) */
-					char* ip = this->bound_user->GetIPString();
+					const char* ip = this->bound_user->GetIPString();
 					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
 				}
 				else
