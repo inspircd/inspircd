@@ -366,7 +366,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					}
 					else
 					{
-						ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port %s:%d: %s",IP.c_str(), portno, strerror(errno));
+						ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port: %s:%d: %s",IP.c_str(), portno, strerror(errno));
 						listener->Close();
 						DELETE(listener);
 					}
