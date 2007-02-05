@@ -341,8 +341,11 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 	{
 		/* There is an address here. */
 		in_addr addy;
-		inet_pton(AF_INET, addr, &addy);
-
+		if (inet_pton(AF_INET, addr, &addy) < 1)
+		{
+			delete server;
+			return false;
+		}
 		((sockaddr_in*)server)->sin_addr = addy;
 	}
 	else
@@ -353,7 +356,7 @@ bool InspIRCd::BindSocket(int sockfd, insp_sockaddr clientn, insp_sockaddr serve
 	/* Bind ipv4 port number */
 	((sockaddr_in*)server)->sin_port = htons(port);
 #endif
-	int ret = bind(sockfd, server, sizeof(server));
+	int ret = bind(sockfd, server, sizeof(sockaddr));
 
 	delete server;
 
