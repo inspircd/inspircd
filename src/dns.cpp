@@ -218,9 +218,9 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		sockaddr_in6 addr;
 		memset(&addr,0,sizeof(addr));
 		memcpy(&addr.sin6_addr,&dnsobj->myserver6,sizeof(addr.sin6_addr));
-		addr.sin6_family = AF_FAMILY;
+		addr.sin6_family = AF_INET6;
 		addr.sin6_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 	else
@@ -228,18 +228,18 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		sockaddr_in addr;
 		memset(&addr,0,sizeof(addr));
 		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
-		addr.sin_family = AF_FAMILY;
+		addr.sin_family = AF_INET;
 		addr.sin_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 #else
 	sockaddr_in addr;
 	memset(&addr,0,sizeof(addr));
 	memcpy(&addr.sin_addr.s_addr, &dnsobj->myserver4, sizeof(addr.sin_addr));
-	addr.sin_family = AF_FAMILY;
+	addr.sin_family = AF_INET;
 	addr.sin_port = htons(DNS::QUERY_PORT);
-	if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) == -1)
+	if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 		return -1;
 #endif
 
@@ -308,6 +308,7 @@ int DNS::PruneCache()
 void DNS::Rehash()
 {
 	ip6munge = false;
+	int portpass = 0;
 
 	if (this->GetFd() > -1)
 	{
@@ -342,7 +343,10 @@ void DNS::Rehash()
 		inet_pton(AF_INET6, ServerInstance->Config->DNSServer, &this->myserver6);
 	}
 	else
+	{
 		inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
+		portpass = -1;
+	}
 #else
 	inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
 #endif
@@ -355,7 +359,7 @@ void DNS::Rehash()
 	if (this->GetFd() != -1)
 	{
 		/* Bind the port - port 0 INADDR_ANY */
-		if (!ServerInstance->BindSocket(this->GetFd(), 0, "", false))
+		if (!ServerInstance->BindSocket(this->GetFd(), portpass, "", false))
 		{
 			/* Failed to bind */
 			shutdown(this->GetFd(),2);
@@ -610,17 +614,25 @@ DNSResult DNS::GetResult()
 	DNSHeader header;
 	DNSRequest *req;
 	unsigned char buffer[sizeof(DNSHeader)];
-	sockaddr from;
-	socklen_t x = sizeof(from);
-	const char* ipaddr_from = "";
+	sockaddr* from = new sockaddr[2];
+#ifdef IPV6
+	socklen_t x = this->socketfamily == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
+#else
+	socklen_t x = sizeof(sockaddr_in);
+#endif
+	char nbuf[MAXBUF];
+	const char* ipaddr_from;
 	unsigned short int port_from = 0;
 
-	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,&from,&x);
+	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,from,&x);
+
+	ServerInstance->Log(DEBUG,"Recv %d.", length);
 
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
 		/* Nope - something screwed up. */
+		delete[] from;
 		return DNSResult(-1,"",0,"");
 	}
 
@@ -634,12 +646,22 @@ DNSResult DNS::GetResult()
 	 * -- Thanks jilles for pointing this one out.
 	 */
 #ifdef IPV6
-	ipaddr_from = insp_ntoa(((sockaddr_in6*)&from)->sin6_addr);
-	port_from = ntohs(((sockaddr_in6*)&from)->sin6_port);
+	if (this->socketfamily == AF_INET6)
+	{
+		ipaddr_from = inet_ntop(AF_INET6, &((sockaddr_in6*)from)->sin6_addr, nbuf, sizeof(nbuf));
+		port_from = ntohs(((sockaddr_in6*)from)->sin6_port);
+	}
+	else
+	{
+		ipaddr_from = inet_ntoa(((sockaddr_in*)from)->sin_addr);
+		port_from = ntohs(((sockaddr_in*)from)->sin_port);
+	}
 #else
-	ipaddr_from = insp_ntoa(((sockaddr_in*)&from)->sin_addr);
-	port_from = ntohs(((sockaddr_in*)&from)->sin_port);
+	ipaddr_from = inet_ntoa(((sockaddr_in*)from)->sin_addr);
+	port_from = ntohs(((sockaddr_in*)from)->sin_port);
 #endif
+
+	delete[] from;
 
 	/* We cant perform this security check if you're using 4in6.
 	 * Tough luck to you, choose one or't other!
@@ -648,6 +670,7 @@ DNSResult DNS::GetResult()
 	{
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
+			ServerInstance->Log(DEBUG,"Doesnt match security: port_from=%d ipaddr_from=%s",port_from,ipaddr_from);
 			return DNSResult(-1,"",0,"");
 		}
 	}
@@ -1037,6 +1060,7 @@ Module* Resolver::GetCreator()
 /** Process a socket read event */
 void DNS::HandleEvent(EventType et, int errornum)
 {
+	ServerInstance->Log(DEBUG,"Marshall dns reads");
 	/* Fetch the id and result of the next available packet */
 	DNSResult res = this->GetResult();
 	/* Is there a usable request id? */

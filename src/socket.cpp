@@ -364,12 +364,26 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 	}
 	else
 	{
-		printf("Address empty\n");
-		/* Theres no address here, default to ipv6 bind to all */
-		((sockaddr_in6*)server)->sin6_family = AF_INET6;
-		memset(&(((sockaddr_in6*)server)->sin6_addr), 0, sizeof(in6_addr));
-		((sockaddr_in6*)server)->sin6_port = htons(port);
-		size = sizeof(sockaddr_in6);
+		printf("Address empty port=%d\n", port);
+		if (port == -1)
+		{
+			/* Port -1: Means UDP IPV4 port binding - Special case
+			 * used by DNS engine.
+			 */
+			printf("Special case AF_INET udp bind to all\n");
+			((sockaddr_in*)server)->sin_family = AF_INET;
+			((sockaddr_in*)server)->sin_addr.s_addr = htonl(INADDR_ANY);
+			((sockaddr_in*)server)->sin_port = 0;
+			size = sizeof(sockaddr_in);
+		}
+		else
+		{
+			/* Theres no address here, default to ipv6 bind to all */
+			((sockaddr_in6*)server)->sin6_family = AF_INET6;
+			memset(&(((sockaddr_in6*)server)->sin6_addr), 0, sizeof(in6_addr));
+			((sockaddr_in6*)server)->sin6_port = htons(port);
+			size = sizeof(sockaddr_in6);
+		}
 	}
 #else
 	/* If we aren't built with ipv6, the choice becomes simple */
