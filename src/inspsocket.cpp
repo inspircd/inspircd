@@ -95,7 +95,26 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		strlcpy(this->host,ipaddr.c_str(),MAXBUF);
 		this->port = aport;
 
-		if (insp_aton(host,&addy) < 1)
+		bool ipvalid = true;
+#ifdef IPV6
+		if (strchr(host,':'))
+		{
+			in6_addr addy;
+			if (inet_ntop(AF_INET6, host, &n) < 1)
+				ipvalid = false;
+		}
+		else
+		{
+			in_addr addy;
+			if (inet_aton(host,&addy) < 1)
+				ipvalid = false;
+		}
+#else
+		in_addr addy;
+		if (inet_aton(host,&addy) < 1)
+			ipvalid = false;
+#endif
+		if (!ipvalid)
 		{
 			this->Instance->Log(DEBUG,"BUG: Hostname passed to InspSocket, rather than an IP address!");
 			this->Close();
@@ -138,8 +157,15 @@ void InspSocket::SetQueues(int nfd)
  */
 bool InspSocket::BindAddr()
 {
-	insp_inaddr n;
 	ConfigReader Conf(this->Instance);
+	bool bindfail = false;
+	socklen_t size = sizeof(sockaddr_in);
+#ifdef IPV6
+	bool v6 = false;
+	/* Are we looking for a binding to fit an ipv6 host? */
+	if ((!*this->host) || strchr(this->host, ':'))
+		v6 = true;
+#endif
 	for (int j =0; j < Conf.Enumerate("bind"); j++)
 	{
 		std::string Type = Conf.ReadValue("bind","type",j);
@@ -148,26 +174,58 @@ bool InspSocket::BindAddr()
 		{
 			if ((IP != "*") && (IP != "127.0.0.1") && (IP != "") && (IP != "::1"))
 			{
-				insp_sockaddr s;
-
-				if (insp_aton(IP.c_str(),&n) > 0)
-				{
+				sockaddr* s = new sockaddr[2];
 #ifdef IPV6
-					memcpy(&s.sin6_addr, &n, sizeof(n));
-					s.sin6_family = AF_FAMILY;
-#else
-					s.sin_addr = n;
-					s.sin_family = AF_FAMILY;
-#endif
-					if (bind(this->fd,(struct sockaddr*)&s,sizeof(s)) < 0)
+				if (v6)
+				{
+					in6_addr n;
+					if (inet_pton(AF_INET6, IP.c_str(), &n) > 0)
 					{
-						this->state = I_ERROR;
-						this->OnError(I_ERR_BIND);
-						this->fd = -1;
-						return false;
+						memcpy(((sockaddr_in6*)s)->sin6_addr, &n, sizeof(n));
+						s.sin6_family = AF_INET6;
+						size = sizeof(sockaddr_in6);
 					}
-					return true;
+					else
+						bindfail = true;
 				}
+				else
+				{
+					in_addr n;
+					if (inet_aton(IP.c_str(), &n) > 0)
+					{
+						((sockaddr_in*)s)->sin_addr = n;
+						((sockaddr_in*)s)->sin_family = AF_INET;
+					}
+					else
+						bindfail = true;
+				}
+#else
+				in_addr n;
+				if (insp_aton(IP.c_str(), &n) > 0)
+				{
+					((sockaddr_in*)s)->sin_addr = n;
+					((sockaddr_in*)s)->sin_family = AF_INET;
+				}
+				else
+					bindfail = true;
+#endif
+				if (bindfail)
+				{
+					delete[] s;
+					return false;
+				}
+
+				if (bind(this->fd, s, size) < 0)
+				{
+					this->state = I_ERROR;
+					this->OnError(I_ERR_BIND);
+					this->fd = -1;
+					delete[] s;
+					return false;
+				}
+
+				delete[] s;
+				return true;
 			}
 		}
 	}
@@ -176,34 +234,77 @@ bool InspSocket::BindAddr()
 
 bool InspSocket::DoConnect()
 {
-	if ((this->fd = socket(AF_FAMILY, SOCK_STREAM, 0)) == -1)
+	sockaddr* addr = new sockaddr[2];
+	socklen_t size = sizeof(sockaddr_in);
+#ifdef IPV6
+	bool v6 = false;
+	if ((!*this->host) || strchr(this->host, ':'))
+		v6 = true;
+
+	if (v6)
+	{
+		this->fd = socket(AF_INET6, SOCK_STREAM, 0);
+		if ((this->fd > -1) && ((strstr(this->IP,"::ffff:") != (char*)&this->IP) && (strstr(this->IP,"::FFFF:") != (char*)&this->IP)))
+		{
+			if (!this->BindAddr())
+			{
+				delete[] addr;
+				return false;
+			}
+		}
+	}
+	else
+	{
+		this->fd = socket(AF_INET, SOCK_STREAM, 0);
+	}
+#else
+	this->fd = socket(AF_INET, SOCK_STREAM, 0);
+#endif
+
+	if (this->fd == -1)
 	{
 		this->state = I_ERROR;
 		this->OnError(I_ERR_SOCKET);
+		delete[] addr;
 		return false;
 	}
 
-	if ((strstr(this->IP,"::ffff:") != (char*)&this->IP) && (strstr(this->IP,"::FFFF:") != (char*)&this->IP))
-	{
-		if (!this->BindAddr())
-			return false;
-	}
-
-	insp_aton(this->IP,&addy);
 #ifdef IPV6
-	addr.sin6_family = AF_FAMILY;
-	memcpy(&addr.sin6_addr, &addy, sizeof(addy));
-	addr.sin6_port = htons(this->port);
+	if (v6)
+	{
+		in6_addr addy;
+		if (inet_pton(AF_INET6, this->host, &addy) > 0)
+		{
+			((sockaddr_in6*)addr)->sin6_family = AF_INET6;
+			memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(addy));
+			((sockaddr_in6*)addr)->sin6_port = htons(this->port);
+			size = sizeof(sockaddr_in6);
+		}
+	}
+	else
+	{
+		in_addr addy;
+		if (inet_aton(this->host, &addy) > 0)
+		{
+			((sockaddr_in*)addr)->sin_family = AF_INET;
+			((sockaddr_in*)addr)->sin_addr = addy;
+			((sockaddr_in*)addr)->sin_port = htons(this->port);
+		}
+	}
 #else
-	addr.sin_family = AF_FAMILY;
-	addr.sin_addr = addy;
-	addr.sin_port = htons(this->port);
+	in_addr addy;
+	if (inet_aton(this->host, &addy) > 0)
+	{
+		((sockaddr_in*)addr)->sin_family = AF_INET;
+		((sockaddr_in*)addr)->sin_addr = addy;
+		((sockaddr_in*)addr)->sin_port = htons(this->port);
+	}
 #endif
 
 	int flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 
-	if (connect(this->fd, (sockaddr*)&this->addr,sizeof(this->addr)) == -1)
+	if (connect(this->fd, (sockaddr*)addr, size) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{
@@ -486,24 +587,36 @@ bool InspSocket::Poll()
 			return this->OnConnected();
 		break;
 		case I_LISTENING:
-			length = sizeof (client);
-			incoming = accept (this->fd, (sockaddr*)&client,&length);
+		{
+			sockaddr* client = new sockaddr[2];
+			length = sizeof (sockaddr_in);
+			std::string recvip;
+#ifdef IPV6
+			if ((!*this->host) || strchr(this->host, ':'))
+				length = sizeof(sockaddr_in6);
+#endif
+			incoming = accept (this->fd, client, &length);
 
 #ifdef IPV6
-			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin6_addr));
+			if ((!*this->host) || strchr(this->host, ':'))
+			{
+				char buf[1024];
+				recvip = inet_ntop(AF_INET6, ((sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+			}
+			else
+			{
+				recvip = insp_ntoa(((sockaddr_in*)client)->sin_addr);
+			}
 #else
-			this->OnIncomingConnection(incoming, (char*)insp_ntoa(client.sin_addr));
+			recvip = insp_ntoa(((sockaddr_in*)client)->sin_addr);
 #endif
+			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			if (this->IsIOHooked)
 			{
 				try
 				{
-#ifdef IPV6
-					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, insp_ntoa(client.sin6_addr), this->port);
-#else
-					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, insp_ntoa(client.sin_addr), this->port);
-#endif
+					Instance->Config->GetIOHook(this)->OnRawSocketAccept(incoming, recvip.c_str(), this->port);
 				}
 				catch (CoreException& modexcept)
 				{
@@ -512,7 +625,10 @@ bool InspSocket::Poll()
 			}
 
 			this->SetQueues(incoming);
+
+			delete[] client;
 			return true;
+		}
 		break;
 		case I_CONNECTED:
 			/* Process the read event */

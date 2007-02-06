@@ -98,18 +98,6 @@ class InspSocket : public EventHandler
 	InspSocketState state;
 
 	/**
-	 * The host being connected to,
-	 * in sockaddr form
-	 */
-        insp_sockaddr addr;
-
-	/** 
-	 * The host being connected to,
-	 * in in_addr form
-	 */
-        insp_inaddr addy;
-
-	/**
 	 * This value is true if the
 	 * socket has timed out.
 	 */
@@ -130,18 +118,6 @@ class InspSocket : public EventHandler
 	 * easy retrieval by accessors.
 	 */
 	char IP[MAXBUF];
-
-	/**
-	 * Client sockaddr structure used
-	 * by accept()
-	 */
-	insp_sockaddr client;
-
-	/**
-	 * Server sockaddr structure used
-	 * by accept()
-	 */
-	insp_sockaddr server;
 
 	/**
 	 * Used by accept() to indicate the
