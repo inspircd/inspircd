@@ -551,6 +551,10 @@ void SocketTimeout::Tick(time_t now)
 		delete this->sock;
 		return;
 	}
+	else
+	{
+		this->sock->Timeout = NULL;
+	}
 }
 
 bool InspSocket::Poll()
