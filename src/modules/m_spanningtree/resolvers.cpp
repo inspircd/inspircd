@@ -25,7 +25,7 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), MyLink(x), Utils(Util)
+ServernameResolver::ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt) : Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(Util), query(qt), host(hostname), mine(me)
 {
 	/* Nothing in here, folks */
 }
@@ -62,6 +62,13 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 void ServernameResolver::OnError(ResolverError e, const std::string &errormessage)
 {
 	/* Ooops! */
+	if (query == QUERY_TYPE_AAAA)
+	{
+		bool cached;
+		ServernameResolver* snr = new ServernameResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
+		ServerInstance->AddResolver(snr, cached);
+		return;
+	}
 	ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
 	Utils->DoFailOver(&MyLink);
 }

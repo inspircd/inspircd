@@ -44,6 +44,7 @@ class SecurityIPResolver : public Resolver
 			bool cached;
 			SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
 			ServerInstance->AddResolver(res, cached);
+			return;
 		}
 		ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
@@ -64,8 +65,11 @@ class ServernameResolver : public Resolver
          */
         Link MyLink;
         SpanningTreeUtilities* Utils;
+	QueryType query;
+	std::string host;
+	Module* mine;
  public:
-        ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached);
+        ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt);
         void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
         void OnError(ResolverError e, const std::string &errormessage);
 };
