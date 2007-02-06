@@ -98,16 +98,26 @@ class CloakUser : public ModeHandler
 					 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
 					 * vhost.
 					 */
-
-					if ((insp_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
-					{
-						// if they have a hostname, make something appropriate
+#ifdef IPV6
+					in6_addr testaddr;
+					if ((dest->GetProtocolFamily() == AF_INET6) && (insp_pton(AF_INET6,dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+						/* Invalid ipv6 address, and ipv6 user (resolved host) */
 						b = hostcloak;
-					}
+					else if ((dest->GetProtocolFamily() == AF_INET6) && (inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+						/* Invalid ipv4 address, and ipv4 user (resolved host) */
+						b = hostcloak;
 					else
-					{
+						/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
 						b = ((b.find(':') == std::string::npos) ? Cloak4(dest->host) : Cloak6(dest->host));
-					}
+#else
+					if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+						/* Invalid ipv4 address, and ipv4 user (resolved host) */
+						b = hostcloak;
+					else
+						/* Valid ipv4 address (not resolved) ipv4 user */
+						b = Cloak4(dest->host);
+#endif
+
 					dest->ChangeDisplayedHost(b.c_str());
 				}
 				
