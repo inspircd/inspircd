@@ -23,9 +23,12 @@ class SecurityIPResolver : public Resolver
  private:
 	Link MyLink;
 	SpanningTreeUtilities* Utils;
+	Module* mine;
+	std::string host;
+	QueryType query;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached)
-		: Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), MyLink(x), Utils(U)
+	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt)
+		: Resolver(Instance, hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
 	{
 	}
 
@@ -36,6 +39,12 @@ class SecurityIPResolver : public Resolver
 
 	void OnError(ResolverError e, const std::string &errormessage)
 	{
+		if (query == DNS_QUERY_AAAA)
+		{
+			bool cached;
+			SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
+			ServerInstance->AddResolver(res, cached);
+		}
 		ServerInstance->Log(DEFAULT,"Could not resolve IP associated with Link '%s': %s",MyLink.Name.c_str(),errormessage.c_str());
 	}
 };

@@ -415,13 +415,34 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					ValidIPs.push_back(Allow);
 
 				/* Needs resolving */
-				insp_inaddr binip;
-				if (insp_aton(L.IPAddr.c_str(), &binip) < 1)
+				bool ipvalid = true;
+				QueryType start_type = DNS_QUERY_A;
+#ifdef IPV6
+				start_type = DNS_QUERY_AAAA;
+				if (strchr(L.IPAddr.c_str(),':'))
+				{
+					in6_addr n;
+					if (inet_pton(AF_INET6, L.IPAddr.c_str(), &n) < 1)
+						ipvalid = false;
+				}
+				else
+				{
+					in_addr n;
+					if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+						ipvalid = false;
+				}
+#else
+				in_addr n;
+				if (inet_aton(L.IPAddr.c_str(),&n) < 1)
+					ipvalid = false;
+#endif
+
+				if (!ipvalid)
 				{
 					try
 					{
 						bool cached;
-						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached);
+						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached, start_type);
 						ServerInstance->AddResolver(sr, cached);
 					}
 					catch (ModuleException& e)
