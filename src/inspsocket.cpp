@@ -99,19 +99,19 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 #ifdef IPV6
 		if (strchr(host,':'))
 		{
-			in6_addr addy;
-			if (inet_ntop(AF_INET6, host, &n) < 1)
+			in6_addr n;
+			if (inet_pton(AF_INET6, host, &n) < 1)
 				ipvalid = false;
 		}
 		else
 		{
-			in_addr addy;
-			if (inet_aton(host,&addy) < 1)
+			in_addr n;
+			if (inet_aton(host,&n) < 1)
 				ipvalid = false;
 		}
 #else
-		in_addr addy;
-		if (inet_aton(host,&addy) < 1)
+		in_addr n;
+		if (inet_aton(host,&n) < 1)
 			ipvalid = false;
 #endif
 		if (!ipvalid)
@@ -181,8 +181,8 @@ bool InspSocket::BindAddr()
 					in6_addr n;
 					if (inet_pton(AF_INET6, IP.c_str(), &n) > 0)
 					{
-						memcpy(((sockaddr_in6*)s)->sin6_addr, &n, sizeof(n));
-						s.sin6_family = AF_INET6;
+						memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(n));
+						((sockaddr_in6*)s)->sin6_family = AF_INET6;
 						size = sizeof(sockaddr_in6);
 					}
 					else
@@ -601,14 +601,14 @@ bool InspSocket::Poll()
 			if ((!*this->host) || strchr(this->host, ':'))
 			{
 				char buf[1024];
-				recvip = inet_ntop(AF_INET6, ((sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+				recvip = inet_ntop(AF_INET6, &((sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
 			}
 			else
 			{
-				recvip = insp_ntoa(((sockaddr_in*)client)->sin_addr);
+				recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 			}
 #else
-			recvip = insp_ntoa(((sockaddr_in*)client)->sin_addr);
+			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 #endif
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
