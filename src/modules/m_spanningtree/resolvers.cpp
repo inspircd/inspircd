@@ -62,7 +62,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 void ServernameResolver::OnError(ResolverError e, const std::string &errormessage)
 {
 	/* Ooops! */
-	if (query == QUERY_TYPE_AAAA)
+	if (query == DNS_QUERY_AAAA)
 	{
 		bool cached;
 		ServernameResolver* snr = new ServernameResolver(mine, Utils, ServerInstance, host, MyLink, cached, DNS_QUERY_A);
