@@ -50,10 +50,10 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
-		user->InvalidateCache();
 		if (user->registered == REG_ALL)
 			user->WriteCommon("NICK %s",parameters[0]);
 		strlcpy(user->nick, parameters[0], NICKMAX - 1);
+		user->InvalidateCache();
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 		return CMD_SUCCESS;
 	}
@@ -96,7 +96,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 
 		user->WriteCommon("NICK %s",parameters[0]);
-		
+
 	}
 
 	strlcpy(oldnick, user->nick, NICKMAX - 1);
