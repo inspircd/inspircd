@@ -620,7 +620,6 @@ DNSResult DNS::GetResult()
 #else
 	socklen_t x = sizeof(sockaddr_in);
 #endif
-	char nbuf[MAXBUF];
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
 
@@ -646,6 +645,7 @@ DNSResult DNS::GetResult()
 	 * -- Thanks jilles for pointing this one out.
 	 */
 #ifdef IPV6
+	char nbuf[MAXBUF];
 	if (this->socketfamily == AF_INET6)
 	{
 		ipaddr_from = inet_ntop(AF_INET6, &((sockaddr_in6*)from)->sin6_addr, nbuf, sizeof(nbuf));
