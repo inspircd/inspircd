@@ -241,7 +241,7 @@ void InspSocket::Close()
 	int save = errno;
 	if (this->fd > -1)
 	{
-                if (this->IsIOHooked && Instance->Config->GetIOHook(this))
+		if (this->IsIOHooked && Instance->Config->GetIOHook(this))
 		{
 			try
 			{
@@ -551,6 +551,11 @@ void InspSocket::OnClose() { return; }
 InspSocket::~InspSocket()
 {
 	this->Close();
+	if (Timeout)
+	{
+		Instance->Timers->DelTimer(Timeout);
+		Timeout = NULL;
+	}
 }
 
 void InspSocket::HandleEvent(EventType et, int errornum)
