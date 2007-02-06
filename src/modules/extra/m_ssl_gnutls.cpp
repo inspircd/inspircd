@@ -303,11 +303,17 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
 		{
-			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			if (session)
+			if (ISR->Sock->GetFd() > -1)
 			{
-				VerifyCertificate(session, (InspSocket*)ISR->Sock);
-				return "OK";
+				issl_session* session = &sessions[ISR->Sock->GetFd()];
+				if (session)
+				{
+					if ((Extensible*)ServerInstance->FindDescriptor(ISR->Sock->GetFd()) == (Extensible*)(ISR->Sock))
+					{
+						VerifyCertificate(session, (InspSocket*)ISR->Sock);
+						return "OK";
+					}
+				}
 			}
 		}
 		return NULL;
