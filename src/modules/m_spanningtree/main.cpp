@@ -434,9 +434,30 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 
 void ModuleSpanningTree::ConnectServer(Link* x)
 {
-	insp_inaddr binip;
+	bool ipvalid = true;
+	QueryType start_type = DNS_QUERY_A;
+#ifdef IPV6
+	start_type = DNS_QUERY_AAAA;
+	if (strchr(x->IPAddr.c_str(),':'))
+	{
+		in6_addr n;
+		if (inet_pton(AF_INET6, x->IPAddr.c_str(), &n) < 1)
+			ipvalid = false;
+	}
+	else
+	{
+		in_addr n;
+		if (inet_aton(x->IPAddr.c_str(),&n) < 1)
+			ipvalid = false;
+	}
+#else
+		in_addr n;
+		if (inet_aton(x->IPAddr.c_str(),&n) < 1)
+			ipvalid = false;
+#endif
+
 	/* Do we already have an IP? If so, no need to resolve it. */
-	if (insp_aton(x->IPAddr.c_str(), &binip) > 0)
+	if (ipvalid)
 	{
 		/* Gave a hook, but it wasnt one we know */
 		if ((!x->Hook.empty()) && (Utils->hooks.find(x->Hook.c_str()) == Utils->hooks.end()))
@@ -458,7 +479,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		try
 		{
 			bool cached;
-			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached);
+			ServernameResolver* snr = new ServernameResolver((Module*)this, Utils, ServerInstance,x->IPAddr, *x, cached, start_type);
 			ServerInstance->AddResolver(snr, cached);
 		}
 		catch (ModuleException& e)
