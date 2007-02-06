@@ -108,7 +108,7 @@ class CloakUser : public ModeHandler
 						b = hostcloak;
 					else
 						/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
-						b = ((b.find(':') == std::string::npos) ? Cloak4(dest->host) : Cloak6(dest->host));
+						b = ((!strchr(dest->host,':')) ? Cloak4(dest->host) : Cloak6(dest->host));
 #else
 					in_addr testaddr;
 					if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
