@@ -339,7 +339,7 @@ void DNS::Rehash()
 	if (strchr(ServerInstance->Config->DNSServer,':'))
 	{
 		this->socketfamily = AF_INET6;
-		inet_pton(AF_INET6, &this->myserver6, ServerInstance->Config->DNSServer);
+		inet_pton(AF_INET6, ServerInstance->Config->DNSServer, &this->myserver6);
 	}
 	else
 		inet_aton(ServerInstance->Config->DNSServer, &this->myserver4);
