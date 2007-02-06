@@ -83,7 +83,6 @@ class CloakUser : public ModeHandler
 					unsigned int iv[] = { key1, key2, key3, key4 };
 					std::string a = (n1 ? n1 : n2);
 					std::string b;
-					insp_inaddr testaddr;
 
 					/** Reset the Hash module, and send it our IV and hex table */
 					HashResetRequest(Sender, HashProvider).Send();
@@ -100,16 +99,18 @@ class CloakUser : public ModeHandler
 					 */
 #ifdef IPV6
 					in6_addr testaddr;
-					if ((dest->GetProtocolFamily() == AF_INET6) && (insp_pton(AF_INET6,dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+					in_addr testaddr2;
+					if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
 						/* Invalid ipv6 address, and ipv6 user (resolved host) */
 						b = hostcloak;
-					else if ((dest->GetProtocolFamily() == AF_INET6) && (inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+					else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host,&testaddr2) < 1) && (hostcloak.length() <= 64))
 						/* Invalid ipv4 address, and ipv4 user (resolved host) */
 						b = hostcloak;
 					else
 						/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
 						b = ((b.find(':') == std::string::npos) ? Cloak4(dest->host) : Cloak6(dest->host));
 #else
+					in_addr testaddr;
 					if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
 						/* Invalid ipv4 address, and ipv4 user (resolved host) */
 						b = hostcloak;
