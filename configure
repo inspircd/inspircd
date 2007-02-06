@@ -583,10 +583,10 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	print "\n";
 
 	if ($config{IPV6} eq "y") {
-		print "You have chosen to build an \033[1;32mIPV6-only\033[0m server.\nTo accept IPV4 users, you must use the '::ffff:' notation of addresses.\n\n";
+		print "You have chosen to build an \033[1;32mIPV6-enabled\033[0m server.\nTo accept IPV4 users, you can still use IPV4 addresses\nin your port bindings..\n\n";
 		$config{SUPPORT_IP6LINKS} = "y";
 	} else {
-		yesno(SUPPORT_IP6LINKS,"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers which are using '::ffff:' notation?\nIf you are using a recent operating\nsystem and are unsure, answer yes.");
+		yesno(SUPPORT_IP6LINKS,"You have chosen to build an \033[1;32mIPV4-only\033[0m server.\nWould you like to enable support for linking to IPV6-enabled\nInspIRCd servers?\nIf you are using a recent operating\nsystem and are unsure, answer yes.\nIf you answer 'no' here, your InspIRCd server will be unable\nto parse IPV6 addresses (e.g. for CIDR bans)");
 		print "\n";
 	}
 
