@@ -39,7 +39,6 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance), desc("plaintext")
 {
 	this->SetFd(sockfd);
-	Instance->Log(DEBUG,"CRAP");
 	if (!Instance->BindSocket(this->fd,port,addr))
 		this->fd = -1;
 #ifdef IPV6
@@ -326,16 +325,13 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 #ifdef IPV6
 	if (*addr)
 	{
-		printf("Address %s not empty\n", addr);
 		/* There is an address here. Is it ipv6? */
 		if (strchr(addr,':'))
 		{
-			printf("Address %s is ipv6\n", addr);
 			/* Yes it is */
 			in6_addr addy;
 			if (inet_pton(AF_INET6, addr, &addy) < 1)
 			{
-				printf("Failed to interpret address %s", addr);
 				delete[] server;
 				return false;
 			}
@@ -348,7 +344,6 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 		else
 		{
 			/* No, its not */
-			printf("Address %s is ipv4\n", addr);
 			in_addr addy;
 			if (inet_pton(AF_INET, addr, &addy) < 1)
 			{
@@ -364,13 +359,11 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 	}
 	else
 	{
-		printf("Address empty port=%d\n", port);
 		if (port == -1)
 		{
 			/* Port -1: Means UDP IPV4 port binding - Special case
 			 * used by DNS engine.
 			 */
-			printf("Special case AF_INET udp bind to all\n");
 			((sockaddr_in*)server)->sin_family = AF_INET;
 			((sockaddr_in*)server)->sin_addr.s_addr = htonl(INADDR_ANY);
 			((sockaddr_in*)server)->sin_port = 0;
@@ -413,7 +406,6 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 
 	if (ret < 0)
 	{
-		Log(DEBUG,"Bind fails it! %s", strerror(errno));
 		return false;
 	}
 	else
@@ -445,23 +437,15 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 	int on = 1;
 	struct linger linger = { 0 };
 #ifdef IPV6
-	printf("IPV6 ENABLED OPENTCPSOCKET\n");
 	if (strchr(addr,':') || (!*addr))
-	{
-		printf("IPV6 OPENTCPSOCKET DO\n");
 		sockfd = socket (PF_INET6, socktype, 0);
-	}
 	else
-	{
-		printf("IPV6->IPV4 OPENTCPSOCKET DO\n");
 		sockfd = socket (PF_INET, socktype, 0);
-	}
 	if (sockfd < 0)
 #else
 	if ((sockfd = socket (PF_INET, socktype, 0)) < 0)
 #endif
 	{
-		printf("SOCKET FAIL: %s\n", strerror(errno));
 		return ERROR;
 	}
 	else
@@ -491,7 +475,6 @@ bool InspIRCd::HasPort(int port, char* addr)
 /* XXX: Probably belongs in class InspIRCd */
 int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_ports)
 {
-	Log(DEBUG,"BINDING PORTS");
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	insp_sockaddr client, server;
 	int clientportcount = 0;
@@ -503,7 +486,6 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
-		Log(DEBUG,"FOUND PORT");
 		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
@@ -539,11 +521,9 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 					if (fd == ERROR)
 					{
 						failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
-						Log(DEBUG,"SOCKET FAIL");
 					}
 					else
 					{
-						Log(DEBUG,"BIND");
 						Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
 						if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
 						{
@@ -573,12 +553,10 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 		int fd = OpenTCPSocket(Config->addrs[count]);
 		if (fd == ERROR)
 		{
-			Log(DEBUG,"SOCKET FAIL");
 			failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
 		}
 		else
 		{
-			Log(DEBUG,"BIND");
 			Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
 			if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
 			{

@@ -595,7 +595,6 @@ bool InspSocket::Poll()
 		break;
 		case I_LISTENING:
 		{
-			Instance->Log(DEBUG,"InspSocket listen event");
 			sockaddr* client = new sockaddr[2];
 			length = sizeof (sockaddr_in);
 			std::string recvip;
@@ -604,9 +603,6 @@ bool InspSocket::Poll()
 				length = sizeof(sockaddr_in6);
 #endif
 			incoming = accept (this->fd, client, &length);
-
-			Instance->Log(DEBUG,"Accepted socket, sockaddr length %d fd %d", length, incoming);
-
 #ifdef IPV6
 			if ((!*this->host) || strchr(this->host, ':'))
 			{
@@ -620,7 +616,6 @@ bool InspSocket::Poll()
 #else
 			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 #endif
-			Instance->Log(DEBUG,"Call OnIncomingConnection, recvip=%s", recvip.c_str());
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			if (this->IsIOHooked)

@@ -541,7 +541,6 @@ int DNS::GetName(const insp_inaddr *ip)
 /** Start lookup of an IP address to a hostname */
 int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 {
-	ServerInstance->Log(DEBUG,"GetNameForce: %s", ip);
 	char query[128];
 	DNSHeader h;
 	int id;
@@ -552,7 +551,6 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		in6_addr i;
 		if (inet_pton(AF_INET6, ip, &i) > 0)
 		{
-			ServerInstance->Log(DEBUG,"Resolve to ipv6");
 			DNS::MakeIP6Int(query, &i);
 		}
 		else
@@ -565,7 +563,6 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		in_addr i;
 		if (inet_aton(ip, &i))
 		{
-			ServerInstance->Log(DEBUG,"Resolve to ipv4");
 			unsigned char* c = (unsigned char*)&i.s_addr;
 			sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 		}
@@ -625,8 +622,6 @@ DNSResult DNS::GetResult()
 
 	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,from,&x);
 
-	ServerInstance->Log(DEBUG,"Recv %d.", length);
-
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
@@ -670,7 +665,6 @@ DNSResult DNS::GetResult()
 	{
 		if ((port_from != DNS::QUERY_PORT) || (strcasecmp(ipaddr_from, ServerInstance->Config->DNSServer)))
 		{
-			ServerInstance->Log(DEBUG,"Doesnt match security: port_from=%d ipaddr_from=%s",port_from,ipaddr_from);
 			return DNSResult(-1,"",0,"");
 		}
 	}
@@ -1060,7 +1054,6 @@ Module* Resolver::GetCreator()
 /** Process a socket read event */
 void DNS::HandleEvent(EventType et, int errornum)
 {
-	ServerInstance->Log(DEBUG,"Marshall dns reads");
 	/* Fetch the id and result of the next available packet */
 	DNSResult res = this->GetResult();
 	/* Is there a usable request id? */
