@@ -133,10 +133,20 @@
 # <bind address="ip address" port="port" type="servers">              #
 #                                                                     #
 # If InspIRCd is built for IPV6, and you wish to accept IPV4 clients, #
-# then you must specify your IPV6 clients in the following form:      #
-# ::ffff:1.2.3.4, where 1.2.3.4 is the IPV4 address to bind the       #
-# port on. If InspIRCd is built  for IPV4 connections (this is the    #
-# default) then you do not need to prefix your addresses like this.   #
+# then you can specify IPV4 ip addresses here to bind. You may also   #
+# use the 4in6 notation, ::ffff:1.2.3.4, where 1.2.3.4 is the IPV4    #
+# address to bind the port, but as of InspIRCd 1.1.1, this is not     #
+# required.                                                           #
+#                                                                     #
+# ------------------------------------------------------------------- #
+#                                                                     #
+# PLEASE NOTE: If you have build InspIRCd as an ipv6 server, and you  #
+# specify an empty bind address, the binding will be bound to ALL THE #
+# IPV6 IP ADDRESSES, and not the ipv4 addresses. If you are using an  #
+# ipv6 enabled InspIRCd and want to bind to multiple IPV4 addresses   #
+# in this way, you must specify them by hand. If you have built the   #
+# server for ipv4 connections only, then specifying an empty bind     #
+# address binds the port to all ipv4 IP addresses, as expected.       #
 #                                                                     #
 
 <bind address="" port="6000" type="clients">
@@ -463,11 +473,17 @@
 # that server to operoverride modes. This should only be used for     #
 # services and protected oper servers!                                #
 #                                                                     #
-# NOTE: If you have built InspIRCd with IPV6 support, and you want    #
-# to link to an IPV4 server, you must specify the IP address in the   #
-# form '::ffff:1.2.3.4' where 1.2.3.4 is the IP address of the target #
-# server. If you have built InspIRCd for IPV4 (this is the default)   #
-# you should not prefix your IP addresses in this fashion.            #
+# ------------------------------------------------------------------- #
+#                                                                     #
+# NOTE: If you have built your server as an ipv6 server, then when a  #
+# DNS lookup of a server's host occurs, AAAA records (ipv6) are       #
+# priorotized over A records (ipv4). Therefore, if the server you are #
+# connecting to has both an IPV6 ip address and an IPV4 ip address in #
+# its DNS entry, the IPV6 address will *always* be selected. To       #
+# change this behaviour simply specify the IPV4 IP address rather     #
+# than the hostname of the server.                                    #
+#                                                                     #
+# ------------------------------------------------------------------- #
 #                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
@@ -541,21 +557,18 @@
 # resolving even though the DNS server appears to be up! Most ISP and #
 # hosting provider DNS servers support recursive lookups.             #
 #                                                                     #
-# NOTE: If you have built InspIRCd with IPV6 support, and you want    #
-# to use an IPV4 nameserver, you must specify the IP address in the   #
-# form '::ffff:1.2.3.4' where 1.2.3.4 is the IP address of the target #
-# server. If you have built InspIRCd for IPV4 (this is the default)   #
-# you should not prefix your IP addresses in this fashion.            #
+# ------------------------------------------------------------------- #
 #                                                                     #
-# IF YOUR RESOLV.CONF CONTAINS ONLY IPV4 ADDRESSES, AND YOU ARE USING #
-# IPV6, YOU MUST DEFINE THE <DNS SERVER> TAG, AND USE THE ::FFFF      #
-# PREFIX NOTATION. IF YOU DO NOT, HOSTS WILL *NOT* RESOLVE.           #
+# NOTE: if you have built InspIRCd with IPV6 support, then both       #
+# ipv6 and ipv4 addresses are allowed here, and also in the system    #
+# resolv.conf file. Remember that an ipv4 dns server can still        #
+# resolve ipv6 addresses, and vice versa.                             #
 #                                                                     #
 
 <dns server="127.0.0.1" timeout="5">
 
-# An example of using IPV4 nameservers over IPV6
-#<dns server="::ffff:127.0.0.1" timeout="5">
+# An example of using an IPV6 nameserver
+#<dns server="::1" timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#  PID FILE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
