@@ -354,8 +354,8 @@ void DNS::Rehash()
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
 	{
-		/* Bind the port */
-		if (!ServerInstance->BindSocket(this->GetFd(), 0, ServerInstance->Config->DNSServer, false))
+		/* Bind the port - port 0 INADDR_ANY */
+		if (!ServerInstance->BindSocket(this->GetFd(), 0, "", false))
 		{
 			/* Failed to bind */
 			shutdown(this->GetFd(),2);
