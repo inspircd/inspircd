@@ -54,6 +54,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
 	this->WaitingForWriteEvent = false;
 	this->IsIOHooked = false;
+	this->Timeout = NULL;
 	if (listening)
 	{
 		if ((this->fd = OpenTCPSocket(host)) == ERROR)
