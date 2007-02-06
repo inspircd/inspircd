@@ -156,7 +156,14 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
 
-	if (insp_aton(this->host, &this->addy) < 1)
+	in_addr addy1;
+#ifdef IPV6
+	in6_addr addy2;
+	char buf[MAXBUF];
+	if ((inet_aton(this->host, &addy1) > 0) || (inet_pton(AF_INET6, this->host, &addy2) > 0))
+#else
+	if (inet_aton(this->host, &addy1) > 0)
+#endif
 	{
 		bool cached;
 		HTTPResolver* r = new HTTPResolver(this, Server, url.domain, cached, (Module*)Mod);
