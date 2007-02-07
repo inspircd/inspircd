@@ -237,7 +237,7 @@ public:
 			bool valid = false;
 #ifdef IPV6
 			if (strchr(user->password,':'))
-				valid = (inet_pton(user->password, &((sockaddr_in6*)&user->ip)->sin6_addr) > 0);
+				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)&user->ip)->sin6_addr) > 0);
 			else
 				valid = (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr));
 #else
@@ -301,7 +301,7 @@ public:
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 #ifdef IPV6
 		if (strchr(user->password,':'))
-			inet_pton(newip, &((sockaddr_in6*)&user->ip)->sin6_addr);
+			inet_pton(AF_INET6, newip, &((sockaddr_in6*)&user->ip)->sin6_addr);
 		else
 			inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
 #else

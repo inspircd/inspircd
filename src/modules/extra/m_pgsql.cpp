@@ -803,7 +803,6 @@ class ModulePgSQL : public Module
 		{
 			SQLhost host;
 			int ipvalid;
-			insp_inaddr blargle;
 
 			host.id		= conf.ReadValue("database", "id", i);
 			host.host	= conf.ReadValue("database", "hostname", i);
@@ -816,7 +815,21 @@ class ModulePgSQL : public Module
 			if (HasHost(host))
 				continue;
 
-			ipvalid = insp_aton(host.host.c_str(), &blargle);
+#ifdef IPV6
+			if (strchr(host.host.c_str(),':'))
+			{
+				in6_addr blargle;
+				ipvalid = inet_pton(AF_INET6, host.host.c_str(), &blargle);
+			}
+			else
+			{
+				in_addr blargle;
+				ipvalid = inet_aton(host.host.c_str(), &blargle);
+			}
+#else
+			in_addr blargle;
+			ipvalid = inet_aton(host.host.c_str(), &blargle);
+#endif
 
 			if(ipvalid > 0)
 			{
