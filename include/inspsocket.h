@@ -69,6 +69,8 @@ class InspSocket : public EventHandler
 {
  public:
 
+	std::string cbindip;
+
 	bool IsIOHooked;
 
 	InspIRCd* Instance;
@@ -149,7 +151,7 @@ class InspSocket : public EventHandler
 	 */
 	bool WaitingForWriteEvent;
 
-	bool BindAddr();
+	bool BindAddr(const std::string &ip);
 
 	/**
 	 * The default constructor does nothing
@@ -177,9 +179,10 @@ class InspSocket : public EventHandler
 	 * @param port The port number to connect to, or bind to
 	 * @param listening true to listen on the given host:port pair, or false to connect to them
 	 * @param maxtime Number of seconds to wait, if connecting, before the connection times out and an OnTimeout() event is generated
+	 * @param connectbindip When creating an outbound connection, the IP to bind the connection to. If not defined, the port is not bound.
 	 * @return On exit, GetState() returns I_ERROR if an error occured, and errno can be used to read the socket error.
 	 */
-	InspSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime);
+	InspSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime, const std::string &connectbindip = "");
 
 	/**
 	 * This method is called when an outbound

@@ -49,8 +49,9 @@ InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 		this->Instance->SE->AddFd(this);
 }
 
-InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime)
+InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime, const std::string &connectbindip)
 {
+	this->cbindip = connectbindip;
 	this->fd = -1;
 	this->Instance = SI;
 	strlcpy(host,ipaddr.c_str(),MAXBUF);
@@ -158,7 +159,7 @@ void InspSocket::SetQueues(int nfd)
  * This is easier to configure when you have a lot of links and a lot
  * of servers to configure.
  */
-bool InspSocket::BindAddr()
+bool InspSocket::BindAddr(const std::string &ip)
 {
 	ConfigReader Conf(this->Instance);
 	bool bindfail = false;
@@ -169,13 +170,13 @@ bool InspSocket::BindAddr()
 	if ((!*this->host) || strchr(this->host, ':'))
 		v6 = true;
 #endif
-	for (int j =0; j < Conf.Enumerate("bind"); j++)
+	int j = 0;
+	while ((j < Conf.Enumerate("bind")) && (!ip.empty()))
 	{
-		std::string Type = Conf.ReadValue("bind","type",j);
-		std::string IP = Conf.ReadValue("bind","address",j);
-		if (Type == "servers")
+		std::string IP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
+		if (!ip.empty() || Conf.ReadValue("bind","type",j) == "servers")
 		{
-			if ((IP != "*") && (IP != "127.0.0.1") && (IP != "") && (IP != "::1"))
+			if (!ip.empty() || ((IP != "*") && (IP != "127.0.0.1") && (IP != "") && (IP != "::1")))
 			{
 				sockaddr* s = new sockaddr[2];
 #ifdef IPV6
@@ -231,6 +232,7 @@ bool InspSocket::BindAddr()
 				return true;
 			}
 		}
+		j++;
 	}
 	return true;
 }
@@ -249,7 +251,7 @@ bool InspSocket::DoConnect()
 		this->fd = socket(AF_INET6, SOCK_STREAM, 0);
 		if ((this->fd > -1) && ((strstr(this->IP,"::ffff:") != (char*)&this->IP) && (strstr(this->IP,"::FFFF:") != (char*)&this->IP)))
 		{
-			if (!this->BindAddr())
+			if (!this->BindAddr(this->cbindip))
 			{
 				delete[] addr;
 				return false;
