@@ -1,4 +1,4 @@
-/*       +------------------------------------+
+;/*       +------------------------------------+
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
@@ -159,7 +159,6 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	in_addr addy1;
 #ifdef IPV6
 	in6_addr addy2;
-	char buf[MAXBUF];
 	if ((inet_aton(this->host, &addy1) > 0) || (inet_pton(AF_INET6, this->host, &addy2) > 0))
 #else
 	if (inet_aton(this->host, &addy1) > 0)
