@@ -63,29 +63,14 @@ class DNSBLResolver : public Resolver
 			if(result.length())
 			{
 				unsigned int bitmask=0;
-				unsigned int octetpos=0;
-				std::string tmp = result;
+				in_addr resultip;
 
-				while(tmp.length()>0)
-				{
-					std::string octet;
-					/* Fix by brain, npos is -1, so unsigned int will never match */
-					std::string::size_type lastdot = tmp.rfind(".");
-
-					if (lastdot == std::string::npos)
-					{
-						octet=tmp;
-						tmp.clear();
-					}
-					else
-					{
-						octet=tmp.substr(lastdot+1,tmp.length()-lastdot+1);
-						tmp.resize(lastdot);
-					}
-
-					bitmask += (256 ^ octetpos) * atoi(octet.c_str());
-					octetpos += 1;
-				}
+				/* Convert the result to an in_addr (we can gaurantee we got ipv4)
+				 * Whoever did the loop that was here before, I AM CONFISCATING
+				 * YOUR CRACKPIPE. you know who you are. -- Brain
+				 */
+				inet_aton(result.c_str(), &resultip);
+				bitmask = resultip.s_addr & 0xFF; /* Last octet (network byte order */
 
 				bitmask &= ConfEntry->bitmask;
 
@@ -124,7 +109,7 @@ class DNSBLResolver : public Resolver
 						case DNSBLConfEntry::I_ZLINE:
 						{
 							ServerInstance->AddZLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, them->GetIPString());
-				            FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
+							FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
 							break;
 						}
 						case DNSBLConfEntry::I_UNKNOWN:
