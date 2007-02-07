@@ -21,6 +21,7 @@ class Link : public classbase
 	std::string FailOver;
 	std::string Hook;
 	int Timeout;
+	std::string Bind;
 };
 
 #endif

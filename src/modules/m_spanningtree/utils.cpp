@@ -394,6 +394,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
 		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
+		L.Bind = Conf->ReadValue("link", "bind", j);
 
 		if ((!L.Hook.empty()) && (hooks.find(L.Hook.c_str()) ==  hooks.end()))
 		{

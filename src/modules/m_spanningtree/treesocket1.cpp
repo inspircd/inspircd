@@ -35,8 +35,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
 
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, std::string ServerName, Module* HookMod)
-	: InspSocket(SI, host, port, listening, maxtime), Utils(Util), Hook(HookMod)
+TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
+	: InspSocket(SI, host, port, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
 	myhost = ServerName;
 	this->LinkState = CONNECTING;
