@@ -65,6 +65,7 @@ class CGIResolver : public Resolver
 			strlcpy(them->host, result.c_str(), 63);
 			strlcpy(them->dhost, result.c_str(), 63);
 			strlcpy(them->ident, "~cgiirc", 8);
+			them->InvalidateCache();
 		}
 	}
 
@@ -231,12 +232,19 @@ public:
 			user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 			strlcpy(user->host, user->password, 64);
 			strlcpy(user->dhost, user->password, 64);
-			
+			user->InvalidateCache();
+	
+			bool valid = false;
 #ifdef IPV6
-			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in6*)&user->ip)->sin6_addr))
+			if (strchr(user->password,':'))
+				valid = (inet_pton(user->password, &((sockaddr_in6*)&user->ip)->sin6_addr));
+			else
+				valid = (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr));
 #else
-			if (insp_aton(user->password, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr))
+			if (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr))
+				valid = true;
 #endif
+			if (valid)
 			{
 				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
 				if(NotifyOpers)
