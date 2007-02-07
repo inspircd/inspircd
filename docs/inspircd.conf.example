@@ -465,6 +465,20 @@
 #                 seconds. If this is not defined, the default of ten #
 #                 seconds is used.                                    #
 #                                                                     #
+# bind          - If you specify this value, then when creating an    #
+#                 outbound connection to the given server, the IP you #
+#                 place here will be bound to. This is for multi-     #
+#                 homed servers which may have multiple IP addresses. #
+#                 If you do not define this value, the first IP that  #
+#                 is not empty or localhost from your <bind> tags     #
+#                 will be bound to. This is usually acceptable,       #
+#                 however if your server has multiple network cards   #
+#                 then you may have to manually specify the bind      #
+#                 value instead of leaving it to automatic binding.   #
+#                 You can usually tell if you need to set this by     #
+#                 looking for the error 'Could not assign requested   #
+#                 address' in your log when connecting to servers.    #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
@@ -511,6 +525,7 @@
         failover="hub.other.net"
         timeout="15"
         transport="gnutls"
+	bind="1.2.3.4"
         sendpass="outgoing!password"
         recvpass="incoming!password">
 
