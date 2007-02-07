@@ -84,8 +84,6 @@ ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanr
 
 	int status = channel->GetStatus(source);
 
-	ServerInstance->Log(DEBUG,"Halfop handler, source=%s channel=%s parameter=%s adding=%d",source->nick, channel->name, parameter.c_str(), adding);
-
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{
@@ -110,8 +108,6 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 {
 	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
-	ServerInstance->Log(DEBUG,"Add halfop");
-
 	if (d)
 	{
 		if (IS_LOCAL(user))
@@ -131,7 +127,6 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 			}
 		}
 
-		ServerInstance->Log(DEBUG,"Calling Grant");
 		return ServerInstance->Modes->Grant(d,chan,UCMODE_HOP);
 	}
 	return "";
@@ -140,8 +135,6 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec *chan,int status)
 {
 	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
-
-	ServerInstance->Log(DEBUG,"Del halfop");
 
 	if (d)
 	{
@@ -162,7 +155,6 @@ std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec 
 			}
 		}
 
-		ServerInstance->Log(DEBUG,"Calling revoke");
 		return ServerInstance->Modes->Revoke(d,chan,UCMODE_HOP);
 	}
 	return "";
