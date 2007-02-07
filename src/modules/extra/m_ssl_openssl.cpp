@@ -31,7 +31,7 @@
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
-/* $LinkerFlags: pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
+/* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
 /* $ModDep: transport.h */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
