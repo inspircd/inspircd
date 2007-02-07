@@ -176,6 +176,11 @@ class CloakUser : public ModeHandler
 
 	std::string Cloak6(const char* ip)
 	{
+		/* Theyre using 4in6 (YUCK). Translate as ipv4 cloak */
+		if (!strncmp(ip, "0::ffff:", 8))
+			return Cloak4(ip + 8);
+
+		/* If we get here, yes it really is an ipv6 ip */
 		unsigned int iv[] = { key1, key2, key3, key4 };
 		std::vector<std::string> hashies;
 		std::string item = "";
