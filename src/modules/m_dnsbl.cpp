@@ -34,6 +34,7 @@ class DNSBLConfEntry
 		long duration;
 		int bitmask;
 		DNSBLConfEntry(): duration(86400),bitmask(0) {}
+		~DNSBLConfEntry() { }
 };
 
 
@@ -179,11 +180,9 @@ class ModuleDNSBL : public Module
 	void ClearEntries()
 	{
 		std::vector<DNSBLConfEntry *>::iterator i;
-		while ((i = DNSBLConfEntries.begin()) != DNSBLConfEntries.end())
-		{
-			DNSBLConfEntries.erase(i);
+		for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
 			delete *i;
-		}
+		DNSBLConfEntries.clear();
 	}
 
 	/** Fill our conf vector with data
