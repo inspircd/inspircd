@@ -36,7 +36,6 @@
 using namespace std;
 using irc::sockets::insp_aton;
 using irc::sockets::insp_ntoa;
-using irc::sockets::insp_inaddr;
 
 #ifndef LOWERMAP
 #define LOWERMAP
@@ -69,17 +68,6 @@ namespace nspace
 	 */
 	void strlower(char *n);
 
-	/** Hashing function to hash insp_inaddr structs
-	 */
-        template<> struct hash<insp_inaddr>
-        {
-		/** Hash an insp_inaddr
-		 * @param a An insp_inaddr to hash
-		 * @return The hash value
-		 */
-                size_t operator()(const insp_inaddr &a) const;
-        };
-
 	/** Hashing function to hash std::string without respect to case
 	 */
         template<> struct hash<std::string>
@@ -108,17 +96,6 @@ namespace irc
 	        bool operator()(const std::string& s1, const std::string& s2) const;
 	};
 
-
-	/** This class returns true if two insp_inaddr structs match.
-	 * Checking is done by copying both into a size_t then doing a
-	 * numeric comparison of the two.
-	 */
-	struct InAddr_HashComp
-	{
-		/** The operator () does the actual comparison in hash_map
-		 */
-	        bool operator()(const insp_inaddr &s1, const insp_inaddr &s2) const;
-	};
 
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.

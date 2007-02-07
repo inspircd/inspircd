@@ -18,8 +18,6 @@
 #include "inspircd.h"
 
 using irc::sockets::OpenTCPSocket;
-using irc::sockets::insp_inaddr;
-using irc::sockets::insp_sockaddr;
 
 bool InspSocket::Readable()
 {

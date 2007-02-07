@@ -27,9 +27,6 @@
 class RFC1413 : public InspSocket
 {
  protected:
-			 // Server* class used for core communications
-	insp_sockaddr sock_us;	 // our port number
-	insp_sockaddr sock_them; // their port number
 	socklen_t uslen;	 // length of our port number
 	socklen_t themlen;	 // length of their port number
 	char ident_request[128]; // buffer used to make up the request string
@@ -140,9 +137,24 @@ class RFC1413 : public InspSocket
 	{
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
-			uslen = sizeof(sock_us);
-			themlen = sizeof(sock_them);
-			if ((getsockname(this->u->GetFd(),(sockaddr*)&sock_us,&uslen) || getpeername(this->u->GetFd(), (sockaddr*)&sock_them, &themlen)))
+			sockaddr* sock_us = new sockaddr;
+			sockaddr* sock_them = new sockaddr;
+			bool success = false;
+			uslen = sizeof(sockaddr_in);
+			themlen = sizeof(sockaddr_in);
+#ifdef IPV6
+			if (this->u->GetAddressFamily() == AF_INET6)
+			{
+				themlen = sizeof(sockaddr_in6);
+				uslen = sizeof(sockaddr_in6);
+				success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
+			}
+			else
+				success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
+#else
+			success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
+#endif
+			if (success)
 			{
 				Instance->Log(DEBUG,"BUG: Ident: failed to get socket names");
 				return false;
@@ -151,9 +163,12 @@ class RFC1413 : public InspSocket
 			{
 				// send the request in the following format: theirsocket,oursocket
 #ifdef IPV6
-				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin6_port),ntohs(sock_us.sin6_port));
+				if (this->u->GetAddressFamily() == AF_INET6)
+					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in6*)sock_them)->sin6_port),ntohs(((sockaddr_in6*)sock_us)->sin6_port));
+				else
+					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
 #else
-				snprintf(ident_request,127,"%d,%d\r\n",ntohs(sock_them.sin_port),ntohs(sock_us.sin_port));
+				snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
 #endif
 				this->Write(ident_request);
 				return true;

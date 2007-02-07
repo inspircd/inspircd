@@ -32,7 +32,6 @@ looks like this, walks like this or tastes like this.
 #include "configreader.h"
 #include "socket.h"
 
-using irc::sockets::insp_sockaddr;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
