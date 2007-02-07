@@ -70,7 +70,7 @@ class DNSBLResolver : public Resolver
 				 * YOUR CRACKPIPE. you know who you are. -- Brain
 				 */
 				inet_aton(result.c_str(), &resultip);
-				bitmask = resultip.s_addr & 0xFF; /* Last octet (network byte order */
+				bitmask = resultip.s_addr >> 24; /* Last octet (network byte order */
 
 				bitmask &= ConfEntry->bitmask;
 
