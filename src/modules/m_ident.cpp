@@ -143,7 +143,7 @@ class RFC1413 : public InspSocket
 			uslen = sizeof(sockaddr_in);
 			themlen = sizeof(sockaddr_in);
 #ifdef IPV6
-			if (this->u->GetAddressFamily() == AF_INET6)
+			if (this->u->GetProtocolFamily() == AF_INET6)
 			{
 				themlen = sizeof(sockaddr_in6);
 				uslen = sizeof(sockaddr_in6);
@@ -163,7 +163,7 @@ class RFC1413 : public InspSocket
 			{
 				// send the request in the following format: theirsocket,oursocket
 #ifdef IPV6
-				if (this->u->GetAddressFamily() == AF_INET6)
+				if (this->u->GetProtocolFamily() == AF_INET6)
 					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in6*)sock_them)->sin6_port),ntohs(((sockaddr_in6*)sock_us)->sin6_port));
 				else
 					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));

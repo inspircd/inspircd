@@ -236,7 +236,7 @@ public:
 	
 			bool valid = false;
 #ifdef IPV6
-			if (user->GetAddressFamily() == AF_INET6)
+			if (user->GetProtocolFamily() == AF_INET6)
 				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)&user->ip)->sin6_addr) > 0);
 			else
 				valid = (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr));
@@ -300,7 +300,7 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 #ifdef IPV6
-		if (user->GetAddressFamily() == AF_INET6)
+		if (user->GetProtocolFamily() == AF_INET6)
 			inet_pton(AF_INET6, newip, &((sockaddr_in6*)&user->ip)->sin6_addr);
 		else
 			inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
