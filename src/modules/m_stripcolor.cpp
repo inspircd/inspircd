@@ -173,6 +173,9 @@ class ModuleStripColor : public Module
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		bool active = false;
 		if (target_type == TYPE_USER)
 		{

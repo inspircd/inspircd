@@ -92,6 +92,9 @@ class ModuleChanFilter : public Module
 
 	virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		// Create a copy of the string in irc::string
 		irc::string line = text.c_str();
 

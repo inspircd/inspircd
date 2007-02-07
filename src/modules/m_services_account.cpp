@@ -147,6 +147,10 @@ class ModuleServicesAccount : public Module
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		std::string *account;
+
+		if (!IS_LOCAL(user))
+			return 0;
+
 		user->GetExt("accountname", account);
 		
 		if (target_type == TYPE_CHANNEL)

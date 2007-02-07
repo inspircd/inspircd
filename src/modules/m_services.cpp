@@ -222,6 +222,9 @@ class ModuleServices : public Module
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		if (!IS_LOCAL(user))
+			return 0;
+
 		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)dest;

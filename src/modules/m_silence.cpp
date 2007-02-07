@@ -167,7 +167,7 @@ class ModuleSilence : public Module
 		// privmsgs from people on the silence list, directed privately at the user.
 		// channel messages are unaffected (ever tried to follow the flow of conversation in
 		// a channel when you've set an ignore on the two most talkative people?)
-		if (target_type == TYPE_USER)
+		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
 			userrec* u = (userrec*)dest;
 			silencelist* sl;

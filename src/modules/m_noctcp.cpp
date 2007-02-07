@@ -76,7 +76,7 @@ class ModuleNoCTCP : public Module
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if (target_type == TYPE_CHANNEL)
+		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			chanrec* c = (chanrec*)dest;
 			if (c->IsModeSet('C'))
