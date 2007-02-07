@@ -237,7 +237,7 @@ public:
 			bool valid = false;
 #ifdef IPV6
 			if (strchr(user->password,':'))
-				valid = (inet_pton(user->password, &((sockaddr_in6*)&user->ip)->sin6_addr));
+				valid = (inet_pton(user->password, &((sockaddr_in6*)&user->ip)->sin6_addr) > 0);
 			else
 				valid = (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr));
 #else
@@ -300,10 +300,14 @@ public:
 		user->Extend("cgiirc_realhost", new std::string(user->host));
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 #ifdef IPV6
-		insp_aton(newip, (insp_inaddr*)&((sockaddr_in6*)&user->ip)->sin6_addr);
+		if (strchr(user->password,':'))
+			inet_pton(newip, &((sockaddr_in6*)&user->ip)->sin6_addr);
+		else
+			inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
 #else
-		insp_aton(newip, (insp_inaddr*)&((sockaddr_in*)&user->ip)->sin_addr);
+		inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
 #endif
+
 								
 		try
 		{
@@ -316,6 +320,7 @@ public:
 			strlcpy(user->host, newip, 16);
 			strlcpy(user->dhost, newip, 16);
 			strlcpy(user->ident, "~cgiirc", 8);
+			user->InvalidateCache();
 
 			if(NotifyOpers)
 				 ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
