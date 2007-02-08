@@ -1678,7 +1678,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	}
 
 	if (IS_LOCAL(this))
-		this->WriteServ("396 %s %s :is now your hidden host",this->nick,this->dhost);
+		this->WriteServ("396 %s %s :is now your displayed host",this->nick,this->dhost);
 
 	return true;
 }
