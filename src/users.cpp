@@ -141,7 +141,14 @@ void userrec::StartDNSLookup()
 	try
 	{
 		bool cached;
-		res_reverse = new UserResolver(this->ServerInstance, this, this->GetIPString(), this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
+		const char* ip = this->GetIPString();
+
+		/* Special case for 4in6 (Have i mentioned i HATE 4in6?) */
+		if (!strncmp(ip, "0::ffff:", 8))
+			res_reverse = new UserResolver(this->ServerInstance, this, ip + 8, DNS_QUERY_PTR4, cached);
+		else
+			res_reverse = new UserResolver(this->ServerInstance, this, ip, this->GetProtocolFamily() == AF_INET ? DNS_QUERY_PTR4 : DNS_QUERY_PTR6, cached);
+
 		this->ServerInstance->AddResolver(res_reverse, cached);
 	}
 	catch (CoreException& e)
@@ -173,7 +180,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				{
 					/* IPV6 forward lookup (with possibility of 4in6) */
 					const char* ip = this->bound_user->GetIPString();
-					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (strstr(ip,"0::ffff:") == ip ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
+					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (!strncmp(ip, "0::ffff:", 8) ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
 				}
 				else
 				{
