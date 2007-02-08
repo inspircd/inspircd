@@ -148,7 +148,7 @@ class ModuleSSLGnuTLS : public Module
 					}
 					catch (ModuleException &e)
 					{
-						ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
+						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}
