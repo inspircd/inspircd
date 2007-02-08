@@ -185,7 +185,7 @@ class ModuleIdent : public Module
 {
 
 	ConfigReader* Conf;
-	
+
 	int IdentTimeout;
 
  public:
@@ -201,7 +201,7 @@ class ModuleIdent : public Module
 	ModuleIdent(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
+
 		ReadSettings();
 	}
 
@@ -236,7 +236,7 @@ class ModuleIdent : public Module
 			strcpy(newident,"~");
 			strlcat(newident,user->ident,IDENTMAX);
 			strlcpy(user->ident,newident,IDENTMAX);
-			delete ident;
+			//delete ident;
 		}
 		return 0;
 	}
@@ -266,7 +266,7 @@ class ModuleIdent : public Module
 				// to NULL and check it so that we dont write users who have gone away.
 				ident->u = NULL;
 				ServerInstance->SE->DelFd(ident);
-				delete ident;
+				//delete ident;
 			}
 		}
 	}
@@ -286,19 +286,19 @@ class ModuleIdent : public Module
 		{
 			ident->u = NULL;
 			ServerInstance->SE->DelFd(ident);
-			delete ident;
+			//delete ident;
 		}
 	}
-	
+
 	virtual ~ModuleIdent()
 	{
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
-	
+
 };
 
 class ModuleIdentFactory : public ModuleFactory
@@ -307,16 +307,16 @@ class ModuleIdentFactory : public ModuleFactory
 	ModuleIdentFactory()
 	{
 	}
-	
+
 	~ModuleIdentFactory()
 	{
 	}
-	
+
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleIdent(Me);
 	}
-	
+
 };
 
 
