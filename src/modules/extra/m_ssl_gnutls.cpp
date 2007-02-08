@@ -131,17 +131,24 @@ class ModuleSSLGnuTLS : public Module
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
-					if (ServerInstance->Config->AddIOHook(portno, this))
+					try
 					{
-						listenports.push_back(portno);
-						for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
-							if (ServerInstance->Config->ports[i] == portno)
-								ServerInstance->Config->openSockfd[i]->SetDescription("ssl");
-						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+						if (ServerInstance->Config->AddIOHook(portno, this))
+						{
+							listenports.push_back(portno);
+							for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
+								if (ServerInstance->Config->ports[i] == portno)
+									ServerInstance->Config->openSockfd[i]->SetDescription("ssl");
+							ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+						}
+						else
+						{
+							ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", portno);
+						}
 					}
-					else
+					catch (ModuleException &e)
 					{
-						ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: FAILED to enable SSL on port %d, maybe you have another ssl or similar module loaded?", portno);
+						ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: FAILED to enable SSL on port %d: %s. Maybe it's already hooked by the same port on a different IP, or you have an other SSL or similar module loaded?", portno, e.GetReason());
 					}
 				}
 			}
