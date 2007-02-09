@@ -967,6 +967,33 @@ void ModeHandler::RemoveMode(chanrec* channel)
 
 ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
+	struct Initializer
+	{
+		char modechar;
+		ModeHandler* handler;
+	};
+
+	Initializer modes[] = {
+		{ 's', new ModeChannelSecret(Instance) },
+		{ 'p', new ModeChannelPrivate(Instance) },
+		{ 'm', new ModeChannelModerated(Instance) },
+		{ 't', new ModeChannelTopicOps(Instance) },
+		{ 'n', new ModeChannelNoExternal(Instance) },
+		{ 'i', new ModeChannelInviteOnly(Instance) },
+		{ 'k', new ModeChannelKey(Instance) },
+		{ 'l', new ModeChannelLimit(Instance) },
+		{ 'b', new ModeChannelBan(Instance) },
+		{ 'o', new ModeChannelOp(Instance) },
+		{ 'h', new ModeChannelHalfOp(Instance) },
+		{ 'v', new ModeChannelVoice(Instance) },
+		{ 's', new ModeUserServerNotice(Instance) },
+		{ 'w', new ModeUserWallops(Instance) },
+		{ 'i', new ModeUserInvisible(Instance) },
+		{ 'o', new ModeUserOperator(Instance) },
+		{ 'n', new ModeUserServerNoticeMask(Instance) },
+		{ 0, NULL }
+	};
+
 	/* Clear mode list */
 	memset(modehandlers, 0, sizeof(modehandlers));
 	memset(modewatchers, 0, sizeof(modewatchers));
@@ -975,29 +1002,6 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	LastParse = "";
 
 	/* Initialise the RFC mode letters */
-
-	/* Start with channel simple modes, no params */
-	this->AddMode(new ModeChannelSecret(Instance), 's');
-	this->AddMode(new ModeChannelPrivate(Instance), 'p');
-	this->AddMode(new ModeChannelModerated(Instance), 'm');
-	this->AddMode(new ModeChannelTopicOps(Instance), 't');
-	this->AddMode(new ModeChannelNoExternal(Instance), 'n');
-	this->AddMode(new ModeChannelInviteOnly(Instance), 'i');
-
-	/* Cannel modes with params */
-	this->AddMode(new ModeChannelKey(Instance), 'k');
-	this->AddMode(new ModeChannelLimit(Instance), 'l');
-
-	/* Channel listmodes */
-	this->AddMode(new ModeChannelBan(Instance), 'b');
-	this->AddMode(new ModeChannelOp(Instance), 'o');
-	this->AddMode(new ModeChannelHalfOp(Instance), 'h');
-	this->AddMode(new ModeChannelVoice(Instance), 'v');
-
-	/* Now for usermodes */
-	this->AddMode(new ModeUserServerNotice(Instance), 's');
-	this->AddMode(new ModeUserWallops(Instance), 'w');
-	this->AddMode(new ModeUserInvisible(Instance), 'i');
-	this->AddMode(new ModeUserOperator(Instance), 'o');
-	this->AddMode(new ModeUserServerNoticeMask(Instance), 'n');
+	for (int index = 0; modes[index].modechar; index++)
+		this->AddMode(modes[index].handler, modes[index].modechar);
 }
