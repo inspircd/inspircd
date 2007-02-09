@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.0+Diamond"
+echo "InspIRCd-1.1.1+Cheese"
