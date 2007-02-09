@@ -52,6 +52,7 @@ class RFC1413 : public InspSocket
 			strcpy(newident,"~");
 			strlcat(newident,u->ident,IDENTMAX);
 			strlcpy(u->ident,newident,IDENTMAX);
+			Instance->next_call = Instance->Time();
 		}
 	}
 
@@ -121,6 +122,7 @@ class RFC1413 : public InspSocket
 		// Fixes issue reported by webs, 7 Jun 2006
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
+			Instance->next_call = Instance->Time();
 			u->Shrink("ident_data");
 		}
 	}
@@ -129,6 +131,7 @@ class RFC1413 : public InspSocket
 	{
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
+			Instance->next_call = Instance->Time();
 			u->Shrink("ident_data");
 		}
 	}
@@ -176,6 +179,7 @@ class RFC1413 : public InspSocket
 		}
 		else
 		{
+			Instance->next_call = Instance->Time();
 			return true;
 		}
 	}
@@ -236,7 +240,7 @@ class ModuleIdent : public Module
 			strcpy(newident,"~");
 			strlcat(newident,user->ident,IDENTMAX);
 			strlcpy(user->ident,newident,IDENTMAX);
-			//delete ident;
+			ServerInstance->next_call = ServerInstance->Time();
 		}
 		return 0;
 	}
@@ -286,12 +290,12 @@ class ModuleIdent : public Module
 		{
 			ident->u = NULL;
 			ServerInstance->SE->DelFd(ident);
-			//delete ident;
 		}
 	}
 
 	virtual ~ModuleIdent()
 	{
+		ServerInstance->next_call = ServerInstance->Time();
 	}
 
 	virtual Version GetVersion()

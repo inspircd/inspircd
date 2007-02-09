@@ -111,7 +111,9 @@ class TimerManager : public Extensible
 	/** A map of timergroups, each group has a specific trigger time
 	 */
 	typedef std::map<time_t, timergroup*> timerlist;
-
+	/** Set when ticking timers, to prevent deletion while iterating
+	 */
+	bool CantDeleteHere;
  private:
 
 	/** The current timer set, a map of timergroups
@@ -119,6 +121,9 @@ class TimerManager : public Extensible
 	timerlist Timers;
 
  public:
+	/** Constructor
+	 */
+	TimerManager();
 	/** Tick all pending InspTimers
 	 * @param TIME the current system time
 	 */
