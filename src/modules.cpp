@@ -719,9 +719,11 @@ bool ConfigReader::Verify()
 FileReader::FileReader(InspIRCd* Instance, const std::string &filename) : ServerInstance(Instance)
 {
 	file_cache c;
-	ServerInstance->Config->ReadFile(c,filename.c_str());
-	this->fc = c;
-	this->CalcSize();
+	if (!ServerInstance->Config->ReadFile(c,filename.c_str()))
+	{
+		this->fc = c;
+		this->CalcSize();
+	}
 }
 
 FileReader::FileReader(InspIRCd* Instance) : ServerInstance(Instance)
@@ -755,9 +757,12 @@ void FileReader::CalcSize()
 void FileReader::LoadFile(const std::string &filename)
 {
 	file_cache c;
-	ServerInstance->Config->ReadFile(c,filename.c_str());
-	this->fc = c;
-	this->CalcSize();
+	c.clear();
+	if (ServerInstance->Config->ReadFile(c,filename.c_str()))
+	{
+		this->fc = c;
+		this->CalcSize();
+	}
 }
 
 

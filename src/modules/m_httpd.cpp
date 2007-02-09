@@ -371,6 +371,8 @@ class ModuleHttpServer : public Module
 			port = c.ReadInteger("http", "port", i, true);
 			indexfile = c.ReadValue("http", "index", i);
 			index = new FileReader(ServerInstance, indexfile);
+			if (!index->Exists())
+				throw ModuleException("Can't read index file: "+indexfile);
 			http = new HttpServerSocket(ServerInstance, bindip, port, true, 0, index);
 			httpsocks.push_back(http);
 		}
