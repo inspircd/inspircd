@@ -128,7 +128,7 @@ class TimerManager : public Extensible
  public:
 	/** Constructor
 	 */
-	TimerManager();
+	TimerManager(InspIRCd* Instance);
 	/** Tick all pending InspTimers
 	 * @param TIME the current system time
 	 */
