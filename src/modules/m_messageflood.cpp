@@ -236,7 +236,9 @@ class ModuleMsgFlood : public Module
 						Event rmode((char *)&n, NULL, "send_mode");
 						rmode.Send(ServerInstance);
 					}
-					dest->ServerKickUser(user, "Channel flood triggered (mode +f)", true);
+					char kickmessage[MAXBUF];
+					snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
+					dest->ServerKickUser(user, kickmessage, true);
 				}
 			}
 		}
