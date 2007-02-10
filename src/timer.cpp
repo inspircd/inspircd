@@ -87,6 +87,7 @@ void TimerManager::DelTimer(InspTimer* T)
 				if (!x->size())
 				{
 					Timers.erase(found);
+					DELETE(x);
 				}
 				return;
 			}
