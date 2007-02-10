@@ -366,9 +366,6 @@ sub validateconf
 		# remove trailing newlines
 		chomp($i);
 
-		# clean up
-		$i =~ s/[^=]+=\s(.*)/\1/;
-
 		# convert tabs to spaces
 		$i =~ s/\t/ /g;
 
@@ -394,8 +391,12 @@ sub validateconf
 		# remove trailing spaces
 		$i =~ s/ *$//;
 
+		# setup incf for include check and clean it up, since this breaks parsing use local var
+		my $incf = $i;
+		$incf =~ s/[^=]+=\s(.*)/\1/;
+
 		# include file?
-		if (($i =~ s/\<include file=\"(.+?)\"\>//i) && ($i !~ /^#/))
+		if (($incf =~ s/\<include file=\"(.+?)\"\>//i) && ($incf !~ /^#/))
 		{
 			# yes, process it
 			validateconf($1);
