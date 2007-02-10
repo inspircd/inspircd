@@ -104,36 +104,8 @@ void TimerManager::DelTimer(InspTimer* T)
  */
 void TimerManager::TickMissedTimers(time_t TIME)
 {
-	/** See comment above in TickTimers
-	 */
-	this->CantDeleteHere = true;
-
 	for (time_t n = TIME-1; n > TIME-120; n--)
-	{
-		timerlist::iterator found = Timers.find(n);
-		if (found != Timers.end())
-		{
-			timergroup* x = found->second;
-			for (timergroup::iterator y = x->begin(); y != x->end(); y++)
-			{
-				InspTimer* z = *y;
-				z->Tick(TIME);
-				if (z->GetRepeat())
-				{
-					AddTimer(z, z->GetSecs());
-				}
-				else
-				{
-					DELETE(z);
-				}
-			}
-
-			Timers.erase(found);
-			DELETE(x);
-		}
-	}
-
-	this->CantDeleteHere = false;
+		this->TickTimers(TIME);
 }
 
 void TimerManager::AddTimer(InspTimer* T, long secs_from_now)
