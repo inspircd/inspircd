@@ -873,6 +873,11 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
+
+	if (user)
+		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
+	else
+		ServerInstance->WriteOpers("*** Successfully rehashed server.");
 }
 
 bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::ostringstream &errorstream)
