@@ -24,7 +24,7 @@
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST };
+enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
 /** Holds a CGI site's details
  */
@@ -33,14 +33,50 @@ class CGIhost : public classbase
 public:
 	std::string hostmask;
 	CGItype type;
+	std::string password;
 
-	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST)
-	: hostmask(mask), type(t)
+	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST, const std::string &password ="")
+	: hostmask(mask), type(t), password(password)
 	{
 	}
 };
-
 typedef std::vector<CGIhost> CGIHostlist;
+
+class cmd_webirc : public command_t
+{
+	InspIRCd* Me;
+	CGIHostlist Hosts;
+	bool notify;
+	public:
+		cmd_webirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : command_t(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
+		{
+			this->source = "m_cgiirc.so";
+			this->syntax = "password client hostname ip";
+		}
+		CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+		{
+			if(user->registered == REG_ALL)
+				return CMD_FAILURE;
+			
+			for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
+			{
+				if(ServerInstance->MatchText(user->host, iter->hostmask) || ServerInstance->MatchText(user->GetIPString(), iter->hostmask))
+				{
+					if(iter->type == WEBIRC && parameters[0] == iter->password)
+					{
+						user->Extend("cgiirc_realhost", new std::string(user->host));
+						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
+						if (notify)
+							ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], "_");
+						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
+						return CMD_LOCALONLY;
+					}
+				}
+			}
+			return CMD_FAILURE;
+		}
+};
+
 
 /** Resolver for CGI:IRC hostnames encoded in ident/GECOS
  */
@@ -85,7 +121,7 @@ class CGIResolver : public Resolver
 
 class ModuleCgiIRC : public Module
 {
-	
+	cmd_webirc* mycommand;
 	bool NotifyOpers;
 	CGIHostlist Hosts;
 public:
@@ -93,11 +129,13 @@ public:
 	{
 		
 		OnRehash(NULL,"");
+		mycommand=new cmd_webirc(Me, Hosts, NotifyOpers);
+		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = 1;
+		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCleanup] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserQuit] = List[I_OnUserConnect] = 1;
 	}
 	
 	virtual Priority Prioritize()
@@ -119,6 +157,7 @@ public:
 		{
 			std::string hostmask = Conf.ReadValue("cgihost", "mask", i); // An allowed CGI:IRC host
 			std::string type = Conf.ReadValue("cgihost", "type", i); // What type of user-munging we do on this host.
+			std::string password = Conf.ReadValue("cgihost", "password", i);
 			
 			if(hostmask.length())
 			{
@@ -130,6 +169,13 @@ public:
 					Hosts.back().type = IDENT;
 				else if(type == "passfirst")
 					Hosts.back().type = PASSFIRST;
+				else if(type == "webirc") {
+					Hosts.back().type = WEBIRC;
+					if(password.length())
+						Hosts.back().password=password;
+					else
+						ServerInstance->Log(DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+				}
 			}
 			else
 			{
@@ -218,10 +264,27 @@ public:
 					// If the ident lookup fails, try the password.
 					CheckPass(user);
 				}
+				else if(iter->type == WEBIRC)
+				{
+					// We don't need to do anything here
+				}
 				return 0;
 			}
 		}
 		return 0;
+	}
+
+	virtual void OnUserConnect(userrec* user)
+	{
+		std::string* webirc_hostname;
+		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
+		{
+			strlcpy(user->host,webirc_hostname->c_str(),63);
+			strlcpy(user->dhost,webirc_hostname->c_str(),63);
+			user->InvalidateCache();
+			delete webirc_hostname;
+			user->Shrink("cgiirc_webirc_hostname");
+		}
 	}
 
 	bool CheckPass(userrec* user)
