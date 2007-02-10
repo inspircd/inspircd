@@ -14,6 +14,8 @@
 #ifndef INSPIRCD_TIMER_H
 #define INSPIRCD_TIMER_H
 
+class InspIRCd;
+
 /** Timer class for one-second resolution timers
  * InspTimer provides a facility which allows module
  * developers to create one-shot timers. The timer
@@ -114,6 +116,9 @@ class TimerManager : public Extensible
 	/** Set when ticking timers, to prevent deletion while iterating
 	 */
 	bool CantDeleteHere;
+	/** Creating server instance
+	 */
+	InspIRCd* ServerInstance;
  private:
 
 	/** The current timer set, a map of timergroups

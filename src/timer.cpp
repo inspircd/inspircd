@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "timer.h"
 
-TimerManager::TimerManager() : CantDeleteHere(false)
+TimerManager::TimerManager(InspIRCd* Instance) : CantDeleteHere(false), ServerInstance(Instance)
 {
 }
 
@@ -116,7 +116,7 @@ void TimerManager::AddTimer(InspTimer* T, long secs_from_now)
 	if (!secs_from_now)
 		time_to_trigger = T->GetTimer();
 	else
-		time_to_trigger = secs_from_now + time(NULL);
+		time_to_trigger = secs_from_now + ServerInstance->Time();
 
 	timerlist::iterator found = Timers.find(time_to_trigger);
 

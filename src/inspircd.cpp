@@ -346,7 +346,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->OpenLog(argv, argc);
 	this->stats = new serverstats();
-	this->Timers = new TimerManager();
+	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
 	this->XLines = new XLineManager(this);
 	Config->ClearStack();
