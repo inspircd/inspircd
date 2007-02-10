@@ -208,8 +208,8 @@ InspIRCd 1.0.x, are also allowed.
   --update                     Update makefiles and dependencies
   --modupdate                  Detect new modules and write makefiles
   --svnupdate {--rebuild}      Update working copy via subversion
-                                {and optionally rebuild it if --update
-                                if --rebuild is also specified}
+                                {and optionally rebuild if --rebuild
+                                 is also specified}
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
