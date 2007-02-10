@@ -114,9 +114,15 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 	
 	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
 	{
-		if (match(u->second->MakeHost(),mask.c_str()),true)
+		if ((match(u->second->MakeHost(),mask.c_str(),true)) || (match(u->second->MakeHostIP(),mask.c_str(),true)))
+		{
 			matches++;
+		}
 	}
+
+	if (!matches)
+		return false;
+
 	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
@@ -142,7 +148,10 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
 		if (match(u->second->GetIPString(),ip.c_str(),true))
 			matches++;
 	}
-	
+
+	if (!matches)
+		return false;
+
 	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
@@ -168,7 +177,10 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
 		if (match(u->second->nick,nick.c_str()))
 			matches++;
 	}
-	
+
+	if (!matches)
+		return false;
+
 	float percent = ((float)matches / (float)clientlist->size()) * 100;
 	if (percent > (float)atof(itrigger))
 	{
