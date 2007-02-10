@@ -1428,12 +1428,18 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 		{
 			/* Leaves us with just the path */
 			std::string newfile = confpath.substr(0, pos) + std::string("/") + fname;
+			if (!FileExists(newfile.c_str()))
+				return false;
 			file =  fopen(newfile.c_str(), "r");
 
 		}
 	}
 	else
+	{
+		if (!FileExists(fname))
+			return false;
 		file =  fopen(fname, "r");
+	}
 
 	if (file)
 	{
@@ -1460,11 +1466,16 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 
 bool ServerConfig::FileExists(const char* file)
 {
+	struct stat sb;
+	if (stat(file, &sb) == -1)
+		return false;
+
+	if ((sb.st_mode & S_IFDIR) > 0)
+		return false;
+	     
 	FILE *input;
 	if ((input = fopen (file, "r")) == NULL)
-	{
 		return false;
-	}
 	else
 	{
 		fclose(input);
