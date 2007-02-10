@@ -24,6 +24,7 @@ class ModuleSecureList : public Module
 {
  private:
 	std::vector<std::string> allowlist;
+	unsigned int WaitTime;
  public:
 	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
 	{
@@ -45,6 +46,7 @@ class ModuleSecureList : public Module
 		allowlist.clear();
 		for (int i = 0; i < MyConf->Enumerate("securelist"); i++)
 			allowlist.push_back(MyConf->ReadValue("securelist", "exception", i));
+		WaitTime = MyConf->ReadInteger("securelist", "waittime", "60", 0, true);
 		DELETE(MyConf);
 	}
  
@@ -63,7 +65,7 @@ class ModuleSecureList : public Module
 		if (!validated)
 			return 0;
  
-		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+60)) && (!*user->oper))
+		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!*user->oper))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
@@ -71,7 +73,7 @@ class ModuleSecureList : public Module
 					return 0;
 
 			/* Not exempt, BOOK EM DANNO! */
-			user->WriteServ("NOTICE %s :*** You cannot list within the first minute of connecting. Please try again later.",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot list within the first %d seconds of connecting. Please try again later.",user->nick, WaitTime);
 			/* Some crap clients (read: mIRC, various java chat applets) muck up if they don't
 			 * receive these numerics whenever they send LIST, so give them an empty LIST to mull over.
 			 */

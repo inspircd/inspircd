@@ -152,16 +152,24 @@ class ListTimer : public InspTimer
 
 class ModuleSafeList : public Module
 {
+	unsigned int ThrottleSecs;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
 		timer = NULL;
+		OnRehash(NULL, "");
 	}
  
 	virtual ~ModuleSafeList()
 	{
 		if (timer)
 			ServerInstance->Timers->DelTimer(timer);
+	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader MyConf(ServerInstance);
+		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
 	}
  
 	virtual Version GetVersion()
@@ -171,7 +179,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = 1;
+		List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnRehash] = 1;
 	}
 
 	/*
@@ -215,7 +223,7 @@ class ModuleSafeList : public Module
 		user->GetExt("safelist_last", last_list_time);
 		if (last_list_time)
 		{
-			if (ServerInstance->Time() < (*last_list_time)+60)
+			if (ServerInstance->Time() < (*last_list_time)+ThrottleSecs)
 			{
 				user->WriteServ("NOTICE %s :*** Woah there, slow down a little, you can't /LIST so often!",user->nick);
 				user->WriteServ("321 %s Channel :Users Name",user->nick);
