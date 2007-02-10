@@ -103,7 +103,6 @@ long InspIRCd::Duration(const char* str)
 
 bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 {
-	char buffer[MAXBUF];
 	char itrigger[MAXBUF];
 	long matches = 0;
 	
@@ -115,10 +114,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 	
 	for (user_hash::iterator u = clientlist->begin(); u != clientlist->end(); u++)
 	{
-		strlcpy(buffer,u->second->ident,MAXBUF);
-		charlcat(buffer,'@',MAXBUF);
-		strlcat(buffer,u->second->host,MAXBUF);
-		if (match(buffer,mask.c_str()))
+		if (match(u->second->MakeHost(),mask.c_str()),true)
 			matches++;
 	}
 	float percent = ((float)matches / (float)clientlist->size()) * 100;
