@@ -75,7 +75,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11011
+#define NATIVE_API_VERSION 11012
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
