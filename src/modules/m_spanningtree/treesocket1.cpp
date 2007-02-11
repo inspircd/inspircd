@@ -797,7 +797,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 		{
 			std::string oldtopic = c->topic;
 			strlcpy(c->topic,params[3].c_str(),MAXTOPIC);
-			strlcpy(c->setby,params[2].c_str(),NICKMAX-1);
+			strlcpy(c->setby,params[2].c_str(),127);
 			c->topicset = ts;
 			/* if the topic text is the same as the current topic,
 			 * dont bother to send the TOPIC command out, just silently

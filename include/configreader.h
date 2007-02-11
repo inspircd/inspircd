@@ -503,6 +503,11 @@ class ServerConfig : public Extensible
 	 */
 	bool UndernetMsgPrefix;
 
+	/** If set to true, the full nick!user@host will be shown in the TOPIC command
+	 * for who set the topic last. If false, only the nick is shown.
+	 */
+	bool FullHostInTopic;
+
 	/** All oper type definitions from the config file
 	 */
 	opertype_t opertypes;

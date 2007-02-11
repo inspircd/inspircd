@@ -178,7 +178,7 @@ class chanrec : public Extensible
 	/** The last user to set the topic.
 	 * If this member is an empty string, no topic was ever set.
 	 */
-	char setby[NICKMAX];
+	char setby[128];
 
 	/** Contains the channel user limit.
 	 * If this value is zero, there is no limit in place.

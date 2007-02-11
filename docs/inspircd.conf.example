@@ -769,7 +769,7 @@
 #                  NOTICE and PRIVMSG adding the prefix to the line   #
 #                  of text sent out. Eg. NOTICE @#test :@ testing     #
 #                  vs off: NOTICE @#test :testing                     #
-#
+#                                                                     #
 #  notimesync    - If this value is 'yes', 'true', or '1', time       #
 #                  synchronization is disabled on this server. This   #
 #                  means any servers you are linked to will not       #
@@ -777,6 +777,10 @@
 #                  most cases will just result in more bounced modes  #
 #                  on netsplits. This option should be the same on    #
 #                  all servers.                                       #
+#                                                                     #
+#  hostintopic   - If this is set to yes (the default) then the full  #
+#                  nick!user@host is shown for who set a TOPIC last.  #
+#                  if set to no, then only the nickname is shown.     #
 #                                                                     #
 
 <options prefixquit="Quit: "
@@ -803,6 +807,7 @@
          ircumsgprefix="no"
          announcets="yes"
          notimesync="no"
+	 hostintopic="yes"
          allowhalfop="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#

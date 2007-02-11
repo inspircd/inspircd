@@ -95,7 +95,11 @@ CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 				strlcpy(Ptr->topic, parameters[1], MAXTOPIC-1);
 			}
 
-			strlcpy(Ptr->setby,user->nick,NICKMAX-1);
+			if (ServerInstance->Config->FullHostInTopic)
+				strlcpy(Ptr->setby,user->GetFullHost(),127);
+			else
+				strlcpy(Ptr->setby,user->nick,127);
+
 			Ptr->topicset = ServerInstance->Time();
 			Ptr->WriteChannel(user, "TOPIC %s :%s", Ptr->name, Ptr->topic);
 

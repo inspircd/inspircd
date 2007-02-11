@@ -588,6 +588,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
 		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
 		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
+		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
