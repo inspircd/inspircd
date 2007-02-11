@@ -961,7 +961,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					/* If a time stamp is provided, apply synchronization */
 					bool force = false;
 					time_t them = atoi(params[0].c_str());
-					time_t us = Instance->Time(true);
+					time_t us = Instance->Time(false);
 					int delta = them - us;
 					if ((params.size() == 2) && (params[1] == "FORCE"))
 						force = true;
