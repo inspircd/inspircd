@@ -16,12 +16,12 @@
 #include "modules.h"
 #include "inspircd.h"
 
-/* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
+/* $ModDesc: Forces users to join the specified channel(s) on connect */
 
-class ModuleOperjoin : public Module
+class ModuleConnJoin : public Module
 {
 	private:
-		std::string operChan;
+		std::string JoinChan;
 		ConfigReader* conf;
 		
 
@@ -45,17 +45,16 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin(InspIRCd* Me)
+		ModuleConnJoin(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			
 			conf = new ConfigReader(ServerInstance);
-			operChan = conf->ReadValue("operjoin", "channel", 0);
+			JoinChan = conf->ReadValue("autojoin", "channel", 0);
 		}
 
 		void Implements(char* List)
 		{
-			List[I_OnPostOper] = List[I_OnRehash] = 1;
+			List[I_OnPostConnect] = List[I_OnRehash] = 1;
 		}
 
 		virtual void OnRehash(userrec* user, const std::string &parameter)
@@ -64,7 +63,7 @@ class ModuleOperjoin : public Module
 			conf = new ConfigReader(ServerInstance);
 		}
 
-		virtual ~ModuleOperjoin()
+		virtual ~ModuleConnJoin()
 		{
 			DELETE(conf);
 		}
@@ -74,13 +73,13 @@ class ModuleOperjoin : public Module
 			return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 		}
 
-		virtual void OnPostOper(userrec* user, const std::string &opertype)
+		virtual void OnPostConnect(userrec* user)
 		{
-			if (!operChan.empty())
+			if (!JoinChan.empty())
 			{
-				std::vector<std::string> operChans;
-				tokenize(operChan,operChans);
-				for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
+				std::vector<std::string> Joinchans;
+				tokenize(JoinChan,Joinchans);
+				for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
 					chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
 			}
 
@@ -88,24 +87,24 @@ class ModuleOperjoin : public Module
 
 };
 
-class ModuleOperjoinFactory : public ModuleFactory
+class ModuleConnJoinFactory : public ModuleFactory
 {
 	public:
-		ModuleOperjoinFactory()
+		ModuleConnJoinFactory()
 		{
 		}
 
-		~ModuleOperjoinFactory()
+		~ModuleConnJoinFactory()
 		{
 		}
 
 		virtual Module * CreateModule(InspIRCd* Me)
 		{
-			return new ModuleOperjoin(Me);
+			return new ModuleConnJoin(Me);
 		}
 };
 
 extern "C" void * init_module( void )
 {
-	return new ModuleOperjoinFactory;
+	return new ModuleConnJoinFactory;
 }

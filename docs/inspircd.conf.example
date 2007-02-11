@@ -1098,6 +1098,18 @@
 # with each key eight hex digits long.                                #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Conn-Join: Allows you to force users to join one or more channels
+# automatically upon connecting to the server.
+#<module name="m_conn_join.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#
+# If you have m_conn_join.so loaded, you can configure it using the
+# follow values:
+#
+#<autojoin channel="#one,#two,#three">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Lusers: Shows the LUSERS output on connect
 #<module name="m_conn_lusers.so">
 
