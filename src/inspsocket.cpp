@@ -129,7 +129,14 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		{
 			strlcpy(this->IP,host,MAXBUF);
 			timeout_val = maxtime;
-			this->DoConnect();
+			if (!this->DoConnect())
+			{
+				this->Close();
+				this->fd = -1;
+				this->state = I_ERROR;
+				this->OnError(I_ERR_CONNECT);
+				return;
+			}
 		}
 	}
 }
@@ -159,6 +166,7 @@ void InspSocket::SetQueues(int nfd)
  */
 bool InspSocket::BindAddr(const std::string &ip)
 {
+	Instance->Log(DEBUG,"BindAddr(%s)", ip.c_str());
 	ConfigReader Conf(this->Instance);
 	bool bindfail = false;
 	socklen_t size = sizeof(sockaddr_in);
@@ -169,7 +177,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 		v6 = true;
 #endif
 	int j = 0;
-	while ((j < Conf.Enumerate("bind")) && (!ip.empty()))
+	while (j < Conf.Enumerate("bind") || (!ip.empty()))
 	{
 		std::string IP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
 		if (!ip.empty() || Conf.ReadValue("bind","type",j) == "servers")
@@ -259,9 +267,25 @@ bool InspSocket::DoConnect()
 	else
 	{
 		this->fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (this->fd > -1)
+		{
+			if (!this->BindAddr(this->cbindip))
+			{
+				delete[] addr;
+				return false;
+			}
+		}
 	}
 #else
 	this->fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->fd > -1)
+	{
+		if (!this->BindAddr(this->cbindip))
+		{
+			delete[] addr;
+			return false;
+		}
+	}
 #endif
 
 	if (this->fd == -1)
