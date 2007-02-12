@@ -76,6 +76,9 @@ class ModuleOperjoin : public Module
 
 		virtual void OnPostOper(userrec* user, const std::string &opertype)
 		{
+			if (!IS_LOCAL(user))
+				return;
+
 			if (!operChan.empty())
 			{
 				std::vector<std::string> operChans;
