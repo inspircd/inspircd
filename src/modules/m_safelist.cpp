@@ -152,7 +152,7 @@ class ListTimer : public InspTimer
 
 class ModuleSafeList : public Module
 {
-	unsigned int ThrottleSecs;
+	time_t ThrottleSecs;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
