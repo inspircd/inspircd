@@ -75,6 +75,9 @@ class ModuleConnJoin : public Module
 
 		virtual void OnPostConnect(userrec* user)
 		{
+			if (!IS_LOCAL(user))
+				return;
+
 			if (!JoinChan.empty())
 			{
 				std::vector<std::string> Joinchans;
