@@ -86,6 +86,13 @@ void InspIRCd::Cleanup()
 	}
 	stats->BoundPortCount = 0;
 
+	/* Close all client sockets, or the new process inherits them */
+	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	{
+		(*i)->SetWriteError("Server shutdown");
+		(*i)->CloseSocket();
+	}
+
 	/* We do this more than once, so that any service providers get a
 	 * chance to be unhooked by the modules using them, but then get
 	 * a chance to be removed themsleves.
@@ -102,10 +109,6 @@ void InspIRCd::Cleanup()
 		for (int k = 0; k <= MyModCount; k++)
 			this->UnloadModule(mymodnames[k].c_str());
 	}
-
-	/* Close all client sockets, or the new process inherits them */
-	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
-		(*i)->CloseSocket();
 
 	/* Close logging */
 	this->Logger->Close();
