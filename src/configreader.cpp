@@ -1499,12 +1499,12 @@ char* ServerConfig::CleanFilename(char* name)
 
 bool ServerConfig::DirValid(const char* dirandfile)
 {
-	char work[MAXBUF];
-	char buffer[MAXBUF];
-	char otherdir[MAXBUF];
+	char work[1024];
+	char buffer[1024];
+	char otherdir[1024];
 	int p;
 
-	strlcpy(work, dirandfile, MAXBUF);
+	strlcpy(work, dirandfile, 1024);
 	p = strlen(work);
 
 	// we just want the dir
@@ -1520,13 +1520,13 @@ bool ServerConfig::DirValid(const char* dirandfile)
 	}
 
 	// Get the current working directory
-	if (getcwd(buffer, MAXBUF ) == NULL )
+	if (getcwd(buffer, 1024 ) == NULL )
 		return false;
 
 	if (chdir(work) == -1)
 		return false;
 
-	if (getcwd(otherdir, MAXBUF ) == NULL )
+	if (getcwd(otherdir, 1024 ) == NULL )
 		return false;
 
 	if (chdir(buffer) == -1)
@@ -1553,12 +1553,12 @@ bool ServerConfig::DirValid(const char* dirandfile)
 
 std::string ServerConfig::GetFullProgDir(char** argv, int argc)
 {
-	char work[MAXBUF];
-	char buffer[MAXBUF];
-	char otherdir[MAXBUF];
+	char work[1024];
+	char buffer[1024];
+	char otherdir[1024];
 	int p;
 
-	strlcpy(work,argv[0],MAXBUF);
+	strlcpy(work,argv[0],1024);
 	p = strlen(work);
 
 	// we just want the dir
@@ -1574,13 +1574,13 @@ std::string ServerConfig::GetFullProgDir(char** argv, int argc)
 	}
 
 	// Get the current working directory
-	if (getcwd(buffer, MAXBUF) == NULL)
+	if (getcwd(buffer, 1024) == NULL)
 		return "";
 
 	if (chdir(work) == -1)
 		return "";
 
-	if (getcwd(otherdir, MAXBUF) == NULL)
+	if (getcwd(otherdir, 1024) == NULL)
 		return "";
 
 	if (chdir(buffer) == -1)
