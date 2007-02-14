@@ -88,7 +88,7 @@ class CGIResolver : public Resolver
 	bool notify;
  public:
 	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type, bool &cached)
-		: Resolver(ServerInstance, source, forward ? DNS_QUERY_FORWARD : DNS_QUERY_REVERSE, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+		: Resolver(ServerInstance, source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
