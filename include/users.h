@@ -842,11 +842,15 @@ class userrec : public connection
 	 */
 	bool ChangeName(const char* gecos);
 
-	/** Send a notice to all local users from this user
+	/** Send a command to all local users from this user
+	 * The command given must be able to send text with the
+	 * first parameter as a servermask (e.g. $*), so basically
+	 * you should use PRIVMSG or NOTICE.
+	 * @param command the command to send
 	 * @param text The text format string to send
 	 * @param ... Format arguments
 	 */
-	void NoticeAll(char* text, ...);
+	void SendAll(const char* command, char* text, ...);
 
 	/** Compile a channel list for this user, and send it to the user 'source'
 	 * Used internally by WHOIS

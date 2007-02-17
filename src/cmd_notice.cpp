@@ -47,7 +47,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
                 const char* servermask = parameters[0] + 1;
                 if (match(ServerInstance->Config->ServerName,servermask))
                 {
-                        user->NoticeAll("%s",parameters[1]);
+                        user->SendAll("NOTICE", "%s", parameters[1]);
                 }
                 FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
                 return CMD_SUCCESS;

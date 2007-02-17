@@ -1716,7 +1716,7 @@ bool userrec::ChangeIdent(const char* newident)
 	return true;
 }
 
-void userrec::NoticeAll(char* text, ...)
+void userrec::SendAll(const char* command, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	char formatbuffer[MAXBUF];
@@ -1726,7 +1726,7 @@ void userrec::NoticeAll(char* text, ...)
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,":%s NOTICE $* :%s", this->GetFullHost(), textbuffer);
+	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
