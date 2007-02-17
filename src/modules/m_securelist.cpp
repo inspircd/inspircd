@@ -24,7 +24,7 @@ class ModuleSecureList : public Module
 {
  private:
 	std::vector<std::string> allowlist;
-	unsigned int WaitTime;
+	time_t WaitTime;
  public:
 	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
 	{
