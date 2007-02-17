@@ -65,7 +65,7 @@ class command_t : public Extensible
 	long use_count;
 	/** used by /stats m
  	 */
-	long total_bytes;
+	float total_bytes;
 	/** used for resource tracking between modules
 	 */
 	std::string source;
@@ -92,7 +92,8 @@ class command_t : public Extensible
 	 */
 	command_t(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg)
 	{
-		use_count = total_bytes = 0;
+		use_count = 0;
+		total_bytes = 0;
 		source = "<core>";
 		syntax = "";
 	}
