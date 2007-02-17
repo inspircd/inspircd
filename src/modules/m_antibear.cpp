@@ -56,6 +56,13 @@ class ModuleAntiBear : public Module
 					return 1;
 				}
 			}
+			else
+			{
+				ServerInstance->Log(DEBUG,"Into other part of if, parameters[0]='%s'",parameters[0]);
+				/* Theyre not registered and the notice is targetted at a server. */
+				if ((user->registered != REG_ALL) && (strchr(parameters[0], '.')))
+					return 1;
+			}
 		}
 		return 0;
 	}
