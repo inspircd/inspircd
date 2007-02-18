@@ -47,7 +47,7 @@ class ModuleAntiBear : public Module
 	{
 		if (command == "NOTICE" && !validated && pcnt > 1)
 		{
-			if (!strcmp(parameters[1], "\1TIME Mon May 01 18:54:20 2006\1"))
+			if (!strncmp(parameters[1], "\1TIME Mon May 01 18:54:20 2006", 30))
 			{
 				if (ServerInstance->XLines->add_zline(86400, ServerInstance->Config->ServerName, "Unless you're stuck in a time warp, you appear to be a bear bot!", user->MakeHostIP()))
 				{
