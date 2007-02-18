@@ -88,7 +88,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			parameters[1] = temp.c_str();
 
-			if (temp == "")
+			if (temp.empty())
 			{
 				user->WriteServ("412 %s No text to send", user->nick);
 				return CMD_FAILURE;

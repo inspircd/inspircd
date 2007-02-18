@@ -116,14 +116,11 @@ class ModuleStripColor : public Module
 		DELETE(csc);
 	}
 	
-	// ANSI colour stripping by Doc (Peter Wood)
-	virtual void ReplaceLine(std::string &text)
+	// ANSI colour stripping based on C example by Doc (Peter Wood)
+	virtual void ReplaceLine(std::string &sentence)
 	{
 		int i, a, len, remove;
-		char sentence[MAXBUF];
-		strlcpy(sentence,text.c_str(),MAXBUF);
-  
-		len = text.length();
+		len = sentence.length();
 
 		for (i = 0; i < len; i++)
   		{
@@ -167,8 +164,6 @@ class ModuleStripColor : public Module
 				i--;
 			}
 		}
-		
-		text = sentence;
 	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -180,12 +175,12 @@ class ModuleStripColor : public Module
 		if (target_type == TYPE_USER)
 		{
 			userrec* t = (userrec*)dest;
-			active = t->modes['S'-65];
+			active = t->IsModeSet('S');
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* t = (chanrec*)dest;
-			active = (t->IsModeSet('S'));
+			active = t->IsModeSet('S');
 		}
 		if (active)
 		{

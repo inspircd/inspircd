@@ -159,7 +159,7 @@ class ModuleServicesAccount : public Module
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;

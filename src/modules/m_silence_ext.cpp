@@ -346,16 +346,8 @@ class ModuleSilence : public Module
 		{
 			for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 			{
-				if ((match(source->GetFullHost(), c->first.c_str())) && ( ((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0))
-				{
-					if (((c->second & SILENCE_EXCLUDE) > 0))
-					{
-						return 0;
-					}
-					else {
-						return 1;
-					}
-				}
+				if (((((c->second & pattern) > 0)) || ((c->second & SILENCE_ALL) > 0)) && (ServerInstance->MatchText(source->GetFullHost(), c->first)))
+					return !(((c->second & SILENCE_EXCLUDE) > 0));
 			}
 		}
 		return 0;

@@ -230,7 +230,7 @@ class ModuleServices : public Module
 			chanrec* c = (chanrec*)dest;
 			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
-				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)) || (!strcmp(user->server,"")))
+				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
 				{
 					// user is ulined, can speak regardless
 					return 0;

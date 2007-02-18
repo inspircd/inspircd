@@ -47,7 +47,7 @@ class ModuleRestrictBanned : public Module
 		if (!IS_LOCAL(user))
 			return 0;
 
-		if (channel->IsBanned(user) && channel->GetStatus(user) < STATUS_VOICE)
+		if (channel->GetStatus(user) < STATUS_VOICE && channel->IsBanned(user))
 		{
 			/* banned, boned. drop the message. */
 			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** You may not " + action + ", as you are banned on channel " + channel->name);

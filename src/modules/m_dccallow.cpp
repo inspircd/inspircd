@@ -307,8 +307,6 @@ class ModuleDCCAllow : public Module
 		if (!IS_LOCAL(user))
 			return 0;
 
-		Expire();
-	
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
@@ -319,6 +317,9 @@ class ModuleDCCAllow : public Module
 		
 			if ((text.length()) && (text[0] == '\1'))
 			{
+
+				Expire();
+
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :VERSION
 					
@@ -358,25 +359,19 @@ class ModuleDCCAllow : public Module
 						std::string filename = tokens[2];
 					
 						if (defaultaction == "allow") 
-						{
 							return 0;
-						}
 				
 						for (unsigned int i = 0; i < bfl.size(); i++)
 						{
 							if (ServerInstance->MatchText(filename, bfl[i].filemask))
 							{
-								if (strcmp(bfl[i].action.c_str(), "allow") == 0)
-								{
+								if (bfl[i].action == "allow")
 									return 0;
-								}
 							}
 							else
 							{
 								if (defaultaction == "allow")
-								{
 									return 0;
-								}
 							}
 							user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick, u->nick, filename.c_str());
 							u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick, user->nick, user->ident, user->dhost, filename.c_str());
