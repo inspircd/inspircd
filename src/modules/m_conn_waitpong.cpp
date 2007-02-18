@@ -20,25 +20,16 @@
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
 
-char* RandString(unsigned int length)
-{
-	unsigned char* out = new unsigned char[length+1];
-	for(unsigned int i = 0; i < length; i++)
-		out[i] = ((rand() % 26) + 65);
-	out[length] = '\0';
-
-	return (char*)out;
-}
-
 class ModuleWaitPong : public Module
 {
 	InspIRCd* Instance;
 	bool sendsnotice;
 	bool killonbadreply;
+	const char* extenstr;
 
  public:
 	ModuleWaitPong(InspIRCd* Me)
-	 : Module::Module(Me), Instance(Me)
+	 : Module::Module(Me), Instance(Me), extenstr("waitpong_pingstr")
 	{
 		OnRehash(NULL,"");
 	}
@@ -63,6 +54,16 @@ class ModuleWaitPong : public Module
 		List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnPreCommand] = List[I_OnRehash] = List[I_OnUserDisconnect] = List[I_OnCleanup] = 1;
 	}
 
+	char* RandString(unsigned int length)
+	{
+		unsigned char* out = new unsigned char[length+1];
+		for(unsigned int i = 0; i < length; i++)
+			out[i] = ((rand() % 26) + 65);
+		out[length] = '\0';
+	
+		return (char*)out;
+	}
+	
 	virtual int OnUserRegister(userrec* user)
 	{
 		char* pingrpl = RandString(10);
@@ -72,7 +73,7 @@ class ModuleWaitPong : public Module
 		if(sendsnotice)
 			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick, pingrpl, pingrpl);
 			
-		user->Extend("waitpong_pingstr", pingrpl);
+		user->Extend(extenstr, pingrpl);
 		return 0;
 	}
 	
@@ -81,14 +82,14 @@ class ModuleWaitPong : public Module
 		if(command == "PONG")
 		{
 			char* pingrpl;
-			user->GetExt("waitpong_pingstr", pingrpl);
+			user->GetExt(extenstr, pingrpl);
 			
 			if(pingrpl)
 			{
 				if(strcmp(pingrpl, parameters[0]) == 0)
 				{
 					DELETE(pingrpl);
-					user->Shrink("waitpong_pingstr");
+					user->Shrink(extenstr);
 					return 1;
 				}
 				else
@@ -106,18 +107,18 @@ class ModuleWaitPong : public Module
 	virtual bool OnCheckReady(userrec* user)
 	{
 		char* pingrpl;
-		return (!user->GetExt("waitpong_pingstr", pingrpl));
+		return (!user->GetExt(extenstr, pingrpl));
 	}
 	
 	virtual void OnUserDisconnect(userrec* user)
 	{
 		char* pingrpl;
-		user->GetExt("waitpong_pingstr", pingrpl);
+		user->GetExt(extenstr, pingrpl);
 
 		if(pingrpl)
 		{
 			DELETE(pingrpl);
-			user->Shrink("waitpong_pingstr");
+			user->Shrink(extenstr);
 		}
 	}
 	
@@ -127,12 +128,12 @@ class ModuleWaitPong : public Module
 		{
 			userrec* user = (userrec*)item;
 			char* pingrpl;
-			user->GetExt("waitpong_pingstr", pingrpl);
+			user->GetExt(extenstr, pingrpl);
 			
 			if(pingrpl)
 			{
 				DELETE(pingrpl);
-				user->Shrink("waitpong_pingstr");
+				user->Shrink(extenstr);
 			} 
 		}
 	}
