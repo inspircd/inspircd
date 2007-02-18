@@ -16,12 +16,9 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
-
-
 
 char* RandString(unsigned int length)
 {
@@ -35,34 +32,30 @@ char* RandString(unsigned int length)
 
 class ModuleWaitPong : public Module
 {
-	
-	ConfigReader* Conf;
-	
+	InspIRCd* Instance;
 	bool sendsnotice;
 	bool killonbadreply;
 
  public:
 	ModuleWaitPong(InspIRCd* Me)
-		: Module::Module(Me)
+	 : Module::Module(Me), Instance(Me)
 	{
 		OnRehash(NULL,"");
 	}
 	
 	virtual void OnRehash(userrec* user, const std::string &param)
 	{
-		Conf = new ConfigReader(ServerInstance);
+		ConfigReader Conf(Instance);
 		
-		sendsnotice = Conf->ReadFlag("waitpong", "sendsnotice", 0);
+		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
 		
-		if(Conf->GetError() == CONF_VALUE_NOT_FOUND)
+		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			sendsnotice = true;
 		
-		killonbadreply = Conf->ReadFlag("waitpong", "killonbadreply", 0);
+		killonbadreply = Conf.ReadFlag("waitpong", "killonbadreply", 0);
 
-		if(Conf->GetError() == CONF_VALUE_NOT_FOUND)
+		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			killonbadreply = true;
-				
-		DELETE(Conf);
 	}
 
 	void Implements(char* List)
