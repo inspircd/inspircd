@@ -74,7 +74,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 				/* change the nick of the older user to nnn-overruled,
 				 * where nnn is their file descriptor. We know this to be unique.
 				 */
-				std::string changeback = ConvToStr(InUse->fd) + "-overruled";
+				std::string changeback = ConvToStr(InUse->GetFd()) + "-overruled";
 				InUse->UpdateNickHash(changeback.c_str());
 				strlcpy(InUse->nick, changeback.c_str(), NICKMAX - 1);
 				InUse->InvalidateCache();
