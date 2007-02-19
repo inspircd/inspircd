@@ -49,8 +49,8 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", ServerInstance->Config->ServerName, user->nick, parameters[1]);
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
-			
-			userrec::QuitUser(ServerInstance, u, parameters[1]);
+
+			userrec::QuitUser(ServerInstance, u, killreason);
 		}
 		else
 		{

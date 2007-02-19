@@ -22,27 +22,26 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 	return new cmd_trace(Instance);
 }
 
+/** XXX: This is crap. someone fix this when you have time, to be more useful.
+ */
 CmdResult cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 	{
-		if (i->second)
+		if (i->second->registered == REG_ALL)
 		{
-			if (ServerInstance->IsNick(i->second->nick))
+			if (*i->second->oper)
 			{
-				if (*i->second->oper)
-				{
-					user->WriteServ("205 %s :Oper 0 %s",user->nick,i->second->nick);
-				}
-				else
-				{
-					user->WriteServ("204 %s :User 0 %s",user->nick,i->second->nick);
-				}
+				user->WriteServ("205 %s :Oper 0 %s",user->nick,i->second->nick);
 			}
 			else
 			{
-				user->WriteServ("203 %s :???? 0 [%s]",user->nick,i->second->host);
+				user->WriteServ("204 %s :User 0 %s",user->nick,i->second->nick);
 			}
+		}
+		else
+		{
+			user->WriteServ("203 %s :???? 0 [%s]",user->nick,i->second->host);
 		}
 	}
 	return CMD_SUCCESS;

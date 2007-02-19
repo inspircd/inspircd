@@ -18,21 +18,21 @@
 #include "xline.h"
 #include "commands/cmd_nick.h"
 
-
-
 extern "C" command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_nick(Instance);
 }
 
+/** Handle nick changes from users.
+ * NOTE: If you are used to ircds based on ircd2.8, and are looking
+ * for the client introduction code in here, youre in the wrong place.
+ * You need to look in the spanningtree module for this!
+ */
 CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	char oldnick[NICKMAX];
 
-	if (!*parameters[0])
-		return CMD_FAILURE;
-
-	if (!*user->nick)
+	if (!*parameters[0] || !*user->nick)
 		return CMD_FAILURE;
 
 	if (irc::string(user->nick) == irc::string(parameters[0]))
@@ -66,13 +66,24 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
 			return CMD_FAILURE;
 		}
-		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user) && (ServerInstance->IsNick(parameters[0])))
+		/* Check for nickname overruled -
+		 * This happens when one user has connected and sent only NICK, and is essentially
+		 * "camping" upon a nickname. To give the new user connecting a fair chance of having
+		 * the nickname too, we force a nickchange on the older user (Simply the one who was
+		 * here first, no TS checks need to take place here)
+		 */
+		userrec* InUse = ServerInstance->FindNick(parameters[0]);
+		if (InUse && (InUse != user) && (ServerInstance->IsNick(parameters[0])))
 		{
-			userrec* InUse = ServerInstance->FindNick(parameters[0]);
 			if (InUse->registered != REG_ALL)
 			{
 				/* change the nick of the older user to nnn-overruled,
 				 * where nnn is their file descriptor. We know this to be unique.
+				 * NOTE: We must do this and not quit the user, even though we do
+				 * not have UID support yet. This is because if we set this user
+				 * as quitting and then introduce the new user before the old one
+				 * has quit, then the user hash gets totally buggered.
+				 * (Yes, that is a technical term). -- Brain
 				 */
 				std::string changeback = ConvToStr(InUse->GetFd()) + "-overruled";
 				InUse->WriteTo(InUse, "NICK %s", changeback.c_str());
@@ -150,7 +161,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		FOREACH_MOD(I_OnUserRegister,OnUserRegister(user));
-		//ConnectUser(user,NULL);
 	}
 	if (user->registered == REG_ALL)
 	{

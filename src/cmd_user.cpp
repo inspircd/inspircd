@@ -24,7 +24,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (user->registered < REG_NICKUSER)
+	/* A user may only send the USER command once */
+	if (!(user->registered & REG_USER))
 	{
 		if (!ServerInstance->IsIdent(parameters[0])) {
 			// This kinda Sucks, According to the RFC thou, its either this,
@@ -32,7 +33,8 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteServ("461 %s USER :Not enough parameters",user->nick);
 			return CMD_FAILURE;
 		}
-		else {
+		else
+		{
 			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
 			/* XXX - The ident field is IDENTMAX+2 in size to account for +1 for the optional
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
