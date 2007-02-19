@@ -319,7 +319,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	exempt = haspassed = dns_done = false;
+	muted = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq = "";
 	sendq = "";
@@ -802,6 +802,7 @@ void userrec::UnOper()
 
 void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason)
 {
+	user->muted = true;
 	Instance->GlobalCulls.AddItem(user, quitreason.c_str());
 }
 
@@ -972,24 +973,28 @@ void userrec::FullConnect()
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
+		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this,"Unauthorised connection");
 		return;
 	}
 
 	if ((!a->GetPass().empty()) && (!this->haspassed))
 	{
+		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this,"Invalid password");
 		return;
 	}
 
 	if (this->LocalCloneCount() > a->GetMaxLocal())
 	{
+		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if (this->GlobalCloneCount() > a->GetMaxGlobal())
 	{
+		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (global)");
 		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a->GetMaxGlobal(), this->GetIPString());
 		return;
@@ -1001,6 +1006,7 @@ void userrec::FullConnect()
 
 		if (r)
 		{
+			this->muted = true;
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
 			ServerInstance->GlobalCulls.AddItem(this, reason);
@@ -1011,6 +1017,7 @@ void userrec::FullConnect()
 
 		if (n)
 		{
+			this->muted = true;
 			char reason[MAXBUF];
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
 			ServerInstance->GlobalCulls.AddItem(this, reason);

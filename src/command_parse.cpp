@@ -153,8 +153,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			new_parameters[splithere] = item.c_str();
 			new_parameters[extra] = extrastuff.c_str();
 
-			if (CommandObj->Handle(new_parameters,pcnt,user) == CMD_USER_DELETED)
-				return 1;
+			CommandObj->Handle(new_parameters,pcnt,user);
 
 			dupes[item.c_str()] = true;
 		}
@@ -198,8 +197,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			 * record out from under us (e.g. if we /kill a comma sep list, and we're
 			 * in that list ourselves) abort if we're gone.
 			 */
-			if (CommandObj->Handle(new_parameters,pcnt,user) == CMD_USER_DELETED)
-				return 1;
+			CommandObj->Handle(new_parameters,pcnt,user);
 
 			dupes[item.c_str()] = true;
 		}
@@ -344,10 +342,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 				 */
 				CmdResult result = cm->second->Handle(command_p,items,user);
 
-				if (result != CMD_USER_DELETED)
-				{
-					FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
-				}
+				FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
 				return;
 			}
 			else
@@ -407,8 +402,11 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 
 	if (buffer.length())
 	{
-		ServerInstance->Log(DEBUG,"-> :%s %s",user->nick,buffer.c_str());
-		this->ProcessCommand(user,buffer);
+		if (!user->muted)
+		{
+			ServerInstance->Log(DEBUG,"-> :%s %s",user->nick,buffer.c_str());
+			this->ProcessCommand(user,buffer);
+		}
 	}
 }
 

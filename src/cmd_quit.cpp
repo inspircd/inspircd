@@ -27,6 +27,6 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec::QuitUser(ServerInstance, user, pcnt ? parameters[0] : "Client exited");
-	return CMD_USER_DELETED;
+	return CMD_SUCCESS;
 }
 

@@ -414,6 +414,14 @@ class userrec : public connection
 	 */
 	long threshold;
 
+	/** If this is set to true, then all read operations for the user
+	 * are dropped into the bit-bucket.
+	 * This is used by the global CullList, but please note that setting this value
+	 * alone will NOT cause the user to quit. This means it can be used seperately,
+	 * for example by shun modules etc.
+	 */
+	bool muted;
+
 	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
 	 * GetIPString/GetPort to obtain its values.
 	 */

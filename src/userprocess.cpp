@@ -249,6 +249,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 */
 				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
+					curr->muted = true;
 					GlobalCulls.AddItem(curr,"Registration timeout");
 					continue;
 				}
@@ -296,6 +297,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 						/* Everybody loves boobies. */
 						time_t time = this->Time(false) - (curr->nping - curr->pingmax);
 						std::string boobies = "Ping timeout: " + ConvToStr(time) + " second" + (time > 1 ? "s" : "");
+						curr->muted = true;
 						GlobalCulls.AddItem(curr, boobies);
 						curr->lastping = 1;
 						curr->nping = TIME+curr->pingmax;

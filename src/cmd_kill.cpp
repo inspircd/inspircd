@@ -50,23 +50,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 			
-			user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
-
-			if (iter != ServerInstance->clientlist->end())
-				ServerInstance->clientlist->erase(iter);
-
-			if (u->registered == REG_ALL)
-			{
-				u->PurgeEmptyChannels();
-			}
-
-			if (u == user)
-			{
-				std::string original_command = std::string("KILL ") + u->nick + " :"+parameters[1];
-				FOREACH_MOD(I_OnPostCommand,OnPostCommand("KILL", parameters, pcnt, user, CMD_SUCCESS,original_command));
-				return CMD_USER_DELETED;
-			}
-			DELETE(u);
+			userrec::QuitUser(ServerInstance, u, parameters[1]);
 		}
 		else
 		{
@@ -75,10 +59,8 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
 			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
-			userrec::QuitUser(ServerInstance, u, killreason);
 
-			if (u == user)
-				return CMD_USER_DELETED;
+			userrec::QuitUser(ServerInstance, u, killreason);
 		}
 	}
 	else
