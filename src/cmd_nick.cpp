@@ -80,6 +80,8 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 				InUse->UpdateNickHash(changeback.c_str());
 				strlcpy(InUse->nick, changeback.c_str(), NICKMAX - 1);
 				InUse->InvalidateCache();
+				/* Take away their nickname-sent state forcing them to send a nick again */
+				InUse->registered &= ~REG_NICK;
 			}
 			else
 			{
