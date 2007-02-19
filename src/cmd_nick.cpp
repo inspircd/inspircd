@@ -69,11 +69,17 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		if ((ServerInstance->FindNick(parameters[0])) && (ServerInstance->FindNick(parameters[0]) != user) && (ServerInstance->IsNick(parameters[0])))
 		{
 			userrec* InUse = ServerInstance->FindNick(parameters[0]);
+			/* XXX FIXME: This no longer works with the global culllist stuff,
+			 * because the user is pushed onto the cullList then we accept a new user
+			 * with the SAME nickname, so this mucks up the nickname hash completely.
+			 * We need to find a way to force a nickchange upon the user whos being
+			 * overruled, rather than quitting them. -- Brain
+			 *
 			if (InUse->registered != REG_ALL)
 			{
 				userrec::QuitUser(ServerInstance, InUse, "Nickname overruled");
 			}
-			else
+			else*/
 			{
 				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;

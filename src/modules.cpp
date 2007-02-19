@@ -449,56 +449,14 @@ bool InspIRCd::AddResolver(Resolver* r, bool cached)
 
 bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
 {
-	unsigned int old_fd = user->GetFd();
-	user->Write("ERROR :Closing link (%s@%s) [%s]",user->ident,user->host,message.c_str());
-	user->FlushWriteBuf();
-	user->ClearBuffer();
-	user->SetFd(FD_MAGIC_NUMBER);
-
-	if (find(local_users.begin(),local_users.end(),user) != local_users.end())
-	{
-		local_users.erase(find(local_users.begin(),local_users.end(),user));
-	}
-
-	this->SE->DelFd(user);
-	shutdown(old_fd,2);
-	close(old_fd);
-	return true;
+	throw CoreException("The InspIRCd::UsertoPseudo function should not be used in InspIRCd later than 1.0.x");
+	return false;
 }
 
 bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
 {
-	zombie->SetFd(alive->GetFd());
-	FOREACH_MOD_I(this,I_OnUserQuit,OnUserQuit(alive,message));
-	alive->SetFd(FD_MAGIC_NUMBER);
-	alive->FlushWriteBuf();
-	alive->ClearBuffer();
-	// save these for later
-	std::string oldnick = alive->nick;
-	std::string oldhost = alive->host;
-	std::string oldident = alive->ident;
-	userrec::QuitUser(this,alive,message.c_str());
-	if (find(local_users.begin(),local_users.end(),alive) != local_users.end())
-	{
-		local_users.erase(find(local_users.begin(),local_users.end(),alive));
-	}
-	// Fix by brain - cant write the user until their fd table entry is updated
-	zombie->Write(":%s!%s@%s NICK %s",oldnick.c_str(),oldident.c_str(),oldhost.c_str(),zombie->nick);
-	for (UCListIter i = zombie->chans.begin(); i != zombie->chans.end(); i++)
-	{
-		chanrec* Ptr = i->first;
-		zombie->WriteFrom(zombie,"JOIN %s",Ptr->name);
-		if (Ptr->topicset)
-		{
-			zombie->WriteServ("332 %s %s :%s", zombie->nick, Ptr->name, Ptr->topic);
-			zombie->WriteServ("333 %s %s %s %d", zombie->nick, Ptr->name, Ptr->setby, Ptr->topicset);
-		}
-		Ptr->UserList(zombie);
-		zombie->WriteServ("366 %s %s :End of /NAMES list.", zombie->nick, Ptr->name);
-	}
-	if ((find(local_users.begin(),local_users.end(),zombie) == local_users.end()) && (zombie->GetFd() != FD_MAGIC_NUMBER))
-		local_users.push_back(zombie);
-	return true;
+	throw CoreException("The InspIRCd::PseudotoUser function should not be used in InspIRCd later than 1.0.x");
+	return false;
 }
 
 void InspIRCd::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
