@@ -75,7 +75,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 				 * where nnn is their file descriptor. We know this to be unique.
 				 */
 				std::string changeback = ConvToStr(InUse->GetFd()) + "-overruled";
-				InUse->WriteFrom("NICK %s", changeback.c_str());
+				InUse->WriteTo(InUse, "NICK %s", changeback.c_str());
 				InUse->WriteServ("433 %s %s :Nickname overruled.", InUse->nick, InUse->nick);
 				InUse->UpdateNickHash(changeback.c_str());
 				strlcpy(InUse->nick, changeback.c_str(), NICKMAX - 1);
