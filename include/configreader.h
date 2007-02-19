@@ -524,6 +524,14 @@ class ServerConfig : public Extensible
 	 */
 	int argc;
 
+	/** Max channels per user
+	 */
+	unsigned int MaxChans;
+
+	/** Oper max channels per user
+	 */
+	unsigned int OperMaxChans;
+
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig(InspIRCd* Instance);

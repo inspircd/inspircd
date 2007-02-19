@@ -147,8 +147,6 @@ sub dumphash()
 	print "\033[0mModule path:\033[1;32m\t\t\t$main::config{MODULE_DIR}\033[0m\n";
 	print "\033[0mLibrary path:\033[1;32m\t\t\t$main::config{LIBRARY_DIR}\033[0m\n";
 	print "\033[0mMax connections:\033[1;32m\t\t$main::config{MAX_CLIENT}\033[0m\n";
-	print "\033[0mMax User Channels:\033[1;32m\t\t$main::config{MAX_CHANNE}\033[0m\n";
-	print "\033[0mMax Oper Channels:\033[1;32m\t\t$main::config{MAX_OPERCH}\033[0m\n";
 	print "\033[0mMax nickname length:\033[1;32m\t\t$main::config{NICK_LENGT}\033[0m\n";
 	print "\033[0mMax channel length:\033[1;32m\t\t$main::config{CHAN_LENGT}\033[0m\n";
 	print "\033[0mMax mode length:\033[1;32m\t\t$main::config{MAXI_MODES}\033[0m\n";
@@ -215,10 +213,6 @@ InspIRCd 1.0.x, are also allowed.
   --enable-openssl             Enable OpenSSL module [no]
   --with-nick-length=[n]       Specify max. nick length [32]
   --with-channel-length=[n]    Specify max. channel length [64]
-  --with-max-channels=[n]      Specify max. number of channels
-                               a normal user may join [20]
-  --with-max-oper-channels=[n] Specify max. number of channels
-                               an irc operator may join [60]
   --with-max-clients=[n]       Specify maximum number of users
                                which may connect locally
   --enable-optimization=[n]    Optimize using -O[n] gcc flag

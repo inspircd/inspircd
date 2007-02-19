@@ -39,6 +39,8 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	MaxConn = SOMAXCONN;
 	MaxWhoResults = 100;
 	debugging = 0;
+	MaxChans = 20;
+	OperMaxChans = 30;
 	LogLevel = DEFAULT;
 	maxbans.clear();
 }
@@ -594,6 +596,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxkeep",	"3600",			new ValueContainerChar (maxkeep),			DT_CHARPTR, ValidateWhoWas},
 		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR, NoValidation},
+		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER, NoValidation},
+		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER, NoValidation},
 		{NULL}
 	};
 

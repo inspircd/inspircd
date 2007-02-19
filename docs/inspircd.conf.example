@@ -549,6 +549,17 @@
 <files  motd="inspircd.motd"
         rules="inspircd.rules">
 
+#-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This optional configuration tag lets you define the maximum number  #
+# of channels that both opers and users may be on at any one time.    #
+# the default is 20 for user and 60 for opers if this tag is not      #
+# defined. Remote users are not restricted in any manner.             #
+#                                                                     #
+
+<channels users="20"
+          opers="60">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Define your DNS server address here. InspIRCd has its own resolver. #

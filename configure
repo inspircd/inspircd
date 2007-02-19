@@ -29,8 +29,6 @@ GetOptions (
 	'disable-interactive' => \$opt_nointeractive,
 	'with-nick-length=i' => \$opt_nick_length,
 	'with-channel-length=i' => \$opt_chan_length,
-	'with-max-channels=i' => \$opt_maxchans,
-	'with-max-oper-channels=i' => \$opt_opermaxchans,
 	'with-max-clients=i' => \$opt_maxclients,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
@@ -161,16 +159,6 @@ $config{CHAN_LENGT}	 = "64";			     		# Default Channel Name Length
 if (defined $opt_chan_length)
 {
 	$config{CHAN_LENGT} = $opt_chan_length;
-}
-$config{MAX_CHANNE}	 = "20";			     		# Default Max. Channels per user
-if (defined $opt_maxchans)
-{
-	$config{MAX_CHANNE} = $opt_maxchans;
-}
-$config{MAX_OPERCH}	 = "60"; 						# Default Max. Channels per oper
-if (defined $opt_opermaxchans)
-{
-	$config{MAX_OPERCH} = $opt_opermaxchans;
 }
 $config{MAXI_MODES}	 = "20";			     		# Default Max. Number of Modes set at once.
 if (defined $opt_modes)
@@ -624,8 +612,6 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 
 	promptnumeric("length of nicknames", "NICK_LENGT");
 	promptnumeric("length of channel names", "CHAN_LENGT");
-	promptnumeric("number of channels a normal user may join at any one time", "MAX_CHANNE");
-	promptnumeric("number of channels an oper may join at any one time", "MAX_OPERCH");
 	promptnumeric("number of mode changes in one line", "MAXI_MODES");
 	promptnumeric("length of an ident (username)", "MAX_IDENT");
 	promptnumeric("length of a quit message", "MAX_QUIT");
@@ -942,8 +928,6 @@ sub writefiles {
 #define MAX_DESCRIPTORS $config{MAX_DESCRIPTORS}
 #define NICKMAX $NL
 #define CHANMAX $CL
-#define MAXCHANS $config{MAX_CHANNE}
-#define OPERMAXCHANS $config{MAX_OPERCH}
 #define MAXMODES $config{MAXI_MODES}
 #define IDENTMAX $config{MAX_IDENT}
 #define MAXQUIT $config{MAX_QUIT}

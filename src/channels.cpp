@@ -296,22 +296,22 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	}
 
 	/* NOTE: If the user is an oper here, we can extend their user->chans by up to
-	 * OPERMAXCHANS. For remote users which are not bound by the channel limits,
-	 * we can extend infinitely. Otherwise, nope, youre restricted to MAXCHANS.
+	 * OperMaxchans. For remote users which are not bound by the channel limits,
+	 * we can extend infinitely. Otherwise, nope, youre restricted to MaxChans.
 	 */
-	if (!IS_LOCAL(user) || override == true) /* was a check on fd < 0 */
+	if (!IS_LOCAL(user) || override == true)
 	{
 		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
 	else if (*user->oper)
 	{
-		/* Oper allows extension up to the OPERMAXCHANS value */
-		if (user->chans.size() < OPERMAXCHANS)
+		/* Oper allows extension up to the OperMaxchans value */
+		if (user->chans.size() < Instance->Config->OperMaxChans)
 		{
 			return chanrec::ForceChan(Instance, Ptr, user, privs);
 		}
 	}
-	else if (user->chans.size() < MAXCHANS)
+	else if (user->chans.size() < Instance->Config->MaxChans)
 	{
 		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
