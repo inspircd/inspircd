@@ -25,7 +25,7 @@ public:
 
        virtual Version GetVersion()
        {
-               return Version(1,0,0,1,0,API_VERSION);
+               return Version(1,0,0,1,VF_VENDOR,API_VERSION);
        }
 
        virtual void OnUserJoin(userrec* user, chanrec* channel)
