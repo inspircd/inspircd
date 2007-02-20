@@ -34,7 +34,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 		quitmsg = pcnt ? parameters[0] : "Client exited";
 
-	userrec::QuitUser(ServerInstance, user, quitmsg.c_str());
+	userrec::QuitUser(ServerInstance, user, quitmsg);
 
 	return CMD_SUCCESS;
 }
