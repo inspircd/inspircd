@@ -43,7 +43,7 @@ CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :        satmd       nenolod", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Quality Assurance\2:", user->nick);
-	user->WriteServ( "371 %s :        Bricker     ownine", user->nick);
+	user->WriteServ( "371 %s :        Bricker     owine", user->nick);
 	user->WriteServ( "371 %s :        dmb", user->nick);
 	user->WriteServ( "371 %s :\2Testers\2:", user->nick);
 	user->WriteServ( "371 %s :        CC          Piggles", user->nick);
