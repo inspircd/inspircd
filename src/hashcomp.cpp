@@ -261,6 +261,11 @@ const std::string irc::sepstream::GetToken()
 	return "";
 }
 
+const std::string irc::sepstream::GetRemaining()
+{
+	return std::string(n, tokens.end());
+}
+
 bool irc::sepstream::StreamEnd()
 {
 	return ((n + 1) == tokens.end());
