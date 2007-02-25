@@ -350,21 +350,21 @@ int irc::modestacker::GetStackedLine(std::deque<std::string> &result, int max_li
 	result.push_back(adding ? "+" : "-");
 
 	if (sequence.size() > 1)
-		nextsize = sequence[1].length();
+		nextsize = sequence[1].length() + 2;
 
-	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES+1) && ((size+nextsize) < max_line_size))
+	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES+1) && ((size + nextsize) < max_line_size))
 	{
 		result[0] += *(sequence[0].begin());
 		if (!sequence[1].empty())
 		{
 			result.push_back(sequence[1]);
-			size += sequence[1].length() + 2; /* Account for mode character and whitespace */
+			size += nextsize; /* Account for mode character and whitespace */
 		}
 		sequence[0].erase(sequence[0].begin());
 		sequence.erase(sequence.begin() + 1);
 
 		if (sequence.size() > 1)
-			nextsize = sequence[1].length();
+			nextsize = sequence[1].length() + 2;
 
 		n++;
 	}
