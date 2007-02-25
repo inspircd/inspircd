@@ -1751,6 +1751,12 @@
 #<sqloper dbid="1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SVSHold module: Implements SVSHOLD. Like Q:Lines, but can only be   #
+# added/removed by Services.                                          #
+#<module name="m_svshold.so">
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitary lines to user WHOIS.
 #<module name="m_swhois.so">
 
