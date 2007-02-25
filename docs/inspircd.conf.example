@@ -779,7 +779,7 @@
 #  ircumsgprefix - Use undernet style message prefix for channel      #
 #                  NOTICE and PRIVMSG adding the prefix to the line   #
 #                  of text sent out. Eg. NOTICE @#test :@ testing     #
-#                  vs off: NOTICE @#test :testing                     #
+#                  vs. the off setting: NOTICE @#test :testing        #
 #                                                                     #
 #  notimesync    - If this value is 'yes', 'true', or '1', time       #
 #                  synchronization is disabled on this server. This   #
