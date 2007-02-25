@@ -1256,6 +1256,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		modes.append("+");
 	}
 
+	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
+
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 	{
@@ -1276,11 +1278,10 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 			linesize = 1;
 		}
 	}
-	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true));
 
 	/* Only send these if there are any */
 	if (!modes.empty())
-		buffer.append("\r\n").append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+		buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
 
 	this->WriteLine(buffer);
 }
