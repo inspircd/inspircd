@@ -81,19 +81,23 @@ class ModuleWaitPong : public Module
 	{
 		if(command == "PONG")
 		{
+			ServerInstance->Log(DEBUG,"PONG command");
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
 			
 			if(pingrpl)
 			{
+				ServerInstance->Log(DEBUG,"PONG command - has extend");
 				if(strcmp(pingrpl, parameters[0]) == 0)
 				{
+					ServerInstance->Log(DEBUG,"PONG command - pong matches ping ");
 					DELETE(pingrpl);
 					user->Shrink(extenstr);
 					return 1;
 				}
 				else
 				{
+					ServerInstance->Log(DEBUG,"PONG command - pong doesnt match ping");
 					if(killonbadreply)
 						userrec::QuitUser(ServerInstance, user, "Incorrect ping reply for registration");
 					return 1;
@@ -101,11 +105,13 @@ class ModuleWaitPong : public Module
 			}
 		}
 		
+		ServerInstance->Log(DEBUG,"PONG command - fall through");
 		return 0;
 	}
 
 	virtual bool OnCheckReady(userrec* user)
 	{
+		ServerInstance->Log(DEBUG,"PONG command - oncheckready");
 		char* pingrpl;
 		return (!user->GetExt(extenstr, pingrpl));
 	}

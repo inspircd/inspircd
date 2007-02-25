@@ -185,12 +185,20 @@ namespace irc
 		/** Return zero or more elements which form the
 		 * mode line. This will be clamped to a max of
 		 * MAXMODES+1 items (MAXMODES mode parameters and
-		 * one mode sequence string).
+		 * one mode sequence string), and max_line_size
+		 * characters. As specified below, this function
+		 * should be called in a loop until it returns zero,
+		 * indicating there are no more modes to return.
 		 * @param result The deque to populate. This will
 		 * be cleared before it is used.
-		 * @return The number of elements in the deque
+		 * @param max_line_size The maximum size of the line
+		 * to build, in characters, seperate to MAXMODES.
+		 * @return The number of elements in the deque.
+		 * The function should be called repeatedly until it
+		 * returns 0, in case there are multiple lines of
+		 * mode changes to be obtained.
 		 */
-		int GetStackedLine(std::deque<std::string> &result);
+		int GetStackedLine(std::deque<std::string> &result, int max_line_size = 360);
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.

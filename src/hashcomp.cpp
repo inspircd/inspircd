@@ -335,19 +335,37 @@ void irc::modestacker::PushMinus()
 	this->Push('-',"");
 }
 
-int irc::modestacker::GetStackedLine(std::deque<std::string> &result)
+int irc::modestacker::GetStackedLine(std::deque<std::string> &result, int max_line_size)
 {
+	if (sequence.empty())
+	{
+		result.clear();
+		return 0;
+	}
+
 	int n = 0;
+	int size = 1; /* Account for initial +/- char */
+	int nextsize = 0;
 	result.clear();
 	result.push_back(adding ? "+" : "-");
 
-	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES+1))
+	if (sequence.size() > 1)
+		nextsize = sequence[1].length();
+
+	while (!sequence[0].empty() && (sequence.size() > 1) && (result.size() < MAXMODES+1) && ((size+nextsize) < max_line_size))
 	{
 		result[0] += *(sequence[0].begin());
 		if (!sequence[1].empty())
+		{
 			result.push_back(sequence[1]);
+			size += sequence[1].length() + 2; /* Account for mode character and whitespace */
+		}
 		sequence[0].erase(sequence[0].begin());
 		sequence.erase(sequence.begin() + 1);
+
+		if (sequence.size() > 1)
+			nextsize = sequence[1].length();
+
 		n++;
 	}
 
