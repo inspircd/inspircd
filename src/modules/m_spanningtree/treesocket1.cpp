@@ -1256,16 +1256,24 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		modes.append("+");
 	}
 
+	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
 	{
-		modes.append("b");
-		params.append(" ").append(b->data);
-		if (params.length() >= MAXMODES)
+		int size = strlen(b->data) + 2;
+		int currsize = linesize + size;
+		if (currsize <= 350)
+		{
+			modes.append("b");
+			params.append(" ").append(b->data);
+			linesize += size; 
+		}
+		if ((params.length() >= MAXMODES) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
 			buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
 			modes = "";
 			params = "";
+			linesize = 1;
 		}
 	}
 	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true));
