@@ -114,6 +114,8 @@ class ModuleSSLOpenSSL : public Module
 	// std::string crlfile;
 	std::string dhfile;
 
+	int clientactive;
+
  public:
 
 	InspIRCd* PublicInstance;
@@ -156,6 +158,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		listenports.clear();
+		clientactive = 0;
 
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
@@ -168,6 +171,7 @@ class ModuleSSLOpenSSL : public Module
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
+					clientactive++;
 					try
 					{
 						if (ServerInstance->Config->AddIOHook(portno, this))
@@ -626,6 +630,9 @@ class ModuleSSLOpenSSL : public Module
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
+		if (!clientactive)
+			return;
+
 		// Bugfix, only send this numeric for *our* SSL users
 		if (dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
 		{

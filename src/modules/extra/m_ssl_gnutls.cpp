@@ -80,6 +80,8 @@ class ModuleSSLGnuTLS : public Module
 	std::string crlfile;
 	int dh_bits;
 
+	int clientactive;
+
  public:
 
 	ModuleSSLGnuTLS(InspIRCd* Me)
@@ -119,6 +121,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 
 		listenports.clear();
+		clientactive = 0;
 
 		for(int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
@@ -131,6 +134,7 @@ class ModuleSSLGnuTLS : public Module
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
+					clientactive++;
 					try
 					{
 						if (ServerInstance->Config->AddIOHook(portno, this))
@@ -531,6 +535,9 @@ class ModuleSSLGnuTLS : public Module
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
 	virtual void OnWhois(userrec* source, userrec* dest)
 	{
+		if (!clientactive)
+			return;
+
 		// Bugfix, only send this numeric for *our* SSL users
 		if(dest->GetExt("ssl", dummy) || (IS_LOCAL(dest) &&  isin(dest->GetPort(), listenports)))
 		{
