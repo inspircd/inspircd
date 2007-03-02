@@ -126,6 +126,16 @@ class ModuleRedirect : public Module
 				if (chan->GetUserCounter() >= chan->limit)
 				{
 					std::string channel = chan->GetModeParameter('L');
+
+					/* sometimes broken ulines can make circular or chained +L, avoid this */
+					chanrec* destchan = NULL;
+					destchan = ServerInstance->FindChan(channel);
+					if (destchan && destchan->IsModeSet('L'))
+					{
+						ServerInstance->WriteOpers("*** %s has circular or chained +L to %s", chan->name, channel.c_str());
+						return 0;
+					}
+
 					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
 					chanrec::JoinUser(ServerInstance, user, channel.c_str(), false);
 					return 1;
