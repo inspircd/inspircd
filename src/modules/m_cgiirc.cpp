@@ -296,7 +296,7 @@ public:
 			strlcpy(user->host, user->password, 64);
 			strlcpy(user->dhost, user->password, 64);
 			user->InvalidateCache();
-	
+
 			bool valid = false;
 #ifdef IPV6
 			if (user->GetProtocolFamily() == AF_INET6)
@@ -318,6 +318,7 @@ public:
 				/* We got as resolved hostname in the password. */
 				try
 				{
+
 					bool cached;
 					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
 					ServerInstance->AddResolver(r, cached);
@@ -370,10 +371,13 @@ public:
 #else
 		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
 #endif
-
-								
+					
 		try
 		{
+			strlcpy(user->host, newip, 16);
+			strlcpy(user->dhost, newip, 16);
+			strlcpy(user->ident, "~cgiirc", 8);
+
 			bool cached;
 			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT", cached);
 			ServerInstance->AddResolver(r, cached);
