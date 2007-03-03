@@ -308,10 +308,6 @@ class InspIRCd : public classbase
 	 */
 	void EraseModule(int j);
 
-	/** Build the ISUPPORT string by triggering all modules On005Numeric events
-	 */
-	void BuildISupport();
-
 	/** Move a given module to a specific slot in the list
 	 * @param modulename The module name to relocate
 	 * @param slot The slot to move the module into
@@ -435,6 +431,10 @@ class InspIRCd : public classbase
 	int time_delta;
 
  public:
+
+	/** Build the ISUPPORT string by triggering all modules On005Numeric events
+	 */
+	void BuildISupport();
 
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
