@@ -283,8 +283,9 @@ class ModuleServicesAccount : public Module
 		if ((target_type == TYPE_USER) && (extname == "accountname"))
 		{	
 			userrec* dest = (userrec*)target;
+			
 			/* logging them out? */
-			if (extdata == "")
+			if (extdata.empty())
 			{
 				std::string* account;
 				dest->GetExt("accountname", account);

@@ -361,8 +361,10 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 
 bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &params)
 {
-	if (params.size() < 3)
+	if (params.size() < 2)
 		return true;
+	else
+		params.push_back("");
 	TreeServer* ServerSource = Utils->FindServer(prefix);
 	if (ServerSource)
 	{
