@@ -1066,6 +1066,30 @@
 #<include file="censor.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CGI:IRC module: Adds support for automatic host changing in CGI:IRC
+# (http://cgiirc.sourceforge.net).
+#<module name="m_cgiirc.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#
+# Optional - If you specify to use m_cgiirc, then you must specify one
+# or more cgihost tags which indicate authorized CGI:IRC servers which
+# will be connecting to your network, and an optional cgiirc tag.
+# For more information see: http://www.inspircd.org/wiki/CGI-IRC_Module
+#
+# Set to yes if you want to notice opers when CGI clients connect
+# <cgiirc opernotice="no">
+#
+# The type field indicates where the module should get the real
+# client's IP address from, for further information, please see the
+# CGI:IRC documentation.
+#
+# <cgihost type="pass" mask="www.mysite.com">       # Get IP from PASS
+# <cgihost type="webirc" mask="somebox.mysite.com"> # Get IP from WEBIRC
+# <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
+# <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel filter module: Allows channel-op defined message
 # filtering using simple string matches (channel mode +g)
 #<module name="m_chanfilter.so">
