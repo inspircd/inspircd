@@ -300,11 +300,11 @@ public:
 			bool valid = false;
 #ifdef IPV6
 			if (user->GetProtocolFamily() == AF_INET6)
-				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)&user->ip)->sin6_addr) > 0);
+				valid = (inet_pton(AF_INET6, user->password, &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
 			else
-				valid = (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr));
+				valid = (inet_aton(user->password, &((sockaddr_in*)user->ip)->sin_addr));
 #else
-			if (inet_aton(user->password, &((sockaddr_in*)&user->ip)->sin_addr))
+			if (inet_aton(user->password, &((sockaddr_in*)user->ip)->sin_addr))
 				valid = true;
 #endif
 			if (valid)
@@ -364,11 +364,11 @@ public:
 		user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 #ifdef IPV6
 		if (user->GetProtocolFamily() == AF_INET6)
-			inet_pton(AF_INET6, newip, &((sockaddr_in6*)&user->ip)->sin6_addr);
+			inet_pton(AF_INET6, newip, &((sockaddr_in6*)user->ip)->sin6_addr);
 		else
-			inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
+			inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
 #else
-		inet_aton(newip, &((sockaddr_in*)&user->ip)->sin_addr);
+		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
 #endif
 
 								
