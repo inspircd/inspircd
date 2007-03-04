@@ -127,7 +127,9 @@ if (defined $opt_library_dir)
 	$config{LIBRARY_DIR} = $opt_library_dir;
 }
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
-chomp($config{HAS_OPENSSL}  = `openssl version 2>/dev/null`);			# Openssl version
+chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);			# Openssl version
+chomp($gnutls_ver = $config{HAS_GNUTLS});
+chomp($openssl_ver = $config{HAS_OPENSSL});
 $config{USE_GNUTLS}	    = "n";
 if (defined $opt_use_gnutls)
 {
@@ -250,7 +252,7 @@ if (defined $opt_away)
 	$config{MAX_AWAY} = $opt_away;
 }
 
-$config{HAS_OPENSSL} =~ /OpenSSL ([-[:digit:].]+)([a-z])?(\-[a-z][0-9])? (\w{3}|[0-9]+) (\w{3}|[0-9]+) [0-9]{4}/;
+$config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/;
 $config{HAS_OPENSSL} = $1;
 
 if ($config{GCCVER} eq "") {
@@ -579,10 +581,12 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 
 	if (($config{HAS_GNUTLS} eq "y") && ($config{HAS_OPENSSL} eq "y")) {
-		print "I have detected both GnuTLS and OpenSSL on your system.\n";
+		print "I have detected both \033[1;32mGnuTLS\033[0m and \033[1;32mOpenSSL\033[0m on your system.\n";
 		print "I will default to GnuTLS. If you wish to use OpenSSL\n";
 		print "instead, you should enable the OpenSSL module yourself\n";
 		print "by copying it from src/modules/extra to src/modules.\n\n";
+		print "Detected GnuTLS version: \033[1;32m" . $gnutls_ver . "\033[0m\n";
+		print "Detected OpenSSL version: \033[1;32m" . $openssl_ver . "\033[0m\n\n";
 	}
 
 	if ($config{HAS_GNUTLS} eq "y") {
@@ -595,6 +599,9 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	if ($config{USE_OPENSSL} eq "y") {
 			print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
 		}
+	}
+	else {
+		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\nyou intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
 	}
 
 	print "\nThe following questions will ask you for various figures relating\n";
