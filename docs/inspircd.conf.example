@@ -987,6 +987,13 @@
 #<alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $2"
 #  requires="NickServ" uline="yes">
 #
+# This alias fixes a glitch in xchat 2.6.x and above and the way it
+# assumes IDENTIFY must be prefixed by a colon (:) character. It should
+# be placed ABOVE the default NICKSERV alias (the first example) listed
+# above.
+#
+#<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
+#  requires="NickServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Alltime module: Shows time on all connected servers at once
