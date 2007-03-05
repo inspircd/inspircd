@@ -133,7 +133,7 @@ class ModuleRedirect : public Module
 					if (destchan && destchan->IsModeSet('L'))
 					{
 						user->WriteServ("470 %s :%s has a circular redirect (+L), not following redirection to %s", user->nick, cname, channel.c_str());
-						return 0;
+						return 1;
 					}
 
 					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick, cname, channel.c_str());
