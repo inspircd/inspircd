@@ -132,11 +132,11 @@ class ModuleRedirect : public Module
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
-						ServerInstance->WriteOpers("*** %s has circular or chained +L to %s", chan->name, channel.c_str());
+						user->WriteServ("470 %s :%s has a circular redirect (+L), not following redirection to %s", user->nick, cname, channel.c_str());
 						return 0;
 					}
 
-					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s",user->nick,cname,channel.c_str());
+					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick, cname, channel.c_str());
 					chanrec::JoinUser(ServerInstance, user, channel.c_str(), false);
 					return 1;
 				}
