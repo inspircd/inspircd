@@ -22,6 +22,7 @@ class ModuleOperjoin : public Module
 {
 	private:
 		std::string operChan;
+		std::vector<std::string> operChans;
 		ConfigReader* conf;
 		
 
@@ -51,6 +52,9 @@ class ModuleOperjoin : public Module
 			
 			conf = new ConfigReader(ServerInstance);
 			operChan = conf->ReadValue("operjoin", "channel", 0);
+			operChans.clear();
+			if (!operChan.empty())
+				tokenize(operChan,operChans);
 		}
 
 		void Implements(char* List)
@@ -62,6 +66,10 @@ class ModuleOperjoin : public Module
 		{
 			DELETE(conf);
 			conf = new ConfigReader(ServerInstance);
+			operChan = conf->ReadValue("operjoin", "channel", 0);
+			operChans.clear();
+			if (!operChan.empty())
+				tokenize(operChan,operChans);
 		}
 
 		virtual ~ModuleOperjoin()
@@ -79,15 +87,9 @@ class ModuleOperjoin : public Module
 			if (!IS_LOCAL(user))
 				return;
 
-			if (!operChan.empty())
-			{
-				std::vector<std::string> operChans;
-				tokenize(operChan,operChans);
-				for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
-					if (ServerInstance->IsChannel(it->c_str()))
-						chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
-			}
-
+			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
+				if (ServerInstance->IsChannel(it->c_str()))
+					chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
 		}
 
 };

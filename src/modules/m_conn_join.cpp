@@ -23,6 +23,7 @@ class ModuleConnJoin : public Module
 	private:
 		std::string JoinChan;
 		ConfigReader* conf;
+		std::vector<std::string> Joinchans;
 		
 
 		int tokenize(const string &str, std::vector<std::string> &tokens)
@@ -50,6 +51,9 @@ class ModuleConnJoin : public Module
 		{
 			conf = new ConfigReader(ServerInstance);
 			JoinChan = conf->ReadValue("autojoin", "channel", 0);
+			Joinchans.clear();
+			if (!JoinChan.empty())
+				tokenize(JoinChan,Joinchans);
 		}
 
 		void Implements(char* List)
@@ -61,6 +65,10 @@ class ModuleConnJoin : public Module
 		{
 			DELETE(conf);
 			conf = new ConfigReader(ServerInstance);
+			JoinChan = conf->ReadValue("autojoin", "channel", 0);
+			Joinchans.clear();
+			if (!JoinChan.empty())
+				tokenize(JoinChan,Joinchans);
 		}
 
 		virtual ~ModuleConnJoin()
@@ -78,15 +86,9 @@ class ModuleConnJoin : public Module
 			if (!IS_LOCAL(user))
 				return;
 
-			if (!JoinChan.empty())
-			{
-				std::vector<std::string> Joinchans;
-				tokenize(JoinChan,Joinchans);
-				for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
-					if (ServerInstance->IsChannel(it->c_str()))
-						chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
-			}
-
+			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
+				if (ServerInstance->IsChannel(it->c_str()))
+					chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
 		}
 
 };
