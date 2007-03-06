@@ -101,7 +101,7 @@ int CullList::Apply()
 
 		if (IS_LOCAL(a->GetUser()))
 		{
-			a->GetUser()->Write("ERROR :Closing link (%s@%s) [%s]",a->GetUser()->ident,a->GetUser()->host,reason.c_str());
+			a->GetUser()->Write("ERROR :Closing link (%s@%s) [%s]", a->GetUser()->ident, a->GetUser()->host, oper_reason.c_str());
 			if ((!a->GetUser()->sendq.empty()) && (!(*a->GetUser()->GetWriteError())))
 				a->GetUser()->FlushWriteBuf();
 		}
@@ -110,7 +110,7 @@ int CullList::Apply()
 		{
 			a->GetUser()->PurgeEmptyChannels();
 			a->GetUser()->WriteCommonQuit(reason, oper_reason);
-			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(),reason));
+			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason));
 		}
 
 		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(a->GetUser()));
@@ -140,9 +140,9 @@ int CullList::Apply()
 		if (a->GetUser()->registered == REG_ALL)
 		{
 			if (IS_LOCAL(a->GetUser()))
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
 			else
-				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
 			a->GetUser()->AddToWhoWas();
 		}
 
@@ -163,3 +163,4 @@ int CullList::Apply()
 	}
 	return n;
 }
+
