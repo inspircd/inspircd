@@ -15,16 +15,26 @@
 #include "users.h"
 #include "cull_list.h"
 
-CullItem::CullItem(userrec* u, std::string &r)
+CullItem::CullItem(userrec* u, std::string &r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
+	/* Seperate oper reason not set, use the user reason */
+	if (*o_reason)
+		this->oper_reason = o_reason;
+	else
+		this->oper_reason = r;
 }
 
-CullItem::CullItem(userrec* u, const char* r)
+CullItem::CullItem(userrec* u, const char* r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
+	/* Seperate oper reason not set, use the user reason */
+	if (*o_reason)
+		this->oper_reason = o_reason;
+	else
+		this->oper_reason = r;
 }
 
 CullItem::~CullItem()
@@ -41,23 +51,28 @@ std::string& CullItem::GetReason()
 	return this->reason;
 }
 
+std::string& CullItem::GetOperReason()
+{
+	return this->oper_reason;
+}
+
 CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	list.clear();
 	exempt.clear();
 }
 
-void CullList::AddItem(userrec* user, std::string &reason)
+void CullList::AddItem(userrec* user, std::string &reason, const char* o_reason)
 {
-	AddItem(user, reason.c_str());
+	AddItem(user, reason.c_str(), o_reason);
 }
 
 
-void CullList::AddItem(userrec* user, const char* reason)
+void CullList::AddItem(userrec* user, const char* reason, const char* o_reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{
-		CullItem item(user,reason);
+		CullItem item(user, reason, o_reason);
 		list.push_back(item);
 		exempt[user] = user;
 	}
@@ -73,9 +88,12 @@ int CullList::Apply()
 		user_hash::iterator iter = ServerInstance->clientlist->find(a->GetUser()->nick);
 		std::map<userrec*, userrec*>::iterator exemptiter = exempt.find(a->GetUser());
 		std::string reason = a->GetReason();
+		std::string oper_reason = a->GetOperReason();
 
 		if (reason.length() > MAXQUIT - 1)
 			reason.resize(MAXQUIT - 1);
+		if (oper_reason.length() > MAXQUIT - 1)
+			oper_reason.resize(MAXQUIT - 1);
 
 		if (a->GetUser()->registered != REG_ALL)
 			if (ServerInstance->unregistered_count)
@@ -91,7 +109,7 @@ int CullList::Apply()
 		if (a->GetUser()->registered == REG_ALL)
 		{
 			a->GetUser()->PurgeEmptyChannels();
-			a->GetUser()->WriteCommonExcept("QUIT :%s",reason.c_str());
+			a->GetUser()->WriteCommonQuit(reason, oper_reason);
 			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(),reason));
 		}
 

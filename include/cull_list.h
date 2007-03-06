@@ -39,6 +39,9 @@ class CullItem : public classbase
 	/** Holds the quit reason to use for this user.
 	*/
 	std::string reason;
+	/** Holds the quit reason opers see, if different from users
+	 */
+	std::string oper_reason;
  public:
 	/** Constrcutor.
 	* Initializes the CullItem with a user pointer
@@ -46,8 +49,8 @@ class CullItem : public classbase
 	* @param u The user to add
 	* @param r The quit reason of the added user
 	*/
-	CullItem(userrec* u, std::string &r);
-	CullItem(userrec* u, const char* r);
+	CullItem(userrec* u, std::string &r, const char* ro = "");
+	CullItem(userrec* u, const char* r, const char* ro = "");
 
 	~CullItem();
 
@@ -57,6 +60,9 @@ class CullItem : public classbase
 	/** Returns the user's quit reason
 	*/
 	std::string& GetReason();
+	/** Returns oper reason
+	 */
+	std::string& GetOperReason();
 };
 
 /** The CullList class can be used by modules, and is used
@@ -102,8 +108,8 @@ class CullList : public classbase
 	* @param user The user to add
 	* @param reason The quit reason of the user being added
 	*/
-	void AddItem(userrec* user, std::string &reason);
-	void AddItem(userrec* user, const char* reason);
+	void AddItem(userrec* user, std::string &reason, const  char* o_reason = "");
+	void AddItem(userrec* user, const char* reason, const char* o_reason = "");
 
 	/** Applies the cull list, quitting all the users
 	* on the list with their quit reasons all at once.

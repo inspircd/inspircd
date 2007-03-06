@@ -800,12 +800,11 @@ void userrec::UnOper()
 	}
 }
 
-void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason)
+void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason, const char* operreason)
 {
 	user->muted = true;
-	Instance->GlobalCulls.AddItem(user, quitreason.c_str());
+	Instance->GlobalCulls.AddItem(user, quitreason.c_str(), operreason);
 }
-
 
 /* adds or updates an entry in the whowas list */
 void userrec::AddToWhoWas()
@@ -1490,67 +1489,47 @@ void userrec::WriteCommonExcept(const char* text, ...)
 	this->WriteCommonExcept(std::string(textbuffer));
 }
 
-void userrec::WriteCommonExcept(const std::string &text)
+void userrec::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
 {
-	bool quit_munge = false;
-	char oper_quit[MAXBUF];
-	char textbuffer[MAXBUF];
 	char tb1[MAXBUF];
 	char tb2[MAXBUF];
-	std::string out1;
-	std::string out2;
-
-	strlcpy(textbuffer, text.c_str(), MAXBUF);
 
 	if (this->registered != REG_ALL)
 		return;
 
 	uniq_id++;
+	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost(),normal_text.c_str());
+	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost(),oper_text.c_str());
+	std::string out1 = tb1;
+	std::string out2 = tb2;
 
-	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost(),textbuffer);
-
-	/* TODO: We need some form of WriteCommonExcept that will send two lines, one line to
-	 * opers and the other line to non-opers, then all this hidebans and hidesplits gunk
-	 * can go byebye.
-	 */
-	if (ServerInstance->Config->HideSplits)
+	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
 	{
-		char* check = textbuffer + 6;
-
-		if (!strncasecmp(textbuffer, "QUIT :",6))
+		CUList *ulist = v->first->GetUsers();
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			std::stringstream split(check);
-			std::string server_one;
-			std::string server_two;
-
-			split >> server_one;
-			split >> server_two;
-
-			if ((ServerInstance->FindServerName(server_one)) && (ServerInstance->FindServerName(server_two)))
+			if (this != i->second)
 			{
-				strlcpy(oper_quit,textbuffer,MAXQUIT);
-				strlcpy(check,"*.net *.split",MAXQUIT);
-				quit_munge = true;
-				snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
-				out2 = tb2;
+				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				{
+					already_sent[i->second->fd] = uniq_id;
+					i->second->Write(*i->second->oper ? out2 : out1);
+				}
 			}
 		}
 	}
+}
 
-	if ((ServerInstance->Config->HideBans) && (!quit_munge))
-	{
-		if ((!strncasecmp(textbuffer, "QUIT :G-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :K-Lined:",14))
-		|| (!strncasecmp(textbuffer, "QUIT :Q-Lined:",14)) || (!strncasecmp(textbuffer, "QUIT :Z-Lined:",14)))
-		{
-			char* check = textbuffer + 13;
-			strlcpy(oper_quit,textbuffer,MAXQUIT);
-			*check = 0;  // We don't need to strlcpy, we just chop it from the :
-			quit_munge = true;
-			snprintf(tb2,MAXBUF,":%s %s",this->GetFullHost(),oper_quit);
-			out2 = tb2;
-		}
-	}
+void userrec::WriteCommonExcept(const std::string &text)
+{
+	char tb1[MAXBUF];
+	std::string out1;
 
+	if (this->registered != REG_ALL)
+		return;
+
+	uniq_id++;
+	snprintf(tb1,MAXBUF,":%s %s",this->GetFullHost(),text.c_str());
 	out1 = tb1;
 
 	for (UCListIter v = this->chans.begin(); v != this->chans.end(); v++)
@@ -1563,10 +1542,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
 				{
 					already_sent[i->second->fd] = uniq_id;
-					if (quit_munge)
-						i->second->Write(*i->second->oper ? out2 : out1);
-					else
-						i->second->Write(out1);
+					i->second->Write(out1);
 				}
 			}
 		}

@@ -669,10 +669,11 @@ class userrec : public connection
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove
-	 * @param r The quit reason
+	 * @param r The quit reason to show to normal users
+	 * @param oreason The quit reason to show to opers
 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
-	static void QuitUser(InspIRCd* Instance, userrec *user, const std::string &r);
+	static void QuitUser(InspIRCd* Instance, userrec *user, const std::string &r, const char* oreason = "");
 
 	/** Add the user to WHOWAS system
 	 */
@@ -802,6 +803,8 @@ class userrec : public connection
 	 * @param text A std::string to send to the users
 	 */
 	void WriteCommonExcept(const std::string &text);
+
+	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
 
 	/** Write a WALLOPS message from this user to all local opers.
 	 * If this user is not opered, the function will return without doing anything.
