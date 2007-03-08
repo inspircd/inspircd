@@ -395,6 +395,10 @@ class ServerConfig : public Extensible
 	 */
 	bool HideBans;
 
+	/** Announce invites to the channel with a server notice
+	 */
+	bool AnnounceInvites;
+
 	/** If this is enabled then operators will
 	 * see invisible (+i) channels in /whois.
 	 */
