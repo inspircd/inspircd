@@ -26,6 +26,7 @@
 
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
+
 /** Holds a CGI site's details
  */
 class CGIhost : public classbase
@@ -67,8 +68,9 @@ class cmd_webirc : public command_t
 						user->Extend("cgiirc_realhost", new std::string(user->host));
 						user->Extend("cgiirc_realip", new std::string(user->GetIPString()));
 						if (notify)
-							ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], "_");
+							ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick, user->host, parameters[2], user->host);
 						user->Extend("cgiirc_webirc_hostname", new std::string(parameters[2]));
+						user->Extend("cgiirc_webirc_ip", new std::string(parameters[3]));
 						return CMD_LOCALONLY;
 					}
 				}
@@ -276,14 +278,31 @@ public:
 
 	virtual void OnUserConnect(userrec* user)
 	{
-		std::string* webirc_hostname;
+		std::string *webirc_hostname, *webirc_ip;
 		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
 		{
 			strlcpy(user->host,webirc_hostname->c_str(),63);
 			strlcpy(user->dhost,webirc_hostname->c_str(),63);
-			user->InvalidateCache();
 			delete webirc_hostname;
+			user->InvalidateCache();
 			user->Shrink("cgiirc_webirc_hostname");
+		}
+		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
+		{
+			bool valid=false;
+#ifdef IPV6
+			valid = (inet_pton(AF_INET6, webirc_ip->c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0); 
+
+			if(!valid)
+				valid = (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr));
+#else
+			if (inet_aton(webirc_ip->c_str(), &((sockaddr_in*)user->ip)->sin_addr))
+				valid = true;
+#endif
+
+			delete webirc_ip;
+			user->InvalidateCache();
+			user->Shrink("cgiirc_webirc_ip");
 		}
 	}
 
