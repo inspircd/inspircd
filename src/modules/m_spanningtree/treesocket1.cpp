@@ -663,7 +663,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	else
 	/* U-lined servers always win regardless of their TS */
-	if ((TS > ourTS) && (!this->Instance->ULine(source.c_str())))
+	if (TS > ourTS)
 	{
 		/* Bounce the mode back to its sender.* We use our lower TS, so the other end
 		 * SHOULD accept it, if its clock is right.
@@ -761,13 +761,6 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	else
 	{
-		/* The server was ulined, but something iffy is up with the TS.
-		 * Sound the alarm bells!
-		 */
-		if ((this->Instance->ULine(sourceserv.c_str())) && (TS > ourTS))
-		{
-			this->Instance->WriteOpers("\2WARNING!\2 U-Lined server '%s' has bad TS for '%s' (accepted change): \2SYNC YOUR CLOCKS\2 to avoid this notice",sourceserv.c_str(),params[0].c_str());
-		}
 		/* Allow the mode, route it to either server or user command handling */
 		if (smode)
 			this->Instance->SendMode(modelist,n,who);
