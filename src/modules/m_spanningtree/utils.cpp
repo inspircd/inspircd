@@ -377,7 +377,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	FlatLinks = Conf->ReadFlag("options","flatlinks",0);
 	HideULines = Conf->ReadFlag("options","hideulines",0);
 	AnnounceTSChange = Conf->ReadFlag("options","announcets",0);
-	EnableTimeSync = !(Conf->ReadFlag("options","notimesync",0));
+	EnableTimeSync = Conf->ReadFlag("options","timesync",0);
 	LinkBlocks.clear();
 	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)

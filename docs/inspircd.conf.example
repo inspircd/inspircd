@@ -781,13 +781,12 @@
 #                  of text sent out. Eg. NOTICE @#test :@ testing     #
 #                  vs. the off setting: NOTICE @#test :testing        #
 #                                                                     #
-#  notimesync    - If this value is 'yes', 'true', or '1', time       #
-#                  synchronization is disabled on this server. This   #
-#                  means any servers you are linked to will not       #
-#                  automatically synchronize time with you, and in    #
-#                  most cases will just result in more bounced modes  #
-#                  on netsplits. This option should be the same on    #
-#                  all servers.                                       #
+#  timesync    -   If this value is 'yes', 'true', or '1', time       #
+#                  synchronization i enabled on this server. This     #
+#                  means any servers you are linked to will           #
+#                  automatically synchronize time with you, however   #
+#                  this can cause clock drifts internal to InspIRCd,  #
+#                  and you should use ntpd instead, NOT this option.  #
 #                                                                     #
 #  hostintopic   - If this is set to yes (the default) then the full  #
 #                  nick!user@host is shown for who set a TOPIC last.  #
@@ -822,7 +821,7 @@
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
-         notimesync="no"
+         timesync="no"
 	 hostintopic="yes"
          allowhalfop="yes">
 
