@@ -793,6 +793,11 @@
 #                  nick!user@host is shown for who set a TOPIC last.  #
 #                  if set to no, then only the nickname is shown.     #
 #                                                                     #
+#announceinvites - If this option is set to yes (the default), then   #
+#                  invites are announced to the channel when a user   #
+#                  invites annother user. If you consider this to be  #
+#                  unnecessary noise, explicitly set this to no.      #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
