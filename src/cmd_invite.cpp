@@ -78,7 +78,7 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		u->WriteFrom(user,"INVITE %s :%s",u->nick,c->name);
 		user->WriteServ("341 %s %s %s",user->nick,u->nick,c->name);
 		if (ServerInstance->Config->AnnounceInvites)
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "%s invited %s into the channel", user->nick, u->nick)
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "%s invited %s into the channel", user->nick, u->nick);
 		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c));
 	}
 	else
