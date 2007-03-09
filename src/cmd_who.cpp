@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -91,6 +91,35 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 	return false;
 }
 
+void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch, userrec* u, std::vector<std::string> &whoresults)
+{
+	std::string lcn = getlastchanname(u);
+	chanrec* chlast = ServerInstance->FindChan(lcn);
+
+	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
+				((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : u->server) +
+				" " + u->nick + " ";
+
+	/* away? */
+	if (u->awaymsg)
+	{
+		wholine.append("G");
+	}
+	else
+	{
+		wholine.append("H");
+	}
+
+	/* oper? */
+	if (u->oper)
+	{
+		wholine.append("*");
+	}
+
+	wholine = wholine + (ch ? ch->GetPrefixChar(u) : (chlast ? chlast->GetPrefixChar(u) : "")) + " :0 " + u->fullname;
+	whoresults.push_back(wholine);
+}
+
 CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	/*
@@ -101,11 +130,11 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	 */
 
 	/* WHO options */
-	bool opt_viewopersonly = false;
-	bool opt_showrealhost = false;
-	bool opt_unlimit = false;
-	bool opt_realname = false;
-	bool opt_mode = false;
+	opt_viewopersonly = false;
+	opt_showrealhost = false;
+	opt_unlimit = false;
+	opt_realname = false;
+	opt_mode = false;
 
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -165,31 +194,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			if (opt_viewopersonly && !*(i->second)->oper)
 				continue;
 
-			/* XXX - code duplication; this could be more efficient -- w00t */
-			std::string wholine = initial;
-
-			wholine = wholine + ch->name + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
-					((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : i->second->server) +
-					" " + i->second->nick + " ";
-
-			/* away? */
-			if (*(i->second)->awaymsg)
-			{
-				wholine.append("G");
-			}
-			else
-			{
-				wholine.append("H");
-			}
-
-			/* oper? */
-			if (*(i->second)->oper)
-			{
-				wholine.append("*");
-			}
-
-			wholine = wholine + ch->GetPrefixChar(i->second) + " :0 " + i->second->fullname;
-			whoresults.push_back(wholine);
+			SendWhoLine(user, initial, ch, i->second, whoresults);
 		}
 	}
 	else
@@ -205,32 +210,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
-					std::string wholine = initial;
-	
-					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + (opt_showrealhost ? oper->host : oper->dhost) + " " + 
-							((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : oper->server) +
-							" " + oper->nick + " ";
-
-					ch = ServerInstance->FindChan(getlastchanname(oper));
-
-					/* away? */
-					if (*oper->awaymsg)
-					{
-						wholine.append("G");
-					}
-					else
-					{
-						wholine.append("H");
-					}
-	
-					/* oper? */
-					if (*oper->oper)
-					{
-						wholine.append("*");
-					}
-	
-					wholine = wholine + (ch ? ch->GetPrefixChar(oper) : "") + " :0 " + oper->fullname;
-					whoresults.push_back(wholine);
+					SendWhoLine(user, initial, NULL, oper, whoresults);
 				}
 			}
 		}
@@ -240,32 +220,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
-					std::string wholine = initial;
-	
-					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
-						((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : i->second->server) +
-						" " + i->second->nick + " ";
-	
-					ch = ServerInstance->FindChan(getlastchanname(i->second));
-
-					/* away? */
-					if (*(i->second)->awaymsg)
-					{
-						wholine.append("G");
-					}
-					else
-					{
-						wholine.append("H");
-					}
-
-					/* oper? */
-					if (*(i->second)->oper)
-					{
-						wholine.append("*");
-					}
-
-					wholine = wholine + (ch ? ch->GetPrefixChar(i->second) : "") + " :0 " + i->second->fullname;
-					whoresults.push_back(wholine);
+					SendWhoLine(user, initial, NULL, i->second, whoresults);
 				}
 			}
 		}
