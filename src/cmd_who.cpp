@@ -169,7 +169,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			std::string wholine = initial;
 
 			wholine = wholine + ch->name + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
-					i->second->server + " " + i->second->nick + " ";
+					((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : i->second->server) +
+					" " + i->second->nick + " ";
 
 			/* away? */
 			if (*(i->second)->awaymsg)
@@ -207,7 +208,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					std::string wholine = initial;
 	
 					wholine = wholine + getlastchanname(oper) + " " + oper->ident + " " + (opt_showrealhost ? oper->host : oper->dhost) + " " + 
-							oper->server + " " + oper->nick + " ";
+							((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : oper->server) +
+							" " + oper->nick + " ";
 
 					ch = ServerInstance->FindChan(getlastchanname(oper));
 
@@ -241,7 +243,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					std::string wholine = initial;
 	
 					wholine = wholine + getlastchanname(i->second) + " " + i->second->ident + " " + (opt_showrealhost ? i->second->host : i->second->dhost) + " " + 
-						i->second->server + " " + i->second->nick + " ";
+						((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : i->second->server) +
+						" " + i->second->nick + " ";
 	
 					ch = ServerInstance->FindChan(getlastchanname(i->second));
 
