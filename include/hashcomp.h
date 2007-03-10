@@ -530,8 +530,8 @@ std::istream& operator>>(std::istream &is, irc::string &str);
  */
 std::string operator+ (std::string& leftval, irc::string& rightval);
 irc::string operator+ (irc::string& leftval, std::string& rightval);
-bool operator== (std::string& leftval, irc::string& rightval);
-bool operator== (irc::string& leftval, std::string& rightval);
+bool operator== (const std::string& leftval, const irc::string& rightval);
+bool operator== (const irc::string& leftval, const std::string& rightval);
 
 std::string assign(const irc::string &other);
 irc::string assign(const std::string &other);

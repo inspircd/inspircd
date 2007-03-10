@@ -102,12 +102,11 @@ class ListModeBase : public ModeHandler
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
-		irc::string csp(assign(parameter));
 		if (el)
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if(csp == it->mask)
+				if(parameter == it->mask)
 				{
 					return std::make_pair(true, parameter);
 				}
