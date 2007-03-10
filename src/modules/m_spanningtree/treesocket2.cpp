@@ -691,6 +691,9 @@ bool TreeSocket::LocalPing(const std::string &prefix, std::deque<std::string> &p
 	}
 }
 
+/** TODO: This really should remove *everything* not just status modes (thanks jilles)
+ * - This means listmodes, simplemodes, etc too.
+ */
 bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 1)
