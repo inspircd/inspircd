@@ -645,6 +645,13 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		ourTS = chan->age;
 	else
 		created = true; /* don't perform deops, and set TS to correct time after processing. */
+
+	/* do this first, so our mode reversals are correctly received by other servers
+	 * if there is a TS collision.
+	 */
+	params[2] = ":" + params[2];
+	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
+
 	/* In 1.1, if they have the newer channel, we immediately clear
 	 * all status modes from our users. We then accept their modes.
 	 * If WE have the newer channel its the other side's job to do this.
@@ -671,11 +678,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
 	irc::tokenstream users(params[2]);
 	std::string item = "*";
-	/* do this first, so our mode reversals are correctly received by other servers
-	 * if there is a TS collision.
-	 */
-	params[2] = ":" + params[2];
-	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
+
 	/* Now, process every 'prefixes,nick' pair */
 	while (item != "")
 	{
