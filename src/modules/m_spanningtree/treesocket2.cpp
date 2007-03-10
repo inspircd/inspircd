@@ -691,8 +691,7 @@ bool TreeSocket::LocalPing(const std::string &prefix, std::deque<std::string> &p
 	}
 }
 
-/** TODO: This really should remove *everything* not just status modes (thanks jilles)
- * - This means listmodes, simplemodes, etc too.
+/** TODO: This creates a total mess of output and needs to really use irc::modestacker.
  */
 bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string> &params)
 {
@@ -701,41 +700,11 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 	chanrec* c = Instance->FindChan(params[0]);
 	if (c)
 	{
-		irc::modestacker modestack(false);
-		CUList *ulist = c->GetUsers();
-		const char* y[127];
-		std::deque<std::string> stackresult;
-		std::string x;
-		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		for (char modeletter = 'A'; modeletter <= 'z'; modeletter++)
 		{
-			std::string modesequence = Instance->Modes->ModeString(i->second, c);
-			if (modesequence.length())
-			{
-				irc::spacesepstream sep(modesequence);
-				std::string modeletters = sep.GetToken();
-				while (!modeletters.empty())
-				{
-					char mletter = *(modeletters.begin());
-					modestack.Push(mletter,sep.GetToken());
-					modeletters.erase(modeletters.begin());
-				}
-			}
-		}
-
-		while (modestack.GetStackedLine(stackresult))
-		{
-			stackresult.push_front(ConvToStr(c->age));
-			stackresult.push_front(c->name);
-			Utils->DoOneToMany(Instance->Config->ServerName, "FMODE", stackresult);
-			stackresult.erase(stackresult.begin() + 1);
-			for (size_t z = 0; z < stackresult.size(); z++)
-			{
-				y[z] = stackresult[z].c_str();
-			}
-			userrec* n = new userrec(Instance);
-			n->SetFd(FD_MAGIC_NUMBER);
-			Instance->SendMode(y, stackresult.size(), n);
-			delete n;
+			ModeHandler* mh = Instance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+			if (mh)
+				mh->RemoveMode(c);
 		}
 	}
 	return true;
