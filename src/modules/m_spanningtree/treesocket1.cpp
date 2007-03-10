@@ -504,17 +504,16 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	 */
 	if (TS <= ourTS)
 	{
-			if (smode)
-			{
-				this->Instance->SendMode(modelist, n, who);
-			}
-			else
-			{
-				this->Instance->CallCommandHandler("MODE", modelist, n, who);
-			}
-			/* HOT POTATO! PASS IT ON! */
-			Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
+		if (smode)
+		{
+			this->Instance->SendMode(modelist, n, who);
 		}
+		else
+		{
+			this->Instance->CallCommandHandler("MODE", modelist, n, who);
+		}
+		/* HOT POTATO! PASS IT ON! */
+		Utils->DoOneToAllButSender(source,"FMODE",params,sourceserv);
 	}
 	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
 	 */
