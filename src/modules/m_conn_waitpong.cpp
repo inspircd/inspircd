@@ -86,7 +86,6 @@ class ModuleWaitPong : public Module
 			
 			if(pingrpl)
 			{
-				ServerInstance->Log(DEBUG,"PONG command - has extend");
 				if(strcmp(pingrpl, parameters[0]) == 0)
 				{
 					DELETE(pingrpl);
