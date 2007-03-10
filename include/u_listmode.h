@@ -45,7 +45,7 @@ class ListItem : public classbase
 {
 public:
 	std::string nick;
-	std::string mask;
+	irc::string mask;
 	std::string time;
 };
 
@@ -102,11 +102,12 @@ class ListModeBase : public ModeHandler
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
+		irc::string csp(assign(parameter));
 		if (el)
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if(parameter == it->mask)
+				if(csp == it->mask)
 				{
 					return std::make_pair(true, parameter);
 				}
@@ -145,7 +146,7 @@ class ListModeBase : public ModeHandler
 			n->SetFd(FD_MAGIC_NUMBER);
 			for(modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				modestack.Push(this->GetModeChar(), it->mask);
+				modestack.Push(this->GetModeChar(), assign(it->mask));
 			}
 			while (modestack.GetStackedLine(stackresult))
 			{
@@ -252,7 +253,7 @@ class ListModeBase : public ModeHandler
 						{
 							// And now add the mask onto the list...
 							ListItem e;
-							e.mask = parameter;
+							e.mask = assign(parameter);
 							e.nick = source->nick;
 							e.time = stringtime();
 
@@ -338,7 +339,7 @@ class ListModeBase : public ModeHandler
 		{
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				modestack.Push(std::string(1, mode)[0], it->mask);
+				modestack.Push(std::string(1, mode)[0], assign(it->mask));
 			}
 		}
 		while (modestack.GetStackedLine(stackresult))
