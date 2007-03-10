@@ -628,6 +628,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	userrec* who = NULL;		    /* User we are currently checking */
 	std::string channel = params[0];	/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    /* Timestamp given to us for remote side */
+	std::string nicklist = params[2];
 	bool created = false;
 
 	/* Try and find the channel */
@@ -676,7 +677,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		}
 	}
 	/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
-	irc::tokenstream users(params[2]);
+	irc::tokenstream users(nicklist);
 	std::string item = "*";
 
 	/* Now, process every 'prefixes,nick' pair */
