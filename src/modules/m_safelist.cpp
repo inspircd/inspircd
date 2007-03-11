@@ -38,6 +38,8 @@ class ModuleSafeList : public Module
 {
 	time_t ThrottleSecs;
 	size_t ServerNameSize;
+	int global_listing;
+	int LimitList;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
@@ -52,7 +54,9 @@ class ModuleSafeList : public Module
 	{
 		ConfigReader MyConf(ServerInstance);
 		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
+		LimitList = MyConf.ReadInteger("safelist", "maxlisters", "50", 0, true);
 		ServerNameSize = strlen(ServerInstance->Config->ServerName) + 4;
+		global_listing = 0;
 	}
  
 	virtual Version GetVersion()
@@ -88,6 +92,14 @@ class ModuleSafeList : public Module
 	 */
 	int HandleList(const char** parameters, int pcnt, userrec* user)
 	{
+		if (global_listing >= LimitList)
+		{
+			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick);
+			user->WriteServ("321 %s Channel :Users Name",user->nick);
+			user->WriteServ("323 %s :End of channel list.",user->nick);
+			return 1;
+		}
+
 		/* First, let's check if the user is currently /list'ing */
 		ListData *ld;
 		user->GetExt("safelist_cache", ld);
@@ -117,6 +129,7 @@ class ModuleSafeList : public Module
 			DELETE(last_list_time);
 			user->Shrink("safelist_last");
 		}
+
  
 		/*
 		 * start at channel 0! ;)
@@ -129,6 +142,8 @@ class ModuleSafeList : public Module
 		user->Extend("safelist_last", llt);
 
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
+
+		global_listing++;
 
 		return 1;
 	}
@@ -185,6 +200,7 @@ class ModuleSafeList : public Module
 			{
 				user->Shrink("safelist_cache");
 				DELETE(ld);
+				global_listing--;
 			}
 		}
 	}

@@ -1561,13 +1561,19 @@
 #
 #-#-#-#-#-#-#-#-#-#-# SAFELIST CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
 #
-# When using Safelist, you may set the following value, which sets the
-# amount of time in seconds a user must wait between LIST commands.
-# For example, if this is set to 60 (the default) then the user may not
-# /LIST more than once a minute. If not defined, the default value is
-# 60 seconds.
+# When using Safelist, you may set the following values;
 #
-#<safelist throttle="60">
+# The first value, 'throttle', sets the amount of time in seconds a user
+# must wait between LIST commands. For example, if this is set to 60
+# (the default) then the user may not /LIST more than once a minute.
+# If not defined, the default value is 60 seconds.
+#
+# The second value, 'maxlisters', indicates the maximum number of users
+# which may be retrieving a LIST at once. It is not recommended you raise
+# this value, as increasing it too high can make your network vulnerable
+# to floodbots which waste your bandwidth and CPU time with LIST requests.
+#
+#<safelist throttle="60" maxlisters="50">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command
