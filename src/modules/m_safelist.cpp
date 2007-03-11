@@ -216,6 +216,7 @@ class ModuleSafeList : public Module
 			{
 				u->Shrink("safelist_cache");
 				DELETE(ld);
+				global_listing--;
 			}
 			time_t* last_list_time;
 			u->GetExt("safelist_last", last_list_time);
