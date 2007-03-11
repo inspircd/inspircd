@@ -131,12 +131,10 @@ class ListModeBase : public ModeHandler
 
 	virtual void RemoveMode(chanrec* channel)
 	{
-		ServerInstance->Log(DEBUG,"Removing listmode base from %s %s",channel->name,infokey.c_str());
 		modelist* el;
 		channel->GetExt(infokey, el);
 		if (el)
 		{
-			ServerInstance->Log(DEBUG,"Channel is extended with a list");
 			irc::modestacker modestack(false);
 			std::deque<std::string> stackresult;
 			const char* mode_junk[MAXMODES+1];
