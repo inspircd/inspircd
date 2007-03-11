@@ -1039,7 +1039,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			/* Yes, know, this is a mess. Its reasonably fast though as we're
 			 * working with std::string here.
 			 */
-			if ((command == "NICK") && (params.size() > 1))
+			if ((command == "NICK") && (params.size() >= 8))
 			{
 				return this->IntroduceClient(prefix,params);
 			}
