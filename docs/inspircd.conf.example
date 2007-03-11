@@ -67,9 +67,9 @@
 #              email="email@address.com">                             #
 #                                                                     #
 
-<admin  name="Johnny English"
-        nick="MI5"
-        email="MI5@the.best.secret.agent">
+<admin name="Johnny English"
+       nick="MI5"
+       email="MI5@the.best.secret.agent">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   PORT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
@@ -381,10 +381,10 @@
 #             type="oper type">                                       #
 #                                                                     #
 
-<oper   name="Brain"
-        password="s3cret"
-        host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
-        type="NetAdmin">
+<oper name="Brain"
+      password="s3cret"
+      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+      type="NetAdmin">
 
 
 #-#-#-#-#-#-#-#-#-#-#-  SERVER LINK CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
@@ -518,23 +518,23 @@
 #                                                                     #
 
 <link name="hub.penguin.org"
-        ipaddr="penguin.box.com"
-        port="7000"
-        allowmask="69.58.44.0/24"
-        autoconnect="300"
-        failover="hub.other.net"
-        timeout="15"
-        transport="gnutls"
-	bind="1.2.3.4"
-        sendpass="outgoing!password"
-        recvpass="incoming!password">
+      ipaddr="penguin.box.com"
+      port="7000"
+      allowmask="69.58.44.0/24"
+      autoconnect="300"
+      failover="hub.other.net"
+      timeout="15"
+      transport="gnutls"
+      bind="1.2.3.4"
+      sendpass="outgoing!password"
+      recvpass="incoming!password">
 
 <link name="services.antarctic.com"
-        ipaddr="localhost"
-        port="7000"
-        allowmask="127.0.0.0/8"
-        sendpass="penguins"
-        recvpass="polarbears">
+      ipaddr="localhost"
+      port="7000"
+      allowmask="127.0.0.0/8"
+      sendpass="penguins"
+      recvpass="polarbears">
 
 <uline server="services.antarctic.com">
 
@@ -546,8 +546,8 @@
 #   configurtion directory.                                           #
 #                                                                     #
 
-<files  motd="inspircd.motd"
-        rules="inspircd.rules">
+<files motd="inspircd.motd"
+       rules="inspircd.rules">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -822,7 +822,7 @@
          ircumsgprefix="no"
          announcets="yes"
          timesync="no"
-	 hostintopic="yes"
+         hostintopic="yes"
          allowhalfop="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
