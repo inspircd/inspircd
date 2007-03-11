@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -33,143 +33,26 @@ class ListData : public classbase
 };
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
- 
-typedef std::vector<userrec *> UserList;
-UserList listusers;    /* vector of people doing a /list */
-class ListTimer *timer;
-
-/** To create a timer which recurs every second, we inherit from InspTimer.
- * InspTimer is only one-shot however, so at the end of each Tick() we simply
- * insert another of ourselves into the pending queue :)
- */
-class ListTimer : public InspTimer
-{
- private:
-
-	char buffer[MAXBUF];
-	chanrec *chan;
-	InspIRCd* ServerInstance;
-	const std::string glob;
-	size_t ServerNameSize;
-
- public:
-
-	ListTimer(InspIRCd* Instance, long interval) : InspTimer(interval,Instance->Time()), ServerInstance(Instance)
-	{
-		ServerNameSize = 4 + strlen(ServerInstance->Config->ServerName);
-	}
-
-	virtual void Tick(time_t TIME)
-	{
-		bool go_again = true;
-
-		while (go_again)
-		{
-			go_again = false;
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
-			{
-				/*
-				 * What we do here:
-				 *  - Get where they are up to
-				 *  - If it's more than total number of channels, erase
-				 *    them from the iterator, set go_again to true
-				 *  - If not, spool more channels
-				 */
-				userrec* u = (userrec*)(*iter);
-				ListData* ld;
-				u->GetExt("safelist_cache", ld);
-				if ((size_t)ld->list_position > ServerInstance->chanlist->size())
-				{
-					u->Shrink("safelist_cache");
-					DELETE(ld);
-					listusers.erase(iter);
-					go_again = true;
-					break;
-				}
-				chan = NULL;
-				/* Attempt to fill up to 25% the user's sendq with /LIST output */
-				long amount_sent = 0;
-				do
-				{
-					if (!ld->list_position)
-						u->WriteServ("321 %s Channel :Users Name",u->nick);
-					chan = ServerInstance->GetChannelIndex(ld->list_position);
-					/* spool details */
-					bool has_user = (chan && chan->HasUser(u));
-					if ((chan) && (chan->modes[CM_PRIVATE]))
-					{
-						bool display = match(chan->name, ld->glob.c_str());
-						long users = chan->GetUserCounter();
-						if ((users) && (display))
-						{
-							int counter = snprintf(buffer, MAXBUF, "322 %s *", u->nick);
-							amount_sent += counter + ServerNameSize;
-							u->WriteServ(std::string(buffer));
-						}
-					}
-					else if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
-					{
-						bool display = match(chan->name, ld->glob.c_str());
-						long users = chan->GetUserCounter();
-
-						if ((users) && (display))
-						{
-							int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",u->nick, chan->name, users, chan->ChanModes(has_user), chan->topic);
-							/* Increment total plus linefeed */
-							amount_sent += counter + ServerNameSize;
-							u->WriteServ(std::string(buffer));
-						}
-					}
-					else
-					{
-						if (!chan)
-						{
-							if (!ld->list_ended)
-							{
-								ld->list_ended = true;
-								u->WriteServ("323 %s :End of channel list.",u->nick);
-							}
-						}
-					}
-
-					ld->list_position++;
-				}
-				while ((chan != NULL) && (amount_sent < (u->sendqmax / 4)));
-			}
-		}
-
-		if (listusers.size())
-		{
-			timer = new ListTimer(ServerInstance,1);
-			ServerInstance->Timers->AddTimer(timer);
-		}
-		else
-		{
-			timer = NULL;
-		}
-	}
-};
 
 class ModuleSafeList : public Module
 {
 	time_t ThrottleSecs;
+	size_t ServerNameSize;
  public:
 	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
 	{
-		timer = NULL;
 		OnRehash(NULL, "");
 	}
  
 	virtual ~ModuleSafeList()
 	{
-		if (timer)
-			ServerInstance->Timers->DelTimer(timer);
 	}
 
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ConfigReader MyConf(ServerInstance);
 		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
+		ServerNameSize = strlen(ServerInstance->Config->ServerName) + 4;
 	}
  
 	virtual Version GetVersion()
@@ -179,7 +62,7 @@ class ModuleSafeList : public Module
  
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnRehash] = 1;
+		List[I_OnBufferFlushed] = List[I_OnPreCommand] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnRehash] = 1;
 	}
 
 	/*
@@ -240,19 +123,70 @@ class ModuleSafeList : public Module
 		 */
 		ld = new ListData(0,ServerInstance->Time(), pcnt ? parameters[0] : "*");
 		user->Extend("safelist_cache", ld);
-		listusers.push_back(user);
 
 		time_t* llt = new time_t;
 		*llt = ServerInstance->Time();
 		user->Extend("safelist_last", llt);
 
-		if (!timer)
-		{
-			timer = new ListTimer(ServerInstance,1);
-			ServerInstance->Timers->AddTimer(timer);
-		}
+		user->WriteServ("321 %s Channel :Users Name",user->nick);
 
 		return 1;
+	}
+
+	virtual void OnBufferFlushed(userrec* user)
+	{
+		char buffer[MAXBUF];
+		ListData* ld;
+		if (user->GetExt("safelist_cache", ld))
+		{
+			chanrec* chan = NULL;
+			long amount_sent = 0;
+			do
+			{
+				chan = ServerInstance->GetChannelIndex(ld->list_position);
+				bool has_user = (chan && chan->HasUser(user));
+				if ((chan) && (chan->modes[CM_PRIVATE]))
+				{
+					bool display = match(chan->name, ld->glob.c_str());
+					long users = chan->GetUserCounter();
+					if ((users) && (display))
+					{
+						int counter = snprintf(buffer, MAXBUF, "322 %s *", user->nick);
+						amount_sent += counter + ServerNameSize;
+						user->WriteServ(std::string(buffer));
+					}
+				}
+				else if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
+				{
+					bool display = match(chan->name, ld->glob.c_str());
+					long users = chan->GetUserCounter();
+					if ((users) && (display))
+					{
+						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",user->nick, chan->name, users, chan->ChanModes(has_user), chan->topic);
+						amount_sent += counter + ServerNameSize;
+						user->WriteServ(std::string(buffer));
+					}
+				}
+				else
+				{
+					if (!chan)
+					{
+						if (!ld->list_ended)
+						{
+							ld->list_ended = true;
+							user->WriteServ("323 %s :End of channel list.",user->nick);
+						}
+					}
+				}
+				ld->list_position++;
+			}
+			while ((chan != NULL) && (amount_sent < (user->sendqmax / 4)));
+			if (ld->list_ended)
+			{
+				user->Shrink("safelist_cache");
+				DELETE(ld);
+			}
+		}
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -266,15 +200,6 @@ class ModuleSafeList : public Module
 			{
 				u->Shrink("safelist_cache");
 				DELETE(ld);
-			}
-			for (UserList::iterator iter = listusers.begin(); iter != listusers.end(); iter++)
-			{
-				userrec* u2 = (userrec*)(*iter);
-				if (u2 == u)
-				{
-					listusers.erase(iter);
-					break;
-				}
 			}
 			time_t* last_list_time;
 			u->GetExt("safelist_last", last_list_time);

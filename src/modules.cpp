@@ -192,6 +192,7 @@ int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
 int		Module::OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text) { return 0; };
 void		Module::OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list) { };
 void		Module::OnGarbageCollect() { };
+void		Module::OnBufferFlushed(userrec* user) { };
 
 long InspIRCd::PriorityAfter(const std::string &modulename)
 {

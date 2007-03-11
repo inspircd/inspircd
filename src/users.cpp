@@ -734,6 +734,11 @@ void userrec::FlushWriteBuf()
 	{
 		ServerInstance->Log(DEBUG,"Exception in userrec::FlushWriteBuf()");
 	}
+
+	if (this->sendq.empty())
+	{
+		FOREACH_MOD(I_OnBufferFlushed,OnBufferFlushed(this));
+	}
 }
 
 void userrec::SetWriteError(const std::string &error)
