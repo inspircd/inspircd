@@ -64,27 +64,84 @@ class TreeServer : public classbase
 	 */
 	void DelHashEntry();
 
-	/** These accessors etc should be pretty self-
-	 * explanitory.
+	/** Get route.
+	 * The 'route' is defined as the locally-
+	 * connected server which can be used to reach this server.
 	 */
 	TreeServer* GetRoute();
+
+	/** Get server name
+	 */
 	std::string GetName();
+
+	/** Get server description (GECOS)
+	 */
 	std::string GetDesc();
+
+	/** Get server version string
+	 */
 	std::string GetVersion();
+
+	/** Set time we are next due to ping this server
+	 */
 	void SetNextPingTime(time_t t);
+
+	/** Get the time we are next due to ping this server
+	 */
 	time_t NextPingTime();
+
+	/** True if the server answered their last ping
+	 */
 	bool AnsweredLastPing();
+
+	/** Set the server as responding to its last ping
+	 */
 	void SetPingFlag();
+
+	/** Get the number of users on this server for MAP
+	 */
 	int GetUserCount();
+
+	/** Increment the user counter
+	 */
 	void AddUserCount();
+
+	/** Decrement the user counter
+	 */
 	void DelUserCount();
+
+	/** Get the oper count for this server
+	 */
 	int GetOperCount();
+
+	/** Get the TreeSocket pointer for local servers.
+	 * For remote servers, this returns NULL.
+	 */
 	TreeSocket* GetSocket();
+
+	/** Get the parent server.
+	 * For the root node, this returns NULL.
+	 */
 	TreeServer* GetParent();
+
+	/** Set the server version string
+	 */
 	void SetVersion(const std::string &Version);
+
+	/** Return number of child servers
+	 */
 	unsigned int ChildCount();
+
+	/** Return a child server indexed 0..n
+	 */
 	TreeServer* GetChild(unsigned int n);
+
+	/** Add a child server
+	 */
 	void AddChild(TreeServer* Child);
+
+	/** Delete a child server, return false if it didn't exist.
+	 */
 	bool DelChild(TreeServer* Child);
 
 	/** Removes child nodes of this node, and of that node, etc etc.
@@ -93,6 +150,8 @@ class TreeServer : public classbase
 	 */
 	bool Tidy();
 
+	/** Destructor
+	 */
 	~TreeServer();
 
 };

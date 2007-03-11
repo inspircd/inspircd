@@ -64,21 +64,21 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
  */
 class TreeSocket : public InspSocket
 {
-	SpanningTreeUtilities* Utils;
-	std::string myhost;
-	std::string in_buffer;
-	ServerState LinkState;
-	std::string InboundServerName;
-	std::string InboundDescription;
-	int num_lost_users;
-	int num_lost_servers;
-	time_t NextPing;
-	bool LastPingWasGood;
-	bool bursting;
-	unsigned int keylength;
-	std::string ModuleList;
-	std::map<std::string,std::string> CapKeys;
-	Module* Hook;
+	SpanningTreeUtilities* Utils;		/* Utility class */
+	std::string myhost;			/* Canonical hostname */
+	std::string in_buffer;			/* Input buffer */
+	ServerState LinkState;			/* Link state */
+	std::string InboundServerName;		/* Server name sent to us by other side */
+	std::string InboundDescription;		/* Server description (GECOS) sent to us by the other side */
+	int num_lost_users;			/* Users lost in split */
+	int num_lost_servers;			/* Servers lost in split */
+	time_t NextPing;			/* Time when we are due to ping this server */
+	bool LastPingWasGood;			/* Responded to last ping we sent? */
+	bool bursting;				/* True if not finished bursting yet */
+	unsigned int keylength;			/* Is this still used? */
+	std::string ModuleList;			/* Module list of other server from CAPAB */
+	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
+	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
 
  public:
 
@@ -89,6 +89,11 @@ class TreeSocket : public InspSocket
 	 */
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, Module* HookMod = NULL);
 
+	/** Because most of the I/O gubbins are encapsulated within
+	 * InspSocket, we just call the superclass constructor for
+	 * most of the action, and append a few of our own values
+	 * to it.
+	 */
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod = NULL);
 
 	/** When a listening socket gives us a new file descriptor,
@@ -97,10 +102,16 @@ class TreeSocket : public InspSocket
 	 */
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod = NULL);
 
+	/** Get link state
+	 */
 	ServerState GetLinkState();
 
+	/** Return the module which we are hooking to for I/O encapsulation
+	 */
 	Module* GetHook();
 
+	/** Destructor
+	 */
 	~TreeSocket();
 
 	/** When an outbound connection finishes connecting, we receive
@@ -111,8 +122,12 @@ class TreeSocket : public InspSocket
 	 */
 	virtual bool OnConnected();
 
+	/** Handle socket error event
+	 */
 	virtual void OnError(InspSocketError e);
 
+	/** Handle socket disconnect event
+	 */
 	virtual int OnDisconnect();
 
 	/** Recursively send the server tree with distances as hops.
@@ -126,8 +141,12 @@ class TreeSocket : public InspSocket
 	 */
 	void SendServers(TreeServer* Current, TreeServer* s, int hops);
 
+	/** Returns my capabilities as a string
+	 */
 	std::string MyCapabilities();
 
+	/** Send my capabilities to the remote side
+	 */
 	void SendCapabilities();
 
 	/* Check a comma seperated list for an item */
@@ -196,9 +215,11 @@ class TreeSocket : public InspSocket
 	 */
 	virtual bool OnDataReady();
 
+	/** Send one or more complete lines down the socket
+	 */
 	int WriteLine(std::string line);
 
-	/* Handle ERROR command */
+	/** Handle ERROR command */
 	bool Error(std::deque<std::string> &params);
 
 	/** remote MOTD. leet, huh? */
@@ -219,60 +240,109 @@ class TreeSocket : public InspSocket
 	 */
 	bool ForceNick(const std::string &prefix, std::deque<std::string> &params);
 
-	/*
-	 * Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
+	/** Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
 	 * then let that server do the dirty work (squit it!). Example:
 	 * A -> B -> C -> D: oper on A squits D, A routes to B, B routes to C, C notices D connected locally, kills it. -- w00t
 	 */
 	bool RemoteSquit(const std::string &prefix, std::deque<std::string> &params);
 
+	/** SVSJOIN
+	 */
 	bool ServiceJoin(const std::string &prefix, std::deque<std::string> &params);
 
+	/** REHASH
+	 */
 	bool RemoteRehash(const std::string &prefix, std::deque<std::string> &params);
 
+	/** KILL
+	 */
 	bool RemoteKill(const std::string &prefix, std::deque<std::string> &params);
 
+	/** PONG
+	 */
 	bool LocalPong(const std::string &prefix, std::deque<std::string> &params);
 
+	/** METADATA
+	 */
 	bool MetaData(const std::string &prefix, std::deque<std::string> &params);
 
+	/** VERSION
+	 */
 	bool ServerVersion(const std::string &prefix, std::deque<std::string> &params);
 
+	/** CHGHOST
+	 */
 	bool ChangeHost(const std::string &prefix, std::deque<std::string> &params);
 
+	/** ADDLINE
+	 */
 	bool AddLine(const std::string &prefix, std::deque<std::string> &params);
 
+	/** CHGNAME
+	 */
 	bool ChangeName(const std::string &prefix, std::deque<std::string> &params);
 
+	/** WHOIS
+	 */
 	bool Whois(const std::string &prefix, std::deque<std::string> &params);
 
+	/** PUSH
+	 */
 	bool Push(const std::string &prefix, std::deque<std::string> &params);
 
+	/** SETTIME
+	 */
 	bool HandleSetTime(const std::string &prefix, std::deque<std::string> &params);
 
+	/** TIME
+	 */
 	bool Time(const std::string &prefix, std::deque<std::string> &params);
 
+	/** PING
+	 */
 	bool LocalPing(const std::string &prefix, std::deque<std::string> &params);
 
+	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
+	 * This does not update the timestamp of the target channel, this must be done seperately.
+	 */
 	bool RemoveStatus(const std::string &prefix, std::deque<std::string> &params);
 
+	/** <- (remote) <- SERVER
+	 */
 	bool RemoteServer(const std::string &prefix, std::deque<std::string> &params);
 
+	/** (local) -> SERVER
+	 */
 	bool Outbound_Reply_Server(std::deque<std::string> &params);
 
+	/** (local) <- SERVER
+	 */
 	bool Inbound_Server(std::deque<std::string> &params);
 
+	/** Handle netsplit
+	 */
 	void Split(const std::string &line, std::deque<std::string> &n);
 
+	/** Process complete line from buffer
+	 */
 	bool ProcessLine(std::string &line);
 
+	/** Get this server's name
+	 */
 	virtual std::string GetName();
 
+	/** Handle socket timeout from connect()
+	 */
 	virtual void OnTimeout();
 
+	/** Handle socket close event
+	 */
 	virtual void OnClose();
 
+	/** Handle incoming connection event
+	 */
 	virtual int OnIncomingConnection(int newsock, char* ip);
 };
 
 #endif
+

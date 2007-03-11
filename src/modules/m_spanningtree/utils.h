@@ -71,7 +71,12 @@ class SpanningTreeUtilities
 	 */
 	int lines_to_apply;
 
+	/** List of module pointers which can provide I/O abstraction
+	 */
 	hookmodules hooks;
+
+	/** List of module names which can provide I/O abstraction
+	 */
 	std::vector<std::string> hooknames;
 
 	/** Initialise utility class
