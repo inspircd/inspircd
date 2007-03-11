@@ -15,13 +15,16 @@
  */
 const long ProtocolVersion = 1104;
 
-
+/** Forward declarations
+ */
 class cmd_rconnect;
 class SpanningTreeUtilities;
 class TimeSyncTimer;
 class TreeServer;
 class Link;
 
+/** This is the main class for the spanningtree module
+ */
 class ModuleSpanningTree : public Module
 {
 	int line;
@@ -32,27 +35,94 @@ class ModuleSpanningTree : public Module
 	SpanningTreeUtilities* Utils;
 
  public:
+	/** Timer for clock syncs
+	 */
 	TimeSyncTimer *SyncTimer;
+
+	/** Constructor
+	 */
 	ModuleSpanningTree(InspIRCd* Me);
+
+	/** Shows /LINKS
+	 */
 	void ShowLinks(TreeServer* Current, userrec* user, int hops);
+
+	/** Counts local servers
+	 */
 	int CountLocalServs();
+
+	/** Counts local and remote servers
+	 */
 	int CountServs();
+
+	/** Handle LINKS command
+	 */
 	void HandleLinks(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle LUSERS command
+	 */
 	void HandleLusers(const char** parameters, int pcnt, userrec* user);
+
+	/** Show MAP output to a user (recursive)
+	 */
 	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80], float &totusers, float &totservers);
+
+	/** Handle remote MOTD
+	 */
 	int HandleMotd(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle remote ADMIN
+	 */
 	int HandleAdmin(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle remote STATS
+	 */
 	int HandleStats(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle MAP command
+	 */
 	void HandleMap(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle SQUIT
+	 */
 	int HandleSquit(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle TIME
+	 */
 	int HandleTime(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle remote WHOIS
+	 */
 	int HandleRemoteWhois(const char** parameters, int pcnt, userrec* user);
+
+	/** Ping all local servers
+	 */
 	void DoPingChecks(time_t curtime);
+
+	/** Connect a server locally
+	 */
 	void ConnectServer(Link* x);
+
+	/** Check if any servers are due to be autoconnected
+	 */
 	void AutoConnectServers(time_t curtime);
+
+	/** Handle remote VERSON
+	 */
 	int HandleVersion(const char** parameters, int pcnt, userrec* user);
+
+	/** Handle CONNECT
+	 */
 	int HandleConnect(const char** parameters, int pcnt, userrec* user);
+
+	/** Send out time sync to all servers
+	 */
 	void BroadcastTimeSync();
+
+	/**
+	 ** *** MODULE EVENTS ***
+	 **/
+
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
 	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
