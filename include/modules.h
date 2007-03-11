@@ -1351,6 +1351,13 @@ class Module : public Extensible
 	 */
 	virtual void OnGarbageCollect();
 
+	/** Called whenever a user's write buffer has been completely sent.
+	 * This is called when the user's write buffer is completely empty, and
+	 * there are no more pending bytes to be written and no pending write events
+	 * in the socket engine's queue. This may be used to refill the buffer with
+	 * data which is being spooled in a controlled manner, e.g. LIST lines.
+	 * @param user The user who's buffer is now empty.
+	 */
 	virtual void OnBufferFlushed(userrec* user);
 };
 
