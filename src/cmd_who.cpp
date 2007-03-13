@@ -101,7 +101,7 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 				" " + u->nick + " ";
 
 	/* away? */
-	if (u->awaymsg)
+	if (*u->awaymsg)
 	{
 		wholine.append("G");
 	}
@@ -111,7 +111,7 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 	}
 
 	/* oper? */
-	if (u->oper)
+	if (*u->oper)
 	{
 		wholine.append("*");
 	}
