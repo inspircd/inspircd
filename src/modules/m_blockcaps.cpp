@@ -53,7 +53,7 @@ class BlockCaps : public ModeHandler
 class ModuleBlockCAPS : public Module
 {
 	BlockCaps* bc;
-	unsigned int percent;
+	float percent;
 	unsigned int minlen;
 public:
 	
@@ -77,22 +77,22 @@ public:
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if ((text.size() < minlen) || (!IS_LOCAL(user)))
-			return 0;
-
 		if (target_type == TYPE_CHANNEL)
 		{
+			if ((!IS_LOCAL(user)) || (text.length() < minlen))
+				return 0;
+
 			chanrec* c = (chanrec*)dest;
 
 			if (c->IsModeSet('P'))
 			{
-				int caps = 0;
+				float caps = 0;
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
 					if ( (*i >= 'A') && (*i <= 'Z'))
 						caps++;
 				}
-				if ( (caps * 100 / text.size()) >= percent )
+				if ( ((caps / text.length()) * 100) >= percent )
 				{
 					user->WriteServ( "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
 					return 1;
