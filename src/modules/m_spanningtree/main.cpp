@@ -904,11 +904,18 @@ void ModuleSpanningTree::OnUserConnect(userrec* user)
 	}
 }
 
-void ModuleSpanningTree::OnUserQuit(userrec* user, const std::string &reason)
+void ModuleSpanningTree::OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
 		std::deque<std::string> params;
+
+		if (oper_message != reason)
+		{
+			params.push_back(":"+oper_message);
+			Utils->DoOneToMany(user->nick,"OPERQUIT",params);
+		}
+		params.clear();
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(user->nick,"QUIT",params);
 	}

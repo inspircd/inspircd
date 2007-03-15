@@ -283,6 +283,9 @@ class userrec : public connection
 	 * mode characters this user is making use of.
 	 */
 	void DecrementModes();
+
+	char* operquit;
+
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
@@ -894,6 +897,13 @@ class userrec : public connection
 	/** Show the server RULES file to this user
 	 */
 	void ShowRULES();
+
+	/** Set oper-specific quit message shown to opers only when the user quits
+	 * (overrides any sent by QuitUser)
+	 */
+	void SetOperQuit(const std::string &oquit);
+
+	const char* GetOperQuit();
 
 	/** Handle socket event.
 	 * From EventHandler class.

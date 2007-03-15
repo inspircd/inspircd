@@ -233,7 +233,7 @@ class ModuleSafeList : public Module
 		output.append(" SAFELIST");
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &message)
+	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		this->OnCleanup(TYPE_USER,user);
 	}

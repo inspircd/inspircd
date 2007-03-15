@@ -306,7 +306,7 @@ class Modulewatch : public Module
 		List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick);
 		if (x != whos_watching_me->end())

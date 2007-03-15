@@ -66,7 +66,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User connecting: "+b);
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 	{
 		// method called when a user disconnects
 	

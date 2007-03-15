@@ -243,7 +243,7 @@ class ModuleServicesAccount : public Module
 	}
 
 	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(userrec* user, const std::string &message)
+	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* account;
 		user->GetExt("accountname", account);

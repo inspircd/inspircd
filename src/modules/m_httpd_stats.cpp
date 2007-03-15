@@ -203,7 +203,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserQuit(userrec* user, const std::string &message)
+	void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{

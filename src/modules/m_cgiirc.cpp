@@ -235,7 +235,7 @@ public:
 		}
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &message)
+	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
 	{
 		OnCleanup(TYPE_USER, user);
 	}

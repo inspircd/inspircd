@@ -75,7 +75,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11017
+#define NATIVE_API_VERSION 11018
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -471,9 +471,10 @@ class Module : public Extensible
 	 * This event is only called when the user is fully registered when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
-	 * @param message The user's quit message
+	 * @param message The user's quit message (as seen by non-opers)
+	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(userrec* user, const std::string &message);
+	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message);
 
 	/** Called whenever a user's socket is closed.
 	 * The details of the exiting user are available to you in the parameter userrec *user

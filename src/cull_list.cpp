@@ -87,8 +87,9 @@ int CullList::Apply()
 
 		user_hash::iterator iter = ServerInstance->clientlist->find(a->GetUser()->nick);
 		std::map<userrec*, userrec*>::iterator exemptiter = exempt.find(a->GetUser());
+		const char* preset_reason = a->GetUser()->GetOperQuit();
 		std::string reason = a->GetReason();
-		std::string oper_reason = a->GetOperReason();
+		std::string oper_reason = *preset_reason ? preset_reason : a->GetOperReason();
 
 		if (reason.length() > MAXQUIT - 1)
 			reason.resize(MAXQUIT - 1);
@@ -110,7 +111,7 @@ int CullList::Apply()
 		{
 			a->GetUser()->PurgeEmptyChannels();
 			a->GetUser()->WriteCommonQuit(reason, oper_reason);
-			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason));
+			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason, oper_reason));
 		}
 
 		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(a->GetUser()));

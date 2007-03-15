@@ -77,6 +77,7 @@ public:
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
+		ServerInstance->Log(DEBUG, "*** " + ConvToStr( ( 20 * 100 / 26)  ));
 		if (target_type == TYPE_CHANNEL)
 		{
 			if ((!IS_LOCAL(user)) || (text.length() < minlen))

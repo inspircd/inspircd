@@ -13,7 +13,7 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1104;
+const long ProtocolVersion = 1105;
 
 /** Forward declarations
  */
@@ -137,7 +137,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnChangeName(userrec* user, const std::string &gecos);
 	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage);
 	virtual void OnUserConnect(userrec* user);
-	virtual void OnUserQuit(userrec* user, const std::string &reason);
+	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message);
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
 	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason);

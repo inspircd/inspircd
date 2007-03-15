@@ -272,7 +272,7 @@ class ModuleDCCAllow : public Module
 		Conf = new ConfigReader(ServerInstance);
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 	{
 		dccallowlist* dl;
 	

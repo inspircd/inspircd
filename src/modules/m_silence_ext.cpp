@@ -253,7 +253,7 @@ class ModuleSilence : public Module
 		List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason)
+	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
 		silencelist* sl;

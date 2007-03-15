@@ -331,13 +331,15 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	memset(modes,0,sizeof(modes));
 	memset(snomasks,0,sizeof(snomasks));
 	/* Invalidate cache */
-	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 }
 
 userrec::~userrec()
 {
 	this->InvalidateCache();
 	this->DecrementModes();
+	if (operquit)
+		free(operquit);
 	if (ip)
 	{
 		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
@@ -1913,4 +1915,18 @@ void userrec::HandleEvent(EventType et, int errornum)
 		}
 	}
 }
+
+void userrec::SetOperQuit(const std::string &oquit)
+{
+	if (operquit)
+		return;
+
+	operquit = strdup(oquit.c_str());
+}
+
+const char* userrec::GetOperQuit()
+{
+	return operquit ? operquit : "";
+}
+
 

@@ -240,6 +240,8 @@ class TreeSocket : public InspSocket
 	 */
 	bool ForceNick(const std::string &prefix, std::deque<std::string> &params);
 
+	bool OperQuit(const std::string &prefix, std::deque<std::string> &params);
+
 	/** Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
 	 * then let that server do the dirty work (squit it!). Example:
 	 * A -> B -> C -> D: oper on A squits D, A routes to B, B routes to C, C notices D connected locally, kills it. -- w00t

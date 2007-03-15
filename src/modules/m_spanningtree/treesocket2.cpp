@@ -207,6 +207,21 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 	return true;
 }
 
+bool TreeSocket::OperQuit(const std::string &prefix, std::deque<std::string> &params)
+{
+	if (params.size() < 1)
+		return true;
+
+	userrec* u = this->Instance->FindNick(prefix);
+
+	if (u)
+	{
+		Utils->DoOneToAllButSender(prefix,"OPERQUIT",params,prefix);
+		u->SetOperQuit(params[0]);
+	}
+	return true;
+}
+
 /*
  * Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
  * then let that server do the dirty work (squit it!). Example:
@@ -1156,6 +1171,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 					prefix = this->GetName();
 				}
 				return this->ForceNick(prefix,params);
+			}
+			else if (command == "OPERQUIT")
+			{
+				return this->OperQuit(prefix,params);
 			}
 			else if (command == "RSQUIT")
 			{

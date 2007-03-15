@@ -104,7 +104,7 @@ std::string Event::GetEventID()
 		Module::Module(InspIRCd* Me) : ServerInstance(Me) { }
 		Module::~Module() { }
 void		Module::OnUserConnect(userrec* user) { }
-void		Module::OnUserQuit(userrec* user, const std::string& message) { }
+void		Module::OnUserQuit(userrec* user, const std::string& message, const std::string &oper_message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
 void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
 void		Module::OnPostJoin(userrec* user, chanrec* channel) { }
