@@ -90,14 +90,12 @@ public:
 				int caps = 0;
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
-					//if ( (*i >= 'A') && (*i <= 'Z'))
 					if (capsmap[(unsigned char)*i])
 						caps++;
 				}
-				ServerInstance->Log(DEBUG, "<******> Percent caps: " + ConvToStr( ((caps*100)/(int)text.length())  ) + "% >= " + ConvToStr(percent) + "%");
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
-					user->WriteServ( "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
+					user->WriteServ( "404 %s %s :Your line cannot be more than %d%% capital letters if it is over %d letters long", user->nick, c->name, percent, (int)minlen);
 					return 1;
 				}
 			}
