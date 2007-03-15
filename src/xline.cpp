@@ -684,7 +684,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_gline(u,true)))
 				{
 					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 
@@ -693,7 +696,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_kline(u,true)))
 				{
 					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 
@@ -702,7 +708,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_qline(u->nick,true)))
 				{
 					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 
@@ -711,7 +720,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_zline(u->GetIPString(),true)))
 				{
 					snprintf(reason,MAXBUF,"Z-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u,"Z-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "Z-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 		}
@@ -740,7 +752,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_gline(u)))
 				{
 					snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
@@ -748,7 +763,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_kline(u)))
 				{
 					snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
@@ -756,7 +774,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_qline(u->nick)))
 				{
 					snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
@@ -764,7 +785,10 @@ void XLineManager::apply_lines(const int What)
 				if ((check = matches_zline(u->GetIPString())))
 				{
 					snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
-					ServerInstance->GlobalCulls.AddItem(u, "Z-Lined", reason);
+					if (ServerInstance->Config->HideBans)
+						ServerInstance->GlobalCulls.AddItem(u, "Z-Lined", reason);
+					else
+						ServerInstance->GlobalCulls.AddItem(u, reason);
 				}
 			}
 		}
