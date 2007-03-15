@@ -53,8 +53,9 @@ class BlockCaps : public ModeHandler
 class ModuleBlockCAPS : public Module
 {
 	BlockCaps* bc;
-	float percent;
+	int percent;
 	unsigned int minlen;
+	char capsmap[256];
 public:
 	
 	ModuleBlockCAPS(InspIRCd* Me) : Module::Module(Me)
@@ -77,7 +78,6 @@ public:
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		ServerInstance->Log(DEBUG, "*** " + ConvToStr( ( 20 * 100 / 26)  ));
 		if (target_type == TYPE_CHANNEL)
 		{
 			if ((!IS_LOCAL(user)) || (text.length() < minlen))
@@ -87,13 +87,15 @@ public:
 
 			if (c->IsModeSet('P'))
 			{
-				float caps = 0;
+				int caps = 0;
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{
-					if ( (*i >= 'A') && (*i <= 'Z'))
+					//if ( (*i >= 'A') && (*i <= 'Z'))
+					if (capsmap[(unsigned char)*i])
 						caps++;
 				}
-				if ( ((caps / text.length()) * 100) >= percent )
+				ServerInstance->Log(DEBUG, "<******> Percent caps: " + ConvToStr( ((caps*100)/(int)text.length())  ) + "% >= " + ConvToStr(percent) + "%");
+				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
 					user->WriteServ( "404 %s %s :Can't send all-CAPS to channel (+P set)", user->nick, c->name);
 					return 1;
@@ -113,6 +115,12 @@ public:
 		ConfigReader Conf(ServerInstance);
 		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);
 		minlen = Conf.ReadInteger("blockcaps", "minlen", "0", 0, true);
+		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);
+		if (hmap.empty())
+			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		memset(&capsmap, 0, 255);
+		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
+			capsmap[(unsigned char)*n] = 1;
 		if (percent < 0 || percent > 100)
 		{
 			ServerInstance->Log(DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
