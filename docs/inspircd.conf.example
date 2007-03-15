@@ -1050,7 +1050,13 @@
 # minlen         - The minimum length a line must be for the block    #
 #                  percent to have any effect.                        #
 #                                                                     #
-#<blockcaps percent="95" minlen="5">
+# capsmap        - A list of chars to be considered CAPS, this was    #
+#                  you can add CAPS for your language. Also you can   #
+#                  add things like ! and space to further lock down   #
+#                  on caps usage.                                     #
+#<blockcaps percent="50"
+#           minlen="5"
+#           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c
