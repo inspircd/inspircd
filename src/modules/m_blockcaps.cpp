@@ -89,10 +89,7 @@ public:
 			{
 				int caps = 0;
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
-				{
-					if (capsmap[(unsigned char)*i])
-						caps++;
-				}
+					caps += capsmap[(unsigned char)*i];
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
 					user->WriteServ( "404 %s %s :Your line cannot be more than %d%% capital letters if it is %d or more letters long", user->nick, c->name, percent, minlen);
