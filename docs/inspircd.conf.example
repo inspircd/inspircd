@@ -781,13 +781,6 @@
 #                  of text sent out. Eg. NOTICE @#test :@ testing     #
 #                  vs. the off setting: NOTICE @#test :testing        #
 #                                                                     #
-#  timesync    -   If this value is 'yes', 'true', or '1', time       #
-#                  synchronization i enabled on this server. This     #
-#                  means any servers you are linked to will           #
-#                  automatically synchronize time with you, however   #
-#                  this can cause clock drifts internal to InspIRCd,  #
-#                  and you should use ntpd instead, NOT this option.  #
-#                                                                     #
 #  hostintopic   - If this is set to yes (the default) then the full  #
 #                  nick!user@host is shown for who set a TOPIC last.  #
 #                  if set to no, then only the nickname is shown.     #
@@ -821,9 +814,30 @@
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
-         timesync="no"
          hostintopic="yes"
          allowhalfop="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
+# Time sychronization options for m_spanningtree linking.             #
+#                                                                     #
+# Because IRC is very time and clock dependent, InspIRCd provides its #
+# own methods for syncronization of time between servers as shown     #
+# in the example below, for servers that don't have ntpd running.     #
+#                                                                     #
+#  enable    -     If this value is 'yes', 'true', or '1', time       #
+#                  synchronization is enabled on this server. This    #
+#                  means any servers you are linked to will           #
+#                  automatically synchronize time, however you should #
+#                  use ntpd instead where possible, NOT this option.  #
+#                                                                     #
+#  master    -     If this value is set to yes, then this server will #
+#                  act as the authoritative time source for the whole #
+#                  network. All other servers will respect its time   #
+#                  without question, and match their times to it.     #
+#                  only one server should have the master value set   #
+#                  to 'yes'.                                          #
+#                                                                     #
+<timesync enable="no" master="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
