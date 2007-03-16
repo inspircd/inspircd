@@ -19,13 +19,12 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-TimeSyncTimer::TimeSyncTimer(InspIRCd *Inst, ModuleSpanningTree *Mod) : InspTimer(10, Inst->Time(), true), Instance(Inst), Module(Mod)
+TimeSyncTimer::TimeSyncTimer(InspIRCd *Inst, ModuleSpanningTree *Mod) : InspTimer(600, Inst->Time(), true), Instance(Inst), Module(Mod)
 {
 }
 
 void TimeSyncTimer::Tick(time_t TIME)
 {
 	Module->BroadcastTimeSync();
-	Instance->Log(DEBUG,"TICK!");
 }
 
