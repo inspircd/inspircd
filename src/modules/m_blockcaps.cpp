@@ -95,7 +95,7 @@ public:
 				}
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
-					user->WriteServ( "404 %s %s :Your line cannot be more than %d%% capital letters if it is over %d letters long", user->nick, c->name, percent, (int)minlen);
+					user->WriteServ( "404 %s %s :Your line cannot be more than %d%% capital letters if it is %d or more letters long", user->nick, c->name, percent, minlen);
 					return 1;
 				}
 			}
