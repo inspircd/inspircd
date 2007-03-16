@@ -62,43 +62,7 @@ CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 		strlcpy(modulename,ServerInstance->Config->module_names[i].c_str(),256);
 		if (*user->oper)
 		{
-			if ((pcnt >= 2) && (!strcasecmp(parameters[0],"debug")))
-			{
-				if (match(ServerInstance->Config->module_names[i].c_str(),parameters[1]))
-				{
-					user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
-					for (int it = 0; itab[it];)
-					{
-						char data[MAXBUF];
-						char dlist[MAXBUF];
-						*dlist = 0;
-						for (int v = 0; v < 4; v++)
-						{
-							if (itab[it])
-							{
-								if (ServerInstance->Config->implement_lists[i][it])
-								{
-									snprintf(data,MAXBUF,"%s=>%c ",itab[it],(ServerInstance->Config->implement_lists[i][it] ? '1' : '0'));
-									strlcat(dlist,data,MAXBUF);
-								}
-								it++;
-							}
-						}
-						if (*dlist)
-							user->WriteServ("900 %s :%s [ %s]",user->nick,ServerConfig::CleanFilename(modulename),dlist);
-					}
-					user->WriteServ("900 %s :=== DEBUG: Implementation counts ===",user->nick);
-					for (int it = 0; itab[it]; it++)
-					{
-						if (ServerInstance->Config->global_implementation[it])
-							user->WriteServ("900 %s :%s: %d times",user->nick, itab[it],(int)ServerInstance->Config->global_implementation[it]);
-					}
-				}
-			}
-			else
-			{
-				user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
-			}
+			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{

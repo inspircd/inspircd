@@ -228,6 +228,9 @@ class TreeSocket : public InspSocket
 	/** remote ADMIN. leet, huh? */
 	bool Admin(const std::string &prefix, std::deque<std::string> &params);
 
+	/** Remote MODULES */
+	bool Modules(const std::string &prefix, std::deque<std::string> &params);
+
 	bool Stats(const std::string &prefix, std::deque<std::string> &params);
 
 	/** Because the core won't let users or even SERVERS set +o,

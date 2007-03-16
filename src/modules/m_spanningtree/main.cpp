@@ -199,13 +199,9 @@ int ModuleSpanningTree::HandleMotd(const char** parameters, int pcnt, userrec* u
 		/* Send it out remotely, generate no reply yet */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (s)
-		{
 			Utils->DoOneToOne(user->nick, "MOTD", params, s->GetName());
-		}
 		else
-		{
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
-		}
 		return 1;
 	}
 	return 0;
@@ -221,16 +217,24 @@ int ModuleSpanningTree::HandleAdmin(const char** parameters, int pcnt, userrec* 
 		/* Send it out remotely, generate no reply yet */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (s)
-		{
 			Utils->DoOneToOne(user->nick, "ADMIN", params, s->GetName());
-		}
 		else
-		{
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
-		}
 		return 1;
 	}
 	return 0;
+}
+
+int ModuleSpanningTree::HandleModules(const char** parameters, int pcnt, userrec* user)
+{
+	std::deque<std::string> params;
+	params.push_back(parameters[0]);
+	TreeServer* s = Utils->FindServerMask(parameters[0]);
+	if (s)
+		Utils->DoOneToOne(user->nick, "MODULES", params, s->GetName());
+	else
+		user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+	return 1;
 }
 
 int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* user)
@@ -249,9 +253,7 @@ int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* 
 			Utils->DoOneToOne(user->nick, "STATS", params, s->GetName());
 		}
 		else
-		{
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
-		}
 		return 1;
 	}
 	return 0;
@@ -647,6 +649,11 @@ int ModuleSpanningTree::OnPreCommand(const std::string &command, const char** pa
 	else if ((command == "VERSION") && (pcnt > 0))
 	{
 		this->HandleVersion(parameters,pcnt,user);
+		return 1;
+	}
+	else if ((command == "MODULES") && (pcnt > 0))
+	{
+		this->HandleModules(parameters,pcnt,user);
 		return 1;
 	}
 	return 0;

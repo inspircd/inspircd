@@ -95,6 +95,10 @@ class ModuleSpanningTree : public Module
 	 */
 	int HandleRemoteWhois(const char** parameters, int pcnt, userrec* user);
 
+	/** Handle remote MODULES
+	 */
+	int HandleModules(const char** parameters, int pcnt, userrec* user);
+
 	/** Ping all local servers
 	 */
 	void DoPingChecks(time_t curtime);
