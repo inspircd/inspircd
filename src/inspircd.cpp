@@ -938,7 +938,7 @@ time_t InspIRCd::Time(bool delta)
 int InspIRCd::SetTimeDelta(int delta)
 {
 	int old = time_delta;
-	time_delta += delta;
+	time_delta = delta;
 	this->Log(DEBUG, "Time delta set to %d (was %d)", time_delta, old);
 	return old;
 }
