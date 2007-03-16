@@ -71,6 +71,12 @@ class SpanningTreeUtilities
 	 */
 	int lines_to_apply;
 
+	/** If this is true, this server is the master sync server for time
+	 * synching - e.g. it is the server with its clock correct. It will
+	 * send out the correct time at intervals.
+	 */
+	bool MasterTime;
+
 	/** List of module pointers which can provide I/O abstraction
 	 */
 	hookmodules hooks;

@@ -566,9 +566,13 @@ int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec
 
 void ModuleSpanningTree::BroadcastTimeSync()
 {
-	std::deque<std::string> params;
-	params.push_back(ConvToStr(ServerInstance->Time(true)));
-	Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
+	if (Utils->MasterTime)
+	{
+		std::deque<std::string> params;
+		params.push_back(ConvToStr(ServerInstance->Time(false)));
+		params.push_back("FORCE");
+		Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
+	}
 }
 
 int ModuleSpanningTree::OnStats(char statschar, userrec* user, string_list &results)

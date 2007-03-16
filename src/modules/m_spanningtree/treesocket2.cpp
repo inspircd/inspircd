@@ -602,28 +602,17 @@ bool TreeSocket::HandleSetTime(const std::string &prefix, std::deque<std::string
 	if ((params.size() == 2) && (params[1] == "FORCE"))
 		force = true;
 
-	time_t rts = atoi(params[0].c_str());
-	time_t us = Instance->Time(true);
+	time_t them = atoi(params[0].c_str());
+	time_t us = Instance->Time(false);
 
-	if (rts == us)
+	time_t diff = them - us;
+
+	Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
+
+	if (force || (them != us))
 	{
-		Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
-	}
-	else if (force || (rts < us))
-	{
-		int old = Instance->SetTimeDelta(rts - us);
-		Instance->Log(DEBUG, "%s TS (diff %d) from %s applied (old delta was %d)", (force) ? "Forced" : "Lower", rts - us, prefix.c_str(), old);
-
-		Utils->DoOneToAllButSender(prefix, "TIMESET", params, prefix);
-	}
-	else
-	{
-		Instance->Log(DEBUG, "Higher TS (diff %d) from %s overridden", us - rts, prefix.c_str());
-
-		std::deque<std::string> oparams;
-		oparams.push_back(ConvToStr(us));
-
-		Utils->DoOneToMany(prefix, "TIMESET", oparams);
+		time_t old = Instance->SetTimeDelta(diff);
+		Instance->Log(DEBUG, "TS (diff %d) from %s applied (old delta was %d)", diff, prefix.c_str(), old);
 	}
 
 	return true;
@@ -947,13 +936,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size() && Utils->EnableTimeSync)
 				{
-					/* If a time stamp is provided, apply synchronization */
-					bool force = false;
+					bool we_have_delta = (Instance->Time(false) != Instance->Time(true));
 					time_t them = atoi(params[0].c_str());
-					time_t us = Instance->Time(false);
-					int delta = them - us;
-					if ((params.size() == 2) && (params[1] == "FORCE"))
-						force = true;
+					time_t delta = them - Instance->Time(false);
 					if ((delta < -600) || (delta > 600))
 					{
 						this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
@@ -961,16 +946,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 						return false;
 					}
 
-					if (force || (us > them))
+					if (!Utils->MasterTime && !we_have_delta)
 					{
-						this->Instance->SetTimeDelta(them - us);
+						this->Instance->SetTimeDelta(delta);
 						// Send this new timestamp to any other servers
 						Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
-					}
-					else
-					{
-						// Override the timestamp
-						this->WriteLine(":" + Utils->TreeRoot->GetName() + " TIMESET " + ConvToStr(us));
 					}
 				}
 				this->LinkState = CONNECTED;
