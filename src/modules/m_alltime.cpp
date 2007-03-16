@@ -30,13 +30,16 @@ class cmd_alltime : public command_t
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
 	{
 		char fmtdate[64];
-		time_t now = ServerInstance->Time();
+		char fmtdate2[64];
+		time_t now = ServerInstance->Time(false);
 		strftime(fmtdate, sizeof(fmtdate), "%F %T", gmtime(&now));
+		now = ServerInstance->Time(true);
+		strftime(fmtdate2, sizeof(fmtdate2), "%F %T", gmtime(&now));
 		
 		int delta = ServerInstance->GetTimeDelta();
 		
-		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :Time for " +
-			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds)";
+		string msg = ":" + string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time for " +
+			ServerInstance->Config->ServerName + " is: " + fmtdate + " (delta " + ConvToStr(delta) + " seconds): Time with delta: "+ fmtdate2;
 		
 		if (IS_LOCAL(user))
 		{
