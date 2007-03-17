@@ -994,11 +994,15 @@ bool TreeSocket::ProcessLine(std::string &line)
 					bool we_have_delta = (Instance->Time(false) != Instance->Time(true));
 					time_t them = atoi(params[0].c_str());
 					time_t delta = them - Instance->Time(false);
-					if ((delta < -600) || (delta > 600))
+					if ((delta < -300) || (delta > 300))
 					{
-						this->Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than ten minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
-						this->WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
+						WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return false;
+					}
+					else if ((delta < -30) || (delta > 30))
+					{
+						Instance->SNO->WriteToSnoMask('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs(delta));
 					}
 
 					if (!Utils->MasterTime && !we_have_delta)
