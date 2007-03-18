@@ -756,7 +756,10 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				/* Finally, we can actually place the user into the channel.
 				 * We're sure its right. Final answer, phone a friend.
 				 */
-				chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "");
+				if (created)
+					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "", TS);
+				else
+					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "");
 				/* Have we already queued up MAXMODES modes with parameters
 				 * (+qaohv) ready to be sent to the server?
 				 */
@@ -837,19 +840,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		/* Free anything we have left to free */
 		for (unsigned int f = 2; f < modectr; f++)
 			free(mode_users[f]);
-	}
-	/* if we newly created the channel, set it's TS properly. */
-	if (created)
-	{
-		/* find created channel .. */
-		chan = this->Instance->FindChan(channel);
-		if (chan)
-			/* w00t said this shouldnt be needed but it is.
-			 * This isnt strictly true, as chan can be NULL
-			 * if a nick collision has occured and therefore
-			 * the channel was never created.
-			 */
-			chan->age = TS;
 	}
 	/* All done. That wasnt so bad was it, you can wipe
 	 * the sweat from your forehead now. :-)

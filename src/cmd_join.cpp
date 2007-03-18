@@ -42,7 +42,7 @@ CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
-			chanrec::JoinUser(ServerInstance, user, parameters[0], false);
+			chanrec::JoinUser(ServerInstance, user, parameters[0], false, "");
 			return CMD_SUCCESS;
 		}
 	}

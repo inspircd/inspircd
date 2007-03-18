@@ -49,7 +49,7 @@ class cmd_sajoin : public command_t
 				return CMD_FAILURE;
 			}
 
-			chanrec::JoinUser(ServerInstance, dest, parameters[1], true);
+			chanrec::JoinUser(ServerInstance, dest, parameters[1], true, "");
 
 			/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propogate */
 			chanrec* n = ServerInstance->FindChan(parameters[1]);

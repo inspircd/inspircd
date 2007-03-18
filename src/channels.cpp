@@ -176,7 +176,7 @@ CUList* chanrec::GetVoicedUsers()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
  */
-chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bool override, const char* key)
+chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bool override, const char* key, time_t TS)
 {
 	if (!user || !cn)
 		return NULL;
@@ -192,6 +192,9 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (!Ptr)
 	{
+		if ((!IS_LOCAL(user)) && (!TS))
+			Instance->Log(DEBUG,"*** BUG *** chanrec::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
+
 		privs = "@";
 
 		if (IS_LOCAL(user) && override == false)
@@ -212,7 +215,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		if (IS_LOCAL(user))
 			Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
 
-		Ptr->created = Instance->Time();
+		Ptr->created = TS ? TS : Instance->Time();
 		*Ptr->topic = 0;
 		*Ptr->setby = 0;
 		Ptr->topicset = 0;

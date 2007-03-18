@@ -88,7 +88,7 @@ class ModuleConnJoin : public Module
 
 			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str()))
-					chanrec::JoinUser(ServerInstance, user, it->c_str(), false);
+					chanrec::JoinUser(ServerInstance, user, it->c_str(), false, "");
 		}
 
 };

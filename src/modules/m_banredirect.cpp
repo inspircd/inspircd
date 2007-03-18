@@ -285,7 +285,7 @@ class ModuleBanRedirect : public Module
 						else
 						{
 							user->WriteServ("470 %s :You are banned from %s. You are being automatically redirected to %s", user->nick, chan->name, redir->targetchan.c_str());
-							chanrec::JoinUser(Srv, user, redir->targetchan.c_str(), false);
+							chanrec::JoinUser(Srv, user, redir->targetchan.c_str(), false, "");
 							return 1;
 						}
 					}
