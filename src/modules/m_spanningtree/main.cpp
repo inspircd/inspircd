@@ -1090,22 +1090,25 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
+		std::deque<std::string> params;
+		std::string command;
+
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			std::deque<std::string> params;
 			params.push_back(u->nick);
 			params.push_back(text);
-			Utils->DoOneToMany(user->nick,"MODE",params);
+			command = "MODE";
 		}
 		else
 		{
 			chanrec* c = (chanrec*)dest;
-			std::deque<std::string> params;
 			params.push_back(c->name);
+			params.push_back(ConvToStr(c->age));
 			params.push_back(text);
-			Utils->DoOneToMany(user->nick,"MODE",params);
+			command = "FMODE";
 		}
+		Utils->DoOneToMany(user->nick, command, params);
 	}
 }
 
