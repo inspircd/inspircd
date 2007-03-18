@@ -38,19 +38,19 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	if ((parameters[0][0] == '$') && ((*user->oper) || (ServerInstance->ULine(user->server))))
 	{
 		int MOD_RESULT = 0;
-                std::string temp = parameters[1];
-                FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0,exempt_list));
-                if (MOD_RESULT)
-                        return CMD_FAILURE;
-                parameters[1] = (char*)temp.c_str();
-                // notice to server mask
-                const char* servermask = parameters[0] + 1;
-                if (match(ServerInstance->Config->ServerName,servermask))
-                {
-                        user->SendAll("NOTICE", "%s", parameters[1]);
-                }
-                FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
-                return CMD_SUCCESS;
+		std::string temp = parameters[1];
+		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,(void*)parameters[0],TYPE_SERVER,temp,0,exempt_list));
+		if (MOD_RESULT)
+			return CMD_FAILURE;
+		parameters[1] = temp.c_str();
+		// notice to server mask
+		const char* servermask = parameters[0] + 1;
+		if (match(ServerInstance->Config->ServerName,servermask))
+		{
+			user->SendAll("NOTICE", "%s", parameters[1]);
+		}
+		FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
+		return CMD_SUCCESS;
 	}
 	char status = 0;
 	if ((*parameters[0] == '@') || (*parameters[0] == '%') || (*parameters[0] == '+'))

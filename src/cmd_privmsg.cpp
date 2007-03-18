@@ -44,7 +44,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		FOREACH_RESULT(I_OnUserPreMessage,OnUserPreMessage(user,(void*)parameters[0],TYPE_SERVER,temp,0,except_list));
 		if (MOD_RESULT)
 			return CMD_FAILURE;
-		parameters[1] = (char*)temp.c_str();
+		parameters[1] = temp.c_str();
 		// notice to server mask
 		const char* servermask = parameters[0] + 1;
 		if (match(ServerInstance->Config->ServerName,servermask))
