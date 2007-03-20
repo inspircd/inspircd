@@ -787,7 +787,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	if (CheckDupe)
 	{
 		this->WriteLine("ERROR :Server "+servername+" already exists!");
-		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+servername+"\2 denied, already exists");
+		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
 		return false;
 	}
 	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL);
