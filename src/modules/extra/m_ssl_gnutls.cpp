@@ -309,6 +309,9 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
+			if (ISR->Sock->GetFd() < 0)
+				return (char*)"OK";
+
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
 			return (session->status == ISSL_HANDSHAKING_READ || session->status == ISSL_HANDSHAKING_WRITE) ? NULL : (char*)"OK";
 		}
