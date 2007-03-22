@@ -374,11 +374,10 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
-		//TODO: Request server cert here.
-		//gnutls_certificate_request(session->sess, GNUTLS_CERT_REQUEST); // Request server certificate if any.
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+
+		gnutls_certificate_request(session->sess, GNUTLS_CERT_REQUEST); // Request server certificate if any.
 
 		Handshake(session);
 	}
@@ -442,7 +441,10 @@ class ModuleSSLGnuTLS : public Module
 			else if (ret < 0)
 			{
 				if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+				{
+					errno = EAGAIN;
 					return -1;
+				}
 				else
 				{
 					readresult = 0;
@@ -675,6 +677,9 @@ class ModuleSSLGnuTLS : public Module
 
 	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
+		if (!session->sess || !user)
+			return;
+
 		unsigned int status;
 		const gnutls_datum_t* cert_list;
 		int ret;

@@ -775,6 +775,9 @@ class ModuleSSLOpenSSL : public Module
 
 	void VerifyCertificate(issl_session* session, Extensible* user)
 	{
+		if (!session->sess || !user)
+			return;
+
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
 		unsigned int n;
