@@ -472,7 +472,7 @@ bool InspSocket::FlushWriteBuffer()
 					int result = Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
 					if (result > 0)
 					{
-						if ((unsigned int)result == outbuffer[0].length())
+						if ((unsigned int)result >= outbuffer[0].length())
 						{
 							outbuffer.pop_front();
 						}
@@ -510,7 +510,7 @@ bool InspSocket::FlushWriteBuffer()
 				int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 				if (result > 0)
 				{
-					if ((unsigned int)result == outbuffer[0].length())
+					if ((unsigned int)result >= outbuffer[0].length())
 					{
 						/* The whole block was written (usually a line)
 						 * Pop the block off the front of the queue,
