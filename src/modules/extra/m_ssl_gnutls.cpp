@@ -317,7 +317,7 @@ class ModuleSSLGnuTLS : public Module
 			if (ISR->Sock->GetFd() > -1)
 			{
 				issl_session* session = &sessions[ISR->Sock->GetFd()];
-				if (session)
+				if (session->sess)
 				{
 					if ((Extensible*)ServerInstance->FindDescriptor(ISR->Sock->GetFd()) == (Extensible*)(ISR->Sock))
 					{

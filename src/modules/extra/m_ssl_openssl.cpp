@@ -365,7 +365,7 @@ class ModuleSSLOpenSSL : public Module
 		else if (strcmp("IS_ATTACH", request->GetId()) == 0)
 		{
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
-			if (session)
+			if (session->sess)
 			{
 				VerifyCertificate(session, (InspSocket*)ISR->Sock);
 				return "OK";
