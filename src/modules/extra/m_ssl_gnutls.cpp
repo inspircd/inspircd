@@ -383,6 +383,7 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
+		ServerInstance->Log(DEBUG,"Close 3");
 		CloseSession(&sessions[fd]);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
@@ -403,6 +404,7 @@ class ModuleSSLGnuTLS : public Module
 		if (!session->sess)
 		{
 			readresult = 0;
+			ServerInstance->Log(DEBUG,"Close 4");
 			CloseSession(session);
 			return 1;
 		}
@@ -419,6 +421,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
+			errno = EAGAIN;
 			return -1;
 		}
 
@@ -434,6 +437,7 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Client closed connection.
 				readresult = 0;
+				ServerInstance->Log(DEBUG,"Close 5");
 				CloseSession(session);
 				return 1;
 			}
@@ -447,6 +451,7 @@ class ModuleSSLGnuTLS : public Module
 				else
 				{
 					readresult = 0;
+					ServerInstance->Log(DEBUG,"Close 6");
 					CloseSession(session);
 				}
 			}
@@ -495,6 +500,7 @@ class ModuleSSLGnuTLS : public Module
 
 		if (!session->sess)
 		{
+			ServerInstance->Log(DEBUG,"Close 7");
 			CloseSession(session);
 			return 1;
 		}
@@ -508,7 +514,7 @@ class ModuleSSLGnuTLS : public Module
 			// The handshake isn't finished, try to finish it.
 			Handshake(session);
 			errno = EAGAIN;
-			return 0;
+			return -1;
 		}
 
 		int ret = 0;
@@ -518,11 +524,22 @@ class ModuleSSLGnuTLS : public Module
 			ret = gnutls_record_send(session->sess, sendbuffer, count);
 
 			if(ret == 0)
+			{
+				ServerInstance->Log(DEBUG,"Close 1");
 				CloseSession(session);
-			else if(ret < 0)
+			}
+			else if (ret < 0)
 			{
 				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
+				{
+					ServerInstance->Log(DEBUG,"Close 7");
 					CloseSession(session);
+				}
+				else
+				{
+					errno = EAGAIN;
+					return -1;
+				}
 			}
 			else
 			{
@@ -603,6 +620,7 @@ class ModuleSSLGnuTLS : public Module
 			else
 			{
 				// Handshake failed.
+				ServerInstance->Log(DEBUG,"Close 2");
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
