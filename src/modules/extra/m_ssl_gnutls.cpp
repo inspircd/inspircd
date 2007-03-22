@@ -346,7 +346,6 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
-		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 
 		/* This is an experimental change to avoid a warning on 64bit systems about casting between integer and pointer of different sizes
@@ -358,6 +357,8 @@ class ModuleSSLGnuTLS : public Module
 		 */
 
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
+
+		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
 
 		Handshake(session);
 	}
@@ -376,8 +377,6 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 		gnutls_transport_set_ptr(session->sess, (gnutls_transport_ptr_t) fd); // Give gnutls the fd for the socket.
-
-		gnutls_certificate_request(session->sess, GNUTLS_CERT_REQUEST); // Request server certificate if any.
 
 		Handshake(session);
 	}
