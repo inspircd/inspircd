@@ -46,12 +46,7 @@ class RFC1413 : public InspSocket
 		// so we just display a notice, and tidy off the ident_data.
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
-			char newident[MAXBUF];
 			u->Shrink("ident_data");
-			u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using ~"+std::string(u->ident)+" instead.");
-			strcpy(newident,"~");
-			strlcat(newident,u->ident,IDENTMAX);
-			strlcpy(u->ident,newident,IDENTMAX);
 			Instance->next_call = Instance->Time();
 		}
 	}
@@ -131,6 +126,9 @@ class RFC1413 : public InspSocket
 	{
 		if (u && (Instance->SE->GetRef(ufd) == u))
 		{
+			if (*u->ident == '~')
+				u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
+
 			Instance->next_call = Instance->Time();
 			u->Shrink("ident_data");
 		}
@@ -230,6 +228,12 @@ class ModuleIdent : public Module
 		 * is derived from InspSocket, and inserting it into the socket engine using the
 		 * Server::AddSocket() call.
 		 */
+		char newident[MAXBUF];
+		strcpy(newident,"~");
+		strlcat(newident,user->ident,IDENTMAX);
+		strlcpy(user->ident,newident,IDENTMAX);
+		
+
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
 		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout);
 		if ((ident->GetState() == I_CONNECTING) || (ident->GetState() == I_CONNECTED))
@@ -238,11 +242,7 @@ class ModuleIdent : public Module
 		}
 		else
 		{
-			char newident[MAXBUF];
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using ~"+std::string(user->ident)+" instead.");
-			strcpy(newident,"~");
-			strlcat(newident,user->ident,IDENTMAX);
-			strlcpy(user->ident,newident,IDENTMAX);
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
 			ServerInstance->next_call = ServerInstance->Time();
 		}
 		return 0;
