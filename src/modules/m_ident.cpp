@@ -160,6 +160,8 @@ class RFC1413 : public InspSocket
 			if (success)
 			{
 				Instance->Log(DEBUG,"BUG: Ident: failed to get socket names");
+				delete sock_us;
+				delete sock_them;
 				return false;
 			}
 			else
@@ -174,6 +176,8 @@ class RFC1413 : public InspSocket
 				snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
 #endif
 				this->Write(ident_request);
+				delete sock_us;
+				delete sock_them;
 				return true;
 			}
 		}
