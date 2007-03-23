@@ -166,14 +166,13 @@ void InspSocket::SetQueues(int nfd)
  */
 bool InspSocket::BindAddr(const std::string &ip)
 {
-	Instance->Log(DEBUG,"BindAddr(%s)", ip.c_str());
 	ConfigReader Conf(this->Instance);
 	bool bindfail = false;
 	socklen_t size = sizeof(sockaddr_in);
 #ifdef IPV6
 	bool v6 = false;
 	/* Are we looking for a binding to fit an ipv6 host? */
-	if ((!*this->host) || strchr(this->host, ':'))
+	if ((ip.empty()) || (ip.find(':') != std::string::npos))
 		v6 = true;
 #endif
 	int j = 0;
@@ -196,7 +195,11 @@ bool InspSocket::BindAddr(const std::string &ip)
 						size = sizeof(sockaddr_in6);
 					}
 					else
-						bindfail = true;
+					{
+						delete[] s;
+						j++;
+						continue;
+					}
 				}
 				else
 				{
@@ -207,7 +210,11 @@ bool InspSocket::BindAddr(const std::string &ip)
 						((sockaddr_in*)s)->sin_family = AF_INET;
 					}
 					else
-						bindfail = true;
+					{
+						delete[] s;
+						j++;
+						continue;
+					}
 				}
 #else
 				in_addr n;
@@ -217,13 +224,12 @@ bool InspSocket::BindAddr(const std::string &ip)
 					((sockaddr_in*)s)->sin_family = AF_INET;
 				}
 				else
-					bindfail = true;
-#endif
-				if (bindfail)
 				{
 					delete[] s;
-					return false;
+					j++;
+					continue;
 				}
+#endif
 
 				if (bind(this->fd, s, size) < 0)
 				{

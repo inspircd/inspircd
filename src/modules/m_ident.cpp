@@ -159,7 +159,6 @@ class RFC1413 : public InspSocket
 #endif
 			if (success)
 			{
-				Instance->Log(DEBUG,"BUG: Ident: failed to get socket names");
 				delete[] sock_us;
 				delete[] sock_them;
 				return false;
