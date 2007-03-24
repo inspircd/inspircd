@@ -167,7 +167,6 @@ void InspSocket::SetQueues(int nfd)
 bool InspSocket::BindAddr(const std::string &ip)
 {
 	ConfigReader Conf(this->Instance);
-	bool bindfail = false;
 	socklen_t size = sizeof(sockaddr_in);
 #ifdef IPV6
 	bool v6 = false;
