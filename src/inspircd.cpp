@@ -445,8 +445,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!Config->nofork && !do_restart)
 	{
-		int closed = 0;
-
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			printf("Error killing parent process: %s\n",strerror(errno));
