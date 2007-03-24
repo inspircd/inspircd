@@ -453,31 +453,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			Log(DEFAULT,"Error killing parent process: %s",strerror(errno));
 		}
 
-		/*Log(DEBUG,"Fileno(stdin, stdout, stderr): %d %d %d", fileno(stdin), fileno(stdout), fileno(stderr));*/
-
-		if (stdin)
-		{
-			fclose(stdin);
-			closed++;
-		}
-
-		if (stdout)
-		{
-			fclose(stdout);
-			closed++;
-		}
-
-		if (stderr)
-		{
-			fclose(stderr);
-			closed++;
-		}
-
-		Log(DEBUG,"%d system descriptors closed.", closed);
+		fclose(stdin);
+		fclose(stderr);
+		fclose(stdout);
 	}
 
 	printf("\nInspIRCd is now running!\n");
-	Log(DEFAULT,"Startup complete, Initial TS=%d.", time(NULL));
+	Log(DEFAULT,"Startup complete.");
 
 	this->WritePID(Config->PID);
 }
