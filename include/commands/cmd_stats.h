@@ -30,7 +30,7 @@ void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &res
 class cmd_stats : public command_t
 {
  public:
-        cmd_stats (InspIRCd* Instance) : command_t(Instance,"STATS",0,1) { syntax = "[<servername>] <stats-symbol>"; }
+        cmd_stats (InspIRCd* Instance) : command_t(Instance,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
         CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

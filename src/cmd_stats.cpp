@@ -28,7 +28,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (pcnt < 2)
+	if (IS_LOCAL(user))
 	{
 		string_list values;
 		DoStats(this->ServerInstance, *parameters[0], user, values);

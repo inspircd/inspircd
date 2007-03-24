@@ -241,19 +241,31 @@ int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* 
 {
 	if (pcnt > 1)
 	{
+		ServerInstance->Log(DEBUG,"Match %s against %s", ServerInstance->Config->ServerName, parameters[1]);
+		if (match(ServerInstance->Config->ServerName, parameters[1]))
+		{
+			ServerInstance->Log(DEBUG,"Matched %s against %s", ServerInstance->Config->ServerName, parameters[1]);
+			return 0;
+		}
+
 		/* Remote STATS, the server is within the 2nd parameter */
 		std::deque<std::string> params;
 		params.push_back(parameters[0]);
 		params.push_back(parameters[1]);
 		/* Send it out remotely, generate no reply yet */
+
 		TreeServer* s = Utils->FindServerMask(parameters[1]);
 		if (s)
 		{
+			ServerInstance->Log(DEBUG,"Found %s", s->GetName().c_str());
+
 			params[1] = s->GetName();
 			Utils->DoOneToOne(user->nick, "STATS", params, s->GetName());
 		}
 		else
-			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+		{
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[1]);
+		}
 		return 1;
 	}
 	return 0;
