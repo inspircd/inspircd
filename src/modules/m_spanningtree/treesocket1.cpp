@@ -850,25 +850,60 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 /** NICK command */
 bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::string> &params)
 {
-	if (params.size() < 8)
-		return true;
-	if (params.size() > 8)
+	/** Do we have enough parameters:
+	 * NICK age nick host dhost ident +modes ip :gecos
+	 */
+	if (params.size() != 8)
 	{
 		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
 		return true;
 	}
-	// NICK age nick host dhost ident +modes ip :gecos
-	//       0    1   2     3     4      5   6     7
+
 	time_t age = atoi(params[0].c_str());
-
 	const char* tempnick = params[1].c_str();
-	Instance->Log(DEBUG,"New remote client %s",tempnick);
 
+	/** Check parameters for validity before introducing the client, discovered by dmb.
+	 * XXX: Can we make this neater?
+	 */
+	if (!age)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (Invalid TS?)");
+		return true;
+	}
+	else if (params[1].length() > NICKMAX)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+" > NICKMAX?)");
+		return true;
+	}
+	else if (params[2].length() > 64)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[2]+" > 64?)");
+		return true;
+	}
+	else if (params[3].length() > 64)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[3]+" > 64?)");
+		return true;
+	}
+	else if (params[4].length() > IDENTMAX)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[4]+" > IDENTMAX?)");
+		return true;
+	}
+	else if (params[7].length() > MAXGECOS)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[7]+" > MAXGECOS?)");
+		return true;
+	}
+
+	/** Our client looks ok, lets introduce it now
+	 */
+	Instance->Log(DEBUG,"New remote client %s",tempnick);
 	user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
 
 	if (iter != this->Instance->clientlist->end())
 	{
-		// nick collision
+		/* nick collision */
 		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+tempnick+" :Nickname collision");
 		userrec::QuitUser(this->Instance, iter->second, "Nickname collision");
 		return true;
@@ -886,9 +921,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	_new->registered = REG_ALL;
 	_new->signon = age;
 
-	/*
-	 * we need to remove the + from the modestring, so we can do our stuff
-	 */
+	/* we need to remove the + from the modestring, so we can do our stuff */
 	std::string::size_type pos_after_plus = params[5].find_first_not_of('+');
 	if (pos_after_plus != std::string::npos)
 	params[5] = params[5].substr(pos_after_plus);
