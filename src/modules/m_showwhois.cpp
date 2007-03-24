@@ -87,7 +87,20 @@ class ModuleShowwhois : public Module
 	{
 		if ((dest->IsModeSet('W')) && (source != dest))
 		{
-			dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
+			if (IS_LOCAL(dest))
+			{
+				dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you.",dest->nick,source->nick,source->ident,source->host);
+			}
+			else
+			{
+				std::deque<std::string> params;
+				params.push_back(dest->nick);
+				std::string msg = ":";
+				msg = msg + dest->server + " NOTICE " + dest->nick + " :*** " + source->nick + " (" + source->ident + "@" + source->host + ") did a /whois on you.";
+				params.push_back(msg);
+				Event ev((char *) &params, NULL, "send_push");
+				ev.Send(ServerInstance);
+			}
 		}
 	}
 
