@@ -55,8 +55,10 @@ ListenSocket::~ListenSocket()
 {
 	if (this->GetFd() > -1)
 	{
-		shutdown(this->fd, 2);
-		close(this->fd);
+		ServerInstance->SE->DelFd(this);
+		ServerInstance->Log(DEBUG,"Shut down listener on fd %d", this->fd);
+		if (shutdown(this->fd, 2) || close(this->fd))
+			ServerInstance->Log(DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
 }
@@ -419,12 +421,14 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 			}
 			else
 			{
+				this->Log(DEBUG,"New socket binding for %d with listen: %s:%d", sockfd, addr, port);
 				NonBlocking(sockfd);
 				return true;
 			}
 		}
 		else
 		{
+			this->Log(DEBUG,"New socket binding for %d without listen: %s:%d", sockfd, addr, port);
 			return true;
 		}
 	}

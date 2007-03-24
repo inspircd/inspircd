@@ -126,7 +126,25 @@ void InspIRCd::Restart(const std::string &reason)
 	/* Figure out our filename (if theyve renamed it, we're boned) */
 	std::string me = Config->MyDir + "/inspircd";
 
-	if (execv(me.c_str(), Config->argv) == -1)
+	char* argv[10];
+	int endp = 2;
+	argv[0] = Config->argv[0];
+	argv[1] = "--restart";
+	if (Config->forcedebug)
+		argv[endp++] = "--debug";
+	if (Config->nofork)
+		argv[endp++] = "--nofork";
+	if (!Config->writelog)
+		argv[endp++] = "--nolog";
+	if (*this->LogFileName)
+	{
+		argv[endp++] = "--logfile";
+		argv[endp++] = this->LogFileName;
+	}
+
+	argv[endp] = NULL;
+
+	if (execv(me.c_str(), argv) == -1)
 	{
 		/* Will raise a SIGABRT if not trapped */
 		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
@@ -277,7 +295,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_nofork = 0, do_debug = 0, do_nolog = 0;    /* flag variables */
+	int do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
@@ -318,6 +336,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "logfile",	required_argument,	NULL,		'f'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
+		{ "restart",	no_argument,		&do_restart,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -335,7 +354,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 			default:
 				/* Unknown parameter! DANGER, INTRUDER.... err.... yeah. */
-				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n", argv[0]);
+				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>] [--restart]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
@@ -369,11 +388,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	printf("\n");
 	this->SetSignals();
+
 	if (!Config->nofork)
 	{
 		if (!this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
+			Log(DEFAULT,"ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
 	}
@@ -394,6 +415,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	if ((stats->BoundPortCount == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
+		Log(DEFAULT,"ERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?");
 		Exit(EXIT_STATUS_BIND);
 	}
 
@@ -416,20 +438,46 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		if (!SE->AddFd(Config->openSockfd[count]))
 		{
 			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
+			Log(DEFAULT,"EH? Could not add listener to socketengine. You screwed up, aborting.");
 			Exit(EXIT_STATUS_INTERNAL);
 		}
 	}
 
-	if (!Config->nofork)
+	if (!Config->nofork && !do_restart)
 	{
+		int closed = 0;
+
 		if (kill(getppid(), SIGTERM) == -1)
+		{
 			printf("Error killing parent process: %s\n",strerror(errno));
-		fclose(stdin);
-		fclose(stderr);
-		fclose(stdout);
+			Log(DEFAULT,"Error killing parent process: %s",strerror(errno));
+		}
+
+		/*Log(DEBUG,"Fileno(stdin, stdout, stderr): %d %d %d", fileno(stdin), fileno(stdout), fileno(stderr));*/
+
+		if (stdin)
+		{
+			fclose(stdin);
+			closed++;
+		}
+
+		if (stdout)
+		{
+			fclose(stdout);
+			closed++;
+		}
+
+		if (stderr)
+		{
+			fclose(stderr);
+			closed++;
+		}
+
+		Log(DEBUG,"%d system descriptors closed.", closed);
 	}
 
 	printf("\nInspIRCd is now running!\n");
+	Log(DEFAULT,"Startup complete, Initial TS=%d.", time(NULL));
 
 	this->WritePID(Config->PID);
 }
@@ -1001,10 +1049,11 @@ void FileLogger::WriteLogLine(const std::string &line)
 			/* Wrote the whole buffer, and no need for write callback */
 			buffer = "";
 		}
-	}
-	if (writeops++ % 20)
-	{
-		fflush(log);
+
+		if (writeops++ % 20)
+		{
+			fflush(log);
+		}
 	}
 }
 
