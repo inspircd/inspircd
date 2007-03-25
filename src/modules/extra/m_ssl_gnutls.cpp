@@ -383,7 +383,6 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		ServerInstance->Log(DEBUG,"Close 3");
 		CloseSession(&sessions[fd]);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
@@ -404,7 +403,6 @@ class ModuleSSLGnuTLS : public Module
 		if (!session->sess)
 		{
 			readresult = 0;
-			ServerInstance->Log(DEBUG,"Close 4");
 			CloseSession(session);
 			return 1;
 		}
@@ -437,7 +435,6 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// Client closed connection.
 				readresult = 0;
-				ServerInstance->Log(DEBUG,"Close 5");
 				CloseSession(session);
 				return 1;
 			}
@@ -451,7 +448,6 @@ class ModuleSSLGnuTLS : public Module
 				else
 				{
 					readresult = 0;
-					ServerInstance->Log(DEBUG,"Close 6");
 					CloseSession(session);
 				}
 			}
@@ -500,7 +496,6 @@ class ModuleSSLGnuTLS : public Module
 
 		if (!session->sess)
 		{
-			ServerInstance->Log(DEBUG,"Close 7");
 			CloseSession(session);
 			return 1;
 		}
@@ -525,14 +520,12 @@ class ModuleSSLGnuTLS : public Module
 
 			if(ret == 0)
 			{
-				ServerInstance->Log(DEBUG,"Close 1");
 				CloseSession(session);
 			}
 			else if (ret < 0)
 			{
 				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
 				{
-					ServerInstance->Log(DEBUG,"Close 7");
 					CloseSession(session);
 				}
 				else
@@ -620,7 +613,6 @@ class ModuleSSLGnuTLS : public Module
 			else
 			{
 				// Handshake failed.
-				ServerInstance->Log(DEBUG,"Close 2");
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}
