@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.3+StinkingBishop"
+echo "InspIRCd-1.1.4+Norvegia"

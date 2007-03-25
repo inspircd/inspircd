@@ -417,7 +417,6 @@ char* userrec::MakeHostIP()
 
 void userrec::CloseSocket()
 {
-	ServerInstance->Log(DEBUG,"Close user socket %d", this->fd);
 	shutdown(this->fd,2);
 	close(this->fd);
 }
