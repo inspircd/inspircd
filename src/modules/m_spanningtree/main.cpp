@@ -193,6 +193,9 @@ int ModuleSpanningTree::HandleMotd(const char** parameters, int pcnt, userrec* u
 {
 	if (pcnt > 0)
 	{
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
+			return 0;
+
 		/* Remote MOTD, the server is within the 1st parameter */
 		std::deque<std::string> params;
 		params.push_back(parameters[0]);
@@ -211,6 +214,9 @@ int ModuleSpanningTree::HandleAdmin(const char** parameters, int pcnt, userrec* 
 {
 	if (pcnt > 0)
 	{
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
+			return 1;
+
 		/* Remote ADMIN, the server is within the 1st parameter */
 		std::deque<std::string> params;
 		params.push_back(parameters[0]);
@@ -227,6 +233,9 @@ int ModuleSpanningTree::HandleAdmin(const char** parameters, int pcnt, userrec* 
 
 int ModuleSpanningTree::HandleModules(const char** parameters, int pcnt, userrec* user)
 {
+	if (match(ServerInstance->Config->ServerName, parameters[0]))
+		return 1;
+
 	std::deque<std::string> params;
 	params.push_back(parameters[0]);
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
@@ -241,12 +250,8 @@ int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* 
 {
 	if (pcnt > 1)
 	{
-		ServerInstance->Log(DEBUG,"Match %s against %s", ServerInstance->Config->ServerName, parameters[1]);
 		if (match(ServerInstance->Config->ServerName, parameters[1]))
-		{
-			ServerInstance->Log(DEBUG,"Matched %s against %s", ServerInstance->Config->ServerName, parameters[1]);
 			return 0;
-		}
 
 		/* Remote STATS, the server is within the 2nd parameter */
 		std::deque<std::string> params;
@@ -257,8 +262,6 @@ int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* 
 		TreeServer* s = Utils->FindServerMask(parameters[1]);
 		if (s)
 		{
-			ServerInstance->Log(DEBUG,"Found %s", s->GetName().c_str());
-
 			params[1] = s->GetName();
 			Utils->DoOneToOne(user->nick, "STATS", params, s->GetName());
 		}
@@ -611,6 +614,7 @@ int ModuleSpanningTree::OnPreCommand(const std::string &command, const char** pa
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */
 	if (!validated)
 		return 0;
+
 	if (command == "CONNECT")
 	{
 		return this->HandleConnect(parameters,pcnt,user);
@@ -665,8 +669,7 @@ int ModuleSpanningTree::OnPreCommand(const std::string &command, const char** pa
 	}
 	else if ((command == "MODULES") && (pcnt > 0))
 	{
-		this->HandleModules(parameters,pcnt,user);
-		return 1;
+		return this->HandleModules(parameters,pcnt,user);
 	}
 	return 0;
 }
