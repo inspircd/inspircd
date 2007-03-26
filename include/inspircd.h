@@ -727,11 +727,18 @@ class InspIRCd : public classbase
 	 */
 	static void Rehash(int status);
 
-	/** Causes the server to exit immediately
+	/** Causes the server to exit after unloading modules and
+	 * closing all open file descriptors.
+	 *
 	 * @param The exit code to give to the operating system
 	 * (See the ExitStatus enum for valid values)
 	 */
 	static void Exit(int status);
+
+	/** Causes the server to exit immediately with exit code 0.
+	 * The status code is required for signal handlers, and ignored.
+	 */
+	static void QuickExit(int status);
 
 	/** Return a count of users, unknown and known connections
 	 * @return The number of users

@@ -220,6 +220,11 @@ void InspIRCd::SetSignals()
 	signal(SIGCHLD, SIG_IGN);
 }
 
+void InspIRCd::QuickExit(int status)
+{
+	exit(0);
+}
+
 bool InspIRCd::DaemonSeed()
 {
 	int childpid;
@@ -234,6 +239,7 @@ bool InspIRCd::DaemonSeed()
 		 * if the child pid is still around. If theyre not,
 		 * they threw an error and we should give up.
 		 */
+		signal(SIGTERM, InspIRCd::QuickExit);
 		while (kill(childpid, 0) != -1)
 			sleep(1);
 		exit(0);
