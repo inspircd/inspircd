@@ -62,6 +62,7 @@ class cmd_check : public command_t
 			user->WriteServ(checkstr + " realnuh " + targuser->GetFullRealHost());
 			user->WriteServ(checkstr + " realname " + targuser->fullname);
 			user->WriteServ(checkstr + " modes +" + targuser->FormatModes());
+			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
 			user->WriteServ(checkstr + " server " + targuser->server);
 			if (targuser->awaymsg[0] != 0)
 			{
@@ -148,7 +149,7 @@ class cmd_check : public command_t
 
 		user->WriteServ(checkstr + " END " + std::string(parameters[0]));
 
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 };
 
