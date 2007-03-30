@@ -25,22 +25,43 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 {
+	int minusers = 0, maxusers = 0;
+
 	user->WriteServ("321 %s Channel :Users Name",user->nick);
 
 	/* Work around mIRC suckyness. YOU SUCK, KHALED! */
-	if ((pcnt == 1) && (*parameters[0] == '<'))
-		pcnt = 0;
+	if (pcnt == 1)
+	{
+		if (*parameters[0] == '<')
+		{
+			maxusers = atoi(parameters[0]+1);
+			pcnt = 0;
+		}
+		else if (*parameters[0] == '>')
+		{
+			minusers = atoi(parameters[0]+1);
+			pcnt = 0;
+		}
+	}
 
 	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 	{
 		// attempt to match a glob pattern
-		if (pcnt && !match(i->second->name, parameters[0]))
+		long users = i->second->GetUserCounter();
+
+		bool too_few = (minusers && (users <= minusers));
+		bool too_many = (maxusers && (users >= maxusers));
+
+		if (too_many || too_few)
 			continue;
+
+		if (pcnt && (!match(i->second->name, parameters[0]) || (*i->second->topic && !match(i->second->topic, parameters[0]))))
+			continue;
+
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = i->second->HasUser(user);
 		if ((i->second->modes[CM_PRIVATE]) && (!n))
 		{
-			long users = i->second->GetUserCounter();
 			if (users)
 				user->WriteServ("322 %s *",user->nick,i->second->name);
 		}

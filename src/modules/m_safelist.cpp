@@ -27,9 +27,11 @@ class ListData : public classbase
 	long list_position;
 	bool list_ended;
 	const std::string glob;
+	int minusers;
+	int maxusers;
 
 	ListData() : list_start(0), list_position(0), list_ended(false) {};
-	ListData(long pos, time_t t, const std::string &pattern) : list_start(t), list_position(pos), list_ended(false), glob(pattern) {};
+	ListData(long pos, time_t t, const std::string &pattern, int mi, int ma) : list_start(t), list_position(pos), list_ended(false), glob(pattern), minusers(mi), maxusers(ma) {};
 };
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
@@ -92,6 +94,8 @@ class ModuleSafeList : public Module
 	 */
 	int HandleList(const char** parameters, int pcnt, userrec* user)
 	{
+		int minusers = 0, maxusers = 0;
+
 		if (global_listing >= LimitList)
 		{
 			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick);
@@ -111,8 +115,21 @@ class ModuleSafeList : public Module
 		}
 
 		/* Work around mIRC suckyness. YOU SUCK, KHALED! */
-		if ((pcnt == 1) && (*parameters[0] == '<'))
-			pcnt = 0;
+		if (pcnt == 1)
+		{
+			if (*parameters[0] == '<')
+			{
+				maxusers = atoi(parameters[0]+1);
+				ServerInstance->Log(DEBUG,"Max users: %d", maxusers);
+				pcnt = 0;
+			}
+			else if (*parameters[0] == '>')
+			{
+				minusers = atoi(parameters[0]+1);
+				ServerInstance->Log(DEBUG,"Min users: %d", minusers);
+				pcnt = 0;
+			}
+		}
 
 		time_t* last_list_time;
 		user->GetExt("safelist_last", last_list_time);
@@ -134,7 +151,7 @@ class ModuleSafeList : public Module
 		/*
 		 * start at channel 0! ;)
 		 */
-		ld = new ListData(0,ServerInstance->Time(), pcnt ? parameters[0] : "*");
+		ld = new ListData(0,ServerInstance->Time(), pcnt ? parameters[0] : "*", minusers, maxusers);
 		user->Extend("safelist_cache", ld);
 
 		time_t* llt = new time_t;
@@ -160,10 +177,20 @@ class ModuleSafeList : public Module
 			{
 				chan = ServerInstance->GetChannelIndex(ld->list_position);
 				bool has_user = (chan && chan->HasUser(user));
+				long users = chan ? chan->GetUserCounter() : 0;
+
+				bool too_few = (ld->minusers && (users <= ld->minusers));
+				bool too_many = (ld->maxusers && (users >= ld->maxusers));
+
+				if (chan && (too_many || too_few))
+				{
+					ld->list_position++;
+					continue;
+				}
+
 				if ((chan) && (chan->modes[CM_PRIVATE]))
 				{
-					bool display = match(chan->name, ld->glob.c_str());
-					long users = chan->GetUserCounter();
+					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s *", user->nick);
@@ -173,8 +200,7 @@ class ModuleSafeList : public Module
 				}
 				else if ((chan) && (((!(chan->modes[CM_PRIVATE])) && (!(chan->modes[CM_SECRET]))) || (has_user)))
 				{
-					bool display = match(chan->name, ld->glob.c_str());
-					long users = chan->GetUserCounter();
+					bool display = (match(chan->name, ld->glob.c_str()) || (*chan->topic && match(chan->topic, ld->glob.c_str())));
 					if ((users) && (display))
 					{
 						int counter = snprintf(buffer, MAXBUF, "322 %s %s %ld :[+%s] %s",user->nick, chan->name, users, chan->ChanModes(has_user), chan->topic);
