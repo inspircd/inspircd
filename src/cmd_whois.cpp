@@ -20,13 +20,13 @@
 
 void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
-	// bug found by phidjit - were able to whois an incomplete connection if it had sent a NICK or USER
+	/* check if the user is registered first, can't whois unknown connections */
 	if (dest->registered == REG_ALL)
 	{
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from *@%s %s",user->nick, dest->nick, dest->host, dest->GetIPString());
+			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick, dest->nick, dest->ident, dest->host, dest->GetIPString());
 		}
 		std::string cl = dest->ChannelList(user);
 		if (cl.length())
