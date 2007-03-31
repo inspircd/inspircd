@@ -191,6 +191,8 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 #define IS_LOCAL(x) ((x->GetFd() > -1) && (x->GetFd() <= MAX_DESCRIPTORS))
 #define IS_REMOTE(x) (x->GetFd() < 0)
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
+#define IS_OPER(x) (*x->oper)
+#define IS_AWAY(x) (*x->awaymsg)
 
 /** Holds a module's Version information
  *  The four members (set by the constructor only) indicate details as to the version number
