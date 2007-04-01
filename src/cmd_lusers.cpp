@@ -34,7 +34,7 @@ CmdResult cmd_lusers::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->ChannelCount())
 		user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->ChannelCount());
 	if (ServerInstance->LocalUserCount())
-		user->WriteServ("254 %s :I have %d clients and 0 servers",user->nick,ServerInstance->LocalUserCount());
+		user->WriteServ("255 %s :I have %d clients and 0 servers",user->nick,ServerInstance->LocalUserCount());
 
 	return CMD_SUCCESS;
 }
