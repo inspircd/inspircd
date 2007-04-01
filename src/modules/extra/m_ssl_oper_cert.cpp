@@ -74,25 +74,32 @@ class ModuleOperSSLCert : public Module
 	ssl_cert* cert;
 	bool HasCert;
 	cmd_fingerprint* mycommand;
+	ConfigReader* cf;
  public:
 
 	ModuleOperSSLCert(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		
 		mycommand = new cmd_fingerprint(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
+		cf = new ConfigReader(ServerInstance);
 	}
-	
+
 	virtual ~ModuleOperSSLCert()
 	{
+		delete cf;
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnPreCommand] = 1;
+		List[I_OnPreCommand] = List[I_OnRehash] = 1;
 	}
 
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		delete cf;
+		cf = new ConfigReader(ServerInstance);
+	}
 
 	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	{
@@ -115,31 +122,40 @@ class ModuleOperSSLCert : public Module
 		
 		if ((cmd == "OPER") && (validated))
 		{
-			char LoginName[MAXBUF];
-			char Password[MAXBUF];
-			char OperType[MAXBUF];
-			char HostName[MAXBUF];
 			char TheHost[MAXBUF];
 			char TheIP[MAXBUF];
-			char FingerPrint[MAXBUF];
+			std::string LoginName;
+			std::string Password;
+			std::string OperType;
+			std::string HostName;
+			std::string FingerPrint;
+			bool SSLOnly;
+			char* dummy;
 
 			snprintf(TheHost,MAXBUF,"%s@%s",user->ident,user->host);
 			snprintf(TheIP, MAXBUF,"%s@%s",user->ident,user->GetIPString());
 
 			HasCert = user->GetExt("ssl_cert",cert);
-			ServerInstance->Log(DEBUG,"HasCert=%d",HasCert);
-			for (int i = 0; i < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "oper"); i++)
+
+			for (int i = 0; i < cf->Enumerate("oper"); i++)
 			{
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "name", i, LoginName, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "password", i, Password, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "type", i, OperType, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "host", i, HostName, MAXBUF);
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "oper", "fingerprint",  i, FingerPrint, MAXBUF);
-				
-				if (*FingerPrint)
+				LoginName = cf->ReadValue("oper", "name", i);
+				Password = cf->ReadValue("oper", "password", i);
+				OperType = cf->ReadValue("oper", "type", i);
+				HostName = cf->ReadValue("oper", "host", i);
+				FingerPrint = cf->ReadValue("oper", "fingerprint", i);
+				SSLOnly = cf->ReadFlag("oper", "sslonly", i);
+
+				if (SSLOnly || !FingerPrint.empty())
 				{
-					if ((!strcmp(LoginName,parameters[0])) && (!ServerInstance->OperPassCompare(Password,parameters[1], i)) && (OneOfMatches(TheHost,TheIP,HostName)))
+					if ((!strcmp(LoginName.c_str(),parameters[0])) && (!ServerInstance->OperPassCompare(Password.c_str(),parameters[1],i)) && (OneOfMatches(TheHost,TheIP,HostName.c_str())))
 					{
+						if (SSLOnly && !user->GetExt("ssl", dummy))
+						{
+							user->WriteServ("491 %s :This oper login name requires an SSL connection.", user->nick);
+							return 1;
+						}
+
 						/* This oper would match */
 						if ((!cert) || (cert->GetFingerprint() != FingerPrint))
 						{
