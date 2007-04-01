@@ -93,7 +93,7 @@ class cmd_jumpserver : public command_t
 				userrec* t = *i;
 				if (!IS_OPER(t))
 				{
-					t->WriteServ("010 %s %s %s :%s", user->nick, parameters[0], parameters[1], reason.c_str());
+					t->WriteServ("010 %s %s %s :Please use this Server/Port instead", user->nick, parameters[0], parameters[1]);
 					userrec::QuitUser(ServerInstance, t, reason);
 					n_done++;
 				}
@@ -143,7 +143,7 @@ class ModuleJumpServer : public Module
 	{
 		if (js->port && js->redirect_new_users)
 		{
-			user->WriteServ("010 %s %s %d :%s", user->nick, js->redirect_to.c_str(), js->port, js->reason.c_str());
+			user->WriteServ("010 %s %s %d :Please use this Server/Port instead", user->nick, js->redirect_to.c_str(), js->port);
 			userrec::QuitUser(ServerInstance, user, js->reason);
 			return 0;
 		}
