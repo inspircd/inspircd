@@ -30,7 +30,14 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	std::string quitmsg;
 
 	if (IS_LOCAL(user))
-		quitmsg = pcnt ? ServerInstance->Config->PrefixQuit + std::string(parameters[0]) : "Client exited";
+	{
+		if (*ServerInstance->Config->FixedQuit)
+			quitmsg = ServerInstance->Config->FixedQuit;
+		else
+			quitmsg = pcnt ?
+				ServerInstance->Config->PrefixQuit + std::string(parameters[0]) + ServerInstance->Config->SuffixQuit
+				: "Client exited";
+	}
 	else
 		quitmsg = pcnt ? parameters[0] : "Client exited";
 

@@ -647,7 +647,15 @@
 #                                                                     #
 #   Settings to define which features are useable on your server.     #
 #                                                                     #
-#  prefixquit    - a prefix for a client's quit message               #
+#  prefixquit    - A prefix to be placed on the start of a client's   #
+#                  quit message                                       #
+#                                                                     #
+#  suffixquit    - A suffix to be placed on the end of a client's     #
+#                  quit message.                                      #
+#                                                                     #
+#  fixedquit     - A fixed quit message to display for all client     #
+#                  QUITS. If specified, overrides both prefixquit     #
+#                  and suffixquit options.                            #
 #                                                                     #
 #  loglevel      - specifies what detail of messages to log in the    #
 #                  log file. You may select from debug, verbose,      #
@@ -785,7 +793,8 @@
 #                  nick!user@host is shown for who set a TOPIC last.  #
 #                  if set to no, then only the nickname is shown.     #
 #                                                                     #
-#announceinvites - If this option is set to yes (the default), then   #
+# announceinvites                                                     #
+#                - If this option is set to yes (the default), then   #
 #                  invites are announced to the channel when a user   #
 #                  invites annother user. If you consider this to be  #
 #                  unnecessary noise, explicitly set this to no.      #

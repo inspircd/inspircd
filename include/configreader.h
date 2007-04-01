@@ -276,6 +276,14 @@ class ServerConfig : public Extensible
 	 */
 	char PrefixQuit[MAXBUF];
 
+	/** The quit suffix in use, or an empty string
+	 */
+	char SuffixQuit[MAXBUF];
+
+	/** The fixed quit message in use, or an empty string
+	 */
+	char FixedQuit[MAXBUF];
+
 	/** The last string found within a <die> tag, or
 	 * an empty string.
 	 */

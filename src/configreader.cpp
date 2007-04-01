@@ -25,9 +25,9 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->ClearStack();
 	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
-	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = '\0';
+	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = '\0';
 	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
-	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = '\0';
+	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
 	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
@@ -572,6 +572,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
 		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
 		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
+		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR, NoValidation},
+		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR, NoValidation},
 		{"options",	"loglevel",	"default",		new ValueContainerChar (debug),				DT_CHARPTR, ValidateLogLevel},
 		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
 		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
