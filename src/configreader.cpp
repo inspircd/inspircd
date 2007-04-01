@@ -682,7 +682,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	/* Make a copy here so if it fails then we can carry on running with an unaffected config */
 	ConfigDataHash newconfig;
 
-	if (this->LoadConf(newconfig, CONFIG_FILE, errstr))
+	if (this->LoadConf(newconfig, ServerInstance->ConfigFileName, errstr))
 	{
 		/* If we succeeded, set the ircd config to the new one */
 		this->config_data = newconfig;
@@ -1211,7 +1211,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	std::string newfile;
 	std::string::size_type pos;
 
-	confpath = CONFIG_FILE;
+	confpath = ServerInstance->ConfigFileName;
 	newfile = file;
 
 	for (std::string::iterator c = newfile.begin(); c != newfile.end(); c++)
@@ -1224,7 +1224,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 
 	if (file[0] != '/')
 	{
-		if((pos = confpath.find("/inspircd.conf")) != std::string::npos)
+		if((pos = confpath.rfind("/")) != std::string::npos)
 		{
 			/* Leaves us with just the path */
 			newfile = confpath.substr(0, pos) + std::string("/") + newfile;
@@ -1436,8 +1436,8 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 	if (*fname != '/')
 	{
 		std::string::size_type pos;
-		std::string confpath = CONFIG_FILE;
-		if((pos = confpath.find("/inspircd.conf")) != std::string::npos)
+		std::string confpath = ServerInstance->ConfigFileName;
+		if((pos = confpath.rfind("/")) != std::string::npos)
 		{
 			/* Leaves us with just the path */
 			std::string newfile = confpath.substr(0, pos) + std::string("/") + fname;

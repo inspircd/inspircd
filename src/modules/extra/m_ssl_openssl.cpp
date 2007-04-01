@@ -195,7 +195,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 		}
 
-		std::string confdir(CONFIG_FILE);
+		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /
 		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
 

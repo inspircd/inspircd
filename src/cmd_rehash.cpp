@@ -25,7 +25,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
+	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 	std::string parameter = "";
 	std::string old_disabled = ServerInstance->Config->DisabledCommands;
 	if (pcnt)
@@ -34,7 +34,7 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		ServerInstance->WriteOpers("*** %s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(CONFIG_FILE));
+		ServerInstance->WriteOpers("*** %s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 		ServerInstance->CloseLog();
 		ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc);
 		ServerInstance->RehashUsersAndChans();

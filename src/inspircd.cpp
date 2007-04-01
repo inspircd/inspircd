@@ -161,7 +161,7 @@ void InspIRCd::Start()
 
 void InspIRCd::Rehash(int status)
 {
-	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(CONFIG_FILE));
+	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
 	SI->CloseLog();
 	SI->OpenLog(SI->Config->argv, SI->Config->argc);
 	SI->RehashUsersAndChans();
@@ -270,8 +270,8 @@ void InspIRCd::WritePID(const std::string &filename)
 	if (*(fname.begin()) != '/')
 	{
 		std::string::size_type pos;
-		std::string confpath = CONFIG_FILE;
-		if ((pos = confpath.find("/inspircd.conf")) != std::string::npos)
+		std::string confpath = this->ConfigFileName;
+		if ((pos = confpath.rfind("/")) != std::string::npos)
 		{
 			/* Leaves us with just the path */
 			fname = confpath.substr(0, pos) + std::string("/") + fname;
@@ -326,20 +326,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->next_call = this->TIME + 3;
 	srand(this->TIME);
 
-	if (!ServerConfig::FileExists(CONFIG_FILE))
-	{
-		printf("ERROR: Cannot open config file: %s\nExiting...\n",CONFIG_FILE);
-		this->Log(DEFAULT,"main: no config");
-		printf("ERROR: Your config file is missing, this IRCd will self destruct in 10 seconds!\n");
-		Exit(EXIT_STATUS_CONFIG);
-	}
-
 	*this->LogFileName = 0;
+	strlcpy(this->ConfigFileName, CONFIG_FILE, MAXBUF);
 
 	struct option longopts[] =
 	{
 		{ "nofork",	no_argument,		&do_nofork,	1	},
 		{ "logfile",	required_argument,	NULL,		'f'	},
+		{ "config",	required_argument,	NULL,		'c'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "restart",	no_argument,		&do_restart,	1	},
@@ -355,6 +349,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 				strlcpy(LogFileName, optarg, MAXBUF);
 				printf("LOG: Setting logfile to %s\n", LogFileName);
 			break;
+			case 'c':
+				/* Config filename was set */
+				strlcpy(ConfigFileName, optarg, MAXBUF);
+				printf("CONFIG: Setting config file to %s\n", ConfigFileName);
+			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
 			break;
@@ -364,6 +363,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
+	}
+
+	if (!ServerConfig::FileExists(this->ConfigFileName))
+	{
+		printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
+		this->Log(DEFAULT,"Unable to open config file %s", this->ConfigFileName);
+		Exit(EXIT_STATUS_CONFIG);
 	}
 
 	/* Set the finished argument values */

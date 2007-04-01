@@ -449,6 +449,10 @@ class InspIRCd : public classbase
 	 */
 	time_t startup_time;
 
+	/** Config file pathname specified on the commandline or via ./configure
+	 */
+	char ConfigFileName[MAXBUF];
+
 	/** Mode handler, handles mode setting and removal
 	 */
 	ModeParser* Modes;
