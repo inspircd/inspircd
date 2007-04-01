@@ -1402,6 +1402,10 @@
 #<module name="m_joinflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Jump Server module: Adds support for the RPL_REDIR numeric
+#<module name="m_jumpserver.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
 #<module name="m_kicknorejoin.so">
 
@@ -1642,6 +1646,10 @@
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
 #                                                                     #
 #<securelist waittime="60">                                           #
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# See nicks module: Allow for SNOMASK +N which shows nick changes.
+#<module name="m_seenicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Set Idle module: Adds a command for opers to change their

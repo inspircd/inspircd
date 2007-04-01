@@ -18,7 +18,7 @@
 #include "configreader.h"
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style GLOBOPS and umode +g */
+/* $ModDesc: Provides support for channel mode +N which prevents nick changes on channel */
 
 class NoNicks : public ModeHandler
 {
