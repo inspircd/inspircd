@@ -240,9 +240,14 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
 	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
 	{
-		/* Error message here */
-		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
-		this->bound_user->dns_done = true;
+		/* Since dns timeout is implemented outside of the resolver, this was a race condition that could result in this message being sent *after*
+		 * the user was fully connected. This check fixes that issue  - Special */
+		if (!this->bound_user->dns_done)
+		{
+			/* Error message here */
+			this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
+			this->bound_user->dns_done = true;
+		}
 	}
 }
 
