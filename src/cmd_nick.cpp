@@ -34,8 +34,8 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (!*parameters[0] || !*user->nick)
 	{
-		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '* *' here. */
-		user->WriteServ("432 * * :Erroneous Nickname");
+		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '*' here. */
+		user->WriteServ("432 %s * :Erroneous Nickname", *user->nick ? user->nick : "*");
 		return CMD_FAILURE;
 	}
 
