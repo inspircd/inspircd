@@ -356,8 +356,9 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 	else if ((params[0] == "CAPABILITIES") && (params.size() == 2))
 	{
 		irc::tokenstream capabs(params[1]);
-		std::string item = "*";
-		while ((item = capabs.GetToken()) != "")
+		std::string item;
+		bool more = true;
+		while ((more = capabs.GetToken(item)))
 		{
 			/* Process each key/value pair */
 			std::string::size_type equals = item.rfind('=');
@@ -678,13 +679,12 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	}
 	/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
 	irc::tokenstream users(nicklist);
-	std::string item = "*";
+	std::string item;
 
 	/* Now, process every 'prefixes,nick' pair */
-	while (item != "")
+	while (users.GetToken(item))
 	{
 		/* Find next user */
-		item = users.GetToken();
 		const char* usr = item.c_str();
 		/* Safety check just to make sure someones not sent us an FJOIN full of spaces
 		 * (is this even possible?) */

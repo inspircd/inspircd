@@ -27,7 +27,8 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))
 	{
-		if (!ServerInstance->IsIdent(parameters[0])) {
+		if (!*parameters[3] || !ServerInstance->IsIdent(parameters[0]))
+		{
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
 			user->WriteServ("461 %s USER :Not enough parameters",user->nick);

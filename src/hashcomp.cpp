@@ -190,7 +190,7 @@ irc::tokenstream::~tokenstream()
 {
 }
 
-const std::string irc::tokenstream::GetToken()
+bool irc::tokenstream::GetToken(std::string &token)
 {
 	std::string::iterator lsp = last_starting_position;
 
@@ -208,7 +208,8 @@ const std::string irc::tokenstream::GetToken()
 			 */
 			std::string::iterator curr = ++n;
 			n = tokens.end();
-			return std::string(curr, tokens.end());
+			token = std::string(curr, tokens.end());
+			return true;
 		}
 
 		last_pushed = false;
@@ -224,12 +225,14 @@ const std::string irc::tokenstream::GetToken()
 			while ((strip.length()) && (strip.find_last_of(' ') == strip.length() - 1))
 				strip.erase(strip.end() - 1);
 
-			return strip;
+			token = strip;
+			return !token.empty();
 		}
 
 		n++;
 	}
-	return "";
+	token = "";
+	return false;
 }
 
 irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)

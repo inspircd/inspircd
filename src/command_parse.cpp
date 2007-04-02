@@ -273,9 +273,10 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	const char *command_p[127];
 	int items = 0;
 	irc::tokenstream tokens(cmd);
-	std::string command = tokens.GetToken();
+	std::string command;
+	tokens.GetToken(command);
 
-	while (((para[items] = tokens.GetToken()) != "") && (items < 127))
+	while (tokens.GetToken(para[items]) && (items < 127))
 	{
 		command_p[items] = para[items].c_str();
 		items++;

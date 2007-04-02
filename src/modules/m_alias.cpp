@@ -255,7 +255,7 @@ class ModuleAlias : public Module
 		const char* parv[127];
 		int x = 0;
 
-		while ((pars[x] = ss.GetToken()) != "")
+		while (ss.GetToken(pars[x]))
 		{
 			parv[x] = pars[x].c_str();
 			x++;

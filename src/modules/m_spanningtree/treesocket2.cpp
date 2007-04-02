@@ -902,7 +902,7 @@ void TreeSocket::Split(const std::string &line, std::deque<std::string> &n)
 	n.clear();
 	irc::tokenstream tokens(line);
 	std::string param;
-	while ((param = tokens.GetToken()) != "")
+	while (tokens.GetToken(param))
 		n.push_back(param);
 	return;
 }

@@ -237,7 +237,7 @@ namespace irc
 		/** Fetch the next token from the stream
 		 * @return The next token is returned, or an empty string if none remain
 		 */
-		const std::string GetToken();
+		bool GetToken(std::string &token);
 	};
 
 	/** irc::sepstream allows for splitting token seperated lists.
