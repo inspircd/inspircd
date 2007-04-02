@@ -33,7 +33,11 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	char oldnick[NICKMAX];
 
 	if (!*parameters[0] || !*user->nick)
+	{
+		/* We cant put blanks in the parameters, so for this (extremely rare) issue we just put '* *' here. */
+		user->WriteServ("432 * * :Erroneous Nickname");
 		return CMD_FAILURE;
+	}
 
 	if (irc::string(user->nick) == irc::string(parameters[0]))
 	{
