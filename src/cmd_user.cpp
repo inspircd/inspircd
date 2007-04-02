@@ -27,7 +27,7 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))
 	{
-		if (!*parameters[3] || !ServerInstance->IsIdent(parameters[0]))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			// This kinda Sucks, According to the RFC thou, its either this,
 			// or "You have already registered" :p -- Craig
@@ -42,7 +42,7 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 			 * IDENTMAX here.
 			 */
 			strlcpy(user->ident, parameters[0], IDENTMAX);
-			strlcpy(user->fullname,parameters[3],MAXGECOS);
+			strlcpy(user->fullname, *parameters[3] ? parameters[3] : "No info", MAXGECOS);
 			user->registered = (user->registered | REG_USER);
 		}
 	}
