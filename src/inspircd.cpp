@@ -800,7 +800,7 @@ bool InspIRCd::LoadModule(const char* filename)
 		}
 		catch (CoreException& modexcept)
 		{
-			this->Log(DEFAULT,"Unable to load %s: ",modfile,modexcept.GetReason());
+			this->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			return false;
 		}
