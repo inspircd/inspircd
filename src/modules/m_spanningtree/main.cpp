@@ -61,7 +61,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, userrec* user, int hops)
 	}
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
-		if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
+		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 		{
 			if (*user->oper)
 			{
@@ -74,9 +74,16 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, userrec* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!*user->oper))
+	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!IS_OPER(user)))
 		return;
-	user->WriteServ("364 %s %s %s :%d %s",user->nick,Current->GetName().c_str(),(Utils->FlatLinks && (!*user->oper)) ? ServerInstance->Config->ServerName : Parent.c_str(),(Utils->FlatLinks && (!*user->oper)) ? 0 : hops,Current->GetDesc().c_str());
+	/* Or if the server is hidden and they're not an oper */
+	else if ((Current->Hidden) && (!IS_OPER(user)))
+		return;
+
+	user->WriteServ("364 %s %s %s :%d %s",	user->nick,Current->GetName().c_str(),
+			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName : Parent.c_str(),
+			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
+			Current->GetDesc().c_str());
 }
 
 int ModuleSpanningTree::CountLocalServs()
@@ -190,7 +197,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 		line++;
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
-			if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str())))
+			if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
 			{
 				if (*user->oper)
 				{

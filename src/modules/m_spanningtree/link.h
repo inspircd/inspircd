@@ -22,6 +22,7 @@ class Link : public classbase
 	std::string Hook;
 	int Timeout;
 	std::string Bind;
+	bool Hidden;
 };
 
 #endif

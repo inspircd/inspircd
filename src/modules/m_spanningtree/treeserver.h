@@ -48,7 +48,7 @@ class TreeServer : public classbase
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock);
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
 
@@ -97,6 +97,10 @@ class TreeServer : public classbase
 	/** Round trip time of last ping
 	 */
 	time_t rtt;
+
+	/** True if this server is hidden
+	 */
+	bool Hidden;
 
 	/** True if the server answered their last ping
 	 */

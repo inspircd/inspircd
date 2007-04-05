@@ -791,7 +791,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
 		return false;
 	}
-	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL);
+	Link* lnk = Utils->FindLink(servername);
+	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 	ParentOfThis->AddChild(Node);
 	params[3] = ":" + params[3];
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
@@ -835,7 +836,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			// we should add the details of this server now
 			// to the servers tree, as a child of the root
 			// node.
-			TreeServer* Node = new TreeServer(this->Utils,this->Instance,sname,description,Utils->TreeRoot,this);
+			TreeServer* Node = new TreeServer(this->Utils,this->Instance,sname,description,Utils->TreeRoot,this,x->Hidden);
 			Utils->TreeRoot->AddChild(Node);
 			params[3] = ":" + params[3];
 			Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
@@ -1014,7 +1015,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 				this->LinkState = CONNECTED;
-				Node = new TreeServer(this->Utils,this->Instance,InboundServerName,InboundDescription,Utils->TreeRoot,this);
+				Link* lnk = Utils->FindLink(InboundServerName);
+				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 				Utils->TreeRoot->AddChild(Node);
 				params.clear();
 				params.push_back(InboundServerName);

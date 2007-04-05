@@ -479,6 +479,18 @@
 #                 looking for the error 'Could not assign requested   #
 #                 address' in your log when connecting to servers.    #
 #                                                                     #
+# hidden        - If this is set to true, yes, or 1, then the server  #
+#                 is completely hidden from non-opers. It does not    #
+#                 show in LINKS and it does not show in MAP. Also,    #
+#                 any servers which are child servers of this one     #
+#                 in the network will *also* be hidden. Use with      #
+#                 care! You can use this to 'mask off' sections of    #
+#                 the network so that users only see a small portion  #
+#                 of a much larger net. It should NOT be relied upon  #
+#                 as a security tool, unless it is being used for     #
+#                 example to hide a non-client hub, for which clients #
+#                 do not have an IP address or resolvable hostname.   #
+#                                                                     #
 # to u:line a server (give it extra privilages required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
@@ -526,6 +538,7 @@
       timeout="15"
       transport="gnutls"
       bind="1.2.3.4"
+      hidden="no"
       sendpass="outgoing!password"
       recvpass="incoming!password">
 

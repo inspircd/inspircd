@@ -384,18 +384,19 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	for (int j =0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
-		std::string Allow = Conf->ReadValue("link","allowmask",j);
-		L.Name = (Conf->ReadValue("link","name",j)).c_str();
-		L.IPAddr = Conf->ReadValue("link","ipaddr",j);
-		L.FailOver = Conf->ReadValue("link","failover",j).c_str();
-		L.Port = Conf->ReadInteger("link","port",j,true);
-		L.SendPass = Conf->ReadValue("link","sendpass",j);
-		L.RecvPass = Conf->ReadValue("link","recvpass",j);
-		L.AutoConnect = Conf->ReadInteger("link","autoconnect",j,true);
-		L.HiddenFromStats = Conf->ReadFlag("link","hidden",j);
-		L.Timeout = Conf->ReadInteger("link","timeout",j,true);
+		std::string Allow = Conf->ReadValue("link", "allowmask", j);
+		L.Name = (Conf->ReadValue("link", "name", j)).c_str();
+		L.IPAddr = Conf->ReadValue("link", "ipaddr", j);
+		L.FailOver = Conf->ReadValue("link", "failover", j).c_str();
+		L.Port = Conf->ReadInteger("link", "port", j, true);
+		L.SendPass = Conf->ReadValue("link", "sendpass", j);
+		L.RecvPass = Conf->ReadValue("link", "recvpass", j);
+		L.AutoConnect = Conf->ReadInteger("link", "autoconnect", j, true);
+		L.HiddenFromStats = Conf->ReadFlag("link", "hidden", j);
+		L.Timeout = Conf->ReadInteger("link", "timeout", j, true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
 		L.Bind = Conf->ReadValue("link", "bind", j);
+		L.Hidden = Conf->ReadFlag("link", "hidden", j);
 
 		if ((!L.Hook.empty()) && (hooks.find(L.Hook.c_str()) ==  hooks.end()))
 		{

@@ -23,6 +23,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : Server
 	VersionString = "";
 	UserCount = OperCount = 0;
 	rtt = LastPing = 0;
+	Hidden = false;
 	VersionString = ServerInstance->GetVersionString();
 }
 
@@ -40,6 +41,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
 	rtt = LastPing = 0;
+	Hidden = false;
 	AddHashEntry();
 }
 
@@ -47,8 +49,8 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock)
-	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
 	VersionString = "";
 	UserCount = OperCount = 0;
