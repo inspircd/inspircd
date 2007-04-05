@@ -12,6 +12,9 @@
 # block         This blocks the line, sends out a notice to all opers with
 #               +s and informs the user that their message was blocked.
 #
+# silent        This blocks the line only, and informs the user their message
+#               was blocked, but does not notify opers.
+#
 # none          This action causes nothing to be done except logging. This
 #               is the default action if none is specified.
 #
