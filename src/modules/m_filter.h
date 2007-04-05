@@ -96,9 +96,9 @@ class cmd_filter : public command_t
 				std::string reason;
 				long duration = 0;
 
-				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill"))
+				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
 				{
-					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', and 'kill'.", user->nick, freeform.c_str());
+					user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick, freeform.c_str());
 					return CMD_FAILURE;
 				}
 
@@ -190,10 +190,13 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 		}
 		if (f->action == "block")
 		{	
-			ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their notice filtered, target was "+target+": "+f->reason);
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your notice has been filtered and opers notified: "+f->reason);
+			ServerInstance->WriteOpers(std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered and opers notified: "+f->reason);
 		}
-		ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their notice filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
+		if (f->action == "silent")
+		{
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message has been filtered: "+f->reason);
+		}
 		if (f->action == "kill")
 		{
 			userrec::QuitUser(ServerInstance,user,"Filtered: "+f->reason);
@@ -206,6 +209,8 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 				FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 			}
 		}
+
+		ServerInstance->Log(DEFAULT,"FILTER: "+std::string(user->nick)+std::string(" had their message filtered, target was ")+target+": "+f->reason+" Action: "+f->action);
 		return 1;
 	}
 	return 0;
@@ -249,14 +254,10 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			/* PART or QUIT reason doesnt match a filter */
 			return 0;
 
-		ServerInstance->Log(DEBUG,"Match block text");
-
 		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
 		command_t* c = ServerInstance->Parser->GetHandler(command);
 		if (c)
 		{
-			ServerInstance->Log(DEBUG,"Found handler");
-
 			const char* params[127];
 			for (int item = 0; item < pcnt; item++)
 				params[item] = parameters[item];
@@ -265,7 +266,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			/* We're blocking, OR theyre quitting and its a KILL action
 			 * (we cant kill someone whos already quitting, so filter them anyway)
 			 */
-			if ((f->action == "block") || (((!parting) && (f->action == "kill"))))
+			if ((f->action == "block") || (((!parting) && (f->action == "kill"))) || (f->action == "silent"))
 			{
 				c->Handle(params, pcnt, user);
 				return 1;
