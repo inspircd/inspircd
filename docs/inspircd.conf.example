@@ -377,7 +377,7 @@
 #       <oper name="login"                                            #
 #             password="pass"                                         #
 #             host="hostmask@of.oper"                                 #
-#             fingerprint="hexsequence"                               #
+#           fingerprint="hexsequence"                               #
 #             type="oper type">                                       #
 #                                                                     #
 
@@ -549,7 +549,17 @@
       sendpass="penguins"
       recvpass="polarbears">
 
-<uline server="services.antarctic.com">
+
+#-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+# This tag defines a ulined server. A U-Lined server has special      #
+# permissions, and should be used with caution. Services servers are  #
+# usually u-lined in this manner.                                     #
+#                                                                     #
+# The 'silent' value if set to yes indicates that this server should  #
+# not generate quit and connect notices, which can cut down on noise  #
+# to opers on the network.                                            #
+#                                                                     #
+<uline server="services.antarctic.com" silent="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#

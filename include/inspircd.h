@@ -1142,6 +1142,11 @@ class InspIRCd : public classbase
 	 */
 	bool ULine(const char* server);
 
+	/** Returns true if the uline is 'silent' (doesnt generate
+	 * remote connect notices etc).
+	 */
+	bool SilentULine(const char* server);
+
 	/** Returns the subversion revision ID of this ircd
 	 * @return The revision ID or an empty string
 	 */

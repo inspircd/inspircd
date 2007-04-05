@@ -412,7 +412,8 @@ bool InitULine(ServerConfig* conf, const char* tag)
 bool DoULine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
 {
 	const char* server = values[0].GetString();
-	conf->ulines.push_back(server);
+	const bool silent = values[1].GetBool();
+	conf->ulines[server] = silent;
 	return true;
 }
 
@@ -619,9 +620,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",
-				{"server",	NULL},
-				{"",		NULL},
-				{DT_CHARPTR},
+				{"server",	"silent",	NULL},
+				{"",		"0",		NULL},
+				{DT_CHARPTR,	DT_BOOLEAN},
 				InitULine,DoULine,DoneULine},
 
 		{"banlist",

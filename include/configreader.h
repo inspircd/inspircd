@@ -487,7 +487,7 @@ class ServerConfig : public Extensible
 
 	/** List of u-lined servers
 	 */
-	std::vector<irc::string> ulines;
+	std::map<irc::string, bool> ulines;
 
 	/** Max banlist sizes for channels (the std::string is a glob)
 	 */
