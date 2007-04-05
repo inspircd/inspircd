@@ -107,6 +107,7 @@ class ModuleSSLOpenSSL : public Module
 	SSL_CTX* clictx;
 
 	char* dummy;
+	char cipher[MAXBUF];
 
 	std::string keyfile;
 	std::string certfile;
@@ -746,6 +747,8 @@ class ModuleSSLOpenSSL : public Module
 			DELETE(metadata);
 
 			VerifyCertificate(&sessions[user->GetFd()], user);
+			if (sessions[user->GetFd()].sess)
+				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick, SSL_get_cipher(sessions[user->GetFd()].sess));
 		}
 	}
 
