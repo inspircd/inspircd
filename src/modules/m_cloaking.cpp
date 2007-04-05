@@ -38,6 +38,37 @@ class CloakUser : public ModeHandler
 	unsigned int key4;
 	Module* Sender;
 	Module* HashProvider;
+
+	/** This function takes a domain name string and returns just the last two domain parts,
+	 * or the last domain part if only two are available. Failing that it just returns what it was given.
+	 *
+	 * For example, if it is passed "svn.inspircd.org" it will return ".inspircd.org".
+	 * If it is passed "brainbox.winbot.co.uk" it will return ".co.uk",
+	 * and if it is passed "localhost.localdomain" it will return ".localdomain".
+	 * 
+	 * This is used to ensure a significant part of the host is always cloaked (see Bug #216)
+	 */
+	std::string LastTwoDomainParts(const std::string &host)
+	{
+		int dots = 0;
+		std::string::size_type splitdot = host.length();
+
+		for (std::string::size_type x = host.length() - 1; x; --x)
+		{
+			if (host[x] == '.')
+			{
+				splitdot = x;
+				dots++;
+			}
+			if (dots >= 2)
+				break;
+		}
+
+		if (splitdot == host.length())
+			return host;
+		else
+			return host.substr(splitdot);
+	}
 	
  public:
 	CloakUser(InspIRCd* Instance, Module* Source, Module* Hash) : ModeHandler(Instance, 'x', 0, 0, false, MODETYPE_USER, false), Sender(Source), HashProvider(Hash)
@@ -81,7 +112,7 @@ class CloakUser : public ModeHandler
 					 */
 
 					unsigned int iv[] = { key1, key2, key3, key4 };
-					std::string a = (n1 ? n1 : n2);
+					std::string a = LastTwoDomainParts(dest->host);
 					std::string b;
 
 					/** Reset the Hash module, and send it our IV and hex table */
