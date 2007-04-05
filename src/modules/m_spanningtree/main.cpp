@@ -137,6 +137,21 @@ void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, userrec
 	return;
 }
 
+const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
+{
+	time_t secs_up = ServerInstance->Time() - Current->age;
+	time_t mins_up = secs_up / 60;
+	time_t hours_up = mins_up / 60;
+	time_t days_up = hours_up / 24;
+	secs_up = secs_up % 60;
+	mins_up = mins_up % 60;
+	hours_up = hours_up % 24;
+	return (" [Up: "+ (days_up ? (ConvToStr(days_up) + "d") : std::string(""))
+			+ (hours_up ? (ConvToStr(hours_up) + "h") : std::string(""))
+			+ (mins_up ? (ConvToStr(mins_up) + "m") : std::string(""))
+			+ ConvToStr(secs_up) + "s Lag: "+ConvToStr(Current->rtt)+"s]");
+}
+
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
 void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80], float &totusers, float &totservers)
 {
@@ -167,7 +182,8 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 		{
 			percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
 		}
-		snprintf(text, 80, "%s %s%5d [%5.2f%%]", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent);
+		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
+		snprintf(text, 80, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
 		strlcpy(&matrix[line][depth],text,80);
@@ -433,6 +449,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 				{
 					sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
 					serv->SetNextPingTime(curtime + 60);
+					serv->LastPing = curtime;
 				}
 				else
 				{

@@ -90,6 +90,14 @@ class TreeServer : public classbase
 	 */
 	time_t NextPingTime();
 
+	/** Time of last ping used to calculate this->rtt below
+	 */
+	time_t LastPing;
+
+	/** Round trip time of last ping
+	 */
+	time_t rtt;
+
 	/** True if the server answered their last ping
 	 */
 	bool AnsweredLastPing();

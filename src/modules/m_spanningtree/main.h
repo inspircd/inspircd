@@ -123,6 +123,10 @@ class ModuleSpanningTree : public Module
 	 */
 	void BroadcastTimeSync();
 
+	/** Returns oper-specific MAP information
+	 */
+	const std::string MapOperInfo(TreeServer* Current);
+
 	/**
 	 ** *** MODULE EVENTS ***
 	 **/

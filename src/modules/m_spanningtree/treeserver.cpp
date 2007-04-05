@@ -22,6 +22,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : Server
 	ServerDesc = "";
 	VersionString = "";
 	UserCount = OperCount = 0;
+	rtt = LastPing = 0;
 	VersionString = ServerInstance->GetVersionString();
 }
 
@@ -38,6 +39,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	VersionString = ServerInstance->GetVersionString();
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
+	rtt = LastPing = 0;
 	AddHashEntry();
 }
 
@@ -52,6 +54,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	UserCount = OperCount = 0;
 	this->SetNextPingTime(time(NULL) + 60);
 	this->SetPingFlag();
+	rtt = LastPing = 0;
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
 	 *

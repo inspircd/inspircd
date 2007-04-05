@@ -400,6 +400,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 		if (ServerSource)
 		{
 			ServerSource->SetPingFlag();
+			ServerSource->rtt = Instance->Time() - ServerSource->LastPing;
 		}
 	}
 	else
