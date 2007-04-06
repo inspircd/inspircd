@@ -49,7 +49,9 @@ CmdResult cmd_qline::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires in %d seconds.",user->nick,parameters[0],ServerInstance->Duration(parameters[1]));
+				time_t c_requires_crap = ServerInstance->Duration(parameters[1]) + ServerInstance->Time();
+				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s",user->nick,parameters[0],
+						ctime(&c_requires_crap));
 			}
 			ServerInstance->XLines->apply_lines(to_apply);
 		}
