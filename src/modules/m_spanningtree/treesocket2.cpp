@@ -544,7 +544,7 @@ bool TreeSocket::AddLine(const std::string &prefix, std::deque<std::string> &par
 		if (atoi(params[4].c_str()))
 		{
 			time_t c_requires_crap = ConvToInt(params[4]) + Instance->Time();
-			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),ctime(&c_requires_crap),params[5].c_str());
+			this->Instance->SNO->WriteToSnoMask('x',"%s Added %cLINE on %s to expire on %s (%s).",prefix.c_str(),*(params[0].c_str()),params[1].c_str(),Instance->TimeString(c_requires_crap).c_str(),params[5].c_str());
 		}
 		else
 		{

@@ -49,7 +49,7 @@ CmdResult cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				time_t c_requires_crap = ServerInstance->Duration(parameters[1]) + ServerInstance->Time();
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s",user->nick,parameters[0],
-						ctime(&c_requires_crap));
+						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 		}
 	}

@@ -53,6 +53,11 @@ int InspIRCd::OperPassCompare(const char* data,const char* input, int tagnumber)
 	return strcmp(data,input);
 }
 
+std::string InspIRCd::TimeString(time_t curtime)
+{
+	return std::string(ctime(&curtime),24);
+}
+
 long InspIRCd::Duration(const char* str)
 {
 	char n_field[MAXBUF];

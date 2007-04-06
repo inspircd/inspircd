@@ -1241,6 +1241,10 @@ class InspIRCd : public classbase
 	 */
 	void ResetMaxBans();
 
+	/** Return a time_t as a human-readable string.
+	 */
+	std::string TimeString(time_t curtime);
+
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * after performing some initialisation routines,
