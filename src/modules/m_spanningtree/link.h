@@ -15,6 +15,7 @@ class Link : public classbase
 	int Port;
 	std::string SendPass;
 	std::string RecvPass;
+	std::string AllowMask;
 	unsigned long AutoConnect;
 	time_t NextConnectTime;
 	bool HiddenFromStats;

@@ -50,6 +50,9 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	}
 	else
 		SyncTimer = NULL;
+
+	RefreshTimer = new CacheRefreshTimer(ServerInstance, Utils);
+	ServerInstance->Timers->AddTimer(RefreshTimer);
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, userrec* user, int hops)
@@ -1300,6 +1303,8 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	delete Utils;
 	if (SyncTimer)
 		ServerInstance->Timers->DelTimer(SyncTimer);
+
+	ServerInstance->Timers->DelTimer(RefreshTimer);
 
 	ServerInstance->DoneWithInterface("InspSocketHook");
 }

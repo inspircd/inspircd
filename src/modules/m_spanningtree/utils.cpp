@@ -332,6 +332,56 @@ bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::str
 	}
 }
 
+void SpanningTreeUtilities::RefreshIPCache()
+{
+	ValidIPs.clear();
+	for (std::vector<Link>::iterator L = LinkBlocks.begin(); L != LinkBlocks.end(); L++)
+	{
+		if ((L->IPAddr != "") && (L->RecvPass != "") && (L->SendPass != "") && (L->Name != "") && (L->Port))
+		{
+			ValidIPs.push_back(L->IPAddr);
+
+			if (L->AllowMask.length())
+				ValidIPs.push_back(L->AllowMask);
+
+			/* Needs resolving */
+			bool ipvalid = true;
+			QueryType start_type = DNS_QUERY_A;
+#ifdef IPV6
+			start_type = DNS_QUERY_AAAA;
+			if (strchr(L->IPAddr.c_str(),':'))
+			{
+				in6_addr n;
+				if (inet_pton(AF_INET6, L->IPAddr.c_str(), &n) < 1)
+					ipvalid = false;
+			}
+			else
+			{
+				in_addr n;
+				if (inet_aton(L->IPAddr.c_str(),&n) < 1)
+					ipvalid = false;
+			}
+#else
+			in_addr n;
+			if (inet_aton(L->IPAddr.c_str(),&n) < 1)
+				ipvalid = false;
+#endif
+			if (!ipvalid)
+			{
+				try
+				{
+					bool cached;
+					SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L->IPAddr, *L, cached, start_type);
+					ServerInstance->AddResolver(sr, cached);
+				}
+				catch (ModuleException& e)
+				{
+				}
+			}
+		}
+	}
+}
+
 void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 {
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
@@ -386,6 +436,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		Link L;
 		std::string Allow = Conf->ReadValue("link", "allowmask", j);
 		L.Name = (Conf->ReadValue("link", "name", j)).c_str();
+		L.AllowMask = Allow;
 		L.IPAddr = Conf->ReadValue("link", "ipaddr", j);
 		L.FailOver = Conf->ReadValue("link", "failover", j).c_str();
 		L.Port = Conf->ReadInteger("link", "port", j, true);

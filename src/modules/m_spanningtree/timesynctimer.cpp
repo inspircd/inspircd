@@ -28,3 +28,12 @@ void TimeSyncTimer::Tick(time_t TIME)
 	Module->BroadcastTimeSync();
 }
 
+CacheRefreshTimer::CacheRefreshTimer(InspIRCd *Inst, SpanningTreeUtilities *Util) : InspTimer(3600, Inst->Time(), true), Instance(Inst), Utils(Util)
+{
+}
+
+void CacheRefreshTimer::Tick(time_t TIME)
+{
+	Utils->RefreshIPCache();
+}
+

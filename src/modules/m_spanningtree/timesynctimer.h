@@ -4,6 +4,7 @@
 #include "timer.h"
 
 class ModuleSpanningTree;
+class SpanningTreeUtilities;
 class InspIRCd;
 
 /** Create a timer which recurs every second, we inherit from InspTimer.
@@ -17,6 +18,16 @@ class TimeSyncTimer : public InspTimer
 	ModuleSpanningTree *Module;
  public:
 	TimeSyncTimer(InspIRCd *Instance, ModuleSpanningTree *Mod);
+	virtual void Tick(time_t TIME);
+};
+
+class CacheRefreshTimer : public InspTimer
+{
+ private:
+	InspIRCd *Instance;
+	SpanningTreeUtilities *Utils;
+ public:
+	CacheRefreshTimer(InspIRCd *Instance, SpanningTreeUtilities* Util);
 	virtual void Tick(time_t TIME);
 };
 

@@ -136,6 +136,9 @@ class SpanningTreeUtilities
 	/** Find a link tag from a server name
 	 */
 	Link* FindLink(const std::string& name);
+	/** Refresh the IP cache used for allowing inbound connections
+	 */
+	void RefreshIPCache();
 };
 
 #endif

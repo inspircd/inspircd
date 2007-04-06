@@ -20,6 +20,7 @@ const long ProtocolVersion = 1105;
 class cmd_rconnect;
 class SpanningTreeUtilities;
 class TimeSyncTimer;
+class CacheRefreshTimer;
 class TreeServer;
 class Link;
 
@@ -38,6 +39,8 @@ class ModuleSpanningTree : public Module
 	/** Timer for clock syncs
 	 */
 	TimeSyncTimer *SyncTimer;
+
+	CacheRefreshTimer *RefreshTimer;
 
 	/** Constructor
 	 */
