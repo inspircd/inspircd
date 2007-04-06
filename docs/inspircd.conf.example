@@ -1164,6 +1164,15 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CHGHOST module: Adds the /CHGHOST command
 #<module name="m_chghost.so">
+#
+#-#-#-#-#-#-#-#-# /CHGHOST - /SETHOST  CONFIGURATION #-#-#-#-#-#-#-#-#
+# Optional - If you want to use special chars for hostnames you can  #
+# specify your own custom list of chars with the <hostname> tag:     #
+#                                                                    #
+# charmap        - A list of chars accepted as valid by the /CHGHOST #
+#                  and /SETHOST commands. Also note that the list is # 
+#                  case-sensitive.                                   #
+#<hostname charmap="abcdefghijklmnopqrstuvwxyz.-_/0123456789">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CHGIDENT module: Adds the /CHGIDENT command
@@ -1694,6 +1703,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command
+# See m_chghost for how to customise valid chars for hostnames
 #<module name="m_sethost.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
