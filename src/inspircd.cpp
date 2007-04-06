@@ -379,8 +379,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED\n");
 		printf("OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR\n");
 		printf("SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN\n");
-		printf("TO START INSPIRCD AS ROOT, TYPE ./inspircd stop NOW AND\n");
-		printf("RESTART THE IRCD AS A NORMAL USER. YOU HAVE BEEN WARNED!\n");
+		printf("TO START INSPIRCD AS ROOT, HIT CTRL+C NOW AND RESTART\n");
+		printf("THE PROGRAM AS A NORMAL USER. YOU HAVE BEEN WARNED!\n");
 		printf("\nInspIRCd starting in 20 seconds, ctrl+c to abort...\n");
 		sleep(20);
 	}
