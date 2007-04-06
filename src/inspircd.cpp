@@ -301,7 +301,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0;    /* flag variables */
+	int do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
@@ -337,6 +337,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "restart",	no_argument,		&do_restart,	1	},
+		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -386,7 +387,22 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->XLines = new XLineManager(this);
 	Config->ClearStack();
 	Config->Read(true, NULL);
-	this->CheckRoot();
+
+	if (!do_root)
+		this->CheckRoot();
+	else
+	{
+		printf("* WARNING * WARNING * WARNING * WARNING * WARNING * \n\n");
+		printf("YOU ARE RUNNING INSPIRCD AS ROOT. THIS IS UNSUPPORTED\n");
+		printf("AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED\n");
+		printf("OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR\n");
+		printf("SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN\n");
+		printf("TO START INSPIRCD AS ROOT, TYPE ./inspircd stop NOW AND\n");
+		printf("RESTART THE IRCD AS A NORMAL USER. YOU HAVE BEEN WARNED!\n");
+		printf("\nInspIRCd starting in 5 seconds, ctrl+c to abort...");
+		sleep(5);
+	}
+
 	this->Modes = new ModeParser(this);
 	this->AddServerName(Config->ServerName);
 	CheckDie();
