@@ -126,25 +126,7 @@ void InspIRCd::Restart(const std::string &reason)
 	/* Figure out our filename (if theyve renamed it, we're boned) */
 	std::string me = Config->MyDir + "/inspircd";
 
-	char* argv[10];
-	int endp = 2;
-	argv[0] = Config->argv[0];
-	argv[1] = "--restart";
-	if (Config->forcedebug)
-		argv[endp++] = "--debug";
-	if (Config->nofork)
-		argv[endp++] = "--nofork";
-	if (!Config->writelog)
-		argv[endp++] = "--nolog";
-	if (*this->LogFileName)
-	{
-		argv[endp++] = "--logfile";
-		argv[endp++] = this->LogFileName;
-	}
-
-	argv[endp] = NULL;
-
-	if (execv(me.c_str(), argv) == -1)
+	if (execv(me.c_str(), Config->argv) == -1)
 	{
 		/* Will raise a SIGABRT if not trapped */
 		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
