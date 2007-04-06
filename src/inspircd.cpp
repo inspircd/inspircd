@@ -399,7 +399,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		printf("SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN\n");
 		printf("TO START INSPIRCD AS ROOT, TYPE ./inspircd stop NOW AND\n");
 		printf("RESTART THE IRCD AS A NORMAL USER. YOU HAVE BEEN WARNED!\n");
-		printf("\nInspIRCd starting in 5 seconds, ctrl+c to abort...");
+		printf("\nInspIRCd starting in 5 seconds, ctrl+c to abort...\n");
 		sleep(5);
 	}
 
