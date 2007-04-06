@@ -29,9 +29,9 @@ CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		if (strchr(parameters[0],'@'))
+		if (strchr(parameters[0],'@') || strchr(parameters[0],'!'))
 		{
-			user->WriteServ("NOTICE %s :*** You cannot include a username in a zline, a zline must ban only an IP mask",user->nick);
+			user->WriteServ("NOTICE %s :*** You cannot include a username or nickname in a zline, a zline must ban only an IP mask",user->nick);
 			return CMD_FAILURE;
 		}
 

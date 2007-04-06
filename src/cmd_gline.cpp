@@ -36,6 +36,11 @@ CmdResult cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 			user->WriteServ("NOTICE %s :*** G-Line must contain a username, e.g. *@%s",user->nick,parameters[0]);
 			return CMD_FAILURE;
 		}
+		else if (strchr(parameters[0],'!'))
+		{
+			user->WriteServ("NOTICE %s :*** G-Line cannot contain a nickname!",user->nick);
+			return CMD_FAILURE;
+		}
 
 		if (ServerInstance->XLines->add_gline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]))
 		{
