@@ -723,9 +723,8 @@ void ServerConfig::Read(bool bail, userrec* user)
 				case DT_CHARPTR:
 				{
 					ValueContainerChar* vcc = (ValueContainerChar*)Values[Index].val;
-					/* We do this so that an empty string can still be copied */
-					size_t length = strlen(vi.GetString());
-					vcc->Set(vi.GetString(), length ? length : 1);
+					/* Make sure we also copy the null terminator */
+					vcc->Set(vi.GetString(), strlen(vi.GetString()) + 1);
 				}
 				break;
 				case DT_INTEGER:
