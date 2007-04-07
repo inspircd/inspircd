@@ -209,6 +209,8 @@ void InspIRCd::QuickExit(int status)
 
 bool InspIRCd::DaemonSeed()
 {
+	signal(SIGTERM, InspIRCd::QuickExit);
+
 	int childpid;
 	if ((childpid = fork ()) < 0)
 		return false;
@@ -221,7 +223,6 @@ bool InspIRCd::DaemonSeed()
 		 * if the child pid is still around. If theyre not,
 		 * they threw an error and we should give up.
 		 */
-		signal(SIGTERM, InspIRCd::QuickExit);
 		while (kill(childpid, 0) != -1)
 			sleep(1);
 		exit(0);
@@ -229,6 +230,8 @@ bool InspIRCd::DaemonSeed()
 	setsid ();
 	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
+
+	signal(SIGTERM, InspIRCd::Exit);
 
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
