@@ -1,8 +1,21 @@
+/*       +------------------------------------+
+ *       | Inspire Internet Relay Chat Daemon |
+ *       +------------------------------------+
+ *
+ *  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+ * See: http://www.inspircd.org/wiki/index.php/Credits
+ *
+ * This program is free but copyrighted software; see
+ *            the file COPYING for details.
+ *
+ * ---------------------------------------------------
+ */
+
 #ifndef __EXITCODE_H__
 #define __EXITCODE_H__
 
 /** Valid exit codes to be used with InspIRCd::Exit()
- *  */
+ */
 enum ExitStatus
 {
 	EXIT_STATUS_NOERROR = 0,
@@ -23,8 +36,8 @@ enum ExitStatus
 };
 
 /** Array that maps exit codes (ExitStatus types) to
- *  * human-readable strings to be shown on shutdown.
- *   */
+ * human-readable strings to be shown on shutdown.
+ */
 const char* ExitCodes[] =
 {
 	"No error", /* 0 */

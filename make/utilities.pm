@@ -1,3 +1,12 @@
+#
+# Copyright 2002-2007 The ChatSpike Development Team
+# <brain@chatspike.net>
+# <Craig@chatspike.net>
+#
+# Licensed under GPL, please see the COPYING file
+# for more information
+#
+
 package make::utilities;
 use Exporter 'import';
 use POSIX;
