@@ -163,7 +163,7 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][80], float &totusers, float &totservers)
+void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][128], float &totusers, float &totservers)
 {
 	if (line < 128)
 	{
@@ -183,7 +183,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 			spacer[5] = '\0';
 		}
 		float percent;
-		char text[80];
+		char text[128];
 		if (ServerInstance->clientlist->size() == 0) {
 			// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
 			percent = 0;
@@ -193,10 +193,10 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 			percent = ((float)Current->GetUserCount() / (float)ServerInstance->clientlist->size()) * 100;
 		}
 		const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
-		snprintf(text, 80, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
+		snprintf(text, 126, "%s %s%5d [%5.2f%%]%s", Current->GetName().c_str(), spacer, Current->GetUserCount(), percent, operdata.c_str());
 		totusers += Current->GetUserCount();
 		totservers++;
-		strlcpy(&matrix[line][depth],text,80);
+		strlcpy(&matrix[line][depth],text,126);
 		line++;
 		for (unsigned int q = 0; q < Current->ChildCount(); q++)
 		{
@@ -315,7 +315,7 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, userrec* u
 	// client does not provide for a proper terminal.
 	float totusers = 0;
 	float totservers = 0;
-	char matrix[128][80];
+	char matrix[128][128];
 	for (unsigned int t = 0; t < 128; t++)
 	{
 		matrix[t][0] = '\0';
