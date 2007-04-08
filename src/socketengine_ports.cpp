@@ -106,7 +106,12 @@ int PortsEngine::DispatchEvents()
 		{
 		case PORT_SOURCE_FD:
 			int fd = this->events[i].portev_object;
-			ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
+			if (ref[fd])
+			{
+				// reinsert port for next time around
+				port_associate(EngineHandle, PORT_SOURCE_FD, fd, POLLRDNORM, ref[fd]);
+				ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
+			}
 		default:
 			break;
 		}
