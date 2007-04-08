@@ -33,8 +33,10 @@ GetOptions (
 	'with-nick-length=i' => \$opt_nick_length,
 	'with-channel-length=i' => \$opt_chan_length,
 	'with-max-clients=i' => \$opt_maxclients,
+	'enable-ports' => \$opt_ports,
 	'enable-epoll' => \$opt_epoll,
 	'enable-kqueue' => \$opt_kqueue,
+	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
 	'enable-ipv6' => \$opt_ipv6,
@@ -83,6 +85,7 @@ my $non_interactive = (
 	(defined $opt_noipv6links) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
+	(defined $opt_ports) ||
 	(defined $opt_maxchans) ||
 	(defined $opt_opermaxchans) ||
 	(defined $opt_chan_length) ||
@@ -90,6 +93,7 @@ my $non_interactive = (
 	(defined $opt_use_openssl) ||
 	(defined $opt_nokqueue) ||
 	(defined $opt_noepoll) ||
+	(defined $opt_noports) ||
 	(defined $opt_use_gnutls)
 );
 my $interactive = !$non_interactive;
@@ -189,6 +193,15 @@ if (defined $opt_epoll)
 if (defined $opt_noepoll)
 {
 	$config{USE_EPOLL} = "n";
+}
+$config{USE_PORTS}	  = "y";						# epoll enabled
+if (defined $opt_ports)
+{
+	$config{USE_PORTS} = "y";
+}
+if (defined $opt_noports)
+{
+	$config{USE_PORTS} = "n";
 }
 $config{IPV6}	       = "n";						# IPv6 support (experimental)
 if (defined $opt_ipv6)
@@ -307,6 +320,7 @@ sub update
 				getosflags();
 			}
 			$has_epoll = $config{HAS_EPOLL};
+			$has_ports = $config{HAS_PORTS};
 			$has_kqueue = $config{HAS_KQUEUE};
 			writefiles(1);
 			makecache();
@@ -337,6 +351,7 @@ sub modupdate
 			print "Updating Files..\n";
 			getosflags();
 			$has_epoll = $config{HAS_EPOLL};
+			$has_ports = $config{HAS_PORTS};
 			$has_kqueue = $config{HAS_KQUEUE};
 			writefiles(0);
 			makecache();
@@ -456,6 +471,22 @@ if ($has_epoll) {
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
 
+printf "Checking if Solaris I/O completion ports are available... ";
+$has_ports = 0;
+my $system = `uname -s`;
+chomp ($system);
+$has_ports = 1 if ($system eq "SunOS");
+
+if ($has_ports) {
+	my $kernel = `uname -r`;
+	chomp($kernel);
+	if (($kernel !~ /^5\.10/)) {
+		$has_ports = 0;
+	}
+}
+print "yes\n" if $has_ports == 1;
+print "no\n" if $has_ports == 0;
+
 if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} eq "CYG-STATIC")) {
 	$config{HAS_STRLCPY} = "true";
 }
@@ -566,7 +597,11 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		yesno(USE_EPOLL,"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
 		print "\n";
 	}
-	$chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y"));
+	if ($has_ports) {
+		yesno(USE_PORTS,"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
+		print "\n";
+	}
+	$chose_hiperf = (($config{USE_EPOLL} eq "y") || ($config{USE_KQUEUE} eq "y") || ($config{USE_PORTS} eq "y"));
 	if (!$chose_hiperf) {
 		print "No high-performance socket engines are available, or you chose\n";
 		print "not to enable one. Defaulting to select() engine.\n\n";
@@ -992,6 +1027,11 @@ EOF
 			$se = "socketengine_epoll";
 			$use_hiperf = 1;
 		}
+		if (($has_ports) && ($config{USE_PORTS} eq "y")) {
+			print FILEHANDLE "#define USE_PORTS\n";
+			$se = "socketengine_ports";
+			$use_hiperf = 1;
+		}
 		# user didn't choose either epoll or select for their OS.
 		# default them to USE_SELECT (ewwy puke puke)
 		if (!$use_hiperf) {
@@ -1370,6 +1410,9 @@ if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
 elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 	$se = "socketengine_epoll";
 }
+elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
+	$se = "socketengine_ports";
+}
 
 	###
 	# This next section is for cygwin dynamic module builds.
@@ -1503,6 +1546,9 @@ sub write_dynamic_makefile {
 	}
 	elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
 		$se = "socketengine_epoll";
+	}
+	elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
+		$se = "socketengine_ports";
 	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
