@@ -60,7 +60,7 @@ class CloakUser : public ModeHandler
 				splitdot = x;
 				dots++;
 			}
-			if (dots >= 2)
+			if (dots >= 3)
 				break;
 		}
 
