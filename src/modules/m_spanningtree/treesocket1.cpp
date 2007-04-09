@@ -143,11 +143,12 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 			hmac2 += static_cast<char>(password[n] ^ 0x36);
 		}
 
+		hmac2 += challenge;
 		HashResetRequest(Utils->Creator, sha256).Send();
 		hmac2 = HashSumRequest(Utils->Creator, sha256, hmac2).Send();
 
 		HashResetRequest(Utils->Creator, sha256).Send();
-		std::string hmac = hmac1 + hmac2 + challenge;
+		std::string hmac = hmac1 + hmac2;
 		hmac = HashSumRequest(Utils->Creator, sha256, hmac).Send();
 
 		return "HMAC-SHA256:"+ hmac;
