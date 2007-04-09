@@ -118,7 +118,12 @@ void TreeSocket::SetTheirChallenge(const std::string &c)
 
 std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
 {
-	Instance->Log(DEBUG,"MakePass('"+password+"','"+challenge+"')");
+	/* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
+	 * suggesting the use of HMAC to secure the password against various attacks.
+	 *
+	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
+	 *       HMAC challenge/response.
+	 */
 	Module* sha256 = Instance->FindModule("m_sha256.so");
 	if (sha256 && !challenge.empty())
 	{
@@ -131,20 +136,14 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 			hmac2 += static_cast<char>(password[n] ^ 0x36);
 		}
 
-		Instance->Log(DEBUG,"MakePass hmac1="+hmac1+" hmac="+hmac2);
-
 		HashResetRequest(Utils->Creator, sha256).Send();
 		hmac2 = HashSumRequest(Utils->Creator, sha256, hmac2).Send();
-
-		Instance->Log(DEBUG,"MakePass hmac1="+hmac1+" hmac="+hmac2);
 
 		HashResetRequest(Utils->Creator, sha256).Send();
 		std::string hmac = hmac1 + hmac2 + challenge;
 		hmac = HashSumRequest(Utils->Creator, sha256, hmac).Send();
 
-		Instance->Log(DEBUG,"MakePass hmac="+hmac);
-
-		return hmac;
+		return "HMAC-SHA256:"+ hmac;
 	}
 	else if (!challenge.empty() && !sha256)
 		Instance->Log(DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
