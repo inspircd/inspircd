@@ -32,7 +32,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u) : InspTimer(1, time(NULL)), Instance(Inst), sock(s), lnk(l), Utils(u)
+HandshakeTimer::HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u, int delay) : InspTimer(delay, time(NULL)), Instance(Inst), sock(s), lnk(l), Utils(u)
 {
 	thefd = sock->GetFd();
 }
@@ -54,7 +54,7 @@ void HandshakeTimer::Tick(time_t TIME)
 			}
 			else
 			{
-				Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils));
+				Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils, 1));
 			}
 		}
 	}

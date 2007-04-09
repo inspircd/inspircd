@@ -30,7 +30,7 @@ class HandshakeTimer : public InspTimer
 	SpanningTreeUtilities* Utils;
 	int thefd;
  public:
-	HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u);
+	HandshakeTimer(InspIRCd* Inst, TreeSocket* s, Link* l, SpanningTreeUtilities* u, int delay);
 	virtual void Tick(time_t TIME);
 };
 

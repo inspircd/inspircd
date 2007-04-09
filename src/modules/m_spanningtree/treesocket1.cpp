@@ -76,7 +76,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	if (Hook)
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
-	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
+	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -181,7 +181,7 @@ bool TreeSocket::OnConnected()
 				}
 				this->OutboundPass = x->SendPass;
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-				Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
+				Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils, 2));
 				return true;
 			}
 		}
