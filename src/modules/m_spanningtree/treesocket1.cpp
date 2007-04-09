@@ -73,17 +73,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
 	if (Hook)
-	{
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-		Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
-	}
-	else
-	{
-		/* Otherwise, theres no lower layer transport in plain TCP/IP,
-		 * so just send the capabilities right now.
-		 */
-		this->SendCapabilities();
-	}
+
+	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -109,6 +101,7 @@ const std::string& TreeSocket::GetOurChallenge()
 
 void TreeSocket::SetOurChallenge(const std::string &c)
 {
+	Instance->Log(DEBUG,"SetOurChallenge: "+c);
 	this->ourchallenge = c;
 }
 
@@ -119,11 +112,13 @@ const std::string& TreeSocket::GetTheirChallenge()
 
 void TreeSocket::SetTheirChallenge(const std::string &c)
 {
+	Instance->Log(DEBUG,"SetTheirChallenge: "+c);
 	this->theirchallenge = c;
 }
 
 std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
 {
+	Instance->Log(DEBUG,"MakePass('"+password+"','"+challenge+"')");
 	Module* sha256 = Instance->FindModule("m_sha256.so");
 	if (sha256 && !challenge.empty())
 	{
@@ -136,12 +131,18 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 			hmac2 += static_cast<char>(password[n] ^ 0x36);
 		}
 
+		Instance->Log(DEBUG,"MakePass hmac1="+hmac1+" hmac="+hmac2);
+
 		HashResetRequest(Utils->Creator, sha256).Send();
 		hmac2 = HashSumRequest(Utils->Creator, sha256, hmac2).Send();
+
+		Instance->Log(DEBUG,"MakePass hmac1="+hmac1+" hmac="+hmac2);
 
 		HashResetRequest(Utils->Creator, sha256).Send();
 		std::string hmac = hmac1 + hmac2 + challenge;
 		hmac = HashSumRequest(Utils->Creator, sha256, hmac).Send();
+
+		Instance->Log(DEBUG,"MakePass hmac="+hmac);
 
 		return hmac;
 	}
