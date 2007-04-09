@@ -44,6 +44,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
 {
 	myhost = host;
 	this->LinkState = LISTENER;
+	theirchallenge = ourchallenge = "";
 	if (listening && Hook)
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
@@ -52,6 +53,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
 	: InspSocket(SI, host, port, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
 	myhost = ServerName;
+	theirchallenge = ourchallenge = "";
 	this->LinkState = CONNECTING;
 	if (Hook)
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
@@ -65,6 +67,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	: InspSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 {
 	this->LinkState = WAIT_AUTH_1;
+	theirchallenge = ourchallenge = "";
 	/* If we have a transport module hooked to the parent, hook the same module to this
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
@@ -96,6 +99,26 @@ TreeSocket::~TreeSocket()
 {
 	if (Hook)
 		InspSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+}
+
+const std::string& TreeSocket::GetOurChallenge()
+{
+	return this->ourchallenge;
+}
+
+void TreeSocket::SetOurChallenge(const std::string &c)
+{
+	this->ourchallenge = c;
+}
+
+const std::string& TreeSocket::GetTheirChallenge()
+{
+	return this->theirchallenge;
+}
+
+void TreeSocket::SetTheirChallenge(const std::string &c)
+{
+	this->theirchallenge = c;
 }
 
 /** When an outbound connection finishes connecting, we receive

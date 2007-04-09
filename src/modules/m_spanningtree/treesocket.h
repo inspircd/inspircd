@@ -92,6 +92,8 @@ class TreeSocket : public InspSocket
 	std::string ModuleList;			/* Module list of other server from CAPAB */
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
 	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
+	std::string ourchallenge;		/* Challenge sent for challenge/response */
+	std::string theirchallenge;		/* Challenge recv for challenge/response */
 
  public:
 
@@ -118,6 +120,22 @@ class TreeSocket : public InspSocket
 	/** Get link state
 	 */
 	ServerState GetLinkState();
+
+	/** Get challenge set in our CAPAB for challenge/response
+	 */
+	const std::string& GetOurChallenge();
+
+	/** Get challenge set in our CAPAB for challenge/response
+	 */
+	void SetOurChallenge(const std::string &c);
+
+	/** Get challenge set in their CAPAB for challenge/response
+	 */
+	const std::string& GetTheirChallenge();
+
+	/** Get challenge set in their CAPAB for challenge/response
+	 */
+	void SetTheirChallenge(const std::string &c);
 
 	/** Return the module which we are hooking to for I/O encapsulation
 	 */
