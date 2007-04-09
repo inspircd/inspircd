@@ -1523,3 +1523,4 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 	s = s; /* Whinge whinge whinge, thats all GCC ever does. */
 	return true;
 }
+

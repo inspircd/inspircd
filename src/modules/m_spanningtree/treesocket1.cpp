@@ -73,9 +73,12 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
 	if (Hook)
+	{
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-
-	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
+		Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
+	}
+	else
+		this->SendCapabilities();
 }
 
 ServerState TreeSocket::GetLinkState()
