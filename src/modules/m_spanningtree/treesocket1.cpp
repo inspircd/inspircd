@@ -185,7 +185,7 @@ bool TreeSocket::OnConnected()
 				if (this->GetHook())
 					Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils, 1));
 				else
-					this->SendCapab();
+					this->SendCapabilities();
 
 				return true;
 			}
