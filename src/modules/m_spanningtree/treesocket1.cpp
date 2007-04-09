@@ -442,7 +442,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
-			if (!this->GetOurChallenge().empty() && (this->LinkState == CONNECTING))
+			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
 			}
