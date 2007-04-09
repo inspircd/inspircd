@@ -1278,11 +1278,10 @@ void TreeSocket::SendUsers(TreeServer* Current)
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
+	std::string name = s->GetName();
 	std::string burst = "BURST "+ConvToStr(Instance->Time(true));
 	std::string endburst = "ENDBURST";
-	// Because by the end of the netburst, it  could be gone!
-	std::string name = s->GetName();
-	this->Instance->SNO->WriteToSnoMask('l',"Bursting to \2"+name+"\2.");
+	this->Instance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s).", name.c_str(), this->GetTheirChallenge().empty() ? "plaintext password" : "SHA256-HMAC challenge-response");
 	this->WriteLine(burst);
 	/* send our version string */
 	this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" VERSION :"+this->Instance->GetVersionString());
