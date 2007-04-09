@@ -264,9 +264,25 @@ std::string TreeSocket::MyCapabilities()
 
 std::string TreeSocket::RandString(unsigned int length)
 {
+	char* randombuf = new char[length+1];
 	std::string out;
+	int fd = open("/dev/urandom", O_RDONLY, 0);
+
+	if (fd >= 0)
+	{
+		read(fd, randombuf, length);
+		close(fd);
+	}
+	else
+	{
+		for (unsigned int i = 0; i < length; i++)
+			randombuf[i] = rand();
+	}
+
 	for (unsigned int i = 0; i < length; i++)
-		out += static_cast<char>((rand() % 26) + 65);
+		out += static_cast<char>((randombuf[i] & 0x7F) | 0x21);
+
+	delete[] randombuf;
 	return out;
 }
 
