@@ -121,6 +121,15 @@ void TreeSocket::SetTheirChallenge(const std::string &c)
 	this->theirchallenge = c;
 }
 
+std::string TreeSocket::MakePass(const std::string &password)
+{
+	if ((this->GetOurChallenge() != "") && (this->GetTheirChallenge() != ""))
+	{
+		return password + ":" + this->GetTheirChallenge();
+	}
+	return password;
+}
+
 /** When an outbound connection finishes connecting, we receive
  * this event, and must send our SERVER string to the other
  * side. If the other side is happy, as outlined in the server
@@ -145,10 +154,7 @@ bool TreeSocket::OnConnected()
 				else
 					this->SendCapabilities();
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-				/*if (Hook)*/
-					Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
-				/*else
-					this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+x->SendPass+" 0 :"+this->Instance->Config->ServerDesc);*/
+				Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
 				return true;
 			}
 		}

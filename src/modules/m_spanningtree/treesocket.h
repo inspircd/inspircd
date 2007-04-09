@@ -149,6 +149,11 @@ class TreeSocket : public InspSocket
 	 */
 	std::string RandString(unsigned int length);
 
+	/** Construct a password, optionally hashed with the other side's
+	 * challenge string
+	 */
+	std::string MakePass(const std::string &password);
+
 	/** When an outbound connection finishes connecting, we receive
 	 * this event, and must send our SERVER string to the other
 	 * side. If the other side is happy, as outlined in the server
