@@ -41,18 +41,25 @@ void HandshakeTimer::Tick(time_t TIME)
 {
 	if (Instance->SE->GetRef(thefd) == sock)
 	{
-		if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+		if (!sock->GetHook())
 		{
-			InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 			sock->SendCapabilities();
 			if (sock->GetLinkState() == CONNECTING)
-			{
 				sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+lnk->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
-			}
 		}
 		else
 		{
-			Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils));
+			if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+			{
+				InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
+				sock->SendCapabilities();
+				if (sock->GetLinkState() == CONNECTING)
+					sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+lnk->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
+			}
+			else
+			{
+				Instance->Timers->AddTimer(new HandshakeTimer(Instance, sock, lnk, Utils));
+			}
 		}
 	}
 }

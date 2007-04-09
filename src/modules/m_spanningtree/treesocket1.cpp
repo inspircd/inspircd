@@ -145,10 +145,10 @@ bool TreeSocket::OnConnected()
 				else
 					this->SendCapabilities();
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-				if (Hook)
+				/*if (Hook)*/
 					Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
-				else
-					this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+x->SendPass+" 0 :"+this->Instance->Config->ServerDesc);
+				/*else
+					this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+x->SendPass+" 0 :"+this->Instance->Config->ServerDesc);*/
 				return true;
 			}
 		}
@@ -230,6 +230,14 @@ std::string TreeSocket::MyCapabilities()
 	return capabilities;
 }
 
+std::string TreeSocket::RandString(unsigned int length)
+{
+	std::string out;
+	for (unsigned int i = 0; i < length; i++)
+		out += static_cast<char>((rand() % 26) + 65);
+	return out;
+}
+
 void TreeSocket::SendCapabilities()
 {
 	irc::commasepstream modulelist(MyCapabilities());
@@ -262,7 +270,8 @@ void TreeSocket::SendCapabilities()
 #ifdef SUPPORT_IP6LINKS
 	ip6support = 1;
 #endif
-	this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion));
+	this->SetOurChallenge(RandString(20));
+	this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion)+" CHALLENGE="+this->GetOurChallenge());
 
 	this->WriteLine("CAPAB END");
 }
@@ -370,6 +379,15 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			reason = "Maximum GECOS (fullname) lengths differ or remote GECOS length not specified";
 		if (((this->CapKeys.find("MAXAWAY") == this->CapKeys.end()) || ((this->CapKeys.find("MAXAWAY") != this->CapKeys.end()) && (this->CapKeys.find("MAXAWAY")->second != ConvToStr(MAXAWAY)))))
 			reason = "Maximum awaymessage lengths differ or remote awaymessage length not specified";
+
+		/* Challenge response, store their challenge for our password */
+		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");
+		if (n != this->CapKeys.end())
+		{
+			/* Challenge-response is on now */
+			this->SetTheirChallenge(n->second);
+		}
+
 		if (reason.length())
 		{
 			this->WriteLine("ERROR :CAPAB negotiation failed: "+reason);

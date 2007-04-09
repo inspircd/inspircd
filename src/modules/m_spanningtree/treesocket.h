@@ -145,6 +145,10 @@ class TreeSocket : public InspSocket
 	 */
 	~TreeSocket();
 
+	/** Generate random string used for challenge-response auth
+	 */
+	std::string RandString(unsigned int length);
+
 	/** When an outbound connection finishes connecting, we receive
 	 * this event, and must send our SERVER string to the other
 	 * side. If the other side is happy, as outlined in the server
