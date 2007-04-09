@@ -902,7 +902,8 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			this->InboundDescription = description;
 			// this is good. Send our details: Our server name and description and hopcount of 0,
 			// along with the sendpass from this block.
-			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
+			if (this->GetOurChallenge().empty())
+				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
 			// move to the next state, we are now waiting for THEM.
 			this->LinkState = WAIT_AUTH_2;
 			return true;

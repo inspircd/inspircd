@@ -173,8 +173,6 @@ bool TreeSocket::OnConnected()
 					InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+x->Hook+"\2");
 				}
-				else
-					this->SendCapabilities();
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 				Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils));
 				return true;
@@ -414,6 +412,12 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
+			if (!this->GetOurChallenge().empty() && (this->LinkState == CONNECTING))
+			{
+				Link* lnk = Utils->FindLink(this->myhost.c_str());
+				if (lnk)
+					this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(lnk->SendPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
+			}
 		}
 
 		if (reason.length())
