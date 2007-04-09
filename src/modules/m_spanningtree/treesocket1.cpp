@@ -180,8 +180,13 @@ bool TreeSocket::OnConnected()
 					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+x->Hook+"\2");
 				}
 				this->OutboundPass = x->SendPass;
+
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
-				Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils, 2));
+				if (this->GetHook())
+					Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(*x), this->Utils, 1));
+				else
+					this->SendCapab();
+
 				return true;
 			}
 		}
