@@ -45,7 +45,7 @@ void HandshakeTimer::Tick(time_t TIME)
 		{
 			sock->SendCapabilities();
 			if (sock->GetLinkState() == CONNECTING)
-				sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+sock->MakePass(lnk->SendPass)+" 0 :"+this->Instance->Config->ServerDesc);
+				sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+sock->MakePass(lnk->SendPass, sock->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
 		}
 		else
 		{
@@ -54,7 +54,7 @@ void HandshakeTimer::Tick(time_t TIME)
 				InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 				sock->SendCapabilities();
 				if (sock->GetLinkState() == CONNECTING)
-					sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+sock->MakePass(lnk->SendPass)+" 0 :"+this->Instance->Config->ServerDesc);
+					sock->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+sock->MakePass(lnk->SendPass, sock->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
 			}
 			else
 			{

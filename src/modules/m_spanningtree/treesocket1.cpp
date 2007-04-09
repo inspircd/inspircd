@@ -22,6 +22,7 @@
 #include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
+#include "m_hash.h"
 #include "socketengine.h"
 
 #include "m_spanningtree/main.h"
@@ -32,7 +33,7 @@
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/handshaketimer.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h */
 
 /** Because most of the I/O gubbins are encapsulated within
  * InspSocket, we just call the superclass constructor for
@@ -121,12 +122,32 @@ void TreeSocket::SetTheirChallenge(const std::string &c)
 	this->theirchallenge = c;
 }
 
-std::string TreeSocket::MakePass(const std::string &password)
+std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
 {
-	if ((this->GetOurChallenge() != "") && (this->GetTheirChallenge() != ""))
+	Module* sha256 = Instance->FindModule("m_sha256.so");
+	if (sha256 && !challenge.empty())
 	{
-		return password + ":" + this->GetTheirChallenge();
+		/* sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) ) */
+		std::string hmac1, hmac2;
+
+		for (size_t n = 0; n < password.length(); n++)
+		{
+			hmac1 += static_cast<char>(password[n] ^ 0x5C);
+			hmac2 += static_cast<char>(password[n] ^ 0x36);
+		}
+
+		HashResetRequest(Utils->Creator, sha256).Send();
+		hmac2 = HashSumRequest(Utils->Creator, sha256, hmac2).Send();
+
+		HashResetRequest(Utils->Creator, sha256).Send();
+		std::string hmac = hmac1 + hmac2 + challenge;
+		hmac = HashSumRequest(Utils->Creator, sha256, hmac).Send();
+
+		return hmac;
 	}
+	else if (!challenge.empty() && !sha256)
+		Instance->Log(DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
+
 	return password;
 }
 
