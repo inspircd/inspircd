@@ -833,7 +833,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 	std::string description = params[3];
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == this->MakePass(password,this->GetOurChallenge())))
+		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == password))
 		{
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
@@ -882,7 +882,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	std::string description = params[3];
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == this->MakePass(password,this->GetOurChallenge())))
+		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == password))
 		{
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
@@ -1068,6 +1068,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "ERROR")
 			{
 				return this->Error(params);
+			}
+			else if (command == "CAPAB")
+			{
+				return this->Capab(params);
 			}
 		break;
 		case CONNECTED:

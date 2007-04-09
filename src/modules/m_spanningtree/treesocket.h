@@ -94,6 +94,7 @@ class TreeSocket : public InspSocket
 	Module* Hook;				/* I/O hooking module that we're attached to for this socket */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
+	std::string OutboundPass;		/* Outbound password */
 
  public:
 
