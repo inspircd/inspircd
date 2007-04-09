@@ -35,6 +35,7 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h */
 
+
 /** Because most of the I/O gubbins are encapsulated within
  * InspSocket, we just call the superclass constructor for
  * most of the action, and append a few of our own values
@@ -73,12 +74,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
 	if (Hook)
-	{
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-		Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
-	}
-	else
-		this->SendCapabilities();
+
+	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils));
 }
 
 ServerState TreeSocket::GetLinkState()

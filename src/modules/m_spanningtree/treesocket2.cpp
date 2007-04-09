@@ -41,6 +41,7 @@ int TreeSocket::WriteLine(std::string line)
 	return this->Write(line);
 }
 
+
 /* Handle ERROR command */
 bool TreeSocket::Error(std::deque<std::string> &params)
 {
@@ -1523,4 +1524,3 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 	s = s; /* Whinge whinge whinge, thats all GCC ever does. */
 	return true;
 }
-
