@@ -286,7 +286,10 @@ std::string TreeSocket::RandString(unsigned int length)
 	}
 
 	for (unsigned int i = 0; i < length; i++)
-		out += static_cast<char>((randombuf[i] & 0x7F) | 0x21);
+	{
+		char randchar = static_cast<char>((randombuf[i] & 0x7F) | 0x21);
+		out += (randchar == '=' ? '_' : randchar);
+	}
 
 	delete[] randombuf;
 	return out;
