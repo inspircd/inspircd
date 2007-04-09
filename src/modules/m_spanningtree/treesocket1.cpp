@@ -101,7 +101,6 @@ const std::string& TreeSocket::GetOurChallenge()
 
 void TreeSocket::SetOurChallenge(const std::string &c)
 {
-	Instance->Log(DEBUG,"SetOurChallenge: "+c);
 	this->ourchallenge = c;
 }
 
@@ -112,7 +111,6 @@ const std::string& TreeSocket::GetTheirChallenge()
 
 void TreeSocket::SetTheirChallenge(const std::string &c)
 {
-	Instance->Log(DEBUG,"SetTheirChallenge: "+c);
 	this->theirchallenge = c;
 }
 
@@ -125,9 +123,17 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 *       HMAC challenge/response.
 	 */
 	Module* sha256 = Instance->FindModule("m_sha256.so");
-	if (sha256 && !challenge.empty())
+	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
 	{
-		/* sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) ) */
+		/* XXX: This is how HMAC is supposed to be done:
+		 *
+		 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
+		 *
+		 * Note that we are encoding the hex hash, not the binary
+		 * output of the hash which is slightly different to standard.
+		 *
+		 * Don't ask me why its always 0x5c and 0x36... it just is.
+		 */
 		std::string hmac1, hmac2;
 
 		for (size_t n = 0; n < password.length(); n++)
@@ -296,8 +302,15 @@ void TreeSocket::SendCapabilities()
 #ifdef SUPPORT_IP6LINKS
 	ip6support = 1;
 #endif
-	this->SetOurChallenge(RandString(20));
-	this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion)+" CHALLENGE="+this->GetOurChallenge());
+	std::string extra;
+	/* Do we have sha256 available? If so, we send a challenge */
+	if (Utils->ChallengeResponse && (Instance->FindModule("m_sha256.so")))
+	{
+		this->SetOurChallenge(RandString(20));
+		extra = " CHALLENGE=" + this->GetOurChallenge();
+	}
+
+	this->WriteLine("CAPAB CAPABILITIES :NICKMAX="+ConvToStr(NICKMAX)+" HALFOP="+ConvToStr(this->Instance->Config->AllowHalfop)+" CHANMAX="+ConvToStr(CHANMAX)+" MAXMODES="+ConvToStr(MAXMODES)+" IDENTMAX="+ConvToStr(IDENTMAX)+" MAXQUIT="+ConvToStr(MAXQUIT)+" MAXTOPIC="+ConvToStr(MAXTOPIC)+" MAXKICK="+ConvToStr(MAXKICK)+" MAXGECOS="+ConvToStr(MAXGECOS)+" MAXAWAY="+ConvToStr(MAXAWAY)+" IP6NATIVE="+ConvToStr(ip6)+" IP6SUPPORT="+ConvToStr(ip6support)+" PROTOCOL="+ConvToStr(ProtocolVersion)+extra);
 
 	this->WriteLine("CAPAB END");
 }
@@ -408,7 +421,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");
-		if (n != this->CapKeys.end())
+		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (Instance->FindModule("m_sha256.so")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
@@ -416,6 +429,12 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			{
 				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
 			}
+		}
+		else
+		{
+			/* They didnt specify a challenge or we don't have m_sha256.so, we use plaintext */
+			if (this->LinkState == CONNECTING)
+				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+OutboundPass+" 0 :"+this->Instance->Config->ServerDesc);
 		}
 
 		if (reason.length())

@@ -814,6 +814,24 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	return true;
 }
 
+bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
+{
+	if ((!strncmp(ours.c_str(), "HMAC-SHA256:", 12)) || (!strncmp(theirs.c_str(), "HMAC-SHA256:", 12)))
+	{
+		/* One or both of us specified hmac sha256, but we don't have sha256 module loaded!
+		 * We can't allow this password as valid.
+		 */
+		if (!Instance->FindModule("m_sha256.so") || !Utils->ChallengeResponse)
+				return false;
+		else
+			/* Straight string compare of hashes */
+			return ours == theirs;
+	}
+	else
+		/* Straight string compare of plaintext */
+		return ours == theirs;
+}
+
 bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 {
 	if (params.size() < 4)
@@ -833,7 +851,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 	std::string description = params[3];
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == password))
+		if ((x->Name == servername) && (ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password)))
 		{
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
@@ -882,7 +900,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	std::string description = params[3];
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
-		if ((x->Name == servername) && (this->MakePass(x->RecvPass,this->GetOurChallenge()) == password))
+		if ((x->Name == servername) && (ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password)))
 		{
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)

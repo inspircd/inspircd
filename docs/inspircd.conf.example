@@ -822,6 +822,18 @@
 #                  invites annother user. If you consider this to be  #
 #                  unnecessary noise, explicitly set this to no.      #
 #                                                                     #
+#  disablehmac   - If you are linking your InspIRCd to older versions #
+#                  then you can specify this option and set it to     #
+#                  yes. 1.1.6 and above support HMAC and challenge-   #
+#                  response for password authentication. These can    #
+#                  greatly enhance security of your server to server  #
+#                  connections when you are not using SSL (as is the  #
+#                  case with a lot of larger networks). Linking to    #
+#                  older versions of InspIRCd should not *usually* be #
+#                  a problem, but if you have problems with HMAC      #
+#                  authentication, this option can be used to turn it #
+#                  off.                                               #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -846,6 +858,7 @@
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
+	 disablehmac="no"
          hostintopic="yes"
          allowhalfop="yes">
 

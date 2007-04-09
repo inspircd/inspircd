@@ -138,6 +138,10 @@ class TreeSocket : public InspSocket
 	 */
 	void SetTheirChallenge(const std::string &c);
 
+	/** Compare two passwords based on authentication scheme
+	 */
+	bool ComparePass(const std::string &ours, const std::string &theirs);
+
 	/** Return the module which we are hooking to for I/O encapsulation
 	 */
 	Module* GetHook();

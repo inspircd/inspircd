@@ -98,6 +98,14 @@ class SpanningTreeUtilities
 	 */
 	std::vector<std::string> hooknames;
 
+	/** True (default) if we are to use challenge-response HMAC
+	 * to authenticate passwords.
+	 *
+	 * NOTE: This defaults to on, but should be turned off if
+	 * you are linking to an older version of inspircd.
+	 */
+	bool ChallengeResponse;
+
 	/** Initialise utility class
 	 */
 	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
