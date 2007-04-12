@@ -51,7 +51,7 @@ class cmd_samode : public command_t
 			while ((one = spaced.GetToken()) != "")
 				n.push_back(one);
 
-			Event rmode((char *)&n, NULL, "send_mode_explicit");
+			Event rmode((char *)&n, NULL, "send_mode");
 			rmode.Send(ServerInstance);
 
 			n.clear();
@@ -61,9 +61,9 @@ class cmd_samode : public command_t
 
 			/* XXX: Yes, this is right. We dont want to propogate the
 			 * actual SAMODE command, just the MODE command generated
-			 * by the send_mode_explicit
+			 * by the send_mode
 			 */
-			return CMD_FAILURE;
+			return CMD_LOCALONLY;
 		}
 		else
 		{
