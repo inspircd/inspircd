@@ -34,6 +34,10 @@ class PCREFilter : public FilterResult
 		 : FilterResult::FilterResult(pat, rea, act, gline_time), regexp(r)
 	 {
 	 }
+
+	 PCREFilter()
+	 {
+	 }
 };
 
 class ModuleFilterPCRE : public FilterBase
@@ -42,6 +46,7 @@ class ModuleFilterPCRE : public FilterBase
 	pcre *re;
 	const char *error;
 	int erroffset;
+	PCREFilter fr;
 
  public:
 	ModuleFilterPCRE(InspIRCd* Me)
@@ -60,14 +65,13 @@ class ModuleFilterPCRE : public FilterBase
 		{
 			if (pcre_exec(index->regexp, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
 			{
-				PCREFilter* fr = &(*index);
+				fr = *index;
 				if (index != filters.begin())
 				{
 					filters.erase(index);
-					filters.insert(filters.begin(), *fr);
-					index = filters.begin();
+					filters.insert(filters.begin(), fr);
 				}
-				return &(*index);
+				return &fr;
 			}
 		}
 		return NULL;
