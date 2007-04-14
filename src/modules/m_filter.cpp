@@ -51,7 +51,7 @@ class ModuleFilter : public FilterBase
 				if (index != filters.begin())
 				{
 					std::string pat = index->first;
-					filters.erase(fr);
+					filters.erase(index);
 					filters.insert(filters.begin(), std::make_pair(pat,fr));
 				}
 				return fr;
