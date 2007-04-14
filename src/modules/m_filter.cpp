@@ -47,7 +47,14 @@ class ModuleFilter : public FilterBase
 		{
 			if ((ServerInstance->MatchText(text2,index->first)) || (ServerInstance->MatchText(text,index->first)))
 			{
-				return index->second;
+				FilterResult* fr = index->second;
+				if (index != filters.begin())
+				{
+					std::string pat = index->first;
+					filters.erase(fr);
+					filters.insert(filters.begin(), std::make_pair(pat,fr));
+				}
+				return fr;
 			}
 		}
 		return NULL;
