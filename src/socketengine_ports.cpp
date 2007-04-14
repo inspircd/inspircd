@@ -104,15 +104,17 @@ int PortsEngine::DispatchEvents()
 	{
 		switch (this->events[i].portev_source)
 		{
-		case PORT_SOURCE_FD:
-			int fd = this->events[i].portev_object;
-			if (ref[fd])
+			case PORT_SOURCE_FD:
 			{
-				// reinsert port for next time around
-				port_associate(EngineHandle, PORT_SOURCE_FD, fd, POLLRDNORM, ref[fd]);
-				ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
+				int fd = this->events[i].portev_object;
+				if (ref[fd])
+				{
+					// reinsert port for next time around
+					port_associate(EngineHandle, PORT_SOURCE_FD, fd, POLLRDNORM, ref[fd]);
+					ref[fd]->HandleEvent((this->events[i].portev_events & POLLRDNORM) ? EVENT_READ : EVENT_WRITE);
+				}
 			}
-		default:
+			default:
 			break;
 		}
 	}
