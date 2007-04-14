@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -56,13 +56,18 @@ class ModuleFilterPCRE : public FilterBase
 
 	virtual FilterResult* FilterMatch(const std::string &text)
 	{
-		for (unsigned int index = 0; index < filters.size(); index++)
+		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{
-			PCREFilter& filt = filters[index];
-			
-			if (pcre_exec(filt.regexp,NULL,text.c_str(),text.length(),0,0,NULL,0) > -1)
+			if (pcre_exec(index->regexp, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
 			{
-				return &filt;
+				PCREFilter* fr = &(*index);
+				if (index != filters.begin())
+				{
+					filters.erase(index);
+					filters.insert(filters.begin(), *fr);
+					index = filters.begin();
+				}
+				return &(*index);
 			}
 		}
 		return NULL;
