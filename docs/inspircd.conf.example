@@ -2010,7 +2010,7 @@
 #                                                                     #
 #   You should already know what to do here :)                        #
 
-<die value="No, i wasnt joking. You should probably edit your config *PROPERLY* and try again.">
+<die value="User error. Insert new user and press any key.">
 
 
 #########################################################################
