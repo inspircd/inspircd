@@ -286,7 +286,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
+	int do_version, do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
@@ -305,7 +305,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
 	this->SNO = new SnomaskManager(this);
-	this->Start();
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	this->time_delta = 0;
 	this->next_call = this->TIME + 3;
@@ -323,6 +322,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "restart",	no_argument,		&do_restart,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
+		{ "version",    no_argument,            &do_version,    1       },
 		{ 0, 0, 0, 0 }
 	};
 
@@ -345,10 +345,16 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 			default:
 				/* Unknown parameter! DANGER, INTRUDER.... err.... yeah. */
-				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>] [--restart]\n", argv[0]);
+				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>] [--runasroot] [--version] [--config <config>]\n", argv[0]);
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
+	}
+
+	if (do_version)
+	{
+		printf("\n%s r%s\n", VERSION, REVISION);
+		Exit(EXIT_STATUS_NOERROR);
 	}
 
 	if (!ServerConfig::FileExists(this->ConfigFileName))
@@ -357,6 +363,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		this->Log(DEFAULT,"Unable to open config file %s", this->ConfigFileName);
 		Exit(EXIT_STATUS_CONFIG);
 	}
+
+	this->Start();
 
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;
@@ -479,6 +487,7 @@ std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
 	char dnsengine[] = "singlethread-object";
+
 	if (*Config->CustomVersion)
 	{
 		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
