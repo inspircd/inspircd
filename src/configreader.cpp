@@ -320,6 +320,13 @@ bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, ValueI
 	return true;
 }
 
+bool ValidateNotEmpty(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	if (!*data.GetString())
+		throw CoreException(std::string("The value for ")+tag+" cannot be empty!");
+	return true;
+}
+
 bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->ReadFile(conf->RULES, data.GetString());
@@ -569,9 +576,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},
 		{"files",	"motd",		"",			new ValueContainerChar (this->motd),			DT_CHARPTR, ValidateMotd},
 		{"files",	"rules",	"",			new ValueContainerChar (this->rules),			DT_CHARPTR, ValidateRules},
-		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR, NoValidation},
+		{"power",	"diepass",	"",			new ValueContainerChar (this->diepass),			DT_CHARPTR, ValidateNotEmpty},
 		{"power",	"pause",	"",			new ValueContainerInt  (&this->DieDelay),		DT_INTEGER, NoValidation},
-		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, NoValidation},
+		{"power",	"restartpass",	"",			new ValueContainerChar (this->restartpass),		DT_CHARPTR, ValidateNotEmpty},
 		{"options",	"prefixquit",	"",			new ValueContainerChar (this->PrefixQuit),		DT_CHARPTR, NoValidation},
 		{"options",	"suffixquit",	"",			new ValueContainerChar (this->SuffixQuit),		DT_CHARPTR, NoValidation},
 		{"options",	"fixedquit",	"",			new ValueContainerChar (this->FixedQuit),		DT_CHARPTR, NoValidation},
