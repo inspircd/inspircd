@@ -286,7 +286,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_version, do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
+	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
