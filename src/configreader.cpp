@@ -612,11 +612,13 @@ void ServerConfig::Read(bool bail, userrec* user)
 
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
-				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	NULL},
+				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
+				NULL},
 				{"",		"",		"",		"",		"120",		"",
-				 "",		"",		"",		"3",		"3",		NULL},
+				 "",		"",		"",		"3",		"3",		"0",
+				 NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
+				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",

@@ -1811,8 +1811,18 @@ ConnectClass* userrec::GetClass()
 {
 	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 	{
-		if ((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str())))
-			return &(*i);
+		if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
+		{
+			if (i->GetPort())
+			{
+				if (this->GetPort() == i->GetPort())
+					return &(*i);
+				else
+					return NULL;
+			}
+			else
+				return &(*i);
+		}
 	}
 	return NULL;
 }

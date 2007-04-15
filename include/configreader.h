@@ -151,9 +151,9 @@ struct InitialConfig
 struct MultiConfig
 {
 	const char*	tag;
-	char*		items[12];
-	char*		items_default[12];
-	int		datatype[12];
+	char*		items[13];
+	char*		items_default[13];
+	int		datatype[13];
 	MultiNotify	init_function;
 	MultiValidator	validation_function;
 	MultiNotify	finish_function;

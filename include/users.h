@@ -116,6 +116,9 @@ class ConnectClass : public classbase
 	/** Global max when connecting by this connection class
 	 */
 	unsigned long maxglobal;
+	/** Port number this connect class applies to
+	 */
+	int port;
 
 public:
 
@@ -138,15 +141,15 @@ public:
 	 */
 	ConnectClass(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
 			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
-			unsigned long maxl, unsigned long maxg) :
+			unsigned long maxl, unsigned long maxg, int p = 0) :
 			type(CC_ALLOW), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
-			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg) { }
+			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), port(p) { }
 
 	/** Create a new connect class to DENY  connections
 	 * @param hst The IP mask to deny
 	 */
 	ConnectClass(const std::string &hst) : type(CC_DENY), registration_timeout(0), flood(0), host(hst), pingtime(0),
-			pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
+			pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), port(0) { }
 
 	/** Returns the type, CC_ALLOW or CC_DENY
 	 */
@@ -174,6 +177,11 @@ public:
 	const std::string& GetHost()
 	{
 		return host;
+	}
+
+	int GetPort()
+	{
+		return port;
 	}
 
 	/** Returns the ping frequency
