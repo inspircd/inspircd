@@ -53,6 +53,40 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	}
 }
 
+TreeSocket* SpanningTreeUtilities::FindBurstingServer(const std::string &ServerName)
+{
+	std::map<irc::string,TreeSocket*>::iterator iter;
+	iter = burstingserverlist.find(ServerName.c_str());
+	if (iter != burstingserverlist.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void SpanningTreeUtilities::AddBurstingServer(const std::string &ServerName, TreeSocket* s)
+{
+	std::map<irc::string,TreeSocket*>::iterator iter;
+	iter = burstingserverlist.find(ServerName.c_str());
+	if (iter == burstingserverlist.end())
+		burstingserverlist[ServerName.c_str()] = s;
+}
+
+void SpanningTreeUtilities::DelBurstingServer(TreeSocket* s)
+{
+	 for (std::map<irc::string,TreeSocket*>::iterator iter = burstingserverlist.begin(); iter != burstingserverlist.end(); iter++)
+	 {
+		 if (iter->second == s)
+		 {
+			 burstingserverlist.erase(iter);
+			 return;
+		 }
+	 }
+}
+
 /** Returns the locally connected server we must route a
  * message through to reach server 'ServerName'. This
  * only applies to one-to-one and not one-to-many routing.

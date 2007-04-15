@@ -903,6 +903,20 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	{
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password) || x->RecvPass == password && (this->GetTheirChallenge().empty()))))
 		{
+			/* First check for instances of the server that are waiting between the inbound and outbound SERVER command */
+			TreeSocket* CheckDupeSocket = Utils->FindBurstingServer(sname);
+			if (CheckDupeSocket)
+			{
+				/* If we find one, we abort the link to prevent a race condition */
+				this->WriteLine("ERROR :Negotiation collision");
+				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists in a negotiating state.");
+				CheckDupeSocket->WriteLine("ERROR :Negotiation collision");
+				Instance->SE->DelFd(CheckDupeSocket);
+				CheckDupeSocket->Close();
+				delete CheckDupeSocket;
+				return false;
+			}
+			/* Now check for fully initialized instances of the server */
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
 			{
@@ -916,6 +930,8 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 				std::string name = InspSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
 				this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
 			}
+
+			Utils->AddBurstingServer(sname,this);
 
 			this->InboundServerName = sname;
 			this->InboundDescription = description;
@@ -1050,6 +1066,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				this->LinkState = CONNECTED;
 				Link* lnk = Utils->FindLink(InboundServerName);
 				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+				Utils->DelBurstingServer(this);
 				Utils->TreeRoot->AddChild(Node);
 				params.clear();
 				params.push_back(InboundServerName);

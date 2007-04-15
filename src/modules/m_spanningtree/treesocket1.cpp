@@ -93,6 +93,8 @@ TreeSocket::~TreeSocket()
 {
 	if (Hook)
 		InspSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+
+	Utils->DelBurstingServer(this);
 }
 
 const std::string& TreeSocket::GetOurChallenge()

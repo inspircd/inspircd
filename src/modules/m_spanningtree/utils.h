@@ -75,6 +75,9 @@ class SpanningTreeUtilities
 	/** Hash of currently connected servers by name
 	 */
 	server_hash serverlist;
+	/** Hash of servers currently bursting but not initialized as connected
+	 */
+	std::map<irc::string,TreeSocket*> burstingserverlist;
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<Link> LinkBlocks;
@@ -160,6 +163,12 @@ class SpanningTreeUtilities
 	/** Refresh the IP cache used for allowing inbound connections
 	 */
 	void RefreshIPCache();
+
+	TreeSocket* FindBurstingServer(const std::string &ServerName);
+
+	void AddBurstingServer(const std::string &ServerName, TreeSocket* s);
+
+	void DelBurstingServer(TreeSocket* s);
 };
 
 #endif
