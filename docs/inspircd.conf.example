@@ -192,25 +192,24 @@
 #-#-#-#-#-#-#-#-#-#-  CONNECTIONS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   This is where you can configure which connections are allowed     #
-#   and denied access onto your server.                               #
-#   The password is optional.                                         #
-#   You may have as many of these as you require.                     #
-#   To allow/deny all connections use a *                             #
+#   and denied access onto your server. The password is optional.     #
+#   You may have as many of these as you require. To allow/deny all   #
+#   connections, use a '*' or 0.0.0.0/0.                              #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <connect allow="ip mask">                                     #
-#       <connect allow="ip mask" password="blahblah">                 #
-#       <connect allow="ip mask" password="blah" timeout="10">        #
-#       <connect allow="ip mask" timeout="blah" flood="5">            #
-#       <connect allow="ip mask" threshold="8" pingfreq="120">        #
-#       <connect allow="ip mask" sendq="99999" revcq="696969">        #
-#       <connect allow="ip mask" localmax="3" globalmax="3">          #
-#       <connect allow="ip mask" port="6660">                         #
-#       <connect deny="ip mask">                                      #
+#       <connect allow="1.2.3.0/24" password="blahblah"               #
+#                timeout="10" timeout="blah" flood="5"                #
+#                threshold="8" pingfreq="120" sendq="99999"           #
+#                revcq="696969" localmax="3" globalmax="3"            #
+#                port="6660">                                         #
+#                                                                     #
+#       <connect deny="127.0.0.1" port="6667">                        #
 #                                                                     #
 #   IP masks may be specified in CIDR format or wildcard format,      #
-#   for IPV4 and IPV6.                                                #
+#   for IPV4 and IPV6. You *cannot* use hostnames in the allow or     #
+#   deny field, as the state is applied before the user's DNS has     #
+#   been resolved.                                                    #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
@@ -242,7 +241,6 @@
 #   receive more than they send in normal circumstances. The default  #
 #   if not specified is 4096.                                         #
 #                                                                     #
-#   IMPORTANT NOTE, CALL THE CONFUSION POLICE!                        #
 #   The sendq is the data waiting to be sent TO THE USER.             #
 #   The recvq is the data being received FROM THE USER.               #
 #   The names sendq and recvq are from the SERVER'S PERSPECTIVE not   #
@@ -261,11 +259,21 @@
 #                                                                     #
 #   The optional port value determines which port the connect tag is  #
 #   handling. If left out the connect tag covers all bound ports else #
-#   only incoming connections on the specified port will match.       #
+#   only incoming connections on the specified port will match. Port  #
+#   tags may be used on connect allow and connect deny tags.          #
 #                                                                     #
 
-<connect allow="196.12.*"  password="secret">
-<connect allow="*" timeout="60" flood="20" threshold="1" pingfreq="120" sendq="262144" recvq="8192" localmax="3" globalmax="3">
+<connect allow="196.12.*"  password="secret" port="6667">
+
+<connect allow="*"
+         timeout="60"
+	 flood="20"
+	 threshold="1"
+	 pingfreq="120"
+	 sendq="262144"
+	 recvq="8192"
+	 localmax="3"
+	 globalmax="3">
 
 <connect deny="69.254.*">
 <connect deny="3ffe::0/32">
