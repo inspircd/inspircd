@@ -715,6 +715,12 @@
 #                  this feature, which stops even the founder taking  #
 #                  away their founder status without using services.  #
 #                                                                     #
+#  deprotectothers-If this value is set to yes, true, or 1, then any  #
+#                  user with +q or +a may remove the +q or +a from    #
+#                  other users. The default setting is to not enable  #
+#                  this feature, so that only +q may remove +a, and   #
+#                  nothing but services may remove +q.                #
+#                                                                     #
 #  cyclehosts    - If this is set to true, yes or 1, then when a      #
 #                  user's hostname changes, they will appear to quit  #
 #                  and then rejoin with their new host. This prevents #
@@ -855,6 +861,7 @@
          noservices="no"
          qaprefixes="no"
          deprotectself="no"
+	 deprotectothers="no"
          somaxconn="128"
          softlimit="12800"
          userstats="Pu"
