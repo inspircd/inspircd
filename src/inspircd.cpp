@@ -286,7 +286,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 {
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_restart = 0, do_root = 0;    /* flag variables */
+	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
@@ -320,7 +320,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "config",	required_argument,	NULL,		'c'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
-		{ "restart",	no_argument,		&do_restart,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",    no_argument,            &do_version,    1       },
 		{ 0, 0, 0, 0 }
@@ -464,8 +463,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 
-	if (!Config->nofork && !do_restart)
+	if (!Config->nofork && isatty(0) && isatty(1) && isatty(2))
 	{
+		/* We didn't start from a TTY, we must have started from a background process -
+		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
+		 * close stdin/stdout
+		 */
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			printf("Error killing parent process: %s\n",strerror(errno));
