@@ -206,6 +206,7 @@
 #       <connect allow="ip mask" threshold="8" pingfreq="120">        #
 #       <connect allow="ip mask" sendq="99999" revcq="696969">        #
 #       <connect allow="ip mask" localmax="3" globalmax="3">          #
+#       <connect allow="ip mask" port="6660">                         #
 #       <connect deny="ip mask">                                      #
 #                                                                     #
 #   IP masks may be specified in CIDR format or wildcard format,      #
@@ -257,6 +258,10 @@
 #   class A, there is only one connection left for this IP now in A,  #
 #   but if they can connect again to B, there are three. You get the  #
 #   idea (i hope).                                                    #
+#                                                                     #
+#   The optional port value determines which port the connect tag is  #
+#   handling. If left out the connect tag covers all bound ports else #
+#   only incoming connections on the specified port will match.       #
 #                                                                     #
 
 <connect allow="196.12.*"  password="secret">
