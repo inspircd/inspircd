@@ -43,9 +43,10 @@ class FounderProtectBase
 	char* dummyptr;
  protected:
 	bool& remove_own_privs;
+	bool& remove_other_privs;
  public:
-	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own) :
-		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own)
+	FounderProtectBase(InspIRCd* Instance, const std::string &ext, const std::string &mtype, int l, int e, bool &remove_own, bool &remove_others) :
+		MyInstance(Instance), extend(ext), type(mtype), list(l), end(e), remove_own_privs(remove_own), remove_other_privs(remove_others)
 	{
 	}
 
@@ -131,6 +132,12 @@ class FounderProtectBase
 		return theuser;
 	}
 
+	bool CanRemoveOthers(userrec* u1, userrec* u2, chanrec* c)
+	{
+		std::string item = extend+std::string(c->name);
+		return (u1->GetExt(item, dummyptr) && u2->GetExt(item, dummyptr));
+	}
+
 	ModeAction HandleChange(userrec* source, userrec* theuser, bool adding, chanrec* channel, std::string &parameter)
 	{
 		std::string item = extend+std::string(channel->name);
@@ -163,9 +170,9 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool &depriv_self)
+	ChanFounder(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'q', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '~' : 0),
-		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self) { }
+		  FounderProtectBase(Instance, "cm_founder_", "founder", 386, 387, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -195,6 +202,10 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 			return MODEACTION_DENY;
 		}
 
+		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
+		{
+			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+		}
 		 // source is a server, or ulined, we'll let them +-q the user.
 		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (!IS_LOCAL(source)))
 		{
@@ -221,9 +232,9 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 {
 	char* dummyptr;
  public:
-	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool &depriv_self)
+	ChanProtect(InspIRCd* Instance, bool using_prefixes, bool &depriv_self, bool &depriv_others)
 		: ModeHandler(Instance, 'a', 1, 1, true, MODETYPE_CHANNEL, false, using_prefixes ? '&' : 0),
-		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self) { }
+		  FounderProtectBase(Instance,"cm_protect_","protected user", 388, 389, depriv_self, depriv_others) { }
 
 	unsigned int GetPrefixRank()
 	{
@@ -253,6 +264,10 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 		std::string founder = "cm_founder_"+std::string(channel->name);
 
+		if ((!adding) && FounderProtectBase::CanRemoveOthers(source, theuser, channel))
+		{
+			return FounderProtectBase::HandleChange(source, theuser, adding, channel, parameter);
+		}
 		// source has +q, is a server, or ulined, we'll let them +-a the user.
 		if ((unload_kludge) || ((source == theuser) && (!adding) && (FounderProtectBase::remove_own_privs)) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server) || (source->GetExt(founder,dummyptr)) || (!IS_LOCAL(source)))
 		{
@@ -279,6 +294,7 @@ class ModuleChanProtect : public Module
 	bool FirstInGetsFounder;
 	bool QAPrefixes;
 	bool DeprivSelf;
+	bool DeprivOthers;
 	bool booting;
 	ChanProtect* cp;
 	ChanFounder* cf;
@@ -287,7 +303,7 @@ class ModuleChanProtect : public Module
  public:
  
 	ModuleChanProtect(InspIRCd* Me)
-		: Module::Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), booting(true)
+		: Module::Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), DeprivOthers(false), booting(true)
 	{	
 		/* Load config stuff */
 		OnRehash(NULL,"");
@@ -295,8 +311,8 @@ class ModuleChanProtect : public Module
 
 		/* Initialise module variables */
 
-		cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf);
-		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf);
+		cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
+		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 
 		if (!ServerInstance->AddMode(cp, 'a') || !ServerInstance->AddMode(cf, 'q'))
 			throw ModuleException("Could not add new modes!");
@@ -335,6 +351,7 @@ class ModuleChanProtect : public Module
 		FirstInGetsFounder = Conf.ReadFlag("options","noservices",0);
 		QAPrefixes = Conf.ReadFlag("options","qaprefixes",0);
 		DeprivSelf = Conf.ReadFlag("options","deprotectself",0);
+		DeprivOthers = Conf.ReadFlag("options","deprotectothers",0);
 
 		/* Did the user change the QA prefixes on the fly?
 		 * If so, remove all instances of the mode, and reinit
@@ -346,8 +363,8 @@ class ModuleChanProtect : public Module
 			ServerInstance->Modes->DelMode(cf);
 			DELETE(cp);
 			DELETE(cf);
-			cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf);
-			cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf);
+			cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
+			cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 			/* These wont fail, we already owned the mode characters before */
 			ServerInstance->AddMode(cp, 'a');
 			ServerInstance->AddMode(cf, 'q');
