@@ -535,6 +535,7 @@ bool operator== (const irc::string& leftval, const std::string& rightval);
 
 std::string assign(const irc::string &other);
 irc::string assign(const std::string &other);
+std::string& trim(std::string &str);
 
 namespace nspace
 {

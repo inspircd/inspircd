@@ -624,3 +624,14 @@ irc::string assign(const std::string &other)
 	return other.c_str();
 }
 
+std::string& trim(std::string &str)
+{
+	std::string::size_type start = str.find_first_not_of(" ");
+	std::string::size_type end = str.find_last_not_of(" ");
+	if (start == std::string::npos || end == std::string::npos)
+		str = "";
+	else
+		str = str.substr(start, end-start+1);
+
+	return str;
+}
