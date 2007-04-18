@@ -235,6 +235,9 @@ class ModuleServicesAccount : public Module
 			user->GetExt("accountname", account);
 			if (account)
 			{
+				// atheme puts a space on this at logout, trim it
+				trim(*account);
+
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
 				proto->ProtoSendMetaData(opaque,TYPE_USER,user,extname,*account);
