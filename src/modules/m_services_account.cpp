@@ -302,6 +302,8 @@ class ModuleServicesAccount : public Module
 				if (!dest->GetExt("accountname", text))
 				{
 					text = new std::string(extdata);
+					// atheme puts a space on this at logout, trim it
+					trim(text);
 					dest->Extend("accountname", text);
 				}
 			}
