@@ -303,7 +303,7 @@ class ModuleServicesAccount : public Module
 				{
 					text = new std::string(extdata);
 					// atheme puts a space on this at logout, trim it
-					trim(text);
+					trim(*text);
 					dest->Extend("accountname", text);
 				}
 			}
