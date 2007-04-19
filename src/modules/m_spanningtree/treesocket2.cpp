@@ -605,19 +605,20 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 				userrec* x = this->Instance->FindNick(params[0]);
 				char signon[MAXBUF];
 				char idle[MAXBUF];
-				snprintf(signon,MAXBUF,"%lu",(unsigned long)x->signon);
-				snprintf(idle,MAXBUF,"%lu",(unsigned long)abs((x->idle_lastmsg)-Instance->Time(true)));
+				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
+				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((x->idle_lastmsg) - Instance->Time(true)));
 				std::deque<std::string> par;
 				par.push_back(prefix);
 				par.push_back(signon);
 				par.push_back(idle);
 				// ours, we're done, pass it BACK
-				Utils->DoOneToOne(params[0],"IDLE",par,u->server);
+				Utils->DoOneToOne(params[0], "IDLE", par, u->server);
 			}
 			else
 			{
 				// not ours pass it on
-				Utils->DoOneToOne(prefix,"IDLE",params,x->server);
+				if (x)
+					Utils->DoOneToOne(prefix, "IDLE", params, x->server);
 			}
 		}
 		else if (params.size() == 3)
@@ -631,12 +632,13 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 				unsigned long signon = atoi(params[1].c_str());
 				unsigned long idle = atoi(params[2].c_str());
 				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
-					do_whois(this->Instance,who_to_send_to,u,signon,idle,nick_whoised.c_str());
+					do_whois(this->Instance, who_to_send_to, u, signon, idle, nick_whoised.c_str());
 			}
 			else
 			{
 				// not ours, pass it on
-				Utils->DoOneToOne(prefix,"IDLE",params,who_to_send_to->server);
+				if (who_to_send_to)
+					Utils->DoOneToOne(prefix, "IDLE", params, who_to_send_to->server);
 			}
 		}
 	}
