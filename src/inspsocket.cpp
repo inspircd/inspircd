@@ -190,6 +190,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 					if (inet_pton(AF_INET6, IP.c_str(), &n) > 0)
 					{
 						memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(n));
+						((sockaddr_in6*)s)->sin6_port = 0;
 						((sockaddr_in6*)s)->sin6_family = AF_INET6;
 						size = sizeof(sockaddr_in6);
 					}
@@ -206,6 +207,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 					if (inet_aton(IP.c_str(), &n) > 0)
 					{
 						((sockaddr_in*)s)->sin_addr = n;
+						((sockaddr_in*)s)->sin_port = 0;
 						((sockaddr_in*)s)->sin_family = AF_INET;
 					}
 					else
@@ -220,6 +222,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 				if (insp_aton(IP.c_str(), &n) > 0)
 				{
 					((sockaddr_in*)s)->sin_addr = n;
+					((sockaddr_in*)s)->sin_port = 0;
 					((sockaddr_in*)s)->sin_family = AF_INET;
 				}
 				else
