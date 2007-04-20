@@ -448,7 +448,7 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 {
 	if (params.size() < 2)
 		return true;
-	else
+	else if (params.size() < 3)
 		params.push_back("");
 	TreeServer* ServerSource = Utils->FindServer(prefix);
 	if (ServerSource)
