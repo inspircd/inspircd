@@ -463,18 +463,21 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 
-	if (!Config->nofork && isatty(0) && isatty(1) && isatty(2))
+	if (!Config->nofork)
 	{
-		/* We didn't start from a TTY, we must have started from a background process -
-		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
-		 * close stdin/stdout
-		 */
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			printf("Error killing parent process: %s\n",strerror(errno));
 			Log(DEFAULT,"Error killing parent process: %s",strerror(errno));
 		}
+	}
 
+	if (isatty(0) && isatty(1) && isatty(2))
+	{
+		/* We didn't start from a TTY, we must have started from a background process -
+		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
+		 * close stdin/stdout
+		 */
 		fclose(stdin);
 		fclose(stderr);
 		fclose(stdout);
