@@ -298,8 +298,7 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const
 	unsigned int words = params.size();
 	for (unsigned int x = 0; x < words; x++)
 	{
-		if (!params[x].empty())
-			FullLine = FullLine + " " + params[x];
+		FullLine = FullLine + " " + params[x];
 	}
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
@@ -325,8 +324,7 @@ bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::st
 	unsigned int words = params.size();
 	for (unsigned int x = 0; x < words; x++)
 	{
-		if (!params[x].empty())
-			FullLine = FullLine + " " + params[x];
+		FullLine = FullLine + " " + params[x];
 	}
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
