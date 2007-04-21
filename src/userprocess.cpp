@@ -266,8 +266,11 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				bool ready = AllModulesReportReady(curr);
 				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
 				{
-					curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
-					curr->dns_done = true;
+					if (!curr->dns_done)
+					{
+						curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
+						curr->dns_done = true;
+					}
 					this->stats->statsDnsBad++;
 					curr->FullConnect();
 					continue;
