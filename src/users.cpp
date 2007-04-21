@@ -210,7 +210,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			if (hostname.length() < 65)
 			{
 				/* Check we didnt time out */
-				if (this->bound_user->registered != REG_ALL)
+				if ((this->bound_user->registered != REG_ALL) && (!this->bound_user->dns_done))
 				{
 					/* Hostnames starting with : are not a good thing (tm) */
 					if (*(hostname.c_str()) == ':')
@@ -226,12 +226,20 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			}
 			else
 			{
-				this->bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
+				if (!this->bound_user->dns_done)
+				{
+					this->bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
+					this->bound_user->dns_done = true;
+				}
 			}
 		}
 		else
 		{
-			this->bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
+			if (!this->bound_user->dns_done)
+			{
+				this->bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
+				this->bound_user->dns_done = true;
+			}
 		}
 	}
 }
