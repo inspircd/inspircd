@@ -57,7 +57,7 @@ class cmd_sajoin : public command_t
 			{
 				if (n->HasUser(dest))
 				{
-					ServerInstance->WriteOpers(std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else

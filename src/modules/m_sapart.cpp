@@ -48,14 +48,14 @@ class cmd_sapart : public command_t
 			chanrec* n = ServerInstance->FindChan(parameters[1]);
 			if (!n)
 			{
-				ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+				ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 				return CMD_SUCCESS;
 			}
 			else
 			{
 				if (!n->HasUser(dest))
 				{
-					ServerInstance->WriteOpers(std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else
