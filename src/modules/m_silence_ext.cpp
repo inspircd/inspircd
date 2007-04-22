@@ -117,26 +117,21 @@ class cmd_silence : public command_t
 				// does it contain any entries and does it exist?
 				if (sl)
 				{
-					if (sl->size())
+					for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
 					{
-						for (silencelist::iterator i = sl->begin(); i != sl->end(); i++)
+						// search through for the item
+						irc::string listitem = i->first.c_str();
+						if (listitem == mask && i->second == pattern)
 						{
-							// search through for the item
-							irc::string listitem = i->first.c_str();
-							if (listitem == mask && i->second == pattern)
+							sl->erase(i);
+							user->WriteServ("950 %s %s :Removed %s %s from silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
+							if (!sl->size())
 							{
-								sl->erase(i);
-								user->WriteServ("950 %s %s :Removed %s %s from silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
-								break;
+								DELETE(sl);
+								user->Shrink("silence_list");
 							}
+							break;
 						}
-					}
-					else
-					{
-						// tidy up -- if a user's list is empty, theres no use having it
-						// hanging around in the user record.
-						DELETE(sl);
-						user->Shrink("silence_list");
 					}
 				}
 			}

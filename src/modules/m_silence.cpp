@@ -79,21 +79,18 @@ class cmd_silence : public command_t
 				// does it contain any entries and does it exist?
 				if (sl)
 				{
-					if (sl->size())
+					silencelist::iterator i = sl->find(mask.c_str());
+					if (i != sl->end())
 					{
-						silencelist::iterator i = sl->find(mask.c_str());
-						if (i != sl->end())
+       						sl->erase(i);
+						user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
+						if (!sl->size())
 						{
-       							sl->erase(i);
-							user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
+							// tidy up -- if a user's list is empty, theres no use having it
+							// hanging around in the user record.
+							DELETE(sl);
+							user->Shrink("silence_list");
 						}
-					}
-					else
-					{
-						// tidy up -- if a user's list is empty, theres no use having it
-						// hanging around in the user record.
-						DELETE(sl);
-						user->Shrink("silence_list");
 					}
 				}
 			}
