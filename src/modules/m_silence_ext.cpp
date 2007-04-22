@@ -134,8 +134,7 @@ class cmd_silence : public command_t
 						}
 					}
 				}
-				user->WriteServ("952 %s %s :%s %s does not exist on your silence list",user->nick, user->nick, pattern,
-						DecompPattern(pattern).c_str());
+				user->WriteServ("952 %s %s :%s %s does not exist on your silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
 			}
 			else if (action == '+')
 			{
