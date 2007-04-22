@@ -235,7 +235,7 @@ class ModuleServicesAccount : public Module
 			user->GetExt("accountname", account);
 			if (account)
 			{
-				// atheme puts a space on this at logout, trim it
+				// remove any accidental leading/trailing spaces
 				trim(*account);
 
 				// call this function in the linking module, let it format the data how it
@@ -305,7 +305,7 @@ class ModuleServicesAccount : public Module
 				if (!dest->GetExt("accountname", text))
 				{
 					text = new std::string(extdata);
-					// atheme puts a space on this at logout, trim it
+					// remove any accidental leading/trailing spaces
 					trim(*text);
 					dest->Extend("accountname", text);
 				}
