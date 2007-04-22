@@ -64,7 +64,7 @@ class cmd_silence : public command_t
 			char action = *parameters[0];
 			
 			if (!mask.length())
- 			{
+			{
 				// 'SILENCE +' or 'SILENCE -', assume *!*@*
 				mask = "*!*@*";
 			}
@@ -82,7 +82,7 @@ class cmd_silence : public command_t
 					silencelist::iterator i = sl->find(mask.c_str());
 					if (i != sl->end())
 					{
-       						sl->erase(i);
+						sl->erase(i);
 						user->WriteServ("950 %s %s :Removed %s from silence list",user->nick, user->nick, mask.c_str());
 						if (!sl->size())
 						{

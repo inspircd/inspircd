@@ -102,7 +102,7 @@ class cmd_silence : public command_t
 			}
 			
 			if (!mask.length())
- 			{
+			{
 				// 'SILENCE +' or 'SILENCE -', assume *!*@*
 				mask = "*!*@*";
 			}
