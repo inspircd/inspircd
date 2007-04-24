@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.5+DevilsDance"
+echo "InspIRCd-1.1.6+DevilsDance"
