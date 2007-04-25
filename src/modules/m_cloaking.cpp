@@ -224,7 +224,7 @@ class CloakUser : public ModeHandler
 		for (const char* input = ip; *input; input++)
 		{
 			item += *input;
-			if (item.length() > 4)
+			if (item.length() > 7)
 			{
 				/* Send the Hash module a different hex table for each octet group's Hash sum */
 				HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
