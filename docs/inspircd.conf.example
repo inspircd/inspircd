@@ -1185,6 +1185,12 @@
 # <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
 # <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
 
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel create module: Adds snomask +j, which will notify opers of
+# any new channels that are created
+#<module name="m_chanfilter.so">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel filter module: Allows channel-op defined message
 # filtering using simple string matches (channel mode +g)
