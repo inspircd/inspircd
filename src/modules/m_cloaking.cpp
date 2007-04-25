@@ -228,7 +228,7 @@ class CloakUser : public ModeHandler
 			{
 				/* Send the Hash module a different hex table for each octet group's Hash sum */
 				HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
-				hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,10));
+				hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
 				item = "";
 			}
 			rounds++;
@@ -237,7 +237,7 @@ class CloakUser : public ModeHandler
 		{
 			/* Send the Hash module a different hex table for each octet group's Hash sum */
 			HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
-			hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,10));
+			hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
 			item = "";
 		}
 		/* Stick them all together */
