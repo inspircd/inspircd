@@ -33,7 +33,8 @@ class DNSBLConfEntry
 		EnumBanaction banaction;
 		long duration;
 		int bitmask;
-		DNSBLConfEntry(): duration(86400),bitmask(0) {}
+		unsigned long stats_hits, stats_misses;
+		DNSBLConfEntry(): duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
 		~DNSBLConfEntry() { }
 };
 
@@ -87,6 +88,7 @@ class DNSBLResolver : public Resolver
 					}
 
 					ServerInstance->WriteOpers("*** Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
+					ConfEntry->stats_hits++;
 
 					switch (ConfEntry->banaction)
 					{
@@ -120,6 +122,8 @@ class DNSBLResolver : public Resolver
 						break;
 					}
 				}
+				else
+					ConfEntry->stats_misses++;
 			}
 		}
 	}
@@ -172,7 +176,7 @@ class ModuleDNSBL : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserRegister] = 1;
+		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnStats] = 1;
 	}
 
 	/** Clear entries and free the mem it was using
@@ -303,6 +307,28 @@ class ModuleDNSBL : public Module
 		}
 
 		/* don't do anything with this hot potato */
+		return 0;
+	}
+	
+	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	{
+		if (symbol != 'd')
+			return 0;
+		
+		unsigned long total_hits = 0, total_misses = 0;
+
+		for (std::vector<DNSBLConfEntry*>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
+		{
+			total_hits += (*i)->stats_hits;
+			total_misses += (*i)->stats_misses;
+			
+			results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
+					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
+		}
+		
+		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
+		results.push_back(std::string(ServerInstance->Config->ServerName) + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
+		
 		return 0;
 	}
 };
