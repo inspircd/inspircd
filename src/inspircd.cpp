@@ -373,6 +373,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 
 	this->OpenLog(argv, argc);
+
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
@@ -478,9 +479,16 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
 		 * close stdin/stdout
 		 */
-		fclose(stdin);
-		fclose(stderr);
-		fclose(stdout);
+		if (!do_nofork)
+		{
+			fclose(stdin);
+			fclose(stderr);
+			fclose(stdout);
+		}
+		else
+		{
+			Log(DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		}
 	}
 
 	printf("\nInspIRCd is now running!\n");
