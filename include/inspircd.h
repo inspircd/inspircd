@@ -432,6 +432,8 @@ class InspIRCd : public classbase
 
  public:
 
+	std::map<InspSocket*,InspSocket*> SocketCull;
+
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */
 	void BuildISupport();

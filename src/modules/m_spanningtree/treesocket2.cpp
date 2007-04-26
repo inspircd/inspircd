@@ -798,13 +798,13 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	TreeServer* ParentOfThis = Utils->FindServer(prefix);
 	if (!ParentOfThis)
 	{
-		this->WriteLine("ERROR :Protocol error - Introduced remote server from unknown server "+prefix);
+		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
 		return false;
 	}
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
-		this->WriteLine("ERROR :Server "+servername+" already exists!");
+		this->SendError("Server "+servername+" already exists!");
 		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
 		return false;
 	}
@@ -843,15 +843,19 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
 	std::string password = params[1];
+	std::string description = params[3];
 	int hops = atoi(params[2].c_str());
+
+	this->InboundServerName = sname;
+	this->InboundDescription = description;
 
 	if (hops)
 	{
-		this->WriteLine("ERROR :Server too far away for authentication");
+		this->SendError("Server too far away for authentication");
 		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 		return false;
 	}
-	std::string description = params[3];
+
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password)) || (x->RecvPass == password && (this->GetTheirChallenge().empty()))))
@@ -859,7 +863,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
 			{
-				this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+				this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
 				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 				return false;
 			}
@@ -880,7 +884,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			return true;
 		}
 	}
-	this->WriteLine("ERROR :Invalid credentials");
+	this->SendError("Invalid credentials");
 	this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
@@ -892,15 +896,19 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
 	std::string password = params[1];
+	std::string description = params[3];
 	int hops = atoi(params[2].c_str());
+
+	this->InboundServerName = sname;
+	this->InboundDescription = description;
 
 	if (hops)
 	{
-		this->WriteLine("ERROR :Server too far away for authentication");
+		this->SendError("Server too far away for authentication");
 		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
 		return false;
 	}
-	std::string description = params[3];
+
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password) || x->RecvPass == password && (this->GetTheirChallenge().empty()))))
@@ -910,9 +918,9 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			if (CheckDupeSocket)
 			{
 				/* If we find one, we abort the link to prevent a race condition */
-				this->WriteLine("ERROR :Negotiation collision");
+				this->SendError("Negotiation collision");
 				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists in a negotiating state.");
-				CheckDupeSocket->WriteLine("ERROR :Negotiation collision");
+				CheckDupeSocket->SendError("Negotiation collision");
 				Instance->SE->DelFd(CheckDupeSocket);
 				CheckDupeSocket->Close();
 				delete CheckDupeSocket;
@@ -922,7 +930,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
 			{
-				this->WriteLine("ERROR :Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
+				this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
 				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
 				return false;
 			}
@@ -935,8 +943,6 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 
 			Utils->AddBurstingServer(sname,this);
 
-			this->InboundServerName = sname;
-			this->InboundDescription = description;
 			// this is good. Send our details: Our server name and description and hopcount of 0,
 			// along with the sendpass from this block.
 			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
@@ -945,7 +951,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			return true;
 		}
 	}
-	this->WriteLine("ERROR :Invalid credentials");
+	this->SendError("Invalid credentials");
 	this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
@@ -1006,7 +1012,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "USER")
 			{
-				this->WriteLine("ERROR :Client connections to this port are prohibited.");
+				this->SendError("Client connections to this port are prohibited.");
 				return false;
 			}
 			else if (command == "CAPAB")
@@ -1015,14 +1021,13 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if ((command == "U") || (command == "S"))
 			{
-				this->WriteLine("ERROR :Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
+				this->SendError("Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
 				return false;
 			}
 			else
 			{
-				std::string error("ERROR :Invalid command in negotiation phase: ");
-				error.append(command.c_str());
-				this->WriteLine(error);
+				irc::string error = "Invalid command in negotiation phase: " + command;
+				this->SendError(assign(error));
 				return false;
 			}
 		break;
@@ -1037,7 +1042,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if ((command == "U") || (command == "S"))
 			{
-				this->WriteLine("ERROR :Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
+				this->SendError("Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
 				return false;
 			}
 			else if (command == "BURST")
@@ -1050,7 +1055,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					if ((delta < -300) || (delta > 300))
 					{
 						Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
-						WriteLine("ERROR :Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						SendError("Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return false;
 					}
 					else if ((delta < -30) || (delta > 30))
@@ -1090,7 +1095,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 		break;
 		case LISTENER:
-			this->WriteLine("ERROR :Internal error -- listening socket accepted its own descriptor!!!");
+			this->SendError("Internal error -- listening socket accepted its own descriptor!!!");
 			return false;
 		break;
 		case CONNECTING:
@@ -1447,7 +1452,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 					{
 						case CMD_INVALID:
-							this->WriteLine("ERROR :Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
+							this->SendError("Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
 							return false;
 						break;
 						case CMD_FAILURE:

@@ -171,6 +171,11 @@ class TreeSocket : public InspSocket
 	 */
 	virtual void OnError(InspSocketError e);
 
+	/** Sends an error to the remote server, and displays it locally to show
+	 * that it was sent.
+	 */
+	void SendError(const std::string &errormessage);
+
 	/** Handle socket disconnect event
 	 */
 	virtual int OnDisconnect();

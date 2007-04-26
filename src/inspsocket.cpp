@@ -573,14 +573,16 @@ void SocketTimeout::Tick(time_t now)
 		this->sock->OnTimeout();
 		this->sock->OnError(I_ERR_TIMEOUT);
 		this->sock->timeout = true;
-		ServerInstance->SE->DelFd(this->sock);
+
 		/* NOTE: We must set this AFTER DelFd, as we added
 		 * this socket whilst writeable. This means that we
 		 * must DELETE the socket whilst writeable too!
 		 */
 		this->sock->state = I_ERROR;
-		this->sock->Close();
-		delete this->sock;
+
+		if (ServerInstance->SocketCull.find(this->sock) == ServerInstance->SocketCull.end())
+			ServerInstance->SocketCull[this->sock] = this->sock;
+
 		return;
 	}
 	else
@@ -717,17 +719,15 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 	switch (et)
 	{
 		case EVENT_ERROR:
-			this->Instance->SE->DelFd(this);
-			this->Close();
-			delete this;
+			if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
+				this->Instance->SocketCull[this] = this;
 			return;
 		break;
 		case EVENT_READ:
 			if (!this->Poll())
 			{
-				this->Instance->SE->DelFd(this);
-				this->Close();
-				delete this;
+				if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
+					this->Instance->SocketCull[this] = this;
 				return;
 			}
 		break;
@@ -737,9 +737,8 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 				this->WaitingForWriteEvent = false;
 				if (!this->OnWriteReady())
 				{
-					this->Instance->SE->DelFd(this);
-					this->Close();
-					delete this;
+					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
+						this->Instance->SocketCull[this] = this;
 					return;
 				}
 			}
@@ -758,9 +757,8 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 			{
 				if (this->FlushWriteBuffer())
 				{
-					this->Instance->SE->DelFd(this);
-					this->Close();
-					delete this;
+					if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
+						this->Instance->SocketCull[this] = this;
 					return;
 				}
 			}

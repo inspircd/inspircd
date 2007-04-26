@@ -911,6 +911,14 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	/* if any users was quit, take them out */
 	GlobalCulls.Apply();
 
+	/* If any inspsockets closed, remove them */
+	for (std::map<InspSocket*,InspSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
+	{
+		SE->DelFd(x->second);
+		x->second->Close();
+		delete x->second;
+	}
+	SocketCull.clear();
 }
 
 bool InspIRCd::IsIdent(const char* n)
@@ -932,7 +940,6 @@ bool InspIRCd::IsIdent(const char* n)
 	}
 	return true;
 }
-
 
 int InspIRCd::Run()
 {

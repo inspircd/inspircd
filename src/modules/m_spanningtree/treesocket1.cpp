@@ -373,11 +373,17 @@ std::string TreeSocket::ListDifference(const std::string &one, const std::string
 	return result;
 }
 
+void TreeSocket::SendError(const std::string &errormessage)
+{
+	this->WriteLine("ERROR :"+errormessage);
+	this->Instance->SNO->WriteToSnoMask('l',"Sent \2ERROR\2 to "+this->InboundServerName+": "+errormessage);
+}
+
 bool TreeSocket::Capab(const std::deque<std::string> &params)
 {
 	if (params.size() < 1)
 	{
-		this->WriteLine("ERROR :Invalid number of parameters for CAPAB - Mismatched version");
+		this->SendError("Invalid number of parameters for CAPAB - Mismatched version");
 		return false;
 	}
 	if (params[0] == "START")
@@ -467,7 +473,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 
 		if (reason.length())
 		{
-			this->WriteLine("ERROR :CAPAB negotiation failed: "+reason);
+			this->SendError("CAPAB negotiation failed: "+reason);
 			return false;
 		}
 	}
@@ -843,7 +849,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 					 * danger bill bobbertson! (that's will robinsons older brother ;-) ...)
 					 */
 					this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",*permissions);
-					this->WriteLine(std::string("ERROR :Invalid prefix '")+(*permissions)+"' in FJOIN");
+					this->SendError(std::string("Invalid prefix '")+(*permissions)+"' in FJOIN");
 					return false;
 				}
 				usr++;
