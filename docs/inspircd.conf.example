@@ -853,6 +853,11 @@
 #                  authentication, this option can be used to turn it #
 #                  off.                                               #
 #                                                                     #
+#  hidemodes     - If this option is enabled, then listmodes, for     #
+#                  example +beI, will be hidden from users below      #
+#                  halfop. This is not recommended, as it may break   #
+#                  some features in popular clients such as mIRC.     #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -880,6 +885,7 @@
          announcets="yes"
 	 disablehmac="no"
          hostintopic="yes"
+	 hidemodes="no"
          allowhalfop="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#

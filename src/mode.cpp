@@ -294,6 +294,12 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				continue;
 			}
 
+			if (ServerInstance->Config->HideModeLists && (targetchannel->GetStatus(user) < STATUS_HOP))
+			{
+				user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
+				continue;
+			}
+
 			ModeHandler *mh = this->FindMode(*mode, MODETYPE_CHANNEL);
 			bool display = true;
 

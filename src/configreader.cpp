@@ -30,7 +30,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
-	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
+	HideModeLists = NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
 	CycleHosts = writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
@@ -602,6 +602,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
 		{"options",	"announceinvites", "1",			new ValueContainerBool (&this->AnnounceInvites),	DT_BOOLEAN, NoValidation},
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
+		{"options",	"hidemodes",	"0",			new ValueContainerBool (&this->HideModeLists),		DT_BOOLEAN, NoValidation},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},

@@ -349,6 +349,12 @@ class ServerConfig : public Extensible
 	 */
 	bool AllowHalfop;
 
+	/** If this is set to true, then mode lists (e.g
+	 * MODE #chan b) are hidden from unprivileged
+	 * users.
+	 */
+	bool HideModeLists;
+
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
 	 */
