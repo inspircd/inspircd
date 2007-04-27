@@ -125,6 +125,8 @@ class DNSBLResolver : public Resolver
 				else
 					ConfEntry->stats_misses++;
 			}
+			else
+				ConfEntry->stats_misses++;
 		}
 	}
 
