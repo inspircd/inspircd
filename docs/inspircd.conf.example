@@ -1244,6 +1244,12 @@
 # with each key eight hex digits long.                                #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Clones module: Adds an oper command /CLONES for detecting cloned
+# users. Warning: This module may be resource intensive when its
+# command is issued, use with care.
+#<module name="m_clones.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Join: Allows you to force users to join one or more channels
 # automatically upon connecting to the server.
 #<module name="m_conn_join.so">
