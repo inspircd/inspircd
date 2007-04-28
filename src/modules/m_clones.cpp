@@ -44,7 +44,7 @@ class cmd_clones : public command_t
 
 		std::string clonesstr = "304 " + std::string(user->nick) + " :CLONES";
 
-		long limit = atoi(parameters[0]);
+		unsigned long limit = atoi(parameters[0]);
 
 		/*
 		 * Syntax of a /clones reply:
