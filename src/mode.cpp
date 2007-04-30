@@ -283,8 +283,11 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	{
 		const char* mode = parameters[1];
 		int nonlistmodes_found = 0;
+		bool sent[256];
 
 		mask = MASK_CHANNEL;
+
+		memset(&sent, 0, 256);
 		
 		while (mode && *mode)
 		{
@@ -294,7 +297,20 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				continue;
 			}
 
-			if (ServerInstance->Config->HideModeLists && (targetchannel->GetStatus(user) < STATUS_HOP))
+			/* Ensure the user doesnt request the same mode twice,
+			 * so they cant flood themselves off out of idiocy.
+			 */
+			if (!sent[*mode])
+			{
+				sent[*mode] = true;
+			}
+			else
+			{
+				mode++;
+				continue;
+			}
+
+			if (ServerInstance->Config->HideModeLists[*mode] && (targetchannel->GetStatus(user) < STATUS_HOP))
 			{
 				user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
 				continue;

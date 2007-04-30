@@ -30,7 +30,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
-	HideModeLists = NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
+	NoUserDns = forcedebug = OperSpyWhois = nofork = HideBans = HideSplits = UndernetMsgPrefix = false;
 	CycleHosts = writelog = AllowHalfop = true;
 	dns_timeout = DieDelay = 5;
 	MaxTargets = 20;
@@ -333,6 +333,14 @@ bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, Value
 	return true;
 }
 
+bool ValidateModeLists(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	memset(conf->HideModeLists, 0, 256);
+	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
+		conf->HideModeLists[*x] = true;
+	return true;
+}
+
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
@@ -558,6 +566,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 {
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
+	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 
@@ -602,7 +611,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
 		{"options",	"announceinvites", "1",			new ValueContainerBool (&this->AnnounceInvites),	DT_BOOLEAN, NoValidation},
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
-		{"options",	"hidemodes",	"0",			new ValueContainerBool (&this->HideModeLists),		DT_BOOLEAN, NoValidation},
+		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},

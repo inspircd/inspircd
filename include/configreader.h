@@ -353,7 +353,7 @@ class ServerConfig : public Extensible
 	 * MODE #chan b) are hidden from unprivileged
 	 * users.
 	 */
-	bool HideModeLists;
+	bool HideModeLists[256];
 
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
