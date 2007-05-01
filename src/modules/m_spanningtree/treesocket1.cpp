@@ -216,6 +216,14 @@ void TreeSocket::OnError(InspSocketError e)
 		if (MyLink)
 			Utils->DoFailOver(MyLink);
 	}
+	else
+	{
+		if ((errno) && (errno != EINPROGRESS) && (errno != EAGAIN))
+		{
+			std::string errstr = strerror(errno);
+			this->Instance->SNO->WriteToSnoMask('l',"Connection to \002"+myhost+"\002 failed with error: " + errstr);
+		}
+	}
 }
 
 int TreeSocket::OnDisconnect()

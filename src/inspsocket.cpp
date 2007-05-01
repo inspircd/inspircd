@@ -582,13 +582,9 @@ void SocketTimeout::Tick(time_t now)
 
 		if (ServerInstance->SocketCull.find(this->sock) == ServerInstance->SocketCull.end())
 			ServerInstance->SocketCull[this->sock] = this->sock;
+	}
 
-		return;
-	}
-	else
-	{
-		this->sock->Timeout = NULL;
-	}
+	this->sock->Timeout = NULL;
 }
 
 bool InspSocket::Poll()
