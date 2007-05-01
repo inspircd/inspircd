@@ -205,24 +205,35 @@ bool TreeSocket::OnConnected()
 
 void TreeSocket::OnError(InspSocketError e)
 {
-	/* We don't handle this method, because all our
-	 * dirty work is done in OnClose() (see below)
-	 * which is still called on error conditions too.
-	 */
-	if (e == I_ERR_CONNECT)
+	Link* MyLink;
+
+	switch (e)
 	{
-		this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection to \002"+myhost+"\002 refused");
-		Link* MyLink = Utils->FindLink(myhost);
-		if (MyLink)
-			Utils->DoFailOver(MyLink);
-	}
-	else
-	{
-		if ((errno) && (errno != EINPROGRESS) && (errno != EAGAIN))
-		{
-			std::string errstr = strerror(errno);
-			this->Instance->SNO->WriteToSnoMask('l',"Connection to \002"+myhost+"\002 failed with error: " + errstr);
-		}
+		case I_ERR_CONNECT:
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection to \002"+myhost+"\002 refused");
+			MyLink = Utils->FindLink(myhost);
+			if (MyLink)
+				Utils->DoFailOver(MyLink);
+		break;
+		case I_ERR_SOCKET:
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Could not create socket");
+		break;
+		case I_ERR_BIND:
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Error binding socket to address or port");
+		break;
+		case I_ERR_WRITE:
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: I/O error on connection");
+		break;
+		case I_ERR_NOMOREFDS:
+			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Operating system is out of file descriptors!");
+		break;
+		default:
+			if ((errno) && (errno != EINPROGRESS) && (errno != EAGAIN))
+			{
+				std::string errstr = strerror(errno);
+				this->Instance->SNO->WriteToSnoMask('l',"Connection to \002"+myhost+"\002 failed with OS error: " + errstr);
+			}
+		break;
 	}
 }
 

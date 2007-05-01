@@ -119,10 +119,10 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		if (!ipvalid)
 		{
 			this->Instance->Log(DEBUG,"BUG: Hostname passed to InspSocket, rather than an IP address!");
+			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->fd = -1;
 			this->state = I_ERROR;
-			this->OnError(I_ERR_RESOLVE);
 			return;
 		}
 		else
@@ -131,10 +131,10 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 			timeout_val = maxtime;
 			if (!this->DoConnect())
 			{
+				this->OnError(I_ERR_CONNECT);
 				this->Close();
 				this->fd = -1;
 				this->state = I_ERROR;
-				this->OnError(I_ERR_CONNECT);
 				return;
 			}
 		}
@@ -715,6 +715,23 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 	switch (et)
 	{
 		case EVENT_ERROR:
+			switch (errornum)
+			{
+				case ETIMEDOUT:
+					this->OnError(I_ERR_TIMEOUT);
+				break;
+				case ECONNREFUSED:
+				case 0:
+					this->OnError(this->state == I_CONNECTING ? I_ERR_CONNECT : I_ERR_WRITE);
+				break;
+				case EADDRINUSE:
+					this->OnError(I_ERR_BIND);
+				break;
+				case EPIPE:
+				case EIO:
+					this->OnError(I_ERR_WRITE);
+				break;
+			}
 			if (this->Instance->SocketCull.find(this) == this->Instance->SocketCull.end())
 				this->Instance->SocketCull[this] = this;
 			return;
