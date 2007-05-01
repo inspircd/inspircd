@@ -1826,7 +1826,7 @@ ConnectClass* userrec::GetClass()
 				if (this->GetPort() == i->GetPort())
 					return &(*i);
 				else
-					return NULL;
+					continue;
 			}
 			else
 				return &(*i);
