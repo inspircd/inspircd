@@ -1004,14 +1004,14 @@ void userrec::FullConnect()
 		return;
 	}
 
-	if (this->LocalCloneCount() > a->GetMaxLocal())
+	if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
 	{
 		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
-	else if (this->GlobalCloneCount() > a->GetMaxGlobal())
+	else if ((a->GetMaxGlobal()) && (this->GlobalCloneCount() > a->GetMaxGlobal()))
 	{
 		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (global)");

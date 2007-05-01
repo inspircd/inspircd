@@ -223,14 +223,14 @@ public:
 	 */
 	unsigned long GetMaxLocal()
 	{
-		return (maxlocal ? maxlocal : 1);
+		return maxlocal;
 	}
 
 	/** Returns the maximum number of global sessions
 	 */
 	unsigned long GetMaxGlobal()
 	{
-		return (maxglobal ? maxglobal : 1);
+		return maxglobal;
 	}
 };
 
