@@ -291,6 +291,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		
 		while (mode && *mode)
 		{
+			unsigned char mletter = *mode;
+
 			if (*mode == '+')
 			{
 				mode++;
@@ -300,19 +302,13 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 			/* Ensure the user doesnt request the same mode twice,
 			 * so they cant flood themselves off out of idiocy.
 			 */
-			if (!sent[*mode])
+			if (!sent[mletter])
 			{
-				sent[*mode] = true;
+				sent[mletter] = true;
 			}
 			else
 			{
 				mode++;
-				continue;
-			}
-
-			if (ServerInstance->Config->HideModeLists[*mode] && (targetchannel->GetStatus(user) < STATUS_HOP))
-			{
-				user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
 				continue;
 			}
 
@@ -321,6 +317,12 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 
 			if ((mh) && (mh->IsListMode()))
 			{
+				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
+				{
+					user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
+					continue;
+				}
+
 				/** See below for a description of what craq this is :D
 				 */
 				unsigned char handler_id = (*mode - 65) | mask;
