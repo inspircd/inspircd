@@ -41,7 +41,7 @@ public:
                return Version(1,0,0,1,VF_VENDOR,API_VERSION);
        }
 
-       virtual void OnUserJoin(userrec* user, chanrec* channel)
+       virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
        {
                // method called when a user joins a channel
 
@@ -68,7 +68,7 @@ public:
 		   return NULL;
 	   }
 
-       virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
+       virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
        {
        }
 

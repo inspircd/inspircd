@@ -74,7 +74,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User quitting: "+b);
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		// method called when a user joins a channel
 	
@@ -83,7 +83,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User "+b+" joined "+c);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason, bool &silent)
 	{
 		// method called when a user parts a channel
 	

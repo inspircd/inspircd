@@ -178,7 +178,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserJoin(userrec* user, chanrec* channel)
+	void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		StatsIter a = sh->find(channel->name);
 		if (a != sh->end())
@@ -193,7 +193,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
+	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
 	{
 		StatsIter a = sh->find(channel->name);
 		if (a != sh->end())

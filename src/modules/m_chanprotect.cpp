@@ -323,14 +323,14 @@ class ModuleChanProtect : public Module
 		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
 	{
 		// FIX: when someone gets kicked from a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(chan->name));
 		user->Shrink("cm_protect_"+std::string(chan->name));
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason)
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason, bool &silent)
 	{
 		// FIX: when someone parts a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(channel->name));
@@ -372,7 +372,7 @@ class ModuleChanProtect : public Module
 		}
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set

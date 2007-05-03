@@ -44,7 +44,7 @@ class ModuleChanCreate : public Module
 		List[I_OnUserJoin] = 1;
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		if (channel->GetUserCounter() == 1)
 		{

@@ -177,7 +177,7 @@ public:
 		return 0;
 	}
 		
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('J') && (source != user))
 		{

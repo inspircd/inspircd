@@ -90,14 +90,8 @@ class ModuleTestCommand : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserJoin] = 1;
 	}
 
-	virtual void OnUserJoin(userrec* user, chanrec* channel)
-	{
-		/* This is an example, we do nothing here */
-	}
-	
 	virtual ~ModuleTestCommand()
 	{
 		delete newcommand;

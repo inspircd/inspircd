@@ -243,7 +243,7 @@ class ModuleJoinFlood : public Module
 		return 0;
 	}
 
-	virtual void OnUserJoin(userrec* user, chanrec* channel)
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		joinfloodsettings *f;
 		if (channel->GetExt("joinflood",f))
