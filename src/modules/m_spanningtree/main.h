@@ -156,14 +156,14 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnBackgroundTimer(time_t curtime);
-	virtual void OnUserJoin(userrec* user, chanrec* channel);
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent);
 	virtual void OnChangeHost(userrec* user, const std::string &newhost);
 	virtual void OnChangeName(userrec* user, const std::string &gecos);
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage);
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent);
 	virtual void OnUserConnect(userrec* user);
 	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message);
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent);
 	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason);
 	virtual void OnRehash(userrec* user, const std::string &parameter);
 	virtual void OnOper(userrec* user, const std::string &opertype);

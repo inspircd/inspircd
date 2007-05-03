@@ -872,7 +872,7 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 	DoPingChecks(curtime);
 }
 
-void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel)
+void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 {
 	// Only do this for local users
 	if (IS_LOCAL(user))
@@ -923,7 +923,7 @@ void ModuleSpanningTree::OnChangeName(userrec* user, const std::string &gecos)
 	Utils->DoOneToMany(user->nick,"FNAME",params);
 }
 
-void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage)
+void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
 {
 	if (IS_LOCAL(user))
 	{
@@ -993,7 +993,7 @@ void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnic
 	}
 }
 
-void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
 {
 	if ((source) && (IS_LOCAL(source)))
 	{
