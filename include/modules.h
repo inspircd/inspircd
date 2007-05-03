@@ -75,7 +75,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11019
+#define NATIVE_API_VERSION 11020
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -496,8 +496,10 @@ class Module : public Extensible
 	 * and the details of the channel they have joined is available in the variable chanrec *channel
 	 * @param user The user who is joining
 	 * @param channel The channel being joined
+	 * @param silent Change this to true if you want to conceal the JOIN command from the other users
+	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserJoin(userrec* user, chanrec* channel);
+	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
@@ -513,8 +515,10 @@ class Module : public Extensible
 	 * @param user The user who is parting
 	 * @param channel The channel being parted
 	 * @param partmessage The part message, or an empty string
+	 * @param silent Change this to true if you want to conceal the PART command from the other users
+	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage);
+	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -580,8 +584,10 @@ class Module : public Extensible
 	 * @param user The user being kicked
 	 * @param chan The channel the user is being kicked from
 	 * @param reason The kick reason
+	 * @param silent Change this to true if you want to conceal the PART command from the other users
+	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
+	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent);
 
 	/** Called whenever a user opers locally.
 	 * The userrec will contain the oper mode 'o' as this function is called after any modifications

@@ -106,9 +106,9 @@ std::string Event::GetEventID()
 void		Module::OnUserConnect(userrec* user) { }
 void		Module::OnUserQuit(userrec* user, const std::string& message, const std::string &oper_message) { }
 void		Module::OnUserDisconnect(userrec* user) { }
-void		Module::OnUserJoin(userrec* user, chanrec* channel) { }
+void		Module::OnUserJoin(userrec* user, chanrec* channel, bool &silent) { }
 void		Module::OnPostJoin(userrec* user, chanrec* channel) { }
-void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage) { }
+void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent) { }
 void		Module::OnRehash(userrec* user, const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs) { return 0; }
@@ -134,7 +134,7 @@ void		Module::OnPostCommand(const std::string &command, const char** parameters,
 bool		Module::OnCheckReady(userrec* user) { return true; };
 int		Module::OnUserRegister(userrec* user) { return 0; };
 int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
-void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { };
+void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent) { };
 int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
 int		Module::OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven) { return 0; };
 int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };

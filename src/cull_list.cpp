@@ -109,9 +109,9 @@ int CullList::Apply()
 
 		if (a->GetUser()->registered == REG_ALL)
 		{
+			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason, oper_reason));
 			a->GetUser()->PurgeEmptyChannels();
 			a->GetUser()->WriteCommonQuit(reason, oper_reason);
-			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason, oper_reason));
 		}
 
 		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(a->GetUser()));

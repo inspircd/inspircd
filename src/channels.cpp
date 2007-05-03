@@ -341,6 +341,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 {
 	userrec* dummyuser = new userrec(Instance);
 	std::string nick = user->nick;
+	bool silent = false;
 
 	dummyuser->SetFd(FD_MAGIC_NUMBER);
 	Ptr->AddUser(user);
@@ -383,7 +384,10 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 
 	delete dummyuser;
 
-	Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
+	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, silent));
+
+	if (!silent)
+		Ptr->WriteChannel(user,"JOIN :%s",Ptr->name);
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
 	std::string ms = Instance->Modes->ModeString(user, Ptr);
@@ -400,8 +404,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 		}
 		Ptr->UserList(user);
 	}
-	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user,Ptr));
-	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(user,Ptr));
+	FOREACH_MOD_I(Instance,I_OnPostJoin,OnPostJoin(user, Ptr));
 	return Ptr;
 }
 
@@ -434,14 +437,19 @@ bool chanrec::IsBanned(userrec* user)
  */
 long chanrec::PartUser(userrec *user, const char* reason)
 {
+	bool silent = false;
+
 	if (!user)
 		return this->GetUserCounter();
 
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
 	{
-		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : ""));
-		this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
+		FOREACH_MOD(I_OnUserPart,OnUserPart(user, this, reason ? reason : "", silent));
+
+		if (!silent)
+			this->WriteChannel(user, "PART %s%s%s", this->name, reason ? " :" : "", reason ? reason : "");
+
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
 	}
@@ -463,6 +471,8 @@ long chanrec::PartUser(userrec *user, const char* reason)
 
 long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggerevents)
 {
+	bool silent = false;
+
 	if (!user || !reason)
 		return this->GetUserCounter();
 
@@ -477,13 +487,15 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 
 	if (triggerevents)
 	{
-		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL,user,this,reason));
+		FOREACH_MOD(I_OnUserKick,OnUserKick(NULL, user, this, reason, silent));
 	}
 
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
 	{
-		this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
+		if (!silent)
+			this->WriteChannelWithServ(ServerInstance->Config->ServerName, "KICK %s %s :%s", this->name, user->nick, reason);
+
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
 	}
@@ -505,6 +517,8 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 
 long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 {
+	bool silent = false;
+
 	if (!src || !user || !reason)
 		return this->GetUserCounter();
 
@@ -549,13 +563,15 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 		}
 	}
 
-	FOREACH_MOD(I_OnUserKick,OnUserKick(src,user,this,reason));
+	FOREACH_MOD(I_OnUserKick,OnUserKick(src, user, this, reason, silent));
 
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
 	{
 		/* zap it from the channel list of the user */
-		this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
+		if (!silent)
+			this->WriteChannel(src, "KICK %s %s :%s", this->name, user->nick, reason);
+
 		user->chans.erase(i);
 		this->RemoveAllPrefixes(user);
 	}
