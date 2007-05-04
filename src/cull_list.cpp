@@ -19,6 +19,7 @@ CullItem::CullItem(userrec* u, std::string &r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
+	this->silent = false;
 	/* Seperate oper reason not set, use the user reason */
 	if (*o_reason)
 		this->oper_reason = o_reason;
@@ -30,11 +31,22 @@ CullItem::CullItem(userrec* u, const char* r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
+	this->silent = false;
 	/* Seperate oper reason not set, use the user reason */
 	if (*o_reason)
 		this->oper_reason = o_reason;
 	else
 		this->oper_reason = r;
+}
+
+void CullItem::MakeSilent()
+{
+	this->silent = true;
+}
+
+bool CullItem::IsSilent()
+{
+	return this->silent;
 }
 
 CullItem::~CullItem()
@@ -76,6 +88,19 @@ void CullList::AddItem(userrec* user, const char* reason, const char* o_reason)
 		list.push_back(item);
 		exempt[user] = user;
 	}
+}
+
+void CullList::MakeSilent(userrec* user)
+{
+	for (std::vector<CullItem>::iterator a = list.begin(); a != list.end(); ++a)
+	{
+		if (a->GetUser() == user)
+		{
+			a->MakeSilent();
+			break;
+		}
+	}
+	return;
 }
 
 int CullList::Apply()
@@ -141,11 +166,13 @@ int CullList::Apply()
 		if (a->GetUser()->registered == REG_ALL)
 		{
 			if (IS_LOCAL(a->GetUser()))
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+				if (!a->IsSilent())
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
 			else
 			{
 				if (!ServerInstance->SilentULine(a->GetUser()->server))
-					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+					if (!a->IsSilent())
+						ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
 			}
 			a->GetUser()->AddToWhoWas();
 		}

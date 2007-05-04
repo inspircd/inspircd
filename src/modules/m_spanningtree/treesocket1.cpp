@@ -1103,7 +1103,11 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 
 	Instance->AddGlobalClone(_new);
 
-	if (!this->Instance->SilentULine(_new->server))
+	bool send = (!this->Instance->SilentULine(_new->server));
+	if (send)
+		send = (this->Utils->quiet_bursts && !this->bursting);
+
+	if (send)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
 
 	params[7] = ":" + params[7];

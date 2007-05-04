@@ -144,6 +144,9 @@ int TreeServer::QuitUsers(const std::string &reason)
 				userrec::QuitUser(ServerInstance, a, "*.net *.split", reason_s);
 			else
 				userrec::QuitUser(ServerInstance, a, reason_s);
+
+			if (this->Utils->quiet_bursts)
+				ServerInstance->GlobalCulls.MakeSilent(a);
 		}
 	}
 	return time_to_die.size();

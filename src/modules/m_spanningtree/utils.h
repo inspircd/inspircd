@@ -63,6 +63,9 @@ class SpanningTreeUtilities
 	/** Synchronize timestamps between servers
 	 */
 	bool EnableTimeSync;
+	/** Make snomasks +CQ quiet during bursts and splits
+	 */
+	bool quiet_bursts;
 	/** Socket bindings for listening sockets
 	 */
 	std::vector<TreeSocket*> Bindings;

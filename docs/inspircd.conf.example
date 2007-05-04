@@ -859,6 +859,15 @@
 #                  +b, as it may break some features in popular       #
 #                  clients such as mIRC.                              #
 #                                                                     #
+#  quietbursts   - When synching or splitting from the network, a     #
+#                  server can generate a lot of connect and quit      #
+#                  snotices to the +C and +Q snomasks. Setting this   #
+#                  value to yes squelches those messages, which can   #
+#                  make them more useful for opers, however it will   #
+#                  degrade their use by certain third party programs  #
+#                  such as BOPM which rely on them to scan users when #
+#                  a split heals in certain configurations.           #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -887,6 +896,7 @@
 	 disablehmac="no"
          hostintopic="yes"
 	 hidemodes="eI"
+	 quietbursts="yes"
          allowhalfop="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#

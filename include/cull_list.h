@@ -42,6 +42,9 @@ class CullItem : public classbase
 	/** Holds the quit reason opers see, if different from users
 	 */
 	std::string oper_reason;
+	/** Silent items dont generate an snotice.
+	 */
+	bool silent;
  public:
 	/** Constrcutor.
 	* Initializes the CullItem with a user pointer
@@ -51,6 +54,9 @@ class CullItem : public classbase
 	*/
 	CullItem(userrec* u, std::string &r, const char* ro = "");
 	CullItem(userrec* u, const char* r, const char* ro = "");
+
+	void MakeSilent();
+	bool IsSilent();
 
 	~CullItem();
 
@@ -110,6 +116,10 @@ class CullList : public classbase
 	*/
 	void AddItem(userrec* user, std::string &reason, const  char* o_reason = "");
 	void AddItem(userrec* user, const char* reason, const char* o_reason = "");
+
+	/* Turn an item into a silent item
+	 */
+	void MakeSilent(userrec* user);
 
 	/** Applies the cull list, quitting all the users
 	* on the list with their quit reasons all at once.

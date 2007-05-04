@@ -477,6 +477,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	EnableTimeSync = Conf->ReadFlag("timesync","enable",0);
 	MasterTime = Conf->ReadFlag("timesync", "master", 0);
 	ChallengeResponse = !Conf->ReadFlag("options", "disablehmac", 0);
+	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
 	LinkBlocks.clear();
 	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)
