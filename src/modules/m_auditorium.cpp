@@ -117,7 +117,12 @@ class ModuleAuditorium : public Module
 	void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('u'))
+		{
 			silent = true;
+			/* Send silenced event only to the user being kicked and the user doing the kick */
+			source->WriteFrom(source, "KICK %s %s %s", channel->name, user->nick, reason.c_str());
+			user->WriteFrom(source, "KICK %s %s %s", channel->name, user->nick, reason.c_str());
+		}
 	}
 
 	void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
