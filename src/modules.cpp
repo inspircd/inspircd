@@ -188,7 +188,7 @@ void		Module::OnChannelDelete(chanrec* chan) { };
 Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
 void		Module::OnSetAway(userrec* user) { };
 void		Module::OnCancelAway(userrec* user) { };
-int		Module::OnUserList(userrec* user, chanrec* Ptr) { return 0; };
+int		Module::OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist) { return 0; };
 int		Module::OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text) { return 0; };
 void		Module::OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list) { };
 void		Module::OnGarbageCollect() { };

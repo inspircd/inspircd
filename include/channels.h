@@ -436,8 +436,10 @@ class chanrec : public Extensible
 
 	/** Spool the NAMES list for this channel to the given user
 	 * @param user The user to spool the NAMES list to
+	 * @param ulist The user list to send, NULL to use the
+	 * channel's default names list of everyone
 	 */
-	void UserList(userrec *user);
+	void UserList(userrec *user, CUList* ulist = NULL);
 
 	/** Get the number of invisible users on this channel
 	 * @return Number of invisible users

@@ -67,7 +67,7 @@ class ModuleNamesX : public Module
 		return 0;
 	}
 
-	virtual int OnUserList(userrec* user, chanrec* Ptr)
+	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &ulist)
 	{
 		if (user->GetExt("NAMESX"))
 		{
@@ -76,7 +76,10 @@ class ModuleNamesX : public Module
 			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, Ptr->name);
 			int numusers = 0;
 			char* ptr = list + dlen;
-			CUList *ulist= Ptr->GetUsers();
+
+			if (!ulist)
+				ulist = Ptr->GetUsers();
+
 			bool has_user = Ptr->HasUser(user);
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{

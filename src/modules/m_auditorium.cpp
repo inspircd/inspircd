@@ -49,6 +49,9 @@ class ModuleAuditorium : public Module
 {
  private:
 	AuditoriumMode* aum;
+	bool ShowOps;
+	CUList nl;
+	CUList except_list;
  public:
 	ModuleAuditorium(InspIRCd* Me)
 		: Module::Module(Me)
@@ -56,12 +59,19 @@ class ModuleAuditorium : public Module
 		aum = new AuditoriumMode(ServerInstance);
 		if (!ServerInstance->AddMode(aum, 'u'))
 			throw ModuleException("Could not add new modes!");
+		OnRehash(NULL, "");
 	}
 	
 	virtual ~ModuleAuditorium()
 	{
 		ServerInstance->Modes->DelMode(aum);
 		DELETE(aum);
+	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader conf(ServerInstance);
+		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
 	}
 
 	Priority Prioritize()
@@ -77,17 +87,28 @@ class ModuleAuditorium : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = 1;
+		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = List[I_OnRehash] = 1;
 	}
 
-	virtual int OnUserList(userrec* user, chanrec* Ptr)
+	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &nameslist)
 	{
 		if (Ptr->IsModeSet('u'))
 		{
-			/* HELLOOO, IS ANYBODY THERE? -- nope, just us. */
-			user->WriteServ("353 %s = %s :%s", user->nick, Ptr->name, user->nick);
-			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
-			return 1;
+			if (ShowOps)
+			{
+				/* Show all the opped users */
+				nl = *(Ptr->GetOppedUsers());
+				nl[user] = user;
+				nameslist = &nl;
+				return 0;
+			}
+			else
+			{
+				/* HELLOOO, IS ANYBODY THERE? -- nope, just us. */
+				user->WriteServ("353 %s = %s :%s", user->nick, Ptr->name, user->nick);
+				user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
+				return 1;
+			}
 		}
 		return 0;
 	}
@@ -99,6 +120,8 @@ class ModuleAuditorium : public Module
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			user->WriteFrom(user, "JOIN %s", channel->name);
+			if (ShowOps)
+				channel->WriteAllExcept(user, false, '@', except_list, "JOIN %s", channel->name);
 		}
 	}
 
@@ -111,6 +134,9 @@ class ModuleAuditorium : public Module
 			user->WriteFrom(user, "PART %s%s%s", channel->name,
 					partmessage.empty() ? "" : " :",
 					partmessage.empty() ? "" : partmessage.c_str());
+			if (ShowOps)
+				channel->WriteAllExcept(user, false, '@', except_list, "PART %s%s%s", channel->name, partmessage.empty() ? "" : " :",
+						partmessage.empty() ? "" : partmessage.c_str());
 		}
 	}
 
@@ -121,7 +147,10 @@ class ModuleAuditorium : public Module
 			silent = true;
 			/* Send silenced event only to the user being kicked and the user doing the kick */
 			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
-			user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+			if (ShowOps)
+				chan->WriteAllExcept(source, false, '@', except_list, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+			else
+				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
 		}
 	}
 

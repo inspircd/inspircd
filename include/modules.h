@@ -1338,7 +1338,7 @@ class Module : public Extensible
 	 * and if you do you must return 1. If you do not handle the names list,
 	 * return 0.
 	 */
-	virtual int OnUserList(userrec* user, chanrec* Ptr);
+	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist);
 
 	/** Called whenever a line of WHOIS output is sent to a user.
 	 * You may change the numeric and the text of the output by changing

@@ -802,7 +802,7 @@ char* chanrec::ChanModes(bool showkey)
 /* compile a userlist of a channel into a string, each nick seperated by
  * spaces and op, voice etc status shown as @ and +, and send it to 'user'
  */
-void chanrec::UserList(userrec *user)
+void chanrec::UserList(userrec *user, CUList *ulist)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
@@ -811,7 +811,7 @@ void chanrec::UserList(userrec *user)
 	if (!IS_LOCAL(user))
 		return;
 
-	FOREACH_RESULT(I_OnUserList,OnUserList(user, this));
+	FOREACH_RESULT(I_OnUserList,OnUserList(user, this, ulist));
 	if (MOD_RESULT == 1)
 		return;
 
@@ -820,7 +820,8 @@ void chanrec::UserList(userrec *user)
 	int numusers = 0;
 	char* ptr = list + dlen;
 
-	CUList *ulist= this->GetUsers();
+	if (!ulist)
+		ulist= this->GetUsers();
 
 	/* Improvement by Brain - this doesnt change in value, so why was it inside
 	 * the loop?
