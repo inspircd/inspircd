@@ -289,6 +289,14 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	std::string command;
 	tokens.GetToken(command);
 
+	/* A client sent a nick prefix on their command (ick)
+	 * rhapsody and some braindead bouncers do this --
+	 * the rfc says they shouldnt but also says the ircd should
+	 * discard it if they do.
+	 */
+	if (*command.c_str() == ':')
+		tokens.GetToken(command);
+
 	while (tokens.GetToken(para[items]) && (items < 127))
 	{
 		command_p[items] = para[items].c_str();
