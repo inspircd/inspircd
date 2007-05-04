@@ -96,6 +96,10 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 	std::string lcn = getlastchanname(u);
 	chanrec* chlast = ServerInstance->FindChan(lcn);
 
+	/* Not visible to this user */
+	if (u->Visibility && !u->Visibility->VisibleTo(user))
+		return;
+
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
 				((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : u->server) +
 				" " + u->nick + " ";
