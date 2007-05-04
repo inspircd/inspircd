@@ -81,6 +81,10 @@ class InvisibleMode : public ModeHandler
 			}
 
 			dest->SetMode('Q', adding);
+
+			/* Set visibility handler object */
+			dest->Visibility = adding ? qo : NULL;
+
 			/* User appears to vanish or appear from nowhere */
 			for (UCListIter f = dest->chans.begin(); f != dest->chans.end(); f++)
 			{
