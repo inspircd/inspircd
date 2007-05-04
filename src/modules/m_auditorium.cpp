@@ -96,6 +96,15 @@ class ModuleAuditorium : public Module
 		{
 			if (ShowOps)
 			{
+				/* Leave the names list alone, theyre an op
+				 * doing /names on the channel after joining it
+				 */
+				if (Ptr->GetStatus(user) >= STATUS_OP)
+				{
+					nameslist = Ptr->GetUsers();
+					return 0;
+				}
+
 				/* Show all the opped users */
 				nl = *(Ptr->GetOppedUsers());
 				nl[user] = user;

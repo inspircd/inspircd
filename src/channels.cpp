@@ -821,7 +821,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 	char* ptr = list + dlen;
 
 	if (!ulist)
-		ulist= this->GetUsers();
+		ulist = this->GetUsers();
 
 	/* Improvement by Brain - this doesnt change in value, so why was it inside
 	 * the loop?
