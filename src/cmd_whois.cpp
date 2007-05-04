@@ -21,7 +21,7 @@
 void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	/* check if the user is registered first, can't whois unknown connections */
-	if (dest->registered == REG_ALL)
+	if ((dest->registered == REG_ALL) && ((dest->Visibility && !dest->Visibility->VisibleTo(user))))
 	{
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
@@ -92,6 +92,7 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 		return CMD_SUCCESS;
 
 	dest = ServerInstance->FindNick(parameters[0]);
+
 	if (dest)
 	{
 		do_whois(this->ServerInstance, user,dest,0,0,parameters[0]);
