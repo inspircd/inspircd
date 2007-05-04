@@ -246,6 +246,12 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	}
 	else if (targetuser)
 	{
+		if (targetuser->Visibility && !targetuser->Visibility->VisibleTo(user))
+		{
+			user->WriteServ("401 %s %s :No such nick/channel",user->nick, text);
+			return;
+		}
+
 		if ((targetuser == user) || (*user->oper))
 		{
 			/* Display user's current mode string */
