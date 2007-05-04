@@ -68,8 +68,12 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			}
 			for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
 			{
-				results.push_back(sn+" 249 "+user->nick+" :p:"+ConvToStr(ServerInstance->Config->ports[i])+" (" + ConvToStr(pc[ServerInstance->Config->ports[i]])+" client" +
-						(pc[ServerInstance->Config->ports[i]] != 1 ? "s" : "") + "), "+ServerInstance->Config->openSockfd[i]->GetDescription());
+				if (pc[ServerInstance->Config->ports[i]] >= 0)
+				{
+					results.push_back(sn+" 249 "+user->nick+" :p:"+ConvToStr(ServerInstance->Config->ports[i])+" (" + ConvToStr(pc[ServerInstance->Config->ports[i]])+" client" +
+							(pc[ServerInstance->Config->ports[i]] != 1 ? "s" : "") + "), "+ServerInstance->Config->openSockfd[i]->GetDescription());
+					pc[ServerInstance->Config->ports[i]] = -1;
+				}
 			}
 		}
 		break;
