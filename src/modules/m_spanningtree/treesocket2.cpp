@@ -1147,6 +1147,23 @@ bool TreeSocket::ProcessLine(std::string &line)
 				route_back_again->SetPingFlag();
 			}
 
+			if ((command == "MODE") && (params.size() >= 2))
+			{
+				chanrec* channel = Instance->FindChan(params[0]);
+				if (channel)
+				{
+					userrec* x = Instance->FindNick(prefix);
+					if (x)
+					{
+						Instance->Log(DEFAULT,
+								"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.",
+								params[1].c_str(), x->server);
+						Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' and may cause desyncs.",
+								x->server, x->nick, params[1].c_str());
+					}
+				}
+			}
+
 			if (command == "SVSMODE")
 			{
 				/* Services expects us to implement
