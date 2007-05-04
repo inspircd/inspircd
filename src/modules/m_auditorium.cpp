@@ -95,13 +95,23 @@ class ModuleAuditorium : public Module
 	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
 	{
 		if (channel->IsModeSet('u'))
+		{
 			silent = true;
+			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
+			user->WriteFrom(user, "JOIN %s", channel->name);
+		}
 	}
 
 	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
 	{
 		if (channel->IsModeSet('u'))
+		{
 			silent = true;
+			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
+			user->WriteFrom(user, "PART %s%s%s", channel->name,
+					partmessage.empty() ? "" : " :",
+					partmessage.empty() ? "" : partmessage.c_str());
+		}
 	}
 
 	void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
