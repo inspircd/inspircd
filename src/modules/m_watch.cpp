@@ -168,6 +168,13 @@ class cmd_watch : public command_t
 			userrec* target = ServerInstance->FindNick(nick);
 			if (target)
 			{
+				if (target->Visibility && !target->Visibility->VisibleTo(user))
+				{
+					(*wl)[nick] = "";
+					user->WriteServ("605 %s %s * * 0 :is offline",user->nick, nick);
+					return CMD_FAILURE;
+				}
+
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
 				user->WriteServ("604 %s %s %s :is online",user->nick, nick, (*wl)[nick].c_str());
 			}
@@ -313,7 +320,9 @@ class Modulewatch : public Module
 		{
 			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
+				if (!user->Visibility || user->Visibility->VisibleTo(user))
+					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
+
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 					/* We were on somebody's notify list, set ourselves offline */
@@ -380,7 +389,9 @@ class Modulewatch : public Module
 		{
 			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
+				if (!user->Visibility || user->Visibility->VisibleTo(user))
+					(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
+
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 					/* We were on somebody's notify list, set ourselves online */
@@ -402,7 +413,8 @@ class Modulewatch : public Module
 				if ((*n)->GetExt("watchlist", wl))
 				{
 					(*wl)[user->nick] = std::string(user->ident).append(" ").append(user->dhost).append(" ").append(ConvToStr(user->age));
-					(*n)->WriteServ("600 %s %s %s :arrived online", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
+					if (!user->Visibility || user->Visibility->VisibleTo(user))
+						(*n)->WriteServ("600 %s %s %s :arrived online", (*n)->nick, user->nick, (*wl)[user->nick].c_str());
 				}
 			}
 		}
@@ -414,7 +426,8 @@ class Modulewatch : public Module
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
 				{
- 					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
+					if (!user->Visibility || user->Visibility->VisibleTo(user))
+	 					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
 					(*wl)[user->nick] = "";
 				}
 			}

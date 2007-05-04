@@ -60,6 +60,9 @@ CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 
 					if (u)
 					{
+						if (u->Visibility && !u->Visibility->VisibleTo(user))
+							continue;
+
 						reply.append(u->nick).append(" ");
 						if (reply.length() > 450)
 						{
