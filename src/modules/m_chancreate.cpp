@@ -14,7 +14,6 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "inspircd.h"
 
 /* $ModDesc: Creates a snomask with notices whenever a new channel is created */
