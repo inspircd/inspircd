@@ -120,8 +120,8 @@ class ModuleAuditorium : public Module
 		{
 			silent = true;
 			/* Send silenced event only to the user being kicked and the user doing the kick */
-			source->WriteFrom(source, "KICK %s %s %s", channel->name, user->nick, reason.c_str());
-			user->WriteFrom(source, "KICK %s %s %s", channel->name, user->nick, reason.c_str());
+			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+			user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
 		}
 	}
 
