@@ -838,6 +838,9 @@ void chanrec::UserList(userrec *user)
 			continue;
 		}
 
+		if (i->second->Visibility && !i->second->Visibility->VisibleTo(user))
+			continue;
+
 		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->second), i->second->nick);
 
 		curlen += ptrlen;

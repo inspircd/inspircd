@@ -490,6 +490,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
+									ServerInstance->Log(DEBUG,"Call mode watcher");
 									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
 									{
 										abort = true;
@@ -506,13 +507,28 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								if (abort)
 									continue;
 							}
+							else
+							{
+								/* Fix by brain: mode watchers not being called for parameterless modes */
+								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
+								{
+									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
+									{
+										abort = true;
+										break;
+									}
+								}
+
+								if (abort)
+									continue;
+							}
 
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
 							 */
 							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
 							{
-								user->WriteServ("481 %s :Permission Denied- Only IRC operators may %sset %s mode %c", user->nick,
+								user->WriteServ("481 %s :Permission Denied - Only IRC operators may %sset %s mode %c", user->nick,
 										adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user",
 										modehandlers[handler_id]->GetModeChar());
 								continue;
@@ -925,6 +941,7 @@ bool ModeParser::AddModeWatcher(ModeWatcher* mw)
 	pos = (mw->GetModeChar()-65) | mask;
 
 	modewatchers[pos].push_back(mw);
+
 	return true;
 }
 

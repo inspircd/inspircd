@@ -338,6 +338,7 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	sendq = "";
 	WriteError = "";
 	res_forward = res_reverse = NULL;
+	Visibility = NULL;
 	ip = NULL;
 	chans.clear();
 	invites.clear();
@@ -1952,4 +1953,16 @@ const char* userrec::GetOperQuit()
 	return operquit ? operquit : "";
 }
 
+VisData::VisData()
+{
+}
+
+VisData::~VisData()
+{
+}
+
+bool VisData::VisibleTo(userrec* user)
+{
+	return true;
+}
 

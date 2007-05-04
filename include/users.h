@@ -247,6 +247,16 @@ typedef std::vector<ConnectClass> ClassVector;
 typedef std::map<chanrec*, char> UserChanList;
 typedef UserChanList::iterator UCListIter;
 
+class userrec;
+
+class VisData
+{
+ public:
+	VisData();
+	virtual ~VisData();
+	virtual bool VisibleTo(userrec* user);
+};
+
 /** Holds all information about a user
  * This class stores all information about a user connected to the irc server. Everything about a
  * connection is stored here primarily, from the user's socket ID (file descriptor) through to the
@@ -307,6 +317,8 @@ class userrec : public connection
 	 * and on success, instantiates userrec::res_reverse.
 	 */
 	UserResolver* res_reverse;
+
+	VisData* Visibility;
 
 	/** Stored reverse lookup from res_forward
 	 */

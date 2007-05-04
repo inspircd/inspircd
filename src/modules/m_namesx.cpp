@@ -81,9 +81,11 @@ class ModuleNamesX : public Module
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
 				if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
-				{
 					continue;
-				}
+
+				if (i->second->Visibility && !i->second->Visibility->VisibleTo(user))
+					continue;
+
 				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->second), i->second->nick);
 				curlen += ptrlen;
 				ptr += ptrlen;

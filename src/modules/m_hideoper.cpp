@@ -23,7 +23,7 @@
 class HideOper : public ModeHandler
 {
  public:
-	HideOper(InspIRCd* Instance) : ModeHandler(Instance, 'H', 0, 0, false, MODETYPE_USER, true) { }
+	HideOper(InspIRCd* Instance) : ModeHandler(Instance, 'H', 0, 'o', false, MODETYPE_USER, true) { }
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{

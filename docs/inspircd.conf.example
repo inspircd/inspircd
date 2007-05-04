@@ -1487,6 +1487,17 @@
 #<module name="m_inviteexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Invisible module - Adds support for usermode +Q (quiet) which lets an
+# oper go 'invisible' similar to unrealircd 3.1's +I mode. Note that
+# opers are still able to see invisible users, and if an oper with +Q
+# deopers, they will become visible. 
+# 
+# IMPORTANT NOTE: To allow this mode to be used by a type of oper, you
+# must first add the value canquiet="yes" to that oper's type tag.
+#
+#<module name="m_invisible.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection (+j)
 #<module name="m_joinflood.so">
 
