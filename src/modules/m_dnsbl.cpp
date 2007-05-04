@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 #include <stdint.h>
 #include "inspircd.h"
+#include "xline.h"
 #include "dns.h"
 #include "users.h"
 #include "channels.h"
@@ -64,7 +65,8 @@ class DNSBLResolver : public Resolver
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 			if(result.length())
 			{
-				unsigned int bitmask=0;
+				unsigned int bitmask = 0;
+				bool show = false;
 				in_addr resultip;
 
 				/* Convert the result to an in_addr (we can gaurantee we got ipv4)
@@ -87,7 +89,6 @@ class DNSBLResolver : public Resolver
 						x = reason.find("%ip%");
 					}
 
-					ServerInstance->WriteOpers("*** Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
 					ConfEntry->stats_hits++;
 
 					switch (ConfEntry->banaction)
@@ -99,19 +100,21 @@ class DNSBLResolver : public Resolver
 						}
 						case DNSBLConfEntry::I_KLINE:
 						{
-							ServerInstance->AddKLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, std::string("*@") + them->GetIPString());
-							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, std::string("*@") + them->GetIPString()));
+							std::string ban = std::string("*@") + them->GetIPString();
+							show = ServerInstance->XLines->add_kline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
+							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, ban));
 							break;
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
-							ServerInstance->AddGLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, std::string("*@") + them->GetIPString());
-							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, std::string("*@") + them->GetIPString()));
+							std::string ban = std::string("*@") + them->GetIPString();
+							show = ServerInstance->XLines->add_gline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
+							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, ban));
 							break;
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
-							ServerInstance->AddZLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason, them->GetIPString());
+							show = ServerInstance->XLines->add_zline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), them->GetIPString());
 							FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
 							break;
 						}
@@ -121,6 +124,9 @@ class DNSBLResolver : public Resolver
 						}
 						break;
 					}
+
+					if (show)
+						ServerInstance->WriteOpers("*** Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
 				}
 				else
 					ConfEntry->stats_misses++;
