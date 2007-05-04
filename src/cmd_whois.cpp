@@ -20,8 +20,14 @@
 
 void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
-	/* check if the user is registered first, can't whois unknown connections */
-	if ((dest->registered == REG_ALL) && ((dest->Visibility && !dest->Visibility->VisibleTo(user))))
+	if (dest->Visibility && !dest->Visibility->VisibleTo(user))
+	{
+		ServerInstance->SendWhoisLine(user, dest, 401, "%s %s :No such nick/channel",user->nick, *nick ? nick : "*");
+		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, *nick ? nick : "*");
+		return;
+	}
+
+	if (dest->registered == REG_ALL)
 	{
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
 		if ((user == dest) || (*user->oper))
