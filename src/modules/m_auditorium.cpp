@@ -130,7 +130,7 @@ class ModuleAuditorium : public Module
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			user->WriteFrom(user, "JOIN %s", channel->name);
 			if (ShowOps)
-				channel->WriteAllExcept(user, false, '@', except_list, "JOIN %s", channel->name);
+				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "JOIN %s", channel->name);
 		}
 	}
 
@@ -144,8 +144,10 @@ class ModuleAuditorium : public Module
 					partmessage.empty() ? "" : " :",
 					partmessage.empty() ? "" : partmessage.c_str());
 			if (ShowOps)
-				channel->WriteAllExcept(user, false, '@', except_list, "PART %s%s%s", channel->name, partmessage.empty() ? "" : " :",
+			{
+				channel->WriteAllExcept(user, false, channel->GetStatus(user) >= STATUS_OP ? 0 : '@', except_list, "PART %s%s%s", channel->name, partmessage.empty() ? "" : " :",
 						partmessage.empty() ? "" : partmessage.c_str());
+			}
 		}
 	}
 
@@ -157,7 +159,7 @@ class ModuleAuditorium : public Module
 			/* Send silenced event only to the user being kicked and the user doing the kick */
 			source->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
 			if (ShowOps)
-				chan->WriteAllExcept(source, false, '@', except_list, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
+				chan->WriteAllExcept(source, false, chan->GetStatus(source) >= STATUS_OP ? 0 : '@', except_list, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
 			else
 				user->WriteFrom(source, "KICK %s %s %s", chan->name, user->nick, reason.c_str());
 		}
