@@ -1099,6 +1099,11 @@
 #<module name="m_antibottler.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Auditorium module: Adds channel mode +u which makes everyone else
+# except you in the channel invisible, used for large meetings etc.
+#<module name="m_auditorium.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban except module: Adds support for channel ban exceptions (+e)
 #<module name="m_banexception.so">
 
