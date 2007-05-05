@@ -11,7 +11,7 @@ package make::configure;
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno showhelp promptstring);
+@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno showhelp promptstring_s);
 
 my $no_svn = 0;
 
@@ -148,7 +148,7 @@ sub promptnumeric($$)
 	}
 }
 
-sub promptstring($$)
+sub promptstring_s($$)
 {
 	my ($prompt,$default) = @_;
 	my $var;

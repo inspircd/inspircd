@@ -9,12 +9,12 @@ sub make_gnutls_cert()
 {
 	open (FH, ">certtool.template");
 	my $timestr = time();
-	my $org = promptstring("Please enter the organization name", "My IRC Network");
-	my $unit = promptstring("Please enter the unit Name", "Server Admins");
-	my $state = promptstring("Pleae enter your state (two letter code)", "CA");
-	my $country = promptstring("Please enter your country", "Oompa Loompa Land");
-	my $commonname = promptstring("Please enter the certificate common name (hostname)", "irc.mynetwork.com");
-	my $email = promptstring("Please enter a contact email address", "oompa\@loompa.com");
+	my $org = promptstring_s("Please enter the organization name", "My IRC Network");
+	my $unit = promptstring_s("Please enter the unit Name", "Server Admins");
+	my $state = promptstring_s("Pleae enter your state (two letter code)", "CA");
+	my $country = promptstring_s("Please enter your country", "Oompa Loompa Land");
+	my $commonname = promptstring_s("Please enter the certificate common name (hostname)", "irc.mynetwork.com");
+	my $email = promptstring_s("Please enter a contact email address", "oompa\@loompa.com");
 	print FH <<__END__;
 # X.509 Certificate options
 #
