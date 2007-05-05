@@ -11,7 +11,7 @@ package make::configure;
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno showhelp);
+@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno showhelp promptstring);
 
 my $no_svn = 0;
 
@@ -146,6 +146,18 @@ sub promptnumeric($$)
 			print "You must enter a number in this field. Please try again.\n\n";
 		}
 	}
+}
+
+sub promptstring($$)
+{
+	my ($prompt,$default) = @_;
+	my $var;
+	print "$prompt\n";
+	print "[\033[1;32m$default\033[0m] -> ";
+	chomp($var = <STDIN>);
+	$var = $default if $var eq "";
+	print "\n";
+	return $var;
 }
 
 sub dumphash()

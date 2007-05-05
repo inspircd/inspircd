@@ -24,6 +24,7 @@ use Getopt::Long;
 # Utility functions for our buildsystem
 use make::utilities;
 use make::configure;
+use make::gnutlscert;
 
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
@@ -703,11 +704,10 @@ if ($config{USE_GNUTLS} eq "y") {
 * Generating the Private Key may take some time, go grab a  *
 * Coffee. Even better, to generate some more entropy if it  *
 * is taking a while, open another console and type du / a   *
-* few times and get that HD going :) Then answer the	*
+* few times and get that HD going :) Then answer the        *
 * Questions which follow. If you are unsure, just hit enter *
 *************************************************************\n\n";
-			system("certtool --generate-privkey --outfile key.pem");
-			system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem");
+			make_gnutls_cert();
 			print "\nCertificate generation complete, copying to config directory... ";
 			system("mv key.pem $config{CONFIG_DIR}/key.pem");
 			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
@@ -742,7 +742,7 @@ if ($config{USE_GNUTLS} eq "y") {
 			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
-* coffee, or something.				     *
+* coffee, or something.                                     *
 *************************************************************\n\n";
 			system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
 			system("openssl dhparam -out dhparams.pem 1024");
