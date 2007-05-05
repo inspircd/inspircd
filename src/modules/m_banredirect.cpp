@@ -187,12 +187,14 @@ class ModuleBanRedirect : public Module
 {
 	BanRedirect* re;
 	InspIRCd* Srv;
+	bool nofollow;
 	
  public:
 	ModuleBanRedirect(InspIRCd* Me)
 	: Module::Module(Me), Srv(Me)
 	{
 		re = new BanRedirect(Me);
+		nofollow = false;
 		
 		if(!Srv->AddModeWatcher(re))
 			throw ModuleException("Could not add mode watcher");
@@ -255,6 +257,12 @@ class ModuleBanRedirect : public Module
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
+		/* This prevents recursion when a user sets multiple ban redirects in a chain
+		 * (thanks Potter)
+		 */
+		if (nofollow)
+			return 0;
+
 		/* Return 1 to prevent the join, 0 to allow it */
 		if (chan)
 		{
@@ -285,7 +293,9 @@ class ModuleBanRedirect : public Module
 						else
 						{
 							user->WriteServ("470 %s :You are banned from %s. You are being automatically redirected to %s", user->nick, chan->name, redir->targetchan.c_str());
+							nofollow = true;
 							chanrec::JoinUser(Srv, user, redir->targetchan.c_str(), false, "");
+							nofollow = false;
 							return 1;
 						}
 					}
