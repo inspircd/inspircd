@@ -96,6 +96,8 @@ class TreeSocket : public InspSocket
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	std::string OutboundPass;		/* Outbound password */
 
+	static std::map<std::string, std::string> warned;	/* Server names that have had protocol violation warnings displayed for them */
+
  public:
 
 	/** Because most of the I/O gubbins are encapsulated within

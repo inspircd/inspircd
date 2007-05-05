@@ -1155,11 +1155,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 					userrec* x = Instance->FindNick(prefix);
 					if (x)
 					{
-						Instance->Log(DEFAULT,
-								"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.",
-								params[1].c_str(), x->server);
-						Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' and may cause desyncs.",
-								x->server, x->nick, params[1].c_str());
+						if (warned.find(x->server) == warned.end())
+						{
+							Instance->Log(DEFAULT,"WARNING: I revceived modes '%s' from another server '%s'. This is not compliant with InspIRCd. Please check that server for bugs.", params[1].c_str(), x->server);
+							Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending nonstandard modes: '%s MODE %s' where FMODE should be used, and may cause desyncs.", x->server, x->nick, params[1].c_str());
+							warned[x->server] = x->nick;
+						}
 					}
 				}
 			}
