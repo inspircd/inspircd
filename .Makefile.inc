@@ -195,5 +195,8 @@ modclean:
 
 squeakyclean: distclean
 
-distclean: modclean clean
+configureclean:
+	rm -f .config.cache
+
+distclean: modclean clean configureclean
 
