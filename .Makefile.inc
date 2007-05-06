@@ -197,6 +197,9 @@ squeakyclean: distclean
 
 configureclean:
 	rm -f .config.cache
+	rm src/modules/Makefile
+	rm src/Makefile
+	rm Makefile
 
 distclean: modclean clean configureclean
 
