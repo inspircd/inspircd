@@ -576,6 +576,30 @@ void LoadDatabases(ConfigReader* conf, InspIRCd* ServerInstance)
 	ConnectDatabases(ServerInstance);
 }
 
+char FindCharId(const std::string &id)
+{
+	char i = 1;
+	for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); ++iter, ++i)
+	{
+		if (iter->first == id)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
+ConnMap::iterator GetCharId(char id)
+{
+	char i = 1;
+	for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); ++iter, ++i)
+	{
+		if (i == id)
+			return iter;
+	}
+	return Connections.end();
+}
+
 void NotifyMainThread(SQLConnection* connection_with_new_result)
 {
 	/* Here we write() to the socket the main thread has open
@@ -586,8 +610,16 @@ void NotifyMainThread(SQLConnection* connection_with_new_result)
 	 * thread, we can just use standard connect(), and we can
 	 * block if we like. We just send the connection id of the
 	 * connection back.
+	 *
+	 * NOTE: We only send a single char down the connection, this
+	 * way we know it wont get a partial read at the other end if
+	 * the system is especially congested (see bug #263).
+	 * The function FindCharId translates a connection name into a
+	 * one character id, and GetCharId translates a character id
+	 * back into an iterator.
 	 */
-	send(QueueFD, connection_with_new_result->GetID().c_str(), connection_with_new_result->GetID().length()+1, 0);
+	char id = FindCharId(connection_with_new_result->GetID());
+	send(QueueFD, &id, 1, 0);
 }
 
 void* DispatcherThread(void* arg);
@@ -639,13 +671,17 @@ class Notifier : public InspSocket
 
 	virtual bool OnDataReady()
 	{
-		char* data = this->Read();
-		ConnMap::iterator iter;
-
-		if (data && *data)
+		char data = 0;
+		/* NOTE: Only a single character is read so we know we
+		 * cant get a partial read. (We've been told that theres
+		 * data waiting, so we wont ever get EAGAIN)
+		 * The function GetCharId translates a single character
+		 * back into an iterator.
+		 */
+		if (read(this->GetFd(), &data, 1) > 0)
 		{
-			/* We expect to be sent a null terminated string */
-			if((iter = Connections.find(data)) != Connections.end())
+			ConnMap::iterator iter = GetCharId(data);
+			if (iter != Connections.end())
 			{
 				/* Lock the mutex, send back the data */
 				pthread_mutex_lock(&results_mutex);
@@ -655,8 +691,11 @@ class Notifier : public InspSocket
 				pthread_mutex_unlock(&results_mutex);
 				return true;
 			}
+			/* No error, but unknown id */
+			return true;
 		}
 
+		/* Erk, error on descriptor! */
 		return false;
 	}
 };
