@@ -1060,6 +1060,12 @@ void userrec::FullConnect()
 	if (ServerInstance->unregistered_count)
 		ServerInstance->unregistered_count--;
 
+	/* Trigger LUSERS output, give modules a chance too */
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnPreCommand, OnPreCommand("LUSERS", NULL, 0, this, true, "LUSERS"));
+	if (!MOD_RESULT)
+		ServerInstance->CallCommandHandler("LUSERS", NULL, 0, this);
+
 	/*
 	 * fix 3 by brain, move registered = 7 below these so that spurious modes and host
 	 * changes dont go out onto the network and produce 'fake direction'.
