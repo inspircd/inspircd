@@ -34,6 +34,8 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
+static std::map<std::string, std::string> warned;       /* Server names that have had protocol violation warnings displayed for them */
+
 int TreeSocket::WriteLine(std::string line)
 {
 	Instance->Log(DEBUG, "-> %s", line.c_str());
