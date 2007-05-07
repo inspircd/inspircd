@@ -268,11 +268,8 @@ Sets your name to the specified name.">
 <helpop key="swhois" line="/SWHOIS [nick] [swhois]
 Sets the users swhois field to the given swhois.">
 
-<helpop key="mkpasswd" value="/MKPASSWD [plaintext]
+<helpop key="mkpasswd" value="/MKPASSWD [hashtype] [plaintext]
 Encodes the plaintext to an MD5 hash and displays the result.">
-
-<helpop key="mksha256" value="/MKSHA256 [plaintext]
-Encodes the plaintext to an SHA-256 hash and displays the result.">
 
 <helpop key="opermotd" value="/OPERMOTD
 Re-displays the Oper MOTD.">
