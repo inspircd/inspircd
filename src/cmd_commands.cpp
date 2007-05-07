@@ -24,7 +24,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_commands::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+	for (command_table::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
 		user->WriteServ("902 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
 	}

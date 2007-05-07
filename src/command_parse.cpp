@@ -224,7 +224,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 
 bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, userrec * user)
 {
-	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	command_table::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -245,7 +245,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 
 command_t* CommandParser::GetHandler(const std::string &commandname)
 {
-	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	command_table::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -256,7 +256,7 @@ command_t* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
 {
-	nspace::hash_map<std::string,command_t*>::iterator n = cmdlist.find(commandname);
+	command_table::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -311,7 +311,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 		return;
 	}
 
-	nspace::hash_map<std::string,command_t*>::iterator cm = cmdlist.find(command);
+	command_table::iterator cm = cmdlist.find(command);
 	
 	if (cm != cmdlist.end())
 	{
@@ -383,7 +383,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 
 bool CommandParser::RemoveCommands(const char* source)
 {
-	nspace::hash_map<std::string,command_t*>::iterator i,safei;
+	command_table::iterator i,safei;
 	for (i = cmdlist.begin(); i != cmdlist.end(); i++)
 	{
 		safei = i;
@@ -401,7 +401,7 @@ bool CommandParser::RemoveCommands(const char* source)
 	return true;
 }
 
-void CommandParser::RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source)
+void CommandParser::RemoveCommand(command_table::iterator safei, const char* source)
 {
 	command_t* x = safei->second;
 	if (x->source == std::string(source))

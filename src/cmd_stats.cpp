@@ -157,7 +157,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
-			for (nspace::hash_map<std::string,command_t*>::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+			for (command_table::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 			{
 				if (i->second->use_count)
 				{
