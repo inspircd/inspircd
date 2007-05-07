@@ -661,6 +661,9 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	 */
 	if (TS <= ourTS)
 	{
+		if (TS < ourTS)
+			Instance->Log(DEFAULT,"*** BUG *** Channel TS sent in FMODE to %s is %lu which is not equal to %lu!", params[0].c_str(), TS, ourTS);
+
 		if (smode)
 		{
 			this->Instance->SendMode(modelist, n, who);
