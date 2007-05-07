@@ -706,7 +706,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				userrec* user = this->Instance->FindNick(source);
 				if (!user)
 				{
-					c->WriteChannelWithServ(source.c_str(), "TOPIC %s :%s", c->name, c->topic);
+					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
 				}
 				else
 				{
