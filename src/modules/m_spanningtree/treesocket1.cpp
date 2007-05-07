@@ -744,22 +744,12 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	 * and users, as in InspIRCd 1.0 and ircd2.8. The channels have not been
 	 * re-created during a split, this is safe to do.
 	 *
-	 *
-	 * If the timestamps are NOT equal, the losing side removes all privilage
-	 * modes from all of its users that currently exist in the channel, before
-	 * introducing new users into the channel which are listed in the FJOIN
-	 * command's parameters. This means, all modes +ohv, and privilages added
-	 * by modules, such as +qa. The losing side then LOWERS its timestamp value
-	 * of the channel to match that of the winning side, and the modes of the
-	 * users of the winning side are merged in with the losing side. The loser
-	 * then sends out a set of FMODE commands which 'confirm' that it just
-	 * removed all privilage modes from its existing users, which allows for
-	 * services packages to still work correctly without needing to know the
-	 * timestamping rules which InspIRCd follows. In TS6 servers this is always
-	 * a problem, and services packages must contain code which explicitly
-	 * behaves as TS6 does, removing ops from the losing side of a split where
-	 * neccessary within its internal records, as this state information is
-	 * not explicitly echoed out in that protocol.
+	 * If the timestamps are NOT equal, the losing side removes all of its
+	 * modes from the channel, before introducing new users into the channel
+	 * which are listed in the FJOIN command's parameters. The losing side then
+	 * LOWERS its timestamp value of the channel to match that of the winning
+	 * side, and the modes of the users of the winning side are merged in with
+	 * the losing side.
 	 *
 	 * The winning side on the other hand will ignore all user modes from the
 	 * losing side, so only its own modes get applied. Life is simple for those
@@ -776,31 +766,16 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	char first[MAXBUF];	     /* The first parameter of the mode command */
-	char modestring[MAXBUF];	/* The mode sequence (2nd parameter) of the mode command */
-	char* mode_users[127];	  /* The values used by the mode command */
-	memset(&mode_users,0,sizeof(mode_users));       /* Initialize mode parameters */
-	mode_users[0] = first;	  /* Set this up to be our on-stack value */
-	mode_users[1] = modestring;     /* Same here as above */
-	strcpy(modestring,"+");	 /* Initialize the mode sequence to just '+' */
-	unsigned int modectr = 2;       /* Pointer to the third mode parameter (e.g. the one after the +-sequence) */
-
-	userrec* who = NULL;		    /* User we are currently checking */
+	irc::modestacker modestack(true);	/* Modes to apply from the users in the user list */
+	userrec* who = NULL;		   	/* User we are currently checking */
 	std::string channel = params[0];	/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    /* Timestamp given to us for remote side */
-	std::string nicklist = params[2];
-	bool created = false;
-
-	/* Try and find the channel */
+	irc::tokenstream users(params[2]);	/* Users from the user list */
+	bool created = false;			/* Channel doesnt exist here yet */
+	bool apply_other_sides_modes = true;	/* True if we are accepting the other side's modes */
 	chanrec* chan = this->Instance->FindChan(channel);
-
-	/* Initialize channel name in the mode parameters */
-	strlcpy(mode_users[0],channel.c_str(),MAXBUF);
-
-	/* default TS is a high value, which if we dont have this
-	 * channel will let the other side apply their modes.
-	 */
 	time_t ourTS = Instance->Time(true)+600;
+
 	/* Does this channel exist? if it does, get its REAL timestamp */
 	if (chan)
 		ourTS = chan->age;
@@ -813,31 +788,27 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	params[2] = ":" + params[2];
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
-	/* In 1.1, if they have the newer channel, we immediately clear
-	 * all status modes from our users. We then accept their modes.
-	 * If WE have the newer channel its the other side's job to do this.
-	 * Note that this causes the losing server to send out confirming
-	 * FMODE lines.
-	 */
+	/* If our TS is less than theirs, we dont accept their modes */
+	if (ourTS < TS)
+		apply_other_sides_modes = false;
+
 	if (ourTS > TS)
 	{
+		/* Our TS greater than theirs, clear all our modes from the channel,
+		 * then accept theirs.
+		 */
 		std::deque<std::string> param_list;
-		/* Lower the TS here */
 		if (Utils->AnnounceTSChange && chan)
-			chan->WriteChannelWithServ(Instance->Config->ServerName,
-			"NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, ourTS, TS);
+			chan->WriteChannelWithServ(Instance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, ourTS, TS);
 		ourTS = TS;
-		/* Zap all the privilage modes on our side, if the channel exists here */
 		if (!created)
 		{
-			param_list.push_back(channel);
-			/* Do this first! */
 			chan->age = TS;
+			param_list.push_back(channel);
 			this->RemoveStatus(Instance->Config->ServerName, param_list);
 		}
 	}
-	/* Put the final parameter of the FJOIN into a tokenstream ready to split it */
-	irc::tokenstream users(nicklist);
+
 	std::string item;
 
 	/* Now, process every 'prefixes,nick' pair */
@@ -845,161 +816,75 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		/* Find next user */
 		const char* usr = item.c_str();
-		/* Safety check just to make sure someones not sent us an FJOIN full of spaces
-		 * (is this even possible?) */
+		/* Safety check just to make sure someones not sent us an FJOIN full of spaces or other such craq */
 		if (usr && *usr)
 		{
 			const char* permissions = usr;
-			int ntimes = 0;
-			char* nm = new char[MAXBUF];
-			char* tnm = nm;
-			/* Iterate through all the prefix values, convert them from prefixes
-			 * to mode letters, and append them to the mode sequence
-			 */
-			while ((*permissions) && (*permissions != ',') && (ntimes < MAXBUF))
+			/* Iterate through all the prefix values, convert them from prefixes to mode letters */
+			std::string modes;
+			while ((*permissions) && (*permissions != ','))
 			{
 				ModeHandler* mh = Instance->Modes->FindPrefix(*permissions);
 				if (mh)
-				{
-					/* This is a valid prefix */
-					ntimes++;
-					*tnm++ = mh->GetModeChar();
-				}
+					modes = modes + mh->GetModeChar();
 				else
 				{
-					/* Not a valid prefix...
-					 * danger bill bobbertson! (that's will robinsons older brother ;-) ...)
-					 */
-					this->Instance->WriteOpers("ERROR: We received a user with an unknown prefix '%c'. Closed connection to avoid a desync.",*permissions);
 					this->SendError(std::string("Invalid prefix '")+(*permissions)+"' in FJOIN");
 					return false;
 				}
 				usr++;
 				permissions++;
 			}
-			/* Null terminate modes */
-			*tnm = 0;
 			/* Advance past the comma, to the nick */
 			usr++;
+			
 			/* Check the user actually exists */
 			who = this->Instance->FindNick(usr);
 			if (who)
 			{
-				/* Check that the user's 'direction' is correct
-				 * based on the server sending the FJOIN. We must
-				 * check each nickname in turn, because the origin of
-				 * the FJOIN may be different to the origin of the nicks
-				 * in the command itself.
-				 */
+				/* Check that the user's 'direction' is correct */
 				TreeServer* route_back_again = Utils->BestRouteTo(who->server);
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
-				{
-					/* Oh dear oh dear. */
-					delete[] nm;
 					continue;
-				}
 
-				/* NOTE: Moved this below the fake direction check, so that modes
-				 * arent put into the mode list for users that were collided, and
-				 * may reconnect from the other side or our side before the split
-				 * is completed!
-				 */
+				/* Add any permissions this user had to the mode stack */
+				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
+					modestack.Push(*x, who->nick);
 
-				/* Did they get any modes? How many times? */
-				strlcat(modestring, nm, MAXBUF);
-				for (int k = 0; k < ntimes; k++)
-					mode_users[modectr++] = strdup(usr);
-				/* Free temporary buffer used for mode sequence */
-				delete[] nm;
-
-				/* Finally, we can actually place the user into the channel.
-				 * We're sure its right. Final answer, phone a friend.
-				 */
 				if (created)
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "", TS);
 				else
 					chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "");
-				/* Have we already queued up MAXMODES modes with parameters
-				 * (+qaohv) ready to be sent to the server?
-				 */
-				if (modectr >= (MAXMODES-1))
-				{
-					/* Only actually give the users any status if we lost
-					 * the FJOIN or drew (equal timestamps).
-					 * It isn't actually possible for ourTS to be > TS here,
-					 * only possible to actually have ourTS == TS, or
-					 * ourTS < TS, because if we lost, we already lowered
-					 * our TS above before we entered this loop. We only
-					 * check >= as a safety measure, in case someone stuffed
-					 * up. If someone DID stuff up, it was most likely me.
-					 * Note: I do not like baseball bats in the face...
-					 */
-					if (ourTS >= TS)
-					{
-						this->Instance->SendMode((const char**)mode_users,modectr,who);
-
-						/* Something stuffed up, and for some reason, the timestamp is
-						 * NOT lowered right now and should be. Lower it. Usually this
-						 * code won't be executed, doubtless someone will remove it some
-						 * day soon.
-						 */
-						if (ourTS > TS)
-						{
-							Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
-							chan->age = TS;
-							ourTS = TS;
-						}
-					}
-
-					/* Reset all this back to defaults, and
-					 * free any ram we have left allocated.
-					 */
-					strcpy(mode_users[1],"+");
-					for (unsigned int f = 2; f < modectr; f++)
-						free(mode_users[f]);
-					modectr = 2;
-				}
 			}
 			else
 			{
-				/* Remember to free this */
-				delete[] nm;
-				/* If we got here, there's a nick in FJOIN which doesnt exist on this server.
-				 * We don't try to process the nickname here (that WOULD cause a segfault because
-				 * we'd be playing with null pointers) however, we DO pass the nickname on, just
-				 * in case somehow we're desynched, so that other users which might be able to see
-				 * the nickname get their fair chance to process it.
-				 */
 				Instance->Log(SPARSE,"Warning! Invalid user %s in FJOIN to channel %s IGNORED", usr, channel.c_str());
 				continue;
 			}
 		}
 	}
 
-	/* there werent enough modes built up to flush it during FJOIN,
-	 * or, there are a number left over. flush them out.
-	 */
-	if ((modectr > 2) && (who) && (chan))
+	/* Flush mode stacker if we lost the FJOIN or had equal TS */
+	if (apply_other_sides_modes)
 	{
-		if (ourTS >= TS)
+		std::deque<std::string> stackresult;
+		const char* mode_junk[MAXMODES+1];
+		userrec* n = new userrec(Instance);
+		n->SetFd(FD_MAGIC_NUMBER);
+		mode_junk[0] = channel.c_str();
+
+		while (modestack.GetStackedLine(stackresult))
 		{
-			/* Our channel is newer than theirs. Evil deeds must be afoot. */
-			this->Instance->SendMode((const char**)mode_users,modectr,who);
-			/* Yet again, we can't actually get a true value here, if everything else
-			 * is working as it should.
-			 */
-			if (ourTS > TS)
+			for (size_t j = 0; j < stackresult.size(); j++)
 			{
-				Instance->Log(DEFAULT,"Channel TS for %s changed from %lu to %lu",chan->name,ourTS,TS);
-				chan->age = TS;
-				ourTS = TS;
+				mode_junk[j+1] = stackresult[j].c_str();
 			}
+			Instance->SendMode(mode_junk, stackresult.size() + 1, n);
 		}
 
-		/* Free anything we have left to free */
-		for (unsigned int f = 2; f < modectr; f++)
-			free(mode_users[f]);
+		delete n;
 	}
+
 	/* All done. That wasnt so bad was it, you can wipe
 	 * the sweat from your forehead now. :-)
 	 */
