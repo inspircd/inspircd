@@ -406,5 +406,13 @@ struct cmd_validation
 	size_t length;
 };
 
+/* Used to validate the length values in CAPAB CAPABILITIES */
+struct cap_validation
+{
+	const char* reason;
+	const char* key;
+	size_t size;
+};
+
 #endif
 
