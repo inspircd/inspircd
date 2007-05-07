@@ -166,13 +166,18 @@ int CullList::Apply()
 		if (a->GetUser()->registered == REG_ALL)
 		{
 			if (IS_LOCAL(a->GetUser()))
+			{
 				if (!a->IsSilent())
+				{
 					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+				}
+			}
 			else
 			{
-				if (!ServerInstance->SilentULine(a->GetUser()->server))
-					if (!a->IsSilent())
-						ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+				if ((!ServerInstance->SilentULine(a->GetUser()->server)) && (!a->IsSilent()))
+				{
+					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+				}
 			}
 			a->GetUser()->AddToWhoWas();
 		}
