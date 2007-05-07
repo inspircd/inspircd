@@ -1138,6 +1138,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	char list[MAXBUF];
 	std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
 
+	Instance->Log(DEBUG,"Sending FJOINs for %s", c->name);
+
 	size_t dlen, curlen;
 	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 	int numusers = 0;
@@ -1159,6 +1161,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 
 		if (curlen > (480-NICKMAX))
 		{
+			Instance->Log(DEBUG,"Flushing FJOIN buffer: %s", list);
 			buffer.append(list).append("\r\n");
 			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 			ptr = list + dlen;
@@ -1167,26 +1170,12 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		}
 	}
 
-	if (numusers)
-		buffer.append(list).append("\r\n");
+	Instance->Log(DEBUG,"%d users remaining to be flushed", list);
 
-	/* Sorry for the hax. Because newly created channels assume +nt,
-	 * if this channel doesnt have +nt, explicitly send -n and -t for the missing modes.
-	 */
-	bool inverted = false;
-	if (!c->IsModeSet('n'))
+	if (numusers)
 	{
-		modes.append("-n");
-		inverted = true;
-	}
-	if (!c->IsModeSet('t'))
-	{
-		modes.append("-t");
-		inverted = true;
-	}
-	if (inverted)
-	{
-		modes.append("+");
+		Instance->Log(DEBUG,"Flushing final FJOIN buffer: %s", list);
+		buffer.append(list).append("\r\n");
 	}
 
 	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
@@ -1279,6 +1268,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 	std::deque<std::string> list;
 	std::string n = this->Instance->Config->ServerName;
 	const char* sn = n.c_str();
+	Instance->Log(DEBUG,"Sending channels and modes, %d to send", this->Instance->chanlist->size());
 	for (chan_hash::iterator c = this->Instance->chanlist->begin(); c != this->Instance->chanlist->end(); c++)
 	{
 		SendFJoins(Current, c->second);
