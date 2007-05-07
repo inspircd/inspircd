@@ -766,25 +766,17 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	irc::modestacker modestack(true);	/* Modes to apply from the users in the user list */
-	userrec* who = NULL;		   	/* User we are currently checking */
-	std::string channel = params[0];	/* Channel name, as a string */
-	time_t TS = atoi(params[1].c_str());    /* Timestamp given to us for remote side */
-	irc::tokenstream users(params[2]);	/* Users from the user list */
-	bool created = false;			/* Channel doesnt exist here yet */
-	bool apply_other_sides_modes = true;	/* True if we are accepting the other side's modes */
-	chanrec* chan = this->Instance->FindChan(channel);
-	time_t ourTS = Instance->Time(true)+600;
+	irc::modestacker modestack(true);				/* Modes to apply from the users in the user list */
+	userrec* who = NULL;		   				/* User we are currently checking */
+	std::string channel = params[0];				/* Channel name, as a string */
+	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
+	irc::tokenstream users(params[2]);				/* Users from the user list */
+	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
+	chanrec* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
+	time_t ourTS = chan ? chan->age : Instance->Time(true)+600;	/* The TS of our side of the link */
+	bool created = !chan;						/* True if the channel doesnt exist here yet */
+	std::string item;						/* One item in the list of nicks */
 
-	/* Does this channel exist? if it does, get its REAL timestamp */
-	if (chan)
-		ourTS = chan->age;
-	else
-		created = true; /* don't perform deops, and set TS to correct time after processing. */
-
-	/* do this first, so our mode reversals are correctly received by other servers
-	 * if there is a TS collision.
-	 */
 	params[2] = ":" + params[2];
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
@@ -792,11 +784,9 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (ourTS < TS)
 		apply_other_sides_modes = false;
 
+	/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
 	if (ourTS > TS)
 	{
-		/* Our TS greater than theirs, clear all our modes from the channel,
-		 * then accept theirs.
-		 */
 		std::deque<std::string> param_list;
 		if (Utils->AnnounceTSChange && chan)
 			chan->WriteChannelWithServ(Instance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name, chan->name, ourTS, TS);
@@ -809,14 +799,10 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		}
 	}
 
-	std::string item;
-
 	/* Now, process every 'prefixes,nick' pair */
 	while (users.GetToken(item))
 	{
-		/* Find next user */
 		const char* usr = item.c_str();
-		/* Safety check just to make sure someones not sent us an FJOIN full of spaces or other such craq */
 		if (usr && *usr)
 		{
 			const char* permissions = usr;
@@ -882,9 +868,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		delete n;
 	}
 
-	/* All done. That wasnt so bad was it, you can wipe
-	 * the sweat from your forehead now. :-)
-	 */
 	return true;
 }
 
@@ -900,41 +883,24 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 		return true;
 	}
 
-	time_t age = atoi(params[0].c_str());
+	time_t age = ConvToInt(params[0]);
 	const char* tempnick = params[1].c_str();
 
-	/** Check parameters for validity before introducing the client, discovered by dmb.
-	 * XXX: Can we make this neater?
-	 */
+	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
+
+	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age)
 	{
 		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (Invalid TS?)");
 		return true;
 	}
-	else if (params[1].length() > NICKMAX)
+	for (size_t x = 0; valid[x].length; ++x)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+" > NICKMAX?)");
-		return true;
-	}
-	else if (params[2].length() > 64)
-	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[2]+" > 64?)");
-		return true;
-	}
-	else if (params[3].length() > 64)
-	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[3]+" > 64?)");
-		return true;
-	}
-	else if (params[4].length() > IDENTMAX)
-	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[4]+" > IDENTMAX?)");
-		return true;
-	}
-	else if (params[7].length() > MAXGECOS)
-	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[7]+" > MAXGECOS?)");
-		return true;
+		if (params[valid[x].param].length() > valid[x].length)
+		{
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
+			return true;
+		}
 	}
 
 	/** Our client looks ok, lets introduce it now

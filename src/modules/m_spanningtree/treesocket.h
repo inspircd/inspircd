@@ -398,5 +398,13 @@ class TreeSocket : public InspSocket
 	virtual int OnIncomingConnection(int newsock, char* ip);
 };
 
+/* Used to validate the value lengths of multiple parameters for a command */
+struct cmd_validation
+{
+	const char* item;
+	size_t param;
+	size_t length;
+};
+
 #endif
 
