@@ -43,26 +43,37 @@ class cmd_sapart : public command_t
 				return CMD_FAILURE;
 			}
 
-			if (!channel->PartUser(dest, dest->nick))
-				delete channel;
-			chanrec* n = ServerInstance->FindChan(parameters[1]);
-			if (!n)
+			/* For local clients, directly part them generating a PART message. For remote clients,
+			 * just return CMD_SUCCESS knowing the protocol module will route the SAPART to the users
+			 * local server and that will generate the PART instead
+			 */
+			if (IS_LOCAL(dest))
 			{
-				ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
-				return CMD_SUCCESS;
-			}
-			else
-			{
-				if (!n->HasUser(dest))
+				if (!channel->PartUser(dest, dest->nick))
+					delete channel;
+				chanrec* n = ServerInstance->FindChan(parameters[1]);
+				if (!n)
 				{
 					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else
 				{
-					user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1]);
-					return CMD_FAILURE;
+					if (!n->HasUser(dest))
+					{
+						ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+						return CMD_SUCCESS;
+					}
+					else
+					{
+						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick, dest->nick, parameters[1]);
+						return CMD_FAILURE;
+					}
 				}
+			}
+			else
+			{
+				ServerInstance->WriteOpers("*** "+std::string(user->nick)+" sent remote SAPART to make "+dest->nick+" part "+parameters[1]);
 			}
 
 			return CMD_SUCCESS;

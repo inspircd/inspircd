@@ -49,27 +49,38 @@ class cmd_sajoin : public command_t
 				return CMD_FAILURE;
 			}
 
-			chanrec::JoinUser(ServerInstance, dest, parameters[1], true, "");
-
-			/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propogate */
-			chanrec* n = ServerInstance->FindChan(parameters[1]);
-			if (n)
+			/* For local users, we send the JoinUser which may create a channel and set its TS.
+			 * For non-local users, we just return CMD_SUCCESS, knowing this will propogate it where it needs to be
+			 * and then that server will generate the users JOIN or FJOIN instead.
+			 */
+			if (IS_LOCAL(dest))
 			{
-				if (n->HasUser(dest))
+				chanrec::JoinUser(ServerInstance, dest, parameters[1], true, "", ServerInstance->Time(true));
+				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propogate */
+				chanrec* n = ServerInstance->FindChan(parameters[1]);
+				if (n)
 				{
-					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
-					return CMD_SUCCESS;
+					if (n->HasUser(dest))
+					{
+						ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+						return CMD_SUCCESS;
+					}
+					else
+					{
+						user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+						return CMD_FAILURE;
+					}
 				}
 				else
 				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]);
 					return CMD_FAILURE;
 				}
 			}
 			else
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]);
-				return CMD_FAILURE;
+				ServerInstance->WriteOpers("*** "+std::string(user->nick)+" sent remote SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+				return CMD_SUCCESS;
 			}
 		}
 		else
