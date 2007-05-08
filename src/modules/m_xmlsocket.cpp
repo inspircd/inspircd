@@ -16,27 +16,20 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
 #include "inspircd.h"
 
 /* $ModDesc: Provides XMLSocket support for clients */
 
-
 class ModuleXMLSocket : public Module
 {
-
 	ConfigReader* Conf;
-
 	std::vector<int> listenports;
-	int clientactive;
 
  public:
 
-	InspIRCd* PublicInstance;
-
 	ModuleXMLSocket(InspIRCd* Me)
-		: Module::Module(Me), PublicInstance(Me)
+		: Module::Module(Me)
 	{
 		OnRehash(NULL,"");
 	}
@@ -52,7 +45,6 @@ class ModuleXMLSocket : public Module
 		}
 
 		listenports.clear();
-		clientactive = 0;
 
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
@@ -65,7 +57,6 @@ class ModuleXMLSocket : public Module
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
 				{
-					clientactive++;
 					try
 					{
 						if (ServerInstance->Config->AddIOHook(portno, this))
