@@ -157,7 +157,7 @@ class ModuleXMLSocket : public Module
 
 		/* We want to alter the buffer, so we have to make a copy */
 		char tmpbuffer[count+1];
-		memcpy(&tmpbuffer, &buffer, count);
+		memcpy(tmpbuffer, buffer, count);
 
 		/* XXX: This will actually generate lines "looking\0\0like\0\0this"
 		 * rather than lines "looking\0like\0this". This shouldnt be a problem
