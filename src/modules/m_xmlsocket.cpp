@@ -57,7 +57,7 @@ class ModuleXMLSocket : public Module
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			if (((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "xmlsocket", i) == "yes"))
+			if (((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadFlag("bind", "xmlsocket", i)))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
