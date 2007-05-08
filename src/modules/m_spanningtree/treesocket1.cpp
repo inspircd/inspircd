@@ -957,7 +957,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	bool send = !((this->Utils->quiet_bursts && this->bursting) || (this->Instance->SilentULine(_new->server)));
 	
 	if (send)
-		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString());
+		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
 
 	params[7] = ":" + params[7];
 	Utils->DoOneToAllButSender(source,"NICK", params, source);
