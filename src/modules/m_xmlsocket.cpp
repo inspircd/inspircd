@@ -11,19 +11,12 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
-
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-
 #include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 
-#include "socket.h"
 #include "hashcomp.h"
 #include "inspircd.h"
 
