@@ -44,6 +44,9 @@ bool cmd_who::whomatch(userrec* user, const char* matchtext)
 	if (user->registered != REG_ALL)
 		return false;
 
+	if (opt_local && !IS_LOCAL(user))
+		return false;
+
 	if (opt_mode)
 	{
 		for (const char* n = matchtext; *n; n++)
@@ -174,6 +177,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	opt_metadata = false;
 	opt_port = false;
 	opt_away = false;
+	opt_local = false;
 
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -223,6 +227,9 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				break;
 				case 'a':
 					opt_away = true;
+				break;
+				case 'l':
+					opt_local = true;
 				break;
 			}
 
