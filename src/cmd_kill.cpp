@@ -33,6 +33,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 
 	userrec *u = ServerInstance->FindNick(parameters[0]);
 	char killreason[MAXBUF];
+	char killoperreason[MAXBUF];
 	int MOD_RESULT = 0;
 
 	if (u)
@@ -42,26 +43,45 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		if (MOD_RESULT)
 			return CMD_FAILURE;
 
+		// generate two reasons here, one for users, one for opers. first, the user visible reason, which may change.
+		if (*ServerInstance->Config->HideKillsServer)
+		{
+			// hidekills is on, use it
+			snprintf(killreason, MAXQUIT, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer, parameters[1]);
+		}
+		else
+		{
+			// hidekills is off, do nothing
+			snprintf(killreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1]);
+		}
+
+		// opers are lucky ducks, they always see the real reason
+		snprintf(killoperreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1]);
+
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
 			ServerInstance->SNO->WriteToSnoMask('k',"Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			snprintf(killreason, MAXQUIT,"[%s] Killed (%s (%s))", ServerInstance->Config->ServerName, user->nick, parameters[1]);
-			u->WriteCommonExcept("QUIT :%s", killreason);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
+
+			/*
+			 * IMPORTANT SHIT:
+			 *  There used to be a WriteCommonExcept() of the QUIT here. It seems to be unnecessary with QuitUser() right below, so it's gone.
+			 *  If it explodes painfully, put it back!
+			 */
 
 			userrec::QuitUser(ServerInstance, u, killreason);
 		}
 		else
 		{
 			// local kill
+			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			ServerInstance->Log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
 			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
-			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			snprintf(killreason,MAXQUIT,"Killed (%s (%s))", user->nick, parameters[1]);
-
-			userrec::QuitUser(ServerInstance, u, killreason);
 		}
+
+		// send the quit out
+		userrec::QuitUser(ServerInstance, u, killreason, killoperreason);
 	}
 	else
 	{

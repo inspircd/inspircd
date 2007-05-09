@@ -422,6 +422,10 @@ class ServerConfig : public Extensible
 	 */
 	char HideWhoisServer[MAXBUF];
 
+	/** Set to a non empty string to obfuscate nicknames prepended to a KILL.
+	 */
+	char HideKillsServer[MAXBUF];
+
 	/** A list of IP addresses the server is listening
 	 * on.
 	 */
