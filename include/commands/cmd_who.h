@@ -33,7 +33,7 @@ class cmd_who : public command_t
 	bool opt_realname;
 	bool opt_mode;
  public:
-	cmd_who (InspIRCd* Instance) : command_t(Instance,"WHO",0,1) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohur]"; }
+	cmd_who (InspIRCd* Instance) : command_t(Instance,"WHO",0,1) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurm]"; }
 	void SendWhoLine(userrec* user, const std::string &initial, chanrec* ch, userrec* u, std::vector<std::string> &whoresults);
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
