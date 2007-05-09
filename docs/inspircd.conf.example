@@ -1690,6 +1690,11 @@
 #<module name="m_redirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Registered users only channel creation
+# Allows only registered users and opers to create new channels.
+#<module name="m_regonlycreate.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Remove module: Adds the /REMOVE command which is a peaceful
 # alternative to /KICK
 #<module name="m_remove.so">

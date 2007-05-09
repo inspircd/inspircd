@@ -468,6 +468,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 				{
 					// they didnt answer, boot them
 					ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 pinged out",serv->GetName().c_str());
+					sock->SendError("Ping timeout");
 					sock->Squit(serv,"Ping timeout");
 					ServerInstance->SE->DelFd(sock);
 					sock->Close();

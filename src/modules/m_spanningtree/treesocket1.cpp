@@ -394,8 +394,11 @@ std::string TreeSocket::ListDifference(const std::string &one, const std::string
 
 void TreeSocket::SendError(const std::string &errormessage)
 {
+	/* Display the error locally as well as sending it remotely */
 	this->WriteLine("ERROR :"+errormessage);
 	this->Instance->SNO->WriteToSnoMask('l',"Sent \2ERROR\2 to "+this->InboundServerName+": "+errormessage);
+	/* One last attempt to make sure the error reaches its target */
+	this->FlushWriteBuffer();
 }
 
 bool TreeSocket::Capab(const std::deque<std::string> &params)
@@ -568,11 +571,11 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
-			this->Instance->WriteOpers("Server \002"+Current->GetName()+"\002 split: "+reason);
+			this->Instance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split: "+reason);
 		}
 		else
 		{
-			this->Instance->WriteOpers("Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			this->Instance->SNO->WriteToSnoMask('l',"Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		num_lost_servers = 0;
 		num_lost_users = 0;
@@ -581,12 +584,10 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->Tidy();
 		Current->GetParent()->DelChild(Current);
 		DELETE(Current);
-		this->Instance->WriteOpers("Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
+		this->Instance->SNO->WriteToSnoMask('l',"Netsplit complete, lost \002%d\002 users on \002%d\002 servers.", num_lost_users, num_lost_servers);
 	}
 	else
-	{
 		Instance->Log(DEFAULT,"Squit from unknown server");
-	}
 }
 
 /** FMODE command - server mode with timestamp checks */
