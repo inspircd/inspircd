@@ -81,6 +81,8 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 		return false;
 
 	/* Execute items in fastest-to-execute first order */
+
+	/* Opers see all */
 	if (*user->oper)
 		return true;
 	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
@@ -187,18 +189,27 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	/* who on a channel? */
 	ch = ServerInstance->FindChan(matchtext);
 
-	if ((ch) && (CanView(ch,user)))
+	if (ch)
 	{
-		/* who on a channel. */
-		CUList *cu = ch->GetUsers();
-
-		for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
+		if (CanView(ch,user))
 		{
-			/* opers only, please */
-			if (opt_viewopersonly && !*(i->second)->oper)
-				continue;
-
-			SendWhoLine(user, initial, ch, i->second, whoresults);
+			bool inside = ch->HasUser(user);
+	
+			/* who on a channel. */
+			CUList *cu = ch->GetUsers();
+	
+			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
+			{
+				/* opers only, please */
+				if (opt_viewopersonly && !*(i->second)->oper)
+					continue;
+	
+				/* If we're not inside the channel, hide +i users */
+				if (i->second->IsModeSet('i') && !inside)
+					continue;
+	
+				SendWhoLine(user, initial, ch, i->second, whoresults);
+			}
 		}
 	}
 	else
@@ -214,7 +225,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
-					SendWhoLine(user, initial, NULL, oper, whoresults);
+					if (!oper->IsModeSet('i'))
+						SendWhoLine(user, initial, NULL, oper, whoresults);
 				}
 			}
 		}
@@ -224,7 +236,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost, opt_mode))
 				{
-					SendWhoLine(user, initial, NULL, i->second, whoresults);
+					if (!i->second->IsModeSet('i'))
+						SendWhoLine(user, initial, NULL, i->second, whoresults);
 				}
 			}
 		}
