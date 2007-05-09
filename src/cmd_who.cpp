@@ -243,7 +243,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 	}
 	/* Send the results out */
-	if ((whoresults.size() < (size_t)ServerInstance->Config->MaxWhoResults) && (!opt_unlimit))
+	if ((whoresults.size() <= (size_t)ServerInstance->Config->MaxWhoResults) || opt_unlimit)
 	{
 		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
 			user->WriteServ(*n);
