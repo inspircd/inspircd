@@ -46,6 +46,8 @@ bool cmd_who::whomatch(userrec* user, const char* matchtext)
 
 	if (opt_local && !IS_LOCAL(user))
 		return false;
+	else if (opt_far && IS_LOCAL(user))
+		return false;
 
 	if (opt_mode)
 	{
@@ -178,6 +180,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	opt_port = false;
 	opt_away = false;
 	opt_local = false;
+	opt_far = false;
 
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -230,6 +233,9 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				break;
 				case 'l':
 					opt_local = true;
+				break;
+				case 'f':
+					opt_far = true;
 				break;
 			}
 
