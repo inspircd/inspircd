@@ -246,7 +246,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
 			{
 				/* opers only, please */
-				if (opt_viewopersonly && !*(i->second)->oper)
+				if (opt_viewopersonly && !IS_OPER(i->second))
 					continue;
 	
 				/* If we're not inside the channel, hide +i users */
@@ -270,8 +270,10 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 				if (whomatch(oper, matchtext))
 				{
-					if (!oper->IsModeSet('i'))
-						SendWhoLine(user, initial, NULL, oper, whoresults);
+					if ((!oper->IsModeSet('i')) && (!IS_OPER(user)))
+						continue;
+
+					SendWhoLine(user, initial, NULL, oper, whoresults);
 				}
 			}
 		}
@@ -281,8 +283,10 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (whomatch(i->second, matchtext))
 				{
-					if (!i->second->IsModeSet('i'))
-						SendWhoLine(user, initial, NULL, i->second, whoresults);
+					if ((i->second->IsModeSet('i')) && (!IS_OPER(user)))
+						continue;
+
+					SendWhoLine(user, initial, NULL, i->second, whoresults);
 				}
 			}
 		}
