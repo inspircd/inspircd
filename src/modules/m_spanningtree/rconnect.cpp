@@ -44,7 +44,7 @@ CmdResult cmd_rconnect::Handle (const char** parameters, int pcnt, userrec *user
 {
 	if (IS_LOCAL(user))
 	{
-		if (!Utils->FindServer(parameters[0]))
+		if (!Utils->FindServerMask(parameters[0]))
 		{
 			user->WriteServ("NOTICE %s :*** RCONNECT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
 			return CMD_FAILURE;
