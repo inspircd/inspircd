@@ -112,11 +112,42 @@ given in the command and the channel is either not +t, or
 You are at least a halfoperator, the channel topic will be
 changed to the new one you provide.">
 
-<helpop key="who" value="/WHO [channel|nick|servermask|o 0]
-Looks up the information of users matching the range you
-provide. You may only /WHO nicknames in channels or on servers
-where you share a common channel with them.
-The syntax '/WHO o 0' shows a list of online IRC operators.">
+<helpop key="who" value="/WHO [ [search-pattern] [ohurmaiMplf] ]
+Looks up the information of users matching the range you provide.
+You may only /WHO nicknames in channels or on servers where you
+share a common channel with them, or ones which are not +i (unless
+you are an IRC operator). The search-pattern may be a special
+sequence of characters determined by the flags given below, or
+it may be one of a nickname, a channel, a hostmask, an ip address
+mask or a server mask.
+-
+Valid WHO flags
+--------------- 
+The following flags after the mask have the following affects:
+-
+ o      Show online IRC operators matching the mask
+ u      Unlimit the results past the maximum /who results value
+        (IRC operators only)
+ r      Show all users whos realnames match the mask. When this
+        flag is set it overrides the meaning of the search-pattern,
+        which must contain a glob pattern intended to match GEOCS
+        (realname) fields.
+ h      Show real hostnames rather than masked hostnames (IRC
+        operators only)
+ m      Search for all users with a given set of user modes. When
+        this flag is set it overrides the meaning of the
+        search-pattern, which must contain the mode sequence to
+        search for, for example to find all users with +i and
+        without +s, issue the command WHO +i-s m.
+ a      Show all users who's away message matches the given mask
+ p      Show all users who are connected on the given port number
+ i      Show all users whos ident (username) matches the given mask
+ M      Show all users who have metadata attached to them with
+        the given key name
+ l      Show only local users
+ f      Show only remote (far) users
+-
+You may combine multiple flags in one WHO command except where stated in the table above.">
 
 <helpop key="motd" value="/MOTD [server]
 Show the message of the day for [server]. Messages of the
