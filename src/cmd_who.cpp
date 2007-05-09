@@ -30,11 +30,16 @@ static char *getlastchanname(userrec *u)
 	return "*";
 }
 
-bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_showrealhost, bool opt_mode)
+bool cmd_who::whomatch(userrec* user, const char* matchtext)
 {
 	bool realhost = false;
 	bool realname = false;
 	bool positive = true;
+	bool metadata = false;
+	bool ident = false;
+	bool away = false;
+	bool port = false;
+	char* dummy = NULL;
 
 	if (user->registered != REG_ALL)
 		return false;
@@ -58,14 +63,38 @@ bool whomatch(userrec* user, const char* matchtext, bool opt_realname, bool opt_
 		}
 		return true;
 	}
+	else
+	{
 
-	if (opt_realname)
-		realname = match(user->fullname, matchtext);
-
-	if (opt_showrealhost)
-		realhost = match(user->host, matchtext);
-
-	return ((realname) || (realhost) || (match(user->dhost, matchtext)) || (match(user->nick, matchtext)) || (match(user->server, matchtext)));
+		if (opt_metadata)
+			metadata = user->GetExt(matchtext, dummy);
+		else
+		{
+			if (opt_realname)
+				realname = match(user->fullname, matchtext);
+			else
+			{
+				if (opt_showrealhost)
+					realhost = match(user->host, matchtext);
+				else
+				{
+					if (opt_ident)
+						ident = match(user->ident, matchtext);
+					else
+					{
+						if (opt_port)
+							port = (user->GetPort() == ConvToInt(matchtext));
+						else
+						{
+							if (opt_away)
+								away = match(user->awaymsg, matchtext);
+						}
+					}
+				}
+			}
+		}
+		return ((port) || (away) || (ident) || (metadata) || (realname) || (realhost) || (match(user->dhost, matchtext)) || (match(user->nick, matchtext)) || (match(user->server, matchtext)));
+	}
 }
 
 
@@ -141,6 +170,10 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	opt_unlimit = false;
 	opt_realname = false;
 	opt_mode = false;
+	opt_ident = false;
+	opt_metadata = false;
+	opt_port = false;
+	opt_away = false;
 
 	chanrec *ch = NULL;
 	std::vector<std::string> whoresults;
@@ -178,6 +211,18 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 				break;
 				case 'm':
 					opt_mode = true;
+				break;
+				case 'M':
+					opt_metadata = true;
+				break;
+				case 'i':
+					opt_ident = true;
+				break;
+				case 'p':
+					opt_port = true;
+				break;
+				case 'a':
+					opt_away = true;
 				break;
 			}
 
@@ -223,7 +268,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				userrec* oper = *i;
 
-				if (whomatch(oper, matchtext, opt_realname, opt_showrealhost, opt_mode))
+				if (whomatch(oper, matchtext))
 				{
 					if (!oper->IsModeSet('i'))
 						SendWhoLine(user, initial, NULL, oper, whoresults);
@@ -234,7 +279,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 			{
-				if (whomatch(i->second, matchtext, opt_realname, opt_showrealhost, opt_mode))
+				if (whomatch(i->second, matchtext))
 				{
 					if (!i->second->IsModeSet('i'))
 						SendWhoLine(user, initial, NULL, i->second, whoresults);
