@@ -287,8 +287,9 @@ bool TreeSocket::OperQuit(const std::string &prefix, std::deque<std::string> &pa
 
 	if (u)
 	{
-		Utils->DoOneToAllButSender(prefix,"OPERQUIT",params,prefix);
 		u->SetOperQuit(params[0]);
+		params[0] = ":" + params[0];
+		Utils->DoOneToAllButSender(prefix,"OPERQUIT",params,prefix);
 	}
 	return true;
 }
