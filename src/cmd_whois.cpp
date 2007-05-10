@@ -108,8 +108,11 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		/*
 		 * Determine whether to show idletime. We show it if:
-		 * If user is local and hidewhois is turned off, or pcnt > 1 (remote whois),
-		 * and param[0] == param[1]. -- w00t
+		 * If user is local and hidewhois is turned off, or
+		 * param[0] == param[1].
+		 *
+		 * The assumption here (not a huge one) is that cmd_whois is only ever invoked
+		 * remotely! Keep that in mind! -- w00t
 		 */
 		if ((IS_LOCAL(dest) && !*ServerInstance->Config->HideWhoisServer) || pcnt > 1)
 		{
@@ -120,9 +123,9 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 				 * this stops things like /whois foo bar to get foo's
 				 * idletime without a proper remote request. -- w00t
 				 */
-
 				if (!strcmp(parameters[0], parameters[1]))
 				{
+					/* this really is safe, we're only called for local users .. */
 					idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
 					signon = dest->signon;
 				}
