@@ -90,6 +90,7 @@ class ModuleNamesX : public Module
 					continue;
 
 				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->first), i->second.c_str());
+				i->second = i->first->nick;
 				curlen += ptrlen;
 				ptr += ptrlen;
 				numusers++;
