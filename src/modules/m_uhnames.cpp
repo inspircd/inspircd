@@ -80,8 +80,8 @@ class ModuleUHNames : public Module
 		{
 			nl.clear();
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-				nl[i->second->GetFullHost()] = i->second;
-			nameslist = &nl;
+				nl[i->first] = i->first->GetFullHost();
+			ulist = &nl;
 		}
 		return 0;		
  	}
