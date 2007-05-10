@@ -123,7 +123,7 @@ class ModuleSWhois : public Module
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if (extname == "swhois")

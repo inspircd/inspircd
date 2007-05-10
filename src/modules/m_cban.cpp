@@ -172,7 +172,7 @@ class ModuleCBan : public Module
 		return 0;
 	}
 	
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque)
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
 	{
 		for(cbanlist::iterator iter = cbans.begin(); iter != cbans.end(); iter++)
 		{

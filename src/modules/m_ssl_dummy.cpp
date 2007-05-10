@@ -52,7 +52,7 @@ class ModuleSSLDummy : public Module
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if(extname == "ssl")
@@ -62,7 +62,7 @@ class ModuleSSLDummy : public Module
 			{
 				// call this function in the linking module, let it format the data how it
 				// sees fit, and send it on its way. We dont need or want to know how.
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, "ON");
+				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, displayable ? "Enabled" : "ON");
 			}
 		}
 	}

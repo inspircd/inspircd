@@ -209,7 +209,7 @@ public:
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname)
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		if((extname == "cgiirc_realhost") || (extname == "cgiirc_realip"))
 		{

@@ -75,7 +75,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11021
+#define NATIVE_API_VERSION 11022
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -791,8 +791,10 @@ class Module : public Extensible
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param extname The extensions name which is being searched for
+	 * @param displayable If this value is true, the data is going to be displayed to a user,
+	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname);
+	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
 
 	/* Allows modules to syncronize metadata related to users over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -804,8 +806,10 @@ class Module : public Extensible
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param extname The extensions name which is being searched for
+	 * @param displayable If this value is true, the data is going to be displayed to a user,
+	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname);
+	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
 
 	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -815,8 +819,10 @@ class Module : public Extensible
 	 * if it belongs to your module.
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 * @param displayable If this value is true, the data is going to be displayed to a user,
+	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.

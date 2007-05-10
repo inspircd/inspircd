@@ -164,9 +164,9 @@ void		Module::OnGetServerDescription(const std::string &servername,std::string &
 void		Module::OnSyncUser(userrec* user, Module* proto, void* opaque) { };
 void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { };
 void		Module::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline) { };
-void		Module::OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname) { };
-void		Module::OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname) { };
-void		Module::OnSyncOtherMetaData(Module* proto, void* opaque) { };
+void		Module::OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname, bool displayable) { };
+void		Module::OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable) { };
+void		Module::OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable) { };
 void		Module::OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata) { };
 void		Module::ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata) { };
 void		Module::OnWallops(userrec* user, const std::string &text) { };

@@ -54,7 +54,7 @@ class FilterBase : public Module
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque);
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual int OnStats(char symbol, userrec* user, string_list &results) = 0;
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
@@ -343,7 +343,7 @@ FilterResult FilterBase::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void FilterBase::OnSyncOtherMetaData(Module* proto, void* opaque)
+void FilterBase::OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
 {
 	this->SyncFilters(proto, opaque);
 }

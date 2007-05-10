@@ -194,7 +194,7 @@ class ModuleSVSHold : public Module
 		return 0;
 	}
 	
-	virtual void OnSyncOtherMetaData(Module* proto, void* opaque)
+	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable)
 	{
 		for(SVSHoldMap::iterator iter = HoldMap.begin(); iter != HoldMap.end(); iter++)
 		{
