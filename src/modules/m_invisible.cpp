@@ -98,11 +98,11 @@ class InvisibleMode : public ModeHandler
 				for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 				{
 					/* User only appears to vanish for non-opers */
-					if (IS_LOCAL(i->second) && !IS_OPER(i->second))
+					if (IS_LOCAL(i->first) && !IS_OPER(i->first))
 					{
-						i->second->Write(out);
+						i->first->Write(out);
 						if (!n.empty() && !adding)
-							i->second->WriteServ("MODE %s +%s", f->first->name, n.c_str());
+							i->first->WriteServ("MODE %s +%s", f->first->name, n.c_str());
 					}
 				}
 

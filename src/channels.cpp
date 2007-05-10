@@ -83,7 +83,7 @@ long chanrec::GetUserCounter()
 
 void chanrec::AddUser(userrec* user)
 {
-	internal_userlist[user] = user;
+	internal_userlist[user] = user->nick;
 }
 
 unsigned long chanrec::DelUser(userrec* user)
@@ -109,7 +109,7 @@ bool chanrec::HasUser(userrec* user)
 
 void chanrec::AddOppedUser(userrec* user)
 {
-	internal_op_userlist[user] = user;
+	internal_op_userlist[user] = user->nick;
 }
 
 void chanrec::DelOppedUser(userrec* user)
@@ -124,7 +124,7 @@ void chanrec::DelOppedUser(userrec* user)
 
 void chanrec::AddHalfoppedUser(userrec* user)
 {
-	internal_halfop_userlist[user] = user;
+	internal_halfop_userlist[user] = user->nick;
 }
 
 void chanrec::DelHalfoppedUser(userrec* user)
@@ -139,7 +139,7 @@ void chanrec::DelHalfoppedUser(userrec* user)
 
 void chanrec::AddVoicedUser(userrec* user)
 {
-	internal_voice_userlist[user] = user;
+	internal_voice_userlist[user] = user->nick;
 }
 
 void chanrec::DelVoicedUser(userrec* user)
@@ -622,8 +622,8 @@ void chanrec::WriteChannel(userrec* user, const std::string &text)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (IS_LOCAL(i->second))
-			i->second->Write(out);
+		if (IS_LOCAL(i->first))
+			i->first->Write(out);
 	}
 }
 
@@ -652,8 +652,8 @@ void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (IS_LOCAL(i->second))
-			i->second->Write(out);
+		if (IS_LOCAL(i->first))
+			i->first->Write(out);
 	}
 }
 
@@ -715,12 +715,12 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((IS_LOCAL(i->second)) && (except_list.find(i->second) == except_list.end()))
+		if ((IS_LOCAL(i->first)) && (except_list.find(i->first) == except_list.end()))
 		{
 			if (serversource)
-				i->second->WriteServ(text);
+				i->first->WriteServ(text);
 			else
-				i->second->Write(out);
+				i->first->Write(out);
 		}
 	}
 }
@@ -728,7 +728,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text)
 {
 	CUList except_list;
-	except_list[user] = user;
+	except_list[user] = user->nick;
 	this->WriteAllExcept(user, serversource, status, except_list, std::string(text));
 }
 
@@ -742,7 +742,7 @@ int chanrec::CountInvisible()
 	CUList *ulist= this->GetUsers();
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if (!(i->second->modes[UM_INVISIBLE]))
+		if (!(i->first->IsModeSet('i')))
 			count++;
 	}
 
@@ -831,7 +831,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
+		if ((!has_user) && (i->first->modes[UM_INVISIBLE]))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show
@@ -840,10 +840,10 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 			continue;
 		}
 
-		if (i->second->Visibility && !i->second->Visibility->VisibleTo(user))
+		if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 			continue;
 
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->second), i->second->nick);
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", this->GetPrefixChar(i->first), i->second.c_str());
 
 		curlen += ptrlen;
 		ptr += ptrlen;

@@ -107,7 +107,7 @@ class ModuleAuditorium : public Module
 
 				/* Show all the opped users */
 				nl = *(Ptr->GetOppedUsers());
-				nl[user] = user;
+				nl[user] = user->nick;
 				nameslist = &nl;
 				return 0;
 			}

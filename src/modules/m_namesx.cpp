@@ -83,13 +83,13 @@ class ModuleNamesX : public Module
 			bool has_user = Ptr->HasUser(user);
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((!has_user) && (i->second->modes[UM_INVISIBLE]))
+				if ((!has_user) && (i->first->IsModeSet('i')))
 					continue;
 
-				if (i->second->Visibility && !i->second->Visibility->VisibleTo(user))
+				if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 					continue;
 
-				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->second), i->second->nick);
+				size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", Ptr->GetAllPrefixChars(i->first), i->second.c_str());
 				curlen += ptrlen;
 				ptr += ptrlen;
 				numusers++;

@@ -259,14 +259,14 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
 			{
 				/* opers only, please */
-				if (opt_viewopersonly && !IS_OPER(i->second))
+				if (opt_viewopersonly && !IS_OPER(i->first))
 					continue;
 	
 				/* If we're not inside the channel, hide +i users */
-				if (i->second->IsModeSet('i') && !inside)
+				if (i->first->IsModeSet('i') && !inside)
 					continue;
 	
-				SendWhoLine(user, initial, ch, i->second, whoresults);
+				SendWhoLine(user, initial, ch, i->first, whoresults);
 			}
 		}
 	}

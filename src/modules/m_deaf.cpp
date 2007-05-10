@@ -95,11 +95,11 @@ class ModuleDeaf : public Module
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (IS_LOCAL(i->second))
+			if (IS_LOCAL(i->first))
 			{
-				if (i->second->IsModeSet('d'))
+				if (i->first->IsModeSet('d'))
 				{
-					exempt_list[i->second] = i->second;
+					exempt_list[i->first] = i->first->nick;
 				}
 			}
 		}

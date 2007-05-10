@@ -289,11 +289,11 @@ class ModuleSilence : public Module
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (IS_LOCAL(i->second))
+			if (IS_LOCAL(i->first))
 			{
-				if (MatchPattern(i->second, sender, public_silence) == 1)
+				if (MatchPattern(i->first, sender, public_silence) == 1)
 				{
-					exempt_list[i->second] = i->second;
+					exempt_list[i->first] = i->first->nick;
 				}
 			}
 		}

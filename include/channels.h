@@ -69,7 +69,7 @@ typedef std::vector<BanItem> 	BanList;
 
 /** A list of users on a channel
  */
-typedef std::map<userrec*,userrec*> CUList;
+typedef std::map<userrec*,std::string> CUList;
 
 /** Shorthand for CUList::iterator
  */

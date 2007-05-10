@@ -119,7 +119,7 @@ class cmd_check : public command_t
 				/*
 				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 				 */
-				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", i->second->GlobalCloneCount(), targchan->GetAllPrefixChars(i->second), i->second->nick, i->second->ident, i->second->dhost, i->second->fullname);
+				snprintf(tmpbuf, MAXBUF, "%lu    %s%s (%s@%s) %s ", i->first->GlobalCloneCount(), targchan->GetAllPrefixChars(i->first), i->first->nick, i->first->ident, i->first->dhost, i->first->fullname);
 				user->WriteServ(checkstr + " member " + tmpbuf);
 			}
 		}

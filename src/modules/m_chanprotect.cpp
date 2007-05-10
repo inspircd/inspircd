@@ -88,9 +88,9 @@ class FounderProtectBase
 		std::deque<std::string> stackresult;				
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (i->second->GetExt(item, dummyptr))
+			if (i->first->GetExt(item, dummyptr))
 			{
-				modestack.Push(mc, i->second->nick);
+				modestack.Push(mc, i->first->nick);
 			}
 		}
 
@@ -113,9 +113,9 @@ class FounderProtectBase
 		std::string item = extend+std::string(channel->name);
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
-			if (i->second->GetExt(item, dummyptr))
+			if (i->first->GetExt(item, dummyptr))
 			{
-				user->WriteServ("%d %s %s %s", list, user->nick, channel->name,i->second->nick);
+				user->WriteServ("%d %s %s %s", list, user->nick, channel->name,i->first->nick);
 			}
 		}
 		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick, channel->name, type.c_str());
@@ -508,13 +508,13 @@ class ModuleChanProtect : public Module
 			std::deque<std::string> stackresult;
 			for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 			{
-				if (i->second->GetExt(founder,dummyptr))
+				if (i->first->GetExt(founder,dummyptr))
 				{
-					modestack.Push('q',i->second->nick);
+					modestack.Push('q',i->first->nick);
 				}
-				if (i->second->GetExt(protect,dummyptr))
+				if (i->first->GetExt(protect,dummyptr))
 				{
-					modestack.Push('a',i->second->nick);
+					modestack.Push('a',i->first->nick);
 				}
 			}
 			while (modestack.GetStackedLine(stackresult))

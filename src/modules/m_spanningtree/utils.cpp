@@ -208,9 +208,9 @@ void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, TreeServerLis
 	}
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((i->second->GetFd() < 0) && (exempt_list.find(i->second) == exempt_list.end()))
+		if ((i->first->GetFd() < 0) && (exempt_list.find(i->first) == exempt_list.end()))
 		{
-			TreeServer* best = this->BestRouteTo(i->second->server);
+			TreeServer* best = this->BestRouteTo(i->first->server);
 			if (best)
 				AddThisServer(best,list);
 		}

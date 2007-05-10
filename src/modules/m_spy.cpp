@@ -39,7 +39,7 @@ void spy_userlist(userrec *user, chanrec *c)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", c->GetPrefixChar(i->second), i->second->nick);
+		size_t ptrlen = snprintf(ptr, MAXBUF, "%s%s ", c->GetPrefixChar(i->first), i->first->nick);
 
 		curlen += ptrlen;
 		ptr += ptrlen;

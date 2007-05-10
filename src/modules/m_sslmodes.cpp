@@ -38,7 +38,7 @@ class SSLMode : public ModeHandler
 					CUList* userlist = channel->GetUsers();
 					for(CUList::iterator i = userlist->begin(); i != userlist->end(); i++)
 					{
-						if(!i->second->GetExt("ssl", dummy))
+						if(!i->first->GetExt("ssl", dummy))
 						{
 							source->WriteServ("490 %s %s :all members of the channel must be connected via SSL", source->nick, channel->name);
 							return MODEACTION_DENY;

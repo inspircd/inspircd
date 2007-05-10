@@ -62,7 +62,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chan = ServerInstance->FindChan(parameters[0]);
 
-		exempt_list[user] = user;
+		exempt_list[user] = user->nick;
 
 		if (chan)
 		{

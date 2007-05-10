@@ -55,13 +55,13 @@ void ModeChannelVoice::RemoveMode(chanrec* channel)
 
 	for (CUList::iterator i = list->begin(); i != list->end(); i++)
 	{
-		userrec* n = i->second;
-		copy.insert(std::make_pair(n,n));
+		userrec* n = i->first;
+		copy.insert(std::make_pair(n,n->nick));
 	}
 	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
 		sprintf(moderemove,"-%c",this->GetModeChar());
-		const char* parameters[] = { channel->name, moderemove, i->second->nick };
+		const char* parameters[] = { channel->name, moderemove, i->first->nick };
 		ServerInstance->SendMode(parameters, 3, n);
 	}
 	delete n;

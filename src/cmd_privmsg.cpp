@@ -64,7 +64,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		chan = ServerInstance->FindChan(parameters[0]);
 
-		except_list[user] = user;
+		except_list[user] = user->nick;
 
 		if (chan)
 		{

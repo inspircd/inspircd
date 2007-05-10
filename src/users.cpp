@@ -1474,10 +1474,10 @@ void userrec::WriteCommon(const std::string &text)
 			CUList* ulist = v->first->GetUsers();
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 			{
-				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 				{
-					already_sent[i->second->fd] = uniq_id;
-					i->second->Write(out);
+					already_sent[i->first->fd] = uniq_id;
+					i->first->Write(out);
 					sent_to_at_least_one = true;
 				}
 			}
@@ -1535,12 +1535,12 @@ void userrec::WriteCommonQuit(const std::string &normal_text, const std::string 
 		CUList *ulist = v->first->GetUsers();
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (this != i->second)
+			if (this != i->first)
 			{
-				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 				{
-					already_sent[i->second->fd] = uniq_id;
-					i->second->Write(*i->second->oper ? out2 : out1);
+					already_sent[i->first->fd] = uniq_id;
+					i->first->Write(IS_OPER(i->first) ? out2 : out1);
 				}
 			}
 		}
@@ -1564,12 +1564,12 @@ void userrec::WriteCommonExcept(const std::string &text)
 		CUList *ulist = v->first->GetUsers();
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (this != i->second)
+			if (this != i->first)
 			{
-				if ((IS_LOCAL(i->second)) && (already_sent[i->second->fd] != uniq_id))
+				if ((IS_LOCAL(i->first)) && (already_sent[i->first->fd] != uniq_id))
 				{
-					already_sent[i->second->fd] = uniq_id;
-					i->second->Write(out1);
+					already_sent[i->first->fd] = uniq_id;
+					i->first->Write(out1);
 				}
 			}
 		}

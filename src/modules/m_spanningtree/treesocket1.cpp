@@ -999,7 +999,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
 		// The first parameter gets a : before it
-		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", c->GetAllPrefixChars(i->second), i->second->nick);
+		size_t ptrlen = snprintf(ptr, MAXBUF, " %s%s,%s", !numusers ? ":" : "", c->GetAllPrefixChars(i->first), i->first->nick);
 
 		curlen += ptrlen;
 		ptr += ptrlen;
