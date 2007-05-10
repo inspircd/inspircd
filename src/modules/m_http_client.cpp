@@ -54,18 +54,15 @@ class HTTPResolver : public Resolver
  public:
 	HTTPResolver(HTTPSocket *socket, InspIRCd *Instance, const string &hostname, bool &cached, Module* me) : Resolver(Instance, hostname, DNS_QUERY_FORWARD, cached, me), socket(socket)
 	{
-		ServerInstance->Log(DEBUG,"Resolving "+hostname);
 	}
 	
 	void OnLookupComplete(const string &result, unsigned int ttl, bool cached)
 	{
-		ServerInstance->Log(DEBUG,"Resolver done");
 		socket->Connect(result);
 	}
 	
 	void OnError(ResolverError e, const string &errmsg)
 	{
-		ServerInstance->Log(DEBUG,"Resolver error");
 		delete socket;
 	}
 };
@@ -140,13 +137,8 @@ bool HTTPSocket::DoRequest(HTTPClientRequest *req)
 	 */
 	this->req = *req;
 
-	Instance->Log(DEBUG,"Request in progress");
-
 	if (!ParseURL(this->req.GetURL()))
-	{
-		Instance->Log(DEBUG,"Parse failed");
 		return false;
-	}
 	
 	this->port = url.port;
 	strlcpy(this->host, url.domain.c_str(), MAXBUF);
