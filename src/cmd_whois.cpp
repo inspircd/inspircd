@@ -107,29 +107,17 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	if (dest)
 	{
 		/*
-		 * Determine whether to show idletime. We show it if:
-		 * If user is local and hidewhois is turned off, or
-		 * param[0] == param[1].
+		 * Determine whether to show idletime. We show it if hidewhois is turned off.
+		 * spanningtree deals with 2 param whois, and remote users, so this is all we need to do.
 		 *
 		 * The assumption here (not a huge one) is that cmd_whois is only ever invoked
 		 * remotely! Keep that in mind! -- w00t
 		 */
-		if ((IS_LOCAL(dest) && !*ServerInstance->Config->HideWhoisServer) || pcnt > 1)
+		if (!*ServerInstance->Config->HideWhoisServer)
 		{
-			if (pcnt > 1)
-			{
-				/*
-				 * if it looks like a remote whois, make sure it is one.
-				 * this stops things like /whois foo bar to get foo's
-				 * idletime without a proper remote request. -- w00t
-				 */
-				if (!strcmp(parameters[0], parameters[1]))
-				{
-					/* this really is safe, we're only called for local users .. */
-					idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
-					signon = dest->signon;
-				}
-			}
+			/* this really is safe, we're only called for local users .. */
+			idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
+			signon = dest->signon;
 		}
 
 		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[0]);
