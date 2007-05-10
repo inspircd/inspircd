@@ -116,8 +116,11 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!*ServerInstance->Config->HideWhoisServer)
 		{
 			/* this really is safe, we're only called for local users .. */
-			idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
-			signon = dest->signon;
+			if (IS_LOCAL(dest))
+			{
+				idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
+				signon = dest->signon;
+			}
 		}
 
 		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[0]);
