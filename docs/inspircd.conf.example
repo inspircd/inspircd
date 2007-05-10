@@ -1980,6 +1980,15 @@
 #<module name="m_tline.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# UHNAMES support module: Adds support for the IRCX style UHNAMES
+# extension, which displays ident and hostname in the names list for
+# each user, saving clients from doing a WHO on the channel. Note that
+# this module is not widely supported yet. If a client does not support
+# UHNAMES it will not enable it, this will not break incompatible
+# clients.
+#<module name="m_uhnames.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Uninvite module: Adds the /UNINVITE command which lets users remove
 # pending invites from channels without waiting for the user to join.
 #<module name="m_uninvite.so">
