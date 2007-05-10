@@ -456,6 +456,8 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 	TreeServer* ServerSource = Utils->FindServer(prefix);
 	if (ServerSource)
 	{
+		Utils->SetRemoteBursting(ServerSource, false);
+
 		if (params[0] == "*")
 		{
 			FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_OTHER,NULL,params[1],params[2]));
@@ -817,6 +819,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 	ParentOfThis->AddChild(Node);
 	params[3] = ":" + params[3];
+	Utils->SetRemoteBursting(Node, true);
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 	this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return true;
@@ -1186,6 +1189,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "FJOIN")
 			{
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
 				return this->ForceJoin(prefix,params);
 			}
 			else if (command == "STATS")
@@ -1218,6 +1224,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "FMODE")
 			{
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
 				return this->ForceMode(prefix,params);
 			}
 			else if (command == "KILL")
@@ -1247,6 +1256,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * This can't be right, so set them to not bursting, and
 				 * apply their lines.
 				 */
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
+
 				if (this->bursting)
 				{
 					this->bursting = false;
@@ -1266,6 +1279,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * This can't be right, so set them to not bursting, and
 				 * apply their lines.
 				 */
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
+
 				if (this->bursting)
 				{
 					this->bursting = false;
@@ -1292,6 +1309,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "ADDLINE")
 			{
+				TreeServer* ServerSource = Utils->FindServer(prefix);
+				if (ServerSource)
+					Utils->SetRemoteBursting(ServerSource, false);
 				return this->AddLine(prefix,params);
 			}
 			else if (command == "SVSNICK")

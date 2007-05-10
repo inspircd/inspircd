@@ -51,6 +51,9 @@ class SpanningTreeUtilities
 	/** Creator module
 	 */
 	ModuleSpanningTree* Creator;
+	/** Remote servers that are currently bursting
+	 */
+	server_hash RemoteServersBursting;
 	/** Flatten links and /MAP for non-opers
 	 */
 	bool FlatLinks;
@@ -148,6 +151,12 @@ class SpanningTreeUtilities
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
+	/** Find a remote bursting server by name
+	 */
+	TreeServer* FindRemoteBurstServer(TreeServer* Server);
+	/** Set a remote server to bursting or not bursting
+	 */
+	void SetRemoteBursting(TreeServer* Server, bool bursting);
 	/** Find a route to a server by name
 	 */
 	TreeServer* BestRouteTo(const std::string &ServerName);

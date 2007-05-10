@@ -889,6 +889,13 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 
 	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
 
+	TreeServer* remoteserver = Utils->FindServer(source);
+	if (!remoteserver)
+	{
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (Unknown server "+source+")");
+		return true;
+	}
+
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age)
 	{
@@ -955,7 +962,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 
 	Instance->AddGlobalClone(_new);
 
-	bool send = !((this->Utils->quiet_bursts && this->bursting) || (this->Instance->SilentULine(_new->server)));
+	bool send = !(((this->Utils->quiet_bursts) && (this->bursting || Utils->FindRemoteBurstServer(remoteserver))) || (this->Instance->SilentULine(_new->server)));
 	
 	if (send)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
