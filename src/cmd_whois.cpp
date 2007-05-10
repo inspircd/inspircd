@@ -34,7 +34,9 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		{
 			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick, dest->nick, dest->ident, dest->host, dest->GetIPString());
 		}
+
 		std::string cl = dest->ChannelList(user);
+
 		if (cl.length())
 		{
 			if (cl.length() > 400)
@@ -54,10 +56,12 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 		{
 			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
 		}
+
 		if (*dest->awaymsg)
 		{
 			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
+
 		if (*dest->oper)
 		{
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
@@ -65,23 +69,15 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 
 		FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
 
-		if (!strcasecmp(user->server,dest->server))
+		/*
+		 * We only send these if we've been provided them. That is, if hidewhois is turned off, and user is local, or
+		 * if remote whois is queried, too. This is to keep the user hidden, and also since you can't reliably tell remote time. -- w00t
+		 */
+		if ((idle) || (signon))
 		{
-			// the user is on the same server as us, so we already know their idle time.
-			// check we're not hiding whois, though, as otherwise we give away what server they are on.
-			if (!*ServerInstance->Config->HideWhoisServer)
-			{
-				ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
-			}
+			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
 		}
-		else
-		{
-			if ((idle) || (signon))
-			{
-				// if we get here, m_spanningtree has called us, so it's remote
-				ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
-			}
-		}
+
 		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
 	else
@@ -101,6 +97,8 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
+	unsigned long idle = 0, signon = 0;
+
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
 
@@ -108,7 +106,30 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 
 	if (dest)
 	{
-		do_whois(this->ServerInstance, user,dest,0,0,parameters[0]);
+		/*
+		 * Determine whether to show idletime. We show it if:
+		 * If user is local and hidewhois is turned off, or pcnt > 1 (remote whois),
+		 * and param[0] == param[1]. -- w00t
+		 */
+		if ((IS_LOCAL(dest) && !*ServerInstance->Config->HideWhoisServer) || pcnt > 1)
+		{
+			if (pcnt > 1)
+			{
+				/*
+				 * if it looks like a remote whois, make sure it is one.
+				 * this stops things like /whois foo bar to get foo's
+				 * idletime without a proper remote request. -- w00t
+				 */
+
+				if (!strcmp(parameters[0], parameters[1]))
+				{
+					idle = abs((dest->idle_lastmsg)-ServerInstance->Time());
+					signon = dest->signon;
+				}
+			}
+		}
+
+		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[0]);
 	}
 	else
 	{
