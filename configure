@@ -25,6 +25,7 @@ use Getopt::Long;
 use make::utilities;
 use make::configure;
 use make::gnutlscert;
+use make::opensslcert;
 
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
@@ -744,8 +745,7 @@ if ($config{USE_GNUTLS} eq "y") {
 * Generating the certificates may take some time, go grab a *
 * coffee, or something.                                     *
 *************************************************************\n\n";
-			system("openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem");
-			system("openssl dhparam -out dhparams.pem 1024");
+			make_openssl_cert();
 			print "\nCertificate generation complete, copying to config directory... ";
 			system("mv key.pem $config{CONFIG_DIR}/key.pem");
 			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
