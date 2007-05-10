@@ -102,7 +102,19 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
 
-	dest = ServerInstance->FindNick(parameters[0]);
+
+	/*
+	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
+	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
+	 */
+	if (pcnt > 1)
+	{
+		dest = ServerInstance->FindNick(parameters[1]);
+	}
+	else
+	{
+		dest = ServerInstance->FindNick(parameters[0]);
+	}
 
 	if (dest)
 	{
