@@ -107,13 +107,14 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	if (dest)
 	{
 		/*
-		 * Determine whether to show idletime. We show it if hidewhois is turned off.
-		 * spanningtree deals with 2 param whois, and remote users, so this is all we need to do.
-		 *
-		 * The assumption here (not a huge one) is that cmd_whois is only ever invoked
-		 * remotely! Keep that in mind! -- w00t
+		 * Okay. Umpteenth attempt at doing this, so let's re-comment...
+		 * For local users (/w localuser), we show idletime if hidewhois is disabled
+		 * For local users (/w localuser localuser), we always show idletime, hence pcnt > 1 check.
+		 * For remote users (/w remoteuser), we do NOT show idletime
+		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
+		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
 		 */
-		if (!*ServerInstance->Config->HideWhoisServer)
+		if (IS_LOCAL(dest) && (!*ServerInstance->Config->HideWhoisServer || pcnt > 1))
 		{
 			/* this really is safe, we're only called for local users .. */
 			if (IS_LOCAL(dest))
