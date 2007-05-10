@@ -41,6 +41,7 @@ CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :        typobox43   Jazza", user->nick);
 	user->WriteServ( "371 %s :        jamie       LeaChim", user->nick);
 	user->WriteServ( "371 %s :        satmd       nenolod", user->nick);
+	user->WriteServ( "371 %s :        HiroP", user->nick);
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :\2Quality Assurance\2:", user->nick);
 	user->WriteServ( "371 %s :        Bricker     owine", user->nick);
