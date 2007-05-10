@@ -234,7 +234,7 @@ SETIDLE    SETHOST     SETNAME      SETIDENT       SWHOIS
 OPERMOTD   CHGHOST     CHGNAME      CHGIDENT       CBAN
 NICKLOCK   NICKUNLOCK  LOADMODULE   UNLOADMODULE   GLOBOPS
 SPYLIST    SPYNAMES    GLOADMODULE  GUNLOADMODULE  MKSHA256
-PARKSTATS  FREEZE      UNFREEZE     OPERPERMS      RCONNECT">
+FREEZE     UNFREEZE    OPERPERMS    RCONNECT">
 
 <helpop key="rconnect" value="/RCONNECT [source mask] [target mask]
 All servers matching [source mask] will try to connect to
@@ -249,9 +249,6 @@ User is also notified they have been frozen.">
 
 <helpop key="unfreeze" value="/UNFREEZE [nick]
 Unfreezes a user frozen by the /FREEZE command.">
-
-<helpop key="parkstats" value="/PARKSTATS
-Displays the park module's statistics">
 
 <helpop key="spylist" value="/SPYLIST
 Operates the same as /LIST but includes +s and +p channels.">
