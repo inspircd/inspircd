@@ -313,10 +313,7 @@ bool HTTPSocket::OnDataReady()
 				this->buffer = "";
 				break;
 			}
-//		while ((line = buffer.sstrstr(data, "\r\n")) != NULL)
-//		{
-//			if (strncmp(data, "\r\n", 2) == 0)
-			
+
 			if (this->status == HTTP_REQSENT)
 			{
 				// HTTP reply (HTTP/1.1 200 msg)
@@ -329,22 +326,16 @@ bool HTTPSocket::OnDataReady()
 			
 			if ((pos = line.find(':')) != std::string::npos)
 			{
-
-//			char *hdata = strchr(data, ':');
-			
-//			if (!hdata)
-//				continue;
-			
-//			*hdata = '\0';
-			
-//			response->AddHeader(data, hdata + 2);
 				response->AddHeader(line.substr(0, pos), line.substr(pos + 1));
-			
-//			data = lend + 2;
-			} else
+			}
+			else
+			{
 				continue;
+			}
 		}
-	} else {
+	}
+	else
+	{
 		this->data += data;
 	}
 	return true;
