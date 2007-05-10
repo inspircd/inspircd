@@ -44,7 +44,6 @@ CmdResult cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 		      return CMD_FAILURE;
 		}
 		c->UserList(user);
-		user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
 	}
 	else
 	{
