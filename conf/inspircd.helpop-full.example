@@ -128,9 +128,9 @@ The following flags after the mask have the following affects:
  o      Show online IRC operators matching the mask
  u      Unlimit the results past the maximum /who results value
         (IRC operators only)
- r      Show all users whos realnames match the mask. When this
+ r      Show all users whose realnames match the mask. When this
         flag is set it overrides the meaning of the search-pattern,
-        which must contain a glob pattern intended to match GEOCS
+        which must contain a glob pattern intended to match GECOS
         (realname) fields.
  h      Show real hostnames rather than masked hostnames (IRC
         operators only)
@@ -139,9 +139,9 @@ The following flags after the mask have the following affects:
         search-pattern, which must contain the mode sequence to
         search for, for example to find all users with +i and
         without +s, issue the command WHO +i-s m.
- a      Show all users who's away message matches the given mask
+ a      Show all users who have an away message matching the given mask
  p      Show all users who are connected on the given port number
- i      Show all users whos ident (username) matches the given mask
+ i      Show all users who have an ident (username) matching the given mask
  M      Show all users who have metadata attached to them with
         the given key name
  l      Show only local users
