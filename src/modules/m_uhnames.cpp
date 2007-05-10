@@ -81,10 +81,8 @@ class ModuleUHNames : public Module
 			if (!ulist)
 				ulist = Ptr->GetUsers();
 
-			nl.clear();
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
-				nl[i->first] = i->first->GetFullHost();
-			ulist = &nl;
+				i->second = i->first->GetFullHost();
 		}
 		return 0;		
  	}
