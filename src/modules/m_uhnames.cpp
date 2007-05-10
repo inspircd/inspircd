@@ -78,6 +78,9 @@ class ModuleUHNames : public Module
 	{
 		if (user->GetExt("UHNAMES"))
 		{
+			if (!ulist)
+				ulist = Ptr->GetUsers();
+
 			nl.clear();
 			for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 				nl[i->first] = i->first->GetFullHost();
