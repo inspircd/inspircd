@@ -1163,14 +1163,16 @@ void TreeSocket::SendUsers(TreeServer* Current)
 				snprintf(data,MAXBUF,":%s AWAY :%s", u->second->nick, u->second->awaymsg);
 				this->WriteLine(data);
 			}
-			FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
-			list.clear();
-			u->second->GetExtList(list);
-
-			for (unsigned int j = 0; j < list.size(); j++)
-			{
-				FOREACH_MOD_I(this->Instance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
-			}
+		}
+	}
+	for (user_hash::iterator u = this->Instance->clientlist->begin(); u != this->Instance->clientlist->end(); u++)
+	{
+		FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
+		list.clear();
+		u->second->GetExtList(list);
+		for (unsigned int j = 0; j < list.size(); j++)
+		{
+			FOREACH_MOD_I(this->Instance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
 		}
 	}
 }
