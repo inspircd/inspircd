@@ -85,16 +85,14 @@ class UserStripColor : public ModeHandler
 
 class ModuleStripColor : public Module
 {
- 
- ConfigReader *Conf, *MyConf;
- ChannelStripColor *csc;
- UserStripColor *usc;
+	bool AllowChanOps;
+	ChannelStripColor *csc;
+	UserStripColor *usc;
  
  public:
-	ModuleStripColor(InspIRCd* Me)
-		: Module::Module(Me)
+	ModuleStripColor(InspIRCd* Me) : Module::Module(Me)
 	{
-		
+		OnRehash(NULL, "");
 
 		usc = new UserStripColor(ServerInstance);
 		csc = new ChannelStripColor(ServerInstance);
@@ -105,7 +103,7 @@ class ModuleStripColor : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
 	virtual ~ModuleStripColor()
@@ -165,6 +163,13 @@ class ModuleStripColor : public Module
 			}
 		}
 	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+
+		AllowChanOps = Conf.ReadFlag("stripcolor", "allowchanops", 0);
+	}
 	
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -180,12 +185,18 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* t = (chanrec*)dest;
-			active = t->IsModeSet('S');
+
+			// check if we allow ops to bypass filtering, if we do, check if they're opped accordingly.
+			// note: short circut logic here, don't wreck it. -- w00t
+			if (!AllowChanOps || AllowChanOps && t->GetStatus(user) != STATUS_OP)
+				active = t->IsModeSet('S');
 		}
+
 		if (active)
 		{
 			this->ReplaceLine(text);
 		}
+
 		return 0;
 	}
 	

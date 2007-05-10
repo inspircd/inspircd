@@ -1884,6 +1884,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip colour module: Adds the channel mode +S
 #<module name="m_stripcolor.so">
+#
+# Optionally, you can allow channel ops to bypass filtering. Defaults to no.
+# <stripcolor allowchanops="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SILENCE module: Adds support for /SILENCE
