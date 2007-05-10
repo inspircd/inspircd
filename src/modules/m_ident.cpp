@@ -79,6 +79,7 @@ class RFC1413 : public InspSocket
 								{
 									if (this->Instance->IsIdent(section))
 									{
+										u->Extend("IDENT", new std::string(std::string(section) + "," + std::string(u->ident)));
 										strlcpy(u->ident,section,IDENTMAX);
 										u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
 									}
@@ -215,6 +216,17 @@ class ModuleIdent : public Module
 		List[I_OnCleanup] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
 	}
 
+	void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
+	{
+		if ((displayable) && (extname == "IDENT"))
+		{
+			std::string* ident;
+			if (GetExt("IDENT", ident))
+				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, *ident);
+		}
+	}
+
+
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
 		ReadSettings();
@@ -265,6 +277,7 @@ class ModuleIdent : public Module
 		{
 			userrec* user = (userrec*)item;
 			RFC1413* ident;
+			std::string* identstr;
 			if (user->GetExt("ident_data", ident))
 			{
 				// FIX: If the user record is deleted, the socket wont be removed
@@ -274,6 +287,10 @@ class ModuleIdent : public Module
 				ident->u = NULL;
 				ServerInstance->SE->DelFd(ident);
 				//delete ident;
+			}
+			if (user->GetExt("IDENT", identstr))
+			{
+				delete identstr;
 			}
 		}
 	}
@@ -289,10 +306,15 @@ class ModuleIdent : public Module
 		 * and this would leave at least one of the invalid ;)
 		 */
 		RFC1413* ident;
+		std::string* identstr;
 		if (user->GetExt("ident_data", ident))
 		{
 			ident->u = NULL;
 			ServerInstance->SE->DelFd(ident);
+		}
+		if (user->GetExt("IDENT", identstr))
+		{
+			delete identstr;
 		}
 	}
 
