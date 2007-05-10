@@ -88,7 +88,13 @@ bool cmd_who::whomatch(userrec* user, const char* matchtext)
 					else
 					{
 						if (opt_port)
-							port = (user->GetPort() == ConvToInt(matchtext));
+						{
+							irc::portparser portrange(matchtext, false);
+							long portno = -1;
+							while ((portno = portrange.GetToken()))
+								if (portno == user->GetPort())
+									port = true;
+						}
 						else
 						{
 							if (opt_away)
