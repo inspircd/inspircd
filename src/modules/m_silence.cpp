@@ -30,8 +30,9 @@ typedef std::map<irc::string, time_t> silencelist;
 
 class cmd_silence : public command_t
 {
+	unsigned int& maxsilence;
  public:
-	cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
+	cmd_silence (InspIRCd* Instance, unsigned int &max) : command_t(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
 		this->source = "m_silence.so";
 		syntax = "{[+|-]<mask>}";
@@ -113,6 +114,11 @@ class cmd_silence : public command_t
 					user->WriteServ("952 %s %s :%s is already on your silence list",user->nick, user->nick, mask.c_str());
 					return CMD_FAILURE;
 				}
+				if (sl->size() >= maxsilence)
+				{
+					user->WriteServ("952 %s %s :Your silence list is full",user->nick, user->nick, mask.c_str());
+					return CMD_FAILURE;
+				}
 				sl->insert(std::make_pair<irc::string, time_t>(mask.c_str(), ServerInstance->Time()));
 				user->WriteServ("951 %s %s :Added %s to silence list",user->nick, user->nick, mask.c_str());
 				return CMD_SUCCESS;
@@ -126,19 +132,28 @@ class ModuleSilence : public Module
 {
 	
 	cmd_silence* mycommand;
+	unsigned int maxsilence;
  public:
  
 	ModuleSilence(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module::Module(Me), maxsilence(32)
 	{
-		
-		mycommand = new cmd_silence(ServerInstance);
+		OnRehash(NULL, "");
+		mycommand = new cmd_silence(ServerInstance, maxsilence);
 		ServerInstance->AddCommand(mycommand);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
+		List[I_OnRehash] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
+	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
+		if (!maxsilence)
+			maxsilence = 32;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
@@ -157,7 +172,7 @@ class ModuleSilence : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
-		output = output + " SILENCE=999";
+		output = output + " SILENCE=" + ConvToStr(maxsilence);
 	}
 	
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

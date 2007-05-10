@@ -61,8 +61,9 @@ static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
 class cmd_silence : public command_t
 {
+	unsigned int& maxsilence;
  public:
-	cmd_silence (InspIRCd* Instance) : command_t(Instance,"SILENCE", 0, 0)
+	cmd_silence (InspIRCd* Instance, unsigned int &max) : command_t(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
 		this->source = "m_silence_ext.so";
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
@@ -86,7 +87,7 @@ class cmd_silence : public command_t
 			}
 			user->WriteServ("272 %s :End of Silence List",user->nick);
 
-			return CMD_SUCCESS;
+			return CMD_LOCALONLY;
 		}
 		else if (pcnt > 0)
 		{
@@ -147,13 +148,18 @@ class cmd_silence : public command_t
 					sl = new silencelist;
 					user->Extend("silence_list", sl);
 				}
+				if (sl->size() > maxsilence)
+				{
+					user->WriteServ("952 %s %s :Your silence list is full",user->nick, user->nick);
+					return CMD_FAILURE;
+				}
 				for (silencelist::iterator n = sl->begin(); n != sl->end();  n++)
 				{
 					irc::string listitem = n->first.c_str();
 					if (listitem == mask && n->second == pattern)
 					{
 						user->WriteServ("952 %s %s :%s %s is already on your silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
-						return CMD_SUCCESS;
+						return CMD_FAILURE;
 					}
 				}
 				if (((pattern & SILENCE_EXCLUDE) > 0))
@@ -165,10 +171,10 @@ class cmd_silence : public command_t
 					sl->push_back(silenceset(mask,pattern));
 				}
 				user->WriteServ("951 %s %s :Added %s %s to silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
-				return CMD_SUCCESS;
+				return CMD_LOCALONLY;
 			}
 		}
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 
 	/* turn the nice human readable pattern into a mask */
@@ -232,21 +238,29 @@ class cmd_silence : public command_t
 
 class ModuleSilence : public Module
 {
-	
 	cmd_silence* mycommand;
+	unsigned int maxsilence;
  public:
  
 	ModuleSilence(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module::Module(Me), maxsilence(32)
 	{
-		
-		mycommand = new cmd_silence(ServerInstance);
+		OnRehash(NULL, "");
+		mycommand = new cmd_silence(ServerInstance,maxsilence);
 		ServerInstance->AddCommand(mycommand);
+	}
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
+		if (!maxsilence)
+			maxsilence = 32;
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
+		List[I_OnRehash] = List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
@@ -264,7 +278,7 @@ class ModuleSilence : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
-		output = output + " ESILENCE SILENCE=999";
+		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
 	}
 
 	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list)

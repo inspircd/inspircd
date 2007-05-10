@@ -303,14 +303,23 @@ class Modulewatch : public Module
 	Modulewatch(InspIRCd* Me)
 		: Module::Module(Me), maxwatch(32)
 	{
+		OnRehash(NULL, "");
 		whos_watching_me = new watchentries();
 		mycommand = new cmd_watch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
 	}
 
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);
+		if (!maxwatch)
+			maxwatch = 32;
+	}
+
 	void Implements(char* List)
 	{
-		List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
+		List[I_OnRehash] = List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
 	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
@@ -437,7 +446,7 @@ class Modulewatch : public Module
 	virtual void On005Numeric(std::string &output)
 	{
 		// we don't really have a limit...
-		output = output + " WATCH=32";
+		output = output + " WATCH=" + ConvToStr(maxwatch);
 	}
 	
 	virtual ~Modulewatch()
