@@ -1891,11 +1891,20 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SILENCE module: Adds support for /SILENCE
 #<module name="m_silence.so">
+#
+# Configuration tags:
+#
+#<silence maxentries="32">
+#
+# Sets the maximum number of entries on a users silence list.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Extended SILENCE module: Adds support for /SILENCE with additional
 # features to silence based on invites, channel messages, etc.
 #<module name="m_silence_ext.so">
+#
+# The configuration tags for this module are identical to those of
+# m_silence, shown above.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
@@ -2019,6 +2028,12 @@
 # Watch module: Adds the WATCH command, which is used by clients to 
 # maintain notify lists.
 #<module name="m_watch.so">
+#
+# Configuration tags:
+#
+#<watch maxentries="32">
+#
+# Sets the maximum number of entries on a user's watch list.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XMLSocket module: Adds support for connections using the shockwave
