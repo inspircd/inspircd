@@ -31,6 +31,7 @@ class User_d : public ModeHandler
 		{
 			if (!dest->IsModeSet('d'))
 			{
+				dest->WriteServ("NOTICE %s :*** You have enabled usermode +d, deaf mode. This mode means you WILL NOT recieve any messages from any channels you are in. If you did NOT mean to do this, use /mode %s -d.", dest->nick, dest->nick);
 				dest->SetMode('d',true);
 				return MODEACTION_ALLOW;
 			}
