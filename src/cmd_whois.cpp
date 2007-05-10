@@ -67,13 +67,20 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 
 		if (!strcasecmp(user->server,dest->server))
 		{
-			// idle time and signon line can only be sent if youre on the same server (according to RFC)
-			ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
+			// the user is on the same server as us, so we already know their idle time.
+			// check we're not hiding whois, though, as otherwise we give away what server they are on.
+			if (!*ServerInstance->Config->HideWhoisServer)
+			{
+				ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, abs((dest->idle_lastmsg)-ServerInstance->Time()), dest->signon);
+			}
 		}
 		else
 		{
 			if ((idle) || (signon))
+			{
+				// if we get here, m_spanningtree has called us, so it's remote
 				ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %d %d :seconds idle, signon time",user->nick, dest->nick, idle, signon);
+			}
 		}
 		ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick, dest->nick);
 	}
