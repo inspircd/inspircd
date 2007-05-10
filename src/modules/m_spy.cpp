@@ -127,7 +127,6 @@ class cmd_spynames : public command_t
 		{
 			ServerInstance->WriteOpers("*** Oper %s used SPYNAMES to view the users on %s", user->nick, parameters[0]);
 			spy_userlist(user,c);
-			user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, c->name);
 		}
 		else
 		{
