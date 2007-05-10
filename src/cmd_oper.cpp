@@ -108,6 +108,10 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
+		std::deque<std::string> n;
+		n.push_back("o");
+		char broadcast[MAXBUF];
+
 		if (!type_invalid)
 		{
 			std::string fields = "";
@@ -118,14 +122,27 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 			if (!match_hosts)
 				fields.append("hosts");
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
-			ServerInstance->SNO->WriteToSnoMask('o',"WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
+			
+			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
+			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
+			n.push_back(broadcast);
+			Event rmode2((char *)&n, NULL, "send_snoset");
+			rmode2.Send(ServerInstance);
+
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s",user->nick,user->ident,user->host,parameters[0],fields.c_str());
 			return CMD_FAILURE;
 		}
 		else
 		{
 			user->WriteServ("491 %s :Your oper block does not have a valid opertype associated with it",user->nick);
-			ServerInstance->SNO->WriteToSnoMask('o',"CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
+
+			snprintf(broadcast, MAXBUF, "CONFIGURATION ERROR! Oper block '%s': missing OperType %s",parameters[0],OperType);
+
+			ServerInstance->SNO->WriteToSnoMask('o', std::string(broadcast));
+			n.push_back(broadcast);
+			Event rmode2((char *)&n, NULL, "send_snoset");
+			rmode2.Send(ServerInstance);
+
 			ServerInstance->Log(DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': credentials valid, but oper type nonexistent.",user->nick,user->ident,user->host,parameters[0]);
 			return CMD_FAILURE;
 		}
