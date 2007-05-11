@@ -22,9 +22,7 @@ class ModuleOperjoin : public Module
 {
 	private:
 		std::string operChan;
-		std::vector<std::string> operChans;
-		ConfigReader* conf;
-		
+		std::vector<std::string> operChans;		
 
 		int tokenize(const string &str, std::vector<std::string> &tokens)
 		{
@@ -46,15 +44,9 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin(InspIRCd* Me)
-			: Module::Module(Me)
+		ModuleOperjoin(InspIRCd* Me) : Module::Module(Me)
 		{
-			
-			conf = new ConfigReader(ServerInstance);
-			operChan = conf->ReadValue("operjoin", "channel", 0);
-			operChans.clear();
-			if (!operChan.empty())
-				tokenize(operChan,operChans);
+			OnRehash(NULL, "");
 		}
 
 		void Implements(char* List)
@@ -64,17 +56,18 @@ class ModuleOperjoin : public Module
 
 		virtual void OnRehash(userrec* user, const std::string &parameter)
 		{
-			DELETE(conf);
-			conf = new ConfigReader(ServerInstance);
+			ConfigReader* conf = new ConfigReader(ServerInstance);
+
 			operChan = conf->ReadValue("operjoin", "channel", 0);
 			operChans.clear();
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
+
+			DELETE(conf);
 		}
 
 		virtual ~ModuleOperjoin()
 		{
-			DELETE(conf);
 		}
 
 		virtual Version GetVersion()
