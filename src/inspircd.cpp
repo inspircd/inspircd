@@ -78,13 +78,13 @@ void InspIRCd::Cleanup()
 	std::vector<std::string> mymodnames;
 	int MyModCount = this->GetModuleCount();
 
-	for (unsigned int i = 0; i < stats->BoundPortCount; i++)
+	for (unsigned int i = 0; i < Config->ports.size(); i++)
 	{
 		/* This calls the constructor and closes the listening socket */
-		delete Config->openSockfd[i];
-		Config->openSockfd[i] = NULL;
+		delete Config->ports[i];
 	}
-	stats->BoundPortCount = 0;
+
+	Config->ports.clear();
 
 	/* Close all client sockets, or the new process inherits them */
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
@@ -396,18 +396,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		sleep(20);
 	}
 
-	this->Modes = new ModeParser(this);
-	this->AddServerName(Config->ServerName);
-	CheckDie();
-	InitializeDisabledCommands(Config->DisabledCommands, this);
-	stats->BoundPortCount = BindPorts(true, found_ports, pl);
-
-	for(int t = 0; t < 255; t++)
-		Config->global_implementation[t] = 0;
-
-	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
-
-	printf("\n");
 	this->SetSignals();
 
 	if (!Config->nofork)
@@ -420,12 +408,26 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 
-	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
+
+        /* Because of limitations in kqueue on freebsd, we must fork BEFORE we
 	 * initialize the socket engine.
 	 */
 	SocketEngineFactory* SEF = new SocketEngineFactory();
 	SE = SEF->Create(this);
 	delete SEF;
+
+	this->Modes = new ModeParser(this);
+	this->AddServerName(Config->ServerName);
+	CheckDie();
+	InitializeDisabledCommands(Config->DisabledCommands, this);
+	int bounditems = BindPorts(true, found_ports, pl);
+
+	for(int t = 0; t < 255; t++)
+		Config->global_implementation[t] = 0;
+
+	memset(&Config->implement_lists,0,sizeof(Config->implement_lists));
+
+	printf("\n");
 
 	this->Res = new DNS(this);
 
@@ -433,34 +435,21 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 
-	if ((stats->BoundPortCount == 0) && (found_ports > 0))
+	if ((Config->ports.size() == 0) && (found_ports > 0))
 	{
 		printf("\nERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?\n");
 		Log(DEFAULT,"ERROR: I couldn't bind any ports! Are you sure you didn't start InspIRCd twice?");
 		Exit(EXIT_STATUS_BIND);
 	}
 
-	if (stats->BoundPortCount != (unsigned int)found_ports)
+	if (Config->ports.size() != (unsigned int)found_ports)
 	{
-		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %ld of %d client ports bound.\n\n", stats->BoundPortCount, found_ports);
-		printf("The following port%s failed to bind:\n", found_ports - stats->BoundPortCount != 1 ? "s" : "");
+		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n", bounditems, found_ports);
+		printf("The following port(s) failed to bind:\n");
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
 			printf("%d.\tIP: %s\tPort: %lu\n", j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
-		}
-	}
-
-	/* Add the listening sockets used for client inbound connections
-	 * to the socket engine
-	 */
-	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
-	{
-		if (!SE->AddFd(Config->openSockfd[count]))
-		{
-			printf("\nEH? Could not add listener to socketengine. You screwed up, aborting.\n");
-			Log(DEFAULT,"EH? Could not add listener to socketengine. You screwed up, aborting.");
-			Exit(EXIT_STATUS_INTERNAL);
 		}
 	}
 

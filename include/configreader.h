@@ -426,11 +426,6 @@ class ServerConfig : public Extensible
 	 */
 	char HideKillsServer[MAXBUF];
 
-	/** A list of IP addresses the server is listening
-	 * on.
-	 */
-	char addrs[MAXBUF][255];
-
 	/** The MOTD file, cached in a file_cache type.
 	 */
 	file_cache MOTD;
@@ -453,13 +448,9 @@ class ServerConfig : public Extensible
 	 */
 	std::vector<std::string> module_names;
 
-	/** A list of ports which the server is listening on
+	/** A list of the classes for listening client ports
 	 */
-	int ports[255];
-
-	/** A list of the file descriptors for the listening client ports
-	 */
-	ListenSocket* openSockfd[255];
+	std::vector<ListenSocket*> ports;
 
 	/** Boolean sets of which modules implement which functions
 	 */

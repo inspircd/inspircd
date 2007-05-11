@@ -36,19 +36,23 @@ const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used
 };
 
 
-ListenSocket::ListenSocket(InspIRCd* Instance, int sockfd, insp_sockaddr client, insp_sockaddr server, int port, char* addr) : ServerInstance(Instance), desc("plaintext")
+ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerInstance(Instance), desc("plaintext"), bind_addr(addr), bind_port(port)
 {
-	this->SetFd(sockfd);
-	if (!Instance->BindSocket(this->fd,port,addr))
-		this->fd = -1;
+	this->SetFd(OpenTCPSocket(addr));
+	if (this->GetFd() > -1)
+	{
+		if (!Instance->BindSocket(this->fd,port,addr))
+			this->fd = -1;
 #ifdef IPV6
-	if ((!*addr) || (strchr(addr,':')))
-		this->family = AF_INET6;
-	else
-		this->family = AF_INET;
+		if ((!*addr) || (strchr(addr,':')))
+			this->family = AF_INET6;
+		else
+			this->family = AF_INET;
 #else
-	this->family = AF_INET;
+		this->family = AF_INET;
 #endif
+		Instance->SE->AddFd(this);
+	}
 }
 
 ListenSocket::~ListenSocket()
@@ -464,29 +468,10 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 }
 
 /* XXX: Probably belongs in class InspIRCd */
-bool InspIRCd::HasPort(int port, char* addr)
-{
-	for (unsigned long count = 0; count < stats->BoundPortCount; count++)
-	{
-		if ((port == Config->ports[count]) && (!strcasecmp(Config->addrs[count],addr)))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-/* XXX: Probably belongs in class InspIRCd */
 int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
-	insp_sockaddr client, server;
-	int clientportcount = 0;
-	int BoundPortCount = 0;
-
-	ports_found = 0;
-
-	int InitialPortCount = stats->BoundPortCount;
+	int bound = 0;
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
@@ -497,80 +482,34 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
 			irc::portparser portrange(configToken, false);
-			long portno = -1;
+			int portno = -1;
 			while ((portno = portrange.GetToken()))
 			{
-				if (!HasPort(portno, Addr))
-				{
-					ports_found++;
-					Config->ports[clientportcount+InitialPortCount] = portno;
-					if (*Addr == '*')
-						*Addr = 0;
+				if (*Addr == '*')
+					*Addr = 0;
 
-					strlcpy(Config->addrs[clientportcount+InitialPortCount],Addr,256);
-					clientportcount++;
-				}
-			}
-		}
-
-		if (!bail)
-		{
-			int PortCount = clientportcount;
-			if (PortCount)
-			{
-				BoundPortCount = stats->BoundPortCount;
-				for (int count = InitialPortCount; count < InitialPortCount + PortCount; count++)
+				bool skip = false;
+				for (std::vector<ListenSocket*>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+					if (((*n)->GetIP() == Addr) && ((*n)->GetPort() == portno))
+						skip = true;
+				if (!skip)
 				{
-					int fd = OpenTCPSocket(Config->addrs[count]);
-					if (fd == ERROR)
+					ListenSocket* ll = new ListenSocket(this, portno, Addr);
+					if (ll->GetFd() > -1)
 					{
-						failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
+						bound++;
+						Config->ports.push_back(ll);
 					}
 					else
 					{
-						Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
-						if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
-						{
-							if (!SE->AddFd(Config->openSockfd[BoundPortCount]))
-							{
-								this->Log(DEFAULT,"ERK! Failed to add listening port to socket engine!");
-								shutdown(Config->openSockfd[BoundPortCount]->GetFd(),2);
-								close(Config->openSockfd[BoundPortCount]->GetFd());
-								delete Config->openSockfd[BoundPortCount];
-								failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
-							}
-							else
-								BoundPortCount++;
-						}
+						failed_ports.push_back(std::make_pair(Addr, portno));
 					}
+					ports_found++;
 				}
-				return InitialPortCount + BoundPortCount;
 			}
-			return InitialPortCount;
 		}
 	}
-
-	int PortCount = clientportcount;
-
-	for (int count = 0; count < PortCount; count++)
-	{
-		int fd = OpenTCPSocket(Config->addrs[count]);
-		if (fd == ERROR)
-		{
-			failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
-		}
-		else
-		{
-			Config->openSockfd[BoundPortCount] = new ListenSocket(this,fd,client,server,Config->ports[count],Config->addrs[count]);
-			if (Config->openSockfd[BoundPortCount]->GetFd() > -1)
-			{
-				BoundPortCount++;
-			}
-			else
-				failed_ports.push_back(std::make_pair(Config->addrs[count],Config->ports[count]));
-		}
-	}
-	return BoundPortCount;
+	return bound;
 }
 
 const char* irc::sockets::insp_ntoa(insp_inaddr n)

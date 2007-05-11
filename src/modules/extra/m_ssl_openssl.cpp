@@ -178,9 +178,9 @@ class ModuleSSLOpenSSL : public Module
 						if (ServerInstance->Config->AddIOHook(portno, this))
 						{
 							listenports.push_back(portno);
-								for (unsigned int i = 0; i < ServerInstance->stats->BoundPortCount; i++)
-								if (ServerInstance->Config->ports[i] == portno)
-									ServerInstance->Config->openSockfd[i]->SetDescription("ssl");
+								for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
+								if (ServerInstance->Config->ports[i]->GetPort() == portno)
+									ServerInstance->Config->ports[i]->SetDescription("ssl");
 							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portno);
 						}
 						else
@@ -314,10 +314,9 @@ class ModuleSSLOpenSSL : public Module
 			for(unsigned int i = 0; i < listenports.size(); i++)
 			{
 				ServerInstance->Config->DelIOHook(listenports[i]);
-				for (unsigned int j = 0; j < ServerInstance->stats->BoundPortCount; j++)
-					if (ServerInstance->Config->ports[j] == listenports[i])
-						if (ServerInstance->Config->openSockfd[j])
-							ServerInstance->Config->openSockfd[j]->SetDescription("plaintext");
+				for (size_t j = 0; j < ServerInstance->Config->ports.size(); j++)
+					if (ServerInstance->Config->ports[j]->GetPort() == listenports[i])
+						ServerInstance->Config->ports[j]->SetDescription("plaintext");
 			}
 		}
 	}

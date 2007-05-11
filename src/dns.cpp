@@ -1152,7 +1152,7 @@ unsigned long DNS::PRNG()
 	gettimeofday(&n,NULL);
 	val = (n.tv_usec ^ getpid() ^ geteuid() ^ (this->currid++)) ^ s->statsAccept + n.tv_sec;
 	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
-	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - s->BoundPortCount;
+	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
 }
 

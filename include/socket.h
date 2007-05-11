@@ -152,10 +152,12 @@ class ListenSocket : public EventHandler
 	InspIRCd* ServerInstance;
 	std::string desc;
 	int family;
+	std::string bind_addr;
+	int bind_port;
  public:
 	/** Create a new listening socket
 	 */
-	ListenSocket(InspIRCd* Instance, int sockfd, irc::sockets::insp_sockaddr client, irc::sockets::insp_sockaddr server, int port, char* addr);
+	ListenSocket(InspIRCd* Instance, int port, char* addr);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);
@@ -172,6 +174,16 @@ class ListenSocket : public EventHandler
 	const std::string& GetDescription()
 	{
 		return desc;
+	}
+
+	int GetPort()
+	{
+		return bind_port;
+	}
+
+	std::string &GetIP()
+	{
+		return bind_addr;
 	}
 };
 

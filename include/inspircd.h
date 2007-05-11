@@ -187,24 +187,17 @@ class serverstats : public classbase
 	/** Total bytes of data received
 	 */
 	double statsRecv;
-	/** Number of bound listening ports
-	 */
-	unsigned long BoundPortCount;
-
 	/** Cpu usage at last sample
 	 */
 	timeval LastCPU;
-
 	/** Time last sample was read
 	 */
 	timeval LastSampled;
-
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()
 		: statsAccept(0), statsRefused(0), statsUnknown(0), statsCollisions(0), statsDns(0),
-		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0.0), statsRecv(0.0),
-		BoundPortCount(0)
+		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0.0), statsRecv(0.0)
 	{
 	}
 };
@@ -585,13 +578,6 @@ class InspIRCd : public classbase
 	 * @return The number of ports actually bound without error
 	 */
 	int BindPorts(bool bail, int &found_ports, FailedPortList &failed_ports);
-
-	/** Returns true if this server has the given port bound to the given address
-	 * @param port The port number
-	 * @param addr The address
-	 * @return True if we have a port listening on this address
-	 */
-	bool HasPort(int port, char* addr);
 
 	/** Binds a socket on an already open file descriptor
 	 * @param sockfd A valid file descriptor of an open socket
