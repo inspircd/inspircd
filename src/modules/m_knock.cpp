@@ -56,18 +56,14 @@ class cmd_knock : public command_t
 		}
 		line = line + std::string(parameters[pcnt-1]);
 
-		if (c->modes[CM_INVITEONLY])
-		{
-			c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
-			user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
-			return CMD_SUCCESS;
-		}
-		else
+		if (!c->modes[CM_INVITEONLY])
 		{
 			user->WriteServ("480 %s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick, c->name);
 			return CMD_FAILURE;
 		}
 
+		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName,  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name, user->nick, c->name, line.c_str());
+		user->WriteServ("NOTICE %s :KNOCKing on %s",user->nick,c->name);
 		return CMD_SUCCESS;
 	}
 };
