@@ -33,23 +33,23 @@ class cmd_chgident : public command_t
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 
-		if(dest)
-		{
-			if(!ServerInstance->IsIdent(parameters[1]))
-			{
-				user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
-				return CMD_FAILURE;
-			}
-
-			dest->ChangeIdent(parameters[1]);
-			ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
-			return CMD_SUCCESS;
-		}
-		else
+		if (!dest)
 		{
 			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
+
+		if(!ServerInstance->IsIdent(parameters[1]))
+		{
+			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
+			return CMD_FAILURE;
+		}
+
+		dest->ChangeIdent(parameters[1]);
+		ServerInstance->WriteOpers("%s used CHGIDENT to change %s's ident to '%s'", user->nick, dest->nick, dest->ident);
+
+		/* route it! */
+		return CMD_SUCCESS;
 	}
 };
 
