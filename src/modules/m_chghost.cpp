@@ -52,17 +52,22 @@ class cmd_chghost : public command_t
 			return CMD_FAILURE;
 		}
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
+
+		if (!dest)
 		{
-			if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
-			{
-				// fix by brain - ulines set hosts silently
-				ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
-			}
-			return CMD_SUCCESS;
+			/* Drop it like a hot potato. XXX - we should probably message here.. -- w00t */
+			return CMD_FAILURE;
 		}
 
-		return CMD_FAILURE;
+		if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
+		{
+			// fix by brain - ulines set hosts silently
+			ServerInstance->WriteOpers(std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+		}
+
+		/* route it! */
+		return CMD_SUCCESS;
+
 	}
 };
 
