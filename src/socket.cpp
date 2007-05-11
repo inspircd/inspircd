@@ -472,6 +472,12 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int bound = 0;
+	bool started_with_nothing = (Config->ports.size() == 0);
+	std::vector<std::pair<std::string, int> > old_ports;
+
+	/* XXX: Make a copy of the old ip/port pairs here */
+	for (std::vector<ListenSocket*>::iterator o = Config->ports.begin(); o != Config->ports.end(); ++o)
+		old_ports.push_back(make_pair((*o)->GetIP(), (*o)->GetPort()));
 
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "bind"); count++)
 	{
@@ -490,8 +496,21 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 
 				bool skip = false;
 				for (std::vector<ListenSocket*>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+				{
 					if (((*n)->GetIP() == Addr) && ((*n)->GetPort() == portno))
+					{
 						skip = true;
+						/* XXX: Here, erase from our copy of the list */
+						for (std::vector<std::pair<std::string, int> >::iterator k = old_ports.begin(); k != old_ports.end(); ++k)
+						{
+							if ((k->first == Addr) && (k->second == portno))
+							{
+								old_ports.erase(k);
+								break;
+							}
+						}
+					}
+				}
 				if (!skip)
 				{
 					ListenSocket* ll = new ListenSocket(this, portno, Addr);
@@ -509,6 +528,25 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 			}
 		}
 	}
+
+	/* XXX: Here, anything left in our copy list, close as removed */
+	if (!started_with_nothing)
+	{
+		for (size_t k = 0; k < old_ports.size(); ++k)
+		{
+			for (std::vector<ListenSocket*>::iterator n = Config->ports.begin(); n != Config->ports.end(); ++n)
+			{
+				if (((*n)->GetIP() == old_ports[k].first) && ((*n)->GetPort() == old_ports[k].second))
+				{
+					this->Log(DEFAULT,"Port binding %s:%d was removed from the config file, closing.", old_ports[k].first.c_str(), old_ports[k].second);
+					delete *n;
+					Config->ports.erase(n);
+					break;
+				}
+			}
+		}
+	}
+
 	return bound;
 }
 
