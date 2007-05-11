@@ -29,9 +29,7 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
-			// This kinda Sucks, According to the RFC thou, its either this,
-			// or "You have already registered" :p -- Craig
-			user->WriteServ("461 %s USER :Not enough parameters",user->nick);
+			user->WriteServ("461 %s USER :Your username is not valid",user->nick);
 			return CMD_FAILURE;
 		}
 		else
