@@ -41,33 +41,40 @@ class cmd_nicklock : public command_t
 		irc::string server;
 		irc::string me;
 
-		/* XXX - these ifs look damn ugly, note to myself to fix them -- w00t */
-		if (source)
+		// check user exists
+		if (!source)
 		{
-			if (source->GetExt("nick_locked", dummy))
-			{
-				user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
-				return CMD_FAILURE;
-			}
-			if (ServerInstance->IsNick(parameters[1]))
-			{
-				// give them a lock flag
-				ServerInstance->WriteOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
-				if (!source->ForceNickChange(parameters[1]))
-				{
-					userrec::QuitUser(ServerInstance, source, "Nickname collision");
-					return CMD_FAILURE;
-				}
-				source->Extend("nick_locked", "ON");
-
-				/* route */
-				return CMD_SUCCESS;
-			}
-
 			return CMD_FAILURE;
 		}
 
-		return CMD_FAILURE;
+		// check if user is locked
+		if (source->GetExt("nick_locked", dummy))
+		{
+			user->WriteServ("946 %s %s :This user's nickname is already locked.",user->nick,source->nick);
+			return CMD_FAILURE;
+		}
+
+		// check nick is valid
+		if (!ServerInstance->IsNick(parameters[1]))
+		{
+			return CMD_FAILURE
+		}
+
+		// let others know
+		ServerInstance->WriteOpers(std::string(user->nick)+" used NICKLOCK to change and hold "+parameters[0]+" to "+parameters[1]);
+
+		if (!source->ForceNickChange(parameters[1]))
+		{
+			// ugh, nickchange failed for some reason -- possibly existing nick?
+			userrec::QuitUser(ServerInstance, source, "Nickname collision");
+			return CMD_FAILURE;
+		}
+
+		// give them a lock flag
+		source->Extend("nick_locked", "ON");
+
+		/* route */
+		return CMD_SUCCESS;
 	}
 };
 
