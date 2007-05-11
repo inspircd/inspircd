@@ -257,11 +257,9 @@ class ModuleDNSBL : public Module
 		ReadConf();
 	}
 
-	/*
-	 * We will check each user that connects *locally* (userrec::fd>0)
-	 */
 	virtual int OnUserRegister(userrec* user)
 	{
+		/* only do lookups on local users */
 		if (IS_LOCAL(user))
 		{
 			/* following code taken from bopm, reverses an IP address. */
