@@ -22,7 +22,6 @@ class ModuleConnJoin : public Module
 {
 	private:
 		std::string JoinChan;
-		ConfigReader* conf;
 		std::vector<std::string> Joinchans;
 		
 
@@ -49,11 +48,7 @@ class ModuleConnJoin : public Module
 		ModuleConnJoin(InspIRCd* Me)
 			: Module::Module(Me)
 		{
-			conf = new ConfigReader(ServerInstance);
-			JoinChan = conf->ReadValue("autojoin", "channel", 0);
-			Joinchans.clear();
-			if (!JoinChan.empty())
-				tokenize(JoinChan,Joinchans);
+			OnRehash(NULL, "");
 		}
 
 		void Implements(char* List)
@@ -63,17 +58,16 @@ class ModuleConnJoin : public Module
 
 		virtual void OnRehash(userrec* user, const std::string &parameter)
 		{
-			DELETE(conf);
-			conf = new ConfigReader(ServerInstance);
+			ConfigReader* conf = new ConfigReader(ServerInstance);
 			JoinChan = conf->ReadValue("autojoin", "channel", 0);
 			Joinchans.clear();
 			if (!JoinChan.empty())
 				tokenize(JoinChan,Joinchans);
+			DELETE(conf);
 		}
 
 		virtual ~ModuleConnJoin()
 		{
-			DELETE(conf);
 		}
 
 		virtual Version GetVersion()
