@@ -57,7 +57,7 @@ class cmd_nicklock : public command_t
 		// check nick is valid
 		if (!ServerInstance->IsNick(parameters[1]))
 		{
-			return CMD_FAILURE
+			return CMD_FAILURE;
 		}
 
 		// let others know
