@@ -97,6 +97,7 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
+	int userindex = 0;
 	unsigned long idle = 0, signon = 0;
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
@@ -108,13 +109,9 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
 	 */
 	if (pcnt > 1)
-	{
-		dest = ServerInstance->FindNick(parameters[1]);
-	}
-	else
-	{
-		dest = ServerInstance->FindNick(parameters[0]);
-	}
+		userindex = 1;
+
+	dest = ServerInstance->FindNick(parameters[userindex]);
 
 	if (dest)
 	{
@@ -132,13 +129,13 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 			signon = dest->signon;
 		}
 
-		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[0]);
+		do_whois(this->ServerInstance, user,dest,signon,idle,parameters[userindex]);
 	}
 	else
 	{
 		/* no such nick/channel */
-		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *parameters[0] ? parameters[0] : "*");
-		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *parameters[0] ? parameters[0] : "*");
+		user->WriteServ("401 %s %s :No such nick/channel",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
+		user->WriteServ("318 %s %s :End of /WHOIS list.",user->nick, *parameters[userindex] ? parameters[userindex] : "*");
 		return CMD_FAILURE;
 	}
 
