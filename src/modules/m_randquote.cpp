@@ -52,7 +52,8 @@ class cmd_randquote : public command_t
 			user->WriteServ("NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick);
 			return CMD_FAILURE;
 		}
-		return CMD_SUCCESS;
+
+		return CMD_LOCALONLY;
 	}
 };
 

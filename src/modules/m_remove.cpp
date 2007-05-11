@@ -201,6 +201,7 @@ class RemoveBase
 			return CMD_FAILURE;
 		}
 
+		/* route me */
 		return CMD_SUCCESS;
 	}
 };

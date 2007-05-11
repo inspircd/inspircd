@@ -45,7 +45,7 @@ class cmd_setidle : public command_t
 		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(atoi(parameters[0]))+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
 
-		return CMD_SUCCESS;
+		return CMD_LOCALONLY;
 	}
 };
 

@@ -111,6 +111,7 @@ class cmd_cban : public command_t
 			}
 		}
 
+		/* we want this routed! */
 		return CMD_SUCCESS;
 	}
 };

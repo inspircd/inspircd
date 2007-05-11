@@ -29,14 +29,18 @@ CmdResult ShowOperMOTD(userrec* user)
 		user->WriteServ(std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
 		return CMD_FAILURE;
 	}
+
 	user->WriteServ(std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
+
 	for(int i=0; i != opermotd->FileSize(); i++)
 	{
 		user->WriteServ(std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
 	}
+
 	user->WriteServ(std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
 
-	return CMD_SUCCESS;
+	/* don't route me */
+	return CMD_LOCALONLY;
 }
 
 /** Handle /OPERMOTD

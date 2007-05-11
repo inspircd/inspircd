@@ -42,6 +42,7 @@ class cmd_globops : public command_t
 		}
 		ServerInstance->SNO->WriteToSnoMask('g',line);
 
+		/* route it (ofc :p) */
 		return CMD_SUCCESS;
 	}
 };

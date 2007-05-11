@@ -190,7 +190,8 @@ class cmd_dccallow : public command_t
 					{
 						user->WriteServ("994 %s %s :Added %s to DCCALLOW list for this session", user->nick, user->nick, target->nick);
 					}
-				
+
+					/* route it. */
 					return CMD_SUCCESS;
 				}
 			}

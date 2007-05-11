@@ -53,7 +53,8 @@ class cmd_alltime : public command_t
 			Event ev((char *) &params, NULL, "send_push");
 			ev.Send(ServerInstance);
 		}
-		
+
+		/* we want this routed out! */
 		return CMD_SUCCESS;
 	}
 };

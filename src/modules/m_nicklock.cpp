@@ -41,6 +41,7 @@ class cmd_nicklock : public command_t
 		irc::string server;
 		irc::string me;
 
+		/* XXX - these ifs look damn ugly, note to myself to fix them -- w00t */
 		if (source)
 		{
 			if (source->GetExt("nick_locked", dummy))
@@ -59,6 +60,7 @@ class cmd_nicklock : public command_t
 				}
 				source->Extend("nick_locked", "ON");
 
+				/* route */
 				return CMD_SUCCESS;
 			}
 

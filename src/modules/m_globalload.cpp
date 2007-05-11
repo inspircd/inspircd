@@ -36,11 +36,14 @@ class cmd_gloadmodule : public command_t
 		{
 			ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+
+			/* route it! */
 			return CMD_SUCCESS;
 		}
 		else
 		{
 			user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			/* XXX - returning CMD_FAILURE here could potentially mean half the net loads it, half doesn't. pass it on anyway? -- w00t */
 			return CMD_FAILURE;
 		}
 	}
@@ -63,10 +66,12 @@ class cmd_gunloadmodule : public command_t
 		{
 			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+			/* route it! */
 			return CMD_SUCCESS;
 		}
 		else
 		{
+			/* XXX - see above note about returning CMD_FAILURE here -- w00t */
 			user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
 			return CMD_FAILURE;
 		}

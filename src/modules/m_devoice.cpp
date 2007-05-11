@@ -50,6 +50,7 @@ class cmd_devoice : public command_t
 			ServerInstance->SendMode(modes,3,n);
 			delete n;
 
+			/* route it */
 			return CMD_SUCCESS;
 		}
 
