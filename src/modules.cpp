@@ -448,18 +448,6 @@ bool InspIRCd::AddResolver(Resolver* r, bool cached)
 	}
 }
 
-bool InspIRCd::UserToPseudo(userrec* user, const std::string &message)
-{
-	throw CoreException("The InspIRCd::UsertoPseudo function should not be used in InspIRCd later than 1.0.x");
-	return false;
-}
-
-bool InspIRCd::PseudoToUser(userrec* alive, userrec* zombie, const std::string &message)
-{
-	throw CoreException("The InspIRCd::PseudotoUser function should not be used in InspIRCd later than 1.0.x");
-	return false;
-}
-
 void InspIRCd::AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask)
 {
 	XLines->add_gline(duration, source.c_str(), reason.c_str(), hostmask.c_str());

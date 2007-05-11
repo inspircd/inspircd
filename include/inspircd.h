@@ -671,21 +671,6 @@ class InspIRCd : public classbase
 
 	void CloseLog();
 
-	/** Convert a user to a pseudoclient, disconnecting the real user
-	 * @param user The user to convert
-	 * @param message The quit message to display when exiting the user
-	 * @return True if the operation succeeded
-	 */
-	bool UserToPseudo(userrec* user, const std::string &message);
-
-	/** Convert a pseudoclient to a real user, discarding the pseudoclient
-	 * @param alive A live client
-	 * @param zombie A pseudoclient
-	 * @param message The message to display when quitting the pseudoclient
-	 * @return True if the operation succeeded
-	 */
-	bool PseudoToUser(userrec* alive, userrec* zombie, const std::string &message);
-
 	/** Send a server notice to all local users
 	 * @param text The text format string to send
 	 * @param ... The format arguments
