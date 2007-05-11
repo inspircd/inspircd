@@ -29,6 +29,10 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (!ServerInstance->IsIdent(parameters[0]))
 		{
+			/*
+			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
+			 *  -- Craig, and then w00t.
+			 */
 			user->WriteServ("461 %s USER :Your username is not valid",user->nick);
 			return CMD_FAILURE;
 		}
