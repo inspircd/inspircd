@@ -61,7 +61,7 @@ class ModuleDenyChannels : public Module
 		{
 			if (match(cname, Conf->ReadValue("badchan","name",j).c_str()))
 			{
-				if ((Conf->ReadFlag("badchan","allowopers",j)) && *user->oper)
+				if (IS_OPER(user) && Conf->ReadFlag("badchan","allowopers",j))
 				{
 					return 0;
 				}
