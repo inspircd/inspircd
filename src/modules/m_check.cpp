@@ -64,16 +64,19 @@ class cmd_check : public command_t
 			user->WriteServ(checkstr + " modes +" + targuser->FormatModes());
 			user->WriteServ(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
 			user->WriteServ(checkstr + " server " + targuser->server);
-			if (targuser->awaymsg[0] != 0)
+
+			if (IS_AWAY(targuser))
 			{
 				/* user is away */
 				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
 			}
+
 			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
 				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper));
 			}
+
 			if (IS_LOCAL(targuser))
 			{
 				/* port information is only held for a local user! */
