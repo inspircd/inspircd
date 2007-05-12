@@ -77,8 +77,7 @@ class CloakUser : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		/* Only opers can change other users modes */
-		if ((source != dest) && (!*source->oper))
+		if (source != dest)
 			return MODEACTION_DENY;
 
 		/* For remote clients, we dont take any action, we just allow it.
