@@ -65,7 +65,7 @@ class ModuleSecureList : public Module
 		if (!validated)
 			return 0;
  
-		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!*user->oper))
+		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!IS_OPER(user)))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)

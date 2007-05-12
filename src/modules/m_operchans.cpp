@@ -68,7 +68,7 @@ class ModuleOperChans : public Module
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
-		if (!*user->oper)
+		if (!IS_OPER(user))
 		{
 			if (chan)
 			{

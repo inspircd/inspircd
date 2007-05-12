@@ -168,7 +168,7 @@ class ModuleAlias : public Module
 						continue;
 				}
 
-				if ((Aliases[i].operonly) && (!*user->oper))
+				if ((Aliases[i].operonly) && (!IS_OPER(user)))
 					return 0;
 
 				if (Aliases[i].requires != "")

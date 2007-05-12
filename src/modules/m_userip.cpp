@@ -40,7 +40,7 @@ class cmd_userip : public command_t
 			userrec *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,*u->oper ? "*" : "",u->ident,u->GetIPString());
+				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,IS_OPER(u) ? "*" : "",u->ident,u->GetIPString());
 				strlcat(Return,junk,MAXBUF);
 			}
 		}

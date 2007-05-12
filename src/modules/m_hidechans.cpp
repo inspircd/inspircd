@@ -87,7 +87,7 @@ class ModuleHideChans : public Module
 		/* Dont display channels if they have +I set and the
 		 * person doing the WHOIS is not an oper
 		 */
-		return ((user != dest) && (!*user->oper) && (numeric == 319) && dest->IsModeSet('I'));
+		return ((user != dest) && (!IS_OPER(user)) && (numeric == 319) && dest->IsModeSet('I'));
 	}
 };
 

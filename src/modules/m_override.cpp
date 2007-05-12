@@ -107,7 +107,7 @@ class ModuleOverride : public Module
 
 	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
 	{
-		if ((*source->oper) && (CanOverride(source,"KICK")))
+		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
 			if (((chan->GetStatus(source) == STATUS_HOP) && (chan->GetStatus(user) == STATUS_OP)) || (chan->GetStatus(source) < STATUS_VOICE))
 			{
@@ -121,7 +121,7 @@ class ModuleOverride : public Module
 	
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
 	{
-		if (*source->oper)
+		if (IS_OPER(source))
 		{
 			if (source && channel)
 			{
@@ -232,7 +232,7 @@ class ModuleOverride : public Module
 	
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
-		if (*user->oper)
+		if (IS_OPER(user))
 		{
 			if (chan)
 			{

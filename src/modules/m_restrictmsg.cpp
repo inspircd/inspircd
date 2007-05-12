@@ -44,18 +44,19 @@ class ModuleRestrictMsg : public Module
 		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
 			userrec* u = (userrec*)dest;
-			if (*u->oper || *user->oper)
+
+			// message allowed if:
+			// (1) the sender is opered
+			// (2) the recipient is opered
+			// anything else, blocked.
+			if (IS_OPER(u) || IS_OPER(user))
 			{
-				// message allowed if:
-				// (1) the sender is opered
-				// (2) the recipient is opered
-				// (3) both are opered
-				// anything else, blocked.
 				return 0;
 			}
 			user->WriteServ("531 %s %s :You are not permitted to send private messages to this user",user->nick,u->nick);
 			return 1;
 		}
+
 		// however, we must allow channel messages...
 		return 0;
 	}

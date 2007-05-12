@@ -49,7 +49,7 @@ class ModuleOperLog : public Module
 		if (!validated)
 			return 0;
  
-		if ((*user->oper) && (IS_LOCAL(user)) && (user->HasPermission(command)))
+		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			command_t* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed = 'o'))

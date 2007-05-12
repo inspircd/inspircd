@@ -86,7 +86,7 @@ class ModuleHideOper : public Module
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper
 		 */
-		return ((!*user->oper) && (numeric == 313) && dest->IsModeSet('H'));
+		return ((!IS_OPER(user)) && (numeric == 313) && dest->IsModeSet('H'));
 	}
 };
 

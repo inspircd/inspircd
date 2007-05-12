@@ -69,7 +69,7 @@ class cmd_check : public command_t
 				/* user is away */
 				user->WriteServ(checkstr + " awaymsg " + targuser->awaymsg);
 			}
-			if (targuser->oper[0] != 0)
+			if (IS_OPER(targuser))
 			{
 				/* user is an oper of type ____ */
 				user->WriteServ(checkstr + " opertype " + irc::Spacify(targuser->oper));
