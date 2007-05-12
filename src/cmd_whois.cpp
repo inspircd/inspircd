@@ -30,7 +30,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 	if (dest->registered == REG_ALL)
 	{
 		ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick, dest->nick, dest->ident, dest->dhost, dest->fullname);
-		if ((user == dest) || (*user->oper))
+		if (user == dest || IS_OPER(user))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick, dest->nick, dest->ident, dest->host, dest->GetIPString());
 		}
@@ -48,7 +48,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 				ServerInstance->SendWhoisLine(user, dest, 319, "%s %s :%s",user->nick, dest->nick, cl.c_str());
 			}
 		}
-		if (*ServerInstance->Config->HideWhoisServer && !(*user->oper))
+		if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, ServerInstance->Config->HideWhoisServer, ServerInstance->Config->Network);
 		}
@@ -62,7 +62,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
 
-		if (*dest->oper)
+		if (IS_OPER(dest))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick, dest->nick, (strchr("AEIOUaeiou",*dest->oper) ? "an" : "a"),irc::Spacify(dest->oper), ServerInstance->Config->Network);
 		}

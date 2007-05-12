@@ -60,7 +60,7 @@ CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!flagstate[0])
 			strcpy(flagstate,"  <no flags>");
 		strlcpy(modulename,ServerInstance->Config->module_names[i].c_str(),256);
-		if (*user->oper)
+		if (IS_OPER(user))
 		{
 			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}

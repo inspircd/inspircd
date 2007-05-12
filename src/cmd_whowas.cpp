@@ -65,10 +65,10 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 
 				user->WriteServ("314 %s %s %s %s * :%s",user->nick,parameters[0],u->ident,u->dhost,u->gecos);
 				
-				if(*user->oper)
+				if (IS_OPER(user))
 					user->WriteServ("379 %s %s :was connecting from *@%s", user->nick, parameters[0], u->host);
 				
-				if(*ServerInstance->Config->HideWhoisServer && !(*user->oper))
+				if (*ServerInstance->Config->HideWhoisServer && !IS_OPER(user))
 					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], ServerInstance->Config->HideWhoisServer, b);
 				else
 					user->WriteServ("312 %s %s %s :%s",user->nick,parameters[0], u->server, b);

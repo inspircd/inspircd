@@ -43,7 +43,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
-	if ((*ServerInstance->Config->UserStats) && (!*user->oper) && (!strchr(ServerInstance->Config->UserStats,statschar)))
+	if ((*ServerInstance->Config->UserStats) && !IS_OPER(user) && !strchr(ServerInstance->Config->UserStats,statschar))
 	{
 		results.push_back(sn+std::string(" 481 ")+user->nick+" :Permission denied - STATS "+statschar+" is oper-only");
 		return;
@@ -125,7 +125,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			int idx = 0;
 		  	for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 			{
-				if ((*i->second->oper) && (!ServerInstance->ULine(i->second->server)))
+				if (IS_OPER(i->second) && !ServerInstance->ULine(i->second->server))
 				{
 					results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+
 							(IS_LOCAL(i->second) ? ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg) + " secs" : "unavailable"));

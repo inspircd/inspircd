@@ -307,7 +307,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	{
 		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
-	else if (*user->oper)
+	else if (IS_OPER(user))
 	{
 		/* Oper allows extension up to the OperMaxchans value */
 		if (user->chans.size() < Instance->Config->OperMaxChans)

@@ -553,7 +553,7 @@ bool userrec::HasPermission(const std::string &command)
 		return true;
 
 	// are they even an oper at all?
-	if (*this->oper)
+	if (IS_OPER(this))
 	{
 		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
 		if (iter_opertype != ServerInstance->Config->opertypes.end())
@@ -800,10 +800,13 @@ void userrec::UnOper()
 {
 	try
 	{
-		if (*this->oper)
+		if (IS_OPER(this))
 		{
+			// unset their oper type (what IS_OPER checks), and remove +o
 			*this->oper = 0;
 			this->modes[UM_OPERATOR] = 0;
+
+			// remove them from the opers list.
 			for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
 			{
 				if (*a == this)
@@ -1579,8 +1582,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 
 void userrec::WriteWallOps(const std::string &text)
 {
-	/* Does nothing if theyre not opered */
-	if ((!*this->oper) && (IS_LOCAL(this)))
+	if (!IS_OPER(this) && IS_LOCAL(this))
 		return;
 
 	std::string wallop = "WALLOPS :";
@@ -1757,7 +1759,7 @@ std::string userrec::ChannelList(userrec* source)
 			 * If the channel is NOT private/secret OR the user shares a common channel
 			 * If the user is an oper, and the <options:operspywhois> option is set.
 			 */
-			if ((source == this) || (*source->oper && ServerInstance->Config->OperSpyWhois) || (((!i->first->modes[CM_PRIVATE]) && (!i->first->modes[CM_SECRET])) || (i->first->HasUser(source))))
+			if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->modes[CM_PRIVATE]) && (!i->first->modes[CM_SECRET])) || (i->first->HasUser(source))))
 			{
 				list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
 			}

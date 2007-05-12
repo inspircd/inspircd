@@ -30,7 +30,7 @@ CmdResult cmd_trace::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (i->second->registered == REG_ALL)
 		{
-			if (*i->second->oper)
+			if (IS_OPER(i->second))
 			{
 				user->WriteServ("205 %s :Oper 0 %s",user->nick,i->second->nick);
 			}

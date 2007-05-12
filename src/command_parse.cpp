@@ -332,7 +332,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					return;
 				}
 			}
-			if ((user->registered == REG_ALL) && (!*user->oper) && (cm->second->IsDisabled()))
+			if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
 			{
 				/* command is disabled! */
 				user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());

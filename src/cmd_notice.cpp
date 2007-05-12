@@ -35,7 +35,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
-	if ((parameters[0][0] == '$') && ((*user->oper) || (ServerInstance->ULine(user->server))))
+	if ((parameters[0][0] == '$') && (IS_OPER(user) || ServerInstance->ULine(user->server)))
 	{
 		int MOD_RESULT = 0;
 		std::string temp = parameters[1];

@@ -35,7 +35,7 @@ CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user
 		{
 			retbuf = retbuf + " ";
 
-			if (*u->oper)
+			if (IS_OPER(u))
 			{
 				retbuf = retbuf + "*=+";
 			}
@@ -46,7 +46,7 @@ CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user
 
 			retbuf = retbuf + u->ident + "@";
 
-			if (*user->oper)
+			if (IS_OPER(user))
 			{
 				retbuf = retbuf + u->host;
 			}

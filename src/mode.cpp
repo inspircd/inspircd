@@ -252,11 +252,11 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 			return;
 		}
 
-		if ((targetuser == user) || (*user->oper))
+		if ((targetuser == user) || (IS_OPER(user)))
 		{
 			/* Display user's current mode string */
 			user->WriteServ("221 %s :+%s",targetuser->nick,targetuser->FormatModes());
-			if (*targetuser->oper)
+			if (IS_OPER(targetuser))
 				user->WriteServ("008 %s +%s :Server notice mask", targetuser->nick, targetuser->FormatNoticeMasks());
 			return;
 		}
@@ -532,7 +532,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 							/* It's an oper only mode, check if theyre an oper. If they arent,
 							 * eat any parameter that  came with the mode, and continue to next
 							 */
-							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!*user->oper))
+							if ((IS_LOCAL(user)) && (modehandlers[handler_id]->NeedsOper()) && (!IS_OPER(user)))
 							{
 								user->WriteServ("481 %s :Permission Denied - Only IRC operators may %sset %s mode %c", user->nick,
 										adding ? "" : "un", type == MODETYPE_CHANNEL ? "channel" : "user",

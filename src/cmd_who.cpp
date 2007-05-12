@@ -123,7 +123,7 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 	/* Execute items in fastest-to-execute first order */
 
 	/* Opers see all */
-	if (*user->oper)
+	if (IS_OPER(user))
 		return true;
 	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
 		return true;
@@ -143,7 +143,7 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 		return;
 
 	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
-				((*ServerInstance->Config->HideWhoisServer && !*user->oper) ? ServerInstance->Config->HideWhoisServer : u->server) +
+				((*ServerInstance->Config->HideWhoisServer && !IS_OPER(user)) ? ServerInstance->Config->HideWhoisServer : u->server) +
 				" " + u->nick + " ";
 
 	/* away? */
@@ -157,7 +157,7 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 	}
 
 	/* oper? */
-	if (*u->oper)
+	if (IS_OPER(u))
 	{
 		wholine.append("*");
 	}
@@ -212,11 +212,11 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 					opt_viewopersonly = true;
 				break;
 				case 'h':
-					if (*user->oper)
+					if (IS_OPER(user))
 						opt_showrealhost = true;
 				break;
 				case 'u':
-					if (*user->oper)
+					if (IS_OPER(user))
 						opt_unlimit = true;
 				break;
 				case 'r':
