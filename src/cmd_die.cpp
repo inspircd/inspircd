@@ -27,8 +27,9 @@ CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
 	{
-		ServerInstance->Log(SPARSE, "/DIE command from %s!%s@%s, terminating in %d seconds...", user->nick, user->ident, user->host, ServerInstance->Config->DieDelay);
-		ServerInstance->SendError("*** DIE command from %s!%s@%s, terminating...", user->nick, user->nick, user->ident, user->dhost);
+		std::string diebuf = std::string("*** DIE command from ") + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating in " + ConvToStr(ServerInstance->Config->DieDelay) + " seconds.";
+		ServerInstance->Log(SPARSE, diebuf);
+		ServerInstance->SendError(diebuf);
 		
 		if (ServerInstance->Config->DieDelay)
 			sleep(ServerInstance->Config->DieDelay);
