@@ -33,18 +33,18 @@ class cmd_userip : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		char Return[MAXBUF],junk[MAXBUF];
-		snprintf(Return,MAXBUF,"340 %s :",user->nick);
+		std::string retbuf = std::string("340 ") + user->nick + " :";
+
 		for (int i = 0; i < pcnt; i++)
 		{
 			userrec *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				snprintf(junk,MAXBUF,"%s%s=+%s@%s ",u->nick,IS_OPER(u) ? "*" : "",u->ident,u->GetIPString());
-				strlcat(Return,junk,MAXBUF);
+				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=+" + u->ident + "@" + u->GetIPString();
 			}
 		}
-		user->WriteServ(Return);
+
+		user->WriteServ(retbuf);
 
 		/* Dont send to the network */
 		return CMD_FAILURE;
