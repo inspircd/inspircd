@@ -24,29 +24,40 @@ extern "C" command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	char Return[MAXBUF],junk[MAXBUF];
-	snprintf(Return,MAXBUF,"302 %s :",user->nick);
+	std::string retbuf = std::string("302 ") + user->nick + " :";
+
 	
 	for (int i = 0; i < pcnt; i++)
 	{
 		userrec *u = ServerInstance->FindNick(parameters[i]);
+
 		if ((u) && (u->registered == REG_ALL))
 		{
-			if(*u->oper)
-				if(*user->oper)
-					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->host);
-				else
-					snprintf(junk,MAXBUF,"%s*=+%s@%s ",u->nick,u->ident,u->dhost);
-			else
-				if(*user->oper)
-					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->host);
-				else
-					snprintf(junk,MAXBUF,"%s=+%s@%s ",u->nick,u->ident,u->dhost);
+			retbuf = retbuf + " ";
 
-			strlcat(Return,junk,MAXBUF);
+			if (*u->oper)
+			{
+				retbuf = retbuf + "*=+";
+			}
+			else
+			{
+				retbuf = retbuf + "=+";
+			}
+
+			retbuf = retbuf + u->ident + "@";
+
+			if (*user->oper)
+			{
+				retbuf = retbuf + u->host;
+			}
+			else
+			{
+				retbuf = retbuf + u->dhost;
+			}
 		}
 	}
-	user->WriteServ(Return);
+
+	user->WriteServ(retbuf);
 
 	return CMD_SUCCESS;
 }
