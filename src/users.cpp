@@ -1585,17 +1585,7 @@ void userrec::WriteWallOps(const std::string &text)
 	if (!IS_OPER(this) && IS_LOCAL(this))
 		return;
 
-	std::string wallop = "WALLOPS :";
-
-	try
-	{
-		wallop.append(text);
-	}
-	catch (...)
-	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::Write() std::string::append");
-		return;
-	}
+	std::string wallop = "WALLOPS :" + text;
 
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
