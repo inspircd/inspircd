@@ -57,7 +57,7 @@ class InvisibleMode : public ModeHandler
 
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
-		if ((source != dest) && (!*source->oper))
+		if (source != dest)
 			return MODEACTION_DENY;
 
 		if (dest->IsModeSet('Q') != adding)
