@@ -126,7 +126,7 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
-		if ((IS_LOCAL(user)) && (*dest->awaymsg))
+		if (IS_AWAY(dest))
 		{
 			/* auto respond with aweh msg */
 			user->WriteServ("301 %s %s :%s",user->nick,dest->nick,dest->awaymsg);

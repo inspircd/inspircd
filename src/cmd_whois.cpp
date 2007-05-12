@@ -57,7 +57,7 @@ void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned lo
 			ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick, dest->nick, dest->server, ServerInstance->GetServerDescription(dest->server).c_str());
 		}
 
-		if (*dest->awaymsg)
+		if (IS_AWAY(dest))
 		{
 			ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick, dest->nick, dest->awaymsg);
 		}
