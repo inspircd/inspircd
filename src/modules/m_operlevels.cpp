@@ -64,8 +64,9 @@ class ModuleOperLevels : public Module
 		virtual int OnKill(userrec* source, userrec* dest, const std::string &reason)
 		{
 			long dest_level = 0,source_level = 0;
+
 			// oper killing an oper?
-			if (*dest->oper)
+			if (IS_OPER(dest) && IS_OPER(source))
 			{
 				for (int j =0; j < conf->Enumerate("type"); j++)
 				{
