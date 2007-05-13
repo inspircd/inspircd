@@ -1260,6 +1260,8 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (a)
 		{
 			ourTS = a->age;
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
+			return;
 		}
 		else
 		{
@@ -1267,10 +1269,10 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			if (a)
 			{
 				ourTS = a->age;
+				params->insert(params->begin() + 1,ConvToStr(ourTS));
+				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 			}
 		}
-		params->insert(params->begin() + 1,ConvToStr(ourTS));
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 	}
 	else if (event->GetEventID() == "send_mode_explicit")
 	{
