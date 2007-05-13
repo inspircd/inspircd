@@ -81,13 +81,13 @@ void SpanningTreeUtilities::SetRemoteBursting(TreeServer* Server, bool bursting)
 	if (bursting)
 	{
 		if (iter == RemoteServersBursting.end())
-			RemoteServersBursting.erase(iter);
+			RemoteServersBursting.insert(make_pair(Server->GetName(), Server));
 		else return;
 	}
 	else
 	{
 		if (iter != RemoteServersBursting.end())
-			RemoteServersBursting.insert(make_pair(Server->GetName(), Server));
+			RemoteServersBursting.erase(iter);
 		else return;
 	}
 	ServerInstance->Log(DEBUG,"Server %s is %sbursting nicknames", Server->GetName().c_str(), bursting ? "" : "no longer ");

@@ -485,6 +485,12 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 			}
 		}
 	}
+
+	/* Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
+	 * This prevents lost REMOTECONNECT notices
+	 */
+	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
+		Utils->SetRemoteBursting(i->second, false);
 }
 
 void ModuleSpanningTree::ConnectServer(Link* x)

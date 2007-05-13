@@ -963,9 +963,6 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	Instance->AddGlobalClone(_new);
 
 	bool dosend = !(((this->Utils->quiet_bursts) && (this->bursting || Utils->FindRemoteBurstServer(remoteserver))) || (this->Instance->SilentULine(_new->server)));
-
-	Instance->Log(DEBUG,"SNOMASK send state: dosend=%d, quiet_bursts = %d, this->bursting = %d, FRBS=%d, silentuline=%d", 
-			dosend, this->Utils->quiet_bursts, this->bursting, Utils->FindRemoteBurstServer(remoteserver) != NULL, this->Instance->SilentULine(_new->server));
 	
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
