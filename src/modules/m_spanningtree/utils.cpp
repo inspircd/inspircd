@@ -41,8 +41,7 @@
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	server_hash::iterator iter;
-	iter = serverlist.find(ServerName.c_str());
+	server_hash::iterator iter = serverlist.find(ServerName.c_str());
 	if (iter != serverlist.end())
 	{
 		return iter->second;
@@ -55,8 +54,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 
 TreeServer* SpanningTreeUtilities::FindRemoteBurstServer(TreeServer* Server)
 {
-	server_hash::iterator iter;
-	iter = RemoteServersBursting.find(Server->GetName().c_str());
+	server_hash::iterator iter = RemoteServersBursting.find(Server->GetName().c_str());
 	if (iter != RemoteServersBursting.end())
 		return iter->second;
 	else
@@ -79,25 +77,25 @@ TreeSocket* SpanningTreeUtilities::FindBurstingServer(const std::string &ServerN
 
 void SpanningTreeUtilities::SetRemoteBursting(TreeServer* Server, bool bursting)
 {
-	ServerInstance->Log(DEBUG,"Server %s is %sbursting nicknames", Server->GetName().c_str(), bursting ? "" : "no longer ");
-	server_hash::iterator iter;
-	iter = RemoteServersBursting.find(Server->GetName().c_str());
+	server_hash::iterator iter = RemoteServersBursting.find(Server->GetName().c_str());
 	if (bursting)
 	{
 		if (iter == RemoteServersBursting.end())
 			RemoteServersBursting.erase(iter);
+		else return;
 	}
 	else
 	{
 		if (iter != RemoteServersBursting.end())
 			RemoteServersBursting.insert(make_pair(Server->GetName(), Server));
+		else return;
 	}
+	ServerInstance->Log(DEBUG,"Server %s is %sbursting nicknames", Server->GetName().c_str(), bursting ? "" : "no longer ");
 }
 
 void SpanningTreeUtilities::AddBurstingServer(const std::string &ServerName, TreeSocket* s)
 {
-	std::map<irc::string,TreeSocket*>::iterator iter;
-	iter = burstingserverlist.find(ServerName.c_str());
+	std::map<irc::string,TreeSocket*>::iterator iter = burstingserverlist.find(ServerName.c_str());
 	if (iter == burstingserverlist.end())
 		burstingserverlist[ServerName.c_str()] = s;
 }
