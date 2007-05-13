@@ -875,6 +875,9 @@
 #                  This can be useful for finding servers which are   #
 #                  at risk of pinging out due to network issues.      #
 #                                                                     #
+#  exemptchanops - This option allows channel operators to be exempted#
+#                  from certain channel modes.                        #
+#                  Supported modes are +Sc. Defaults to Sc.           #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -905,7 +908,8 @@
          hidemodes="eI"
          quietbursts="yes"
          pingwarning="15"
-         allowhalfop="yes">
+         allowhalfop="yes"
+	 exemptchanops="Sc">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
 # Time sychronization options for m_spanningtree linking.             #
@@ -1181,9 +1185,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c
 #<module name="m_blockcolor.so">
-#
-# Optionally, you can allow channel ops to bypass filtering. Defaults to no.
-# <blockcolor allowchanops="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Botmode module: Adds the user mode +B
@@ -1895,9 +1896,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip colour module: Adds the channel mode +S
 #<module name="m_stripcolor.so">
-#
-# Optionally, you can allow channel ops to bypass filtering. Defaults to no.
-# <stripcolor allowchanops="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SILENCE module: Adds support for /SILENCE

@@ -341,6 +341,14 @@ bool ValidateModeLists(ServerConfig* conf, const char* tag, const char* value, V
 	return true;
 }
 
+bool ValidateExemptChanOps(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	memset(conf->ExemptChanOps, 0, 256);
+	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
+		conf->ExemptChanOps[*x] = true;
+	return true;
+}
+
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
@@ -567,6 +575,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
+	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 
@@ -613,6 +622,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"announceinvites", "1",			new ValueContainerBool (&this->AnnounceInvites),	DT_BOOLEAN, NoValidation},
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
 		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
+		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR, ValidateExemptChanOps},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},

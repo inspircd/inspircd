@@ -61,22 +61,13 @@ class ModuleBlockColour : public Module
 		bc = new BlockColor(ServerInstance);
 		if (!ServerInstance->AddMode(bc, 'c'))
 			throw ModuleException("Could not add new modes!");
-
-		OnRehash(NULL, "");
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
 	}
 
-
-	virtual void OnRehash(userrec* user, const std::string &parameter)
-	{
-		ConfigReader Conf(ServerInstance);
-
-		AllowChanOps = Conf.ReadFlag("blockcolor", "allowchanops", 0);
-	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
@@ -86,7 +77,7 @@ class ModuleBlockColour : public Module
 			
 			if(c->IsModeSet('c'))
 			{
-				if (!AllowChanOps || AllowChanOps && c->GetStatus(user) != STATUS_OP)
+				if (!CHANOPS_EXEMPT(ServerInstance, 'c') || CHANOPS_EXEMPT(ServerInstance, 'c') && c->GetStatus(user) != STATUS_OP)
 				{
 					for (std::string::iterator i = text.begin(); i != text.end(); i++)
 					{
