@@ -50,6 +50,10 @@ public:
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
+		SQLprovider = Srv->FindFeature("SQL");
+		if (!SQLprovider)
+			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
+
 		OnRehash(NULL,"");
 	}
 
@@ -103,37 +107,25 @@ public:
 
 	bool CheckCredentials(userrec* user)
 	{
-		Module* target;
-		
-		target = Srv->FindFeature("SQL");
-		
-		if(target)
-		{
-			SQLrequest req = SQLreq(this, target, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, user->nick, passfield, encryption, user->password);
+		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, user->nick, passfield, encryption, user->password);
 			
-			if(req.Send())
-			{
-				/* When we get the query response from the service provider we will be given an ID to play with,
-				 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
-				 * so we insert it into a map mapping the IDs to users.
-				 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
-				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
-				 * us to discard the query.
-			 	 */
-				AssociateUser(this, SQLutils, req.id, user).Send();
-					
-				return true;
-			}
-			else
-			{
-				if (verbose)
-					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
-				return false;
-			}
+		if(req.Send())
+		{
+			/* When we get the query response from the service provider we will be given an ID to play with,
+			 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
+			 * so we insert it into a map mapping the IDs to users.
+			 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
+			 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
+			 * us to discard the query.
+		 	 */
+			AssociateUser(this, SQLutils, req.id, user).Send();
+				
+			return true;
 		}
 		else
 		{
-			ServerInstance->Log(SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be allowed to connect until it comes back unless they match an exception");
+			if (verbose)
+				Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
 			return false;
 		}
 	}
