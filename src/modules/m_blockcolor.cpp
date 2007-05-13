@@ -52,21 +52,30 @@ class BlockColor : public ModeHandler
 
 class ModuleBlockColour : public Module
 {
-	
+	bool AllowChanOps;	
 	BlockColor *bc;
  public:
  
 	ModuleBlockColour(InspIRCd* Me) : Module::Module(Me)
 	{
-		
 		bc = new BlockColor(ServerInstance);
 		if (!ServerInstance->AddMode(bc, 'c'))
 			throw ModuleException("Could not add new modes!");
+
+		OnRehash(NULL, "");
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+	}
+
+
+	virtual void OnRehash(userrec* user, const std::string &parameter)
+	{
+		ConfigReader Conf(ServerInstance);
+
+		AllowChanOps = Conf.ReadFlag("blockcolor", "allowchanops", 0);
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -77,20 +86,22 @@ class ModuleBlockColour : public Module
 			
 			if(c->IsModeSet('c'))
 			{
-				/* Replace a strlcpy(), which ran even when +c wasn't set, with this (no copies at all) -- Om */
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
+				if (!AllowChanOps || AllowChanOps && c->GetStatus(user) != STATUS_OP)
 				{
-					switch (*i)
+					for (std::string::iterator i = text.begin(); i != text.end(); i++)
 					{
-						case 2:
-						case 3:
-						case 15:
-						case 21:
-						case 22:
-						case 31:
-							user->WriteServ("404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
-							return 1;
-						break;
+						switch (*i)
+						{
+							case 2:
+							case 3:
+							case 15:
+							case 21:
+							case 22:
+							case 31:
+								user->WriteServ("404 %s %s :Can't send colours to channel (+c set)",user->nick, c->name);
+								return 1;
+							break;
+						}
 					}
 				}
 			}

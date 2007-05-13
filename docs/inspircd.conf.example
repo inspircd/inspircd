@@ -1181,6 +1181,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block colour module: Blocking colour-coded messages with cmode +c
 #<module name="m_blockcolor.so">
+#
+# Optionally, you can allow channel ops to bypass filtering. Defaults to no.
+# <blockcolor allowchanops="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Botmode module: Adds the user mode +B
