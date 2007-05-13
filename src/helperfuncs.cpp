@@ -405,6 +405,30 @@ bool InspIRCd::IsNick(const char* n)
 	return (p < NICKMAX - 1);
 }
 
+
+bool InspIRCd::IsIdent(const char* n)
+{
+	if (!n || !*n)
+		return false;
+
+	for (char* i = (char*)n; *i; i++)
+	{
+		if ((*i >= 'A') && (*i <= '}'))
+		{
+			continue;
+		}
+
+		if (((*i >= '0') && (*i <= '9')) || (*i == '-') || (*i == '.'))
+		{
+			continue;
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
 void InspIRCd::OpenLog(char** argv, int argc)
 {
 	Config->MyDir = ServerConfig::GetFullProgDir(argv,argc);
