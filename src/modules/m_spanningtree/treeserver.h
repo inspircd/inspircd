@@ -46,6 +46,8 @@ class TreeServer : public classbase
 
  public:
 
+	bool Warned;				/* True if we've warned opers about high latency on this server */
+
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */

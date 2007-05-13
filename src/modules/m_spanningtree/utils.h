@@ -72,6 +72,10 @@ class SpanningTreeUtilities
 	/** Socket bindings for listening sockets
 	 */
 	std::vector<TreeSocket*> Bindings;
+	/* Number of seconds that a server can go without ping
+	 * before opers are warned of high latency.
+	 */
+	int PingWarnTime;
 	/** This variable represents the root of the server tree
 	 */
 	TreeServer *TreeRoot;

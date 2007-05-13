@@ -505,6 +505,11 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	MasterTime = Conf->ReadFlag("timesync", "master", 0);
 	ChallengeResponse = !Conf->ReadFlag("options", "disablehmac", 0);
 	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
+	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);
+
+	if (PingWarnTime < 0 || PingWarnTime > 59)
+		PingWarnTime = 0;
+
 	LinkBlocks.clear();
 	ValidIPs.clear();
 	for (int j =0; j < Conf->Enumerate("link"); j++)

@@ -267,13 +267,13 @@
 
 <connect allow="*"
          timeout="60"
-	 flood="20"
-	 threshold="1"
-	 pingfreq="120"
-	 sendq="262144"
-	 recvq="8192"
-	 localmax="3"
-	 globalmax="3">
+         flood="20"
+         threshold="1"
+         pingfreq="120"
+         sendq="262144"
+         recvq="8192"
+         localmax="3"
+         globalmax="3">
 
 <connect deny="69.254.*">
 <connect deny="3ffe::0/32">
@@ -868,6 +868,13 @@
 #                  such as BOPM which rely on them to scan users when #
 #                  a split heals in certain configurations.           #
 #                                                                     #
+#  pingwarning   - This should be set to a number between 1 and 59 if #
+#                  defined, and if it is defined will cause the server#
+#                  to send out a warning via snomask +l if a server   #
+#                  does not answer to PING after this many seconds.   #
+#                  This can be useful for finding servers which are   #
+#                  at risk of pinging out due to network issues.      #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -876,7 +883,7 @@
          noservices="no"
          qaprefixes="no"
          deprotectself="no"
-	 deprotectothers="no"
+         deprotectothers="no"
          somaxconn="128"
          softlimit="12800"
          userstats="Pu"
@@ -893,10 +900,11 @@
          cyclehosts="yes"
          ircumsgprefix="no"
          announcets="yes"
-	 disablehmac="no"
+         disablehmac="no"
          hostintopic="yes"
-	 hidemodes="eI"
-	 quietbursts="yes"
+         hidemodes="eI"
+         quietbursts="yes"
+         pingwarning="15"
          allowhalfop="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
