@@ -909,7 +909,7 @@
          quietbursts="yes"
          pingwarning="15"
          allowhalfop="yes"
-	 exemptchanops="Sc">
+	 exemptchanops="Scf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
 # Time sychronization options for m_spanningtree linking.             #
