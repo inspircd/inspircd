@@ -174,7 +174,7 @@ class ModuleInvisible : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = List[I_OnRehash] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = List[I_OnRehash] = 1;
 	}
 	
 	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
@@ -226,6 +226,26 @@ class ModuleInvisible : public Module
 				}
 			}
 		}
+	}
+
+	/* No privmsg response when hiding - submitted by Eric at neowin */
+	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
+		{
+			userrec* target = (userrec*)dest;
+			if(target->IsModeSet('Q') && !*user->oper)
+			{
+				user->WriteServ("401 %s %s :No such nick/channel",user->nick, target->nick);
+				return 1;
+			}
+		}
+		return 0;
+	}
+	
+	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 	}
 
 	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
