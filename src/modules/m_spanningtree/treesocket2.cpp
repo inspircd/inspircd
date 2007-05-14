@@ -1251,6 +1251,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PING")
 			{
+				if (prefix == "")
+					prefix = this->GetName();
 				/*
 				 * We just got a ping from a server that's bursting.
 				 * This can't be right, so set them to not bursting, and
@@ -1266,14 +1268,13 @@ bool TreeSocket::ProcessLine(std::string &line)
 					Instance->XLines->apply_lines(Utils->lines_to_apply);
 					Utils->lines_to_apply = 0;
 				}
-				if (prefix == "")
-				{
-					prefix = this->GetName();
-				}
+
 				return this->LocalPing(prefix,params);
 			}
 			else if (command == "PONG")
 			{
+				if (prefix == "")
+					prefix = this->GetName();
 				/*
 				 * We just got a pong from a server that's bursting.
 				 * This can't be right, so set them to not bursting, and
@@ -1289,10 +1290,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					Instance->XLines->apply_lines(Utils->lines_to_apply);
 					Utils->lines_to_apply = 0;
 				}
-				if (prefix == "")
-				{
-					prefix = this->GetName();
-				}
+
 				return this->LocalPong(prefix,params);
 			}
 			else if (command == "VERSION")
