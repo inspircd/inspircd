@@ -690,8 +690,8 @@ void userrec::AddWriteBuf(const std::string &data)
 
 	try
 	{
-		if (data.length() > 512)
-			sendq.append(data.substr(0,510)).append("\r\n");
+		if (data.length() > MAXBUF - 2) /* MAXBUF has a value of 514, to account for line terminators */
+			sendq.append(data.substr(0,MAXBUF - 4)).append("\r\n"); /* MAXBUF-4 = 510 */
 		else
 			sendq.append(data);
 	}

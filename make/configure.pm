@@ -257,6 +257,9 @@ InspIRCd 1.0.x, are also allowed.
   --with-away-length=[n]       Specify max length of away [150]
   --with-max-modes=[n]         Specify max modes per line which
                                have parameters [20]
+  --with-maxbuf=[n]            Change the per message buffer size [512]
+                               DO NOT ALTER THIS OPTION WITHOUT GOOD REASON
+                               AS IT *WILL* BREAK CLIENTS!!!
   --prefix=[directory]         Base directory to install into (if defined,
                                can automatically define config, module, bin
 			       and library dirs as subdirectories of prefix)

@@ -47,6 +47,7 @@ GetOptions (
 	'with-ident-length=i' => \$opt_ident,
 	'with-quit-length=i' => \$opt_quit,
 	'with-topic-length=i' => \$opt_topic,
+	'with-maxbuf=i' => \$opt_maxbuf,
 	'with-kick-length=i' => \$opt_kick,
 	'with-gecos-length=i' => \$opt_gecos,
 	'with-away-length=i' => \$opt_away,
@@ -95,6 +96,7 @@ my $non_interactive = (
 	(defined $opt_nokqueue) ||
 	(defined $opt_noepoll) ||
 	(defined $opt_noports) ||
+	(defined $opt_maxbuf) ||
 	(defined $opt_use_gnutls)
 );
 my $interactive = !$non_interactive;
@@ -102,9 +104,9 @@ my $interactive = !$non_interactive;
 
 chomp($topdir = getcwd());
 $this = resolve_directory($topdir);						# PWD, Regardless.
-@modlist = ();						  		# Declare for Module List..
-%config = ();						   		# Initiate Configuration Hash..
-$config{ME}		 = resolve_directory($topdir);			# Present Working Directory
+@modlist = ();							  		# Declare for Module List..
+%config = ();						   			# Initiate Configuration Hash..
+$config{ME}		 = resolve_directory($topdir);				# Present Working Directory
 
 $config{BASE_DIR}	   = $config{ME};
 
@@ -113,8 +115,8 @@ if (defined $opt_base_dir)
 	$config{BASE_DIR} = $opt_base_dir;
 }
 
-$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");		# Configuration Directory
-$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");		# Modules Directory
+$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
+$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 $config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
 $config{LIBRARY_DIR}	= resolve_directory($config{BASE_DIR}."/lib");		# Library Directory
 
@@ -135,13 +137,13 @@ if (defined $opt_library_dir)
 	$config{LIBRARY_DIR} = $opt_library_dir;
 }
 chomp($config{HAS_GNUTLS}   = `libgnutls-config --version 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
-chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);			# Openssl version
+chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version
 chomp($gnutls_ver = $config{HAS_GNUTLS});
 chomp($openssl_ver = $config{HAS_OPENSSL});
 $config{USE_GNUTLS}	    = "n";
 if (defined $opt_use_gnutls)
 {
-	$config{USE_GNUTLS} = "y";						# Use gnutls.
+	$config{USE_GNUTLS} = "y";					# Use gnutls.
 }
 $config{USE_OPENSSL}	= "n";						# Use openssl.
 if (defined $opt_use_openssl)
@@ -150,14 +152,14 @@ if (defined $opt_use_openssl)
 }
 
 # no, let's not change these.
-$config{OPTIMITEMP}	 = "0";			      		# Default Optimisation Value
+$config{OPTIMITEMP}	 = "0";			      			# Default Optimisation Value
 if (!defined $opt_disable_debug)
 {
 	$config{OPTIMISATI}	 = "-g1";			     	# Optimisation Flag
 }
 else
 {
-	$config{OPTIMISATI}	 = "-O2";					# DEBUGGING OFF!
+	$config{OPTIMISATI}	 = "-O2";				# DEBUGGING OFF!
 }
 
 $config{NICK_LENGT}	 = "31";			     		# Default Nick Length
@@ -176,7 +178,7 @@ if (defined $opt_modes)
 	$config{MAXI_MODES} = $opt_modes;
 }
 $config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
-$config{HAS_STDINT}	 = "false";						# stdint.h check
+$config{HAS_STDINT}	 = "false";					# stdint.h check
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
 if (defined $opt_kqueue)
 {
@@ -186,7 +188,7 @@ if (defined $opt_nokqueue)
 {
 	$config{USE_KQUEUE} = "n";
 }
-$config{USE_EPOLL}	  = "y";						# epoll enabled
+$config{USE_EPOLL}	  = "y";					# epoll enabled
 if (defined $opt_epoll)
 {
 	$config{USE_EPOLL} = "y";
@@ -195,7 +197,7 @@ if (defined $opt_noepoll)
 {
 	$config{USE_EPOLL} = "n";
 }
-$config{USE_PORTS}	  = "y";						# epoll enabled
+$config{USE_PORTS}	  = "y";					# epoll enabled
 if (defined $opt_ports)
 {
 	$config{USE_PORTS} = "y";
@@ -209,7 +211,7 @@ if (defined $opt_ipv6)
 {
 	$config{IPV6} = "y";
 }
-$config{SUPPORT_IP6LINKS}   = "y";						# IPv4 supporting IPv6 links (experimental)
+$config{SUPPORT_IP6LINKS}   = "y";					# IPv4 supporting IPv6 links (experimental)
 if (defined $opt_ipv6links)
 {
 	$config{SUPPORT_IP6LINKS} = "y";
@@ -218,13 +220,13 @@ if (defined $opt_noipv6links)
 {
 	$config{SUPPORT_IP6LINKS} = "n";
 }
-$config{STATIC_LINK}	    = "no";						# are doing static modules?
+$config{STATIC_LINK}	    = "no";					# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);	   		# FD Limit
-chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);			# Hard FD Limit
-chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   		# Major GCC Version
-$config{_SOMAXCONN} = SOMAXCONN;						# Max connections in accept queue
+chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);		# Hard FD Limit
+chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
+$config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
-$config{IS_DARWIN}          = "NO";						# Is OSX?
+$config{IS_DARWIN}          = "NO";					# Is OSX?
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
@@ -235,15 +237,16 @@ if (defined $opt_cc)
 	$config{CC} = $opt_cc;
 }
 $exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}       = `$exec`);						# Major GCC Version
-$config{MAKEORDER}	    = "ircd mods";					# build order
-$config{STATICLIBS}	 = "";						# library archive path
-$config{MAX_IDENT}	  = "12";						# max ident size
-$config{MAX_QUIT}	   = "255";						# max quit message size
-$config{MAX_TOPIC}	  = "307";						# max topic size
-$config{MAX_KICK}	   = "255";						# max kick message size
-$config{MAX_GECOS}	  = "128";						# max GECOS size
-$config{MAX_AWAY}	   = "200";						# max AWAY size
+chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
+$config{MAKEORDER}		= "ircd mods";				# build order
+$config{STATICLIBS}		= "";					# library archive path
+$config{MAX_IDENT}		= "12";					# max ident size
+$config{MAX_QUIT}		= "255";				# max quit message size
+$config{MAX_TOPIC}		= "307";				# max topic size
+$config{MAX_KICK}		= "255";				# max kick message size
+$config{MAX_GECOS}		= "128";				# max GECOS size
+$config{MAX_AWAY}		= "200";				# max AWAY size
+$config{MAXBUF}			= "512";				# Max buffer size
 if (defined $opt_ident)
 {
 	$config{MAX_IDENT} = $opt_ident;
@@ -982,8 +985,9 @@ sub writefiles {
 #define OPTIMISATION $config{OPTIMITEMP}
 #define LIBRARYDIR "$config{LIBRARY_DIR}"
 #define SYSTEM "$incos"
-#define MAXBUF 514
 EOF
+print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
+
 		if ($config{OSNAME} =~ /SunOS/i) {
 			print FILEHANDLE "#define IS_SOLARIS\n";
 		}
