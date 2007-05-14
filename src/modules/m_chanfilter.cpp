@@ -92,7 +92,7 @@ class ModuleChanFilter : public Module
 
 	virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
 	{
-		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'g') && chan->->GetStatus(user) == STATUS_OP)
+		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP)
 			return 0;
 
 		// Create a copy of the string in irc::string
