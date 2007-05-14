@@ -206,40 +206,42 @@ class ModuleMsgFlood : public Module
 	
 	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
 	{
-		if (IS_LOCAL(user))
+		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP)
 		{
-			floodsettings *f;
-			if (dest->GetExt("flood", f))
+			return;
+		}
+
+		floodsettings *f;
+		if (dest->GetExt("flood", f))
+		{
+			f->addmessage(user);
+			if (f->shouldkick(user))
 			{
-				f->addmessage(user);
-				if (f->shouldkick(user))
+				/* Youre outttta here! */
+				f->clear(user);
+				if (f->ban)
 				{
-					/* Youre outttta here! */
-					f->clear(user);
-					if (f->ban)
-					{
-						const char* parameters[3];
-						parameters[0] = dest->name;
-						parameters[1] = "+b";
-						parameters[2] = user->MakeWildHost();
-						ServerInstance->SendMode(parameters,3,user);
-						std::deque<std::string> n;
-						/* Propogate the ban to other servers.
-						 * We dont know what protocol we may be using,
-						 * so this event is picked up by our protocol
-						 * module and formed into a ban command that
-						 * suits the protocol in use.
-						 */
-						n.push_back(dest->name);
-						n.push_back("+b");
-						n.push_back(user->MakeWildHost());
-						Event rmode((char *)&n, NULL, "send_mode");
-						rmode.Send(ServerInstance);
-					}
-					char kickmessage[MAXBUF];
-					snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
-					dest->ServerKickUser(user, kickmessage, true);
+					const char* parameters[3];
+					parameters[0] = dest->name;
+					parameters[1] = "+b";
+					parameters[2] = user->MakeWildHost();
+					ServerInstance->SendMode(parameters,3,user);
+					std::deque<std::string> n;
+					/* Propogate the ban to other servers.
+					 * We dont know what protocol we may be using,
+					 * so this event is picked up by our protocol
+					 * module and formed into a ban command that
+					 * suits the protocol in use.
+					 */
+					n.push_back(dest->name);
+					n.push_back("+b");
+					n.push_back(user->MakeWildHost());
+					Event rmode((char *)&n, NULL, "send_mode");
+					rmode.Send(ServerInstance);
 				}
+				char kickmessage[MAXBUF];
+				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
+				dest->ServerKickUser(user, kickmessage, true);
 			}
 		}
 	}
