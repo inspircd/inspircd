@@ -15,6 +15,7 @@
 #include "channels.h"
 #include "modules.h"
 #include "inspircd.h"
+#include "stdarg.h"
 
 /* $ModDesc: Allows for opered clients to join channels without being seen, similar to unreal 3.1 +I mode */
 
@@ -182,7 +183,7 @@ class ModuleInvisible : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
-			user->WriteFrom(user, "JOIN %s", channel->name);
+			this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
 			ServerInstance->WriteOpers("*** \2NOTICE\2: Oper %s has joined %s invisibly (+Q)", user->GetFullHost(), channel->name);
 		}
 	}
@@ -199,7 +200,7 @@ class ModuleInvisible : public Module
 		{
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos leaving (but only them of course) */
-			user->WriteFrom(user, "PART %s%s%s", channel->name,
+			this->WriteCommonFrom(user, channel, "PART %s%s%s", channel->name,
 					partmessage.empty() ? "" : " :",
 					partmessage.empty() ? "" : partmessage.c_str());
 		}
@@ -226,6 +227,31 @@ class ModuleInvisible : public Module
 			}
 		}
 	}
+
+	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
+	void WriteCommonFrom(userrec *user, chanrec* channel, const char* text, ...)
+	{
+		va_list argsPtr;
+		char textbuffer[MAXBUF];
+		char tb[MAXBUF];
+	
+		va_start(argsPtr, text);
+		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+		va_end(argsPtr);
+		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),textbuffer);
+		
+		CUList *ulist = channel->GetUsers();
+		
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			/* User only appears to vanish for non-opers */
+			if (IS_LOCAL(i->first) && IS_OPER(i->first))
+			{
+				i->first->Write(std::string(tb));
+			}
+		}
+	}
+
 };
 
 class ModuleInvisibleFactory : public ModuleFactory
