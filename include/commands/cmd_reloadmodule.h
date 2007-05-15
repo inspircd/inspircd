@@ -14,20 +14,20 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CMD_ISON_H__
-#define __CMD_ISON_H__
+#ifndef __CMD_RELOADMODULE_H__
+#define __CMD_RELOADMODULE_H__
 
 // include the common header files
 
 #include "users.h"
 #include "channels.h"
 
-/** Handle /ISON
+/** Handle /RELOADMODULE
  */
-class cmd_ison : public command_t
+class cmd_reloadmodule : public command_t
 {
  public:
-        cmd_ison (InspIRCd* Instance) : command_t(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
+        cmd_reloadmodule (InspIRCd* Instance) : command_t(Instance,"RELOADMODULE",'o',1) { syntax = "<modulename>"; }
         CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

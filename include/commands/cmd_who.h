@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd is copyright (C) 2002-2006 ChatSpike-Dev.
+ *  InspIRCd is copyright (C) 2002-2007 ChatSpike-Dev.
  *		       E-mail:
  *		<brain@chatspike.net>
  *		<Craig@chatspike.net>
