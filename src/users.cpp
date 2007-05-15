@@ -908,6 +908,20 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		return;
 	}
 
+	/* fix: do maxperlocal/global IP here, not on full connect to stop fd exhaustion attempts */
+	if ((i->GetMaxLocal()) && (New->LocalCloneCount() > i->GetMaxLocal()))
+	{
+		userrec::QuitUser(Instance, New, "No more connections allowed from your host via this connect class (local)");
+		Instance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", i->GetMaxLocal(), New->GetIPString());
+		return;
+	}
+	else if ((i->GetMaxGlobal()) && (New->GlobalCloneCount() > i->GetMaxGlobal()))
+	{
+		userrec::QuitUser(Instance, New, "No more connections allowed from your host via this connect class (global)");
+		Instance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",i->GetMaxGlobal(), New->GetIPString());
+		return;
+	}
+
 	New->pingmax = i->GetPingTime();
 	New->nping = Instance->Time() + i->GetPingTime() + Instance->Config->dns_timeout;
 	New->timeout = Instance->Time() + i->GetRegTimeout();
@@ -1005,21 +1019,6 @@ void userrec::FullConnect()
 	{
 		this->muted = true;
 		ServerInstance->GlobalCulls.AddItem(this,"Invalid password");
-		return;
-	}
-
-	if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
-	{
-		this->muted = true;
-		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
-		return;
-	}
-	else if ((a->GetMaxGlobal()) && (this->GlobalCloneCount() > a->GetMaxGlobal()))
-	{
-		this->muted = true;
-		ServerInstance->GlobalCulls.AddItem(this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
 
