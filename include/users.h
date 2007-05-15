@@ -708,6 +708,10 @@ class userrec : public connection
 	 */
 	void Oper(const std::string &opertype);
 
+	/** Call this method to find the matching <connect> for a user, and to check them against it.
+	 */
+	void CheckClass();
+
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
 	 */

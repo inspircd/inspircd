@@ -900,27 +900,12 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	Instance->AddLocalClone(New);
 	Instance->AddGlobalClone(New);
 
+	/*
+	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
+	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
+	 */
 	ConnectClass* i = New->GetClass();
-
-	if ((!i) || (i->GetType() == CC_DENY))
-	{
-		userrec::QuitUser(Instance, New,"Unauthorised connection");
-		return;
-	}
-
-	/* fix: do maxperlocal/global IP here, not on full connect to stop fd exhaustion attempts */
-	if ((i->GetMaxLocal()) && (New->LocalCloneCount() > i->GetMaxLocal()))
-	{
-		userrec::QuitUser(Instance, New, "No more connections allowed from your host via this connect class (local)");
-		Instance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", i->GetMaxLocal(), New->GetIPString());
-		return;
-	}
-	else if ((i->GetMaxGlobal()) && (New->GlobalCloneCount() > i->GetMaxGlobal()))
-	{
-		userrec::QuitUser(Instance, New, "No more connections allowed from your host via this connect class (global)");
-		Instance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s",i->GetMaxGlobal(), New->GetIPString());
-		return;
-	}
+	New->CheckClass();
 
 	New->pingmax = i->GetPingTime();
 	New->nping = Instance->Time() + i->GetPingTime() + Instance->Config->dns_timeout;
@@ -1001,26 +986,57 @@ unsigned long userrec::LocalCloneCount()
 		return 0;
 }
 
-void userrec::FullConnect()
+/*
+ * Check class restrictions
+ */
+void userrec::CheckClass()
 {
-	ServerInstance->stats->statsConnects++;
-	this->idle_lastmsg = ServerInstance->Time();
-
 	ConnectClass* a = this->GetClass();
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
-		this->muted = true;
-		ServerInstance->GlobalCulls.AddItem(this,"Unauthorised connection");
+		userrec::QuitUser(ServerInstance, this, "Unauthorised connection");
 		return;
 	}
 
 	if ((!a->GetPass().empty()) && (!this->haspassed))
 	{
-		this->muted = true;
-		ServerInstance->GlobalCulls.AddItem(this,"Invalid password");
+		userrec::QuitUser(ServerInstance, this, "Invalid password");
 		return;
 	}
+
+	if ((!a) || (a->GetType() == CC_DENY))
+	{
+		userrec::QuitUser(ServerInstance, this,"Unauthorised connection");
+		return;
+	}
+
+	if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
+	{
+		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
+		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+		return;
+	}
+	else if ((a->GetMaxGlobal()) && (this->GlobalCloneCount() > a->GetMaxGlobal()))
+	{
+		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
+		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+		return;
+	}
+}
+
+void userrec::FullConnect()
+{
+	ServerInstance->stats->statsConnects++;
+	this->idle_lastmsg = ServerInstance->Time();
+
+	/*
+	 * You may be thinking "wtf, we checked this in userrec::AddClient!" - and yes, we did, BUT.
+	 * At the time AddClient is called, we don't have a resolved host, by here we probably do - which
+	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
+	 * Don't remove this! -- w00t
+	 */
+	this->CheckClass();
 
 	if (!this->exempt)
 	{
