@@ -83,7 +83,8 @@ class ModuleNoNickChange : public Module
 			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 			{
 				chanrec* curr = i->first;
-				if ((curr->IsModeSet('N')) && (!IS_OPER(user)))
+
+				if (curr->IsModeSet('N'))
 				{
 					// don't allow the nickchange, theyre on at least one channel with +N set
 					// and theyre not an oper
