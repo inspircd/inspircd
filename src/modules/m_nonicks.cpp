@@ -86,13 +86,15 @@ class ModuleNoNickChange : public Module
 
 				if (curr->IsModeSet('N'))
 				{
-					// don't allow the nickchange, theyre on at least one channel with +N set
-					// and theyre not an oper
+					if (CHANOPS_EXEMPT(ServerInstance, 'N') && curr->GetStatus(user) == STATUS_OP)
+						continue;
+
 					user->WriteServ("447 %s :Can't change nickname while on %s (+N is set)", user->nick, curr->name);
 					return 1;
 				}
 			}
 		}
+
 		return 0;
 	}
 };
