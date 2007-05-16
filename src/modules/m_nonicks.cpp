@@ -78,9 +78,7 @@ class ModuleNoNickChange : public Module
 
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
-		irc::string server = user->server;
-		irc::string me = ServerInstance->Config->ServerName;
-		if (server == me)
+		if (IS_LOCAL(user))
 		{
 			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 			{
