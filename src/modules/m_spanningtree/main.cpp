@@ -1265,7 +1265,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (a)
 		{
 			ourTS = a->age;
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 			return;
 		}
 		else
