@@ -877,7 +877,7 @@
 #                                                                     #
 #  exemptchanops - This option allows channel operators to be exempted#
 #                  from certain channel modes.                        #
-#                  Supported modes are +Sc. Defaults to Sc.           #
+#                  Supported modes are +SfgNc. Defaults to off.       #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -909,7 +909,7 @@
          quietbursts="yes"
          pingwarning="15"
          allowhalfop="yes"
-	 exemptchanops="Scfg">
+	 exemptchanops="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
 # Time sychronization options for m_spanningtree linking.             #
