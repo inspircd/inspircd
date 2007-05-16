@@ -549,6 +549,9 @@ void CommandParser::SetupCommandTable()
 {
 	RFCCommands.clear();
 
+	printf("\nLoading core commands");
+	fflush(stdout);
+
 	DIR* library = opendir(LIBRARYDIR);
 	if (library)
 	{
@@ -557,10 +560,13 @@ void CommandParser::SetupCommandTable()
 		{
 			if (match(entry->d_name, "cmd_*.so"))
 			{
+				printf(".");
+				fflush(stdout);
 				this->LoadCommand(entry->d_name);
 			}
 		}
 		closedir(library);
+		printf("\n");
 	}
 
 	this->CreateCommand(new cmd_reload(ServerInstance));

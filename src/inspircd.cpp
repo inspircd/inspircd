@@ -419,7 +419,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Modes = new ModeParser(this);
 	this->AddServerName(Config->ServerName);
 	CheckDie();
-	InitializeDisabledCommands(Config->DisabledCommands, this);
 	int bounditems = BindPorts(true, found_ports, pl);
 
 	for(int t = 0; t < 255; t++)
@@ -434,6 +433,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->LoadAllModules();
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
+	InitializeDisabledCommands(Config->DisabledCommands, this);
 
 	if ((Config->ports.size() == 0) && (found_ports > 0))
 	{
