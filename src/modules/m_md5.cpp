@@ -65,8 +65,7 @@ class ModuleMD5 : public Module
 			p += 4;
 		} while (--words);
 	}
-	
-	/* XXX - maybe if we had an md5/encryption moduletype? *shrug* */
+
 	void MD5Init(struct MD5Context *ctx, unsigned int* key = NULL)
 	{
 		/* These are the defaults for md5 */
