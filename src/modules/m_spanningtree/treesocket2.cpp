@@ -1559,7 +1559,12 @@ void TreeSocket::OnClose()
 	}
 
 	if (quitserver != "")
+	{
 		this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
+		time_t server_uptime = Instance->Time() - this->age;	
+		if (server_uptime)
+			Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+	}
 }
 
 int TreeSocket::OnIncomingConnection(int newsock, char* ip)

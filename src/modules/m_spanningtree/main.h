@@ -143,6 +143,10 @@ class ModuleSpanningTree : public Module
 	 */
 	const std::string MapOperInfo(TreeServer* Current);
 
+	/** Display a time as a human readable string
+	 */
+	std::string TimeToStr(time_t secs);
+
 	/**
 	 ** *** MODULE EVENTS ***
 	 **/

@@ -147,19 +147,24 @@ void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, userrec
 	return;
 }
 
+std::string ModuleSpanningTree::TimeToStr(time_t secs)
+{
+	time_t mins_up = secs / 60;
+	time_t hours_up = mins_up / 60;
+	time_t days_up = hours_up / 24;
+	secs = secs % 60;
+	mins_up = mins_up % 60;
+	hours_up = hours_up % 24;
+	return ((days_up ? (ConvToStr(days_up) + "d") : std::string(""))
+			+ (hours_up ? (ConvToStr(hours_up) + "h") : std::string(""))
+			+ (mins_up ? (ConvToStr(mins_up) + "m") : std::string(""))
+			+ ConvToStr(secs) + "s");
+}
+
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
 	time_t secs_up = ServerInstance->Time() - Current->age;
-	time_t mins_up = secs_up / 60;
-	time_t hours_up = mins_up / 60;
-	time_t days_up = hours_up / 24;
-	secs_up = secs_up % 60;
-	mins_up = mins_up % 60;
-	hours_up = hours_up % 24;
-	return (" [Up: "+ (days_up ? (ConvToStr(days_up) + "d") : std::string(""))
-			+ (hours_up ? (ConvToStr(hours_up) + "h") : std::string(""))
-			+ (mins_up ? (ConvToStr(mins_up) + "m") : std::string(""))
-			+ ConvToStr(secs_up) + "s Lag: "+ConvToStr(Current->rtt)+"s]");
+	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"s]");
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
@@ -1260,7 +1265,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (a)
 		{
 			ourTS = a->age;
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 			return;
 		}
 		else

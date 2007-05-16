@@ -98,9 +98,7 @@ class ModuleModesOnOper : public Module
 					}
 					std::deque<std::string> n;
 					Event rmode((char *)&n, NULL, "send_mode");
-					n.push_back(user->nick);
-					n.push_back(modes[0]);
-					for (unsigned int j = 1; j < tokens.size(); j++)
+					for (unsigned int j = 0; j < tokens.size(); j++)
 					{
 						n.push_back(modes[j]);
 					}
