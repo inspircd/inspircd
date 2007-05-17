@@ -318,7 +318,6 @@ class ModuleDCCAllow : public Module
 		
 			if ((text.length()) && (text[0] == '\1'))
 			{
-
 				Expire();
 
 				// :jamie!jamie@test-D4457903BA652E0F.silverdream.org PRIVMSG eimaj :DCC SEND m_dnsbl.cpp 3232235786 52650 9676
@@ -328,24 +327,17 @@ class ModuleDCCAllow : public Module
 				{
 					u->GetExt("dccallow_list", dl);
 		
-					if (dl)
+					if (dl && dl->size())
 					{
-						if (dl->size())
-						{
-							for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
-							{
-								if (ServerInstance->MatchText(user->GetFullHost(), iter->hostmask))
-								{
-									return 0;
-								}
-							}
-						}
+						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
+							if (ServerInstance->MatchText(user->GetFullHost(), iter->hostmask))
+								return 0;
 					}
 		
 					// tokenize
-					stringstream ss(text);
+					std::stringstream ss(text);
 					std::string buf;
-					vector<string> tokens;
+					std::vector<std::string> tokens;
 		
 					while (ss >> buf)
 						tokens.push_back(buf);
@@ -377,6 +369,7 @@ class ModuleDCCAllow : public Module
 							user->WriteServ("NOTICE %s :The user %s is not accepting DCC SENDs from you. Your file %s was not sent.", user->nick, u->nick, filename.c_str());
 							u->WriteServ("NOTICE %s :%s (%s@%s) attempted to send you a file named %s, which was blocked.", u->nick, user->nick, user->ident, user->dhost, filename.c_str());
 							u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick, user->nick);
+							return 1;
 						}
 					}
 					else if ((type == "CHAT") && (blockchat))
@@ -384,8 +377,8 @@ class ModuleDCCAllow : public Module
 						user->WriteServ("NOTICE %s :The user %s is not accepting DCC CHAT requests from you.", user->nick, u->nick);
 						u->WriteServ("NOTICE %s :%s (%s@%s) attempted to initiate a DCC CHAT session, which was blocked.", u->nick, user->nick, user->ident, user->dhost);
 						u->WriteServ("NOTICE %s :If you trust %s and were expecting this, you can type /DCCALLOW HELP for information on the DCCALLOW system.", u->nick, user->nick);
+						return 1;
 					}
-					return 1;
 				}
 			}
 		}
