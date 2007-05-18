@@ -150,6 +150,12 @@ class ModuleCensor : public Module
 		{ 
 			if (text2.find(index->first) != irc::string::npos)
 			{
+				if (index->second.empty())
+				{
+					user->WriteServ("936 %s %s %s :Your message contained a censored word, and was blocked", user->nick, ((chanrec*)dest)->name, index->first.c_str());
+					return 1;
+				}
+				
 				this->ReplaceLine(text2,index->first,index->second);
 			}
 		}
