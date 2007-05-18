@@ -970,7 +970,10 @@ void TreeSocket::Split(const std::string &line, std::deque<std::string> &n)
 	irc::tokenstream tokens(line);
 	std::string param;
 	while (tokens.GetToken(param))
-		n.push_back(param);
+	{
+		if (!param.empty())
+			n.push_back(param);
+	}
 	return;
 }
 
@@ -988,7 +991,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 	Instance->Log(DEBUG, "S[%d] <- %s", this->GetFd(), line.c_str());
 
 	this->Split(line.c_str(),params);
-
+	
+	if (params.empty())
+		return true;
+	
 	if ((params[0][0] == ':') && (params.size() > 1))
 	{
 		prefix = params[0].substr(1);
