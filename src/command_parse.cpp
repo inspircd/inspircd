@@ -468,7 +468,7 @@ bool CommandParser::FindSym(void** v, void* h)
 {
 	*v = dlsym(h, "init_command");
 	const char* err = dlerror();
-	if (err)
+	if (err && !(*v))
 	{
 		ServerInstance->Log(SPARSE, "Error loading core command: %s\n", err);
 		return false;
