@@ -114,12 +114,12 @@ public:
 		be->DoRehash();
 	}
 
-        virtual char* OnRequest(Request* request)
+	virtual char* OnRequest(Request* request)
 	{
 		ListModeRequest* LM = (ListModeRequest*)request;
 		if (strcmp("LM_CHECKLIST", request->GetId()) == 0)
 		{
-                        modelist* list;
+			modelist* list;
 			LM->chan->GetExt(be->GetInfoKey(), list);
 			if (list)
 			{
@@ -174,3 +174,4 @@ extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBanExceptionFactory;
 }
+

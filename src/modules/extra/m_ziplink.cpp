@@ -178,7 +178,7 @@ class ModuleZLib : public Module
 	}
 
 	/* Handle InspSocketHook API requests */
-        virtual char* OnRequest(Request* request)
+	virtual char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)
@@ -392,7 +392,7 @@ class ModuleZLib : public Module
 				return 0;
 			}
 		}
-	        /* Finish the stream */
+		/* Finish the stream */
 		for (session->c_stream.avail_out = 1; deflate(&session->c_stream, Z_FINISH) != Z_STREAM_END; session->c_stream.avail_out = 1);
 		deflateEnd(&session->c_stream);
 

@@ -82,7 +82,7 @@ class ModuleOperChans : public Module
 		return 0;
 	}
 	
-    	virtual ~ModuleOperChans()
+	virtual ~ModuleOperChans()
 	{
 		ServerInstance->Modes->DelMode(oc);
 		DELETE(oc);

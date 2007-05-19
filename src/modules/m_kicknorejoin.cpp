@@ -41,15 +41,15 @@ class KickRejoin : public ModeHandler
  public:
 	KickRejoin(InspIRCd* Instance) : ModeHandler(Instance, 'J', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
-                if (channel->IsModeSet('J'))
-                        return std::make_pair(true, channel->GetModeParameter('J'));
-                else
-                        return std::make_pair(false, parameter);
-        } 
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+		if (channel->IsModeSet('J'))
+			return std::make_pair(true, channel->GetModeParameter('J'));
+		else
+			return std::make_pair(false, parameter);
+	} 
 
-        bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);

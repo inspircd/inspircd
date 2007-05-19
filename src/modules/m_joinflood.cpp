@@ -33,8 +33,8 @@ class joinfloodsettings : public classbase
 	time_t unlocktime;
 	int counter;
 	bool locked;
-    InspIRCd* ServerInstance;
-    
+	InspIRCd* ServerInstance;
+
 	joinfloodsettings() : secs(0), joins(0) {};
 
 	joinfloodsettings(int b, int c) : secs(b), joins(c)
@@ -96,16 +96,16 @@ class JoinFlood : public ModeHandler
  public:
 	JoinFlood(InspIRCd* Instance) : ModeHandler(Instance, 'j', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
-                joinfloodsettings* x;
-                if (channel->GetExt("joinflood",x))
-                        return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
-                else
-                        return std::make_pair(false, parameter);
-        } 
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+		joinfloodsettings* x;
+		if (channel->GetExt("joinflood",x))
+			return std::make_pair(true, ConvToStr(x->joins)+":"+ConvToStr(x->secs));
+		else
+			return std::make_pair(false, parameter);
+	} 
 
-        bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);

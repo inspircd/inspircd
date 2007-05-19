@@ -39,7 +39,7 @@ class ModuleUHNames : public Module
 	{
 	}
 
-        void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
+	void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
 	{
 		if ((displayable) && (extname == "UHNAMES"))
 			proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, "Enabled");
@@ -50,7 +50,7 @@ class ModuleUHNames : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 
-        virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::string &output)
 	{
 		output.append(" UHNAMES");
 	}
@@ -60,7 +60,7 @@ class ModuleUHNames : public Module
 		return (Priority)ServerInstance->PriorityBefore("m_namesx.so");
 	}
 
-        virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 	{
 		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,

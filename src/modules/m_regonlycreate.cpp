@@ -48,7 +48,7 @@ class ModuleRegOnlyCreate : public Module
 		return 0;
 	}
 	
-    	virtual ~ModuleRegOnlyCreate()
+	virtual ~ModuleRegOnlyCreate()
 	{
 	}
 	

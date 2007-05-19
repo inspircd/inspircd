@@ -82,14 +82,14 @@ class MsgFlood : public ModeHandler
  public:
 	MsgFlood(InspIRCd* Instance) : ModeHandler(Instance, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
 		floodsettings* x;
-        	if (channel->GetExt("flood",x))
+		if (channel->GetExt("flood",x))
 			return std::make_pair(true, (x->ban ? "*" : "")+ConvToStr(x->lines)+":"+ConvToStr(x->secs));
-                else
-                        return std::make_pair(false, parameter);
-        }
+		else
+			return std::make_pair(false, parameter);
+	}
 
 	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 	{

@@ -62,11 +62,11 @@
  */
 
 #ifdef WINDOWS
-typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare<irc::string, less<irc::string> > >     watchentries;
+typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare<irc::string, less<irc::string> > > watchentries;
 #else
-typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> >     watchentries;
+typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> > watchentries;
 #endif
-typedef std::map<irc::string, std::string>                                                  watchlist;
+typedef std::map<irc::string, std::string>watchlist;
 
 /* Who's watching each nickname.
  * NOTE: We do NOT iterate this to display a user's WATCH list!
@@ -372,15 +372,15 @@ class Modulewatch : public Module
 	virtual void OnGarbageCollect()
 	{
 		watchentries* old_watch = whos_watching_me;
-	        whos_watching_me = new watchentries();
+		whos_watching_me = new watchentries();
 
 		for (watchentries::const_iterator n = old_watch->begin(); n != old_watch->end(); n++)
 			whos_watching_me->insert(*n);
 
-	        delete old_watch;
+		delete old_watch;
 	}
 
-        virtual void OnCleanup(int target_type, void* item)
+	virtual void OnCleanup(int target_type, void* item)
 	{
 		if (target_type == TYPE_USER)
 		{

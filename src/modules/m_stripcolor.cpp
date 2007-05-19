@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -142,7 +142,7 @@ class ModuleStripColor : public Module
 						remove++;
 
 					if (sentence[i + remove] == ',')
-     					{
+					{
 						remove += 2;
 
 						if (isdigit(sentence[i + remove]))

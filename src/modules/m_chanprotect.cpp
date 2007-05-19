@@ -107,7 +107,7 @@ class FounderProtectBase
 		unload_kludge = false;
 	}
 
-        void DisplayList(userrec* user, chanrec* channel)
+	void DisplayList(userrec* user, chanrec* channel)
 	{
 		CUList* cl = channel->GetUsers();
 		std::string item = extend+std::string(channel->name);

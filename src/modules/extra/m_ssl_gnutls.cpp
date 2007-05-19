@@ -288,7 +288,7 @@ class ModuleSSLGnuTLS : public Module
 		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
-        virtual char* OnRequest(Request* request)
+	virtual char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
 		if (strcmp("IS_NAME", request->GetId()) == 0)

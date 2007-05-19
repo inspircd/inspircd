@@ -33,7 +33,7 @@
 
 /* This is the central step in the MD5 algorithm. */
 #define MD5STEP(f,w,x,y,z,in,s) \
-         (w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
+	(w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
 
 #ifndef HAS_STDINT
 typedef unsigned int uint32_t;

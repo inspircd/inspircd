@@ -51,7 +51,8 @@ class DNSBLResolver : public Resolver
 	userrec* them;
 	DNSBLConfEntry *ConfEntry;
 
-    public:
+ public:
+
 	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, userrec* u, int userfd, DNSBLConfEntry *conf, bool &cached)
 		: Resolver(ServerInstance, hostname, DNS_QUERY_A, cached, me)
 	{

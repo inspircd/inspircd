@@ -95,7 +95,7 @@ class ModuleModesOnConnect : public Module
 					}
 
 					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
-                    delete [] modes;
+					delete [] modes;
 				}
 				break;
 			}

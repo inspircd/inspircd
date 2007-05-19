@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -176,14 +176,14 @@ class ModuleTimedBans : public Module
 						// falls into the abyss :p
 						userrec* temp = new userrec(ServerInstance);
 						temp->SetFd(FD_MAGIC_NUMBER);
-                                                /* FIX: Send mode remotely*/
-                                                std::deque<std::string> n;
-                                                n.push_back(setban[0]);
-                                                n.push_back("-b");
-                                                n.push_back(setban[2]);
+						/* FIX: Send mode remotely*/
+						std::deque<std::string> n;
+						n.push_back(setban[0]);
+						n.push_back("-b");
+						n.push_back(setban[2]);
 						ServerInstance->SendMode(setban,3,temp);
-                                                Event rmode((char *)&n, NULL, "send_mode");
-                                                rmode.Send(ServerInstance);
+						Event rmode((char *)&n, NULL, "send_mode");
+						rmode.Send(ServerInstance);
 						DELETE(temp);
 					}
 					else

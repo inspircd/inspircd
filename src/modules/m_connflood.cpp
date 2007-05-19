@@ -129,7 +129,7 @@ public:
 	~ModuleConnFloodFactory()
 	{
 	}
-    
+
 	virtual Module * CreateModule(InspIRCd* Me)
 	{
 		return new ModuleConnFlood(Me);

@@ -25,19 +25,19 @@ class Redirect : public ModeHandler
  public:
 	Redirect(InspIRCd* Instance) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-        ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
-        {
-                if (channel->IsModeSet('L'))
-                        return std::make_pair(true, channel->GetModeParameter('L'));
-                else
-                        return std::make_pair(false, parameter);
-        }
+	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	{
+		if (channel->IsModeSet('L'))
+			return std::make_pair(true, channel->GetModeParameter('L'));
+		else
+			return std::make_pair(false, parameter);
+	}
 
-        bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
-        }
+	}
 	
 	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
