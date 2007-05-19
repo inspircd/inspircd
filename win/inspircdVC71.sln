@@ -1,0 +1,53 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "inspircd", "inspircdVC71.vcproj", "{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B922B569-727E-4EB0-827A-04E133A91DE7} = {B922B569-727E-4EB0-827A-04E133A91DE7}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "configure", "configureVC71.vcproj", "{B922B569-727E-4EB0-827A-04E133A91DE7}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "m_spanningtree", "m_spanningtreeVC71.vcproj", "{1EC86B60-AB2A-4984-8A7E-0422C15601E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8} = {FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Debug-Auto = Debug-Auto
+		Release = Release
+		Release-Auto = Release-Auto
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug.ActiveCfg = Debug|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug.Build.0 = Debug|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug-Auto.ActiveCfg = Debug-Auto|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug-Auto.Build.0 = Debug-Auto|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release.ActiveCfg = Release|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release.Build.0 = Release|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release-Auto.ActiveCfg = Release-Auto|Win32
+		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release-Auto.Build.0 = Release-Auto|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug.ActiveCfg = Debug|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug.Build.0 = Debug|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug-Auto.ActiveCfg = Debug-Auto|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug-Auto.Build.0 = Debug-Auto|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release.ActiveCfg = Release|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release.Build.0 = Release|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release-Auto.ActiveCfg = Release-Auto|Win32
+		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release-Auto.Build.0 = Release-Auto|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug.ActiveCfg = Debug|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug.Build.0 = Debug|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug-Auto.ActiveCfg = Debug-Auto|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug-Auto.Build.0 = Debug-Auto|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release.ActiveCfg = Release|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release.Build.0 = Release|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release-Auto.ActiveCfg = Release-Auto|Win32
+		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release-Auto.Build.0 = Release-Auto|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
