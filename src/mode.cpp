@@ -898,7 +898,7 @@ std::string ModeParser::ChanModes()
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
-bool ModeParser::PrefixComparison(const prefixtype one, const prefixtype two)
+bool ModeParser::PrefixComparison(prefixtype one, prefixtype two)
 {       
 	return one.second > two.second;
 }
