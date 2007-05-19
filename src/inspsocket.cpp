@@ -339,8 +339,8 @@ bool InspSocket::DoConnect()
 	int flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
 #else
-    unsigned long flags = 0;
-    ioctlsocket(this->fd, FIONBIO, &flags);
+	unsigned long flags = 0;
+	ioctlsocket(this->fd, FIONBIO, &flags);
 #endif
 	if (connect(this->fd, (sockaddr*)addr, size) == -1)
 	{
@@ -525,7 +525,7 @@ bool InspSocket::FlushWriteBuffer()
 #ifndef WIN32
 				int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
 #else
-                int result = send(this->fd,outbuffer[0].c_str(),outbuffer[0].length(), 0);
+				int result = send(this->fd,outbuffer[0].c_str(),outbuffer[0].length(), 0);
 #endif
 				if (result > 0)
 				{

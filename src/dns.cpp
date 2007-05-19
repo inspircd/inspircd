@@ -1161,12 +1161,12 @@ unsigned long DNS::PRNG()
 	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
 #else
-    unsigned long val = 0;
-    serverstats* s = ServerInstance->stats;
-    val = (time(NULL) ^ GetCurrentProcessId() ^ GetCurrentThreadId() ^ (this->currid++)) ^ s->statsAccept + time(NULL);
-    val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
-    val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
-    return val;
+	unsigned long val = 0;
+	serverstats* s = ServerInstance->stats;
+	val = (time(NULL) ^ GetCurrentProcessId() ^ GetCurrentThreadId() ^ (this->currid++)) ^ s->statsAccept + time(NULL);
+	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
+	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
+	return val;
 #endif
 }
 

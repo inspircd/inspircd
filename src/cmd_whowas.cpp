@@ -38,7 +38,7 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
 		user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
 		return CMD_FAILURE;
 	}
-                        
+
 	whowas_users::iterator i = whowas.find(parameters[0]);
 
 	if (i == whowas.end())

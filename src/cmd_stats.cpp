@@ -174,16 +174,16 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 		case 'z':
 		{
 #ifndef WIN32
-            rusage R;
+			rusage R;
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
 			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes, "+ConvToStr(ServerInstance->clientlist->bucket_count())+" buckets)");
 			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes, "+ConvToStr(ServerInstance->chanlist->bucket_count())+" buckets)");
 			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
 #else
-            results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
-            results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes)");
-            results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes)");
-            results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
+			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
+			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
 #endif
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
@@ -208,7 +208,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 			results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+" bytes)");
 
 #ifndef WIN32
-            if (!getrusage(0,&R))	/* RUSAGE_SELF */
+			if (!getrusage(0,&R))	/* RUSAGE_SELF */
 			{
 				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));

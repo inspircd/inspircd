@@ -68,7 +68,7 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 
 void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
 {
-        char textbuffer[MAXBUF];
+	char textbuffer[MAXBUF];
 	va_list argsPtr;
 
 	va_start(argsPtr, text);

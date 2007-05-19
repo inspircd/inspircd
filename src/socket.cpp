@@ -304,22 +304,22 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 void irc::sockets::Blocking(int s)
 {
 #ifndef WIN32
-    int flags = fcntl(s, F_GETFL, 0);
+	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
 #else
-    unsigned long opt = 0;
-    ioctlsocket(s, FIONBIO, &opt);
+	unsigned long opt = 0;
+	ioctlsocket(s, FIONBIO, &opt);
 #endif
 }
 
 void irc::sockets::NonBlocking(int s)
 {
 #ifndef WIN32
-    int flags = fcntl(s, F_GETFL, 0);
+	int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
 #else
-    unsigned long opt = 1;
-    ioctlsocket(s, FIONBIO, &opt);
+	unsigned long opt = 1;
+	ioctlsocket(s, FIONBIO, &opt);
 #endif
 }
 

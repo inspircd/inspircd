@@ -476,7 +476,7 @@ int userrec::ReadData(void* buffer, size_t size)
 #ifndef WIN32
 		return read(this->fd, buffer, size);
 #else
-        return recv(this->fd, (char*)buffer, size, 0);
+		return recv(this->fd, (char*)buffer, size, 0);
 #endif
 	}
 	else
@@ -719,9 +719,9 @@ void userrec::FlushWriteBuf()
 		{
 			int old_sendq_length = sendq.length();
 #ifndef WIN32
-            int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
+		int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
 #else
-            int n_sent = send(this->fd, (const char*)this->sendq.data(), this->sendq.length(), 0);
+		int n_sent = send(this->fd, (const char*)this->sendq.data(), this->sendq.length(), 0);
 #endif
 			if (n_sent == -1)
 			{

@@ -93,7 +93,7 @@ bool InspIRCd::FindServerName(const std::string &servername)
 	for(; itr != servernames.end(); ++itr)
 		if(**itr == servername)
 			return true;
-    return false;
+	return false;
 }
 
 void InspIRCd::Exit(int status)
@@ -403,8 +403,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
-		{ "version",    no_argument,            &do_version,    1       },
-		{ "service", no_argument, &is_service, 1 },
+		{ "version",	no_argument,		&do_version,	1	},
+		{ "service",	no_argument,		&is_service,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -497,7 +497,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	}
 
 
-        /* Because of limitations in kqueue on freebsd, we must fork BEFORE we
+	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
 	 * initialize the socket engine.
 	 */
 	SocketEngineFactory* SEF = new SocketEngineFactory();
@@ -634,8 +634,8 @@ void InspIRCd::EraseModule(int j)
 	{
 		if (v2 == j)
 		{
-		       Config->module_names.erase(v);
-		       break;
+			Config->module_names.erase(v);
+			break;
 		}
 		v2++;
 	}
@@ -810,8 +810,8 @@ bool InspIRCd::LoadModule(const char* filename)
 	{
 		int n_match = 0;
 		DIR* library = opendir(Config->ModPath);
-	        if (library)
-	        {
+		if (library)
+		{
 			/* Try and locate and load all modules matching the pattern */
 			dirent* entry = NULL;
 			while ((entry = readdir(library)))
@@ -898,7 +898,7 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 			else
 			{
-       				this->Log(DEFAULT,"Unable to load %s",modfile);
+				this->Log(DEFAULT,"Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF,"Factory function failed: Probably missing init_module() entrypoint.");
 				return false;
 			}
@@ -950,7 +950,7 @@ bool InspIRCd::LoadModule(const char* filename)
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
 #ifndef WIN32
-    static rusage ru;
+	static rusage ru;
 #endif
 
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
@@ -1154,9 +1154,9 @@ void FileLogger::Close()
 	if (log)
 	{
 		/* Burlex: Windows assumes nonblocking on FILE* pointers anyway, and also "file" fd's aren't the same
-		           as socket fd's. */
+		 * as socket fd's. */
 #ifndef WIN32
-        int flags = fcntl(fileno(log), F_GETFL, 0);
+		int flags = fcntl(fileno(log), F_GETFL, 0);
 		fcntl(fileno(log), F_SETFL, flags ^ O_NONBLOCK);
 #endif
 		if (buffer.size())

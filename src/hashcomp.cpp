@@ -138,15 +138,15 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 	for(unsigned int i = 0; i < n; i++)
 	{
 		if(lowermap[(unsigned char)*str1] > lowermap[(unsigned char)*str2])
-       			return 1;
+			return 1;
 
 		if(lowermap[(unsigned char)*str1] < lowermap[(unsigned char)*str2])
-		       	return -1;
+			return -1;
 
 		if(*str1 == 0 || *str2 == 0)
-		      	return 0;
+		   	return 0;
 
-	       	str1++;
+		str1++;
 		str2++;
 	}
 	return 0;
@@ -484,7 +484,7 @@ irc::dynamicbitmask::~dynamicbitmask()
 	/* Tidy up the entire used memory on delete */
 	delete[] bits;
 }
-		          
+
 irc::bitfield irc::dynamicbitmask::Allocate()
 {
 	/* Yeah, this isnt too efficient, however a module or the core
