@@ -122,9 +122,9 @@ class CoreExport GLine : public XLine
 class CoreExport ELine : public XLine
 {
   public:
-        /** Hostmask (ident@host) to match against
-         * May contain wildcards.
-         */
+	/** Hostmask (ident@host) to match against
+	 * May contain wildcards.
+	 */
 	ELine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
 	{
 		identmask = strdup(ident);
@@ -138,7 +138,7 @@ class CoreExport ELine : public XLine
 	}
 
 	char* identmask;
-        char* hostmask;
+	char* hostmask;
 };
 
 /** ZLine class
@@ -442,3 +442,4 @@ class CoreExport XLineManager
 };
 
 #endif
+

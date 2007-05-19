@@ -87,9 +87,9 @@ typedef std::map<char,char*> CustomModeList;
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
  */
 enum UserChannelModes {
-	UCMODE_OP      = 1,
-	UCMODE_VOICE   = 2,
-	UCMODE_HOP     = 4
+	UCMODE_OP	= 1,
+	UCMODE_VOICE	= 2,
+	UCMODE_HOP	= 4
 };
 
 class InspIRCd;
@@ -258,10 +258,10 @@ class CoreExport chanrec : public Extensible
 	 */
 	void AddVoicedUser(userrec* user);
 
-        /** Delete a user pointer to the internal reference list
+	/** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
 	 * @return number of users left on the channel after deletion of the user
-         */
+	 */
 	unsigned long DelUser(userrec* user);
 
 	/** Delete a user pointer to the internal reference list of opped users
@@ -394,7 +394,7 @@ class CoreExport chanrec : public Extensible
 	/** Write to all users on a channel except a list of users, using va_args for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.          
+	 * use the nick!user@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list A list of users NOT to send the text to
 	 * @param text A printf-style format string which builds the output line without prefix
@@ -406,7 +406,7 @@ class CoreExport chanrec : public Extensible
 	 * Internally, this calls WriteAllExcept().
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.          
+	 * use the nick!user@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A std::string containing the output line without prefix
 	 */
@@ -415,7 +415,7 @@ class CoreExport chanrec : public Extensible
 	/** Write to all users on a channel except a list of users, using std::string for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.          
+	 * use the nick!user@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list A list of users NOT to send the text to
 	 * @param text A std::string containing the output line without prefix

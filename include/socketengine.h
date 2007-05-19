@@ -111,7 +111,7 @@ class CoreExport EventHandler : public Extensible
 	 * If this function is unimplemented, the base class
 	 * will return false.
 	 *
-         * NOTE: You cannot set both Readable() and
+	 * NOTE: You cannot set both Readable() and
 	 * Writeable() to true. If you wish to receive
 	 * a write event for your object, you must call
 	 * SocketEngine::WantWrite() instead. This will

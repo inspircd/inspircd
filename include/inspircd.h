@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -446,7 +446,7 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int unregistered_count;
 
-        /** List of server names we've seen.
+	/** List of server names we've seen.
 	 */
 	servernamelist servernames;
 
@@ -907,26 +907,26 @@ class CoreExport InspIRCd : public classbase
 	 * @param socket The file descriptor of a user
 	 * @return A pointer to the user if the user exists locally on this descriptor
 	 */
-        userrec* FindDescriptor(int socket);
+	userrec* FindDescriptor(int socket);
 
 	/** Add a new mode to this server's mode parser
 	 * @param mh The modehandler to add
 	 * @param modechar The mode character this modehandler handles
 	 * @return True if the mode handler was added
 	 */
-        bool AddMode(ModeHandler* mh, const unsigned char modechar);
+	bool AddMode(ModeHandler* mh, const unsigned char modechar);
 
 	/** Add a new mode watcher to this server's mode parser
 	 * @param mw The modewatcher to add
 	 * @return True if the modewatcher was added
 	 */
-        bool AddModeWatcher(ModeWatcher* mw);
+	bool AddModeWatcher(ModeWatcher* mw);
 
 	/** Delete a mode watcher from this server's mode parser
 	 * @param mw The modewatcher to delete
 	 * @return True if the modewatcher was deleted
 	 */
-        bool DelModeWatcher(ModeWatcher* mw);
+	bool DelModeWatcher(ModeWatcher* mw);
 
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add
@@ -944,13 +944,13 @@ class CoreExport InspIRCd : public classbase
 	 * the resolver class you pass it after this call, as depending upon
 	 * the request given, the object may be deleted!
 	 */
-        bool AddResolver(Resolver* r, bool cached);
+	bool AddResolver(Resolver* r, bool cached);
 
 	/** Add a command to this server's command parser
 	 * @param f A command_t command handler object to add
 	 * @throw ModuleException Will throw ModuleExcption if the command already exists
 	 */
-        void AddCommand(command_t *f);
+	void AddCommand(command_t *f);
 
 	/** Send a modechange.
 	 * The parameters provided are identical to that sent to the
@@ -959,7 +959,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param pcnt The number of items you have given in the first parameter
 	 * @param user The user to send error messages to
 	 */
-        void SendMode(const char **parameters, int pcnt, userrec *user);
+	void SendMode(const char **parameters, int pcnt, userrec *user);
 
 	/** Match two strings using pattern matching.
 	 * This operates identically to the global function match(),
@@ -968,7 +968,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param sliteral The literal string to match against
 	 * @param spattern The pattern to match against. CIDR and globs are supported.
 	 */
-        bool MatchText(const std::string &sliteral, const std::string &spattern);
+	bool MatchText(const std::string &sliteral, const std::string &spattern);
 
 	/** Call the handler for a given command.
 	 * @param commandname The command whos handler you wish to call
@@ -977,7 +977,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to execute the command as
 	 * @return True if the command handler was called successfully
 	 */
-        bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
+	bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
 
 	/** Return true if the command is a module-implemented command and the given parameters are valid for it
 	 * @param parameters The mode parameters
@@ -985,7 +985,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to test-execute the command as
 	 * @return True if the command handler is a module command, and there are enough parameters and the user has permission to the command
 	 */
-        bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
+	bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
 
 	/** Add a gline and apply it
 	 * @param duration How long the line should last
@@ -993,7 +993,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param reason The reason for the line
 	 * @param hostmask The hostmask to set the line against
 	 */
-        void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddGLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Add a qline and apply it
 	 * @param duration How long the line should last
@@ -1001,7 +1001,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param reason The reason for the line
 	 * @param nickname The nickmask to set the line against
 	 */
-        void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
+	void AddQLine(long duration, const std::string &source, const std::string &reason, const std::string &nickname);
 
 	/** Add a zline and apply it
 	 * @param duration How long the line should last
@@ -1009,7 +1009,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param reason The reason for the line
 	 * @param ipaddr The ip-mask to set the line against
 	 */
-        void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
+	void AddZLine(long duration, const std::string &source, const std::string &reason, const std::string &ipaddr);
 
 	/** Add a kline and apply it
 	 * @param duration How long the line should last
@@ -1017,7 +1017,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param reason The reason for the line
 	 * @param hostmask The hostmask to set the line against
 	 */
-        void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddKLine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Add an eline
 	 * @param duration How long the line should last
@@ -1025,60 +1025,60 @@ class CoreExport InspIRCd : public classbase
 	 * @param reason The reason for the line
 	 * @param hostmask The hostmask to set the line against
 	 */
-        void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
+	void AddELine(long duration, const std::string &source, const std::string &reason, const std::string &hostmask);
 
 	/** Delete a gline
 	 * @param hostmask The gline to delete
 	 * @return True if the item was removed
 	 */
-        bool DelGLine(const std::string &hostmask);
+	bool DelGLine(const std::string &hostmask);
 
 	/** Delete a qline
 	 * @param nickname The qline to delete
 	 * @return True if the item was removed
 	 */
-        bool DelQLine(const std::string &nickname);
+	bool DelQLine(const std::string &nickname);
 
 	/** Delete a zline
 	 * @param ipaddr The zline to delete
 	 * @return True if the item was removed
 	 */
-        bool DelZLine(const std::string &ipaddr);
+	bool DelZLine(const std::string &ipaddr);
 
 	/** Delete a kline
 	 * @param hostmask The kline to delete
 	 * @return True if the item was removed
 	 */
-        bool DelKLine(const std::string &hostmask);
+	bool DelKLine(const std::string &hostmask);
 
 	/** Delete an eline
 	 * @param hostmask The kline to delete
 	 * @return True if the item was removed
 	 */
-        bool DelELine(const std::string &hostmask);
+	bool DelELine(const std::string &hostmask);
 
 	/** Return true if the given parameter is a valid nick!user\@host mask
 	 * @param mask A nick!user\@host masak to match against
 	 * @return True i the mask is valid
 	 */
-        bool IsValidMask(const std::string &mask);
+	bool IsValidMask(const std::string &mask);
 
 	/** Rehash the local server
 	 */
-        void RehashServer();
+	void RehashServer();
 
 	/** Return the channel whos index number matches that provided
 	 * @param The index number of the channel to fetch
 	 * @return A channel record, or NUll if index < 0 or index >= InspIRCd::ChannelCount()
 	 */
-        chanrec* GetChannelIndex(long index);
+	chanrec* GetChannelIndex(long index);
 
 	/** Dump text to a user target, splitting it appropriately to fit
 	 * @param User the user to dump the text to
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-        void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
+	void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against

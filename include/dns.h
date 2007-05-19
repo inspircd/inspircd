@@ -155,14 +155,14 @@ struct ResourceRecord;
  */
 enum QueryType
 {
-	DNS_QUERY_NONE  = 0,      /* Uninitialized Query */
-	DNS_QUERY_A     = 1,      /* 'A' record: an ipv4 address */
-	DNS_QUERY_CNAME = 5,      /* 'CNAME' record: An alias */
-	DNS_QUERY_PTR   = 12,     /* 'PTR' record: a hostname */
-	DNS_QUERY_AAAA  = 28,     /* 'AAAA' record: an ipv6 address */
+	DNS_QUERY_NONE	= 0,		/* Uninitialized Query */
+	DNS_QUERY_A	= 1,		/* 'A' record: an ipv4 address */
+	DNS_QUERY_CNAME	= 5,		/* 'CNAME' record: An alias */
+	DNS_QUERY_PTR	= 12,		/* 'PTR' record: a hostname */
+	DNS_QUERY_AAAA	= 28,		/* 'AAAA' record: an ipv6 address */
 
-	DNS_QUERY_PTR4  = 0xFFFD, /* Force 'PTR' to use IPV4 scemantics */
-	DNS_QUERY_PTR6  = 0xFFFE, /* Force 'PTR' to use IPV6 scemantics */
+	DNS_QUERY_PTR4	= 0xFFFD,	/* Force 'PTR' to use IPV4 scemantics */
+	DNS_QUERY_PTR6	= 0xFFFE,	/* Force 'PTR' to use IPV6 scemantics */
 };
 
 #ifdef IPV6
@@ -368,7 +368,7 @@ class CoreExport DNS : public EventHandler
 
  public:
 
-        /**
+	/**
 	 * Server address being used currently
 	 */
 	int socketfamily;

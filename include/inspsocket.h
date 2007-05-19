@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -103,7 +103,7 @@ class CoreExport InspSocket : public EventHandler
 	 * This value is true if the
 	 * socket has timed out.
 	 */
-        bool timeout;
+	bool timeout;
 	
 	/**
 	 * Socket input buffer, used by read(). The class which
