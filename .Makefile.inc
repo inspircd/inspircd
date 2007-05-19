@@ -131,6 +131,7 @@ install: all
 	-install -m $(INSTMODE) src/cmd_qline.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_quit.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_rehash.so $(LIBPATH)
+	-install -m $(INSTMODE) src/cmd_reloadmodule.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_restart.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_rules.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_server.so $(LIBPATH)
