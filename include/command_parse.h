@@ -28,7 +28,7 @@ typedef std::map<std::string, void*> SharedObjectList;
  * call command handlers by name, and chop up comma seperated
  * parameters into multiple calls.
  */
-class CommandParser : public classbase
+class CoreExport CommandParser : public classbase
 {
  private:
 	/** The creator of this class

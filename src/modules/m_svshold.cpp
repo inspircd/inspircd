@@ -153,7 +153,7 @@ class ModuleSVSHold : public Module
 	
 
  public:
-	ModuleSVSHold(InspIRCd* Me) : Module::Module(Me)
+	ModuleSVSHold(InspIRCd* Me) : Module(Me)
 	{
 		mycommand = new cmd_svshold(Me);
 		ServerInstance->AddCommand(mycommand);
@@ -290,7 +290,7 @@ class ModuleSVSHoldFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSVSHoldFactory;
 }

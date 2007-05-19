@@ -22,7 +22,7 @@
 /** connection is the base class of userrec, and holds basic user properties.
  * This can be extended for holding other user-like objects in the future.
  */
-class connection : public EventHandler
+class CoreExport connection : public EventHandler
 {
  public:
 	/** Hostname of connection.

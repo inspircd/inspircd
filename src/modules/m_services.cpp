@@ -173,7 +173,7 @@ class ModuleServices : public Module
 	User_R* m5;
  public:
 	ModuleServices(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		m1 = new Channel_r(ServerInstance);
@@ -326,7 +326,7 @@ class ModuleServicesFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleServicesFactory;
 }

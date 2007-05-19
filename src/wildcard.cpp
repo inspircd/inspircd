@@ -28,7 +28,7 @@ using irc::sockets::MatchCIDR;
 // (unattributed to any author) all over the 'net.
 // For now, we'll just consider this public domain.
 
-bool csmatch(const char *str, const char *mask)
+CoreExport bool csmatch(const char *str, const char *mask)
 {
 	unsigned char *cp = NULL, *mp = NULL;
 	unsigned char* string = (unsigned char*)str;
@@ -77,7 +77,7 @@ bool csmatch(const char *str, const char *mask)
 	return !*wild;
 }
 
-bool match(const char *str, const char *mask)
+CoreExport bool match(const char *str, const char *mask)
 {
 	unsigned char *cp = NULL, *mp = NULL;
 	unsigned char* string = (unsigned char*)str;
@@ -127,21 +127,21 @@ bool match(const char *str, const char *mask)
 }
 
 /* Overloaded function that has the option of using cidr */
-bool match(const char *str, const char *mask, bool use_cidr_match)
+CoreExport bool match(const char *str, const char *mask, bool use_cidr_match)
 {
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
 	return match(str, mask);
 }
 
-bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match)
+CoreExport bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match)
 {
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
 	return csmatch(str, mask);
 }
 
-bool match(bool case_sensitive, const char *str, const char *mask)
+CoreExport bool match(bool case_sensitive, const char *str, const char *mask)
 {
 	return case_sensitive ? csmatch(str, mask) : match(str, mask);
 }

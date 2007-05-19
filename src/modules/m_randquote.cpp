@@ -81,7 +81,7 @@ class ModuleRandQuote : public Module
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		conf = new ConfigReader(ServerInstance);
@@ -157,7 +157,7 @@ class ModuleRandQuoteFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRandQuoteFactory;
 }

@@ -29,7 +29,7 @@ class ModuleModesOnOper : public Module
 
  public:
 	ModuleModesOnOper(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
@@ -82,7 +82,7 @@ class ModuleModesOnOper : public Module
 						tokens.push_back(buf);
 
 					int size = tokens.size() + 1;
-					const char* modes[size];
+					char** modes = new char*[size];
 					modes[0] = user->nick;
 					modes[1] = (char*)tokens[0].c_str();
 
@@ -103,7 +103,8 @@ class ModuleModesOnOper : public Module
 						n.push_back(modes[j]);
 					}
 					rmode.Send(ServerInstance);
-					ServerInstance->SendMode(modes, size, user);
+					ServerInstance->SendMode((const char**)modes, size, user);
+					delete [] modes;
 				}
 				break;
 			}
@@ -132,7 +133,7 @@ class ModuleModesOnOperFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleModesOnOperFactory;
 }

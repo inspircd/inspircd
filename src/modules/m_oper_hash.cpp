@@ -79,7 +79,7 @@ class ModuleOperHash : public Module
  public:
 
 	ModuleOperHash(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 
 		/* Read the config file first */
@@ -182,7 +182,7 @@ class ModuleOperHashFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOperHashFactory;
 }

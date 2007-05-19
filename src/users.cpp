@@ -61,7 +61,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &valu
 	const char* TypeName = values[0].GetString();
 	const char* Classes = values[1].GetString();
 
-	conf->opertypes[TypeName] = strdup(Classes);
+	conf->opertypes[TypeName] = strnewdup(Classes);
 	return true;
 }
 
@@ -70,7 +70,7 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* ClassName = values[0].GetString();
 	const char* CommandList = values[1].GetString();
 
-	conf->operclass[ClassName] = strdup(CommandList);
+	conf->operclass[ClassName] = strnewdup(CommandList);
 	return true;
 }
 
@@ -473,7 +473,11 @@ int userrec::ReadData(void* buffer, size_t size)
 {
 	if (IS_LOCAL(this))
 	{
+#ifndef WIN32
 		return read(this->fd, buffer, size);
+#else
+        return recv(this->fd, (char*)buffer, size, 0);
+#endif
 	}
 	else
 		return 0;
@@ -714,7 +718,11 @@ void userrec::FlushWriteBuf()
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
 			int old_sendq_length = sendq.length();
-			int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
+#ifndef WIN32
+            int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
+#else
+            int n_sent = send(this->fd, (const char*)this->sendq.data(), this->sendq.length(), 0);
+#endif
 			if (n_sent == -1)
 			{
 				if (errno == EAGAIN)
@@ -934,11 +942,13 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 * which for the time being is a physical impossibility (even the largest networks dont have more
 	 * than about 10,000 users on ONE server!)
 	 */
+#ifndef WINDOWS
 	if ((unsigned int)socket >= MAX_DESCRIPTORS)
 	{
 		userrec::QuitUser(Instance, New, "Server is full");
 		return;
 	}
+#endif
 
 	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
 	if (!New->exempt)
@@ -1336,7 +1346,11 @@ const char* userrec::GetIPString(char* buf)
  */
 void userrec::Write(std::string text)
 {
+#ifdef WINDOWS
+	if ((this->fd < 0) || (this->m_internalFd > MAX_DESCRIPTORS))
+#else
 	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
+#endif
 		return;
 
 	try

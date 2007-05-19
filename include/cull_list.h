@@ -29,7 +29,7 @@ class InspIRCd;
  * a list of users which are to be culled when a long
  * operation (such as a netsplit) has completed.
  */
-class CullItem : public classbase
+class CoreExport CullItem : public classbase
 {
  private:
 	/** Holds a pointer to the user,
@@ -84,7 +84,7 @@ class CullItem : public classbase
  * you attempt to add the same user twice, then the second
  * attempt will be ignored.
  */
-class CullList : public classbase
+class CoreExport CullList : public classbase
 {
  private:
 	/** Creator of this CullList

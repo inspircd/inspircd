@@ -139,7 +139,7 @@ uint32_t sha256_k[64] =
 
 class ModuleSHA256 : public Module
 {
-	void SHA256Init(struct SHA256Context *ctx, const unsigned int* key)
+	void SHA256Init(SHA256Context *ctx, const unsigned int* key)
 	{
 		if (key)
 		{
@@ -155,7 +155,7 @@ class ModuleSHA256 : public Module
 		ctx->tot_len = 0;
 	}
 
-	void SHA256Transform(struct SHA256Context *ctx, unsigned char *message, unsigned int block_nb)
+	void SHA256Transform(SHA256Context *ctx, unsigned char *message, unsigned int block_nb)
 	{
 		uint32_t w[64];
 		uint32_t wv[8];
@@ -189,7 +189,7 @@ class ModuleSHA256 : public Module
 		}
 	}
 	
-	void SHA256Update(struct SHA256Context *ctx, unsigned char *message, unsigned int len)
+	void SHA256Update(SHA256Context *ctx, unsigned char *message, unsigned int len)
 	{
 		unsigned int rem_len = SHA256_BLOCK_SIZE - ctx->len;
 		memcpy(&ctx->block[ctx->len], message, rem_len);
@@ -209,7 +209,7 @@ class ModuleSHA256 : public Module
 		ctx->tot_len += (block_nb + 1) << 6;
 	}
 	
-	void SHA256Final(struct SHA256Context *ctx, unsigned char *digest)
+	void SHA256Final(SHA256Context *ctx, unsigned char *digest)
 	{
 		unsigned int block_nb = (1 + ((SHA256_BLOCK_SIZE - 9) < (ctx->len % SHA256_BLOCK_SIZE)));
 		unsigned int len_b = (ctx->tot_len + ctx->len) << 3;
@@ -226,7 +226,7 @@ class ModuleSHA256 : public Module
 	{
 		// Generate the hash
 		unsigned char bytehash[SHA256_DIGEST_SIZE];
-		struct SHA256Context ctx;
+		SHA256Context ctx;
 		SHA256Init(&ctx, key);
 		SHA256Update(&ctx, (unsigned char *)src, (unsigned int)len);
 		SHA256Final(&ctx, bytehash);
@@ -244,7 +244,7 @@ class ModuleSHA256 : public Module
 
  public:
 
-	ModuleSHA256(InspIRCd* Me) : Module::Module(Me), key(NULL), chars(NULL)
+	ModuleSHA256(InspIRCd* Me) : Module(Me), key(NULL), chars(NULL)
 	{
 		ServerInstance->PublishInterface("HashRequest", this);
 	}
@@ -313,7 +313,7 @@ public:
 
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSHA256Factory;
 }

@@ -14,13 +14,15 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include "users.h"
 #include "modules.h"
 #include "dns.h"
 #include "inspircd.h"
+#ifndef WINDOWS
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
@@ -127,7 +129,7 @@ class ModuleCgiIRC : public Module
 	bool NotifyOpers;
 	CGIHostlist Hosts;
 public:
-	ModuleCgiIRC(InspIRCd* Me) : Module::Module(Me)
+	ModuleCgiIRC(InspIRCd* Me) : Module(Me)
 	{
 		
 		OnRehash(NULL,"");
@@ -518,7 +520,7 @@ class ModuleCgiIRCFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleCgiIRCFactory;
 }

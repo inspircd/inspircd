@@ -29,6 +29,12 @@
 
 #include "transport.h"
 
+#ifdef WINDOWS
+#pragma comment(lib, "libgnutls-13.lib")
+#undef MAX_DESCRIPTORS
+#define MAX_DESCRIPTORS 10000
+#endif
+
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: exec("libgnutls-config --cflags") */
 /* $LinkerFlags: rpath("libgnutls-config --libs") exec("libgnutls-config --libs") */
@@ -85,7 +91,7 @@ class ModuleSSLGnuTLS : public Module
  public:
 
 	ModuleSSLGnuTLS(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		ServerInstance->PublishInterface("InspSocketHook", this);
 
@@ -837,7 +843,7 @@ class ModuleSSLGnuTLSFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSSLGnuTLSFactory;
 }

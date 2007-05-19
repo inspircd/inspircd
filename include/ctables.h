@@ -44,7 +44,7 @@ enum CmdResult
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from command_t.
  */
-class command_t : public Extensible
+class CoreExport command_t : public Extensible
 {
  protected:
 	/** Owner/Creator object

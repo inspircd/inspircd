@@ -78,7 +78,7 @@ class ModuleSanick : public Module
 	cmd_sanick*	mycommand;
  public:
 	ModuleSanick(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_sanick(ServerInstance);
@@ -117,7 +117,7 @@ class ModuleSanickFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSanickFactory;
 }

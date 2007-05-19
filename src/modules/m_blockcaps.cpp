@@ -58,7 +58,7 @@ class ModuleBlockCAPS : public Module
 	char capsmap[256];
 public:
 	
-	ModuleBlockCAPS(InspIRCd* Me) : Module::Module(Me)
+	ModuleBlockCAPS(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL,"");
 		bc = new BlockCaps(ServerInstance);
@@ -160,7 +160,7 @@ class ModuleBlockCAPSFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBlockCAPSFactory;
 }

@@ -270,7 +270,7 @@ class ModuleMD5 : public Module
  public:
 
 	ModuleMD5(InspIRCd* Me)
-		: Module::Module(Me), key(NULL), chars(NULL)
+		: Module(Me), key(NULL), chars(NULL)
 	{
 		ServerInstance->PublishInterface("HashRequest", this);
 	}
@@ -341,7 +341,7 @@ class ModuleMD5Factory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleMD5Factory;
 }

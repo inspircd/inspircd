@@ -112,7 +112,7 @@ class ModuleNickLock : public Module
 	char* n;
  public:
 	ModuleNickLock(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		cmd1 = new cmd_nicklock(ServerInstance);
@@ -181,7 +181,7 @@ class ModuleNickLockFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNickLockFactory;
 }

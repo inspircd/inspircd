@@ -249,7 +249,7 @@ class ModuleRemove : public Module
 	
  public:
 	ModuleRemove(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		mycommand = new cmd_remove(ServerInstance, supportnokicks);
 		mycommand2 = new cmd_fpart(ServerInstance, supportnokicks);
@@ -308,7 +308,7 @@ class ModuleRemoveFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRemoveFactory;
 }

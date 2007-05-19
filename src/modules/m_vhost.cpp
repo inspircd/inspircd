@@ -61,7 +61,7 @@ class ModuleVHost : public Module
 	cmd_vhost* mycommand;
 	 
  public:
-	ModuleVHost(InspIRCd* Me) : Module::Module(Me)
+	ModuleVHost(InspIRCd* Me) : Module(Me)
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
@@ -113,7 +113,7 @@ class ModuleVHostFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleVHostFactory;
 }

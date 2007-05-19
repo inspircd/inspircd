@@ -117,7 +117,7 @@ class ModuleGlobalLoad : public Module
 	cmd_greloadmodule *mycommand3;
 	
  public:
-	ModuleGlobalLoad(InspIRCd* Me) : Module::Module(Me)
+	ModuleGlobalLoad(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_gloadmodule(ServerInstance);
@@ -158,7 +158,7 @@ class ModuleGlobalLoadFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleGlobalLoadFactory;
 }

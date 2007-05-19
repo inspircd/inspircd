@@ -13,8 +13,14 @@
 
 #include "inspircd.h"
 #include "hashcomp.h"
+#ifndef WIN32
 #include <ext/hash_map>
 #define nspace __gnu_cxx
+#else
+#include <hash_map>
+#define nspace stdext
+using stdext::hash_map;
+#endif
 
 /******************************************************
  *
@@ -61,7 +67,11 @@ void nspace::strlower(char *n)
 	}
 }
 
+#ifndef WIN32
 size_t nspace::hash<string>::operator()(const string &s) const
+#else
+size_t nspace::hash_compare<string, std::less<string> >::operator()(const string &s) const
+#endif
 {
 	/* XXX: NO DATA COPIES! :)
 	 * The hash function here is practically
@@ -75,7 +85,11 @@ size_t nspace::hash<string>::operator()(const string &s) const
 	return t;
 }
 
+#ifndef WIN32
 size_t nspace::hash<irc::string>::operator()(const irc::string &s) const
+#else
+size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(const irc::string &s) const
+#endif
 {
 	register size_t t = 0;
 	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
@@ -138,45 +152,11 @@ int irc::irc_char_traits::compare(const char* str1, const char* str2, size_t n)
 	return 0;
 }
 
-std::string operator+ (std::string& leftval, irc::string& rightval)
-{
-	return leftval + std::string(rightval.c_str());
-}
-
-irc::string operator+ (irc::string& leftval, std::string& rightval)
-{
-	return leftval + irc::string(rightval.c_str());
-}
-
-bool operator== (const std::string& leftval, const irc::string& rightval)
-{
-	return (leftval.c_str() == rightval);
-}
-
-bool operator== (const irc::string& leftval, const std::string& rightval)
-{
-	return (leftval == rightval.c_str());
-}
-
 const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 {
 	while(n-- > 0 && lowermap[(unsigned char)*s1] != lowermap[(unsigned char)c])
 		s1++;
 	return s1;
-}
-
-/* See hashcomp.h if you care about these... */
-std::ostream& operator<<(std::ostream &os, const irc::string &str)
-{
-	return os << str.c_str();
-}
-
-std::istream& operator>>(std::istream &is, irc::string &str)
-{
-	std::string tmp;
-	is >> tmp;
-	str = tmp.c_str();
-	return is;
 }
 
 irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)
@@ -286,8 +266,9 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
 	
 	const char *hex = "0123456789abcdef";
-	
-	char buf[rawsz*2+1];
+
+	std::string buf;
+	buf.reserve(rawsz * 2 + 1);
 
 	size_t i, j;
 	for (i = 0, j = 0; j < rawsz; ++j)
@@ -300,7 +281,7 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	return buf;
 }
 
-const char* irc::Spacify(const char* n)
+CoreExport const char* irc::Spacify(const char* n)
 {
 	static char x[MAXBUF];
 	strlcpy(x,n,MAXBUF);
@@ -614,24 +595,3 @@ unsigned char irc::dynamicbitmask::GetSize()
 	return bits_size;
 }
 
-std::string assign(const irc::string &other)
-{
-	return other.c_str();
-}
-
-irc::string assign(const std::string &other)
-{
-	return other.c_str();
-}
-
-std::string& trim(std::string &str)
-{
-	std::string::size_type start = str.find_first_not_of(" ");
-	std::string::size_type end = str.find_last_not_of(" ");
-	if (start == std::string::npos || end == std::string::npos)
-		str = "";
-	else
-		str = str.substr(start, end-start+1);
-
-	return str;
-}

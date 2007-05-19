@@ -15,7 +15,9 @@
 #include "users.h"
 #include "commands/cmd_whowas.h"
 
-extern "C" command_t* init_command(InspIRCd* Instance)
+WhoWasMaintainTimer * timer;
+
+extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_whowas(Instance);
 }
@@ -24,7 +26,7 @@ cmd_whowas::cmd_whowas(InspIRCd* Instance)
 : command_t(Instance, "WHOWAS", 0, 1)
 {
 	syntax = "<nick>{,<nick>}";
-	timer = new MaintainTimer(Instance, 3600);
+	timer = new WhoWasMaintainTimer(Instance, 3600);
 	Instance->Timers->AddTimer(timer);
 }
 
@@ -326,7 +328,7 @@ WhoWasGroup::~WhoWasGroup()
 }
 
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
-void MaintainTimer::Tick(time_t t)
+void WhoWasMaintainTimer::Tick(time_t t)
 {
 	command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 	if (whowas_command)

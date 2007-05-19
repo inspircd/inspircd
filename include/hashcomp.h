@@ -58,28 +58,6 @@ unsigned const char lowermap[256] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 
 };
 #endif
 
-/** Because of weirdness in g++, before 3.x this was namespace std. It's now __gnu_cxx.
- * This is a #define'd alias.
- */
-namespace nspace
-{
-	/** Convert a string to lower case respecting RFC1459
-	 * @param n A string to lowercase
-	 */
-	void strlower(char *n);
-
-	/** Hashing function to hash std::string without respect to case
-	 */
-        template<> struct hash<std::string>
-        {
-		/** Hash a std::string using RFC1459 case sensitivity rules
-		 * @param s A string to hash
-		 * @return The hash value
-		 */
-                size_t operator()(const string &s) const;
-        };
-}
-
 /** The irc namespace contains a number of helper classes.
  */
 namespace irc
@@ -103,7 +81,7 @@ namespace irc
 	 * std::string, or a const char** array, using overloaded
 	 * constructors.
 	 */
-	class stringjoiner
+	class CoreExport stringjoiner
 	{
 	 private:
 		/** Output string
@@ -142,7 +120,7 @@ namespace irc
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES
 	 * values per line.
 	 */
-	class modestacker
+	class CoreExport modestacker
 	{
 	 private:
 		/** The mode sequence and its parameters
@@ -213,7 +191,7 @@ namespace irc
 	 * list will be ":item". This is to allow for parsing 'source' fields
 	 * from data.
 	 */
-	class tokenstream
+	class CoreExport tokenstream
 	{
 	 private:
 		/** Original string
@@ -245,7 +223,7 @@ namespace irc
 	 * the next token, until none remain, at which point the method returns
 	 * an empty string.
 	 */
-	class sepstream : public classbase
+	class CoreExport sepstream : public classbase
 	{
 	 private:
 		/** Original string
@@ -284,7 +262,7 @@ namespace irc
 
 	/** A derived form of sepstream, which seperates on commas
 	 */
-	class commasepstream : public sepstream
+	class CoreExport commasepstream : public sepstream
 	{
 	 public:
 		commasepstream(const std::string &source) : sepstream(source, ',')
@@ -294,7 +272,7 @@ namespace irc
 
 	/** A derived form of sepstream, which seperates on spaces
 	 */
-	class spacesepstream : public sepstream
+	class CoreExport spacesepstream : public sepstream
 	{
 	 public:
 		spacesepstream(const std::string &source) : sepstream(source, ' ')
@@ -310,7 +288,7 @@ namespace irc
 	 * start or end < 0) then GetToken() will return the first element
 	 * of the pair of numbers.
 	 */
-	class portparser : public classbase
+	class CoreExport portparser : public classbase
 	{
 	 private:
 		/** Used to split on commas
@@ -414,7 +392,7 @@ namespace irc
 	 * };
 	 * \endcode
 	 */
-	class dynamicbitmask : public classbase
+	class CoreExport dynamicbitmask : public classbase
 	{
 	 private:
 		/** Data bits. We start with four of these,
@@ -503,48 +481,129 @@ namespace irc
 
 		/** Compare two strings of size n
 		 */
-		static int compare(const char* str1, const char* str2, size_t n);
+		static CoreExport int compare(const char* str1, const char* str2, size_t n);
 
 		/** Find a char within a string up to position n
  		 */
-		static const char* find(const char* s1, int  n, char c);
+		static CoreExport const char* find(const char* s1, int  n, char c);
 	};
 
-	std::string hex(const unsigned char *raw, size_t rawsz);
+	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
 
 	/** This typedef declares irc::string based upon irc_char_traits
 	 */
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 
-	const char* Spacify(const char* n);
+	CoreExport const char* Spacify(const char* n);
 }
 
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */
 /* This was endless fun. No. Really. */
 /* It was also the first core change Ommeh made, if anyone cares */
-std::ostream& operator<<(std::ostream &os, const irc::string &str);
-std::istream& operator>>(std::istream &is, irc::string &str);
+inline std::ostream& operator<<(std::ostream &os, const irc::string &str) { return os << str.c_str(); }
+inline std::istream& operator>>(std::istream &is, irc::string &str)
+{
+	std::string tmp;
+	is >> tmp;
+	str = tmp.c_str();
+	return is;
+}
 
 /* Define operators for + and == with irc::string to std::string for easy assignment
  * and comparison - Brain
  */
-std::string operator+ (std::string& leftval, irc::string& rightval);
-irc::string operator+ (irc::string& leftval, std::string& rightval);
-bool operator== (const std::string& leftval, const irc::string& rightval);
-bool operator== (const irc::string& leftval, const std::string& rightval);
+inline std::string operator+ (std::string& leftval, irc::string& rightval)
+{
+	return leftval + std::string(rightval.c_str());
+}
 
-std::string assign(const irc::string &other);
-irc::string assign(const std::string &other);
-std::string& trim(std::string &str);
+inline irc::string operator+ (irc::string& leftval, std::string& rightval)
+{
+	return leftval + irc::string(rightval.c_str());
+}
+
+inline bool operator== (const std::string& leftval, const irc::string& rightval)
+{
+	return (leftval.c_str() == rightval);
+}
+
+inline bool operator== (const irc::string& leftval, const std::string& rightval)
+{
+	return (leftval == rightval.c_str());
+}
+
+inline std::string assign(const irc::string &other) { return other.c_str(); }
+inline irc::string assign(const std::string &other) { return other.c_str(); }
+inline std::string& trim(std::string &str)
+{
+	std::string::size_type start = str.find_first_not_of(" ");
+	std::string::size_type end = str.find_last_not_of(" ");
+	if (start == std::string::npos || end == std::string::npos)
+		str = "";
+	else
+		str = str.substr(start, end-start+1);
+
+	return str;
+}
+
+/* Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of #ifdefs we'll just
+   do it all at once - Burlex */
 
 namespace nspace
 {
 	/** Hashing function to hash irc::string
 	 */
+#ifdef WINDOWS
+	template<> class CoreExport hash_compare<irc::string, std::less<irc::string> >
+	{
+	public:
+		enum { bucket_size = 4, min_buckets = 8 };			// Got these numbers from the CRT source,
+															// if anyone wants to change them feel free.
+		bool operator()(const irc::string & s1, const irc::string & s2) const
+		{
+			if(s1.length() != s2.length()) return true;
+			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
+		}
+		
+		size_t operator()(const irc::string & s) const;
+	};
+
+	template<> class CoreExport hash_compare<std::string, std::less<std::string> >
+	{
+	public:
+		enum { bucket_size = 4, min_buckets = 8 };
+		bool operator()(const std::string & s1, const std::string & s2) const
+		{
+			if(s1.length() != s2.length()) return true;
+			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
+		}
+		
+		/** Hash a std::string using RFC1459 case sensitivity rules
+		* @param s A string to hash
+		* @return The hash value
+		*/
+		size_t operator()(const std::string & s) const;
+	};
+#else
 	template<> struct hash<irc::string>
 	{
 		size_t operator()(const irc::string &s) const;
 	};
+
+	template<> struct hash<std::string>
+	{
+		/** Hash a std::string using RFC1459 case sensitivity rules
+		* @param s A string to hash
+		* @return The hash value
+		*/
+		size_t operator()(const string &s) const;
+	};
+#endif
+
+	/** Convert a string to lower case respecting RFC1459
+	* @param n A string to lowercase
+	*/
+	void strlower(char *n);
 }
 
 #endif

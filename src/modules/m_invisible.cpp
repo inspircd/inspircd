@@ -147,7 +147,7 @@ class ModuleInvisible : public Module
 	InvisibleDeOper* ido;
  public:
 	ModuleInvisible(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		conf = new ConfigReader(ServerInstance);
 		qm = new InvisibleMode(ServerInstance);
@@ -292,7 +292,7 @@ class ModuleInvisibleFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleInvisibleFactory;
 }

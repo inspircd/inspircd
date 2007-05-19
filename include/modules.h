@@ -187,8 +187,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 #define FD_MAGIC_NUMBER -42
 
 // useful macros
-
+#ifdef WINDOWS
+#define IS_LOCAL(x) ((x->GetFd() > -1))
+#else
 #define IS_LOCAL(x) ((x->GetFd() > -1) && (x->GetFd() <= MAX_DESCRIPTORS))
+#endif
 #define IS_REMOTE(x) (x->GetFd() < 0)
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
 #define IS_OPER(x) (*x->oper)
@@ -198,7 +201,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  *  The four members (set by the constructor only) indicate details as to the version number
  *  of a module. A class of type Version is returned by the GetVersion method of the Module class.
  */
-class Version : public classbase
+class CoreExport Version : public classbase
 {
  public:
 	 const int Major, Minor, Revision, Build, Flags, API;
@@ -209,7 +212,7 @@ class Version : public classbase
  * This class is used to represent a basic data structure which is passed
  * between modules for safe inter-module communications.
  */
-class ModuleMessage : public Extensible
+class CoreExport ModuleMessage : public Extensible
 {
  public:
 	virtual ~ModuleMessage() {};
@@ -220,7 +223,7 @@ class ModuleMessage : public Extensible
  * using the Send() method, which will call the given module's OnRequest
  * method with this class as its parameter.
  */
-class Request : public ModuleMessage
+class CoreExport Request : public ModuleMessage
 {
  protected:
 	/** This member holds a pointer to arbitary data set by the emitter of the message
@@ -282,7 +285,7 @@ class Request : public ModuleMessage
  * using the Send() method, which will trigger the OnEvent method in
  * all modules passing the object as its parameter.
  */
-class Event : public ModuleMessage
+class CoreExport Event : public ModuleMessage
 {
  protected:
 	/** This member holds a pointer to arbitary data set by the emitter of the message
@@ -324,7 +327,7 @@ class Event : public ModuleMessage
  * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
  * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
  */
-class CoreException : public std::exception
+class CoreExport CoreException : public std::exception
 {
  protected:
 	/** Holds the error message to be displayed
@@ -361,7 +364,7 @@ class CoreException : public std::exception
 	}
 };
 
-class ModuleException : public CoreException
+class CoreExport ModuleException : public CoreException
 {
  public:
 	/** Default constructor, just uses the error mesage 'Module threw an exception'.
@@ -403,7 +406,7 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
  *  its methods will be called when irc server events occur. class inherited from module must be
  *  instantiated by the ModuleFactory class (see relevent section) for the module to be initialised.
  */
-class Module : public Extensible
+class CoreExport Module : public Extensible
 {
  protected:
 	InspIRCd* ServerInstance;
@@ -1389,7 +1392,7 @@ class Module : public Extensible
  * Constructing the class using one parameter allows you to specify a path to your own configuration
  * file, otherwise, inspircd.conf is read.
  */
-class ConfigReader : public classbase
+class CoreExport ConfigReader : public classbase
 {
   protected:
 	InspIRCd* ServerInstance;
@@ -1506,7 +1509,7 @@ class ConfigReader : public classbase
  * Either use the constructor type with one parameter to load a file into memory
  * at construction, or use the LoadFile method to load a file.
  */
-class FileReader : public classbase
+class CoreExport FileReader : public classbase
 {
 	InspIRCd* ServerInstance;
 	/** The file contents
@@ -1577,7 +1580,7 @@ class FileReader : public classbase
  * In most cases, the simple class shown in the example module m_foobar.so will suffice for most
  * modules.
  */
-class ModuleFactory : public classbase
+class CoreExport ModuleFactory : public classbase
 {
  public:
 	/** The default constructor does nothing.

@@ -53,7 +53,7 @@ class ModuleNoNickChange : public Module
 	NoNicks* nn;
  public:
 	ModuleNoNickChange(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		nn = new NoNicks(ServerInstance);
@@ -120,7 +120,7 @@ class ModuleNoNickChangeFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNoNickChangeFactory;
 }

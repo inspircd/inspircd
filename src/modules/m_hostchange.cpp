@@ -41,7 +41,7 @@ class ModuleHostChange : public Module
 	 
  public:
 	ModuleHostChange(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		Conf = new ConfigReader(ServerInstance);
 		OnRehash(NULL,"");
@@ -160,7 +160,7 @@ class ModuleHostChangeFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHostChangeFactory;
 }

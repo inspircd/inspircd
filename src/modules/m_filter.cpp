@@ -31,7 +31,7 @@ class ModuleFilter : public FilterBase
 
  public:
 	ModuleFilter(InspIRCd* Me)
-	: FilterBase::FilterBase(Me, "m_filter.so")
+	: FilterBase(Me, "m_filter.so")
 	{
 		OnRehash(NULL,"");
 	}
@@ -155,7 +155,7 @@ class ModuleFilterFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleFilterFactory;
 }

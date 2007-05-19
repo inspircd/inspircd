@@ -51,7 +51,7 @@ class ModuleNoInvite : public Module
 	NoInvite *ni;
  public:
 
-	ModuleNoInvite(InspIRCd* Me) : Module::Module(Me)
+	ModuleNoInvite(InspIRCd* Me) : Module(Me)
 	{
 		ni = new NoInvite(ServerInstance);
 		if (!ServerInstance->AddMode(ni, 'V'))
@@ -104,7 +104,7 @@ class ModuleNoInviteFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNoInviteFactory;
 }

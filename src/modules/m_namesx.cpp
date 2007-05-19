@@ -25,7 +25,7 @@ class ModuleNamesX : public Module
  public:
 	
 	ModuleNamesX(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 	}
 
@@ -143,7 +143,7 @@ class ModuleNamesXFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNamesXFactory;
 }

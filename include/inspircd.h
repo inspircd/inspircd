@@ -14,6 +14,16 @@
 #ifndef __INSPIRCD_H__
 #define __INSPIRCD_H__
 
+#ifndef WIN32
+#define DllExport 
+#define CoreExport 
+#define printf_c printf
+#else
+#include "inspircd_win32wrapper.h"
+#undef DELETE
+#undef ERROR
+#endif
+
 #include <time.h>
 #include <string>
 #include <sstream>
@@ -216,7 +226,7 @@ class InspIRCd;
  * I/O (linux seems to, as does freebsd) this will default to
  * blocking behaviour.
  */
-class FileLogger : public EventHandler
+class CoreExport FileLogger : public EventHandler
 {
  protected:
 	/** The creator/owner of this object
@@ -284,7 +294,7 @@ class XLineManager;
  * program in terms of ram usage (basically, you could create
  * an obese forkbomb built from recursively spawning irc servers!)
  */
-class InspIRCd : public classbase
+class CoreExport InspIRCd : public classbase
 {
  private:
 	/** Holds a string describing the last module error to occur

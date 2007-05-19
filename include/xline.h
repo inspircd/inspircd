@@ -31,7 +31,7 @@ const int APPLY_ALL		= APPLY_GLINES | APPLY_KLINES | APPLY_QLINES | APPLY_ZLINES
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  */
-class XLine : public classbase
+class CoreExport XLine : public classbase
 {
   public:
 
@@ -71,7 +71,7 @@ class XLine : public classbase
 
 /** KLine class
  */
-class KLine : public XLine
+class CoreExport KLine : public XLine
 {
   public:
 	/** Hostmask (ident@host) to match against
@@ -95,7 +95,7 @@ class KLine : public XLine
 
 /** GLine class
  */
-class GLine : public XLine
+class CoreExport GLine : public XLine
 {
   public:
 	/** Hostmask (ident@host) to match against
@@ -119,7 +119,7 @@ class GLine : public XLine
 
 /** ELine class
  */
-class ELine : public XLine
+class CoreExport ELine : public XLine
 {
   public:
         /** Hostmask (ident@host) to match against
@@ -143,7 +143,7 @@ class ELine : public XLine
 
 /** ZLine class
  */
-class ZLine : public XLine
+class CoreExport ZLine : public XLine
 {
   public:
 	/** IP Address (xx.yy.zz.aa) to match against
@@ -164,7 +164,7 @@ class ZLine : public XLine
 
 /** QLine class
  */
-class QLine : public XLine
+class CoreExport QLine : public XLine
 {
   public:
 	/** Nickname to match against.
@@ -202,7 +202,7 @@ typedef std::pair<std::string, std::string> IdentHostPair;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
  */
-class XLineManager
+class CoreExport XLineManager
 {
  protected:
 	/** The owner/creator of this class

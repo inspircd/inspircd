@@ -96,7 +96,7 @@ class ModuleSajoin : public Module
 	cmd_sajoin*	mycommand;
  public:
 	ModuleSajoin(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_sajoin(ServerInstance);
@@ -135,7 +135,7 @@ class ModuleSajoinFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSajoinFactory;
 }

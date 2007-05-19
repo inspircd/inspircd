@@ -62,7 +62,7 @@ class ModuleTaxonomy : public Module
 	bool claimed;
  public:
 	ModuleTaxonomy(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		// Create a new command
@@ -116,7 +116,7 @@ class ModuleTaxonomyFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleTaxonomyFactory;
 }

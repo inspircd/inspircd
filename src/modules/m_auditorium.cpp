@@ -54,7 +54,7 @@ class ModuleAuditorium : public Module
 	CUList except_list;
  public:
 	ModuleAuditorium(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		aum = new AuditoriumMode(ServerInstance);
 		if (!ServerInstance->AddMode(aum, 'u'))
@@ -206,7 +206,7 @@ class ModuleAuditoriumFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleAuditoriumFactory;
 }

@@ -34,7 +34,7 @@ char* itab[] = {
 	"OnPostCommand", "OnPostJoin", "OnWhoisLine", "OnBuildExemptList", "OnRawSocketConnect", "OnGarbageCollect", NULL
 };
 
-extern "C" command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_modules(Instance);
 }

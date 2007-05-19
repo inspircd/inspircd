@@ -103,7 +103,7 @@ class ModuleKnock : public Module
 	cmd_knock* mycommand;
 	Knock* kn;
  public:
-	ModuleKnock(InspIRCd* Me) : Module::Module(Me)
+	ModuleKnock(InspIRCd* Me) : Module(Me)
 	{
 		
 		kn = new Knock(ServerInstance);
@@ -150,7 +150,7 @@ class ModuleKnockFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleKnockFactory;
 }

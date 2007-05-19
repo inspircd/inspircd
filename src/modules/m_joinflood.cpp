@@ -218,7 +218,7 @@ class ModuleJoinFlood : public Module
  public:
  
 	ModuleJoinFlood(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		jf = new JoinFlood(ServerInstance);
@@ -305,7 +305,7 @@ class ModuleJoinFloodFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleJoinFloodFactory;
 }

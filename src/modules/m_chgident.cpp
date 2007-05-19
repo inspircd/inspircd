@@ -60,7 +60,7 @@ class ModuleChgIdent : public Module
 	
 	
 public:
-	ModuleChgIdent(InspIRCd* Me) : Module::Module(Me)
+	ModuleChgIdent(InspIRCd* Me) : Module(Me)
 	{
 		mycommand = new cmd_chgident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
@@ -98,7 +98,7 @@ class ModuleChgIdentFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleChgIdentFactory;
 }

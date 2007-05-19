@@ -115,7 +115,7 @@ class ModuleTimedBans : public Module
 	cmd_tban* mycommand;
  public:
 	ModuleTimedBans(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_tban(ServerInstance);
@@ -224,7 +224,7 @@ class ModuleTimedBansFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleTimedBansFactory;
 }

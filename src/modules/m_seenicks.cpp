@@ -24,7 +24,7 @@ class ModuleSeeNicks : public Module
 {
  public:
 	ModuleSeeNicks(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
 		ServerInstance->SNO->EnableSnomask('N',"REMOTENICK");
@@ -71,7 +71,7 @@ class ModuleSeeNicksFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSeeNicksFactory;
 }

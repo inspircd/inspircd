@@ -965,6 +965,10 @@ sub writefiles {
 #ifndef __CONFIGURATION_AUTO__
 #define __CONFIGURATION_AUTO__
 
+/* this is for windows support. */
+#define CoreExport /**/
+#define DllExport /**/
+
 #define CONFIG_FILE "$config{CONFIG_DIR}/inspircd.conf"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define VERSION "$version"

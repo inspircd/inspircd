@@ -46,7 +46,11 @@ enum UserModes {
 };
 
 enum RegistrationState {
+
+#ifndef WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
 	REG_NONE = 0,		/* Has sent nothing */
+#endif
+
 	REG_USER = 1,		/* Has sent USER */
 	REG_NICK = 2,		/* Has sent NICK */
 	REG_NICKUSER = 3, 	/* Bitwise combination of REG_NICK and REG_USER */
@@ -57,7 +61,7 @@ class InspIRCd;
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
-class UserResolver : public Resolver
+class CoreExport UserResolver : public Resolver
 {
  private:
 	/** User this class is 'attached' to.
@@ -75,7 +79,7 @@ class UserResolver : public Resolver
 
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
-class ConnectClass : public classbase
+class CoreExport ConnectClass : public classbase
 {
  private:
 	/** Type of line, either CC_ALLOW or CC_DENY
@@ -249,7 +253,7 @@ typedef UserChanList::iterator UCListIter;
 
 class userrec;
 
-class VisData
+class CoreExport VisData
 {
  public:
 	VisData();
@@ -264,7 +268,7 @@ class VisData
  * by nickname, or the FindDescriptor method of the InspIRCd class to find a specific user by their
  * file descriptor value.
  */
-class userrec : public connection
+class CoreExport userrec : public connection
 {
  private:
 	/** Pointer to creator.

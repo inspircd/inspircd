@@ -73,7 +73,7 @@ class ModuleSSLModes : public Module
 	
  public:
 	ModuleSSLModes(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 
@@ -139,7 +139,7 @@ class ModuleSSLModesFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSSLModesFactory;
 }

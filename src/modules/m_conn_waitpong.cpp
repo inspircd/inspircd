@@ -29,7 +29,7 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong(InspIRCd* Me)
-	 : Module::Module(Me), Instance(Me), extenstr("waitpong_pingstr")
+	 : Module(Me), Instance(Me), extenstr("waitpong_pingstr")
 	{
 		OnRehash(NULL,"");
 	}
@@ -166,7 +166,7 @@ class ModuleWaitPongFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleWaitPongFactory;
 }

@@ -25,10 +25,15 @@
 #include "modules.h"
 #include "globals.h"
 
+#ifndef WIN32
 typedef nspace::hash_map<std::string, userrec*, nspace::hash<string>, irc::StrHashComp> user_hash;
 typedef nspace::hash_map<std::string, chanrec*, nspace::hash<string>, irc::StrHashComp> chan_hash;
+#else
+typedef nspace::hash_map<std::string, userrec*, nspace::hash_compare<string, less<string> > > user_hash;
+typedef nspace::hash_map<std::string, chanrec*, nspace::hash_compare<string, less<string> > > chan_hash;
+#endif
 
-typedef std::vector<std::string> servernamelist;
+typedef std::vector<std::string*> servernamelist;
 typedef std::deque<std::string> file_cache;
 
 #endif

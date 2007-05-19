@@ -191,7 +191,7 @@ class ModuleBanRedirect : public Module
 	
  public:
 	ModuleBanRedirect(InspIRCd* Me)
-	: Module::Module(Me), Srv(Me)
+	: Module(Me), Srv(Me)
 	{
 		re = new BanRedirect(Me);
 		nofollow = false;
@@ -337,7 +337,7 @@ class ModuleBanRedirectFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBanRedirectFactory;
 }

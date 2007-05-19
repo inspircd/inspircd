@@ -180,7 +180,7 @@ typedef std::map<irc::string,char*> operclass_t;
  * and storage of the configuration data needed to run the ircd, such as
  * the servername, connect classes, /ADMIN data, MOTDs and filenames etc.
  */
-class ServerConfig : public Extensible
+class CoreExport ServerConfig : public Extensible
 {
   private:
 	/** Creator/owner
@@ -663,7 +663,7 @@ class ServerConfig : public Extensible
 	
 };
 
-bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
+CoreExport bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
 
 bool InitTypes(ServerConfig* conf, const char* tag);
 bool InitClasses(ServerConfig* conf, const char* tag);

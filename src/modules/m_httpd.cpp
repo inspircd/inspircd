@@ -378,7 +378,7 @@ class ModuleHttpServer : public Module
 		}
 	}
 
-	ModuleHttpServer(InspIRCd* Me) : Module::Module(Me)
+	ModuleHttpServer(InspIRCd* Me) : Module(Me)
 	{
 		ReadConfig();
 	}
@@ -437,7 +437,7 @@ class ModuleHttpServerFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHttpServerFactory;
 }

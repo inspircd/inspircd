@@ -58,7 +58,7 @@ class ModuleHideChans : public Module
 	HideChans* hm;
  public:
 	ModuleHideChans(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		hm = new HideChans(ServerInstance);
@@ -110,7 +110,7 @@ class ModuleHideChansFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHideChansFactory;
 }

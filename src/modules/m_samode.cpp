@@ -79,7 +79,7 @@ class ModuleSaMode : public Module
 	cmd_samode*	mycommand;
  public:
 	ModuleSaMode(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_samode(ServerInstance);
@@ -116,7 +116,7 @@ class ModuleSaModeFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSaModeFactory;
 }

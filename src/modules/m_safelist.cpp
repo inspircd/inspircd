@@ -43,7 +43,7 @@ class ModuleSafeList : public Module
 	int global_listing;
 	int LimitList;
  public:
-	ModuleSafeList(InspIRCd* Me) : Module::Module(Me)
+	ModuleSafeList(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL, "");
 	}
@@ -285,7 +285,7 @@ class ModuleSafeListFactory : public ModuleFactory
  
 };
  
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSafeListFactory;
 }

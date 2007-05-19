@@ -52,7 +52,7 @@ class ModuleSetName : public Module
 	cmd_setname*	mycommand;
  public:
 	ModuleSetName(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_setname(ServerInstance);
@@ -91,7 +91,7 @@ class ModuleSetNameFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSetNameFactory;
 }

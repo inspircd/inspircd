@@ -16,7 +16,13 @@
 
 #include "inspircd_config.h"
 
+#ifndef WIN32
 #include <ext/hash_map>
 #define nspace __gnu_cxx
+#else
+#include <hash_map>
+#define nspace stdext
+using stdext::hash_map;
+#endif
 
 #endif

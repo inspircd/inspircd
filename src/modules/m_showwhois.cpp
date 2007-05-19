@@ -59,7 +59,7 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois(InspIRCd* Me) : Module::Module(Me)
+	ModuleShowwhois(InspIRCd* Me) : Module(Me)
 	{
 		
 		sw = new SeeWhois(ServerInstance);
@@ -124,7 +124,7 @@ class ModuleShowwhoisFactory : public ModuleFactory
 
 };
 
-extern "C" void* init_module()
+extern "C" DllExport void* init_module()
 {
 	return new ModuleShowwhoisFactory;
 }

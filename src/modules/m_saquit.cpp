@@ -63,7 +63,7 @@ class ModuleSaquit : public Module
 	cmd_saquit*	mycommand;
  public:
 	ModuleSaquit(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_saquit(ServerInstance);
@@ -102,7 +102,7 @@ class ModuleSaquitFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSaquitFactory;
 }

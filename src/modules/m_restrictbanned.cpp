@@ -23,7 +23,7 @@ class ModuleRestrictBanned : public Module
 {
  private:
  public:
-	ModuleRestrictBanned(InspIRCd* Me) : Module::Module(Me)
+	ModuleRestrictBanned(InspIRCd* Me) : Module(Me)
 	{
 	}
 	
@@ -116,7 +116,7 @@ class ModuleRestrictBannedFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRestrictBannedFactory;
 }

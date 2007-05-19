@@ -90,7 +90,7 @@ typedef std::pair<bool,std::string> ModePair;
  * mode is expected to have a parameter, then this is
  * equivalent to returning MODEACTION_DENY.
  */
-class ModeHandler : public Extensible
+class CoreExport ModeHandler : public Extensible
 {
  protected:
 	InspIRCd* ServerInstance;
@@ -279,7 +279,7 @@ class ModeHandler : public Extensible
  * and attach it to the mode using Server::AddModeWatcher and Server::DelModeWatcher.
  * A ModeWatcher will be called both before and after the mode change.
  */
-class ModeWatcher : public Extensible
+class CoreExport ModeWatcher : public Extensible
 {
  protected:
 	InspIRCd* ServerInstance;
@@ -347,7 +347,7 @@ typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class ModeParser : public classbase
+class CoreExport ModeParser : public classbase
 {
  private:
 	InspIRCd* ServerInstance;

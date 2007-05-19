@@ -116,7 +116,7 @@ class ModuleServicesAccount : public Module
 	AChannel_M* m2;
 	AUser_R* m3;
  public:
-	ModuleServicesAccount(InspIRCd* Me) : Module::Module(Me)
+	ModuleServicesAccount(InspIRCd* Me) : Module(Me)
 	{
 		
 		m1 = new AChannel_R(ServerInstance);
@@ -349,7 +349,7 @@ class ModuleServicesAccountFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleServicesAccountFactory;
 }

@@ -162,7 +162,7 @@ class ModuleCheck : public Module
  private:
 	cmd_check *mycommand;
  public:
-	ModuleCheck(InspIRCd* Me) : Module::Module(Me)
+	ModuleCheck(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_check(ServerInstance);
@@ -205,7 +205,7 @@ class ModuleCheckFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleCheckFactory;
 }

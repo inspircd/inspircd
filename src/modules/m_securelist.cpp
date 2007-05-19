@@ -26,7 +26,7 @@ class ModuleSecureList : public Module
 	std::vector<std::string> allowlist;
 	time_t WaitTime;
  public:
-	ModuleSecureList(InspIRCd* Me) : Module::Module(Me)
+	ModuleSecureList(InspIRCd* Me) : Module(Me)
 	{
 		OnRehash(NULL,"");
 	}
@@ -118,7 +118,7 @@ class ModuleSecureListFactory : public ModuleFactory
  
 };
  
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSecureListFactory;
 }

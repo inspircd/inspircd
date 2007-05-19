@@ -43,7 +43,7 @@ class ModuleRestrictChans : public Module
 
  public:
 	ModuleRestrictChans(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		ReadConfig();
@@ -105,7 +105,7 @@ class ModuleRestrictChansFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRestrictChansFactory;
 }

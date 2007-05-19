@@ -45,7 +45,7 @@ class ModuleHttpStats : public Module
 		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
 	}
 
-	ModuleHttpStats(InspIRCd* Me) : Module::Module(Me)
+	ModuleHttpStats(InspIRCd* Me) : Module(Me)
 	{
 		
 		ReadConfig();
@@ -258,7 +258,7 @@ class ModuleHttpStatsFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHttpStatsFactory;
 }

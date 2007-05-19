@@ -24,7 +24,7 @@ class ModuleAntiBear : public Module
  private:
 
  public:
-	ModuleAntiBear(InspIRCd* Me) : Module::Module(Me)
+	ModuleAntiBear(InspIRCd* Me) : Module(Me)
 	{
 		
 	}
@@ -99,7 +99,7 @@ class ModuleAntiBearFactory : public ModuleFactory
 // class for this library
 //
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleAntiBearFactory;
 }

@@ -12,7 +12,6 @@
  */
 
 #include "inspstring.h"
-#include <string.h>
 
 /*
  * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
@@ -42,7 +41,7 @@
  */
  
 #ifndef HAS_STRLCPY
-size_t strlcat(char *dst, const char *src, size_t siz)
+CoreExport size_t strlcat(char *dst, const char *src, size_t siz)
 {
   char *d = dst;
   const char *s = src;
@@ -72,7 +71,7 @@ size_t strlcat(char *dst, const char *src, size_t siz)
   return(dlen + (s - src)); /* count does not include NUL */
 }
 
-size_t strlcpy(char *dst, const char *src, size_t siz)
+CoreExport size_t strlcpy(char *dst, const char *src, size_t siz)
 {
   char *d = dst;
   const char *s = src;
@@ -101,7 +100,7 @@ size_t strlcpy(char *dst, const char *src, size_t siz)
 }
 #endif
 
-int charlcat(char* x,char y,int z)
+CoreExport int charlcat(char* x,char y,int z)
 {
 	char* x__n = x;
 	int v = 0;
@@ -118,7 +117,7 @@ int charlcat(char* x,char y,int z)
 	return v;
 }
 
-bool charremove(char* mp, char remove)
+CoreExport bool charremove(char* mp, char remove)
 {
 	char* mptr = mp;
 	bool shift_down = false;

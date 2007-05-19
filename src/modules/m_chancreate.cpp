@@ -23,7 +23,7 @@ class ModuleChanCreate : public Module
  private:
  public:
 	ModuleChanCreate(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 	}
@@ -70,7 +70,7 @@ class ModuleChanCreateFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleChanCreateFactory;
 }

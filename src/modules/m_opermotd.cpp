@@ -81,7 +81,7 @@ class ModuleOpermotd : public Module
 	}
 	
 	ModuleOpermotd(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		opermotd = NULL;
 		mycommand = new cmd_opermotd(ServerInstance);
@@ -132,7 +132,7 @@ class ModuleOpermotdFactory : public ModuleFactory
 	}
 };
 
-extern "C" void* init_module(void)
+extern "C" DllExport void* init_module(void)
 {
 	return new ModuleOpermotdFactory;
 }

@@ -15,14 +15,22 @@
 #define __IN_INSPSTRING_H
 
 #include "inspircd_config.h"
+#include <string.h>
 #include <cstddef>
 
 #ifndef HAS_STRLCPY
-size_t strlcpy(char *dst, const char *src, size_t siz);
-size_t strlcat(char *dst, const char *src, size_t siz);
+CoreExport size_t strlcpy(char *dst, const char *src, size_t siz);
+CoreExport size_t strlcat(char *dst, const char *src, size_t siz);
 #endif
 
-int charlcat(char* x,char y,int z);
-bool charremove(char* mp, char remove);
+CoreExport int charlcat(char* x,char y,int z);
+CoreExport bool charremove(char* mp, char remove);
+inline char * strnewdup(const char * s1)
+{
+	size_t len = strlen(s1) + 1;
+	char * p = new char[len];
+	memcpy(p, s1, len);
+	return p;
+}
 
 #endif

@@ -14,8 +14,6 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <algorithm>
-#include <dirent.h>
-#include <dlfcn.h>
 #include "users.h"
 #include "modules.h"
 #include "wildcard.h"
@@ -23,6 +21,12 @@
 #include "socketengine.h"
 #include "socket.h"
 #include "command_parse.h"
+
+/* Directory Searching for Unix-Only */
+#ifndef WIN32
+#include <dirent.h>
+#include <dlfcn.h>
+#endif
 
 bool InspIRCd::ULine(const char* server)
 {

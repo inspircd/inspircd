@@ -64,7 +64,7 @@ class Modulealltime : public Module
 	cmd_alltime *mycommand;
  public:
 	Modulealltime(InspIRCd *Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		mycommand = new cmd_alltime(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
@@ -99,7 +99,7 @@ class ModulealltimeFactory : public ModuleFactory
 };
 
 
-extern "C" void *init_module(void)
+extern "C" DllExport void *init_module(void)
 {
 	return new ModulealltimeFactory;
 }

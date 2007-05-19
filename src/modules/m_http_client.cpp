@@ -75,7 +75,7 @@ class ModuleHTTPClient : public Module
 	HTTPList sockets;
 
 	ModuleHTTPClient(InspIRCd *Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 	}
 	
@@ -360,7 +360,7 @@ class ModuleHTTPClientFactory : public ModuleFactory
 	}
 };
 
-extern "C" void *init_module(void)
+extern "C" DllExport void *init_module(void)
 {
 	return new ModuleHTTPClientFactory;
 }

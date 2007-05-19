@@ -62,7 +62,7 @@ class ModuleDeVoice : public Module
 {
 	cmd_devoice *mycommand;
  public:
-	ModuleDeVoice(InspIRCd* Me) : Module::Module(Me)
+	ModuleDeVoice(InspIRCd* Me) : Module(Me)
 	{
 
 		mycommand = new cmd_devoice(ServerInstance);
@@ -99,7 +99,7 @@ class ModuleDeVoiceFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleDeVoiceFactory;
 }

@@ -84,7 +84,7 @@ private:
 	}
 
 public:
-	ModuleLockserv(InspIRCd* Me) : Module::Module(Me)
+	ModuleLockserv(InspIRCd* Me) : Module(Me)
 	{
 		ResetLocked();
 		lockcommand = new cmd_lockserv(ServerInstance, locked);
@@ -146,7 +146,7 @@ public:
 	}
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleLockservFactory;
 }

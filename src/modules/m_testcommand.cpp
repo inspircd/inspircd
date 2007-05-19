@@ -80,7 +80,7 @@ class ModuleTestCommand : public Module
 	cmd_woot* newcommand;
  public:
 	ModuleTestCommand(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		// Create a new command
@@ -123,7 +123,7 @@ class ModuleTestCommandFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleTestCommandFactory;
 }

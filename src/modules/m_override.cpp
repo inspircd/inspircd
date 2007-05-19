@@ -33,7 +33,7 @@ class ModuleOverride : public Module
  public:
  
 	ModuleOverride(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{		
 		// read our config options (main config file)
 		OnRehash(NULL,"");
@@ -311,7 +311,7 @@ class ModuleOverrideFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOverrideFactory;
 }

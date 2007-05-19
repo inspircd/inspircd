@@ -17,7 +17,7 @@
 #include "xline.h"
 #include "commands/cmd_gline.h"
 
-extern "C" command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_gline(Instance);
 }

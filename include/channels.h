@@ -110,7 +110,7 @@ typedef std::map<userrec*, std::vector<prefixtype> > prefixlist;
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class chanrec : public Extensible
+class CoreExport chanrec : public Extensible
 {
  private:
 

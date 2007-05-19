@@ -29,7 +29,7 @@ class ModuleXMLSocket : public Module
  public:
 
 	ModuleXMLSocket(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		OnRehash(NULL,"");
 	}
@@ -146,7 +146,7 @@ class ModuleXMLSocket : public Module
 			return -1;
 
 		/* We want to alter the buffer, so we have to make a copy */
-		char tmpbuffer[count+1];
+		char * tmpbuffer = new char[count + 1];
 		memcpy(tmpbuffer, buffer, count);
 
 		/* XXX: This will actually generate lines "looking\0\0like\0\0this"
@@ -160,6 +160,7 @@ class ModuleXMLSocket : public Module
 				tmpbuffer[n] = 0;
 
 		user->AddWriteBuf(std::string(tmpbuffer,count));
+		delete [] tmpbuffer;
 
 		return 1;
 	}
@@ -184,7 +185,7 @@ class ModuleXMLSocketFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleXMLSocketFactory;
 }

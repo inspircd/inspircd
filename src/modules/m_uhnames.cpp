@@ -26,7 +26,7 @@ class ModuleUHNames : public Module
  public:
 	
 	ModuleUHNames(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 	}
 
@@ -113,7 +113,7 @@ class ModuleUHNamesFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleUHNamesFactory;
 }

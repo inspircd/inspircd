@@ -104,7 +104,7 @@ class ModuleRedirect : public Module
  public:
  
 	ModuleRedirect(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		re = new Redirect(ServerInstance);
@@ -177,7 +177,7 @@ class ModuleRedirectFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRedirectFactory;
 }

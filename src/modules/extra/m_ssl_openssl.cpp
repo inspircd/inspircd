@@ -17,6 +17,10 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+#ifdef WINDOWS
+#include <openssl/applink.c>
+#endif
+
 #include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
@@ -28,6 +32,13 @@
 #include "inspircd.h"
 
 #include "transport.h"
+
+#ifdef WINDOWS
+#pragma comment(lib, "libeay32MTd")
+#pragma comment(lib, "ssleay32MTd")
+#undef MAX_DESCRIPTORS
+#define MAX_DESCRIPTORS 10000
+#endif
 
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
@@ -122,7 +133,7 @@ class ModuleSSLOpenSSL : public Module
 	InspIRCd* PublicInstance;
 
 	ModuleSSLOpenSSL(InspIRCd* Me)
-		: Module::Module(Me), PublicInstance(Me)
+		: Module(Me), PublicInstance(Me)
 	{
 		ServerInstance->PublishInterface("InspSocketHook", this);
 
@@ -855,7 +866,7 @@ class ModuleSSLOpenSSLFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSSLOpenSSLFactory;
 }

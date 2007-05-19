@@ -67,7 +67,7 @@ class ModuleSetHost : public Module
 	char hostmap[256];
  public:
 	ModuleSetHost(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{	
 		OnRehash(NULL,"");
 		mycommand = new cmd_sethost(ServerInstance, hostmap);
@@ -122,7 +122,7 @@ class ModuleSetHostFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSetHostFactory;
 }

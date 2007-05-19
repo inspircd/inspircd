@@ -56,7 +56,7 @@ class ModuleUserIP : public Module
 	cmd_userip* mycommand;
  public:
 	ModuleUserIP(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_userip(ServerInstance);
@@ -105,7 +105,7 @@ class ModuleUserIPFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleUserIPFactory;
 }

@@ -49,7 +49,7 @@ class ModuleBanException : public Module
 
 public:
 	ModuleBanException(InspIRCd* Me)
-	: Module::Module(Me)
+	: Module(Me)
 	{
 		be = new BanException(ServerInstance);
 		if (!ServerInstance->AddMode(be, 'e'))
@@ -170,7 +170,7 @@ class ModuleBanExceptionFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBanExceptionFactory;
 }

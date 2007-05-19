@@ -13,7 +13,9 @@
 
 #include "inspircd.h"
 #include "configreader.h"
+#ifndef WIN32
 #include <sys/resource.h>
+#endif
 #include "users.h"
 #include "modules.h"
 #include "xline.h"
@@ -21,7 +23,7 @@
 #include "commands/cmd_whowas.h"
 
 
-extern "C" command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_stats(Instance);
 }
@@ -39,7 +41,7 @@ CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 	return CMD_SUCCESS;
 }
 
-void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_list &results)
+DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
@@ -171,12 +173,18 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-			rusage R;
+#ifndef WIN32
+            rusage R;
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
 			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes, "+ConvToStr(ServerInstance->clientlist->bucket_count())+" buckets)");
 			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes, "+ConvToStr(ServerInstance->chanlist->bucket_count())+" buckets)");
 			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
-
+#else
+            results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
+            results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes)");
+            results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes)");
+            results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
+#endif
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
 				command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
@@ -199,7 +207,8 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 			results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->modules.size())+" ("+ConvToStr(ServerInstance->modules.size()*sizeof(Module))+" bytes)");
 			results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+" bytes)");
 
-			if (!getrusage(0,&R))	/* RUSAGE_SELF */
+#ifndef WIN32
+            if (!getrusage(0,&R))	/* RUSAGE_SELF */
 			{
 				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));
@@ -218,6 +227,7 @@ void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_lis
 				snprintf(percent, 30, "%03.5f%%", per);
 				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: "+percent);
 			}
+#endif
 		}
 		break;
 	

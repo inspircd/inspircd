@@ -43,7 +43,7 @@ using irc::sockets::insp_aton;
 
 /** Used to time out socket connections
  */
-class SocketTimeout : public InspTimer
+class CoreExport SocketTimeout : public InspTimer
 {
  private:
 	InspSocket* sock;
@@ -65,7 +65,7 @@ class SocketTimeout : public InspTimer
  * and use the InspSocket constructors to establish connections
  * and bindings.
  */
-class InspSocket : public EventHandler
+class CoreExport InspSocket : public EventHandler
 {
  public:
 

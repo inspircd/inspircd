@@ -57,7 +57,7 @@ class ModuleBotMode : public Module
 	BotMode* bm;
  public:
 	ModuleBotMode(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		bm = new BotMode(ServerInstance);
@@ -112,7 +112,7 @@ class ModuleBotModeFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBotModeFactory;
 }

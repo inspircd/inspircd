@@ -26,7 +26,7 @@ class InspIRCd;
  * your object (which you should override) will be called
  * at the given time.
  */
-class InspTimer : public Extensible
+class CoreExport InspTimer : public Extensible
 {
  private:
 	/** The triggering time
@@ -104,7 +104,7 @@ class InspTimer : public Extensible
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
-class TimerManager : public Extensible
+class CoreExport TimerManager : public Extensible
 {
  protected:
 	/** A group of timers all set to trigger at the same time

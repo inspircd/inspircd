@@ -129,7 +129,7 @@ class ModuleKickNoRejoin : public Module
 public:
  
 	ModuleKickNoRejoin(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		kr = new KickRejoin(ServerInstance);
@@ -245,7 +245,7 @@ class ModuleKickNoRejoinFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleKickNoRejoinFactory;
 }

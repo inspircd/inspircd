@@ -28,7 +28,7 @@ typedef std::map<char, std::string> SnoList;
  * Modules and the core can enable and disable snomask characters. If they do,
  * then sending snomasks using these characters becomes possible.
  */
-class SnomaskManager : public Extensible
+class CoreExport SnomaskManager : public Extensible
 {
  private:
 	/** Creator/owner

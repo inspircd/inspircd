@@ -61,7 +61,11 @@
  * of users using WATCH.
  */
 
+#ifdef WINDOWS
+typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare<irc::string, less<irc::string> > >     watchentries;
+#else
 typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> >     watchentries;
+#endif
 typedef std::map<irc::string, std::string>                                                  watchlist;
 
 /* Who's watching each nickname.
@@ -301,7 +305,7 @@ class Modulewatch : public Module
  public:
 
 	Modulewatch(InspIRCd* Me)
-		: Module::Module(Me), maxwatch(32)
+		: Module(Me), maxwatch(32)
 	{
 		OnRehash(NULL, "");
 		whos_watching_me = new watchentries();
@@ -480,7 +484,7 @@ class ModulewatchFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModulewatchFactory;
 }

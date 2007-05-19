@@ -62,7 +62,7 @@ bool SocketEngine::HasFd(int fd)
 EventHandler* SocketEngine::GetRef(int fd)
 {
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
-		return false;
+		return 0;
 	return ref[fd];
 }
 

@@ -14,10 +14,12 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <signal.h>
+#ifndef WIN32
 #include <dirent.h>
+#include <unistd.h>
+#endif
 #include <exception>
 #include <fstream>
-#include <unistd.h>
 #include "modules.h"
 #include "mode.h"
 #include "xline.h"
@@ -27,9 +29,11 @@
 #include "typedefs.h"
 #include "command_parse.h"
 #include "exitcodes.h"
+
+#ifndef WIN32
 #include <dlfcn.h>
 #include <getopt.h>
-
+#endif
 
 using irc::sockets::NonBlocking;
 using irc::sockets::Blocking;
@@ -39,32 +43,64 @@ using irc::sockets::insp_sockaddr;
 
 InspIRCd* SI = NULL;
 
+/* Burlex: Moved from exitcodes.h -- due to duplicate symbols */
+const char* ExitCodes[] =
+{
+	"No error", /* 0 */
+		"DIE command", /* 1 */
+		"execv() failed", /* 2 */
+		"Internal error", /* 3 */
+		"Config file error", /* 4 */
+		"Logfile error", /* 5 */
+		"Fork failed", /* 6 */
+		"Bad commandline parameters", /* 7 */
+		"No ports could be bound", /* 8 */
+		"Can't write PID file", /* 9 */
+		"SocketEngine could not initialize", /* 10 */
+		"Refusing to start up as root", /* 11 */
+		"Found a <die> tag!", /* 12 */
+		"Couldn't load module on startup", /* 13 */
+		"", /* 14 */
+		"Received SIGTERM", /* 15 */
+};
+
 void InspIRCd::AddServerName(const std::string &servername)
 {
-	if(find(servernames.begin(), servernames.end(), servername) == servernames.end())
-		servernames.push_back(servername); /* Wasn't already there. */
+	servernamelist::iterator itr = servernames.begin();
+	for(; itr != servernames.end(); ++itr)
+		if(**itr == servername)
+			return;
+
+	string * ns = new string(servername);
+	servernames.push_back(ns);
 }
 
 const char* InspIRCd::FindServerNamePtr(const std::string &servername)
 {
-	servernamelist::iterator iter = find(servernames.begin(), servernames.end(), servername);
+	servernamelist::iterator itr = servernames.begin();
+	for(; itr != servernames.end(); ++itr)
+		if(**itr == servername)
+			return (*itr)->c_str();
 
-	if(iter == servernames.end())
-	{
-		AddServerName(servername);
-		iter = --servernames.end();
-	}
-
-	return iter->c_str();
+	servernames.push_back(new string(servername));
+	itr = --servernames.end();
+	return (*itr)->c_str();
 }
 
 bool InspIRCd::FindServerName(const std::string &servername)
 {
-	return (find(servernames.begin(), servernames.end(), servername) != servernames.end());
+	servernamelist::iterator itr = servernames.begin();
+	for(; itr != servernames.end(); ++itr)
+		if(**itr == servername)
+			return true;
+    return false;
 }
 
 void InspIRCd::Exit(int status)
 {
+#ifdef WINDOWS
+	CloseIPC();
+#endif
 	if (SI)
 	{
 		SI->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
@@ -112,6 +148,15 @@ void InspIRCd::Cleanup()
 
 	/* Close logging */
 	this->Logger->Close();
+
+	/* Cleanup Server Names */
+	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
+		delete (*itr);
+
+#ifdef WINDOWS
+	/* WSACleanup */
+	WSACleanup();
+#endif
 }
 
 void InspIRCd::Restart(const std::string &reason)
@@ -124,7 +169,11 @@ void InspIRCd::Restart(const std::string &reason)
 	this->Cleanup();
 
 	/* Figure out our filename (if theyve renamed it, we're boned) */
+#ifdef WINDOWS
+	std::string me = Config->MyDir + "inspircd.exe";
+#else
 	std::string me = Config->MyDir + "/inspircd";
+#endif
 
 	if (execv(me.c_str(), Config->argv) == -1)
 	{
@@ -135,10 +184,10 @@ void InspIRCd::Restart(const std::string &reason)
 
 void InspIRCd::Start()
 {
-	printf("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
-	printf("(C) InspIRCd Development Team.\033[0m\n\n");
-	printf("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey\033[0m\n");
-	printf("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
+	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
+	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
+	printf_c("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey\033[0m\n");
+	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 }
 
 void InspIRCd::Rehash(int status)
@@ -195,11 +244,13 @@ void InspIRCd::CloseLog()
 
 void InspIRCd::SetSignals()
 {
+#ifndef WIN32
 	signal(SIGALRM, SIG_IGN);
 	signal(SIGHUP, InspIRCd::Rehash);
 	signal(SIGPIPE, SIG_IGN);
-	signal(SIGTERM, InspIRCd::Exit);
 	signal(SIGCHLD, SIG_IGN);
+#endif
+	signal(SIGTERM, InspIRCd::Exit);
 }
 
 void InspIRCd::QuickExit(int status)
@@ -209,6 +260,29 @@ void InspIRCd::QuickExit(int status)
 
 bool InspIRCd::DaemonSeed()
 {
+#ifdef WINDOWS
+	// Create process, with argument --service
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	memset(&si, 0, sizeof(si));
+	memset(&pi, 0, sizeof(pi));
+	SHELLEXECUTEINFO sh = {0};
+	sh.cbSize = sizeof(sh);
+	sh.fMask = SEE_MASK_NOCLOSEPROCESS;
+	sh.hwnd = 0;
+	sh.lpVerb = 0;
+	sh.lpDirectory = 0;
+	sh.hInstApp = 0;
+	sh.nShow = SW_SHOW;
+	sh.lpFile = "inspircd.exe";
+	sh.lpParameters = "--service";
+	if(!ShellExecuteEx(&sh))
+		return false;
+
+	CloseHandle(sh.hProcess);
+	exit(0);
+	return true;
+#else
 	signal(SIGTERM, InspIRCd::QuickExit);
 
 	int childpid;
@@ -247,6 +321,7 @@ bool InspIRCd::DaemonSeed()
 	}
 
 	return true;
+#endif
 }
 
 void InspIRCd::WritePID(const std::string &filename)
@@ -284,13 +359,20 @@ std::string InspIRCd::GetRevision()
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), GlobalCulls(this)
 {
+#ifdef WINDOWS
+	WSADATA wsadata;
+	WSAStartup(MAKEWORD(2,0), &wsadata);
+#endif
+
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
+	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0, is_service = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
 	factory.resize(255);
+	memset(&server, 0, sizeof(server));
+	memset(&client, 0, sizeof(client));
 
 	this->unregistered_count = 0;
 
@@ -322,6 +404,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",    no_argument,            &do_version,    1       },
+		{ "service", no_argument, &is_service, 1 },
 		{ 0, 0, 0, 0 }
 	};
 
@@ -349,6 +432,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 		}
 	}
+
+#ifdef WINDOWS
+	if(is_service)
+		FreeConsole();
+#endif
 
 	if (do_version)
 	{
@@ -400,7 +488,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!Config->nofork)
 	{
-		if (!this->DaemonSeed())
+		if (!is_service && !this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
 			Log(DEFAULT,"ERROR: could not go into daemon mode. Shutting down.");
@@ -452,7 +540,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			printf("%d.\tIP: %s\tPort: %lu\n", j, i->first.empty() ? "<all>" : i->first.c_str(), (unsigned long)i->second);
 		}
 	}
-
+#ifndef WINDOWS
 	if (!Config->nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
@@ -479,11 +567,15 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			Log(DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 		}
 	}
-
+#endif
 	printf("\nInspIRCd is now running!\n");
 	Log(DEFAULT,"Startup complete.");
 
 	this->WritePID(Config->PID);
+
+#ifdef WINDOWS
+	InitIPC();
+#endif
 }
 
 std::string InspIRCd::GetVersionString()
@@ -857,7 +949,9 @@ bool InspIRCd::LoadModule(const char* filename)
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
-	static rusage ru;
+#ifndef WIN32
+    static rusage ru;
+#endif
 
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
 	 * Once per loop iteration is pleanty.
@@ -888,12 +982,15 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
 			Timers->TickMissedTimers(TIME);
 		}
-
+#ifndef WIN32
 		if (!getrusage(0, &ru))
 		{
 			gettimeofday(&this->stats->LastSampled, NULL);
 			this->stats->LastCPU = ru.ru_utime;
 		}
+#else
+		CheckIPC(this);
+#endif
 	}
 
 	/* Call the socket engine to wait on the active
@@ -1026,6 +1123,9 @@ void FileLogger::WriteLogLine(const std::string &line)
 	if (log)
 	{
 		int written = fprintf(log,"%s",buffer.c_str());
+#ifdef WINDOWS
+		buffer = "";
+#else
 		if ((written >= 0) && (written < (int)buffer.length()))
 		{
 			buffer.erase(0, buffer.length());
@@ -1041,7 +1141,7 @@ void FileLogger::WriteLogLine(const std::string &line)
 			/* Wrote the whole buffer, and no need for write callback */
 			buffer = "";
 		}
-
+#endif
 		if (writeops++ % 20)
 		{
 			fflush(log);
@@ -1053,12 +1153,18 @@ void FileLogger::Close()
 {
 	if (log)
 	{
-		int flags = fcntl(fileno(log), F_GETFL, 0);
+		/* Burlex: Windows assumes nonblocking on FILE* pointers anyway, and also "file" fd's aren't the same
+		           as socket fd's. */
+#ifndef WIN32
+        int flags = fcntl(fileno(log), F_GETFL, 0);
 		fcntl(fileno(log), F_SETFL, flags ^ O_NONBLOCK);
+#endif
 		if (buffer.size())
 			fprintf(log,"%s",buffer.c_str());
 
+#ifndef WINDOWS
 		ServerInstance->SE->DelFd(this);
+#endif
 
 		fflush(log);
 		fclose(log);

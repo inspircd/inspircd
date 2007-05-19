@@ -152,8 +152,8 @@ void InspSocket::SetQueues(int nfd)
 	// attempt to increase socket sendq and recvq as high as its possible
 	int sendbuf = 32768;
 	int recvbuf = 32768;
-	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const void *)&sendbuf,sizeof(sendbuf));
-	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const void *)&recvbuf,sizeof(sendbuf));
+	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf));
+	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf));
 }
 
 /* Most irc servers require you to specify the ip you want to bind to.
@@ -335,10 +335,13 @@ bool InspSocket::DoConnect()
 		((sockaddr_in*)addr)->sin_port = htons(this->port);
 	}
 #endif
-
+#ifndef WIN32
 	int flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
-
+#else
+    unsigned long flags = 0;
+    ioctlsocket(this->fd, FIONBIO, &flags);
+#endif
 	if (connect(this->fd, (sockaddr*)addr, size) == -1)
 	{
 		if (errno != EINPROGRESS)
@@ -402,7 +405,11 @@ std::string InspSocket::GetIP()
 
 char* InspSocket::Read()
 {
+#ifdef WINDOWS
+	if ((fd < 0) || (m_internalFd > MAX_DESCRIPTORS))
+#else
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+#endif
 		return NULL;
 
 	int n = 0;
@@ -515,7 +522,11 @@ bool InspSocket::FlushWriteBuffer()
 			while (outbuffer.size() && (errno != EAGAIN))
 			{
 				/* Send a line */
+#ifndef WIN32
 				int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
+#else
+                int result = send(this->fd,outbuffer[0].c_str(),outbuffer[0].length(), 0);
+#endif
 				if (result > 0)
 				{
 					if ((unsigned int)result >= outbuffer[0].length())
@@ -589,6 +600,11 @@ void SocketTimeout::Tick(time_t now)
 
 bool InspSocket::Poll()
 {
+#ifdef WINDOWS
+	if(Instance->SE->GetRef(this->fd) != this)
+		return false;
+	int incoming = -1;
+#else
 	if (this->Instance->SE->GetRef(this->fd) != this)
 		return false;
 
@@ -596,13 +612,14 @@ bool InspSocket::Poll()
 
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
-
+#endif
 	switch (this->state)
 	{
 		case I_CONNECTING:
 			/* Our socket was in write-state, so delete it and re-add it
 			 * in read-state.
 			 */
+#ifndef WINDOWS
 			if (this->fd > -1)
 			{
 				this->Instance->SE->DelFd(this);
@@ -610,6 +627,9 @@ bool InspSocket::Poll()
 				if (!this->Instance->SE->AddFd(this))
 					return false;
 			}
+#else
+			this->SetState(I_CONNECTED);
+#endif
 			if (Instance->Config->GetIOHook(this))
 			{
 				try
@@ -632,7 +652,7 @@ bool InspSocket::Poll()
 			if ((!*this->host) || strchr(this->host, ':'))
 				length = sizeof(sockaddr_in6);
 #endif
-			incoming = accept (this->fd, client, &length);
+			incoming = _accept (this->fd, client, &length);
 #ifdef IPV6
 			if ((!*this->host) || strchr(this->host, ':'))
 			{

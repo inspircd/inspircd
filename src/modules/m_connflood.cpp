@@ -31,7 +31,7 @@ private:
 	
 
 public:
-	ModuleConnFlood(InspIRCd* Me) : Module::Module(Me)
+	ModuleConnFlood(InspIRCd* Me) : Module(Me)
 	{
 		
 		InitConf();
@@ -137,7 +137,7 @@ public:
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleConnFloodFactory;
 }

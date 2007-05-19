@@ -29,7 +29,7 @@ class ModuleRestrictMsg : public Module
  public:
  
 	ModuleRestrictMsg(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 	}
@@ -96,7 +96,7 @@ class ModuleRestrictMsgFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleRestrictMsgFactory;
 }

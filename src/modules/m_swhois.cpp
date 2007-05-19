@@ -81,7 +81,7 @@ class ModuleSWhois : public Module
 	ConfigReader* Conf;
 	
  public:
-	ModuleSWhois(InspIRCd* Me) : Module::Module(Me)
+	ModuleSWhois(InspIRCd* Me) : Module(Me)
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
@@ -275,7 +275,7 @@ class ModuleSWhoisFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSWhoisFactory;
 }

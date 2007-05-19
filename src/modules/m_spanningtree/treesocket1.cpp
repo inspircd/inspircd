@@ -294,12 +294,18 @@ std::string TreeSocket::RandString(unsigned int length)
 {
 	char* randombuf = new char[length+1];
 	std::string out;
+#ifdef WINDOWS
+	int fd = -1;
+#else
 	int fd = open("/dev/urandom", O_RDONLY, 0);
+#endif
 
 	if (fd >= 0)
 	{
+#ifndef WINDOWS
 		read(fd, randombuf, length);
 		close(fd);
+#endif
 	}
 	else
 	{

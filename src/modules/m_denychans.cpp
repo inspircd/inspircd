@@ -28,7 +28,7 @@ class ModuleDenyChannels : public Module
 	ConfigReader *Conf;
 
  public:
-	ModuleDenyChannels(InspIRCd* Me) : Module::Module(Me)
+	ModuleDenyChannels(InspIRCd* Me) : Module(Me)
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
@@ -98,7 +98,7 @@ class ModuleDenyChannelsFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleDenyChannelsFactory;
 }

@@ -13,7 +13,7 @@
 
 #include "inspircd_config.h"
 
-bool match(const char *str, const char *mask);
-bool match(const char *str, const char *mask, bool use_cidr_match);
-bool match(bool case_sensitive, const char *str, const char *mask);
-bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match);
+CoreExport bool match(const char *str, const char *mask);
+CoreExport bool match(const char *str, const char *mask, bool use_cidr_match);
+CoreExport bool match(bool case_sensitive, const char *str, const char *mask);
+CoreExport bool match(bool case_sensitive, const char *str, const char *mask, bool use_cidr_match);

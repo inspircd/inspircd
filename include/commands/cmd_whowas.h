@@ -33,14 +33,14 @@ enum Internals
 };
 
 /* Forward ref for timer */
-class MaintainTimer;
+class WhoWasMaintainTimer;
 
 /* Forward ref for typedefs */
 class WhoWasGroup;
 
 /** InspTimer that is used to maintain the whowas list, called once an hour
  */
-MaintainTimer* timer;
+extern WhoWasMaintainTimer* timer;
 
 /** A group of users related by nickname
  */
@@ -110,12 +110,12 @@ class WhoWasGroup : public classbase
 	~WhoWasGroup();
 };
 
-class MaintainTimer : public InspTimer
+class WhoWasMaintainTimer : public InspTimer
 {
   private:
 	InspIRCd* ServerInstance;
   public:
-	MaintainTimer(InspIRCd* Instance, long interval)
+	WhoWasMaintainTimer(InspIRCd* Instance, long interval)
 	: InspTimer(interval, Instance->Time(), true), ServerInstance(Instance)
 	{
 	}

@@ -22,7 +22,7 @@ class ModuleAntiBottler : public Module
 {
  public:
 	ModuleAntiBottler(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 	}
@@ -116,7 +116,7 @@ class ModuleAntiBottlerFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleAntiBottlerFactory;
 }

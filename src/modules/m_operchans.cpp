@@ -53,7 +53,7 @@ class ModuleOperChans : public Module
 	OperChans* oc;
  public:
 	ModuleOperChans(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 				
 		oc = new OperChans(ServerInstance);
@@ -114,7 +114,7 @@ class ModuleOperChansFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOperChansFactory;
 }

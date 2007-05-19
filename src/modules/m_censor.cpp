@@ -92,7 +92,7 @@ class ModuleCensor : public Module
  
  public:
 	ModuleCensor(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		/* Read the configuration file on startup.
 		 */
@@ -213,7 +213,7 @@ class ModuleCensorFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleCensorFactory;
 }

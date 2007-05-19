@@ -128,7 +128,7 @@ class ModuleJumpServer : public Module
 	cmd_jumpserver*	js;
  public:
 	ModuleJumpServer(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		js = new cmd_jumpserver(ServerInstance);
@@ -181,7 +181,7 @@ class ModuleJumpServerFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleJumpServerFactory;
 }

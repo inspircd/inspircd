@@ -58,7 +58,7 @@ class ModuleSetIdent : public Module
 	cmd_setident*	mycommand;
 	
  public:
-	ModuleSetIdent(InspIRCd* Me) : Module::Module(Me)
+	ModuleSetIdent(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_setident(ServerInstance);
@@ -97,7 +97,7 @@ class ModuleSetIdentFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSetIdentFactory;
 }

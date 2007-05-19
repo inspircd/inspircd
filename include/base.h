@@ -27,7 +27,7 @@ class InspIRCd;
 
 /** The base class for all inspircd classes
 */ 
-class classbase
+class CoreExport classbase
 {
  public:
  	/** Time that the object was instantiated (used for TS calculation etc)
@@ -48,7 +48,7 @@ class classbase
  * a flags variable, and each module defining bits within the flag as 'theirs' as it is less prone to conflict and
  * supports arbitary data storage).
  */
-class Extensible : public classbase
+class CoreExport Extensible : public classbase
 {
 	/** Private data store
 	 */
@@ -153,7 +153,7 @@ public:
  * Use BoolSet::Set and BoolSet::Get to set and get bools in the bitmask,
  * and Unset and Invert for special operations upon them.
  */
-class BoolSet : public classbase
+class CoreExport BoolSet : public classbase
 {
 	char bits;
 

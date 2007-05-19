@@ -13,7 +13,10 @@
 
 #include "configreader.h"
 #include "dynamic.h"
+#ifndef WIN32
 #include <dlfcn.h>
+#endif
+
 #include "inspircd.h"
 
 DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)

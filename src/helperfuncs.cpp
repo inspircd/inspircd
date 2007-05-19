@@ -486,16 +486,16 @@ void InspIRCd::LoadAllModules()
 	for (int count = 0; count < Config->ConfValueEnum(Config->config_data, "module"); count++)
 	{
 		Config->ConfValue(Config->config_data, "module", "name", count, configToken, MAXBUF);
-		printf("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
+		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
 		
 		if (!this->LoadModule(configToken))		
 		{
 			this->Log(DEFAULT,"There was an error loading the module '%s': %s", configToken, this->ModuleError());
-			printf("\n[\033[1;31m*\033[0m] There was an error loading the module '%s': %s\n\n", configToken, this->ModuleError());
+			printf_c("\n[\033[1;31m*\033[0m] There was an error loading the module '%s': %s\n\n", configToken, this->ModuleError());
 			Exit(EXIT_STATUS_MODULE);
 		}
 	}
-	printf("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");
+	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->ModCount+1, this->ModCount+1 == 1 ? " has" : "s have");
 	this->Log(DEFAULT,"Total loaded modules: %d", this->ModCount+1);
 }
 

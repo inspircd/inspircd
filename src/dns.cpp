@@ -21,11 +21,16 @@ Please do not assume that firedns works like this,
 looks like this, walks like this or tastes like this.
 */
 
+#ifndef WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#else
+#include "inspircd_win32wrapper.h"
+#endif
+
 #include "dns.h"
 #include "inspircd.h"
 #include "socketengine.h"
@@ -238,7 +243,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	memcpy(&addr.sin_addr.s_addr, &dnsobj->myserver4, sizeof(addr.sin_addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(DNS::QUERY_PORT);
-	if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+	if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 		return -1;
 #endif
 
@@ -619,7 +624,7 @@ DNSResult DNS::GetResult()
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
 
-	int length = recvfrom(this->GetFd(),buffer,sizeof(DNSHeader),0,from,&x);
+	int length = recvfrom(this->GetFd(),(char*)buffer,sizeof(DNSHeader),0,from,&x);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -1146,6 +1151,7 @@ void DNS::CleanResolvers(Module* module)
 /** Generate pseudo-random number */
 unsigned long DNS::PRNG()
 {
+#ifndef WIN32
 	unsigned long val = 0;
 	timeval n;
 	serverstats* s = ServerInstance->stats;
@@ -1154,5 +1160,13 @@ unsigned long DNS::PRNG()
 	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
 	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
+#else
+    unsigned long val = 0;
+    serverstats* s = ServerInstance->stats;
+    val = (time(NULL) ^ GetCurrentProcessId() ^ GetCurrentThreadId() ^ (this->currid++)) ^ s->statsAccept + time(NULL);
+    val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
+    val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
+    return val;
+#endif
 }
 

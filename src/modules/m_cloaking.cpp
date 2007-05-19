@@ -271,7 +271,7 @@ class ModuleCloaking : public Module
 
  public:
 	ModuleCloaking(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		ServerInstance->UseInterface("HashRequest");
 
@@ -336,7 +336,7 @@ class ModuleCloakingFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleCloakingFactory;
 }

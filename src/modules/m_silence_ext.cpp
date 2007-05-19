@@ -243,7 +243,7 @@ class ModuleSilence : public Module
  public:
  
 	ModuleSilence(InspIRCd* Me)
-		: Module::Module(Me), maxsilence(32)
+		: Module(Me), maxsilence(32)
 	{
 		OnRehash(NULL, "");
 		mycommand = new cmd_silence(ServerInstance,maxsilence);
@@ -393,7 +393,7 @@ class ModuleSilenceFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSilenceFactory;
 }

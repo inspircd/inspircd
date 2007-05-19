@@ -116,7 +116,7 @@ class ModuleHelpop : public Module
 
 	public:
 		ModuleHelpop(InspIRCd* Me)
-			: Module::Module(Me)
+			: Module(Me)
 		{
 			ReadConfig();
 			ho = new Helpop(ServerInstance);
@@ -206,7 +206,7 @@ class ModuleHelpopFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHelpopFactory;
 }

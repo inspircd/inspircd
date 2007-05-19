@@ -57,7 +57,7 @@ class ModuleNoKicks : public Module
  public:
  
 	ModuleNoKicks(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		nk = new NoKicks(ServerInstance);
@@ -124,7 +124,7 @@ class ModuleNoKicksFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNoKicksFactory;
 }

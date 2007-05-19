@@ -55,7 +55,7 @@ class ModuleSetIdle : public Module
 	cmd_setidle*	mycommand;
  public:
 	ModuleSetIdle(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_setidle(ServerInstance);
@@ -93,7 +93,7 @@ class ModuleSetIdleFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSetIdleFactory;
 }

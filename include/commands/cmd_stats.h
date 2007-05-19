@@ -23,7 +23,7 @@
 #include "users.h"
 #include "channels.h"
 
-void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &results);
+DllExport void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &results);
 
 /** Handle /STATS
  */

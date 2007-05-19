@@ -57,7 +57,7 @@ class ModuleHideOper : public Module
 	HideOper* hm;
  public:
 	ModuleHideOper(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		hm = new HideOper(ServerInstance);
@@ -109,7 +109,7 @@ class ModuleHideOperFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleHideOperFactory;
 }

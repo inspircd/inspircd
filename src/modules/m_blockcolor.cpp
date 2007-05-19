@@ -56,7 +56,7 @@ class ModuleBlockColour : public Module
 	BlockColor *bc;
  public:
  
-	ModuleBlockColour(InspIRCd* Me) : Module::Module(Me)
+	ModuleBlockColour(InspIRCd* Me) : Module(Me)
 	{
 		bc = new BlockColor(ServerInstance);
 		if (!ServerInstance->AddMode(bc, 'c'))
@@ -137,7 +137,7 @@ class ModuleBlockColourFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBlockColourFactory;
 }

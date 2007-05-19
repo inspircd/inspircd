@@ -303,7 +303,7 @@ class ModuleChanProtect : public Module
  public:
  
 	ModuleChanProtect(InspIRCd* Me)
-		: Module::Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), DeprivOthers(false), booting(true)
+		: Module(Me), FirstInGetsFounder(false), QAPrefixes(false), DeprivSelf(false), DeprivOthers(false), booting(true)
 	{	
 		/* Load config stuff */
 		OnRehash(NULL,"");
@@ -548,7 +548,7 @@ class ModuleChanProtectFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleChanProtectFactory;
 }

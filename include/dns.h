@@ -52,7 +52,7 @@ class Module;
 /**
  * Result status, used internally
  */
-class DNSResult : public classbase
+class CoreExport DNSResult : public classbase
 {
  public:
 	/** Result ID
@@ -84,7 +84,7 @@ typedef std::pair<unsigned char*, std::string> DNSInfo;
 
 /** Cached item stored in the query cache.
  */
-class CachedQuery
+class CoreExport CachedQuery
 {
  public:
 	/** The cached result data, an IP or hostname
@@ -108,14 +108,18 @@ class CachedQuery
 	 */
 	int CalcTTLRemaining()
 	{
-		int n = expires - time(NULL);
+		int n = (int)expires - (int)time(NULL);
 		return (n < 0 ? 0 : n);
 	}
 };
 
 /** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.
  */
+#ifndef WIN32
 typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
+#else
+typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash_compare<irc::string> > dnscache;
+#endif
 
 /**
  * Error types that class Resolver can emit to its error method.
@@ -144,7 +148,7 @@ class DNSHeader;
 /**
  * A DNS Resource Record (rr)
  */
-class ResourceRecord;
+struct ResourceRecord;
 
 /**
  * Query and resource record types
@@ -189,7 +193,7 @@ enum ForceProtocol
  * can occur by calling virtual methods, one is a success situation, and the other
  * an error situation.
  */
-class Resolver : public Extensible
+class CoreExport Resolver : public Extensible
 {
  protected:
 	/**
@@ -319,7 +323,7 @@ class Resolver : public Extensible
  * back to Resolver objects, based upon the request ID. You
  * should never use this class yourself.
  */
-class DNS : public EventHandler
+class CoreExport DNS : public EventHandler
 {
  private:
 

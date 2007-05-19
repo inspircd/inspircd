@@ -29,7 +29,7 @@ class ModuleModesOnConnect : public Module
 
  public:
 	ModuleModesOnConnect(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
@@ -79,7 +79,7 @@ class ModuleModesOnConnect : public Module
 						tokens.push_back(buf);
 
 					int size = tokens.size() + 1;
-					const char* modes[size];
+					const char** modes = new const char*[size];
 					modes[0] = user->nick;
 					modes[1] = tokens[0].c_str();
 
@@ -95,6 +95,7 @@ class ModuleModesOnConnect : public Module
 					}
 
 					ServerInstance->Parser->CallHandler("MODE", modes, size, user);
+                    delete [] modes;
 				}
 				break;
 			}
@@ -123,7 +124,7 @@ class ModuleModesOnConnectFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleModesOnConnectFactory;
 }

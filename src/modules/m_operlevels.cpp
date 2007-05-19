@@ -33,7 +33,7 @@ class ModuleOperLevels : public Module
 	public:
 
 		ModuleOperLevels(InspIRCd* Me)
-			: Module::Module(Me)
+			: Module(Me)
 		{
 
 			
@@ -117,7 +117,7 @@ class ModuleOperLevelsFactory : public ModuleFactory
 
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOperLevelsFactory;
 }

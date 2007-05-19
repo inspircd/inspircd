@@ -44,7 +44,7 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin(InspIRCd* Me) : Module::Module(Me)
+		ModuleOperjoin(InspIRCd* Me) : Module(Me)
 		{
 			OnRehash(NULL, "");
 		}
@@ -104,7 +104,7 @@ class ModuleOperjoinFactory : public ModuleFactory
 		}
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOperjoinFactory;
 }

@@ -54,7 +54,7 @@ class InspIRCd;
  * must have a file descriptor. What this file descriptor
  * is actually attached to is completely up to you.
  */
-class EventHandler : public Extensible
+class CoreExport EventHandler : public Extensible
 {
  protected:
 	/** File descriptor.
@@ -129,6 +129,21 @@ class EventHandler : public Extensible
 	 * and EVENT_WRITE for write events.
 	 */
 	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
+
+#ifdef WINDOWS
+
+	/** "Fake" file descriptor. This is windows-specific.
+	 */
+	int m_internalFd;
+
+	/** Pointer to read event. We delete this so the buffer can't be used
+	 * after the socket is deleted, and so it doesn't leak memory
+	 */
+	void * m_readEvent;
+	void * m_writeEvent;
+	void * m_acceptEvent;
+
+#endif
 };
 
 /** Provides basic file-descriptor-based I/O support.
@@ -149,7 +164,7 @@ class EventHandler : public Extensible
  * have to be aware of which SocketEngine derived
  * class they are using.
  */
-class SocketEngine : public Extensible
+class CoreExport SocketEngine : public Extensible
 {
 protected:
 	/** Owner/Creator
@@ -242,14 +257,14 @@ public:
 	 * @param fd The event handler to look for
 	 * @return True if this fd has an event handler
 	 */
-	bool HasFd(int fd);
+	virtual bool HasFd(int fd);
 
 	/** Returns the EventHandler attached to a specific fd.
 	 * If the fd isnt in the socketengine, returns NULL.
 	 * @param fd The event handler to look for
 	 * @return A pointer to the event handler, or NULL
 	 */
-	EventHandler* GetRef(int fd);
+	virtual EventHandler* GetRef(int fd);
 
 	/** Waits for events and dispatches them to handlers.
 	 * Please note that this doesnt wait long, only

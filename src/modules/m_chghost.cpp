@@ -78,7 +78,7 @@ class ModuleChgHost : public Module
 	char hostmap[256];
  public:
 	ModuleChgHost(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		OnRehash(NULL,"");
 		mycommand = new cmd_chghost(ServerInstance, hostmap);
@@ -134,7 +134,7 @@ class ModuleChgHostFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleChgHostFactory;
 }

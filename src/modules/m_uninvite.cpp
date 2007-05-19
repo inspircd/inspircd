@@ -87,7 +87,7 @@ class ModuleUninvite : public Module
 
  public:
 
-	ModuleUninvite(InspIRCd* Me) : Module::Module(Me)
+	ModuleUninvite(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_uninvite(ServerInstance);
@@ -124,7 +124,7 @@ class ModuleUninviteFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleUninviteFactory;
 }

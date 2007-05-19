@@ -53,7 +53,7 @@ class ModuleDeaf : public Module
 	User_d* m1;
  public:
 	ModuleDeaf(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		m1 = new User_d(ServerInstance);
 		if (!ServerInstance->AddMode(m1, 'd'))
@@ -152,7 +152,7 @@ class ModuleDeafFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleDeafFactory;
 }

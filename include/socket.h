@@ -14,6 +14,8 @@
 #ifndef INSPIRCD_SOCKET_H
 #define INSPIRCD_SOCKET_H
 
+#ifndef WIN32
+
 #include <arpa/inet.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -24,9 +26,25 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h>
+
+#else
+
+#include "inspircd_win32wrapper.h"
+
+#endif
+
 #include <errno.h>
 #include "inspircd_config.h"
 #include "socketengine.h"
+
+/* Accept Define */
+#ifdef CONFIG_USE_IOCP
+#define _accept(s, addr, addrlen) __accept_socket(s, addr, addrlen, m_acceptEvent)
+#define _getsockname(fd, sockptr, socklen) __getsockname(fd, sockptr, socklen, m_acceptEvent)
+#else
+#define _accept accept
+#define _getsockname getsockname
+#endif
 
 namespace irc
 {
@@ -72,7 +90,7 @@ namespace irc
 		 * @returns True if the first mask_bits of address matches the first
 		 * mask_bits of mask.
 		 */
-		bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
+		CoreExport bool MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits);
 
 		/** Match CIDR, without matching username/nickname parts.
 		 *
@@ -83,7 +101,7 @@ namespace irc
 		 * @param cidr_mask The human readable mask, e.g. 1.2.0.0/16
 		 * @return True if the mask matches the address
 		 */
-		bool MatchCIDR(const char* address, const char* cidr_mask);
+		CoreExport bool MatchCIDR(const char* address, const char* cidr_mask);
 
 		/** Match CIDR, including an optional username/nickname part.
 		 *
@@ -96,7 +114,7 @@ namespace irc
 		 * @param cidr_mask The human readable mask, e.g. *\@1.2.0.0/16
 		 * @return True if the mask matches the address
 		 */
-		bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
+		CoreExport bool MatchCIDR(const char* address, const char* cidr_mask, bool match_with_username);
 
 		/** Convert an insp_inaddr into human readable form.
 		 * 
@@ -104,7 +122,7 @@ namespace irc
 		 * @return A human-readable address. IPV6 addresses
 		 * will be shortened to remove fields which are 0.
 		 */
-		const char* insp_ntoa(insp_inaddr n);
+		CoreExport const char* insp_ntoa(insp_inaddr n);
 
 		/** Convert a human-readable address into an insp_inaddr.
 		 * 
@@ -119,24 +137,24 @@ namespace irc
 
 		 * or any other number upon failure.
 		 */
-		int insp_aton(const char* a, insp_inaddr* n);
+		CoreExport int insp_aton(const char* a, insp_inaddr* n);
 
 		/** Make a socket file descriptor a blocking socket
 		 * @param s A valid file descriptor
 		 */
-		void Blocking(int s);
+		CoreExport void Blocking(int s);
 
 		/** Make a socket file descriptor into a nonblocking socket
 		 * @param s A valid file descriptor
 		 */
-		void NonBlocking(int s);
+		CoreExport void NonBlocking(int s);
 
 		/** Create a new valid file descriptor using socket()
 		 * @return On return this function will return a value >= 0 for success,
 		 * or a negative value upon failure (negative values are invalid file
 		 * descriptors)
 		 */
-		int OpenTCPSocket(char* addr, int socktype = SOCK_STREAM);
+		CoreExport int OpenTCPSocket(char* addr, int socktype = SOCK_STREAM);
 	};
 };
 
@@ -144,7 +162,7 @@ namespace irc
  * It will create a new userrec for every valid connection
  * and assign it a file descriptor.
  */
-class ListenSocket : public EventHandler
+class CoreExport ListenSocket : public EventHandler
 {
  protected:
 	/** The creator/owner of this object

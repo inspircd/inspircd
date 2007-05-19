@@ -93,7 +93,7 @@ class ModuleSapart : public Module
 	cmd_sapart*	mycommand;
  public:
 	ModuleSapart(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		mycommand = new cmd_sapart(ServerInstance);
@@ -132,7 +132,7 @@ class ModuleSapartFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleSapartFactory;
 }

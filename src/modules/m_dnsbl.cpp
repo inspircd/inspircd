@@ -11,17 +11,20 @@
  * ---------------------------------------------------
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdint.h>
 #include "inspircd.h"
 #include "xline.h"
 #include "dns.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+
+#ifndef WINDOWS
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <stdint.h>
+#endif
 
 /* $ModDesc: Provides handling of DNS blacklists */
 
@@ -167,7 +170,7 @@ class ModuleDNSBL : public Module
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
-	ModuleDNSBL(InspIRCd *Me) : Module::Module(Me)
+	ModuleDNSBL(InspIRCd *Me) : Module(Me)
 	{
 		ReadConf();
 	}
@@ -360,7 +363,7 @@ class ModuleDNSBLFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleDNSBLFactory;
 }

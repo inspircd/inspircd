@@ -67,7 +67,7 @@ class ModuleChanFilter : public Module
  public:
  
 	ModuleChanFilter(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		cf = new ChanFilter(ServerInstance);
 		if (!ServerInstance->AddMode(cf, 'g'))
@@ -172,7 +172,7 @@ class ModuleChanFilterFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleChanFilterFactory;
 }

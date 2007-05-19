@@ -45,7 +45,7 @@ class ModuleBlockAmsg : public Module
 	int ForgetDelay;
 	BlockAction action;
 public:
-	ModuleBlockAmsg(InspIRCd* Me) : Module::Module(Me)
+	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
 	{
 		
 		this->OnRehash(NULL,"");
@@ -192,7 +192,7 @@ class ModuleBlockAmsgFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleBlockAmsgFactory;
 }

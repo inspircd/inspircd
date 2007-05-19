@@ -29,7 +29,11 @@ class ModuleSpanningTree;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
+#ifdef WINDOWS
+typedef nspace::hash_map<std::string, TreeServer*, nspace::hash_compare<string, less<string> > > server_hash;
+#else
 typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::StrHashComp> server_hash;
+#endif
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 

@@ -25,7 +25,7 @@ using namespace irc::sockets;
  * ((-1) << (8 - (mask % 8)))
  * But imho, it sucks in comparison to a nice neat lookup table.
  */
-const char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used */
+const unsigned char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used */
 				0x80, /* 10000000 - 1 bits */
 				0xC0, /* 11000000 - 2 bits */
 				0xE0, /* 11100000 - 3 bits */
@@ -89,9 +89,9 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 	uslen = sizeof(sockaddr_in);
 	length = sizeof(sockaddr_in);
 #endif
-	incomingSockfd = accept (this->GetFd(), (sockaddr*)client, &length);
+	incomingSockfd = _accept (this->GetFd(), (sockaddr*)client, &length);
 
-	if ((incomingSockfd > -1) && (!getsockname(incomingSockfd, sock_us, &uslen)))
+	if ((incomingSockfd > -1) && (!_getsockname(incomingSockfd, sock_us, &uslen)))
 	{
 		char buf[MAXBUF];
 #ifdef IPV6
@@ -303,14 +303,24 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 
 void irc::sockets::Blocking(int s)
 {
-	int flags = fcntl(s, F_GETFL, 0);
+#ifndef WIN32
+    int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
+#else
+    unsigned long opt = 0;
+    ioctlsocket(s, FIONBIO, &opt);
+#endif
 }
 
 void irc::sockets::NonBlocking(int s)
 {
-	int flags = fcntl(s, F_GETFL, 0);
+#ifndef WIN32
+    int flags = fcntl(s, F_GETFL, 0);
 	fcntl(s, F_SETFL, flags | O_NONBLOCK);
+#else
+    unsigned long opt = 1;
+    ioctlsocket(s, FIONBIO, &opt);
+#endif
 }
 
 /** This will bind a socket to a port. It works for UDP/TCP.
@@ -458,11 +468,11 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 	}
 	else
 	{
-		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
 		/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
 		linger.l_onoff = 1;
 		linger.l_linger = 1;
-		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, &linger,sizeof(linger));
+		setsockopt(sockfd, SOL_SOCKET, SO_LINGER, (char*)&linger,sizeof(linger));
 		return (sockfd);
 	}
 }

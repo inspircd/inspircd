@@ -20,7 +20,7 @@
 
 
 
-extern "C" command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_zline(Instance);
 }

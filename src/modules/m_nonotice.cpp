@@ -53,7 +53,7 @@ class ModuleNoNotice : public Module
  public:
  
 	ModuleNoNotice(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		nt = new NoNotice(ServerInstance);
@@ -120,7 +120,7 @@ class ModuleNoNoticeFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleNoNoticeFactory;
 }

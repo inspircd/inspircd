@@ -27,7 +27,7 @@ class InspIRCd;
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
  */
-class DLLManager
+class CoreExport DLLManager
 {
  public:
 	/** This constructor loads the module using dlopen()
@@ -82,7 +82,7 @@ class DLLManager
 /** This class is a specialized form of DLLManager designed to load InspIRCd modules.
  * It's job is to call the init_module function and receive a factory pointer.
  */
-class DLLFactoryBase : public DLLManager
+class CoreExport DLLFactoryBase : public DLLManager
 {
  public:
 	/** Default constructor.
@@ -111,7 +111,7 @@ class DLLFactoryBase : public DLLManager
  * This template is a container for ModuleFactory itself, so that it may 'plug' into ModuleFactory
  * and provide module loading capabilities transparently.
  */
-template <class T> class DLLFactory : public DLLFactoryBase
+template <class T> class CoreExport DLLFactory : public DLLFactoryBase
 {
  public:
 	/** Default constructor.

@@ -73,7 +73,7 @@ class ModuleTLine : public Module
 	cmd_tline* newcommand;
  public:
 	ModuleTLine(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		newcommand = new cmd_tline(ServerInstance);
@@ -114,7 +114,7 @@ class ModuleTLineFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleTLineFactory;
 }

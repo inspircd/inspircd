@@ -74,7 +74,7 @@ class ModuleClones : public Module
  private:
 	cmd_clones *mycommand;
  public:
-	ModuleClones(InspIRCd* Me) : Module::Module(Me)
+	ModuleClones(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_clones(ServerInstance);
@@ -117,7 +117,7 @@ class ModuleClonesFactory : public ModuleFactory
 	
 };
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleClonesFactory;
 }

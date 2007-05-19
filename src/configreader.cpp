@@ -1538,6 +1538,10 @@ char* ServerConfig::CleanFilename(char* name)
 
 bool ServerConfig::DirValid(const char* dirandfile)
 {
+#ifdef WINDOWS
+	return true;
+#endif
+
 	char work[1024];
 	char buffer[1024];
 	char otherdir[1024];
@@ -1576,7 +1580,6 @@ bool ServerConfig::DirValid(const char* dirandfile)
 	if (strlen(otherdir) >= t)
 	{
 		otherdir[t] = '\0';
-
 		if (!strcmp(otherdir,work))
 		{
 			return true;

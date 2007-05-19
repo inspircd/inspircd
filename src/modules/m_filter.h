@@ -148,7 +148,7 @@ class cmd_filter : public command_t
 	}
 };
 
-FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module::Module(Me)
+FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me)
 {
 	filtcommand = new cmd_filter(this, Me, source);
 	ServerInstance->AddCommand(filtcommand);

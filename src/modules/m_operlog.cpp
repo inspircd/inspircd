@@ -24,7 +24,7 @@ class ModuleOperLog : public Module
  private:
 	 
  public:
-	ModuleOperLog(InspIRCd* Me) : Module::Module(Me)
+	ModuleOperLog(InspIRCd* Me) : Module(Me)
 	{
 		
 	}
@@ -94,7 +94,7 @@ class ModuleOperLogFactory : public ModuleFactory
  
 };
  
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleOperLogFactory;
 }

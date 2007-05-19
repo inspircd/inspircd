@@ -34,7 +34,7 @@ class ModuleFoobar : public Module
 	 
  public:
 	ModuleFoobar(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		// The constructor just makes a copy of the server class
 	
@@ -124,7 +124,7 @@ class ModuleFoobarFactory : public ModuleFactory
 // class for this library
 //
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleFoobarFactory;
 }

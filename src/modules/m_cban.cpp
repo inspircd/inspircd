@@ -127,7 +127,7 @@ class ModuleCBan : public Module
 	
 
  public:
-	ModuleCBan(InspIRCd* Me) : Module::Module(Me)
+	ModuleCBan(InspIRCd* Me) : Module(Me)
 	{
 		
 		mycommand = new cmd_cban(Me);
@@ -266,7 +266,7 @@ class ModuleCBanFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleCBanFactory;
 }
