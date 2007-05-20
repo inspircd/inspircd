@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <string>
+#include <time.h>
 #include "colours.h"
 
 using namespace std;
@@ -17,10 +18,7 @@ bool iswinxp()
 	OSVERSIONINFO vi;
 	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&vi);
-	if(vi.dwMajorVersion > 5)
-		return true;
-
-	if(vi.dwMajorVersion >= 5 && vi.dwMinorVersion >= 1)
+	if(vi.dwMajorVersion >= 5)
 		return true;
 	
 	return false;
@@ -218,7 +216,7 @@ void Run()
 	// detect windows
 	if(iswinxp())
 	{
-		printf_c("You are running Windows XP or above, and IOCP support is most likely available.\n"
+		printf_c("You are running Windows 2000 or above, and IOCP support is most likely available.\n"
 			     "This removes the socket number limitation of select and is much more efficent.\n"
 				 "If you are unsure, answer yes.\n\n");
 
@@ -376,9 +374,9 @@ void WriteCompileCommands()
 	FILE * f = fopen("..\\src\\commands-release.mak", "w");
 #endif
 
-	fprintf(f, "# Generated at SOMETIME\n");
-	fprintf(f, "!include <win32.mak>\n\n");
-	fprintf(f, "all: ");
+	time_t t = time(NULL);
+	fprintf(f, "# Generated at %s\n", ctime(&t));
+	fprintf(f, "all: makedir ");
 
 	// dump modules.. first time :)
 	for(int i = 0; i < command_count; ++i)
@@ -386,11 +384,12 @@ void WriteCompileCommands()
 
 	fprintf(f, "\n.cpp.obj:\n");
 #ifdef _DEBUG
-	fprintf(f, "  $(cc) /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GS /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\debug\\bin\\inspircd.lib /OUT:\"$*.so\"\n\n");
+	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GS /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\debug\\bin\\inspircd.lib /OUT:\"..\\bin\\debug\\lib\\$*.so\" /PDB:\"..\\bin\\debug\\lib\\$*.pdb\" /IMPLIB:\"..\\bin\\debug\\lib\\$*.lib\"\n\n");
 #else
-	fprintf(f, "  $(cc) /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /GS /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\release\\bin\\inspircd.lib /OUT:\"$*.so\"\n\n");
+	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /GS /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\release\\bin\\inspircd.lib /OUT:\"..\\bin\\release\\lib\\$*.so\" /PDB:\"..\\bin\\release\\lib\\$*.pdb\" /IMPLIB:\"..\\bin\\release\\lib\\$*.lib\"\n\n");
 #endif
 
+	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
 	
 	// dump modules.. again the second and last time :)
 	for(int i = 0; i < command_count; ++i)
@@ -431,9 +430,9 @@ void WriteCompileModules()
 	FILE * f = fopen("..\\src\\modules\\modules-release.mak", "w");
 #endif
 
-	fprintf(f, "# Generated at SOMETIME\n");
-	fprintf(f, "!include <win32.mak>\n\n");
-	fprintf(f, "all: ");
+	time_t t = time(NULL);
+	fprintf(f, "# Generated at %s\n", ctime(&t));
+	fprintf(f, "all: makedir ");
 
 	// dump modules.. first time :)
 	for(int i = 0; i < module_count; ++i)
@@ -441,11 +440,12 @@ void WriteCompileModules()
 
 	fprintf(f, "\n.cpp.obj:\n");
 #ifdef _DEBUG
-	fprintf(f, "  $(cc) /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GS /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"$*.so\"\n\n");
+	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GS /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
 #else
-	fprintf(f, "  $(cc) /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /GS /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"$*.so\"\n\n");
+	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /GS /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
 #endif
-
+	
+	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
 
 	// dump modules.. again the second and last time :)
 	for(int i = 0; i < module_count; ++i)
