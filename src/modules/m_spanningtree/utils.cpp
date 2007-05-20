@@ -446,7 +446,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 					SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L->IPAddr, *L, cached, start_type);
 					ServerInstance->AddResolver(sr, cached);
 				}
-				catch (ModuleException& e)
+				catch (...)
 				{
 				}
 			}
@@ -578,7 +578,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 						SecurityIPResolver* sr = new SecurityIPResolver((Module*)this->Creator, this, ServerInstance, L.IPAddr, L, cached, start_type);
 						ServerInstance->AddResolver(sr, cached);
 					}
-					catch (ModuleException& e)
+					catch (...)
 					{
 					}
 				}
