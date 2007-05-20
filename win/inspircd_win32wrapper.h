@@ -58,7 +58,7 @@
 #include <algorithm>
 
 /* strcasecmp is not defined on windows by default */
-#define strcasecmp stricmp
+#define strcasecmp _stricmp
 
 /* Error macros need to be redirected to winsock error codes */
 #define ETIMEDOUT WSAETIMEDOUT
