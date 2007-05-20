@@ -431,7 +431,7 @@ bool InspIRCd::IsIdent(const char* n)
 
 void InspIRCd::OpenLog(char** argv, int argc)
 {
-	Config->MyDir = ServerConfig::GetFullProgDir(argv,argc);
+	Config->MyDir = ServerConfig::GetFullProgDir();
 
 	if (!*this->LogFileName)
 	{

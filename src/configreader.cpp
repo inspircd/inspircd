@@ -1593,42 +1593,22 @@ bool ServerConfig::DirValid(const char* dirandfile)
 	}
 }
 
-std::string ServerConfig::GetFullProgDir(char** argv, int argc)
+std::string ServerConfig::GetFullProgDir()
 {
-	char work[1024];
 	char buffer[1024];
-	char otherdir[1024];
-	int p;
-
-	strlcpy(work,argv[0],1024);
-	p = strlen(work);
-
-	// we just want the dir
-	while (*work)
-	{
-		if ((work[p] == '/') || (work[p] == '\\'))
-		{
-			work[p] = '\0';
-			break;
-		}
-
-		work[p--] = '\0';
-	}
 
 	// Get the current working directory
 	if (getcwd(buffer, 1024) == NULL)
+	{
 		return "";
-
-	if (chdir(work) == -1)
-		return "";
-
-	if (getcwd(otherdir, 1024) == NULL)
-		return "";
+	}
 
 	if (chdir(buffer) == -1)
+	{
 		return "";
+	}
 
-	return otherdir;
+	return buffer;
 }
 
 InspIRCd* ServerConfig::GetInstance()
