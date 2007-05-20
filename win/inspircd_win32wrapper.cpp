@@ -13,35 +13,33 @@ HANDLE hIPCPipe;
 
 int inet_aton(const char *cp, struct in_addr *addr)
 {
-    unsigned long ip = inet_addr(cp);
-    addr->s_addr = ip;
-    return (addr->s_addr == INADDR_NONE) ? 0 : 1;
+	unsigned long ip = inet_addr(cp);
+	addr->s_addr = ip;
+	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
 }
 
 const char *inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 {
 
-    if (af == AF_INET)
-    {
-        struct sockaddr_in in;
-        memset(&in, 0, sizeof(in));
-        in.sin_family = AF_INET;
-        memcpy(&in.sin_addr, src, sizeof(struct in_addr));
-        getnameinfo((struct sockaddr *)&in, sizeof(struct
-            sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
-        return dst;
-    }
-    else if (af == AF_INET6)
-    {
-        struct sockaddr_in6 in;
-        memset(&in, 0, sizeof(in));
-        in.sin6_family = AF_INET6;
-        memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
-        getnameinfo((struct sockaddr *)&in, sizeof(struct
-            sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
-        return dst;
-    }
-    return NULL;
+	if (af == AF_INET)
+	{
+		struct sockaddr_in in;
+		memset(&in, 0, sizeof(in));
+		in.sin_family = AF_INET;
+		memcpy(&in.sin_addr, src, sizeof(struct in_addr));
+		getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in), dst, cnt, NULL, 0, NI_NUMERICHOST);
+		return dst;
+	}
+	else if (af == AF_INET6)
+	{
+		struct sockaddr_in6 in;
+		memset(&in, 0, sizeof(in));
+		in.sin6_family = AF_INET6;
+		memcpy(&in.sin6_addr, src, sizeof(struct in_addr6));
+		getnameinfo((struct sockaddr *)&in, sizeof(struct sockaddr_in6), dst, cnt, NULL, 0, NI_NUMERICHOST);
+		return dst;
+	}
+	return NULL;
 }
 
 int geteuid()
@@ -51,81 +49,81 @@ int geteuid()
 
 int inet_pton(int af, const char *src, void *dst)
 {
-    sockaddr_in sa;
-    int len = sizeof(SOCKADDR);
-    int rv = WSAStringToAddress((LPSTR)src, af, NULL, (LPSOCKADDR)&sa, &len);
-    memcpy(dst, &sa.sin_addr, sizeof(struct in_addr));
-    return rv;
+	sockaddr_in sa;
+	int len = sizeof(SOCKADDR);
+	int rv = WSAStringToAddress((LPSTR)src, af, NULL, (LPSOCKADDR)&sa, &len);
+	memcpy(dst, &sa.sin_addr, sizeof(struct in_addr));
+	return rv;
 }
 
 char * strtok_r(char *_String, const char *_Control, char **_Context)
 {
-    unsigned char *str;
-    const unsigned char *ctl = (const unsigned char*)_Control;
-    unsigned char map[32];
+	unsigned char *str;
+	const unsigned char *ctl = (const unsigned char*)_Control;
+	unsigned char map[32];
 
-    if(_Context == 0 || !_Control)
-        return 0;
+	if (_Context == 0 || !_Control)
+		return 0;
 
-    if(!(_String != NULL || *_Context != NULL))
-        return 0;
+	if (!(_String != NULL || *_Context != NULL))
+		return 0;
 
 	memset(map, 0, 32);
 
-    do {
-        map[*ctl >> 3] |= (1 << (*ctl & 7));
-    } while (*ctl++);
+	do {
+		map[*ctl >> 3] |= (1 << (*ctl & 7));
+	} while (*ctl++);
 
-    /* If string is NULL, set str to the saved
-    * pointer (i.e., continue breaking tokens out of the string
-    * from the last strtok call) */
-    if (_String != NULL)
-    {
-        str = (unsigned char*)_String;
-    }
-    else
-    {
-        str = (unsigned char*)*_Context;
-    }
+	/* If string is NULL, set str to the saved
+	* pointer (i.e., continue breaking tokens out of the string
+	* from the last strtok call) */
+	if (_String != NULL)
+	{
+		str = (unsigned char*)_String;
+	}
+	else
+	{
+		str = (unsigned char*)*_Context;
+	}
 
-    /* Find beginning of token (skip over leading delimiters). Note that
-    * there is no token iff this loop sets str to point to the terminal
-    * null (*str == 0) */
-    while ((map[*str >> 3] & (1 << (*str & 7))) && *str != 0)
-    {
-        str++;
-    }
+	/* Find beginning of token (skip over leading delimiters). Note that
+	* there is no token iff this loop sets str to point to the terminal
+	* null (*str == 0) */
+	while ((map[*str >> 3] & (1 << (*str & 7))) && *str != 0)
+	{
+		str++;
+	}
 
-    _String = (char*)str;
+	_String = (char*)str;
 
-    /* Find the end of the token. If it is not the end of the string,
-    * put a null there. */
-    for ( ; *str != 0 ; str++ )
-    {
-        if (map[*str >> 3] & (1 << (*str & 7)))
-        {
-            *str++ = 0;
-            break;
-        }
-    }
+	/* Find the end of the token. If it is not the end of the string,
+	* put a null there. */
+	for ( ; *str != 0 ; str++ )
+	{
+		if (map[*str >> 3] & (1 << (*str & 7)))
+		{
+			*str++ = 0;
+			break;
+		}
+	}
 
-    /* Update context */
-    *_Context = (char*)str;
+	/* Update context */
+	*_Context = (char*)str;
 
-    /* Determine if a token has been found. */
-    if (_String == (char*)str)
-    {
-        return NULL;
-    }
-    else
-    {
-        return _String;
-    }
+	/* Determine if a token has been found. */
+	if (_String == (char*)str)
+	{
+		return NULL;
+	}
+	else
+	{
+		return _String;
+	}
 }
 
 void setcolor(int color_code)
 {
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
 }
 
 DIR * opendir(const char * path)
@@ -133,7 +131,7 @@ DIR * opendir(const char * path)
 	std::string search_path = string(path) + "\\*.*";
 	WIN32_FIND_DATA fd;
 	HANDLE f = FindFirstFile(search_path.c_str(), &fd);
-	if(f != INVALID_HANDLE_VALUE)
+	if (f != INVALID_HANDLE_VALUE)
 	{
 		DIR * d = new DIR;
 		memcpy(&d->find_data, &fd, sizeof(WIN32_FIND_DATA));
@@ -149,11 +147,11 @@ DIR * opendir(const char * path)
 
 dirent * readdir(DIR * handle)
 {
-	if(handle->first)
+	if (handle->first)
 		handle->first = false;
 	else
 	{
-		if(!FindNextFile(handle->find_handle, &handle->find_data))
+		if (!FindNextFile(handle->find_handle, &handle->find_data))
 			return 0;
 	}
 
@@ -172,7 +170,7 @@ const char * dlerror()
 	static char errormessage[500];
 	DWORD error = GetLastError();
 	SetLastError(0);
-	if(error == 0)
+	if (error == 0)
 		return 0;
 
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)errormessage, 500, 0);
@@ -185,25 +183,25 @@ int printf_c(const char * format, ...)
 	static char message[500];
 	static char temp[10];
 	int color1, color2;
-    
-    /* parse arguments */
+	
+	/* parse arguments */
 	va_list ap;
 	va_start(ap, format);
 	vsnprintf(message, 500, format, ap);
 	va_end(ap);
 
-    /* search for unix-style escape sequences */
+	/* search for unix-style escape sequences */
 	int t;
 	int c = 0;
 	const char * p = message;
 	while(*p != 0)
 	{
-		if(*p == '\033')
+		if (*p == '\033')
 		{
 			// Escape sequence -> copy into the temp buffer, and parse the color.
 			p++;
 			t = 0;
-            while(*p != 'm')
+			while(*p != 'm')
 			{
 				temp[t++] = *p;
 				++p;
@@ -211,22 +209,21 @@ int printf_c(const char * format, ...)
 			
 			temp[t] = 0;
 			p++;
-			if(!stricmp(temp, "[0"))
+			if (!stricmp(temp, "[0"))
 			{
 				// Returning to normal colour.
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			}
-			else if(sscanf(temp, "[%u;%u", &color1, &color2) == 2)
+			else if (sscanf(temp, "[%u;%u", &color1, &color2) == 2)
 			{
 				switch(color2)
 				{
-				case 32:		// Green
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);		// Yellow
+					case 32:		// Green
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 					break;
-
-				default:		// Unknown
-					// White
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+	
+					default:		// Unknown
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
 					break;
 				}
 			}
@@ -252,14 +249,14 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 {
 	// burlex todo: handle the shortops, at the moment it only works with longopts.
 
-	if(___argc == 1 || arg_counter == ___argc)			// No arguments (apart from filename)
+	if (___argc == 1 || arg_counter == ___argc)			// No arguments (apart from filename)
 		return -1;
 
 	const char * opt = ___argv[arg_counter];
 	int return_val = 0;
 
 	// if we're not an option, return an error.
-	if(strnicmp(opt, "--", 2) != 0)
+	if (strnicmp(opt, "--", 2) != 0)
 		return 1;
 	else
 		opt += 2;
@@ -267,18 +264,18 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 
 	// parse argument list
 	int i = 0;
-	for(; __longopts[i].name != 0; ++i)
+	for (; __longopts[i].name != 0; ++i)
 	{
-        if(!strnicmp(__longopts[i].name, opt, strlen(__longopts[i].name)))
+		if (!strnicmp(__longopts[i].name, opt, strlen(__longopts[i].name)))
 		{
 			// woot, found a valid argument =)
 			char * par = 0;
-			if((arg_counter + 1) != ___argc)
+			if ((arg_counter + 1) != ___argc)
 			{
 				// grab the parameter from the next argument (if its not another argument)
-                if(strnicmp(___argv[arg_counter+1], "--", 2) != 0)
+				if (strnicmp(___argv[arg_counter+1], "--", 2) != 0)
 				{
-                    arg_counter++;		// Trash this next argument, we won't be needing it.
+					arg_counter++;		// Trash this next argument, we won't be needing it.
 					par = ___argv[arg_counter];
 				}
 			}			
@@ -287,17 +284,17 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 			arg_counter++;
 
 			// determine action based on type
-			if(__longopts[i].has_arg == required_argument && !par)
+			if (__longopts[i].has_arg == required_argument && !par)
 			{
 				// parameter missing and its a required parameter option
 				return 1;
 			}
 
 			// store argument in optarg
-			if(par)
+			if (par)
 				strncpy(optarg, par, 514);
 
-            if(__longopts[i].flag != 0)
+			if (__longopts[i].flag != 0)
 			{
 				// this is a variable, we have to set it if this argument is found.
 				*__longopts[i].flag = 1;
@@ -305,7 +302,7 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 			}
 			else
 			{
-				if(__longopts[i].val == -1 || par == 0)
+				if (__longopts[i].val == -1 || par == 0)
 					return 1;
 				
 				return __longopts[i].val;
@@ -327,43 +324,39 @@ void InitIPC()
 {
 	static DWORD buflen = 1024;
 	static const char * pipename = "\\\\.\\mailslot\\Inspircd";
-    hIPCPipe = CreateMailslot(pipename, buflen, 0, 0);
-	if(hIPCPipe == INVALID_HANDLE_VALUE)
+	hIPCPipe = CreateMailslot(pipename, buflen, 0, 0);
+	if (hIPCPipe == INVALID_HANDLE_VALUE)
 		printf("IPC Pipe could not be created. Are you sure you didn't start InspIRCd twice?\n");
 }
 
 void CheckIPC(InspIRCd * Instance)
 {
-	if(hIPCPipe == INVALID_HANDLE_VALUE)
+	if (hIPCPipe == INVALID_HANDLE_VALUE)
 		return;
 
 	DWORD bytes;
 	DWORD action;
 
 	BOOL res = ReadFile(hIPCPipe, &action, sizeof(DWORD), &bytes, 0);
-	if(!res)
+	if (!res)
 	{
-		if(GetLastError() != ERROR_SEM_TIMEOUT)
-			printf("IPC Pipe Error %u: %s", GetLastError(), dlerror());
+		if (GetLastError() != ERROR_SEM_TIMEOUT)
+			Instance->Log(DEFAULT, "IPC Pipe Error %u: %s", GetLastError(), dlerror());
 		return;
 	}
 
-	printf("Got IPC Message: %u\n", action);
-	switch(action)
+	switch (action)
 	{
-	case IPC_MESSAGE_REHASH:
-		printf("Rehashing...\n");
-		InspIRCd::Rehash(0);
+		case IPC_MESSAGE_REHASH:
+			InspIRCd::Rehash(0);
 		break;
 		
-	case IPC_MESSAGE_DIE:
-		printf("Shutting down...\n");
-		InspIRCd::Exit(0);
+		case IPC_MESSAGE_DIE:
+			InspIRCd::Exit(0);
 		break;
 
-	case IPC_MESSAGE_RESTART:
-		printf("Restarting...\n");
-		Instance->Restart("IPC_MESSAGE_RESTART received by mailslot.");
+		case IPC_MESSAGE_RESTART:
+			Instance->Restart("IPC_MESSAGE_RESTART received by mailslot.");
 		break;
 	}
 }
