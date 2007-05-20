@@ -1606,7 +1606,7 @@ std::string ServerConfig::GetFullProgDir(char** argv, int argc)
 	// we just want the dir
 	while (*work)
 	{
-		if (work[p] == '/')
+		if ((work[p] == '/') || (work[p] == '\\'))
 		{
 			work[p] = '\0';
 			break;
