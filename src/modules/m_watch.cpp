@@ -61,6 +61,10 @@
  * of users using WATCH.
  */
 
+/*
+ * Before you start screaming, this definition is only used here, so moving it to a header is pointless.
+ * Yes, it's horrid. Blame cl for being different. -- w00t
+ */
 #ifdef WINDOWS
 typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare<irc::string, less<irc::string> > > watchentries;
 #else
