@@ -169,10 +169,14 @@ void InspIRCd::Restart(const std::string &reason)
 	this->Cleanup();
 
 	/* Figure out our filename (if theyve renamed it, we're boned) */
+	std::string me;
+
 #ifdef WINDOWS
-	std::string me = Config->MyDir + "inspircd.exe";
+	char module[MAX_PATH];
+	if (GetModuleFileName(NULL, module, MAX_PATH))
+		me = module;
 #else
-	std::string me = Config->MyDir + "/inspircd";
+	me = Config->MyDir + "/inspircd";
 #endif
 
 	if (execv(me.c_str(), Config->argv) == -1)
