@@ -26,7 +26,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="running configure..."
-				CommandLine="$(InputDir)\configure.exe"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
