@@ -22,6 +22,12 @@
    I think this is more reasonable than using WIN32, especially if we're gonna be doing 64-bit compiles */
 #define WINDOWS 1
 
+/* Begone shitty 'safe STL' warnings */
+#define _SCL_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#define _AFX_SECURE_NO_WARNINGS
+#define _ATL_SECURE_NO_WARNINGS
+
 /* Macros for exporting symbols - dependant on what is being compiled */
 
 #ifdef DLL_BUILD
