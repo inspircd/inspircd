@@ -172,7 +172,7 @@ del *.ilk
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Running Configure...."
-				CommandLine="&quot;$(InputDir)\configure.exe&quot;"
+				CommandLine="&quot;$(InputDir)\configure.exe&quot;"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
