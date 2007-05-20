@@ -40,6 +40,7 @@
 
 /* Disable the deprecation warnings.. it spams :P */
 #define _CRT_SECURE_NO_DEPRECATE
+#define _SCL_SECURE_NO_DEPRECATE
 
 /* Say we're building on windows 2000. Anyone running something older than this
  * reeeeeeeally needs to upgrade! */

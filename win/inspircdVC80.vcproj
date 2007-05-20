@@ -25,6 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="running configure..."
+				CommandLine="$(InputDir)\configure.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -96,6 +98,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="@echo off&#x0D;&#x0A;echo Compiling Command Modules...&#x0D;&#x0A;cd ..\src&#x0D;&#x0A;nmake -f commands.mak&#x0D;&#x0A;echo Compiling Modules...&#x0D;&#x0A;cd modules&#x0D;&#x0A;nmake -f modules.mak&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -108,6 +111,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="running configure..."
+				CommandLine="$(InputDir)\configure.exe&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -174,6 +179,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="@echo off&#x0D;&#x0A;echo Compiling Command Modules...&#x0D;&#x0A;cd ..\src&#x0D;&#x0A;nmake -f commands.mak&#x0D;&#x0A;echo Compiling Modules...&#x0D;&#x0A;cd modules&#x0D;&#x0A;nmake -f modules.mak&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration

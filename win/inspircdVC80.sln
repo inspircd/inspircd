@@ -15,35 +15,21 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
-		Debug-Auto|Win32 = Debug-Auto|Win32
 		Release|Win32 = Release|Win32
-		Release-Auto|Win32 = Release-Auto|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug|Win32.Build.0 = Debug|Win32
-		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug-Auto|Win32.ActiveCfg = Debug-Auto|Win32
-		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Debug-Auto|Win32.Build.0 = Debug-Auto|Win32
 		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release|Win32.ActiveCfg = Release|Win32
 		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release|Win32.Build.0 = Release|Win32
-		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release-Auto|Win32.ActiveCfg = Release-Auto|Win32
-		{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}.Release-Auto|Win32.Build.0 = Release-Auto|Win32
 		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug|Win32.Build.0 = Debug|Win32
-		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug-Auto|Win32.ActiveCfg = Debug-Auto|Win32
-		{B922B569-727E-4EB0-827A-04E133A91DE7}.Debug-Auto|Win32.Build.0 = Debug-Auto|Win32
 		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release|Win32.ActiveCfg = Release|Win32
 		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release|Win32.Build.0 = Release|Win32
-		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release-Auto|Win32.ActiveCfg = Release-Auto|Win32
-		{B922B569-727E-4EB0-827A-04E133A91DE7}.Release-Auto|Win32.Build.0 = Release-Auto|Win32
 		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug|Win32.Build.0 = Debug|Win32
-		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug-Auto|Win32.ActiveCfg = Debug-Auto|Win32
-		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Debug-Auto|Win32.Build.0 = Debug-Auto|Win32
 		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release|Win32.ActiveCfg = Release|Win32
 		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release|Win32.Build.0 = Release|Win32
-		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release-Auto|Win32.ActiveCfg = Release-Auto|Win32
-		{1EC86B60-AB2A-4984-8A7E-0422C15601E0}.Release-Auto|Win32.Build.0 = Release-Auto|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
