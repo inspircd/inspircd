@@ -13,7 +13,6 @@
 
 #include "socketengine_iocp.h"
 #include <mswsock.h>
-#include <assert.h>
 
 IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 {
@@ -29,7 +28,7 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 IOCPEngine::~IOCPEngine()
 {
 	CloseHandle(m_completionPort);
-};
+}
 
 bool IOCPEngine::AddFd(EventHandler* eh)
 {
@@ -84,7 +83,8 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", fake_fd, eh->GetFd(), eh);
 
 	// Cancel pending i/o operations.
-	assert(CancelIo((HANDLE)fd) == TRUE);
+	if (CancelIo((HANDLE)fd) == FALSE)
+		return false;
 
 	// Free the buffer, and delete the event.
 	if(eh->m_readEvent != 0)
@@ -181,7 +181,7 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 	default:
 		{
 			printf("unknwon socket type: %u\n", sock_type);
-			assert(false);
+			return;
 		}break;
 	}
 	eh->m_readEvent = (void*)ov;
