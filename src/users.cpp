@@ -650,8 +650,12 @@ std::string userrec::GetBuffer()
 		 * Usually there are only one or two of these,
 		 * so its is computationally cheap to do.
 		 */
-		while ((*recvq.begin() == '\r') || (*recvq.begin() == '\n'))
-			recvq.erase(recvq.begin());
+		std::string::iterator t = recvq.begin();
+		while (t != recvq.end() && (*t == '\r' || *t == '\n'))
+		{
+			recvq.erase(t);
+			t = recvq.begin();
+		}
 
 		for (std::string::iterator x = recvq.begin(); x != recvq.end(); x++)
 		{
