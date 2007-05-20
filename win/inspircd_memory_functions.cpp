@@ -8,7 +8,7 @@ void * ::operator new(size_t iSize)
 	/* This is the correct behaviour according to C++ standards for out of memory,
 	 * not returning null -- Brain*/
 	if (!ptr)
-		throw std::bad_alloc;
+		throw std::bad_alloc();
 	else
 		return ptr;
 }
