@@ -32,6 +32,9 @@
 #define DllExport __declspec(dllimport)
 #endif
 
+/* Disable the deprecation warnings.. it spams :P */
+#define _CRT_SECURE_NO_DEPRECATE
+
 /* Say we're building on windows 2000. Anyone running something older than this
  * reeeeeeeally needs to upgrade! */
 
@@ -100,8 +103,8 @@ extern char optarg[514];
 int getopt_long_only (int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 
 /* Accept Handlers */
-int CoreExport __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent);
-int CoreExport __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent);
+CoreExport int __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent);
+CoreExport int __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent);
 
 /* Module Loading */
 #define dlopen(path, state) (void*)LoadLibrary(path)
@@ -139,6 +142,7 @@ CoreExport void closedir(DIR * handle);
 #pragma warning(disable:4311)		// warning C4311: 'type cast' : pointer truncation from 'accept_overlap *' to 'int'
 #pragma warning(disable:4312)		// warning C4312: 'type cast' : conversion from 'int' to 'HANDLE' of greater size
 #pragma warning(disable:4355)		// warning C4355: 'this' : used in base member initializer list
+#pragma warning(disable:4996)		// warning C4996: 'std::_Traits_helper::move_s' was declared deprecated
 
 /* Mehhhh... typedefs. */
 
