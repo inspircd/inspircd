@@ -1,6 +1,6 @@
 // Use the global heap for this process for all allocate/free operations.
 #include "inspircd_win32wrapper.h"
-#include <exception.h>
+#include <exception>
 
 void * ::operator new(size_t iSize)
 {
