@@ -68,7 +68,16 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		WantWrite(eh);
 
 	// we're all good =)
-	m_binding.insert( map<int, EventHandler*>::value_type( eh->GetFd(), eh ) );
+	try
+	{
+		m_binding.insert( map<int, EventHandler*>::value_type( eh->GetFd(), eh ) );
+	}
+	catch (...)
+	{
+		/* Ohshi-, map::insert failed :/ */
+		return false;
+	}
+
 	return true;
 }
 
