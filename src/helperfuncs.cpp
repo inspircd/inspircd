@@ -11,6 +11,7 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <stdarg.h>
 #include "configreader.h"
 #include "users.h"
@@ -18,7 +19,6 @@
 #include "wildcard.h"
 #include "mode.h"
 #include "xline.h"
-#include "inspircd.h"
 #include "exitcodes.h"
 
 static char TIMESTR[26];

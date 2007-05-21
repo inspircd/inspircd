@@ -142,7 +142,6 @@ CoreExport void closedir(DIR * handle);
 #pragma warning(disable:4800)
 #pragma warning(disable:4251)
 #pragma warning(disable:4275)
-#pragma warning(disable:4996)
 #pragma warning(disable:4244)		// warning C4244: '=' : conversion from 'long' to 'short', possible loss of data
 #pragma warning(disable:4267)		// warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
 #pragma warning(disable:4805)		// warning C4805: '!=' : unsafe mix of type 'char' and type 'bool' in operation

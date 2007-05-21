@@ -11,6 +11,7 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
@@ -21,7 +22,6 @@
 #include "socketengine.h"
 #include "command_parse.h"
 #include "dns.h"
-#include "inspircd.h"
 
 // version is a simple class for holding a modules version number
 Version::Version(int major, int minor, int revision, int build, int flags, int api_ver)

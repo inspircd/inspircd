@@ -11,9 +11,9 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <stdarg.h>
 #include "configreader.h"
-#include "inspircd.h"
 #include "users.h"
 #include "modules.h"
 #include "wildcard.h"
