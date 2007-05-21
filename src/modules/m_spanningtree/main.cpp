@@ -13,6 +13,7 @@
 
 /* $ModDesc: Provides a spanning tree server link protocol */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
@@ -20,7 +21,6 @@
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"
-#include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"
 #include "transport.h"
