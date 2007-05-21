@@ -977,7 +977,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to execute the command as
 	 * @return True if the command handler was called successfully
 	 */
-	bool CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
+	CmdResult CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
 
 	/** Return true if the command is a module-implemented command and the given parameters are valid for it
 	 * @param parameters The mode parameters

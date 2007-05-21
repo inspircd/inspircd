@@ -376,7 +376,7 @@ bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spatter
 	return match(sliteral.c_str(),spattern.c_str());
 }
 
-bool InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
+CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
 {
 	return (this->Parser->CallHandler(commandname,parameters,pcnt,user) != CMD_INVALID);
 }
