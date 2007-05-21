@@ -378,7 +378,7 @@ bool InspIRCd::MatchText(const std::string &sliteral, const std::string &spatter
 
 CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user)
 {
-	return (this->Parser->CallHandler(commandname,parameters,pcnt,user) != CMD_INVALID);
+	return this->Parser->CallHandler(commandname,parameters,pcnt,user);
 }
 
 bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user)
