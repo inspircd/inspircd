@@ -68,7 +68,7 @@ Section "Config Files" SEC02
   File "..\conf\inspircd.helpop-full.example"
   File "..\conf\inspircd.helpop.example"
   File "..\conf\inspircd.filter.example"
-  File "..\conf\inspircd.conf.example"
+  File "..\docs\inspircd.conf.example"
   File "..\conf\inspircd.censor.example"
   File "..\conf\inspircd.rules.example"
   File "..\conf\inspircd.quotes.example"
