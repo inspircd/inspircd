@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include <sstream>
 #include <fstream>
-#include "inspircd.h"
 #include "xline.h"
 #include "exitcodes.h"
 #include "commands/cmd_whowas.h"
