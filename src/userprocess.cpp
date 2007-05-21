@@ -11,13 +11,13 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
 #include "wildcard.h"
 #include "xline.h"
 #include "socketengine.h"
-#include "inspircd.h"
 #include "command_parse.h"
 
 void InspIRCd::ProcessUser(userrec* cu)

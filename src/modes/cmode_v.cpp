@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#include "configreader.h"
 #include "inspircd.h"
+#include "configreader.h"
 #include "mode.h"
 #include "channels.h"
 #include "users.h"

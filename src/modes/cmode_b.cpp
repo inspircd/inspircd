@@ -11,16 +11,15 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <string>
 #include <vector>
 #include "inspircd_config.h"
 #include "configreader.h"
 #include "hash_map.h"
-#include "inspircd.h"
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-
 #include "modules.h"
 #include "inspstring.h"
 #include "hashcomp.h"
