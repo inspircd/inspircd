@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "channels.h"
 #include "users.h"
-#include "inspircd.h"
 #include <stdarg.h>
 #include "socketengine.h"
 #include "wildcard.h"

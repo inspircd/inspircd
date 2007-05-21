@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#include <string>
 #include "inspircd.h"
+#include <string>
 #include "hashcomp.h"
 #include "inspstring.h"
 
