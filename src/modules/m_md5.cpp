@@ -64,7 +64,7 @@ class ModuleMD5 : public Module
 		} while (--words);
 	}
 
-	void MD5Init(struct MD5Context *ctx, unsigned int* key = NULL)
+	void MD5Init(MD5Context *ctx, unsigned int* key = NULL)
 	{
 		/* These are the defaults for md5 */
 		if (!key)
@@ -86,7 +86,7 @@ class ModuleMD5 : public Module
 		ctx->bytes[1] = 0;
 	}
 
-	void MD5Update(struct MD5Context *ctx, byte const *buf, int len)
+	void MD5Update(MD5Context *ctx, byte const *buf, int len)
 	{
 		word32 t;
 	
@@ -123,7 +123,7 @@ class ModuleMD5 : public Module
 		memcpy(ctx->in, buf, len);
 	}
 	
-	void MD5Final(byte digest[16], struct MD5Context *ctx)
+	void MD5Final(byte digest[16], MD5Context *ctx)
 	{
 		int count = (int)(ctx->bytes[0] & 0x3f); /* Bytes in ctx->in */
 		byte *p = (byte *)ctx->in + count;	/* First unused byte */
