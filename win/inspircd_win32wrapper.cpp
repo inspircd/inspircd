@@ -209,7 +209,7 @@ int printf_c(const char * format, ...)
 			
 			temp[t] = 0;
 			p++;
-			if (!stricmp(temp, "[0"))
+			if (!_stricmp(temp, "[0"))
 			{
 				// Returning to normal colour.
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);

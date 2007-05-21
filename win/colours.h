@@ -40,12 +40,12 @@ int printf_c(const char * format, ...)
 
 			temp[t] = 0;
 			p++;
-			if(!stricmp(temp, "[0"))
+			if(!_stricmp(temp, "[0"))
 			{
 				// Returning to normal colour.
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 			}
-			else if(!stricmp(temp, "[1"))
+			else if(!_stricmp(temp, "[1"))
 			{
 				// White
 				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), TWHITE);
