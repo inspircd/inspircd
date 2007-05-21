@@ -11,6 +11,7 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "commands/cmd_clearcache.h"

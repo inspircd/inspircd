@@ -15,8 +15,6 @@
 #include "users.h"
 #include "commands/cmd_part.h"
 
-
-
 extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_part(Instance);

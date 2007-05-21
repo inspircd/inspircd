@@ -18,8 +18,6 @@
 #include "wildcard.h"
 #include "commands/cmd_privmsg.h"
 
-
-
 extern "C" DllExport  command_t* init_command(InspIRCd* Instance)
 {
 	return new cmd_privmsg(Instance);

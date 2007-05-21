@@ -11,6 +11,7 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "typedefs.h"
 #include "users.h"

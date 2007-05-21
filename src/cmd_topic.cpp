@@ -11,11 +11,11 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
 #include "commands/cmd_topic.h"
-#include "inspircd.h"
 
 
 extern "C" DllExport command_t* init_command(InspIRCd* Instance)

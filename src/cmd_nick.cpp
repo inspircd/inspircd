@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "configreader.h"
 #include "users.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "xline.h"
 #include "commands/cmd_nick.h"
 

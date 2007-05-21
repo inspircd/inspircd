@@ -11,11 +11,9 @@
  * ---------------------------------------------------
  */
 
-#include "users.h"
 #include "inspircd.h"
+#include "users.h"
 #include "commands/cmd_userhost.h"
-
-
 
 extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 {

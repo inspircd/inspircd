@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#include "users.h"
 #include "inspircd.h"
+#include "users.h"
 #include "commands/cmd_server.h"
 
 
