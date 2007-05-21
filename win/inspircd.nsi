@@ -54,9 +54,11 @@ ShowInstDetails show
 ShowUnInstDetails show
 
 Section "Binary Executable" SEC01
-  SetOutPath "$INSTDIR\bin"
+  SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "..\bin\debug\InspGUI.exe"
+  SetOutPath "$INSTDIR\bin"
+  SetOverwrite ifnewer
   File "..\bin\debug\bin\inspircd.exe"
   CreateDirectory "$SMPROGRAMS\InspIRCd"
   CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\InspGUI.exe"
