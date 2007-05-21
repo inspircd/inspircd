@@ -23,7 +23,7 @@ SetCompressor bzip2
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !define MUI_LICENSEPAGE_CHECKBOX
-!insertmacro MUI_PAGE_LICENSE "..\..\COPYING"
+!insertmacro MUI_PAGE_LICENSE "..\docs\COPYING"
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
 ; Directory page
