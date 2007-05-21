@@ -1496,13 +1496,19 @@ bool TreeSocket::ProcessLine(std::string &line)
 					{
 						strparams[q] = params[q].c_str();
 					}
-					if(!this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
+					switch (this->Instance->CallCommandHandler(command.c_str(), strparams, params.size(), who))
 					{
-						this->SendError("Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
-						return false;
+						case CMD_INVALID:
+							this->SendError("Unrecognised command '"+std::string(command.c_str())+"' -- possibly loaded mismatched modules");
+							return false;
+						break;
+						case CMD_FAILURE:
+							return true;
+						break;
+						default:
+							/* CMD_SUCCESS and CMD_USER_DELETED fall through here */
+						break;
 					}
-					else
-						return true;
 				}
 				else
 				{
