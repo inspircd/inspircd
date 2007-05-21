@@ -64,14 +64,14 @@ SectionEnd
 
 Section "Config Files" SEC02
   SetOutPath "$INSTDIR\conf"
-  File "..\bin\debug\conf\inspircd.motd.example"
-  File "..\bin\debug\conf\inspircd.helpop-full.example"
-  File "..\bin\debug\conf\inspircd.helpop.example"
-  File "..\bin\debug\conf\inspircd.filter.example"
-  File "..\bin\debug\conf\inspircd.conf.example"
-  File "..\bin\debug\conf\inspircd.censor.example"
-  File "..\bin\debug\conf\inspircd.rules.example"
-  File "..\bin\debug\conf\inspircd.quotes.example"
+  File "..\conf\inspircd.motd.example"
+  File "..\conf\inspircd.helpop-full.example"
+  File "..\conf\inspircd.helpop.example"
+  File "..\conf\inspircd.filter.example"
+  File "..\conf\inspircd.conf.example"
+  File "..\conf\inspircd.censor.example"
+  File "..\conf\inspircd.rules.example"
+  File "..\conf\inspircd.quotes.example"
 SectionEnd
 
 Section "Command Handlers" SEC03
@@ -167,7 +167,7 @@ SectionEnd
 Section -AdditionalIcons
   SetOutPath $INSTDIR
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
-  CreateShortCut "$SMPROGRAMS\InspIRCd\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
+  CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\InspIRCd\Uninstall.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
