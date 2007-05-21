@@ -11,10 +11,9 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "modules.h"
-
-#include "inspircd.h"
 
 /* $ModDesc: Connection throttle */
 

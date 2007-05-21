@@ -11,12 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "dns.h"
-#include "inspircd.h"
 
 /* $ModDesc: Povides a proof-of-concept test /WOOT command */
 

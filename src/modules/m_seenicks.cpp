@@ -11,12 +11,12 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
 #include "configreader.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides support for seeing local and remote nickchanges via snomasks */
 

@@ -11,13 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "mode.h"
-#include "inspircd.h"
 #include "u_listmode.h"
 #include "wildcard.h"
 

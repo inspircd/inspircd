@@ -10,13 +10,11 @@
  *
  * ---------------------------------------------------
  */
- 
+
+#include "inspircd.h" 
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include <vector>
-#include "inspircd.h"
 
 /* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
 

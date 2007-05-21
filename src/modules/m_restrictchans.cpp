@@ -11,13 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <map>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include "inspircd.h"
 
 /* $ModDesc: Only opers may create new channels if this module is loaded */
 

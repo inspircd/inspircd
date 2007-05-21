@@ -11,11 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include "inspircd.h"
 
 /* $ModDesc: Restricts banned users in a channel. May not speak, etc. */
 

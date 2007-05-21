@@ -14,12 +14,11 @@
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
 /* $ModDep: transport.h */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "transport.h"
 #include "wildcard.h"
 

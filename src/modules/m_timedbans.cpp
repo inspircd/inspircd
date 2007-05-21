@@ -13,15 +13,12 @@
 
 /* $ModDesc: Adds timed bans */
 
-#include <stdio.h>
-#include <vector>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
 #include "configreader.h"
-#include "inspircd.h"
-
 
 /** Holds a timed ban
  */

@@ -11,18 +11,13 @@
  * ---------------------------------------------------
  */
 
-#include <time.h>
-#include <map>
-#include <vector>
+#include "inspircd.h"
 #include <sstream>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
-
-
 
 inline int strtoint(const std::string &str)
 {

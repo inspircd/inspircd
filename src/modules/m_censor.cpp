@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 typedef std::map<irc::string,irc::string> censor_t;
 

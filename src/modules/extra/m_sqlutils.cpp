@@ -11,18 +11,13 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <sstream>
-#include <string>
-#include <map>
 #include <list>
-
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include "inspircd.h"
 #include "configreader.h"
-
 #include "m_sqlutils.h"
 
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */

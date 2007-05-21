@@ -10,12 +10,11 @@
  *
  * ---------------------------------------------------
  */
- 
+
+#include "inspircd.h" 
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-#include <vector>
 
 /* $ModDesc: A module which logs all oper commands to the ircd log at default loglevel. */
 

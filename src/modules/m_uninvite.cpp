@@ -13,12 +13,11 @@
 
 /* $ModDesc: Provides the UNINVITE command which lets users un-invite other users from channels (!) */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "configreader.h"
-#include "inspircd.h"
 
 /** Handle /UNINVITE
  */	 

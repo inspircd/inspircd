@@ -11,13 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <vector>
-#include <string>
-#include <stdlib.h>
+#include "inspircd.h"
 #include "users.h"
 #include "modules.h"
 #include "dns.h"
-#include "inspircd.h"
 #ifndef WINDOWS
 #include <sys/socket.h>
 #include <netinet/in.h>

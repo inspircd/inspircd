@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Allows opers to set their idle time */
 

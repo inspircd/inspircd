@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides channel +S mode (strip ansi colour) */
 

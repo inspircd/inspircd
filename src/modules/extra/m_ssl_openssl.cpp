@@ -11,8 +11,7 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
+#include "inspircd.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -21,7 +20,6 @@
 #include <openssl/applink.c>
 #endif
 
-#include "inspircd_config.h"
 #include "configreader.h"
 #include "users.h"
 #include "channels.h"
@@ -29,7 +27,6 @@
 
 #include "socket.h"
 #include "hashcomp.h"
-#include "inspircd.h"
 
 #include "transport.h"
 

@@ -11,11 +11,9 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <vector>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
-#include "inspircd.h"
 #include "modules.h"
 
 /* $ModDesc: Sets (and unsets) modes on opers when they oper up */

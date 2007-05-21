@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list */
 

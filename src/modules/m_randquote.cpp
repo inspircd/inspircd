@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include "inspircd.h"
-
 
 static FileReader *quotes = NULL;
 

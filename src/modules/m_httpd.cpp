@@ -11,9 +11,9 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <algorithm>
 #include "modules.h"
-#include "inspircd.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */

@@ -13,11 +13,10 @@
 
 /* $ModDesc: Provides more advanced UnrealIRCd SAMODE command */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /** Handle /SAMODE
  */

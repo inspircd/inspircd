@@ -18,11 +18,10 @@
 
 /* $ModDesc: Provides voiced users with the ability to devoice themselves. */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /** Handle /DEVOICE
  */

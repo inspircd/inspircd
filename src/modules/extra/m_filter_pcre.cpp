@@ -11,13 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
+#include "inspircd.h"
 #include <pcre.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "m_filter.h"
 
 /* $ModDesc: m_filter with regexps */

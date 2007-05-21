@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "xline.h"
 
 /* $ModDesc: Sends a numeric on connect which cripples a common type of trojan/spambot */

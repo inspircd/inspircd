@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include <string>
-
-#include "inspircd.h"
 
 /* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 

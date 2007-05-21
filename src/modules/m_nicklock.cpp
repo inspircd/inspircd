@@ -11,17 +11,13 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
-
 
 /** Handle /NICKLOCK
  */

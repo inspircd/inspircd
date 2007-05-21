@@ -11,10 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "mode.h"
 
 /* $ModDesc: Provides support for channel mode +P to block all-CAPS channel messages and notices */

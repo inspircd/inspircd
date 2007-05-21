@@ -14,15 +14,13 @@
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
 /* $ModDep: m_hash.h */
 
-#include "inspircd_config.h"
+#include "inspircd.h"
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-
 #include "m_hash.h"
 
 /* The four core functions - F1 is optimized somewhat */

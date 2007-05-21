@@ -18,11 +18,10 @@
 
 /* $ModDesc: Provides SPYLIST and SPYNAMES capability, allowing opers to see who's in +s channels */
 
-#include "inspircd_config.h"
+#include "inspircd.h"
 #include "users.h" 
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "wildcard.h"
 
 void spy_userlist(userrec *user, chanrec *c)

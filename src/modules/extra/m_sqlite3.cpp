@@ -11,16 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <deque>
-#include <map>
+#include "inspircd.h"
 #include <sqlite3.h>
-
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-#include "configreader.h"
 
 #include "m_sqlv2.h"
 

@@ -11,14 +11,12 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
+#include "inspircd.h"
 #include <mysql.h>
 #include <pthread.h>
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "m_sqlv2.h"
 
 /* VERSION 2 API: With nonblocking (threaded) requests */

@@ -11,12 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <string>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
 

@@ -11,19 +11,14 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include <cstdlib>
 #include <sstream>
-#include <string>
-#include <deque>
-#include <map>
 #include <libpq-fe.h>
-
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "configreader.h"
-
 #include "m_sqlv2.h"
 
 /* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */

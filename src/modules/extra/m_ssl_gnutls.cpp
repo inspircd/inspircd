@@ -11,8 +11,7 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <vector>
+#include "inspircd.h"
 
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
@@ -22,11 +21,8 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "socket.h"
 #include "hashcomp.h"
-#include "inspircd.h"
-
 #include "transport.h"
 
 #ifdef WINDOWS

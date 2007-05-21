@@ -13,11 +13,10 @@
 
 /* $ModDesc: Allows global loading of a module. */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /** Handle /GLOADMODULE
  */

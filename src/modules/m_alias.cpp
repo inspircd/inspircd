@@ -11,12 +11,11 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "wildcard.h"
-#include <vector>
 
 /* $ModDesc: Provides aliases of commands. */
 

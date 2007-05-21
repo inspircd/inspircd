@@ -11,14 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
-#include <vector>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
-#include "inspircd.h"
 
 /* $ModDesc: Forbids users from messaging each other. Users may still message opers and opers may message other opers. */
 

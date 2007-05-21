@@ -11,11 +11,11 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides support for the /WATCH command */
 

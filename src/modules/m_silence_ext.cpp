@@ -11,15 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
-#include <vector>
-#include <stdarg.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
-#include "inspircd.h"
 #include "wildcard.h"
 
 /* $ModDesc: Provides support for the /SILENCE command */

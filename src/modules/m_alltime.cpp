@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
 #include "inspircd.h"
 #include "modules.h"
 

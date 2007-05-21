@@ -11,11 +11,11 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-#include "stdarg.h"
+#include <stdarg.h>
 
 /* $ModDesc: Allows for opered clients to join channels without being seen, similar to unreal 3.1 +I mode */
 

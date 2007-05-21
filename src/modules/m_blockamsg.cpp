@@ -11,15 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include <string>
-#include <time.h>
-#include "inspircd_config.h"
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-
 #include "hashcomp.h"
-#include "inspircd.h"
 
 /* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
 

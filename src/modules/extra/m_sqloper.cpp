@@ -11,11 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <string>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 #include "configreader.h"
 
 #include "m_sqlv2.h"

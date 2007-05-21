@@ -11,11 +11,11 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "mode.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
 

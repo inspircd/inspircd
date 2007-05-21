@@ -11,11 +11,10 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-
 
 /* $ModDesc: Allows locking of the server to stop all incoming connections till unlocked again */
 

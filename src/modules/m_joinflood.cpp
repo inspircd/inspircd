@@ -11,13 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <map>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "configreader.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides channel mode +j (join flood protection) */
 

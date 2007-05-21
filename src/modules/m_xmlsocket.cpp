@@ -11,13 +11,11 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd_config.h"
-#include "configreader.h"
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides XMLSocket support for clients */
 

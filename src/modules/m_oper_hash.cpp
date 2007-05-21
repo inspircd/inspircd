@@ -14,12 +14,10 @@
 /* $ModDesc: Allows for hashed oper passwords */
 /* $ModDep: m_hash.h */
 
-#include "inspircd_config.h"
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
-
 #include "m_hash.h"
 
 typedef std::map<irc::string, Module*> hashymodules;

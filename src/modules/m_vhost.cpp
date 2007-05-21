@@ -11,11 +11,10 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
 

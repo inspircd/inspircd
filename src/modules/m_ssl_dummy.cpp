@@ -11,10 +11,9 @@
  * ---------------------------------------------------
  */
 
+#include "inspircd.h"
 #include "users.h"
 #include "modules.h"
-#include "inspircd.h"
-
 
 /* $ModDesc: Makes remote /whoises to SSL servers work on a non-ssl server */
 

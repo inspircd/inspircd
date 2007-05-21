@@ -11,15 +11,12 @@
  * ---------------------------------------------------
  */
 
-#include <stdio.h>
-#include <string>
-#include <vector>
+#include "inspircd.h"
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
 #include "hashcomp.h"
 #include "u_listmode.h"
-#include "inspircd.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 /* $ModDep: ../../include/u_listmode.h */
