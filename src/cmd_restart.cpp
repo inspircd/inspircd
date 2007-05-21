@@ -32,7 +32,7 @@ CmdResult cmd_restart::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			ServerInstance->Restart("Server restarting.");
 		}
-		catch (CoreException &e)
+		catch (...)
 		{
 			/* We dont actually get here unless theres some fatal and unrecoverable error. */
 			exit(0);
