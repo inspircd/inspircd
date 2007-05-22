@@ -368,41 +368,39 @@ void CloseIPC()
 }
 
 
-bool GetNameServer(HKEY hKey, const char *subkey, char* &obuf)
+bool GetNameServer(HKEY regkey, const char *key, char* &output)
 {
 	/* Test for the size we need */
 	DWORD size = 0;
-	DWORD result;
+	DWORD result = RegQueryValueEx(regkey, key, 0, NULL, NULL, &size);
 
-	result = RegQueryValueEx(hKey, subkey, 0, NULL, NULL, &size);
 	if (((result != ERROR_SUCCESS) && (result != ERROR_MORE_DATA)) || (!size))
 		return false;
 
-	obuf = new char[size+1];
+	output = new char[size+1];
 
-	if ((RegQueryValueEx(hKey, subkey, 0, NULL, (LPBYTE)obuf, &size) != ERROR_SUCCESS) || (!*obuf))
+	if ((RegQueryValueEx(regkey, key, 0, NULL, (LPBYTE)output, &size) != ERROR_SUCCESS) || (!*output))
 	{
-		delete obuf;
+		delete output;
 		return false;
 	}
 	return true;
 }
 
-bool GetInterface(HKEY hKey, const char *subkey, char* &obuf)
+bool GetInterface(HKEY regkey, const char *key, char* &output)
 {
 	char buf[39];
 	DWORD size = 39;
 	int idx = 0;
-	HKEY hVal;
+	HKEY top;
 
-	while (RegEnumKeyEx(hKey, idx++, buf, &size, 0, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS)
+	while (RegEnumKeyEx(regkey, idx++, buf, &size, 0, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS)
 	{
-		int rc;
 		size = 39;
-		if (RegOpenKeyEx(hKey, buf, 0, KEY_QUERY_VALUE, &hVal) != ERROR_SUCCESS)
+		if (RegOpenKeyEx(regkey, buf, 0, KEY_QUERY_VALUE, &top) != ERROR_SUCCESS)
 			continue;
-		rc = GetNameServer(hVal, subkey, obuf);
-		RegCloseKey(hVal);
+		int rc = GetNameServer(top, key, output);
+		RegCloseKey(top);
 		if (rc)
 			return true;
 	}
@@ -413,15 +411,14 @@ bool GetInterface(HKEY hKey, const char *subkey, char* &obuf)
 std::string FindNameServerWin()
 {
 	std::string returnval;
-	HKEY mykey;
-	HKEY subkey;
+	HKEY top, key;
 	char* dns = NULL;
 
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\Tcpip\\Parameters", 0, KEY_READ, &mykey) == ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\Tcpip\\Parameters", 0, KEY_READ, &top) == ERROR_SUCCESS)
 	{
-		RegOpenKeyEx(mykey, "Interfaces", 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &subkey);
-		if ((GetNameServer(mykey, "NameServer", dns)) || (GetNameServer(mykey, "DhcpNameServer", dns))
-			|| (GetInterface(subkey, "NameServer", dns)) || (GetInterface(subkey, "DhcpNameServer", dns)))
+		RegOpenKeyEx(top, "Interfaces", 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &key);
+		if ((GetNameServer(top, "NameServer", dns)) || (GetNameServer(top, "DhcpNameServer", dns))
+			|| (GetInterface(key, "NameServer", dns)) || (GetInterface(key, "DhcpNameServer", dns)))
 		{
 			if (dns)
 			{
@@ -429,8 +426,8 @@ std::string FindNameServerWin()
 				delete dns;
 			}
 		}
-		RegCloseKey(subkey);
-		RegCloseKey(mykey);
+		RegCloseKey(key);
+		RegCloseKey(top);
 	}
 	return returnval;
 }
