@@ -221,6 +221,9 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 {
 	if (!*(data.GetString()))
 	{
+#ifdef WINDOWS
+		data.Set(FindNameServerWin().c_str());
+#else
 		// attempt to look up their nameserver from /etc/resolv.conf
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
@@ -251,6 +254,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 			conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			data.Set("127.0.0.1");
 		}
+#endif
 	}
 	return true;
 }

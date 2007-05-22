@@ -9,6 +9,7 @@ using namespace std;
 #define INADDR_NONE 0xffffffff
 #endif
 
+
 HANDLE hIPCPipe;
 
 int inet_aton(const char *cp, struct in_addr *addr)
@@ -366,3 +367,70 @@ void CloseIPC()
 	CloseHandle(hIPCPipe);
 }
 
+
+bool GetNameServer(HKEY hKey, const char *subkey, char* &obuf)
+{
+	/* Test for the size we need */
+	DWORD size = 0;
+	DWORD result;
+
+	result = RegQueryValueEx(hKey, subkey, 0, NULL, NULL, &size);
+	if (((result != ERROR_SUCCESS) && (result != ERROR_MORE_DATA)) || (!size))
+		return false;
+
+	obuf = new char[size+1];
+
+	if ((RegQueryValueEx(hKey, subkey, 0, NULL, (LPBYTE)obuf, &size) != ERROR_SUCCESS) || (!*obuf))
+	{
+		delete obuf;
+		return false;
+	}
+	return true;
+}
+
+bool GetInterface(HKEY hKey, const char *subkey, char* &obuf)
+{
+	char buf[39];
+	DWORD size = 39;
+	int idx = 0;
+	HKEY hVal;
+
+	while (RegEnumKeyEx(hKey, idx++, buf, &size, 0, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS)
+	{
+		int rc;
+		size = 39;
+		if (RegOpenKeyEx(hKey, buf, 0, KEY_QUERY_VALUE, &hVal) != ERROR_SUCCESS)
+			continue;
+		rc = GetNameServer(hVal, subkey, obuf);
+		RegCloseKey(hVal);
+		if (rc)
+			return true;
+	}
+	return false;
+}
+
+
+std::string FindNameServerWin()
+{
+	std::string returnval;
+	HKEY mykey;
+	HKEY subkey;
+	char* dns = NULL;
+
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\Tcpip\\Parameters", 0, KEY_READ, &mykey) == ERROR_SUCCESS)
+	{
+		RegOpenKeyEx(mykey, "Interfaces", 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &subkey);
+		if ((GetNameServer(mykey, "NameServer", dns)) || (GetNameServer(mykey, "DhcpNameServer", dns))
+			|| (GetInterface(subkey, "NameServer", dns)) || (GetInterface(subkey, "DhcpNameServer", dns)))
+		{
+			if (dns)
+			{
+				returnval = dns;
+				delete dns;
+			}
+		}
+		RegCloseKey(subkey);
+		RegCloseKey(mykey);
+	}
+	return returnval;
+}

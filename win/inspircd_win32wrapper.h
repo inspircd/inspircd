@@ -42,6 +42,8 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define _SCL_SECURE_NO_DEPRECATE
 
+#include <string>
+
 /* Say we're building on windows 2000. Anyone running something older than this
  * reeeeeeeally needs to upgrade! */
 
@@ -167,6 +169,8 @@ class InspIRCd;
 void InitIPC();
 void CheckIPC(InspIRCd * Instance);
 void CloseIPC();
+
+std::string FindNameServerWin();
 
 #endif
 
