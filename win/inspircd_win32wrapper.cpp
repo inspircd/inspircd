@@ -368,12 +368,15 @@ void CloseIPC()
 }
 
 
+/* These three functions were created from looking at how ares does it
+ * (...and they look far tidier in C++)
+ */
+
+/* Get active nameserver */
 bool GetNameServer(HKEY regkey, const char *key, char* &output)
 {
-	/* Test for the size we need */
 	DWORD size = 0;
 	DWORD result = RegQueryValueEx(regkey, key, 0, NULL, NULL, &size);
-
 	if (((result != ERROR_SUCCESS) && (result != ERROR_MORE_DATA)) || (!size))
 		return false;
 
@@ -387,6 +390,7 @@ bool GetNameServer(HKEY regkey, const char *key, char* &output)
 	return true;
 }
 
+/* Check a network interface for its nameserver */
 bool GetInterface(HKEY regkey, const char *key, char* &output)
 {
 	char buf[39];
@@ -414,8 +418,10 @@ std::string FindNameServerWin()
 	HKEY top, key;
 	char* dns = NULL;
 
+	/* Lets see if the correct registry hive and tree exist */
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\Tcpip\\Parameters", 0, KEY_READ, &top) == ERROR_SUCCESS)
 	{
+		/* If they do, attempt to get the nameserver name */
 		RegOpenKeyEx(top, "Interfaces", 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &key);
 		if ((GetNameServer(top, "NameServer", dns)) || (GetNameServer(top, "DhcpNameServer", dns))
 			|| (GetInterface(key, "NameServer", dns)) || (GetInterface(key, "DhcpNameServer", dns)))
@@ -431,3 +437,4 @@ std::string FindNameServerWin()
 	}
 	return returnval;
 }
+
