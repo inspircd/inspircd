@@ -1069,7 +1069,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					if ((delta < -300) || (delta > 300))
 					{
 						Instance->SNO->WriteToSnoMask('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs(delta));
-						SendError("Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than ten minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						SendError("Your clocks are out by "+ConvToStr(abs(delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return false;
 					}
 					else if ((delta < -30) || (delta > 30))
