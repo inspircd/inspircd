@@ -121,6 +121,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;M_SPANNINGTREE_EXPORTS;DLL_BUILD"
 				RuntimeLibrary="0"

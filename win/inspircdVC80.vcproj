@@ -128,6 +128,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
 				AdditionalIncludeDirectories=".;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="0"
