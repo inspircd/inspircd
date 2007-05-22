@@ -18,9 +18,6 @@
 #include "socket.h"
 #include "hash_map.h"
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
-
 /*******************************************************
  * This file contains classes and templates that deal
  * with the comparison and hashing of 'irc strings'.
