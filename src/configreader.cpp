@@ -221,13 +221,16 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 {
 	if (!*(data.GetString()))
 	{
+		std::string nameserver;
 #ifdef WINDOWS
-		data.Set(FindNameServerWin().c_str());
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
+		nameserver = FindNameServerWin();
+		data.Set(nameserver.c_str());
+		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 #else
 		// attempt to look up their nameserver from /etc/resolv.conf
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
-		std::string nameserver;
 		bool found_server = false;
 
 		if (resolv.is_open())
