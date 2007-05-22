@@ -128,14 +128,6 @@ bad_rev:
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
 {
-	// Skip if configure is already-existant.
-	FILE * f = fopen("inspircd_config.h", "r");
-	if(f)
-	{
-		fclose(f);
-		return 0;
-	}
-
 	AllocConsole();
 
 	// pipe standard handles to this console
@@ -368,11 +360,7 @@ void WriteCompileCommands()
     
 	// Write our spiffy new makefile :D
 	// I am such a lazy fucker :P
-#ifdef _DEBUG
 	FILE * f = fopen("..\\src\\commands.mak", "w");
-#else
-	FILE * f = fopen("..\\src\\commands-release.mak", "w");
-#endif
 
 	time_t t = time(NULL);
 	fprintf(f, "# Generated at %s\n", ctime(&t));
@@ -424,11 +412,7 @@ void WriteCompileModules()
 
 	// Write our spiffy new makefile :D
 	// I am such a lazy fucker :P
-#ifdef _DEBUG
 	FILE * f = fopen("..\\src\\modules\\modules.mak", "w");
-#else
-	FILE * f = fopen("..\\src\\modules\\modules-release.mak", "w");
-#endif
 
 	time_t t = time(NULL);
 	fprintf(f, "# Generated at %s\n", ctime(&t));
