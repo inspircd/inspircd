@@ -27,14 +27,13 @@
 
 class ModuleSQLOper : public Module
 {
-	InspIRCd* Srv;
 	Module* SQLutils;
 	Module* HashModule;
 	std::string databaseid;
 
 public:
 	ModuleSQLOper(InspIRCd* Me)
-	: Module::Module(Me), Srv(Me)
+	: Module::Module(Me)
 	{
 		ServerInstance->UseInterface("SQLutils");
 		ServerInstance->UseInterface("SQL");
@@ -66,7 +65,7 @@ public:
 
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
-		ConfigReader Conf(Srv);
+		ConfigReader Conf(ServerInstance);
 		
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
 	}
@@ -92,7 +91,7 @@ public:
 	{
 		Module* target;
 		
-		target = Srv->FindFeature("SQL");
+		target = ServerInstance->FindFeature("SQL");
 
 		if (target)
 		{
@@ -243,7 +242,7 @@ public:
 
 	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{
-		ConfigReader Conf(Srv);
+		ConfigReader Conf(ServerInstance);
 		
 		for (int j = 0; j < Conf.Enumerate("type"); j++)
 		{
@@ -260,7 +259,7 @@ public:
 				if (operhost.size())
 					user->ChangeDisplayedHost(operhost.c_str());
 
-				Srv->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
+				ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s", user->nick, user->ident, user->host, type.c_str());
 				user->WriteServ("381 %s :You are now an IRC operator of type %s", user->nick, type.c_str());
 
 				if (!user->modes[UM_OPERATOR])

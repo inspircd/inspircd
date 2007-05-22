@@ -186,17 +186,16 @@ class BanRedirect : public ModeWatcher
 class ModuleBanRedirect : public Module
 {
 	BanRedirect* re;
-	InspIRCd* Srv;
 	bool nofollow;
 	
  public:
 	ModuleBanRedirect(InspIRCd* Me)
-	: Module(Me), Srv(Me)
+	: Module(Me)
 	{
 		re = new BanRedirect(Me);
 		nofollow = false;
 		
-		if(!Srv->AddModeWatcher(re))
+		if(!ServerInstance->AddModeWatcher(re))
 			throw ModuleException("Could not add mode watcher");
 	}
 	
@@ -222,7 +221,7 @@ class ModuleBanRedirect : public Module
 				irc::modestacker modestack(false);
 				StringDeque stackresult;
 				const char* mode_junk[MAXMODES+1];
-				userrec* myhorriblefakeuser = new userrec(Srv);
+				userrec* myhorriblefakeuser = new userrec(ServerInstance);
 				myhorriblefakeuser->SetFd(FD_MAGIC_NUMBER);
 				
 				mode_junk[0] = chan->name;
@@ -245,7 +244,7 @@ class ModuleBanRedirect : public Module
 						mode_junk[i+1] = stackresult[i].c_str();
 					}
 					
-					Srv->SendMode(mode_junk, stackresult.size() + 1, myhorriblefakeuser);
+					ServerInstance->SendMode(mode_junk, stackresult.size() + 1, myhorriblefakeuser);
 				}
 				
 				DELETE(myhorriblefakeuser);
@@ -280,12 +279,12 @@ class ModuleBanRedirect : public Module
 				
 				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 				{
-					if(Srv->MatchText(user->GetFullRealHost(), redir->banmask) || Srv->MatchText(user->GetFullHost(), redir->banmask) || Srv->MatchText(ipmask, redir->banmask))
+					if(ServerInstance->MatchText(user->GetFullRealHost(), redir->banmask) || ServerInstance->MatchText(user->GetFullHost(), redir->banmask) || ServerInstance->MatchText(ipmask, redir->banmask))
 					{
 						/* tell them they're banned and are being transferred */
-						chanrec* destchan = Srv->FindChan(redir->targetchan);
+						chanrec* destchan = ServerInstance->FindChan(redir->targetchan);
 						
-						if(destchan && Srv->FindModule("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
+						if(destchan && ServerInstance->FindModule("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
 						{
 							user->WriteServ("474 %s %s :Cannot join channel (You are banned)", user->nick, chan->name);
 							return 1;
@@ -294,7 +293,7 @@ class ModuleBanRedirect : public Module
 						{
 							user->WriteServ("470 %s :You are banned from %s. You are being automatically redirected to %s", user->nick, chan->name, redir->targetchan.c_str());
 							nofollow = true;
-							chanrec::JoinUser(Srv, user, redir->targetchan.c_str(), false, "", ServerInstance->Time(true));
+							chanrec::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", ServerInstance->Time(true));
 							nofollow = false;
 							return 1;
 						}
@@ -307,7 +306,7 @@ class ModuleBanRedirect : public Module
 
 	virtual ~ModuleBanRedirect()
 	{
-		Srv->Modes->DelModeWatcher(re);
+		ServerInstance->Modes->DelModeWatcher(re);
 		DELETE(re);
 	}
 	

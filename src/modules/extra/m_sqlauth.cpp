@@ -23,7 +23,6 @@
 
 class ModuleSQLAuth : public Module
 {
-	InspIRCd* Srv;
 	Module* SQLutils;
 	Module* SQLprovider;
 
@@ -39,7 +38,7 @@ class ModuleSQLAuth : public Module
 	
 public:
 	ModuleSQLAuth(InspIRCd* Me)
-	: Module::Module(Me), Srv(Me)
+	: Module::Module(Me)
 	{
 		ServerInstance->UseInterface("SQLutils");
 		ServerInstance->UseInterface("SQL");
@@ -48,7 +47,7 @@ public:
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLprovider = Srv->FindFeature("SQL");
+		SQLprovider = ServerInstance->FindFeature("SQL");
 		if (!SQLprovider)
 			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
 
@@ -68,7 +67,7 @@ public:
 
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
-		ConfigReader Conf(Srv);
+		ConfigReader Conf(ServerInstance);
 		
 		usertable	= Conf.ReadValue("sqlauth", "usertable", 0);	/* User table name */
 		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
@@ -89,7 +88,7 @@ public:
 
 	virtual int OnUserRegister(userrec* user)
 	{
-		if ((allowpattern != "") && (Srv->MatchText(user->nick,allowpattern)))
+		if ((allowpattern != "") && (ServerInstance->MatchText(user->nick,allowpattern)))
 		{
 			user->Extend("sqlauthed");
 			return 0;
@@ -97,7 +96,7 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			userrec::QuitUser(Srv,user,killreason);
+			userrec::QuitUser(ServerInstance,user,killreason);
 			return 1;
 		}
 		return 0;
@@ -123,7 +122,7 @@ public:
 		else
 		{
 			if (verbose)
-				Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
+				ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, req.error.Str());
 			return false;
 		}
 	}
@@ -149,13 +148,13 @@ public:
 					else if (verbose)
 					{
 						/* No rows in result, this means there was no record matching the user */
-						Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
+						ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query returned no matches)", user->nick, user->ident, user->host);
 						user->Extend("sqlauth_failed");
 					}
 				}
 				else if (verbose)
 				{
-					Srv->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
+					ServerInstance->WriteOpers("Forbidden connection from %s!%s@%s (SQL query failed: %s)", user->nick, user->ident, user->host, res->error.Str());
 					user->Extend("sqlauth_failed");
 				}
 			}
@@ -166,7 +165,7 @@ public:
 
 			if (!user->GetExt("sqlauthed"))
 			{
-				userrec::QuitUser(Srv,user,killreason);
+				userrec::QuitUser(ServerInstance,user,killreason);
 			}
 			return SQLSUCCESS;
 		}		

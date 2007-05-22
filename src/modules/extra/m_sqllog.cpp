@@ -177,12 +177,11 @@ public:
 
 class ModuleSQLLog : public Module
 {
-	InspIRCd* Srv;
 	ConfigReader* Conf;
 
  public:
 	ModuleSQLLog(InspIRCd* Me)
-	: Module::Module(Me), Srv(Me)
+	: Module::Module(Me)
 	{
 		ServerInstance->UseInterface("SQLutils");
 		ServerInstance->UseInterface("SQL");
@@ -191,7 +190,7 @@ class ModuleSQLLog : public Module
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLModule = Srv->FindFeature("SQL");
+		SQLModule = ServerInstance->FindFeature("SQL");
 
 		OnRehash(NULL,"");
 		MyMod = this;
@@ -213,7 +212,7 @@ class ModuleSQLLog : public Module
 
 	void ReadConfig()
 	{
-		ConfigReader Conf(Srv);
+		ConfigReader Conf(ServerInstance);
 		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 	}
 
@@ -297,7 +296,7 @@ class ModuleSQLLog : public Module
 
 	virtual void OnLoadModule(Module* mod, const std::string &name)
 	{
-		AddLogEntry(LT_LOADMODULE,name,Srv->Config->ServerName, Srv->Config->ServerName);
+		AddLogEntry(LT_LOADMODULE,name,ServerInstance->Config->ServerName, ServerInstance->Config->ServerName);
 	}
 
 	virtual Version GetVersion()
