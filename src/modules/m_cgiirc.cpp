@@ -341,7 +341,7 @@ public:
 					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
 					ServerInstance->AddResolver(r, cached);
 				}
-				catch (ModuleException& e)
+				catch (ModuleException)
 				{
 					if (NotifyOpers)
 						ServerInstance->WriteOpers("*** Connecting user %s detected as using CGI:IRC (%s), but i could not resolve their hostname!", user->nick, user->host);
@@ -400,7 +400,7 @@ public:
 			CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, newip, false, user, user->GetFd(), "IDENT", cached);
 			ServerInstance->AddResolver(r, cached);
 		}
-		catch (ModuleException& e)
+		catch (ModuleException)
 		{
 			strlcpy(user->host, newip, 16);
 			strlcpy(user->dhost, newip, 16);
