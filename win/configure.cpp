@@ -374,9 +374,15 @@ void WriteCompileCommands()
 #ifdef _DEBUG
 	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GS /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\debug\\bin\\inspircd.lib /OUT:\"..\\bin\\debug\\lib\\$*.so\" /PDB:\"..\\bin\\debug\\lib\\$*.pdb\" /IMPLIB:\"..\\bin\\debug\\lib\\$*.lib\"\n\n");
 	CreateDirectory("..\\src\\debug", NULL);
+	CreateDirectory("..\\bin\\debug\\bin", NULL);
+	CreateDirectory("..\\bin\\debug\\lib", NULL);
+	CreateDirectory("..\\bin\\debug\\modules", NULL);
 #else
 	fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../include\" /I \"../include/modes\" /I \"../include/commands\" /I \"../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /GS /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W3 /Wp64 /Zi /TP $*.cpp ..\\win\\inspircd_memory_functions.cpp /link ..\\bin\\release\\bin\\inspircd.lib /OUT:\"..\\bin\\release\\lib\\$*.so\" /PDB:\"..\\bin\\release\\lib\\$*.pdb\" /IMPLIB:\"..\\bin\\release\\lib\\$*.lib\"\n\n");
 	CreateDirectory("..\\src\\release", NULL);
+	CreateDirectory("..\\bin\\release\\bin", NULL);
+	CreateDirectory("..\\bin\\release\\lib", NULL);
+	CreateDirectory("..\\bin\\release\\modules", NULL);
 #endif
 
 	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
