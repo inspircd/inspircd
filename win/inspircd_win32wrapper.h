@@ -160,6 +160,7 @@ typedef signed char int8_t;
 typedef signed long int32_t;
 typedef signed long long int64_t;
 
+/* Shared memory allocation functions */
 void * ::operator new(size_t iSize);
 void ::operator delete(void * ptr);
 
@@ -170,6 +171,7 @@ void InitIPC();
 void CheckIPC(InspIRCd * Instance);
 void CloseIPC();
 
+/* Look up the nameserver in use from the registry on windows */
 std::string FindNameServerWin();
 
 #endif
