@@ -105,6 +105,8 @@ class DNSBLResolver : public Resolver
 						case DNSBLConfEntry::I_KLINE:
 						{
 							std::string ban = std::string("*@") + them->GetIPString();
+							if (show)
+								ServerInstance->XLines->apply_lines(APPLY_KLINES);								
 							show = ServerInstance->XLines->add_kline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
 							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, ban));
 							break;
@@ -113,12 +115,16 @@ class DNSBLResolver : public Resolver
 						{
 							std::string ban = std::string("*@") + them->GetIPString();
 							show = ServerInstance->XLines->add_gline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
+							if (show)
+								ServerInstance->XLines->apply_lines(APPLY_GLINES);
 							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, ban));
 							break;
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
 							show = ServerInstance->XLines->add_zline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), them->GetIPString());
+							if (show)
+								ServerInstance->XLines->apply_lines(APPLY_ZLINES);
 							FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
 							break;
 						}
@@ -130,7 +136,9 @@ class DNSBLResolver : public Resolver
 					}
 
 					if (show)
+					{
 						ServerInstance->WriteOpers("*** Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost(), ConfEntry->name.c_str(), bitmask);
+					}
 				}
 				else
 					ConfEntry->stats_misses++;
