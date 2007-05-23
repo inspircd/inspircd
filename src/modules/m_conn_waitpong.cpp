@@ -20,21 +20,20 @@
 
 class ModuleWaitPong : public Module
 {
-	InspIRCd* Instance;
 	bool sendsnotice;
 	bool killonbadreply;
 	const char* extenstr;
 
  public:
 	ModuleWaitPong(InspIRCd* Me)
-	 : Module(Me), Instance(Me), extenstr("waitpong_pingstr")
+	 : Module(Me), extenstr("waitpong_pingstr")
 	{
 		OnRehash(NULL,"");
 	}
 	
 	virtual void OnRehash(userrec* user, const std::string &param)
 	{
-		ConfigReader Conf(Instance);
+		ConfigReader Conf(ServerInstance);
 		
 		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
 		
