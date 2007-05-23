@@ -445,7 +445,7 @@ class Modulewatch : public Module
 				{
 					if (!user->Visibility || user->Visibility->VisibleTo(user))
 	 					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick, oldnick.c_str(), user->ident, user->dhost, user->age);
-					(*wl)[user->nick] = "";
+					(*wl)[oldnick.c_str()] = "";
 				}
 			}
 		}
