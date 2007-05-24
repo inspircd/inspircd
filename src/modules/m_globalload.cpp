@@ -42,7 +42,10 @@ class cmd_gloadmodule : public command_t
 		else
 		{
 			user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-			/* XXX - returning CMD_FAILURE here could potentially mean half the net loads it, half doesn't. pass it on anyway? -- w00t */
+			/* XXX - returning CMD_FAILURE here could potentially mean half the net loads it, half doesn't. pass it on anyway? -- w00t
+			 *
+			 * Returning CMD_SUCCESS would have the same effect, just with less servers. Someone should update this module to properly
+			 * pass the success/failure for each server to the caller (or to all opers) -Special */
 			return CMD_FAILURE;
 		}
 	}
@@ -65,15 +68,13 @@ class cmd_gunloadmodule : public command_t
 		{
 			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
-			/* route it! */
-			return CMD_SUCCESS;
 		}
 		else
 		{
-			/* XXX - see above note about returning CMD_FAILURE here -- w00t */
+			/* Return CMD_SUCCESS so the module will be unloaded on any servers it is loaded on - this is a seperate case entirely from loading -Special */
 			user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-			return CMD_FAILURE;
 		}
+		return CMD_SUCCESS;
 	}
 };
 
