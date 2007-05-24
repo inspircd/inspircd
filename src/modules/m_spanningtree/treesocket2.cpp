@@ -1136,7 +1136,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			// have been exchanged and anything past this point is taken
 			// as gospel.
 
-			if (prefix != "")
+			if (!prefix.empty())
 			{
 				std::string direction = prefix;
 				userrec* t = this->Instance->FindNick(prefix);
@@ -1157,6 +1157,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 */
 				route_back_again->SetNextPingTime(time(NULL) + 60);
 				route_back_again->SetPingFlag();
+			}
+			else
+			{
+				prefix = this->GetName();
 			}
 
 			if ((command == "MODE") && (params.size() >= 2))
