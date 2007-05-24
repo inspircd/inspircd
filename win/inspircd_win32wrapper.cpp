@@ -414,7 +414,7 @@ bool GetInterface(HKEY regkey, const char *key, char* &output)
 
 std::string FindNameServerWin()
 {
-	std::string returnval;
+	std::string returnval = "127.0.0.1";
 	HKEY top, key;
 	char* dns = NULL;
 
