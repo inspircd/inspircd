@@ -46,7 +46,7 @@ InspIRCd* SI = NULL;
 /* Burlex: Moved from exitcodes.h -- due to duplicate symbols */
 const char* ExitCodes[] =
 {
-	"No error", /* 0 */
+		"No error", /* 0 */
 		"DIE command", /* 1 */
 		"execv() failed", /* 2 */
 		"Internal error", /* 3 */
@@ -277,7 +277,7 @@ bool InspIRCd::DaemonSeed()
 	sh.lpVerb = 0;
 	sh.lpDirectory = 0;
 	sh.hInstApp = 0;
-	sh.nShow = SW_SHOW;
+	sh.nShow = SW_HIDE;
 	sh.lpFile = "inspircd.exe";
 	sh.lpParameters = "--service";
 	if(!ShellExecuteEx(&sh))

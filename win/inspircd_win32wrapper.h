@@ -24,7 +24,6 @@
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
 
 /* Begone shitty 'safe STL' warnings */
 #define _SCL_SECURE_NO_WARNINGS
