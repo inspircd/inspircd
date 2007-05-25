@@ -22,6 +22,10 @@
    I think this is more reasonable than using WIN32, especially if we're gonna be doing 64-bit compiles */
 #define WINDOWS 1
 
+/* Make builds smaller, leaner and faster */
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+
 /* Begone shitty 'safe STL' warnings */
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
