@@ -917,6 +917,13 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
 	 */
 	ConnectClass* i = New->GetClass();
+
+	if (!i)
+	{
+		userrec::QuitUser(Instance, New, "Access denied by configuration");
+		return;
+	}
+
 	New->CheckClass();
 
 	New->pingmax = i->GetPingTime();
