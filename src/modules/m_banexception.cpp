@@ -58,7 +58,7 @@ public:
 	virtual void Implements(char* List)
 	{
 		be->DoImplements(List);
-		List[I_OnRequest] = List[I_On005Numeric] = List[I_OnCheckBan] = 1;
+		List[I_OnRehash] = List[I_OnRequest] = List[I_On005Numeric] = List[I_OnCheckBan] = 1;
 	}
 	
 	virtual void On005Numeric(std::string &output)

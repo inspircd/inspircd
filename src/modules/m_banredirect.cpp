@@ -16,6 +16,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "u_listmode.h"
 
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
 
@@ -187,7 +188,8 @@ class ModuleBanRedirect : public Module
 {
 	BanRedirect* re;
 	bool nofollow;
-	
+	Module* ExceptionModule;
+
  public:
 	ModuleBanRedirect(InspIRCd* Me)
 	: Module(Me)
@@ -197,11 +199,13 @@ class ModuleBanRedirect : public Module
 		
 		if(!ServerInstance->AddModeWatcher(re))
 			throw ModuleException("Could not add mode watcher");
+
+		OnRehash(NULL, "");
 	}
 	
 	void Implements(char* List)
 	{
-		List[I_OnUserPreJoin] = List[I_OnChannelDelete] = List[I_OnCleanup] = 1;
+		List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnChannelDelete] = List[I_OnCleanup] = 1;
 	}
 	
 	virtual void OnChannelDelete(chanrec* chan)
@@ -254,6 +258,11 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
+	virtual void OnRehash(userrec* user, const std::string &param)
+	{
+		ExceptionModule = ServerInstance->FindModule("m_banexception.so");
+	}
+
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
@@ -274,6 +283,15 @@ class ModuleBanRedirect : public Module
 				/* This was replaced with user->MakeHostIP() when I had a snprintf(), but MakeHostIP() doesn't seem to add the nick.
 				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
 				 */
+
+				if (ExceptionModule)
+				{
+					ListModeRequest n(this, ExceptionModule, user, chan);
+					/* Users with ban exceptions are allowed to join without being redirected */
+					if (n.Send())
+						return 0;
+				}
+
 				std::string ipmask(user->nick);
 				ipmask.append(1, '!').append(user->MakeHostIP());
 				
@@ -313,6 +331,11 @@ class ModuleBanRedirect : public Module
 	virtual Version GetVersion()
 	{
 		return Version(1, 0, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
+	}
+	
+	Priority Prioritize()
+	{
+		return (Priority)ServerInstance->PriorityBefore("m_banexception.so");
 	}
 };
 
