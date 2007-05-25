@@ -56,7 +56,7 @@ CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 		if (too_many || too_few)
 			continue;
 
-		if (pcnt && (!match(i->second->name, parameters[0]) || (*i->second->topic && !match(i->second->topic, parameters[0]))))
+		if ((pcnt && (!match(i->second->name, parameters[0])) || (*i->second->topic && !match(i->second->topic, parameters[0]))))
 			continue;
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
