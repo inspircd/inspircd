@@ -66,6 +66,12 @@ class cmd_svshold : public command_t
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
+		if (!ServerInstance->ULine(user->server))
+		{
+			/* don't allow SVSHOLD from non-ulined clients */
+			return CMD_FAILURE;
+		}
+
 		if (pcnt == 1)
 		{
 			SVSHoldMap::iterator n = HoldMap.find(parameters[0]);
