@@ -16,10 +16,10 @@
 
 IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 {
-	// Create completion port
+	/* Create completion port */
 	m_completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)0, 0);
 
-	// Null variables out.
+	/* Null variables out. */
 	CurrentSetSize = 0;
 	EngineHandle = 0;
 	memset(ref, 0, sizeof(EventHandler*) * MAX_DESCRIPTORS);
@@ -38,36 +38,36 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	if(fake_fd < 0)
 		return false;
 
-	// are we a listen socket?
+	/* are we a listen socket? */
 	getsockopt(eh->GetFd(), SOL_SOCKET, SO_ACCEPTCONN, (char*)&is_accept, &opt_len);
 
-	// set up the read event so the socket can actually receive data :P
+	/* set up the read event so the socket can actually receive data :P */
 	eh->m_internalFd = fake_fd;
 	eh->m_writeEvent = 0;
 	eh->m_acceptEvent = 0;
 
-	// assign the socket to the completion port
+	/* assign the socket to the completion port */
 	if(!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, (ULONG_PTR)eh->m_internalFd, 0))
 		return false;
 
-	// set up binding, increase set size
+	/* set up binding, increase set size */
 	ref[fake_fd] = eh;
 	++CurrentSetSize;
 
-	// setup initial events
+	/* setup initial events */
 	if(is_accept)
 		PostAcceptEvent(eh);
 	else
 		PostReadEvent(eh);
 
-	// log message
+	/* log message */
 	ServerInstance->Log(DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", fake_fd, eh->GetFd(), eh);
 
-	// post a write event if there is data to be written
+	/* post a write event if there is data to be written */
 	if(eh->Writeable())
 		WantWrite(eh);
 
-	// we're all good =)
+	/* we're all good =) */
 	try
 	{
 		m_binding.insert( map<int, EventHandler*>::value_type( eh->GetFd(), eh ) );
@@ -91,11 +91,11 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 
 	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", fake_fd, eh->GetFd(), eh);
 
-	// Cancel pending i/o operations.
+	/* Cancel pending i/o operations. */
 	if (CancelIo((HANDLE)fd) == FALSE)
 		return false;
 
-	// Free the buffer, and delete the event.
+	/* Free the buffer, and delete the event. */
 	if(eh->m_readEvent != 0)
 		delete ((Overlapped*)eh->m_readEvent);
 
@@ -108,20 +108,20 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 		delete ((Overlapped*)eh->m_acceptEvent);
 	}
 
-	// Clear binding
+	/* Clear binding */
 	ref[fake_fd] = 0;
 	m_binding.erase(eh->GetFd());
 
-	// decrement set size
+	/* decrement set size */
 	--CurrentSetSize;
 	
-	// success
+	/* success */
 	return true;
 }
 
 void IOCPEngine::WantWrite(EventHandler* eh)
 {
-	// Post event - write begin
+	/* Post event - write begin */
 	if(!eh->m_writeEvent)
 	{
 		Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_WRITE_READY, 0);
@@ -143,24 +143,25 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 	DWORD r_length = 0;
 	WSABUF buf;
 
-	// by passing a null buffer pointer, we can have this working in the same way as epoll..
-	// its slower, but it saves modifying all network code.
+	/* by passing a null buffer pointer, we can have this working in the same way as epoll..
+	 * its slower, but it saves modifying all network code.
+	 */
 	buf.buf = 0;
 	buf.len = 0;
 
-	// determine socket type.
+	/* determine socket type. */
 	DWORD sock_type;
 	int sock_len = sizeof(DWORD);
 	if(getsockopt(eh->GetFd(), SOL_SOCKET, SO_TYPE, (char*)&sock_type, &sock_len) == -1)
 	{
-		// wtfhax?
+		/* wtfhax? */
 		PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, 0);
 		delete ov;
 		return;
 	}
 	switch(sock_type)
 	{
-	case SOCK_DGRAM:			// UDP Socket
+		case SOCK_DGRAM:			/* UDP Socket */
 		{
 			if(WSARecvFrom(eh->GetFd(), &buf, 1, &r_length, &flags, 0, 0, &ov->m_overlap, 0))
 			{
@@ -172,9 +173,10 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 					return;
 				}
 			}
-		}break;
+		}
+		break;
 
-	case SOCK_STREAM:			// TCP Socket
+		case SOCK_STREAM:			/* TCP Socket */
 		{
 			if(WSARecv(eh->GetFd(), &buf, 1, &r_length, &flags, &ov->m_overlap, 0) == SOCKET_ERROR)
 			{
@@ -185,13 +187,15 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 					return;
 				}
 			}
-		}break;
+		}
+		break;
 
-	default:
+		default:
 		{
 			printf("unknwon socket type: %u\n", sock_type);
 			return;
-		}break;
+		}
+		break;
 	}
 	eh->m_readEvent = (void*)ov;
 }
@@ -214,41 +218,45 @@ int IOCPEngine::DispatchEvents()
 		if(eh == 0) continue;
 		switch(ov->m_event)
 		{
-		case SOCKET_IO_EVENT_WRITE_READY:
+			case SOCKET_IO_EVENT_WRITE_READY:
 			{
 				eh->m_writeEvent = 0;
 				eh->HandleEvent(EVENT_WRITE, 0);
-			}break;
+			}
+			break;
 
-		case SOCKET_IO_EVENT_READ_READY:
+			case SOCKET_IO_EVENT_READ_READY:
 			{
 				ret = ioctlsocket(eh->GetFd(), FIONREAD, &bytes_recv);
 				eh->m_readEvent = 0;
 				if(ret != 0 || bytes_recv == 0)
 				{
-					// end of file
-					PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, EIO);
+					/* end of file */
+					PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, EIO); /* Old macdonald had an error, EIEIO. */
 				}
 				else
 				{
 					eh->HandleEvent(EVENT_READ, 0);
 					PostReadEvent(eh);
 				}
-			}break;
+			}
+			break;
 		
-		case SOCKET_IO_EVENT_ACCEPT:
+			case SOCKET_IO_EVENT_ACCEPT:
 			{
 				/* this is kinda messy.. :/ */
 				eh->HandleEvent(EVENT_READ, ov->m_params);
 				delete ((accept_overlap*)ov->m_params);
 				eh->m_acceptEvent = 0;
 				PostAcceptEvent(eh);
-			}break;
+			}
+			break;
 
-		case SOCKET_IO_EVENT_ERROR:
+			case SOCKET_IO_EVENT_ERROR:
 			{
 				eh->HandleEvent(EVENT_ERROR, ov->m_params);
-			}break;
+			}
+			break;
 		}
 		
 		delete ov;
@@ -262,11 +270,11 @@ void IOCPEngine::PostAcceptEvent(EventHandler * eh)
 	int fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
 	int len = sizeof(sockaddr_in) + 16;
 	DWORD dwBytes;
-	accept_overlap * ao = new accept_overlap;
+	accept_overlap* ao = new accept_overlap;
 	memset(ao->buf, 0, 1024);
 	ao->socket = fd;
 
-	Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_ACCEPT, (int)ao);
+	Overlapped* ov = new Overlapped(SOCKET_IO_EVENT_ACCEPT, (int)ao);
 	eh->m_acceptEvent = (void*)ov;
 
 	if(AcceptEx(eh->GetFd(), fd, ao->buf, 0, len, len, &dwBytes, &ov->m_overlap) == FALSE)
@@ -287,11 +295,11 @@ std::string IOCPEngine::GetName()
 
 int __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent)
 {
-	Overlapped * ovl = (Overlapped*)acceptevent;
-	accept_overlap * ov = (accept_overlap*)ovl->m_params;
+	Overlapped* ovl = (Overlapped*)acceptevent;
+	accept_overlap* ov = (accept_overlap*)ovl->m_params;
 
-	sockaddr_in * server_address = (sockaddr_in*)&ov->buf[10];
-	sockaddr_in * client_address = (sockaddr_in*)&ov->buf[38];
+	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
+	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
 
 	memcpy(addr, client_address, sizeof(sockaddr_in));
 	*addrlen = sizeof(sockaddr_in);
@@ -301,11 +309,11 @@ int __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent
 
 int __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent)
 {
-	Overlapped * ovl = (Overlapped*)acceptevent;
-	accept_overlap * ov = (accept_overlap*)ovl->m_params;
+	Overlapped* ovl = (Overlapped*)acceptevent;
+	accept_overlap* ov = (accept_overlap*)ovl->m_params;
 
-	sockaddr_in * server_address = (sockaddr_in*)&ov->buf[10];
-	sockaddr_in * client_address = (sockaddr_in*)&ov->buf[38];
+	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
+	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
 
 	memcpy(name, server_address, sizeof(sockaddr_in));
 	*namelen = sizeof(sockaddr_in);
@@ -330,3 +338,4 @@ EventHandler * IOCPEngine::GetIntRef(int fd)
 		return 0;
 	return ref[fd];
 }
+

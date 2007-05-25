@@ -34,10 +34,11 @@ enum SocketIOEvent
 
 class Overlapped
 {
-public:
+ public:
 	OVERLAPPED m_overlap;
 	SocketIOEvent m_event;
 	int m_params;
+
 	Overlapped(SocketIOEvent ev, int params) : m_event(ev), m_params(params)
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
@@ -53,6 +54,8 @@ struct accept_overlap
 class IOCPEngine : public SocketEngine
 {
 	/** Creates a "fake" file descriptor for use with an IOCP socket.
+	 * This is a little slow, but it isnt called too much. We'll fix it
+	 * in a future release.
 	 * @return -1 if there are no free slots, and an integer if it finds one.
 	 */
 	__inline int GenerateFd()
@@ -76,7 +79,7 @@ public:
 	/** Creates an IOCP Socket Engine
 	 * @param Instance The creator of this object
 	 */
-	IOCPEngine(InspIRCd * Instance);
+	IOCPEngine(InspIRCd* Instance);
 
 	/** Deletes an IOCP socket engine and all the attached sockets
 	 */
@@ -132,17 +135,17 @@ public:
 	 * @param param Event Parameter
 	 * @return True if added, false if not
 	 */
-	bool PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int param);
+	bool PostCompletionEvent(EventHandler* eh, SocketIOEvent type, int param);
 
 	/** Posts a read event on the specified socket
 	 * @param eh EventHandler (socket)
 	 */
-	void PostReadEvent(EventHandler * eh);
+	void PostReadEvent(EventHandler* eh);
 
 	/** Posts an accept event on the specified socket
 	 * @param eh EventHandler (socket)
 	 */
-	void PostAcceptEvent(EventHandler * eh);
+	void PostAcceptEvent(EventHandler* eh);
 
 	/** Returns the EventHandler attached to a specific fd.
 	 * If the fd isnt in the socketengine, returns NULL.
@@ -181,3 +184,4 @@ public:
 };
 
 #endif
+
