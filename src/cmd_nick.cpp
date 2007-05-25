@@ -137,6 +137,15 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	user->InvalidateCache();
 
+	/* Update display nicks */
+	for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
+	{
+		CUList* ulist = v->first->GetUsers();
+		CUList::iterator i = ulist->find(user);
+		if (i != ulist->end())
+			i->second = user->nick;
+	}
+
 	if (user->registered < REG_NICKUSER)
 	{
 		user->registered = (user->registered | REG_NICK);
