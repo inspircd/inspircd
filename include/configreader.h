@@ -656,7 +656,7 @@ class CoreExport ServerConfig : public Extensible
 	bool AddIOHook(Module* iomod, InspSocket* is);
 	bool DelIOHook(InspSocket* is);
 
-	static std::string GetFullProgDir();
+	std::string GetFullProgDir();
 	static bool DirValid(const char* dirandfile);
 	static char* CleanFilename(char* name);
 	static bool FileExists(const char* file);
