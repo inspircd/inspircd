@@ -40,10 +40,9 @@ class ModuleFilter : public FilterBase
 
 	virtual FilterResult* FilterMatch(const std::string &text)
 	{
-		std::string text2 = text+" ";
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
-			if ((ServerInstance->MatchText(text2,index->first)) || (ServerInstance->MatchText(text,index->first)))
+			if (ServerInstance->MatchText(text,index->first))
 			{
 				FilterResult* fr = index->second;
 				if (index != filters.begin())
