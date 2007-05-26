@@ -24,8 +24,8 @@ SetCompressor bzip2
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "${NSISDIR}\Contrib\Graphics\Icons\arrow2-install.ico"
-!define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\arrow2-uninstall.ico"
+!define MUI_ICON "inspircd.ico"
+!define MUI_UNICON "inspircd.ico"
 
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
