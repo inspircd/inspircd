@@ -582,8 +582,8 @@
 #   configurtion directory.                                           #
 #                                                                     #
 
-<files motd="inspircd.motd"
-       rules="inspircd.rules">
+<files motd="inspircd.motd.example"
+       rules="inspircd.rules.example">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
