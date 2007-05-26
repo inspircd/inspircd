@@ -1611,12 +1611,13 @@ std::string ServerConfig::GetFullProgDir()
 
 		/* Does argv[0] start with /? its a full path, use it */
 		if (remainder[0] == '/')
-			return remainder;
+		{
+			std::string::size_type n = remainder.rfind("/inspircd");
+			return std::string(remainder, 0, n);
+		}
 
 		std::string fullpath = std::string(buffer) + "/" + remainder;
-
 		std::string::size_type n = fullpath.rfind("/inspircd");
-
 		return std::string(fullpath, 0, n);
 	}
 
