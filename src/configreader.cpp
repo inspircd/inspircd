@@ -1605,17 +1605,18 @@ std::string ServerConfig::GetFullProgDir()
 	char buffer[1024];
 
 	// Get the current working directory
-	if (getcwd(buffer, 1024) == NULL)
+	if (getcwd(buffer, 1024))
 	{
-		return "";
+		std::string remainder = this->argv[0];
+
+		/* Does argv[0] start with /? its a full path, use it */
+		if (remainder[0] == '/')
+			return remainder;
+
+		return std::string(buffer) + "/" + remainder;
 	}
 
-	if (chdir(buffer) == -1)
-	{
-		return "";
-	}
-
-	return buffer;
+	return "/";
 }
 
 InspIRCd* ServerConfig::GetInstance()
