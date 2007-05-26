@@ -32,15 +32,14 @@ SetCompressor bzip2
 ; License page
 !define MUI_LICENSEPAGE_CHECKBOX
 !insertmacro MUI_PAGE_LICENSE "..\docs\COPYING"
+; directory page
+Page directory
 ; Components page
 !insertmacro MUI_PAGE_COMPONENTS
-; Directory page
-!insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
 ; Finish page
 !define MUI_FINISHPAGE_RUN "$INSTDIR\InspGUI.exe"
-!define MUI_FINISHPAGE_RUN_PARAMETERS "--nofork"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -176,8 +175,8 @@ SectionEnd
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Actual Executable"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default Config Files"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Command Modules"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default Config Files"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional Modules"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -190,6 +189,7 @@ FunctionEnd
 Function .onInit
   SectionSetFlags ${SEC01} 17
   SectionSetFlags ${SEC03} 17
+  StrCpy $INSTDIR "$PROGRAMFILES\InspIRCd"
 FunctionEnd
 
 Function un.onInit
@@ -228,3 +228,5 @@ Section Uninstall
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
 SectionEnd
+
+Page directory
