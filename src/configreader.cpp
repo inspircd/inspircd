@@ -1602,10 +1602,10 @@ bool ServerConfig::DirValid(const char* dirandfile)
 
 std::string ServerConfig::GetFullProgDir()
 {
-	char buffer[1024];
+	char buffer[PATH_MAX];
 
 	// Get the current working directory
-	if (getcwd(buffer, 1024))
+	if (getcwd(buffer, PATH_MAX))
 	{
 		std::string remainder = this->argv[0];
 

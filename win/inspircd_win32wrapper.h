@@ -25,6 +25,9 @@
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
 
+/* They just have to be *different*, don't they. */
+#define PATH_MAX MAX_PATH
+
 /* Begone shitty 'safe STL' warnings */
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
