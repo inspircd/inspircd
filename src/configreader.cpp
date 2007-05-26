@@ -1613,7 +1613,11 @@ std::string ServerConfig::GetFullProgDir()
 		if (remainder[0] == '/')
 			return remainder;
 
-		return std::string(buffer) + "/" + remainder;
+		std::string fullpath = std::string(buffer) + "/" + remainder;
+
+		std::string::size_type n = fullpath.rfind("/inspircd");
+
+		return std::string(fullpath, 0, n);
 	}
 
 	return "/";
