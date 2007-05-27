@@ -122,6 +122,10 @@ class CoreExport chanrec : public Extensible
 	 */
 	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs);
 
+	/** Set default modes for the channel on creation
+	 */
+	void SetDefaultModes();
+
 	prefixlist prefixes;
 
 	/** Maximum number of bans (cached)

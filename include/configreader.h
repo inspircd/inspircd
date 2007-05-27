@@ -494,6 +494,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::string logpath;
 
+	/** Default channel modes
+	 */
+	char DefaultModes[MAXBUF];
+
 	/** Custom version string, which if defined can replace the system info in VERSION.
 	 */
 	char CustomVersion[MAXBUF];
@@ -504,7 +508,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Max banlist sizes for channels (the std::string is a glob)
 	 */
-	std::map<std::string,int> maxbans;
+	std::map<std::string, int> maxbans;
 
 	/** Directory where the inspircd binary resides
 	 */

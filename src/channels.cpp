@@ -172,6 +172,23 @@ CUList* chanrec::GetVoicedUsers()
 	return &internal_voice_userlist;
 }
 
+void chanrec::SetDefaultModes()
+{
+	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
+	std::string modeseq = list.GetToken();
+
+	for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
+	{
+		ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
+		if (mode)
+		{
+			this->SetMode(*n, true);
+			if (mode->GetNumParams(true))
+				this->SetModeParam(*n, list.GetToken().c_str(), true);
+		}
+	}
+}
+
 /* 
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
@@ -213,7 +230,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 		/* As spotted by jilles, dont bother to set this on remote users */
 		if (IS_LOCAL(user))
-			Ptr->modes[CM_TOPICLOCK] = Ptr->modes[CM_NOEXTERNAL] = 1;
+			Ptr->SetDefaultModes();
 
 		Ptr->created = TS ? TS : Instance->Time();
 		Ptr->age = Ptr->created;

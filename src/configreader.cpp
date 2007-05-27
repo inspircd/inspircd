@@ -26,7 +26,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	this->ClearStack();
 	*ServerName = *Network = *ServerDesc = *AdminName = '\0';
 	*HideWhoisServer = *AdminEmail = *AdminNick = *diepass = *restartpass = *FixedQuit = *HideKillsServer = '\0';
-	*CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
+	*DefaultModes = *CustomVersion = *motd = *rules = *PrefixQuit = *DieValue = *DNSServer = '\0';
 	*UserStats = *ModPath = *MyExecutable = *DisabledCommands = *PID = *SuffixQuit = '\0';
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	log_file = NULL;
@@ -620,7 +620,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"hidesplits",	"0",			new ValueContainerBool (&this->HideSplits),		DT_BOOLEAN, NoValidation},
 		{"options",	"hidebans",	"0",			new ValueContainerBool (&this->HideBans),		DT_BOOLEAN, NoValidation},
 		{"options",	"hidewhois",	"",			new ValueContainerChar (this->HideWhoisServer),		DT_CHARPTR, NoValidation},
-		{"options", "hidekills",    "",         new ValueContainerChar (this->HideKillsServer),     DT_CHARPTR, NoValidation},
+		{"options",	"hidekills",	"",			new ValueContainerChar (this->HideKillsServer),		DT_CHARPTR, NoValidation},
 		{"options",	"operspywhois",	"0",			new ValueContainerBool (&this->OperSpyWhois),		DT_BOOLEAN, NoValidation},
 		{"options",	"nouserdns",	"0",			new ValueContainerBool (&this->NoUserDns),		DT_BOOLEAN, NoValidation},
 		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
@@ -630,6 +630,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
 		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
 		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR, ValidateExemptChanOps},
+		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR, NoValidation},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
