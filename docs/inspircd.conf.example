@@ -1524,8 +1524,9 @@
 # specify the timeout for ident lookups here. If not defined, it will #
 # default to one second. This is a non-blocking timeout which holds   #
 # the user in a 'connecting' state until the lookup is complete.      #
+# The bind value indicates which IP to bind outbound requests to.     #
 #                                                                     #
-#<ident timeout="5">
+#<ident timeout="5" bind="">                                          #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)

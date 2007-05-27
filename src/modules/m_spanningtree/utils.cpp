@@ -459,7 +459,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	ConfigReader* Conf = new ConfigReader(ServerInstance);
 	if (rebind)
 	{
-		for (int j =0; j < Conf->Enumerate("bind"); j++)
+		for (int j = 0; j < Conf->Enumerate("bind"); j++)
 		{
 			std::string Type = Conf->ReadValue("bind","type",j);
 			std::string IP = Conf->ReadValue("bind","address",j);
@@ -510,7 +510,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	for (int j =0; j < Conf->Enumerate("link"); j++)
+	for (int j = 0; j < Conf->Enumerate("link"); j++)
 	{
 		Link L;
 		std::string Allow = Conf->ReadValue("link", "allowmask", j);

@@ -33,7 +33,7 @@ class RFC1413 : public InspSocket
 	userrec* u;		 // user record that the lookup is associated with
 	int ufd;
 
-	RFC1413(InspIRCd* SI, userrec* user, int maxtime) : InspSocket(SI, user->GetIPString(), 113, false, maxtime), u(user)
+	RFC1413(InspIRCd* SI, userrec* user, int maxtime, const std::string &bindto) : InspSocket(SI, user->GetIPString(), 113, false, maxtime, bindto), u(user)
 	{
 		ufd = user->GetFd();
 	}
@@ -189,14 +189,15 @@ class ModuleIdent : public Module
 {
 
 	ConfigReader* Conf;
-
 	int IdentTimeout;
+	std::string PortBind;
 
  public:
 	void ReadSettings()
 	{
 		Conf = new ConfigReader(ServerInstance);
-		IdentTimeout = Conf->ReadInteger("ident","timeout",0,true);
+		IdentTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
+		PortBind = Conf->ReadValue("ident", "bind", 0);
 		if (!IdentTimeout)
 			IdentTimeout = 1;
 		DELETE(Conf);
@@ -245,7 +246,7 @@ class ModuleIdent : public Module
 		
 
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
-		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout);
+		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout, PortBind);
 		if ((ident->GetState() == I_CONNECTING) || (ident->GetState() == I_CONNECTED))
 		{
 			user->Extend("ident_data", (char*)ident);
