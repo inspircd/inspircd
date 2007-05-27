@@ -77,7 +77,7 @@ void ModeChannelBan::RemoveMode(userrec* user)
 void ModeChannelBan::DisplayList(userrec* user, chanrec* channel)
 {
 	/* Display the channel banlist */
-	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
+	for (BanList::reverse_iterator i = channel->bans.rbegin(); i != channel->bans.rend(); ++i)
 	{
 		user->WriteServ("367 %s %s %s %s %d",user->nick, channel->name, i->data, i->set_by, i->set_time);
 	}

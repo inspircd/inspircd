@@ -121,7 +121,7 @@ class ListModeBase : public ModeHandler
 		channel->GetExt(infokey, el);
 		if (el)
 		{
-			for(modelist::iterator it = el->begin(); it != el->end(); it++)
+			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it++)
 			{
 				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}
@@ -141,7 +141,7 @@ class ListModeBase : public ModeHandler
 			mode_junk[0] = channel->name;
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);
-			for(modelist::iterator it = el->begin(); it != el->end(); it++)
+			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
 				modestack.Push(this->GetModeChar(), assign(it->mask));
 			}
@@ -169,17 +169,17 @@ class ListModeBase : public ModeHandler
 
 		chanlimits.clear();
 
-		for(int i = 0; i < Conf.Enumerate(configtag); i++)
+		for (int i = 0; i < Conf.Enumerate(configtag); i++)
 		{
 			// For each <banlist> tag
 			ListLimit limit;
 			limit.mask = Conf.ReadValue(configtag, "chan", i);
 			limit.limit = Conf.ReadInteger(configtag, "limit", i, true);
 
-			if(limit.mask.size() && limit.limit > 0)
+			if (limit.mask.size() && limit.limit > 0)
 				chanlimits.push_back(limit);
 		}
-		if(chanlimits.size() == 0)
+		if (chanlimits.size() == 0)
 		{
 			ListLimit limit;
 			limit.mask = "*";
@@ -216,7 +216,7 @@ class ListModeBase : public ModeHandler
 			// Check if the item already exists in the list
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if(parameter == it->mask)
+				if (parameter == it->mask)
 				{
 					/* Give a subclass a chance to error about this */
 					TellAlreadyOnList(source, channel, parameter);
@@ -246,7 +246,7 @@ class ListModeBase : public ModeHandler
 						 * 2) 'fix' parameter and then allow
 						 * 3) deny
 						 */
-						if(ValidateParam(source, channel, parameter))
+						if (ValidateParam(source, channel, parameter))
 						{
 							// And now add the mask onto the list...
 							ListItem e;
@@ -267,7 +267,7 @@ class ListModeBase : public ModeHandler
 			}
 
 			/* List is full, give subclass a chance to send a custom message */
-			if(!TellListTooLong(source, channel, parameter))
+			if (!TellListTooLong(source, channel, parameter))
 			{
 				source->WriteServ("478 %s %s %s :Channel ban/ignore list is full", source->nick, channel->name, parameter.c_str());
 			}
@@ -282,10 +282,10 @@ class ListModeBase : public ModeHandler
 			{
 				for (modelist::iterator it = el->begin(); it != el->end(); it++)
 				{
-					if(parameter == it->mask)
+					if (parameter == it->mask)
 					{
 						el->erase(it);
-						if(el->size() == 0)
+						if (el->size() == 0)
 						{
 							channel->Shrink(infokey);
 							delete el;
@@ -372,3 +372,4 @@ class ListModeBase : public ModeHandler
 };
 
 #endif
+
