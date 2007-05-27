@@ -1346,6 +1346,11 @@
 #                                                                     #
 #<waitpong sendsnotice="yes" killonbadreply="yes">
 
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel cycle module. Server side /hop, with +ilk etc bypass.
+#<module name="m_cycle.so">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Connection throttle module. Configuration:
 #<module name="m_connflood.so">
