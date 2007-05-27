@@ -121,7 +121,7 @@ class ListModeBase : public ModeHandler
 		channel->GetExt(infokey, el);
 		if (el)
 		{
-			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it++)
+			for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 			{
 				user->WriteServ("%s %s %s %s %s %s", listnumeric.c_str(), user->nick, channel->name, it->mask.c_str(), it->nick.c_str(), it->time.c_str());
 			}

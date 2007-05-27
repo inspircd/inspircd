@@ -111,7 +111,7 @@ class FounderProtectBase
 	{
 		CUList* cl = channel->GetUsers();
 		std::string item = extend+std::string(channel->name);
-		for (CUList::reverse_iterator i = cl->rbegin(); i != cl->rend(); i++)
+		for (CUList::reverse_iterator i = cl->rbegin(); i != cl->rend(); ++i)
 		{
 			if (i->first->GetExt(item, dummyptr))
 			{
