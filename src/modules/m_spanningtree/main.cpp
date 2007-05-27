@@ -907,8 +907,7 @@ void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silen
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 			/* First user in, sync the modes for the channel */
 			params.pop_back();
-			/* This is safe, all inspircd servers default to +nt */
-			params.push_back("+nt");
+			params.push_back(channel->ChanModes());
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
 		}
 		else
