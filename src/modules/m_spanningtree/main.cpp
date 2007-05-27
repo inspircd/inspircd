@@ -907,7 +907,7 @@ void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silen
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
 			/* First user in, sync the modes for the channel */
 			params.pop_back();
-			params.push_back(channel->ChanModes());
+			params.push_back(channel->ChanModes(true));
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
 		}
 		else
