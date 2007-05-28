@@ -654,6 +654,28 @@ int ModuleSpanningTree::OnStats(char statschar, userrec* user, string_list &resu
 		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",(!strcmp(user->server,ServerInstance->Config->ServerName) ? "Stats" : "Remote stats"),statschar,user->nick,user->ident,user->host);
 		return 1;
 	}
+
+	if (statschar == 'p')
+	{
+		/* show all server ports, after showing client ports. -- w00t */
+
+		for (unsigned int i = 0; i < Utils->Bindings.size(); i++)
+		{
+			/*
+			 * XXX - todo:
+			 *  we need to remove duplicate ports from this list, and possibly also
+			 *  show the correct number of servers on the port.
+			 *
+			 * XXX also, this doesn't currently work, as something is not initialising ->port, so it's 0 all the time.
+			 *
+			 */
+			if (Utils->Bindings[i]->port)
+			{
+				results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :p:"+ConvToStr(Utils->Bindings[i]->port)+" (X servers) "+
+						ServerInstance->Config->ports[i]->GetDescription());
+			}
+		}
+	}
 	return 0;
 }
 
