@@ -665,8 +665,12 @@ int ModuleSpanningTree::OnStats(char statschar, userrec* user, string_list &resu
 			if (ip.empty())
 				ip = "*";
 
+			std::string transport("plaintext");
+			if (Utils->Bindings[i]->GetHook())
+				transport = InspSocketNameRequest(this, Utils->Bindings[i]->GetHook()).Send();
+
 			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+
-				" (server, " + ServerInstance->Config->ports[i]->GetDescription() + ")");
+				" (server, " + transport + ")");
 		}
 	}
 	return 0;
