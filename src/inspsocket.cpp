@@ -79,6 +79,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 			else
 			{
 				this->state = I_LISTENING;
+				this->port = aport;
 				if (this->fd > -1)
 				{
 					if (!this->Instance->SE->AddFd(this))
