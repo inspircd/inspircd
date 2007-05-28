@@ -20,8 +20,10 @@ class FilterResult : public classbase
 	std::string reason;
 	std::string action;
 	long gline_time;
+	bool opers_exempt;
 
-	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt) : freeform(free), reason(rea), action(act), gline_time(gt)
+	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt, bool operex = false) : freeform(free), reason(rea),
+									action(act), gline_time(gt), opers_exempt(operex)
 	{
 	}
 
@@ -48,7 +50,7 @@ class FilterBase : public Module
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
 	virtual void SyncFilters(Module* proto, void* opaque) = 0;
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration) = 0;
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, bool operexempt) = 0;
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	virtual void OnRehash(userrec* user, const std::string &parameter);
 	virtual Version GetVersion();
@@ -67,7 +69,7 @@ class cmd_filter : public command_t
 	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : command_t(Me, "FILTER", 'o', 1), Base(f)
 	{
 		this->source = source;
-		this->syntax = "<filter-definition> <type> [<gline-duration>] :<reason>";
+		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
@@ -89,12 +91,24 @@ class cmd_filter : public command_t
 		else
 		{
 			/* Adding a filter */
-			if (pcnt >= 3)
+			if (pcnt >= 4)
 			{
 				std::string freeform = parameters[0];
 				std::string type = parameters[1];
+				std::string flags = parameters[2];
 				std::string reason;
 				long duration = 0;
+				bool operexempt = false;
+
+				for (std::string::const_iterator n = flags.begin(); n != flags.end(); ++n)
+				{
+					switch (*n)
+					{
+						case 'o':
+							operexempt = true;
+						break;
+					}
+				}
 
 				if ((type != "gline") && (type != "none") && (type != "block") && (type != "kill") && (type != "silent"))
 				{
@@ -104,10 +118,10 @@ class cmd_filter : public command_t
 
 				if (type == "gline")
 				{
-					if (pcnt >= 4)
+					if (pcnt >= 5)
 					{
-						duration = ServerInstance->Duration(parameters[2]);
-						reason = parameters[3];
+						duration = ServerInstance->Duration(parameters[3]);
+						reason = parameters[4];
 					}
 					else
 					{
@@ -117,13 +131,13 @@ class cmd_filter : public command_t
 				}
 				else
 				{
-					reason = parameters[2];
+					reason = parameters[3];
 				}
-				std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration);
+				std::pair<bool, std::string> result = Base->AddFilter(freeform, type, reason, duration, operexempt);
 				if (result.first)
 				{
 					user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, reason: '%s'", user->nick, freeform.c_str(),
-							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[2] : ""),
+							type.c_str(), (duration ? " duration: " : ""), (duration ? parameters[3] : ""),
 							reason.c_str());
 					return CMD_SUCCESS;
 				}
@@ -322,7 +336,7 @@ std::string FilterBase::EncodeFilter(FilterResult* filter)
 		if (*n == ' ')
 			*n = '\7';
 
-	stream << x << " " << filter->action << " " << filter->gline_time << " " << filter->reason;
+	stream << x << " " << filter->action << " " << filter->opers_exempt << " " << filter->gline_time << " " << filter->reason;
 	return stream.str();
 }
 
@@ -333,6 +347,7 @@ FilterResult FilterBase::DecodeFilter(const std::string &data)
 
 	stream >> res.freeform;
 	stream >> res.action;
+	stream >> res.opers_exempt;
 	stream >> res.gline_time;
 	res.reason = stream.str();
 
@@ -358,7 +373,7 @@ void FilterBase::OnDecodeMetaData(int target_type, void* target, const std::stri
 	if ((target_type == TYPE_OTHER) && (extname == "filter"))
 	{
 		FilterResult data = DecodeFilter(extdata);
-		this->AddFilter(data.freeform, data.action, data.reason, data.gline_time);
+		this->AddFilter(data.freeform, data.action, data.reason, data.gline_time, data.opers_exempt);
 	}
 }
 

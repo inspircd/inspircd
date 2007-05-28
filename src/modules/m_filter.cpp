@@ -68,7 +68,7 @@ class ModuleFilter : public FilterBase
 		return false;
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration)
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, bool operexclusion)
 	{
 		if (filters.find(freeform) != filters.end())
 		{
@@ -80,6 +80,7 @@ class ModuleFilter : public FilterBase
 		x->action = type;
 		x->gline_time = duration;
 		x->freeform = freeform;
+		x->opers_exempt = operexclusion;
 		filters[freeform] = x;
 
 		return std::make_pair(true, "");
