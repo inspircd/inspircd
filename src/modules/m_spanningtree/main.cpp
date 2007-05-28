@@ -661,22 +661,12 @@ int ModuleSpanningTree::OnStats(char statschar, userrec* user, string_list &resu
 
 		for (unsigned int i = 0; i < Utils->Bindings.size(); i++)
 		{
-			/*
-			 * XXX - todo:
-			 *  we need to remove duplicate ports from this list, and possibly also
-			 *  show the correct number of servers on the port.
-			 *
-			 * XXX also, this doesn't currently work, as something is not initialising ->port, so it's 0 all the time.
-			 *
-			 */
-			if (Utils->Bindings[i]->port)
-			{
-				std::string ip = Utils->Bindings[i]->IP;
-				if (ip.empty())
-					ip = "*";
-				results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+" (X servers) "+
-						ServerInstance->Config->ports[i]->GetDescription());
-			}
+			std::string ip = Utils->Bindings[i]->IP;
+			if (ip.empty())
+				ip = "*";
+
+			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+
+				" (server, " + ServerInstance->Config->ports[i]->GetDescription() + ")");
 		}
 	}
 	return 0;

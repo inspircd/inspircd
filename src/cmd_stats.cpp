@@ -61,24 +61,14 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 		/* stats p (show listening ports and registered clients on each) */
 		case 'p':
 		{
-			std::map<int,int> pc;
-			for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
-			{
-				userrec* t = (userrec*)(*i);
-				if (t->registered == REG_ALL)
-					pc[t->GetPort()]++;
-			}
 			for (size_t i = 0; i < ServerInstance->Config->ports.size(); i++)
 			{
-				if (pc[ServerInstance->Config->ports[i]->GetPort()] >= 0)
-				{
-					std::string ip = ServerInstance->Config->ports[i]->GetIP();
-					if (ip.empty())
-						ip = "*";
-					results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ServerInstance->Config->ports[i]->GetPort())+" (" +
-							ConvToStr(pc[ServerInstance->Config->ports[i]->GetPort()])+" client" + (pc[ServerInstance->Config->ports[i]->GetPort()] != 1 ? "s" : "") + "), "+
-							ServerInstance->Config->ports[i]->GetDescription());
-				}
+				std::string ip = ServerInstance->Config->ports[i]->GetIP();
+				if (ip.empty())
+					ip = "*";
+
+				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ServerInstance->Config->ports[i]->GetPort())+" (client, " +
+						ServerInstance->Config->ports[i]->GetDescription() + ")");
 			}
 		}
 		break;
