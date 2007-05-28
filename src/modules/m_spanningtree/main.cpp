@@ -671,7 +671,10 @@ int ModuleSpanningTree::OnStats(char statschar, userrec* user, string_list &resu
 			 */
 			if (Utils->Bindings[i]->port)
 			{
-				results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :p:"+ConvToStr(Utils->Bindings[i]->port)+" (X servers) "+
+				std::string ip = Utils->Bindings[i]->IP;
+				if (ip.empty())
+					ip = "*";
+				results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+" (X servers) "+
 						ServerInstance->Config->ports[i]->GetDescription());
 			}
 		}

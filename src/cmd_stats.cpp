@@ -72,10 +72,12 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 			{
 				if (pc[ServerInstance->Config->ports[i]->GetPort()] >= 0)
 				{
-					results.push_back(sn+" 249 "+user->nick+" :p:"+ConvToStr(ServerInstance->Config->ports[i]->GetPort())+" (" +
+					std::string ip = ServerInstance->Config->ports[i]->GetIP();
+					if (ip.empty())
+						ip = "*";
+					results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ServerInstance->Config->ports[i]->GetPort())+" (" +
 							ConvToStr(pc[ServerInstance->Config->ports[i]->GetPort()])+" client" + (pc[ServerInstance->Config->ports[i]->GetPort()] != 1 ? "s" : "") + "), "+
 							ServerInstance->Config->ports[i]->GetDescription());
-					pc[ServerInstance->Config->ports[i]->GetPort()] = -1;
 				}
 			}
 		}
