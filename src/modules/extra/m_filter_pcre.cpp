@@ -28,8 +28,8 @@ class PCREFilter : public FilterResult
  public:
 	 pcre* regexp;
 
-	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat, bool operex)
-		 : FilterResult::FilterResult(pat, rea, act, gline_time, operex), regexp(r)
+	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat, const std::string &flags)
+		 : FilterResult::FilterResult(pat, rea, act, gline_time, flags), regexp(r)
 	 {
 	 }
 
@@ -97,7 +97,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, bool operexception)
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags)
 	{
 		for (std::vector<PCREFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
@@ -117,7 +117,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 		else
 		{
-			filters.push_back(PCREFilter(re, reason, type, duration, freeform, operexception));
+			filters.push_back(PCREFilter(re, reason, type, duration, freeform, flags));
 			return std::make_pair(true, "");
 		}
 	}
@@ -133,8 +133,7 @@ class ModuleFilterPCRE : public FilterBase
 			std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
 			std::string reason = MyConf.ReadValue("keyword", "reason", index);
 			std::string action = MyConf.ReadValue("keyword", "action", index);
-			// = MyConf.ReadFlag("keyword", "flags")
-			bool operexception = false;
+			std::string flags = MyConf.ReadValue("keyword", "flags", index);
 			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index).c_str());
 
 			re = pcre_compile(pattern.c_str(),0,&error,&erroffset,NULL);
@@ -146,7 +145,7 @@ class ModuleFilterPCRE : public FilterBase
 			}
 			else
 			{
-				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, operexception));
+				filters.push_back(PCREFilter(re, reason, action, gline_time, pattern, flags));
 				ServerInstance->Log(DEFAULT,"Regular expression %s loaded.", pattern.c_str());
 			}
 		}

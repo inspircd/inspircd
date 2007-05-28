@@ -68,19 +68,14 @@ class ModuleFilter : public FilterBase
 		return false;
 	}
 
-	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, bool operexclusion)
+	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags)
 	{
 		if (filters.find(freeform) != filters.end())
 		{
 			return std::make_pair(false, "Filter already exists");
 		}
 
-		FilterResult* x = new FilterResult;
-		x->reason = reason;
-		x->action = type;
-		x->gline_time = duration;
-		x->freeform = freeform;
-		x->opers_exempt = operexclusion;
+		FilterResult* x = new FilterResult(freeform, reason, type, duration, flags);
 		filters[freeform] = x;
 
 		return std::make_pair(true, "");
@@ -105,14 +100,11 @@ class ModuleFilter : public FilterBase
 			std::string pattern = MyConf->ReadValue("keyword","pattern",index);
 			std::string reason = MyConf->ReadValue("keyword","reason",index);
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
+			std::string flags = MyConf->ReadValue("keyword","flags",index);
 			long gline_time = ServerInstance->Duration(MyConf->ReadValue("keyword","duration",index).c_str());
 			if (do_action == "")
 				do_action = "none";
-			FilterResult* x = new FilterResult;
-			x->reason = reason;
-			x->action = do_action;
-			x->gline_time = gline_time;
-			x->freeform = pattern;
+			FilterResult* x = new FilterResult(pattern, reason, do_action, gline_time, flags);
 			filters[pattern] = x;
 		}
 		DELETE(MyConf);
