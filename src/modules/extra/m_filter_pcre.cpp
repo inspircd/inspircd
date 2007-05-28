@@ -57,10 +57,15 @@ class ModuleFilterPCRE : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(userrec* user, const std::string &text, int flags)
 	{
 		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{
+			/* Skip ones that dont apply to us */
+
+			if (!FilterBase::AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flags))
+				continue;
+
 			if (pcre_exec(index->regexp, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
 			{
 				fr = *index;

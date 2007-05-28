@@ -38,10 +38,15 @@ class ModuleFilter : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(userrec* user, const std::string &text, int flags)
 	{
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
+
+			/* Skip ones that dont apply to us */
+			if (!FilterBase::AppliesToMe(user, index->second, flags))
+				continue;
+
 			if (ServerInstance->MatchText(text,index->first))
 			{
 				FilterResult* fr = index->second;
