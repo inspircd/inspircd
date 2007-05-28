@@ -57,7 +57,7 @@ class ModuleFilterPCRE : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(const std::string &text)
+	virtual FilterResult* FilterMatch(const std::string &text, int flags)
 	{
 		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{

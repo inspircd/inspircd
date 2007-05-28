@@ -13,6 +13,15 @@
 
 #include "xline.h"
 
+enum FilterFlags
+{
+	FLAG_NOOPERS,
+	FLAG_PART,
+	FLAG_QUIT,
+	FLAG_PRIVMSG,
+	FLAG_NOTICE
+};
+
 class FilterResult : public classbase
 {
  public:
@@ -84,12 +93,13 @@ class cmd_filter;
 class FilterBase : public Module
 {
 	cmd_filter* filtcommand;
+	int flags;
  public:
 	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual FilterResult* FilterMatch(const std::string &text) = 0;
+	virtual FilterResult* FilterMatch(const std::string &text, int flags) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
 	virtual void SyncFilters(Module* proto, void* opaque) = 0;
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
@@ -212,16 +222,20 @@ void FilterBase::Implements(char* List)
 
 int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
+	flags = FLAG_PRIVMSG;
 	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
 int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
+	if (!flags)
+		flags = FLAG_NOTICE;
+
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
 		return 0;
 
-	FilterResult* f = this->FilterMatch(text);
+	FilterResult* f = this->FilterMatch(text, flags);
 	if (f)
 	{
 		std::string target = "";
@@ -265,6 +279,7 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 
 int FilterBase::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
 {
+	flags = 0;
 	if ((validated == 1) && (IS_LOCAL(user)))
 	{
 		std::string checkline;
@@ -280,6 +295,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			checkline = parameters[0];
 			replacepoint = 0;
 			parting = false;
+			flags |= FLAG_QUIT;
 		}
 		else if (command == "PART")
 		{
@@ -290,12 +306,16 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			checkline = parameters[1];
 			replacepoint = 1;
 			parting = true;
+			flags |= FLAG_PART;
 		}
 		else
 			/* We're only messing with PART and QUIT */
 			return 0;
 
-		FilterResult* f = this->FilterMatch(checkline);
+		FilterResult* f = NULL;
+		
+		if (flags)
+			f = this->FilterMatch(checkline, flags);
 
 		if (!f)
 			/* PART or QUIT reason doesnt match a filter */

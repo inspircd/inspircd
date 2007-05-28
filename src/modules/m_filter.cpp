@@ -38,7 +38,7 @@ class ModuleFilter : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(const std::string &text)
+	virtual FilterResult* FilterMatch(const std::string &text, int flags)
 	{
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
