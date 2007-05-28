@@ -147,13 +147,9 @@ class RFC1413 : public InspSocket
 			{
 				themlen = sizeof(sockaddr_in6);
 				uslen = sizeof(sockaddr_in6);
-				success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
 			}
-			else
-				success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
-#else
-			success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
 #endif
+			success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
 			if (success)
 			{
 				delete[] sock_us;
