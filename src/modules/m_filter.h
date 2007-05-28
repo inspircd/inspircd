@@ -15,11 +15,11 @@
 
 enum FilterFlags
 {
-	FLAG_NOOPERS,
-	FLAG_PART,
-	FLAG_QUIT,
-	FLAG_PRIVMSG,
-	FLAG_NOTICE
+	FLAG_NOOPERS = 1,
+	FLAG_PART = 2,
+	FLAG_QUIT = 4,
+	FLAG_PRIVMSG = 8,
+	FLAG_NOTICE = 16
 };
 
 class FilterResult : public classbase
@@ -43,8 +43,9 @@ class FilterResult : public classbase
 		this->FillFlags(flags);
 	}
 
-	int FillFlags(const std::string &flags)
+	int FillFlags(const std::string &fl)
 	{
+		flags = fl;
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg = flag_notice = false;
 		size_t x = 0;
 
