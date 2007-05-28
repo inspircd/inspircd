@@ -61,7 +61,7 @@ class cmd_cycle : public command_t
 				chanrec::JoinUser(ServerInstance, user, parameters[0], true, "", ServerInstance->Time(true));
 			}
 
-			return CMD_SUCCESS;
+			return CMD_LOCALONLY;
 		}
 		else
 		{
