@@ -107,8 +107,10 @@ class ModuleFilter : public FilterBase
 			std::string do_action = MyConf->ReadValue("keyword","action",index);
 			std::string flags = MyConf->ReadValue("keyword","flags",index);
 			long gline_time = ServerInstance->Duration(MyConf->ReadValue("keyword","duration",index).c_str());
-			if (do_action == "")
+			if (do_action.empty())
 				do_action = "none";
+			if (flags.empty())
+				flags = "*";
 			FilterResult* x = new FilterResult(pattern, reason, do_action, gline_time, flags);
 			filters[pattern] = x;
 		}
