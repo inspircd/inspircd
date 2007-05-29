@@ -1319,10 +1319,6 @@
 #<autojoin channel="#one,#two,#three">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Lusers: Shows the LUSERS output on connect
-#<module name="m_conn_lusers.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Usermodes: Set modes on users when they connect
 # When this module is loaded <connect:allow> tags may have an optional
 # modes="" value, which contains modes to add or remove from users
