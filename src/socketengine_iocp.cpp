@@ -210,7 +210,7 @@ int IOCPEngine::DispatchEvents()
 	int ret;
 	unsigned long bytes_recv;
 
-	while(GetQueuedCompletionStatus(m_completionPort, &len, (PULONG_PTR)&intfd, &overlap, 100))
+	while(GetQueuedCompletionStatus(m_completionPort, &len, (PULONG_PTR)&intfd, &overlap, 1000))
 	{
 		// woot, we got an event on a socket :P
 		eh = ref[intfd];
