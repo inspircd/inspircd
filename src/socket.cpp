@@ -147,6 +147,7 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 			return;
 		}
 
+		/* Woots metaphorical comments confuse the metaphor out of me. */
 		delete[] client;
 		delete[] sock_us;
 	}
