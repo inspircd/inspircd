@@ -5,6 +5,7 @@
 # <keyword      pattern="any glob pattern here"
 #               reason="reason for filtering"
 #               action="action to take"
+#               flags="filter flags"
 #		duration="optional length of gline">
 #
 # Valid actions for 'action' are:
@@ -28,14 +29,24 @@
 #
 # You can add filters from IRC using the /FILTER command. If you do this, they
 # will be set globally to your entire network.
+#
+# Valid characters for 'flags' are one or more of:
+#
+# p: Block private and channel messages
+# n: Block private and channel notices
+# P: Block part messages
+# q: Block quit messages
+# o: Don't match against opers
+# *: Represents all of the above flags
+# -: Does nothing, a non-op for when you do not want to specify any flags 
 
 # Example filters for m_filter:
 #
-# <keyword pattern="*qwerty*" reason="You qwertied!" action="block">
-# <keyword pattern="*killmenow*" reason="As you request." action="kill">
-# <keyword pattern="*blah*" reason="Dont blah!" action="gline" duration="1d6h">
+# <keyword pattern="*qwerty*" reason="You qwertied!" action="block" flags="pn">
+# <keyword pattern="*killmenow*" reason="As you request." action="kill" flags="*">
+# <keyword pattern="*blah*" reason="Dont blah!" action="gline" duration="1d6h" flags="-">
 
 # An example regexp filter for m_filter_pcre:
 #
-# <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h">
+# <keyword pattern="^blah.*?$" reason="Dont blah!" action="gline" duration="1d6h" flags="pnPq">
 
