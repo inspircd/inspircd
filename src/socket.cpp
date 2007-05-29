@@ -69,10 +69,9 @@ ListenSocket::~ListenSocket()
 
 void ListenSocket::HandleEvent(EventType et, int errornum)
 {
-	sockaddr* sock_us = new sockaddr[2];	// our port number
-	sockaddr* client = new sockaddr[2];
 	socklen_t uslen, length;		// length of our port number
 	int incomingSockfd, in_port;
+	int clients;
 
 #ifdef IPV6
 	if (this->family == AF_INET6)
@@ -89,49 +88,68 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 	uslen = sizeof(sockaddr_in);
 	length = sizeof(sockaddr_in);
 #endif
-	incomingSockfd = _accept (this->GetFd(), (sockaddr*)client, &length);
 
-	if ((incomingSockfd > -1) && (!_getsockname(incomingSockfd, sock_us, &uslen)))
+	/*
+	 * This loop may make you wonder 'why' - simple reason. If we just sit here accept()ing until the
+	 * metaphorical cows come home, then we could very well end up with unresponsiveness in a ddos style
+	 * situation, which is not desirable (to put it mildly!). This will mean we'll stop accepting and get
+	 * on with our lives after accepting enough clients to sink a metaphorical battleship. :) -- w00t
+	 */
+	for (clients = 0; clients < ServerInstance->Config->MaxConn; clients++)
 	{
-		char buf[MAXBUF];
-#ifdef IPV6
-		if (this->family == AF_INET6)
+		sockaddr* sock_us = new sockaddr[2];	// our port number
+		sockaddr* client = new sockaddr[2];
+	
+		incomingSockfd = _accept (this->GetFd(), (sockaddr*)client, &length);
+
+		if ((incomingSockfd > -1) && (!_getsockname(incomingSockfd, sock_us, &uslen)))
 		{
-			inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
-			in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
+			char buf[MAXBUF];
+#ifdef IPV6
+			if (this->family == AF_INET6)
+			{
+				inet_ntop(AF_INET6, &((const sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
+				in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
+			}
+			else
+			{
+				inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+				in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
+			}
+#else
+			inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
+			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
+#endif
+			NonBlocking(incomingSockfd);
+			if (ServerInstance->Config->GetIOHook(in_port))
+			{
+				try
+				{
+					ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, buf, in_port);
+				}
+				catch (CoreException& modexcept)
+				{
+					ServerInstance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+				}
+			}
+			ServerInstance->stats->statsAccept++;
+			userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client);
 		}
 		else
 		{
-			inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
+			/*
+			 * bail, bail, bail! if we get here, accept failed, meaning something is hardcore wrong.
+			 * cut our losses and don't try soak up any more clients during this loop iteration. -- w00t
+			 */
+			shutdown(incomingSockfd,2);
+			close(incomingSockfd);
+			ServerInstance->stats->statsRefused++;
+			return;
 		}
-#else
-		inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-		in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
-#endif
-		NonBlocking(incomingSockfd);
-		if (ServerInstance->Config->GetIOHook(in_port))
-		{
-			try
-			{
-				ServerInstance->Config->GetIOHook(in_port)->OnRawSocketAccept(incomingSockfd, buf, in_port);
-			}
-			catch (CoreException& modexcept)
-			{
-				ServerInstance->Log(DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			}
-		}
-		ServerInstance->stats->statsAccept++;
-		userrec::AddClient(ServerInstance, incomingSockfd, in_port, false, this->family, client);
+
+		delete[] client;
+		delete[] sock_us;
 	}
-	else
-	{
-		shutdown(incomingSockfd,2);
-		close(incomingSockfd);
-		ServerInstance->stats->statsRefused++;
-	}
-	delete[] client;
-	delete[] sock_us;
 }
 
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
