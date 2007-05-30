@@ -817,14 +817,11 @@ class ModulePgSQL : public Module
 				ipvalid = inet_pton(AF_INET6, host.host.c_str(), &blargle);
 			}
 			else
+#endif
 			{
 				in_addr blargle;
 				ipvalid = inet_aton(host.host.c_str(), &blargle);
 			}
-#else
-			in_addr blargle;
-			ipvalid = inet_aton(host.host.c_str(), &blargle);
-#endif
 
 			if(ipvalid > 0)
 			{

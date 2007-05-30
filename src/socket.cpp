@@ -47,10 +47,8 @@ ListenSocket::ListenSocket(InspIRCd* Instance, int port, char* addr) : ServerIns
 		if ((!*addr) || (strchr(addr,':')))
 			this->family = AF_INET6;
 		else
-			this->family = AF_INET;
-#else
-		this->family = AF_INET;
 #endif
+		this->family = AF_INET;
 		Instance->SE->AddFd(this);
 	}
 }
@@ -80,14 +78,11 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 		length = sizeof(sockaddr_in6);
 	}
 	else
+#endif
 	{
 		uslen = sizeof(sockaddr_in);
 		length = sizeof(sockaddr_in);
 	}
-#else
-	uslen = sizeof(sockaddr_in);
-	length = sizeof(sockaddr_in);
-#endif
 
 	/*
 	 * This loop may make you wonder 'why' - simple reason. If we just sit here accept()ing until the
@@ -112,14 +107,12 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 				in_port = ntohs(((sockaddr_in6*)sock_us)->sin6_port);
 			}
 			else
+#endif
 			{
 				inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
 				in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
 			}
-#else
-			inet_ntop(AF_INET, &((const sockaddr_in*)client)->sin_addr, buf, sizeof(buf));
-			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
-#endif
+
 			NonBlocking(incomingSockfd);
 			if (ServerInstance->Config->GetIOHook(in_port))
 			{

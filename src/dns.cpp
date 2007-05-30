@@ -651,14 +651,11 @@ DNSResult DNS::GetResult()
 		port_from = ntohs(((sockaddr_in6*)from)->sin6_port);
 	}
 	else
+#endif
 	{
 		ipaddr_from = inet_ntoa(((sockaddr_in*)from)->sin_addr);
 		port_from = ntohs(((sockaddr_in*)from)->sin_port);
 	}
-#else
-	ipaddr_from = inet_ntoa(((sockaddr_in*)from)->sin_addr);
-	port_from = ntohs(((sockaddr_in*)from)->sin_port);
-#endif
 
 	delete[] from;
 

@@ -385,10 +385,8 @@ public:
 		if (user->GetProtocolFamily() == AF_INET6)
 			inet_pton(AF_INET6, newip, &((sockaddr_in6*)user->ip)->sin6_addr);
 		else
-			inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
-#else
-		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
 #endif
+		inet_aton(newip, &((sockaddr_in*)user->ip)->sin_addr);
 					
 		try
 		{

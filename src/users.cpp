@@ -183,14 +183,10 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, (!strncmp(ip, "0::ffff:", 8) ? DNS_QUERY_A : DNS_QUERY_AAAA), cached);
 				}
 				else
-				{
 					/* IPV4 lookup (mixed protocol mode) */
-					bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
-				}
-#else
+#endif
 				/* IPV4 lookup (ipv4 only mode) */
 				bound_user->res_forward = new UserResolver(this->ServerInstance, this->bound_user, result, DNS_QUERY_A, cached);
-#endif
 				this->ServerInstance->AddResolver(bound_user->res_forward, cached);
 			}
 		}
@@ -864,10 +860,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	if (socketfamily == AF_INET6)
 		inet_ntop(AF_INET6, &((const sockaddr_in6*)ip)->sin6_addr, ipaddr, sizeof(ipaddr));
 	else
-		inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
-#else
-	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 #endif
+	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 	userrec* New;
 	int j = 0;
 

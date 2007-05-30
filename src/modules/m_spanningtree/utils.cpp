@@ -428,16 +428,12 @@ void SpanningTreeUtilities::RefreshIPCache()
 					ipvalid = false;
 			}
 			else
+#endif
 			{
 				in_addr n;
 				if (inet_aton(L->IPAddr.c_str(),&n) < 1)
 					ipvalid = false;
 			}
-#else
-			in_addr n;
-			if (inet_aton(L->IPAddr.c_str(),&n) < 1)
-				ipvalid = false;
-#endif
 			if (!ipvalid)
 			{
 				try

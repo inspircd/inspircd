@@ -107,16 +107,12 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 				ipvalid = false;
 		}
 		else
+#endif
 		{
 			in_addr n;
 			if (inet_aton(host,&n) < 1)
 				ipvalid = false;
 		}
-#else
-		in_addr n;
-		if (inet_aton(host,&n) < 1)
-			ipvalid = false;
-#endif
 		if (!ipvalid)
 		{
 			this->Instance->Log(DEBUG,"BUG: Hostname passed to InspSocket, rather than an IP address!");
@@ -203,6 +199,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 					}
 				}
 				else
+#endif
 				{
 					in_addr n;
 					if (inet_aton(IP.c_str(), &n) > 0)
@@ -218,21 +215,6 @@ bool InspSocket::BindAddr(const std::string &ip)
 						continue;
 					}
 				}
-#else
-				in_addr n;
-				if (insp_aton(IP.c_str(), &n) > 0)
-				{
-					((sockaddr_in*)s)->sin_addr = n;
-					((sockaddr_in*)s)->sin_port = 0;
-					((sockaddr_in*)s)->sin_family = AF_INET;
-				}
-				else
-				{
-					delete[] s;
-					j++;
-					continue;
-				}
-#endif
 
 				if (bind(this->fd, s, size) < 0)
 				{
@@ -274,6 +256,7 @@ bool InspSocket::DoConnect()
 		}
 	}
 	else
+#endif
 	{
 		this->fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (this->fd > -1)
@@ -285,17 +268,6 @@ bool InspSocket::DoConnect()
 			}
 		}
 	}
-#else
-	this->fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->fd > -1)
-	{
-		if (!this->BindAddr(this->cbindip))
-		{
-			delete[] addr;
-			return false;
-		}
-	}
-#endif
 
 	if (this->fd == -1)
 	{
@@ -318,6 +290,7 @@ bool InspSocket::DoConnect()
 		}
 	}
 	else
+#endif
 	{
 		in_addr addy;
 		if (inet_aton(this->host, &addy) > 0)
@@ -327,15 +300,6 @@ bool InspSocket::DoConnect()
 			((sockaddr_in*)addr)->sin_port = htons(this->port);
 		}
 	}
-#else
-	in_addr addy;
-	if (inet_aton(this->host, &addy) > 0)
-	{
-		((sockaddr_in*)addr)->sin_family = AF_INET;
-		((sockaddr_in*)addr)->sin_addr = addy;
-		((sockaddr_in*)addr)->sin_port = htons(this->port);
-	}
-#endif
 #ifndef WIN32
 	int flags = fcntl(this->fd, F_GETFL, 0);
 	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
@@ -661,12 +625,8 @@ bool InspSocket::Poll()
 				recvip = inet_ntop(AF_INET6, &((sockaddr_in6*)client)->sin6_addr, buf, sizeof(buf));
 			}
 			else
-			{
-				recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
-			}
-#else
-			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 #endif
+			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
 			if (this->IsIOHooked)

@@ -163,10 +163,8 @@ class RFC1413 : public InspSocket
 				if (this->u->GetProtocolFamily() == AF_INET6)
 					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in6*)sock_them)->sin6_port),ntohs(((sockaddr_in6*)sock_us)->sin6_port));
 				else
-					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
-#else
-				snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
 #endif
+				snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
 				this->Write(ident_request);
 				delete[] sock_us;
 				delete[] sock_them;

@@ -167,12 +167,10 @@ enum QueryType
 
 #ifdef IPV6
 const QueryType DNS_QUERY_FORWARD = DNS_QUERY_AAAA;
-const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 #else
 const QueryType DNS_QUERY_FORWARD = DNS_QUERY_A;
-const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 #endif
-
+const QueryType DNS_QUERY_REVERSE = DNS_QUERY_PTR;
 /**
  * Used internally to force PTR lookups to use a certain protocol scemantics,
  * e.g. x.x.x.x.in-addr.arpa for v4, and *.ip6.arpa for v6.

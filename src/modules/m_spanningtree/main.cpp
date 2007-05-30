@@ -510,16 +510,12 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 			ipvalid = false;
 	}
 	else
+#endif
 	{
 		in_addr n;
 		if (inet_aton(x->IPAddr.c_str(),&n) < 1)
 			ipvalid = false;
 	}
-#else
-		in_addr n;
-		if (inet_aton(x->IPAddr.c_str(),&n) < 1)
-			ipvalid = false;
-#endif
 
 	/* Do we already have an IP? If so, no need to resolve it. */
 	if (ipvalid)
