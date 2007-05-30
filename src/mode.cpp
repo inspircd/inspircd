@@ -496,7 +496,6 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								
 								for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 								{
-									ServerInstance->Log(DEBUG,"Call mode watcher");
 									if ((*watchers)->BeforeMode(user, targetuser, targetchannel, parameter, adding, type) == false)
 									{
 										abort = true;
@@ -543,7 +542,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 							/* Call the handler for the mode */
 							ModeAction ma = modehandlers[handler_id]->OnModeChange(user, targetuser, targetchannel, parameter, adding);
 
-							if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter == ""))
+							if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter.empty()))
 							{
 								/* The handler nuked the parameter and they are supposed to have one.
 								 * We CANT continue now, even if they actually returned MODEACTION_ALLOW,
@@ -566,7 +565,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								output_sequence.push_back(modechar);
 
 								/* Is there a valid parameter for this mode? If so add it to the parameter list */
-								if ((modehandlers[handler_id]->GetNumParams(adding)) && (parameter != ""))
+								if ((modehandlers[handler_id]->GetNumParams(adding)) && (!parameter.empty()))
 								{
 									parameter_list << " " << parameter;
 									parameter_count++;
@@ -605,8 +604,9 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				break;
 			}
 		}
+
 		/* Was there at least one valid mode in the sequence? */
-		if (output_sequence != "")
+		if (!output_sequence.empty())
 		{
 			if (servermode)
 			{

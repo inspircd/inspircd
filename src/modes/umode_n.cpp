@@ -30,6 +30,10 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(userrec* source, userrec* dest
 	/* Set the bitfields */
 	if (adding)
 	{
+		/* Fix for bug #310 reported by Smartys */
+		if (!dest->modes[UM_SNOMASK])
+			memset(dest->snomasks, 0, sizeof(dest->snomasks));
+
 		parameter = dest->ProcessNoticeMasks(parameter.c_str());
 		dest->modes[UM_SNOMASK] = true;
 		if (!dest->modes[UM_SERVERNOTICE])
@@ -39,10 +43,13 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(userrec* source, userrec* dest
 		}
 		return MODEACTION_ALLOW;
 	}
-	else if (dest->modes[UM_SNOMASK] != false)
+	else
 	{
-		dest->modes[UM_SNOMASK] = false;
-		return MODEACTION_ALLOW;
+		if (dest->modes[UM_SNOMASK] != false)
+		{
+			dest->modes[UM_SNOMASK] = false;
+			return MODEACTION_ALLOW;
+		}
 	}
 
 	/* Allow the change */
