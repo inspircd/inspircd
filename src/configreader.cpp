@@ -937,6 +937,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	bool in_tag;
 	bool in_quote;
 	bool in_comment;
+	int character_count = 0;
 
 	linenumber = 1;
 	in_tag = false;
@@ -968,6 +969,21 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	/* Start reading characters... */
 	while(conf.get(ch))
 	{
+
+		/*
+		 * Fix for moronic windows issue spotted by Adremelech.
+		 * Some windows editors save text files as utf-16, which is
+		 * a total pain in the ass to parse. Users should save in the
+		 * right config format! If we ever see a file where the first
+		 * byte is 0xFF or 0xFE, or the second is 0xFF or 0xFE, then
+		 * this is most likely a utf-16 file. Bail out and insult user.
+		 */
+		if ((character_count++ < 2) && (ch == '\xFF' || ch == '\xFE'))
+		{
+			errorstream << "File " << filename << " cannot be read, as it is encoded in braindead UTF-16. Save your file as plain ASCII!" << std::endl;
+			return false;
+		}
+
 		/*
 		 * Here we try and get individual tags on separate lines,
 		 * this would be so easy if we just made people format
@@ -979,12 +995,6 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 
 		if((ch == '#') && !in_quote)
 			in_comment = true;
-
-		/*if(((ch == '\n') || (ch == '\r')) && in_quote)
-		{
-			errorstream << "Got a newline within a quoted section, this is probably a typo: " << filename << ":" << linenumber << std::endl;
-			return false;
-		}*/
 
 		switch(ch)
 		{
