@@ -851,6 +851,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 
 void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
+	ServerInstance->Log(DEBUG,"Message='%s'", text.c_str());
 	if (target_type == TYPE_USER)
 	{
 		// route private messages which are targetted at clients only to the server

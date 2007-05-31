@@ -48,7 +48,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			user->SendAll("NOTICE", "%s", parameters[1]);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
+		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -89,7 +89,7 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 
 			if (temp.empty())
 			{
-				user->WriteServ("412 %s No text to send", user->nick);
+				user->WriteServ("412 %s :No text to send", user->nick);
 				return CMD_FAILURE;
 			}
 
@@ -123,8 +123,13 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
+		if (!*parameters[1])
+		{
+			user->WriteServ("412 %s :No text to send", user->nick);
+			return CMD_FAILURE;
+		}
+
 		int MOD_RESULT = 0;
-		
 		std::string temp = parameters[1];
 		FOREACH_RESULT(I_OnUserPreNotice,OnUserPreNotice(user,dest,TYPE_USER,temp,0,exempt_list));
 		if (MOD_RESULT) {

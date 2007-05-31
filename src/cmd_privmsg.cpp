@@ -27,7 +27,6 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	userrec *dest;
 	chanrec *chan;
-
 	CUList except_list;
 
 	user->idle_lastmsg = ServerInstance->Time();
@@ -88,9 +87,10 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			parameters[1] = temp.c_str();
 
+			/* Check again, a module may have zapped the input string */
 			if (temp.empty())
 			{
-				user->WriteServ("412 %s No text to send", user->nick);
+				user->WriteServ("412 %s :No text to send", user->nick);
 				return CMD_FAILURE;
 			}
 
@@ -124,6 +124,12 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 	dest = ServerInstance->FindNick(parameters[0]);
 	if (dest)
 	{
+		if (!*parameters[1])
+		{
+			user->WriteServ("412 %s :No text to send", user->nick);
+			return CMD_FAILURE;
+		}
+
 		if (IS_AWAY(dest))
 		{
 			/* auto respond with aweh msg */
