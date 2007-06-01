@@ -43,6 +43,12 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 	{
 		if (n == custom_mode_params.end())
 			custom_mode_params[mode] = strdup(parameter);
+
+		/* TODO: We really need to do away with this in 1.2 */
+		if (mode == 'l')
+			this->limit = atoi(parameter);
+		else if (mode == 'k')
+			strlcpy(this->key, parameter, sizeof(this->key));
 	}
 	else
 	{
@@ -51,6 +57,12 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 			free(n->second);
 			custom_mode_params.erase(n);
 		}
+
+		/* TODO: See above */
+		if (mode == 'l')
+			this->limit = 0;
+		else if (mode == 'k')
+			*this->key = 0;
 	}
 }
 
