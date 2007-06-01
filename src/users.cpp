@@ -1013,20 +1013,12 @@ void userrec::CheckClass()
 		userrec::QuitUser(ServerInstance, this, "Unauthorised connection");
 		return;
 	}
-
-	if ((!a->GetPass().empty()) && (!this->haspassed))
+	else if ((!a->GetPass().empty()) && (!this->haspassed))
 	{
 		userrec::QuitUser(ServerInstance, this, "Invalid password");
 		return;
 	}
-
-	if ((!a) || (a->GetType() == CC_DENY))
-	{
-		userrec::QuitUser(ServerInstance, this,"Unauthorised connection");
-		return;
-	}
-
-	if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
+	else if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
 	{
 		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
