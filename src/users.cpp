@@ -1624,7 +1624,7 @@ void userrec::WriteWallOps(const std::string &text)
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
 		userrec* t = *i;
-		if ((IS_LOCAL(t)) && (t->modes[UM_WALLOPS]))
+		if (t->modes[UM_WALLOPS])
 			this->WriteTo(t,wallop);
 	}
 }
