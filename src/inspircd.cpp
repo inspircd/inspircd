@@ -204,8 +204,8 @@ void InspIRCd::Rehash(int status)
 	SI->Config->Read(false,NULL);
 	SI->ResetMaxBans();
 	SI->Res->Rehash();
-	SI->BuildISupport();
 	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(NULL,""));
+	SI->BuildISupport();
 }
 
 void InspIRCd::ResetMaxBans()
