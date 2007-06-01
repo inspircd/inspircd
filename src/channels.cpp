@@ -43,12 +43,6 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 	{
 		if (n == custom_mode_params.end())
 			custom_mode_params[mode] = strdup(parameter);
-
-		/* TODO: We really need to do away with this in 1.2 */
-		if (mode == 'l')
-			this->limit = atoi(parameter);
-		else if (mode == 'k')
-			strlcpy(this->key, parameter, sizeof(this->key));
 	}
 	else
 	{
@@ -57,12 +51,6 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 			free(n->second);
 			custom_mode_params.erase(n);
 		}
-
-		/* TODO: See above */
-		if (mode == 'l')
-			this->limit = 0;
-		else if (mode == 'k')
-			*this->key = 0;
 	}
 }
 
@@ -188,17 +176,25 @@ void chanrec::SetDefaultModes()
 {
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq = list.GetToken();
+	std::string parameter;
+	userrec* dummyuser = new userrec(ServerInstance);
+	dummyuser->SetFd(FD_MAGIC_NUMBER);
 
 	for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
 	{
 		ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
 		if (mode)
 		{
-			this->SetMode(*n, true);
 			if (mode->GetNumParams(true))
-				this->SetModeParam(*n, list.GetToken().c_str(), true);
+				parameter = list.GetToken().c_str();
+			else
+				parameter = "";
+
+			mode->OnModeChange(dummyuser, dummyuser, this, parameter, true);
 		}
 	}
+
+	delete dummyuser;
 }
 
 /* 
