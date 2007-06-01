@@ -178,7 +178,6 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
 #endif
 
-#ifndef WIN32
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
 				command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
@@ -196,7 +195,6 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 					}
 				}
 			}
-#endif
 
 			results.push_back(sn+" 249 "+user->nick+" :MOTD(VECTOR) "+ConvToStr(ServerInstance->Config->MOTD.size())+", RULES(VECTOR) "+ConvToStr(ServerInstance->Config->RULES.size()));
 			results.push_back(sn+" 249 "+user->nick+" :Modules(VECTOR) "+ConvToStr(ServerInstance->modules.size())+" ("+ConvToStr(ServerInstance->modules.size()*sizeof(Module))+" bytes)");
