@@ -31,7 +31,7 @@ CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user
 
 		if ((u) && (u->registered == REG_ALL))
 		{
-			retbuf = retbuf + " ";
+			retbuf = retbuf + u->nick;
 
 			if (IS_OPER(u))
 			{
@@ -52,6 +52,8 @@ CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user
 			{
 				retbuf = retbuf + u->dhost;
 			}
+
+			retbuf = retbuf + " ";
 		}
 	}
 
