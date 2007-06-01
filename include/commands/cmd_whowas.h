@@ -67,6 +67,10 @@ class cmd_whowas : public command_t
 	 */
 	whowas_users_fifo whowas_fifo;
 
+	/* String holding stats so it can be collected
+	 */
+	std::string stats;
+
   public:
 	cmd_whowas(InspIRCd* Instance);
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);

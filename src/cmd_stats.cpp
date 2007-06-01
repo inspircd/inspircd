@@ -190,7 +190,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 					whowas_command->HandleInternal(WHOWAS_STATS, params);
 					if (whowas_stats.GetExt("stats"))
 					{
-						char* stats = NULL;
+						char* stats;
 						whowas_stats.GetExt("stats", stats);
 						results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(stats));
 					}

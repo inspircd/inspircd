@@ -129,7 +129,8 @@ void cmd_whowas::GetStats(Extensible* ext)
 			whowas_bytes += (sizeof(whowas_set) + ( sizeof(WhoWasGroup) * n->size() ) );
 		}
 	}
-	ext->Extend("stats", std::string("Whowas(MAPSETS) " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)").c_str());
+	stats.assign("Whowas(MAPSETS) " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)");
+	ext->Extend("stats", stats.c_str());
 }
 
 void cmd_whowas::AddToWhoWas(userrec* user)
