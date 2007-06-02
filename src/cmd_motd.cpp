@@ -24,7 +24,6 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
  */
 CmdResult cmd_motd::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (!pcnt)
-		user->ShowMOTD();
+	user->ShowMOTD();
 	return CMD_SUCCESS;
 }

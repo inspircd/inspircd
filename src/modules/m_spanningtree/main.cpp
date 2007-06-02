@@ -236,7 +236,10 @@ int ModuleSpanningTree::HandleMotd(const char** parameters, int pcnt, userrec* u
 		/* Send it out remotely, generate no reply yet */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
 		if (s)
+		{
+			params[0] = s->GetName();
 			Utils->DoOneToOne(user->nick, "MOTD", params, s->GetName());
+		}
 		else
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
 		return 1;
