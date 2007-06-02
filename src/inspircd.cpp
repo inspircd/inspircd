@@ -33,6 +33,9 @@
 #ifndef WIN32
 #include <dlfcn.h>
 #include <getopt.h>
+#else
+#include <conio.h>
+bool g_starting = true;
 #endif
 
 using irc::sockets::NonBlocking;
@@ -265,26 +268,6 @@ void InspIRCd::QuickExit(int status)
 bool InspIRCd::DaemonSeed()
 {
 #ifdef WINDOWS
-	// Create process, with argument --service
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	memset(&si, 0, sizeof(si));
-	memset(&pi, 0, sizeof(pi));
-	SHELLEXECUTEINFO sh = {0};
-	sh.cbSize = sizeof(sh);
-	sh.fMask = SEE_MASK_NOCLOSEPROCESS;
-	sh.hwnd = 0;
-	sh.lpVerb = 0;
-	sh.lpDirectory = 0;
-	sh.hInstApp = 0;
-	sh.nShow = SW_HIDE;
-	sh.lpFile = "inspircd.exe";
-	sh.lpParameters = "--service";
-	if(!ShellExecuteEx(&sh))
-		return false;
-
-	CloseHandle(sh.hProcess);
-	exit(0);
 	return true;
 #else
 	signal(SIGTERM, InspIRCd::QuickExit);
@@ -370,7 +353,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	int found_ports = 0;
 	FailedPortList pl;
-	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0, is_service = 0;    /* flag variables */
+	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
 	modules.resize(255);
@@ -410,7 +393,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
-		{ "service",	no_argument,		&is_service,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -438,11 +420,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			break;
 		}
 	}
-
-#ifdef WINDOWS
-	if(is_service)
-		FreeConsole();
-#endif
 
 	if (do_version)
 	{
@@ -494,7 +471,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	if (!Config->nofork)
 	{
-		if (!is_service && !this->DaemonSeed())
+		if (!this->DaemonSeed())
 		{
 			printf("ERROR: could not go into daemon mode. Shutting down.\n");
 			Log(DEFAULT,"ERROR: could not go into daemon mode. Shutting down.");
@@ -581,6 +558,13 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 #ifdef WINDOWS
 	InitIPC();
+	
+	g_starting = false;
+
+	// remove the console if in no-fork
+	if(!Config->nofork)
+		FreeConsole();
+
 #endif
 }
 
@@ -957,6 +941,10 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 {
 #ifndef WIN32
 	static rusage ru;
+#else
+	static time_t uptime;
+	static struct tm * stime;
+	static char window_title[100];
 #endif
 
 	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
@@ -996,6 +984,15 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 		}
 #else
 		CheckIPC(this);
+
+		if(Config->nofork)
+		{
+			uptime = Time() - startup_time;
+			stime = gmtime(&uptime);
+			snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
+				LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
+			SetConsoleTitle(window_title);
+		}
 #endif
 	}
 
