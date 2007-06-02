@@ -1629,19 +1629,16 @@ std::string ServerConfig::GetFullProgDir()
 	// Get the current working directory
 	if (getcwd(buffer, PATH_MAX))
 	{
-		ServerInstance->Log(DEBUG,"getcwd='%s', argv[0]='%s'", buffer, this->argv[0]);
 		std::string remainder = this->argv[0];
 
 		/* Does argv[0] start with /? its a full path, use it */
 		if (remainder[0] == '/')
 		{
-			ServerInstance->Log(DEBUG,"argv starts with slash, using for full path.");
 			std::string::size_type n = remainder.rfind("/inspircd");
 			return std::string(remainder, 0, n);
 		}
 
 		std::string fullpath = std::string(buffer) + "/" + remainder;
-		ServerInstance->Log(DEBUG,"Using concatenation: %s", fullpath.c_str());
 		std::string::size_type n = fullpath.rfind("/inspircd");
 		return std::string(fullpath, 0, n);
 	}
