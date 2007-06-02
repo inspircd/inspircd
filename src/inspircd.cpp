@@ -388,6 +388,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->argv = argv;
 	this->Config->argc = argc;
 
+	chdir(Config->GetFullProgDir());
+
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
 	this->SNO = new SnomaskManager(this);
