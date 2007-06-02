@@ -267,17 +267,24 @@ int ModuleSpanningTree::HandleAdmin(const char** parameters, int pcnt, userrec* 
 
 int ModuleSpanningTree::HandleModules(const char** parameters, int pcnt, userrec* user)
 {
-	if (match(ServerInstance->Config->ServerName, parameters[0]))
-		return 1;
+	if (pcnt > 0)
+	{
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
+			return 1;
 
-	std::deque<std::string> params;
-	params.push_back(parameters[0]);
-	TreeServer* s = Utils->FindServerMask(parameters[0]);
-	if (s)
-		Utils->DoOneToOne(user->nick, "MODULES", params, s->GetName());
-	else
-		user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
-	return 1;
+		std::deque<std::string> params;
+		params.push_back(parameters[0]);
+		TreeServer* s = Utils->FindServerMask(parameters[0]);
+		if (s)
+		{
+			params[0] = s->GetName();
+			Utils->DoOneToOne(user->nick, "MODULES", params, s->GetName());
+		}
+		else
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+		return 1;
+	}
+	return 0;
 }
 
 int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* user)
