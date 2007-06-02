@@ -1614,7 +1614,18 @@ bool ServerConfig::DirValid(const char* dirandfile)
 std::string ServerConfig::GetFullProgDir()
 {
 	char buffer[PATH_MAX+1];
-
+#ifdef WINDOWS
+	/* Windows has specific api calls to get the exe path that never fail.
+	 * For once, windows has something of use, compared to the POSIX code
+	 * for this, this is positively neato.
+	 */
+	if (GetModuleFileName(NULL, buffer, MAX_PATH))
+	{
+		std::string fullpath = buffer;
+		std::string::size_type n = fullpath.rfind("\\inspircd.exe");
+		return std::string(fullpath, 0, n);
+	}
+#else
 	// Get the current working directory
 	if (getcwd(buffer, PATH_MAX))
 	{
@@ -1631,7 +1642,7 @@ std::string ServerConfig::GetFullProgDir()
 		std::string::size_type n = fullpath.rfind("/inspircd");
 		return std::string(fullpath, 0, n);
 	}
-
+#endif
 	return "/";
 }
 
