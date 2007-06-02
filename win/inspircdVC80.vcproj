@@ -131,6 +131,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories=".;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				MinimalRebuild="false"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
