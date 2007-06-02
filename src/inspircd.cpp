@@ -347,6 +347,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), GlobalCulls(this)
 {
 #ifdef WINDOWS
+	ClearConsole();
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(2,0), &wsadata);
 #endif
@@ -557,8 +558,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->WritePID(Config->PID);
 
 #ifdef WINDOWS
-	InitIPC();	
+	InitIPC();
+	
 	g_starting = false;
+
+	// remove the console if in no-fork
+	if(!Config->nofork)
+		FreeConsole();
+
 #endif
 }
 
@@ -979,11 +986,14 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 #else
 		CheckIPC(this);
 
-		uptime = Time() - startup_time;
-		stime = gmtime(&uptime);
-		snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
-			LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
-		SetConsoleTitle(window_title);
+		if(Config->nofork)
+		{
+			uptime = Time() - startup_time;
+			stime = gmtime(&uptime);
+			snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
+				LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
+			SetConsoleTitle(window_title);
+		}
 #endif
 	}
 
@@ -1027,9 +1037,6 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
-#ifdef WINDOWS
-	ClearConsole();
-#endif
 	SI = new InspIRCd(argc, argv);
 	SI->Run();
 	delete SI;
