@@ -58,12 +58,18 @@ class IOCPEngine : public SocketEngine
 	 * in a future release.
 	 * @return -1 if there are no free slots, and an integer if it finds one.
 	 */
-	__inline int GenerateFd()
+	__inline int GenerateFd(int RealFd)
 	{
-		register int i = 0;
-		for(; i < MAX_DESCRIPTORS; ++i)
-			if(ref[i] == 0)
-				return i;
+		int index_hash = RealFd % MAX_DESCRIPTORS;
+		if(ref[index_hash] == 0)
+			return index_hash;
+		else
+		{
+			register int i = 0;
+			for(; i < MAX_DESCRIPTORS; ++i)
+				if(ref[i] == 0)
+					return i;
+		}
 		return -1;
 	}
 	

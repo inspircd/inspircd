@@ -9,7 +9,6 @@ using namespace std;
 #define INADDR_NONE 0xffffffff
 #endif
 
-
 HANDLE hIPCPipe;
 
 int inet_aton(const char *cp, struct in_addr *addr)
@@ -438,3 +437,35 @@ std::string FindNameServerWin()
 	return returnval;
 }
 
+
+void ClearConsole()
+{
+	COORD coordScreen = { 0, 0 };    /* here's where we'll home the cursor */
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	BOOL bSuccess;
+	DWORD cCharsWritten;
+	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */ 
+	DWORD dwConSize;                 /* number of character cells in the current buffer */ 
+
+	/* get the number of character cells in the current buffer */ 
+
+	if (GetConsoleScreenBufferInfo( hConsole, &csbi ))
+	{
+		dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+		/* fill the entire screen with blanks */ 
+		if (FillConsoleOutputCharacter( hConsole, (TCHAR) ' ', dwConSize, coordScreen, &cCharsWritten ))
+		{
+			/* get the current text attribute */ 
+			if (GetConsoleScreenBufferInfo( hConsole, &csbi ))
+			{
+				/* now set the buffer's attributes accordingly */
+				if (FillConsoleOutputAttribute( hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten ))
+				{
+					/* put the cursor at (0, 0) */
+					SetConsoleCursorPosition( hConsole, coordScreen );
+				}
+			}
+		}
+	}
+	return;
+}

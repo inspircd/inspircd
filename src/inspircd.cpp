@@ -386,12 +386,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	struct option longopts[] =
 	{
-		{ "nofork",	no_argument,		&do_nofork,	1	},
-		{ "logfile",	required_argument,	NULL,		'f'	},
-		{ "config",	required_argument,	NULL,		'c'	},
-		{ "debug",	no_argument,		&do_debug,	1	},
-		{ "nolog",	no_argument,		&do_nolog,	1	},
-		{ "runasroot",	no_argument,		&do_root,	1	},
+		{ "nofork",		no_argument,		&do_nofork,		1	},
+		{ "logfile",	required_argument,	NULL,			'f'	},
+		{ "config",		required_argument,	NULL,			'c'	},
+		{ "debug",		no_argument,		&do_debug,		1	},
+		{ "nolog",		no_argument,		&do_nolog,		1	},
+		{ "runasroot",	no_argument,		&do_root,		1	},
 		{ "version",	no_argument,		&do_version,	1	},
 		{ 0, 0, 0, 0 }
 	};
@@ -557,14 +557,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->WritePID(Config->PID);
 
 #ifdef WINDOWS
-	InitIPC();
-	
+	InitIPC();	
 	g_starting = false;
-
-	// remove the console if in no-fork
-	if(!Config->nofork)
-		FreeConsole();
-
 #endif
 }
 
@@ -985,14 +979,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 #else
 		CheckIPC(this);
 
-		if(Config->nofork)
-		{
-			uptime = Time() - startup_time;
-			stime = gmtime(&uptime);
-			snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
-				LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
-			SetConsoleTitle(window_title);
-		}
+		uptime = Time() - startup_time;
+		stime = gmtime(&uptime);
+		snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
+			LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
+		SetConsoleTitle(window_title);
 #endif
 	}
 
@@ -1036,6 +1027,9 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
+#ifdef WINDOWS
+	ClearConsole();
+#endif
 	SI = new InspIRCd(argc, argv);
 	SI->Run();
 	delete SI;

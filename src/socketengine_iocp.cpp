@@ -32,7 +32,7 @@ IOCPEngine::~IOCPEngine()
 
 bool IOCPEngine::AddFd(EventHandler* eh)
 {
-	int fake_fd = GenerateFd();
+	int fake_fd = GenerateFd(eh->GetFd());
 	int is_accept = 0;
 	int opt_len = sizeof(int);
 	if(fake_fd < 0)

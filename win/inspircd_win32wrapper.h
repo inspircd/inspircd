@@ -180,5 +180,8 @@ void CloseIPC();
 /* Look up the nameserver in use from the registry on windows */
 std::string FindNameServerWin();
 
+/* Clear a windows console */
+void ClearConsole();
+
 #endif
 
