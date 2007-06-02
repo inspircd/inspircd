@@ -388,7 +388,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->argv = argv;
 	this->Config->argc = argc;
 
-	chdir(Config->GetFullProgDir());
+	chdir(Config->GetFullProgDir().c_str());
 
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
