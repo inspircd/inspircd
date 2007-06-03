@@ -15,6 +15,12 @@
 #include "configreader.h"
 #ifndef WIN32
 #include <sys/resource.h>
+
+/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */
+#ifndef RUSAGE_SELF
+#define RUSAGE_SELF 0
+#endif
+
 #endif
 #include "users.h"
 #include "modules.h"

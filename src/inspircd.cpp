@@ -15,8 +15,16 @@
 #include "configreader.h"
 #include <signal.h>
 #ifndef WIN32
+
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/resource.h>
+
+/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */  
+#ifndef RUSAGE_SELF
+#define RUSAGE_SELF 0
+#endif
+
 #endif
 #include <exception>
 #include <fstream>
@@ -978,7 +986,8 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			Timers->TickMissedTimers(TIME);
 		}
 #ifndef WIN32
-		if (!getrusage(0, &ru))
+		/* Same change as in cmd_stats.cpp, use RUSAGE_SELF rather than '0' -- Om */
+		if (!getrusage(RUSAGE_SELF, &ru))
 		{
 			gettimeofday(&this->stats->LastSampled, NULL);
 			this->stats->LastCPU = ru.ru_utime;
