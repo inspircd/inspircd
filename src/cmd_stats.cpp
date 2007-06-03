@@ -201,7 +201,8 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 			results.push_back(sn+" 249 "+user->nick+" :ClassFactories(VECTOR) "+ConvToStr(ServerInstance->factory.size())+" ("+ConvToStr(ServerInstance->factory.size()*sizeof(ircd_module))+" bytes)");
 
 #ifndef WIN32
-			if (!getrusage(0,&R))	/* RUSAGE_SELF */
+			/* Not sure why we were doing '0' with a RUSAGE_SELF comment rather than just using RUSAGE_SELF -- Om */
+			if (!getrusage(RUSAGE_SELF,&R))	/* RUSAGE_SELF */
 			{
 				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));
