@@ -630,7 +630,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
 		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
 		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR, ValidateExemptChanOps},
-		{"options",	"defaultmodes", "",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR, NoValidation},
+		{"options",	"defaultmodes", "nt",			new ValueContainerChar (this->DefaultModes),		DT_CHARPTR, NoValidation},
 		{"pid",		"file",		"",			new ValueContainerChar (this->PID),			DT_CHARPTR, NoValidation},
 		{"whowas",	"groupsize",	"10",			new ValueContainerInt  (&this->WhoWasGroupSize),	DT_INTEGER, NoValidation},
 		{"whowas",	"maxgroups",	"10240",		new ValueContainerInt  (&this->WhoWasMaxGroups),	DT_INTEGER, NoValidation},
