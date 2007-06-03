@@ -1489,7 +1489,7 @@
 # Optional - If you choose to use the m_hostchange.so module.         #
 # Config Help -  See http://www.inspircd.org/wiki/Host_Changer_Module #
 #                                                                     #
-#<host suffix="polarbears.org">
+#<host suffix="polarbears.org" separator="." prefix="">
 #<hostchange mask="*@fbi.gov" action="addnick">
 #<hostchange mask="*r00t@*" action="suffix">
 #<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
