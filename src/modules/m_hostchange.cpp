@@ -32,23 +32,25 @@ typedef std::map<std::string,Host*> hostchanges_t;
 class ModuleHostChange : public Module
 {
  private:
-
-	
-	ConfigReader *Conf;
 	hostchanges_t hostchanges;
 	std::string MySuffix;
+	std::string MyPrefix;
+	std::string MySeparator;
 	 
  public:
 	ModuleHostChange(InspIRCd* Me)
 		: Module(Me)
 	{
-		Conf = new ConfigReader(ServerInstance);
 		OnRehash(NULL,"");
 	}
 	
 	virtual ~ModuleHostChange()
 	{
-		DELETE(Conf);
+		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
+		{
+			DELETE(i->second);
+		}
+		hostchanges.clear();
 	}
 
 	Priority Prioritize()
@@ -63,19 +65,20 @@ class ModuleHostChange : public Module
 
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
-		DELETE(Conf);
-		Conf = new ConfigReader(ServerInstance);
-		MySuffix = Conf->ReadValue("host","suffix",0);
+		ConfigReader Conf(ServerInstance);
+		MySuffix = Conf.ReadValue("host","suffix",0);
+		MyPrefix = Conf.ReadValue("host","prefix","",0);
+		MySeparator = Conf.ReadValue("host","separator",".",0);
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
 			DELETE(i->second);
 		}
 		hostchanges.clear();
-		for (int index = 0; index < Conf->Enumerate("hostchange"); index++)
+		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)
 		{
-			std::string mask = Conf->ReadValue("hostchange","mask",index);
-			std::string action = Conf->ReadValue("hostchange","action",index);
-			std::string newhost = Conf->ReadValue("hostchange","value",index);
+			std::string mask = Conf.ReadValue("hostchange","mask",index);
+			std::string action = Conf.ReadValue("hostchange","action",index);
+			std::string newhost = Conf.ReadValue("hostchange","value",index);
 			Host* x = new Host;
 			x->action = action;
 			x->newhost = newhost;
@@ -122,11 +125,15 @@ class ModuleHostChange : public Module
 							complete = complete + old[j];
 						}
 					}
-					if (complete == "")
+					if (complete.empty())
 						complete = "i-have-a-lame-nick";
-					newhost = complete + "." + MySuffix;
+						
+					if (!MyPrefix.empty())
+						newhost = MyPrefix + MySeparator + complete;
+					else
+						newhost = complete + MySeparator + MySuffix;
 				}
-				if (newhost != "")
+				if (!newhost.empty())
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your virtual host: " + newhost);
 					if (!user->ChangeDisplayedHost(newhost.c_str()))
