@@ -234,6 +234,10 @@ class CoreExport ServerConfig : public Extensible
 	 * as defined by the administrator.
 	 */
 	char ServerName[MAXBUF];
+
+	/** Notice to give to users when they are Xlined
+	 */
+	char MoronBanner[MAXBUF];
 	
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined

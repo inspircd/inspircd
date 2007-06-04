@@ -48,12 +48,13 @@
 #                                                                     #
 #     <server name="server.name"                                      #
 #      description="Server Description"                               #
+#      networkemail="Email address shown on g/k/z/q lines"            #
 #      network="MyNetwork">                                           #
 #                                                                     #
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
-        network="Omega">
+	network="Omega">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -889,6 +890,11 @@
 #                  they will be ignored. You may add parameters for   #
 #                  parameterised modes.                               #
 #                                                                     #
+#  moronbanner   - The NOTICE to show to users who are glined, zlined #
+#                  klined or qlined when they are disconnected. This  #
+#                  is totally freeform, you may place any text here   #
+#                  you wish.                                          #
+#                                                                     #
 
 <options prefixquit="Quit: "
          loglevel="default"
@@ -921,6 +927,7 @@
          pingwarning="15"
          allowhalfop="yes"
 	 defaultmodes="nt"
+	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	 exemptchanops="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#

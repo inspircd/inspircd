@@ -962,6 +962,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		if (r)
 		{
 			char reason[MAXBUF];
+			if (*Instance->Config->MoronBanner)
+				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
 			userrec::QuitUser(Instance, New, reason);
 			return;
@@ -1053,6 +1055,8 @@ void userrec::FullConnect()
 		{
 			this->muted = true;
 			char reason[MAXBUF];
+			if (*ServerInstance->Config->MoronBanner)
+				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
 			ServerInstance->GlobalCulls.AddItem(this, reason);
 			return;
@@ -1064,11 +1068,12 @@ void userrec::FullConnect()
 		{
 			this->muted = true;
 			char reason[MAXBUF];
+			if (*ServerInstance->Config->MoronBanner)
+				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
 			ServerInstance->GlobalCulls.AddItem(this, reason);
 			return;
 		}
-
 	}
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network);

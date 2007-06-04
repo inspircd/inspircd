@@ -593,6 +593,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	InitialConfig Values[] = {
 		{"options",	"softlimit",	MAXCLIENTS_S,		new ValueContainerUInt (&this->SoftLimit),		DT_INTEGER, ValidateSoftLimit},
 		{"options",	"somaxconn",	SOMAXCONN_S,		new ValueContainerInt  (&this->MaxConn),		DT_INTEGER, ValidateMaxConn},
+		{"options",	"moronbanner",	"Youre banned!",	new ValueContainerChar (this->MoronBanner),		DT_CHARPTR, NoValidation},
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
