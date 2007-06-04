@@ -1483,19 +1483,20 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 
 	F.clear();
 
-	if (*fname != '/')
+	if ((*fname != '/') && (*fname != '\\'))
 	{
 		std::string::size_type pos;
 		std::string confpath = ServerInstance->ConfigFileName;
-		if((pos = confpath.rfind("/")) != std::string::npos)
-		{
-			/* Leaves us with just the path */
-			std::string newfile = confpath.substr(0, pos) + std::string("/") + fname;
-			if (!FileExists(newfile.c_str()))
-				return false;
-			file =  fopen(newfile.c_str(), "r");
+		std::string newfile = fname;
 
-		}
+		if ((pos = confpath.rfind("/")) != std::string::npos)
+			newfile = confpath.substr(0, pos) + std::string("/") + fname;
+		else if ((pos = confpath.rfind("\\")) != std::string::npos)
+			newfile = confpath.substr(0, pos) + std::string("\\") + fname;
+
+		if (!FileExists(newfile.c_str()))
+			return false;
+		file =  fopen(newfile.c_str(), "r");
 	}
 	else
 	{
@@ -1549,7 +1550,7 @@ bool ServerConfig::FileExists(const char* file)
 char* ServerConfig::CleanFilename(char* name)
 {
 	char* p = name + strlen(name);
-	while ((p != name) && (*p != '/')) p--;
+	while ((p != name) && (*p != '/') && (*p != '\\')) p--;
 	return (p != name ? ++p : p);
 }
 
