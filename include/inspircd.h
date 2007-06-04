@@ -1199,6 +1199,12 @@ class CoreExport InspIRCd : public classbase
 
 	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const char* format, ...);
 
+	/** Quit a user for excess flood, and if they are not
+	 * fully registered yet, temporarily zline their IP.
+	 * @param current user to quit
+	 */
+	void FloodQuitUser(userrec* current);
+
 	/** Restart the server.
 	 * This function will not return. If an error occurs,
 	 * it will throw an instance of CoreException.

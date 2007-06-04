@@ -20,6 +20,20 @@
 #include "socketengine.h"
 #include "command_parse.h"
 
+void InspIRCd::FloodQuitUser(userrec* current)
+{
+	this->Log(DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
+	this->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
+			current->registered == REG_ALL ? current->nick : "",
+			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
+	current->SetWriteError("Excess flood");
+	if (current->registered != REG_ALL)
+	{
+		XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
+		XLines->apply_lines(APPLY_ZLINES);
+	}
+}
+
 void InspIRCd::ProcessUser(userrec* cu)
 {
 	int result = EAGAIN;
@@ -99,12 +113,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					current->lines_in++;
 
 					if (current->lines_in > current->flood)
-					{
-						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						current->SetWriteError("Excess flood");
-						return;
-					}
+						FloodQuitUser(current);
 					else
 					{
 						current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
@@ -112,12 +121,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					}
 				}
 				else
-				{
-					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					this->SNO->WriteToSnoMask('f',"Excess flood from: %s",current->GetIPString());
-					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-					XLines->apply_lines(APPLY_ZLINES);
-				}
+					FloodQuitUser(current);
 
 				return;
 			}
@@ -133,26 +137,13 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 				if (++current->lines_in > current->flood)
 				{
-					this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-					this->SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-					current->SetWriteError("Excess flood");
+					FloodQuitUser(current);
 					return;
 				}
 
 				if ((++floodlines > current->flood) && (current->flood != 0))
 				{
-					if (current->registered == REG_ALL)
-					{
-						this->Log(DEFAULT,"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						SNO->WriteToSnoMask('f',"Excess flood from: %s!%s@%s",current->nick,current->ident,current->host);
-						current->SetWriteError("Excess flood");
-					}
-					else
-					{
-						XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-						XLines->apply_lines(APPLY_ZLINES);
-					}
-
+					FloodQuitUser(current);
 					return;
 				}
 
