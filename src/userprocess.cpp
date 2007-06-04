@@ -122,23 +122,6 @@ void InspIRCd::ProcessUser(userrec* cu)
 				return;
 			}
 
-			if (current->recvq.length() > (unsigned)this->Config->NetBufferSize)
-			{
-				if (current->registered == REG_ALL)
-				{
-					current->SetWriteError("RecvQ exceeded");
-				}
-				else
-				{
-					this->WriteOpers("*** Excess flood from %s",current->GetIPString());
-					this->SNO->WriteToSnoMask('f',"Excess flood from: %s",current->GetIPString());
-					XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-					XLines->apply_lines(APPLY_ZLINES);
-				}
-
-				return;
-			}
-
 			// while there are complete lines to process...
 			while (current->BufferIsReady())
 			{
