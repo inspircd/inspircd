@@ -67,38 +67,42 @@ std::string InspIRCd::TimeString(time_t curtime)
  */
 long InspIRCd::Duration(const char* str)
 {
-	char n_field[MAXBUF];
-	const char* maxsize = n_field + MAXBUF;
+	unsigned char multiplier = 0;
 	long total = 0;
-	char* field_ptr = n_field;
-	*n_field = 0;
+	long times = 1;
+	long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
-	for (const char* i = str; *i; i++)
+	for (const char* i = str + strlen(str) - 1; i >= str; --i)
 	{
 		/* Found a number, queue it onto the current number */
-		if ((*i >= '0') && (*i <= '9') && (field_ptr < maxsize))
-			*field_ptr++ = *i;
+		if ((*i >= '0') && (*i <= '9'))
+		{
+			subtotal = subtotal + ((*i - '0') * times);
+			times = times * 10;
+		}
 		else
 		{
 			/* Found something thats not a number, find out how much
 			 * it multiplies the built up number by, multiply the total
 			 * and reset the built up number.
 			 */
-			*field_ptr = 0;
-			field_ptr = n_field;
-			total += atoi(n_field) * duration_multi[(const unsigned char)*i];
-			*n_field = 0;
+			if (subtotal)
+				total += subtotal * duration_multi[multiplier];
+
+			/* Next subtotal please */
+			subtotal = 0;
+			multiplier = *i;
+			times = 1;
 		}
 	}
-	/* Any trailing values built up are treated as raw seconds */
-	if (*n_field)
+	if (multiplier)
 	{
-		*field_ptr = 0;
-		total += atoi(n_field);
+		total += subtotal * duration_multi[multiplier];
+		subtotal = 0;
 	}
-
-	return total;
+	/* Any trailing values built up are treated as raw seconds */
+	return total + subtotal;
 }
 
 /* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
