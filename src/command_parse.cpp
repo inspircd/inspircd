@@ -62,6 +62,9 @@ std::string InspIRCd::TimeString(time_t curtime)
 	return std::string(ctime(&curtime),24);
 }
 
+/** Refactored by Brain, Jun 2007. Much faster with some clever O(1) array
+ * lookups and pointer maths.
+ */
 long InspIRCd::Duration(const char* str)
 {
 	char n_field[MAXBUF];
@@ -70,19 +73,25 @@ long InspIRCd::Duration(const char* str)
 	char* field_ptr = n_field;
 	*n_field = 0;
 
+	/* Iterate each item in the string, looking for number or multiplier */
 	for (const char* i = str; *i; i++)
 	{
+		/* Found a number, queue it onto the current number */
 		if ((*i >= '0') && (*i <= '9') && (field_ptr < maxsize))
 			*field_ptr++ = *i;
 		else
 		{
+			/* Found something thats not a number, find out how much
+			 * it multiplies the built up number by, multiply the total
+			 * and reset the built up number.
+			 */
 			*field_ptr = 0;
 			field_ptr = n_field;
 			total += atoi(n_field) * duration_multi[(const unsigned char)*i];
 			*n_field = 0;
 		}
 	}
-	// add trailing seconds
+	/* Any trailing values built up are treated as raw seconds */
 	if (*n_field)
 	{
 		*field_ptr = 0;
