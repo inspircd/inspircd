@@ -907,6 +907,7 @@ sub getosflags {
 		$config{LDLIBS} = "-ldl -lstdc++";
 		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
+		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 		$config{MAKEPROG} = "make";
 		if ($config{OSNAME} =~ /CYGWIN/) {
 			$config{FLAGS}  = "-fno-strict-aliasing -Wall -Woverloaded-virtual $config{OPTIMISATI}";
@@ -923,9 +924,13 @@ sub getosflags {
 			$config{STATIC_LINK} = "yes";
 			return "Cygwin-Static";
 		}
-		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 	}
-	
+
+	if ($config{OSNAME} =~ /FreeBSD/i) {
+		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
+		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
+	}
+
 	if ($config{OSNAME} =~ /SunOS/i)
 	{
 		# solaris/sunos needs these
@@ -934,7 +939,7 @@ sub getosflags {
 		# rt = POSIX realtime extensions
 		# resolv = inet_aton only (why isnt this in nsl?!)
 		$config{MAKEPROG} = "gmake";
-		$config{LDLIBS} = $config{LDLIBS} . " -lsocket -lnsl -lrt -lresolv";
+		$config{LDLIBS} .= " -lsocket -lnsl -lrt -lresolv";
 		return "Solaris";
 	}
 	
