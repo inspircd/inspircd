@@ -65,59 +65,30 @@ std::string InspIRCd::TimeString(time_t curtime)
 long InspIRCd::Duration(const char* str)
 {
 	char n_field[MAXBUF];
+	const char* maxsize = n_field + MAXBUF;
 	long total = 0;
-	n_field[0] = 0;
+	char* field_ptr = n_field;
+	*n_field = 0;
 
-	if ((!strchr(str,'s')) && (!strchr(str,'m')) && (!strchr(str,'h')) && (!strchr(str,'d')) && (!strchr(str,'w')) && (!strchr(str,'y')))
+	for (const char* i = str; *i; i++)
 	{
-		std::string n = str;
-		n += 's';
-		return Duration(n.c_str());
-	}
-	
-	for (char* i = (char*)str; *i; i++)
-	{
-		// if we have digits, build up a string for the value in n_field,
-		// up to 10 digits in size.
-		if ((*i >= '0') && (*i <= '9'))
-		{
-			strlcat(n_field,i,10);
-		}
+		if ((*i >= '0') && (*i <= '9') && (field_ptr < maxsize))
+			*field_ptr++ = *i;
 		else
 		{
-			// we dont have a digit, check for numeric tokens
-			switch (tolower(*i))
-			{
-				case 's':
-					total += atoi(n_field);
-				break;
-
-				case 'm':
-					total += (atoi(n_field)*duration_m);
-				break;
-
-				case 'h':
-					total += (atoi(n_field)*duration_h);
-				break;
-
-				case 'd':
-					total += (atoi(n_field)*duration_d);
-				break;
-
-				case 'w':
-					total += (atoi(n_field)*duration_w);
-				break;
-
-				case 'y':
-					total += (atoi(n_field)*duration_y);
-				break;
-			}
-			n_field[0] = 0;
+			*field_ptr = 0;
+			field_ptr = n_field;
+			total += atoi(n_field) * duration_multi[(const unsigned char)*i];
+			*n_field = 0;
 		}
 	}
 	// add trailing seconds
-	total += atoi(n_field);
-	
+	if (*n_field)
+	{
+		*field_ptr = 0;
+		total += atoi(n_field);
+	}
+
 	return total;
 }
 

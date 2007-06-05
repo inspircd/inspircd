@@ -352,7 +352,7 @@ std::string InspIRCd::GetRevision()
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: ModCount(-1), duration_m(60), duration_h(60*60), duration_d(60*60*24), duration_w(60*60*24*7), duration_y(60*60*24*365), GlobalCulls(this)
+	: ModCount(-1), GlobalCulls(this)
 {
 #ifdef WINDOWS
 	ClearConsole();

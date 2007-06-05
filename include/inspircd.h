@@ -396,26 +396,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	char ReadBuffer[65535];
 
-	/** Number of seconds in a minute
-	 */
-	const long duration_m;
-
-	/** Number of seconds in an hour
-	 */
-	const long duration_h;
-
-	/** Number of seconds in a day
-	 */
-	const long duration_d;
-
-	/** Number of seconds in a week
-	 */
-	const long duration_w;
-
-	/** Number of seconds in a year
-	 */
-	const long duration_y;
-
 	/** Used when connecting clients
 	 */
 	insp_sockaddr client, server;
