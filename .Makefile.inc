@@ -1,10 +1,7 @@
-# Inspircd Main Makefile
+#             InspIRCd Main Makefile
 #
-# (C) ChatSpike development team
+#     (C) InspIRCd Development Team, 2002-2007
 # DO NOT MODIFY UNLESS YOU KNOW WHAT YOU ARE DOING!
-#####
-# Original Makefile & ./configure by <Craig@ChatSpike.net>
-# Small modifications by <brain@ChatSpike.net>
 #
 
 CC = @CC@
