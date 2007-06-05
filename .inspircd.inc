@@ -4,7 +4,7 @@
 #       +------------------------------------+
 #
 #      (C) 2002-2007 InspIRCd Development Team
-#        http://www.inspircd.org/wiki/Credits
+#   http://www.inspircd.org/wiki/index.php/Credits
 #
 # Written by Craig Edwards, Craig McLure, and others.
 # This program is free but copyrighted software; see
