@@ -91,6 +91,7 @@ if ($arg eq "Cheese-Sandwich") {
 ###
 print "Invalid Argument: $arg\n";
 print "Usage: inspircd (start|stop|restart|rehash|status|cron|checkconf|version)\n";
+print "Developer arguments: (debug|screendebug|valdebug|screenvaldebug)\n";
 exit();
 
 ###
