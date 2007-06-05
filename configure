@@ -1,19 +1,16 @@
 #!/usr/bin/perl
-
+###################################################
 # InspIRCd Configuration Script
 #
-# Copyright 2002-2007 The ChatSpike Development Team
-# <brain@chatspike.net>
-# <Craig@chatspike.net>
+# Copyright 2002-2007 The InspIRCd Development Team
+#  http://www.inspircd.org/wiki/index.php/Credits
 #
 # Licensed under GPL, please see the COPYING file
 # for more information
 #
-# [14:21] Brain: <matrix impression> i know perl-fu!
-#
 # $Id$
 #
-########################################
+###################################################
 
 require 5.6.0;
 use Socket;
