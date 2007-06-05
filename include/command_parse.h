@@ -205,6 +205,11 @@ class cmd_reload : public command_t
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
+/** A lookup table of values for multiplier characters used by
+ * InspIRCd::Duration(). In this lookup table, the indexes for
+ * the ascii values 'm' and 'M' have the value '60', the indexes
+ * for the ascii values 'D' and 'd' have a value of '86400', etc.
+ */
 const int duration_multi[] =
 {
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -228,3 +233,4 @@ const int duration_multi[] =
 };
 
 #endif
+
