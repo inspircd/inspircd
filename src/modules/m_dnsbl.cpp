@@ -23,7 +23,6 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <stdint.h>
 #endif
 
 /* $ModDesc: Provides handling of DNS blacklists */
