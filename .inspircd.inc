@@ -3,16 +3,13 @@
 #       | Inspire Internet Relay Chat Daemon |
 #       +------------------------------------+
 #
-#  Inspire is copyright (C) 2002-2004 ChatSpike-Dev.
-#                       E-mail:
-#                <brain@chatspike.net>
-#                <Craig@chatspike.net>
+#      (C) 2002-2007 InspIRCd Development Team
+#        http://www.inspircd.org/wiki/Credits
 #
 # Written by Craig Edwards, Craig McLure, and others.
 # This program is free but copyrighted software; see
 #            the file COPYING for details.
 #
-#               I HATE PERL.. kthxbye
 # ---------------------------------------------------
 use POSIX;
 
