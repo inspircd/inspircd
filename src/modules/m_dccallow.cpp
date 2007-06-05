@@ -161,7 +161,7 @@ class cmd_dccallow : public command_t
 					long length;
 					if (pcnt < 2)
 					{
-						length = ServerInstance->Duration(default_length.c_str());
+						length = ServerInstance->Duration(default_length);
 					} 
 					else if (!atoi(parameters[1]))
 					{

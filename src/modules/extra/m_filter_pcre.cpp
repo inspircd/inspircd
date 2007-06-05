@@ -139,7 +139,7 @@ class ModuleFilterPCRE : public FilterBase
 			std::string reason = MyConf.ReadValue("keyword", "reason", index);
 			std::string action = MyConf.ReadValue("keyword", "action", index);
 			std::string flags = MyConf.ReadValue("keyword", "flags", index);
-			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index).c_str());
+			long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
 			if (action.empty())
 				action = "none";
 			if (flags.empty())

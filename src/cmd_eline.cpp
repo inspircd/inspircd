@@ -38,17 +38,18 @@ CmdResult cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 			return CMD_FAILURE;
 		}
 
-		if (ServerInstance->XLines->add_eline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]))
+		long duration = ServerInstance->Duration(parameters[1]);
+		if (ServerInstance->XLines->add_eline(duration,user->nick,parameters[2],parameters[0]))
 		{
-			FOREACH_MOD(I_OnAddELine,OnAddELine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
+			FOREACH_MOD(I_OnAddELine,OnAddELine(duration, user, parameters[2], parameters[0]));
 
-			if (!ServerInstance->Duration(parameters[1]))
+			if (!duration)
 			{
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s.",user->nick,parameters[0]);
 			}
 			else
 			{
-				time_t c_requires_crap = ServerInstance->Duration(parameters[1]) + ServerInstance->Time();
+				time_t c_requires_crap = duration + ServerInstance->Time();
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s",user->nick,parameters[0],
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}

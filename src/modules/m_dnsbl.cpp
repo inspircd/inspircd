@@ -223,7 +223,7 @@ class ModuleDNSBL : public Module
 			e->reason = MyConf->ReadValue("dnsbl", "reason", i);
 			e->domain = MyConf->ReadValue("dnsbl", "domain", i);
 			e->banaction = str2banaction(MyConf->ReadValue("dnsbl", "action", i));
-			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", i).c_str());
+			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", i));
 			e->bitmask = MyConf->ReadInteger("dnsbl", "bitmask", i, false);
 
 			/* yeah, logic here is a little messy */

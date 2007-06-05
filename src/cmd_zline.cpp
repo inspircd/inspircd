@@ -38,19 +38,20 @@ CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->IPMatchesEveryone(parameters[0],user))
 			return CMD_FAILURE;
 
-		if (ServerInstance->XLines->add_zline(ServerInstance->Duration(parameters[1]),user->nick,parameters[2],parameters[0]))
+		long duration = ServerInstance->Duration(parameters[1]);
+		if (ServerInstance->XLines->add_zline(duration,user->nick,parameters[2],parameters[0]))
 		{
 			int to_apply = APPLY_ZLINES;
 
-			FOREACH_MOD(I_OnAddZLine,OnAddZLine(ServerInstance->Duration(parameters[1]), user, parameters[2], parameters[0]));
-			if (!ServerInstance->Duration(parameters[1]))
+			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
+			if (!duration)
 			{
 				to_apply |= APPLY_PERM_ONLY;
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent Z-line for %s.",user->nick,parameters[0]);
 			}
 			else
 			{
-				time_t c_requires_crap = ServerInstance->Duration(parameters[1]) + ServerInstance->Time();
+				time_t c_requires_crap = duration + ServerInstance->Time();
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires on %s",user->nick,parameters[0],
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}

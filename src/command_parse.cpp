@@ -65,7 +65,7 @@ std::string InspIRCd::TimeString(time_t curtime)
 /** Refactored by Brain, Jun 2007. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */
-long InspIRCd::Duration(const char* str)
+long InspIRCd::Duration(const std::string &str)
 {
 	unsigned char multiplier = 0;
 	long total = 0;
@@ -73,7 +73,7 @@ long InspIRCd::Duration(const char* str)
 	long subtotal = 0;
 
 	/* Iterate each item in the string, looking for number or multiplier */
-	for (const char* i = str + strlen(str) - 1; i >= str; --i)
+	for (std::string::const_reverse_iterator i = str.rbegin(); i != str.rend(); ++i)
 	{
 		/* Found a number, queue it onto the current number */
 		if ((*i >= '0') && (*i <= '9'))

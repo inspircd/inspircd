@@ -67,14 +67,13 @@ class cmd_tban : public command_t
 				}
 				TimedBan T;
 				std::string channelname = parameters[0];
-				unsigned long expire = ServerInstance->Duration(parameters[1]) + time(NULL);
-				if (ServerInstance->Duration(parameters[1]) < 1)
+				long duration = ServerInstance->Duration(parameters[1]);
+				unsigned long expire = duration + time(NULL);
+				if (duration < 1)
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
 					return CMD_FAILURE;
 				}
-				char duration[MAXBUF];
-				snprintf(duration,MAXBUF,"%lu",ServerInstance->Duration(parameters[1]));
 				std::string mask = parameters[2];
 				const char *setban[32];
 				setban[0] = parameters[0];
@@ -94,7 +93,7 @@ class cmd_tban : public command_t
 					T.mask = mask;
 					T.expire = expire;
 					TimedBanList.push_back(T);
-					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %s seconds.", channel->name, user->nick, mask.c_str(), duration);
+					channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name, user->nick, mask.c_str(), duration);
 					return CMD_SUCCESS;
 				}
 				return CMD_FAILURE;
