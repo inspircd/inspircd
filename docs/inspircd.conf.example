@@ -2163,7 +2163,7 @@
 #                                                                     #
 #   You should already know what to do here :)                        #
 
-<die value="User error. Insert new user and press any key.">
+<die value="User error. Insert new user and press any key. (you didn't edit your config properly.)">
 
 
 #########################################################################
