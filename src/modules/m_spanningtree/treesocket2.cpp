@@ -376,6 +376,29 @@ bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string>
 	return true;
 }
 
+bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &params)
+{ 	 
+	if (params.size() != 2)
+		return true;
+
+	userrec* who = this->Instance->FindNick(params[0]);
+
+	if (who)
+	{
+		/* Prepend kill source, if we don't have one */ 	 
+		if (*(params[1].c_str()) != '[')
+		{
+			params[1] = "[" + prefix + "] Killed (" + params[1] +")";
+		}
+		std::string reason = params[1];
+		params[1] = ":" + params[1];
+		Utils->DoOneToAllButSender(prefix,"KILL",params,prefix);
+		who->Write(":%s KILL %s :%s (%s)", prefix.c_str(), who->nick, prefix.c_str(), reason.c_str());
+		userrec::QuitUser(this->Instance,who,reason);
+	}
+	return true;
+}
+
 bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 1)
@@ -1181,6 +1204,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "MOTD")
 			{
 				return this->Motd(prefix, params);
+			}
+			else if (command == "KILL" && Utils->IsServer(prefix))
+			{
+				return this->RemoteKill(prefix,params);
 			}
 			else if (command == "MODULES")
 			{
