@@ -376,36 +376,6 @@ bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string>
 	return true;
 }
 
-bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &params)
-{
-	if (params.size() != 2)
-		return true;
-
-	std::string nick = params[0];
-	userrec* u = this->Instance->FindNick(prefix);
-	userrec* who = this->Instance->FindNick(nick);
-
-	if (who)
-	{
-		/* Prepend kill source, if we don't have one */
-		std::string sourceserv = prefix;
-		if (u)
-		{
-			sourceserv = u->server;
-		}
-		if (*(params[1].c_str()) != '[')
-		{
-			params[1] = "[" + sourceserv + "] Killed (" + params[1] +")";
-		}
-		std::string reason = params[1];
-		params[1] = ":" + params[1];
-		Utils->DoOneToAllButSender(prefix,"KILL",params,sourceserv);
-		who->Write(":%s KILL %s :%s (%s)", sourceserv.c_str(), who->nick, sourceserv.c_str(), reason.c_str());
-		userrec::QuitUser(this->Instance,who,reason);
-	}
-	return true;
-}
-
 bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 1)
@@ -1238,10 +1208,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (ServerSource)
 					Utils->SetRemoteBursting(ServerSource, false);
 				return this->ForceMode(prefix,params);
-			}
-			else if (command == "KILL")
-			{
-				return this->RemoteKill(prefix,params);
 			}
 			else if (command == "FTOPIC")
 			{
