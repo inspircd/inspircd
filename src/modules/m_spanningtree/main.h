@@ -31,6 +31,7 @@ const long ProtocolVersion = 1105;
 /** Forward declarations
  */
 class cmd_rconnect;
+class cmd_rsquit;
 class SpanningTreeUtilities;
 class TimeSyncTimer;
 class CacheRefreshTimer;
@@ -46,6 +47,7 @@ class ModuleSpanningTree : public Module
 	unsigned int max_local;
 	unsigned int max_global;
 	cmd_rconnect* command_rconnect;
+	cmd_rsquit* command_rsquit;
 	SpanningTreeUtilities* Utils;
 
  public:
@@ -101,7 +103,7 @@ class ModuleSpanningTree : public Module
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const char** parameters, int pcnt, userrec* user);
+	int HandleSquit(const char** parameters, int pcnt, userrec* user, bool remote=false);
 
 	/** Handle TIME
 	 */

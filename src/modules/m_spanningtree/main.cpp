@@ -33,8 +33,9 @@
 #include "m_spanningtree/link.h"
 #include "m_spanningtree/treesocket.h"
 #include "m_spanningtree/rconnect.h"
+#include "m_spanningtree/rsquit.h"
 
-/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h */
+/* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	: Module(Me), max_local(0), max_global(0)
@@ -43,6 +44,8 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	Utils = new SpanningTreeUtilities(Me, this);
 	command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rconnect);
+	command_rsquit = new cmd_rsquit(ServerInstance, this, Utils);
+	ServerInstance->AddCommand(command_rsquit);
 	if (Utils->EnableTimeSync)
 	{
 		SyncTimer = new TimeSyncTimer(ServerInstance, this);
@@ -385,7 +388,7 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, userrec* u
 	return;
 }
 
-int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user)
+int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user, bool remote)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)
@@ -406,6 +409,8 @@ int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* 
 		}
 		else
 		{
+			if (!remote && IS_LOCAL(user))
+				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated and will be removed in a future version. Please use RSQUIT instead.",user->nick);
 			/* route it */
 			std::deque<std::string> params;
 			params.push_back(parameters[0]);
