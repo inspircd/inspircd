@@ -100,6 +100,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	DWORD ExitCode = 14;
 	GetExitCodeProcess(procinfo.hProcess, &ExitCode);
 	CloseHandle(procinfo.hThread);
+	CloseHandle(procinfo.hProcess);
 	return ExitCode;
 }
 

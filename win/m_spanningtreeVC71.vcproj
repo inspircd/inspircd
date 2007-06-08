@@ -72,6 +72,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;M_SPANNINGTREE_EXPORTS;DLL_BUILD"
+				MinimalRebuild="TRUE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
