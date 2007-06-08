@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="m_spanningtree"
 	ProjectGUID="{1EC86B60-AB2A-4984-8A7E-0422C15601E0}"
+	RootNamespace="m_spanningtree"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -366,6 +367,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\rsquit.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\timesynctimer.cpp"
 				>
 			</File>
@@ -409,6 +414,10 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\resolvers.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\rsquit.h"
 				>
 			</File>
 			<File
