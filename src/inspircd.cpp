@@ -42,8 +42,80 @@
 #include <dlfcn.h>
 #include <getopt.h>
 #else
-#include <conio.h>
-bool g_starting = true;
+static DWORD owner_processid = 0;
+
+bool WindowsForkStart(InspIRCd * Instance)
+{
+	/* Windows implementation of fork() :P */
+	// Build the command line arguments.
+	string command_line;
+	for(int i = 0; i < Instance->Config->argc; ++i)
+		command_line += Instance->Config->argv[i];
+
+	char module[MAX_PATH];
+	if(!GetModuleFileName(NULL, module, MAX_PATH))
+		return false;
+
+	STARTUPINFO startupinfo;
+	PROCESS_INFORMATION procinfo;
+	ZeroMemory(&startupinfo, sizeof(STARTUPINFO));
+	ZeroMemory(&procinfo, sizeof(PROCESS_INFORMATION));
+
+	// Fill in the startup info struct
+	GetStartupInfo(&startupinfo);
+
+	// Create the "startup" event
+	HANDLE fork_event = CreateEvent(0, TRUE, FALSE, "InspStartup");
+	if(!fork_event)
+	{
+		printf("CreateEvent: %s\n", dlerror());
+		return false;
+	}
+
+	// Launch our "forked" process.
+	BOOL bSuccess = CreateProcess ( module, module, 
+		0,									// PROCESS_SECURITY_ATTRIBUTES
+		0,									// THREAD_SECURITY_ATTRIBUTES
+		TRUE,								// We went to inherit handles.
+		CREATE_SUSPENDED |					// Suspend the primary thread of the new process
+		CREATE_PRESERVE_CODE_AUTHZ_LEVEL,	// Allow us full access to the process
+		0,									// ENVIRONMENT
+		0,									// CURRENT_DIRECTORY
+		&startupinfo,						// startup info
+		&procinfo);							// process info
+
+	if(!bSuccess)
+		return false;
+
+	// Set the owner process id in the target process.
+	SIZE_T written = 0;
+	DWORD pid = GetCurrentProcessId();
+	if(!WriteProcessMemory(procinfo.hProcess, &owner_processid, &pid, sizeof(DWORD), &written) || written != sizeof(DWORD))
+		return false;
+
+	// Resume the other thread (let it start)
+	ResumeThread(procinfo.hThread);
+
+	// Wait for the new process to kill us. If there is some error, the new process will end and we will end up at the next line.
+	WaitForSingleObject(procinfo.hProcess, INFINITE);
+
+	// If we hit this it means startup failed. :(
+	return true;
+}
+
+void WindowsForkKillOwner(InspIRCd * Instance)
+{
+	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
+	if(!hProcess || !owner_processid)
+		exit(1);
+
+	// die die die
+	if(!TerminateProcess(hProcess, 0))
+		exit(1);
+
+	CloseHandle(hProcess);
+}
+
 #endif
 
 using irc::sockets::NonBlocking;
@@ -354,12 +426,6 @@ std::string InspIRCd::GetRevision()
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), GlobalCulls(this)
 {
-#ifdef WINDOWS
-	ClearConsole();
-	WSADATA wsadata;
-	WSAStartup(MAKEWORD(2,0), &wsadata);
-#endif
-
 	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
@@ -436,6 +502,20 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
+#ifdef WIN32
+
+	// Handle forking
+	if(!do_nofork && !owner_processid)
+	{
+		if(WindowsForkStart(this))
+			Exit(0);
+	}
+
+	// Set up winsock
+	WSADATA wsadata;
+	WSAStartup(MAKEWORD(2,0), &wsadata);
+
+#endif
 	if (!ServerConfig::FileExists(this->ConfigFileName))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
@@ -559,22 +639,18 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			Log(DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 		}
 	}
+#else
+	InitIPC();
+	if(!Config->nofork)
+	{
+		WindowsForkKillOwner(this);
+		FreeConsole();
+	}
 #endif
 	printf("\nInspIRCd is now running!\n");
 	Log(DEFAULT,"Startup complete.");
 
 	this->WritePID(Config->PID);
-
-#ifdef WINDOWS
-	InitIPC();
-	
-	g_starting = false;
-
-	// remove the console if in no-fork
-	if(!Config->nofork)
-		FreeConsole();
-
-#endif
 }
 
 std::string InspIRCd::GetVersionString()

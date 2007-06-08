@@ -235,6 +235,9 @@
 				RelativePath="..\src\modules\m_spanningtree\resolvers.cpp">
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\rsquit.cpp">
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\timesynctimer.cpp">
 			</File>
 			<File
@@ -268,6 +271,9 @@
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\resolvers.h">
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\rsquit.h">
 			</File>
 			<File
 				RelativePath="..\src\modules\m_spanningtree\timesynctimer.h">
