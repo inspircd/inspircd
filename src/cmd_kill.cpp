@@ -87,7 +87,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		if (!IS_LOCAL(u))
 		{
 			// remote kill
-			ServerInstance->SNO->WriteToSnoMask('k',"Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
+			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason));
 		}
 		else
