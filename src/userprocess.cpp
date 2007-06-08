@@ -186,7 +186,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		cu->SetWriteError("Client exited");
+		cu->SetWriteError("Connection closed");
 		return;
 	}
 }
