@@ -201,7 +201,7 @@ void InspIRCd::Start()
 {
 	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
 	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
-	printf_c("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey\033[0m\n");
+	printf_c("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey, Burlex\033[0m\n");
 	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 }
 
