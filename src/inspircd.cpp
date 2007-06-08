@@ -44,7 +44,7 @@
 #else
 static DWORD owner_processid = 0;
 
-bool WindowsForkStart(InspIRCd * Instance)
+DWORD WindowsForkStart(InspIRCd * Instance)
 {
 	/* Windows implementation of fork() :P */
 	// Build the command line arguments.
@@ -67,10 +67,7 @@ bool WindowsForkStart(InspIRCd * Instance)
 	// Create the "startup" event
 	HANDLE fork_event = CreateEvent(0, TRUE, FALSE, "InspStartup");
 	if(!fork_event)
-	{
-		printf("CreateEvent: %s\n", dlerror());
 		return false;
-	}
 
 	// Launch our "forked" process.
 	BOOL bSuccess = CreateProcess ( module, module, 
@@ -99,19 +96,21 @@ bool WindowsForkStart(InspIRCd * Instance)
 	// Wait for the new process to kill us. If there is some error, the new process will end and we will end up at the next line.
 	WaitForSingleObject(procinfo.hProcess, INFINITE);
 
-	// If we hit this it means startup failed. :(
-	return true;
+	// If we hit this it means startup failed, default to 14 if this fails.
+	DWORD ExitCode = 14;
+	GetExitCodeProcess(procinfo.hProcess, &ExitCode);
+	CloseHandle(procinfo.hThread);
 }
 
 void WindowsForkKillOwner(InspIRCd * Instance)
 {
 	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
 	if(!hProcess || !owner_processid)
-		exit(1);
+		Instance->Exit(14);
 
 	// die die die
 	if(!TerminateProcess(hProcess, 0))
-		exit(1);
+		Instance->Exit(14);
 
 	CloseHandle(hProcess);
 }
@@ -143,7 +142,7 @@ const char* ExitCodes[] =
 		"Refusing to start up as root", /* 11 */
 		"Found a <die> tag!", /* 12 */
 		"Couldn't load module on startup", /* 13 */
-		"", /* 14 */
+		"Could not create forked process", /* 14 */
 		"Received SIGTERM", /* 15 */
 };
 
@@ -507,8 +506,9 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	// Handle forking
 	if(!do_nofork && !owner_processid)
 	{
-		if(WindowsForkStart(this))
-			Exit(0);
+		DWORD ExitCode = WindowsForkStart(this);
+		if(ExitCode)
+			Exit(ExitCode);
 	}
 
 	// Set up winsock
