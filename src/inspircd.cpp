@@ -348,6 +348,7 @@ void InspIRCd::QuickExit(int status)
 bool InspIRCd::DaemonSeed()
 {
 #ifdef WINDOWS
+	printf_c("InspIRCd Process ID: \033[1;32m%lu\033[0m\n", GetCurrentProcessId());
 	return true;
 #else
 	signal(SIGTERM, InspIRCd::QuickExit);
