@@ -115,7 +115,7 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (!type_invalid)
 		{
-			std::string fields = "";
+			std::string fields;
 			if (!match_login)
 				fields.append("login ");
 			if (!match_pass)

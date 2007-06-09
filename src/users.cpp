@@ -330,9 +330,9 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	muted = exempt = haspassed = dns_done = false;
 	fd = -1;
-	recvq = "";
-	sendq = "";
-	WriteError = "";
+	recvq.clear();
+	sendq.clear();
+	WriteError.clear();
 	res_forward = res_reverse = NULL;
 	Visibility = NULL;
 	ip = NULL;
@@ -632,7 +632,7 @@ bool userrec::BufferIsReady()
 
 void userrec::ClearBuffer()
 {
-	recvq = "";
+	recvq.clear();
 }
 
 std::string userrec::GetBuffer()
@@ -713,7 +713,7 @@ void userrec::FlushWriteBuf()
 	{
 		if ((this->fd == FD_MAGIC_NUMBER) || (*this->GetWriteError()))
 		{
-			sendq = "";
+			sendq.clear();
 		}
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{

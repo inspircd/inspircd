@@ -27,7 +27,7 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("382 %s %s :Rehashing",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
-	std::string parameter = "";
+	std::string parameter;
 	std::string old_disabled = ServerInstance->Config->DisabledCommands;
 	if (pcnt)
 	{

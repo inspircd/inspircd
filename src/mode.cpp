@@ -280,7 +280,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
 	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
 
-	LastParse = "";
+	LastParse.clear();
 
 	/* Special case for displaying the list for listmodes,
 	 * e.g. MODE #chan b, or MODE #chan +b without a parameter
@@ -411,9 +411,9 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 		}
 
 		std::string mode_sequence = parameters[1];
-		std::string parameter = "";
+		std::string parameter;
 		std::ostringstream parameter_list;
-		std::string output_sequence = "";
+		std::string output_sequence;
 		bool adding = true, state_change = false;
 		unsigned char handler_id = 0;
 		int parameter_counter = 2; /* Index of first parameter */
@@ -905,8 +905,8 @@ bool ModeParser::PrefixComparison(prefixtype one, prefixtype two)
 
 std::string ModeParser::BuildPrefixes()
 {
-	std::string mletters = "";
-	std::string mprefixes = "";
+	std::string mletters;
+	std::string mprefixes;
 	pfxcontainer pfx;
 	std::map<char,char> prefix_to_mode;
 
@@ -1046,7 +1046,7 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	memset(modewatchers, 0, sizeof(modewatchers));
 
 	/* Last parse string */
-	LastParse = "";
+	LastParse.clear();
 
 	/* Initialise the RFC mode letters */
 	for (int index = 0; modes[index].modechar; index++)

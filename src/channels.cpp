@@ -188,7 +188,7 @@ void chanrec::SetDefaultModes()
 			if (mode->GetNumParams(true))
 				parameter = list.GetToken().c_str();
 			else
-				parameter = "";
+				parameter.clear();
 
 			mode->OnModeChange(dummyuser, dummyuser, this, parameter, true);
 		}
@@ -790,7 +790,7 @@ char* chanrec::ChanModes(bool showkey)
 		if(this->modes[n])
 		{
 			*offset++ = n + 65;
-			extparam = "";
+			extparam.clear();
 			switch (n)
 			{
 				case CM_KEY:
@@ -811,7 +811,7 @@ char* chanrec::ChanModes(bool showkey)
 					extparam = this->GetModeParameter(n + 65);
 				break;
 			}
-			if (extparam != "")
+			if (!extparam.empty())
 			{
 				charlcat(sparam,' ',MAXBUF);
 				strlcat(sparam,extparam.c_str(),MAXBUF);

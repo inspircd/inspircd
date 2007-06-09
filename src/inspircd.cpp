@@ -1231,7 +1231,7 @@ void FileLogger::WriteLogLine(const std::string &line)
 		else
 		{
 			/* Wrote the whole buffer, and no need for write callback */
-			buffer = "";
+			buffer.clear();
 		}
 #endif
 		if (writeops++ % 20)
@@ -1262,7 +1262,7 @@ void FileLogger::Close()
 		fclose(log);
 	}
 
-	buffer = "";
+	buffer.clear();
 }
 
 FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Instance), log(logfile), writeops(0)
@@ -1271,7 +1271,7 @@ FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile) : ServerInstance(Insta
 	{
 		irc::sockets::NonBlocking(fileno(log));
 		this->SetFd(fileno(log));
-		buffer = "";
+		buffer.clear();
 	}
 }
 

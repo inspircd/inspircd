@@ -117,7 +117,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					else
 					{
 						current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
-						current->recvq = "";
+						current->recvq.clear();
 					}
 				}
 				else

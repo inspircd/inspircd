@@ -129,7 +129,7 @@ void ServerConfig::Update005()
 			char buf[MAXBUF];
 			snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
 			isupport.push_back(buf);
-			line5 = "";
+			line5.clear();
 			token_counter = 0;
 		}
 	}

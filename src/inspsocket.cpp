@@ -177,7 +177,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 		std::string IP = ip.empty() ? Conf.ReadValue("bind","address",j) : ip;
 		if (!ip.empty() || Conf.ReadValue("bind","type",j) == "servers")
 		{
-			if (!ip.empty() || ((IP != "*") && (IP != "127.0.0.1") && (IP != "") && (IP != "::1")))
+			if (!ip.empty() || ((IP != "*") && (IP != "127.0.0.1") && (!IP.empty()) && (IP != "::1")))
 			{
 				sockaddr* s = new sockaddr[2];
 #ifdef IPV6

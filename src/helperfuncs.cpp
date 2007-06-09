@@ -81,7 +81,7 @@ std::string InspIRCd::GetServerDescription(const char* servername)
 
 	FOREACH_MOD_I(this,I_OnGetServerDescription,OnGetServerDescription(servername,description));
 
-	if (description != "")
+	if (!description.empty())
 	{
 		return description;
 	}
@@ -435,7 +435,7 @@ void InspIRCd::OpenLog(char** argv, int argc)
 
 	if (!*this->LogFileName)
 	{
-		if (Config->logpath == "")
+		if (Config->logpath.empty())
 		{
 			Config->logpath = Config->MyDir + "/ircd.log";
 		}

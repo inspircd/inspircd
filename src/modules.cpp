@@ -329,7 +329,7 @@ std::pair<int,std::string> InspIRCd::GetInterfaceInstanceCount(Module* m)
 
 const std::string& InspIRCd::GetModuleName(Module* m)
 {
-	static std::string nothing = ""; /* Prevent compiler warning */
+	static std::string nothing; /* Prevent compiler warning */
 
 	if (!this->GetModuleCount())
 		return nothing;
@@ -403,7 +403,7 @@ void InspIRCd::SendMode(const char** parameters, int pcnt, userrec *user)
 void InspIRCd::DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream)
 {
 	std::string CompleteLine = LinePrefix;
-	std::string Word = "";
+	std::string Word;
 	while (TextStream >> Word)
 	{
 		if (CompleteLine.length() + Word.length() + 3 > 500)
@@ -674,7 +674,7 @@ FileReader::FileReader(InspIRCd* Instance) : ServerInstance(Instance)
 
 std::string FileReader::Contents()
 {
-	std::string x = "";
+	std::string x;
 	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
 	{
 		x.append(*a);

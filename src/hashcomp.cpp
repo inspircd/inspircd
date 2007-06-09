@@ -211,7 +211,7 @@ bool irc::tokenstream::GetToken(std::string &token)
 
 		n++;
 	}
-	token = "";
+	token.clear();
 	return false;
 }
 
@@ -433,14 +433,14 @@ long irc::portparser::GetToken()
 
 	std::string x = sep->GetToken();
 
-	if (x == "")
+	if (x.empty())
 		return 0;
 
 	while (Overlaps(atoi(x.c_str())))
 	{
 		x = sep->GetToken();
 
-		if (x == "")
+		if (x.empty())
 			return 0;
 	}
 
