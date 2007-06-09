@@ -18,9 +18,9 @@
 
 static FileReader *quotes = NULL;
 
-std::string q_file = "";
-std::string prefix = "";
-std::string suffix = "";
+std::string q_file;
+std::string prefix;
+std::string suffix;
 
 /* $ModDesc: Provides random Quotes on Connect. */
 
@@ -39,7 +39,7 @@ class cmd_randquote : public command_t
 		std::string str;
 		int fsize;
 
-		if (q_file == "" || quotes->Exists())
+		if (q_file.empty() || quotes->Exists())
 		{
 			fsize = quotes->FileSize();
 			str = quotes->GetLine(rand() % fsize);
@@ -92,7 +92,7 @@ class ModuleRandQuote : public Module
 
 		mycommand = NULL;
 
-		if (q_file == "")
+		if (q_file.empty())
 		{
 			RandquoteException e("m_randquote: Quotefile not specified - Please check your config.");
 			throw(e);

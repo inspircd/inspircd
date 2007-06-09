@@ -233,7 +233,7 @@ class HttpServerSocket : public InspSocket
 
 			if (headers.str().find("\r\n\r\n") != std::string::npos)
 			{
-				if (request_type == "")
+				if (request_type.empty())
 				{
 					headers >> request_type;
 					headers >> uri;
@@ -246,7 +246,7 @@ class HttpServerSocket : public InspSocket
 				if ((InternalState == HTTP_SERVE_WAIT_REQUEST) && (request_type == "POST"))
 				{
 					/* Do we need to fetch postdata? */
-					postdata = "";
+					postdata.clear();
 					InternalState = HTTP_SERVE_RECV_POSTDATA;
 					std::string header_item;
 					while (headers >> header_item)

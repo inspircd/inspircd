@@ -31,7 +31,7 @@ class cmd_setname : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		std::string line = "";
+		std::string line;
 		for (int i = 0; i < pcnt-1; i++)
 		{
 			line = line + std::string(parameters[i]) + " ";

@@ -113,7 +113,7 @@ class ModuleHttpStats : public Module
 				data << "<table>";
 				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
 				{
-					if (ServerInstance->Config->module_names[i] != "")
+					if (!ServerInstance->Config->module_names[i].empty())
 						data << "<tr><td>" << ServerInstance->Config->module_names[i] << "</td></tr>";
 				}
 				data << "</table>";

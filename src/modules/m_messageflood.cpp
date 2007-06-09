@@ -135,7 +135,7 @@ class MsgFlood : public ModeHandler
 				if ((nlines<1) || (nsecs<1))
 				{
 					source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
-					parameter = "";
+					parameter.clear();
 					return MODEACTION_DENY;
 				}
 				else
@@ -167,7 +167,7 @@ class MsgFlood : public ModeHandler
 			else
 			{
 				source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
-				parameter = "";
+				parameter.clear();
 				return MODEACTION_DENY;
 			}
 		}

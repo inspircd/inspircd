@@ -39,7 +39,7 @@ class cmd_knock : public command_t
 			return CMD_FAILURE;
 		}
 
-		std::string line = "";
+		std::string line;
 
 		if (c->IsModeSet('K'))
 		{

@@ -231,11 +231,11 @@ class ModuleDNSBL : public Module
 			{
 				ServerInstance->WriteOpers("*** DNSBL(#%d): invalid bitmask",i);
 			}
-			else if (e->name == "")
+			else if (e->name.empty())
 			{
 				ServerInstance->WriteOpers("*** DNSBL(#%d): Invalid name",i);
 			}
-			else if (e->domain == "")
+			else if (e->domain.empty())
 			{
 				ServerInstance->WriteOpers("*** DNSBL(#%d): Invalid domain",i);
 			}
@@ -245,7 +245,7 @@ class ModuleDNSBL : public Module
 			}
 			else
 			{
-				if (e->reason == "")
+				if (e->reason.empty())
 				{
 					ServerInstance->WriteOpers("*** DNSBL(#%d): empty reason, using defaults",i);
 					e->reason = "Your IP has been blacklisted.";

@@ -34,7 +34,7 @@ public:
 	: command_t(Instance, "LOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
-		syntax = "";
+		syntax.clear();
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
@@ -57,7 +57,7 @@ public:
 	: command_t(Instance, "UNLOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
-		syntax = "";
+		syntax.clear();
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

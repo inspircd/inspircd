@@ -31,9 +31,9 @@
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : ServerInstance(Instance), Utils(Util)
 {
 	Parent = NULL;
-	ServerName = "";
-	ServerDesc = "";
-	VersionString = "";
+	ServerName.clear();
+	ServerDesc.clear();
+	VersionString.clear();
 	UserCount = OperCount = 0;
 	rtt = LastPing = 0;
 	Hidden = false;
@@ -47,7 +47,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : Server
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 {
 	Parent = NULL;
-	VersionString = "";
+	VersionString.clear();
 	UserCount = ServerInstance->UserCount();
 	OperCount = ServerInstance->OperCount();
 	VersionString = ServerInstance->GetVersionString();
@@ -65,7 +65,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
-	VersionString = "";
+	VersionString.clear();
 	UserCount = OperCount = 0;
 	this->SetNextPingTime(time(NULL) + 60);
 	this->SetPingFlag();

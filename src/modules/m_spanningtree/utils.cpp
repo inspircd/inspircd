@@ -409,7 +409,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 	ValidIPs.clear();
 	for (std::vector<Link>::iterator L = LinkBlocks.begin(); L != LinkBlocks.end(); L++)
 	{
-		if ((L->IPAddr != "") && (L->RecvPass != "") && (L->SendPass != "") && (L->Name != "") && (L->Port))
+		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
 		{
 			ValidIPs.push_back(L->IPAddr);
 
@@ -468,7 +468,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 				while ((portno = portrange.GetToken()))
 				{
 					if (IP == "*")
-						IP = "";
+						IP.clear();
 
 					if ((!transport.empty()) && (hooks.find(transport.c_str()) ==  hooks.end()))
 					{
@@ -536,7 +536,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		/* Bugfix by brain, do not allow people to enter bad configurations */
 		if (L.Name != ServerInstance->Config->ServerName)
 		{
-			if ((L.IPAddr != "") && (L.RecvPass != "") && (L.SendPass != "") && (L.Name != "") && (L.Port))
+			if ((!L.IPAddr.empty()) && (!L.RecvPass.empty()) && (!L.SendPass.empty()) && (!L.Name.empty()) && (L.Port))
 			{
 				ValidIPs.push_back(L.IPAddr);
 
@@ -583,19 +583,19 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 			}
 			else
 			{
-				if (L.IPAddr == "")
+				if (L.IPAddr.empty())
 				{
 					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', IP address not defined!",L.Name.c_str());
 				}
-				else if (L.RecvPass == "")
+				else if (L.RecvPass.empty())
 				{
 					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', recvpass not defined!",L.Name.c_str());
 				}
-				else if (L.SendPass == "")
+				else if (L.SendPass.empty())
 				{
 					ServerInstance->Log(DEFAULT,"Invalid configuration for server '%s', sendpass not defined!",L.Name.c_str());
 				}
-				else if (L.Name == "")
+				else if (L.Name.empty())
 				{
 					ServerInstance->Log(DEFAULT,"Invalid configuration, link tag without a name!");
 				}

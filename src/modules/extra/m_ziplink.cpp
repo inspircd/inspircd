@@ -419,13 +419,13 @@ class ModuleZLib : public Module
 					return 0;
 				else
 				{
-					session->outbuf = "";
+					session->outbuf.clear();
 					return 0;
 				}
 			}
 			else
 			{
-				session->outbuf = "";
+				session->outbuf.clear();
 				return 0;
 			}
 		}
@@ -441,7 +441,7 @@ class ModuleZLib : public Module
 		if (session->status == IZIP_OPEN)
 		{
 			session->status = IZIP_CLOSED;
-			session->outbuf = "";
+			session->outbuf.clear();
 			delete session->inbuf;
 		}
 	}

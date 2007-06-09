@@ -979,7 +979,7 @@ void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::
 	{
 		std::deque<std::string> params;
 		params.push_back(channel->name);
-		if (partmessage != "")
+		if (!partmessage.empty())
 			params.push_back(":"+partmessage);
 		Utils->DoOneToMany(user->nick,"PART",params);
 	}
@@ -1073,7 +1073,7 @@ void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std:
 
 void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
 {
-	if (parameter != "")
+	if (!parameter.empty())
 	{
 		std::deque<std::string> params;
 		params.push_back(parameter);

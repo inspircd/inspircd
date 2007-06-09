@@ -22,7 +22,7 @@ class cmd_alltime : public command_t
 	cmd_alltime(InspIRCd *Instance) : command_t(Instance, "ALLTIME", 'o', 0)
 	{
 		this->source = "m_alltime.so";
-		syntax = "";
+		syntax.clear();
 	}
 
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)

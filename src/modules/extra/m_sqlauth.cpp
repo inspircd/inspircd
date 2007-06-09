@@ -88,7 +88,7 @@ public:
 
 	virtual int OnUserRegister(userrec* user)
 	{
-		if ((allowpattern != "") && (ServerInstance->MatchText(user->nick,allowpattern)))
+		if ((!allowpattern.empty()) && (ServerInstance->MatchText(user->nick,allowpattern)))
 		{
 			user->Extend("sqlauthed");
 			return 0;

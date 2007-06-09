@@ -210,7 +210,7 @@ class CloakUser : public ModeHandler
 		/* If we get here, yes it really is an ipv6 ip */
 		unsigned int iv[] = { key1, key2, key3, key4 };
 		std::vector<std::string> hashies;
-		std::string item = "";
+		std::string item;
 		int rounds = 0;
 
 		/* Reset the Hash module and send it our IV */
@@ -225,7 +225,7 @@ class CloakUser : public ModeHandler
 				/* Send the Hash module a different hex table for each octet group's Hash sum */
 				HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
 				hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
-				item = "";
+				item.clear();
 			}
 			rounds++;
 		}
@@ -234,7 +234,7 @@ class CloakUser : public ModeHandler
 			/* Send the Hash module a different hex table for each octet group's Hash sum */
 			HashHexRequest(Sender, HashProvider, xtab[(key1+rounds) % 4]).Send();
 			hashies.push_back(std::string(HashSumRequest(Sender, HashProvider, item).Send()).substr(0,8));
-			item = "";
+			item.clear();
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();

@@ -302,7 +302,7 @@ bool HTTPSocket::OnDataReady()
 			{
 				this->status = HTTP_DATA;
 				this->data += this->buffer;
-				this->buffer = "";
+				this->buffer.clear();
 				break;
 			}
 

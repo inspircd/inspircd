@@ -49,7 +49,7 @@ bool TreeSocket::Error(std::deque<std::string> &params)
 {
 	if (params.size() < 1)
 		return false;
-	this->Instance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(InboundServerName != "" ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
+	this->Instance->SNO->WriteToSnoMask('l',"ERROR from %s: %s",(!InboundServerName.empty() ? InboundServerName.c_str() : myhost.c_str()),params[0].c_str());
 	/* we will return false to cause the socket to close. */
 	return false;
 }
@@ -1182,7 +1182,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 */
 				command = "MODE";
 			}
-			std::string target = "";
+			std::string target;
 			/* Yes, know, this is a mess. Its reasonably fast though as we're
 			 * working with std::string here.
 			 */
@@ -1254,7 +1254,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PING")
 			{
-				if (prefix == "")
+				if (prefix.empty())
 					prefix = this->GetName();
 				/*
 				 * We just got a ping from a server that's bursting.
@@ -1276,7 +1276,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PONG")
 			{
-				if (prefix == "")
+				if (prefix.empty())
 					prefix = this->GetName();
 				/*
 				 * We just got a pong from a server that's bursting.
@@ -1317,7 +1317,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SVSNICK")
 			{
-				if (prefix == "")
+				if (prefix.empty())
 				{
 					prefix = this->GetName();
 				}
@@ -1361,7 +1361,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 							delete chan;
 					}
 				}
-				if (this->InboundServerName != "")
+				if (!this->InboundServerName.empty())
 				{
 					sourceserv = this->InboundServerName;
 				}
@@ -1369,7 +1369,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SVSJOIN")
 			{
-				if (prefix == "")
+				if (prefix.empty())
 				{
 					prefix = this->GetName();
 				}
@@ -1386,7 +1386,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "OPERNOTICE")
 			{
 				std::string sourceserv = this->myhost;
-				if (this->InboundServerName != "")
+				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 1)
 					Instance->WriteOpers("*** From " + sourceserv + ": " + params[0]);
@@ -1395,7 +1395,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "MODENOTICE")
 			{
 				std::string sourceserv = this->myhost;
-				if (this->InboundServerName != "")
+				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
@@ -1406,7 +1406,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "SNONOTICE")
 			{
 				std::string sourceserv = this->myhost;
-				if (this->InboundServerName != "")
+				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
@@ -1420,10 +1420,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 				Instance->XLines->apply_lines(Utils->lines_to_apply);
 				Utils->lines_to_apply = 0;
 				std::string sourceserv = this->myhost;
-				if (this->InboundServerName != "")
-				{
+				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
-				}
 				this->Instance->SNO->WriteToSnoMask('l',"Received end of netburst from \2%s\2",sourceserv.c_str());
 
 				Event rmode((char*)sourceserv.c_str(), (Module*)Utils->Creator, "new_server");
@@ -1438,7 +1436,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				// this saves us having a huge ugly parser.
 				userrec* who = this->Instance->FindNick(prefix);
 				std::string sourceserv = this->myhost;
-				if (this->InboundServerName != "")
+				if (!this->InboundServerName.empty())
 				{
 					sourceserv = this->InboundServerName;
 				}
@@ -1527,7 +1525,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 std::string TreeSocket::GetName()
 {
 	std::string sourceserv = this->myhost;
-	if (this->InboundServerName != "")
+	if (!this->InboundServerName.empty())
 	{
 		sourceserv = this->InboundServerName;
 	}
@@ -1551,7 +1549,7 @@ void TreeSocket::OnClose()
 	// If the connection is fully up (state CONNECTED)
 	// then propogate a netsplit to all peers.
 	std::string quitserver = this->myhost;
-	if (this->InboundServerName != "")
+	if (!this->InboundServerName.empty())
 	{
 		quitserver = this->InboundServerName;
 	}
@@ -1561,7 +1559,7 @@ void TreeSocket::OnClose()
 		Squit(s,"Remote host closed the connection");
 	}
 
-	if (quitserver != "")
+	if (!quitserver.empty())
 	{
 		this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
 		time_t server_uptime = Instance->Time() - this->age;	

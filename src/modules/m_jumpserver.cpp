@@ -34,7 +34,8 @@ class cmd_jumpserver : public command_t
 	{
 		this->source = "m_jumpserver.so";
 		syntax = "[<server> <port> <+/-a> :<reason>]";
-		redirect_to = reason = "";
+		redirect_to.clear();
+		reason.clear();
 		port = 0;
 		redirect_all_immediately = redirect_new_users = false;
 	}
@@ -57,12 +58,12 @@ class cmd_jumpserver : public command_t
 				user->WriteServ("NOTICE %s :*** jumpserver was not enabled.", user->nick);
 
 			port = 0;
-			redirect_to = "";
+			redirect_to.clear();
 			return CMD_LOCALONLY;
 		}
 
 		port = 0;
-		redirect_to = "";
+		redirect_to.clear();
 
 		for (const char* n = parameters[2]; *n; n++)
 		{

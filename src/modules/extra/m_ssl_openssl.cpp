@@ -172,7 +172,8 @@ class ModuleSSLOpenSSL : public Module
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			if (((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "openssl"))
+			std::string x = Conf->ReadValue("bind", "type", i);
+			if (((x.empty()) || (x == "clients")) && (x == "openssl"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
@@ -214,24 +215,21 @@ class ModuleSSLOpenSSL : public Module
 		dhfile	 = Conf->ReadValue("openssl", "dhfile", 0);
 
 		// Set all the default values needed.
-		if (cafile == "")
+		if (cafile.empty())
 			cafile = "ca.pem";
 
-		if (certfile == "")
+		if (certfile.empty())
 			certfile = "cert.pem";
 
-		if (keyfile == "")
+		if (keyfile.empty())
 			keyfile = "key.pem";
 
-		if (dhfile == "")
+		if (dhfile.empty())
 			dhfile = "dhparams.pem";
 
 		// Prepend relative paths with the path to the config directory.
 		if (cafile[0] != '/')
 			cafile = confdir + cafile;
-
-		//if(crlfile[0] != '/')
-		//	crlfile = confdir + crlfile;
 
 		if (certfile[0] != '/')
 			certfile = confdir + certfile;

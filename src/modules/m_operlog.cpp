@@ -53,7 +53,7 @@ class ModuleOperLog : public Module
 			command_t* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed = 'o'))
 			{
-				std::string plist = "";
+				std::string plist;
 				for (int j = 0; j < pcnt; j++)
 					plist.append(std::string(" ")+std::string(parameters[j]));
 

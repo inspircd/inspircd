@@ -128,7 +128,8 @@ class ModuleSSLGnuTLS : public Module
 		for(int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			if(((Conf->ReadValue("bind", "type", i) == "") || (Conf->ReadValue("bind", "type", i) == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "gnutls"))
+			std::string x = Conf->ReadValue("bind", "type", i);
+			if(((x.empty()) || (x == "clients")) && (x == "gnutls"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
@@ -171,16 +172,16 @@ class ModuleSSLGnuTLS : public Module
 		dh_bits	= Conf->ReadInteger("gnutls", "dhbits", 0, false);
 
 		// Set all the default values needed.
-		if(cafile == "")
+		if (cafile.empty())
 			cafile = "ca.pem";
 
-		if(crlfile == "")
+		if (crlfile.empty())
 			crlfile = "crl.pem";
 
-		if(certfile == "")
+		if (certfile.empty())
 			certfile = "cert.pem";
 
-		if(keyfile == "")
+		if (keyfile.empty())
 			keyfile = "key.pem";
 
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))

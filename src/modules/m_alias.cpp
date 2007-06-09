@@ -101,7 +101,7 @@ class ModuleAlias : public Module
 		int index = *(varname.begin()) - 48;
 		varname.erase(varname.begin());
 		bool everything_after = (varname == "-");
-		std::string word = "";
+		std::string word;
 
 		for (int j = 0; j < index; j++)
 			word = ss.GetToken();
@@ -170,7 +170,7 @@ class ModuleAlias : public Module
 				if ((Aliases[i].operonly) && (!IS_OPER(user)))
 					return 0;
 
-				if (Aliases[i].requires != "")
+				if (!Aliases[i].requires.empty())
 				{
 					u = ServerInstance->FindNick(Aliases[i].requires);
 					if (!u)
@@ -179,7 +179,7 @@ class ModuleAlias : public Module
 						return 1;
 					}
 				}
-				if ((u != NULL) && (Aliases[i].requires != "") && (Aliases[i].uline))
+				if ((u != NULL) && (!Aliases[i].requires.empty()) && (Aliases[i].uline))
 				{
 					if (!ServerInstance->ULine(u->server))
 					{

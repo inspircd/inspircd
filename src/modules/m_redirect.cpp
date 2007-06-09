@@ -48,7 +48,7 @@ class Redirect : public ModeHandler
 			if (!ServerInstance->IsChannel(parameter.c_str()))
 			{
 				source->WriteServ("403 %s %s :Invalid channel name",source->nick, parameter.c_str());
-				parameter = "";
+				parameter.clear();
 				return MODEACTION_DENY;
 			}
 
@@ -61,7 +61,7 @@ class Redirect : public ModeHandler
 					if ((c == channel) || (c->IsModeSet('L')))
 					{
 						source->WriteServ("690 %s :Circular or chained +L to %s not allowed (Channel already has +L). Pack of wild dogs has been unleashed.",source->nick,parameter.c_str());
-						parameter = "";
+						parameter.clear();
 						return MODEACTION_DENY;
 					}
 					else

@@ -139,7 +139,7 @@ class JoinFlood : public ModeHandler
 				if ((njoins<1) || (nsecs<1))
 				{
 					source->WriteServ("608 %s %s :Invalid flood parameter",source->nick,channel->name);
-					parameter = "";
+					parameter.clear();
 					return MODEACTION_DENY;
 				}
 				else

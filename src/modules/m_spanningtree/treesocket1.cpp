@@ -46,7 +46,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
 {
 	myhost = host;
 	this->LinkState = LISTENER;
-	theirchallenge = ourchallenge = "";
+	theirchallenge.clear();
+	ourchallenge.clear();
 	if (listening && Hook)
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
@@ -55,7 +56,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
 	: InspSocket(SI, host, port, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
 	myhost = ServerName;
-	theirchallenge = ourchallenge = "";
+	theirchallenge.clear();
+	ourchallenge.clear();
 	this->LinkState = CONNECTING;
 	if (Hook)
 		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
@@ -69,7 +71,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	: InspSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 {
 	this->LinkState = WAIT_AUTH_1;
-	theirchallenge = ourchallenge = "";
+	theirchallenge.clear();
+	ourchallenge.clear();
 	/* If we have a transport module hooked to the parent, hook the same module to this
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
@@ -274,7 +277,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 std::string TreeSocket::MyCapabilities()
 {
 	std::vector<std::string> modlist;
-	std::string capabilities = "";
+	std::string capabilities;
 	for (int i = 0; i <= this->Instance->GetModuleCount(); i++)
 	{
 		if (this->Instance->modules[i]->GetVersion().Flags & VF_COMMON)
@@ -386,7 +389,7 @@ std::string TreeSocket::ListDifference(const std::string &one, const std::string
 {
 	irc::commasepstream list_one(one);
 	std::string item = "*";
-	std::string result = "";
+	std::string result;
 	while ((item = list_one.GetToken()) != "")
 	{
 		if (!HasItem(two, item))
@@ -416,12 +419,12 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 	}
 	if (params[0] == "START")
 	{
-		this->ModuleList = "";
+		this->ModuleList.clear();
 		this->CapKeys.clear();
 	}
 	else if (params[0] == "END")
 	{
-		std::string reason = "";
+		std::string reason;
 		int ip6support = 0;
 #ifdef SUPPORT_IP6LINKS
 		ip6support = 1;
@@ -998,16 +1001,14 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	char list[MAXBUF];
 	std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
 
-	Instance->Log(DEBUG,"Sending FJOINs for %s", c->name);
-
 	size_t dlen, curlen;
 	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 	int numusers = 0;
 	char* ptr = list + dlen;
 
 	CUList *ulist = c->GetUsers();
-	std::string modes = "";
-	std::string params = "";
+	std::string modes;
+	std::string params;
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
@@ -1021,7 +1022,6 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 
 		if (curlen > (480-NICKMAX))
 		{
-			Instance->Log(DEBUG,"Flushing FJOIN buffer: %s", list);
 			buffer.append(list).append("\r\n");
 			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
 			ptr = list + dlen;
@@ -1030,13 +1030,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		}
 	}
 
-	Instance->Log(DEBUG,"%d users remaining to be flushed", list);
-
 	if (numusers)
-	{
-		Instance->Log(DEBUG,"Flushing final FJOIN buffer: %s", list);
 		buffer.append(list).append("\r\n");
-	}
 
 	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
 
@@ -1055,8 +1050,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		{
 			/* Wrap at MAXMODES */
 			buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
-			modes = "";
-			params = "";
+			modes.clear();
+			params.clear();
 			linesize = 1;
 		}
 	}

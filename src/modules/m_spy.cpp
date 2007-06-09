@@ -77,7 +77,7 @@ class cmd_spylist : public command_t
 	cmd_spylist (InspIRCd* Instance) : command_t(Instance,"SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
-		syntax = "";
+		syntax.clear();
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

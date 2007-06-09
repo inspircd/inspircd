@@ -101,7 +101,7 @@ class ModuleHostChange : public Module
 			{
 				Host* h = (Host*)i->second;
 				// host of new user matches a hostchange tag's mask
-				std::string newhost = "";
+				std::string newhost;
 				if (h->action == "set")
 				{
 					newhost = h->newhost;
@@ -113,7 +113,7 @@ class ModuleHostChange : public Module
 				else if (h->action == "addnick")
 				{
 					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
-					std::string complete = "";
+					std::string complete;
 					std::string old = user->nick;
 					for (unsigned int j = 0; j < old.length(); j++)
 					{

@@ -65,7 +65,7 @@ class ModuleModesOnConnect : public Module
 			if ((match(user->GetIPString(),hostn.c_str(),true)) || (match(user->host,hostn.c_str())))
 			{
 				std::string ThisModes = Conf->ReadValue("connect","modes",j);
-				if (ThisModes != "")
+				if (!ThisModes.empty())
 				{
 					std::string buf;
 					stringstream ss(ThisModes);

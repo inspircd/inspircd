@@ -126,7 +126,7 @@ class FounderProtectBase
 		userrec* theuser = MyInstance->FindNick(parameter);
 		if ((!theuser) || (!channel->HasUser(theuser)))
 		{
-			parameter = "";
+			parameter.clear();
 			return NULL;
 		}
 		return theuser;
@@ -215,7 +215,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		{
 			// whoops, someones being naughty!
 			source->WriteServ("468 %s %s :Only servers may set channel mode +q",source->nick, channel->name);
-			parameter = "";
+			parameter.clear();
 			return MODEACTION_DENY;
 		}
 	}
