@@ -1216,7 +1216,7 @@ void FileLogger::WriteLogLine(const std::string &line)
 	{
 		int written = fprintf(log,"%s",buffer.c_str());
 #ifdef WINDOWS
-		buffer = "";
+		buffer.clear();
 #else
 		if ((written >= 0) && (written < (int)buffer.length()))
 		{
