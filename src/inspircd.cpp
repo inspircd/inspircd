@@ -70,7 +70,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 		return false;
 
 	// Launch our "forked" process.
-	BOOL bSuccess = CreateProcess ( module, module, 
+	BOOL bSuccess = CreateProcess ( module, NULL, 
 		0,									// PROCESS_SECURITY_ATTRIBUTES
 		0,									// THREAD_SECURITY_ATTRIBUTES
 		TRUE,								// We went to inherit handles.
