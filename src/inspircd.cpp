@@ -50,7 +50,11 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	// Build the command line arguments.
 	string command_line;
 	for(int i = 0; i < Instance->Config->argc; ++i)
+	{
 		command_line += Instance->Config->argv[i];
+		if(Instance->Config->argc != i+1)
+			command_line += " ";
+	}
 
 	char module[MAX_PATH];
 	if(!GetModuleFileName(NULL, module, MAX_PATH))
@@ -64,13 +68,8 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	// Fill in the startup info struct
 	GetStartupInfo(&startupinfo);
 
-	// Create the "startup" event
-	HANDLE fork_event = CreateEvent(0, TRUE, FALSE, "InspStartup");
-	if(!fork_event)
-		return false;
-
 	// Launch our "forked" process.
-	BOOL bSuccess = CreateProcess ( module, NULL, 
+	BOOL bSuccess = CreateProcess ( module, (LPTSTR)command_line.c_str(), 
 		0,									// PROCESS_SECURITY_ATTRIBUTES
 		0,									// THREAD_SECURITY_ATTRIBUTES
 		TRUE,								// We went to inherit handles.
