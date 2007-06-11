@@ -58,7 +58,10 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 
 	char module[MAX_PATH];
 	if(!GetModuleFileName(NULL, module, MAX_PATH))
+	{
+		printf("GetModuleFileName() failed.\n");
 		return false;
+	}
 
 	STARTUPINFO startupinfo;
 	PROCESS_INFORMATION procinfo;
@@ -81,13 +84,19 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 		&procinfo);							// process info
 
 	if(!bSuccess)
+	{
+		printf("CreateProcess() failed.\n");
 		return false;
+	}
 
 	// Set the owner process id in the target process.
 	SIZE_T written = 0;
 	DWORD pid = GetCurrentProcessId();
 	if(!WriteProcessMemory(procinfo.hProcess, &owner_processid, &pid, sizeof(DWORD), &written) || written != sizeof(DWORD))
+	{
+		printf("WriteProcessMemory() failed.\n");
 		return false;
+	}
 
 	// Resume the other thread (let it start)
 	ResumeThread(procinfo.hThread);
@@ -98,6 +107,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	// If we hit this it means startup failed, default to 14 if this fails.
 	DWORD ExitCode = 14;
 	GetExitCodeProcess(procinfo.hProcess, &ExitCode);
+	printf("Startup failed, exitcode was %u.\n", ExitCode);
 	CloseHandle(procinfo.hThread);
 	CloseHandle(procinfo.hProcess);
 	return ExitCode;
@@ -107,11 +117,17 @@ void WindowsForkKillOwner(InspIRCd * Instance)
 {
 	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
 	if(!hProcess || !owner_processid)
+	{
+		printf("Could not open process id %u.\n", owner_processid);
 		Instance->Exit(14);
+	}
 
 	// die die die
 	if(!TerminateProcess(hProcess, 0))
+	{
+		printf("Could not TerminateProcess().\n");
 		Instance->Exit(14);
+	}
 
 	CloseHandle(hProcess);
 }
