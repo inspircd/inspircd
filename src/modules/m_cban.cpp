@@ -100,8 +100,8 @@ class cmd_cban : public command_t
 				}
 				else
 				{
-					user->WriteServ( "385 %s %s :Added permenant channel ban (%s)", user->nick, parameters[0], reason.c_str());
-					ServerInstance->WriteOpers("*** %s added permenant channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteServ( "385 %s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
+					ServerInstance->WriteOpers("*** %s added permanent channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else

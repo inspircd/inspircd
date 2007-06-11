@@ -90,7 +90,7 @@ class cmd_svshold : public command_t
 						}
 						else
 						{
-							user->WriteServ( "386 %s %s :Removed permenant SVSHOLD (%s)", user->nick, (*iter)->nickname.c_str(), (*iter)->reason.c_str());
+							user->WriteServ( "386 %s %s :Removed permanent SVSHOLD (%s)", user->nick, (*iter)->nickname.c_str(), (*iter)->reason.c_str());
 						}
 						SVSHolds.erase(iter);
 						break;
