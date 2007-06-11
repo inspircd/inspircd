@@ -78,7 +78,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 
 	// Launch our "forked" process.
 	BOOL bSuccess = CreateProcess ( module,	// Module (exe) filename
-		GetCommandLine(),		// Command line (exe plus parameters from the OS)
+		strdup(GetCommandLine()),		// Command line (exe plus parameters from the OS)
 		0,				// PROCESS_SECURITY_ATTRIBUTES
 		0,				// THREAD_SECURITY_ATTRIBUTES
 		TRUE,				// We went to inherit handles.
