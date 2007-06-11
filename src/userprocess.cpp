@@ -112,7 +112,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 					current->lines_in++;
 
-					if (current->lines_in > current->flood)
+					if (current->flood && current->lines_in > current->flood)
 						FloodQuitUser(current);
 					else
 					{
@@ -135,7 +135,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					current->lines_in = 0;
 				}
 
-				if (++current->lines_in > current->flood)
+				if (++current->lines_in > current->flood && current->flood)
 				{
 					FloodQuitUser(current);
 					return;
