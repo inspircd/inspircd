@@ -455,7 +455,6 @@ void ClearConsole()
 {
 	COORD coordScreen = { 0, 0 };    /* here's where we'll home the cursor */
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	BOOL bSuccess;
 	DWORD cCharsWritten;
 	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */ 
 	DWORD dwConSize;                 /* number of character cells in the current buffer */ 
