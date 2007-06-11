@@ -47,24 +47,12 @@ static DWORD owner_processid = 0;
 DWORD WindowsForkStart(InspIRCd * Instance)
 {
 	/* Windows implementation of fork() :P */
-	// Build the command line arguments.
-	string command_line;
-	for(int i = 0; i < Instance->Config->argc; ++i)
-	{
-		command_line += Instance->Config->argv[i];
-		if(Instance->Config->argc != i+1)
-			command_line += " ";
-	}
 
 	char module[MAX_PATH];
 	if(!GetModuleFileName(NULL, module, MAX_PATH))
 	{
 		printf("GetModuleFileName() failed.\n");
 		return false;
-	}
-	else
-	{
-		printf("Launch '%s' '%s'\n", module, GetCommandLine());
 	}
 
 	STARTUPINFO startupinfo;
@@ -75,13 +63,26 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	// Fill in the startup info struct
 	GetStartupInfo(&startupinfo);
 
+	/* Default creation flags create the processes suspended */
+	DWORD startupflags = CREATE_SUSPENDED;
+
+	/* On windows 2003/XP and above, we can use the value
+	 * CREATE_PRESERVE_CODE_AUTHZ_LEVEL which gives more access
+	 * to the process which we may require on these operating systems.
+	 */
+	OSVERSIONINFO vi;
+	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&vi);
+	if ((vi.dwMajorVersion >= 5) && (vi.dwMinorVersion > 0))
+		startupflags |= CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
+
 	// Launch our "forked" process.
-	BOOL bSuccess = CreateProcess ( module, GetCommandLine(), 
+	BOOL bSuccess = CreateProcess ( module,	// Module (exe) filename
+		GetCommandLine(),					// Command line (exe plus parameters from the OS)
 		0,									// PROCESS_SECURITY_ATTRIBUTES
 		0,									// THREAD_SECURITY_ATTRIBUTES
 		TRUE,								// We went to inherit handles.
-		CREATE_SUSPENDED					// Suspend the primary thread of the new process
-		/*| CREATE_PRESERVE_CODE_AUTHZ_LEVEL*/,	// Allow us full access to the process
+		startupflags,						// Allow us full access to the process and suspend it.
 		0,									// ENVIRONMENT
 		0,									// CURRENT_DIRECTORY
 		&startupinfo,						// startup info
@@ -89,8 +90,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 
 	if(!bSuccess)
 	{
-		printf("CreateProcess() failed.\n");
-		printf("CreateProcess() %s\n", dlerror());
+		printf("CreateProcess() error: %s\n", dlerror());
 		return false;
 	}
 
@@ -99,7 +99,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	DWORD pid = GetCurrentProcessId();
 	if(!WriteProcessMemory(procinfo.hProcess, &owner_processid, &pid, sizeof(DWORD), &written) || written != sizeof(DWORD))
 	{
-		printf("WriteProcessMemory() failed.\n");
+		printf("WriteProcessMemory() failed: %s\n", dlerror());
 		return false;
 	}
 
@@ -112,7 +112,6 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	// If we hit this it means startup failed, default to 14 if this fails.
 	DWORD ExitCode = 14;
 	GetExitCodeProcess(procinfo.hProcess, &ExitCode);
-	printf("Startup failed, exitcode was %u.\n", ExitCode);
 	CloseHandle(procinfo.hThread);
 	CloseHandle(procinfo.hProcess);
 	return ExitCode;
@@ -123,14 +122,14 @@ void WindowsForkKillOwner(InspIRCd * Instance)
 	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
 	if(!hProcess || !owner_processid)
 	{
-		printf("Could not open process id %u.\n", owner_processid);
+		printf("Could not open process id %u: %s.\n", owner_processid, dlerror());
 		Instance->Exit(14);
 	}
 
 	// die die die
 	if(!TerminateProcess(hProcess, 0))
 	{
-		printf("Could not TerminateProcess().\n");
+		printf("Could not TerminateProcess(): %s\n", dlerror());
 		Instance->Exit(14);
 	}
 
@@ -156,7 +155,7 @@ const char* ExitCodes[] =
 		"Internal error", /* 3 */
 		"Config file error", /* 4 */
 		"Logfile error", /* 5 */
-		"Fork failed", /* 6 */
+		"POSIX fork failed", /* 6 */
 		"Bad commandline parameters", /* 7 */
 		"No ports could be bound", /* 8 */
 		"Can't write PID file", /* 9 */
@@ -164,7 +163,7 @@ const char* ExitCodes[] =
 		"Refusing to start up as root", /* 11 */
 		"Found a <die> tag!", /* 12 */
 		"Couldn't load module on startup", /* 13 */
-		"Could not create forked process", /* 14 */
+		"Could not create windows forked process", /* 14 */
 		"Received SIGTERM", /* 15 */
 };
 
