@@ -141,6 +141,16 @@ bad_rev:
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
 {
+	FILE * j = fopen("inspircd_config.h", "r");
+	if (j)
+	{
+		if (MessageBox(0, "inspircd_config.h already exists. Remove it and build from clean?", "Configure program", MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2) != IDYES)
+		{
+			fclose(j);
+			exit(0);
+		}
+	}
+
 	AllocConsole();
 
 	// pipe standard handles to this console
@@ -193,14 +203,6 @@ void Run()
 	int awaylen = 200;
 	int revision = get_svn_revision(revision_text, MAX_PATH);
 	char version[514];
-
-
-	FILE * j = fopen("inspircd_config.h", "r");
-	if (j)
-	{
-		fclose(j);
-		exit(0);
-	}
 
 	// grab version
 	FILE * fI = fopen("..\\src\\version.sh", "r");
