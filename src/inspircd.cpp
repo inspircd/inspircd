@@ -504,14 +504,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			case 'f':
 				/* Log filename was set */
 				strlcpy(LogFileName, optarg, MAXBUF);
-				if (owner_processid)
-					printf("LOG: Setting logfile to %s\n", LogFileName);
 			break;
 			case 'c':
 				/* Config filename was set */
 				strlcpy(ConfigFileName, optarg, MAXBUF);
-				if (owner_processid)
-					printf("CONFIG: Setting config file to %s\n", ConfigFileName);
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
