@@ -78,7 +78,12 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 
 	// Launch our "forked" process.
 	BOOL bSuccess = CreateProcess ( module,	// Module (exe) filename
-		strdup(GetCommandLine()),		// Command line (exe plus parameters from the OS)
+		strdup(GetCommandLine()),	// Command line (exe plus parameters from the OS)
+						// NOTE: We cannot return the direct value of the
+						// GetCommandLine function here, as the pointer is
+						// passed straight to the child process, and will be
+						// invalid once we exit as it goes out of context.
+						// strdup() seems ok, though.
 		0,				// PROCESS_SECURITY_ATTRIBUTES
 		0,				// THREAD_SECURITY_ATTRIBUTES
 		TRUE,				// We went to inherit handles.
@@ -499,12 +504,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 			case 'f':
 				/* Log filename was set */
 				strlcpy(LogFileName, optarg, MAXBUF);
-				printf("LOG: Setting logfile to %s\n", LogFileName);
+				if (owner_processid)
+					printf("LOG: Setting logfile to %s\n", LogFileName);
 			break;
 			case 'c':
 				/* Config filename was set */
 				strlcpy(ConfigFileName, optarg, MAXBUF);
-				printf("CONFIG: Setting config file to %s\n", ConfigFileName);
+				if (owner_processid)
+					printf("CONFIG: Setting config file to %s\n", ConfigFileName);
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */
