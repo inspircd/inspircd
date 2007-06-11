@@ -62,6 +62,10 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 		printf("GetModuleFileName() failed.\n");
 		return false;
 	}
+	else
+	{
+		printf("Launch '%s' '%s'\n", module, GetCommandLine());
+	}
 
 	STARTUPINFO startupinfo;
 	PROCESS_INFORMATION procinfo;
@@ -72,12 +76,12 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	GetStartupInfo(&startupinfo);
 
 	// Launch our "forked" process.
-	BOOL bSuccess = CreateProcess ( module, (LPTSTR)command_line.c_str(), 
+	BOOL bSuccess = CreateProcess ( module, GetCommandLine(), 
 		0,									// PROCESS_SECURITY_ATTRIBUTES
 		0,									// THREAD_SECURITY_ATTRIBUTES
 		TRUE,								// We went to inherit handles.
-		CREATE_SUSPENDED |					// Suspend the primary thread of the new process
-		CREATE_PRESERVE_CODE_AUTHZ_LEVEL,	// Allow us full access to the process
+		CREATE_SUSPENDED					// Suspend the primary thread of the new process
+		/*| CREATE_PRESERVE_CODE_AUTHZ_LEVEL*/,	// Allow us full access to the process
 		0,									// ENVIRONMENT
 		0,									// CURRENT_DIRECTORY
 		&startupinfo,						// startup info
@@ -86,6 +90,7 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 	if(!bSuccess)
 	{
 		printf("CreateProcess() failed.\n");
+		printf("CreateProcess() %s\n", dlerror());
 		return false;
 	}
 
