@@ -194,6 +194,14 @@ void Run()
 	int revision = get_svn_revision(revision_text, MAX_PATH);
 	char version[514];
 
+
+	FILE * j = fopen("inspircd_config.h", "r");
+	if (j)
+	{
+		fclose(j);
+		exit(0);
+	}
+
 	// grab version
 	FILE * fI = fopen("..\\src\\version.sh", "r");
 	if(fI)
