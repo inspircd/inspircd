@@ -78,15 +78,15 @@ DWORD WindowsForkStart(InspIRCd * Instance)
 
 	// Launch our "forked" process.
 	BOOL bSuccess = CreateProcess ( module,	// Module (exe) filename
-		GetCommandLine(),					// Command line (exe plus parameters from the OS)
-		0,									// PROCESS_SECURITY_ATTRIBUTES
-		0,									// THREAD_SECURITY_ATTRIBUTES
-		TRUE,								// We went to inherit handles.
-		startupflags,						// Allow us full access to the process and suspend it.
-		0,									// ENVIRONMENT
-		0,									// CURRENT_DIRECTORY
-		&startupinfo,						// startup info
-		&procinfo);							// process info
+		GetCommandLine(),		// Command line (exe plus parameters from the OS)
+		0,				// PROCESS_SECURITY_ATTRIBUTES
+		0,				// THREAD_SECURITY_ATTRIBUTES
+		TRUE,				// We went to inherit handles.
+		startupflags,			// Allow us full access to the process and suspend it.
+		0,				// ENVIRONMENT
+		0,				// CURRENT_DIRECTORY
+		&startupinfo,			// startup info
+		&procinfo);			// process info
 
 	if(!bSuccess)
 	{
@@ -482,12 +482,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	struct option longopts[] =
 	{
-		{ "nofork",		no_argument,		&do_nofork,		1	},
-		{ "logfile",	required_argument,	NULL,			'f'	},
-		{ "config",		required_argument,	NULL,			'c'	},
-		{ "debug",		no_argument,		&do_debug,		1	},
-		{ "nolog",		no_argument,		&do_nolog,		1	},
-		{ "runasroot",	no_argument,		&do_root,		1	},
+		{ "nofork",	no_argument,		&do_nofork,	1	},
+		{ "logfile",	required_argument,	NULL,		'f'	},
+		{ "config",	required_argument,	NULL,		'c'	},
+		{ "debug",	no_argument,		&do_debug,	1	},
+		{ "nolog",	no_argument,		&do_nolog,	1	},
+		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
 		{ 0, 0, 0, 0 }
 	};
