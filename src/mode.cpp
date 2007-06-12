@@ -783,6 +783,9 @@ std::string ModeParser::ChannelModeList()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
+		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
+			continue;
+
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if (modehandlers[pos])
@@ -799,6 +802,9 @@ std::string ModeParser::ParaModeList()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
+		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
+			continue;
+
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetNumParams(true)))
@@ -859,6 +865,9 @@ std::string ModeParser::ChanModes()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
+		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
+			continue;
+
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 		 /* One parameter when adding */
 		if (modehandlers[pos])
@@ -912,6 +921,9 @@ std::string ModeParser::BuildPrefixes()
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
+		if ((!ServerInstance->Config->AllowHalfop) && (mode == 'h'))
+			continue;
+
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 
 		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))
