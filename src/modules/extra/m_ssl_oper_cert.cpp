@@ -77,7 +77,7 @@ class ModuleOperSSLCert : public Module
  public:
 
 	ModuleOperSSLCert(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		mycommand = new cmd_fingerprint(ServerInstance);
 		ServerInstance->AddCommand(mycommand);

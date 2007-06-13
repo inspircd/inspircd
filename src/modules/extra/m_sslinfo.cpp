@@ -69,7 +69,7 @@ class ModuleSSLInfo : public Module
 	cmd_sslinfo* newcommand;
  public:
 	ModuleSSLInfo(InspIRCd* Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		
 		newcommand = new cmd_sslinfo(ServerInstance);
