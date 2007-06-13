@@ -171,6 +171,10 @@ Section  "SSL Modules" SEC05
   File "..\bin\${BUILD}\bin\*.dll"
   SetOutPath "$INSTDIR\modules"
   File "d:\temp\*.so"
+  SetOutPath "$INSTDIR\conf"
+  SetOverwrite off
+  File "key.pem"
+  File "cert.pem"
 SectionEnd
 
 Section -AdditionalIcons
