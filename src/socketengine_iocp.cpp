@@ -46,8 +46,9 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	eh->m_writeEvent = 0;
 	eh->m_acceptEvent = 0;
 
+	unsigned long completion_key = (ULONG_PTR)eh->m_internalFd;
 	/* assign the socket to the completion port */
-	if(!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, (ULONG_PTR)eh->m_internalFd, 0))
+	if(!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
 		return false;
 
 	/* set up binding, increase set size */
@@ -124,16 +125,18 @@ void IOCPEngine::WantWrite(EventHandler* eh)
 	/* Post event - write begin */
 	if(!eh->m_writeEvent)
 	{
+		ULONG_PTR completion_key = (ULONG_PTR)eh->m_internalFd;
 		Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_WRITE_READY, 0);
 		eh->m_writeEvent = (void*)ov;
-		PostQueuedCompletionStatus(m_completionPort, 0, (ULONG_PTR)eh->m_internalFd, &ov->m_overlap);
+		PostQueuedCompletionStatus(m_completionPort, 0, completion_key, &ov->m_overlap);
 	}
 }
 
 bool IOCPEngine::PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int param)
 {
 	Overlapped * ov = new Overlapped(type, param);
-	return PostQueuedCompletionStatus(m_completionPort, 0, (ULONG_PTR)eh->m_internalFd, &ov->m_overlap);
+	ULONG_PTR completion_key = (ULONG_PTR)eh->m_internalFd;
+	return PostQueuedCompletionStatus(m_completionPort, 0, completion_key, &ov->m_overlap);
 }
 
 void IOCPEngine::PostReadEvent(EventHandler * eh)
@@ -206,11 +209,11 @@ int IOCPEngine::DispatchEvents()
 	LPOVERLAPPED overlap;
 	Overlapped * ov;
 	EventHandler * eh;
-	int intfd;
+	ULONG_PTR intfd;
 	int ret;
 	unsigned long bytes_recv;
 
-	while(GetQueuedCompletionStatus(m_completionPort, &len, (PULONG_PTR)&intfd, &overlap, 1000))
+	while(GetQueuedCompletionStatus(m_completionPort, &len, &intfd, &overlap, 1000))
 	{
 		// woot, we got an event on a socket :P
 		eh = ref[intfd];
