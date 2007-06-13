@@ -409,8 +409,20 @@ int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* 
 		}
 		else
 		{
+			/* to be removed after 1.1.9 */
+			if (IS_LOCAL(user))
+				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated and will be removed in a future version. Please use RSQUIT instead.",user->nick);
+			std::deque<std::string> params;
+			params.push_back(parameters[0]);
+			params.push_back(std::string(":Server quit by ") + user->GetFullRealHost());
+			Utils->DoOneToOne(user->nick, "RSQUIT2", params, parameters[0]);
+			/* end to be removed after 1.1.9 */
+			/* to be INSERTED after 1.1.9 */
+			/*
 			if (IS_LOCAL(user))
 				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated. Please use RSQUIT instead.",user->nick);
+			*/
+			/* end to be INSERTED after 1.1.9 */
 		}
 	}
 	else
