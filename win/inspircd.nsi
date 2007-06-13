@@ -194,10 +194,11 @@ SectionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Actual Executable"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Command Modules"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default Config Files"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional Modules"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Actual executable"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Command modules"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default configuration files"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional non-SSL modules"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "SSL modules and GnuTLS DLL libraries"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
