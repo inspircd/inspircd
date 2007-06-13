@@ -388,7 +388,7 @@ void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, userrec* u
 	return;
 }
 
-int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user, bool remote)
+int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)
@@ -409,13 +409,8 @@ int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* 
 		}
 		else
 		{
-			if (!remote && IS_LOCAL(user))
-				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated and will be removed in a future version. Please use RSQUIT instead.",user->nick);
-			/* route it */
-			std::deque<std::string> params;
-			params.push_back(parameters[0]);
-			params.push_back(std::string(":Server quit by ") + user->GetFullRealHost());
-			Utils->DoOneToOne(user->nick, "RSQUIT", params, parameters[0]);
+			if (IS_LOCAL(user))
+				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated. Please use RSQUIT instead.",user->nick);
 		}
 	}
 	else

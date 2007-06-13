@@ -103,7 +103,7 @@ class ModuleSpanningTree : public Module
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const char** parameters, int pcnt, userrec* user, bool remote=false);
+	int HandleSquit(const char** parameters, int pcnt, userrec* user);
 
 	/** Handle TIME
 	 */
