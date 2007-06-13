@@ -294,53 +294,6 @@ bool TreeSocket::OperQuit(const std::string &prefix, std::deque<std::string> &pa
 	return true;
 }
 
-/*
- * Remote SQUIT (RSQUIT). Routing works similar to SVSNICK: Route it to the server that the target is connected to locally,
- * then let that server do the dirty work (squit it!). Example:
- * A -> B -> C -> D: oper on A squits D, A routes to B, B routes to C, C notices D connected locally, kills it. -- w00t
- */
-bool TreeSocket::RemoteSquit(const std::string &prefix, std::deque<std::string> &params)
-{
-	/* ok.. :w00t RSQUIT jupe.barafranca.com :reason here */
-	if (params.size() < 2)
-		return true;
-
-	TreeServer* s = Utils->FindServerMask(params[0]);
-
-	if (s)
-	{
-		if (s == Utils->TreeRoot)
-		{
-			this->Instance->SNO->WriteToSnoMask('l',"What the fuck, I recieved a remote SQUIT for myself? :< (from %s", prefix.c_str());
-			return true;
-		}
-
-		TreeSocket* sock = s->GetSocket();
-
-		if (sock)
-		{
-			/* it's locally connected, KILL IT! */
-			Instance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s: %s", params[0].c_str(), prefix.c_str(), params[1].c_str());
-			sock->Squit(s,"Server quit by " + prefix + ": " + params[1]);
-			Instance->SE->DelFd(sock);
-			sock->Close();
-			delete sock;
-		}
-		else
-		{
-			/* route the rsquit */
-			params[1] = ":" + params[1];
-			Utils->DoOneToOne(prefix, "RSQUIT", params, params[0]);
-		}
-	}
-	else
-	{
-		/* mother fucker! it doesn't exist */
-	}
-
-	return true;
-}
-
 bool TreeSocket::ServiceJoin(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 2)
@@ -1326,10 +1279,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			else if (command == "OPERQUIT")
 			{
 				return this->OperQuit(prefix,params);
-			}
-			else if (command == "RSQUIT")
-			{
-				return this->RemoteSquit(prefix, params);
 			}
 			else if (command == "IDLE")
 			{
