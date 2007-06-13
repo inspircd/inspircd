@@ -202,20 +202,19 @@ class ModuleCBan : public Module
 	std::string EncodeCBan(const CBan &ban)
 	{
 		std::ostringstream stream;	
-		stream << ban.chname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " " << ban.reason;
-		return stream.str();	
+		stream << ban.chname << " " << ban.set_by << " " << ban.set_on << " " << ban.length << " :" << ban.reason;
+		return stream.str();
 	}
 
 	CBan DecodeCBan(const std::string &data)
 	{
 		CBan res;
-		std::istringstream stream(data);
-		stream >> res.chname;
-		stream >> res.set_by;
-		stream >> res.set_on;
-		stream >> res.length;
-		res.reason = stream.str();
-	
+		irc::tokenstream tokens(data);
+		tokens.GetToken(res.chname);
+		tokens.GetToken(res.set_by);
+		tokens.GetToken(res.set_on);
+		tokens.GetToken(res.length);
+		tokens.GetToken(res.reason);
 		return res;
 	}
 

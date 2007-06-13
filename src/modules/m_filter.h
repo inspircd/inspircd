@@ -402,28 +402,29 @@ std::string FilterBase::EncodeFilter(FilterResult* filter)
 	std::ostringstream stream;
 	std::string x = filter->freeform;
 
+	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
 	for (std::string::iterator n = x.begin(); n != x.end(); n++)
 		if (*n == ' ')
 			*n = '\7';
 
-	stream << x << " " << filter->action << " " << (filter->flags.empty() ? "-" : filter->flags) << " " << filter->gline_time << " " << filter->reason;
+	stream << x << " " << filter->action << " " << (filter->flags.empty() ? "-" : filter->flags) << " " << filter->gline_time << " :" << filter->reason;
 	return stream.str();
 }
 
 FilterResult FilterBase::DecodeFilter(const std::string &data)
 {
 	FilterResult res;
-	std::istringstream stream(data);
-
-	stream >> res.freeform;
-	stream >> res.action;
-	stream >> res.flags;
+	irc::tokenstream tokens(data);
+	tokens.GetToken(res.freeform);
+	tokens.GetToken(res.action);
+	tokens.GetToken(res.flags);
 	if (res.flags == "-")
 		res.flags = "";
 	res.FillFlags(res.flags);
-	stream >> res.gline_time;
-	res.reason = stream.str();
+	tokens.GetToken(res.gline_time);
+	tokens.GetToken(res.reason);
 
+	/* Hax to allow spaces in the freeform without changing the design of the irc protocol */
 	for (std::string::iterator n = res.freeform.begin(); n != res.freeform.end(); n++)
 		if (*n == '\7')
 			*n = ' ';

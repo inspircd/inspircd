@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -71,9 +71,41 @@ namespace irc
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
-	        bool operator()(const std::string& s1, const std::string& s2) const;
+		bool operator()(const std::string& s1, const std::string& s2) const;
 	};
 
+	/** The irc_char_traits class is used for RFC-style comparison of strings.
+	 * This class is used to implement irc::string, a case-insensitive, RFC-
+	 * comparing string class.
+	 */
+	struct irc_char_traits : std::char_traits<char> {
+
+		/** Check if two chars match
+		 */
+		static bool eq(char c1st, char c2nd);
+
+		/** Check if two chars do NOT match
+		 */
+		static bool ne(char c1st, char c2nd);
+
+		/** Check if one char is less than another
+		 */
+		static bool lt(char c1st, char c2nd);
+
+		/** Compare two strings of size n
+		 */
+		static CoreExport int compare(const char* str1, const char* str2, size_t n);
+
+		/** Find a char within a string up to position n
+		 */
+		static CoreExport const char* find(const char* s1, int  n, char c);
+	};
+
+	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
+
+	/** This typedef declares irc::string based upon irc_char_traits
+	 */
+	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.
@@ -216,6 +248,9 @@ namespace irc
 		 * @return The next token is returned, or an empty string if none remain
 		 */
 		bool GetToken(std::string &token);
+		bool GetToken(irc::string &token);
+		bool GetToken(int &token);
+		bool GetToken(long &token);
 	};
 
 	/** irc::sepstream allows for splitting token seperated lists.
@@ -371,23 +406,23 @@ namespace irc
 	 *
 	 *      mydbitmask() : irc::dynamicbitmask()
 	 *      {
-	 *          freebits = new unsigned char[this->bits_size];
-	 *          memset(freebits, 0, this->bits_size);
+	 *	  freebits = new unsigned char[this->bits_size];
+	 *	  memset(freebits, 0, this->bits_size);
 	 *      }
 	 *
 	 *      ~mydbitmask()
 	 *      {
-	 *          delete[] freebits;
+	 *	  delete[] freebits;
 	 *      }
 	 *
 	 *      unsigned char* GetFreeBits()
 	 *      {
-	 *          return freebits;
+	 *	  return freebits;
 	 *      }
 	 *
 	 *      void SetFreeBits(unsigned char* freebt)
 	 *      {
-	 *          freebits = freebt;
+	 *	  freebits = freebt;
 	 *      }
 	 * };
 	 * \endcode
@@ -460,39 +495,6 @@ namespace irc
 
 		virtual void SetFreeBits(unsigned char* freebits) { }
 	};
-
-	/** The irc_char_traits class is used for RFC-style comparison of strings.
-	 * This class is used to implement irc::string, a case-insensitive, RFC-
-	 * comparing string class.
-	 */
-	struct irc_char_traits : std::char_traits<char> {
-
-		/** Check if two chars match
-		 */
-		static bool eq(char c1st, char c2nd);
-
-		/** Check if two chars do NOT match
-		 */
-		static bool ne(char c1st, char c2nd);
-
-		/** Check if one char is less than another
-		 */
-		static bool lt(char c1st, char c2nd);
-
-		/** Compare two strings of size n
-		 */
-		static CoreExport int compare(const char* str1, const char* str2, size_t n);
-
-		/** Find a char within a string up to position n
- 		 */
-		static CoreExport const char* find(const char* s1, int  n, char c);
-	};
-
-	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
-
-	/** This typedef declares irc::string based upon irc_char_traits
-	 */
-	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 
 	CoreExport const char* Spacify(const char* n);
 }

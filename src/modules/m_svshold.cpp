@@ -238,19 +238,19 @@ class ModuleSVSHold : public Module
 	std::string EncodeSVSHold(const SVSHold* ban)
 	{
 		std::ostringstream stream;	
-		stream << ban->nickname << " " << ban->set_by << " " << ban->set_on << " " << ban->length << " " << ban->reason;
+		stream << ban->nickname << " " << ban->set_by << " " << ban->set_on << " " << ban->length << " :" << ban->reason;
 		return stream.str();	
 	}
 
 	SVSHold* DecodeSVSHold(const std::string &data)
 	{
 		SVSHold* res = new SVSHold();
-		std::istringstream stream(data);
-		stream >> res->nickname;
-		stream >> res->set_by;
-		stream >> res->set_on;
-		stream >> res->length;
-		res->reason = stream.str();
+		irc::tokenstream tokens(data);
+		tokens.GetToken(res->nickname);
+		tokens.GetToken(res->set_by);
+		tokens.GetToken(res->set_on);
+		tokens.GetToken(res->length);
+		tokens.GetToken(res->reason);
 		return res;
 	}
 

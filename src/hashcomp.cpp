@@ -215,6 +215,30 @@ bool irc::tokenstream::GetToken(std::string &token)
 	return false;
 }
 
+bool irc::tokenstream::GetToken(irc::string &token)
+{
+	std::string stdstring;
+	bool returnval = GetToken(stdstring);
+	token = assign(stdstring);
+	return returnval;
+}
+
+bool irc::tokenstream::GetToken(int &token)
+{
+	std::string tok;
+	bool returnval = GetToken(tok);
+	token = ConvToInt(tok);
+	return returnval;
+}
+
+bool irc::tokenstream::GetToken(long &token)
+{
+	std::string tok;
+	bool returnval = GetToken(tok);
+	token = ConvToInt(tok);
+	return returnval;
+}
+
 irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)
 {
 	last_starting_position = tokens.begin();
