@@ -209,10 +209,12 @@ class ModuleCBan : public Module
 	CBan DecodeCBan(const std::string &data)
 	{
 		CBan res;
+		int set_on;
 		irc::tokenstream tokens(data);
 		tokens.GetToken(res.chname);
 		tokens.GetToken(res.set_by);
-		tokens.GetToken(res.set_on);
+		tokens.GetToken(set_on);
+		res.set_on = set_on;
 		tokens.GetToken(res.length);
 		tokens.GetToken(res.reason);
 		return res;

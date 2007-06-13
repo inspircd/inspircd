@@ -245,10 +245,12 @@ class ModuleSVSHold : public Module
 	SVSHold* DecodeSVSHold(const std::string &data)
 	{
 		SVSHold* res = new SVSHold();
+		int set_on;
 		irc::tokenstream tokens(data);
 		tokens.GetToken(res->nickname);
 		tokens.GetToken(res->set_by);
-		tokens.GetToken(res->set_on);
+		tokens.GetToken(set_on);
+		res->set_on = set_on;
 		tokens.GetToken(res->length);
 		tokens.GetToken(res->reason);
 		return res;
