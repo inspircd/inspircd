@@ -163,8 +163,6 @@ SectionEnd
 Section "Modules" SEC04
   SetOutPath "$INSTDIR\modules"
   File "..\bin\${BUILD}\modules\m_*.so"
-  Delete "$INSTDIR\bin\*.dll"
-  Delete "$INSTDIR\modules\m_ssl*.so"
 SectionEnd
 
 Section  "SSL Modules" SEC05
@@ -172,7 +170,7 @@ Section  "SSL Modules" SEC05
   SetOverwrite ifnewer
   File "..\bin\${BUILD}\bin\*.dll"
   SetOutPath "$INSTDIR\modules"
-  File "..\bin\${BUILD}\modules\m_ssl*.so"
+  File "d:\temp\*.so"
 SectionEnd
 
 Section -AdditionalIcons
