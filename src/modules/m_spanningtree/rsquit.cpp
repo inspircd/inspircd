@@ -44,7 +44,22 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (IS_LOCAL(user))
 	{
-		return (CmdResult)((ModuleSpanningTree*)Creator)->HandleSquit(parameters, pcnt, user, true);
+		if (!Utils->FindServerMask(parameters[0]))
+		{
+			user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick, parameters[0]);
+			return CMD_FAILURE;
+		}
+		user->WriteServ("NOTICE %s :*** RSQUIT: Sending remote squit to \002%s\002 to squit server \002%s\002.",user->nick,parameters[0],parameters[1]);
 	}
+
+	if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
+	{
+		ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
+		const char* para[1];
+		para[0] = parameters[1];
+		std::string original_command = std::string("SQUIT ") + parameters[1];
+		Creator->OnPreCommand("SQUIT", para, 1, user, true, original_command);
+	}
+
 	return CMD_SUCCESS;
 }
