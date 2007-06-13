@@ -129,7 +129,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// For each <bind> tag
 			std::string x = Conf->ReadValue("bind", "type", i);
-			if(((x.empty()) || (x == "clients")) && (x == "gnutls"))
+			if(((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "gnutls"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);

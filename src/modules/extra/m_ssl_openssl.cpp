@@ -173,7 +173,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			// For each <bind> tag
 			std::string x = Conf->ReadValue("bind", "type", i);
-			if (((x.empty()) || (x == "clients")) && (x == "openssl"))
+			if (((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "openssl"))
 			{
 				// Get the port we're meant to be listening on with SSL
 				std::string port = Conf->ReadValue("bind", "port", i);
