@@ -162,7 +162,17 @@ SectionEnd
 
 Section "Modules" SEC04
   SetOutPath "$INSTDIR\modules"
-  File "..\bin\${BUILD}\modules\*.so"
+  File "..\bin\${BUILD}\modules\m_*.so"
+  Delete "$INSTDIR\bin\*.dll"
+  Delete "$INSTDIR\modules\m_ssl*.so"
+SectionEnd
+
+Section  "SSL Modules" SEC05
+  SetOutPath "$INSTDIR\bin"
+  SetOverwrite ifnewer
+  File "..\bin\${BUILD}\bin\*.dll"
+  SetOutPath "$INSTDIR\modules"
+  File "..\bin\${BUILD}\modules\m_ssl*.so"
 SectionEnd
 
 Section -AdditionalIcons
@@ -223,8 +233,8 @@ Section Uninstall
   Delete "$INSTDIR\conf\inspircd.helpop-full.example"
   Delete "$INSTDIR\conf\inspircd.motd.example"
   Delete "$INSTDIR\bin\inspircd.exe"
+  Delete "$INSTDIR\bin\*.dll"
   Delete "$INSTDIR\InspGUI.exe"
-
   Delete "$SMPROGRAMS\InspIRCd\Uninstall.lnk"
   Delete "$SMPROGRAMS\InspIRCd\InspIRCd Website.lnk"
   Delete "$SMPROGRAMS\InspIRCd\InspIRCd.lnk"
@@ -240,5 +250,3 @@ Section Uninstall
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
 SectionEnd
-
-Page directory
