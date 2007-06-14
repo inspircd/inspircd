@@ -518,7 +518,7 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 		L.SendPass = Conf->ReadValue("link", "sendpass", j);
 		L.RecvPass = Conf->ReadValue("link", "recvpass", j);
 		L.AutoConnect = Conf->ReadInteger("link", "autoconnect", j, true);
-		L.HiddenFromStats = Conf->ReadFlag("link", "hidden", j);
+		L.HiddenFromStats = Conf->ReadFlag("link", "statshidden", j);
 		L.Timeout = Conf->ReadInteger("link", "timeout", j, true);
 		L.Hook = Conf->ReadValue("link", "transport", j);
 		L.Bind = Conf->ReadValue("link", "bind", j);

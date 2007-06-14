@@ -439,7 +439,7 @@
 #                 link to succeed. OpenSSL and GnuTLS are link-       #
 #                 compatible with each other.                         #
 #                                                                     #
-# hidden        - When using m_spanningtree.so for linking. you may   #
+# statshidden   - When using m_spanningtree.so for linking. you may   #
 #                 set this to 'yes', and if you do, the IP address/   #
 #                 hostname of this connection will NEVER be shown to  #
 #                 any opers on the network. In /STATS c its address   #
@@ -552,6 +552,7 @@
       timeout="15"
       transport="gnutls"
       bind="1.2.3.4"
+      statshidden="no"
       hidden="no"
       sendpass="outgoing!password"
       recvpass="incoming!password">
