@@ -42,8 +42,8 @@ class ModuleSecureList : public Module
 	{
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		allowlist.clear();
-		for (int i = 0; i < MyConf->Enumerate("securelist"); i++)
-			allowlist.push_back(MyConf->ReadValue("securelist", "exception", i));
+		for (int i = 0; i < MyConf->Enumerate("securehost"); i++)
+			allowlist.push_back(MyConf->ReadValue("securehost", "exception", i));
 		WaitTime = MyConf->ReadInteger("securelist", "waittime", "60", 0, true);
 		DELETE(MyConf);
 	}
