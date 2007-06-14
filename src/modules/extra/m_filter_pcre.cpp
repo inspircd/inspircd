@@ -23,6 +23,10 @@
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
 /* $ModDep: m_filter.h */
 
+#ifdef WINDOWS
+#pragma comment(lib, "pcre.lib")
+#endif
+
 class PCREFilter : public FilterResult
 {
  public:
@@ -194,7 +198,8 @@ class ModuleFilterPCREFactory : public ModuleFactory
 };
 
 
-extern "C" void * init_module( void )
+extern "C" DllExport void * init_module( void )
 {
 	return new ModuleFilterPCREFactory;
 }
+
