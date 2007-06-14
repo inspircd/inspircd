@@ -349,6 +349,13 @@ int __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent)
 	return 0;
 }
 
+int __recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen, udp_overlap * ov)
+{
+	memcpy(buf, ov->udp_buffer, ov->udp_len);
+	memcpy(from, ov->udp_sockaddr, *fromlen);
+	return ov->udp_len;
+}
+
 EventHandler * IOCPEngine::GetRef(int fd)
 {
 	map<int, EventHandler*>::iterator itr = m_binding.find(fd);

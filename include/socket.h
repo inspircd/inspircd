@@ -41,7 +41,9 @@
 #ifdef CONFIG_USE_IOCP
 #define _accept(s, addr, addrlen) __accept_socket(s, addr, addrlen, m_acceptEvent)
 #define _getsockname(fd, sockptr, socklen) __getsockname(fd, sockptr, socklen, m_acceptEvent)
+#define _recvfrom(s, buf, len, flags, from, fromlen) __recvfrom(s, buf, len, flags, from, fromlen, ((IOCPEngine*)ServerInstance->SE)->udp_ov)
 #else
+#define _recvfrom recvfrom
 #define _accept accept
 #define _getsockname getsockname
 #endif

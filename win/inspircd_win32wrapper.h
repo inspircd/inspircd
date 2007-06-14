@@ -118,8 +118,10 @@ extern char optarg[514];
 int getopt_long_only (int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 
 /* Accept Handlers */
+struct udp_overlap;
 CoreExport int __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent);
 CoreExport int __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent);
+CoreExport int __recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen, udp_overlap * ov);
 
 /* Module Loading */
 #define dlopen(path, state) (void*)LoadLibrary(path)
