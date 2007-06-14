@@ -33,7 +33,7 @@ class PCREFilter : public FilterResult
 	 pcre* regexp;
 
 	 PCREFilter(pcre* r, const std::string &rea, const std::string &act, long gline_time, const std::string &pat, const std::string &flags)
-		 : FilterResult::FilterResult(pat, rea, act, gline_time, flags), regexp(r)
+		 : FilterResult(pat, rea, act, gline_time, flags), regexp(r)
 	 {
 	 }
 
@@ -52,7 +52,7 @@ class ModuleFilterPCRE : public FilterBase
 
  public:
 	ModuleFilterPCRE(InspIRCd* Me)
-	: FilterBase::FilterBase(Me, "m_filter_pcre.so")
+	: FilterBase(Me, "m_filter_pcre.so")
 	{
 		OnRehash(NULL,"");
 	}
