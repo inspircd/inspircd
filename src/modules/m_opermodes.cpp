@@ -65,14 +65,14 @@ class ModuleModesOnOper : public Module
 			if (!strcmp(typen.c_str(),user->oper))
 			{
 				std::string ThisOpersModes = Conf->ReadValue("type","modes",j);
-				char first = *(ThisOpersModes.c_str());
-				if ((first != '+') && (first != '-'))
-					ThisOpersModes = "+" + ThisOpersModes;
-				if (ThisOpersModes != "")
+				if (!ThisOpersModes.empty())
 				{
+					char first = *(ThisOpersModes.c_str());
+					if ((first != '+') && (first != '-'))
+						ThisOpersModes = "+" + ThisOpersModes;
+
 					std::string buf;
 					stringstream ss(ThisOpersModes);
-
 					vector<string> tokens;
 
 					// split ThisOperModes into modes and mode params
@@ -85,7 +85,7 @@ class ModuleModesOnOper : public Module
 
 					// process mode params
 					int i = 1;
-					for (unsigned int k = 1; k < tokens.size(); k++)
+					for (unsigned int k = 0; k < tokens.size(); k++)
 					{
 						modes[i] = tokens[k].c_str();
 						i++;
@@ -105,8 +105,6 @@ class ModuleModesOnOper : public Module
 		}
 	}
 };
-
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
 class ModuleModesOnOperFactory : public ModuleFactory
 {
