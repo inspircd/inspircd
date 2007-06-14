@@ -14,18 +14,19 @@
 #include "inspircd.h"
 #include "configreader.h"
 #include <signal.h>
-#ifndef WIN32
 
+#ifndef WIN32
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/resource.h>
-
+#include <dlfcn.h>
+#include <getopt.h>
 /* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */  
 #ifndef RUSAGE_SELF
 #define RUSAGE_SELF 0
 #endif
-
 #endif
+
 #include <exception>
 #include <fstream>
 #include "modules.h"
@@ -38,10 +39,9 @@
 #include "command_parse.h"
 #include "exitcodes.h"
 
-#ifndef WIN32
-#include <dlfcn.h>
-#include <getopt.h>
-#else
+#ifdef WIN32
+
+/* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
 static DWORD owner_processid = 0;
 
 DWORD WindowsForkStart(InspIRCd * Instance)
