@@ -474,6 +474,9 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 				reason = "Protocol version not specified";
 		}
 
+		if(this->CapKeys.find("PREFIX") != this->CapKeys.end() && this->CapKeys.find("PREFIX")->second != this->Instance->Modes->BuildPrefixes())
+			reason = "One or more of the prefixes on the remote server are invalid on this server.";
+
 		if (((this->CapKeys.find("HALFOP") == this->CapKeys.end()) && (Instance->Config->AllowHalfop)) || ((this->CapKeys.find("HALFOP") != this->CapKeys.end()) && (this->CapKeys.find("HALFOP")->second != ConvToStr(Instance->Config->AllowHalfop))))
 			reason = "We don't both have halfop support enabled/disabled identically";
 
