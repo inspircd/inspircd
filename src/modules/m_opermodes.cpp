@@ -80,28 +80,24 @@ class ModuleModesOnOper : public Module
 						tokens.push_back(buf);
 
 					int size = tokens.size() + 1;
-					char** modes = new char*[size];
+					const char** modes = new const char*[size];
 					modes[0] = user->nick;
-					modes[1] = (char*)tokens[0].c_str();
 
-					if (tokens.size() > 1)
+					// process mode params
+					int i = 1;
+					for (unsigned int k = 1; k < tokens.size(); k++)
 					{
-						// process mode params
-						int i = 2;
-						for (unsigned int k = 1; k < tokens.size(); k++)
-						{
-							modes[i] = (char*)tokens[k].c_str();
-							i++;
-						}
+						modes[i] = tokens[k].c_str();
+						i++;
 					}
+
 					std::deque<std::string> n;
-					Event rmode((char *)&n, NULL, "send_mode");
+					Event rmode((char *)&n, NULL, "send_mode_explicit");
 					for (unsigned int j = 0; j < tokens.size(); j++)
-					{
 						n.push_back(modes[j]);
-					}
+
 					rmode.Send(ServerInstance);
-					ServerInstance->SendMode((const char**)modes, size, user);
+					ServerInstance->SendMode(modes, size, user);
 					delete [] modes;
 				}
 				break;
