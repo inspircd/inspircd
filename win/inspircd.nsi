@@ -168,13 +168,29 @@ SectionEnd
 Section  "SSL Modules" SEC05
   SetOutPath "$INSTDIR\bin"
   SetOverwrite ifnewer
-  File "..\bin\${BUILD}\bin\*.dll"
+  File "..\bin\${BUILD}\bin\libgcrypt-11.dll"
+  File "..\bin\${BUILD}\bin\libgnutls-13.dll"
+  File "..\bin\${BUILD}\bin\libgnutls-extra-13.dll"
+  File "..\bin\${BUILD}\bin\libgnutls-openssl-13.dll"
+  File "..\bin\${BUILD}\bin\libgpg-error-0.dll"
+  File "..\bin\${BUILD}\bin\libopencdk-8.dll"
+  File "..\bin\${BUILD}\bin\libtasn1-3.dll"
   SetOutPath "$INSTDIR\modules"
-  File "d:\temp\*.so"
+  File "d:\temp\m_ssl_gnutls.so"
+  File "d:\temp\m_sslinfo.so"
+  File "d:\temp\m_ssl_oper_cert.so"
   SetOutPath "$INSTDIR\conf"
   SetOverwrite off
   File "key.pem"
   File "cert.pem"
+SectionEnd
+
+Section  "Regexp Modules" SEC06
+  SetOutPath "$INSTDIR\bin"
+  SetOverwrite ifnewer
+  File "..\bin\${BUILD}\bin\pcre.dll"
+  SetOutPath "$INSTDIR\modules"
+  File "d:\temp\m_filter_pcre.so"
 SectionEnd
 
 Section -AdditionalIcons
@@ -203,6 +219,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default configuration files"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional non-SSL modules"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} "SSL modules and GnuTLS DLL libraries"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} "Regular expression module and PCRE DLL library"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
