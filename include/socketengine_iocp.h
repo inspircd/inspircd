@@ -14,7 +14,7 @@
 #ifndef __SOCKETENGINE_IOCP__
 #define __SOCKETENGINE_IOCP__
 
-#define READ_BUFFER_SIZE 500
+#define READ_BUFFER_SIZE 600
 #define USING_IOCP 1
 
 #include "inspircd_config.h"
@@ -37,12 +37,24 @@ class Overlapped
  public:
 	OVERLAPPED m_overlap;
 	SocketIOEvent m_event;
-	int m_params;
+#ifdef WIN64
+	unsigned __int64 m_params;
+#else
+	unsigned long m_params;
+#endif
 
 	Overlapped(SocketIOEvent ev, int params) : m_event(ev), m_params(params)
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
 	}
+};
+
+struct udp_overlap
+{
+	unsigned char udp_buffer[600];
+	unsigned long udp_len;
+	sockaddr udp_sockaddr[2];
+	unsigned long udp_sockaddr_len;
 };
 
 struct accept_overlap
@@ -173,6 +185,11 @@ public:
 	 * @return A pointer to the event handler, or NULL
 	 */
 	EventHandler* GetIntRef(int fd);
+
+	/** Holds the preallocated buffer passed to WSARecvFrom
+	 * function. Yes, I know, it's a dirty hack.
+	 */
+	udp_overlap * udp_ov;
 };
 
 //typedef void(*OpHandler)(EventHandler)

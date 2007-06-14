@@ -29,6 +29,7 @@ looks like this, walks like this or tastes like this.
 #include <arpa/inet.h>
 #else
 #include "inspircd_win32wrapper.h"
+#include "inspircd_se_config.h"
 #endif
 
 #include "dns.h"
@@ -623,8 +624,15 @@ DNSResult DNS::GetResult()
 #endif
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
-
+#ifdef USING_IOCP
+	/** Dirty hack for IOCP UDP sockets **/
+	udp_overlap * ov = ((IOCPEngine*)ServerInstance->SE)->udp_ov;
+	memcpy(buffer, ov->udp_buffer, ov->udp_len);
+	memcpy(from, ov->udp_sockaddr, ov->udp_sockaddr_len);
+	int length = ov->udp_len;
+#else
 	int length = recvfrom(this->GetFd(),(char*)buffer,sizeof(DNSHeader),0,from,&x);
+#endif
 
 	/* Did we get the whole header? */
 	if (length < 12)

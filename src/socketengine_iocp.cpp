@@ -98,7 +98,12 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 
 	/* Free the buffer, and delete the event. */
 	if(eh->m_readEvent != 0)
+	{
+		if(((Overlapped*)eh->m_readEvent)->m_params != 0)
+			delete ((udp_overlap*)((Overlapped*)eh->m_readEvent)->m_params);
+
 		delete ((Overlapped*)eh->m_readEvent);
+	}
 
 	if(eh->m_writeEvent != 0)
 		delete ((Overlapped*)eh->m_writeEvent);
@@ -166,10 +171,15 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 	{
 		case SOCK_DGRAM:			/* UDP Socket */
 		{
-			if(WSARecvFrom(eh->GetFd(), &buf, 1, &r_length, &flags, 0, 0, &ov->m_overlap, 0))
+			udp_overlap * uv = new udp_overlap;
+			uv->udp_sockaddr_len = sizeof(sockaddr);
+			buf.buf = (char*)uv->udp_buffer;
+			buf.len = sizeof(uv->udp_buffer);
+			ov->m_params = (unsigned long)uv;
+			if(WSARecvFrom(eh->GetFd(), &buf, 1, &uv->udp_len, &flags, uv->udp_sockaddr, (LPINT)&uv->udp_sockaddr_len, &ov->m_overlap, 0))
 			{
 				int err = WSAGetLastError();
-				if(WSAGetLastError() != WSA_IO_PENDING)
+				if(err != WSA_IO_PENDING)
 				{
 					delete ov;
 					PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, 0);
@@ -230,17 +240,32 @@ int IOCPEngine::DispatchEvents()
 
 			case SOCKET_IO_EVENT_READ_READY:
 			{
-				ret = ioctlsocket(eh->GetFd(), FIONREAD, &bytes_recv);
-				eh->m_readEvent = 0;
-				if(ret != 0 || bytes_recv == 0)
+				if(ov->m_params)
 				{
-					/* end of file */
-					PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, EIO); /* Old macdonald had an error, EIEIO. */
+					// if we had params, it means we are a udp socket with a udp_overlap pointer in this long.
+					udp_overlap * uv = (udp_overlap*)ov->m_params;
+					uv->udp_len = len;
+					this->udp_ov = uv;
+					eh->m_readEvent = 0;
+					eh->HandleEvent(EVENT_READ, 0);
+					this->udp_ov = 0;
+					delete uv;
+					PostReadEvent(eh);
 				}
 				else
 				{
-					eh->HandleEvent(EVENT_READ, 0);
-					PostReadEvent(eh);
+					ret = ioctlsocket(eh->GetFd(), FIONREAD, &bytes_recv);
+					eh->m_readEvent = 0;
+					if(ret != 0 || bytes_recv == 0)
+					{
+						/* end of file */
+						PostCompletionEvent(eh, SOCKET_IO_EVENT_ERROR, EIO); /* Old macdonald had an error, EIEIO. */
+					}
+					else
+					{
+						eh->HandleEvent(EVENT_READ, 0);
+						PostReadEvent(eh);
+					}
 				}
 			}
 			break;
