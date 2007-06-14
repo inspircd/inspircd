@@ -127,7 +127,8 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	bool ret = del_gline(hostmask);
+	if (del_gline(hostmask, true))
+		return false;
 
 	GLine* item = new GLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
@@ -141,7 +142,7 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 		pglines.push_back(item);
 	}
 
-	return !ret;
+	return true;
 }
 
 // adds an e:line (exception to bans)
@@ -150,7 +151,8 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	bool ret = del_eline(hostmask);
+	if (del_eline(hostmask, true))
+		return false;
 
 	ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
@@ -163,14 +165,16 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 	{
 		pelines.push_back(item);
 	}
-	return !ret;
+	return true;
 }
 
 // adds a q:line
 
 bool XLineManager::add_qline(long duration, const char* source, const char* reason, const char* nickname)
 {
-	bool ret = del_qline(nickname);
+	if (del_qline(nickname, true))
+		return false;
+
 	QLine* item = new QLine(ServerInstance->Time(), duration, source, reason, nickname);
 
 	if (duration)
@@ -182,21 +186,22 @@ bool XLineManager::add_qline(long duration, const char* source, const char* reas
 	{
 		pqlines.push_back(item);
 	}
-	return !ret;
+	return true;
 }
 
 // adds a z:line
 
 bool XLineManager::add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
 {
-	bool ret = del_zline(ipaddr);
-
 	if (strchr(ipaddr,'@'))
 	{
 		while (*ipaddr != '@')
 			ipaddr++;
 		ipaddr++;
 	}
+
+	if (del_zline(ipaddr, true))
+		return false;
 
 	ZLine* item = new ZLine(ServerInstance->Time(), duration, source, reason, ipaddr);
 
@@ -209,7 +214,7 @@ bool XLineManager::add_zline(long duration, const char* source, const char* reas
 	{
 		pzlines.push_back(item);
 	}
-	return !ret;
+	return true;
 }
 
 // adds a k:line
@@ -218,7 +223,8 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	bool ret = del_kline(hostmask);
+	if (del_kline(hostmask, true))
+		return false;
 
 	KLine* item = new KLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
@@ -231,20 +237,23 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 	{
 		pklines.push_back(item);
 	}
-	return !ret;
+	return true;
 }
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool XLineManager::del_gline(const char* hostmask)
+bool XLineManager::del_gline(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			glines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				glines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -252,8 +261,11 @@ bool XLineManager::del_gline(const char* hostmask)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			pglines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				pglines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -262,15 +274,18 @@ bool XLineManager::del_gline(const char* hostmask)
 
 // deletes a e:line, returns true if the line existed and was removed
 
-bool XLineManager::del_eline(const char* hostmask)
+bool XLineManager::del_eline(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			elines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				elines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -278,8 +293,11 @@ bool XLineManager::del_eline(const char* hostmask)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			pelines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				pelines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -288,14 +306,17 @@ bool XLineManager::del_eline(const char* hostmask)
 
 // deletes a q:line, returns true if the line existed and was removed
 
-bool XLineManager::del_qline(const char* nickname)
+bool XLineManager::del_qline(const char* nickname, bool simulate)
 {
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
 		if (!strcasecmp(nickname,(*i)->nick))
 		{
-			delete *i;
-			qlines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				qlines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -303,8 +324,11 @@ bool XLineManager::del_qline(const char* nickname)
 	{
 		if (!strcasecmp(nickname,(*i)->nick))
 		{
-			delete *i;
-			pqlines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				pqlines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -313,14 +337,17 @@ bool XLineManager::del_qline(const char* nickname)
 
 // deletes a z:line, returns true if the line existed and was removed
 
-bool XLineManager::del_zline(const char* ipaddr)
+bool XLineManager::del_zline(const char* ipaddr, bool simulate)
 {
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
 		if (!strcasecmp(ipaddr,(*i)->ipaddr))
 		{
-			delete *i;
-			zlines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				zlines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -328,8 +355,11 @@ bool XLineManager::del_zline(const char* ipaddr)
 	{
 		if (!strcasecmp(ipaddr,(*i)->ipaddr))
 		{
-			delete *i;
-			pzlines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				pzlines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -338,15 +368,18 @@ bool XLineManager::del_zline(const char* ipaddr)
 
 // deletes a k:line, returns true if the line existed and was removed
 
-bool XLineManager::del_kline(const char* hostmask)
+bool XLineManager::del_kline(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			klines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				klines.erase(i);
+			}
 			return true;
 		}
 	}
@@ -354,8 +387,11 @@ bool XLineManager::del_kline(const char* hostmask)
 	{
 		if (!strcasecmp(ih.first.c_str(),(*i)->identmask) && !strcasecmp(ih.second.c_str(),(*i)->hostmask))
 		{
-			delete *i;
-			pklines.erase(i);
+			if (!simulate)
+			{
+				delete *i;
+				pklines.erase(i);
+			}
 			return true;
 		}
 	}

@@ -54,6 +54,10 @@ CmdResult cmd_eline::Handle (const char** parameters, int pcnt, userrec *user)
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** E-Line for %s already exists",user->nick,parameters[0]);
+		}
 	}
 	else
 	{

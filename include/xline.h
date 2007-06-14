@@ -316,34 +316,39 @@ class CoreExport XLineManager
 	bool add_eline(long duration, const char* source, const char* reason, const char* hostmask);
 
 	/** Delete a GLine
-	 * @return hostmask The host to remove
+	 * @param hostmask The host to remove
+	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_gline(const char* hostmask);
+	bool del_gline(const char* hostmask, bool simulate = false);
 
 	/** Delete a QLine
-	 * @return nickname The nick to remove
+	 * @param nickname The nick to remove
+	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_qline(const char* nickname);
+	bool del_qline(const char* nickname, bool simulate = false);
 
 	/** Delete a ZLine
-	 * @return ipaddr The IP to remove
+	 * @param ipaddr The IP to remove
+	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_zline(const char* ipaddr);
+	bool del_zline(const char* ipaddr, bool simulate = false);
 
 	/** Delete a KLine
-	 * @return hostmask The host to remove
+	 * @param hostmask The host to remove
+	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_kline(const char* hostmask);
+	bool del_kline(const char* hostmask, bool simulate = false);
 
 	/** Delete a ELine
-	 * @return hostmask The host to remove
+	 * @param hostmask The host to remove
+	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_eline(const char* hostmask);
+	bool del_eline(const char* hostmask, bool simulate = false);
 
 	/** Check if a nickname matches a QLine
 	 * @return nick The nick to check against

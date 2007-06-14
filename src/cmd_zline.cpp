@@ -57,6 +57,10 @@ CmdResult cmd_zline::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			ServerInstance->XLines->apply_lines(to_apply);
 		}
+		else
+		{
+			user->WriteServ("NOTICE %s :*** Z-Line for %s already exists",user->nick,parameters[0]);
+		}
 	}
 	else
 	{
