@@ -41,7 +41,7 @@ Request::Request(char* anydata, Module* src, Module* dst)
 Request::Request(Module* src, Module* dst, const char* idstr)
 : id(idstr), source(src), dest(dst)
 {
-};
+}
 
 char* Request::GetData()
 {
@@ -75,7 +75,7 @@ char* Request::Send()
 	}
 }
 
-Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { };
+Event::Event(char* anydata, Module* src, const std::string &eventid) : data(anydata), source(src), id(eventid) { }
 
 char* Event::GetData()
 {
@@ -112,87 +112,87 @@ void		Module::OnUserPart(userrec* user, chanrec* channel, const std::string &par
 void		Module::OnRehash(userrec* user, const std::string &parameter) { }
 void		Module::OnServerRaw(std::string &raw, bool inbound, userrec* user) { }
 int		Module::OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs) { return 0; }
-void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { };
+void		Module::OnMode(userrec* user, void* dest, int target_type, const std::string &text) { }
 Version		Module::GetVersion() { return Version(1,0,0,0,VF_VENDOR,-1); }
-void		Module::OnOper(userrec* user, const std::string &opertype) { };
-void		Module::OnPostOper(userrec* user, const std::string &opertype) { };
-void		Module::OnInfo(userrec* user) { };
-void		Module::OnWhois(userrec* source, userrec* dest) { };
-int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; };
-int		Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list) { return 0; };
-int		Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list) { return 0; };
-int		Module::OnUserPreNick(userrec* user, const std::string &newnick) { return 0; };
-void		Module::OnUserPostNick(userrec* user, const std::string &oldnick) { };
-int		Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; };
-void		Module::On005Numeric(std::string &output) { };
-int		Module::OnKill(userrec* source, userrec* dest, const std::string &reason) { return 0; };
-void		Module::OnLoadModule(Module* mod,const std::string &name) { };
-void		Module::OnUnloadModule(Module* mod,const std::string &name) { };
-void		Module::OnBackgroundTimer(time_t curtime) { };
-int		Module::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line) { return 0; };
-void		Module::OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line) { };
-bool		Module::OnCheckReady(userrec* user) { return true; };
-int		Module::OnUserRegister(userrec* user) { return 0; };
-int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; };
-void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent) { };
-int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven) { return 0; };
-int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; };
-int		Module::OnStats(char symbol, userrec* user, string_list &results) { return 0; };
-int		Module::OnChangeLocalUserHost(userrec* user, const std::string &newhost) { return 0; };
-int		Module::OnChangeLocalUserGECOS(userrec* user, const std::string &newhost) { return 0; };
-int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { return 0; };
-void		Module::OnEvent(Event* event) { return; };
-char*		Module::OnRequest(Request* request) { return NULL; };
-int		Module::OnOperCompare(const std::string &password, const std::string &input, int tagnumber) { return 0; };
-void		Module::OnGlobalOper(userrec* user) { };
-void		Module::OnPostConnect(userrec* user) { };
-int		Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
-int		Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; };
-void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { };
-int		Module::OnRawSocketWrite(int fd, const char* buffer, int count) { return 0; };
-void		Module::OnRawSocketClose(int fd) { };
-void		Module::OnRawSocketConnect(int fd) { };
-int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; };
-void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };
-void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { };
-void 		Module::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason) { };
-void		Module::OnUserInvite(userrec* source,userrec* dest,chanrec* channel) { };
-void		Module::OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { };
-void		Module::OnGetServerDescription(const std::string &servername,std::string &description) { };
-void		Module::OnSyncUser(userrec* user, Module* proto, void* opaque) { };
-void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { };
-void		Module::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline) { };
-void		Module::OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname, bool displayable) { };
-void		Module::OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable) { };
-void		Module::OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable) { };
-void		Module::OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata) { };
-void		Module::ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata) { };
-void		Module::OnWallops(userrec* user, const std::string &text) { };
-void		Module::OnChangeHost(userrec* user, const std::string &newhost) { };
-void		Module::OnChangeName(userrec* user, const std::string &gecos) { };
-void		Module::OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { };
-void		Module::OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask) { };
-void		Module::OnAddKLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { };
-void		Module::OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask) { };
-void		Module::OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { };
-void		Module::OnDelGLine(userrec* source, const std::string &hostmask) { };
-void		Module::OnDelZLine(userrec* source, const std::string &ipmask) { };
-void		Module::OnDelKLine(userrec* source, const std::string &hostmask) { };
-void		Module::OnDelQLine(userrec* source, const std::string &nickmask) { };
-void		Module::OnDelELine(userrec* source, const std::string &hostmask) { };
-void 		Module::OnCleanup(int target_type, void* item) { };
-void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; };
-void		Module::OnChannelDelete(chanrec* chan) { };
+void		Module::OnOper(userrec* user, const std::string &opertype) { }
+void		Module::OnPostOper(userrec* user, const std::string &opertype) { }
+void		Module::OnInfo(userrec* user) { }
+void		Module::OnWhois(userrec* source, userrec* dest) { }
+int		Module::OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel) { return 0; }
+int		Module::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list) { return 0; }
+int		Module::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list) { return 0; }
+int		Module::OnUserPreNick(userrec* user, const std::string &newnick) { return 0; }
+void		Module::OnUserPostNick(userrec* user, const std::string &oldnick) { }
+int		Module::OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type) { return ACR_DEFAULT; }
+void		Module::On005Numeric(std::string &output) { }
+int		Module::OnKill(userrec* source, userrec* dest, const std::string &reason) { return 0; }
+void		Module::OnLoadModule(Module* mod,const std::string &name) { }
+void		Module::OnUnloadModule(Module* mod,const std::string &name) { }
+void		Module::OnBackgroundTimer(time_t curtime) { }
+int		Module::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line) { return 0; }
+void		Module::OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line) { }
+bool		Module::OnCheckReady(userrec* user) { return true; }
+int		Module::OnUserRegister(userrec* user) { return 0; }
+int		Module::OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason) { return 0; }
+void		Module::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent) { }
+int		Module::OnCheckInvite(userrec* user, chanrec* chan) { return 0; }
+int		Module::OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven) { return 0; }
+int		Module::OnCheckLimit(userrec* user, chanrec* chan) { return 0; }
+int		Module::OnCheckBan(userrec* user, chanrec* chan) { return 0; }
+int		Module::OnStats(char symbol, userrec* user, string_list &results) { return 0; }
+int		Module::OnChangeLocalUserHost(userrec* user, const std::string &newhost) { return 0; }
+int		Module::OnChangeLocalUserGECOS(userrec* user, const std::string &newhost) { return 0; }
+int		Module::OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { return 0; }
+void		Module::OnEvent(Event* event) { return; }
+char*		Module::OnRequest(Request* request) { return NULL; }
+int		Module::OnOperCompare(const std::string &password, const std::string &input, int tagnumber) { return 0; }
+void		Module::OnGlobalOper(userrec* user) { }
+void		Module::OnPostConnect(userrec* user) { }
+int		Module::OnAddBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; }
+int		Module::OnDelBan(userrec* source, chanrec* channel,const std::string &banmask) { return 0; }
+void		Module::OnRawSocketAccept(int fd, const std::string &ip, int localport) { }
+int		Module::OnRawSocketWrite(int fd, const char* buffer, int count) { return 0; }
+void		Module::OnRawSocketClose(int fd) { }
+void		Module::OnRawSocketConnect(int fd) { }
+int		Module::OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult) { return 0; }
+void		Module::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { }
+void		Module::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) { }
+void 		Module::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason) { }
+void		Module::OnUserInvite(userrec* source,userrec* dest,chanrec* channel) { }
+void		Module::OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic) { }
+void		Module::OnGetServerDescription(const std::string &servername,std::string &description) { }
+void		Module::OnSyncUser(userrec* user, Module* proto, void* opaque) { }
+void		Module::OnSyncChannel(chanrec* chan, Module* proto, void* opaque) { }
+void		Module::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline) { }
+void		Module::OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname, bool displayable) { }
+void		Module::OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable) { }
+void		Module::OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable) { }
+void		Module::OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata) { }
+void		Module::ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata) { }
+void		Module::OnWallops(userrec* user, const std::string &text) { }
+void		Module::OnChangeHost(userrec* user, const std::string &newhost) { }
+void		Module::OnChangeName(userrec* user, const std::string &gecos) { }
+void		Module::OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { }
+void		Module::OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask) { }
+void		Module::OnAddKLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { }
+void		Module::OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask) { }
+void		Module::OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask) { }
+void		Module::OnDelGLine(userrec* source, const std::string &hostmask) { }
+void		Module::OnDelZLine(userrec* source, const std::string &ipmask) { }
+void		Module::OnDelKLine(userrec* source, const std::string &hostmask) { }
+void		Module::OnDelQLine(userrec* source, const std::string &nickmask) { }
+void		Module::OnDelELine(userrec* source, const std::string &hostmask) { }
+void 		Module::OnCleanup(int target_type, void* item) { }
+void		Module::Implements(char* Implements) { for (int j = 0; j < 255; j++) Implements[j] = 0; }
+void		Module::OnChannelDelete(chanrec* chan) { }
 Priority	Module::Prioritize() { return PRIORITY_DONTCARE; }
-void		Module::OnSetAway(userrec* user) { };
-void		Module::OnCancelAway(userrec* user) { };
-int		Module::OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist) { return 0; };
-int		Module::OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text) { return 0; };
-void		Module::OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list) { };
-void		Module::OnGarbageCollect() { };
-void		Module::OnBufferFlushed(userrec* user) { };
+void		Module::OnSetAway(userrec* user) { }
+void		Module::OnCancelAway(userrec* user) { }
+int		Module::OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist) { return 0; }
+int		Module::OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text) { return 0; }
+void		Module::OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list) { }
+void		Module::OnGarbageCollect() { }
+void		Module::OnBufferFlushed(userrec* user) { }
 
 long InspIRCd::PriorityAfter(const std::string &modulename)
 {
@@ -579,7 +579,7 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 	this->readerror = ServerInstance->Config->LoadConf(*this->data, filename, *this->errorlog);
 	if (!this->readerror)
 		this->error = CONF_FILE_NOT_FOUND;
-};
+}
 
 
 std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)

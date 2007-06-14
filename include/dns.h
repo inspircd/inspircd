@@ -162,7 +162,7 @@ enum QueryType
 	DNS_QUERY_AAAA	= 28,		/* 'AAAA' record: an ipv6 address */
 
 	DNS_QUERY_PTR4	= 0xFFFD,	/* Force 'PTR' to use IPV4 scemantics */
-	DNS_QUERY_PTR6	= 0xFFFE,	/* Force 'PTR' to use IPV6 scemantics */
+	DNS_QUERY_PTR6	= 0xFFFE	/* Force 'PTR' to use IPV6 scemantics */
 };
 
 #ifdef IPV6

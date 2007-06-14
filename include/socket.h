@@ -155,8 +155,8 @@ namespace irc
 		 * descriptors)
 		 */
 		CoreExport int OpenTCPSocket(char* addr, int socktype = SOCK_STREAM);
-	};
-};
+	}
+}
 
 /** This class handles incoming connections on client ports.
  * It will create a new userrec for every valid connection

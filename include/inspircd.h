@@ -54,7 +54,7 @@ enum DebugLevel
 	VERBOSE		=	20,
 	DEFAULT		=	30,
 	SPARSE		=	40,
-	NONE		=	50,
+	NONE		=	50
 };
 
 /**

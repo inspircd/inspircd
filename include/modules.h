@@ -1402,7 +1402,7 @@ class CoreExport ConfigReader : public classbase
 	 * (such as comments) stripped from it.
 	 */
 	ConfigDataHash* data;
-	std::ostringstream* errorlog;;
+	std::ostringstream* errorlog;
 	/** Used to store errors
 	 */
 	bool privatehash; // If we're using our own config data hash or not.

@@ -38,11 +38,11 @@ enum ClassTypes {
 /** RFC1459 channel modes
  *  */
 enum UserModes {
-	UM_SERVERNOTICE = 's'-65,
-	UM_WALLOPS = 'w'-65,
-	UM_INVISIBLE = 'i'-65,
-	UM_OPERATOR = 'o'-65,
-	UM_SNOMASK = 'n'-65,
+	UM_SERVERNOTICE = 's' - 65,
+	UM_WALLOPS = 'w' - 65,
+	UM_INVISIBLE = 'i' - 65,
+	UM_OPERATOR = 'o' - 65,
+	UM_SNOMASK = 'n' - 65
 };
 
 enum RegistrationState {
