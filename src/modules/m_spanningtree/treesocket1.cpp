@@ -864,7 +864,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	if (apply_other_sides_modes)
 	{
 		std::deque<std::string> stackresult;
-		const char* mode_junk[MAXMODES+1];
+		const char* mode_junk[MAXMODES+2];
 		userrec* n = new userrec(Instance);
 		n->SetFd(FD_MAGIC_NUMBER);
 		mode_junk[0] = channel.c_str();
