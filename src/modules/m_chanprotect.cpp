@@ -80,7 +80,7 @@ class FounderProtectBase
 		unload_kludge = true;
 		CUList* cl = channel->GetUsers();
 		std::string item = extend + std::string(channel->name);
-		const char* mode_junk[MAXMODES+1];
+		const char* mode_junk[MAXMODES+2];
 		userrec* n = new userrec(MyInstance);
 		n->SetFd(FD_MAGIC_NUMBER);
 		mode_junk[0] = channel->name;

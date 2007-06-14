@@ -137,7 +137,7 @@ class ListModeBase : public ModeHandler
 		{
 			irc::modestacker modestack(false);
 			std::deque<std::string> stackresult;
-			const char* mode_junk[MAXMODES+1];
+			const char* mode_junk[MAXMODES+2];
 			mode_junk[0] = channel->name;
 			userrec* n = new userrec(ServerInstance);
 			n->SetFd(FD_MAGIC_NUMBER);

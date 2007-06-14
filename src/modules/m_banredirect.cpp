@@ -224,7 +224,7 @@ class ModuleBanRedirect : public Module
 			{
 				irc::modestacker modestack(false);
 				StringDeque stackresult;
-				const char* mode_junk[MAXMODES+1];
+				const char* mode_junk[MAXMODES+2];
 				userrec* myhorriblefakeuser = new userrec(ServerInstance);
 				myhorriblefakeuser->SetFd(FD_MAGIC_NUMBER);
 				
