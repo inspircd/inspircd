@@ -414,7 +414,6 @@ int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* 
 				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated and will be removed in a future version. Please use RSQUIT instead.",user->nick);
 			std::deque<std::string> params;
 			params.push_back(parameters[0]);
-			//params.push_back(std::string(":Server quit by ") + user->GetFullRealHost());
 			Utils->DoOneToOne(user->nick, "RSQUIT", params, s->GetName());
 			/* end to be removed after 1.1.9 */
 			/* to be INSERTED after 1.1.9 */
