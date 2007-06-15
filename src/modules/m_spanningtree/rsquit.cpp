@@ -61,13 +61,13 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameters[0]))
 		{
-			if (s == Utils->TreeRoot)
-			{
-				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
-				return CMD_FAILURE;
-			}
 			if (s)
 			{
+				if (s == Utils->TreeRoot)
+				{
+					NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
+					return CMD_FAILURE;
+				}
 				TreeSocket* sock = s->GetSocket();
 				if (!sock)
 				{
@@ -84,19 +84,22 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		if (s == Utils->TreeRoot)
+		if (s)
 		{
-			NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
-			return CMD_FAILURE;
-		}
-		TreeSocket* sock = s->GetSocket();
-		if (sock)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
-			sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
-			ServerInstance->SE->DelFd(sock);
-			sock->Close();
-			delete sock;
+			if (s == Utils->TreeRoot)
+			{
+				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
+				return CMD_FAILURE;
+			}
+			TreeSocket* sock = s->GetSocket();
+			if (sock)
+			{
+				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+				sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
+				ServerInstance->SE->DelFd(sock);
+				sock->Close();
+				delete sock;
+			}
 		}
 	}
 
