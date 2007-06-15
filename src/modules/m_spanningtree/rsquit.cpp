@@ -63,14 +63,12 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (s == Utils->TreeRoot)
 			{
-				//ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT myself! (%s matches local server name)",user->nick,parameters[1]);
 				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
 				return CMD_FAILURE;
 			}
 			TreeSocket* sock = s->GetSocket();
 			if (!sock)
 			{
-				//ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT \002%s\002 but the server isn't linked here.",user->nick,parameters[1]);
 				NoticeUser(user, "*** RSQUIT: Server \002"+ConvToStr(parameters[1])+"\002 isn't connected to \002"+ConvToStr(parameters[0])+"\002.");
 				return CMD_FAILURE;
 			}
@@ -110,7 +108,6 @@ void cmd_rsquit::NoticeUser(userrec* user, const std::string &msg)
 	}
 	else
 	{
-		//bool DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target);
 		std::deque<std::string> params;
 		params.push_back(user->nick);
 		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
