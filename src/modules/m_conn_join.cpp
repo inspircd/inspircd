@@ -51,6 +51,11 @@ class ModuleConnJoin : public Module
 			OnRehash(NULL, "");
 		}
 
+		Priority Prioritize()
+		{
+			return PRIORITY_LAST;
+		}
+
 		void Implements(char* List)
 		{
 			List[I_OnPostConnect] = List[I_OnRehash] = 1;
