@@ -63,13 +63,13 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (s == Utils->TreeRoot)
 			{
-				user->WriteServ("NOTICE %s :*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[1]);
+				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT myself! (%s matches local server name)",user->nick,parameters[1]);
 				return CMD_FAILURE;
 			}
 			TreeSocket* sock = s->GetSocket();
 			if (!sock)
 			{
-				user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to \002%s\002.",user->nick,parameters[1],parameters[0]);
+				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT \002%s\002 but the server isn't linked here.",user->nick,parameters[1]);
 				return CMD_FAILURE;
 			}
 			ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
