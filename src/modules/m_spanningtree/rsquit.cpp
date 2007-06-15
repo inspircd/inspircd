@@ -66,17 +66,20 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
 				return CMD_FAILURE;
 			}
-			TreeSocket* sock = s->GetSocket();
-			if (!sock)
+			if (s)
 			{
-				NoticeUser(user, "*** RSQUIT: Server \002"+ConvToStr(parameters[1])+"\002 isn't connected to \002"+ConvToStr(parameters[0])+"\002.");
-				return CMD_FAILURE;
+				TreeSocket* sock = s->GetSocket();
+				if (!sock)
+				{
+					NoticeUser(user, "*** RSQUIT: Server \002"+ConvToStr(parameters[1])+"\002 isn't connected to \002"+ConvToStr(parameters[0])+"\002.");
+					return CMD_FAILURE;
+				}
+				ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
+				const char* para[1];
+				para[0] = parameters[1];
+				std::string original_command = std::string("SQUIT ") + parameters[1];
+				Creator->OnPreCommand("SQUIT", para, 1, user, true, original_command);
 			}
-			ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
-			const char* para[1];
-			para[0] = parameters[1];
-			std::string original_command = std::string("SQUIT ") + parameters[1];
-			Creator->OnPreCommand("SQUIT", para, 1, user, true, original_command);
 		}
 	}
 	else
