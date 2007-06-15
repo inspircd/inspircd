@@ -63,13 +63,15 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (s == Utils->TreeRoot)
 			{
-				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT myself! (%s matches local server name)",user->nick,parameters[1]);
+				//ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT myself! (%s matches local server name)",user->nick,parameters[1]);
+				NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[1])+" matches local server name)");
 				return CMD_FAILURE;
 			}
 			TreeSocket* sock = s->GetSocket();
 			if (!sock)
 			{
-				ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT \002%s\002 but the server isn't linked here.",user->nick,parameters[1]);
+				//ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: %s told me to SQUIT \002%s\002 but the server isn't linked here.",user->nick,parameters[1]);
+				NoticeUser(user, "*** RSQUIT: Server \002"+ConvToStr(parameters[1])+"\002 isn't connected to \002"+ConvToStr(parameters[0])+"\002.");
 				return CMD_FAILURE;
 			}
 			ServerInstance->SNO->WriteToSnoMask('l',"Remote SQUIT from %s matching \002%s\002, squitting server \002%s\002",user->nick,parameters[0],parameters[1]);
@@ -83,7 +85,7 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		if (s == Utils->TreeRoot)
 		{
-			user->WriteServ("NOTICE %s :*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+			NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+ConvToStr(parameters[0])+" matches local server name)");
 			return CMD_FAILURE;
 		}
 		TreeSocket* sock = s->GetSocket();
@@ -98,4 +100,20 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 
 	return CMD_SUCCESS;
+}
+
+void cmd_rsquit::NoticeUser(userrec* user, const std::string &msg)
+{
+	if (IS_LOCAL(user))
+	{
+		user->WriteServ("NOTICE %s :%s",user->nick,msg.c_str());
+	}
+	else
+	{
+		//bool DoOneToOne(const std::string &prefix, const std::string &command, std::deque<std::string> &params, std::string target);
+		std::deque<std::string> params;
+		params.push_back(user->nick);
+		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
+		Utils->DoOneToOne(ServerInstance->Config->ServerName, "PUSH", params, user->server);
+	}
 }
