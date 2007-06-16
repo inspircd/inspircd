@@ -20,6 +20,12 @@
 /* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
 
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
+/*	IBLOCK_NOTICE		- Send a notice to the user informing them of what happened.
+ *	IBLOCK_NOTICEOPERS	- Send a notice to the user informing them and send an oper notice.
+ *	IBLOCK_SILENT		- Generate no output, silently drop messages.
+ *	IBLOCK_KILL			- Kill the user with the reason "Global message (/amsg or /ame) detected".
+ *	IBLOCK_KILLOPERS	- As above, but send an oper notice as well. This is the default.
+ */
 
 /** Holds a blocked message's details
  */
@@ -30,18 +36,20 @@ public:
 	irc::string target;
 	time_t sent;
 
-	BlockedMessage(const std::string &msg, const irc::string &tgt, time_t when) : message(msg), target(tgt), sent(when)
+	BlockedMessage(const std::string &msg, const irc::string &tgt, time_t when)
+	: message(msg), target(tgt), sent(when)
 	{
 	}
 };
 
 class ModuleBlockAmsg : public Module
 {
-	
 	int ForgetDelay;
 	BlockAction action;
-public:
-	ModuleBlockAmsg(InspIRCd* Me) : Module(Me)
+	
+ public:
+	ModuleBlockAmsg(InspIRCd* Me)
+	: Module(Me)
 	{
 		
 		this->OnRehash(NULL,"");
@@ -63,13 +71,14 @@ public:
 	
 	virtual void OnRehash(userrec* user, const std::string &parameter)
 	{
-		ConfigReader* Conf = new ConfigReader(ServerInstance);
+		ConfigReader Conf(ServerInstance);
 		
-		ForgetDelay = Conf->ReadInteger("blockamsg", "delay", 0, false);
-		if(Conf->GetError() == CONF_VALUE_NOT_FOUND)
+		ForgetDelay = Conf.ReadInteger("blockamsg", "delay", 0, false);
+		
+		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
 			ForgetDelay = -1;
 			
-		std::string act = Conf->ReadValue("blockamsg", "action", 0);
+		std::string act = Conf.ReadValue("blockamsg", "action", 0);
 		
 		if(act == "notice")
 			action = IBLOCK_NOTICE;
@@ -81,8 +90,6 @@ public:
 			action = IBLOCK_KILL;
 		else
 			action = IBLOCK_KILLOPERS;
-
-		DELETE(Conf);
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -103,14 +110,25 @@ public:
 			
 			int targets = 1;
 			int userchans = 0;
-			
-			// Decrement if the first target wasn't a channel.
+		
 			if(*parameters[0] != '#')
+			{
+				// Decrement if the first target wasn't a channel.
 				targets--;
+			}
 			
 			for(const char* c = parameters[0]; *c; c++)
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
 					targets++;
+				
+			/* targets should now contain the number of channel targets the msg/notice was pointed at.
+			 * If the msg/notice was a PM there should be no channel targets and 'targets' should = 0.
+			 * We don't want to block PMs so...
+			 */
+			if(targets == 0)
+			{
+				return 0;
+			}
 					
 			userchans = user->chans.size();
 
