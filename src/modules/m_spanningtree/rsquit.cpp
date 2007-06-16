@@ -79,6 +79,7 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 				para[0] = parameters[1];
 				std::string original_command = std::string("SQUIT ") + parameters[1];
 				Creator->OnPreCommand("SQUIT", para, 1, user, true, original_command);
+				return CMD_LOCALONLY;
 			}
 		}
 	}
@@ -99,6 +100,7 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 				ServerInstance->SE->DelFd(sock);
 				sock->Close();
 				delete sock;
+				return CMD_LOCALONLY;
 			}
 		}
 	}
