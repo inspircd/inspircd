@@ -198,6 +198,8 @@ configureclean:
 	rm src/modules/Makefile
 	rm src/Makefile
 	rm Makefile
+	rm include/inspircd_config.h
+	rm include/inspircd_se_config.h
 
 distclean: modclean clean configureclean
 
