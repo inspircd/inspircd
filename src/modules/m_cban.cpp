@@ -55,8 +55,7 @@ class cmd_cban : public command_t
 	cmd_cban(InspIRCd* Me) : command_t(Me, "CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
-		this->
-		syntax = "<channel> [<duration> :<reason>]";
+		this->syntax = "<channel> [<duration> :<reason>]";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
@@ -71,8 +70,8 @@ class cmd_cban : public command_t
 			{
 				if (parameters[0] == iter->chname)
 				{
-					unsigned long remaining = (iter->set_on + iter->length) - ServerInstance->Time();
-					user->WriteServ( "386 %s %s :Removed CBAN with %lu seconds left before expiry (%s)", user->nick, iter->chname.c_str(), remaining, iter->reason.c_str());
+					long remaining = iter->length + ServerInstance->Time();
+					user->WriteServ("386 %s %s :Removed CBAN due to expire at %s (%s)", user->nick, iter->chname.c_str(), ServerInstance->TimeString(remaining).c_str(), iter->reason.c_str());
 					cbans.erase(iter);
 					break;
 				}
@@ -95,18 +94,18 @@ class cmd_cban : public command_t
 				
 				if(length > 0)
 				{
-					user->WriteServ( "385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
+					user->WriteServ("385 %s %s :Added %lu second channel ban (%s)", user->nick, parameters[0], length, reason.c_str());
 					ServerInstance->WriteOpers("*** %s added %lu second channel ban on %s (%s)", user->nick, length, parameters[0], reason.c_str());
 				}
 				else
 				{
-					user->WriteServ( "385 %s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
+					user->WriteServ("385 %s %s :Added permanent channel ban (%s)", user->nick, parameters[0], reason.c_str());
 					ServerInstance->WriteOpers("*** %s added permanent channel ban on %s (%s)", user->nick, parameters[0], reason.c_str());
 				}
 			}
 			else
 			{
-				user->WriteServ( "403 %s %s :Invalid channel name", user->nick, parameters[0]);
+				user->WriteServ("403 %s %s :Invalid channel name", user->nick, parameters[0]);
 				return CMD_FAILURE;
 			}
 		}
@@ -235,7 +234,7 @@ class ModuleCBan : public Module
 				{
 					if (iter->set_on + iter->length <= ServerInstance->Time())
 					{
-						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set %u seconds ago expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->Time() - iter->set_on);
+						ServerInstance->WriteOpers("*** %li second CBAN on %s (%s) set on %s expired", iter->length, iter->chname.c_str(), iter->reason.c_str(), ServerInstance->TimeString(iter->set_on).c_str());
 						cbans.erase(iter);
 						go_again = true;
 					}
