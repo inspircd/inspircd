@@ -22,7 +22,10 @@
 #include "users.h"
 #include "channels.h"
 
-/** Handle /WALLOPS
+/** Handle /WALLOPS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_wallops : public command_t
 {

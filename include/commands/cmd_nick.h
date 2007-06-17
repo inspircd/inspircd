@@ -22,7 +22,10 @@
 #include "users.h"
 #include "channels.h"
 
-/** Handle /NICK
+/** Handle /NICK. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_nick : public command_t
 {

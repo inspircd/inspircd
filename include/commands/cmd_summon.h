@@ -25,7 +25,10 @@
 #include "users.h"
 #include "channels.h"
 
-/** Handle /SUMMON stub
+/** Handle /SUMMON stub. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_summon : public command_t
 {

@@ -54,7 +54,10 @@ typedef std::map<irc::string,whowas_set*> whowas_users;
  */
 typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
 
-/** Handle /WHOWAS
+/** Handle /WHOWAS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_whowas : public command_t
 {

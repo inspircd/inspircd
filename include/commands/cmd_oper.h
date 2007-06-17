@@ -24,7 +24,10 @@
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 
-/** Handle /OPER
+/** Handle /OPER. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_oper : public command_t
 {

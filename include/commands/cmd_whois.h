@@ -25,7 +25,10 @@
 const char* Spacify(char* n);
 DllExport void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick);
 
-/** Handle /WHOIS
+/** Handle /WHOIS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
  */
 class cmd_whois : public command_t
 {
