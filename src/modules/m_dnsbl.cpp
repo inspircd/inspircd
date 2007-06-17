@@ -350,28 +350,4 @@ class ModuleDNSBL : public Module
 	}
 };
 
-// stuff down here is the module-factory stuff.
-
-class ModuleDNSBLFactory : public ModuleFactory
-{
- public:
-	ModuleDNSBLFactory()
-	{
-	}
-
-	~ModuleDNSBLFactory()
-	{
-	}
-
-	virtual Module *CreateModule(InspIRCd *Me)
-	{
-		return new ModuleDNSBL(Me);
-	}
-
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleDNSBLFactory;
-}
+MODULE_INIT(ModuleDNSBL);

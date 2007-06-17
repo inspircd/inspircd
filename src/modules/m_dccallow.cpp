@@ -486,25 +486,4 @@ class ModuleDCCAllow : public Module
 	}
 };
 
-class ModuleDCCAllowFactory : public ModuleFactory
-{
- public:
-	ModuleDCCAllowFactory()
-	{
-	}
-
-	~ModuleDCCAllowFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleDCCAllow(Me);
-	}
-
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleDCCAllowFactory;
-}
+MODULE_INIT(ModuleDCCAllow);

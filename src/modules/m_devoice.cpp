@@ -78,27 +78,4 @@ class ModuleDeVoice : public Module
 	}
 };
 
-
-class ModuleDeVoiceFactory : public ModuleFactory
-{
- public:
-	ModuleDeVoiceFactory()
-	{
-	}
-
-	~ModuleDeVoiceFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleDeVoice(Me);
-	}
-
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleDeVoiceFactory;
-}
+MODULE_INIT(ModuleDeVoice);

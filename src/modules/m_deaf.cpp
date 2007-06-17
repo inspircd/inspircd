@@ -132,28 +132,4 @@ class ModuleDeaf : public Module
 
 };
 
-
-class ModuleDeafFactory : public ModuleFactory
-{
- public:
-	ModuleDeafFactory()
-	{
-	}
-	
-	~ModuleDeafFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleDeaf(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleDeafFactory;
-}
-
+MODULE_INIT(ModuleDeaf);

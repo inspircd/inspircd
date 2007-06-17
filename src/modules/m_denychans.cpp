@@ -77,29 +77,4 @@ class ModuleDenyChannels : public Module
 	}
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleDenyChannelsFactory : public ModuleFactory
-{
- public:
-	ModuleDenyChannelsFactory()
-	{
-	}
-	
-	~ModuleDenyChannelsFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleDenyChannels(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleDenyChannelsFactory;
-}
-
+MODULE_INIT(ModuleDenyChannels);
