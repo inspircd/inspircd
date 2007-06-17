@@ -94,37 +94,5 @@ class ModuleFoobar : public Module
 };
 
 
-//
-// The ModuleFoobarFactory class inherits from ModuleFactory
-// and creates a ModuleFoobar object when requested.
-//
-
-class ModuleFoobarFactory : public ModuleFactory
-{
- public:
-	ModuleFoobarFactory()
-	{
-	}
-	
-	~ModuleFoobarFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleFoobar(Me);
-	}
-	
-};
-
-
-//
-// The "C" linkage factory0() function creates the ModuleFoobarFactory
-// class for this library
-//
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleFoobarFactory;
-}
+MODULE_INIT(ModuleFoobar);
 

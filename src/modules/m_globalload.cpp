@@ -138,27 +138,4 @@ class ModuleGlobalLoad : public Module
 	}
 };
 
-
-class ModuleGlobalLoadFactory : public ModuleFactory
-{
- public:
-	ModuleGlobalLoadFactory()
-	{
-	}
-	
-	~ModuleGlobalLoadFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleGlobalLoad(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleGlobalLoadFactory;
-}
+MODULE_INIT(ModuleGlobalLoad);

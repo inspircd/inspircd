@@ -73,27 +73,4 @@ class ModuleGlobops : public Module
 	}
 };
 
-class ModuleGlobopsFactory : public ModuleFactory
-{
- public:
-	ModuleGlobopsFactory()
-	{
-	}
-	
-	~ModuleGlobopsFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleGlobops(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleGlobopsFactory;
-}
-
+MODULE_INIT(ModuleGlobops);

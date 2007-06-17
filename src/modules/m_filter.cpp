@@ -131,29 +131,5 @@ class ModuleFilter : public FilterBase
 	}
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
 
-class ModuleFilterFactory : public ModuleFactory
-{
- public:
-	ModuleFilterFactory()
-	{
-	}
-	
-	~ModuleFilterFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleFilter(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleFilterFactory;
-}
-
+MODULE_INIT(ModuleFilter);

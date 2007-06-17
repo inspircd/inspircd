@@ -188,25 +188,4 @@ class ModuleHelpop : public Module
 		}
 };
 
-class ModuleHelpopFactory : public ModuleFactory
-{
- public:
-	ModuleHelpopFactory()
-	{
-	}
-	
-	~ModuleHelpopFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleHelpop(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleHelpopFactory;
-}
+MODULE_INIT(ModuleHelpop);
