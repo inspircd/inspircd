@@ -19,8 +19,12 @@
 #include "ctables.h"
 #include "typedefs.h"
 
+/** Required forward declaration
+ */
 class InspIRCd;
 
+/** A list of dll/so files containing the command handlers for the core
+ */
 typedef std::map<std::string, void*> SharedObjectList;
 
 /** This class handles command management and parsing.
@@ -111,6 +115,10 @@ class CoreExport CommandParser : public classbase
 	 */
 	CmdResult CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
 
+	/** Get the handler function for a command.
+	 * @param commandname The command required. Always use uppercase for this parameter.
+	 * @return a pointer to the command handler, or NULL
+	 */
 	command_t* GetHandler(const std::string &commandname);
 
 	/** This function returns true if a command is valid with the given number of parameters and user.
