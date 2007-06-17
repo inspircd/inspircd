@@ -176,26 +176,5 @@ class ModuleOperSSLCert : public Module
 	}
 };
 
-class ModuleOperSSLCertFactory : public ModuleFactory
-{
- public:
-	ModuleOperSSLCertFactory()
-	{
-	}
-	
-	~ModuleOperSSLCertFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOperSSLCert(Me);
-	}
-	
-};
+MODULE_INIT(ModuleOperSSLCert);
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperSSLCertFactory;
-}

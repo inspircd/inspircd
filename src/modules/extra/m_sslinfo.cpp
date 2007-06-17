@@ -90,28 +90,5 @@ class ModuleSSLInfo : public Module
 	}
 };
 
-
-class ModuleSSLInfoFactory : public ModuleFactory
-{
- public:
-	ModuleSSLInfoFactory()
-	{
-	}
-	
-	~ModuleSSLInfoFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSSLInfo(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSSLInfoFactory;
-}
+MODULE_INIT(ModuleSSLInfo);
 
