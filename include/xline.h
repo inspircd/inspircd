@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -35,6 +35,12 @@ class CoreExport XLine : public classbase
 {
   public:
 
+	/** Create an XLine.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 */
 	XLine(time_t s_time, long d, const char* src, const char* re)
 		: set_time(s_time), duration(d)
 	{
@@ -43,6 +49,8 @@ class CoreExport XLine : public classbase
 		expiry = set_time + duration;
 	}
 
+	/** Destructor
+	 */
 	virtual ~XLine()
 	{
 		free(reason);
@@ -74,8 +82,13 @@ class CoreExport XLine : public classbase
 class CoreExport KLine : public XLine
 {
   public:
-	/** Hostmask (ident@host) to match against
-	 * May contain wildcards.
+	/** Create a K-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param ident Ident to match
+	 * @param host Host to match
 	 */
 	KLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
 	{
@@ -83,13 +96,19 @@ class CoreExport KLine : public XLine
 		hostmask = strdup(host);
 	}
 
+	/** Destructor
+	 */
 	~KLine()
 	{
 		free(identmask);
 		free(hostmask);
 	}
 
+	/** Ident mask
+	 */
 	char* identmask;
+	/** Host mask
+	 */
 	char* hostmask;
 };
 
@@ -98,8 +117,13 @@ class CoreExport KLine : public XLine
 class CoreExport GLine : public XLine
 {
   public:
-	/** Hostmask (ident@host) to match against
-	 * May contain wildcards.
+	/** Create a G-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param ident Ident to match
+	 * @param host Host to match
 	 */
 	GLine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
 	{
@@ -107,13 +131,19 @@ class CoreExport GLine : public XLine
 		hostmask = strdup(host);
 	}
 
+	/** Destructor
+	 */
 	~GLine()
 	{
 		free(identmask);
 		free(hostmask);
 	}
 
+	/** Ident mask
+	 */
 	char* identmask;
+	/** Host mask
+	 */
 	char* hostmask;
 };
 
@@ -122,8 +152,13 @@ class CoreExport GLine : public XLine
 class CoreExport ELine : public XLine
 {
   public:
-	/** Hostmask (ident@host) to match against
-	 * May contain wildcards.
+	/** Create an E-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param ident Ident to match
+	 * @param host Host to match
 	 */
 	ELine(time_t s_time, long d, const char* src, const char* re, const char* ident, const char* host) : XLine(s_time, d, src, re)
 	{
@@ -137,7 +172,11 @@ class CoreExport ELine : public XLine
 		free(hostmask);
 	}
 
+	/** Ident mask
+	 */
 	char* identmask;
+	/** Host mask
+	 */
 	char* hostmask;
 };
 
@@ -146,19 +185,27 @@ class CoreExport ELine : public XLine
 class CoreExport ZLine : public XLine
 {
   public:
-	/** IP Address (xx.yy.zz.aa) to match against
-	 * May contain wildcards.
+	/** Create a Z-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param ip IP to match
 	 */
 	ZLine(time_t s_time, long d, const char* src, const char* re, const char* ip) : XLine(s_time, d, src, re)
 	{
 		ipaddr = strdup(ip);
 	}
 
+	/** Destructor
+	 */
 	~ZLine()
 	{
 		free(ipaddr);
 	}
 
+	/** IP mask
+	 */
 	char* ipaddr;
 };
 
@@ -167,37 +214,67 @@ class CoreExport ZLine : public XLine
 class CoreExport QLine : public XLine
 {
   public:
-	/** Nickname to match against.
-	 * May contain wildcards.
+	/** Create a G-Line.
+	 * @param s_time The set time
+	 * @param d The duration of the xline
+	 * @param src The sender of the xline
+	 * @param re The reason of the xline
+	 * @param nickname Nickname to match
 	 */
 	QLine(time_t s_time, long d, const char* src, const char* re, const char* nickname) : XLine(s_time, d, src, re)
 	{
 		nick = strdup(nickname);
 	}
 
+	/** Destructor
+	 */
 	~QLine()
 	{
 		free(nick);
 	}
 
+	/** Nickname mask
+	 */
 	char* nick;
 };
 
+/* Required forward declarations
+ */
 class ServerConfig;
 class InspIRCd;
 
+/** Initialize x line
+ */
 bool InitXLine(ServerConfig* conf, const char* tag);
 
+/** Done adding zlines from the config
+ */
 bool DoneZLine(ServerConfig* conf, const char* tag);
+/** Done adding qlines from the config
+ */
 bool DoneQLine(ServerConfig* conf, const char* tag);
+/** Done adding klines from the config
+ */
 bool DoneKLine(ServerConfig* conf, const char* tag);
+/** Done adding elines from the config
+ */
 bool DoneELine(ServerConfig* conf, const char* tag);
 
+/** Add a config-defined zline
+ */
 bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+/** Add a config-defined qline
+ */
 bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+/** Add a config-defined kline
+ */
 bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+/** Add a config-defined eline
+ */
 bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
 
+/** Contains an ident and host split into two strings
+ */
 typedef std::pair<std::string, std::string> IdentHostPair;
 
 /** XLineManager is a class used to manage glines, klines, elines, zlines and qlines.
@@ -268,6 +345,9 @@ class CoreExport XLineManager
 	 */
 	XLineManager(InspIRCd* Instance);
 
+	/** Split an ident and host into two seperate strings.
+	 * This allows for faster matching.
+	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);
 
 	/** Add a new GLine
