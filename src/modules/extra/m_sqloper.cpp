@@ -279,27 +279,5 @@ public:
 	
 };
 
-class ModuleSQLOperFactory : public ModuleFactory
-{
- public:
-	ModuleSQLOperFactory()
-	{
-	}
-	
-	~ModuleSQLOperFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQLOper(Me);
-	}
-	
-};
-
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLOperFactory;
-}
+MODULE_INIT(ModuleSQLOper);
 

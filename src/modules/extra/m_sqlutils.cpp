@@ -234,25 +234,5 @@ public:
 	
 };
 
-class ModuleSQLutilsFactory : public ModuleFactory
-{
- public:
-	ModuleSQLutilsFactory()
-	{
-	}
-	
-	~ModuleSQLutilsFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQLutils(Me);
-	}
-};
+MODULE_INIT(ModuleSQLutils);
 
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLutilsFactory;
-}

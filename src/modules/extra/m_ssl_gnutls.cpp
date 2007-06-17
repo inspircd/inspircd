@@ -822,25 +822,5 @@ class ModuleSSLGnuTLS : public Module
 
 };
 
-class ModuleSSLGnuTLSFactory : public ModuleFactory
-{
- public:
-	ModuleSSLGnuTLSFactory()
-	{
-	}
+MODULE_INIT(ModuleSSLGnuTLS);
 
-	~ModuleSSLGnuTLSFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSSLGnuTLS(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSSLGnuTLSFactory;
-}

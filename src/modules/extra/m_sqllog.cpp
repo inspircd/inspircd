@@ -306,26 +306,5 @@ class ModuleSQLLog : public Module
 	
 };
 
-class ModuleSQLLogFactory : public ModuleFactory
-{
- public:
-	ModuleSQLLogFactory()
-	{
-	}
-	
-	~ModuleSQLLogFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQLLog(Me);
-	}
-	
-};
+MODULE_INIT(ModuleSQLLog);
 
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLLogFactory;
-}

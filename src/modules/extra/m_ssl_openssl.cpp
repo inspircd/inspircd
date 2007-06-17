@@ -843,25 +843,5 @@ static int error_callback(const char *str, size_t len, void *u)
 	return 0;
 }
 
-class ModuleSSLOpenSSLFactory : public ModuleFactory
-{
- public:
-	ModuleSSLOpenSSLFactory()
-	{
-	}
+MODULE_INIT(ModuleSSLOpenSSL);
 
-	~ModuleSSLOpenSSLFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSSLOpenSSL(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSSLOpenSSLFactory;
-}
