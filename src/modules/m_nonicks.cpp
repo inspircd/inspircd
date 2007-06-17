@@ -99,29 +99,4 @@ class ModuleNoNickChange : public Module
 	}
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleNoNickChangeFactory : public ModuleFactory
-{
- public:
-	ModuleNoNickChangeFactory()
-	{
-	}
-	
-	~ModuleNoNickChangeFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNoNickChange(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNoNickChangeFactory;
-}
-
+MODULE_INIT(ModuleNoNickChange);

@@ -87,24 +87,4 @@ class ModuleOperjoin : public Module
 
 };
 
-class ModuleOperjoinFactory : public ModuleFactory
-{
-	public:
-		ModuleOperjoinFactory()
-		{
-		}
-
-		~ModuleOperjoinFactory()
-		{
-		}
-
-		virtual Module * CreateModule(InspIRCd* Me)
-		{
-			return new ModuleOperjoin(Me);
-		}
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperjoinFactory;
-}
+MODULE_INIT(ModuleOperjoin);

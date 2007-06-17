@@ -72,29 +72,4 @@ class ModuleOperLog : public Module
 };
  
  
- 
-/******************************************************************************************************/
- 
-class ModuleOperLogFactory : public ModuleFactory
-{
- public:
-	ModuleOperLogFactory()
-	{
-	}
- 
-	~ModuleOperLogFactory()
-	{
-	}
- 
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOperLog(Me);
-	}
- 
-};
- 
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperLogFactory;
-}
-
+MODULE_INIT(ModuleOperLog);

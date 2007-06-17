@@ -100,28 +100,4 @@ class ModuleNoNotice : public Module
 	}
 };
 
-
-class ModuleNoNoticeFactory : public ModuleFactory
-{
- public:
-	ModuleNoNoticeFactory()
-	{
-	}
-	
-	~ModuleNoNoticeFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNoNotice(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNoNoticeFactory;
-}
-
+MODULE_INIT(ModuleNoNotice);

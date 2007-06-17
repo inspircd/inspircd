@@ -94,28 +94,4 @@ class ModuleOperChans : public Module
 	}
 };
 
-
-class ModuleOperChansFactory : public ModuleFactory
-{
- public:
-	ModuleOperChansFactory()
-	{
-	}
-	
-	~ModuleOperChansFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOperChans(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperChansFactory;
-}
-
+MODULE_INIT(ModuleOperChans);

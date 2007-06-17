@@ -160,27 +160,4 @@ class ModuleOperHash : public Module
 	}
 };
 
-
-class ModuleOperHashFactory : public ModuleFactory
-{
- public:
-	ModuleOperHashFactory()
-	{
-	}
-	
-	~ModuleOperHashFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOperHash(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperHashFactory;
-}
+MODULE_INIT(ModuleOperHash);
