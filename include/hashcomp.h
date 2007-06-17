@@ -32,9 +32,14 @@
  * backwards compatible with other code which is not
  * aware of irc::string.
  *******************************************************/
- 
+
+/** Required namespaces and symbols */
 using namespace std;
+
+/** aton() */
 using irc::sockets::insp_aton;
+
+/** nota() */
 using irc::sockets::insp_ntoa;
 
 #ifndef LOWERMAP
@@ -80,30 +85,53 @@ namespace irc
 	 */
 	struct irc_char_traits : std::char_traits<char> {
 
-		/** Check if two chars match
+		/** Check if two chars match.
+		 * @param c1st First character
+		 * @param c2nd Second character
+		 * @return true if the characters are equal
 		 */
 		static bool eq(char c1st, char c2nd);
 
-		/** Check if two chars do NOT match
+		/** Check if two chars do NOT match.
+		 * @param c1st First character
+		 * @param c2nd Second character
+		 * @return true if the characters are unequal
 		 */
 		static bool ne(char c1st, char c2nd);
 
-		/** Check if one char is less than another
+		/** Check if one char is less than another.
+		 * @param c1st First character
+		 * @param c2nd Second character
+		 * @return true if c1st is less than c2nd
 		 */
 		static bool lt(char c1st, char c2nd);
 
-		/** Compare two strings of size n
+		/** Compare two strings of size n.
+		 * @param str1 First string
+		 * @param str2 Second string
+		 * @param n Length to compare to
+		 * @return similar to strcmp, zero for equal, less than zero for str1
+		 * being less and greater than zero for str1 being greater than str2.
 		 */
 		static CoreExport int compare(const char* str1, const char* str2, size_t n);
 
-		/** Find a char within a string up to position n
+		/** Find a char within a string up to position n.
+		 * @param s1 String to find in
+		 * @param n Position to search up to
+		 * @param c Character to search for
+		 * @return Pointer to the first occurance of c in s1
 		 */
 		static CoreExport const char* find(const char* s1, int  n, char c);
 	};
 
+	/** Compose a hex string from raw data.
+	 * @param raw The raw data to compose hex from
+	 * @pram rawsz The size of the raw data buffer
+	 * @return The hex string.
+	 */
 	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
 
-	/** This typedef declares irc::string based upon irc_char_traits
+	/** This typedef declares irc::string based upon irc_char_traits.
 	 */
 	typedef basic_string<char, irc_char_traits, allocator<char> > string;
 
@@ -194,7 +222,7 @@ namespace irc
 		void PushMinus();
 		/** Return zero or more elements which form the
 		 * mode line. This will be clamped to a max of
-		 * MAXMODES+1 items (MAXMODES mode parameters and
+		 * MAXMODES items (MAXMODES-1 mode parameters and
 		 * one mode sequence string), and max_line_size
 		 * characters. As specified below, this function
 		 * should be called in a loop until it returns zero,
@@ -244,12 +272,28 @@ namespace irc
 		tokenstream(const std::string &source);
 		~tokenstream();
 
-		/** Fetch the next token from the stream
-		 * @return The next token is returned, or an empty string if none remain
+		/** Fetch the next token from the stream as a std::string
+		 * @param token The next token available, or an empty string if none remain
+		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
 		bool GetToken(std::string &token);
+
+		/** Fetch the next token from the stream as an irc::string
+		 * @param token The next token available, or an empty string if none remain
+		 * @return True if tokens are left to be read, false if the last token was just retrieved.
+		 */
 		bool GetToken(irc::string &token);
+
+		/** Fetch the next token from the stream as an integer
+		 * @param token The next token available, or undefined if none remain
+		 * @return True if tokens are left to be read, false if the last token was just retrieved.
+		 */
 		bool GetToken(int &token);
+
+		/** Fetch the next token from the stream as a long integer
+		 * @param token The next token available, or undefined if none remain
+		 * @return True if tokens are left to be read, false if the last token was just retrieved.
+		 */
 		bool GetToken(long &token);
 	};
 
@@ -261,7 +305,7 @@ namespace irc
 	class CoreExport sepstream : public classbase
 	{
 	 private:
-		/** Original string
+		/** Original string.
 		 */
 		std::string tokens;
 		/** Last position of a seperator token
@@ -300,6 +344,8 @@ namespace irc
 	class CoreExport commasepstream : public sepstream
 	{
 	 public:
+		/** Initialize with comma seperator
+		 */
 		commasepstream(const std::string &source) : sepstream(source, ',')
 		{
 		}
@@ -310,6 +356,8 @@ namespace irc
 	class CoreExport spacesepstream : public sepstream
 	{
 	 public:
+		/** Initialize with space seperator
+		 */
 		spacesepstream(const std::string &source) : sepstream(source, ' ')
 		{
 		}
@@ -491,18 +539,32 @@ namespace irc
 		 */
 		unsigned char GetSize();
 
+		/** Get free bits mask
+		 */
 		virtual unsigned char* GetFreeBits() { return NULL; }
 
+		/** Set free bits mask
+		 */
 		virtual void SetFreeBits(unsigned char* freebits) { }
 	};
 
+	/** Turn _ characters in a string into spaces
+	 * @param n String to translate
+	 * @return The new value with _ translated to space.
+	 */
 	CoreExport const char* Spacify(const char* n);
 }
 
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */
 /* This was endless fun. No. Really. */
 /* It was also the first core change Ommeh made, if anyone cares */
+
+/** Operator << for irc::string
+ */
 inline std::ostream& operator<<(std::ostream &os, const irc::string &str) { return os << str.c_str(); }
+
+/** Operator >> for irc::string
+ */
 inline std::istream& operator>>(std::istream &is, irc::string &str)
 {
 	std::string tmp;
@@ -512,30 +574,55 @@ inline std::istream& operator>>(std::istream &is, irc::string &str)
 }
 
 /* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison - Brain
+ * and comparison
+ *
+ * Operator +
  */
 inline std::string operator+ (std::string& leftval, irc::string& rightval)
 {
 	return leftval + std::string(rightval.c_str());
 }
 
+/* Define operators for + and == with irc::string to std::string for easy assignment
+ * and comparison
+ *
+ * Operator +
+ */
 inline irc::string operator+ (irc::string& leftval, std::string& rightval)
 {
 	return leftval + irc::string(rightval.c_str());
 }
 
+/* Define operators for + and == with irc::string to std::string for easy assignment
+ * and comparison
+ *
+ * Operator ==
+ */
 inline bool operator== (const std::string& leftval, const irc::string& rightval)
 {
 	return (leftval.c_str() == rightval);
 }
 
+/* Define operators for + and == with irc::string to std::string for easy assignment
+ * and comparison
+ *
+ * Operator ==
+ */
 inline bool operator== (const irc::string& leftval, const std::string& rightval)
 {
 	return (leftval == rightval.c_str());
 }
 
+/** Assign an irc::string to a std::string.
+ */
 inline std::string assign(const irc::string &other) { return other.c_str(); }
+
+/** Assign a std::string to an irc::string.
+ */
 inline irc::string assign(const std::string &other) { return other.c_str(); }
+
+/** Trim the leading and trailing spaces from a std::string.
+ */
 inline std::string& trim(std::string &str)
 {
 	std::string::size_type start = str.find_first_not_of(" ");
@@ -548,9 +635,9 @@ inline std::string& trim(std::string &str)
 	return str;
 }
 
-/* Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of #ifdefs we'll just
-   do it all at once - Burlex */
-
+/** Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of
+ * #ifdefs we'll just do it all at once
+ */
 namespace nspace
 {
 	/** Hashing function to hash irc::string
@@ -559,21 +646,28 @@ namespace nspace
 	template<> class CoreExport hash_compare<irc::string, std::less<irc::string> >
 	{
 	public:
-		enum { bucket_size = 4, min_buckets = 8 };			// Got these numbers from the CRT source,
-															// if anyone wants to change them feel free.
+		enum { bucket_size = 4, min_buckets = 8 }; /* Got these numbers from the CRT source, if anyone wants to change them feel free. */
+
+		/** Compare two irc::string values for hashing in hash_map
+		 */
 		bool operator()(const irc::string & s1, const irc::string & s2) const
 		{
 			if(s1.length() != s2.length()) return true;
 			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), s1.length()) < 0);
 		}
 		
+		/** Hash an irc::string value for hash_map
+		 */
 		size_t operator()(const irc::string & s) const;
 	};
 
 	template<> class CoreExport hash_compare<std::string, std::less<std::string> >
 	{
 	public:
-		enum { bucket_size = 4, min_buckets = 8 };
+		enum { bucket_size = 4, min_buckets = 8 }; /* Again, from the CRT source */
+
+		/** Compare two std::string values for hashing in hash_map
+		 */
 		bool operator()(const std::string & s1, const std::string & s2) const
 		{
 			if(s1.length() != s2.length()) return true;
@@ -589,6 +683,10 @@ namespace nspace
 #else
 	template<> struct hash<irc::string>
 	{
+		/** Hash an irc::string using RFC1459 case sensitivity rules
+		 * @param s A string to hash
+		 * @return The hash value
+		 */
 		size_t operator()(const irc::string &s) const;
 	};
 
@@ -609,3 +707,4 @@ namespace nspace
 }
 
 #endif
+

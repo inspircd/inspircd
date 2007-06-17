@@ -46,14 +46,16 @@ class CoreExport DLLManager
 	bool GetSymbol(void **v, const char *sym_name);
 
 	/** Get the last error from dlopen() or dlsym().
-	 * @return The last error string, or NULL if no error has occured
+	 * @return The last error string, or NULL if no error has occured.
 	 */
 	char* LastError() 
 	{
 		 return err;
 	}
 
-	/** The module handle
+	/** The module handle.
+	 * This is OS dependent, on POSIX platforms it is a pointer to a function
+	 * pointer (yes, really!) and on windows it is a library handle.
 	 */
 	void *h;
 
@@ -77,11 +79,11 @@ class CoreExport DLLFactoryBase : public DLLManager
 	 */
 	DLLFactoryBase(InspIRCd* Instance, const char *fname, const char *func_name = 0);
 
-	/** Default destructor
+	/** Default destructor.
 	 */
 	virtual ~DLLFactoryBase();
 
-	/** A function pointer to the factory function
+	/** A function pointer to the factory function.
 	 */
 	void * (*factory_func)(void);	
 };
@@ -122,3 +124,4 @@ template <class T> class CoreExport DLLFactory : public DLLFactoryBase
 };
 
 #endif
+
