@@ -92,28 +92,5 @@ class ModuleTLine : public Module
 	}
 };
 
-
-class ModuleTLineFactory : public ModuleFactory
-{
- public:
-	ModuleTLineFactory()
-	{
-	}
-	
-	~ModuleTLineFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleTLine(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleTLineFactory;
-}
+MODULE_INIT(ModuleTLine);
 

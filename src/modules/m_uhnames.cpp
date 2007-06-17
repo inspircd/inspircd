@@ -94,27 +94,5 @@ class ModuleUHNames : public Module
  	}
 };
 
-
-class ModuleUHNamesFactory : public ModuleFactory
-{
- public:
-	ModuleUHNamesFactory()
-	{
-	}
-
-	~ModuleUHNamesFactory()
-	{
-	}
-
-		virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleUHNames(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleUHNamesFactory;
-}
+MODULE_INIT(ModuleUHNames);
 

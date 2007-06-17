@@ -200,27 +200,5 @@ class ModuleTimedBans : public Module
 	}
 };
 
+MODULE_INIT(ModuleTimedBans);
 
-class ModuleTimedBansFactory : public ModuleFactory
-{
- public:
-	ModuleTimedBansFactory()
-	{
-	}
-	
-	~ModuleTimedBansFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleTimedBans(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleTimedBansFactory;
-}
