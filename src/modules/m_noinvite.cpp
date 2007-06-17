@@ -85,27 +85,4 @@ class ModuleNoInvite : public Module
 	}
 };
 
-
-class ModuleNoInviteFactory : public ModuleFactory
-{
- public:
-	ModuleNoInviteFactory()
-	{
-	}
-
-	~ModuleNoInviteFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNoInvite(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNoInviteFactory;
-}
-
+MODULE_INIT(ModuleNoInvite);

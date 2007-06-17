@@ -104,28 +104,4 @@ class ModuleNoCTCP : public Module
 	}
 };
 
-
-class ModuleNoCTCPFactory : public ModuleFactory
-{
- public:
-	ModuleNoCTCPFactory()
-	{
-	}
-	
-	~ModuleNoCTCPFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNoCTCP(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNoCTCPFactory;
-}
-
+MODULE_INIT(ModuleNoCTCP);

@@ -102,27 +102,4 @@ class ModuleNoKicks : public Module
 };
 
 
-class ModuleNoKicksFactory : public ModuleFactory
-{
- public:
-	ModuleNoKicksFactory()
-	{
-	}
-	
-	~ModuleNoKicksFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNoKicks(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNoKicksFactory;
-}
-
+MODULE_INIT(ModuleNoKicks);

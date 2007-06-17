@@ -124,27 +124,4 @@ class ModuleNamesX : public Module
  	}
 };
 
-
-class ModuleNamesXFactory : public ModuleFactory
-{
- public:
-	ModuleNamesXFactory()
-	{
-	}
-
-	~ModuleNamesXFactory()
-	{
-	}
-
-		virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleNamesX(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleNamesXFactory;
-}
-
+MODULE_INIT(ModuleNamesX);

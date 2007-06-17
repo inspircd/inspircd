@@ -287,28 +287,4 @@ class ModuleMsgFlood : public Module
 	}
 };
 
-
-class ModuleMsgFloodFactory : public ModuleFactory
-{
- public:
-	ModuleMsgFloodFactory()
-	{
-	}
-	
-	~ModuleMsgFloodFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleMsgFlood(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleMsgFloodFactory;
-}
-
+MODULE_INIT(ModuleMsgFlood);
