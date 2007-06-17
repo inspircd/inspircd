@@ -247,26 +247,5 @@ class ModuleCBan : public Module
 	}
 };
 
-class ModuleCBanFactory : public ModuleFactory
-{
- public:
-	ModuleCBanFactory()
-	{
-	}
-	
-	~ModuleCBanFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleCBan(Me);
-	}
-	
-};
+MODULE_INIT(ModuleCBan);
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleCBanFactory;
-}

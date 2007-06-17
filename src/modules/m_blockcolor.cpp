@@ -115,27 +115,4 @@ class ModuleBlockColour : public Module
 	}
 };
 
-
-class ModuleBlockColourFactory : public ModuleFactory
-{
- public:
-	ModuleBlockColourFactory()
-	{
-	}
-	
-	~ModuleBlockColourFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleBlockColour(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleBlockColourFactory;
-}
+MODULE_INIT(ModuleBlockColour);
