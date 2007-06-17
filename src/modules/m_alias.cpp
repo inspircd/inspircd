@@ -269,27 +269,5 @@ class ModuleAlias : public Module
  	}
 };
 
-
-class ModuleAliasFactory : public ModuleFactory
-{
- public:
-	ModuleAliasFactory()
-	{
-	}
-
-	~ModuleAliasFactory()
-	{
-	}
-
-		virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleAlias(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleAliasFactory;
-}
+MODULE_INIT(ModuleAlias);
 

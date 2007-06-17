@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -1608,4 +1608,20 @@ typedef std::vector<Module*> ModuleList;
  */
 typedef std::vector<ircd_module*> FactoryList;
 
+
+#define MODULE_INIT(y) \
+	class Factory : public ModuleFactory \
+	{ \
+	 public: \
+		virtual Module * CreateModule(InspIRCd* Me) \
+		{ \
+			return new y(Me); \
+		} \
+	}; \
+	extern "C" DllExport void * init_module(void) \
+	{ \
+		return new Factory; \
+	}
+
 #endif
+

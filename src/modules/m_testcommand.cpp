@@ -102,28 +102,4 @@ class ModuleTestCommand : public Module
 	}
 };
 
-
-class ModuleTestCommandFactory : public ModuleFactory
-{
- public:
-	ModuleTestCommandFactory()
-	{
-	}
-	
-	~ModuleTestCommandFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleTestCommand(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleTestCommandFactory;
-}
-
+MODULE_INIT(ModuleTestCommand);
