@@ -188,26 +188,4 @@ class ModuleAuditorium : public Module
 	}
 };
 
-class ModuleAuditoriumFactory : public ModuleFactory
-{
- public:
-	ModuleAuditoriumFactory()
-	{
-	}
-	
-	~ModuleAuditoriumFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleAuditorium(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleAuditoriumFactory;
-}
-
+MODULE_INIT(ModuleAuditorium);

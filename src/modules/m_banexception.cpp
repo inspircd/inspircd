@@ -150,26 +150,4 @@ public:
 	}
 };
 
-class ModuleBanExceptionFactory : public ModuleFactory
-{
- public:
-	ModuleBanExceptionFactory()
-	{
-	}
-	
-	~ModuleBanExceptionFactory()
-	{
-	}
-	
-	virtual Module* CreateModule(InspIRCd* Me)
-	{
-		return new ModuleBanException(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleBanExceptionFactory;
-}
-
+MODULE_INIT(ModuleBanException);

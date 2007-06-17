@@ -340,26 +340,4 @@ class ModuleBanRedirect : public Module
 };
 
 
-class ModuleBanRedirectFactory : public ModuleFactory
-{
- public:
-	ModuleBanRedirectFactory()
-	{
-	}
-	
-	~ModuleBanRedirectFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleBanRedirect(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleBanRedirectFactory;
-}
+MODULE_INIT(ModuleBanRedirect);

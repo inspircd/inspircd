@@ -140,27 +140,4 @@ public:
 	}
 };
 
-
-class ModuleBlockCAPSFactory : public ModuleFactory
-{
- public:
-	ModuleBlockCAPSFactory()
-	{
-	}
-	
-	~ModuleBlockCAPSFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleBlockCAPS(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleBlockCAPSFactory;
-}
+MODULE_INIT(ModuleBlockCAPS);
