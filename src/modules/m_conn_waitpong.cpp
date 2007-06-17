@@ -145,25 +145,4 @@ class ModuleWaitPong : public Module
 	
 };
 
-class ModuleWaitPongFactory : public ModuleFactory
-{
- public:
-	ModuleWaitPongFactory()
-	{
-	}
-	
-	~ModuleWaitPongFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleWaitPong(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleWaitPongFactory;
-}
+MODULE_INIT(ModuleWaitPong);

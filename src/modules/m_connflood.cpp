@@ -117,26 +117,4 @@ public:
 
 };
 
-
-class ModuleConnFloodFactory : public ModuleFactory
-{
-public:
-	ModuleConnFloodFactory()
-	{
-	}
-
-	~ModuleConnFloodFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleConnFlood(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleConnFloodFactory;
-}
+MODULE_INIT(ModuleConnFlood);
