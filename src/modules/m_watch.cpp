@@ -70,7 +70,7 @@ typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare
 #else
 typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> > watchentries;
 #endif
-typedef std::map<irc::string, std::string>watchlist;
+typedef std::map<irc::string, std::string> watchlist;
 
 /* Who's watching each nickname.
  * NOTE: We do NOT iterate this to display a user's WATCH list!
@@ -468,28 +468,5 @@ class Modulewatch : public Module
 	}
 };
 
-
-class ModulewatchFactory : public ModuleFactory
-{
- public:
-	ModulewatchFactory()
-	{
-	}
-	
-	~ModulewatchFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new Modulewatch(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModulewatchFactory;
-}
+MODULE_INIT(Modulewatch);
 

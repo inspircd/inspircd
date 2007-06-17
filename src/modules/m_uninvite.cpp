@@ -103,27 +103,5 @@ class ModuleUninvite : public Module
 	}
 };
 
+MODULE_INIT(ModuleUninvite);
 
-class ModuleUninviteFactory : public ModuleFactory
-{
- public:
-	ModuleUninviteFactory()
-	{
-	}
-	
-	~ModuleUninviteFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleUninvite(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleUninviteFactory;
-}

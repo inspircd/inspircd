@@ -91,29 +91,5 @@ class ModuleVHost : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleVHostFactory : public ModuleFactory
-{
- public:
-	ModuleVHostFactory()
-	{
-	}
-	
-	~ModuleVHostFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleVHost(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleVHostFactory;
-}
+MODULE_INIT(ModuleVHost);
 

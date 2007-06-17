@@ -82,29 +82,5 @@ class ModuleUserIP : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleUserIPFactory : public ModuleFactory
-{
- public:
-	ModuleUserIPFactory()
-	{
-	}
-	
-	~ModuleUserIPFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleUserIP(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleUserIPFactory;
-}
+MODULE_INIT(ModuleUserIP);
 
