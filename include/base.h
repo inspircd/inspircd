@@ -20,12 +20,19 @@
 #include <deque>
 #include <string>
 
+/** Do we use this? -- Brain */
 typedef void* VoidPointer;
+
+/** A private data store for an Extensible class */
 typedef std::map<std::string,char*> ExtensibleStore;
 
+/** Needed */
 class InspIRCd;
 
-/** The base class for all inspircd classes
+/** The base class for all inspircd classes.
+ * Wherever possible, all classes you create should inherit from this,
+ * giving them the ability to be passed to various core functions
+ * as 'anonymous' classes.
 */ 
 class CoreExport classbase
 {
@@ -34,10 +41,14 @@ class CoreExport classbase
  	*/
 	time_t age;
 
-	/** Constructor,
+	/** Constructor.
 	 * Sets the object's time
 	 */
 	classbase();
+
+	/** Destructor.
+	 * Does sweet FA.
+	 */
 	~classbase() { }
 };
 
@@ -50,7 +61,8 @@ class CoreExport classbase
  */
 class CoreExport Extensible : public classbase
 {
-	/** Private data store
+	/** Private data store.
+	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore Extension_Items;
 	
@@ -115,15 +127,15 @@ public:
 	 */
 	template<typename T> bool GetExt(const std::string &key, T* &p)
 	{
-		ExtensibleStore::iterator iter = this->Extension_Items.find(key);
+		ExtensibleStore::iterator iter = this->Extension_Items.find(key); /* Find the item */
 		if(iter != this->Extension_Items.end())
 		{
-			p = (T*)iter->second;
+			p = (T*)iter->second;	/* Item found */
 			return true;
 		}
 		else
 		{
-			p = NULL;	
+			p = NULL;		/* Item not found */
 			return false;
 		}
 	}
@@ -155,6 +167,7 @@ public:
  */
 class CoreExport BoolSet : public classbase
 {
+	/** Actual bit values */
 	char bits;
 
  public:
@@ -212,3 +225,4 @@ class CoreExport BoolSet : public classbase
 
 
 #endif
+

@@ -24,16 +24,17 @@
 /** RFC1459 channel modes
  */
 enum ChannelModes {
-	CM_TOPICLOCK = 't'-65,
-	CM_NOEXTERNAL = 'n'-65,
-	CM_INVITEONLY = 'i'-65,
-	CM_MODERATED = 'm'-65,
-	CM_SECRET = 's'-65,
-	CM_PRIVATE = 'p'-65,
-	CM_KEY = 'k'-65,
-	CM_LIMIT = 'l'-65
+	CM_TOPICLOCK = 't'-65,	/* +t: Only operators can change topic */
+	CM_NOEXTERNAL = 'n'-65,	/* +n: Only users in the channel can message it */
+	CM_INVITEONLY = 'i'-65,	/* +i: Invite only */
+	CM_MODERATED = 'm'-65,	/* +m: Only voices and above can talk */
+	CM_SECRET = 's'-65,	/* +s: Secret channel */
+	CM_PRIVATE = 'p'-65,	/* +p: Private channel */
+	CM_KEY = 'k'-65,	/* +k: Keyed channel */
+	CM_LIMIT = 'l'-65	/* +l: Maximum user limit */
 };
 
+/* Forward declarations - needed */
 class userrec;
 class chanrec;
 
@@ -87,11 +88,12 @@ typedef std::map<char,char*> CustomModeList;
 /** used to hold a channel and a users modes on that channel, e.g. +v, +h, +o
  */
 enum UserChannelModes {
-	UCMODE_OP	= 1,
-	UCMODE_VOICE	= 2,
-	UCMODE_HOP	= 4
+	UCMODE_OP	= 1,	/* Opped user */
+	UCMODE_VOICE	= 2,	/* Voiced user */
+	UCMODE_HOP	= 4	/* Halfopped user */
 };
 
+/* Forward declaration -- required */
 class InspIRCd;
 
 /** A stored prefix and its rank
@@ -126,6 +128,9 @@ class CoreExport chanrec : public Extensible
 	 */
 	void SetDefaultModes();
 
+	/** A list of prefixes associated with each user in the channel
+	 * (e.g. &%+ etc)
+	 */
 	prefixlist prefixes;
 
 	/** Maximum number of bans (cached)
@@ -133,7 +138,7 @@ class CoreExport chanrec : public Extensible
 	int maxbans;
 
  public:
-	/** The channels name.
+	/** The channel's name.
 	 */
 	char name[CHANMAX];
 
@@ -145,26 +150,36 @@ class CoreExport chanrec : public Extensible
 	 */
 	char modes[64];
 
-	/** User lists
+	/** User lists.
 	 * There are four user lists, one for 
 	 * all the users, one for the ops, one for
 	 * the halfops and another for the voices.
 	 */
 	CUList internal_userlist;
 
-	/** Opped users
+	/** Opped users.
+	 * There are four user lists, one for 
+	 * all the users, one for the ops, one for
+	 * the halfops and another for the voices.
 	 */
 	CUList internal_op_userlist;
 
-	/** Halfopped users
+	/** Halfopped users.
+	 * There are four user lists, one for 
+	 * all the users, one for the ops, one for
+	 * the halfops and another for the voices.
 	 */
 	CUList internal_halfop_userlist;
 
-	/** Voiced users
+	/** Voiced users.
+	 * There are four user lists, one for
+	 * all the users, one for the ops, one for
+	 * the halfops and another for the voices.
 	 */
 	CUList internal_voice_userlist;
 
-	/** Parameters for custom modes
+	/** Parameters for custom modes.
+	 * One for each custom mode letter.
 	 */
 	CustomModeList custom_mode_params;
 
@@ -172,13 +187,17 @@ class CoreExport chanrec : public Extensible
 	 * If this is an empty string, no channel topic is set.
 	 */
 	char topic[MAXTOPIC];
+
 	/** Creation time.
+	 * This is a timestamp (TS) value.
 	 */
 	time_t created;
+
 	/** Time topic was set.
 	 * If no topic was ever set, this will be equal to chanrec::created
 	 */
 	time_t topicset;
+
 	/** The last user to set the topic.
 	 * If this member is an empty string, no topic was ever set.
 	 */
