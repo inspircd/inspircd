@@ -448,25 +448,5 @@ class ModuleZLib : public Module
 
 };
 
-class ModuleZLibFactory : public ModuleFactory
-{
- public:
-	ModuleZLibFactory()
-	{
-	}
-	
-	~ModuleZLibFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleZLib(Me);
-	}
-};
+MODULE_INIT(ModuleZLib);
 
-
-extern "C" void * init_module( void )
-{
-	return new ModuleZLibFactory;
-}

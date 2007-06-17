@@ -166,25 +166,5 @@ class ModuleXMLSocket : public Module
 
 };
 
-class ModuleXMLSocketFactory : public ModuleFactory
-{
- public:
-	ModuleXMLSocketFactory()
-	{
-	}
+MODULE_INIT(ModuleXMLSocket);
 
-	~ModuleXMLSocketFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleXMLSocket(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleXMLSocketFactory;
-}
