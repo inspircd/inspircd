@@ -24,14 +24,15 @@
 #include "wildcard.h"
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for easily creating listmodes, stores the time set, the user, and a parameter. */
+/* Updated to use the <banlist> config tag if it exists
+ * Written by Om <omster@gmail.com>, December 2005.
+ * Based on code previously written by Om - April 2005
+ * Updated to new API July 8th 2006 by Brain
+ * Originally based on m_chanprotect and m_silence
+ */
 
-/* Updated to use the <banlist> config tag if it exists */
-/* Written by Om <omster@gmail.com>, December 2005. */
-/* Based on code previously written by Om - April 2005 */
-/* Updated to new API July 8th 2006 by Brain */
-/* Originally based on m_chanprotect and m_silence */
-
+/** Get the time as a string
+ */
 inline std::string stringtime()
 {
 	std::ostringstream TIME;
@@ -58,39 +59,77 @@ public:
 	unsigned int limit;
 };
 
-// Just defining the type we use for the exception list here...
+/** Items stored in the channel's list
+ */
 typedef std::vector<ListItem> modelist;
+/** Max items per channel by name
+ */
 typedef std::vector<ListLimit> limitlist;
 
+/** A request used to check if a user is on a channel's list or not
+ */
 class ListModeRequest : public Request
 {
  public:
 	userrec* user;
 	chanrec* chan;
 
+	/** Check if a user is on a channel's list.
+	 * The Event::Send() event returns true if the user is on the channel's list.
+	 * @param sender Sending module
+	 * @param target Target module
+	 * @param u User to check against
+	 * @param c Channel to check against
+	 */
 	ListModeRequest(Module* sender, Module* target, userrec* u, chanrec* c) : Request(sender, target, "LM_CHECKLIST"), user(u), chan(c)
 	{
 	}
 
+	/** Destructor
+	 */
 	~ListModeRequest()
 	{
 	}
 };
 
-/** The base class for listmodes defined by u_listmode.h
+/** The base class for list modes, should be inherited.
  */
 class ListModeBase : public ModeHandler
 {
  protected:
+	/** Storage key
+	 */
 	std::string infokey;
+	/** Numeric to use when outputting the list
+	 */
 	std::string listnumeric;
+	/** Numeric to indicate end of list
+	 */
 	std::string endoflistnumeric;
+	/** String to send for end of list
+	 */
 	std::string endofliststring;
+	/** Automatically tidy up entries
+	 */
 	bool tidy;
+	/** Config tag to check for max items per channel
+	 */
  	std::string configtag;
+	/** Limits on a per-channel basis read from the tag
+	 * specified in ListModeBase::configtag
+	 */
 	limitlist chanlimits;
  
  public:
+	/** Constructor.
+	 * @param Instance The creator of this class
+	 * @param modechar Mode character
+	 * @param eolstr End of list string
+	 * @pram lnum List numeric
+	 * @param eolnum End of list numeric
+	 * @param autotidy Automatically tidy list entries on add
+	 * @param ctag Configuration tag to get limits from
+	 */
 	ListModeBase(InspIRCd* Instance, char modechar, const std::string &eolstr, const std::string &lnum, const std::string &eolnum, bool autotidy, const std::string &ctag = "banlist")
  	: ModeHandler(Instance, modechar, 1, 1, true, MODETYPE_CHANNEL, false), listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy), configtag(ctag)
 	{
@@ -98,6 +137,8 @@ class ListModeBase : public ModeHandler
 		infokey = "listbase_mode_" + std::string(1, mode) + "_list";
 	}
 
+	/** See mode.h 
+	 */
 	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
 	{
 		modelist* el;
@@ -115,6 +156,10 @@ class ListModeBase : public ModeHandler
 		return std::make_pair(false, parameter);
 	}
 
+	/** Display the list for this mode
+	 * @param user The user to send the list to
+	 * @param channel The channel the user is requesting the list for
+	 */
 	virtual void DisplayList(userrec* user, chanrec* channel)
 	{
 		modelist* el;
@@ -129,6 +174,10 @@ class ListModeBase : public ModeHandler
 		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
+	/** Remove all instances of the mode from a channel.
+	 * See mode.h
+	 * @param channel The channel to remove all instances of the mode from
+	 */
 	virtual void RemoveMode(chanrec* channel)
 	{
 		modelist* el;
@@ -158,11 +207,15 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
+	/** See mode.h
+	 */
 	virtual void RemoveMode(userrec* user)
 	{
 		/* Listmodes dont get set on users */
 	}
 
+	/** Perform a rehash of this mode's configuration data
+	 */
 	virtual void DoRehash()
 	{
 		ConfigReader Conf(ServerInstance);
@@ -188,11 +241,16 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
+	/** Populate the Implements list with the correct events for a List Mode
+	 */
 	virtual void DoImplements(char* List)
 	{
 		List[I_OnChannelDelete] = List[I_OnSyncChannel] = List[I_OnCleanup] = List[I_OnRehash] = 1;
 	}
 
+	/** Handle the list mode.
+	 * See mode.h
+	 */
 	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
 	{
 		// Try and grab the list
@@ -309,11 +367,17 @@ class ListModeBase : public ModeHandler
 		return MODEACTION_DENY;
 	}
 
+	/** Get Extensible key for this mode
+	 */
 	virtual std::string& GetInfoKey()
 	{
 		return infokey;
 	}
 
+	/** Handle channel deletion.
+	 * See modules.h.
+	 * @param chan Channel being deleted
+	 */
 	virtual void DoChannelDelete(chanrec* chan)
 	{
 		modelist* list;
@@ -326,6 +390,12 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
+	/** Syncronize channel item list with another server.
+	 * See modules.h
+	 * @param chan Channel to syncronize
+	 * @param proto Protocol module pointer
+	 * @param opaque Opaque connection handle
+	 */
 	virtual void DoSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
 		modelist* list;
@@ -347,27 +417,56 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
+	/** Clean up module on unload
+	 * @param target_type Type of target to clean
+	 * @param item Item to clean
+	 */
 	virtual void DoCleanup(int target_type, void* item)
 	{
 	}
 	
+	/** Validate parameters.
+	 * Overridden by implementing module.
+	 * @param source Source user adding the parameter
+	 * @param channel Channel the parameter is being added to
+	 * @param parameter The actual parameter being added
+	 * @return true if the parameter is valid
+	 */
 	virtual bool ValidateParam(userrec* source, chanrec* channel, std::string &parameter)
 	{
 		return true;
 	}
 	
+	/** Tell the user the list is too long.
+	 * Overridden by implementing module.
+	 * @param source Source user adding the parameter
+	 * @param channel Channel the parameter is being added to
+	 * @param parameter The actual parameter being added
+	 * @return Ignored
+	 */
 	virtual bool TellListTooLong(userrec* source, chanrec* channel, std::string &parameter)
 	{
 		return false;
 	}
 	
+	/** Tell the user an item is already on the list.
+	 * Overridden by implementing module.
+	 * @param source Source user adding the parameter
+	 * @param channel Channel the parameter is being added to
+	 * @param parameter The actual parameter being added
+	 */
 	virtual void TellAlreadyOnList(userrec* source, chanrec* channel, std::string &parameter)
 	{
 	}
 	
+	/** Tell the user that the parameter is not in the list.
+	 * Overridden by implementing module.
+	 * @param source Source user removing the parameter
+	 * @param channel Channel the parameter is being removed from
+	 * @param parameter The actual parameter being removed
+	 */
 	virtual void TellNotSet(userrec* source, chanrec* channel, std::string &parameter)
 	{
-		
 	}
 };
 
