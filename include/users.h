@@ -23,28 +23,46 @@
 #include "hashcomp.h"
 #include "dns.h"
 
+/** Channel status for a user
+ */
 enum ChanStatus {
+	/** Op */
 	STATUS_OP     = 4,
+	/** Halfop */
 	STATUS_HOP    = 2,
+	/** Voice */
 	STATUS_VOICE  = 1,
+	/** None */
 	STATUS_NORMAL = 0
 };
 
+/** connect class types
+ */
 enum ClassTypes {
+	/** connect:allow */
 	CC_ALLOW = 0,
+	/** connect:deny */
 	CC_DENY  = 1
 };
 
 /** RFC1459 channel modes
- *  */
+ */
 enum UserModes {
+	/** +s: Server notices */
 	UM_SERVERNOTICE = 's' - 65,
+	/** +w: WALLOPS */
 	UM_WALLOPS = 'w' - 65,
+	/** +i: Invisible */
 	UM_INVISIBLE = 'i' - 65,
+	/** +o: Operator */
 	UM_OPERATOR = 'o' - 65,
+	/** +n: Server notice mask */
 	UM_SNOMASK = 'n' - 65
 };
 
+/** Registration state of a user, e.g.
+ * have they sent USER, NICK, PASS yet?
+ */
 enum RegistrationState {
 
 #ifndef WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
@@ -57,6 +75,7 @@ enum RegistrationState {
 	REG_ALL = 7	  	/* REG_NICKUSER plus next bit along */
 };
 
+/* Required forward declaration */
 class InspIRCd;
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
@@ -67,12 +86,33 @@ class CoreExport UserResolver : public Resolver
 	/** User this class is 'attached' to.
 	 */
 	userrec* bound_user;
+	/** File descriptor teh lookup is bound to
+	 */
 	int bound_fd;
+	/** True if the lookup is forward, false if is a reverse lookup
+	 */
 	bool fwd;
  public:
+	/** Create a resolver.
+	 * @param Instance The creating instance
+	 * @param user The user to begin lookup on
+	 * @param to_resolve The IP or host to resolve
+	 * @param qt The query type
+	 * @param cache Modified by the constructor if the result was cached
+	 */
 	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt, bool &cache);
 
+	/** Called on successful lookup
+	 * @param result Result string
+	 * @param ttl Time to live for result
+	 * @param cached True if the result was found in the cache
+	 */
 	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
+
+	/** Called on failed lookup
+	 * @param e Error code
+	 * @param errormessage Error message string
+	 */
 	void OnError(ResolverError e, const std::string &errormessage);
 };
 
@@ -249,15 +289,33 @@ typedef std::vector<ConnectClass> ClassVector;
 /** Typedef for the list of user-channel records for a user
  */
 typedef std::map<chanrec*, char> UserChanList;
+
+/** Shorthand for an iterator into a UserChanList
+ */
 typedef UserChanList::iterator UCListIter;
 
+/* Required forward declaration
+ */
 class userrec;
 
+/** Visibility data for a user.
+ * If a user has a non-null instance of this class in their userrec,
+ * then it is used to determine if this user is visible to other users
+ * or not.
+ */
 class CoreExport VisData
 {
  public:
+	/** Create a visdata
+	 */
 	VisData();
+	/** Destroy a visdata
+	 */
 	virtual ~VisData();
+	/** Is this user visible to some other user?
+	 * @param user The other user to compare to
+	 * @return true True if the user is visible to the other user, false if not
+	 */
 	virtual bool VisibleTo(userrec* user);
 };
 
@@ -298,6 +356,9 @@ class CoreExport userrec : public connection
 	/** Cached nick!ident@host value using the masked hostname
 	 */
 	char* cached_makehost;
+
+	/** Cached nick!ident@realhost value using the real hostname
+	 */
 	char* cached_fullrealhost;
 
 	/** When we erase the user (in the destructor),
@@ -306,6 +367,8 @@ class CoreExport userrec : public connection
 	 */
 	void DecrementModes();
 
+	/** Oper-only quit message for this user if non-null
+	 */
 	char* operquit;
 
  public:
@@ -322,6 +385,8 @@ class CoreExport userrec : public connection
 	 */
 	UserResolver* res_reverse;
 
+	/** User visibility state, see definition of VisData.
+	 */
 	VisData* Visibility;
 
 	/** Stored reverse lookup from res_forward
@@ -835,6 +900,11 @@ class CoreExport userrec : public connection
 	 */
 	void WriteCommonExcept(const std::string &text);
 
+	/** Write a quit message to all common users, as in userrec::WriteCommonExcept but with a specific
+	 * quit message for opers only.
+	 * @param normal_text Normal user quit message
+	 * @param oper_text Oper only quit message
+	 */
 	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
 
 	/** Write a WALLOPS message from this user to all local opers.
@@ -931,6 +1001,9 @@ class CoreExport userrec : public connection
 	 */
 	void SetOperQuit(const std::string &oquit);
 
+	/** Get oper-specific quit message shown only to opers when the user quits.
+	 * (overrides any sent by QuitUser)
+	 */
 	const char* GetOperQuit();
 
 	/** Handle socket event.
@@ -949,3 +1022,4 @@ class CoreExport userrec : public connection
 class ServerConfig;
 
 #endif
+
