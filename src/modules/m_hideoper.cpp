@@ -90,26 +90,5 @@ class ModuleHideOper : public Module
 	}
 };
 
-class ModuleHideOperFactory : public ModuleFactory
-{
- public:
-	ModuleHideOperFactory()
-	{
-	}
-	
-	~ModuleHideOperFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleHideOper(Me);
-	}
-	
-};
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleHideOperFactory;
-}
+MODULE_INIT(ModuleHideOper);

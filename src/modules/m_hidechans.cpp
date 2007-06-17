@@ -91,26 +91,5 @@ class ModuleHideChans : public Module
 	}
 };
 
-class ModuleHideChansFactory : public ModuleFactory
-{
- public:
-	ModuleHideChansFactory()
-	{
-	}
-	
-	~ModuleHideChansFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleHideChans(Me);
-	}
-	
-};
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleHideChansFactory;
-}
+MODULE_INIT(ModuleHideChans);

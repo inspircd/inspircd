@@ -343,24 +343,4 @@ void HTTPSocket::OnClose()
 	delete response;
 }
 
-class ModuleHTTPClientFactory : public ModuleFactory
-{
- public:
-	ModuleHTTPClientFactory()
-	{
-	}
-	
-	~ModuleHTTPClientFactory()
-	{
-	}
-	
-	Module *CreateModule(InspIRCd* Me)
-	{
-		return new ModuleHTTPClient(Me);
-	}
-};
-
-extern "C" DllExport void *init_module(void)
-{
-	return new ModuleHTTPClientFactory;
-}
+MODULE_INIT(ModuleHTTPClient);

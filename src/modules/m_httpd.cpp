@@ -417,27 +417,4 @@ class ModuleHttpServer : public Module
 	}
 };
 
-
-class ModuleHttpServerFactory : public ModuleFactory
-{
- public:
-	ModuleHttpServerFactory()
-	{
-	}
-	
-	~ModuleHttpServerFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		HttpModule = new ModuleHttpServer(Me);
-		return HttpModule;
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleHttpServerFactory;
-}
+MODULE_INIT(ModuleHttpServer);
