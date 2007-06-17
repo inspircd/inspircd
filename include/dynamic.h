@@ -38,22 +38,13 @@ class CoreExport DLLManager
 	DLLManager(InspIRCd* ServerInstance, const char *fname);
 	virtual ~DLLManager();
 
-
-#ifdef STATIC_LINK
-	/** Get a symbol using static linking.
-	 * @param v A static function pointer, pointing at an init_module function
-	 * @param sym_name The symbol name to find, usually "init_module"
-	 * @return True if the symbol can be found
-	 */
-	bool GetSymbol(initfunc* &v, const char *sym_name);
-#else
 	/** Get a symbol using dynamic linking.
 	 * @param v A function pointer, pointing at an init_module function
 	 * @param sym_name The symbol name to find, usually "init_module"
 	 * @return true if the symbol can be found, also the symbol will be put into v.
 	 */
 	bool GetSymbol(void **v, const char *sym_name);
-#endif
+
 	/** Get the last error from dlopen() or dlsym().
 	 * @return The last error string, or NULL if no error has occured
 	 */
@@ -71,12 +62,6 @@ class CoreExport DLLManager
 	/** The last error string, or NULL
 	 */
 	char *err;
-#ifdef STATIC_LINK
-
-	/** The module name
-	 */
-	char staticname[1024];
-#endif
 };
 
 /** This class is a specialized form of DLLManager designed to load InspIRCd modules.
@@ -95,15 +80,10 @@ class CoreExport DLLFactoryBase : public DLLManager
 	/** Default destructor
 	 */
 	virtual ~DLLFactoryBase();
-#ifdef STATIC_LINK
-	/** A function pointer to the factory function
-	 */
-	initfunc *factory_func;
-#else
+
 	/** A function pointer to the factory function
 	 */
 	void * (*factory_func)(void);	
-#endif
 };
 
 /** This is the highest-level class of the DLLFactory system used to load InspIRCd modules.
