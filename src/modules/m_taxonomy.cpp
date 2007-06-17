@@ -95,28 +95,5 @@ class ModuleTaxonomy : public Module
 	}
 };
 
-
-class ModuleTaxonomyFactory : public ModuleFactory
-{
- public:
-	ModuleTaxonomyFactory()
-	{
-	}
-	
-	~ModuleTaxonomyFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleTaxonomy(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleTaxonomyFactory;
-}
+MODULE_INIT(ModuleTaxonomy);
 

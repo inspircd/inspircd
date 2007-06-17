@@ -106,25 +106,5 @@ public:
 	}	
 };
 
-class ModuleTestClientFactory : public ModuleFactory
-{
- public:
-	ModuleTestClientFactory()
-	{
-	}
-	
-	~ModuleTestClientFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleTestClient(Me);
-	}
-};
+MODULE_INIT(ModuleTestClient);
 
-
-extern "C" void * init_module( void )
-{
-	return new ModuleTestClientFactory;
-}
