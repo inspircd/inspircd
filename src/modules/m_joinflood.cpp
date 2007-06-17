@@ -282,28 +282,4 @@ class ModuleJoinFlood : public Module
 	}
 };
 
-
-class ModuleJoinFloodFactory : public ModuleFactory
-{
- public:
-	ModuleJoinFloodFactory()
-	{
-	}
-	
-	~ModuleJoinFloodFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleJoinFlood(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleJoinFloodFactory;
-}
-
+MODULE_INIT(ModuleJoinFlood);

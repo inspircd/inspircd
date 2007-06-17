@@ -128,24 +128,4 @@ public:
 	}
 };
 
-class ModuleLockservFactory : public ModuleFactory
-{
-public:
-	ModuleLockservFactory()
-	{
-	}
-
-	~ModuleLockservFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleLockserv(Me);
-	}
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleLockservFactory;
-}
+MODULE_INIT(ModuleLockserv);

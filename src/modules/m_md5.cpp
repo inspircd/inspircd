@@ -319,27 +319,4 @@ class ModuleMD5 : public Module
 	}
 };
 
-
-class ModuleMD5Factory : public ModuleFactory
-{
- public:
-	ModuleMD5Factory()
-	{
-	}
-	
-	~ModuleMD5Factory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleMD5(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleMD5Factory;
-}
+MODULE_INIT(ModuleMD5);

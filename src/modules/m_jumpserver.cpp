@@ -161,27 +161,4 @@ class ModuleJumpServer : public Module
 	
 };
 
-class ModuleJumpServerFactory : public ModuleFactory
-{
- public:
-	ModuleJumpServerFactory()
-	{
-	}
-	
-	~ModuleJumpServerFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleJumpServer(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleJumpServerFactory;
-}
-
+MODULE_INIT(ModuleJumpServer);

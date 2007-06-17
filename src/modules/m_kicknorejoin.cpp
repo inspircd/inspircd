@@ -221,27 +221,4 @@ public:
 };
 
 
-class ModuleKickNoRejoinFactory : public ModuleFactory
-{
- public:
-	ModuleKickNoRejoinFactory()
-	{
-	}
-	
-	~ModuleKickNoRejoinFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleKickNoRejoin(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleKickNoRejoinFactory;
-}
-
+MODULE_INIT(ModuleKickNoRejoin);
