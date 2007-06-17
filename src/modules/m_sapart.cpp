@@ -109,29 +109,5 @@ class ModuleSapart : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleSapartFactory : public ModuleFactory
-{
- public:
-	ModuleSapartFactory()
-	{
-	}
-	
-	~ModuleSapartFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSapart(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSapartFactory;
-}
+MODULE_INIT(ModuleSapart);
 

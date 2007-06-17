@@ -82,28 +82,4 @@ class ModuleRestrictChans : public Module
 	}
 };
 
-
-class ModuleRestrictChansFactory : public ModuleFactory
-{
- public:
-	ModuleRestrictChansFactory()
-	{
-	}
-	
-	~ModuleRestrictChansFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRestrictChans(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRestrictChansFactory;
-}
-
+MODULE_INIT(ModuleRestrictChans);

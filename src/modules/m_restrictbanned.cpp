@@ -95,28 +95,4 @@ class ModuleRestrictBanned : public Module
 	}
 };
 
-
-class ModuleRestrictBannedFactory : public ModuleFactory
-{
- public:
-	ModuleRestrictBannedFactory()
-	{
-	}
-	
-	~ModuleRestrictBannedFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRestrictBanned(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRestrictBannedFactory;
-}
-
+MODULE_INIT(ModuleRestrictBanned);

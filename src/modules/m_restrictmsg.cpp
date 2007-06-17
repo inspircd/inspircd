@@ -72,28 +72,4 @@ class ModuleRestrictMsg : public Module
 	}
 };
 
-
-class ModuleRestrictMsgFactory : public ModuleFactory
-{
- public:
-	ModuleRestrictMsgFactory()
-	{
-	}
-	
-	~ModuleRestrictMsgFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRestrictMsg(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRestrictMsgFactory;
-}
-
+MODULE_INIT(ModuleRestrictMsg);

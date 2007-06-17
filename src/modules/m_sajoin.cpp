@@ -111,29 +111,4 @@ class ModuleSajoin : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleSajoinFactory : public ModuleFactory
-{
- public:
-	ModuleSajoinFactory()
-	{
-	}
-	
-	~ModuleSajoinFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSajoin(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSajoinFactory;
-}
-
+MODULE_INIT(ModuleSajoin);

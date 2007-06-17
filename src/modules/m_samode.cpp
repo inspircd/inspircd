@@ -95,27 +95,4 @@ class ModuleSaMode : public Module
 	}
 };
 
-
-class ModuleSaModeFactory : public ModuleFactory
-{
- public:
-	ModuleSaModeFactory()
-	{
-	}
-	
-	~ModuleSaModeFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSaMode(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSaModeFactory;
-}
+MODULE_INIT(ModuleSaMode);
