@@ -274,26 +274,4 @@ class ModuleInvisible : public Module
 
 };
 
-class ModuleInvisibleFactory : public ModuleFactory
-{
- public:
-	ModuleInvisibleFactory()
-	{
-	}
-	
-	~ModuleInvisibleFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleInvisible(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleInvisibleFactory;
-}
-
+MODULE_INIT(ModuleInvisible);

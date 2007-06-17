@@ -147,27 +147,4 @@ public:
 	}
 };
 
-
-class ModuleInviteExceptionFactory : public ModuleFactory
-{
- public:
-	ModuleInviteExceptionFactory()
-	{
-	}
-	
-	~ModuleInviteExceptionFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleInviteException(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleInviteExceptionFactory;
-}
+MODULE_INIT(ModuleInviteException);

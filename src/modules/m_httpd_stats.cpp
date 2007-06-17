@@ -238,26 +238,4 @@ class ModuleHttpStats : public Module
 	}
 };
 
-
-class ModuleHttpStatsFactory : public ModuleFactory
-{
- public:
-	ModuleHttpStatsFactory()
-	{
-	}
-	
-	~ModuleHttpStatsFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleHttpStats(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleHttpStatsFactory;
-}
+MODULE_INIT(ModuleHttpStats);

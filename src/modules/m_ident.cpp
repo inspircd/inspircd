@@ -323,27 +323,4 @@ class ModuleIdent : public Module
 
 };
 
-class ModuleIdentFactory : public ModuleFactory
-{
- public:
-	ModuleIdentFactory()
-	{
-	}
-
-	~ModuleIdentFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleIdent(Me);
-	}
-
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleIdentFactory;
-}
-
+MODULE_INIT(ModuleIdent);
