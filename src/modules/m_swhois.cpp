@@ -255,28 +255,4 @@ class ModuleSWhois : public Module
 	}
 };
 
-
-class ModuleSWhoisFactory : public ModuleFactory
-{
- public:
-	ModuleSWhoisFactory()
-	{
-	}
-	
-	~ModuleSWhoisFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSWhois(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSWhoisFactory;
-}
-
+MODULE_INIT(ModuleSWhois);
