@@ -26,13 +26,42 @@
 /**
  * States which a socket may be in
  */
-enum InspSocketState { I_DISCONNECTED, I_CONNECTING, I_CONNECTED, I_LISTENING, I_ERROR };
+enum InspSocketState
+{
+	/** Socket disconnected */
+	I_DISCONNECTED,
+	/** Socket connecting */
+	I_CONNECTING,
+	/** Socket fully connected */
+	I_CONNECTED,
+	/** Socket listening for connections */
+	I_LISTENING,
+	/** Socket has an error */
+	I_ERROR
+};
 
 /**
  * Error types which a socket may exhibit
  */
-enum InspSocketError { I_ERR_TIMEOUT, I_ERR_SOCKET, I_ERR_CONNECT, I_ERR_BIND, I_ERR_RESOLVE, I_ERR_WRITE, I_ERR_NOMOREFDS };
+enum InspSocketError
+{
+	/** Socket connect timed out */
+	I_ERR_TIMEOUT,
+	/** Socket could not be created */
+	I_ERR_SOCKET,
+	/** Socket could not connect (refused) */
+	I_ERR_CONNECT,
+	/** Socket could not bind to local port/ip */
+	I_ERR_BIND,
+	/** Socket could not reslve host (depreciated) */
+	I_ERR_RESOLVE,
+	/** Socket could not write data */
+	I_ERR_WRITE,
+	/** No more file descriptors left to create socket! */
+	I_ERR_NOMOREFDS
+};
 
+/* Required forward declarations */
 class InspSocket;
 class InspIRCd;
 
@@ -46,11 +75,26 @@ using irc::sockets::insp_aton;
 class CoreExport SocketTimeout : public InspTimer
 {
  private:
+	/** InspSocket the class is attached to
+	 */
 	InspSocket* sock;
+	/** Server instance creating the timeout class
+	 */
 	InspIRCd* ServerInstance;
+	/** File descriptor of class this is attached to
+	 */
 	int sfd;
  public:
+	/** Create a socket timeout class
+	 * @param fd File descriptor of InspSocket
+	 * @pram Instance server instance to attach to
+	 * @param thesock InspSocket to attach to
+	 * @param secs_from_now Seconds from now to time out
+	 * @param now The current time
+	 */
 	SocketTimeout(int fd, InspIRCd* Instance, InspSocket* thesock, long secs_from_now, time_t now) : InspTimer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
+	/** Handle tick event
+	 */
 	virtual void Tick(time_t now);
 };
 
@@ -69,16 +113,34 @@ class CoreExport InspSocket : public EventHandler
 {
  public:
 
+	/** 
+	 * Bind IP
+	 */
 	std::string cbindip;
 
+	/** 
+	 * Is hooked by a module for low level IO
+	 */
 	bool IsIOHooked;
 
+	/** 
+	 * Instance we were created by
+	 */
 	InspIRCd* Instance;
 
+	/** 
+	 * Timeout class or NULL
+	 */
 	SocketTimeout* Timeout;
 
+	/** 
+	 * Timeout length
+	 */
 	unsigned long timeout_val;
 
+	/** 
+	 * Socket output buffer (binary safe)
+	 */
 	std::deque<std::string> outbuffer;
 
 	/**
@@ -151,6 +213,11 @@ class CoreExport InspSocket : public EventHandler
 	 */
 	bool WaitingForWriteEvent;
 
+	/**
+	 * Bind to an address
+	 * @param ip IP to bind to
+	 * @return True is the binding succeeded
+	 */
 	bool BindAddr(const std::string &ip);
 
 	/**
@@ -219,6 +286,15 @@ class CoreExport InspSocket : public EventHandler
 	 */
 	virtual bool OnDataReady();
 
+	/**
+	 * When it is ok to write to the socket, and a 
+	 * write event was requested, this method is
+	 * triggered. Within this method you should call
+	 * write() or send() etc, to send data to the
+	 * other end of the socket. Further write events
+	 * will not be triggered unless you call WantWrite().
+	 * @return false to close the socket
+	 */
 	virtual bool OnWriteReady();
 
 	/**
@@ -342,12 +418,20 @@ class CoreExport InspSocket : public EventHandler
 	 * The next time the core examines a socket marked
 	 * as closed, the socket will be closed and the 
 	 * memory reclaimed.
+	 *
+	 * NOTE: This method is DEPRECIATED and will be
+	 * ignored if called!
 	 */
 	void MarkAsClosed();
 
+	/** Handle event from EventHandler parent class
+	 */
 	void HandleEvent(EventType et, int errornum = 0);
 
+	/** Returns true if this socket is readable
+	 */
 	bool Readable();
 };
 
 #endif
+
