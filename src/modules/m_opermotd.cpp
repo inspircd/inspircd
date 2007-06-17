@@ -113,24 +113,4 @@ class ModuleOpermotd : public Module
 	}
 };
 
-class ModuleOpermotdFactory : public ModuleFactory
-{
- public:
-	ModuleOpermotdFactory()
-	{
-	}
-
-	~ModuleOpermotdFactory()
-	{
-	}
-
-	virtual Module* CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOpermotd(Me);
-	}
-};
-
-extern "C" DllExport void* init_module(void)
-{
-	return new ModuleOpermotdFactory;
-}
+MODULE_INIT(ModuleOpermotd);

@@ -291,27 +291,4 @@ class ModuleOverride : public Module
 	}
 };
 
-
-class ModuleOverrideFactory : public ModuleFactory
-{
- public:
-	ModuleOverrideFactory()
-	{
-	}
-	
-	~ModuleOverrideFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOverride(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOverrideFactory;
-}
+MODULE_INIT(ModuleOverride);

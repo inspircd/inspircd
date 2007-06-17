@@ -157,28 +157,4 @@ class ModuleRedirect : public Module
 	}
 };
 
-
-class ModuleRedirectFactory : public ModuleFactory
-{
- public:
-	ModuleRedirectFactory()
-	{
-	}
-	
-	~ModuleRedirectFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRedirect(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRedirectFactory;
-}
-
+MODULE_INIT(ModuleRedirect);

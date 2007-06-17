@@ -135,27 +135,4 @@ class ModuleRandQuote : public Module
 	}
 };
 
-
-class ModuleRandQuoteFactory : public ModuleFactory
-{
- public:
-	ModuleRandQuoteFactory()
-	{
-	}
-	
-	~ModuleRandQuoteFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRandQuote(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRandQuoteFactory;
-}
+MODULE_INIT(ModuleRandQuote);

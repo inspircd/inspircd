@@ -58,28 +58,4 @@ class ModuleRegOnlyCreate : public Module
 	}
 };
 
-
-class ModuleRegOnlyCreateFactory : public ModuleFactory
-{
- public:
-	ModuleRegOnlyCreateFactory()
-	{
-	}
-	
-	~ModuleRegOnlyCreateFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRegOnlyCreate(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRegOnlyCreateFactory;
-}
-
+MODULE_INIT(ModuleRegOnlyCreate);

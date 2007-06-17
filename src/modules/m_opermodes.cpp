@@ -106,27 +106,4 @@ class ModuleModesOnOper : public Module
 	}
 };
 
-class ModuleModesOnOperFactory : public ModuleFactory
-{
- public:
-	ModuleModesOnOperFactory()
-	{
-	}
-	
-	~ModuleModesOnOperFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleModesOnOper(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleModesOnOperFactory;
-}
-
+MODULE_INIT(ModuleModesOnOper);

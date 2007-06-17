@@ -287,28 +287,4 @@ class ModuleRemove : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleRemoveFactory : public ModuleFactory
-{
- public:
-	ModuleRemoveFactory()
-	{
-	}
-	
-	~ModuleRemoveFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleRemove(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleRemoveFactory;
-}
+MODULE_INIT(ModuleRemove);
