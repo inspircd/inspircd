@@ -20,6 +20,7 @@
 #define printf_c printf
 #else
 #include "inspircd_win32wrapper.h"
+/** Windows defines these already */
 #undef DELETE
 #undef ERROR
 #endif
@@ -73,7 +74,7 @@ template<typename T> inline void DELETE(T* x)
 	x = NULL;
 }
 
-/** Template functions to convert any input type to std::string
+/** Template function to convert any input type to std::string
  */
 template<typename T> inline std::string ConvNumeric(const T &in)
 {
@@ -93,36 +94,50 @@ template<typename T> inline std::string ConvNumeric(const T &in)
 	return res;
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(const int in)
 {
 	return ConvNumeric(in);
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(const long in)
 {
 	return ConvNumeric(in);
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(const unsigned long in)
 {
 	return ConvNumeric(in);
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(const char* in)
 {
 	return in;
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(const bool in)
 {
 	return (in ? "1" : "0");
 }
 
+/** Template function to convert any input type to std::string
+ */
 inline std::string ConvToStr(char in)
 {
 	return std::string(in,1);
 }
 
+/** Template function to convert any input type to std::string
+ */
 template <class T> inline std::string ConvToStr(const T &in)
 {
 	std::stringstream tmp;
@@ -130,6 +145,9 @@ template <class T> inline std::string ConvToStr(const T &in)
 	return tmp.str();
 }
 
+/** Template function to convert any input type to any other type
+ * (usually an integer or numeric type)
+ */
 template<typename T> inline long ConvToInt(const T &in)
 {
 	std::stringstream tmp;
@@ -139,6 +157,9 @@ template<typename T> inline long ConvToInt(const T &in)
 
 /** Template function to convert integer to char, storing result in *res and
  * also returning the pointer to res. Based on Stuart Lowe's C/C++ Pages.
+ * @param T input value
+ * @param V result value
+ * @param R base to convert to
  */
 template<typename T, typename V, typename R> inline char* itoa(const T &in, V *res, R base)
 {
@@ -212,6 +233,7 @@ class serverstats : public classbase
 	}
 };
 
+/* Forward declaration -- required */
 class InspIRCd;
 
 /** This class implements a nonblocking log-writer.
@@ -279,6 +301,7 @@ typedef std::vector<std::pair<std::string, long> > FailedPortList;
 /** A list of ip addresses cross referenced against clone counts */
 typedef std::map<irc::string, unsigned int> clonemap;
 
+/* Forward declaration - required */
 class XLineManager;
 
 /** The main class of the irc server.
@@ -415,6 +438,9 @@ class CoreExport InspIRCd : public classbase
 
  public:
 
+	/** InspSocket classes pending deletion after being closed.
+	 * We don't delete these immediately as this may cause a segmentation fault.
+	 */
 	std::map<InspSocket*,InspSocket*> SocketCull;
 
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
@@ -479,8 +505,12 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::vector<userrec*> all_opers;
 
+	/** Map of local ip addresses for clone counting
+	 */
 	clonemap local_clones;
 
+	/** Map of global ip addresses for clone counting
+	 */
 	clonemap global_clones;
 
 	/** DNS class, provides resolver facilities to the core and modules
@@ -531,8 +561,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int SetTimeDelta(int delta);
 
+	/** Add a user to the local clone map
+	 * @param user The user to add
+	 */
 	void AddLocalClone(userrec* user);
 
+	/** Add a user to the global clone map
+	 * @param user The user to add
+	 */
 	void AddGlobalClone(userrec* user);
 
 	/** Number of users with a certain mode set on them
@@ -546,7 +582,8 @@ class CoreExport InspIRCd : public classbase
 
 	/** Process a user whos socket has been flagged as active
 	 * @param cu The user to process
-	 * @return There is no actual return value, however upon exit, the user 'cu' may have been deleted
+	 * @return There is no actual return value, however upon exit, the user 'cu' may have been
+	 * marked for deletion in the global CullList.
 	 */
 	void ProcessUser(userrec* cu);
 
@@ -659,6 +696,8 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void OpenLog(char** argv, int argc);
 
+	/** Close the currently open log file
+	 */
 	void CloseLog();
 
 	/** Send a server notice to all local users
@@ -1175,8 +1214,21 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void Log(int level, const std::string &text);
 
+	/** Send a line of WHOIS data to a user.
+	 * @param user user to send the line to
+	 * @param dest user being WHOISed
+	 * @param numeric Numeric to send
+	 * @param text Text of the numeric
+	 */
 	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const std::string &text);
 
+	/** Send a line of WHOIS data to a user.
+	 * @param user user to send the line to
+	 * @param dest user being WHOISed
+	 * @param numeric Numeric to send
+	 * @param format Format string for the numeric
+	 * @param ... Parameters for the format string
+	 */
 	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const char* format, ...);
 
 	/** Quit a user for excess flood, and if they are not
