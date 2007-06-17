@@ -49,11 +49,16 @@ were removed from the channel and by whom.">
 <helpop key="devoice" value="/DEVOICE [channel]
 Devoices yourself from the specified channel.">
 
-<helpop key="silence" value="/SILENCE +/-[nick]
-A serverside /ignore of the given nick. It does not follow
-the users nick so if they change their nick you will receive
-their messages. /SILENCE without a parameter will list the nicks
-that you have silenced.">
+<helpop key="silence" value="/SILENCE [+/-]<hostmask> [p|c|i|n|t|a|x]
+ p        Block private messages
+ c        Block channel messages
+ i        Block invites
+ n        Block private notices
+ t        Block channel notices
+ a        Block all of the above
+ x        Exception
+A serverside /ignore of the given hostmask.
+/SILENCE without a parameter will list the hostmasks that you have silenced.">
 
 <helpop key="knock" value="/KNOCK [channel]
 Sends a notice to a channel indicating you wish to join.">
