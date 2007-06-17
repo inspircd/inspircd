@@ -656,24 +656,5 @@ void ResultNotifier::Dispatch()
 	((ModuleSQLite3*)mod)->SendQueue();
 }
 
-class ModuleSQLite3Factory : public ModuleFactory
-{
-  public:
-	ModuleSQLite3Factory()
-	{
-	}
+MODULE_INIT(ModuleSQLite3);
 
-	~ModuleSQLite3Factory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQLite3(Me);
-	}
-};
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLite3Factory;
-}

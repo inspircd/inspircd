@@ -77,26 +77,5 @@ public:
 
 };
 
-class MyModuleFactory : public ModuleFactory
-{
-public:
-	MyModuleFactory()
-	{
-	}
-
-	~MyModuleFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new MyModule(Me);
-	}
-
-};
-
-extern "C" void * init_module( void )
-{
-	return new MyModuleFactory;
-}
+MODULE_INIT(MyModule);
 

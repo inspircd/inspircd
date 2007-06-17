@@ -190,26 +190,5 @@ public:
 	
 };
 
-class ModuleSQLAuthFactory : public ModuleFactory
-{
- public:
-	ModuleSQLAuthFactory()
-	{
-	}
-	
-	~ModuleSQLAuthFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQLAuth(Me);
-	}
-	
-};
+MODULE_INIT(ModuleSQLAuth);
 
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLAuthFactory;
-}

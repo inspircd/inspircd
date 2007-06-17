@@ -177,29 +177,6 @@ class ModuleFilterPCRE : public FilterBase
 		return 0;
 	}
 };
-	
 
-class ModuleFilterPCREFactory : public ModuleFactory
-{
- public:
-	ModuleFilterPCREFactory()
-	{
-	}
-	
-	~ModuleFilterPCREFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleFilterPCRE(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleFilterPCREFactory;
-}
+MODULE_INIT(ModuleFilterPCRE);
 

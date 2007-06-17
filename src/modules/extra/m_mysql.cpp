@@ -885,29 +885,5 @@ void* DispatcherThread(void* arg)
 	return NULL;
 }
 
+MODULE_INIT(ModuleSQL);
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleSQLFactory : public ModuleFactory
-{
- public:
-	ModuleSQLFactory()
-	{
-	}
-	
-	~ModuleSQLFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSQL(Me);
-	}
-	
-};
-
-
-extern "C" void * init_module( void )
-{
-	return new ModuleSQLFactory;
-}

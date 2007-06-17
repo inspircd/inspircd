@@ -980,26 +980,5 @@ void SQLConn::DelayReconnect()
 	((ModulePgSQL*)us)->ReconnectConn(this);
 }
 
+MODULE_INIT(ModulePgSQL);
 
-class ModulePgSQLFactory : public ModuleFactory
-{
- public:
-	ModulePgSQLFactory()
-	{
-	}
-
-	~ModulePgSQLFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModulePgSQL(Me);
-	}
-};
-
-
-extern "C" void * init_module( void )
-{
-	return new ModulePgSQLFactory;
-}

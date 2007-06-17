@@ -1387,26 +1387,5 @@ Priority ModuleSpanningTree::Prioritize()
 	return PRIORITY_LAST;
 }
 
-class ModuleSpanningTreeFactory : public ModuleFactory
-{
- public:
-	ModuleSpanningTreeFactory()
-	{
-	}
-	
-	~ModuleSpanningTreeFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSpanningTree(Me);
-	}
-	
-};
+MODULE_INIT(ModuleSpanningTree);
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSpanningTreeFactory;
-}
