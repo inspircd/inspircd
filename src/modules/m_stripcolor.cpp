@@ -203,29 +203,4 @@ class ModuleStripColor : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleStripColorFactory : public ModuleFactory
-{
- public:
-	ModuleStripColorFactory()
-	{
-	}
-	
-	~ModuleStripColorFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleStripColor(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleStripColorFactory;
-}
-
+MODULE_INIT(ModuleStripColor);

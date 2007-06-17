@@ -279,26 +279,4 @@ class ModuleSVSHold : public Module
 	}
 };
 
-class ModuleSVSHoldFactory : public ModuleFactory
-{
- public:
-	ModuleSVSHoldFactory()
-	{
-	}
-	
-	~ModuleSVSHoldFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSVSHold(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSVSHoldFactory;
-}
+MODULE_INIT(ModuleSVSHold);

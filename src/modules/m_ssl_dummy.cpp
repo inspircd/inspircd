@@ -81,26 +81,4 @@ class ModuleSSLDummy : public Module
 	}
 };
 
-class ModuleSSLDummyFactory : public ModuleFactory
-{
- public:
-	ModuleSSLDummyFactory()
-	{
-	}
-	
-	~ModuleSSLDummyFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSSLDummy(Me);
-	}
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSSLDummyFactory;
-}
-
+MODULE_INIT(ModuleSSLDummy);
