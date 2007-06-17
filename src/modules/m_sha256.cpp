@@ -292,26 +292,5 @@ class ModuleSHA256 : public Module
 	}
 };
 
+MODULE_INIT(ModuleSHA256);
 
-class ModuleSHA256Factory : public ModuleFactory
-{
-public:
-	ModuleSHA256Factory()
-	{
-	}
-
-	~ModuleSHA256Factory()
-	{
-	}
-
-	virtual Module *CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSHA256(Me);
-	}
-
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSHA256Factory;
-}

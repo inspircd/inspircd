@@ -70,29 +70,4 @@ class ModuleSetIdle : public Module
 	}
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleSetIdleFactory : public ModuleFactory
-{
- public:
-	ModuleSetIdleFactory()
-	{
-	}
-	
-	~ModuleSetIdleFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSetIdle(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSetIdleFactory;
-}
-
+MODULE_INIT(ModuleSetIdle);

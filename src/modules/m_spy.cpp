@@ -160,27 +160,4 @@ class ModuleSpy : public Module
 	}
 };
 
-
-class ModuleSpyFactory : public ModuleFactory
-{
- public:
-	ModuleSpyFactory()
-	{
-	}
-	
-	~ModuleSpyFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSpy(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSpyFactory;
-}
+MODULE_INIT(ModuleSpy);

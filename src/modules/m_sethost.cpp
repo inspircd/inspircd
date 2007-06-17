@@ -100,27 +100,4 @@ class ModuleSetHost : public Module
 	
 };
 
-class ModuleSetHostFactory : public ModuleFactory
-{
- public:
-	ModuleSetHostFactory()
-	{
-	}
-	
-	~ModuleSetHostFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSetHost(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSetHostFactory;
-}
-
+MODULE_INIT(ModuleSetHost);

@@ -67,29 +67,4 @@ class ModuleSetName : public Module
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleSetNameFactory : public ModuleFactory
-{
- public:
-	ModuleSetNameFactory()
-	{
-	}
-	
-	~ModuleSetNameFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSetName(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSetNameFactory;
-}
-
+MODULE_INIT(ModuleSetName);

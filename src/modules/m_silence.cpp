@@ -212,28 +212,4 @@ class ModuleSilence : public Module
 	}
 };
 
-
-class ModuleSilenceFactory : public ModuleFactory
-{
- public:
-	ModuleSilenceFactory()
-	{
-	}
-	
-	~ModuleSilenceFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSilence(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSilenceFactory;
-}
-
+MODULE_INIT(ModuleSilence);

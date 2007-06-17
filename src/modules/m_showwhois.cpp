@@ -106,25 +106,4 @@ class ModuleShowwhois : public Module
 
 };
 
-class ModuleShowwhoisFactory : public ModuleFactory
-{
-	public:
-		ModuleShowwhoisFactory()
-		{
-		}
-
-		~ModuleShowwhoisFactory()
-		{
-		}
-
-		virtual Module* CreateModule(InspIRCd* Me)
-		{
-			return new ModuleShowwhois(Me);
-		}
-
-};
-
-extern "C" DllExport void* init_module()
-{
-	return new ModuleShowwhoisFactory;
-}
+MODULE_INIT(ModuleShowwhois);
