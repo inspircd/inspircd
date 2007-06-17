@@ -33,6 +33,8 @@ DllExport void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigne
 class cmd_whois : public command_t
 {
  public:
+	/** Constructor for whois.
+	 */
 	cmd_whois (InspIRCd* Instance) : command_t(Instance,"WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

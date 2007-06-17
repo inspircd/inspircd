@@ -30,6 +30,8 @@
 class cmd_commands : public command_t
 {
  public:
+	/** Constructor for commands.
+	 */
 	cmd_commands (InspIRCd* Instance) : command_t(Instance,"COMMANDS",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

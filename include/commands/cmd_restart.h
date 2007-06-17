@@ -33,6 +33,8 @@
 class cmd_restart : public command_t
 {
  public:
+	/** Constructor for restart.
+	 */
 	cmd_restart (InspIRCd* Instance) : command_t(Instance,"RESTART",'o',1) { syntax = "<password>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

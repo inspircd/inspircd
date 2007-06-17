@@ -30,6 +30,8 @@
 class cmd_ping : public command_t
 {
  public:
+	/** Constructor for ping.
+	 */
 	cmd_ping (InspIRCd* Instance) : command_t(Instance,"PING",0,1) { syntax = "<servername> [:<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

@@ -30,6 +30,8 @@
 class cmd_qline : public command_t
 {
  public:
+	/** Constructor for qline.
+	 */
 	cmd_qline (InspIRCd* Instance) : command_t(Instance,"QLINE",'o',1) { syntax = "<nick> [<duration> :<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

@@ -30,6 +30,8 @@
 class cmd_zline : public command_t
 {
  public:
+	/** Constructor for zline.
+	 */
 	cmd_zline (InspIRCd* Instance) : command_t(Instance,"ZLINE",'o',1) { syntax = "<ipmask> [<duration> :<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

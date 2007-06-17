@@ -30,6 +30,8 @@
 class cmd_loadmodule : public command_t
 {
  public:
+	/** Constructor for loadmodule.
+	 */
 	cmd_loadmodule (InspIRCd* Instance) : command_t(Instance,"LOADMODULE",'o',1) { syntax = "<modulename>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

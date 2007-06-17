@@ -30,6 +30,8 @@
 class cmd_lusers : public command_t
 {
  public:
+	/** Constructor for lusers.
+	 */
 	cmd_lusers (InspIRCd* Instance) : command_t(Instance,"LUSERS",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

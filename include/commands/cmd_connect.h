@@ -30,6 +30,8 @@
 class cmd_connect : public command_t
 {
  public:
+	/** Constructor for connect.
+	 */
 	cmd_connect (InspIRCd* Instance) : command_t(Instance,"CONNECT",'o',1) { syntax = "<servername> [<remote-server>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

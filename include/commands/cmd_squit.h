@@ -33,6 +33,8 @@
 class cmd_squit : public command_t
 {
  public:
+	/** Constructor for squit.
+	 */
 	cmd_squit (InspIRCd* Instance) : command_t(Instance,"SQUIT",'o',1) { syntax = "<servername> [<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

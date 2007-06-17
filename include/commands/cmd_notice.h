@@ -30,6 +30,8 @@
 class cmd_notice : public command_t
 {
  public:
+	/** Constructor for notice.
+	 */
 	cmd_notice (InspIRCd* Instance) : command_t(Instance,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

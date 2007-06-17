@@ -30,6 +30,8 @@
 class cmd_kick : public command_t
 {
  public:
+	/** Constructor for kick.
+	 */
 	cmd_kick (InspIRCd* Instance) : command_t(Instance,"KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

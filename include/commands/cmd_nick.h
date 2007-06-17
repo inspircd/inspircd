@@ -30,6 +30,8 @@
 class cmd_nick : public command_t
 {
  public:
+	/** Constructor for nick.
+	 */
 	cmd_nick (InspIRCd* Instance) : command_t(Instance,"NICK",0,1,true) { syntax = "<newnick>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

@@ -29,6 +29,8 @@
 class cmd_clearcache : public command_t
 {
  public:
+	/** Constructor for clearcache.
+	 */
 	cmd_clearcache (InspIRCd* Instance) : command_t(Instance,"CLEARCACHE",'o',0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

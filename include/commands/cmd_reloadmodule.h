@@ -30,6 +30,8 @@
 class cmd_reloadmodule : public command_t
 {
  public:
+	/** Constructor for reloadmodule.
+	 */
 	cmd_reloadmodule (InspIRCd* Instance) : command_t(Instance,"RELOADMODULE",'o',1) { syntax = "<modulename>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

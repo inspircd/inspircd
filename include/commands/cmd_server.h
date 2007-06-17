@@ -30,6 +30,8 @@
 class cmd_server : public command_t
 {
  public:
+	/** Constructor for server.
+	 */
 	cmd_server (InspIRCd* Instance) : command_t(Instance,"SERVER",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

@@ -30,6 +30,8 @@
 class cmd_gline : public command_t
 {
  public:
+	/** Constructor for gline.
+	 */
 	cmd_gline (InspIRCd* Instance) : command_t(Instance,"GLINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

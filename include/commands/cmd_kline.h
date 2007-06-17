@@ -30,6 +30,8 @@
 class cmd_kline : public command_t
 {
  public:
+	/** Constructor for kline.
+	 */
 	cmd_kline (InspIRCd* Instance) : command_t(Instance,"KLINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

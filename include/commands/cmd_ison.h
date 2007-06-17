@@ -30,6 +30,8 @@
 class cmd_ison : public command_t
 {
  public:
+	/** Constructor for ison.
+	 */
 	cmd_ison (InspIRCd* Instance) : command_t(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

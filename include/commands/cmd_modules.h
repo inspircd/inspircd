@@ -30,6 +30,8 @@
 class cmd_modules : public command_t
 {
  public:
+	/** Constructor for modules.
+	 */
 	cmd_modules (InspIRCd* Instance) : command_t(Instance,"MODULES",0,0) { syntax = "[debug]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

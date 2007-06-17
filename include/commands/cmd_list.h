@@ -30,6 +30,8 @@
 class cmd_list : public command_t
 {
  public:
+	/** Constructor for list.
+	 */
 	cmd_list (InspIRCd* Instance) : command_t(Instance,"LIST",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

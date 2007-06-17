@@ -29,6 +29,8 @@
 class cmd_mode : public command_t
 {
  public:
+	/** Constructor for mode.
+	 */
 	cmd_mode (InspIRCd* Instance) : command_t(Instance,"MODE",0,1) { syntax = "<target> <modes> {<mode-parameters>}"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

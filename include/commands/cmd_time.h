@@ -30,6 +30,8 @@
 class cmd_time : public command_t
 {
  public:
+	/** Constructor for time.
+	 */
 	cmd_time (InspIRCd* Instance) : command_t(Instance,"TIME",0,0) { syntax = "[<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

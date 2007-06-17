@@ -33,6 +33,8 @@ DllExport void DoStats(InspIRCd* Instance, char statschar, userrec* user, string
 class cmd_stats : public command_t
 {
  public:
+	/** Constructor for stats.
+	 */
 	cmd_stats (InspIRCd* Instance) : command_t(Instance,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

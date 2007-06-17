@@ -30,6 +30,8 @@
 class cmd_rehash : public command_t
 {
  public:
+	/** Constructor for rehash.
+	 */
 	cmd_rehash (InspIRCd* Instance) : command_t(Instance,"REHASH",'o',0) { syntax = "[<servermask>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

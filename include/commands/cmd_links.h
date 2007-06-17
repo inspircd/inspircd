@@ -30,6 +30,8 @@
 class cmd_links : public command_t
 {
  public:
+	/** Constructor for links.
+	 */
 	cmd_links (InspIRCd* Instance) : command_t(Instance,"LINKS",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

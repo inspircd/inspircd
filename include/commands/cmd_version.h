@@ -30,6 +30,8 @@
 class cmd_version : public command_t
 {
  public:
+	/** Constructor for version.
+	 */
 	cmd_version (InspIRCd* Instance) : command_t(Instance,"VERSION",0,0) { syntax = "[<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

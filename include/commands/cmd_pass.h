@@ -33,6 +33,8 @@
 class cmd_pass : public command_t
 {
  public:
+	/** Constructor for pass.
+	 */
 	cmd_pass (InspIRCd* Instance) : command_t(Instance,"PASS",0,1,true) { syntax = "<password>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

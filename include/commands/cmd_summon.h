@@ -33,6 +33,8 @@
 class cmd_summon : public command_t
 {
  public:
+	/** Constructor for summon.
+	 */
 	cmd_summon (InspIRCd* Instance) : command_t(Instance,"SUMMON",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

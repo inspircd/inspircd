@@ -30,6 +30,8 @@
 class cmd_trace : public command_t
 {
  public:
+	/** Constructor for trace.
+	 */
 	cmd_trace (InspIRCd* Instance) : command_t(Instance,"TRACE",'o',0) { syntax = "[<object>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

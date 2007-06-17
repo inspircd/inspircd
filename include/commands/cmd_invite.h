@@ -30,6 +30,8 @@
 class cmd_invite : public command_t
 {
  public:
+	/** Constructor for invite.
+	 */
 	cmd_invite (InspIRCd* Instance) : command_t(Instance,"INVITE",0,0) { syntax = "[<nick> <channel>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

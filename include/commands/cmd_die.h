@@ -30,6 +30,8 @@
 class cmd_die : public command_t
 {
  public:
+	/** Constructor for die.
+	 */
 	cmd_die (InspIRCd* Instance) : command_t(Instance,"DIE",'o',1) { syntax = "<password>"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

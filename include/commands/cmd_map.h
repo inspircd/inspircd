@@ -30,6 +30,8 @@
 class cmd_map : public command_t
 {
  public:
+	/** Constructor for map.
+	 */
 	cmd_map (InspIRCd* Instance) : command_t(Instance,"MAP",0,0) { }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

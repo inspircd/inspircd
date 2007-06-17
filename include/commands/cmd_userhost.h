@@ -30,6 +30,8 @@
 class cmd_userhost : public command_t
 {
  public:
+	/** Constructor for userhost.
+	 */
 	cmd_userhost (InspIRCd* Instance) : command_t(Instance,"USERHOST",0,1) { syntax = "<nick>{,<nick>}"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

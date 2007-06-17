@@ -29,6 +29,8 @@
 class cmd_admin : public command_t
 {
  public:
+	/** Constructor for admin.
+	 */
 	cmd_admin (InspIRCd* Instance) : command_t(Instance,"ADMIN",0,0) { syntax = "[<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

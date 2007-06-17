@@ -33,6 +33,8 @@
 class cmd_rules : public command_t
 {
  public:
+	/** Constructor for rules.
+	 */
 	cmd_rules (InspIRCd* Instance) : command_t(Instance,"RULES",0,0) { syntax = "[<servername>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };

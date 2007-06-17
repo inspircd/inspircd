@@ -30,6 +30,8 @@
 class cmd_part : public command_t
 {
  public:
+	/** Constructor for part.
+	 */
 	cmd_part (InspIRCd* Instance) : command_t(Instance,"PART",0,1) { syntax = "<channel>{,<channel>} [<reason>]"; }
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
