@@ -57,6 +57,7 @@ class cmd_alltime : public command_t
 	}
 };
 
+
 class Modulealltime : public Module
 {
 	cmd_alltime *mycommand;
@@ -79,25 +80,4 @@ class Modulealltime : public Module
 	
 };
 
-class ModulealltimeFactory : public ModuleFactory
-{
- public:
-	ModulealltimeFactory()
-	{
-	}
-	
-	~ModulealltimeFactory()
-	{
-	}
-	
-	virtual Module *CreateModule(InspIRCd *Me)
-	{
-		return new Modulealltime(Me);
-	}
-};
-
-
-extern "C" DllExport void *init_module(void)
-{
-	return new ModulealltimeFactory;
-}
+MODULE_INIT(Modulealltime);

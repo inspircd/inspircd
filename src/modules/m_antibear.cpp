@@ -75,31 +75,4 @@ class ModuleAntiBear : public Module
 	}
 };
 
-class ModuleAntiBearFactory : public ModuleFactory
-{
- public:
-	ModuleAntiBearFactory()
-	{
-	}
-	
-	~ModuleAntiBearFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleAntiBear(Me);
-	}
-	
-};
-
-
-//
-// The "C" linkage factory0() function creates the ModuleAntiBearFactory
-// class for this library
-//
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleAntiBearFactory;
-}
+MODULE_INIT(ModuleAntiBear);

@@ -96,28 +96,4 @@ class ModuleAntiBottler : public Module
  	}
 };
 
-
-class ModuleAntiBottlerFactory : public ModuleFactory
-{
- public:
-	ModuleAntiBottlerFactory()
-	{
-	}
-	
-	~ModuleAntiBottlerFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleAntiBottler(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleAntiBottlerFactory;
-}
-
+MODULE_INIT(ModuleAntiBottler);
