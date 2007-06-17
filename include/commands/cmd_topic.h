@@ -33,6 +33,12 @@ class cmd_topic : public command_t
 	/** Constructor for topic.
 	 */
 	cmd_topic (InspIRCd* Instance) : command_t(Instance,"TOPIC",0,1) { syntax = "<channel> [<topic>]"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

@@ -33,6 +33,12 @@ class cmd_unloadmodule : public command_t
 	/** Constructor for unloadmodule.
 	 */
 	cmd_unloadmodule (InspIRCd* Instance) : command_t(Instance,"UNLOADMODULE",'o',1) { syntax = "<modulename>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

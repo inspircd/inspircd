@@ -33,6 +33,12 @@ class cmd_nick : public command_t
 	/** Constructor for nick.
 	 */
 	cmd_nick (InspIRCd* Instance) : command_t(Instance,"NICK",0,1,true) { syntax = "<newnick>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

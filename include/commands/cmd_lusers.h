@@ -33,6 +33,12 @@ class cmd_lusers : public command_t
 	/** Constructor for lusers.
 	 */
 	cmd_lusers (InspIRCd* Instance) : command_t(Instance,"LUSERS",0,0) { }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

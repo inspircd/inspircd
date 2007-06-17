@@ -33,6 +33,12 @@ class cmd_names : public command_t
 	/** Constructor for names.
 	 */
 	cmd_names (InspIRCd* Instance) : command_t(Instance,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

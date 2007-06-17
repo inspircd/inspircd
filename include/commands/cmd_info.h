@@ -33,6 +33,12 @@ class cmd_info : public command_t
 	/** Constructor for info.
 	 */
 	cmd_info (InspIRCd* Instance) : command_t(Instance,"INFO",0,0) { syntax = "[<servermask>]"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

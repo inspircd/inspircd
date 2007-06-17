@@ -33,6 +33,12 @@ class cmd_wallops : public command_t
 	/** Constructor for wallops.
 	 */
 	cmd_wallops (InspIRCd* Instance) : command_t(Instance,"WALLOPS",'o',1) { syntax = "<any-text>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

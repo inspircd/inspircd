@@ -36,6 +36,12 @@ class cmd_restart : public command_t
 	/** Constructor for restart.
 	 */
 	cmd_restart (InspIRCd* Instance) : command_t(Instance,"RESTART",'o',1) { syntax = "<password>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

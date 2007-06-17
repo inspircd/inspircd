@@ -33,6 +33,12 @@ class cmd_away : public command_t
 	/** Constructor for away.
 	 */
 	cmd_away (InspIRCd* Instance) : command_t(Instance,"AWAY",0,0) { syntax = "[<message>]"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 

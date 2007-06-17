@@ -35,6 +35,12 @@ class cmd_oper : public command_t
 	/** Constructor for oper.
 	 */
 	cmd_oper (InspIRCd* Instance) : command_t(Instance,"OPER",0,2) { syntax = "<username> <password>"; }
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 };
 
