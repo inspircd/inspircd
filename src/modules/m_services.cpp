@@ -307,27 +307,4 @@ class ModuleServices : public Module
 };
 
 
-class ModuleServicesFactory : public ModuleFactory
-{
- public:
-	ModuleServicesFactory()
-	{
-	}
-	
-	~ModuleServicesFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleServices(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleServicesFactory;
-}
-
+MODULE_INIT(ModuleServices);

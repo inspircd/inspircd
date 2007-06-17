@@ -94,29 +94,4 @@ class ModuleSecureList : public Module
 
 };
  
- 
- 
-/******************************************************************************************************/
- 
-class ModuleSecureListFactory : public ModuleFactory
-{
- public:
-	ModuleSecureListFactory()
-	{
-	}
- 
-	~ModuleSecureListFactory()
-	{
-	}
- 
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSecureList(Me);
-	}
- 
-};
- 
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSecureListFactory;
-}
+MODULE_INIT(ModuleSecureList);

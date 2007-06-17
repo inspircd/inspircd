@@ -52,27 +52,4 @@ class ModuleSeeNicks : public Module
 	}
 };
 
-class ModuleSeeNicksFactory : public ModuleFactory
-{
- public:
-	ModuleSeeNicksFactory()
-	{
-	}
-	
-	~ModuleSeeNicksFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSeeNicks(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSeeNicksFactory;
-}
-
+MODULE_INIT(ModuleSeeNicks);
