@@ -40,11 +40,15 @@ enum ModuleFlags {
 	VF_COMMON = 8		// module needs to be common on all servers in a network to link
 };
 
+/** Used with SendToMode()
+ */
 enum WriteModeFlags {
 	WM_AND = 1,
 	WM_OR = 2
 };
 
+/** Used to represent an event type, for user, channel or server
+ */
 enum TargetTypeFlags {
 	TYPE_USER = 1,
 	TYPE_CHANNEL,
@@ -52,6 +56,8 @@ enum TargetTypeFlags {
 	TYPE_OTHER
 };
 
+/** Used to represent wether a message was PRIVMSG or NOTICE
+ */
 enum MessageType {
 	MSG_PRIVMSG = 0,
 	MSG_NOTICE = 1
@@ -88,9 +94,13 @@ class ServerConfig;
  */
 class Module;
 
-/** Low level definition of a FileReader classes file cache area
+/** Low level definition of a FileReader classes file cache area -
+ * a text file seperated into lines.
  */
 typedef std::deque<std::string> file_cache;
+
+/** A set of strings.
+ */
 typedef file_cache string_list;
 
 /** Holds a list of 'published features' for modules.
@@ -108,7 +118,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 /**
  * This #define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:
- * 'FOREACH_MOD(I_OnXonnwxr,OnConnect(user));'
+ * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
  */
 #define FOREACH_MOD(y,x) if (ServerInstance->Config->global_implementation[y] > 0) { \
 	for (int _i = 0; _i <= ServerInstance->GetModuleCount(); _i++) { \
@@ -124,6 +134,12 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 	} \
   }
 
+/**
+ * This #define allows us to call a method in all
+ * loaded modules in a readable simple way and pass
+ * an instance pointer to the macro. e.g.:
+ * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
+ */
 #define FOREACH_MOD_I(z,y,x) if (z->Config->global_implementation[y] > 0) { \
 	for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
 		if (z->Config->implement_lists[_i][y]) \
@@ -138,7 +154,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 	} \
 }
 /**
- *  This define is similar to the one above but returns a result in MOD_RESULT.
+ * This define is similar to the one above but returns a result in MOD_RESULT.
  * The first module to return a nonzero result is the value to be accepted,
  * and any modules after are ignored.
  */
@@ -163,6 +179,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 	} \
  }
 
+/**
+ * This define is similar to the one above but returns a result in MOD_RESULT.
+ * The first module to return a nonzero result is the value to be accepted,
+ * and any modules after are ignored.
+ */
 #define FOREACH_RESULT_I(z,y,x) { if (z->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
 			for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
@@ -184,27 +205,44 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 	} \
 }
 
+/** Represents a non-local user.
+ * (in fact, any FD less than -1 does)
+ */
 #define FD_MAGIC_NUMBER -42
 
-// useful macros
+/* Useful macros */
 #ifdef WINDOWS
+/** Is a local user */
 #define IS_LOCAL(x) ((x->GetFd() > -1))
 #else
+/** Is a local user */
 #define IS_LOCAL(x) ((x->GetFd() > -1) && (x->GetFd() <= MAX_DESCRIPTORS))
 #endif
+/** Is a remote user */
 #define IS_REMOTE(x) (x->GetFd() < 0)
+/** Is a module created user */
 #define IS_MODULE_CREATED(x) (x->GetFd() == FD_MAGIC_NUMBER)
+/** Is an oper */
 #define IS_OPER(x) (*x->oper)
+/** Is away */
 #define IS_AWAY(x) (*x->awaymsg)
 
-/** Holds a module's Version information
+/** Holds a module's Version information.
  *  The four members (set by the constructor only) indicate details as to the version number
  *  of a module. A class of type Version is returned by the GetVersion method of the Module class.
+ *  The flags and API values represent the module flags and API version of the module.
+ *  The API version of a module must match the API version of the core exactly for the module to
+ *  load successfully.
  */
 class CoreExport Version : public classbase
 {
  public:
+	 /** Version numbers, build number, flags and API version
+	  */
 	 const int Major, Minor, Revision, Build, Flags, API;
+
+	 /** Initialize version class
+	  */
 	 Version(int major, int minor, int revision, int build, int flags, int api_ver);
 };
 
@@ -215,6 +253,8 @@ class CoreExport Version : public classbase
 class CoreExport ModuleMessage : public Extensible
 {
  public:
+	/** Destructor
+	 */
 	virtual ~ModuleMessage() {};
 };
 
@@ -333,6 +373,8 @@ class CoreExport CoreException : public std::exception
 	/** Holds the error message to be displayed
 	 */
 	const std::string err;
+	/** Source of the exception
+	 */
 	const std::string source;
  public:
 	/** Default constructor, just uses the error mesage 'Core threw an exception'.
@@ -409,17 +451,19 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 class CoreExport Module : public Extensible
 {
  protected:
+	/** Creator/owner pointer
+	 */
 	InspIRCd* ServerInstance;
  public:
 
-	/** Default constructor
+	/** Default constructor.
 	 * Creates a module class.
 	 * @param Me An instance of the InspIRCd class which will be saved into ServerInstance for your use
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
 	Module(InspIRCd* Me);
 
-	/** Default destructor
+	/** Default destructor.
 	 * destroys a module class
 	 */
 	virtual ~Module();
@@ -1313,6 +1357,10 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnRawSocketClose(int fd);
 
+	/** Called immediately upon connection of an outbound InspSocket which has been hooked
+	 * by a module.
+	 * @param fd The file descriptor of the socket immediately after connect()
+	 */
 	virtual void OnRawSocketConnect(int fd);
 
 	/** Called immediately before any read() operation on a client socket in the core.
@@ -1335,10 +1383,12 @@ class CoreExport Module : public Extensible
 	/** Called whenever a user sets away.
 	 * This method has no parameter for the away message, as it is available in the
 	 * user record as userrec::awaymsg.
+	 * @param user The user setting away
 	 */
 	virtual void OnSetAway(userrec* user);
 
 	/** Called when a user cancels their away state.
+	 * @param user The user returning from away
 	 */
 	virtual void OnCancelAway(userrec* user);
 
@@ -1346,6 +1396,12 @@ class CoreExport Module : public Extensible
 	 * You can produce the nameslist yourself, overriding the current list,
 	 * and if you do you must return 1. If you do not handle the names list,
 	 * return 0.
+	 * @param The user requesting the NAMES list
+	 * @param Ptr The channel the NAMES list is requested for
+	 * @param userlist The user list for the channel (you may change this pointer.
+	 * If you want to change the values, take a copy first, and change the copy, then
+	 * point the pointer at your copy)
+	 * @return 1 to prevent the user list being sent to the client, 0 to allow it
 	 */
 	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist);
 
@@ -1402,11 +1458,17 @@ class CoreExport ConfigReader : public classbase
 	 * (such as comments) stripped from it.
 	 */
 	ConfigDataHash* data;
-	std::ostringstream* errorlog;
 	/** Used to store errors
 	 */
-	bool privatehash; // If we're using our own config data hash or not.
+	std::ostringstream* errorlog;
+	/** If we're using our own config data hash or not
+	 */
+	bool privatehash;
+	/** True if an error occured reading the config file
+	 */
 	bool readerror;
+	/** Error code
+	 */
 	long error;
 	
   public:
@@ -1516,8 +1578,12 @@ class CoreExport FileReader : public classbase
 	 */
 	file_cache fc;
 
+	/** Content size in bytes
+	 */
 	unsigned long contentsize;
 
+	/** Calculate content size in bytes
+	 */
 	void CalcSize();
 
  public:
@@ -1608,7 +1674,10 @@ typedef std::vector<Module*> ModuleList;
  */
 typedef std::vector<ircd_module*> FactoryList;
 
-
+/** This definition is used as shorthand for the various classes
+ * and functions needed to make a module loadable by the OS.
+ * It defines the class factory and external init_module function.
+ */
 #define MODULE_INIT(y) \
 	class Factory : public ModuleFactory \
 	{ \

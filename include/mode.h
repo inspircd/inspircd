@@ -30,7 +30,9 @@ class InspIRCd;
  */
 enum ModeType
 {
+	/** User mode */
 	MODETYPE_USER = 0,
+	/** Channel mode */
 	MODETYPE_CHANNEL = 1
 };
 
@@ -64,8 +66,11 @@ enum ModeMasks
  */
 enum PrefixModeValue
 {
+	/* +v */
 	VOICE_VALUE	=	10000,
+	/* +h */
 	HALFOP_VALUE	=	20000,
+	/* +o */
 	OP_VALUE	=	30000
 };
 
@@ -93,6 +98,9 @@ typedef std::pair<bool,std::string> ModePair;
 class CoreExport ModeHandler : public Extensible
 {
  protected:
+	/**
+	 * Creator/owner pointer
+	 */
 	InspIRCd* ServerInstance;
 	/**
 	 * The mode letter you're implementing.
@@ -282,6 +290,9 @@ class CoreExport ModeHandler : public Extensible
 class CoreExport ModeWatcher : public Extensible
 {
  protected:
+	/**
+	 * Creator/owner pointer
+	 */
 	InspIRCd* ServerInstance;
 	/**
 	 * The mode letter this class is watching
@@ -350,6 +361,9 @@ typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
 class CoreExport ModeParser : public classbase
 {
  private:
+	/**
+	 * Creator/owner pointer
+	 */
 	InspIRCd* ServerInstance;
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
@@ -502,3 +516,4 @@ class CoreExport ModeParser : public classbase
 };
 
 #endif
+
