@@ -19,6 +19,7 @@
 #include "hash_map.h"
 #include "base.h"
 
+/* Forward declarations - required */
 class userrec;
 class InspIRCd;
 
@@ -29,10 +30,10 @@ enum CmdResult
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
 	CMD_INVALID = 2,	/* Command doesnt exist at all! */
-	CMD_USER_DELETED = 3	/* User was deleted! */
+	CMD_USER_DELETED = 3	/* User was deleted - DEPRECIATED */
 };
 
-/* For commands which should not be replicated to other
+/** For commands which should not be replicated to other
  * servers, we usually return CMD_FAILURE. this isnt readable,
  * so we define this alias for CMD_FAILURE called
  * CMD_LOCALONLY, which of course does the same thing but is

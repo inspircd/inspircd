@@ -33,11 +33,11 @@ class CoreExport CullItem : public classbase
 {
  private:
 	/** Holds a pointer to the user,
-	* must be valid and can be a local or remote user.
-	*/
+	 * must be valid and can be a local or remote user.
+	 */
 	userrec* user;
 	/** Holds the quit reason to use for this user.
-	*/
+	 */
 	std::string reason;
 	/** Holds the quit reason opers see, if different from users
 	 */
@@ -51,13 +51,31 @@ class CoreExport CullItem : public classbase
 	* and their quit reason
 	* @param u The user to add
 	* @param r The quit reason of the added user
+	* @param ro The quit reason to show to opers only
 	*/
 	CullItem(userrec* u, std::string &r, const char* ro = "");
+	/** Constrcutor.
+	 * Initializes the CullItem with a user pointer
+	 * and their quit reason
+	 * @param u The user to add
+	 * @param r The quit reason of the added user
+	 * @param ro The quit reason to show to opers only
+	 */
 	CullItem(userrec* u, const char* r, const char* ro = "");
 
+	/** Make the quit silent a module is dealing with
+	 * displaying this users quit, so we shouldn't
+	 * send anything out.
+	 */
 	void MakeSilent();
+
+	/** Returns true if the quit for this user has been set
+	 * to silent.
+	 */
 	bool IsSilent();
 
+	/** Destructor
+	 */
 	~CullItem();
 
 	/** Returns a pointer to the user
@@ -88,7 +106,7 @@ class CoreExport CullList : public classbase
 {
  private:
 	/** Creator of this CullList
-	*/
+	 */
 	InspIRCd* ServerInstance;
 
 	/** Holds a list of users already added for quick lookup
@@ -96,40 +114,49 @@ class CoreExport CullList : public classbase
 	std::map<userrec*, userrec*> exempt;
 
 	/** Holds a list of users being quit.
-	* See the information for CullItem for
-	* more information.
-	*/
+	 * See the information for CullItem for
+	 * more information.
+	 */
 	std::vector<CullItem> list;
 
  public:
 	/** Constructor.
-	* Clears the CullList::list and CullList::exempt
-	* items.
-	* @param Instance Creator of this CullList object
-	*/
+	 * Clears the CullList::list and CullList::exempt
+	 * items.
+	 * @param Instance Creator of this CullList object
+	 */
 	CullList(InspIRCd* Instance);
 
 	/** Adds a user to the cull list for later
-	* removal via QUIT.
-	* @param user The user to add
-	* @param reason The quit reason of the user being added
-	*/
-	void AddItem(userrec* user, std::string &reason, const  char* o_reason = "");
+	 * removal via QUIT.
+	 * @param user The user to add
+	 * @param reason The quit reason of the user being added
+	 * @param o_reason The quit reason to show only to opers
+	 */
+	void AddItem(userrec* user, std::string &reason, const char* o_reason = "");
+
+	/** Adds a user to the cull list for later
+	 * removal via QUIT.
+	 * @param user The user to add
+	 * @param reason The quit reason of the user being added
+	 * @param o_reason The quit reason to show only to opers
+	 */
 	void AddItem(userrec* user, const char* reason, const char* o_reason = "");
 
-	/* Turn an item into a silent item
+	/* Turn an item into a silent item (don't send out QUIT for this user)
 	 */
 	void MakeSilent(userrec* user);
 
 	/** Applies the cull list, quitting all the users
-	* on the list with their quit reasons all at once.
-	* This is a very fast operation compared to
-	* iterating the user list and comparing each one,
-	* especially if there are multiple comparisons
-	* to be done, or recursion.
-	* @returns The number of users removed from IRC.
-	*/
+	 * on the list with their quit reasons all at once.
+	 * This is a very fast operation compared to
+	 * iterating the user list and comparing each one,
+	 * especially if there are multiple comparisons
+	 * to be done, or recursion.
+	 * @returns The number of users removed from IRC.
+	 */
 	int Apply();
 };
 
 #endif
+
