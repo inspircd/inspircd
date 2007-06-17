@@ -52,26 +52,4 @@ class ModuleChanCreate : public Module
 	}
 };
 
-class ModuleChanCreateFactory : public ModuleFactory
-{
- public:
-	ModuleChanCreateFactory()
-	{
-	}
-	
-	~ModuleChanCreateFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleChanCreate(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleChanCreateFactory;
-}
-
+MODULE_INIT(ModuleChanCreate);

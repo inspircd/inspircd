@@ -92,24 +92,5 @@ class ModuleConnJoin : public Module
 
 };
 
-class ModuleConnJoinFactory : public ModuleFactory
-{
-	public:
-		ModuleConnJoinFactory()
-		{
-		}
 
-		~ModuleConnJoinFactory()
-		{
-		}
-
-		virtual Module * CreateModule(InspIRCd* Me)
-		{
-			return new ModuleConnJoin(Me);
-		}
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleConnJoinFactory;
-}
+MODULE_INIT(ModuleConnJoin);

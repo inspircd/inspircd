@@ -152,27 +152,4 @@ class ModuleChanFilter : public Module
 	}
 };
 
-
-class ModuleChanFilterFactory : public ModuleFactory
-{
- public:
-	ModuleChanFilterFactory()
-	{
-	}
-	
-	~ModuleChanFilterFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleChanFilter(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleChanFilterFactory;
-}
+MODULE_INIT(ModuleChanFilter);

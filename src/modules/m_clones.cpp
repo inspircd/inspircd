@@ -97,28 +97,4 @@ class ModuleClones : public Module
 	
 };
 
-
-
-class ModuleClonesFactory : public ModuleFactory
-{
- public:
-	ModuleClonesFactory()
-	{
-	}
-	
-	~ModuleClonesFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleClones(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleClonesFactory;
-}
-
+MODULE_INIT(ModuleClones);

@@ -528,27 +528,4 @@ class ModuleChanProtect : public Module
 
 };
 
-
-class ModuleChanProtectFactory : public ModuleFactory
-{
- public:
-	ModuleChanProtectFactory()
-	{
-	}
-	
-	~ModuleChanProtectFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleChanProtect(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleChanProtectFactory;
-}
+MODULE_INIT(ModuleChanProtect);

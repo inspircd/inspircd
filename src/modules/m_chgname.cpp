@@ -74,29 +74,4 @@ public:
 	
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleChgNameFactory : public ModuleFactory
-{
- public:
-	ModuleChgNameFactory()
-	{
-	}
-	
-	~ModuleChgNameFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleChgName(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleChgNameFactory;
-}
-
+MODULE_INIT(ModuleChgName);

@@ -111,28 +111,4 @@ class ModuleChgHost : public Module
 	
 };
 
-
-class ModuleChgHostFactory : public ModuleFactory
-{
- public:
-	ModuleChgHostFactory()
-	{
-	}
-	
-	~ModuleChgHostFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleChgHost(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleChgHostFactory;
-}
-
+MODULE_INIT(ModuleChgHost);

@@ -496,26 +496,4 @@ public:
 	
 };
 
-class ModuleCgiIRCFactory : public ModuleFactory
-{
- public:
-	ModuleCgiIRCFactory()
-	{
-	}
-	
-	~ModuleCgiIRCFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleCgiIRC(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleCgiIRCFactory;
-}
+MODULE_INIT(ModuleCgiIRC);

@@ -185,28 +185,4 @@ class ModuleCheck : public Module
 	
 };
 
-
-
-class ModuleCheckFactory : public ModuleFactory
-{
- public:
-	ModuleCheckFactory()
-	{
-	}
-	
-	~ModuleCheckFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleCheck(Me);
-	}
-	
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleCheckFactory;
-}
-
+MODULE_INIT(ModuleCheck);

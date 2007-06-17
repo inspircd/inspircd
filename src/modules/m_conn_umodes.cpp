@@ -101,29 +101,4 @@ class ModuleModesOnConnect : public Module
 	}
 };
 
-// stuff down here is the module-factory stuff. For basic modules you can ignore this.
-
-class ModuleModesOnConnectFactory : public ModuleFactory
-{
- public:
-	ModuleModesOnConnectFactory()
-	{
-	}
-	
-	~ModuleModesOnConnectFactory()
-	{
-	}
-	
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleModesOnConnect(Me);
-	}
-	
-};
-
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleModesOnConnectFactory;
-}
-
+MODULE_INIT(ModuleModesOnConnect);
