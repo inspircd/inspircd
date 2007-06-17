@@ -31,6 +31,7 @@
 #include "socketengine.h"
 #include "socket.h"
 
+/* Required forward definitions */
 class ServerConfig;
 class InspIRCd;
 class InspSocket;
@@ -39,11 +40,11 @@ class InspSocket;
  */
 enum ConfigDataType
 {
-	DT_NOTHING       = 0,
-	DT_INTEGER       = 1,
-	DT_CHARPTR       = 2,
-	DT_BOOLEAN       = 3,
-	DT_ALLOW_NEWLINE = 128
+	DT_NOTHING       = 0,		/* No data */
+	DT_INTEGER       = 1,		/* Integer */
+	DT_CHARPTR       = 2,		/* Char pointer */
+	DT_BOOLEAN       = 3,		/* Boolean */
+	DT_ALLOW_NEWLINE = 128		/* New line characters allowed */
 };
 
 /** Holds a config value, either string, integer or boolean.
@@ -54,16 +55,26 @@ enum ConfigDataType
  */
 class ValueItem
 {
+	/** Actual data */
 	std::string v;
  public:
+	/** Initialize with an int */
 	ValueItem(int value);
+	/** Initialize with a bool */
 	ValueItem(bool value);
+	/** Initialize with a char pointer */
 	ValueItem(char* value);
+	/** Change value to a char pointer */
 	void Set(char* value);
+	/** Change value to a const char pointer */
 	void Set(const char* val);
+	/** Change value to an int */
 	void Set(int value);
+	/** Get value as an int */
 	int GetInteger();
+	/** Get value as a string */
 	char* GetString();
+	/** Get value as a bool */
 	bool GetBool();
 };
 
@@ -73,7 +84,9 @@ class ValueItem
 class ValueContainerBase
 {
  public:
+	/** Constructor */
 	ValueContainerBase() { }
+	/** Destructor */
 	virtual ~ValueContainerBase() { }
 };
 
@@ -87,20 +100,23 @@ class ValueContainerBase
  */
 template<typename T> class ValueContainer : public ValueContainerBase
 {
+	/** Contained item */
 	T val;
-
  public:
 
+	/** Initialize with nothing */
 	ValueContainer()
 	{
 		val = NULL;
 	}
 
+	/** Initialize with a value of type T */
 	ValueContainer(T Val)
 	{
 		val = Val;
 	}
 
+	/** Change value to type T of size s */
 	void Set(T newval, size_t s)
 	{
 		memcpy(val, newval, s);
@@ -144,11 +160,17 @@ typedef bool (*MultiNotify)(ServerConfig* conf, const char*);
  */
 struct InitialConfig
 {
+	/** Tag name */
 	char* tag;
+	/** Value name */
 	char* value;
+	/** Default, if not defined */
 	char* default_value;
+	/** Value containers */
 	ValueContainerBase* val;
+	/** Data types */
 	ConfigDataType datatype;
+	/** Validation function */
 	Validator validation_function;
 };
 
@@ -157,12 +179,19 @@ struct InitialConfig
  */
 struct MultiConfig
 {
+	/** Tag name */
 	const char*	tag;
+	/** One or more items within tag */
 	char*		items[13];
+	/** One or more defaults for items within tags */
 	char*		items_default[13];
+	/** One or more data types */
 	int		datatype[13];
+	/** Initialization function */
 	MultiNotify	init_function;
+	/** Validation function */
 	MultiValidator	validation_function;
+	/** Completion function */
 	MultiNotify	finish_function;
 };
 
@@ -183,7 +212,7 @@ typedef std::map<irc::string,char*> operclass_t;
 class CoreExport ServerConfig : public Extensible
 {
   private:
-	/** Creator/owner
+	/** Creator/owner pointer
 	 */
 	InspIRCd* ServerInstance;
 
@@ -487,6 +516,9 @@ class CoreExport ServerConfig : public Extensible
 	 * modules.
 	 */
 	std::string data005;
+
+	/** isupport strings
+	 */
 	std::vector<std::string> isupport;
 
 	/** STATS characters in this list are available
@@ -591,10 +623,6 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool ReadFile(file_cache &F, const char* fname);
 
-	/** Load 'filename' into 'target', with the new config parser everything is parsed into
-	 * tag/key/value at load-time rather than at read-value time.
-	 */
-
 	/** Report a configuration error given in errormessage.
 	 * @param bail If this is set to true, the error is sent to the console, and the program exits
 	 * @param user If this is set to a non-null value, and bail is false, the errors are spooled to
@@ -618,29 +646,41 @@ class CoreExport ServerConfig : public Extensible
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, int index, char* result, int length, bool allow_linefeeds = false);
+	/** Writes 'length' chars into 'result' as a string
+	 */
 	bool ConfValue(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, char* result, int length, bool allow_linefeeds = false);
 
 	/** Writes 'length' chars into 'result' as a string
 	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, std::string &result, bool allow_linefeeds = false);
+	/** Writes 'length' chars into 'result' as a string
+	 */
 	bool ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds = false);
 	
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, int index, int &result);
+	/** Tries to convert the value to an integer and write it to 'result'
+	 */
 	bool ConfValueInteger(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index, int &result);
 	/** Tries to convert the value to an integer and write it to 'result'
 	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, int index, int &result);
+	/** Tries to convert the value to an integer and write it to 'result'
+	 */
 	bool ConfValueInteger(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, int &result);
 	
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, int index);
+	/** Returns true if the value exists and has a true value, false otherwise
+	 */
 	bool ConfValueBool(ConfigDataHash &target, const char* tag, const char* var, const char* default_value, int index);
 	/** Returns true if the value exists and has a true value, false otherwise
 	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, int index);
+	/** Returns true if the value exists and has a true value, false otherwise
+	 */
 	bool ConfValueBool(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index);
 	
 	/** Returns the number of occurences of tag in the config file
@@ -657,26 +697,94 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	int ConfVarEnum(ConfigDataHash &target, const std::string &tag, int index);
 	
+	/** Get a pointer to the module which has hooked the given port.
+	 * @parameter port Port number
+	 * @return Returns a pointer to the hooking module, or NULL
+	 */
 	Module* GetIOHook(int port);
+
+	/** Hook a module to a client port, so that it can receive notifications
+	 * of low-level port activity.
+	 * @param port The port number
+	 * @param Module the module to hook to the port
+	 * @return True if the hook was successful.
+	 */
 	bool AddIOHook(int port, Module* iomod);
+
+	/** Delete a module hook from a client port.
+	 * @param port The port to detatch from
+	 * @return True if successful
+	 */
 	bool DelIOHook(int port);
+	
+	/** Get a pointer to the module which has hooked the given InspSocket class.
+	 * @parameter port Port number
+	 * @return Returns a pointer to the hooking module, or NULL
+	 */
 	Module* GetIOHook(InspSocket* is);
+
+	/** Hook a module to an InspSocket class, so that it can receive notifications
+	 * of low-level socket activity.
+	 * @param iomod The module to hook to the socket
+	 * @param is The InspSocket to attach to
+	 * @return True if the hook was successful.
+	 */
 	bool AddIOHook(Module* iomod, InspSocket* is);
+
+	/** Delete a module hook from an InspSocket.
+	 * @param is The InspSocket to detatch from.
+	 * @return True if the unhook was successful
+	 */
 	bool DelIOHook(InspSocket* is);
 
+	/** Returns the fully qualified path to the inspircd directory
+	 * @return The full program directory
+	 */
 	std::string GetFullProgDir();
+
+	/** Returns true if a directory is valid (within the modules directory).
+	 * @param dirandfile The directory and filename to check
+	 * @return True if the directory is valid
+	 */
 	static bool DirValid(const char* dirandfile);
+
+	/** Clean a filename, stripping the directories (and drives) from string.
+	 * @param name Directory to tidy
+	 * @return The cleaned filename
+	 */
 	static char* CleanFilename(char* name);
+
+	/** Check if a file exists.
+	 * @param file The full path to a file
+	 * @return True if the file exists and is readable.
+	 */
 	static bool FileExists(const char* file);
 	
 };
 
+/** Initialize the disabled commands list
+ */
 CoreExport bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance);
 
+/** Initialize the oper types
+ */
 bool InitTypes(ServerConfig* conf, const char* tag);
+
+/** Initialize the oper classes
+ */
 bool InitClasses(ServerConfig* conf, const char* tag);
+
+/** Initialize an oper type 
+ */
 bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+/** Initialize an oper class
+ */
 bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types);
+
+/** Finish initializing the oper types and classes
+ */
 bool DoneClassesAndTypes(ServerConfig* conf, const char* tag);
 
 #endif
+
