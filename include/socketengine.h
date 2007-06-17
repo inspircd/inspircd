@@ -29,8 +29,11 @@
  */
 enum EventType
 {
+	/** Read event */
 	EVENT_READ	=	0,
+	/** Write event */
 	EVENT_WRITE	=	1,
+	/** Error event */
 	EVENT_ERROR	=	2
 };
 
@@ -139,9 +142,13 @@ class CoreExport EventHandler : public Extensible
 	/** Pointer to read event. We delete this so the buffer can't be used
 	 * after the socket is deleted, and so it doesn't leak memory
 	 */
-	void * m_readEvent;
-	void * m_writeEvent;
-	void * m_acceptEvent;
+	void* m_readEvent;
+	/** Pointer to a write event.
+	 */
+	void* m_writeEvent;
+	/** Pointer to an accept event.
+	 */
+	void* m_acceptEvent;
 
 #endif
 };
@@ -286,3 +293,4 @@ public:
 };
 
 #endif
+

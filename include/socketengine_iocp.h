@@ -23,32 +23,48 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
+/** Socket overlapped event types
+ */
 enum SocketIOEvent
 {
+	/** Read ready */
 	SOCKET_IO_EVENT_READ_READY			= 0,
+	/** Write ready */
 	SOCKET_IO_EVENT_WRITE_READY			= 1,
+	/** Accept ready */
 	SOCKET_IO_EVENT_ACCEPT				= 2,
+	/** Error occured */
 	SOCKET_IO_EVENT_ERROR				= 3,
+	/** Number of events */
 	NUM_SOCKET_IO_EVENTS				= 4,
 };
 
+/** Represents a windows overlapped IO event
+ */
 class Overlapped
 {
  public:
+	/** Overlap event */
 	OVERLAPPED m_overlap;
+	/** Type of event */
 	SocketIOEvent m_event;
 #ifdef WIN64
+	/** Parameters */
 	unsigned __int64 m_params;
 #else
+	/** Parameters */
 	unsigned long m_params;
 #endif
-
+	/** Create an overlapped event
+	 */
 	Overlapped(SocketIOEvent ev, int params) : m_event(ev), m_params(params)
 	{
 		memset(&m_overlap, 0, sizeof(OVERLAPPED));
 	}
 };
 
+/** Specific to UDP sockets with overlapped IO
+ */
 struct udp_overlap
 {
 	unsigned char udp_buffer[600];
@@ -57,12 +73,16 @@ struct udp_overlap
 	unsigned long udp_sockaddr_len;
 };
 
+/** Specific to accepting sockets with overlapped IO
+ */
 struct accept_overlap
 {
 	int socket;
 	char buf[1024];
 };
 
+/** Implementation of SocketEngine that implements windows IO Completion Ports
+ */
 class IOCPEngine : public SocketEngine
 {
 	/** Creates a "fake" file descriptor for use with an IOCP socket.
@@ -191,10 +211,6 @@ public:
 	 */
 	udp_overlap * udp_ov;
 };
-
-//typedef void(*OpHandler)(EventHandler)
-/** Event Handler Array
- */
 
 /** Creates a SocketEngine
  */

@@ -26,11 +26,10 @@
 #include "inspircd.h"
 #include "socketengine.h"
 #include <port.h>
-#define EP_DELAY 5
 
 class InspIRCd;
 
-/** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
+/** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
 class PortsEngine : public SocketEngine
 {
@@ -39,11 +38,11 @@ private:
 	 */
 	port_event_t events[MAX_DESCRIPTORS];
 public:
-	/** Create a new EPollEngine
+	/** Create a new PortsEngine
 	 * @param Instance The creator of this object
 	 */
 	PortsEngine(InspIRCd* Instance);
-	/** Delete an EPollEngine
+	/** Delete a PortsEngine
 	 */
 	virtual ~PortsEngine();
 	virtual bool AddFd(EventHandler* eh);
@@ -66,3 +65,4 @@ public:
 };
 
 #endif
+

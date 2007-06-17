@@ -39,15 +39,22 @@
 
 /* Accept Define */
 #ifdef CONFIG_USE_IOCP
+/* IOCP wrapper for accept() */
 #define _accept(s, addr, addrlen) __accept_socket(s, addr, addrlen, m_acceptEvent)
+/* IOCP wrapper for getsockname() */
 #define _getsockname(fd, sockptr, socklen) __getsockname(fd, sockptr, socklen, m_acceptEvent)
+/* IOCP wrapper for recvfrom() */
 #define _recvfrom(s, buf, len, flags, from, fromlen) __recvfrom(s, buf, len, flags, from, fromlen, ((IOCPEngine*)ServerInstance->SE)->udp_ov)
 #else
+/* No wrapper for recvfrom() */
 #define _recvfrom recvfrom
+/* No wrapper for accept() */
 #define _accept accept
+/* No wrapper for getsockname() */
 #define _getsockname getsockname
 #endif
 
+/* Contains irc-specific definitions */
 namespace irc
 {
 	/** This namespace contains various protocol-independent helper classes.
@@ -170,9 +177,13 @@ class CoreExport ListenSocket : public EventHandler
 	/** The creator/owner of this object
 	 */
 	InspIRCd* ServerInstance;
+	/** Socket description (shown in stats p) */
 	std::string desc;
+	/** Socket address family */
 	int family;
+	/** Address socket is bound to */
 	std::string bind_addr;
+	/** Port socket is bound to */
 	int bind_port;
  public:
 	/** Create a new listening socket
@@ -190,17 +201,20 @@ class CoreExport ListenSocket : public EventHandler
 	{
 		desc = description;
 	}
-
+	/** Get description for socket
+	 */
 	const std::string& GetDescription()
 	{
 		return desc;
 	}
-
+	/** Get port number for socket
+	 */
 	int GetPort()
 	{
 		return bind_port;
 	}
-
+	/** Get IP address socket is bound to
+	 */
 	std::string &GetIP()
 	{
 		return bind_addr;
@@ -208,3 +222,4 @@ class CoreExport ListenSocket : public EventHandler
 };
 
 #endif
+
