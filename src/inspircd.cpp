@@ -961,6 +961,7 @@ bool InspIRCd::LoadModule(const char* filename)
 			{
 				this->Log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
 				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[this->ModCount+1]->LastError());
+				delete a;
 				return false;
 			}
 			if ((long)factory[this->ModCount+1]->factory != -1)
