@@ -80,6 +80,7 @@ class ModuleSSLGnuTLS : public Module
 	std::string certfile;
 	std::string cafile;
 	std::string crlfile;
+	std::string sslports;
 	int dh_bits;
 
 	int clientactive;
@@ -124,6 +125,7 @@ class ModuleSSLGnuTLS : public Module
 
 		listenports.clear();
 		clientactive = 0;
+		sslports.clear();
 
 		for(int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
@@ -147,6 +149,7 @@ class ModuleSSLGnuTLS : public Module
 								if (ServerInstance->Config->ports[i]->GetPort() == portno)
 									ServerInstance->Config->ports[i]->SetDescription("ssl");
 							ServerInstance->Log(DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %d", portno);
+							sslports.append("*:").append(ConvToStr(portno)).append(";");
 						}
 						else
 						{
@@ -281,8 +284,13 @@ class ModuleSSLGnuTLS : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
+		List[I_On005Numeric] = List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
 		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
+	}
+
+	virtual void On005Numeric(std::string &output)
+	{
+		output.append(" SSL=" + sslports);
 	}
 
 	virtual char* OnRequest(Request* request)

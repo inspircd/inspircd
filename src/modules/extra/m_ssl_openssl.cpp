@@ -122,6 +122,7 @@ class ModuleSSLOpenSSL : public Module
 	std::string cafile;
 	// std::string crlfile;
 	std::string dhfile;
+	std::string sslports;
 
 	int clientactive;
 
@@ -168,6 +169,7 @@ class ModuleSSLOpenSSL : public Module
 
 		listenports.clear();
 		clientactive = 0;
+		sslports.clear();
 
 		for (int i = 0; i < Conf->Enumerate("bind"); i++)
 		{
@@ -191,6 +193,7 @@ class ModuleSSLOpenSSL : public Module
 								if (ServerInstance->Config->ports[i]->GetPort() == portno)
 									ServerInstance->Config->ports[i]->SetDescription("ssl");
 							ServerInstance->Log(DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %d", portno);
+							sslports.append("*:").append(ConvToStr(portno)).append(";");
 						}
 						else
 						{
@@ -204,6 +207,9 @@ class ModuleSSLOpenSSL : public Module
 				}
 			}
 		}
+
+		if (!sslports.empty())
+			sslports.erase(sslports.end() - 1);
 
 		std::string confdir(ServerInstance->ConfigFileName);
 		// +1 so we the path ends with a /
@@ -285,6 +291,11 @@ class ModuleSSLOpenSSL : public Module
 		DELETE(Conf);
 	}
 
+	virtual void On005Numeric(std::string &output)
+	{
+		output.append(" SSL=" + sslports);
+	}
+
 	virtual ~ModuleSSLOpenSSL()
 	{
 		SSL_CTX_free(ctx);
@@ -334,7 +345,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
+		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = List[I_On005Numeric] = 1;
 		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
