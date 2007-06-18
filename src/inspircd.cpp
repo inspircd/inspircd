@@ -954,9 +954,10 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 		}
 		Module* m = NULL;
+		ircd_module* a = NULL;
 		try
 		{
-			ircd_module* a = new ircd_module(this, modfile);
+			a = new ircd_module(this, modfile);
 			factory[this->ModCount+1] = a;
 			if (factory[this->ModCount+1]->LastError())
 			{
@@ -1002,7 +1003,8 @@ bool InspIRCd::LoadModule(const char* filename)
 			{
 				this->Log(DEFAULT,"Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF,"Factory function failed: Probably missing init_module() entrypoint.");
-				delete a;
+				if (a)
+					delete a;
 				return false;
 			}
 		}
@@ -1012,7 +1014,8 @@ bool InspIRCd::LoadModule(const char* filename)
 			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			if (m)
 				delete m;
-			delete a;
+			if (a)
+				delete a;
 			return false;
 		}
 	}
