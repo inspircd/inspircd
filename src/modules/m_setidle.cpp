@@ -26,21 +26,22 @@ class cmd_setidle : public command_t
 	cmd_setidle (InspIRCd* Instance) : command_t(Instance,"SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
-		syntax = "<idle-seconds>";
+		syntax = "<duration>";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (atoi(parameters[0]) < 1)
+		time_t idle = ServerInstance->Duration(parameters[0]);
+		if (idle < 1)
 		{
 			user->WriteServ("948 %s :Invalid idle time.",user->nick);
 			return CMD_FAILURE;
 		}
-		user->idle_lastmsg = time(NULL) - atoi(parameters[0]);
+		user->idle_lastmsg = (ServerInstance->Time() - idle);
 		// minor tweak - we cant have signon time shorter than our idle time!
 		if (user->signon > user->idle_lastmsg)
 			user->signon = user->idle_lastmsg;
-		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(atoi(parameters[0]))+" seconds");
+		ServerInstance->WriteOpers(std::string(user->nick)+" used SETIDLE to set their idle time to "+ConvToStr(idle)+" seconds");
 		user->WriteServ("944 %s :Idle time set.",user->nick);
 
 		return CMD_LOCALONLY;
