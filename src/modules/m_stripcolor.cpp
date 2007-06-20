@@ -112,52 +112,33 @@ class ModuleStripColor : public Module
 		DELETE(csc);
 	}
 	
-	// ANSI colour stripping based on C example by Doc (Peter Wood)
 	virtual void ReplaceLine(std::string &sentence)
 	{
-		int i, a, len, remove;
-		len = sentence.length();
-
-		for (i = 0; i < len; i++)
-  		{
-			remove = 0;
-
-			switch (sentence[i])
+		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
+		int seq = 0;
+		std::string::iterator i,safei;
+ 		for (i = sentence.begin(); i != sentence.end(); ++i)
+		{
+			if (((*i == 31) || (*i == 3)))
 			{
-				case 2:
-				case 15:
-				case 22:
-				case 21:
-				case 31:
-					remove++;
-				break;
-
-				case 3:
-					remove = 1;
-
-					if (isdigit(sentence[i + remove]))
-						remove++;
-
-					if (isdigit(sentence[i + remove]))
-						remove++;
-
-					if (sentence[i + remove] == ',')
-					{
-						remove += 2;
-
-						if (isdigit(sentence[i + remove]))
-							remove++;
-					}
-				break;
+				seq = 1;
 			}
-
-			if (remove != 0)
+			else if (seq && ( (*i >= '0') && (*i <= '9') || (*i == ',') ) )
 			{
-				len -= remove;
-
-				for (a = i; a <= len; a++)
-					sentence[a] = sentence[a + remove];
-				i--;
+				seq++;
+				if ( (seq <= 4) && (*i == ',') )
+					seq = 1;
+				else if (seq > 3)
+					seq = 0;
+			}
+			else
+				seq = 0;
+			
+			if (seq)
+			{
+				safei = i;
+				--i;
+				sentence.erase(safei);
 			}
 		}
 	}
