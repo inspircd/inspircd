@@ -21,10 +21,12 @@
 #include <sys/resource.h>
 #include <dlfcn.h>
 #include <getopt.h>
-/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */  
+
+/* Some systems don't define RUSAGE_SELF. This should fix them. */
 #ifndef RUSAGE_SELF
-#define RUSAGE_SELF 0
+	#define RUSAGE_SELF 0
 #endif
+
 #endif
 
 #include <exception>
