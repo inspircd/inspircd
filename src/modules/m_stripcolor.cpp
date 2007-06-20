@@ -132,7 +132,7 @@ class ModuleStripColor : public Module
 			else
 				seq = 0;
 			
-			if (seq || ((*i == 2) || (*i == 15) || (*i == 21) || (*i == 22) || (*i == 31)))
+			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
 			{
 				safei = i;
 				--i;
