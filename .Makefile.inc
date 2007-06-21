@@ -16,6 +16,7 @@ BASE = $(DESTDIR)@BASE_DIR@
 CONPATH = $(DESTDIR)@CONFIG_DIR@
 MODPATH = $(DESTDIR)@MODULE_DIR@
 BINPATH = $(DESTDIR)@BINARY_DIR@
+LAUNCHDPATH = $(DESTDIR)/System/Library/LaunchDaemons
 LIBPATH = $(DESTDIR)@LIBRARY_DIR@
 LIB_EXT = @LIBRARY_EXT@
 MODULES = @MODULES@
@@ -66,7 +67,7 @@ ircd:
 	@echo "*************************************"
 	${MAKE} -C src DIRNAME="src" $(MAKEARGS)
 
-install: all
+install: all@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) ${BASE}
 	@-install -d -m $(INSTMODE) $(LIBPATH)
 	@-install -d -m $(INSTMODE) $(BINPATH)
@@ -95,7 +96,7 @@ install: all
 	-install -m $(INSTMODE) src/libIRCDtimer.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDsnomasks.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
-	-install -m $(INSTMODE) inspircd $(BASE) 2>/dev/null
+	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
 	-install -m $(INSTMODE) src/cmd_admin.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_away.so $(LIBPATH)
 	-install -m $(INSTMODE) src/cmd_clearcache.so $(LIBPATH)
@@ -194,6 +195,9 @@ modclean:
 	rm -f bin/inspircd
 
 squeakyclean: distclean
+
+launchd_dir:
+	@-install -d -m $(INSTMODE) ${LAUNCHDPATH}
 
 configureclean:
 	rm -f .config.cache

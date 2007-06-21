@@ -224,9 +224,15 @@ chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Ver
 $config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{IS_DARWIN}          = "NO";					# Is OSX?
+$config{STARTSCRIPT}          = "inspircd";			# start script?
+$config{DESTINATION}          = "BASE";				# Is target path.
+$config{EXTRA_DIR}          = "";						# Is empty.
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
+	$config{STARTSCRIPT}          = "org.inspircd.plist";		# start script for OSX.
+	$config{DESTINATION}          = "LAUNCHDPATH";				# Is OSX target.
+	$config{EXTRA_DIR}          = " launch_dir";				# Is OSX specific path.
 }
 $config{CC} 		    = "g++";						# C++ compiler
 if (defined $opt_cc)
@@ -1143,6 +1149,9 @@ EOF
 			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
 			$tmp =~ s/\@LIBRARY_EXT\@/$LIBEXT/;
 			$tmp =~ s/\@MODULES\@/$modules/;
+			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/;
+			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/;
+			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/;
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
