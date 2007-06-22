@@ -21,5 +21,7 @@
 	</array>
 	<key>ServiceIPC</key>
 	<false/>
+	<key>UserName</key>
+	<string>ircdaemon</string>
 </dict>
 </plist>
