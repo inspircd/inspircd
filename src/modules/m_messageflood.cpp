@@ -151,15 +151,29 @@ class MsgFlood : public ModeHandler
 					}
 					else
 					{
-						if (((nlines != f->lines) || (nsecs != f->secs)) && ((nsecs > 0) && (nlines > 0)) || (ban != f->ban))
+						std::string cur_param = channel->GetModeParameter('f');
+						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
+						if (cur_param == parameter)
 						{
-							delete f;
-							floodsettings *f = new floodsettings(ban,nsecs,nlines);
-							parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-							channel->Shrink("flood");
-							channel->Extend("flood",f);
-							channel->SetModeParam('f', parameter.c_str(), true);
-							return MODEACTION_ALLOW;
+							// mode params match
+							return MODEACTION_DENY;
+						}
+						else
+						{
+							if (((nlines != f->lines) || (nsecs != f->secs)) && ((nsecs > 0) && (nlines > 0)) || (ban != f->ban))
+							{
+								delete f;
+								floodsettings *f = new floodsettings(ban,nsecs,nlines);
+								channel->Shrink("flood");
+								channel->Extend("flood",f);
+								channel->SetModeParam('f', cur_param.c_str(), false);
+								channel->SetModeParam('f', parameter.c_str(), true);
+								return MODEACTION_ALLOW;
+							}
+							else
+							{
+								return MODEACTION_DENY;
+							}
 						}
 					}
 				}
