@@ -965,7 +965,6 @@ bool InspIRCd::LoadModule(const char* filename)
 			{
 				this->Log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
 				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[this->ModCount+1]->LastError());
-				delete a;
 				return false;
 			}
 			if ((long)factory[this->ModCount+1]->factory != -1)
@@ -977,7 +976,6 @@ bool InspIRCd::LoadModule(const char* filename)
 				if (v.API != API_VERSION)
 				{
 					delete m;
-					delete a;
 					this->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
 					snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
 					return false;
@@ -1005,8 +1003,6 @@ bool InspIRCd::LoadModule(const char* filename)
 			{
 				this->Log(DEFAULT,"Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF,"Factory function failed: Probably missing init_module() entrypoint.");
-				if (a)
-					delete a;
 				return false;
 			}
 		}
@@ -1014,10 +1010,6 @@ bool InspIRCd::LoadModule(const char* filename)
 		{
 			this->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			if (m)
-				delete m;
-			if (a)
-				delete a;
 			return false;
 		}
 	}
