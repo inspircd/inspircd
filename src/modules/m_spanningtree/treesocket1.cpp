@@ -73,6 +73,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	this->LinkState = WAIT_AUTH_1;
 	theirchallenge.clear();
 	ourchallenge.clear();
+	sentcapab = false;
 	/* If we have a transport module hooked to the parent, hook the same module to this
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
@@ -186,6 +187,7 @@ bool TreeSocket::OnConnected()
 					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+x->Hook+"\2");
 				}
 				this->OutboundPass = x->SendPass;
+				sentcapab = false;
 
 				/* found who we're supposed to be connecting to, send the neccessary gubbins. */
 				if (this->GetHook())
@@ -328,6 +330,10 @@ std::string TreeSocket::RandString(unsigned int length)
 
 void TreeSocket::SendCapabilities()
 {
+	if (sentcapab)
+		return;
+
+	sentcapab = true;
 	irc::commasepstream modulelist(MyCapabilities());
 	this->WriteLine("CAPAB START");
 

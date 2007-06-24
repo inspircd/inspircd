@@ -95,6 +95,7 @@ class TreeSocket : public InspSocket
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	std::string OutboundPass;		/* Outbound password */
+	bool sentcapab;				/* Have sent CAPAB already */
  public:
 
 	/** Because most of the I/O gubbins are encapsulated within

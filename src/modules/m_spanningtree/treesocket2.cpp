@@ -803,6 +803,9 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 	this->InboundServerName = sname;
 	this->InboundDescription = description;
 
+	if (!sentcapab)
+		this->SendCapabilities();
+
 	if (hops)
 	{
 		this->SendError("Server too far away for authentication");
@@ -855,6 +858,9 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 
 	this->InboundServerName = sname;
 	this->InboundDescription = description;
+
+	if (!sentcapab)
+		this->SendCapabilities();
 
 	if (hops)
 	{
