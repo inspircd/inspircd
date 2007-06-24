@@ -225,6 +225,11 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 #ifdef WINDOWS
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
 		nameserver = FindNameServerWin();
+		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
+		 * Spotted by Cataclysm.
+		 */
+		if (nameserver.find(',') != std::string::npos)
+			nameserver = nameserver.substr(0, nameserver.find(','));
 		data.Set(nameserver.c_str());
 		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 #else
