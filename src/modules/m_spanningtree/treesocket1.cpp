@@ -676,6 +676,13 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 			return true;
 	}
 
+	if (!TS)
+	{
+		Instance->Log(DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
+		return true;
+	}
+
 	/* TS is equal or less: Merge the mode changes into ours and pass on.
 	 */
 	if (TS <= ourTS)
