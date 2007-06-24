@@ -806,6 +806,13 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	params[2] = ":" + params[2];
 	Utils->DoOneToAllButSender(source,"FJOIN",params,source);
 
+        if (!TS)
+	{
+		Instance->Log(DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		Instance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", source.c_str());
+		return true;
+	}
+
 	/* If our TS is less than theirs, we dont accept their modes */
 	if (ourTS < TS)
 		apply_other_sides_modes = false;
