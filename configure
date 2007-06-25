@@ -487,7 +487,7 @@ $has_ports = 1 if ($system eq "SunOS");
 if ($has_ports) {
 	my $kernel = `uname -r`;
 	chomp($kernel);
-	if (($kernel !~ /^5\.10/)) {
+	if (($kernel !~ /^5\.1./)) {
 		$has_ports = 0;
 	}
 }
@@ -934,7 +934,7 @@ sub getosflags {
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 	}
 
-	if ($config{OSNAME} =~ /SunOS/i)
+	if ($config{OSNAME} =~ /SunOS/i or $config{OSNAME} =~ /solaris/i)
 	{
 		# solaris/sunos needs these
 		# socket = bsd sockets api

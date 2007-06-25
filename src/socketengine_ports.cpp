@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <sys/epoll.h>
+#include <port.h>
 #include "socketengine_ports.h"
 
 PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
