@@ -39,7 +39,7 @@ class cmd_chghost : public command_t
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
@@ -51,14 +51,14 @@ class cmd_chghost : public command_t
 		
 		if ((parameters[1] - x) > 63)
 		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long",user->nick);
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick);
 			return CMD_FAILURE;
 		}
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{
-			/* Drop it like a hot potato. XXX - we should probably message here.. -- w00t */
+			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 

@@ -38,13 +38,13 @@ class cmd_sethost : public command_t
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in hostname");
+				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
 		if (len == 0)
 		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host too short", user->nick);
+			user->WriteServ("NOTICE %s :*** SETHOST: Host must be specified", user->nick);
 			return CMD_FAILURE;
 		}
 		if (len > 64)

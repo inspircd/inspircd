@@ -31,19 +31,23 @@ class cmd_setname : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		std::string line;
-		for (int i = 0; i < pcnt-1; i++)
+		if (!*parameters[0])
 		{
-			line = line + std::string(parameters[i]) + " ";
-		}
-		
-		line = line + std::string(parameters[pcnt-1]);
-		if (line.length() == 0)
-		{
-			user->WriteServ("NOTICE %s :*** GECOS too short", user->nick);
+			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick);
 			return CMD_FAILURE;
 		}
-		user->ChangeName(line.c_str());
+		
+		if (strlen(parameters[0]) > MAXGECOS)
+		{
+			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick);
+			return CMD_FAILURE;
+		}
+		
+		if (user->ChangeName(parameters[0]))
+		{
+			ServerInstance->WriteOpers("%s used SETNAME to change their GECOS to %s", user->nick, parameters[0]);
+			return CMD_SUCCESS;
+		}
 
 		return CMD_SUCCESS;
 	}

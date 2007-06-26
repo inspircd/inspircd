@@ -40,12 +40,19 @@ class cmd_chgident : public command_t
 
 		if (!*parameters[1])
 		{
-			user->WriteServ("NOTICE %s :*** CHGIDENT: Needs non-zero length ident", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident must be specified", user->nick);
 			return CMD_FAILURE;
 		}
-		if(!ServerInstance->IsIdent(parameters[1]))
+		
+		if (strlen(parameters[1]) > IDENTMAX)
 		{
-			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick);
+			return CMD_FAILURE;
+		}
+		
+		if (!ServerInstance->IsIdent(parameters[1]))
+		{
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Invalid characters in ident", user->nick);
 			return CMD_FAILURE;
 		}
 
