@@ -37,7 +37,11 @@ class cmd_chgname : public command_t
 			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
-
+		if (!*parameters[1])
+		{
+			user->WriteServ("NOTICE %s :*** GECOS is too short", user->nick);
+			return CMD_FAILURE;
+		}
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1]);

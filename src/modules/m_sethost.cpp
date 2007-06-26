@@ -42,6 +42,11 @@ class cmd_sethost : public command_t
 				return CMD_FAILURE;
 			}
 		}
+		if (len == 0)
+		{
+			user->WriteServ("NOTICE %s :*** SETHOST: Host too short", user->nick);
+			return CMD_FAILURE;
+		}
 		if (len > 64)
 		{
 			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick);

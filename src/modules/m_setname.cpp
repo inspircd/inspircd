@@ -36,7 +36,13 @@ class cmd_setname : public command_t
 		{
 			line = line + std::string(parameters[i]) + " ";
 		}
+		
 		line = line + std::string(parameters[pcnt-1]);
+		if (line.length() == 0)
+		{
+			user->WriteServ("NOTICE %s :*** GECOS too short", user->nick);
+			return CMD_FAILURE;
+		}
 		user->ChangeName(line.c_str());
 
 		return CMD_SUCCESS;

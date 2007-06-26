@@ -39,6 +39,11 @@ class cmd_setident : public command_t
 			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);
 			return CMD_FAILURE;
 		}
+		if (len == 0)
+		{
+			user->WriteServ("NOTICE %s :*** SETIDENT: Ident too short", user->nick);
+			return CMD_FAILURE;
+		}
 		if (len > IDENTMAX)
 		{
 			user->WriteServ("NOTICE %s :*** Ident is too long", user->nick);

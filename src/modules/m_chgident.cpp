@@ -38,6 +38,11 @@ class cmd_chgident : public command_t
 			return CMD_FAILURE;
 		}
 
+		if (!*parameters[1])
+		{
+			user->WriteServ("NOTICE %s :*** CHGIDENT: Needs non-zero length ident", user->nick);
+			return CMD_FAILURE;
+		}
 		if(!ServerInstance->IsIdent(parameters[1]))
 		{
 			user->WriteServ("NOTICE %s :*** Invalid characters in ident", user->nick);

@@ -43,6 +43,12 @@ class cmd_chghost : public command_t
 				return CMD_FAILURE;
 			}
 		}
+		if (!*parameters[0])
+		{
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host must be specified", user->nick);
+			return CMD_FAILURE;
+		}
+		
 		if ((parameters[1] - x) > 63)
 		{
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long",user->nick);
