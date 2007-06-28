@@ -1015,11 +1015,6 @@ void userrec::CheckClass()
 		userrec::QuitUser(ServerInstance, this, "Unauthorised connection");
 		return;
 	}
-	else if ((!a->GetPass().empty()) && (!this->haspassed))
-	{
-		userrec::QuitUser(ServerInstance, this, "Invalid password");
-		return;
-	}
 	else if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
 	{
 		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
@@ -1046,7 +1041,16 @@ void userrec::FullConnect()
 	 * Don't remove this! -- w00t
 	 */
 	this->CheckClass();
-
+	
+	/* Check the password, if one is required by the user's connect class.
+	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
+	 */
+	if ((!this->GetClass()->GetPass().empty()) && (!this->haspassed))
+	{
+		userrec::QuitUser(ServerInstance, this, "Invalid password");
+		return;
+	}
+	
 	if (!this->exempt)
 	{
 		GLine* r = ServerInstance->XLines->matches_gline(this);
