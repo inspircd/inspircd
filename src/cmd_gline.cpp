@@ -29,7 +29,8 @@ CmdResult cmd_gline::Handle (const char** parameters, int pcnt, userrec *user)
 {
 	if (pcnt >= 3)
 	{
-		if (ServerInstance->HostMatchesEveryone(parameters[0],user))
+		IdentHostPair ih = ServerInstance->XLines->IdentSplit(parameters[0]);
+		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
 		if (!strchr(parameters[0],'@'))
