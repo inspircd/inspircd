@@ -198,7 +198,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		/* Both lookups completed */
-		std::string result2 = "0::ffff:";
+		std::string result2("0::ffff:");
 		result2.append(result);
 		if (this->bound_user->GetIPString() == result || this->bound_user->GetIPString() == result2)
 		{
@@ -210,7 +210,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				{
 					/* Hostnames starting with : are not a good thing (tm) */
 					if (*(hostname.c_str()) == ':')
-						hostname = "0" + hostname;
+						hostname.insert(0, "0");
 
 					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
 					this->bound_user->dns_done = true;
@@ -1181,10 +1181,7 @@ bool userrec::ForceNickChange(const char* newnick)
 
 		if (this->registered == REG_ALL)
 		{
-			const char* pars[1];
-			pars[0] = newnick;
-			std::string cmd = "NICK";
-			return (ServerInstance->Parser->CallHandler(cmd, pars, 1, this) == CMD_SUCCESS);
+			return (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
 		}
 		return false;
 	}
@@ -1620,7 +1617,8 @@ void userrec::WriteWallOps(const std::string &text)
 	if (!IS_OPER(this) && IS_LOCAL(this))
 		return;
 
-	std::string wallop = "WALLOPS :" + text;
+	std::string wallop("WALLOPS :");
+	wallop.append(text);
 
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{

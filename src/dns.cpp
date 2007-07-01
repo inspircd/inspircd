@@ -756,7 +756,7 @@ DNSResult DNS::GetResult()
 				 * as the last parameter on the line with a value ":1".
 				 */
 				if (*formatted == ':')
-					resultstr = "0" + resultstr;
+					resultstr.insert(0, "0");
 			}
 			break;
 
