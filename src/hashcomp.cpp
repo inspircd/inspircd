@@ -290,18 +290,17 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
 	
 	const char *hex = "0123456789abcdef";
-
-	std::string buf;
-	buf.reserve(rawsz * 2);
+	static char hexbuf[MAXBUF];
 
 	size_t i, j;
 	for (i = 0, j = 0; j < rawsz; ++j)
 	{
-		buf[i++] = hex[raw[j] / 16];
-		buf[i++] = hex[raw[j] % 16];
+		hexbuf[i++] = hex[raw[j] / 16];
+		hexbuf[i++] = hex[raw[j] % 16];
 	}
+	hexbuf[i] = 0;
 
-	return buf;
+	return hexbuf;
 }
 
 CoreExport const char* irc::Spacify(const char* n)
