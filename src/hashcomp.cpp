@@ -292,7 +292,7 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	const char *hex = "0123456789abcdef";
 
 	std::string buf;
-	buf.reserve(rawsz * 2 + 1);
+	buf.reserve(rawsz * 2);
 
 	size_t i, j;
 	for (i = 0, j = 0; j < rawsz; ++j)
@@ -300,7 +300,6 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 		buf[i++] = hex[raw[j] / 16];
 		buf[i++] = hex[raw[j] % 16];
 	}
-	buf[i] = '\0';
 
 	return buf;
 }
