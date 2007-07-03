@@ -40,6 +40,8 @@
 #include "typedefs.h"
 #include "command_parse.h"
 #include "exitcodes.h"
+#include "wildcard.h"
+
 
 #ifdef WIN32
 
@@ -1150,6 +1152,93 @@ int InspIRCd::Run()
 
 int main(int argc, char** argv)
 {
+	struct timeval start, stop;
+	std::string str;
+	std::string pattern;
+	char *strp, *patternp;
+
+	if (argc < 3)
+	{
+		printf("not enough args: pattern string\n");
+		exit(0);
+	}
+
+	pattern = argv[1];
+	str = argv[2];
+
+	patternp = argv[1];
+	strp = argv[2];
+
+	printf("result of std::string.find: ");
+
+	if (str.find(pattern) != string::npos)
+	{
+		printf("true\n");
+	}
+	else
+	{
+		printf("false\n");
+	}
+
+	printf("result of match(): ");
+
+	if (match(strp, patternp))
+	{
+		printf("true\n");
+	}
+	else
+	{
+		printf("false\n");
+	}
+
+
+	printf("result of strstr(): ");
+
+	if (strstr(strp, patternp))
+	{
+		printf("true\n");
+	}
+	else
+	{
+		printf("false\n");
+	}
+
+	gettimeofday(&start, NULL);
+	for (int i = 0; i < 30000; i++)
+	{
+		str.find(pattern);	
+	}
+	gettimeofday(&stop, NULL);
+
+	printf("std::string.find: %lds and %ldus\n", stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec);
+
+
+	gettimeofday(&start, NULL);
+	for (int i = 0; i < 30000; i++)
+	{
+		match(strp, patternp);
+	}
+	gettimeofday(&stop, NULL);
+
+	printf("match(): %lds and %ldus\n", stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec);
+
+
+
+	gettimeofday(&start, NULL);
+	for (int i = 0; i < 30000; i++)
+	{
+		strstr(strp, patternp);
+	}
+	gettimeofday(&stop, NULL);
+
+	printf("strstr(): %lds and %ldus\n", stop.tv_sec - start.tv_sec, stop.tv_usec - start.tv_usec);
+
+	exit(0);
+
+
+
+
+
 	SI = new InspIRCd(argc, argv);
 	SI->Run();
 	delete SI;

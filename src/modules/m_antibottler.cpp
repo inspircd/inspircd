@@ -83,7 +83,7 @@ class ModuleAntiBottler : public Module
 			if (!not_bottler)
 			{
 				std::string strgecos = std::string(gecos) + "[Possible bottler, ident: " + std::string(ident) + "]";
-				const char* modified[3];
+				const char* modified[4];
 				modified[0] = "bottler";
 				modified[1] = local;
 				modified[2] = remote;
