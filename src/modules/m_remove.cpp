@@ -287,4 +287,4 @@ class ModuleRemove : public Module
 	
 };
 
-MODULE_INIT(ModuleRemove);
+MODULE_INIT(ModuleRemove)

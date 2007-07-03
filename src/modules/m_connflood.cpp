@@ -117,4 +117,4 @@ public:
 
 };
 
-MODULE_INIT(ModuleConnFlood);
+MODULE_INIT(ModuleConnFlood)

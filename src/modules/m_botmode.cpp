@@ -92,4 +92,4 @@ class ModuleBotMode : public Module
 };
 
 
-MODULE_INIT(ModuleBotMode);
+MODULE_INIT(ModuleBotMode)

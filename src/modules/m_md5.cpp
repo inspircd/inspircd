@@ -319,4 +319,4 @@ class ModuleMD5 : public Module
 	}
 };
 
-MODULE_INIT(ModuleMD5);
+MODULE_INIT(ModuleMD5)

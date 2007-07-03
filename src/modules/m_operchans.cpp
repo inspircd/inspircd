@@ -94,4 +94,4 @@ class ModuleOperChans : public Module
 	}
 };
 
-MODULE_INIT(ModuleOperChans);
+MODULE_INIT(ModuleOperChans)

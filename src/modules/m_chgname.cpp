@@ -86,4 +86,4 @@ public:
 	
 };
 
-MODULE_INIT(ModuleChgName);
+MODULE_INIT(ModuleChgName)

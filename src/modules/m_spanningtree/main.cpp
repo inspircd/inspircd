@@ -1387,5 +1387,5 @@ Priority ModuleSpanningTree::Prioritize()
 	return PRIORITY_LAST;
 }
 
-MODULE_INIT(ModuleSpanningTree);
+MODULE_INIT(ModuleSpanningTree)
 

@@ -77,4 +77,4 @@ class ModuleSetName : public Module
 	
 };
 
-MODULE_INIT(ModuleSetName);
+MODULE_INIT(ModuleSetName)

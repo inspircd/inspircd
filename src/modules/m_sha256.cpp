@@ -292,5 +292,5 @@ class ModuleSHA256 : public Module
 	}
 };
 
-MODULE_INIT(ModuleSHA256);
+MODULE_INIT(ModuleSHA256)
 

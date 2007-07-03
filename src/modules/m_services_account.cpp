@@ -329,4 +329,4 @@ class ModuleServicesAccount : public Module
 	}
 };
 
-MODULE_INIT(ModuleServicesAccount);
+MODULE_INIT(ModuleServicesAccount)

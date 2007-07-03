@@ -102,4 +102,4 @@ class ModuleNoKicks : public Module
 };
 
 
-MODULE_INIT(ModuleNoKicks);
+MODULE_INIT(ModuleNoKicks)

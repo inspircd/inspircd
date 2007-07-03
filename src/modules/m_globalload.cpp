@@ -138,4 +138,4 @@ class ModuleGlobalLoad : public Module
 	}
 };
 
-MODULE_INIT(ModuleGlobalLoad);
+MODULE_INIT(ModuleGlobalLoad)

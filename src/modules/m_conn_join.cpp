@@ -93,4 +93,4 @@ class ModuleConnJoin : public Module
 };
 
 
-MODULE_INIT(ModuleConnJoin);
+MODULE_INIT(ModuleConnJoin)

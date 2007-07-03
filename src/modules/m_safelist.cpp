@@ -265,4 +265,4 @@ class ModuleSafeList : public Module
 
 };
 
-MODULE_INIT(ModuleSafeList);
+MODULE_INIT(ModuleSafeList)

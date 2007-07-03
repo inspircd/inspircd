@@ -88,5 +88,5 @@ public:
 	
 };
 
-MODULE_INIT(ModuleChgIdent);
+MODULE_INIT(ModuleChgIdent)
 

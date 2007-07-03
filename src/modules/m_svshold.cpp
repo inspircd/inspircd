@@ -279,4 +279,4 @@ class ModuleSVSHold : public Module
 	}
 };
 
-MODULE_INIT(ModuleSVSHold);
+MODULE_INIT(ModuleSVSHold)

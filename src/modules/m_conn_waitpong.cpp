@@ -145,4 +145,4 @@ class ModuleWaitPong : public Module
 	
 };
 
-MODULE_INIT(ModuleWaitPong);
+MODULE_INIT(ModuleWaitPong)

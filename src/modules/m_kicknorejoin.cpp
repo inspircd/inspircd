@@ -221,4 +221,4 @@ public:
 };
 
 
-MODULE_INIT(ModuleKickNoRejoin);
+MODULE_INIT(ModuleKickNoRejoin)

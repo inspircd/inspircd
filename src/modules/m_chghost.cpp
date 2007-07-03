@@ -117,4 +117,4 @@ class ModuleChgHost : public Module
 	
 };
 
-MODULE_INIT(ModuleChgHost);
+MODULE_INIT(ModuleChgHost)

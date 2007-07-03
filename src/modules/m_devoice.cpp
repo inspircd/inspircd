@@ -78,4 +78,4 @@ class ModuleDeVoice : public Module
 	}
 };
 
-MODULE_INIT(ModuleDeVoice);
+MODULE_INIT(ModuleDeVoice)

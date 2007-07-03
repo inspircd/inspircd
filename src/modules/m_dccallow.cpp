@@ -486,4 +486,4 @@ class ModuleDCCAllow : public Module
 	}
 };
 
-MODULE_INIT(ModuleDCCAllow);
+MODULE_INIT(ModuleDCCAllow)

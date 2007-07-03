@@ -94,4 +94,4 @@ class ModuleSanick : public Module
 	
 };
 
-MODULE_INIT(ModuleSanick);
+MODULE_INIT(ModuleSanick)

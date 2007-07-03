@@ -417,4 +417,4 @@ class ModuleHttpServer : public Module
 	}
 };
 
-MODULE_INIT(ModuleHttpServer);
+MODULE_INIT(ModuleHttpServer)

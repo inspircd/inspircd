@@ -185,4 +185,4 @@ class ModuleCheck : public Module
 	
 };
 
-MODULE_INIT(ModuleCheck);
+MODULE_INIT(ModuleCheck)

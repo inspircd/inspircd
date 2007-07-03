@@ -102,4 +102,4 @@ class ModuleTestCommand : public Module
 	}
 };
 
-MODULE_INIT(ModuleTestCommand);
+MODULE_INIT(ModuleTestCommand)

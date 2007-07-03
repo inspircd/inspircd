@@ -312,4 +312,4 @@ class ModuleCloaking : public Module
 	}
 };
 
-MODULE_INIT(ModuleCloaking);
+MODULE_INIT(ModuleCloaking)

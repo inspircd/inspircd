@@ -528,4 +528,4 @@ class ModuleChanProtect : public Module
 
 };
 
-MODULE_INIT(ModuleChanProtect);
+MODULE_INIT(ModuleChanProtect)

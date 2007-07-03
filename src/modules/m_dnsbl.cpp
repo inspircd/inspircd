@@ -350,4 +350,4 @@ class ModuleDNSBL : public Module
 	}
 };
 
-MODULE_INIT(ModuleDNSBL);
+MODULE_INIT(ModuleDNSBL)

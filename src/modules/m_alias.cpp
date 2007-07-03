@@ -269,5 +269,4 @@ class ModuleAlias : public Module
  	}
 };
 
-MODULE_INIT(ModuleAlias);
-
+MODULE_INIT(ModuleAlias)

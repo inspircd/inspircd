@@ -97,4 +97,4 @@ class ModuleClones : public Module
 	
 };
 
-MODULE_INIT(ModuleClones);
+MODULE_INIT(ModuleClones)

@@ -274,4 +274,4 @@ class ModuleInvisible : public Module
 
 };
 
-MODULE_INIT(ModuleInvisible);
+MODULE_INIT(ModuleInvisible)

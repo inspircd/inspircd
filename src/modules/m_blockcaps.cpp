@@ -140,4 +140,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleBlockCAPS);
+MODULE_INIT(ModuleBlockCAPS)

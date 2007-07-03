@@ -94,5 +94,5 @@ class ModuleFoobar : public Module
 };
 
 
-MODULE_INIT(ModuleFoobar);
+MODULE_INIT(ModuleFoobar)
 

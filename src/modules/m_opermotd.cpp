@@ -113,4 +113,4 @@ class ModuleOpermotd : public Module
 	}
 };
 
-MODULE_INIT(ModuleOpermotd);
+MODULE_INIT(ModuleOpermotd)

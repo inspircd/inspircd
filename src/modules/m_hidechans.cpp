@@ -92,4 +92,4 @@ class ModuleHideChans : public Module
 };
 
 
-MODULE_INIT(ModuleHideChans);
+MODULE_INIT(ModuleHideChans)

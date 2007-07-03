@@ -111,4 +111,4 @@ class ModuleSajoin : public Module
 	
 };
 
-MODULE_INIT(ModuleSajoin);
+MODULE_INIT(ModuleSajoin)

@@ -58,4 +58,4 @@ class ModuleRegOnlyCreate : public Module
 	}
 };
 
-MODULE_INIT(ModuleRegOnlyCreate);
+MODULE_INIT(ModuleRegOnlyCreate)

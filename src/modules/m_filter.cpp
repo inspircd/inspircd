@@ -132,4 +132,4 @@ class ModuleFilter : public FilterBase
 };
 
 
-MODULE_INIT(ModuleFilter);
+MODULE_INIT(ModuleFilter)

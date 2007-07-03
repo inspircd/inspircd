@@ -182,4 +182,4 @@ class ModuleStripColor : public Module
 	
 };
 
-MODULE_INIT(ModuleStripColor);
+MODULE_INIT(ModuleStripColor)

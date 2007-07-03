@@ -152,4 +152,4 @@ class ModuleChanFilter : public Module
 	}
 };
 
-MODULE_INIT(ModuleChanFilter);
+MODULE_INIT(ModuleChanFilter)

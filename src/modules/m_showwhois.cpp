@@ -106,4 +106,4 @@ class ModuleShowwhois : public Module
 
 };
 
-MODULE_INIT(ModuleShowwhois);
+MODULE_INIT(ModuleShowwhois)

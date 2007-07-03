@@ -73,4 +73,4 @@ class ModuleGlobops : public Module
 	}
 };
 
-MODULE_INIT(ModuleGlobops);
+MODULE_INIT(ModuleGlobops)

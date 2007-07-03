@@ -166,5 +166,5 @@ class ModuleXMLSocket : public Module
 
 };
 
-MODULE_INIT(ModuleXMLSocket);
+MODULE_INIT(ModuleXMLSocket)
 

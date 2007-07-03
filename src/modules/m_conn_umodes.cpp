@@ -101,4 +101,4 @@ class ModuleModesOnConnect : public Module
 	}
 };
 
-MODULE_INIT(ModuleModesOnConnect);
+MODULE_INIT(ModuleModesOnConnect)

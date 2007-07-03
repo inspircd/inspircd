@@ -80,4 +80,4 @@ class ModuleSetIdent : public Module
 };
 
 
-MODULE_INIT(ModuleSetIdent);
+MODULE_INIT(ModuleSetIdent)

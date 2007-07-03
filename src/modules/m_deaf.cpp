@@ -132,4 +132,4 @@ class ModuleDeaf : public Module
 
 };
 
-MODULE_INIT(ModuleDeaf);
+MODULE_INIT(ModuleDeaf)

@@ -128,4 +128,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleLockserv);
+MODULE_INIT(ModuleLockserv)

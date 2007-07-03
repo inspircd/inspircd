@@ -79,4 +79,4 @@ class ModuleSaquit : public Module
 	
 };
 
-MODULE_INIT(ModuleSaquit);
+MODULE_INIT(ModuleSaquit)

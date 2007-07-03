@@ -91,5 +91,5 @@ class ModuleVHost : public Module
 	
 };
 
-MODULE_INIT(ModuleVHost);
+MODULE_INIT(ModuleVHost)
 

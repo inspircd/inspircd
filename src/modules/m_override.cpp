@@ -291,4 +291,4 @@ class ModuleOverride : public Module
 	}
 };
 
-MODULE_INIT(ModuleOverride);
+MODULE_INIT(ModuleOverride)

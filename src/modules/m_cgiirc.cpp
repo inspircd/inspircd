@@ -496,4 +496,4 @@ public:
 	
 };
 
-MODULE_INIT(ModuleCgiIRC);
+MODULE_INIT(ModuleCgiIRC)

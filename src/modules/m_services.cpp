@@ -307,4 +307,4 @@ class ModuleServices : public Module
 };
 
 
-MODULE_INIT(ModuleServices);
+MODULE_INIT(ModuleServices)

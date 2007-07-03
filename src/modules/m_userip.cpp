@@ -82,5 +82,5 @@ class ModuleUserIP : public Module
 	
 };
 
-MODULE_INIT(ModuleUserIP);
+MODULE_INIT(ModuleUserIP)
 

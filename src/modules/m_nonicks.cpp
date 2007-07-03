@@ -99,4 +99,4 @@ class ModuleNoNickChange : public Module
 	}
 };
 
-MODULE_INIT(ModuleNoNickChange);
+MODULE_INIT(ModuleNoNickChange)

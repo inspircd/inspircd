@@ -95,4 +95,4 @@ class ModuleRestrictBanned : public Module
 	}
 };
 
-MODULE_INIT(ModuleRestrictBanned);
+MODULE_INIT(ModuleRestrictBanned)

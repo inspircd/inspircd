@@ -282,4 +282,4 @@ class ModuleJoinFlood : public Module
 	}
 };
 
-MODULE_INIT(ModuleJoinFlood);
+MODULE_INIT(ModuleJoinFlood)

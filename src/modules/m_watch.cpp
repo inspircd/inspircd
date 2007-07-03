@@ -468,5 +468,5 @@ class Modulewatch : public Module
 	}
 };
 
-MODULE_INIT(Modulewatch);
+MODULE_INIT(Modulewatch)
 

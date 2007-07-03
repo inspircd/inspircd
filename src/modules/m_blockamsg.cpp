@@ -188,4 +188,4 @@ class ModuleBlockAmsg : public Module
 };
 
 
-MODULE_INIT(ModuleBlockAmsg);
+MODULE_INIT(ModuleBlockAmsg)

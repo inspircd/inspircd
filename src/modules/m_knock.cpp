@@ -126,4 +126,4 @@ class ModuleKnock : public Module
 	}
 };
 
-MODULE_INIT(ModuleKnock);
+MODULE_INIT(ModuleKnock)

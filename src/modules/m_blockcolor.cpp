@@ -115,4 +115,4 @@ class ModuleBlockColour : public Module
 	}
 };
 
-MODULE_INIT(ModuleBlockColour);
+MODULE_INIT(ModuleBlockColour)

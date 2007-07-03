@@ -124,4 +124,4 @@ class ModuleNamesX : public Module
  	}
 };
 
-MODULE_INIT(ModuleNamesX);
+MODULE_INIT(ModuleNamesX)

@@ -105,4 +105,4 @@ class ModuleSetHost : public Module
 	
 };
 
-MODULE_INIT(ModuleSetHost);
+MODULE_INIT(ModuleSetHost)

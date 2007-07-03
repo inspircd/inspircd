@@ -91,5 +91,5 @@ class ModuleTLine : public Module
 	}
 };
 
-MODULE_INIT(ModuleTLine);
+MODULE_INIT(ModuleTLine)
 

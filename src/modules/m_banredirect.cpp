@@ -340,4 +340,4 @@ class ModuleBanRedirect : public Module
 };
 
 
-MODULE_INIT(ModuleBanRedirect);
+MODULE_INIT(ModuleBanRedirect)

@@ -135,4 +135,4 @@ class ModuleRandQuote : public Module
 	}
 };
 
-MODULE_INIT(ModuleRandQuote);
+MODULE_INIT(ModuleRandQuote)

@@ -91,4 +91,4 @@ class ModuleHideOper : public Module
 };
 
 
-MODULE_INIT(ModuleHideOper);
+MODULE_INIT(ModuleHideOper)

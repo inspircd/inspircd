@@ -71,4 +71,4 @@ class ModuleSetIdle : public Module
 	}
 };
 
-MODULE_INIT(ModuleSetIdle);
+MODULE_INIT(ModuleSetIdle)

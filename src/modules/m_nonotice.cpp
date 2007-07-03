@@ -100,4 +100,4 @@ class ModuleNoNotice : public Module
 	}
 };
 
-MODULE_INIT(ModuleNoNotice);
+MODULE_INIT(ModuleNoNotice)

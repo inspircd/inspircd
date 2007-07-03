@@ -80,4 +80,4 @@ class Modulealltime : public Module
 	
 };
 
-MODULE_INIT(Modulealltime);
+MODULE_INIT(Modulealltime)

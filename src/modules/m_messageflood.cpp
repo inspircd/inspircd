@@ -301,4 +301,4 @@ class ModuleMsgFlood : public Module
 	}
 };
 
-MODULE_INIT(ModuleMsgFlood);
+MODULE_INIT(ModuleMsgFlood)

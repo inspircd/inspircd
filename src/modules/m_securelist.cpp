@@ -94,4 +94,4 @@ class ModuleSecureList : public Module
 
 };
  
-MODULE_INIT(ModuleSecureList);
+MODULE_INIT(ModuleSecureList)

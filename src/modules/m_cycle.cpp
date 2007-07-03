@@ -96,4 +96,4 @@ class ModuleCycle : public Module
 	
 };
 
-MODULE_INIT(ModuleCycle);
+MODULE_INIT(ModuleCycle)

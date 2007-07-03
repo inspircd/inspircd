@@ -52,4 +52,4 @@ class ModuleSeeNicks : public Module
 	}
 };
 
-MODULE_INIT(ModuleSeeNicks);
+MODULE_INIT(ModuleSeeNicks)

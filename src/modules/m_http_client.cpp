@@ -343,4 +343,4 @@ void HTTPSocket::OnClose()
 	delete response;
 }
 
-MODULE_INIT(ModuleHTTPClient);
+MODULE_INIT(ModuleHTTPClient)

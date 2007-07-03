@@ -82,4 +82,4 @@ class ModuleRestrictChans : public Module
 	}
 };
 
-MODULE_INIT(ModuleRestrictChans);
+MODULE_INIT(ModuleRestrictChans)

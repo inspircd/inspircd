@@ -188,4 +188,4 @@ class ModuleHelpop : public Module
 		}
 };
 
-MODULE_INIT(ModuleHelpop);
+MODULE_INIT(ModuleHelpop)

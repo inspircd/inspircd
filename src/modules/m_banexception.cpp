@@ -150,4 +150,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleBanException);
+MODULE_INIT(ModuleBanException)

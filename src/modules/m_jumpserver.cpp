@@ -161,4 +161,4 @@ class ModuleJumpServer : public Module
 	
 };
 
-MODULE_INIT(ModuleJumpServer);
+MODULE_INIT(ModuleJumpServer)

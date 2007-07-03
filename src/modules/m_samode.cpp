@@ -95,4 +95,4 @@ class ModuleSaMode : public Module
 	}
 };
 
-MODULE_INIT(ModuleSaMode);
+MODULE_INIT(ModuleSaMode)

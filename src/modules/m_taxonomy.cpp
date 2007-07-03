@@ -95,5 +95,5 @@ class ModuleTaxonomy : public Module
 	}
 };
 
-MODULE_INIT(ModuleTaxonomy);
+MODULE_INIT(ModuleTaxonomy)
 

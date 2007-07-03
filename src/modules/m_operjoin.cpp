@@ -87,4 +87,4 @@ class ModuleOperjoin : public Module
 
 };
 
-MODULE_INIT(ModuleOperjoin);
+MODULE_INIT(ModuleOperjoin)

@@ -145,4 +145,4 @@ class ModuleHostChange : public Module
 	}
 };
 
-MODULE_INIT(ModuleHostChange);
+MODULE_INIT(ModuleHostChange)

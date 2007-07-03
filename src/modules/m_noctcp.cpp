@@ -104,4 +104,4 @@ class ModuleNoCTCP : public Module
 	}
 };
 
-MODULE_INIT(ModuleNoCTCP);
+MODULE_INIT(ModuleNoCTCP)

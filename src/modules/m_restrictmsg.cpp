@@ -72,4 +72,4 @@ class ModuleRestrictMsg : public Module
 	}
 };
 
-MODULE_INIT(ModuleRestrictMsg);
+MODULE_INIT(ModuleRestrictMsg)

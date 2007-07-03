@@ -77,4 +77,4 @@ class ModuleDenyChannels : public Module
 	}
 };
 
-MODULE_INIT(ModuleDenyChannels);
+MODULE_INIT(ModuleDenyChannels)

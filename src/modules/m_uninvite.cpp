@@ -103,5 +103,5 @@ class ModuleUninvite : public Module
 	}
 };
 
-MODULE_INIT(ModuleUninvite);
+MODULE_INIT(ModuleUninvite)
 

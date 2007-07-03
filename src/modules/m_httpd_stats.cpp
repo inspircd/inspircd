@@ -238,4 +238,4 @@ class ModuleHttpStats : public Module
 	}
 };
 
-MODULE_INIT(ModuleHttpStats);
+MODULE_INIT(ModuleHttpStats)

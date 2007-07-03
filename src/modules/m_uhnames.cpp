@@ -94,5 +94,5 @@ class ModuleUHNames : public Module
  	}
 };
 
-MODULE_INIT(ModuleUHNames);
+MODULE_INIT(ModuleUHNames)
 

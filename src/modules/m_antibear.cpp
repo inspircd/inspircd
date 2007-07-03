@@ -75,4 +75,4 @@ class ModuleAntiBear : public Module
 	}
 };
 
-MODULE_INIT(ModuleAntiBear);
+MODULE_INIT(ModuleAntiBear)

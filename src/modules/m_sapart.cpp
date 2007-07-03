@@ -109,5 +109,5 @@ class ModuleSapart : public Module
 	
 };
 
-MODULE_INIT(ModuleSapart);
+MODULE_INIT(ModuleSapart)
 

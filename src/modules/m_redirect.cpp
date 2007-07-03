@@ -157,4 +157,4 @@ class ModuleRedirect : public Module
 	}
 };
 
-MODULE_INIT(ModuleRedirect);
+MODULE_INIT(ModuleRedirect)

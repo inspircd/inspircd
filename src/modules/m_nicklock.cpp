@@ -156,4 +156,4 @@ class ModuleNickLock : public Module
 	}
 };
 
-MODULE_INIT(ModuleNickLock);
+MODULE_INIT(ModuleNickLock)

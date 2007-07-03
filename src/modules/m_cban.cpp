@@ -247,5 +247,5 @@ class ModuleCBan : public Module
 	}
 };
 
-MODULE_INIT(ModuleCBan);
+MODULE_INIT(ModuleCBan)
 

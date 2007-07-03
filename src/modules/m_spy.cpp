@@ -160,4 +160,4 @@ class ModuleSpy : public Module
 	}
 };
 
-MODULE_INIT(ModuleSpy);
+MODULE_INIT(ModuleSpy)

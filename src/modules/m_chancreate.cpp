@@ -52,4 +52,4 @@ class ModuleChanCreate : public Module
 	}
 };
 
-MODULE_INIT(ModuleChanCreate);
+MODULE_INIT(ModuleChanCreate)

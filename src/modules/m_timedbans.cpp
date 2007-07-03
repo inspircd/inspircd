@@ -200,5 +200,5 @@ class ModuleTimedBans : public Module
 	}
 };
 
-MODULE_INIT(ModuleTimedBans);
+MODULE_INIT(ModuleTimedBans)
 

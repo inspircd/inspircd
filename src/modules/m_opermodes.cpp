@@ -106,4 +106,4 @@ class ModuleModesOnOper : public Module
 	}
 };
 
-MODULE_INIT(ModuleModesOnOper);
+MODULE_INIT(ModuleModesOnOper)

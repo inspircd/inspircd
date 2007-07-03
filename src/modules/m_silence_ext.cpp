@@ -369,4 +369,4 @@ class ModuleSilence : public Module
 	}
 };
 
-MODULE_INIT(ModuleSilence);
+MODULE_INIT(ModuleSilence)

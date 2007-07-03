@@ -96,4 +96,4 @@ class ModuleAntiBottler : public Module
  	}
 };
 
-MODULE_INIT(ModuleAntiBottler);
+MODULE_INIT(ModuleAntiBottler)

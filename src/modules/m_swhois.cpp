@@ -255,4 +255,4 @@ class ModuleSWhois : public Module
 	}
 };
 
-MODULE_INIT(ModuleSWhois);
+MODULE_INIT(ModuleSWhois)

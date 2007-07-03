@@ -160,4 +160,4 @@ class ModuleOperHash : public Module
 	}
 };
 
-MODULE_INIT(ModuleOperHash);
+MODULE_INIT(ModuleOperHash)

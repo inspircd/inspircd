@@ -188,4 +188,4 @@ class ModuleAuditorium : public Module
 	}
 };
 
-MODULE_INIT(ModuleAuditorium);
+MODULE_INIT(ModuleAuditorium)

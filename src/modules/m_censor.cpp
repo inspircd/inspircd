@@ -193,4 +193,4 @@ class ModuleCensor : public Module
 	
 };
 
-MODULE_INIT(ModuleCensor);
+MODULE_INIT(ModuleCensor)

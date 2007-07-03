@@ -81,4 +81,4 @@ class ModuleSSLDummy : public Module
 	}
 };
 
-MODULE_INIT(ModuleSSLDummy);
+MODULE_INIT(ModuleSSLDummy)

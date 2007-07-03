@@ -72,4 +72,4 @@ class ModuleOperLog : public Module
 };
  
  
-MODULE_INIT(ModuleOperLog);
+MODULE_INIT(ModuleOperLog)

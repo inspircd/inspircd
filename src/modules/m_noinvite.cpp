@@ -85,4 +85,4 @@ class ModuleNoInvite : public Module
 	}
 };
 
-MODULE_INIT(ModuleNoInvite);
+MODULE_INIT(ModuleNoInvite)
