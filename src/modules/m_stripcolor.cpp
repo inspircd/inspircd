@@ -115,7 +115,7 @@ class ModuleStripColor : public Module
 	virtual void ReplaceLine(std::string &sentence)
 	{
 		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-		int seq;
+		int seq = 0;
 		std::string::iterator i,safei;
  		for (i = sentence.begin(); i != sentence.end(); ++i)
 		{
