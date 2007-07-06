@@ -506,6 +506,7 @@ class ModuleSSLGnuTLS : public Module
 
 		if (!session->sess)
 		{
+			ServerInstance->Log(DEBUG,"No session");
 			CloseSession(session);
 			return 1;
 		}
@@ -514,9 +515,10 @@ class ModuleSSLGnuTLS : public Module
 		sendbuffer = session->outbuf.c_str();
 		count = session->outbuf.size();
 
-		if(session->status == ISSL_HANDSHAKING_WRITE)
+		if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			// The handshake isn't finished, try to finish it.
+			ServerInstance->Log(DEBUG,"Finishing handshake");
 			Handshake(session);
 			errno = EAGAIN;
 			return -1;
@@ -524,11 +526,13 @@ class ModuleSSLGnuTLS : public Module
 
 		int ret = 0;
 
-		if(session->status == ISSL_HANDSHAKEN)
+		if (session->status == ISSL_HANDSHAKEN)
 		{
+			ServerInstance->Log(DEBUG,"Send record");
 			ret = gnutls_record_send(session->sess, sendbuffer, count);
+			ServerInstance->Log(DEBUG,"Return: %d", ret);
 
-			if(ret == 0)
+			if (ret == 0)
 			{
 				CloseSession(session);
 			}
@@ -536,16 +540,19 @@ class ModuleSSLGnuTLS : public Module
 			{
 				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
 				{
+					ServerInstance->Log(DEBUG,"Not egain or interrupt, close session");
 					CloseSession(session);
 				}
 				else
 				{
+					ServerInstance->Log(DEBUG,"Again please");
 					errno = EAGAIN;
 					return -1;
 				}
 			}
 			else
 			{
+				ServerInstance->Log(DEBUG,"Trim buffer");
 				session->outbuf = session->outbuf.substr(ret);
 			}
 		}

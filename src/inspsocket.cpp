@@ -578,8 +578,10 @@ bool InspSocket::Poll()
 #else
 			this->SetState(I_CONNECTED);
 #endif
+			Instance->Log(DEBUG,"Inspsocket I_CONNECTING state");
 			if (Instance->Config->GetIOHook(this))
 			{
+				Instance->Log(DEBUG,"Hook for raw connect");
 				try
 				{
 					Instance->Config->GetIOHook(this)->OnRawSocketConnect(this->fd);

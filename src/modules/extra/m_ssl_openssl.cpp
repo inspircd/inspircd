@@ -420,6 +420,7 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketConnect(int fd)
 	{
+		ServerInstance->Log(DEBUG,"OnRawSocketConnect connecting");
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
@@ -439,6 +440,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		Handshake(session);
+		ServerInstance->Log(DEBUG,"Exiting OnRawSocketConnect");
 	}
 
 	virtual void OnRawSocketClose(int fd)
@@ -460,8 +462,11 @@ class ModuleSSLOpenSSL : public Module
 	{
 		issl_session* session = &sessions[fd];
 
+		ServerInstance->Log(DEBUG,"OnRawSocketRead");
+
 		if (!session->sess)
 		{
+			ServerInstance->Log(DEBUG,"OnRawSocketRead has no session");
 			readresult = 0;
 			CloseSession(session);
 			return 1;
@@ -471,9 +476,11 @@ class ModuleSSLOpenSSL : public Module
 		{
 			if (session->rstat == ISSL_READ || session->wstat == ISSL_READ)
 			{
+				ServerInstance->Log(DEBUG,"Resume handshake in read");
 				// The handshake isn't finished and it wants to read, try to finish it.
 				if (!Handshake(session))
 				{
+					ServerInstance->Log(DEBUG,"Cant resume handshake in read");
 					// Couldn't resume handshake.
 					return -1;
 				}
@@ -538,6 +545,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!session->sess)
 		{
+			ServerInstance->Log(DEBUG,"Close session missing sess");
 			CloseSession(session);
 			return -1;
 		}
@@ -548,16 +556,25 @@ class ModuleSSLOpenSSL : public Module
 		{
 			// The handshake isn't finished, try to finish it.
 			if (session->rstat == ISSL_WRITE || session->wstat == ISSL_WRITE)
+			{
+				ServerInstance->Log(DEBUG,"Handshake resume");
 				Handshake(session);
+			}
 		}
 
 		if (session->status == ISSL_OPEN)
 		{
 			if (session->rstat == ISSL_WRITE)
+			{
+				ServerInstance->Log(DEBUG,"DoRead");
 				DoRead(session);
+			}
 
 			if (session->wstat == ISSL_WRITE)
+			{
+				ServerInstance->Log(DEBUG,"DoWrite");
 				return DoWrite(session);
+			}
 		}
 
 		return 1;
@@ -572,6 +589,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (ret == 0)
 		{
+			ServerInstance->Log(DEBUG,"Oops, got 0 from SSL_write");
 			CloseSession(session);
 			return 0;
 		}
@@ -591,6 +609,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else
 			{
+				ServerInstance->Log(DEBUG,"Close due to returned -1 in SSL_Write");
 				CloseSession(session);
 				return 0;
 			}
@@ -606,12 +625,15 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Is this right? Not sure if the unencrypted data is garaunteed to be the same length.
 		// Read into the inbuffer, offset from the beginning by the amount of data we have that insp hasn't taken yet.
+		
+		ServerInstance->Log(DEBUG,"DoRead");
 
 		int ret = SSL_read(session->sess, session->inbuf + session->inbufoffset, inbufsize - session->inbufoffset);
 
 		if (ret == 0)
 		{
 			// Client closed connection.
+			ServerInstance->Log(DEBUG,"Oops, got 0 from SSL_read");
 			CloseSession(session);
 			return 0;
 		}
@@ -622,15 +644,18 @@ class ModuleSSLOpenSSL : public Module
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				session->rstat = ISSL_READ;
+				ServerInstance->Log(DEBUG,"Setting want_read");
 				return -1;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->rstat = ISSL_WRITE;
+				ServerInstance->Log(DEBUG,"Setting want_write");
 				return -1;
 			}
 			else
 			{
+				ServerInstance->Log(DEBUG,"Closed due to returned -1 in SSL_Read");
 				CloseSession(session);
 				return 0;
 			}
@@ -691,10 +716,14 @@ class ModuleSSLOpenSSL : public Module
 
 	bool Handshake(issl_session* session)
 	{
+		ServerInstance->Log(DEBUG,"Handshake");
 		int ret;
 
 		if (session->outbound)
+		{
+			ServerInstance->Log(DEBUG,"SSL_connect");
 			ret = SSL_connect(session->sess);
+		}
 		else
 			ret = SSL_accept(session->sess);
 
@@ -704,17 +733,22 @@ class ModuleSSLOpenSSL : public Module
 
 			if (err == SSL_ERROR_WANT_READ)
 			{
+				ServerInstance->Log(DEBUG,"Want read, handshaking");
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
+				return true;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
+				ServerInstance->Log(DEBUG,"Want write, handshaking");
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
+				return true;
 			}
 			else
 			{
+				ServerInstance->Log(DEBUG,"Handshake failed");
 				CloseSession(session);
 			}
 
@@ -739,6 +773,9 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (ret == 0)
 		{
+			int ssl_err = SSL_get_error(session->sess, ret);
+			char buf[1024];
+			ServerInstance->Log(DEBUG,"Handshake fail 2: %d: %s", ssl_err, ERR_error_string(ssl_err,buf));
 			CloseSession(session);
 			return true;
 		}
@@ -771,6 +808,9 @@ class ModuleSSLOpenSSL : public Module
 	void MakePollWrite(issl_session* session)
 	{
 		OnRawSocketWrite(session->fd, NULL, 0);
+		//EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
+		//if (eh)
+		//	ServerInstance->SE->WantWrite(eh);
 	}
 
 	void CloseSession(issl_session* session)
