@@ -449,28 +449,11 @@ bool InspSocket::FlushWriteBuffer()
 			{
 				try
 				{
-					int result = Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
-					if (result > 0)
-					{
-						if ((unsigned int)result >= outbuffer[0].length())
-						{
-							outbuffer.pop_front();
-						}
-						else
-						{
-							std::string temp = outbuffer[0].substr(result);
-							outbuffer[0] = temp;
-							errno = EAGAIN;
-						}
-					}
-					else if (((result == -1) && (errno != EAGAIN)) || (result == 0))
-					{
-						this->OnError(I_ERR_WRITE);
-						this->state = I_ERROR;
-						this->Instance->SE->DelFd(this);
-						this->Close();
-						return true;
-					}
+					/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
+					 * implement their own buffering mechanisms
+					 */
+					Instance->Config->GetIOHook(this)->OnRawSocketWrite(this->fd, outbuffer[0].c_str(), outbuffer[0].length());
+					outbuffer.pop_front();
 				}
 				catch (CoreException& modexcept)
 				{

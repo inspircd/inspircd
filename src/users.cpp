@@ -1375,6 +1375,9 @@ void userrec::Write(std::string text)
 	{
 		try
 		{
+			/* XXX: The lack of buffering here is NOT a bug, modules implementing this interface have to
+			 * implement their own buffering mechanisms
+			 */
 			ServerInstance->Config->GetIOHook(this->GetPort())->OnRawSocketWrite(this->fd, text.data(), text.length());
 		}
 		catch (CoreException& modexcept)
