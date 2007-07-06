@@ -40,7 +40,7 @@ class ModuleAntiBear : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserRegister] = List[I_OnPreCommand] = List[I_OnUserConnect] = 1;
+		List[I_OnUserRegister] = List[I_OnPreCommand] = 1;
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -72,11 +72,6 @@ class ModuleAntiBear : public Module
 		user->WriteServ("PRIVMSG %s :\1TIME\1", user->nick);
 		user->Extend("antibear_timewait");
 		return 0;
-	}
-	
-	virtual void OnUserConnect(userrec *user)
-	{
-		user->Shrink("antibear_timewait");
 	}
 };
 
