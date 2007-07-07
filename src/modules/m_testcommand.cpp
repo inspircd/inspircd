@@ -15,75 +15,36 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
-#include "dns.h"
 
-/* $ModDesc: Povides a proof-of-concept test /WOOT command */
+/* $ModDesc: Provides a pointless /dalinfo command, demo module */
 
-/** A test resolver class for IPV6
+/** Handle /DALINFO
  */
-class MyV6Resolver : public Resolver
+class cmd_dalinfo : public command_t
 {
-	bool fw;
  public:
-	MyV6Resolver(InspIRCd* Instance, Module* me, const std::string &source, bool forward, bool &cached) : Resolver(Instance, source, forward ? DNS_QUERY_AAAA : DNS_QUERY_PTR6, cached, me)
-	{
-		fw = forward;
-	}
-
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
-	{
-		ServerInstance->Log(DEBUG,"*** RESOLVER COMPLETED %s LOOKUP, IP IS: '%s' TTL=%lu CACHED=%d",fw ? "FORWARD" : "REVERSE", result.c_str(), ttl, cached);
-	}
-
-	virtual void OnError(ResolverError e, const std::string &errormessage)
-	{
-		ServerInstance->Log(DEBUG,"*** RESOLVER GOT ERROR: %d: %s",e,errormessage.c_str());
-	}
-};
-
-/** Handle /WOOT
- */
-class cmd_woot : public command_t
-{
-	Module* Creator;
- public:
-	/* Command 'woot', takes no parameters and needs no special modes */
-	cmd_woot (InspIRCd* Instance, Module* maker) : command_t(Instance,"WOOT", 0, 0), Creator(maker)
+	/* Command 'dalinfo', takes no parameters and needs no special modes */
+	cmd_dalinfo (InspIRCd* Instance) : command_t(Instance,"DALINFO", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		/* We dont have to worry about deleting 'r', the core will
-		 * do it for us as required.*/
-		try
-		{
-			bool cached;
-			MyV6Resolver* r = new MyV6Resolver(ServerInstance, Creator, "shake.stacken.kth.se", true, cached);
-			ServerInstance->AddResolver(r, cached);
-			r = new MyV6Resolver(ServerInstance, Creator, "2001:6b0:1:ea:202:a5ff:fecd:13a6", false, cached);
-			ServerInstance->AddResolver(r, cached);
-		}
-		catch (ModuleException& e)
-		{
-			ServerInstance->Log(DEBUG,"Danger, will robinson! There was an exception: %s",e.GetReason());
-		}
-
+		user->WriteServ("NOTICE %s :*** DALNet had nothing to do with it.", user->nick);
 		return CMD_FAILURE;
 	}
 };
 
 class ModuleTestCommand : public Module
 {
-	cmd_woot* newcommand;
+	cmd_dalinfo* newcommand;
  public:
 	ModuleTestCommand(InspIRCd* Me)
 		: Module(Me)
 	{
-		
 		// Create a new command
-		newcommand = new cmd_woot(ServerInstance, this);
+		newcommand = new cmd_dalinfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 
@@ -103,3 +64,4 @@ class ModuleTestCommand : public Module
 };
 
 MODULE_INIT(ModuleTestCommand)
+

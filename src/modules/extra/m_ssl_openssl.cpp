@@ -376,6 +376,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
+			ServerInstance->Log(DEBUG,"Module checking if handshake is done");
 			if (ISR->Sock->GetFd() < 0)
 				return (char*)"OK";
 
@@ -487,6 +488,7 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else
 			{
+				errno = EAGAIN;
 				return -1;
 			}
 		}
@@ -775,6 +777,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			int ssl_err = SSL_get_error(session->sess, ret);
 			char buf[1024];
+			ERR_print_errors_fp(stderr);
 			ServerInstance->Log(DEBUG,"Handshake fail 2: %d: %s", ssl_err, ERR_error_string(ssl_err,buf));
 			CloseSession(session);
 			return true;
