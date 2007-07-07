@@ -33,45 +33,54 @@ class cmd_swhois : public command_t
 	CmdResult Handle(const char** parameters, int pcnt, userrec* user)
 	{
 		userrec* dest = ServerInstance->FindNick(parameters[0]);
-		if(dest)
+		
+		if (!dest)
 		{
-			std::string line;
-			for(int i = 1; i < pcnt; i++)
-			{
-				if (i != 1)
-					line.append(" ");
-					
-				line.append(parameters[i]);
-			}
-			
-			std::string* text;
-			dest->GetExt("swhois", text);
-	
-			if(text)
-			{
-				// We already had it set...
-				
-				if (!ServerInstance->ULine(user->server))
-					// Ulines set SWHOISes silently
-					ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
-				
-				dest->Shrink("swhois");
-				DELETE(text);
-			}
-			else if(!ServerInstance->ULine(user->server))
-			{
-				// Ulines set SWHOISes silently
-				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
-			}
-			
-			text = new std::string(line);
-			dest->Extend("swhois", text);
-
-			return CMD_SUCCESS;
+			user->WriteServ("401 %s %s :No such nick/channel", user->nick, parameters[0]);
+			return CMD_FAILURE;
 		}
 
-		return CMD_FAILURE;
+		if (!*parameters[1])
+		{
+			user->WriteServ("NOTICE %s :*** SWHOIS: Whois line must be specified", user->nick);
+			return CMD_FAILURE;
+		}
+		
+		std::string line;
+		for (int i = 1; i < pcnt; i++)
+		{
+			if (i != 1)
+				line.append(" ");
+				
+			line.append(parameters[i]);
+		}
+		
+		std::string* text;
+		dest->GetExt("swhois", text);
+
+		if (text)
+		{
+			// We already had it set...
+			
+			if (!ServerInstance->ULine(user->server))
+				// Ulines set SWHOISes silently
+				ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois from '%s' to '%s'", user->nick, dest->nick, text->c_str(), line.c_str());
+			
+			dest->Shrink("swhois");
+			DELETE(text);
+		}
+		else if (!ServerInstance->ULine(user->server))
+		{
+			// Ulines set SWHOISes silently
+			ServerInstance->WriteOpers("*** %s used SWHOIS to set %s's extra whois to '%s'", user->nick, dest->nick, line.c_str());
+		}
+		
+		text = new std::string(line);
+		dest->Extend("swhois", text);
+
+		return CMD_SUCCESS;
 	}
+
 };
 
 class ModuleSWhois : public Module
