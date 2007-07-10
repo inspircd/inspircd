@@ -99,8 +99,8 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 			 */
 			ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
 			ServerInstance->Log(DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
-			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", *ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : u->nick,
-					ServerInstance->Config->ServerName, user->dhost, user->nick, parameters[1]);
+			user->WriteTo(u, "KILL %s :%s!%s!%s (%s)", u->nick, ServerInstance->Config->ServerName, user->dhost,
+					*ServerInstance->Config->HideKillsServer ? ServerInstance->Config->HideKillsServer : user->nick, parameters[1]);
 		}
 
 		// send the quit out
