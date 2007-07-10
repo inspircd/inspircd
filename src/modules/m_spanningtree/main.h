@@ -170,7 +170,7 @@ class ModuleSpanningTree : public Module
 	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message);
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent);
-	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason);
+	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason);
 	virtual void OnRehash(userrec* user, const std::string &parameter);
 	virtual void OnOper(userrec* user, const std::string &opertype);
 	void OnLine(userrec* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);

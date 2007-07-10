@@ -81,7 +81,7 @@ enum MessageType {
  * ipv4 servers, so this value will be ten times as
  * high on ipv6 servers.
  */
-#define NATIVE_API_VERSION 11024
+#define NATIVE_API_VERSION 11025
 #ifdef IPV6
 #define API_VERSION (NATIVE_API_VERSION * 10)
 #else
@@ -1086,7 +1086,7 @@ class CoreExport Module : public Extensible
 	 * @param dest The user being killed
 	 * @param reason The kill reason
 	 */
-	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason);
+	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,

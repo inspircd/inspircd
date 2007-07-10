@@ -1058,11 +1058,15 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 	}
 }
 
-void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason)
+void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason)
 {
 	std::deque<std::string> params;
+	params.push_back(":"+reason);
+	Utils->DoOneToMany(dest->nick,"OPERQUIT",params);
+	params.clear();
 	params.push_back(dest->nick);
 	params.push_back(":"+reason);
+	dest->SetOperQuit(operreason);
 	Utils->DoOneToMany(source->nick,"KILL",params);
 }
 
