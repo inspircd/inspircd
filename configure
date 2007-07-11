@@ -713,13 +713,18 @@ if ($config{USE_GNUTLS} eq "y") {
 * few times and get that HD going :) Then answer the        *
 * Questions which follow. If you are unsure, just hit enter *
 *************************************************************\n\n";
-			make_gnutls_cert();
-			print "\nCertificate generation complete, copying to config directory... ";
-			system("mv key.pem $config{CONFIG_DIR}/key.pem");
-			system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
-			print "Done.\n\n";
-		} else {
-			print "SSL Certificates found, skipping.\n\n"
+			make_gnutls_cert() or $failed = 1;
+			if (!$failed) {
+				print "\nCertificate generation complete, copying to config directory... ";
+				system("mv key.pem $config{CONFIG_DIR}/key.pem");
+				system("mv cert.pem $config{CONFIG_DIR}/cert.pem");
+				print "Done.\n\n";
+			} else {
+				print "\n\033[1;32mCertificate generation failed!\033[0m\n\n";
+			}
+		}
+		else {
+			print "SSL Certificates found, skipping.\n\n";
 		}
 	}
 	else

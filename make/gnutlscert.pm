@@ -106,9 +106,10 @@ ocsp_signing_key
 time_stamping_key
 __END__
 close(FH);
-system("certtool --generate-privkey --outfile key.pem");
-system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template certtool.template");
+system("certtool --generate-privkey --outfile key.pem") or return 1;
+system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template certtool.template") or return 1;
 unlink("certtool.template");
 }
 
 1;
+
