@@ -359,6 +359,9 @@ void InspSocket::Close()
 		this->OnClose();
 		shutdown(this->fd,2);
 		close(this->fd);
+
+		if (Instance->SocketCull.find(this) == Instance->SocketCull.end())
+			Instance->SocketCull[this] = this;
 	}
 	errno = save;
 }

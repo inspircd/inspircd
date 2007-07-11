@@ -344,7 +344,6 @@ void HttpServerTimeout::Tick(time_t TIME)
 {
 	SE->DelFd(s);
 	s->Close();
-	delete s;
 }
 
 class ModuleHttpServer : public Module

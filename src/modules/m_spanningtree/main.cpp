@@ -405,7 +405,6 @@ int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* 
 			sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
-			delete sock;
 		}
 		else
 		{
@@ -488,9 +487,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					/* they didnt answer, boot them */
 					sock->SendError("Ping timeout");
 					sock->Squit(serv,"Ping timeout");
-					ServerInstance->SE->DelFd(sock);
-					sock->Close();
-					delete sock;
+					/*** XXX SOCKET CULL ***/
 					return;
 				}
 			}

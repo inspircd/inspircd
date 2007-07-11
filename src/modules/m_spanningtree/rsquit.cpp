@@ -99,7 +99,6 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 				sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
 				ServerInstance->SE->DelFd(sock);
 				sock->Close();
-				delete sock;
 				return CMD_LOCALONLY;
 			}
 		}
