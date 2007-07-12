@@ -37,7 +37,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	NetBufferSize = 10240;
 	SoftLimit = MAXCLIENTS;
 	MaxConn = SOMAXCONN;
-	MaxWhoResults = 100;
+	MaxWhoResults = 0;
 	debugging = 0;
 	MaxChans = 20;
 	OperMaxChans = 30;
@@ -297,9 +297,9 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* valu
 
 bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
-	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1))
+	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
-		conf->GetInstance()->Log(DEFAULT,"No MaxWhoResults specified or size out of range, setting to default of 128.");
+		conf->GetInstance()->Log(DEFAULT,"<options:maxwhoresults> size out of range, setting to default of 128.");
 		data.Set(128);
 	}
 	return true;
