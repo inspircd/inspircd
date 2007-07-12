@@ -162,20 +162,20 @@ public:
 			
 			if(hostmask.length())
 			{
-				Hosts.push_back(CGIhost(hostmask));
-				
-				if(type == "pass")
-					Hosts.back().type = PASS;
-				else if(type == "ident")
-					Hosts.back().type = IDENT;
-				else if(type == "passfirst")
-					Hosts.back().type = PASSFIRST;
-				else if(type == "webirc") {
-					Hosts.back().type = WEBIRC;
-					if(password.length())
-						Hosts.back().password=password;
-					else
+				if(type == "webirc" && !password.length()) {
 						ServerInstance->Log(DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+				} else {
+					CGItype cgitype;
+					if(type == "pass")
+						cgitype = PASS;
+					else if(type == "ident")
+						cgitype = IDENT;
+					else if(type == "passfirst")
+						cgitype = PASSFIRST;
+					else if(type == "webirc") {
+						cgitype = WEBIRC;
+					}
+					Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
 				}
 			}
 			else
