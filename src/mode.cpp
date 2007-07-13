@@ -691,7 +691,7 @@ bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
 	 */
-	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
+	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z') || (mh->GetPrefix() > 126))
 		return false;
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
