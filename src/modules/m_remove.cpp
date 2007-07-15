@@ -276,8 +276,6 @@ class ModuleRemove : public Module
 	
 	virtual ~ModuleRemove()
 	{
-		delete mycommand;
-		delete mycommand2;
 	}
 	
 	virtual Version GetVersion()
