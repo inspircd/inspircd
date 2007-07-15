@@ -1251,6 +1251,20 @@
 # <cgihost type="webirc" mask="somebox.mysite.com"> # Get IP from WEBIRC
 # <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
 # <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
+#
+# IMPORTANT NOTE:
+# ---------------
+#
+# When you connect CGI:IRC clients, there are two connect classes which
+# apply to these clients. When the client initially connects, the connect
+# class which matches the cgi:irc site's host is checked. Therefore you
+# must raise the maximum local/global clients for this ip as high as you
+# want to allow cgi clients. After the client has connected and is
+# determined to be a cgi:irc client, the class which matches the client's
+# real IP is then checked. You may set this class to a lower value, so that
+# the real IP of the client can still be restricted to, for example, 3
+# sessions maximum.
+#
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

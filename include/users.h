@@ -830,6 +830,12 @@ class CoreExport userrec : public connection
 	 */
 	unsigned long LocalCloneCount();
 
+	/** Remove all clone counts from the user, you should
+	 * use this if you change the user's IP address in
+	 * userrec::ip after they have registered.
+	 */
+	void RemoveCloneCounts();
+
 	/** Write text to this user, appending CR/LF.
 	 * @param text A std::string to send to the user
 	 */

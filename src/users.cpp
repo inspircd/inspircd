@@ -344,6 +344,29 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 }
 
+void userrec::RemoveCloneCounts()
+{
+	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
+	if (x != ServerInstance->local_clones.end())
+	{
+		x->second--;
+		if (!x->second)
+		{
+			ServerInstance->local_clones.erase(x);
+		}
+	}
+	
+	clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
+	if (y != ServerInstance->global_clones.end())
+	{
+		y->second--;
+		if (!y->second)
+		{
+			ServerInstance->global_clones.erase(y);
+		}
+	}
+}
+
 userrec::~userrec()
 {
 	this->InvalidateCache();
@@ -352,25 +375,7 @@ userrec::~userrec()
 		free(operquit);
 	if (ip)
 	{
-		clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
-		if (x != ServerInstance->local_clones.end())
-		{
-			x->second--;
-			if (!x->second)
-			{
-				ServerInstance->local_clones.erase(x);
-			}
-		}
-
-		clonemap::iterator y = ServerInstance->global_clones.find(this->GetIPString());
-		if (y != ServerInstance->global_clones.end())
-		{
-			y->second--;
-			if (!y->second)
-			{
-				ServerInstance->global_clones.erase(y);
-			}
-		}
+		this->RemoveCloneCounts();
 
 		if (this->GetProtocolFamily() == AF_INET)
 		{
