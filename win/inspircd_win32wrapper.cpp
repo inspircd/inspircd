@@ -12,6 +12,7 @@
  */
 
 #include "inspircd_win32wrapper.h"
+#include "colours.h"
 #include "inspircd.h"
 #include <string>
 #include <errno.h>

@@ -11,6 +11,9 @@
  * ---------------------------------------------------
  */
 
+#ifndef __COLOURS_H
+#define __COLOURS_H
+
 #define TRED FOREGROUND_RED | FOREGROUND_INTENSITY
 #define TGREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
 #define TYELLOW FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
@@ -92,3 +95,6 @@ int printf_c(const char * format, ...)
 
 	return c;
 }
+
+#endif
+
