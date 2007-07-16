@@ -31,7 +31,7 @@ int printf_c(const char * format, ...)
 	/* parse arguments */
 	va_list ap;
 	va_start(ap, format);
-	vsprintf(message, format, ap);
+	vsnprintf(message, 500, format, ap);
 	va_end(ap);
 
 	/* search for unix-style escape sequences */
