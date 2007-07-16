@@ -1358,7 +1358,6 @@ EOCHEESE
 			$crap3 = "";
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
 			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
-				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... ";
 				my $i = 0;
 				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h"; 
 				foreach $fname (sort readdir(MDIRHANDLE)) {
@@ -1375,7 +1374,7 @@ EOCHEESE
 						$i++;
 					}
 				}
-				print "(\033[1;32m$i files found\033[0m)\n";
+				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... (\033[1;32m$i files found\033[0m)\n";
 				if ($config{IS_DARWIN} eq "YES") {
 					print FILEHANDLE "\n	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle -o $name.so $crap3\n"; 
 				} else {
