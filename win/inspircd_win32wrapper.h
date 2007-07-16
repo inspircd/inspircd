@@ -66,6 +66,9 @@
 #include <stdio.h>
 #include <algorithm>
 
+/* printf_c support for printing ansi colors in console */
+#include "colours.h"
+
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
 
