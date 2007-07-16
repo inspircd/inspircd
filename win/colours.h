@@ -41,14 +41,14 @@ int printf_c(const char * format, ...)
 	int t;
 	int c = 0;
 	const char * p = message;
-	while ( (*p) && (*p != 0) )
+	while (*p != 0)
 	{
 		if (*p == '\033')
 		{
 			// Escape sequence -> copy into the temp buffer, and parse the color.
 			p++;
 			t = 0;
-			while(*p != 'm')
+			while ((*p) && (*p != 'm'))
 			{
 				temp[t++] = *p;
 				++p;
