@@ -13,11 +13,8 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
-#include <windows.h>
-#include <stdio.h>
-#include <string>
 #include <time.h>
-#include "colours.h"
+#include "inspircd_win32wrapper.h"
 
 using namespace std;
 void Run();
