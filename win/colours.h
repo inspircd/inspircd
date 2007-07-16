@@ -28,7 +28,7 @@ int printf_c(const char * format, ...)
 {
 	// Better hope we're not multithreaded, otherwise we'll have chickens crossing the road other side to get the to :P
 	static char message[500];
-	static char temp[10];
+	static char temp[500];
 	int color1, color2;
 
 	/* parse arguments */
@@ -41,9 +41,9 @@ int printf_c(const char * format, ...)
 	int t;
 	int c = 0;
 	const char * p = message;
-	while(*p != 0)
+	while ( (*p) && (*p != 0) )
 	{
-		if(*p == '\033')
+		if (*p == '\033')
 		{
 			// Escape sequence -> copy into the temp buffer, and parse the color.
 			p++;
@@ -56,35 +56,44 @@ int printf_c(const char * format, ...)
 
 			temp[t] = 0;
 			p++;
-			if(!_stricmp(temp, "[0"))
-			{
-				// Returning to normal colour.
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-			}
-			else if(!_stricmp(temp, "[1"))
-			{
-				// White
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), TWHITE);
-			}
-			else if(sscanf(temp, "[%u;%u", &color1, &color2) == 2)
-			{
-				switch(color2)
-				{
-				case 32:		// Green
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);		// Yellow
-					break;
 
-				default:		// Unknown
-					// White
-					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-					break;
-				}
-			}
-			else
+			if (*temp == '[')
 			{
-				char message[50];
-				sprintf(message, "Unknown color code: %s", temp);
-				MessageBox(0, message, message, MB_OK);
+				if (sscanf(temp, "[%u;%u", &color1, &color2) == 2)
+				{
+					switch(color2)
+					{
+					case 32:		// Green
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);		// Yellow
+						break;
+
+					default:		// Unknown
+						// White
+						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+						break;
+					}
+				}
+				else
+				{
+					switch (*(temp+1))
+					{
+						case '0':
+							// Returning to normal colour.
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+							break;
+
+						case '1':
+							// White
+							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), TWHITE);
+							break;
+
+						default:
+							char message[50];
+							sprintf(message, "Unknown color code: %s", temp);
+							MessageBox(0, message, message, MB_OK);
+							break;
+					}
+				}
 			}
 		}
 
