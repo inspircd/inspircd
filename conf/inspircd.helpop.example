@@ -1,83 +1,1 @@
-# Sample configuration file for m_helpop.so
-# You can either copy this into your conf folder and set up the module to use it,
-# or you can customize the responses for your network and/or add more.
-#
-# The way the new helpop system works is simple. You use one or more helpop tags.
-#   <helpop key="moo" value="something here">.
-# key is what the user is looking for (i.e. /helpop moo), and value is what they get back
-# (note that it can span multiple lines!).
-#   -- w00t 16/dec/2006
-#
-
-<helpop key="start" value="     InspIRCd help system
-     --------------------
--
-This system provides help for commands and modes.
-Specify your question or a command name as the
-parameter for this command.
--
-/HELPOP COMMANDS      -      To see a list of commands
-/HELPOP UMODES        -      To see a list of user modes
-/HELPOP CHMODES       -      To see a list of channel modes">
-
-<helpop key="nohelp" value="There is no help for the topic
-You searched for. Please try again.">
-
-<helpop key="commands" value="User Commands
--------------
-USER     NICK    QUIT    VERSION     PING
-PONG     ADMIN   PRIVMSG INFO        TIME
-WHOIS    NOTICE  JOIN    NAMES       PART
-KICK     MODE    TOPIC   WHO         MOTD
-RULES    OPER    LIST    LUSERS      STATS
-USERHOST AWAY    ISON    SUMMON      USERS
-INVITE   PASS    WHOWAS  LINKS       MAP
-COMMANDS MODULES
- 
-Oper Commands
--------------
-DIE      RESTART KILL    REHASH      TRACE
-CONNECT  SQUIT   MODULES KLINE       ZLINE
-QLINE    GLINE   ELINE">
-
-
-<helpop key="umodes" value="User Modes
-----------
-o                Is an IRC operator
-i                Is invisible to /WHO
-w                Can receive wallops messages
-s                Can receive server notices
-n [mask]         Can receive server notices specified by [mask], or * for all.
-x                Cloaked hostname (requires cloaking module)
-h                Will receive helpops notification (requires helpop module)">
-
-<helpop key="chmodes" value="Channel Modes
--------------
-v [nickname]     Gives voice to [nickname] (can talk on +m channel)
-h [nickname]     Gives halfops to [nickname] (requires halfop module)
-o [nickname]     Gives ops to [nickname]
-b [hostmask]     Bans [hostmask] on the channel
-a [nickname]     Give protected status to [nickname] (+q only)
-q [nickname]     Give founder status to [nickname] (ulines only)
-i                Make the channel invite only, must /INVITE users
-k [key]          Set the channel key (password) to [key]
-l [limit]        Set the maximum possible users to [limit]
-m                Enable moderation. Only +vo(h) can speak
-n                Only users who are members of the channel may message it
-p                Make channel private (hide from /LIST)
-s                Make channel secret (can't be used at the same time as +p)
-O                Channel is IRCops only (can only be set by IRCops)
-t                Only halfops and above can change the topic
-Q                Only U-Lined servers/nicks can kick
-T                Only halfops/ops can send NOTICEs to the channel
-C                No CTCPs allowed to the channel
-c                mIRC colour codes blocked on the channel
-K                No /KNOCK allowed to channel (if knock module is loaded)
-L [channel]      If the channel is full, redirect users to [channel]
-N                No nickchanges while on the channel
--------------
-NOTE: A large number of these modes are dependent upon server-side modules
-being loaded by a server/network administrator. The actual modes available
-on your network may be very different to this list. Please consult your
-help channel if you have any questions.">
-
+# Sample configuration file for m_helpop.so# You can either copy this into your conf folder and set up the module to use it,# or you can customize the responses for your network and/or add more.## The way the new helpop system works is simple. You use one or more helpop tags.#   <helpop key="moo" value="something here">.# key is what the user is looking for (i.e. /helpop moo), and value is what they get back# (note that it can span multiple lines!).#   -- w00t 16/dec/2006#<helpop key="start" value="     InspIRCd help system     ---------------------This system provides help for commands and modes.Specify your question or a command name as theparameter for this command.-/HELPOP COMMANDS      -      To see a list of commands/HELPOP UMODES        -      To see a list of user modes/HELPOP CHMODES       -      To see a list of channel modes"><helpop key="nohelp" value="There is no help for the topicYou searched for. Please try again."><helpop key="commands" value="User Commands-------------USER     NICK    QUIT    VERSION     PINGPONG     ADMIN   PRIVMSG INFO        TIMEWHOIS    NOTICE  JOIN    NAMES       PARTKICK     MODE    TOPIC   WHO         MOTDRULES    OPER    LIST    LUSERS      STATSUSERHOST AWAY    ISON    SUMMON      USERSINVITE   PASS    WHOWAS  LINKS       MAPCOMMANDS MODULES Oper Commands-------------DIE      RESTART KILL    REHASH      TRACECONNECT  SQUIT   MODULES KLINE       ZLINEQLINE    GLINE   ELINE"><helpop key="umodes" value="User Modes----------o                Is an IRC operatori                Is invisible to /WHOw                Can receive wallops messagess                Can receive server noticesn [mask]         Can receive server notices specified by [mask], or * for all.x                Cloaked hostname (requires cloaking module)h                Will receive helpops notification (requires helpop module)"><helpop key="chmodes" value="Channel Modes-------------v [nickname]     Gives voice to [nickname] (can talk on +m channel)h [nickname]     Gives halfops to [nickname] (requires halfop module)o [nickname]     Gives ops to [nickname]b [hostmask]     Bans [hostmask] on the channela [nickname]     Give protected status to [nickname] (+q only)q [nickname]     Give founder status to [nickname] (ulines only)i                Make the channel invite only, must /INVITE usersk [key]          Set the channel key (password) to [key]l [limit]        Set the maximum possible users to [limit]m                Enable moderation. Only +vo(h) can speakn                Only users who are members of the channel may message itp                Make channel private (hide from /LIST)s                Make channel secret (can't be used at the same time as +p)O                Channel is IRCops only (can only be set by IRCops)t                Only halfops and above can change the topicQ                Only U-Lined servers/nicks can kickT                Only halfops/ops can send NOTICEs to the channelC                No CTCPs allowed to the channelc                mIRC colour codes blocked on the channelK                No /KNOCK allowed to channel (if knock module is loaded)L [channel]      If the channel is full, redirect users to [channel]N                No nickchanges while on the channel-------------NOTE: A large number of these modes are dependent upon server-side modulesbeing loaded by a server/network administrator. The actual modes availableon your network may be very different to this list. Please consult yourhelp channel if you have any questions.">
