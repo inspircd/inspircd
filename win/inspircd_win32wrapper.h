@@ -66,9 +66,6 @@
 #include <stdio.h>
 #include <algorithm>
 
-/* printf_c support for printing ansi colors in console */
-#include "colours.h"
-
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
 
@@ -102,6 +99,9 @@ CoreExport int inet_aton(const char *, struct in_addr *);
 
 /* Unix-style get running user id */
 CoreExport int geteuid();
+
+/* Handles colors in printf */
+CoreExport int printf_c(const char * format, ...);
 
 /* getopt() wrapper */
 # define no_argument            0
