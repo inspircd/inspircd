@@ -46,16 +46,16 @@ class ModuleRpcJson : public Module
 
 			if (http->GetURI() == "/jsonrpc" && http->GetType() == "POST")
 			{
-				std::string response_text;
-                                try
-                                {
-                                        json::rpc::process (http, response_text, http->GetPostData().c_str());
-                                }
-                                catch (std::runtime_error &)
-                                {
-                                        // ignore
-                                }
-				data << response_text;
+				try
+				{
+					std::string response_text;
+					json::rpc::process (http, response_text, http->GetPostData().c_str());
+					data << response_text;
+				}
+				catch (std::runtime_error &)
+				{
+					data << "{ \"result\": \"JSON Fault\", \"error\": \"Invalid RPC call\", \"id\": 1}";
+				}
 
 				/* Send the document back to m_httpd */
 				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_rpc_json.so\r\n"
