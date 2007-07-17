@@ -22,9 +22,17 @@ static void unreachable_internal (char const *file, int line, char const *functi
 static void throw_unless_internal (char const *file, int line, char const *function, char const *condition);
 static void throw_msg_unless_internal (char const *file, int line, char const *function, char const *message);
 
-#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, __PRETTY_FUNCTION__)
-#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
-#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, __PRETTY_FUNCTION__, message)
+#ifdef __GNUC__
+# define CURFUNC       __PRETTY_FUNCTION__
+#elif defined(__BORLANDC__)
+# define CURFUNC       __FUNC__
+#else
+# define CURFUNC       __FUNCTION__
+#endif
+
+#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, CURFUNC)
+#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, CURFUNC, #condition)
+#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, CURFUNC, message)
 
 namespace json
 {
