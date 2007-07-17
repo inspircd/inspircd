@@ -47,7 +47,14 @@ class ModuleRpcJson : public Module
 			if (http->GetURI() == "/jsonrpc" && http->GetType() == "POST")
 			{
 				std::string response_text;
-				json::rpc::process (http, response_text, http->GetPostData().c_str());
+                                try
+                                {
+                                        json::rpc::process (http, response_text, http->GetPostData().c_str());
+                                }
+                                catch (std::runtime_error &)
+                                {
+                                        // ignore
+                                }
 				data << response_text;
 
 				/* Send the document back to m_httpd */
