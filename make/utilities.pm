@@ -315,6 +315,10 @@ sub translate_functions($$)
 			chomp($replace);
 			$line =~ s/exec\("(.+?)"\)/$replace/;
 		}
+		while ($line =~ /execruntime\("(.+?)"\)/)
+		{
+			$line =~ s/execruntime\("(.+?)"\)/`\1`/;
+		}
 		while ($line =~ /eval\("(.+?)"\)/)
 		{
 			print "Evaluating perl code for module \033[1;32m$module\033[0m ... ";
