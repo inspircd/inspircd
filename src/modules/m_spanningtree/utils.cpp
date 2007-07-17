@@ -190,7 +190,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	{
 		ServerInstance->SE->DelFd(Bindings[i]);
 		Bindings[i]->Close();
-		DELETE(Bindings[i]);
 	}
 	while (TreeRoot->ChildCount())
 	{
@@ -200,7 +199,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 			TreeSocket* sock = child_server->GetSocket();
 			ServerInstance->SE->DelFd(sock);
 			sock->Close();
-			DELETE(sock);
 		}
 	}
 	delete TreeRoot;
@@ -486,7 +484,6 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 					{
 						ServerInstance->Log(DEFAULT,"m_spanningtree: Warning: Failed to bind server port: %s:%d: %s",IP.c_str(), portno, strerror(errno));
 						listener->Close();
-						DELETE(listener);
 					}
 				}
 			}

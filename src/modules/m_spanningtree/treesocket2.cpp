@@ -885,7 +885,6 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 				CheckDupeSocket->SendError("Negotiation collision");
 				Instance->SE->DelFd(CheckDupeSocket);
 				CheckDupeSocket->Close();
-				delete CheckDupeSocket;
 				return false;
 			}
 			/* Now check for fully initialized instances of the server */
