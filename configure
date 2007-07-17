@@ -1356,6 +1356,7 @@ EOCHEESE
 		if ($name =~ /^m_(.+?)$/) {
 			$crapola = "";
 			$crap3 = "";
+			$mliflags = "";
 			# A module made of multiple files, in a dir, e.g. src/modules/m_spanningtree/
 			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
 				my $i = 0;
@@ -1363,7 +1364,7 @@ EOCHEESE
 				foreach $fname (sort readdir(MDIRHANDLE)) {
 					if ($fname =~ /\.cpp$/) {
 						$cmflags = getcompilerflags("src/modules/$name/$fname");
-						$liflags = getlinkerflags("src/modules/$name/$fname");
+						$mliflags = $mliflags . " " . getlinkerflags("src/modules/$name/$fname");
 						$deps = getdependencies("src/modules/$name/$fname");
 						$oname = $fname;
 						$oname =~ s/\.cpp$/.o/g;
@@ -1378,7 +1379,7 @@ EOCHEESE
 				if ($config{IS_DARWIN} eq "YES") {
 					print FILEHANDLE "\n	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle -o $name.so $crap3\n"; 
 				} else {
-					print FILEHANDLE "\n	\$(CC) -pipe \$(FLAGS) -shared $liflags -o $name.so $crap3\n";
+					print FILEHANDLE "\n	\$(CC) -pipe \$(FLAGS) -shared $mliflags -o $name.so $crap3\n";
 				}
 				print FILEHANDLE "\n$crapola\n";
 				closedir(MDIRHANDLE);
