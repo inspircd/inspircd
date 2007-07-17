@@ -30,32 +30,33 @@
 
 class ModuleRpcJson : public Module
 {
-        void MthModuleVersion (HTTPRequest *http, json::Value &request, json::Value &response)
-        {
-                std::string result = "GetVersion().ToString()";
-                response["result"] = result;
-        }
+	void MthModuleVersion (HTTPRequest *http, json::Value &request, json::Value &response)
+	{
+		std::string result = "GetVersion().ToString()";
+		response["result"] = result;
+	}
 
-        void system_list_methods (HTTPRequest *http, json::Value &request, json::Value &response)
-        {
-                unsigned i = 0;
-                json::Value method_list (json::arrayValue);
-                
-                json::rpc::method_map::iterator it;
-                for (it = json::rpc::methods.begin(); it != json::rpc::methods.end(); ++it)
-                {
-                        method_list[i] = json::Value (it->first);
-                        i++;
-                }
-                
-                response["result"] = method_list;
-        }
+	void system_list_methods (HTTPRequest *http, json::Value &request, json::Value &response)
+	{
+		unsigned i = 0;
+		json::Value method_list (json::arrayValue);
+		
+		json::rpc::method_map::iterator it;
+		for (it = json::rpc::methods.begin(); it != json::rpc::methods.end(); ++it)
+		{
+			method_list[i] = json::Value (it->first);
+			i++;
+		}
+		
+		response["result"] = method_list;
+	}
 
  public:
 	ModuleRpcJson(InspIRCd* Me) : Module(Me)
 	{
-                json::rpc::add_method ("system.listMethods", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::system_list_methods);
-                json::rpc::add_method ("ircd.moduleVersion", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::MthModuleVersion);
+		ServerInstance->PublishInterface("JSON-RPC", this);
+		json::rpc::add_method ("system.listMethods", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::system_list_methods);
+		json::rpc::add_method ("ircd.moduleVersion", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::MthModuleVersion);
 	}
 
 	void OnEvent(Event* event)
@@ -95,6 +96,7 @@ class ModuleRpcJson : public Module
 
 	virtual ~ModuleRpcJson()
 	{
+		ServerInstance->UnpublishInterface("JSON-RPC", this);
 	}
 
 	virtual Version GetVersion()
@@ -2086,13 +2088,13 @@ namespace json
       
       method_map::iterator mthit = methods.find (methodName);
       if (mthit != methods.end ())
-        {
-          mfp m = mthit->second;
-          Module *mod = new Module (*m.mod);
-          method mth = m.mth;
-          (mod->*mth) (http, request, response);
-          delete mod;
-        }
+	{
+	  mfp m = mthit->second;
+	  Module *mod = new Module (*m.mod);
+	  method mth = m.mth;
+	  (mod->*mth) (http, request, response);
+	  delete mod;
+	}
     }
     
     void
