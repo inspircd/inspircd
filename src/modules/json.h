@@ -532,9 +532,18 @@ namespace json
 {
   namespace rpc
   {
-    typedef void (*method) (HTTPRequest *http, Value &request, Value &response);
-    void init (void);
-    void add_method (char *name, method mth);
+    typedef void (Module::*method) (HTTPRequest *http, Value &request, Value &response);
+
+    struct mfp
+    {
+      Module const *mod;
+      method mth;
+    };
+
+    typedef std::map<std::string, mfp> method_map;
+    extern method_map methods;
+  
+    void add_method (char *name, Module const *mod, method mth);
     void service (HTTPRequest *http, Value &request, Value &response);
     void process (HTTPRequest *http, std::string &response, char const *request);
   }

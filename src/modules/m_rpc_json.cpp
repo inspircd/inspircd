@@ -30,10 +30,32 @@
 
 class ModuleRpcJson : public Module
 {
+        void MthModuleVersion (HTTPRequest *http, json::Value &request, json::Value &response)
+        {
+                std::string result = "GetVersion().ToString()";
+                response["result"] = result;
+        }
+
+        void system_list_methods (HTTPRequest *http, json::Value &request, json::Value &response)
+        {
+                unsigned i = 0;
+                json::Value method_list (json::arrayValue);
+                
+                json::rpc::method_map::iterator it;
+                for (it = json::rpc::methods.begin(); it != json::rpc::methods.end(); ++it)
+                {
+                        method_list[i] = json::Value (it->first);
+                        i++;
+                }
+                
+                response["result"] = method_list;
+        }
+
  public:
 	ModuleRpcJson(InspIRCd* Me) : Module(Me)
 	{
-		json::rpc::init ();
+                json::rpc::add_method ("system.listMethods", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::system_list_methods);
+                json::rpc::add_method ("ircd.moduleVersion", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::MthModuleVersion);
 	}
 
 	void OnEvent(Event* event)
@@ -2048,36 +2070,13 @@ namespace json
 {
   namespace rpc
   {
-    typedef std::map<std::string, void (*) (HTTPRequest *, Value &, Value &)> method_map;
-  
     method_map methods;
   
     void
-    add_method (char *name, method mth)
+    add_method (char *name, Module const *mod, method mth)
     {
-      methods[name] = mth;
-    }
-  
-    void
-    system_list_methods (HTTPRequest *http, Value &request, Value &response)
-    {
-      unsigned i = 0;
-      Value method_list (arrayValue);
-    
-      method_map::iterator it;
-      for (it = methods.begin(); it != methods.end(); ++it)
-	{
-	  method_list[i] = Value (it->first);
-	  i++;
-	}
-    
-      response["result"] = method_list;
-    }
-
-    void
-    init ()
-    {
-      add_method ("system.listMethods", &system_list_methods);
+      mfp m = { mod, mth };
+      methods[name] = m;
     }
   
     void
@@ -2085,9 +2084,15 @@ namespace json
     {
       char const *methodName = static_cast<char const *> (request["method"]);
       
-      method_map::iterator mth = methods.find (methodName);
-      if (mth != methods.end ())
-	(*mth->second) (http, request, response);
+      method_map::iterator mthit = methods.find (methodName);
+      if (mthit != methods.end ())
+        {
+          mfp m = mthit->second;
+          Module *mod = new Module (*m.mod);
+          method mth = m.mth;
+          (mod->*mth) (http, request, response);
+          delete mod;
+        }
     }
     
     void
