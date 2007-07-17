@@ -1,11 +1,15 @@
+#       +------------------------------------+
+#       | Inspire Internet Relay Chat Daemon |
+#       +------------------------------------+
 #
-# Copyright 2002-2007 The ChatSpike Development Team
-# <brain@chatspike.net>
-# <Craig@chatspike.net>
+#  InspIRCd: (C) 2002-2007 InspIRCd Development Team
+# See: http://www.inspircd.org/wiki/index.php/Credits
 #
-# Licensed under GPL, please see the COPYING file
-# for more information
+# This program is free but copyrighted software; see
+#      the file COPYING for details.
 #
+# ---------------------------------------------------
+
 
 package make::utilities;
 use Exporter 'import';
