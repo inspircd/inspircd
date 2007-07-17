@@ -32,10 +32,20 @@ IOCPEngine::~IOCPEngine()
 
 bool IOCPEngine::AddFd(EventHandler* eh)
 {
+	/* Does it at least look valid? */
+	if (!eh)
+		return false;
+
 	int fake_fd = GenerateFd(eh->GetFd());
 	int is_accept = 0;
 	int opt_len = sizeof(int);
-	if(fake_fd < 0)
+
+	/* In range? */
+	if ((fake_fd < 0) || (fake_fd > MAX_DESCRIPTOR))
+		return false;
+
+	/* Already an entry here */
+	if (ref[fake_fd])
 		return false;
 
 	/* are we a listen socket? */
@@ -48,7 +58,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 
 	unsigned long completion_key = (ULONG_PTR)eh->m_internalFd;
 	/* assign the socket to the completion port */
-	if(!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
+	if (!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
 		return false;
 
 	/* set up binding, increase set size */
@@ -84,10 +94,13 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 
 bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 {
+	if (!eh)
+		return false;
+
 	int fake_fd = eh->m_internalFd;
 	int fd = eh->GetFd();
 	
-	if(ref[fake_fd] == 0)
+	if (!ref[fake_fd])
 		return false;
 
 	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", fake_fd, eh->GetFd(), eh);
@@ -97,7 +110,7 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 		return false;
 
 	/* Free the buffer, and delete the event. */
-	if(eh->m_readEvent != 0)
+	if (eh->m_readEvent != 0)
 	{
 		if(((Overlapped*)eh->m_readEvent)->m_params != 0)
 			delete ((udp_overlap*)((Overlapped*)eh->m_readEvent)->m_params);
@@ -127,6 +140,9 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 
 void IOCPEngine::WantWrite(EventHandler* eh)
 {
+	if (!eh)
+		return;
+
 	/* Post event - write begin */
 	if(!eh->m_writeEvent)
 	{
@@ -139,6 +155,9 @@ void IOCPEngine::WantWrite(EventHandler* eh)
 
 bool IOCPEngine::PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int param)
 {
+	if (!eh)
+		return false;
+
 	Overlapped * ov = new Overlapped(type, param);
 	ULONG_PTR completion_key = (ULONG_PTR)eh->m_internalFd;
 	return PostQueuedCompletionStatus(m_completionPort, 0, completion_key, &ov->m_overlap);
@@ -146,6 +165,9 @@ bool IOCPEngine::PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int 
 
 void IOCPEngine::PostReadEvent(EventHandler * eh)
 {
+	if (!eh)
+		return false;
+
 	Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_READ_READY, 0);
 	DWORD flags = 0;
 	DWORD r_length = 0;
@@ -223,12 +245,15 @@ int IOCPEngine::DispatchEvents()
 	int ret;
 	unsigned long bytes_recv;
 
-	while(GetQueuedCompletionStatus(m_completionPort, &len, &intfd, &overlap, 1000))
+	while (GetQueuedCompletionStatus(m_completionPort, &len, &intfd, &overlap, 1000))
 	{
 		// woot, we got an event on a socket :P
 		eh = ref[intfd];
 		ov = CONTAINING_RECORD(overlap, Overlapped, m_overlap);
-		if(eh == 0) continue;
+
+		if (eh == 0)
+			continue;
+
 		switch(ov->m_event)
 		{
 			case SOCKET_IO_EVENT_WRITE_READY:
@@ -295,6 +320,9 @@ int IOCPEngine::DispatchEvents()
 
 void IOCPEngine::PostAcceptEvent(EventHandler * eh)
 {
+	if (!eh)
+		return;
+
 	int fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
 	int len = sizeof(sockaddr_in) + 16;
 	DWORD dwBytes;
