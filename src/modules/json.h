@@ -18,10 +18,6 @@
 #define expect_false(expr) maybe_expect ((expr) != 0, 0)
 #define expect_true(expr)  maybe_expect ((expr) != 0, 1)
 
-static void unreachable_internal (char const *file, int line, char const *function);
-static void throw_unless_internal (char const *file, int line, char const *function, char const *condition);
-static void throw_msg_unless_internal (char const *file, int line, char const *function, char const *message);
-
 #ifdef __GNUC__
 # define CURFUNC       __PRETTY_FUNCTION__
 #elif defined(__BORLANDC__)
@@ -29,10 +25,6 @@ static void throw_msg_unless_internal (char const *file, int line, char const *f
 #else
 # define CURFUNC       __FUNCTION__
 #endif
-
-#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, CURFUNC)
-#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, CURFUNC, #condition)
-#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, CURFUNC, message)
 
 namespace json
 {

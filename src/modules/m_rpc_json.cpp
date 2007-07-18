@@ -135,6 +135,10 @@ throw_msg_unless_internal (char const *file, int line, char const *function, cha
   throw std::runtime_error (buf);
 }
 
+#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, CURFUNC)
+#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, CURFUNC, #condition)
+#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, CURFUNC, message)
+
 
 namespace json
 {
