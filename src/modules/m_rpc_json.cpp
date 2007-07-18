@@ -105,41 +105,6 @@ class ModuleRpcJson : public Module
 	}
 };
 
-static void
-unreachable_internal (char const *file, int line, char const *function)
-{
-  char buf[1024];
-  snprintf (buf, 1024, "%s (%d) [%s] critical: Unreachable line reached.",
-	    file, line, function);
-
-  throw std::runtime_error (buf);
-}
-
-static void
-throw_unless_internal (char const *file, int line, char const *function, char const *condition)
-{
-  char buf[1024];
-  snprintf (buf, 1024, "%s (%d) [%s] critical: Assertion `%s' failed.",
-	    file, line, function, condition);
-
-  throw std::runtime_error (buf);
-}
-
-static void
-throw_msg_unless_internal (char const *file, int line, char const *function, char const *message)
-{
-  char buf[1024];
-  snprintf (buf, 1024, "%s (%d) [%s] critical: %s.",
-	    file, line, function, message);
-
-  throw std::runtime_error (buf);
-}
-
-#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, CURFUNC)
-#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, CURFUNC, #condition)
-#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, CURFUNC, message)
-
-
 namespace json
 {
   ValueIteratorBase::ValueIteratorBase ()
@@ -891,6 +856,10 @@ namespace json
   
     throw std::runtime_error (buf);
   }
+
+#define throw_unreachable                       unreachable_internal (__FILE__, __LINE__, CURFUNC)
+#define throw_unless(condition)                 if (!expect_false (condition)) throw_unless_internal (__FILE__, __LINE__, CURFUNC, #condition)
+#define throw_msg_unless(condition, message)    if (!expect_false (condition)) throw_msg_unless_internal (__FILE__, __LINE__, CURFUNC, message)
   
   const Value Value::null;
   const int Value::minInt = int (~ (unsigned (-1)/2));
