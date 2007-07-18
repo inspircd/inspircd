@@ -253,7 +253,8 @@ class ModuleMsgFlood : public Module
 				}
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
-				dest->ServerKickUser(user, kickmessage, true);
+				if (!dest->ServerKickUser(user, kickmessage, true))
+					delete dest;
 			}
 		}
 	}
