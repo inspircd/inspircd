@@ -918,6 +918,7 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 
 	time_t age = ConvToInt(params[0]);
 	const char* tempnick = params[1].c_str();
+	std::string empty;
 
 	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
 
@@ -975,11 +976,14 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 
 	for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
 	{
-		_new->modes[(*v)-65] = 1;
 		/* For each mode thats set, increase counter */
 		ModeHandler* mh = Instance->Modes->FindMode(*v, MODETYPE_USER);
 		if (mh)
+		{
+			mh->OnModeChange(_new, _new, NULL, empty, true);
+			_new->SetMode(*v, true);
 			mh->ChangeCount(1);
+		}
 	}
 
 	/* now we've done with modes processing, put the + back for remote servers */

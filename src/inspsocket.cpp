@@ -356,9 +356,9 @@ void InspSocket::Close()
 				Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
-		this->OnClose();
 		shutdown(this->fd,2);
-		close(this->fd);
+		if (close(this->fd) != -1)
+			this->OnClose();
 
 		if (Instance->SocketCull.find(this) == Instance->SocketCull.end())
 			Instance->SocketCull[this] = this;

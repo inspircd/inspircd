@@ -31,7 +31,6 @@ ModeAction ModeUserWallops::OnModeChange(userrec* source, userrec* dest, chanrec
 	if (dest->modes[UM_WALLOPS] != adding)
 	{
 		dest->modes[UM_WALLOPS] = adding;
-		this->count += (adding ? 1: -1);
 		return MODEACTION_ALLOW;
 	}
 

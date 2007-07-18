@@ -79,6 +79,7 @@ unsigned int ModeHandler::GetCount()
 void ModeHandler::ChangeCount(int modifier)
 {
 	count += modifier;
+	ServerInstance->Log(DEBUG,"Change count for mode %c is now %d", mode, count);
 }
 
 ModeType ModeHandler::GetModeType()
@@ -563,6 +564,8 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 								
 								/* Add the mode letter */
 								output_sequence.push_back(modechar);
+
+								modehandlers[handler_id]->ChangeCount(adding ? 1 : -1);
 
 								/* Is there a valid parameter for this mode? If so add it to the parameter list */
 								if ((modehandlers[handler_id]->GetNumParams(adding)) && (!parameter.empty()))

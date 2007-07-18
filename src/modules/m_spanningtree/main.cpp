@@ -137,13 +137,20 @@ void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, userrec
 			}
 		}
 	}
-	user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,n_users-ServerInstance->InvisibleUserCount(),ServerInstance->InvisibleUserCount(),ulined_count ? this->CountServs() - ulined_count : this->CountServs());
+	user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,
+			n_users-ServerInstance->InvisibleUserCount(),
+			ServerInstance->InvisibleUserCount(),
+			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
+
 	if (ServerInstance->OperCount())
 		user->WriteServ("252 %s %d :operator(s) online",user->nick,ServerInstance->OperCount());
+
 	if (ServerInstance->UnregisteredUserCount())
 		user->WriteServ("253 %s %d :unknown connections",user->nick,ServerInstance->UnregisteredUserCount());
+	
 	if (ServerInstance->ChannelCount())
 		user->WriteServ("254 %s %d :channels formed",user->nick,ServerInstance->ChannelCount());
+	
 	user->WriteServ("255 %s :I have %d clients and %d servers",user->nick,ServerInstance->LocalUserCount(),ulined_local_count ? this->CountLocalServs() - ulined_local_count : this->CountLocalServs());
 	user->WriteServ("265 %s :Current Local Users: %d  Max: %d",user->nick,ServerInstance->LocalUserCount(),max_local);
 	user->WriteServ("266 %s :Current Global Users: %d  Max: %d",user->nick,n_users,max_global);
@@ -487,7 +494,8 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					/* they didnt answer, boot them */
 					sock->SendError("Ping timeout");
 					sock->Squit(serv,"Ping timeout");
-					/*** XXX SOCKET CULL ***/
+					ServerInstance->SE->DelFd(sock);
+					sock->Close();
 					return;
 				}
 			}
