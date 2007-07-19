@@ -1168,6 +1168,10 @@ EOF
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^\.(.+)\.inc$/) {
 			$file = $1;
+
+			# Bug #353, omit this on non-darwin
+			next if (($config{OSNAME} !~ /darwin/) && ($file eq "org.inspircd.plist"));
+
 			# All .name.inc files need parsing!
 			$tmp = "";
 			open(FILEHANDLE, ".$file.inc");
