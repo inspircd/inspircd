@@ -474,6 +474,40 @@ if ($has_epoll) {
 	if (($kernel =~ /^2\.0\./) || ($kernel =~ /^2\.2\./) || ($kernel =~ /^2\.4\./)) {
 		$has_epoll = 0;
 	}
+	else
+	{
+		# Suggestion from nenolod, weed out odd systems which have glibc built
+		# against 2.4 kernels (ick)
+
+		$libcv = 0.0;
+		$kernelv = 0.0;
+		open (FH,"/lib/libc.so.6|") or $has_epoll = 0;
+		if ($has_epoll)
+		{
+			while (chomp($line = <FH>))
+			{
+				if ($line =~ /GNU C Library .* version (.*?) /)
+				{
+					$libcv = $1;
+				}
+				elsif ($line =~ /Compiled on a Linux (.*?\..*?)\.* system/)
+				{
+					$kernelv = $1;
+				}
+			}
+			close FH;
+			if ($libcv < 2.3)
+			{
+				$has_epoll = 0;
+				printf "libc too old: $libcv... ";
+			}
+			if ($kernelv < 2.6)
+			{
+				$has_epoll = 0;
+				printf "libc built against older kernel $kernelv... ";
+			}
+		}
+	}
 }
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
