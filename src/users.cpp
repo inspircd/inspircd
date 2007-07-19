@@ -741,7 +741,7 @@ void userrec::FlushWriteBuf()
 				{
 					/* Fatal error, set write error and bail
 					 */
-					this->SetWriteError(strerror(errno));
+					this->SetWriteError(errno ? strerror(errno) : "EOF from client");
 					return;
 				}
 			}

@@ -174,7 +174,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			cu->SetWriteError(strerror(errno));
+			cu->SetWriteError(errno ? strerror(errno) : "EOF from client");
 			return;
 		}
 	}
