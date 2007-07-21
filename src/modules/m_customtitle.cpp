@@ -47,6 +47,9 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec* user)
 	{
+		if (!IS_LOCAL(user))
+			return CMD_LOCALONLY;
+	
 		char TheHost[MAXBUF];
 		char TheIP[MAXBUF];
 
