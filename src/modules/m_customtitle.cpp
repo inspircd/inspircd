@@ -79,6 +79,16 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 				text = new std::string(title);
 				user->Extend("ctitle", text);
 
+//				METADATA peavey ctitle :Official Chat Helper
+
+				std::deque<std::string>* metadata = new std::deque<std::string>;
+				metadata->push_back(user->nick);
+				metadata->push_back("ctitle");      // The metadata id
+				metadata->push_back(*text);     // The value to send
+				Event event((char*)metadata,(Module*)this,"send_metadata");
+				event.Send(ServerInstance);
+				delete metadata;
+				                                                        
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
 
