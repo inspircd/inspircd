@@ -397,7 +397,7 @@ sub svnupdate
 
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
-print ((getcache() eq "true") ? "found\n" : "not found\n");
+print ((!getcache()) ? "not found\n" : "found\n");
 print "Checking operating system version... ";
 print getosflags() . "\n";
 
@@ -840,7 +840,7 @@ FOO2
 ################################################################################
 sub getcache {
 	# Retrieves the .config.cache file, and loads values into the main config hash.
-	open(CACHE, ".config.cache") or return undef;
+	open(CACHE, ".config.cache") or return 0;
 	while (<CACHE>) {
 		chomp;
 		# Ignore Blank lines, and comments..
@@ -852,7 +852,7 @@ sub getcache {
 		$config{$key} = $1;
 	}
 	close(CONFIG);
-	return "true";
+	return 1;
 }
 
 sub makecache {
