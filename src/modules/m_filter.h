@@ -15,7 +15,6 @@
 
 enum FilterFlags
 {
-	FLAG_NOOPERS = 1,
 	FLAG_PART = 2,
 	FLAG_QUIT = 4,
 	FLAG_PRIVMSG = 8,
@@ -209,7 +208,7 @@ class cmd_filter : public command_t
 
 bool FilterBase::AppliesToMe(userrec* user, FilterResult* filter, int flags)
 {
-	if ((flags & FLAG_NOOPERS) && (filter->flag_no_opers) && IS_OPER(user))
+	if ((filter->flag_no_opers) && IS_OPER(user))
 		return false;
 	if ((flags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
