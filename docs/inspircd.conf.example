@@ -1407,7 +1407,7 @@
 #                      vhost can be specified.
 #<module name="m_customtitle.so">
 #
-#-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-  CUSTOM TITLE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#
 #  name              - The username used to identify 
 #  password          - The password used to identify
 #  host              - Allowed hostmask [optional]
