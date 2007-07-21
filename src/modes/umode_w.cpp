@@ -42,4 +42,3 @@ unsigned int ModeUserWallops::GetCount()
 {
 	return count;
 }
-
