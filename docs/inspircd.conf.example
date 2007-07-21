@@ -1402,6 +1402,22 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Custom title module: Adds the /TITLE command which allows for trusted
+#                      users to gain a custom whois line and a optional
+#                      vhost can be specified.
+#<module name="m_customtitle.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#  name              - The username used to identify 
+#  password          - The password used to identify
+#  host              - Allowed hostmask [optional]
+#  title             - Title shown in whois
+#  vhost             - Displayed host [optional]
+#
+#<title name="foo" password="bar" title="Official Chat Helper">
+#<title name="bar" password="foo" host="ident@host.name" title="Official Chat Helper" vhost="helper.network.chat">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # DCCALLOW module: Adds the /DCCALLOW command
 #<module name="m_dccallow.so">
 #
