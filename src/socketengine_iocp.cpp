@@ -12,6 +12,7 @@
  */
 
 #include "socketengine_iocp.h"
+#include "exitcodes.h"
 #include <mswsock.h>
 
 IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
@@ -19,7 +20,7 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 	/* Create completion port */
 	m_completionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)0, 0);
 
-        if (m_completionPort == -1)
+        if (!m_completionPort)
 	{
 		ServerInstance->Log(SPARSE,"ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		ServerInstance->Log(SPARSE,"ERROR: this is a fatal error, exiting now.");
@@ -50,7 +51,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	int opt_len = sizeof(int);
 
 	/* In range? */
-	if ((fake_fd < 0) || (fake_fd > MAX_DESCRIPTOR))
+	if ((fake_fd < 0) || (fake_fd > MAX_DESCRIPTORS))
 		return false;
 
 	/* Already an entry here */
@@ -175,7 +176,7 @@ bool IOCPEngine::PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int 
 void IOCPEngine::PostReadEvent(EventHandler * eh)
 {
 	if (!eh)
-		return false;
+		return;
 
 	Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_READ_READY, 0);
 	DWORD flags = 0;
