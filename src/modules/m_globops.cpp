@@ -60,7 +60,6 @@ class ModuleGlobops : public Module
 	virtual ~ModuleGlobops()
 	{
 		ServerInstance->SNO->DisableSnomask('g');
-		DELETE(mycommand);
 	}
 	
 	virtual Version GetVersion()
