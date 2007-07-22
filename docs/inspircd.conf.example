@@ -2046,10 +2046,14 @@
 # added/removed by Services.                                          #
 #<module name="m_svshold.so">
 
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SWHOIS module: Allows you to add arbitary lines to user WHOIS.
 #<module name="m_swhois.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Taxonomy module: Adds the /TAXONOMY command, used to view all
+#                  metadata attached to a user.
+#<module name="m_taxonomy.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Test command module: Does nothing significant. Read: pointless.
