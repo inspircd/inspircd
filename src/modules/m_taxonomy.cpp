@@ -18,7 +18,7 @@
 
 /* $ModDesc: Provides the /TAXONOMY command, used to view all metadata attached to a user */
 
-/** Handle /WOOT
+/** Handle /TAXONOMY
  */
 class cmd_taxonomy : public command_t
 {
@@ -51,7 +51,7 @@ class cmd_taxonomy : public command_t
 			}
 			user->WriteServ("304 " + std::string(user->nick) + ":TAXONOMY END");
 		}
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -96,4 +96,3 @@ class ModuleTaxonomy : public Module
 };
 
 MODULE_INIT(ModuleTaxonomy)
-
