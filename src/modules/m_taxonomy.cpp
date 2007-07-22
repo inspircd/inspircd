@@ -29,6 +29,7 @@ class cmd_taxonomy : public command_t
 	cmd_taxonomy (InspIRCd* Instance, Module* maker, bool &claim) : command_t(Instance,"TAXONOMY", 'o', 1), Creator(maker), claimed(claim)
 	{
 		this->source = "m_taxonomy.so";
+		syntax = "<nickname>";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
