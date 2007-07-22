@@ -54,7 +54,6 @@ class ModuleTestCommand : public Module
 
 	virtual ~ModuleTestCommand()
 	{
-		delete newcommand;
 	}
 
 	virtual Version GetVersion()
