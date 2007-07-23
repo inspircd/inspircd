@@ -1122,6 +1122,11 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	GlobalCulls.Apply();
 
 	/* If any inspsockets closed, remove them */
+	this->InspSocketCull();
+}
+
+void InspIRCd::InspSocketCull()
+{
 	for (std::map<InspSocket*,InspSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
 	{
 		SE->DelFd(x->second);

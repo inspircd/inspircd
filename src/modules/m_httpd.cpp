@@ -405,9 +405,10 @@ class ModuleHttpServer : public Module
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
 			ServerInstance->SE->DelFd(httpsocks[i]);
+			httpsocks[i]->Close();
 			delete httpsocks[i]->GetIndex();
-			delete httpsocks[i];
 		}
+		ServerInstance->InspSocketCull();
 	}
 
 	virtual Version GetVersion()

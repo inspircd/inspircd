@@ -1501,6 +1501,9 @@ void TreeSocket::OnTimeout()
 
 void TreeSocket::OnClose()
 {
+	if (this->LinkState == LISTENER)
+		return;
+
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
 	// then propogate a netsplit to all peers.

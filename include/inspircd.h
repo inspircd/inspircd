@@ -1273,6 +1273,11 @@ class CoreExport InspIRCd : public classbase
 	 * @return The return value for this function is undefined.
 	 */
 	int Run();
+
+	/** Force all InspSockets to be removed which are due to
+	 * be culled.
+	 */
+	void InspSocketCull();
 };
 
 #endif

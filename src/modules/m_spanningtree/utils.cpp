@@ -202,6 +202,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		}
 	}
 	delete TreeRoot;
+	ServerInstance->InspSocketCull();
 }
 
 void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
