@@ -257,6 +257,9 @@ int IOCPEngine::DispatchEvents()
 
 	while (GetQueuedCompletionStatus(m_completionPort, &len, &intfd, &overlap, 1000))
 	{
+		if (intfd < 0 || intfd > MAX_DESCRIPTORS)
+			continue;
+
 		// woot, we got an event on a socket :P
 		eh = ref[intfd];
 		ov = CONTAINING_RECORD(overlap, Overlapped, m_overlap);
