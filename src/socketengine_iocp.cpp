@@ -333,7 +333,19 @@ void IOCPEngine::PostAcceptEvent(EventHandler * eh)
 	if (!eh)
 		return;
 
+	int on = 1;
+	u_long arg = 1;
+	struct linger linger = { 0 };
+
 	int fd = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+
+	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&on, sizeof(on));
+	/* This is BSD compatible, setting l_onoff to 0 is *NOT* http://web.irc.org/mla/ircd-dev/msg02259.html */
+	linger.l_onoff = 1;
+	linger.l_linger = 1;
+	setsockopt(fd, SOL_SOCKET, SO_LINGER, (char*)&linger,sizeof(linger));
+	ioctlsocket(fd, FIONBIO, &arg);
+
 	int len = sizeof(sockaddr_in) + 16;
 	DWORD dwBytes;
 	accept_overlap* ao = new accept_overlap;

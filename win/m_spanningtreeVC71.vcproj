@@ -65,7 +65,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\bin\release\modules"
-			IntermediateDirectory="Release"
+			IntermediateDirectory="Release_spanningtree"
 			ConfigurationType="2"
 			CharacterSet="2">
 			<Tool

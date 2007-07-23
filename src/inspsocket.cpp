@@ -149,8 +149,8 @@ void InspSocket::SetQueues(int nfd)
 	// attempt to increase socket sendq and recvq as high as its possible
 	int sendbuf = 32768;
 	int recvbuf = 32768;
-	setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf));
-	setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf));
+	if(setsockopt(nfd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf)) || setsockopt(nfd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(sendbuf)))
+		this->Instance->Log(DEFAULT, "Could not increase SO_SNDBUF/SO_RCVBUF for socket %u", GetFd());
 }
 
 /* Most irc servers require you to specify the ip you want to bind to.
@@ -320,6 +320,11 @@ bool InspSocket::DoConnect()
 		this->Timeout = new SocketTimeout(this->GetFd(), this->Instance, this, timeout_val, this->Instance->Time());
 		this->Instance->Timers->AddTimer(this->Timeout);
 	}
+#ifdef WIN32
+	/* Set nonblocking mode after the connect() call */
+	flags = 0;
+	ioctlsocket(this->fd, FIONBIO, &flags);
+#endif
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
 	{
