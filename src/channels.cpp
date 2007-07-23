@@ -331,23 +331,29 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	 * OperMaxchans. For remote users which are not bound by the channel limits,
 	 * we can extend infinitely. Otherwise, nope, youre restricted to MaxChans.
 	 */
-	if (!IS_LOCAL(user) || override == true)
+
+
+
+	/*
+	 * We place no restrictions on remote users, users that are override-joining, or users that are
+	 * currently in under MaxChans channels. For all others, they won't get in here. -- w00t
+	 */	
+	if (!IS_LOCAL(user) || override == true || user->chans.size() < Instance->Config->MaxChans)
 	{
 		return chanrec::ForceChan(Instance, Ptr, user, privs);
 	}
-	else if (IS_OPER(user))
+
+	/*
+	 * If the above fails, and the user is an oper -- we let them in if they are under OperMaxChans.
+	 * Otherwise, they're stuck, and need to override to get in, etc. -- w00t
+	 */
+	if (IS_OPER(user))
 	{
-		/* Oper allows extension up to the OperMaxchans value */
 		if (user->chans.size() < Instance->Config->OperMaxChans)
 		{
 			return chanrec::ForceChan(Instance, Ptr, user, privs);
 		}
 	}
-	else if (user->chans.size() < Instance->Config->MaxChans)
-	{
-		return chanrec::ForceChan(Instance, Ptr, user, privs);
-	}
-
 
 	user->WriteServ("405 %s %s :You are on too many channels",user->nick, cname);
 
