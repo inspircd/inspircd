@@ -204,11 +204,12 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 				}
 			}
 			if (send_to_user)
-				t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
+			{
+				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+			}
 		}
 	}
-	else
-	if (flags == WM_OR)
+	else if (flags == WM_OR)
 	{
 		for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
@@ -223,14 +224,16 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 					break;
 				}
 			}
+
 			if (send_to_user)
-				t->WriteServ("NOTICE %s :%s",t->nick,textbuffer);
+			{
+				t->WriteServ("NOTICE %s :%s", t->nick, textbuffer);
+			}
 		}
 	}
 }
 
 /* Find a user record by nickname and return a pointer to it */
-
 userrec* InspIRCd::FindNick(const std::string &nick)
 {
 	user_hash::iterator iter = clientlist->find(nick);
@@ -253,7 +256,6 @@ userrec* InspIRCd::FindNick(const char* nick)
 }
 
 /* find a channel record by channel name and return a pointer to it */
-
 chanrec* InspIRCd::FindChan(const char* chan)
 {
 	chan_hash::iterator iter = chanlist->find(chan);
@@ -276,10 +278,7 @@ chanrec* InspIRCd::FindChan(const std::string &chan)
 	return iter->second;
 }
 
-/*
- * sends out an error notice to all connected clients (not to be used
- * lightly!)
- */
+/* Send an error notice to all users, registered or not */
 void InspIRCd::SendError(const std::string &s)
 {
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
@@ -301,18 +300,19 @@ void InspIRCd::SendError(const std::string &s)
 	}
 }
 
-// this function counts all users connected, wether they are registered or NOT.
+/* this function counts all users connected, wether they are registered or NOT. */
 int InspIRCd::UserCount()
 {
 	return clientlist->size();
 }
 
-// this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state
+/* this counts only registered users, so that the percentages in /MAP don't mess up when users are sitting in an unregistered state */
 int InspIRCd::RegisteredUserCount()
 {
 	return clientlist->size() - this->UnregisteredUserCount();
 }
 
+/* return how many users have a given mode e.g. 'a' */
 int InspIRCd::ModeCount(const char mode)
 {
 	ModeHandler* mh = this->Modes->FindMode(mode, MODETYPE_USER);
@@ -323,32 +323,38 @@ int InspIRCd::ModeCount(const char mode)
 		return 0;
 }
 
+/* wrapper for readability */
 int InspIRCd::InvisibleUserCount()
 {
 	return ModeCount('i');
 }
 
+/* return how many users are opered */
 int InspIRCd::OperCount()
 {
 	return this->all_opers.size();
 }
 
+/* return how many users are unregistered */
 int InspIRCd::UnregisteredUserCount()
 {
 	return this->unregistered_count;
 }
 
+/* return channel count */
 long InspIRCd::ChannelCount()
 {
 	return chanlist->size();
 }
 
+/* return how many local registered users there are */
 long InspIRCd::LocalUserCount()
 {
 	/* Doesnt count unregistered clients */
 	return (local_users.size() - this->UnregisteredUserCount());
 }
-	
+
+/* true for valid channel name, false else */
 bool InspIRCd::IsChannel(const char *chname)
 {
 	char *c;
@@ -382,6 +388,7 @@ bool InspIRCd::IsChannel(const char *chname)
 	return true;
 }
 
+/* true for valid nickname, false else */
 bool InspIRCd::IsNick(const char* n)
 {
 	if (!n || !*n)
@@ -410,7 +417,7 @@ bool InspIRCd::IsNick(const char* n)
 	return (p < NICKMAX - 1);
 }
 
-
+/* return true for good ident, false else */
 bool InspIRCd::IsIdent(const char* n)
 {
 	if (!n || !*n)
@@ -434,6 +441,7 @@ bool InspIRCd::IsIdent(const char* n)
 	return true;
 }
 
+/* open the proper logfile */
 void InspIRCd::OpenLog(char** argv, int argc)
 {
 	Config->MyDir = Config->GetFullProgDir();
