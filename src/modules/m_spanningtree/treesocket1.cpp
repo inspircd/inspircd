@@ -212,6 +212,9 @@ void TreeSocket::OnError(InspSocketError e)
 {
 	Link* MyLink;
 
+	if (this->LinkState == LISTENER)
+		return;
+
 	switch (e)
 	{
 		case I_ERR_CONNECT:

@@ -38,7 +38,7 @@ DLLManager::DLLManager(InspIRCd* ServerInstance, const char *fname)
 
 DLLManager::~DLLManager()
 {
-	// close the library if it isn't null
+	/* close the library */
 	if (h)
 		dlclose(h);
 }
@@ -47,8 +47,10 @@ DLLManager::~DLLManager()
 
 bool DLLManager::GetSymbol(void** v, const char* sym_name)
 {
-	// try extract a symbol from the library
-	// get any error message is there is any
+	/*
+	 * try extract a symbol from the library
+	 * get any error message is there is any
+	 */
 	
 	if (h)
 	{
@@ -59,19 +61,13 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 			return false;
 	}
 	
-	if (err)
-	{
-		return false;
-	}
-	else
-	{	
-		return true;
-	}
+	/* succeeded :) */
+	return true;
 }
 
 DLLFactoryBase::DLLFactoryBase(InspIRCd* Instance, const char* fname, const char* symbol) : DLLManager(Instance, fname)
 {
-	// try get the factory function if there is no error yet
+	/* try get the factory function if there is no error yet */
 	factory_func = 0;
 	
 	if (!LastError())
