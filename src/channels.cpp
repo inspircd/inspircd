@@ -294,12 +294,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
 					if (!MOD_RESULT)
 					{
-						if (user->IsInvited(Ptr->name))
-						{
-							/* user was invited to channel */
-							/* there may be an optional channel NOTICE here */
-						}
-						else
+						if (!user->IsInvited(Ptr->name))
 						{
 							user->WriteServ("473 %s %s :Cannot join channel (Invite only)",user->nick, Ptr->name);
 							return NULL;
