@@ -217,10 +217,18 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 	if (!Ptr)
 	{
-		if ((!IS_LOCAL(user)) && (!TS))
-			Instance->Log(DEBUG,"*** BUG *** chanrec::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
-
-		privs = "@";
+		/*
+		 * Fix: desync bug was here, don't set @ on remote users - spanningtree handles their permissions. bug #358. -- w00t
+		 */
+		if (!IS_LOCAL(user))
+		{
+			if (!TS)
+				Instance->Log(DEBUG,"*** BUG *** chanrec::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
+		}
+		else
+		{
+			privs = "@";
+		}
 
 		if (IS_LOCAL(user) && override == false)
 		{
