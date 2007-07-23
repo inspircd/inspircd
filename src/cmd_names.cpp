@@ -38,7 +38,7 @@ CmdResult cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
 	{
-		if ((c->modes[CM_SECRET]) && (!c->HasUser(user)))
+		if ((c->IsModeSet('s')) && (!c->HasUser(user)))
 		{
 		      user->WriteServ("401 %s %s :No such nick/channel",user->nick, c->name);
 		      return CMD_FAILURE;

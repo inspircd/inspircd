@@ -32,7 +32,7 @@ CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 		Ptr = ServerInstance->FindChan(parameters[0]);
 		if (Ptr)
 		{
-			if ((Ptr->modes[CM_SECRET]) && (!Ptr->HasUser(user)))
+			if ((Ptr->IsModeSet('s')) && (!Ptr->HasUser(user)))
 			{
 				user->WriteServ("401 %s %s :No such nick/channel",user->nick, Ptr->name);
 				return CMD_FAILURE;
@@ -66,7 +66,7 @@ CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
 					user->WriteServ("442 %s %s :You're not on that channel!",user->nick, Ptr->name);
 					return CMD_FAILURE;
 				}
-				if ((Ptr->modes[CM_TOPICLOCK]) && (Ptr->GetStatus(user) < STATUS_HOP))
+				if ((Ptr->IsModeSet('t')) && (Ptr->GetStatus(user) < STATUS_HOP))
 				{
 					user->WriteServ("482 %s %s :You must be at least a half-operator to change the topic on this channel", user->nick, Ptr->name);
 					return CMD_FAILURE;

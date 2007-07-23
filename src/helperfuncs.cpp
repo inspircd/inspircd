@@ -116,7 +116,7 @@ void InspIRCd::WriteOpers(const std::string &text)
 	for (std::vector<userrec*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
 	{
 		userrec* a = *i;
-		if (IS_LOCAL(a) && a->modes[UM_SERVERNOTICE])
+		if (IS_LOCAL(a) && a->IsModeSet('s'))
 		{
 			// send server notices to all with +s
 			a->WriteServ("NOTICE %s :%s",a->nick,text.c_str());
@@ -192,7 +192,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 			for (int n = 0; n < modelen; n++)
 			{
-				if (!t->modes[modes[n]-65])
+				if (!t->IsModeSet(modes[n]))
 				{
 					send_to_user = false;
 					break;
@@ -212,7 +212,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 			for (int n = 0; n < modelen; n++)
 			{
-				if (t->modes[modes[n]-65])
+				if (t->IsModeSet(modes[n]))
 				{
 					send_to_user = true;
 					break;

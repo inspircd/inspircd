@@ -67,12 +67,12 @@ CmdResult cmd_notice::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (IS_LOCAL(user))
 			{
-				if ((chan->modes[CM_NOEXTERNAL]) && (!chan->HasUser(user)))
+				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
 					user->WriteServ("404 %s %s :Cannot send to channel (no external messages)", user->nick, chan->name);
 					return CMD_FAILURE;
 				}
-				if ((chan->modes[CM_MODERATED]) && (chan->GetStatus(user) < STATUS_VOICE))
+				if ((chan->IsModeSet('m')) && (chan->GetStatus(user) < STATUS_VOICE))
 				{
 					user->WriteServ("404 %s %s :Cannot send to channel (+m)", user->nick, chan->name);
 					return CMD_FAILURE;

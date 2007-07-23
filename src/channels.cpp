@@ -288,7 +288,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 						}
 					}
 				}
-				if (Ptr->modes[CM_INVITEONLY])
+				if (Ptr->IsModeSet('i'))
 				{
 					MOD_RESULT = 0;
 					FOREACH_RESULT_I(Instance,I_OnCheckInvite,OnCheckInvite(user, Ptr));
@@ -865,7 +865,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 
 	for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 	{
-		if ((!has_user) && (i->first->modes[UM_INVISIBLE]))
+		if ((!has_user) && (i->first->IsModeSet('i')))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show

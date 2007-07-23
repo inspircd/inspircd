@@ -1631,7 +1631,7 @@ void userrec::WriteWallOps(const std::string &text)
 	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
 		userrec* t = *i;
-		if (t->modes[UM_WALLOPS])
+		if (t->IsModeSet('w'))
 			this->WriteTo(t,wallop);
 	}
 }
@@ -1790,7 +1790,7 @@ std::string userrec::ChannelList(userrec* source)
 			 * If the channel is NOT private/secret OR the user shares a common channel
 			 * If the user is an oper, and the <options:operspywhois> option is set.
 			 */
-			if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->modes[CM_PRIVATE]) && (!i->first->modes[CM_SECRET])) || (i->first->HasUser(source))))
+			if ((source == this) || (IS_OPER(source) && ServerInstance->Config->OperSpyWhois) || (((!i->first->IsModeSet('p')) && (!i->first->IsModeSet('s'))) || (i->first->HasUser(source))))
 			{
 				list.append(i->first->GetPrefixChar(this)).append(i->first->name).append(" ");
 			}

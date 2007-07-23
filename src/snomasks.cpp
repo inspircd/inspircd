@@ -58,7 +58,7 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 		for (std::vector<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 		{
 			userrec* a = *i;
-			if (IS_LOCAL(a) && a->modes[UM_SERVERNOTICE] && a->modes[UM_SNOMASK] && a->IsNoticeMaskSet(n->first))
+			if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(n->first))
 			{
 				/* send server notices to all with +ns */
 				a->WriteServ("NOTICE %s :*** %s: %s",a->nick, n->second.c_str(), text.c_str());

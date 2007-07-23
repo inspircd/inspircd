@@ -47,7 +47,7 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 			return CMD_FAILURE;
 		}
 
-		if ((c->modes[CM_INVITEONLY]) && (IS_LOCAL(user)))
+		if ((c->IsModeSet('i')) && (IS_LOCAL(user)))
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{

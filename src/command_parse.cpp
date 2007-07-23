@@ -218,7 +218,7 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 	{
 		if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
 		{
-			if ((!n->second->flags_needed) || (user->modes[n->second->flags_needed-65]))
+			if ((!n->second->flags_needed) || (user->IsModeSet(n->second->flags_needed)))
 			{
 				if (n->second->flags_needed)
 				{
@@ -250,7 +250,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 	{
 		if (pcnt >= n->second->min_params)
 		{
-			if ((!n->second->flags_needed) || (user->modes[n->second->flags_needed-65]))
+			if ((!n->second->flags_needed) || (user->IsModeSet(n->second->flags_needed)))
 			{
 				if (n->second->flags_needed)
 				{
