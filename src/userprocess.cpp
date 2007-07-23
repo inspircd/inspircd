@@ -275,7 +275,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 						/* Everybody loves boobies. */
 						time_t time = this->Time(false) - (curr->nping - curr->pingmax);
 						char message[MAXBUF];
-						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", time, time > 1 ? "s" : "");
+						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 						curr->muted = true;
 						GlobalCulls.AddItem(curr, message);
 						curr->lastping = 1;
