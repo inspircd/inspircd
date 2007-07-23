@@ -18,8 +18,7 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-/* get the last 'visible' chan of a user */
-static char *getlastchanname(userrec *u)
+static char *get_first_visible_channel(userrec *u)
 {
 	UCListIter i = u->chans.begin();
 	if (i != u->chans.end())
@@ -136,7 +135,7 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 
 void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch, userrec* u, std::vector<std::string> &whoresults)
 {
-	std::string lcn = getlastchanname(u);
+	std::string lcn = get_first_visible_channel(u);
 	chanrec* chlast = ServerInstance->FindChan(lcn);
 
 	/* Not visible to this user */
