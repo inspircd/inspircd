@@ -253,7 +253,7 @@ class CloakUser : public ModeHandler
 		if (prefix.empty())
 			prefix = ServerInstance->Config->Network;
 
-		if (!key1 && !key2 && !key3 && !key4)
+		if (!key1 || !key2 || !key3 || !key4)
 			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
 	}
 };
