@@ -16,17 +16,16 @@
 #include <signal.h>
 
 #ifndef WIN32
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/resource.h>
-#include <dlfcn.h>
-#include <getopt.h>
+	#include <dirent.h>
+	#include <unistd.h>
+	#include <sys/resource.h>
+	#include <dlfcn.h>
+	#include <getopt.h>
 
-/* Some systems don't define RUSAGE_SELF. This should fix them. */
-#ifndef RUSAGE_SELF
-	#define RUSAGE_SELF 0
-#endif
-
+	/* Some systems don't define RUSAGE_SELF. This should fix them. */
+	#ifndef RUSAGE_SELF
+		#define RUSAGE_SELF 0
+	#endif
 #endif
 
 #include <exception>
