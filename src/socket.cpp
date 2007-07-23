@@ -471,7 +471,6 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 	}
 }
 
-/* XXX: Probably belongs in class InspIRCd */
 int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
