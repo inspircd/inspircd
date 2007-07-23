@@ -30,6 +30,10 @@ static time_t LAST = 0;
  */
 void InspIRCd::Log(int level, const char* text, ...)
 {
+	/* sanity check, just in case */
+	if (!this->Config)
+		return;
+
 	/* Do this check again here so that we save pointless vsnprintf calls */
 	if ((level < Config->LogLevel) && !Config->forcedebug)
 		return;
@@ -46,6 +50,7 @@ void InspIRCd::Log(int level, const char* text, ...)
 
 void InspIRCd::Log(int level, const std::string &text)
 {
+	/* sanity check, just in case */
 	if (!this->Config)
 		return;
 
