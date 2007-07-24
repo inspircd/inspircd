@@ -116,11 +116,8 @@ sub getmodules
 		if ($name =~ /^m_(.+)\.cpp$/)
 		{
 			$mod = $1;
-			if ($mod !~ /_static$/)
-			{
-				$main::modlist[$i++] = $mod;
-				print ".";
-			}
+			$main::modlist[$i++] = $mod;
+			print ".";
 		}
 	}
 	closedir(DIRHANDLE);
@@ -182,7 +179,6 @@ sub dumphash()
 	print "\033[0mMax away length:\033[1;32m\t\t$main::config{MAX_AWAY}\033[0m\n";
 	print "\033[0mGCC Version Found:\033[1;32m\t\t$main::config{GCCVER}.x\033[0m\n";
 	print "\033[0mCompiler program:\033[1;32m\t\t$main::config{CC}\033[0m\n";
-	print "\033[0mStatic modules:\033[1;32m\t\t\t$main::config{STATIC_LINK}\033[0m\n";
 	print "\033[0mIPv6 Support:\033[1;32m\t\t\t$main::config{IPV6}\033[0m\n";
 	print "\033[0mIPv6 to IPv4 Links:\033[1;32m\t\t$main::config{SUPPORT_IP6LINKS}\033[0m\n";
 	print "\033[0mGnuTLS Support:\033[1;32m\t\t\t$main::config{USE_GNUTLS}\033[0m\n";
