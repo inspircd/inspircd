@@ -37,8 +37,8 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			/* We're not checking ident, but I'm not sure I like the idea of '~' prefixing.. */
-			/* XXX - The ident field is IDENTMAX+2 in size to account for +1 for the optional
+			/*
+			 * The ident field is IDENTMAX+2 in size to account for +1 for the optional
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
 			 * IDENTMAX here.
 			 */
@@ -52,7 +52,8 @@ CmdResult cmd_user::Handle (const char** parameters, int pcnt, userrec *user)
 		user->WriteServ("462 %s :You may not reregister",user->nick);
 		return CMD_FAILURE;
 	}
-	/* parameters 2 and 3 are local and remote hosts, ignored when sent by client connection */
+
+	/* parameters 2 and 3 are local and remote hosts, and are ignored */
 	if (user->registered == REG_NICKUSER)
 	{
 		int MOD_RESULT = 0;

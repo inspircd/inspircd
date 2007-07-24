@@ -224,7 +224,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 				{
 					curr->muted = true;
-					GlobalCulls.AddItem(curr,"Registration timeout");
+					userrec::QuitUser(this, curr, "Registration timeout");
 					continue;
 				}
 				else
@@ -277,9 +277,9 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 						char message[MAXBUF];
 						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 						curr->muted = true;
-						GlobalCulls.AddItem(curr, message);
 						curr->lastping = 1;
 						curr->nping = TIME+curr->pingmax;
+						userrec::QuitUser(this, curr, message);
 						continue;
 					}
 					curr->Write("PING :%s",this->Config->ServerName);

@@ -723,9 +723,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "G-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -737,9 +737,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "K-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -751,9 +751,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "Q-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -765,9 +765,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "Z-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "Z-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 		}
@@ -799,9 +799,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "G-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "G-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
@@ -812,9 +812,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "K-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "K-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
@@ -825,9 +825,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "Q-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "Q-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
@@ -838,9 +838,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						ServerInstance->GlobalCulls.AddItem(u, "Z-Lined", reason);
+						userrec::QuitUser(ServerInstance, u, "Z-Lined", reason);
 					else
-						ServerInstance->GlobalCulls.AddItem(u, reason);
+						userrec::QuitUser(ServerInstance, u, reason);
 				}
 			}
 		}

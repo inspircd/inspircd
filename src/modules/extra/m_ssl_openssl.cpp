@@ -312,7 +312,7 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->GlobalCulls.AddItem(user, "SSL module unloading");
+				userrec::QuitUser(ServerInstance, user, "SSL module unloading");
 			}
 			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
 			{
