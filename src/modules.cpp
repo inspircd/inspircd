@@ -509,27 +509,30 @@ bool InspIRCd::DelELine(const std::string &hostmask)
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	char* dest = (char*)mask.c_str();
-	if (strchr(dest,'!')==0)
-		return false;
-	if (strchr(dest,'@')==0)
-		return false;
+	int exclamation = 0;
+	int atsign = 0;
+
 	for (char* i = dest; *i; i++)
-		if (*i < 32)
+	{
+		/* out of range character, bad mask */
+		if (*i < 32 || *i > 126)
+		{
 			return false;
-	for (char* i = dest; *i; i++)
-		if (*i > 126)
-			return false;
-	unsigned int c = 0;
-	for (char* i = dest; *i; i++)
-		if (*i == '!')
-			c++;
-	if (c>1)
-		return false;
-	c = 0;
-	for (char* i = dest; *i; i++)
-		if (*i == '@')
-			c++;
-	if (c>1)
+		}
+
+		switch (*i)
+		{
+			case '!':
+				exclamation++;
+				break;
+			case '@':
+				atsign++;
+				break;
+		}
+	}
+
+	/* valid masks only have 1 ! and @ */
+	if (exclamation != 1 || atsign != 1)
 		return false;
 
 	return true;
