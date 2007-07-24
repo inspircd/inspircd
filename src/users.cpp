@@ -1932,15 +1932,16 @@ void userrec::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
-		this->WriteServ("NOTICE %s :Rules file is missing.",this->nick);
+		this->WriteServ("434 %s :RULES File is missing",this->nick);
 		return;
 	}
-	this->WriteServ("NOTICE %s :%s rules",this->nick,ServerInstance->Config->ServerName);
+
+	this->WriteServ("308 %s :- %s Server Rules -",this->nick,ServerInstance->Config->ServerName);
 
 	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
-		this->WriteServ("NOTICE %s :%s",this->nick,i->c_str());
+		this->WriteServ("232 %s :- %s",this->nick,i->c_str());
 
-	this->WriteServ("NOTICE %s :End of %s rules.",this->nick,ServerInstance->Config->ServerName);
+	this->WriteServ("309 %s :End of RULES command.",this->nick);
 }
 
 void userrec::HandleEvent(EventType et, int errornum)
