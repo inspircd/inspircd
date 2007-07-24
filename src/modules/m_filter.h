@@ -359,12 +359,8 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				/* Are they parting, if so, kill is applicable */
 				if ((parting) && (f->action == "kill"))
 				{
-					user->SetWriteError("Filtered: "+f->reason);
-					/* This WriteServ causes the write error to be applied.
-					 * Its not safe to kill here with QuitUser in a PreCommand handler,
-					 * so we do it this way, which is safe just about anywhere.
-					 */
 					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
+					userrec::QuitUser(ServerInstance, "Filtered: " + f->reason);
 				}
 				if (f->action == "gline")
 				{
