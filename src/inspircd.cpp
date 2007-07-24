@@ -173,38 +173,6 @@ const char* ExitCodes[] =
 		"Received SIGTERM", /* 15 */
 };
 
-void InspIRCd::AddServerName(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return;
-
-	string * ns = new string(servername);
-	servernames.push_back(ns);
-}
-
-const char* InspIRCd::FindServerNamePtr(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return (*itr)->c_str();
-
-	servernames.push_back(new string(servername));
-	itr = --servernames.end();
-	return (*itr)->c_str();
-}
-
-bool InspIRCd::FindServerName(const std::string &servername)
-{
-	servernamelist::iterator itr = servernames.begin();
-	for(; itr != servernames.end(); ++itr)
-		if(**itr == servername)
-			return true;
-	return false;
-}
-
 void InspIRCd::Exit(int status)
 {
 #ifdef WINDOWS
@@ -437,11 +405,6 @@ void InspIRCd::WritePID(const std::string &filename)
 	}
 }
 
-std::string InspIRCd::GetRevision()
-{
-	return REVISION;
-}
-
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(-1), GlobalCulls(this)
 {
@@ -672,34 +635,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Log(DEFAULT,"Startup complete.");
 
 	this->WritePID(Config->PID);
-}
-
-std::string InspIRCd::GetVersionString()
-{
-	char versiondata[MAXBUF];
-	char dnsengine[] = "singlethread-object";
-
-	if (*Config->CustomVersion)
-	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
-	}
-	else
-	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%s]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),dnsengine);
-	}
-	return versiondata;
-}
-
-void InspIRCd::BuildISupport()
-{
-	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
-	std::stringstream v;
-	v << "WALLCHOPS WALLVOICES MODES=" << MAXMODES-1 << " CHANTYPES=# PREFIX=" << this->Modes->BuildPrefixes() << " MAP MAXCHANNELS=" << Config->MaxChans << " MAXBANS=60 VBANLIST NICKLEN=" << NICKMAX-1;
-	v << " CASEMAPPING=rfc1459 STATUSMSG=@%+ CHARSET=ascii TOPICLEN=" << MAXTOPIC << " KICKLEN=" << MAXKICK << " MAXTARGETS=" << Config->MaxTargets << " AWAYLEN=";
-	v << MAXAWAY << " CHANMODES=" << this->Modes->ChanModes() << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU";
-	Config->data005 = v.str();
-	FOREACH_MOD_I(this,I_On005Numeric,On005Numeric(Config->data005));
-	Config->Update005();
 }
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
