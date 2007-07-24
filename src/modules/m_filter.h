@@ -360,7 +360,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				if ((parting) && (f->action == "kill"))
 				{
 					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
-					userrec::QuitUser(ServerInstance, "Filtered: " + f->reason);
+					userrec::QuitUser(ServerInstance, user, "Filtered: " + f->reason);
 				}
 				if (f->action == "gline")
 				{
