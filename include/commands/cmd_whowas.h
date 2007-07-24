@@ -80,12 +80,13 @@ class cmd_whowas : public command_t
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
-	/** Handle command.
-	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
+    /** Handle an internal request from another command, the core, or a module
+     * @param Command ID
+     * @param Zero or more parameters, whos form is specified by the command ID.
+     * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
+     * If the command succeeds but should remain local to this server,
+     * return CMD_LOCALONLY.
+     */
 	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
 	void AddToWhoWas(userrec* user);
 	void GetStats(Extensible* ext);
