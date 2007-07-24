@@ -1067,7 +1067,7 @@ void userrec::FullConnect()
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
-			ServerInstance->GlobalCulls.AddItem(this, reason);
+			userrec::QuitUser(ServerInstance, this, reason);
 			return;
 		}
 
@@ -1080,7 +1080,7 @@ void userrec::FullConnect()
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
-			ServerInstance->GlobalCulls.AddItem(this, reason);
+			userrec::QuitUser(ServerInstance, this, reason);
 			return;
 		}
 	}
