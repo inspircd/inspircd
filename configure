@@ -217,7 +217,6 @@ if (defined $opt_noipv6links)
 {
 	$config{SUPPORT_IP6LINKS} = "n";
 }
-$config{STATIC_LINK}	    = "no";					# are doing static modules?
 chomp($config{MAX_CLIENT_T} = `sh -c \"ulimit -n\"`);	   		# FD Limit
 chomp($config{MAX_DESCRIPTORS} = `sh -c \"ulimit -n\"`);		# Hard FD Limit
 chomp($config{GCCVER}       = `g++ -dumpversion | cut -c 1`);   	# Major GCC Version
@@ -242,7 +241,6 @@ if (defined $opt_cc)
 $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $config{MAKEORDER}		= "ircd mods";				# build order
-$config{STATICLIBS}		= "";					# library archive path
 $config{MAX_IDENT}		= "12";					# max ident size
 $config{MAX_QUIT}		= "255";				# max quit message size
 $config{MAX_TOPIC}		= "307";				# max topic size
@@ -281,15 +279,6 @@ $config{HAS_OPENSSL} = $1;
 if ($config{GCCVER} eq "") {
 	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
 	exit;
-}
-
-# Minihack! Convert Cygwin to 'Cyg-Static' so i can
-# Keep my dynamic module experiments here for later
-# consideration!
-
-if ($config{OSNAME} =~ /CYGWIN/i)
-{
-	$config{OSNAME} = "CYG-STATIC";
 }
 
 if (!$config{MAX_CLIENT_T}) { 
@@ -527,10 +516,6 @@ if ($has_ports) {
 }
 print "yes\n" if $has_ports == 1;
 print "no\n" if $has_ports == 0;
-
-if (($config{OSNAME} =~ /CYGWIN/) || ($config{OSNAME} eq "CYG-STATIC")) {
-	$config{HAS_STRLCPY} = "true";
-}
 
 $config{HAS_EPOLL} = $has_epoll;
 $config{HAS_KQUEUE} = $has_kqueue; 
@@ -951,21 +936,6 @@ sub getosflags {
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 		$config{MAKEPROG} = "make";
-		if ($config{OSNAME} =~ /CYGWIN/) {
-			$config{FLAGS}  = "-fno-strict-aliasing -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
-			$config{LDLIBS} = "";
-			$config{MAKEPROG} = "/usr/bin/make";
-			$config{MAKEORDER} = "ircd mods";
-			return "Cygwin";
-		} elsif ($config{OSNAME} eq "CYG-STATIC") {
-			$config{FLAGS} = "-fno-strict-aliasing -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
-			$config{LDLIBS} = "";
-			$config{MAKEPROG} = "/usr/bin/make";
-			$config{MAKEORDER} = "mods ircd";
-			$config{STATICLIBS} = "modules/mods.a";
-			$config{STATIC_LINK} = "yes";
-			return "Cygwin-Static";
-		}
 	}
 
 	if ($config{OSNAME} =~ /FreeBSD/i) {
@@ -1042,18 +1012,8 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if ($config{OSNAME} =~ /SunOS/i) {
 			print FILEHANDLE "#define IS_SOLARIS\n";
 		}
-		if ($config{OSNAME} =~ /CYGWIN/i) {
-			print FILEHANDLE "#define IS_CYGWIN\n";
-			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE	1024\n#endif\n";
-		}
 		if ($config{OSNAME} =~ /MINGW32/i) {
 			print FILEHANDLE "#define IS_MINGW\n";
-		}
-		if ($config{OSNAME} =~ /CYG-STATIC/i) {
-			print FILEHANDLE "#ifndef FD_SETSIZE\n#define FD_SETSIZE    1024\n#endif\n";
-		}
-		if ($config{STATIC_LINK} eq "yes") {
-			print FILEHANDLE "#define STATIC_LINK\n";
 		}
 		if ($config{GCCVER} >= 3) {
 			print FILEHANDLE "#define GCC3\n";
@@ -1116,12 +1076,7 @@ EOF
 	my $modules = "";
 	foreach $i (@modlist)
 	{
-		if ($config{STATIC_LINK} eq "yes") {
-			$modules .= "m_".$i.".o ";
-		}
-		else {
-			$modules .= "m_".$i.".so ";
-		}
+		$modules .= "m_".$i.".so ";
 	}
 	chomp($modules);   # Remove Redundant whitespace..
 
@@ -1141,10 +1096,6 @@ EOF
 	my $tmp = "";
 	my $file = "";
 	my $exe = "inspircd";
-
-	if ($config{OSNAME} =~ /CYGWIN/i) {
-		$exe = "inspircd.exe";
-	}
 
 	opendir(DIRHANDLE, $this);
 
@@ -1197,7 +1148,6 @@ EOF
 			$tmp =~ s/\@EXTRA_DIR\@/$config{EXTRA_DIR}/;
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
-			$tmp =~ s/\@STATICLIBS\@/$config{STATICLIBS}/;
 			$tmp =~ s/\@VERSION\@/$version/;
 
 			print "Writing \033[1;32m$file\033[0m\n";
@@ -1210,130 +1160,15 @@ EOF
 	# Make inspircd executable!
 	chmod 0744, 'inspircd';
 
-	if ($config{STATIC_LINK} eq "yes") {
-		print "Writing static-build \033[1;32msrc/Makefile\033[0m\n";
-		write_static_makefile();
-		write_static_modules_makefile();
-	} elsif ($config{OSNAME} =~ /CYGWIN/i) {
-		print "Writing cygwin-build \033[1;32msrc/Makefile\033[0m\n";
-		write_static_makefile();
-		write_dynamic_modules_makefile();
-	} else {
-		print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
-		write_dynamic_makefile();
-		write_dynamic_modules_makefile();
-	}
-}
-
-sub write_static_modules_makefile {
-	# Modules Makefile..
-	print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
-	open(FILEHANDLE, ">src/modules/Makefile");
-
-	###
-	# Module Makefile Header
-	###
-	print FILEHANDLE <<EOF;
-###################################################
-# Copyright 2002-2007 The InspIRCd Development Team
-#  http://www.inspircd.org/wiki/index.php/Credits
-#
-# Thanks to Andrew Church <achurch\@achurch.org>
-#  for assisting with making this work right.
-#
-# Automatically Generated by ./configure to add a
-#  modules please run ./configure --modupdate
-###################################################
-
-all: \$(MODULES)
-
-EOF
-	###
-	# End Module Makefile Header
-	###
-
-	# Create a Modules List..
-	my $modules = "";
-	my $cmflags = "";
-	my $liflags = "";
-
-	open(MODLIST,">include/modlist.h");
-
-	###
-	# Include File Header
-	###
-	print MODLIST <<HEADER;
-// Generated automatically by configure. DO NOT EDIT!
-
-#ifndef __SYMBOLS__H_CONFIGURED__
-#define __SYMBOLS__H_CONFIGURED__
-
-HEADER
-	###
-	# End Include File Header
-	###
-
-	# Place Module List into Include
-	foreach $i (@modlist) {
-		if ($i !~ /_static$/) {
-			print MODLIST "extern \"C\" void * $i\_init (void);\n";
-		}
-	}
-	print MODLIST "\nstruct {const char *name; initfunc *value; } modsyms[] = {\n";
-
-	###
-	# Build Module Crap
-	###
-	foreach $i (@modlist)
-	{
-		if ($i !~ /_static$/) {
-			$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
-			$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
-			$deps = getdependencies("src/modules/m_".$i.".cpp");
-
-			#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
-
-			###
-			# Write Entry to the Makefile
-			###
-			print FILEHANDLE <<EOCHEESE;
-m_$i.o: .m_$i\_static.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h $deps
-	\$(CC) -pipe -I../../include \$(FLAGS) $flags -export-dynamic -c .m_$i\_static.cpp
-	mv .m_$i\_static.o ../m_$i.o
-
-EOCHEESE
-			###
-			# End Write Entry to the MakeFile
-			###
-			print "Configuring module [\033[1;32mm_$i.so\033[0m] for static linking... ";
-			open(MODULE,"<src/modules/m_".$i.".cpp") or die("Could not open m_".$i.".cpp");
-			open(MUNGED,">src/modules/.m_".$i."_static.cpp") or die("Could not create .m_".$i."_static.cpp");
-			while (chomp($a = <MODULE>)) { 
-				$a =~ s/init_module/$i\_init/g;
-				print MUNGED "$a\n";
-			}
-			close(MODULE);
-			close(MUNGED);
-			print MODLIST <<EOENT;
-{"m_$i.so",\&$i\_init},
-EOENT
-			print "done\n";
-		}
-	}
-
-	print MODLIST "{0}};\n\n#endif\n";
-	close(MODLIST);
+	print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
+	write_dynamic_makefile();
+	write_dynamic_modules_makefile();
 }
 
 sub write_dynamic_modules_makefile {
 	# Modules Makefile..
 	print "Writing \033[1;32msrc/modules/Makefile\033[0m\n";
 	open(FILEHANDLE, ">src/modules/Makefile");
-	my $extra = "";
-
-	if ($config{OSNAME} =~ /CYGWIN/i) {
-		$extra = "../inspircd.dll.a";
-	}
 
 ###
 # Module Makefile Header
@@ -1380,12 +1215,12 @@ EOCHEESE
 
 if ($config{OSNAME} =~ /darwin/) {
 		print FILEHANDLE <<EOCHEESE;
-	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle $liflags -o m_$i.so m_$i.o $extra
+	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle $liflags -o m_$i.so m_$i.o
 
 EOCHEESE
 } else {
 		print FILEHANDLE <<EOCHEESE;
-	\$(CC) -pipe \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o $extra
+	\$(CC) -pipe \$(FLAGS) -shared $liflags -o m_$i.so m_$i.o
 
 EOCHEESE
 }
@@ -1434,162 +1269,6 @@ EOCHEESE
 	closedir(DIRHANDLE);
 
 	print FILEHANDLE "modinst:\n	\@echo \"Installing modules...\"\n" . $crud;
-}
-
-
-sub write_static_makefile {
-	open(FH,">src/Makefile") or die("Could not write src/Makefile!");
-	my $i = 0;
-	my @cmdlist = ();
-	opendir(DIRHANDLE, "src");
-	foreach $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^cmd_(.+)\.cpp$/) {
-			$cmdlist[$i++] = $1;
-		}
-	}
-	closedir(DIRHANDLE);
-	my $cmdobjs = "";
-	my $srcobjs = "";
-	foreach my $cmd (@cmdlist) {
-		$cmdobjs = $cmdobjs . "cmd_$cmd.o ";
-		$srcobjs = $srcobjs . "cmd_$cmd.cpp ";
-	}
-	print FH <<EOM;
-###################################################
-# Copyright 2002-2007 The InspIRCd Development Team
-#  http://www.inspircd.org/wiki/index.php/Credits
-#
-# Thanks to Andrew Church <achurch\@achurch.org>
-#  for assisting with making this work right.
-#
-# This file is automagically generated by configure
-# Any changes made will be lost on ./configure
-###################################################
-
-CC = im a cheezeball
-
-CXXFLAGS = -I../include \${FLAGS}
-CPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* //' | grep -v svn)
-RELCPPFILES = \$(shell /bin/ls -l modes/ | grep '\\.cpp' | sed 's/^.* /modes\\//' | grep -v svn)
-
-EOM
-
-$se = "socketengine_select";
-if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
-	$se = "socketengine_kqueue";
-}       
-elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
-	$se = "socketengine_epoll";
-}
-elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
-	$se = "socketengine_ports";
-}
-
-	###
-	# This next section is for cygwin dynamic module builds.
-	# Basically, what we do, is build the inspircd core as a library
-	# then the main executable uses that. the library is capable of
-	# loading / unloading the modules dynamically :)
-	# Massive thanks to the guys on #cygwin @ irc.freenode.net for helping
-	# make this work :)
-	###
-
-	if ($config{OSNAME} =~ /CYGWIN/i) {
-		print FH <<EOM;
-all: timer.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o configreader.o inspsocket.o $cmdobjs commands.o dynamic.o users.o modules.o wildcard.o helperfuncs.o snomasks.o inspircd.exe
-
-inspircd.exe: inspircd.dll.a
-	\$(CC) -o \$@ \$^
-
-inspircd.dll inspircd.dll.a: inspircd.o channels.o mode.o xline.o inspstring.o dns.o base.o configreader.o inspsocket.o $cmdobjs  commands.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o timer.o snomasks.o
-	\$(CC) -shared -Wl,--out-implib=inspircd.dll.a -o inspircd.dll \$^
-EOM
-	} else {
-		print FH <<EOM;
-all: timer.o command_parse.o cull_list.o userprocess.o socketengine.o socket.o hashcomp.o channels.o mode.o xline.o inspstring.o dns.o base.o configreader.o inspsocket.o $cmdobjs commands.o dynamic.o users.o modules.o wildcard.o helperfuncs.o snomasks.o \$(MODULES) inspircd.exe
-
-inspircd.exe: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/base.h
-	\$(CC) -I../include \$(FLAGS) inspircd.cpp -o inspircd.exe \$(LDLIBS) channels.o mode.o xline.o inspstring.o dns.o base.o inspsocket.o configreader.o $cmdobjs commands.o dynamic.o users.o modules.o wildcard.o helperfuncs.o hashcomp.o socket.o socketengine.o userprocess.o cull_list.o command_parse.o timer.o snomasks.o modes/modeclasses.a \$(MODULES)
-EOM
-	}
-
-	print FH <<EOM;
-
-cull_list.o: cull_list.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/users.h ../include/channels.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cull_list.cpp
-
-snomasks.o: snomasks.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/channels.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c snomasks.cpp
-
-command_parse.o: command_parse.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c command_parse.cpp
-
-userprocess.o: userprocess.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c userprocess.cpp
-
-socketengine.o: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp $se.cpp
-
-hashcomp.o: hashcomp.cpp ../include/base.h ../include/hashcomp.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c hashcomp.cpp
-
-helperfuncs.o: helperfuncs.cpp ../include/base.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c helperfuncs.cpp
-
-channels.o: channels.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c channels.cpp
-
-mode.o: mode.cpp ../include/base.h ../include/mode.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h \$(RELCPPFILES) modes/modeclasses.a
-	\${MAKE} -C "modes" DIRNAME="src/modes" CC="\$(CC)" \$(MAKEARGS)
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c mode.cpp
-
-xline.o: xline.cpp ../include/base.h ../include/xline.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c xline.cpp
-
-inspstring.o: inspstring.cpp ../include/base.h ../include/inspstring.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspstring.cpp
-
-dns.o: dns.cpp ../include/base.h ../include/dns.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dns.cpp
-
-base.o: base.cpp ../include/base.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c base.cpp
-
-configreader.o: configreader.cpp ../include/base.h ../include/configreader.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c configreader.cpp
-
-commands.o: commands.cpp ../include/base.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h $srcobjs
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c commands.cpp $cmdobjs
-
-dynamic.o: dynamic.cpp ../include/base.h ../include/dynamic.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c dynamic.cpp
-
-users.o: users.cpp ../include/base.h ../include/users.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c users.cpp
-
-modules.o: modules.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c modules.cpp
-
-wildcard.o: wildcard.cpp ../include/base.h ../include/wildcard.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c wildcard.cpp
-
-socket.o: socket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socket.cpp
-	
-inspsocket.o: inspsocket.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c inspsocket.cpp
-
-timer.o: timer.cpp ../include/base.h ../include/inspircd.h ../include/globals.h ../include/inspircd_config.h ../include/timer.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c timer.cpp
-
-EOM
-	foreach my $cmd (@cmdlist) {
-		print FH <<ITEM;
-cmd_$cmd.o: cmd_$cmd.cpp ../include/base.h ../include/modules.h ../include/inspircd.h ../include/channels.h ../include/users.h ../include/globals.h ../include/inspircd_config.h ../include/commands/cmd_$cmd.h
-	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c cmd_$cmd.cpp
-ITEM
-	}
-	close(FH);
 }
 
 sub write_dynamic_makefile {
@@ -1753,7 +1432,7 @@ EOM
 all: libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDsnomasks.so libIRCDserver.so inspircd
 
 inspircd: inspircd.cpp ../include/base.h ../include/channels.h ../include/inspircd.h ../include/channels.h ../include/globals.h ../include/inspircd_config.h ../include/socket.h libIRCDtimer.so libIRCDcull_list.so libIRCDuserprocess.so libIRCDsocketengine.so libIRCDsocket.so libIRCDhash.so libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so $cmdobjs libIRCDsnomasks.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDcommand_parse.so libIRCDserver.so
-	\$(CC) -pipe -I../include $extra -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so libIRCDserver.so
+	\$(CC) -pipe -I../include -Wl,--rpath -Wl,$config{LIBRARY_DIR} \$(FLAGS) -rdynamic -L. inspircd.cpp -o inspircd \$(LDLIBS) libIRCDchannels.so libIRCDmode.so libIRCDxline.so libIRCDstring.so libIRCDasyncdns.so libIRCDbase.so libIRCDconfigreader.so libIRCDinspsocket.so libIRCDcommands.so libIRCDdynamic.so libIRCDusers.so libIRCDmodules.so libIRCDwildcard.so libIRCDhelper.so libIRCDhash.so libIRCDsocket.so libIRCDsocketengine.so libIRCDuserprocess.so libIRCDcull_list.so libIRCDcommand_parse.so libIRCDtimer.so libIRCDsnomasks.so libIRCDserver.so
 
 libIRCDsocketengine.so: $se.cpp socketengine.cpp ../include/base.h ../include/hashcomp.h ../include/globals.h ../include/inspircd_config.h ../include/$se.h
 	\$(CC) -pipe -I../include \$(FLAGS) -export-dynamic -c socketengine.cpp $se.cpp
