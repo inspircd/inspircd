@@ -329,7 +329,6 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			if (items < cm->second->min_params)
 			{
 				user->WriteServ("461 %s %s :Not enough parameters.", user->nick, command.c_str());
-				/* If syntax is given, display this as the 461 reply */
 				if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
 					user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
 				return;
@@ -346,9 +345,8 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					return;
 
 				/*
-				 * WARNING: nothing may come after the
-				 * command handler call, as the handler
-				 * may free the user structure!
+				 * WARNING: nothing should come after this, as the user may be on a cull list to
+				 * be nuked next loop iteration. be sensible.
 				 */
 				CmdResult result = cm->second->Handle(command_p,items,user);
 
