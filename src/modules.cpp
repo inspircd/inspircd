@@ -200,6 +200,131 @@ void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(userrec* user) { }
 
 
+char* InspIRCd::ModuleError()
+{
+	return MODERR;
+}
+
+void InspIRCd::EraseFactory(int j)
+{
+	int v = 0;
+	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
+	{
+		if (v == j)
+		{
+			delete *t;
+			factory.erase(t);
+		 	factory.push_back(NULL);
+		 	return;
+	   	}
+		v++;
+	}
+}
+
+void InspIRCd::EraseModule(int j)
+{
+	int v1 = 0;
+	for (ModuleList::iterator m = modules.begin(); m!= modules.end(); m++)
+	{
+		if (v1 == j)
+		{
+			DELETE(*m);
+			modules.erase(m);
+			modules.push_back(NULL);
+			break;
+		}
+		v1++;
+	}
+	int v2 = 0;
+	for (std::vector<std::string>::iterator v = Config->module_names.begin(); v != Config->module_names.end(); v++)
+	{
+		if (v2 == j)
+		{
+			Config->module_names.erase(v);
+			break;
+		}
+		v2++;
+	}
+
+}
+
+void InspIRCd::MoveTo(std::string modulename,int slot)
+{
+	unsigned int v2 = 256;
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		if (Config->module_names[v] == modulename)
+		{
+			// found an instance, swap it with the item at the end
+			v2 = v;
+			break;
+		}
+	}
+	if ((v2 != (unsigned int)slot) && (v2 < 256))
+	{
+		// Swap the module names over
+		Config->module_names[v2] = Config->module_names[slot];
+		Config->module_names[slot] = modulename;
+		// now swap the module factories
+		ircd_module* temp = factory[v2];
+		factory[v2] = factory[slot];
+		factory[slot] = temp;
+		// now swap the module objects
+		Module* temp_module = modules[v2];
+		modules[v2] = modules[slot];
+		modules[slot] = temp_module;
+		// now swap the implement lists (we dont
+		// need to swap the global or recount it)
+		for (int n = 0; n < 255; n++)
+		{
+			char x = Config->implement_lists[v2][n];
+			Config->implement_lists[v2][n] = Config->implement_lists[slot][n];
+			Config->implement_lists[slot][n] = x;
+		}
+	}
+}
+
+void InspIRCd::MoveAfter(std::string modulename, std::string after)
+{
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		if (Config->module_names[v] == after)
+		{
+			MoveTo(modulename, v);
+			return;
+		}
+	}
+}
+
+void InspIRCd::MoveBefore(std::string modulename, std::string before)
+{
+	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	{
+		if (Config->module_names[v] == before)
+		{
+			if (v > 0)
+			{
+				MoveTo(modulename, v-1);
+			}
+			else
+			{
+				MoveTo(modulename, v);
+			}
+			return;
+		}
+	}
+}
+
+void InspIRCd::MoveToFirst(std::string modulename)
+{
+	MoveTo(modulename,0);
+}
+
+void InspIRCd::MoveToLast(std::string modulename)
+{
+	MoveTo(modulename,this->GetModuleCount());
+}
+
 bool InspIRCd::UnloadModule(const char* filename)
 {
 	std::string filename_str = filename;
