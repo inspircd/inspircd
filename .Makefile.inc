@@ -95,6 +95,7 @@ install: all@EXTRA_DIR@
 	-install -m $(INSTMODE) src/libIRCDxline.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDtimer.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/libIRCDsnomasks.$(LIB_EXT) $(LIBPATH)
+	-install -m $(INSTMODE) src/libIRCDserver.$(LIB_EXT) $(LIBPATH)
 	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
 	-install -m $(INSTMODE) src/cmd_admin.so $(LIBPATH)
