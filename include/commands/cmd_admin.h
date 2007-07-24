@@ -16,7 +16,6 @@
 
 #include "users.h"
 #include "channels.h"
-#include "ctables.h"
 
 /** Handle /ADMIN. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
