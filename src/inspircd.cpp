@@ -295,14 +295,6 @@ void InspIRCd::Restart(const std::string &reason)
 	}
 }
 
-void InspIRCd::Start()
-{
-	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
-	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
-	printf_c("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey, Burlex\033[0m\n");
-	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
-}
-
 void InspIRCd::Rehash(int status)
 {
 	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
@@ -549,7 +541,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_CONFIG);
 	}
 
-	this->Start();
+	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
+	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
+	printf_c("Developers:\t\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, pippijn, peavey, Burlex\033[0m\n");
+	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
 
 	/* Set the finished argument values */
 	Config->nofork = do_nofork;
@@ -774,10 +769,10 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 	 * This will cause any read or write events to be
 	 * dispatched to their handlers.
 	 */
-	SE->DispatchEvents();
+	this->SE->DispatchEvents();
 
 	/* if any users was quit, take them out */
-	GlobalCulls.Apply();
+	this->GlobalCulls.Apply();
 
 	/* If any inspsockets closed, remove them */
 	this->InspSocketCull();
