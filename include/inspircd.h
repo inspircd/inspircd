@@ -340,10 +340,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void MoveTo(std::string modulename,int slot);
 
-	/** Display the startup banner
-	 */
-	void Start();
-
 	/** Set up the signal handlers
 	 */
 	void SetSignals();
