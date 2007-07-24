@@ -77,7 +77,7 @@ class ModuleAlias : public Module
 		: Module(Me)
 	{
 		ReadAliases();
-		pars.resize(127);
+		pars.resize(MAXPARAMETERS);
 	}
 
 	void Implements(char* List)
@@ -251,10 +251,10 @@ class ModuleAlias : public Module
 		SearchAndReplace(newline, "\r", "$");
 
 		irc::tokenstream ss(newline);
-		const char* parv[127];
+		const char* parv[MAXPARAMETERS];
 		int x = 0;
 
-		while (ss.GetToken(pars[x]))
+		while (ss.GetToken(pars[x]) && x < MAXPARAMETERS)
 		{
 			parv[x] = pars[x].c_str();
 			x++;

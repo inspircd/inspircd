@@ -144,9 +144,9 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
-			const char* new_parameters[127];
+			const char* new_parameters[MAXPARAMETERS];
 
-			for (int t = 0; (t < pcnt) && (t < 127); t++)
+			for (int t = 0; (t < pcnt) && (t < MAXPARAMETERS); t++)
 				new_parameters[t] = parameters[t];
 
 			std::string extrastuff = items2.GetToken();
@@ -185,9 +185,9 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
-			const char* new_parameters[127];
+			const char* new_parameters[MAXPARAMETERS];
 
-			for (int t = 0; (t < pcnt) && (t < 127); t++)
+			for (int t = 0; (t < pcnt) && (t < MAXPARAMETERS); t++)
 				new_parameters[t] = parameters[t];
 
 			new_parameters[splithere] = item.c_str();
@@ -271,7 +271,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 
 void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 {
-	const char *command_p[127];
+	const char *command_p[MAXPARAMETERS];
 	int items = 0;
 	irc::tokenstream tokens(cmd);
 	std::string command;
@@ -285,7 +285,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 	if (*command.c_str() == ':')
 		tokens.GetToken(command);
 
-	while (tokens.GetToken(para[items]) && (items < 127))
+	while (tokens.GetToken(para[items]) && (items < MAXPARAMETERS))
 	{
 		command_p[items] = para[items].c_str();
 		items++;

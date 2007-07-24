@@ -1400,7 +1400,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				{
 					if (Utils->IsServer(prefix))
 					{
-						const char* modelist[127];
+						const char* modelist[MAXPARAMETERS];
 						for (size_t i = 0; i < params.size(); i++)
 							modelist[i] = params[i].c_str();
 						userrec* fake = new userrec(Instance);

@@ -38,6 +38,11 @@
 #include "snomasks.h"
 #include "cull_list.h"
 
+/**
+ * Used to define the maximum number of parameters a command may have.
+ */
+#define MAXPARAMETERS 127
+
 /** Returned by some functions to indicate failure.
  */
 #define ERROR -1

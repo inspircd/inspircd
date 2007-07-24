@@ -341,7 +341,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 		command_t* c = ServerInstance->Parser->GetHandler(command);
 		if (c)
 		{
-			const char* params[127];
+			const char* params[MAXPARAMETERS];
 			for (int item = 0; item < pcnt; item++)
 				params[item] = parameters[item];
 			params[replacepoint] = "Reason filtered";
