@@ -13,6 +13,30 @@
 
 #include "inspircd.h"
 
+void InspIRCd::Rehash(int status)
+{
+/*
+	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
+	SI->CloseLog();
+	SI->OpenLog(SI->Config->argv, SI->Config->argc);
+	SI->RehashUsersAndChans();
+	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
+	SI->Config->Read(false,NULL);
+	SI->ResetMaxBans();
+	SI->Res->Rehash();
+	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(NULL,""));
+	SI->BuildISupport();
+*/
+}
+
+void InspIRCd::RehashServer()
+{
+	this->WriteOpers("*** Rehashing config file");
+	this->RehashUsersAndChans();
+	this->Config->Read(false,NULL);
+	this->ResetMaxBans();
+	this->Res->Rehash();
+}
 
 std::string InspIRCd::GetVersionString()
 {
@@ -41,7 +65,6 @@ void InspIRCd::BuildISupport()
 	FOREACH_MOD_I(this,I_On005Numeric,On005Numeric(Config->data005));
 	Config->Update005();
 }
-
 
 std::string InspIRCd::GetRevision()
 {
@@ -79,5 +102,4 @@ bool InspIRCd::FindServerName(const std::string &servername)
 			return true;
 	return false;
 }
-
 

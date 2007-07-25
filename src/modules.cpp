@@ -692,15 +692,6 @@ const std::string& InspIRCd::GetModuleName(Module* m)
 	return nothing; /* As above */
 }
 
-void InspIRCd::RehashServer()
-{
-	this->WriteOpers("*** Rehashing config file");
-	this->RehashUsersAndChans();
-	this->Config->Read(false,NULL);
-	this->ResetMaxBans();
-	this->Res->Rehash();
-}
-
 /* This is ugly, yes, but hash_map's arent designed to be
  * addressed in this manner, and this is a bit of a kludge.
  * Luckily its a specialist function and rarely used by

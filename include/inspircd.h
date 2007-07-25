@@ -53,7 +53,6 @@
  */
 #define ETIREDHAMSTERS EAGAIN
 
-
 /**
  * This define is used in place of strcmp when we
  * want to check if a char* string contains only one

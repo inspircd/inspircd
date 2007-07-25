@@ -263,26 +263,11 @@ void InspIRCd::Restart(const std::string &reason)
 	}
 }
 
-void InspIRCd::Rehash(int status)
-{
-	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
-	SI->CloseLog();
-	SI->OpenLog(SI->Config->argv, SI->Config->argc);
-	SI->RehashUsersAndChans();
-	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
-	SI->Config->Read(false,NULL);
-	SI->ResetMaxBans();
-	SI->Res->Rehash();
-	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(NULL,""));
-	SI->BuildISupport();
-}
-
 void InspIRCd::ResetMaxBans()
 {
 	for (chan_hash::const_iterator i = chanlist->begin(); i != chanlist->end(); i++)
 		i->second->ResetMaxBans();
 }
-
 
 /** Because hash_map doesnt free its buckets when we delete items (this is a 'feature')
  * we must occasionally rehash the hash (yes really).
