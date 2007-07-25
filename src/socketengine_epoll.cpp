@@ -26,7 +26,7 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Log(SPARSE,"ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
 		printf("ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.\n");
-		InspIRCd::Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 }

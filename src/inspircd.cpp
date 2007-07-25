@@ -175,19 +175,6 @@ const char* ExitCodes[] =
 		"Received SIGTERM", /* 15 */
 };
 
-void InspIRCd::Exit(int status)
-{
-#ifdef WINDOWS
-	CloseIPC();
-#endif
-	if (SI)
-	{
-		SI->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
-		SI->Cleanup();
-	}
-	exit (status);
-}
-
 void InspIRCd::Cleanup()
 {
 	std::vector<std::string> mymodnames;
@@ -310,7 +297,7 @@ void InspIRCd::SetSignals()
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 #endif
-	signal(SIGTERM, InspIRCd::Exit);
+	signal(SIGTERM, InspIRCd::SetSignal);
 }
 
 void InspIRCd::QuickExit(int status)
@@ -346,7 +333,7 @@ bool InspIRCd::DaemonSeed()
 	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
 
-	signal(SIGTERM, InspIRCd::Exit);
+	signal(SIGTERM, InspIRCd::SetSignal);
 
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)

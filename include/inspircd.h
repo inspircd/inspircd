@@ -695,7 +695,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param The exit code to give to the operating system
 	 * (See the ExitStatus enum for valid values)
 	 */
-	static void Exit(int status);
+	void Exit(int status);
 
 	/** Causes the server to exit immediately with exit code 0.
 	 * The status code is required for signal handlers, and ignored.

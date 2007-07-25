@@ -26,7 +26,7 @@ PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 		ServerInstance->Log(SPARSE,"ERROR: This is a fatal error, exiting now.");
 		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
 		printf("ERROR: This is a fatal error, exiting now.\n");
-		InspIRCd::Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 }

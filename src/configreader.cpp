@@ -550,7 +550,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 	{
 		/* Unneeded because of the ServerInstance->Log() aboive? */
 		printf("There were errors in your configuration:\n%s\n\n",errormessage.c_str());
-		InspIRCd::Exit(EXIT_STATUS_CONFIG);
+		ServerInstance->Exit(EXIT_STATUS_CONFIG);
 	}
 	else
 	{

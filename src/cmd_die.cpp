@@ -35,7 +35,7 @@ CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
 		if (ServerInstance->Config->DieDelay)
 			sleep(ServerInstance->Config->DieDelay);
 
-		InspIRCd::Exit(EXIT_STATUS_DIE);
+		ServerInstance->Exit(EXIT_STATUS_DIE);
 	}
 	else
 	{

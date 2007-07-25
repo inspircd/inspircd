@@ -391,11 +391,11 @@ void CheckIPC(InspIRCd * Instance)
 	switch (action)
 	{
 		case IPC_MESSAGE_REHASH:
-			InspIRCd::Rehash(0);
+			Instance->Rehash(0);
 		break;
 		
 		case IPC_MESSAGE_DIE:
-			InspIRCd::Exit(0);
+			Instance->Exit(0);
 		break;
 
 		case IPC_MESSAGE_RESTART:

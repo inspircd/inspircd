@@ -12,6 +12,7 @@
  */
 
 #include <signal.h>
+#include "exitcodes.h"
 #include "inspircd.h"
 
 
@@ -22,7 +23,23 @@ void InspIRCd::SignalHandler(int signal)
 		case SIGHUP:
 			Rehash();
 			break;
+		case SIGTERM:
+			Exit(signal);
+			break;
 	}
+}
+
+void InspIRCd::Exit(int status)
+{
+#ifdef WINDOWS
+	CloseIPC();
+#endif
+	if (this)
+	{
+		this->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
+		this->Cleanup();
+    }
+    exit (status);
 }
 
 void InspIRCd::Rehash()
