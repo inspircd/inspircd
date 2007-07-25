@@ -38,6 +38,7 @@
 #include "snomasks.h"
 #include "cull_list.h"
 #include "filelogger.h"
+#include "caller.h"
 
 /**
  * Used to define the maximum number of parameters a command may have.
@@ -60,6 +61,8 @@
  * addition.
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
+
+
 
 /** Delete a pointer, and NULL its value
  */
@@ -234,6 +237,18 @@ typedef std::vector<std::pair<std::string, long> > FailedPortList;
 /** A list of ip addresses cross referenced against clone counts */
 typedef std::map<irc::string, unsigned int> clonemap;
 
+class InspIRCd;
+
+class CoreExport IsNickHandler : public HandlerBase1<bool, const char*>
+{
+	InspIRCd* Server;
+ public:
+	IsNickHandler(InspIRCd* Srv) : Server(Srv) { }
+	virtual ~IsNickHandler() { }
+	virtual bool Call(const char*);
+};
+
+
 /* Forward declaration - required */
 class XLineManager;
 
@@ -367,6 +382,15 @@ class CoreExport InspIRCd : public classbase
 
  public:
 
+	/** Global cull list, will be processed on next iteration
+	 */
+	CullList GlobalCulls;
+
+
+	/**** Functors ****/
+
+	IsNickHandler HandleIsNick;	
+
 	/** InspSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
 	 */
@@ -469,10 +493,6 @@ class CoreExport InspIRCd : public classbase
 	/** The time we next call our ping timeout and reg timeout checks
 	 */
 	time_t next_call;
-
-	/** Global cull list, will be processed on next iteration
-	 */
-	CullList GlobalCulls;
 
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
@@ -842,7 +862,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param n A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	bool IsNick(const char* n);
+	caller1<bool, const char*> IsNick;
 
 	/** Return true if an ident is valid
 	 * @param An ident to verify

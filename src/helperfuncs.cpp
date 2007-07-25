@@ -389,7 +389,7 @@ bool InspIRCd::IsChannel(const char *chname)
 }
 
 /* true for valid nickname, false else */
-bool InspIRCd::IsNick(const char* n)
+bool IsNickHandler::Call(const char* n)
 {
 	if (!n || !*n)
 		return false;

@@ -39,6 +39,7 @@
 #include "typedefs.h"
 #include "command_parse.h"
 #include "exitcodes.h"
+#include "caller.h"
 
 #ifdef WIN32
 
@@ -391,7 +392,9 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: ModCount(-1), GlobalCulls(this)
+	: ModCount(0),
+	  GlobalCulls(this),
+	 HandleIsNick(this), IsNick(&HandleIsNick)
 {
 	int found_ports = 0;
 	FailedPortList pl;
