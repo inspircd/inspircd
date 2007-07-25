@@ -239,24 +239,9 @@ typedef std::map<irc::string, unsigned int> clonemap;
 
 class InspIRCd;
 
-class CoreExport IsNickHandler : public HandlerBase1<bool, const char*>
-{
-	InspIRCd* Server;
- public:
-	IsNickHandler(InspIRCd* Srv) : Server(Srv) { }
-	virtual ~IsNickHandler() { }
-	virtual bool Call(const char*);
-};
-
-class CoreExport IsIdentHandler : public HandlerBase1<bool, const char*>
-{
-	InspIRCd* Server;
- public:
-	IsIdentHandler(InspIRCd* Srv) : Server(Srv) { }
-	virtual ~IsIdentHandler() { }
-	virtual bool Call(const char*);
-};
-
+DEFINE_HANDLER1(IsNickHandler, bool, const char*);
+DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
+DEFINE_HANDLER1(FindDescriptorHandler, userrec*, int);
 
 /* Forward declaration - required */
 class XLineManager;
@@ -399,8 +384,8 @@ class CoreExport InspIRCd : public classbase
 	/**** Functors ****/
 
 	IsNickHandler HandleIsNick;
-
 	IsIdentHandler HandleIsIdent;
+	FindDescriptorHandler HandleFindDescriptor;
 
 	/** InspSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
@@ -886,7 +871,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param socket The file descriptor of a user
 	 * @return A pointer to the user if the user exists locally on this descriptor
 	 */
-	userrec* FindDescriptor(int socket);
+	caller1<userrec*, int> FindDescriptor;
 
 	/** Add a new mode to this server's mode parser
 	 * @param mh The modehandler to add

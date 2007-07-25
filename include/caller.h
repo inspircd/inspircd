@@ -237,5 +237,14 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
+#define DEFINE_HANDLER0(NAME, RETURN) \
+	class CoreExport NAME : public HandlerBase0<RETURN> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(); };
+
+#define DEFINE_HANDLER1(NAME, RETURN, V1) \
+	class CoreExport NAME : public HandlerBase1<RETURN, V1> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1); };
+
+#define DEFINE_HANDLER2(NAME, RETURN, V1, V2) \
+	class CoreExport NAME : public HandlerBase2<RETURN, V1, V2> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V2); };
+
 #endif
 

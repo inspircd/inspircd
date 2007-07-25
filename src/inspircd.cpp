@@ -396,8 +396,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	  GlobalCulls(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
+	 HandleFindDescriptor(this),
 	 IsNick(&HandleIsNick),
-	 IsIdent(&HandleIsIdent)
+	 IsIdent(&HandleIsIdent),
+	 FindDescriptor(&HandleFindDescriptor)
 {
 	int found_ports = 0;
 	FailedPortList pl;

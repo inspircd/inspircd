@@ -755,9 +755,9 @@ void InspIRCd::DumpText(userrec* User, const std::string &LinePrefix, stringstre
 	User->WriteServ(CompleteLine);
 }
 
-userrec* InspIRCd::FindDescriptor(int socket)
+userrec* FindDescriptorHandler::Call(int socket)
 {
-	return reinterpret_cast<userrec*>(this->SE->GetRef(socket));
+	return reinterpret_cast<userrec*>(Server->SE->GetRef(socket));
 }
 
 bool InspIRCd::AddMode(ModeHandler* mh, const unsigned char mode)
