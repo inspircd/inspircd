@@ -11,22 +11,32 @@
  * ---------------------------------------------------
  */
 
+#include <signal.h>
 #include "inspircd.h"
 
-void InspIRCd::Rehash(int status)
+
+void InspIRCd::SignalHandler(int signal)
 {
-/*
-	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
-	SI->CloseLog();
-	SI->OpenLog(SI->Config->argv, SI->Config->argc);
-	SI->RehashUsersAndChans();
-	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
-	SI->Config->Read(false,NULL);
-	SI->ResetMaxBans();
-	SI->Res->Rehash();
-	FOREACH_MOD_I(SI,I_OnRehash,OnRehash(NULL,""));
-	SI->BuildISupport();
-*/
+	switch (signal)
+	{
+		case SIGHUP:
+			Rehash();
+			break;
+	}
+}
+
+void InspIRCd::Rehash()
+{
+	this->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(this->ConfigFileName));
+	this->CloseLog();
+	this->OpenLog(this->Config->argv, this->Config->argc);
+	this->RehashUsersAndChans();
+	FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
+	this->Config->Read(false,NULL);
+	this->ResetMaxBans();
+	this->Res->Rehash();
+	FOREACH_MOD_I(this,I_OnRehash,OnRehash(NULL,""));
+	this->BuildISupport();
 }
 
 void InspIRCd::RehashServer()

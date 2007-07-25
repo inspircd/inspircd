@@ -62,8 +62,6 @@
  */
 #define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
 
-
-
 /** Delete a pointer, and NULL its value
  */
 template<typename T> inline void DELETE(T* x)
@@ -490,6 +488,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	time_t next_call;
 
+	/** Set to the current signal recieved
+	 */
+	int s_signal;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.
@@ -674,9 +676,18 @@ class CoreExport InspIRCd : public classbase
 	bool IsChannel(const char *chname);
 
 	/** Rehash the local server
-	 * @param status This value is unused, and required for signal handler functions
 	 */
-	static void Rehash(int status);
+	void Rehash();
+
+	/** Handles incoming signals after being set
+	 * @param signal the signal recieved
+	 */
+	void SignalHandler(int signal);
+
+	/** Sets the signal recieved	
+	 * @param signal the signal recieved
+	 */
+	static void SetSignal(int signal);
 
 	/** Causes the server to exit after unloading modules and
 	 * closing all open file descriptors.

@@ -152,6 +152,7 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
 
 InspIRCd* SI = NULL;
+int* mysig = NULL;
 
 /* Burlex: Moved from exitcodes.h -- due to duplicate symbols */
 const char* ExitCodes[] =
@@ -305,7 +306,7 @@ void InspIRCd::SetSignals()
 {
 #ifndef WIN32
 	signal(SIGALRM, SIG_IGN);
-	signal(SIGHUP, InspIRCd::Rehash);
+	signal(SIGHUP, InspIRCd::SetSignal);
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGCHLD, SIG_IGN);
 #endif
@@ -410,6 +411,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	factory.resize(255);
 	memset(&server, 0, sizeof(server));
 	memset(&client, 0, sizeof(client));
+
+	this->s_signal = 0;
 
 	this->unregistered_count = 0;
 
@@ -704,6 +707,13 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 
 	/* If any inspsockets closed, remove them */
 	this->InspSocketCull();
+
+	if (this->s_signal)
+	{
+		this->SignalHandler(s_signal);
+		this->s_signal = 0;
+	}
+
 }
 
 void InspIRCd::InspSocketCull()
@@ -736,6 +746,7 @@ int InspIRCd::Run()
 int main(int argc, char** argv)
 {
 	SI = new InspIRCd(argc, argv);
+	mysig = &SI->s_signal;
 	SI->Run();
 	delete SI;
 	return 0;
@@ -804,3 +815,9 @@ int InspIRCd::GetTimeDelta()
 {
 	return time_delta;
 }
+
+void InspIRCd::SetSignal(int signal)
+{
+	*mysig = signal;
+}
+    
