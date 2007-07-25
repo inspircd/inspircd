@@ -237,6 +237,14 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
+/** These shorthand macros are used to define a functor class which only implements Call(). Most functors are like this.
+ * If you want something more complex, define them by hand.
+ *
+ * The first parameter to each macro is the class name to define, the second parameter is the return value of Call().
+ * The following parameters are the parameter types for Call(), and again, the macro is numbered to match the number of
+ * parameters, to prevent mistakes.
+ */
+
 #define DEFINE_HANDLER0(NAME, RETURN) \
 	class CoreExport NAME : public HandlerBase0<RETURN> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(); };
 
@@ -244,7 +252,25 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	class CoreExport NAME : public HandlerBase1<RETURN, V1> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1); };
 
 #define DEFINE_HANDLER2(NAME, RETURN, V1, V2) \
-	class CoreExport NAME : public HandlerBase2<RETURN, V1, V2> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V2); };
+	class CoreExport NAME : public HandlerBase2<RETURN, V1, V2> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2); };
+
+#define DEFINE_HANDLER3(NAME, RETURN, V1, V2, V3) \
+	class CoreExport NAME : public HandlerBase3<RETURN, V1, V2, V3> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3); };
+
+#define DEFINE_HANDLER4(NAME, RETURN, V1, V2, V3, V4) \
+	class CoreExport NAME : public HandlerBase4<RETURN, V1, V2, V3, V4> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4); };
+
+#define DEFINE_HANDLER5(NAME, RETURN, V1, V2, V3, V4, V5) \
+	class CoreExport NAME : public HandlerBase5<RETURN, V1, V2, V3, V4, V5> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5); };
+
+#define DEFINE_HANDLER6(NAME, RETURN, V1, V2, V3, V4, V5, V6) \
+	class CoreExport NAME : public HandlerBase6<RETURN, V1, V2, V3, V4, V5, V6> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6); };
+
+#define DEFINE_HANDLER7(NAME, RETURN, V1, V2, V3, V4, V5, V6, V7) \
+	class CoreExport NAME : public HandlerBase7<RETURN, V1, V2, V3, V4, V5, V6, V7> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7); };
+
+#define DEFINE_HANDLER8(NAME, RETURN, V1, V2, V3, V4, V5, V6, V7, V8) \
+	class CoreExport NAME : public HandlerBase8<RETURN, V1, V2, V3, V4, V5, V6, V7, V8> { InspIRCd* Server; public: NAME(InspIRCd* Srv) : Server(Srv) { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7, V8); };
 
 #endif
 
