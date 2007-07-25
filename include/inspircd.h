@@ -248,6 +248,15 @@ class CoreExport IsNickHandler : public HandlerBase1<bool, const char*>
 	virtual bool Call(const char*);
 };
 
+class CoreExport IsIdentHandler : public HandlerBase1<bool, const char*>
+{
+	InspIRCd* Server;
+ public:
+	IsIdentHandler(InspIRCd* Srv) : Server(Srv) { }
+	virtual ~IsIdentHandler() { }
+	virtual bool Call(const char*);
+};
+
 
 /* Forward declaration - required */
 class XLineManager;
@@ -389,7 +398,9 @@ class CoreExport InspIRCd : public classbase
 
 	/**** Functors ****/
 
-	IsNickHandler HandleIsNick;	
+	IsNickHandler HandleIsNick;
+
+	IsIdentHandler HandleIsIdent;
 
 	/** InspSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
@@ -868,7 +879,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param An ident to verify
 	 * @return True if the ident is valid
 	 */
-	bool IsIdent(const char* n);
+	caller1<bool, const char*> IsIdent;
 
 	/** Find a username by their file descriptor.
 	 * It is preferred to use this over directly accessing the fd_ref_table array.

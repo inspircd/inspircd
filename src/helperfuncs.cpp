@@ -418,7 +418,7 @@ bool IsNickHandler::Call(const char* n)
 }
 
 /* return true for good ident, false else */
-bool InspIRCd::IsIdent(const char* n)
+bool IsIdentHandler::Call(const char* n)
 {
 	if (!n || !*n)
 		return false;

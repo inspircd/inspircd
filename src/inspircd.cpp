@@ -394,7 +394,10 @@ void InspIRCd::WritePID(const std::string &filename)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(0),
 	  GlobalCulls(this),
-	 HandleIsNick(this), IsNick(&HandleIsNick)
+	 HandleIsNick(this),
+	 HandleIsIdent(this),
+	 IsNick(&HandleIsNick),
+	 IsIdent(&HandleIsIdent)
 {
 	int found_ports = 0;
 	FailedPortList pl;
