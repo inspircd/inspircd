@@ -23,7 +23,7 @@
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
+enum CGItype { INVALID, PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
 
 /** Holds a CGI site's details
@@ -162,19 +162,26 @@ public:
 			
 			if(hostmask.length())
 			{
-				if(type == "webirc" && !password.length()) {
+				if (type == "webirc" && !password.length()) {
 						ServerInstance->Log(DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
-				} else {
-					CGItype cgitype;
-					if(type == "pass")
+				}
+				else
+				{
+					CGItype cgitype = INVALID;
+					if (type == "pass")
 						cgitype = PASS;
-					else if(type == "ident")
+					else if (type == "ident")
 						cgitype = IDENT;
-					else if(type == "passfirst")
+					else if (type == "passfirst")
 						cgitype = PASSFIRST;
-					else if(type == "webirc") {
+					else if (type == "webirc")
+					{
 						cgitype = WEBIRC;
 					}
+
+					if (cgitype == INVALID)
+						cgitype = PASS;
+
 					Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
 				}
 			}
