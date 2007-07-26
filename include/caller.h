@@ -32,11 +32,20 @@
  *
  * These functor templates work this way so that you can simply and easily allow
  * for these class methods to be overridden from within a module, e.g. have a module
- * which completely replaces the code for IsNick, etc. This is a very powerful feature
- * which should be considered 'advanced' and not for beginners. If you do not
- * understand these templates, STAY AWAY from playing with this until you do, as if
- * you get this wrong, this can generate some pretty long winded and confusing error
- * messages at compile time.
+ * which completely replaces the code f r IsNick, etc. For example, with the example
+ * above:
+ *
+ * MyNewFunction replaceme(ServerInstance);
+ *
+ * someclass->MyFunction = &replaceme;
+ *
+ * After this point, calls to someclass->MyFunction will call the new code in your
+ * replacement functor.
+ *
+ * This is a very powerful feature which should be considered 'advanced' and not for
+ * beginners. If you do not understand these templates, STAY AWAY from playing with
+ * this until you do, as if you get this wrong, this can generate some pretty long
+ * winded and confusing error messages at compile time.
  */
 
 template <typename ReturnType> class CoreExport HandlerBase0
