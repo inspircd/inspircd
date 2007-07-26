@@ -237,9 +237,11 @@ typedef std::map<irc::string, unsigned int> clonemap;
 
 class InspIRCd;
 
+DEFINE_HANDLER1(ProcessUserHandler, void, userrec*);
 DEFINE_HANDLER1(IsNickHandler, bool, const char*);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FindDescriptorHandler, userrec*, int);
+DEFINE_HANDLER1(FloodQuitUserHandler, void, userrec*);
 
 /* Forward declaration - required */
 class XLineManager;
@@ -381,9 +383,11 @@ class CoreExport InspIRCd : public classbase
 
 	/**** Functors ****/
 
+	ProcessUserHandler HandleProcessUser;
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
 	FindDescriptorHandler HandleFindDescriptor;
+	FloodQuitUserHandler HandleFloodQuitUser;
 
 	/** InspSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
@@ -532,7 +536,7 @@ class CoreExport InspIRCd : public classbase
 	 * @return There is no actual return value, however upon exit, the user 'cu' may have been
 	 * marked for deletion in the global CullList.
 	 */
-	void ProcessUser(userrec* cu);
+	caller1<void, userrec*> ProcessUser;
 
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules
@@ -1191,7 +1195,7 @@ class CoreExport InspIRCd : public classbase
 	 * fully registered yet, temporarily zline their IP.
 	 * @param current user to quit
 	 */
-	void FloodQuitUser(userrec* current);
+	caller1<void, userrec*> FloodQuitUser;
 
 	/** Restart the server.
 	 * This function will not return. If an error occurs,
@@ -1234,6 +1238,11 @@ class CoreExport InspIRCd : public classbase
 	 * be culled.
 	 */
 	void InspSocketCull();
+
+	char* GetReadBuffer()
+	{
+		return this->ReadBuffer;
+	}
 };
 
 #endif

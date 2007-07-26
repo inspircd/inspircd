@@ -20,39 +20,41 @@
 #include "socketengine.h"
 #include "command_parse.h"
 
-void InspIRCd::FloodQuitUser(userrec* current)
+void FloodQuitUserHandler::Call(userrec* current)
 {
-	this->Log(DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
-	this->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
+	Server->Log(DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
+	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
 			current->registered == REG_ALL ? current->nick : "",
 			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
-	current->SetWriteError("Excess flood");
+	userrec::QuitUser(Server, current, "Excess flood");
 	if (current->registered != REG_ALL)
 	{
-		XLines->add_zline(120,this->Config->ServerName,"Flood from unregistered connection",current->GetIPString());
-		XLines->apply_lines(APPLY_ZLINES);
+		Server->XLines->add_zline(120, Server->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
+		Server->XLines->apply_lines(APPLY_ZLINES);
 	}
 }
 
-void InspIRCd::ProcessUser(userrec* cu)
+void ProcessUserHandler::Call(userrec* cu)
 {
 	int result = EAGAIN;
 
 	if (cu->GetFd() == FD_MAGIC_NUMBER)
 		return;
 
-	if (this->Config->GetIOHook(cu->GetPort()))
+	char* ReadBuffer = Server->GetReadBuffer();
+
+	if (Server->Config->GetIOHook(cu->GetPort()))
 	{
 		int result2 = 0;
 		int MOD_RESULT = 0;
 
 		try
 		{
-			MOD_RESULT = this->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
+			MOD_RESULT = Server->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
 		}
 		catch (CoreException& modexcept)
 		{
-			this->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			Server->Log(DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 
 		if (MOD_RESULT < 0)
@@ -75,12 +77,10 @@ void InspIRCd::ProcessUser(userrec* cu)
 		int currfd;
 		int floodlines = 0;
 
-		this->stats->statsRecv += result;
+		Server->stats->statsRecv += result;
 		/*
 		 * perform a check on the raw buffer as an array (not a string!) to remove
 		 * character 0 which is illegal in the RFC - replace them with spaces.
-		 * XXX - no garauntee there's not \0's in the middle of the data,
-		 *       and no reason for it to be terminated either. -- Om
 		 */
 
 		for (int checker = 0; checker < result; checker++)
@@ -104,16 +104,16 @@ void InspIRCd::ProcessUser(userrec* cu)
 				if (current->registered == REG_ALL)
 				{
 					// Make sure they arn't flooding long lines.
-					if (TIME > current->reset_due)
+					if (Server->Time() > current->reset_due)
 					{
-						current->reset_due = TIME + current->threshold;
+						current->reset_due = Server->Time() + current->threshold;
 						current->lines_in = 0;
 					}
 
 					current->lines_in++;
 
 					if (current->flood && current->lines_in > current->flood)
-						FloodQuitUser(current);
+						Server->FloodQuitUser(current);
 					else
 					{
 						current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
@@ -121,7 +121,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 					}
 				}
 				else
-					FloodQuitUser(current);
+					Server->FloodQuitUser(current);
 
 				return;
 			}
@@ -129,21 +129,21 @@ void InspIRCd::ProcessUser(userrec* cu)
 			// while there are complete lines to process...
 			while (current->BufferIsReady())
 			{
-				if (TIME > current->reset_due)
+				if (Server->Time() > current->reset_due)
 				{
-					current->reset_due = TIME + current->threshold;
+					current->reset_due = Server->Time() + current->threshold;
 					current->lines_in = 0;
 				}
 
 				if (++current->lines_in > current->flood && current->flood)
 				{
-					FloodQuitUser(current);
+					Server->FloodQuitUser(current);
 					return;
 				}
 
 				if ((++floodlines > current->flood) && (current->flood != 0))
 				{
-					FloodQuitUser(current);
+					Server->FloodQuitUser(current);
 					return;
 				}
 
@@ -154,7 +154,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				if (single_line.length() > MAXBUF - 2)	/* MAXBUF is 514 to allow for neccessary line terminators */
 					single_line.resize(MAXBUF - 2); /* So to trim to 512 here, we use MAXBUF - 2 */
 
-				this->Parser->ProcessBuffer(single_line, current);
+				Server->Parser->ProcessBuffer(single_line, current);
 			}
 
 			return;
@@ -162,7 +162,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			userrec::QuitUser(this, cu, errno ? strerror(errno) : "EOF from client");
+			userrec::QuitUser(Server, cu, errno ? strerror(errno) : "EOF from client");
 			return;
 		}
 	}
@@ -174,7 +174,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		userrec::QuitUser(this, cu, "Connection closed");
+		userrec::QuitUser(Server, cu, "Connection closed");
 		return;
 	}
 }

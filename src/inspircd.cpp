@@ -382,9 +382,11 @@ void InspIRCd::WritePID(const std::string &filename)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(0),
 	  GlobalCulls(this),
+	 HandleProcessUser(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
 	 HandleFindDescriptor(this),
+	 ProcessUser(&HandleProcessUser),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 FindDescriptor(&HandleFindDescriptor)
