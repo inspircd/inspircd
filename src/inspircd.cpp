@@ -421,7 +421,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Config->argv = argv;
 	this->Config->argc = argc;
 
-	chdir(Config->GetFullProgDir().c_str());
+	if (chdir(Config->GetFullProgDir().c_str()))
+	{
+		printf("Unable to change to my directory: %s\nAborted.", strerror(errno));
+		exit(0);
+	}
 
 	this->Config->opertypes.clear();
 	this->Config->operclass.clear();
