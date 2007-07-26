@@ -254,7 +254,19 @@ class CloakUser : public ModeHandler
 			prefix = ServerInstance->Config->Network;
 
 		if (!key1 || !key2 || !key3 || !key4)
-			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED!");
+		{
+			std::string detail;
+			if (!key1)
+				detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!key2)
+				detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!key3)
+				detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!key4)
+				detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
+
+			throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
+		}
 	}
 };
 

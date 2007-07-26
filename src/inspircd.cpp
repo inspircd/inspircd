@@ -382,17 +382,23 @@ void InspIRCd::WritePID(const std::string &filename)
 InspIRCd::InspIRCd(int argc, char** argv)
 	: ModCount(0),
 	  GlobalCulls(this),
+
+	 /* Functor initialisation. Note that the ordering here is very important. */
 	 HandleProcessUser(this),
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
 	 HandleFindDescriptor(this),
 	 HandleFloodQuitUser(this),
+
+	 /* Functor pointer initialisation. Must match the order of the list above */
 	 ProcessUser(&HandleProcessUser),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 FindDescriptor(&HandleFindDescriptor),
 	 FloodQuitUser(&HandleFloodQuitUser)
+
 {
+
 	int found_ports = 0;
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
