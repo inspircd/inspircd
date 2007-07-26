@@ -154,19 +154,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 				if (single_line.length() > MAXBUF - 2)	/* MAXBUF is 514 to allow for neccessary line terminators */
 					single_line.resize(MAXBUF - 2); /* So to trim to 512 here, we use MAXBUF - 2 */
 
-				EventHandler* old_comp = this->SE->GetRef(currfd);
-
-				this->Parser->ProcessBuffer(single_line,current);
-				/*
-				 * look for the user's record in case it's changed... if theyve quit,
-				 * we cant do anything more with their buffer, so bail.
-				 * there used to be an ugly, slow loop here. Now we have a reference
-				 * table, life is much easier (and FASTER)
-				 */
-				EventHandler* new_comp = this->SE->GetRef(currfd);
-
-				if (new_comp != old_comp)
-					return;
+				this->Parser->ProcessBuffer(single_line, current);
 			}
 
 			return;
@@ -174,7 +162,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			cu->SetWriteError(errno ? strerror(errno) : "EOF from client");
+			userrec::QuitUser(this, cu, errno ? strerror(errno) : "EOF from client");
 			return;
 		}
 	}
@@ -186,7 +174,7 @@ void InspIRCd::ProcessUser(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		cu->SetWriteError("Connection closed");
+		userrec::QuitUser(this, cu, "Connection closed");
 		return;
 	}
 }
@@ -208,89 +196,82 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		next_call = TIME + DUMMY_VALUE;
 
 		/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
-		for (unsigned long count2 = 0; count2 != this->local_users.size(); count2++)
+		for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); ++count2)
 		{
-			if (count2 >= this->local_users.size())
-				break;
+			userrec* curr = *count2;
 
-			userrec* curr = this->local_users[count2];
-
-			if (curr)
+			/*
+			 * registration timeout -- didnt send USER/NICK/HOST
+			 * in the time specified in their connection class.
+			 */
+			if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 			{
-				/*
-				 * registration timeout -- didnt send USER/NICK/HOST
-				 * in the time specified in their connection class.
-				 */
-				if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
+				curr->muted = true;
+				userrec::QuitUser(this, curr, "Registration timeout");
+				continue;
+			}
+			else
+			{
+				if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
+					next_call = curr->timeout;
+			}
+			/*
+			 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
+			 * say this user is ok to proceed, fully connect them.
+			 */
+			bool ready = AllModulesReportReady(curr);
+			if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
+			{
+				if (!curr->dns_done)
 				{
+					curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
+					curr->dns_done = true;
+				}
+				this->stats->statsDnsBad++;
+				curr->FullConnect();
+				continue;
+			}
+			else
+			{
+				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
+					next_call = curr->signon;
+			}
+
+			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
+			{
+				curr->FullConnect();
+				continue;
+			}
+			else
+			{
+				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
+					next_call = curr->signon + this->Config->dns_timeout;
+			}
+
+			// It's time to PING this user. Send them a ping.
+			if ((TIME > curr->nping) && (curr->registered == REG_ALL))
+			{
+				// This user didn't answer the last ping, remove them
+				if (!curr->lastping)
+				{
+					/* Everybody loves boobies. */
+					time_t time = this->Time(false) - (curr->nping - curr->pingmax);
+					char message[MAXBUF];
+					snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 					curr->muted = true;
-					userrec::QuitUser(this, curr, "Registration timeout");
-					continue;
-				}
-				else
-				{
-					if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
-						next_call = curr->timeout;
-				}
-
-				/*
-				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
-				 * say this user is ok to proceed, fully connect them.
-				 */
-				bool ready = AllModulesReportReady(curr);
-				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
-				{
-					if (!curr->dns_done)
-					{
-						curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
-						curr->dns_done = true;
-					}
-					this->stats->statsDnsBad++;
-					curr->FullConnect();
-					continue;
-				}
-				else
-				{
-					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
-						next_call = curr->signon;
-				}
-
-				if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
-				{
-					curr->FullConnect();
-					continue;
-				}
-				else
-				{
-					if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
-						next_call = curr->signon + this->Config->dns_timeout;
-				}
-
-				// It's time to PING this user. Send them a ping.
-				if ((TIME > curr->nping) && (curr->registered == REG_ALL))
-				{
-					// This user didn't answer the last ping, remove them
-					if (!curr->lastping)
-					{
-						/* Everybody loves boobies. */
-						time_t time = this->Time(false) - (curr->nping - curr->pingmax);
-						char message[MAXBUF];
-						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
-						curr->muted = true;
-						curr->lastping = 1;
-						curr->nping = TIME+curr->pingmax;
-						userrec::QuitUser(this, curr, message);
-						continue;
-					}
-					curr->Write("PING :%s",this->Config->ServerName);
-					curr->lastping = 0;
+					curr->lastping = 1;
 					curr->nping = TIME+curr->pingmax;
+					userrec::QuitUser(this, curr, message);
+					continue;
 				}
-				else
-				{
-					if ((curr->registered == REG_ALL) && (next_call > curr->nping))
-						next_call = curr->nping;
-				}
+				curr->Write("PING :%s",this->Config->ServerName);
+				curr->lastping = 0;
+				curr->nping = TIME+curr->pingmax;
+			}
+			else
+			{
+				if ((curr->registered == REG_ALL) && (next_call > curr->nping))
+					next_call = curr->nping;
 			}
 		}
 
