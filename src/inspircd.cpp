@@ -386,10 +386,12 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 HandleIsNick(this),
 	 HandleIsIdent(this),
 	 HandleFindDescriptor(this),
+	 HandleFloodQuitUser(this),
 	 ProcessUser(&HandleProcessUser),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FindDescriptor(&HandleFindDescriptor)
+	 FindDescriptor(&HandleFindDescriptor),
+	 FloodQuitUser(&HandleFloodQuitUser)
 {
 	int found_ports = 0;
 	FailedPortList pl;
