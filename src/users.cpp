@@ -1036,7 +1036,6 @@ void userrec::CheckClass()
 
 void userrec::FullConnect()
 {
-	ServerInstance->Log(DEBUG,"FullConnect");
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
@@ -1117,8 +1116,6 @@ void userrec::FullConnect()
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString(), this->fullname);
-
-	ServerInstance->Log(DEBUG,"Exit FullConnect");
 }
 
 /** userrec::UpdateNick()

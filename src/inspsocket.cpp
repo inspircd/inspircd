@@ -552,19 +552,16 @@ void SocketTimeout::Tick(time_t now)
 
 bool InspSocket::Poll()
 {
-#ifdef WINDOWS
-	if(Instance->SE->GetRef(this->fd) != this)
-		return false;
-	int incoming = -1;
-#else
-	if (this->Instance->SE->GetRef(this->fd) != this)
-		return false;
-
 	int incoming = -1;
 
-	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+#ifndef WINDOWS
+	if (!Instance->SE->BoundsCheckFd(this))
 		return false;
 #endif
+
+	if (Instance->SE->GetRef(this->fd) != this)
+		return false;
+
 	switch (this->state)
 	{
 		case I_CONNECTING:
@@ -575,14 +572,12 @@ bool InspSocket::Poll()
 			if (this->fd > -1)
 			{
 				this->Instance->SE->DelFd(this);
-				this->SetState(I_CONNECTED);
 				if (!this->Instance->SE->AddFd(this))
 					return false;
 			}
-#else
-			this->SetState(I_CONNECTED);
 #endif
-			Instance->Log(DEBUG,"Inspsocket I_CONNECTING state");
+			this->SetState(I_CONNECTED);
+
 			if (Instance->Config->GetIOHook(this))
 			{
 				Instance->Log(DEBUG,"Hook for raw connect");
