@@ -195,8 +195,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		const time_t DUMMY_VALUE = 32768;
 		next_call = TIME + DUMMY_VALUE;
 
-		/* XXX: IT IS NOT SAFE TO USE AN ITERATOR HERE. DON'T EVEN THINK ABOUT IT. */
-		for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); ++count2)
+		for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 		{
 			userrec* curr = *count2;
 
@@ -284,3 +283,4 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		}
 	}
 }
+
