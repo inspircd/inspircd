@@ -85,6 +85,8 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 		length = sizeof(sockaddr_in);
 	}
 
+	void* m_acceptEvent = NULL;
+	GetExt("windows_acceptevent", m_acceptEvent);
 	incomingSockfd = _accept (this->GetFd(), (sockaddr*)client, &length);
 
 	if ((incomingSockfd > -1) && (!_getsockname(incomingSockfd, sock_us, &uslen)))

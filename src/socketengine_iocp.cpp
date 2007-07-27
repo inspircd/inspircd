@@ -46,33 +46,34 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	if (!eh)
 		return false;
 
-	int fake_fd = GenerateFd(eh->GetFd());
+	int* fake_fd = new int(GenerateFd(eh->GetFd()));
 	int is_accept = 0;
 	int opt_len = sizeof(int);
 
 	/* In range? */
-	if ((fake_fd < 0) || (fake_fd > MAX_DESCRIPTORS))
+	if ((*fake_fd < 0) || (*fake_fd > MAX_DESCRIPTORS))
 		return false;
 
 	/* Already an entry here */
-	if (ref[fake_fd])
+	if (ref[*fake_fd])
+	{
+		delete fake_fd;
 		return false;
+	}
 
 	/* are we a listen socket? */
 	getsockopt(eh->GetFd(), SOL_SOCKET, SO_ACCEPTCONN, (char*)&is_accept, &opt_len);
 
 	/* set up the read event so the socket can actually receive data :P */
-	eh->m_internalFd = fake_fd;
-	eh->m_writeEvent = 0;
-	eh->m_acceptEvent = 0;
+	eh->Extend("internal_fd", fake_fd);
 
-	unsigned long completion_key = (ULONG_PTR)eh->m_internalFd;
+	unsigned long completion_key = (ULONG_PTR)*fake_fd;
 	/* assign the socket to the completion port */
 	if (!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
 		return false;
 
 	/* set up binding, increase set size */
-	ref[fake_fd] = eh;
+	ref[*fake_fd] = eh;
 	++CurrentSetSize;
 
 	/* setup initial events */
@@ -82,7 +83,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		PostReadEvent(eh);
 
 	/* log message */
-	ServerInstance->Log(DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", fake_fd, eh->GetFd(), eh);
+	ServerInstance->Log(DEBUG, "New fake fd: %u, real fd: %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* post a write event if there is data to be written */
 	if(eh->Writeable())
@@ -107,39 +108,55 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 	if (!eh)
 		return false;
 
-	int fake_fd = eh->m_internalFd;
-	int fd = eh->GetFd();
-	
-	if (!ref[fake_fd])
+	int* fake_fd = NULL;
+
+	if (!eh->GetExt("internal_fd", fake_fd))
 		return false;
 
-	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", fake_fd, eh->GetFd(), eh);
+	int fd = eh->GetFd();
+	
+	if (!ref[*fake_fd])
+		return false;
+
+	void* m_readEvent = NULL;
+	void* m_writeEvent = NULL;
+	void* m_acceptEvent = NULL;
+
+	ServerInstance->Log(DEBUG, "Removing fake fd %u, real fd %u, address 0x%p", *fake_fd, eh->GetFd(), eh);
 
 	/* Cancel pending i/o operations. */
 	if (CancelIo((HANDLE)fd) == FALSE)
 		return false;
 
 	/* Free the buffer, and delete the event. */
-	if (eh->m_readEvent != 0)
+	if (eh->GetExt("windows_readevent", m_readEvent))
 	{
-		if(((Overlapped*)eh->m_readEvent)->m_params != 0)
-			delete ((udp_overlap*)((Overlapped*)eh->m_readEvent)->m_params);
+		if(((Overlapped*)m_readEvent)->m_params != 0)
+			delete ((udp_overlap*)((Overlapped*)m_readEvent)->m_params);
 
-		delete ((Overlapped*)eh->m_readEvent);
+		delete ((Overlapped*)m_readEvent);
+		eh->Shrink("windows_readevent");
 	}
 
-	if(eh->m_writeEvent != 0)
-		delete ((Overlapped*)eh->m_writeEvent);
-
-	if(eh->m_acceptEvent != 0)
+	if(eh->GetExt("windows_writeevent", m_writeEvent))
 	{
-		delete ((accept_overlap*)((Overlapped*)eh->m_acceptEvent)->m_params);
-		delete ((Overlapped*)eh->m_acceptEvent);
+		delete ((Overlapped*)m_writeEvent);
+		eh->Shrink("windows_writeevent");
+	}
+
+	if(eh->GetExt("windows_acceptevent", m_acceptEvent))
+	{
+		delete ((accept_overlap*)((Overlapped*)m_acceptEvent)->m_params);
+		delete ((Overlapped*)m_acceptEvent);
+		eh->Shrink("windows_accepevent");
 	}
 
 	/* Clear binding */
-	ref[fake_fd] = 0;
+	ref[*fake_fd] = 0;
 	m_binding.erase(eh->GetFd());
+
+	delete fake_fd;
+	eh->Shrink("internal_fd");
 
 	/* decrement set size */
 	--CurrentSetSize;
@@ -152,13 +169,20 @@ void IOCPEngine::WantWrite(EventHandler* eh)
 {
 	if (!eh)
 		return;
+	
+	void* m_writeEvent = NULL;
+
+	int* fake_fd = NULL;
+	if (!eh->GetExt("internal_fd", fake_fd))
+		return;
 
 	/* Post event - write begin */
-	if(!eh->m_writeEvent)
+	if(!eh->GetExt("windows_writeevent", m_writeEvent))
 	{
-		ULONG_PTR completion_key = (ULONG_PTR)eh->m_internalFd;
+		ULONG_PTR completion_key = (ULONG_PTR)*fake_fd;
 		Overlapped * ov = new Overlapped(SOCKET_IO_EVENT_WRITE_READY, 0);
-		eh->m_writeEvent = (void*)ov;
+		eh->Shrink("windows_writeevent");
+		eh->Extend("windows_writeevent",ov);
 		PostQueuedCompletionStatus(m_completionPort, 0, completion_key, &ov->m_overlap);
 	}
 }
@@ -168,8 +192,12 @@ bool IOCPEngine::PostCompletionEvent(EventHandler * eh, SocketIOEvent type, int 
 	if (!eh)
 		return false;
 
+	int* fake_fd = NULL;
+	if (!eh->GetExt("internal_fd", fake_fd))
+		return false;
+
 	Overlapped * ov = new Overlapped(type, param);
-	ULONG_PTR completion_key = (ULONG_PTR)eh->m_internalFd;
+	ULONG_PTR completion_key = (ULONG_PTR)*fake_fd;
 	return PostQueuedCompletionStatus(m_completionPort, 0, completion_key, &ov->m_overlap);
 }
 
@@ -242,7 +270,7 @@ void IOCPEngine::PostReadEvent(EventHandler * eh)
 		}
 		break;
 	}
-	eh->m_readEvent = (void*)ov;
+	eh->Extend("windows_readevent", ov);
 }
 
 int IOCPEngine::DispatchEvents()
@@ -267,11 +295,17 @@ int IOCPEngine::DispatchEvents()
 		if (eh == 0)
 			continue;
 
+		void* m_readEvent = NULL;
+		void* m_writeEvent = NULL;
+
+		eh->GetExt("windows_readevent", m_readEvent);
+		eh->GetExt("windows_writeevent", m_writeEvent);
+
 		switch(ov->m_event)
 		{
 			case SOCKET_IO_EVENT_WRITE_READY:
 			{
-				eh->m_writeEvent = 0;
+				eh->Shrink("windows_writeevent");
 				eh->HandleEvent(EVENT_WRITE, 0);
 			}
 			break;
@@ -284,7 +318,7 @@ int IOCPEngine::DispatchEvents()
 					udp_overlap * uv = (udp_overlap*)ov->m_params;
 					uv->udp_len = len;
 					this->udp_ov = uv;
-					eh->m_readEvent = 0;
+					eh->Shrink("windows_readevent");
 					eh->HandleEvent(EVENT_READ, 0);
 					this->udp_ov = 0;
 					delete uv;
@@ -293,7 +327,7 @@ int IOCPEngine::DispatchEvents()
 				else
 				{
 					ret = ioctlsocket(eh->GetFd(), FIONREAD, &bytes_recv);
-					eh->m_readEvent = 0;
+					eh->Shrink("windows_readevent");
 					if(ret != 0 || bytes_recv == 0)
 					{
 						/* end of file */
@@ -313,7 +347,7 @@ int IOCPEngine::DispatchEvents()
 				/* this is kinda messy.. :/ */
 				eh->HandleEvent(EVENT_READ, ov->m_params);
 				delete ((accept_overlap*)ov->m_params);
-				eh->m_acceptEvent = 0;
+				eh->Shrink("windows_acceptevent");
 				PostAcceptEvent(eh);
 			}
 			break;
@@ -356,7 +390,7 @@ void IOCPEngine::PostAcceptEvent(EventHandler * eh)
 	ao->socket = fd;
 
 	Overlapped* ov = new Overlapped(SOCKET_IO_EVENT_ACCEPT, (int)ao);
-	eh->m_acceptEvent = (void*)ov;
+	eh->Extend("windows_acceptevent", ov);
 
 	if(AcceptEx(eh->GetFd(), fd, ao->buf, 0, len, len, &dwBytes, &ov->m_overlap) == FALSE)
 	{
@@ -422,9 +456,12 @@ bool IOCPEngine::HasFd(int fd)
 
 bool IOCPEngine::BoundsCheckFd(EventHandler* eh)
 {
+	int* fake_fd = NULL;
 	if (!eh)
 		return false;
-	if ((eh->m_internalFd < 0) || (eh->m_internalFd > MAX_DESCRIPTORS))
+	if (!eh->GetExt("internal_fd", fake_fd))
+		return false;
+	if ((*fake_fd < 0) || (*fake_fd > MAX_DESCRIPTORS))
 		return false;
 	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
 		return false;

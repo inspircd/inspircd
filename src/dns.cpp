@@ -624,6 +624,10 @@ DNSResult DNS::GetResult()
 #endif
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
+
+	void* m_readEvent = NULL;
+	GetExt("windows_readevent", m_readEvent);
+
 	int length = _recvfrom(this->GetFd(),(char*)buffer,sizeof(DNSHeader),0,from,&x);
 
 	/* Did we get the whole header? */

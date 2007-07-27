@@ -601,6 +601,8 @@ bool InspSocket::Poll()
 			if ((!*this->host) || strchr(this->host, ':'))
 				length = sizeof(sockaddr_in6);
 #endif
+			void* m_acceptEvent = NULL;
+			GetExt("windows_acceptevent", m_acceptEvent);
 			incoming = _accept (this->fd, client, &length);
 #ifdef IPV6
 			if ((!*this->host) || strchr(this->host, ':'))

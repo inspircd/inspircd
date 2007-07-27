@@ -132,24 +132,6 @@ class CoreExport EventHandler : public Extensible
 	 * and EVENT_WRITE for write events.
 	 */
 	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
-
-	/** "Fake" file descriptor. Some platforms use this, others dont.
-	 */
-	int m_internalFd;
-
-	/** Pointer to read event. We delete this so the buffer can't be used
-	 * after the socket is deleted, and so it doesn't leak memory.
-	 * Used by windows.
-	 */
-	void* m_readEvent;
-
-	/** Pointer to a write event. Used by windows.
-	 */
-	void* m_writeEvent;
-
-	/** Pointer to an accept event. Used by windows.
-	 */
-	void* m_acceptEvent;
 };
 
 /** Provides basic file-descriptor-based I/O support.
