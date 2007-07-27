@@ -516,19 +516,16 @@ void ClearConsole()
 }
 
 /* Many inspircd classes contain function pointers/functors which can be changed to point at platform specific implementations
- * of code. This function, called from WindowsForkStart, repoints these pointers and functors so that calls are windows
- * specific.
+ * of code. This function repoints these pointers and functors so that calls are windows specific.
  */
 void ChangeWindowsSpecificPointers(InspIRCd* Instance)
 {
+	Instance->Log(DEBUG,"Changing to windows specific pointer and functor set");
 	Instance->Config->DNSServerValidator = &ValidateWindowsDnsServer;
 }
 
 DWORD WindowsForkStart(InspIRCd* Instance)
 {
-	/* See the function declaration above */
-	ChangeWindowsSpecificPointers(Instance);
-
         /* Windows implementation of fork() :P */
 	if (owner_processid)
 		return 0;

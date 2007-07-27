@@ -202,6 +202,8 @@ DWORD WindowsForkStart(InspIRCd* Instance);
 
 void WindowsForkKillOwner(InspIRCd* Instance);
 
+void ChangeWindowsSpecificPointers(InspIRCd* Instance);
+
 bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
 
 #endif

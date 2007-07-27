@@ -389,6 +389,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	WSADATA wsadata;
 	WSAStartup(MAKEWORD(2,0), &wsadata);
 
+	ChangeWindowsSpecificPointers(this);
 #endif
 	if (!ServerConfig::FileExists(this->ConfigFileName))
 	{
