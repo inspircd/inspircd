@@ -24,6 +24,10 @@
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+
+/* Not defined in windows */
+#define SIGHUP 1
 
 /* They just have to be *different*, don't they. */
 #define PATH_MAX MAX_PATH
