@@ -13,6 +13,7 @@
 
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
+#include "configreader.h"
 #include <string>
 #include <errno.h>
 #include <assert.h>
@@ -514,8 +515,20 @@ void ClearConsole()
 	return;
 }
 
-DWORD WindowsForkStart(InspIRCd * Instance)
+/* Many inspircd classes contain function pointers/functors which can be changed to point at platform specific implementations
+ * of code. This function, called from WindowsForkStart, repoints these pointers and functors so that calls are windows
+ * specific.
+ */
+void ChangeWindowsSpecificPointers(InspIRCd* Instance)
 {
+	Instance->Config->DNSServerValidator = &ValidateWindowsDnsServer;
+}
+
+DWORD WindowsForkStart(InspIRCd* Instance)
+{
+	/* See the function declaration above */
+	ChangeWindowsSpecificPointers(Instance);
+
         /* Windows implementation of fork() :P */
 	if (owner_processid)
 		return 0;
@@ -613,4 +626,23 @@ void WindowsForkKillOwner(InspIRCd * Instance)
         CloseHandle(hProcess);
 }
 
+bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	if (!*(data.GetString()))
+	{
+		std::string nameserver;
+		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
+		nameserver = FindNameServerWin();
+		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
+		 * Spotted by Cataclysm.
+		 */
+		if (nameserver.find(',') != std::string::npos)
+			nameserver = nameserver.substr(0, nameserver.find(','));
+		data.Set(nameserver.c_str());
+		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
+	}
+	return true;
+}
+
+#else
 

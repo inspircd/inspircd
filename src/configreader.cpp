@@ -21,6 +21,9 @@
 
 std::vector<std::string> old_module_names, new_module_names, added_modules, removed_modules;
 
+/* Needs forward declaration */
+bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
+
 ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	this->ClearStack();
@@ -43,6 +46,7 @@ ServerConfig::ServerConfig(InspIRCd* Instance) : ServerInstance(Instance)
 	OperMaxChans = 30;
 	LogLevel = DEFAULT;
 	maxbans.clear();
+	DNSServerValidator = &ValidateDnsServer;
 }
 
 void ServerConfig::ClearStack()
@@ -222,17 +226,6 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 	if (!*(data.GetString()))
 	{
 		std::string nameserver;
-#ifdef WINDOWS
-		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
-		nameserver = FindNameServerWin();
-		/* Windows stacks multiple nameservers in one registry key, seperated by commas.
-		 * Spotted by Cataclysm.
-		 */
-		if (nameserver.find(',') != std::string::npos)
-			nameserver = nameserver.substr(0, nameserver.find(','));
-		data.Set(nameserver.c_str());
-		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
-#else
 		// attempt to look up their nameserver from /etc/resolv.conf
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 		ifstream resolv("/etc/resolv.conf");
@@ -262,7 +255,6 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 			conf->GetInstance()->Log(DEFAULT,"/etc/resolv.conf can't be opened! Defaulting to nameserver '127.0.0.1'!");
 			data.Set("127.0.0.1");
 		}
-#endif
 	}
 	return true;
 }
@@ -617,7 +609,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"netbuffersize","10240",		new ValueContainerInt  (&this->NetBufferSize),		DT_INTEGER, ValidateNetBufferSize},
 		{"options",	"maxwho",	"128",			new ValueContainerInt  (&this->MaxWhoResults),		DT_INTEGER, ValidateMaxWho},
 		{"options",	"allowhalfop",	"0",			new ValueContainerBool (&this->AllowHalfop),		DT_BOOLEAN, NoValidation},
-		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_CHARPTR, ValidateDnsServer},
+		{"dns",		"server",	"",			new ValueContainerChar (this->DNSServer),		DT_CHARPTR, DNSServerValidator},
 		{"dns",		"timeout",	"5",			new ValueContainerInt  (&this->dns_timeout),		DT_INTEGER, NoValidation},
 		{"options",	"moduledir",	MOD_PATH,		new ValueContainerChar (this->ModPath),			DT_CHARPTR, NoValidation},
 		{"disabled",	"commands",	"",			new ValueContainerChar (this->DisabledCommands),	DT_CHARPTR, NoValidation},

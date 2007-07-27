@@ -239,6 +239,9 @@ class CoreExport ServerConfig : public Extensible
   
   public:
 
+	/* Pointer to function that validates dns server addresses (can be changed depending on platform) */
+	Validator DNSServerValidator;
+
 	InspIRCd* GetInstance();
 	  
   	/** This holds all the information in the config file,

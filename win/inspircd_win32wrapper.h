@@ -174,6 +174,8 @@ void ::operator delete(void * ptr);
 
 /* IPC Handlers */
 class InspIRCd;
+class ConfigReader;
+class ValueItem;
 
 class IPC
 {
@@ -195,6 +197,8 @@ void ClearConsole();
 DWORD WindowsForkStart(InspIRCd* Instance);
 
 void WindowsForkKillOwner(InspIRCd* Instance);
+
+bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
 
 #endif
 
