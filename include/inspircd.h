@@ -374,6 +374,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int time_delta;
 
+#ifdef WIN32
+	IPC* WindowsIPC;
+#endif
+
  public:
 
 	/** Global cull list, will be processed on next iteration

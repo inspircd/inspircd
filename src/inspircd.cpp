@@ -41,110 +41,6 @@
 #include "exitcodes.h"
 #include "caller.h"
 
-#ifdef WIN32
-
-/* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
-static DWORD owner_processid = 0;
-
-DWORD WindowsForkStart(InspIRCd * Instance)
-{
-	/* Windows implementation of fork() :P */
-
-	char module[MAX_PATH];
-	if(!GetModuleFileName(NULL, module, MAX_PATH))
-	{
-		printf("GetModuleFileName() failed.\n");
-		return false;
-	}
-
-	STARTUPINFO startupinfo;
-	PROCESS_INFORMATION procinfo;
-	ZeroMemory(&startupinfo, sizeof(STARTUPINFO));
-	ZeroMemory(&procinfo, sizeof(PROCESS_INFORMATION));
-
-	// Fill in the startup info struct
-	GetStartupInfo(&startupinfo);
-
-	/* Default creation flags create the processes suspended */
-	DWORD startupflags = CREATE_SUSPENDED;
-
-	/* On windows 2003/XP and above, we can use the value
-	 * CREATE_PRESERVE_CODE_AUTHZ_LEVEL which gives more access
-	 * to the process which we may require on these operating systems.
-	 */
-	OSVERSIONINFO vi;
-	vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&vi);
-	if ((vi.dwMajorVersion >= 5) && (vi.dwMinorVersion > 0))
-		startupflags |= CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
-
-	// Launch our "forked" process.
-	BOOL bSuccess = CreateProcess ( module,	// Module (exe) filename
-		strdup(GetCommandLine()),	// Command line (exe plus parameters from the OS)
-						// NOTE: We cannot return the direct value of the
-						// GetCommandLine function here, as the pointer is
-						// passed straight to the child process, and will be
-						// invalid once we exit as it goes out of context.
-						// strdup() seems ok, though.
-		0,				// PROCESS_SECURITY_ATTRIBUTES
-		0,				// THREAD_SECURITY_ATTRIBUTES
-		TRUE,				// We went to inherit handles.
-		startupflags,			// Allow us full access to the process and suspend it.
-		0,				// ENVIRONMENT
-		0,				// CURRENT_DIRECTORY
-		&startupinfo,			// startup info
-		&procinfo);			// process info
-
-	if(!bSuccess)
-	{
-		printf("CreateProcess() error: %s\n", dlerror());
-		return false;
-	}
-
-	// Set the owner process id in the target process.
-	SIZE_T written = 0;
-	DWORD pid = GetCurrentProcessId();
-	if(!WriteProcessMemory(procinfo.hProcess, &owner_processid, &pid, sizeof(DWORD), &written) || written != sizeof(DWORD))
-	{
-		printf("WriteProcessMemory() failed: %s\n", dlerror());
-		return false;
-	}
-
-	// Resume the other thread (let it start)
-	ResumeThread(procinfo.hThread);
-
-	// Wait for the new process to kill us. If there is some error, the new process will end and we will end up at the next line.
-	WaitForSingleObject(procinfo.hProcess, INFINITE);
-
-	// If we hit this it means startup failed, default to 14 if this fails.
-	DWORD ExitCode = 14;
-	GetExitCodeProcess(procinfo.hProcess, &ExitCode);
-	CloseHandle(procinfo.hThread);
-	CloseHandle(procinfo.hProcess);
-	return ExitCode;
-}
-
-void WindowsForkKillOwner(InspIRCd * Instance)
-{
-	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
-	if(!hProcess || !owner_processid)
-	{
-		printf("Could not open process id %u: %s.\n", owner_processid, dlerror());
-		Instance->Exit(14);
-	}
-
-	// die die die
-	if(!TerminateProcess(hProcess, 0))
-	{
-		printf("Could not TerminateProcess(): %s\n", dlerror());
-		Instance->Exit(14);
-	}
-
-	CloseHandle(hProcess);
-}
-
-#endif
-
 using irc::sockets::NonBlocking;
 using irc::sockets::Blocking;
 using irc::sockets::insp_ntoa;
@@ -482,7 +378,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 #ifdef WIN32
 
 	// Handle forking
-	if(!do_nofork && !owner_processid)
+	if(!do_nofork)
 	{
 		DWORD ExitCode = WindowsForkStart(this);
 		if(ExitCode)
@@ -621,7 +517,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 #else
-	InitIPC();
+	WindowsIPC = new IPC(this);
 	if(!Config->nofork)
 	{
 		WindowsForkKillOwner(this);
@@ -681,7 +577,7 @@ void InspIRCd::DoOneIteration(bool process_module_sockets)
 			this->stats->LastCPU = ru.ru_utime;
 		}
 #else
-		CheckIPC(this);
+		WindowsIPC->Check();
 
 		if(Config->nofork)
 		{

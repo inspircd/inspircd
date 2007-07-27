@@ -32,7 +32,7 @@ void InspIRCd::SignalHandler(int signal)
 void InspIRCd::Exit(int status)
 {
 #ifdef WINDOWS
-	CloseIPC();
+	IPC->Close();
 #endif
 	if (this)
 	{

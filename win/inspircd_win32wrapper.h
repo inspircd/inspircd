@@ -175,15 +175,26 @@ void ::operator delete(void * ptr);
 /* IPC Handlers */
 class InspIRCd;
 
-void InitIPC();
-void CheckIPC(InspIRCd * Instance);
-void CloseIPC();
+class IPC
+{
+ private:
+	InspIRCd* Instance;
+	HANDLE hIPCPipe;
+ public:
+	void IPC();
+	void CheckIPC(InspIRCd* Srv);
+	void ~IPC();
+};
 
 /* Look up the nameserver in use from the registry on windows */
 std::string FindNameServerWin();
 
 /* Clear a windows console */
 void ClearConsole();
+
+DWORD WindowsForkStart(InspIRCd* Instance);
+
+void WindowsForkKillOwner(InspIRCd* Instance);
 
 #endif
 
