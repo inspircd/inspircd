@@ -366,7 +366,7 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 #define IPC_MESSAGE_DIE		2
 #define IPC_MESSAGE_RESTART	3
 
-void IPC::IPC(InspIRCd* Srv) : Instance(Srv)
+IPC::IPC(InspIRCd* Srv) : Instance(Srv)
 {
 	static DWORD buflen = 1024;
 	static const char * pipename = "\\\\.\\mailslot\\Inspircd";
@@ -394,7 +394,7 @@ void IPC::Check()
 	switch (action)
 	{
 		case IPC_MESSAGE_REHASH:
-			Instance->Rehash(0);
+			Instance->Rehash();
 		break;
 		
 		case IPC_MESSAGE_DIE:
@@ -407,7 +407,7 @@ void IPC::Check()
 	}
 }
 
-void IPC::~IPC()
+IPC::~IPC()
 {
 	CloseHandle(hIPCPipe);
 }
