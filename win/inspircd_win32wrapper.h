@@ -174,8 +174,8 @@ void ::operator delete(void * ptr);
 
 /* IPC Handlers */
 class InspIRCd;
-class ConfigReader;
 class ValueItem;
+class ServerConfig;
 
 class IPC
 {
@@ -183,9 +183,9 @@ class IPC
 	InspIRCd* Instance;
 	HANDLE hIPCPipe;
  public:
-	void IPC();
-	void CheckIPC(InspIRCd* Srv);
-	void ~IPC();
+	IPC(InspIRCd* Srv);
+	void Check();
+	~IPC();
 };
 
 /* Look up the nameserver in use from the registry on windows */

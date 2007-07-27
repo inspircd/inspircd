@@ -366,7 +366,7 @@ int getopt_long_only(int ___argc, char *const *___argv, const char *__shortopts,
 #define IPC_MESSAGE_DIE		2
 #define IPC_MESSAGE_RESTART	3
 
-void InitIPC()
+void IPC::IPC(InspIRCd* Srv) : Instance(Srv)
 {
 	static DWORD buflen = 1024;
 	static const char * pipename = "\\\\.\\mailslot\\Inspircd";
@@ -375,7 +375,7 @@ void InitIPC()
 		printf("IPC Pipe could not be created. Are you sure you didn't start InspIRCd twice?\n");
 }
 
-void CheckIPC(InspIRCd * Instance)
+void IPC::Check()
 {
 	if (hIPCPipe == INVALID_HANDLE_VALUE)
 		return;
@@ -407,7 +407,7 @@ void CheckIPC(InspIRCd * Instance)
 	}
 }
 
-void CloseIPC()
+void IPC::~IPC()
 {
 	CloseHandle(hIPCPipe);
 }
@@ -643,6 +643,3 @@ bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* v
 	}
 	return true;
 }
-
-#else
-

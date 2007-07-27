@@ -114,6 +114,11 @@ class IOCPEngine : public SocketEngine
 	map<int, EventHandler*> m_binding;
 
 public:
+	/** Holds the preallocated buffer passed to WSARecvFrom
+	 * function. Yes, I know, it's a dirty hack.
+	 */
+	udp_overlap * udp_ov;
+
 	/** Creates an IOCP Socket Engine
 	 * @param Instance The creator of this object
 	 */
@@ -206,10 +211,7 @@ public:
 	 */
 	EventHandler* GetIntRef(int fd);
 
-	/** Holds the preallocated buffer passed to WSARecvFrom
-	 * function. Yes, I know, it's a dirty hack.
-	 */
-	udp_overlap * udp_ov;
+	bool BoundsCheckFd(EventHandler* eh);
 };
 
 /** Creates a SocketEngine
