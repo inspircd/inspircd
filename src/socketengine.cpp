@@ -91,3 +91,12 @@ std::string SocketEngine::GetName()
 	return "misconfigured";
 }
 
+bool SocketEngine::BoundsCheckFd(EventHandler* eh)
+{       
+	if (!eh)
+		return false;
+	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
+		return false;
+	return true;
+}
+

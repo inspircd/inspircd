@@ -420,6 +420,17 @@ bool IOCPEngine::HasFd(int fd)
 	return (GetRef(fd) != 0);
 }
 
+bool IOCPEngine::BoundsCheckFd(EventHandler* eh)
+{
+	if (!eh)
+		return false;
+	if ((eh->m_internalFd < 0) || (eh->m_internalFd > MAX_DESCRIPTORS))
+		return false;
+	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
+		return false;
+	return true;
+}
+
 EventHandler * IOCPEngine::GetIntRef(int fd)
 {
 	if(fd < 0 || fd > MAX_DESCRIPTORS)

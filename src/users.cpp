@@ -1354,11 +1354,7 @@ const char* userrec::GetIPString(char* buf)
  */
 void userrec::Write(std::string text)
 {
-#ifdef WINDOWS
-	if ((this->fd < 0) || (this->m_internalFd > MAX_DESCRIPTORS))
-#else
-	if ((this->fd < 0) || (this->fd > MAX_DESCRIPTORS))
-#endif
+	if (ServerInstance->SE->BoundsCheckFd(this))
 		return;
 
 	try

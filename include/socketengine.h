@@ -290,6 +290,12 @@ public:
 	 * @return The socket engine name
 	 */
 	virtual std::string GetName();
+
+	/** Returns true if the file descriptors in the
+	 * given event handler are within sensible ranges
+	 * which can be handled by the socket engine.
+	 */
+	bool BoundsCheckFd(EventHandler* eh);
 };
 
 #endif

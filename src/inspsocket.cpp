@@ -378,6 +378,8 @@ std::string InspSocket::GetIP()
 
 char* InspSocket::Read()
 {
+	if (Instance->SE->BoundsCheckFd(this))
+		return NULL;
 #ifdef WINDOWS
 	if ((fd < 0) || (m_internalFd > MAX_DESCRIPTORS))
 #else
