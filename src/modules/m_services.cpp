@@ -209,7 +209,7 @@ class ModuleServices : public Module
 	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet('r') && !(irc::string(user->nick) == oldnick))
+		if (user->IsModeSet('r') && irc::string(user->nick) != oldnick)
 		{
 			const char* modechange[2];
 			modechange[0] = user->nick;
