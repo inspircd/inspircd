@@ -613,6 +613,20 @@ inline bool operator== (const irc::string& leftval, const std::string& rightval)
 	return (leftval == rightval.c_str());
 }
 
+/* Define operators != for irc::string to std::string for easy comparison
+ */
+inline bool operator!= (const irc::string& leftval, const std::string& rightval)
+{
+	return !(leftval == rightval.c_str());
+}
+
+/* Define operators != for std::string to irc::string for easy comparison
+ */
+inline bool operator!= (const std::string& leftval, const irc::string& rightval)
+{
+	return !(leftval.c_str() == rightval);
+}
+
 /** Assign an irc::string to a std::string.
  */
 inline std::string assign(const irc::string &other) { return other.c_str(); }
