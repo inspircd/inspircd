@@ -1334,6 +1334,10 @@
 # use hexdecimal numbers prefixed by "0x", as shown in this example,  #
 # with each key eight hex digits long.                                #
 
+#-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Close module: Allows an oper to close all unregistered connections.
+#<module name="m_close.so">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Clones module: Adds an oper command /CLONES for detecting cloned
 # users. Warning: This module may be resource intensive when its
