@@ -136,7 +136,7 @@ class ModuleHttpStats : public Module
 					chanrec* c = ServerInstance->FindChan(a->second.c_str());
 					if (c)
 					{
-						data << "<tr><td>" << a->first << "</td><td>" << a->second << "</td>";
+						data << "<tr><td>" << a->first << "</td><td>" << c->GetUsers()->size() << "</td>";
 						data << "<td>" << c->GetOppedUsers()->size() << "</td>";
 						data << "<td>" << c->GetHalfoppedUsers()->size() << "</td>";
 						data << "<td>" << c->GetVoicedUsers()->size() << "</td>";
