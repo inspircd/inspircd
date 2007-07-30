@@ -87,43 +87,26 @@ class ModuleHttpStats : public Module
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
-				data << "<!DOCTYPE html PUBLIC \
-					\"-//W3C//DTD XHTML 1.1//EN\" \
-					\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n\
-					<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\">";
+				data << "<inspircdstats>";
 
-				data << "<head>";
-				data << "<link rel='stylesheet' href='" << this->stylesheet << "' type='text/css' />";
-				data << "<title>InspIRCd server statisitics for " << ServerInstance->Config->ServerName << " (" << ServerInstance->Config->ServerDesc << ")</title>";
-				data << "</head><body>";
-				data << "<h1>InspIRCd server statisitics for " << ServerInstance->Config->ServerName << " (" << ServerInstance->Config->ServerDesc << ")</h1>";
+				data << "<server><name>" << ServerInstance->Config->ServerName << "</name><gecos>" << ServerInstance->Config->ServerDesc << "</gecos></server>";
 
-				data << "<div class='totals'>";
-				data << "<h2>Totals</h2>";
-				data << "<table>";
-				data << "<tr><td>Users</td><td>" << ServerInstance->clientlist->size() << "</td></tr>";
-				data << "<tr><td>Channels</td><td>" << ServerInstance->chanlist->size() << "</td></tr>";
-				data << "<tr><td>Opers</td><td>" << ServerInstance->all_opers.size() << "</td></tr>";
-				data << "<tr><td>Sockets</td><td>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << " (Max: " << ServerInstance->SE->GetMaxFds() << " via socket engine '" << ServerInstance->SE->GetName() << "')</td></tr>";
-				data << "</table>";
-				data << "</div>";
-
-				data << "<div class='modules'>";
-				data << "<h2>Modules</h2>";
-				data << "<table>";
+				data << "<general>";
+				data << "<usercount>" << ServerInstance->clientlist->size() << "</usercount>";
+				data << "<channelcount>" << ServerInstance->chanlist->size() << "</channelcount>";
+				data << "<opercount>" << ServerInstance->all_opers.size() << "</opercount>";
+				data << "<socketcount>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() <<
+					"</socketmax><socketengine>" << ServerInstance->SE->GetName() << "')</socketengine>";
+				data << "</general>";
+				data << "<modulelist>";
 				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
 				{
 					if (!ServerInstance->Config->module_names[i].empty())
-						data << "<tr><td>" << ServerInstance->Config->module_names[i] << "</td></tr>";
+						data << "<module>" << ServerInstance->Config->module_names[i] << "</module>";
 				}
-				data << "</table>";
-				data << "</div>";
+				data << "</modulelist>";
 
-				data << "<div class='channels'>";
-				data << "<h2>Channels</h2>";
-				data << "<table>";
-				data << "<tr><th>Users</th><th>Name</th><th>@</th><th>%</th><th>+</th><th>Topic</th></tr>";
-
+				data << "<channellist>";
 				/* If the list has changed since last time it was displayed, re-sort it
 				 * this time only (not every time, as this would be moronic)
 				 */
@@ -136,31 +119,21 @@ class ModuleHttpStats : public Module
 					chanrec* c = ServerInstance->FindChan(a->second.c_str());
 					if (c && !c->IsModeSet('s') && !c->IsModeSet('p'))
 					{
-						data << "<tr><td>" << a->first << "</td><td>" << c->GetUsers()->size() << "</td>";
-						data << "<td>" << c->GetOppedUsers()->size() << "</td>";
-						data << "<td>" << c->GetHalfoppedUsers()->size() << "</td>";
-						data << "<td>" << c->GetVoicedUsers()->size() << "</td>";
-						data << "<td>" << c->topic << "</td>";
-						data << "</tr>";
+						data << "<channel>";
+						data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << c->name << "</channelname>";
+						data << "<channelops>" << c->GetOppedUsers()->size() << "</channelops>";
+						data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
+						data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
+						data << "<channeltopic>" << c->topic << "</channeltopic>";
+						data << "</channel>";
 					}
 				}
 
-				data << "</table>";
-				data << "</div>";
-
-
-
-
-
-				data << "<div class='validion'>";
-				data << "<p><a href='http://validator.w3.org/check?uri=referer'><img src='http://www.w3.org/Icons/valid-xhtml11' alt='Valid XHTML 1.1' height='31' width='88' /></a></p>";
-				data << "</div>";
-				
-				data << "</body>";
-				data << "</html>";
+				data << "</channellist>";
+				data << "</inspircdstats>";
 
 				/* Send the document back to m_httpd */
-				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/html; charset=iso-8859-1\r\n");
+				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/xml\r\n");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 			}
