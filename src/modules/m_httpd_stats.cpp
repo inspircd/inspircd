@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -110,6 +110,15 @@ class ModuleHttpStats : public Module
 				data << "<opercount>" << ServerInstance->all_opers.size() << "</opercount>";
 				data << "<socketcount>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() <<
 					"</socketmax><socketengine>" << ServerInstance->SE->GetName() << "</socketengine>";
+
+				time_t current_time = 0;
+				current_time = ServerInstance->Time();
+				time_t server_uptime = current_time - ServerInstance->startup_time;
+				struct tm* stime;
+				stime = gmtime(&server_uptime);
+				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs></uptime>";
+
+
 				data << "</general>";
 				data << "<modulelist>";
 				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
