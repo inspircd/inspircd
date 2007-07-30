@@ -30,6 +30,8 @@ typedef SortedList::iterator SortedIter;
 static StatsHash* sh = new StatsHash();
 static SortedList* so = new SortedList();
 
+static StatsHash* Servers = new StatsHash();
+
 class ModuleHttpStats : public Module
 {
 	
@@ -46,7 +48,6 @@ class ModuleHttpStats : public Module
 
 	ModuleHttpStats(InspIRCd* Me) : Module(Me)
 	{
-		
 		ReadConfig();
 		this->changed = true;
 	}
@@ -74,6 +75,18 @@ class ModuleHttpStats : public Module
 		so->clear();
 		for (StatsIter a = sh->begin(); a != sh->end(); a++)
 			InsertOrder(a->first, a->second);
+		for (user_hash::iterator u = ServerInstance->clientlist->begin(); u != ServerInstance->clientlist->end(); u++)
+		{
+			StatsHash::iterator n = Servers->find(u->second->server);
+			if (n != Servers->end())
+			{
+				n->second++;
+			}
+			else
+			{
+				Servers->insert(std::make_pair<irc::string,int>(u->second->server,1));
+			}
+		}
 		this->changed = false;
 	}
 
@@ -96,13 +109,17 @@ class ModuleHttpStats : public Module
 				data << "<channelcount>" << ServerInstance->chanlist->size() << "</channelcount>";
 				data << "<opercount>" << ServerInstance->all_opers.size() << "</opercount>";
 				data << "<socketcount>" << (ServerInstance->SE->GetMaxFds() - ServerInstance->SE->GetRemainingFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() <<
-					"</socketmax><socketengine>" << ServerInstance->SE->GetName() << "')</socketengine>";
+					"</socketmax><socketengine>" << ServerInstance->SE->GetName() << "</socketengine>";
 				data << "</general>";
 				data << "<modulelist>";
 				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
 				{
 					if (!ServerInstance->Config->module_names[i].empty())
-						data << "<module>" << ServerInstance->Config->module_names[i] << "</module>";
+					{
+						Version v = ServerInstance->modules[i]->GetVersion();
+						data << "<module><name>" << ServerInstance->Config->module_names[i] << "</name><version>" << 
+							v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
+					}
 				}
 				data << "</modulelist>";
 
@@ -113,8 +130,7 @@ class ModuleHttpStats : public Module
 				if (this->changed)
 					this->SortList();
 
-				int n = 0;
-				for (SortedIter a = so->begin(); ((a != so->end()) && (n < 25)); a++, n++)
+				for (SortedIter a = so->begin(); a != so->end(); a++)
 				{
 					chanrec* c = ServerInstance->FindChan(a->second.c_str());
 					if (c && !c->IsModeSet('s') && !c->IsModeSet('p'))
@@ -125,11 +141,24 @@ class ModuleHttpStats : public Module
 						data << "<channelhalfops>" << c->GetHalfoppedUsers()->size() << "</channelhalfops>";
 						data << "<channelvoices>" << c->GetVoicedUsers()->size() << "</channelvoices>";
 						data << "<channeltopic>" << c->topic << "</channeltopic>";
+						data << "<channelmodes>" << c->ChanModes(false) << "</channelmodes>";
 						data << "</channel>";
 					}
 				}
 
 				data << "</channellist>";
+
+				data << "<serverlist>";
+				
+				for (StatsHash::iterator b = Servers->begin(); b != Servers->end(); b++)
+				{
+					data << "<server>";
+					data << "<servername>" << b->first << "</servername>";
+					data << "<usercount>" << b->second << "</usercount>";
+					data << "</server>";
+				}
+				data << "</serverlist>";
+
 				data << "</inspircdstats>";
 
 				/* Send the document back to m_httpd */
