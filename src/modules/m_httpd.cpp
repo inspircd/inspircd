@@ -211,15 +211,14 @@ class HttpServerSocket : public InspSocket
 		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
 		this->Write(asctime(timeinfo));
 		if (extraheaders.empty())
-		{
 			this->Write("Content-Type: text/html\r\n");
-		}
 		else
-		{
 			this->Write(extraheaders);
-		}
 		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
 				"\r\nConnection: close\r\n\r\n");
+		if (response != 200)
+			this->Write("<html><head></head><body>Server error "+ConvToStr(response)+": "+Response(response)+"<br>"+
+					"<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>\r\n");
 	}
 
 	virtual bool OnDataReady()
