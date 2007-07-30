@@ -380,6 +380,7 @@ class ModuleHttpServer : public Module
 	ModuleHttpServer(InspIRCd* Me) : Module(Me)
 	{
 		ReadConfig();
+		HttpModule = this;
 	}
 
 	void OnEvent(Event* event)
