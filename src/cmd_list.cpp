@@ -71,7 +71,7 @@ CmdResult cmd_list::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 		else
 		{
-			if (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('p')))) || (n))
+			if (((!(i->second->IsModeSet('p'))) && (!(i->second->IsModeSet('s')))) || (n))
 			{
 				long users = i->second->GetUserCounter();
 				if (users)
