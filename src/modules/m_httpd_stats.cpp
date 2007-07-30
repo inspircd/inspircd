@@ -48,7 +48,7 @@ class ModuleHttpStats : public Module
 	{
 		
 		ReadConfig();
-		this->changed = false;
+		this->changed = true;
 	}
 
 	void InsertOrder(irc::string channel, int count)
