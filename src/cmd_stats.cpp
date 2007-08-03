@@ -51,7 +51,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
-	if ((*ServerInstance->Config->UserStats) && !IS_OPER(user) && !strchr(ServerInstance->Config->UserStats,statschar))
+	if ((*ServerInstance->Config->UserStats) && !IS_OPER(user) && !ServerInstance->ULine(user->server) && !strchr(ServerInstance->Config->UserStats,statschar))
 	{
 		results.push_back(sn+std::string(" 481 ")+user->nick+" :Permission denied - STATS "+statschar+" is oper-only");
 		return;
