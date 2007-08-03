@@ -810,10 +810,10 @@ class ModuleSSLOpenSSL : public Module
 
 	void MakePollWrite(issl_session* session)
 	{
-		OnRawSocketWrite(session->fd, NULL, 0);
-		//EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
-		//if (eh)
-		//	ServerInstance->SE->WantWrite(eh);
+		//OnRawSocketWrite(session->fd, NULL, 0);
+		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
+		if (eh)
+			ServerInstance->SE->WantWrite(eh);
 	}
 
 	void CloseSession(issl_session* session)
