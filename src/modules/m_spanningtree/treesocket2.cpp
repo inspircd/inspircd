@@ -142,7 +142,7 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 				}
 
-				par[1] = std::string("::")+Instance->Config->ServerName+" 376 "+source->nick+" End of message of the day.";
+				par[1] = std::string("::")+Instance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.";
 				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
 			}
 		}
