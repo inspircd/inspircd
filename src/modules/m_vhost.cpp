@@ -38,16 +38,18 @@ class cmd_vhost : public command_t
 			std::string mask = Conf->ReadValue("vhost","host",index);
 			std::string username = Conf->ReadValue("vhost","user",index);
 			std::string pass = Conf->ReadValue("vhost","pass",index);
+
 			if ((!strcmp(parameters[0],username.c_str())) && (!strcmp(parameters[1],pass.c_str())))
 			{
 				if (!mask.empty())
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
-					return CMD_FAILURE;
+					return CMD_LOCALONLY;
 				}
 			}
 		}
+
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
 		return CMD_FAILURE;
 	}

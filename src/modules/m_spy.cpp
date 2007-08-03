@@ -93,7 +93,7 @@ class cmd_spylist : public command_t
 		user->WriteServ("323 %s :End of channel list.",user->nick);
 
 		/* Dont send out across the network */
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 };
 
@@ -132,7 +132,7 @@ class cmd_spynames : public command_t
 			user->WriteServ("401 %s %s :No such nick/channel",user->nick, parameters[0]);
 		}
 
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 };
 
