@@ -45,7 +45,7 @@ class cmd_userip : public command_t
 		user->WriteServ(retbuf);
 
 		/* Dont send to the network */
-		return CMD_FAILURE;
+		return CMD_LOCALONLY;
 	}
 };
 

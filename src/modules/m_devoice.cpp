@@ -49,7 +49,7 @@ class cmd_devoice : public command_t
 			ServerInstance->SendMode(modes,3,n);
 			delete n;
 
-			/* route it */
+			/* route it -- SendMode doesn't distribute over the whole network */
 			return CMD_SUCCESS;
 		}
 
@@ -74,7 +74,7 @@ class ModuleDeVoice : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version(1, 1, 0, 0, VF_VENDOR, API_VERSION);
+		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 };
 
