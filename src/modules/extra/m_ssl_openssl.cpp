@@ -602,6 +602,7 @@ class ModuleSSLOpenSSL : public Module
 			if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->wstat = ISSL_WRITE;
+				MakePollWrite(session);
 				return -1;
 			}
 			else if (err == SSL_ERROR_WANT_READ)
@@ -652,6 +653,7 @@ class ModuleSSLOpenSSL : public Module
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->rstat = ISSL_WRITE;
+				MakePollWrite(session);
 				ServerInstance->Log(DEBUG,"Setting want_write");
 				return -1;
 			}
