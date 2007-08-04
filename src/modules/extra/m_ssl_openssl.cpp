@@ -509,7 +509,7 @@ class ModuleSSLOpenSSL : public Module
 
 				if (ret > 0)
 				{
-					if (count <= session->inbufoffset)
+					if (count > session->inbufoffset)
 					{
 						memcpy(buffer, session->inbuf, count);
 						// Move the stuff left in inbuf to the beginning of it
