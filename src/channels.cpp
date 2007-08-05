@@ -206,14 +206,39 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	if (!user || !cn)
 		return NULL;
 
-	bool new_channel = false;
 	char cname[MAXBUF];
 	int MOD_RESULT = 0;
-	strlcpy(cname,cn,CHANMAX);
-
 	std::string privs;
+	chanrec *Ptr;
 
-	chanrec* Ptr = Instance->FindChan(cname);
+	/*
+	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
+	 * We restrict local users to MaxChans channels.
+	 * We restrict local operators to OperMaxChans channels.
+	 * This is a lot more logical than how it was formerly. -- w00t
+	 */
+	if (IS_LOCAL(user) && !override)
+	{
+		if (IS_OPER(user))
+		{
+			if (user->chans.size() >= Instance->Config->OperMaxChans)
+			{
+				user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+				return NULL;
+			}
+		}
+		else
+		{
+			if (user->chans.size() >= Instance->Config->MaxChans)
+			{
+				user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+				return NULL;
+			}
+		}
+	}
+
+	strlcpy(cname, cn, CHANMAX);
+	Ptr = Instance->FindChan(cname);
 
 	if (!Ptr)
 	{
@@ -253,7 +278,6 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		*Ptr->topic = 0;
 		*Ptr->setby = 0;
 		Ptr->topicset = 0;
-		new_channel = true;
 	}
 	else
 	{
@@ -327,49 +351,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 	}
 
-	/* NOTE: If the user is an oper here, we can extend their user->chans by up to
-	 * OperMaxchans. For remote users which are not bound by the channel limits,
-	 * we can extend infinitely. Otherwise, nope, youre restricted to MaxChans.
-	 */
-
-
-
-	/*
-	 * We place no restrictions on remote users, users that are override-joining, or users that are
-	 * currently in under MaxChans channels. For all others, they won't get in here. -- w00t
-	 */	
-	if (!IS_LOCAL(user) || override == true || user->chans.size() < Instance->Config->MaxChans)
-	{
-		return chanrec::ForceChan(Instance, Ptr, user, privs);
-	}
-
-	/*
-	 * If the above fails, and the user is an oper -- we let them in if they are under OperMaxChans.
-	 * Otherwise, they're stuck, and need to override to get in, etc. -- w00t
-	 */
-	if (IS_OPER(user))
-	{
-		if (user->chans.size() < Instance->Config->OperMaxChans)
-		{
-			return chanrec::ForceChan(Instance, Ptr, user, privs);
-		}
-	}
-
-	user->WriteServ("405 %s %s :You are on too many channels",user->nick, cname);
-
-	if (new_channel)
-	{
-		/* Things went seriously pear shaped, so take this away. bwahaha. */
-		chan_hash::iterator n = Instance->chanlist->find(cname);
-		if (n != Instance->chanlist->end())
-		{
-			Ptr->DelUser(user);
-			DELETE(Ptr);
-			Instance->chanlist->erase(n);
-		}
-	}
-
-	return NULL;
+	return chanrec::ForceChan(Instance, Ptr, user, privs);
 }
 
 chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs)
