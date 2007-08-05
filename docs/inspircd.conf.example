@@ -885,7 +885,7 @@
 #                                                                     #
 #  exemptchanops - This option allows channel operators to be exempted#
 #                  from certain channel modes.                        #
-#                  Supported modes are +SfgNc. Defaults to off.       #
+#                  Supported modes are +SfFgNc. Defaults to off.      #
 #                                                                     #
 #  defaultmodes  - The default modes to be given to each channel on   #
 #                  creation. Defaults to 'nt'. There should be no +   #
