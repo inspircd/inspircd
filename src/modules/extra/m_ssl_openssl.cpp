@@ -346,7 +346,7 @@ class ModuleSSLOpenSSL : public Module
 	void Implements(char* List)
 	{
 		List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = List[I_On005Numeric] = 1;
-		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
+		List[I_OnBufferFlushed] = List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
 	virtual char* OnRequest(Request* request)
@@ -500,9 +500,13 @@ class ModuleSSLOpenSSL : public Module
 			{
 				int ret = DoRead(session);
 
+				ServerInstance->Log(DEBUG, "<***> DoRead count: " + ConvToStr(count));
+				ServerInstance->Log(DEBUG, "<***> DoRead ret: " + ConvToStr(ret));
+				ServerInstance->Log(DEBUG, "<***> DoRead session->inbufoffset: " + ConvToStr(session->inbufoffset));
+
 				if (ret > 0)
 				{
-					if (count > session->inbufoffset)
+					if (count <= session->inbufoffset)
 					{
 						memcpy(buffer, session->inbuf, count);
 						// Move the stuff left in inbuf to the beginning of it
@@ -792,6 +796,17 @@ class ModuleSSLOpenSSL : public Module
 		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
 		if (eh)
 			ServerInstance->SE->WantWrite(eh);
+	}
+
+virtual void OnBufferFlushed(userrec* user)
+{
+	if (user->GetExt("ssl"))
+	{
+		ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
+		issl_session* session = &sessions[user->GetFd()];
+		if (session && session->outbuf.size())
+			OnRawSocketWrite(user->GetFd(), NULL, 0);
+		}
 	}
 
 	void CloseSession(issl_session* session)
