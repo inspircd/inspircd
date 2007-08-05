@@ -549,6 +549,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		session->outbuf.append(buffer, count);
+		MakePollWrite(session);
 
 		if (session->status == ISSL_HANDSHAKING)
 		{
@@ -589,8 +590,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (ret < 0)
 		{
-			MakePollWrite(session);
-
 			int err = SSL_get_error(session->sess, ret);
 
 			if (err == SSL_ERROR_WANT_WRITE)
@@ -612,7 +611,6 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			session->outbuf = session->outbuf.substr(ret);
-			MakePollWrite(session);
 			return ret;
 		}
 	}
