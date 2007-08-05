@@ -589,12 +589,13 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (ret < 0)
 		{
+			MakePollWrite(session);
+
 			int err = SSL_get_error(session->sess, ret);
 
 			if (err == SSL_ERROR_WANT_WRITE)
 			{
 				session->wstat = ISSL_WRITE;
-				MakePollWrite(session);
 				return -1;
 			}
 			else if (err == SSL_ERROR_WANT_READ)
@@ -611,6 +612,7 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			session->outbuf = session->outbuf.substr(ret);
+			MakePollWrite(session);
 			return ret;
 		}
 	}
@@ -798,14 +800,14 @@ class ModuleSSLOpenSSL : public Module
 			ServerInstance->SE->WantWrite(eh);
 	}
 
-virtual void OnBufferFlushed(userrec* user)
-{
-	if (user->GetExt("ssl"))
+	virtual void OnBufferFlushed(userrec* user)
 	{
-		ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
-		issl_session* session = &sessions[user->GetFd()];
-		if (session && session->outbuf.size())
-			OnRawSocketWrite(user->GetFd(), NULL, 0);
+		if (user->GetExt("ssl"))
+		{
+			ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
+			issl_session* session = &sessions[user->GetFd()];
+			if (session && session->outbuf.size())
+				OnRawSocketWrite(user->GetFd(), NULL, 0);
 		}
 	}
 
