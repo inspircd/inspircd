@@ -1648,6 +1648,11 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nickchange flood protection module: Allows up to X nick changes in Y seconds.
+# Provides channel mode +F.
+#<module name="m_nickflood.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
 # user from changing their nick again.
 #<module name="m_nicklock.so">
