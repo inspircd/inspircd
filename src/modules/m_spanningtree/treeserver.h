@@ -109,9 +109,13 @@ class TreeServer : public classbase
 	 */
 	time_t LastPing;
 
+	/** Last ping time in microseconds, used to calculate round trip time
+	 */
+	unsigned long LastPingMsec;
+
 	/** Round trip time of last ping
 	 */
-	time_t rtt;
+	unsigned long rtt;
 
 	/** True if this server is hidden
 	 */
