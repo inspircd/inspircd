@@ -129,7 +129,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
+			ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
   }
@@ -149,7 +149,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			z->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
+			z->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
 }
@@ -172,7 +172,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 				} \
 				catch (CoreException& modexcept) \
 				{ \
-					ServerInstance->Log(DEFAULT,"Exception cought: %s",modexcept.GetReason()); \
+					ServerInstance->Log(DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
@@ -198,7 +198,7 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
 				} \
 				catch (CoreException& modexcept) \
 				{ \
-					z->Log(DEBUG,"Exception cought: %s",modexcept.GetReason()); \
+					z->Log(DEBUG,"Exception caught: %s",modexcept.GetReason()); \
 				} \
 			} \
 		} \
