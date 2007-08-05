@@ -287,7 +287,7 @@ class ModuleSSLGnuTLS : public Module
 	void Implements(char* List)
 	{
 		List[I_On005Numeric] = List[I_OnRawSocketConnect] = List[I_OnRawSocketAccept] = List[I_OnRawSocketClose] = List[I_OnRawSocketRead] = List[I_OnRawSocketWrite] = List[I_OnCleanup] = 1;
-		List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
+		List[I_OnBufferFlushed] = List[I_OnRequest] = List[I_OnSyncUserMetaData] = List[I_OnDecodeMetaData] = List[I_OnUnloadModule] = List[I_OnRehash] = List[I_OnWhois] = List[I_OnPostConnect] = 1;
 	}
 
 	virtual void On005Numeric(std::string &output)
@@ -432,6 +432,7 @@ class ModuleSSLGnuTLS : public Module
 		else if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			errno = EAGAIN;
+			MakePollWrite(session);
 			return -1;
 		}
 
@@ -555,6 +556,8 @@ class ModuleSSLGnuTLS : public Module
 				session->outbuf = session->outbuf.substr(ret);
 			}
 		}
+
+		MakePollWrite(session);
 
 		/* Who's smart idea was it to return 1 when we havent written anything?
 		 * This fucks the buffer up in InspSocket :p
@@ -685,7 +688,22 @@ class ModuleSSLGnuTLS : public Module
 
 	void MakePollWrite(issl_session* session)
 	{
-		OnRawSocketWrite(session->fd, NULL, 0);
+		//OnRawSocketWrite(session->fd, NULL, 0);
+		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
+		if (eh)
+			ServerInstance->SE->WantWrite(eh);
+		ServerInstance->Log(DEBUG, "Want write set");
+	}
+
+	virtual void OnBufferFlushed(userrec* user)
+	{
+		if (user->GetExt("ssl"))
+		{
+			ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
+			issl_session* session = &sessions[user->GetFd()];
+			if (session && session->outbuf.size())
+				OnRawSocketWrite(user->GetFd(), NULL, 0);
+		}
 	}
 
 	void CloseSession(issl_session* session)
