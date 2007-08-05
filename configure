@@ -478,9 +478,14 @@ if ($has_epoll) {
 				if ($line =~ /GNU C Library .* version (.*?) /)
 				{
 					$libcv = $1;
+					$libcv =~  /([0-9\.\-])+/;
+					$libcv = $1;
 				}
 				elsif ($line =~ /Compiled on a Linux (.*?\..*?)\.* system/)
 				{
+					$kernelv = $1;
+					# Fix for some retarded libc builds, strip off >> and << etc.
+					$kernelv =~ /([0-9\.\-])+/;
 					$kernelv = $1;
 				}
 			}
