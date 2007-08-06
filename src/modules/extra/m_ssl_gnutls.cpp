@@ -547,7 +547,6 @@ class ModuleSSLGnuTLS : public Module
 				{
 					ServerInstance->Log(DEBUG,"Again please");
 					errno = EAGAIN;
-					return -1;
 				}
 			}
 			else
