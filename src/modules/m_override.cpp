@@ -90,7 +90,7 @@ class ModuleOverride : public Module
 		output.append(" OVERRIDE");
 	}
 
-	virtual bool CanOverride(userrec* source, char* token)
+	virtual bool CanOverride(userrec* source, const char* token)
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
