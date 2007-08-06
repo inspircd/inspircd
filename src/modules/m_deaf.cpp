@@ -108,7 +108,7 @@ class ModuleDeaf : public Module
 
 	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if ((target_type == TYPE_CHANNEL) & (IS_LOCAL(user)))
+		if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* chan = (chanrec*)dest;
 			if (chan)
