@@ -923,15 +923,11 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		return;
 	}
 
+	/*
+	 * Check connect class settings and initialise settings into userrec.
+	 * This will be done again after DNS resolution. -- w00t
+	 */
 	New->CheckClass();
-
-	New->pingmax = i->GetPingTime();
-	New->nping = Instance->Time() + i->GetPingTime() + Instance->Config->dns_timeout;
-	New->timeout = Instance->Time() + i->GetRegTimeout();
-	New->flood = i->GetFlood();
-	New->threshold = i->GetThreshold();
-	New->sendqmax = i->GetSendqMax();
-	New->recvqmax = i->GetRecvqMax();
 
 	Instance->local_users.push_back(New);
 
@@ -1032,6 +1028,14 @@ void userrec::CheckClass()
 		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
+
+	this->pingmax = a->GetPingTime();
+	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
+	this->timeout = ServerInstance->Time() + a->GetRegTimeout();
+	this->flood = a->GetFlood();
+	this->threshold = a->GetThreshold();
+	this->sendqmax = a->GetSendqMax();
+	this->recvqmax = a->GetRecvqMax();
 }
 
 void userrec::FullConnect()
