@@ -485,7 +485,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 				if (serv->AnsweredLastPing())
 				{
 					sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
-					serv->SetNextPingTime(curtime + 60);
+					serv->SetNextPingTime(curtime + Utils->PingFreq);
 					serv->LastPing = curtime;
 					timeval t;
 					gettimeofday(&t, NULL);
@@ -503,7 +503,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					return;
 				}
 			}
-			else if ((Utils->PingWarnTime) && (!serv->Warned) && (curtime >= serv->NextPingTime() - (60 - Utils->PingWarnTime)) && (!serv->AnsweredLastPing()))
+			else if ((Utils->PingWarnTime) && (!serv->Warned) && (curtime >= serv->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!serv->AnsweredLastPing()))
 			{
 				/* The server hasnt responded, send a warning to opers */
 				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", serv->GetName().c_str(), Utils->PingWarnTime);
