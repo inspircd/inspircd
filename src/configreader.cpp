@@ -872,7 +872,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		FailedPortList pl;
 		ServerInstance->BindPorts(false, found_ports, pl);
 
-		if (pl.size())
+		if (pl.size() && user)
 		{
 			user->WriteServ("NOTICE %s :*** Not all your client ports could be bound.", user->nick);
 			user->WriteServ("NOTICE %s :*** The following port(s) failed to bind:", user->nick);
