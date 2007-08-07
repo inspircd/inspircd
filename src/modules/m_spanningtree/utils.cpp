@@ -498,8 +498,12 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 	ChallengeResponse = !Conf->ReadFlag("options", "disablehmac", 0);
 	quiet_bursts = Conf->ReadFlag("options", "quietbursts", 0);
 	PingWarnTime = Conf->ReadInteger("options", "pingwarning", 0, true);
+	PingFreq = Conf->ReadInteger("options", "serverpingfreq", 0, true);
 
-	if (PingWarnTime < 0 || PingWarnTime > 59)
+	if (PingFreq == 0)
+		PingFreq = 60;
+
+	if (PingWarnTime < 0 || PingWarnTime > PingFreq - 1)
 		PingWarnTime = 0;
 
 	LinkBlocks.clear();

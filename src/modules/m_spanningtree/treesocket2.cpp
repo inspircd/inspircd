@@ -1111,7 +1111,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * When there is activity on the socket, reset the ping counter so
 				 * that we're not wasting bandwidth pinging an active server.
 				 */
-				route_back_again->SetNextPingTime(time(NULL) + 60);
+				route_back_again->SetNextPingTime(time(NULL) + Utils->PingFreq);
 				route_back_again->SetPingFlag();
 			}
 			else

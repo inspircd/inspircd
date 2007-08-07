@@ -876,6 +876,10 @@
 #                  such as BOPM which rely on them to scan users when #
 #                  a split heals in certain configurations.           #
 #                                                                     #
+#  serverpingfreq- This value, when set, allows you to change the     #
+#                  frequency of server to server PING messages. This  #
+#                  can help if you are having certain network issues. #
+#                                                                     #
 #  pingwarning   - This should be set to a number between 1 and 59 if #
 #                  defined, and if it is defined will cause the server#
 #                  to send out a warning via snomask +l if a server   #
@@ -928,6 +932,7 @@
          hidemodes="eI"
          quietbursts="yes"
          pingwarning="15"
+	 serverpingfreq="60"
          allowhalfop="yes"
 	 defaultmodes="nt"
 	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."

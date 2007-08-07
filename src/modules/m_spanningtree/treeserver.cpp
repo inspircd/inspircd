@@ -67,7 +67,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 {
 	VersionString.clear();
 	UserCount = OperCount = 0;
-	this->SetNextPingTime(time(NULL) + 60);
+	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
 	rtt = LastPing = 0;
 	/* find the 'route' for this server (e.g. the one directly connected

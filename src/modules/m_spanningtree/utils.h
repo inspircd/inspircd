@@ -123,6 +123,10 @@ class SpanningTreeUtilities
 	 */
 	bool ChallengeResponse;
 
+	/** Ping frequency of server to server links
+	 */
+	int PingFreq;
+
 	/** Initialise utility class
 	 */
 	SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningTree* Creator);
