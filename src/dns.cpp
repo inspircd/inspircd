@@ -42,6 +42,7 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
 using irc::sockets::OpenTCPSocket;
+using irc::sockets::NonBlocking;
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */
@@ -359,6 +360,7 @@ void DNS::Rehash()
 	/* Initialize mastersocket */
 	int s = OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
 	this->SetFd(s);
+	NonBlocking(s);
 
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
