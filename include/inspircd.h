@@ -54,14 +54,6 @@
  */
 #define ETIREDHAMSTERS EAGAIN
 
-/**
- * This define is used in place of strcmp when we
- * want to check if a char* string contains only one
- * letter. Pretty fast, its just two compares and an
- * addition.
- */
-#define IS_SINGLE(x,y) ( (*x == y) && (*(x+1) == 0) )
-
 /** Delete a pointer, and NULL its value
  */
 template<typename T> inline void DELETE(T* x)
