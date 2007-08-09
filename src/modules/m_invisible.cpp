@@ -83,8 +83,19 @@ class InvisibleMode : public ModeHandler
 
 			dest->SetMode('Q', adding);
 
+			/* Fix for bug #379 reported by stealth. On +/-Q make m_watch think the user has signed on/off */
+			Module* m = ServerInstance->FindModule("m_watch.so");
+
+			/* This must come before setting/unsetting the handler */
+			if (m && adding)
+				m->OnUserQuit(dest, "Connection closed", "Connection closed");
+
 			/* Set visibility handler object */
 			dest->Visibility = adding ? qo : NULL;
+
+			/* This has to come after setting/unsetting the handler */
+			if (m && !adding)
+				m->OnPostConnect(dest);
 
 			/* User appears to vanish or appear from nowhere */
 			for (UCListIter f = dest->chans.begin(); f != dest->chans.end(); f++)
