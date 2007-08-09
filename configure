@@ -467,10 +467,16 @@ if ($has_epoll) {
 	{
 		# Suggestion from nenolod, weed out odd systems which have glibc built
 		# against 2.4 kernels (ick)
-
+		my $kernel_arch = `uname -p`;
+		chomp($kernel_arch);
 		$libcv = 0.0;
 		$kernelv = 0.0;
-		open (FH,"/lib/libc.so.6|") or $has_epoll = 0;
+		if ($kernel_arch =~ /x86_64/) {
+			open (FH,"/lib64/libc.so.6|") or $has_epoll = 0;
+		}
+		else {
+			open (FH,"/lib/libc.so.6|") or $has_epoll = 0;
+		}
 		if ($has_epoll)
 		{
 			while (chomp($line = <FH>))
