@@ -166,8 +166,12 @@ public:
 			break;
 
 			case DONE:
-				delete active_queries[req.id];
-				active_queries[req.id] = NULL;
+				std::map<unsigned long,QueryInfo*>::iterator x = active_queries.find(req.id);
+				if (x != active_queres.end())
+				{
+					delete x->second;
+					active_queries.erase(x);
+				}
 			break;
 		}
 	}
