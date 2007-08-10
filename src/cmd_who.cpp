@@ -303,7 +303,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (whomatch(i->second, matchtext))
 				{
-					if ((i->second->IsModeSet('i')) && (!IS_OPER(user)))
+					if ((i->second != user) && (i->second->IsModeSet('i')) && (!IS_OPER(user)))
 						continue;
 
 					SendWhoLine(user, initial, NULL, i->second, whoresults);
