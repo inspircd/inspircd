@@ -928,6 +928,9 @@ void ServerConfig::Read(bool bail, userrec* user)
 		ServerInstance->Log(DEFAULT,"Successfully unloaded %lu of %lu modules and loaded %lu of %lu modules.",(unsigned long)rem,(unsigned long)removed_modules.size(),(unsigned long)add,(unsigned long)added_modules.size());
 	}
 
+	/** Note: This is safe, the method checks for user == NULL */
+	ServerInstance->Parser->SetupCommandTable(user);
+
 	if (user)
 		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick);
 	else

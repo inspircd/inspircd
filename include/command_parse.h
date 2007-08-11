@@ -56,10 +56,6 @@ class CoreExport CommandParser : public classbase
 	 */
 	void ProcessCommand(userrec *user, std::string &cmd);
 
-	/** Insert the default RFC1459 commands into the command hash.
-	 */
-	void SetupCommandTable();
-
 	/** Finds the init_command symbol in a .so file
 	 * @param v A function pointer to be initialized
 	 * @param h A valid shared object handle
@@ -198,6 +194,13 @@ class CoreExport CommandParser : public classbase
 	 * @return True if the command was added
 	 */
 	bool CreateCommand(command_t *f, void* so_handle = NULL);
+
+	/** Insert the default RFC1459 commands into the command hash.
+	 * Ignore any already loaded commands.
+	 * @param user User to spool errors to, or if NULL, when an error occurs spool the errors to
+	 * stdout then exit with EXIT_STATUS_HANDLER.
+	 */
+	void SetupCommandTable(userrec* user);
 };
 
 /** Command handler class for the RELOAD command.
