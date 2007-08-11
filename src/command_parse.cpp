@@ -445,7 +445,7 @@ bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	para.resize(128);
-	this->SetupCommandTable();
+	this->SetupCommandTable(NULL);
 }
 
 bool CommandParser::FindSym(void** v, void* h)
@@ -512,7 +512,7 @@ CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
 	}
 	else
 	{
-		user->WriteServ("NOTICE %s :*** Could not reload command '%s'", user->nick, parameters[0]);
+		user->WriteServ("NOTICE %s :*** Could not reload command '%s' -- fix this problem, then /REHASH as soon as possible!", user->nick, parameters[0]);
 		return CMD_FAILURE;
 	}
 }
@@ -522,6 +522,10 @@ const char* CommandParser::LoadCommand(const char* name)
 	char filename[MAXBUF];
 	void* h;
 	command_t* (*cmd_factory_func)(InspIRCd*);
+
+	/* Command already exists? Succeed silently - this is needed for REHASH */
+	if (RFCCommands.find(name) != RFCCommands.end())
+		return NULL;
 
 	snprintf(filename, MAXBUF, "%s/%s", LIBRARYDIR, name);
 	h = dlopen(filename, RTLD_NOW | RTLD_GLOBAL);
@@ -541,12 +545,15 @@ const char* CommandParser::LoadCommand(const char* name)
 	return NULL;
 }
 
-void CommandParser::SetupCommandTable()
+void CommandParser::SetupCommandTable(userrec* user)
 {
 	RFCCommands.clear();
 
-	printf("\nLoading core commands");
-	fflush(stdout);
+	if (!user)
+	{
+		printf("\nLoading core commands");
+		fflush(stdout);
+	}
 
 	DIR* library = opendir(LIBRARYDIR);
 	if (library)
@@ -556,20 +563,32 @@ void CommandParser::SetupCommandTable()
 		{
 			if (match(entry->d_name, "cmd_*.so"))
 			{
-				printf(".");
-				fflush(stdout);
+				if (!user)
+				{
+					printf(".");
+					fflush(stdout);
+				}
 				const char* err = this->LoadCommand(entry->d_name);
 				if (err)
 				{
-					printf("Error loading %s: %s", entry->d_name, err);
-					exit(EXIT_STATUS_BADHANDLER);
+					if (user)
+					{
+						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", entry->d_name, err);
+					}
+					else
+					{
+						printf("Error loading %s: %s", entry->d_name, err);
+						exit(EXIT_STATUS_BADHANDLER);
+					}
 				}
 			}
 		}
 		closedir(library);
-		printf("\n");
+		if (!user)
+			printf("\n");
 	}
 
-	this->CreateCommand(new cmd_reload(ServerInstance));
+	if (cmdlist.find("RELOAD") == cmdlist.end())
+		this->CreateCommand(new cmd_reload(ServerInstance));
 }
 
