@@ -491,7 +491,11 @@ bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
 		snprintf(filename, MAXBUF, "cmd_%s.so", commandname);
 		const char* err = this->LoadCommand(filename);
 		if (err)
-			user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd, err);
+		{
+			if (user)
+				user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd, err);
+			return false;
+		}
 
 		return true;
 	}
