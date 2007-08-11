@@ -33,7 +33,8 @@ enum ExitStatus
 	EXIT_STATUS_DIETAG = 12,	/* Found a die tag in the config file */
 	EXIT_STATUS_MODULE = 13,	/* Couldn't load a required module */
 	EXIT_STATUS_CREATEPROCESS = 14,	/* CreateProcess failed (windows) */
-	EXIT_STATUS_SIGTERM = 15	/* Note: dont move this value. It corresponds with the value of #define SIGTERM. */
+	EXIT_STATUS_SIGTERM = 15,	/* Note: dont move this value. It corresponds with the value of #define SIGTERM. */
+	EXIT_STATUS_BADHANDLER = 16	/* Bad command handler loaded */
 };
 
 /** Array that maps exit codes (ExitStatus types) to
