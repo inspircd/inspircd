@@ -167,7 +167,7 @@ public:
 
 			case DONE:
 				std::map<unsigned long,QueryInfo*>::iterator x = active_queries.find(req.id);
-				if (x != active_queres.end())
+				if (x != active_queries.end())
 				{
 					delete x->second;
 					active_queries.erase(x);
