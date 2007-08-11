@@ -21,6 +21,7 @@
 #include "socketengine.h"
 #include "socket.h"
 #include "command_parse.h"
+#include "exitcodes.h"
 
 /* Directory Searching for Unix-Only */
 #ifndef WIN32
@@ -461,7 +462,7 @@ bool CommandParser::FindSym(void** v, void* h)
 	return true;
 }
 
-bool CommandParser::ReloadCommand(const char* cmd)
+bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
 {
 	char filename[MAXBUF];
 	char commandname[MAXBUF];
@@ -488,7 +489,9 @@ bool CommandParser::ReloadCommand(const char* cmd)
 		RFCCommands.erase(command);
 
 		snprintf(filename, MAXBUF, "cmd_%s.so", commandname);
-		this->LoadCommand(filename);
+		const char* err = this->LoadCommand(filename);
+		if (err)
+			user->WriteServ("NOTICE %s :*** Error loading 'cmd_%s.so': %s", user->nick, cmd, err);
 
 		return true;
 	}
@@ -499,7 +502,7 @@ bool CommandParser::ReloadCommand(const char* cmd)
 CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
 {
 	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
-	if (ServerInstance->Parser->ReloadCommand(parameters[0]))
+	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
 	{
 		user->WriteServ("NOTICE %s :*** Successfully reloaded command '%s'", user->nick, parameters[0]);
 		ServerInstance->WriteOpers("*** RELOAD: %s reloaded the '%s' command.", user->nick, parameters[0]);
@@ -512,7 +515,7 @@ CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
 	}
 }
 
-void CommandParser::LoadCommand(const char* name)
+const char* CommandParser::LoadCommand(const char* name)
 {
 	char filename[MAXBUF];
 	void* h;
@@ -523,8 +526,9 @@ void CommandParser::LoadCommand(const char* name)
 
 	if (!h)
 	{
-		ServerInstance->Log(SPARSE, "Error loading core command: %s", dlerror());
-		return;
+		const char* n = dlerror();
+		ServerInstance->Log(SPARSE, "Error loading core command: %s", n);
+		return n;
 	}
 
 	if (this->FindSym((void **)&cmd_factory_func, h))
@@ -532,6 +536,7 @@ void CommandParser::LoadCommand(const char* name)
 		command_t* newcommand = cmd_factory_func(ServerInstance);
 		this->CreateCommand(newcommand, h);
 	}
+	return NULL;
 }
 
 void CommandParser::SetupCommandTable()
@@ -551,7 +556,12 @@ void CommandParser::SetupCommandTable()
 			{
 				printf(".");
 				fflush(stdout);
-				this->LoadCommand(entry->d_name);
+				const char* err = this->LoadCommand(entry->d_name);
+				if (err)
+				{
+					printf("Error loading %s: %s", entry->d_name, err);
+					exit(EXIT_STATUS_BADHANDLER);
+				}
 			}
 		}
 		closedir(library);

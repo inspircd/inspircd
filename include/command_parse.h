@@ -73,8 +73,9 @@ class CoreExport CommandParser : public classbase
 
 	/** Load a command from a shared object on disk.
 	 * @param name The shared object to load (without path)
+	 * @return NULL on success, pointer to dlerrr() error message on failure
 	 */
-	void LoadCommand(const char* name);
+	const char* LoadCommand(const char* name);
 
 	/** Removes a command if the sources match. Used as a helper for
 	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
@@ -95,7 +96,7 @@ class CoreExport CommandParser : public classbase
 	 * @return True if the command was reloaded, false if it could not be found
 	 * or another error occured
 	 */
-	bool ReloadCommand(const char* cmd);
+	bool ReloadCommand(const char* cmd, userrec* user);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class
