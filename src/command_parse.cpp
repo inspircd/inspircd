@@ -445,7 +445,6 @@ bool CommandParser::CreateCommand(command_t *f, void* so_handle)
 CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	para.resize(128);
-	this->SetupCommandTable(NULL);
 }
 
 bool CommandParser::FindSym(void** v, void* h)
@@ -525,7 +524,10 @@ const char* CommandParser::LoadCommand(const char* name)
 
 	/* Command already exists? Succeed silently - this is needed for REHASH */
 	if (RFCCommands.find(name) != RFCCommands.end())
+	{
+		ServerInstance->Log(DEBUG,"Not reloading command %s/%s, it already exists", LIBRARYDIR, name);
 		return NULL;
+	}
 
 	snprintf(filename, MAXBUF, "%s/%s", LIBRARYDIR, name);
 	h = dlopen(filename, RTLD_NOW | RTLD_GLOBAL);
@@ -573,7 +575,7 @@ void CommandParser::SetupCommandTable(userrec* user)
 				{
 					if (user)
 					{
-						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", entry->d_name, err);
+						user->WriteServ("NOTICE %s :*** Failed to load core command %s: %s", user->nick, entry->d_name, err);
 					}
 					else
 					{
