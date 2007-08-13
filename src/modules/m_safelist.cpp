@@ -95,7 +95,7 @@ class ModuleSafeList : public Module
 	{
 		int minusers = 0, maxusers = 0;
 
-		if (global_listing >= LimitList)
+		if (global_listing >= LimitList && !IS_OPER(user))
 		{
 			user->WriteServ("NOTICE %s :*** Server load is currently too heavy. Please try again later.", user->nick);
 			user->WriteServ("321 %s Channel :Users Name",user->nick);
