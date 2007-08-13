@@ -325,6 +325,8 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 			{
 				/* command is disabled! */
 				user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
+				ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
+						command.c_str(), user->nick, user->ident, user->host);
 				return;
 			}
 			if (items < cm->second->min_params)
