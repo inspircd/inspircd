@@ -175,18 +175,18 @@ void ::operator delete(void * ptr);
 /* IPC Handlers */
 class InspIRCd;
 
-void InitIPC();
-void CheckIPC(InspIRCd * Instance);
-void CloseIPC();
+CoreExport void InitIPC();
+CoreExport void CheckIPC(InspIRCd * Instance);
+CoreExport void CloseIPC();
 
 /* Look up the nameserver in use from the registry on windows */
-std::string FindNameServerWin();
+CoreExport std::string FindNameServerWin();
 
 /* Clear a windows console */
-void ClearConsole();
+CoreExport void ClearConsole();
 
 /* Windows does not have gettimeofday() */
-int gettimeofday(struct timeval * tv, void * tz);
+CoreExport int gettimeofday(struct timeval * tv, void * tz);
 
 #endif
 
