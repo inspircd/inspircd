@@ -152,6 +152,8 @@ CoreExport DIR * opendir(const char * path);
 CoreExport dirent * readdir(DIR * handle);
 CoreExport void closedir(DIR * handle);
 
+CoreExport int gettimeofday(struct timeval * tv, void * tz);
+
 /* Disable these stupid warnings.. */
 #pragma warning(disable:4800)
 #pragma warning(disable:4251)

@@ -174,12 +174,7 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
 	time_t secs_up = ServerInstance->Time() - Current->age;
-
-#ifndef WIN32
 	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"ms]");
-#else
-	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"s]");
-#endif
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
@@ -492,12 +487,10 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
 					serv->SetNextPingTime(curtime + Utils->PingFreq);
 					serv->LastPing = curtime;
-#ifndef WIN32
 					timeval t;
 					gettimeofday(&t, NULL);
 					long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
 					serv->LastPingMsec = ts;
-#endif
 					serv->Warned = false;
 				}
 				else

@@ -93,10 +93,24 @@ std::string SocketEngine::GetName()
 
 bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 {       
+#ifdef WINDOWS
+	int * internal_fd;
+	if(!eh || eh->GetFd() < 0)
+		return false;
+
+	if(!eh->GetExt("internal_fd", internal_fd))
+		return false;
+
+	if(*internal_fd > MAX_DESCRIPTORS)
+		return false;
+
+	return true;
+#else
 	if (!eh)
 		return false;
 	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
 		return false;
 	return true;
+#endif
 }
 

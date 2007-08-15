@@ -146,6 +146,9 @@
 				RelativePath="..\src\dynamic.cpp">
 			</File>
 			<File
+				RelativePath="..\src\filelogger.cpp">
+			</File>
+			<File
 				RelativePath="..\src\hashcomp.cpp">
 			</File>
 			<File
@@ -165,6 +168,9 @@
 			</File>
 			<File
 				RelativePath="..\src\modules.cpp">
+			</File>
+			<File
+				RelativePath="..\src\server.cpp">
 			</File>
 			<File
 				RelativePath="..\src\snomasks.cpp">

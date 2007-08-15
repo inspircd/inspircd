@@ -17,11 +17,14 @@
 #include <string>
 #include <errno.h>
 #include <assert.h>
+#pragma comment(lib, "winmm.lib")
 using namespace std;
 
 #ifndef INADDR_NONE
 #define INADDR_NONE 0xffffffff
 #endif
+
+#include <mmsystem.h>
 
 /* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
 static DWORD owner_processid = 0;
@@ -639,4 +642,15 @@ bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* v
 		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 	}
 	return true;
+}
+
+int gettimeofday(struct timeval * tv, void * tz)
+{
+	if(tv == NULL)
+		return -1;
+
+	DWORD mstime = timeGetTime();
+	tv->tv_sec   = time(NULL);
+	tv->tv_usec  = (mstime - (tv->tv_sec * 1000)) * 1000;
+    return 0;	
 }
