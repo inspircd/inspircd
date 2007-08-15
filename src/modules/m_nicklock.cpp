@@ -25,7 +25,7 @@ class cmd_nicklock : public command_t
 {
 	char* dummy;
  public:
- cmd_nicklock (InspIRCd* Instance) : command_t(Instance,"NICKLOCK", 'o', 2)
+	cmd_nicklock (InspIRCd* Instance) : command_t(Instance,"NICKLOCK", 'o', 2)
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<oldnick> <newnick>";
@@ -79,9 +79,9 @@ class cmd_nicklock : public command_t
 class cmd_nickunlock : public command_t
 {
  public:
- cmd_nickunlock (InspIRCd* Instance) : command_t(Instance,"NICKUNLOCK", 'o', 1)
+	cmd_nickunlock (InspIRCd* Instance) : command_t(Instance,"NICKUNLOCK", 'o', 1)
 	{
-		this->source = "m_nickunlock.so";
+		this->source = "m_nicklock.so";
 		syntax = "<locked-nick>";
 	}
 
