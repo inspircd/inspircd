@@ -1150,7 +1150,6 @@ void DNS::CleanResolvers(Module* module)
 /** Generate pseudo-random number */
 unsigned long DNS::PRNG()
 {
-#ifndef WIN32
 	unsigned long val = 0;
 	timeval n;
 	serverstats* s = ServerInstance->stats;
@@ -1159,13 +1158,5 @@ unsigned long DNS::PRNG()
 	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
 	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->Config->ports.size();
 	return val;
-#else
-	unsigned long val = 0;
-	serverstats* s = ServerInstance->stats;
-	val = (time(NULL) ^ GetCurrentProcessId() ^ GetCurrentThreadId() ^ (this->currid++)) ^ s->statsAccept + time(NULL);
-	val = val + s->statsCollisions ^ s->statsDnsGood - s->statsDnsBad;
-	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
-	return val;
-#endif
 }
 

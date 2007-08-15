@@ -174,12 +174,7 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
 	time_t secs_up = ServerInstance->Time() - Current->age;
-
-#ifndef WIN32
 	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"ms]");
-#else
-	return (" [Up: " + TimeToStr(secs_up) + " Lag: "+ConvToStr(Current->rtt)+"s]");
-#endif
 }
 
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.

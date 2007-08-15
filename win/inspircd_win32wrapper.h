@@ -185,5 +185,8 @@ std::string FindNameServerWin();
 /* Clear a windows console */
 void ClearConsole();
 
+/* Windows does not have gettimeofday() */
+int gettimeofday(struct timeval * tv, void * tz);
+
 #endif
 
