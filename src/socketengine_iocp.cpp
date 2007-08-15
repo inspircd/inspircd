@@ -456,15 +456,16 @@ bool IOCPEngine::HasFd(int fd)
 
 bool IOCPEngine::BoundsCheckFd(EventHandler* eh)
 {
-	int* fake_fd = NULL;
-	if (!eh)
+	int * internal_fd;
+	if (!eh || eh->GetFd() < 0)
 		return false;
-	if (!eh->GetExt("internal_fd", fake_fd))
+
+	if(!eh->GetExt("internal_fd", internal_fd))
 		return false;
-	if ((*fake_fd < 0) || (*fake_fd > MAX_DESCRIPTORS))
+
+	if(*internal_fd > MAX_DESCRIPTORS)
 		return false;
-	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
-		return false;
+
 	return true;
 }
 
