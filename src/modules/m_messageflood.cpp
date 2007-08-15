@@ -216,11 +216,11 @@ class ModuleMsgFlood : public Module
 			throw ModuleException("Could not add new modes!");
 	}
 	
-	void ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
+	int ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
 	{
 		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP)
 		{
-			return;
+			return 0;
 		}
 
 		floodsettings *f;
@@ -254,25 +254,30 @@ class ModuleMsgFlood : public Module
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
 				if (!dest->ServerKickUser(user, kickmessage, true))
+				{
 					delete dest;
+					return 1;
+				}
 			}
 		}
+		
+		return 0;
 	}
 
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+	virtual int OnUserPreMessage(userrec *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
-		{
-			ProcessMessages(user,(chanrec*)dest,text);
-		}
+			return ProcessMessages(user,(chanrec*)dest,text);
+		
+		return 0;
 	}
 
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+	virtual int OnUserPreNotice(userrec *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
-		{
-			ProcessMessages(user,(chanrec*)dest,text);
-		}
+			return ProcessMessages(user,(chanrec*)dest,text);
+			
+		return 0;
 	}
 
 	void OnChannelDelete(chanrec* chan)
@@ -287,7 +292,7 @@ class ModuleMsgFlood : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnChannelDelete] = List[I_OnUserNotice] = List[I_OnUserMessage] = 1;
+		List[I_OnChannelDelete] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
 	}
 
 	virtual ~ModuleMsgFlood()
