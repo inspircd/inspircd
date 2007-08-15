@@ -276,7 +276,7 @@ public:
 	 * given event handler are within sensible ranges
 	 * which can be handled by the socket engine.
 	 */
-	bool BoundsCheckFd(EventHandler* eh);
+	virtual bool BoundsCheckFd(EventHandler* eh);
 };
 
 #endif
