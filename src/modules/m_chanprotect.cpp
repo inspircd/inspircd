@@ -320,7 +320,7 @@ class ModuleChanProtect : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
+		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnPostJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 
 	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
@@ -372,26 +372,29 @@ class ModuleChanProtect : public Module
 		}
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname, std::string &privs)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
-		if (FirstInGetsFounder)
-		{
-			if (channel->GetUserCounter() == 1)
-			{
-				// we're using Extensible::Extend to add data into user objects.
-				// this way is best as it adds data thats accessible to other modules
-				// (so long as you document your code properly) without breaking anything
-				// because its encapsulated neatly in a map.
 
-				// Change requested by katsklaw... when the first in is set to get founder,
-				// to make it clearer that +q has been given, send that one user the +q notice
-				// so that their client's syncronization and their sanity are left intact.
-				user->WriteServ("MODE %s +q %s",channel->name,user->nick);
-				user->Extend("cm_founder_"+std::string(channel->name),fakevalue);
-			}
-		}
+		if (FirstInGetsFounder && !chan)
+			privs = "~@";
+		
+		return 0;
+	}
+	
+	virtual void OnPostJoin(userrec *user, chanrec *channel)
+	{
+		// This *must* be in PostJoin, not UserJoin - the former will make it appear to happen
+		// before the client is in the channel
+		
+		// This notice was here originally because it was all done prior to the creation of
+		// privs in OnUserPreJoin. I've left it because it might still be wanted, but i'm
+		// not sure it really should be here - ops don't get shown, obviously, and the prefix
+		// will appear in the names list for the user.. remove if desired -Special
+
+		if (FirstInGetsFounder && channel->GetUserCounter() == 1)
+			user->WriteServ("MODE %s +q %s", channel->name, user->nick);
 	}
 	
 	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
