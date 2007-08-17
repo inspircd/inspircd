@@ -49,7 +49,7 @@ class CoreExport classbase
 	/** Destructor.
 	 * Does sweet FA.
 	 */
-	~classbase() { }
+	virtual ~classbase() { }
 };
 
 /** class Extensible is the parent class of many classes such as userrec and chanrec.
