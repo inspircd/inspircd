@@ -66,7 +66,7 @@ class BanRedirect : public ModeWatcher
 			std::string::iterator start_pos = param.begin();
 			long maxbans = channel->GetMaxBans();
 		
-			if(channel->bans.size() > static_cast<unsigned>(maxbans))
+			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
 			{
 				source->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %d)", source->nick, channel->name, channel->name, maxbans);
 				return false;

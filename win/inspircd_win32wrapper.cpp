@@ -22,6 +22,8 @@ using namespace std;
 #define INADDR_NONE 0xffffffff
 #endif
 
+#pragma comment(lib, "winmm.lib")
+
 HANDLE hIPCPipe;
 
 int inet_aton(const char *cp, struct in_addr *addr)
