@@ -20,21 +20,19 @@
 /* $ModDesc: Provides masking of user hostnames */
 /* $ModDep: m_hash.h */
 
-/* Used to vary the output a little more depending on the cloak keys */
-static const char* xtab[] = {"F92E45D871BCA630", "A1B9D80C72E653F4", "1ABC078934DEF562", "ABCDEF5678901234"};
-
 /** Handles user mode +x
  */
 class CloakUser : public ModeHandler
 {
-	
 	std::string prefix;
 	unsigned int key1;
 	unsigned int key2;
 	unsigned int key3;
 	unsigned int key4;
+	bool ipalways;
 	Module* Sender;
 	Module* HashProvider;
+	const char *xtab[4];
 
 	/** This function takes a domain name string and returns just the last two domain parts,
 	 * or the last domain part if only two are available. Failing that it just returns what it was given.
@@ -101,50 +99,65 @@ class CloakUser : public ModeHandler
 			
 				if (n1 || n2)
 				{
+					unsigned int iv[] = { key1, key2, key3, key4 };
+					std::string a = LastTwoDomainParts(dest->host);
+					std::string b;
+
 					/* InspIRCd users have two hostnames; A displayed
 					 * hostname which can be modified by modules (e.g.
 					 * to create vhosts, implement chghost, etc) and a
 					 * 'real' hostname which you shouldnt write to.
 					 */
 
-					unsigned int iv[] = { key1, key2, key3, key4 };
-					std::string a = LastTwoDomainParts(dest->host);
-					std::string b;
-
-					/** Reset the Hash module, and send it our IV and hex table */
-					HashResetRequest(Sender, HashProvider).Send();
-					HashKeyRequest(Sender, HashProvider, iv).Send();
-					HashHexRequest(Sender, HashProvider, xtab[(*dest->host) % 4]);
-
-					/* Generate a cloak using specialized Hash */
-					std::string hostcloak = prefix + "-" + std::string(HashSumRequest(Sender, HashProvider, dest->host).Send()).substr(0,8) + a;
-
-					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
-					 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
-					 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
-					 * vhost.
+					/* 2007/08/18: add <cloak:ipalways> which always cloaks
+					 * the IP, for anonymity. --nenolod
 					 */
+					if (!ipalways)
+					{
+						/** Reset the Hash module, and send it our IV and hex table */
+						HashResetRequest(Sender, HashProvider).Send();
+						HashKeyRequest(Sender, HashProvider, iv).Send();
+						HashHexRequest(Sender, HashProvider, xtab[(*dest->host) % 4]);
+
+						/* Generate a cloak using specialized Hash */
+						std::string hostcloak = prefix + "-" + std::string(HashSumRequest(Sender, HashProvider, dest->host).Send()).substr(0,8) + a;
+
+						/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
+						 * according to the DNS RFC) then tough titty, they get cloaked as an IP. 
+						 * Their ISP shouldnt go to town on subdomains, or they shouldnt have a kiddie
+						 * vhost.
+						 */
 #ifdef IPV6
-					in6_addr testaddr;
-					in_addr testaddr2;
-					if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
-						/* Invalid ipv6 address, and ipv6 user (resolved host) */
-						b = hostcloak;
-					else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host,&testaddr2) < 1) && (hostcloak.length() <= 64))
-						/* Invalid ipv4 address, and ipv4 user (resolved host) */
-						b = hostcloak;
-					else
-						/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
-						b = ((!strchr(dest->host,':')) ? Cloak4(dest->host) : Cloak6(dest->host));
+						in6_addr testaddr;
+						in_addr testaddr2;
+						if ((dest->GetProtocolFamily() == AF_INET6) && (inet_pton(AF_INET6,dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+							/* Invalid ipv6 address, and ipv6 user (resolved host) */
+							b = hostcloak;
+						else if ((dest->GetProtocolFamily() == AF_INET) && (inet_aton(dest->host,&testaddr2) < 1) && (hostcloak.length() <= 64))
+							/* Invalid ipv4 address, and ipv4 user (resolved host) */
+							b = hostcloak;
+						else
+							/* Valid ipv6 or ipv4 address (not resolved) ipv4 or ipv6 user */
+							b = ((!strchr(dest->host,':')) ? Cloak4(dest->host) : Cloak6(dest->host));
 #else
-					in_addr testaddr;
-					if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
-						/* Invalid ipv4 address, and ipv4 user (resolved host) */
-						b = hostcloak;
-					else
-						/* Valid ipv4 address (not resolved) ipv4 user */
-						b = Cloak4(dest->host);
+						in_addr testaddr;
+						if ((inet_aton(dest->host,&testaddr) < 1) && (hostcloak.length() <= 64))
+							/* Invalid ipv4 address, and ipv4 user (resolved host) */
+							b = hostcloak;
+						else
+							/* Valid ipv4 address (not resolved) ipv4 user */
+							b = Cloak4(dest->host);
 #endif
+					}
+					else
+					{
+#ifdef IPV6
+						if (dest->GetProtocolFamily() == AF_INET6)
+							b = Cloak6(dest->GetIPString());
+#endif
+						if (dest->GetProtocolFamily() == AF_INET)
+							b = Cloak4(dest->GetIPString());
+					}
 
 					dest->ChangeDisplayedHost(b.c_str());
 				}
@@ -243,12 +256,31 @@ class CloakUser : public ModeHandler
 	void DoRehash()
 	{
 		ConfigReader Conf(ServerInstance);
+		bool lowercase;
+
 		key1 = key2 = key3 = key4 = 0;
 		key1 = Conf.ReadInteger("cloak","key1",0,true);
 		key2 = Conf.ReadInteger("cloak","key2",0,true);
 		key3 = Conf.ReadInteger("cloak","key3",0,true);
 		key4 = Conf.ReadInteger("cloak","key4",0,true);
 		prefix = Conf.ReadValue("cloak","prefix",0);
+		ipalways = Conf.ReadFlag("cloak", "ipalways", 0);
+		lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
+		
+		if (!lowercase)
+		{
+			xtab[0] = "F92E45D871BCA630";
+			xtab[1] = "A1B9D80C72E653F4";
+			xtab[2] = "1ABC078934DEF562";
+			xtab[3] = "ABCDEF5678901234";
+		}
+		else
+		{
+			xtab[0] = "f92e45d871bca630";
+			xtab[1] = "a1b9d80c72e653f4";
+			xtab[2] = "1abc078934def562";
+			xtab[3] = "abcdef5678901234";
+		}
 
 		if (prefix.empty())
 			prefix = ServerInstance->Config->Network;

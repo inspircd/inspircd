@@ -1325,13 +1325,24 @@
 # must define cloak keys, and optionally a cloak prefix as shown      #
 # below. When using cloaking, the cloak keys are MANDITORY and must   #
 # be included. However, if prefix is not included, it will default    #
-# to your networks name from the <server> tag.                        #
+# to your networks name from the <server> tag. You can also include   #
+# the following optional values:                                      #
+#                                                                     #
+#   ipalways         - Always cloak the IP address, not the hostname, #
+#                      which doesn't reveal the user's ISP, but       #
+#                      results in hosts that are harder to read and   #
+#                      ban.                                           #
+#                                                                     #
+#   lowercase        - Display the cloaked hostnames in lowercase     #
+#                      characters instead of uppercase                #
 #                                                                     #
 # <cloak key1="0x2AF39F40"                                            #
 #        key2="0x78E10B32"                                            #
 #        key3="0x4F2D2E82"                                            #
 #        key4="0x043A4C81"                                            #
-#        prefix="mynet">                                              #
+#        prefix="mynet"                                               #
+#        ipalways="false"                                             #
+#        lowercase="false">                                           #
 #                                                                     #
 # Please note that the key values will accept any number, and should  #
 # be large numbers. Using small numbers such as "7" or "1924" will    #
