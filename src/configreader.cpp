@@ -413,7 +413,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 		/* Find 'parent' and inherit a new class from it,
 		 * then overwrite any values that are set here
 		 */
-		for (std::vector<ConnectClass>::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
+		for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 		{
 			if (item->GetName() == name)
 			{

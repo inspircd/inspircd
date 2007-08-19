@@ -46,6 +46,7 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 	char OperType[MAXBUF];
 	char TypeName[MAXBUF];
 	char HostName[MAXBUF];
+	char ClassName[MAXBUF];
 	char TheHost[MAXBUF];
 	char TheIP[MAXBUF];
 	int j;
@@ -75,7 +76,8 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 			type_invalid = true;
 			for (j =0; j < ServerInstance->Config->ConfValueEnum(ServerInstance->Config->config_data, "type"); j++)
 			{
-				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","name", j, TypeName, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type", "name", j, TypeName, MAXBUF);
+				ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type", "class", j, ClassName, MAXBUF);
 
 				if (!strcmp(TypeName,OperType))
 				{
@@ -90,6 +92,8 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 					ServerInstance->Config->ConfValue(ServerInstance->Config->config_data, "type","host", j, HostName, MAXBUF);
 					if (*HostName)
 						user->ChangeDisplayedHost(HostName);
+					if (*ClassName)
+						user->CheckClass(ClassName);
 					found = true;
 					type_invalid = false;
 					break;

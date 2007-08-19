@@ -1011,9 +1011,9 @@ unsigned long userrec::LocalCloneCount()
 /*
  * Check class restrictions
  */
-void userrec::CheckClass()
+void userrec::CheckClass(const std::string &explicit_class)
 {
-	ConnectClass* a = this->GetClass();
+	ConnectClass* a = this->GetClass(explicit_class);
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
@@ -1859,21 +1859,32 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-ConnectClass* userrec::GetClass()
+ConnectClass* userrec::GetClass(const std::string &explicit_name)
 {
-	for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+	if (!explicit_name.empty())
 	{
-		if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
+		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
-			if (i->GetPort())
-			{
-				if (this->GetPort() == i->GetPort())
-					return &(*i);
-				else
-					continue;
-			}
-			else
+			if (explicit_name == i->GetName())
 				return &(*i);
+		}
+	}
+	else
+	{
+		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+		{
+			if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
+			{
+				if (i->GetPort())
+				{
+					if (this->GetPort() == i->GetPort())
+						return &(*i);
+					else
+						continue;
+				}
+				else
+					return &(*i);
+			}
 		}
 	}
 	return NULL;
