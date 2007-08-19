@@ -968,7 +968,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 	include_stack.push_back(filename);
 
 	/* Start reading characters... */
-	while(conf.get(ch))
+	while (conf.get(ch))
 	{
 
 		/*
@@ -994,10 +994,10 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		 * no '>' then die with an error.
 		 */
 
-		if((ch == '#') && !in_quote)
+		if ((ch == '#') && !in_quote)
 			in_comment = true;
 
-		switch(ch)
+		switch (ch)
 		{
 			case '\n':
 				if (in_quote)
@@ -1044,11 +1044,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		if (ch != '\r')
 			line += ch;
 
-		if(ch == '<')
+		if (ch == '<')
 		{
-			if(in_tag)
+			if (in_tag)
 			{
-				if(!in_quote)
+				if (!in_quote)
 				{
 					errorstream << "Got another opening < when the first one wasn't closed: " << filename << ":" << linenumber << std::endl;
 					return false;
@@ -1056,7 +1056,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 			else
 			{
-				if(in_quote)
+				if (in_quote)
 				{
 					errorstream << "We're in a quote but outside a tag, interesting. " << filename << ":" << linenumber << std::endl;
 					return false;
@@ -1068,11 +1068,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				}
 			}
 		}
-		else if(ch == '"')
+		else if (ch == '"')
 		{
-			if(in_tag)
+			if (in_tag)
 			{
-				if(in_quote)
+				if (in_quote)
 				{
 					// errorstream << "Closing quote in config tag on line " << linenumber << std::endl;
 					in_quote = false;
@@ -1085,7 +1085,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 			}
 			else
 			{
-				if(in_quote)
+				if (in_quote)
 				{
 					errorstream << "Found a (closing) \" outside a tag: " << filename << ":" << linenumber << std::endl;
 				}
@@ -1095,11 +1095,11 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 				}
 			}
 		}
-		else if(ch == '>')
+		else if (ch == '>')
 		{
-			if(!in_quote)
+			if (!in_quote)
 			{
-				if(in_tag)
+				if (in_tag)
 				{
 					// errorstream << "Closing config tag on line " << linenumber << std::endl;
 					in_tag = false;
@@ -1109,7 +1109,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 					 * LoadConf() and load the included config into the same ConfigDataHash
 					 */
 
-					if(!this->ParseLine(target, line, linenumber, errorstream))
+					if (!this->ParseLine(target, line, linenumber, errorstream))
 						return false;
 
 					line.clear();
@@ -1123,6 +1123,13 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const char* filename, std::o
 		}
 	}
 
+	/* Fix for bug #392 - if we reach the end of a file and we are still in a quote or comment, most likely the user fucked up */
+	if (in_comment || in_quote)
+	{
+		errorstream << "Reached end of file whilst still inside a quoted section or tag. This is most likely an error or there \
+			is a newline missing from the end of the file: " << filename << ":" << linenumber << std::endl;
+	}
+
 	return true;
 }
 
@@ -1131,7 +1138,7 @@ bool ServerConfig::LoadConf(ConfigDataHash &target, const std::string &filename,
 	return this->LoadConf(target, filename.c_str(), errorstream);
 }
 
-bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long linenumber, std::ostringstream &errorstream)
+bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream)
 {
 	std::string tagname;
 	std::string current_key;
@@ -1143,17 +1150,15 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 
 	got_name = got_key = in_quote = false;
 
-	//std::cout << "ParseLine(data, '" << line << "', " << linenumber << ", stream)" << std::endl;
-
 	for(std::string::iterator c = line.begin(); c != line.end(); c++)
 	{
-		if(!got_name)
+		if (!got_name)
 		{
 			/* We don't know the tag name yet. */
 
-			if(*c != ' ')
+			if (*c != ' ')
 			{
-				if(*c != '<')
+				if (*c != '<')
 				{
 					tagname += *c;
 				}
@@ -1206,6 +1211,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 				{
 					/* Got a 'real' \n, treat it as part of the value */
 					current_value += '\n';
+					linenumber++;
 					continue;
 				}
 				else if ((*c == '\r') && (in_quote))
@@ -1229,9 +1235,9 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 						in_quote = false;
 						got_key = false;
 
-						if((tagname == "include") && (current_key == "file"))
+						if ((tagname == "include") && (current_key == "file"))
 						{
-							if(!this->DoInclude(target, current_value, errorstream))
+							if (!this->DoInclude(target, current_value, errorstream))
 								return false;
 						}
 
@@ -1241,7 +1247,7 @@ bool ServerConfig::ParseLine(ConfigDataHash &target, std::string &line, long lin
 				}
 				else
 				{
-					if(in_quote)
+					if (in_quote)
 					{
 						current_value += *c;
 					}
