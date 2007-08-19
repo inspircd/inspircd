@@ -25,6 +25,7 @@ class Host : public classbase
  public:
 	std::string action;
 	std::string newhost;
+	std::string ports;
 };
 
 typedef std::map<std::string,Host*> hostchanges_t;
@@ -76,11 +77,13 @@ class ModuleHostChange : public Module
 		hostchanges.clear();
 		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)
 		{
-			std::string mask = Conf.ReadValue("hostchange","mask",index);
-			std::string action = Conf.ReadValue("hostchange","action",index);
-			std::string newhost = Conf.ReadValue("hostchange","value",index);
+			std::string mask = Conf.ReadValue("hostchange", "mask", index);
+			std::string ports = Conf.ReadValue("hosthange", "ports", index);
+			std::string action = Conf.ReadValue("hostchange", "action", index);
+			std::string newhost = Conf.ReadValue("hostchange", "value", index);
 			Host* x = new Host;
 			x->action = action;
+			x->ports = ports;
 			x->newhost = newhost;
 			hostchanges[mask] = x;
 		}
@@ -100,6 +103,21 @@ class ModuleHostChange : public Module
 			if (ServerInstance->MatchText(std::string(user->ident)+"@"+std::string(user->host),i->first))
 			{
 				Host* h = (Host*)i->second;
+
+				if (!i->second->ports.empty())
+				{
+					irc::portparser portrange(i->second->ports, false);
+					long portno = -1;
+					bool foundany = false;
+
+					while ((portno = portrange.GetToken()))
+						if (portno == user->GetPort())
+							foundany = true;
+
+					if (!foundany)
+						continue;
+				}
+
 				// host of new user matches a hostchange tag's mask
 				std::string newhost;
 				if (h->action == "set")
