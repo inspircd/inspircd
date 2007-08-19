@@ -227,7 +227,7 @@ class CoreExport ServerConfig : public Extensible
 	 * configutation, appending errors to errorstream
 	 * and setting error if an error has occured.
 	 */
-	bool ParseLine(ConfigDataHash &target, std::string &line, long linenumber, std::ostringstream &errorstream);
+	bool ParseLine(ConfigDataHash &target, std::string &line, long &linenumber, std::ostringstream &errorstream);
   
 	/** Process an include directive
 	 */
