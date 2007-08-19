@@ -404,16 +404,27 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	int recvq = values[8].GetInteger();
 	int localmax = values[9].GetInteger();
 	int globalmax = values[10].GetInteger();
+	const char* name = values[11].GetString();
+	const char* parent = values[12].GetString();
 
-	if (*allow)
+	if (*parent)
 	{
-		ConnectClass c(timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
-		conf->Classes.push_back(c);
+		/* Find 'parent' and inherit a new class from it,
+		 * then overwrite any values that are set here
+		 */
 	}
 	else
 	{
-		ConnectClass c(deny);
-		conf->Classes.push_back(c);
+		if (*allow)
+		{
+			ConnectClass c(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
+			conf->Classes.push_back(c);
+		}
+		else
+		{
+			ConnectClass c(name, deny);
+			conf->Classes.push_back(c);
+		}
 	}
 
 	return true;
@@ -647,12 +658,15 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
 				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
+				"name",		"parent",
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
+				 "",		"",
 				 NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER},
+				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
+				 DT_CHARPTR,	DT_CHARPTR},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",
