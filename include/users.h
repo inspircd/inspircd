@@ -126,6 +126,9 @@ class CoreExport ConnectClass : public classbase
 	/** Type of line, either CC_ALLOW or CC_DENY
 	 */
 	char type;
+	/** Connect class name
+	 */
+	std::string name;
 	/** Max time to register the connection in seconds
 	 */
 	unsigned int registration_timeout;
@@ -169,10 +172,11 @@ public:
 
 	/** Create a new connect class with no settings.
 	 */
-	ConnectClass() : type(CC_DENY), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
+	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
 			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
 
 	/** Create a new connect class to ALLOW connections.
+	 * @param thename Name of the connect class
 	 * @param timeout The registration timeout
 	 * @param fld The flood value
 	 * @param hst The IP mask to allow
@@ -184,23 +188,40 @@ public:
 	 * @param maxl The maximum local sessions
 	 * @param maxg The maximum global sessions
 	 */
-	ConnectClass(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
+	ConnectClass(const std::string &thename, unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
 			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
 			unsigned long maxl, unsigned long maxg, int p = 0) :
-			type(CC_ALLOW), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
+			type(CC_ALLOW), name(thename), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
 			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), port(p) { }
 
-	/** Create a new connect class to DENY  connections
+	/** Create a new connect class to DENY connections
+	 * @param thename Name of the connect class
 	 * @param hst The IP mask to deny
 	 */
-	ConnectClass(const std::string &hst) : type(CC_DENY), registration_timeout(0), flood(0), host(hst), pingtime(0),
-			pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), port(0) { }
+	ConnectClass(const std::string &thename, const std::string &hst) : type(CC_DENY), name(thename), registration_timeout(0),
+			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), port(0) { }
+
+	/* Create a new connect class based on another class
+	 * @param thename The name of the connect class
+	 * @param source Another connect class to inherit all but the name from
+	 */
+	ConnectClass(const std::string &thename, const ConnectClass &source) : type(source.type), name(thename),
+				registration_timeout(source.registration_timeout), flood(source.flood), host(source.host),
+				pingtime(source.pingtime), pass(source.pass), threshold(source.threshold), sendqmax(source.sendqmax),
+				recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), port(source.port)
+	{
+	}
 
 	/** Returns the type, CC_ALLOW or CC_DENY
 	 */
 	char GetType()
 	{
 		return (type == CC_ALLOW ? CC_ALLOW : CC_DENY);
+	}
+
+	std::string& GetName()
+	{
+		return name;
 	}
 
 	/** Returns the registration timeout
