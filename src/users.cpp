@@ -164,8 +164,12 @@ UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_res
 	this->bound_fd = user->GetFd();
 }
 
-void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
 {
+	/* We are only interested in the first matching result */
+	if (resultnum)
+		return;
+
 	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user))
 	{
 		this->bound_user->stored_host = result;

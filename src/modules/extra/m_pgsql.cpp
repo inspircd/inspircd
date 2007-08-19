@@ -107,7 +107,7 @@ class SQLresolver : public Resolver
 	{
 	}
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0);
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
@@ -963,11 +963,14 @@ class ModulePgSQL : public Module
 /* move this here to use AddConn, rather that than having the whole
  * module above SQLConn, since this is buggin me right now :/
  */
-void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+void SQLresolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
 {
-	host.ip = result;
-	((ModulePgSQL*)mod)->AddConn(host);
-	((ModulePgSQL*)mod)->ClearOldConnections();
+	if (!resultnum)
+	{
+		host.ip = result;
+		((ModulePgSQL*)mod)->AddConn(host);
+		((ModulePgSQL*)mod)->ClearOldConnections();
+	}
 }
 
 void ReconnectTimer::Tick(time_t time)

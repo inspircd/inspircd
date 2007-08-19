@@ -56,9 +56,10 @@ class HTTPResolver : public Resolver
 	{
 	}
 	
-	void OnLookupComplete(const string &result, unsigned int ttl, bool cached)
+	void OnLookupComplete(const string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
-		socket->Connect(result);
+		if (!resultnum)
+			socket->Connect(result);
 	}
 	
 	void OnError(ResolverError e, const string &errmsg)

@@ -104,7 +104,7 @@ class DNSRequest
 
 	DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original);
 	~DNSRequest();
-	DNSInfo ResultIsReady(DNSHeader &h, int length);
+	DNSInfo ResultIsReady(DNSHeader &h, int length, int result_we_want);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
@@ -612,7 +612,7 @@ void DNS::MakeIP6Int(char* query, const in6_addr *ip)
 }
 
 /** Return the next id which is ready, and the result attached to it */
-DNSResult DNS::GetResult()
+DNSResult DNS::GetResult(int resultnum)
 {
 	/* Fetch dns query response and decide where it belongs */
 	DNSHeader header;
@@ -702,7 +702,7 @@ DNSResult DNS::GetResult()
 	 * When its finished it will return a DNSInfo which is a pair of
 	 * unsigned char* resource record data, and an error message.
 	 */
-	DNSInfo data = req->ResultIsReady(header, length);
+	DNSInfo data = req->ResultIsReady(header, length, resultnum);
 	std::string resultstr;
 
 	/* Check if we got a result, if we didnt, its an error */
@@ -787,7 +787,7 @@ DNSResult DNS::GetResult()
 }
 
 /** A result is ready, process it */
-DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
+DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_want)
 {
 	int i = 0;
 	int q = 0;
@@ -857,7 +857,9 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
 		/* XXX: We actually initialise 'rr' here including its ttl field */
-		DNS::FillResourceRecord(&rr,&header.payload[i]);
+		if (curanswer == result_we_want)
+			DNS::FillResourceRecord(&rr,&header.payload[i]);
+	
 		i += 10;
 		if (rr.type != this->type)
 		{
@@ -874,7 +876,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 		break;
 	}
 	if ((unsigned int)curanswer == header.ancount)
-		return std::make_pair((unsigned char*)NULL,"No valid answers");
+		return std::make_pair((unsigned char*)NULL,"No more records");
 
 	if (i + rr.rdlength > (unsigned int)length)
 		return std::make_pair((unsigned char*)NULL,"Resource record larger than stated");
@@ -930,7 +932,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			res[rr.rdlength] = 0;
 		break;
 	}
-	return std::make_pair(res,"No error");;
+	return std::make_pair(res,"No error");
 }
 
 /** Close the master socket */
@@ -959,7 +961,7 @@ void DNS::DelCache(const std::string &source)
 void Resolver::TriggerCachedResult()
 {
 	if (CQ)
-		OnLookupComplete(CQ->data, time_left, true);
+		OnLookupComplete(CQ->data, time_left, true, 0);
 }
 
 /** High level abstraction of dns used by application at large */
@@ -1062,47 +1064,60 @@ Module* Resolver::GetCreator()
 void DNS::HandleEvent(EventType et, int errornum)
 {
 	/* Fetch the id and result of the next available packet */
-	DNSResult res = this->GetResult();
-	/* Is there a usable request id? */
-	if (res.id != -1)
+	int resultnum = 0;
+	DNSResult res(0,"",0,"");
+	res.id = 0;
+	ServerInstance->Log(DEBUG,"Handle DNS event");
+	while ((res.id & ERROR_MASK) == 0)
 	{
-		/* Its an error reply */
-		if (res.id & ERROR_MASK)
+		res = this->GetResult(resultnum);
+
+		ServerInstance->Log(DEBUG,"Result %d id %d", resultnum, res.id);
+	
+		/* Is there a usable request id? */
+		if (res.id != -1)
 		{
-			/* Mask off the error bit */
-			res.id -= ERROR_MASK;
-			/* Marshall the error to the correct class */
-			if (Classes[res.id])
+			/* Its an error reply */
+			if (res.id & ERROR_MASK)
 			{
-				if (ServerInstance && ServerInstance->stats)
-					ServerInstance->stats->statsDnsBad++;
-				Classes[res.id]->OnError(RESOLVER_NXDOMAIN, res.result);
-				delete Classes[res.id];
-				Classes[res.id] = NULL;
+				/* Mask off the error bit */
+				res.id -= ERROR_MASK;
+				/* Marshall the error to the correct class */
+				if (Classes[res.id])
+				{
+					if (ServerInstance && ServerInstance->stats)
+						ServerInstance->stats->statsDnsBad++;
+					Classes[res.id]->OnError(RESOLVER_NXDOMAIN, res.result);
+					delete Classes[res.id];
+					Classes[res.id] = NULL;
+				}
+				break;
 			}
-		}
-		else
-		{
-			/* It is a non-error result, marshall the result to the correct class */
-			if (Classes[res.id])
+			else
 			{
-				if (ServerInstance && ServerInstance->stats)
-					ServerInstance->stats->statsDnsGood++;
-
-				if (!this->GetCache(res.original.c_str()))
-					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
-
-				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
-				delete Classes[res.id];
-				Classes[res.id] = NULL;
+				/* It is a non-error result, marshall the result to the correct class */
+				if (Classes[res.id])
+				{
+					if (ServerInstance && ServerInstance->stats)
+						ServerInstance->stats->statsDnsGood++;
+	
+					if (!this->GetCache(res.original.c_str()))
+						this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
+	
+					Classes[res.id]->OnLookupComplete(res.result, res.ttl, false, resultnum);
+					delete Classes[res.id];
+					Classes[res.id] = NULL;
+				}
 			}
+	
+			if (ServerInstance && ServerInstance->stats)
+				ServerInstance->stats->statsDns++;
 		}
 
-		if (ServerInstance && ServerInstance->stats)
-			ServerInstance->stats->statsDns++;
+		resultnum++;
 	}
 }
-
+	
 /** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {

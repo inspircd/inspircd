@@ -60,7 +60,7 @@ class DNSBLResolver : public Resolver
 		ConfEntry = conf;
 	}
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
 		/* Check the user still exists */
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))

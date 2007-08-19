@@ -45,7 +45,7 @@ class SecurityIPResolver : public Resolver
 	{
 	}
 
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
 		Utils->ValidIPs.push_back(result);
 	}
@@ -83,7 +83,7 @@ class ServernameResolver : public Resolver
 	Module* mine;
  public:
         ServernameResolver(Module* me, SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &hostname, Link x, bool &cached, QueryType qt);
-        void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
+        void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0);
         void OnError(ResolverError e, const std::string &errormessage);
 };
 
