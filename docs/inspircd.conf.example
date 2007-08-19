@@ -203,7 +203,7 @@
 #                password="blahblah" timeout="10" timeout="blah"      #
 #                flood="5" threshold="8" pingfreq="120" sendq="99999" #
 #                revcq="696969" localmax="3" globalmax="3"            #
-#                port="6660">                                         #
+#                port="6660" maxchans="50">                           #
 #                                                                     #
 #       <connect name="blocked" deny="127.0.0.1" port="6667">         #
 #                                                                     #
@@ -219,6 +219,11 @@
 #   connect tag with the <connect:parent> option as shown above. If   #
 #   you do this, any options not explicitly specified in the tag will #
 #   be copied from the parent.                                        #
+#                                                                     #
+#   If the value maxchans is included, this overrides all other max   #
+#   channels related settings, including the seperate oper maximum.   #
+#   You may set this to any (sane) value you wish and it applies to   #
+#   all users within this connect tag.                                #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #

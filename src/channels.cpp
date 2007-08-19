@@ -219,9 +219,9 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	 */
 	if (IS_LOCAL(user) && !override)
 	{
-		if (IS_OPER(user))
+		if (user->GetMaxChans())
 		{
-			if (user->chans.size() >= Instance->Config->OperMaxChans)
+			if (user->chans.size() >= user->GetMaxChans())
 			{
 				user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
 				return NULL;
@@ -229,10 +229,21 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 		else
 		{
-			if (user->chans.size() >= Instance->Config->MaxChans)
+			if (IS_OPER(user))
 			{
-				user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
-				return NULL;
+				if (user->chans.size() >= Instance->Config->OperMaxChans)
+				{
+					user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+					return NULL;
+				}
+			}
+			else
+			{
+				if (user->chans.size() >= Instance->Config->MaxChans)
+				{
+					user->WriteServ("405 %s %s :You are on too many channels",user->nick, cn);
+					return NULL;
+				}
 			}
 		}
 	}

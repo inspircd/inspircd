@@ -407,6 +407,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	int port = values[11].GetInteger();
 	const char* name = values[12].GetString();
 	const char* parent = values[13].GetString();
+	int maxchans = values[14].GetInteger();
 
 	if (*parent)
 	{
@@ -418,8 +419,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 			if (item->GetName() == name)
 			{
 				ConnectClass c(name, *item);
-				c.Update(timeout, flood, std::string(*allow ? allow : deny), pingfreq, password, threshold, sendq, recvq, localmax, globalmax, 0);
-				c.SetPort(port);
+				c.Update(timeout, flood, std::string(*allow ? allow : deny), pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
 				conf->Classes.push_back(c);
 			}
 		}
@@ -429,7 +429,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	{
 		if (*allow)
 		{
-			ConnectClass c(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
+			ConnectClass c(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans);
 			c.SetPort(port);
 			conf->Classes.push_back(c);
 		}
@@ -672,7 +672,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
 				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
-				"name",		"parent",
+				"name",		"parent",	"maxchans",
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
@@ -680,7 +680,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 				 NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_CHARPTR,	DT_CHARPTR},
+				 DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",

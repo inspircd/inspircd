@@ -182,11 +182,11 @@ struct MultiConfig
 	/** Tag name */
 	const char*	tag;
 	/** One or more items within tag */
-	char*		items[15];
+	char*		items[17];
 	/** One or more defaults for items within tags */
-	char*		items_default[15];
+	char*		items_default[17];
 	/** One or more data types */
-	int		datatype[15];
+	int		datatype[17];
 	/** Initialization function */
 	MultiNotify	init_function;
 	/** Validation function */

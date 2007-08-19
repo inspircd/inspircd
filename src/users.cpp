@@ -1040,6 +1040,7 @@ void userrec::CheckClass(const std::string &explicit_class)
 	this->threshold = a->GetThreshold();
 	this->sendqmax = a->GetSendqMax();
 	this->recvqmax = a->GetRecvqMax();
+	this->MaxChans = a->GetMaxChans();
 }
 
 void userrec::FullConnect()
@@ -1853,6 +1854,10 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 	}
 }
 
+unsigned int userrec::GetMaxChans()
+{
+	return this->MaxChans;
+}
 
 /* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
  * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
