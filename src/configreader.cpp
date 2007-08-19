@@ -404,25 +404,39 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	int recvq = values[8].GetInteger();
 	int localmax = values[9].GetInteger();
 	int globalmax = values[10].GetInteger();
-	const char* name = values[11].GetString();
-	const char* parent = values[12].GetString();
+	int port = values[11].GetInteger();
+	const char* name = values[12].GetString();
+	const char* parent = values[13].GetString();
 
 	if (*parent)
 	{
 		/* Find 'parent' and inherit a new class from it,
 		 * then overwrite any values that are set here
 		 */
+		for (std::vector<ConnectClass>::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
+		{
+			if (item->GetName() == name)
+			{
+				ConnectClass c(name, *item);
+				c.Update(timeout, flood, std::string(*allow ? allow : deny), pingfreq, password, threshold, sendq, recvq, localmax, globalmax, 0);
+				c.SetPort(port);
+				conf->Classes.push_back(c);
+			}
+		}
+		throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(name) + "' which cannot be found.");
 	}
 	else
 	{
 		if (*allow)
 		{
 			ConnectClass c(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax);
+			c.SetPort(port);
 			conf->Classes.push_back(c);
 		}
 		else
 		{
 			ConnectClass c(name, deny);
+			c.SetPort(port);
 			conf->Classes.push_back(c);
 		}
 	}

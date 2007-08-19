@@ -212,6 +212,36 @@ public:
 	{
 	}
 
+	/* Update an existing entry with new values
+	 */
+	void Update(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
+				const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
+				unsigned long maxl, unsigned long maxg, int p)
+	{
+		if (timeout)
+			registration_timeout = timeout;
+		if (fld)
+			flood = fld;
+		if (!hst.empty())
+			host = hst;
+		if (ping)
+			pingtime = ping;
+		if (!pas.empty())
+			pass = pas;
+		if (thres)
+			threshold = thres;
+		if (sendq)
+			sendqmax = sendq;
+		if (recvq)
+			recvqmax = recvq;
+		if (maxl)
+			maxlocal = maxl;
+		if (maxg)
+			maxglobal = maxg;
+		if (p)
+			port = p;
+	}
+
 	/** Returns the type, CC_ALLOW or CC_DENY
 	 */
 	char GetType()
@@ -245,9 +275,18 @@ public:
 		return host;
 	}
 
+	/** Get port number
+	 */
 	int GetPort()
 	{
 		return port;
+	}
+
+	/** Set port number
+	 */
+	void SetPort(int p)
+	{
+		port = p;
 	}
 
 	/** Returns the ping frequency
@@ -297,6 +336,11 @@ public:
 	unsigned long GetMaxGlobal()
 	{
 		return maxglobal;
+	}
+
+	bool operator= (ConnectClass &other)
+	{
+		return (other.GetName() == name);
 	}
 };
 
