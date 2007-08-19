@@ -121,14 +121,16 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 	if (!user || !chan)
 		return false;
 
-	/* Execute items in fastest-to-execute first order */
-
+	/* Bug #383 - moved higher up the list, because if we are in the channel
+	 * we can see all its users
+	 */
+	if (chan->HasUser(user))
+		return true;
 	/* Opers see all */
 	if (IS_OPER(user))
 		return true;
+	/* Cant see inside a +s or a +p channel unless we are a member (see above) */
 	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
-		return true;
-	else if (chan->HasUser(user))
 		return true;
 
 	return false;
@@ -194,11 +196,21 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	std::string initial = "352 " + std::string(user->nick) + " ";
 
 	const char* matchtext = NULL;
+	bool usingwildcards = false;
 
 	/* Change '0' into '*' so the wildcard matcher can grok it */
 	matchtext = parameters[0];
 	if (!strcmp(matchtext,"0"))
 		matchtext = "*";
+
+	for (const char* check = matchtext; *check; check++)
+	{
+		if (*check == '*' || *check == '?')
+		{
+			usingwildcards = true;
+			break;
+		}
+	}
 
 	if (pcnt > 1)
 	{
@@ -265,13 +277,17 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	
 			for (CUList::iterator i = cu->begin(); i != cu->end(); i++)
 			{
-				/* opers only, please */
-				if (opt_viewopersonly && !IS_OPER(i->first))
-					continue;
+				/* None of this applies if we WHO ourselves */
+				if (user != i->first)
+				{
+					/* opers only, please */
+					if (opt_viewopersonly && !IS_OPER(i->first))
+						continue;
 	
-				/* If we're not inside the channel, hide +i users */
-				if (i->first->IsModeSet('i') && !inside)
-					continue;
+					/* If we're not inside the channel, hide +i users */
+					if (i->first->IsModeSet('i') && !inside)
+						continue;
+				}
 	
 				SendWhoLine(user, initial, ch, i->first, whoresults);
 			}
@@ -280,7 +296,6 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 	{
 		/* Match against wildcard of nick, server or host */
-
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
@@ -290,8 +305,11 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 
 				if (whomatch(oper, matchtext))
 				{
-					if ((!oper->IsModeSet('i')) && (!IS_OPER(user)))
-						continue;
+					if (!user->SharesChannelWith(oper))
+					{
+						if (usingwildcards && (!oper->IsModeSet('i')) && (!IS_OPER(user)))
+							continue;
+					}
 
 					SendWhoLine(user, initial, NULL, oper, whoresults);
 				}
@@ -303,8 +321,11 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 			{
 				if (whomatch(i->second, matchtext))
 				{
-					if ((i->second != user) && (i->second->IsModeSet('i')) && (!IS_OPER(user)))
-						continue;
+					if (!user->SharesChannelWith(i->second))
+					{
+						if (usingwildcards && (i->second->IsModeSet('i')) && (!IS_OPER(user)))
+							continue;
+					}
 
 					SendWhoLine(user, initial, NULL, i->second, whoresults);
 				}
@@ -326,3 +347,4 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		return CMD_FAILURE;
 	}
 }
+
