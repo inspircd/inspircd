@@ -1570,6 +1570,7 @@
 #<hostchange mask="*@fbi.gov" action="addnick">
 #<hostchange mask="*r00t@*" action="suffix">
 #<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
+#<hostchange mask="localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # httpd module: Provides http server support for InspIRCd
