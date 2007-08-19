@@ -167,6 +167,9 @@ class ModuleInvisible : public Module
 		ido = new InvisibleDeOper(ServerInstance);
 		if (!ServerInstance->AddModeWatcher(ido))
 			throw ModuleException("Could not add new mode watcher on usermode +o!");
+
+		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
+		ServerInstance->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
 	}
 
 	virtual ~ModuleInvisible()
