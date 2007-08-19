@@ -32,12 +32,15 @@ class DNSBLConfEntry
 {
 	public:
 		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE };
+		enum EnumType { A_RECORD, A_BITMASK };
 		std::string name, domain, reason;
 		EnumBanaction banaction;
+		EnumType type;
 		long duration;
 		int bitmask;
+		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;
-		DNSBLConfEntry(): duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
+		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
 		~DNSBLConfEntry() { }
 };
 
@@ -60,28 +63,39 @@ class DNSBLResolver : public Resolver
 		ConfEntry = conf;
 	}
 
+	/* Note: This may be called multiple times for multiple A record results */
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
 	{
+		/* for bitmask reply types, we arent interested in any but the first result (number 0) */
+		if ((ConfEntry->type == DNSBLConfEntry::A_BITMASK) && (resultnum))
+			return;
+
 		/* Check the user still exists */
 		if ((them) && (them == ServerInstance->SE->GetRef(theirfd)))
 		{
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 			if(result.length())
 			{
-				unsigned int bitmask = 0;
-				bool show = false;
+				unsigned int bitmask = 0, record = 0;
+				bool show = false, match = false;
 				in_addr resultip;
 
-				/* Convert the result to an in_addr (we can gaurantee we got ipv4)
-				 * Whoever did the loop that was here before, I AM CONFISCATING
-				 * YOUR CRACKPIPE. you know who you are. -- Brain
-				 */
 				inet_aton(result.c_str(), &resultip);
-				bitmask = resultip.s_addr >> 24; /* Last octet (network byte order */
 
-				bitmask &= ConfEntry->bitmask;
+				switch (ConfEntry->type)
+				{
+					case DNSBLConfEntry::A_BITMASK:
+						bitmask = resultip.s_addr >> 24; /* Last octet (network byte order) */
+						bitmask &= ConfEntry->bitmask;
+						match = (bitmask != 0);
+					break;
+					case DNSBLConfEntry::A_RECORD:
+						record = resultip.s_addr >> 24; /* Last octet */
+						match = (ConfEntry->records[record] == 1);
+					break;
+				}
 
-				if (bitmask != 0)
+				if (match)
 				{
 					std::string reason = ConfEntry->reason;
 					std::string::size_type x = reason.find("%ip%");
@@ -222,9 +236,26 @@ class ModuleDNSBL : public Module
 			e->name = MyConf->ReadValue("dnsbl", "name", i);
 			e->reason = MyConf->ReadValue("dnsbl", "reason", i);
 			e->domain = MyConf->ReadValue("dnsbl", "domain", i);
+
+			if (MyConf->ReadValue("dnsbl", "type", i) == "bitmask")
+			{
+				e->type = DNSBLConfEntry::A_BITMASK;
+				e->bitmask = MyConf->ReadInteger("dnsbl", "bitmask", i, false);
+			}
+			else
+			{
+				memset(e->records, 0, 256);
+				e->type = DNSBLConfEntry::A_RECORD;
+				irc::portparser portrange(MyConf->ReadValue("dnsbl", "records", i), false);
+				long item = -1;
+				while ((item = portrange.GetToken()))
+					e->records[item] = 1;
+			}
+
 			e->banaction = str2banaction(MyConf->ReadValue("dnsbl", "action", i));
 			e->duration = ServerInstance->Duration(MyConf->ReadValue("dnsbl", "duration", i));
-			e->bitmask = MyConf->ReadInteger("dnsbl", "bitmask", i, false);
+			
+			/* Use portparser for record replies */
 
 			/* yeah, logic here is a little messy */
 			if (e->bitmask <= 0)
