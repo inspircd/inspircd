@@ -199,18 +199,26 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <connect allow="1.2.3.0/24" password="blahblah"               #
-#                timeout="10" timeout="blah" flood="5"                #
-#                threshold="8" pingfreq="120" sendq="99999"           #
+#       <connect name="myallow" allow="1.2.3.0/24"                    #
+#                password="blahblah" timeout="10" timeout="blah"      #
+#                flood="5" threshold="8" pingfreq="120" sendq="99999" #
 #                revcq="696969" localmax="3" globalmax="3"            #
 #                port="6660">                                         #
 #                                                                     #
-#       <connect deny="127.0.0.1" port="6667">                        #
+#       <connect name="blocked" deny="127.0.0.1" port="6667">         #
+#                                                                     #
+#       <connect name="something" parent="myallow" pingfreq="60">     #
 #                                                                     #
 #   IP masks may be specified in CIDR format or wildcard format,      #
 #   for IPV4 and IPV6. You *cannot* use hostnames in the allow or     #
 #   deny field, as the state is applied before the user's DNS has     #
 #   been resolved.                                                    #
+#                                                                     #
+#   You can optionally name your connect allow/deny tags. If you do   #
+#   this, you may reference this connect tag as the parent of another #
+#   connect tag with the <connect:parent> option as shown above. If   #
+#   you do this, any options not explicitly specified in the tag will #
+#   be copied from the parent.                                        #
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
