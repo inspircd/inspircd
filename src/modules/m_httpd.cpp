@@ -68,7 +68,8 @@ class HttpServerSocket : public InspSocket
 	std::string http_version;
 	unsigned int postsize;
 	HttpServerTimeout* Timeout;
-
+	friend class HttpServerTimeout;
+	
  public:
 
 	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
@@ -103,8 +104,7 @@ class HttpServerSocket : public InspSocket
 	{
 		if (InternalState == HTTP_LISTEN)
 		{
-			HttpServerSocket* s = new HttpServerSocket(this->Instance, newsock, ip, index);
-			s = s; /* Stop GCC whining */
+			new HttpServerSocket(this->Instance, newsock, ip, index);
 		}
 		return true;
 	}
@@ -343,6 +343,7 @@ void HttpServerTimeout::Tick(time_t TIME)
 {
 	SE->DelFd(s);
 	s->Close();
+	s->Timeout = NULL;
 }
 
 class ModuleHttpServer : public Module
