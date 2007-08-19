@@ -32,7 +32,8 @@ class ModuleRpcJson : public Module
 {
 	void MthModuleVersion (HTTPRequest *http, json::Value &request, json::Value &response)
 	{
-		std::string result = "GetVersion().ToString()";
+		Version v = this->GetVersion();
+		std::string result = ConvToStr(v.Major) + "." + ConvToStr(v.Minor) + "." + ConvToStr(v.Revision) + "." + ConvToStr(v.Build);
 		response["result"] = result;
 	}
 
@@ -2079,9 +2080,14 @@ namespace json
       Value response (objectValue);
       Reader r;
       Writer w;
-  
+      
+      response["error"] = Value(nullValue);
+      response["result"] = Value(nullValue);
+      
       parse_success = r.parse (request_text, request_text + strlen (request_text), request);
-  
+      
+      response["id"] = request["id"];
+      
       service (http, request, response);
   
       text = w.write (response);
