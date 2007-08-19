@@ -17,6 +17,7 @@
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
+/* $ModDep: httpd.h */
 
 class ModuleHttpServer;
 
@@ -28,9 +29,9 @@ static bool claimed;
 enum HttpState
 {
 	HTTP_LISTEN = 0,
-	HTTP_SERVE_WAIT_REQUEST = 1,
-	HTTP_SERVE_RECV_POSTDATA = 2,
-	HTTP_SERVE_SEND_DATA = 3
+	HTTP_SERVE_WAIT_REQUEST = 1, /* Waiting for a full request */
+	HTTP_SERVE_RECV_POSTDATA = 2, /* Waiting to finish recieving POST data */
+	HTTP_SERVE_SEND_DATA = 3 /* Sending response */
 };
 
 class HttpServerSocket;
@@ -61,13 +62,18 @@ class HttpServerSocket : public InspSocket
 {
 	FileReader* index;
 	HttpState InternalState;
-	std::stringstream headers;
+	
+	HTTPHeaders headers;
+	std::string reqbuffer;
 	std::string postdata;
+	unsigned int postsize;
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
-	unsigned int postsize;
+	bool keepalive;
+	
 	HttpServerTimeout* Timeout;
+	bool DataSinceLastTick;
 	friend class HttpServerTimeout;
 	
  public:
@@ -78,7 +84,7 @@ class HttpServerSocket : public InspSocket
 		Timeout = NULL;
 	}
 
-	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0)
+	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false), DataSinceLastTick(false)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 		Timeout = new HttpServerTimeout(this, Instance->SE);
@@ -99,7 +105,21 @@ class HttpServerSocket : public InspSocket
 			Timeout = NULL;
 		}
 	}
-
+	
+	void ResetRequest()
+	{
+		headers.Clear();
+		postdata.clear();
+		postsize = 0;
+		request_type.clear();
+		uri.clear();
+		http_version.clear();
+		InternalState = HTTP_SERVE_WAIT_REQUEST;
+		
+		if (reqbuffer.size())
+			CheckRequestBuffer();
+	}
+	
 	virtual int OnIncomingConnection(int newsock, char* ip)
 	{
 		if (InternalState == HTTP_LISTEN)
@@ -203,22 +223,51 @@ class HttpServerSocket : public InspSocket
 				
 		}
 	}
-
-	void SendHeaders(unsigned long size, int response, const std::string &extraheaders)
+	
+	void SendHTTPError(int response)
 	{
+		HTTPHeaders empty;
+		std::string data = "<html><head></head><body>Server error "+ConvToStr(response)+": "+Response(response)+"<br>"+
+		                   "<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>";
+		
+		SendHeaders(data.length(), response, empty);
+		this->Write(data);
+		
+		if (keepalive)
+			ResetRequest();
+	}
+	
+	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
+	{
+
+		this->Write(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
+
 		time_t local = this->Instance->Time();
 		struct tm *timeinfo = gmtime(&local);
-		this->Write("HTTP/1.1 "+ConvToStr(response)+" "+Response(response)+"\r\nDate: ");
-		this->Write(asctime(timeinfo));
-		if (extraheaders.empty())
-			this->Write("Content-Type: text/html\r\n");
+		char *date = asctime(timeinfo);
+		date[strlen(date) - 1] = '\0';
+		rheaders.CreateHeader("Date", date);
+		
+		rheaders.CreateHeader("Server", "InspIRCd/m_httpd.so/1.1");
+		rheaders.SetHeader("Content-Length", ConvToStr(size));
+		
+		if (size)
+			rheaders.CreateHeader("Content-Type", "text/html");
 		else
-			this->Write(extraheaders);
-		this->Write("Server: InspIRCd/m_httpd.so/1.1\r\nContent-Length: "+ConvToStr(size)+
-				"\r\nConnection: close\r\n\r\n");
-		if (response != 200)
-			this->Write("<html><head></head><body>Server error "+ConvToStr(response)+": "+Response(response)+"<br>"+
-					"<small>Powered by <a href='http://www.inspircd.org'>InspIRCd</a></small></body></html>\r\n");
+			rheaders.RemoveHeader("Content-Type");
+		
+		if (rheaders.GetHeader("Connection") == "Close")
+			keepalive = false;
+		else if (rheaders.GetHeader("Connection") == "Keep-Alive" && !headers.IsSet("Connection"))
+			keepalive = true;
+		else if (!rheaders.IsSet("Connection") && !keepalive)
+			rheaders.SetHeader("Connection", "Close");
+		
+		this->Write(rheaders.GetFormattedHeaders());
+		this->Write("\r\n");
+		
+		if (!size && keepalive)
+			ResetRequest();
 	}
 
 	virtual bool OnDataReady()
@@ -226,124 +275,170 @@ class HttpServerSocket : public InspSocket
 		char* data = this->Read();
 
 		/* Check that the data read is a valid pointer and it has some content */
-		if (data && *data)
+		if (!data || !*data)
+			return false;
+		
+		DataSinceLastTick = true;
+		
+		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
 		{
-			headers << data;
-
-			if (headers.str().find("\r\n\r\n") != std::string::npos)
-			{
-				if (request_type.empty())
-				{
-					headers >> request_type;
-					headers >> uri;
-					headers >> http_version;
-
-					std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
-					std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
-				}
-
-				if ((InternalState == HTTP_SERVE_WAIT_REQUEST) && (request_type == "POST"))
-				{
-					/* Do we need to fetch postdata? */
-					postdata.clear();
-					InternalState = HTTP_SERVE_RECV_POSTDATA;
-					std::string header_item;
-					while (headers >> header_item)
-					{
-						if (header_item == "Content-Length:")
-						{
-							headers >> header_item;
-							postsize = atoi(header_item.c_str());
-						}
-					}
-					if (!postsize)
-					{
-						InternalState = HTTP_SERVE_SEND_DATA;
-						SendHeaders(0, 400, "");
-						Timeout = new HttpServerTimeout(this, Instance->SE);
-						Instance->Timers->AddTimer(Timeout);
-					}
-					else
-					{
-						std::string::size_type x = headers.str().find("\r\n\r\n");
-						postdata = headers.str().substr(x+4, headers.str().length());
-						/* Get content length and store */
-						if (postdata.length() >= postsize)
-							ServeData();
-					}
-				}
-				else if (InternalState == HTTP_SERVE_RECV_POSTDATA)
-				{
-					/* Add postdata, once we have it all, send the event */
-					postdata.append(data);
-					if (postdata.length() >= postsize)
-						ServeData();
-				}
-				else
-				{
-					ServeData();
-				}
-				return true;
-			}
-			return true;
+			postdata.append(data);
+			if (postdata.length() >= postsize)
+				ServeData();
 		}
 		else
 		{
-			return false;
+			reqbuffer.append(data);
+			
+			if (reqbuffer.length() >= 8192)
+			{
+				Instance->Log(DEBUG, "m_httpd dropped connection due to an oversized request buffer");
+				reqbuffer.clear();
+				return false;
+			}
+			
+			if (InternalState == HTTP_SERVE_WAIT_REQUEST)
+				CheckRequestBuffer();
 		}
+		
+		return true;
+	}
+	
+	void CheckRequestBuffer()
+	{
+		std::string::size_type reqend = reqbuffer.find("\r\n\r\n");
+		if (reqend == std::string::npos)
+			return;
+		
+		// We have the headers; parse them all
+		std::string::size_type hbegin = 0, hend;
+		while ((hend = reqbuffer.find("\r\n", hbegin)) != std::string::npos)
+		{
+			if (hbegin == hend)
+				break;
+			
+			if (request_type.empty())
+			{
+				std::istringstream cheader(std::string(reqbuffer, hbegin, hend - hbegin));
+				cheader >> request_type;
+				cheader >> uri;
+				cheader >> http_version;
+				
+				if (request_type.empty() || uri.empty() || http_version.empty())
+				{
+					SendHTTPError(400);
+					return;
+				}
+				
+				hbegin = hend + 2;
+				continue;
+			}
+			
+			std::string cheader = reqbuffer.substr(hbegin, hend - hbegin);
+			
+			std::string::size_type fieldsep = cheader.find(':');
+			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
+			{
+				SendHTTPError(400);
+				return;
+			}
+			
+			headers.SetHeader(cheader.substr(0, fieldsep), cheader.substr(fieldsep + 2));
+			
+			hbegin = hend + 2;
+		}
+		
+		reqbuffer.erase(0, reqend + 4);
+		
+		std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
+		std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
+		
+		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+		{
+			SendHTTPError(505);
+			return;
+		}
+		
+		if (strcasecmp(headers.GetHeader("Connection").c_str(), "keep-alive") == 0)
+			keepalive = true;
+		
+		if (headers.IsSet("Content-Length") && (postsize = atoi(headers.GetHeader("Content-Length").c_str())) != 0)
+		{
+			InternalState = HTTP_SERVE_RECV_POSTDATA;
+			
+			if (reqbuffer.length() >= postsize)
+			{
+				postdata = reqbuffer.substr(0, postsize);
+				reqbuffer.erase(0, postsize);
+			}
+			else if (!reqbuffer.empty())
+			{
+				postdata = reqbuffer;
+				reqbuffer.clear();
+			}
+			
+			if (postdata.length() >= postsize)
+				ServeData();
+			
+			return;
+		}
+		
+		ServeData();
 	}
 
 	void ServeData()
 	{
-		/* Headers are complete */
 		InternalState = HTTP_SERVE_SEND_DATA;
 
-		Instance->Timers->DelTimer(Timeout);
-		Timeout = NULL;
-	
-		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+		if ((request_type == "GET") && (uri == "/"))
 		{
-			SendHeaders(0, 505, "");
+			HTTPHeaders empty;
+			SendHeaders(index->ContentSize(), 200, empty);
+			this->Write(index->Contents());
 		}
 		else
 		{
-			if ((request_type == "GET") && (uri == "/"))
+			claimed = false;
+			HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
+			Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
+			e.Send(this->Instance);
+			if (!claimed)
 			{
-				SendHeaders(index->ContentSize(), 200, "");
-				this->Write(index->Contents());
-			}
-			else
-			{
-				claimed = false;
-				HTTPRequest httpr(request_type,uri,&headers,this,this->GetIP(),postdata);
-				Event e((char*)&httpr, (Module*)HttpModule, "httpd_url");
-				e.Send(this->Instance);
-				if (!claimed)
-				{
-					SendHeaders(0, 404, "");
-				}
+				SendHTTPError(404);
 			}
 		}
-		Timeout = new HttpServerTimeout(this, Instance->SE);
-		Instance->Timers->AddTimer(Timeout);
 	}
 
-	void Page(std::stringstream* n, int response, std::string& extraheaders)
+	void Page(std::stringstream* n, int response, HTTPHeaders *headers)
 	{
-		SendHeaders(n->str().length(), response, extraheaders);
+		SendHeaders(n->str().length(), response, *headers);
 		this->Write(n->str());
+		
+		if (!keepalive)
+		{
+			Instance->SE->DelFd(this);
+			this->Close();
+		}
+		else
+			this->ResetRequest();
 	}
 };
 
-HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : InspTimer(60, time(NULL)), s(sock), SE(engine)
+HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : InspTimer(15, time(NULL), true), s(sock), SE(engine)
 {
 }
 
 void HttpServerTimeout::Tick(time_t TIME)
 {
-	SE->DelFd(s);
-	s->Close();
-	s->Timeout = NULL;
+	if (!s->DataSinceLastTick)
+	{
+		SE->DelFd(s);
+		s->Close();
+		s->Timeout = NULL;
+		this->CancelRepeat();
+	}
+	else
+		s->DataSinceLastTick = false;
 }
 
 class ModuleHttpServer : public Module
@@ -383,22 +478,18 @@ class ModuleHttpServer : public Module
 		HttpModule = this;
 	}
 
-	void OnEvent(Event* event)
-	{
-	}
-
 	char* OnRequest(Request* request)
 	{
 		claimed = true;
 		HTTPDocument* doc = (HTTPDocument*)request->GetData();
 		HttpServerSocket* sock = (HttpServerSocket*)doc->sock;
-		sock->Page(doc->GetDocument(), doc->GetResponseCode(), doc->GetExtraHeaders());
+		sock->Page(doc->GetDocument(), doc->GetResponseCode(), &doc->headers);
 		return NULL;
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnEvent] = List[I_OnRequest] = 1;
+		List[I_OnRequest] = 1;
 	}
 
 	virtual ~ModuleHttpServer()

@@ -18,6 +18,81 @@
 
 #include <string>
 #include <sstream>
+#include <map>
+
+/** A modifyable list of HTTP header fields
+ */
+class HTTPHeaders
+{
+ protected:
+	std::map<std::string,std::string> headers;
+ public:
+	
+	/** Set the value of a header
+	 * Sets the value of the named header. If the header is already present, it will be replaced
+	 */
+	void SetHeader(const std::string &name, const std::string &data)
+	{
+		headers[name] = data;
+	}
+	
+	/** Set the value of a header, only if it doesn't exist already
+	 * Sets the value of the named header. If the header is already present, it will NOT be updated
+	 */
+	void CreateHeader(const std::string &name, const std::string &data)
+	{
+		if (!IsSet(name))
+			SetHeader(name, data);
+	}
+	
+	/** Remove the named header
+	 */
+	void RemoveHeader(const std::string &name)
+	{
+		headers.erase(name);
+	}
+	
+	/** Remove all headers
+	 */
+	void Clear()
+	{
+		headers.clear();
+	}
+	
+	/** Get the value of a header
+	 * @return The value of the header, or an empty string
+	 */
+	std::string GetHeader(const std::string &name)
+	{
+		std::map<std::string,std::string>::iterator it = headers.find(name);
+		if (it == headers.end())
+			return std::string();
+		
+		return it->second;
+	}
+	
+	/** Check if the given header is specified
+	 * @return true if the header is specified
+	 */
+	bool IsSet(const std::string &name)
+	{
+		std::map<std::string,std::string>::iterator it = headers.find(name);
+		return (it != headers.end());
+	}
+	
+	/** Get all headers, formatted by the HTTP protocol
+	 * @return Returns all headers, formatted according to the HTTP protocol. There is no request terminator at the end
+	 */
+	std::string GetFormattedHeaders()
+	{
+		std::string re;
+		
+		for (std::map<std::string,std::string>::iterator i = headers.begin(); i != headers.end(); i++)
+			re += i->first + ": " + i->second + "\r\n";
+		
+		return re;
+	}
+};
 
 /** This class represents a HTTP request.
  * It will be sent to all modules as the data section of
@@ -26,15 +101,15 @@
 class HTTPRequest : public classbase
 {
  protected:
-
 	std::string type;
 	std::string document;
 	std::string ipaddr;
 	std::string postdata;
-	std::stringstream* headers;
-
+	
  public:
 
+	HTTPHeaders *headers;
+	
 	/** A socket pointer, which you must return in your HTTPDocument class
 	 * if you reply to this request.
 	 */
@@ -49,18 +124,9 @@ class HTTPRequest : public classbase
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(const std::string &request_type, const std::string &uri, std::stringstream* hdr, void* opaque, const std::string &ip, const std::string &pdata)
+	HTTPRequest(const std::string &request_type, const std::string &uri, HTTPHeaders* hdr, void* opaque, const std::string &ip, const std::string &pdata)
 		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(opaque)
 	{
-	}
-
-	/** Get headers.
-	 * All the headers for the web request are returned, as a pointer to a stringstream.
-	 * @return The header information
-	 */
-	std::stringstream* GetHeaders()
-	{
-		return headers;
 	}
 
 	/** Get the post data (request content).
@@ -110,10 +176,11 @@ class HTTPDocument : public classbase
 
 	std::stringstream* document;
 	int responsecode;
-	std::string extraheaders;
 
  public:
 
+	HTTPHeaders headers;
+	
 	/** The socket pointer from an earlier HTTPRequest
 	 */
 	void* sock;
@@ -125,7 +192,7 @@ class HTTPDocument : public classbase
 	 * based upon the response code.
 	 * @param extra Any extra headers to include with the defaults, seperated by carriage return and linefeed.
 	 */
-	HTTPDocument(void* opaque, std::stringstream* doc, int response, const std::string &extra) : document(doc), responsecode(response), extraheaders(extra), sock(opaque)
+	HTTPDocument(void* opaque, std::stringstream* doc, int response) : document(doc), responsecode(response), sock(opaque)
 	{
 	}
 
@@ -151,14 +218,6 @@ class HTTPDocument : public classbase
 	int GetResponseCode()
 	{
 		return this->responsecode;
-	}
-
-	/** Get the headers.
-	 * @return The header text, headers seperated by carriage return and linefeed.
-	 */
-	std::string& GetExtraHeaders()
-	{
-		return this->extraheaders;
 	}
 };
 

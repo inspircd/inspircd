@@ -82,8 +82,10 @@ class ModuleRpcJson : public Module
 				}
 
 				/* Send the document back to m_httpd */
-				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_rpc_json.so\r\n"
-									      "Content-Type: application/json; charset=iso-8859-1\r\n");
+				HTTPDocument response(http->sock, &data, 200);
+				response.headers.SetHeader("X-Powered-By", "m_rpc_json.so");
+				response.headers.SetHeader("Content-Type", "application/json; charset=iso-8859-1");
+				response.headers.SetHeader("Connection", "Keep-Alive");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 			}

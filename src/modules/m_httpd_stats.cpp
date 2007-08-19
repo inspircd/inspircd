@@ -20,6 +20,7 @@
 #include "httpd.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
+/* $ModDep: httpd.h */
 
 typedef std::map<irc::string,int> StatsHash;
 typedef StatsHash::iterator StatsIter;
@@ -171,7 +172,9 @@ class ModuleHttpStats : public Module
 				data << "</inspircdstats>";
 
 				/* Send the document back to m_httpd */
-				HTTPDocument response(http->sock, &data, 200, "X-Powered-By: m_http_stats.so\r\nContent-Type: text/xml\r\n");
+				HTTPDocument response(http->sock, &data, 200);
+				response.headers.SetHeader("X-Powered-By", "m_httpd_stats.so");
+				response.headers.SetHeader("Content-Type", "text/xml");
 				Request req((char*)&response, (Module*)this, event->GetSource());
 				req.Send();
 			}
