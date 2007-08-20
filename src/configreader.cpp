@@ -409,11 +409,6 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	const char* parent = values[13].GetString();
 	int maxchans = values[14].GetInteger();
 
-	if (!allow)
-		allow = "";
-	if (!deny)
-		deny = "";
-
 	if (*parent)
 	{
 		/* Find 'parent' and inherit a new class from it,
@@ -681,7 +676,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",
+				 "",		"",		"0",
 				 NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
