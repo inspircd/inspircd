@@ -555,9 +555,17 @@ if ($config{OSNAME} =~ /FreeBSD/i)
 	$version = `uname -r`;
 	if ($version =~ /^4\./)
 	{
-		# ICKY ICKY ICK, FREEBSD 4.x! GET AN UPGRADE!
-		$config{CRAQ} = "-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1";
-		print "yes\n";
+		$foundit = `ls -l /usr/local/lib/libgnugetopt* | wc -l`;
+		if ($foundit > 0)
+		{
+			# ICKY ICKY ICK, FREEBSD 4.x! GET AN UPGRADE!
+			$config{CRAQ} = "-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1";
+			print "yes\n";
+		}
+		else
+		{
+			print "\n\nERROR: You require libgnugetopt (from ports or packages) to build InspIRCd on FreeBSD 4.11.\n";
+		}
  	}
 	else
 	{
