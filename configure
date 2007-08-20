@@ -549,6 +549,28 @@ if (($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL} >= 0.8) || ($config{HAS_OPE
 	$config{HAS_OPENSSL} = "n";
 }
 
+printf "Checking if you are running an ancient, unsupported OS... ";
+if ($config{OSNAME} =~ /FreeBSD/i)
+{
+	$version = `uname -r`;
+	if ($version =~ /^4\./)
+	{
+		# ICKY ICKY ICK, FREEBSD 4.x! GET AN UPGRADE!
+		$config{CRAQ} = "-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1";
+		print "yes\n";
+ 	}
+	else
+	{
+		$config{CRAQ} = " ";
+		print "no ($version)\n";
+	}
+}
+else
+{
+	$config{CRAQ} = " ";
+	print "no ($config{OSNAME})\n";
+}
+
 ################################################################################
 #			  BEGIN INTERACTIVE PART			      #
 ################################################################################
@@ -1312,16 +1334,7 @@ sub write_dynamic_makefile {
 		$se = "socketengine_ports";
 	}
 
-	if ($config{OSNAME} =~ /freebsd/i)
-	{
-		print "Ick, you are running FreeBSD 4.x. Enabling workaround. Get an upgrade.\n";
-		$version = `uname -r`;
-		if ($version =~ /^4\./)
-		{
-			# ICKY ICKY ICK, FREEBSD 4.x! GET AN UPGRADE!
-			$freebsd4libs = "-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1";
-		}
-	}
+	$freebsd4libs = $config{CRAQ};
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
 	print FH <<EOM;
