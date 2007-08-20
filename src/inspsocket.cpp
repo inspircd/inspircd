@@ -284,7 +284,7 @@ bool InspSocket::DoConnect()
 		if (inet_pton(AF_INET6, this->host, &addy) > 0)
 		{
 			((sockaddr_in6*)addr)->sin6_family = AF_INET6;
-			memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(sockaddr_in6));
+			memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(addy));
 			((sockaddr_in6*)addr)->sin6_port = htons(this->port);
 			size = sizeof(sockaddr_in6);
 		}
