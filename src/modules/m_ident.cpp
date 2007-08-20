@@ -279,7 +279,6 @@ class ModuleIdent : public Module
 				// to NULL and check it so that we dont write users who have gone away.
 				ident->u = NULL;
 				ServerInstance->SE->DelFd(ident);
-				//delete ident;
 			}
 			if (user->GetExt("IDENT", identstr))
 			{

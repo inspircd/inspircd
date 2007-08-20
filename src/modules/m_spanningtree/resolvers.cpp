@@ -69,7 +69,8 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		{
 			/* Something barfed, show the opers */
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
-			delete newsocket;
+			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
+				ServerInstance->SocketCull[newsocket] = newsocket;
 			Utils->DoFailOver(&MyLink);
 		}
 	}
