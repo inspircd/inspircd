@@ -144,10 +144,9 @@ int SelectEngine::DispatchEvents()
 			{
 				if (writeable[ev[i]->GetFd()])
 				{
+					writeable[ev[i]->GetFd()] = false;
 					if (ev[i])
 						ev[i]->HandleEvent(EVENT_WRITE);
-					writeable[ev[i]->GetFd()] = false;
-
 				}
 				else
 				{
