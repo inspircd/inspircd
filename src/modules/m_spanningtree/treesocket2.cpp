@@ -1428,11 +1428,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 						{
 							std::deque<std::string> p;
 							p.push_back(params[0]);
-							p.push_back("Nickname collision ("+prefix+" -> "+params[0]+")");
+							p.push_back(":Nickname collision ("+prefix+" -> "+params[0]+")");
 							Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
 							p.clear();
 							p.push_back(prefix);
-							p.push_back("Nickname collision");
+							p.push_back(":Nickname collision");
 							Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
 							userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
 							userrec* y = this->Instance->FindNick(prefix);
