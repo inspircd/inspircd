@@ -63,7 +63,8 @@ class HTTPResolver : public Resolver
 	
 	void OnError(ResolverError e, const string &errmsg)
 	{
-		delete socket;
+		if (ServerInstance->SocketCull.find(socket) == ServerInstance->SocketCull.end())
+			ServerInstance->SocketCull[socket] = socket;
 	}
 };
 
