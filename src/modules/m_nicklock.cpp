@@ -63,7 +63,6 @@ class cmd_nicklock : public command_t
 		{
 			// ugh, nickchange failed for some reason -- possibly existing nick?
 			userrec::QuitUser(ServerInstance, source, "Nickname collision");
-			return CMD_FAILURE;
 		}
 
 		// give them a lock flag
