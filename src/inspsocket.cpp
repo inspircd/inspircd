@@ -179,6 +179,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 		{
 			if (!ip.empty() || ((IP != "*") && (IP != "127.0.0.1") && (!IP.empty()) && (IP != "::1")))
 			{
+				/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 				sockaddr* s = new sockaddr[2];
 #ifdef IPV6
 				if (v6)
@@ -236,6 +237,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 
 bool InspSocket::DoConnect()
 {
+	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 	sockaddr* addr = new sockaddr[2];
 	socklen_t size = sizeof(sockaddr_in);
 #ifdef IPV6
@@ -603,6 +605,7 @@ bool InspSocket::Poll()
 		break;
 		case I_LISTENING:
 		{
+			/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 			sockaddr* client = new sockaddr[2];
 			length = sizeof (sockaddr_in);
 			std::string recvip;
