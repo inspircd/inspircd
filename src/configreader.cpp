@@ -409,6 +409,11 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 	const char* parent = values[13].GetString();
 	int maxchans = values[14].GetInteger();
 
+	if (!allow)
+		allow = "";
+	if (!deny)
+		deny = "";
+
 	if (*parent)
 	{
 		/* Find 'parent' and inherit a new class from it,
@@ -419,7 +424,7 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 			if (item->GetName() == name)
 			{
 				ConnectClass c(name, *item);
-				c.Update(timeout, flood, std::string(*allow ? allow : deny), pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
+				c.Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
 				conf->Classes.push_back(c);
 			}
 		}
