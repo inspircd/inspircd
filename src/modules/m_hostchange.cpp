@@ -101,7 +101,7 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			if (((match(user->GetFullRealHost(),i->first.c_str(),true)) || (match(user->MakeHostIP(),i->first.c_str()))))
+			if (((match(user->MakeHost(),i->first.c_str(),true)) || (match(user->MakeHostIP(),i->first.c_str()))))
 			{
 				Host* h = i->second;
 
