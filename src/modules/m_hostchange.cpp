@@ -15,6 +15,7 @@
 #include "users.h"
 #include "channels.h"
 #include "modules.h"
+#include "wildcard.h"
 
 /* $ModDesc: Provides masking of user hostnames in a different way to m_cloaking */
 
@@ -100,13 +101,13 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			if (ServerInstance->MatchText(std::string(user->ident)+"@"+std::string(user->host),i->first))
+			if (((match(user->GetFullRealHost(),i->first.c_str(),true)) || (match(user->MakeHostIP(),i->first.c_str()))))
 			{
-				Host* h = (Host*)i->second;
+				Host* h = i->second;
 
-				if (!i->second->ports.empty())
+				if (!h->ports.empty())
 				{
-					irc::portparser portrange(i->second->ports, false);
+					irc::portparser portrange(h->ports, false);
 					long portno = -1;
 					bool foundany = false;
 
