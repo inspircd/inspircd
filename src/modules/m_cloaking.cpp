@@ -192,7 +192,7 @@ class CloakUser : public ModeHandler
 
 		for (int j = 0; j < 4; j++)
 		{
-			octet[j] = seps.GetToken();
+			seps.GetToken(octet[j]);
 			i[j] = atoi(octet[j].c_str());
 		}
 

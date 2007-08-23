@@ -245,32 +245,31 @@ irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(so
 	n = tokens.begin();
 }
 
-const std::string irc::sepstream::GetToken()
+bool irc::sepstream::GetToken(std::string &token)
 {
 	std::string::iterator lsp = last_starting_position;
 
 	while (n != tokens.end())
 	{
-		/** Skip multi seps, converting "<sep><sep>" into "<sep>"
-		 */
-		while ((n+1 != tokens.end()) && (*n == sep) && (*(n+1) == sep))
-			n++;
-
 		if ((*n == sep) || (n+1 == tokens.end()))
 		{
 			last_starting_position = n+1;
-			std::string strip = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+			token = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
 
-			while ((strip.length()) && (strip.find_last_of(sep) == strip.length() - 1))
-				strip.erase(strip.end() - 1);
+			while ((token.length()) && (token.find_last_of(sep) == token.length() - 1))
+				token.erase(token.end() - 1);
 
-			return strip;
+			if (token.empty())
+				n++;
+
+			return n == tokens.end() ? false : true;
 		}
 
 		n++;
 	}
 
-	return "";
+	token = "";
+	return false;
 }
 
 const std::string irc::sepstream::GetRemaining()
@@ -458,16 +457,15 @@ long irc::portparser::GetToken()
 			in_range = 0;
 	}
 
-	std::string x = sep->GetToken();
+	std::string x;
+	sep->GetToken(x);
 
 	if (x.empty())
 		return 0;
 
 	while (Overlaps(atoi(x.c_str())))
 	{
-		x = sep->GetToken();
-
-		if (x.empty())
+		if (!sep->GetToken(x))
 			return 0;
 	}
 

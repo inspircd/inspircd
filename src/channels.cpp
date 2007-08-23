@@ -175,8 +175,11 @@ CUList* chanrec::GetVoicedUsers()
 void chanrec::SetDefaultModes()
 {
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
-	std::string modeseq = list.GetToken();
+	std::string modeseq;
 	std::string parameter;
+
+	list.GetToken(modeseq);
+
 	userrec* dummyuser = new userrec(ServerInstance);
 	dummyuser->SetFd(FD_MAGIC_NUMBER);
 
@@ -186,7 +189,7 @@ void chanrec::SetDefaultModes()
 		if (mode)
 		{
 			if (mode->GetNumParams(true))
-				parameter = list.GetToken().c_str();
+				list.GetToken(parameter);
 			else
 				parameter.clear();
 

@@ -54,8 +54,9 @@ CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 				/* Its a space seperated list of nicks (RFC1459 says to support this)
 				 */
 				irc::spacesepstream list(parameters[i]);
-				std::string item("*");
-				while (((item = list.GetToken()) != ""))
+				std::string item;
+
+				while (list.GetToken(item))
 				{
 					u = ServerInstance->FindNick(item);
 					if (ison_already.find(u) != ison_already.end())

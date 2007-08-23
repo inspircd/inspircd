@@ -134,14 +134,15 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	 */
 	irc::commasepstream items1(parameters[splithere]);
 	irc::commasepstream items2(parameters[extra]);
-	std::string item("*");
+	std::string extrastuff;
+	std::string item;
 	unsigned int max = 0;
 
 	/* Attempt to iterate these lists and call the command objech
 	 * which called us, for every parameter pair until there are
 	 * no more left to parse.
 	 */
-	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
+	while (items1.GetToken(item) && (max++ < ServerInstance->Config->MaxTargets))
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
@@ -150,7 +151,8 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 			for (int t = 0; (t < pcnt) && (t < 127); t++)
 				new_parameters[t] = parameters[t];
 
-			std::string extrastuff = items2.GetToken();
+			if (!items2.GetToken(extrastuff))
+				extrastuff = "";
 
 			new_parameters[splithere] = item.c_str();
 			new_parameters[extra] = extrastuff.c_str();
@@ -175,14 +177,14 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 
 	/* Only one commasepstream here */
 	irc::commasepstream items1(parameters[splithere]);
-	std::string item("*");
+	std::string item;
 	unsigned int max = 0;
 
 	/* Parse the commasepstream until there are no tokens remaining.
 	 * Each token we parse out, call the command handler that called us
 	 * with it
 	 */
-	while (((item = items1.GetToken()) != "") && (max++ < ServerInstance->Config->MaxTargets))
+	while (items1.GetToken(item) && (max++ < ServerInstance->Config->MaxTargets))
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
