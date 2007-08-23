@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -212,6 +212,16 @@ public:
 	EventHandler* GetIntRef(int fd);
 
 	bool BoundsCheckFd(EventHandler* eh);
+
+	virtual int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
+
+	virtual int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
+
+	virtual int Blocking(int fd);
+
+	virtual int NonBlocking(int fd);
+
+	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* name);
 };
 
 /** Creates a SocketEngine

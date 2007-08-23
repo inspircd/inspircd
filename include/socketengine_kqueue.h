@@ -53,6 +53,7 @@ public:
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void WantWrite(EventHandler* eh);
+	virtual void RecoverFromFork();
 };
 
 /** Creates a SocketEngine

@@ -42,7 +42,6 @@ using irc::sockets::insp_inaddr;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_aton;
 using irc::sockets::OpenTCPSocket;
-using irc::sockets::NonBlocking;
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */
@@ -101,6 +100,7 @@ class DNSRequest
 	DNS*            dnsobj;		/* DNS caller (where we get our FD from) */
 	unsigned long	ttl;		/* Time to live */
 	std::string     orig;		/* Original requested name/ip */
+	InspIRCd*	ServerInstance;
 
 	DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original);
 	~DNSRequest();
@@ -152,7 +152,7 @@ class RequestTimeout : public InspTimer
 };
 
 /* Allocate the processing buffer */
-DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original) : dnsobj(dns)
+DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int id, const std::string &original) : dnsobj(dns), ServerInstance(Instance)
 {
 	res = new unsigned char[512];
 	*res = 0;
@@ -226,7 +226,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		memcpy(&addr.sin6_addr,&dnsobj->myserver6,sizeof(addr.sin6_addr));
 		addr.sin6_family = AF_INET6;
 		addr.sin6_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+		if (ServerInstance->SE->SendTo(dnsobj, payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 	else
@@ -237,7 +237,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+		if (ServerInstance->SE->SendTo(dnsobj, (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
 	return 0;
@@ -311,8 +311,8 @@ void DNS::Rehash()
 	{
 		if (ServerInstance && ServerInstance->SE)
 			ServerInstance->SE->DelFd(this);
-		shutdown(this->GetFd(), 2);
-		close(this->GetFd());
+		ServerInstance->SE->Shutdown(this, 2);
+		ServerInstance->SE->Close(this);
 		this->SetFd(-1);
 
 		/* Rehash the cache */
@@ -351,7 +351,7 @@ void DNS::Rehash()
 	/* Initialize mastersocket */
 	int s = OpenTCPSocket(ServerInstance->Config->DNSServer, SOCK_DGRAM);
 	this->SetFd(s);
-	NonBlocking(s);
+	ServerInstance->SE->NonBlocking(this->GetFd());
 
 	/* Have we got a socket and is it nonblocking? */
 	if (this->GetFd() != -1)
@@ -360,8 +360,8 @@ void DNS::Rehash()
 		if (!ServerInstance->BindSocket(this->GetFd(), portpass, "", false))
 		{
 			/* Failed to bind */
-			shutdown(this->GetFd(),2);
-			close(this->GetFd());
+			ServerInstance->SE->Shutdown(this, 2);
+			ServerInstance->SE->Close(this);
 			this->SetFd(-1);
 		}
 
@@ -373,8 +373,8 @@ void DNS::Rehash()
 				if (!ServerInstance->SE->AddFd(this))
 				{
 					ServerInstance->Log(DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
-					shutdown(this->GetFd(),2);
-					close(this->GetFd());
+					ServerInstance->SE->Shutdown(this, 2);
+					ServerInstance->SE->Close(this);
 					this->SetFd(-1);
 				}
 			}
@@ -618,10 +618,7 @@ DNSResult DNS::GetResult(int resultnum)
 	const char* ipaddr_from;
 	unsigned short int port_from = 0;
 
-	void* m_readEvent = NULL;
-	GetExt("windows_readevent", m_readEvent);
-
-	int length = _recvfrom(this->GetFd(),(char*)buffer,sizeof(DNSHeader),0,from,&x);
+	int length = ServerInstance->SE->RecvFrom(this, (char*)buffer, sizeof(DNSHeader), 0, from, &x);
 
 	/* Did we get the whole header? */
 	if (length < 12)
@@ -929,8 +926,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length, int result_we_w
 /** Close the master socket */
 DNS::~DNS()
 {
-	shutdown(this->GetFd(), 2);
-	close(this->GetFd());
+	ServerInstance->SE->Shutdown(this, 2);
+	ServerInstance->SE->Close(this);
 	ServerInstance->Timers->DelTimer(this->PruneTimer);
 	delete this->PruneTimer;
 }

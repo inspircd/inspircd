@@ -217,7 +217,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 					}
 				}
 
-				if (bind(this->fd, s, size) < 0)
+				if (Instance->SE->Bind(this->fd, s, size) < 0)
 				{
 					this->state = I_ERROR;
 					this->OnError(I_ERR_BIND);
@@ -302,14 +302,13 @@ bool InspSocket::DoConnect()
 			((sockaddr_in*)addr)->sin_port = htons(this->port);
 		}
 	}
-#ifndef WIN32
-	int flags = fcntl(this->fd, F_GETFL, 0);
-	fcntl(this->fd, F_SETFL, flags | O_NONBLOCK);
-#else
-	unsigned long flags = 0;
-	ioctlsocket(this->fd, FIONBIO, &flags);
+
+#ifdef WIN32
+	/* UGH for the LOVE OF ZOMBIE JESUS SOMEONE FIX THIS!!!!!!!!!!! */
+	Instance->SE->Blocking(this->fd);
 #endif
-	if (connect(this->fd, (sockaddr*)addr, size) == -1)
+
+	if (Instance->SE->Connect(this, (sockaddr*)addr, size) == -1)
 	{
 		if (errno != EINPROGRESS)
 		{
@@ -323,9 +322,8 @@ bool InspSocket::DoConnect()
 		this->Instance->Timers->AddTimer(this->Timeout);
 	}
 #ifdef WIN32
-	/* Set nonblocking mode after the connect() call */
-	flags = 0;
-	ioctlsocket(this->fd, FIONBIO, &flags);
+	/* CRAQ SMOKING STUFF TO BE FIXED */
+	Instance->SE->NonBlocking(this->fd);
 #endif
 	this->state = I_CONNECTING;
 	if (this->fd > -1)
@@ -363,8 +361,8 @@ void InspSocket::Close()
 				Instance->Log(DEFAULT,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			}
 		}
-		shutdown(this->fd,2);
-		if (close(this->fd) != -1)
+		Instance->SE->Shutdown(this, 2);
+		if (Instance->SE->Close(this) != -1)
 			this->OnClose();
 
 		if (Instance->SocketCull.find(this) == Instance->SocketCull.end())
@@ -476,11 +474,8 @@ bool InspSocket::FlushWriteBuffer()
 			while (outbuffer.size() && (errno != EAGAIN))
 			{
 				/* Send a line */
-#ifndef WIN32
-				int result = write(this->fd,outbuffer[0].c_str(),outbuffer[0].length());
-#else
-				int result = send(this->fd,outbuffer[0].c_str(),outbuffer[0].length(), 0);
-#endif
+				int result = Instance->SE->Send(this, outbuffer[0].c_str(), outbuffer[0].length(), 0);
+
 				if (result > 0)
 				{
 					if ((unsigned int)result >= outbuffer[0].length())
@@ -604,9 +599,7 @@ bool InspSocket::Poll()
 			if ((!*this->host) || strchr(this->host, ':'))
 				length = sizeof(sockaddr_in6);
 #endif
-			void* m_acceptEvent = NULL;
-			GetExt("windows_acceptevent", m_acceptEvent);
-			incoming = _accept (this->fd, client, &length);
+			incoming = Instance->SE->Accept(this, client, &length);
 #ifdef IPV6
 			if ((!*this->host) || strchr(this->host, ':'))
 			{

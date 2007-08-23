@@ -33,7 +33,7 @@ PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 PortsEngine::~PortsEngine()
 {
-	close(EngineHandle);
+	this->Close(EngineHandle);
 }
 
 bool PortsEngine::AddFd(EventHandler* eh)

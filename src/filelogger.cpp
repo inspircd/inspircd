@@ -23,7 +23,7 @@ FileLogger::FileLogger(InspIRCd* Instance, FILE* logfile)
 {
 	if (log)
 	{
-		irc::sockets::NonBlocking(fileno(log));
+		Instance->SE->NonBlocking(fileno(log));
 		SetFd(fileno(log));
 		buffer.clear();
 	}
@@ -79,13 +79,8 @@ void FileLogger::Close()
 {
 	if (log)
 	{
-		/* Burlex: Windows assumes nonblocking on FILE* pointers anyway, and also "file" fd's aren't the same
-		 * as socket fd's.
-		 */
-#ifndef WIN32
-		int flags = fcntl(fileno(log), F_GETFL, 0);
-		fcntl(fileno(log), F_SETFL, flags ^ O_NONBLOCK);
-#endif
+		ServerInstance->SE->Blocking(fileno(log));
+
 		if (buffer.size())
 			fprintf(log,"%s",buffer.c_str());
 

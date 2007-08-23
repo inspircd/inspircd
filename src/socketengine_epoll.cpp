@@ -33,7 +33,7 @@ EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 
 EPollEngine::~EPollEngine()
 {
-	close(EngineHandle);
+	this->Close(EngineHandle);
 }
 
 bool EPollEngine::AddFd(EventHandler* eh)

@@ -59,7 +59,7 @@ ListenSocket::~ListenSocket()
 	{
 		ServerInstance->SE->DelFd(this);
 		ServerInstance->Log(DEBUG,"Shut down listener on fd %d", this->fd);
-		if (shutdown(this->fd, 2) || close(this->fd))
+		if (ServerInstance->SE->Shutdown(this, 2) || ServerInstance->SE->Close(this))
 			ServerInstance->Log(DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
@@ -85,11 +85,9 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 		length = sizeof(sockaddr_in);
 	}
 
-	void* m_acceptEvent = NULL;
-	GetExt("windows_acceptevent", m_acceptEvent);
-	incomingSockfd = _accept (this->GetFd(), (sockaddr*)client, &length);
+	incomingSockfd = ServerInstance->SE->Accept(this, (sockaddr*)client, &length);
 
-	if ((incomingSockfd > -1) && (!_getsockname(incomingSockfd, sock_us, &uslen)))
+	if ((incomingSockfd > -1) && (!ServerInstance->SE->GetSockName(this, sock_us, &uslen)))
 	{
 		char buf[MAXBUF];
 #ifdef IPV6
@@ -105,7 +103,8 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 			in_port = ntohs(((sockaddr_in*)sock_us)->sin_port);
 		}
 
-		NonBlocking(incomingSockfd);
+		ServerInstance->SE->NonBlocking(incomingSockfd);
+
 		if (ServerInstance->Config->GetIOHook(in_port))
 		{
 			try
@@ -122,7 +121,7 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 	}
 	else
 	{
-		shutdown(incomingSockfd,2);
+		ServerInstance->SE->Shutdown(incomingSockfd, 2);
 		close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 	}
@@ -297,28 +296,6 @@ bool irc::sockets::MatchCIDR(const char* address, const char* cidr_mask, bool ma
 	return MatchCIDRBits(addr_raw, mask_raw, bits);
 }
 
-void irc::sockets::Blocking(int s)
-{
-#ifndef WIN32
-	int flags = fcntl(s, F_GETFL, 0);
-	fcntl(s, F_SETFL, flags ^ O_NONBLOCK);
-#else
-	unsigned long opt = 0;
-	ioctlsocket(s, FIONBIO, &opt);
-#endif
-}
-
-void irc::sockets::NonBlocking(int s)
-{
-#ifndef WIN32
-	int flags = fcntl(s, F_GETFL, 0);
-	fcntl(s, F_SETFL, flags | O_NONBLOCK);
-#else
-	unsigned long opt = 1;
-	ioctlsocket(s, FIONBIO, &opt);
-#endif
-}
-
 /** This will bind a socket to a port. It works for UDP/TCP.
  * It can only bind to IP addresses, if you wish to bind to hostnames
  * you should first resolve them using class 'Resolver'.
@@ -413,7 +390,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 	((sockaddr_in*)server)->sin_port = htons(port);
 	size = sizeof(sockaddr_in);
 #endif
-	ret = bind(sockfd, server, size);
+	ret = SE->Bind(sockfd, server, size);
 	delete[] server;
 
 	if (ret < 0)
@@ -424,7 +401,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 	{
 		if (dolisten)
 		{
-			if (listen(sockfd, Config->MaxConn) == -1)
+			if (SE->Listen(sockfd, Config->MaxConn) == -1)
 			{
 				this->Log(DEFAULT,"ERROR in listen(): %s",strerror(errno));
 				return false;
@@ -432,7 +409,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, char* addr, bool dolisten)
 			else
 			{
 				this->Log(DEBUG,"New socket binding for %d with listen: %s:%d", sockfd, addr, port);
-				NonBlocking(sockfd);
+				SE->NonBlocking(sockfd);
 				return true;
 			}
 		}

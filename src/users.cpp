@@ -436,8 +436,8 @@ char* userrec::MakeHostIP()
 
 void userrec::CloseSocket()
 {
-	shutdown(this->fd,2);
-	close(this->fd);
+	ServerInstance->SE->Shutdown(this, 2);
+	ServerInstance->SE->Close(this);
 }
 
 char* userrec::GetFullHost()
@@ -727,11 +727,8 @@ void userrec::FlushWriteBuf()
 		if ((sendq.length()) && (this->fd != FD_MAGIC_NUMBER))
 		{
 			int old_sendq_length = sendq.length();
-#ifndef WIN32
-		int n_sent = write(this->fd, this->sendq.data(), this->sendq.length());
-#else
-		int n_sent = send(this->fd, (const char*)this->sendq.data(), this->sendq.length(), 0);
-#endif
+			int n_sent = ServerInstance->SE->Send(this, this->sendq.data(), this->sendq.length(), 0);
+
 			if (n_sent == -1)
 			{
 				if (errno == EAGAIN)

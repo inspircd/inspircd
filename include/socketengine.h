@@ -277,6 +277,38 @@ public:
 	 * which can be handled by the socket engine.
 	 */
 	virtual bool BoundsCheckFd(EventHandler* eh);
+
+	virtual int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
+
+	virtual int Close(EventHandler* fd);
+
+	virtual int Close(int fd);
+
+	virtual int Send(EventHandler* fd, const void *buf, size_t len, int flags);
+
+	virtual int Recv(EventHandler* fd, void *buf, size_t len, int flags);
+
+	virtual int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
+
+	virtual int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
+
+	virtual int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
+
+	virtual int Blocking(int fd);
+
+	virtual int NonBlocking(int fd);
+
+	virtual int Shutdown(EventHandler* fd, int how);
+
+	virtual int Shutdown(int fd, int how);
+
+	virtual int Bind(int fd, const sockaddr *my_addr, socklen_t addrlen);
+
+	virtual int Listen(int sockfd, int backlog);
+
+	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen);
+
+	virtual void RecoverFromFork();
 };
 
 #endif

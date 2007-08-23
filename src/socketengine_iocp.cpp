@@ -410,41 +410,6 @@ std::string IOCPEngine::GetName()
 	return "iocp";
 }
 
-int __accept_socket(SOCKET s, sockaddr * addr, int * addrlen, void * acceptevent)
-{
-	Overlapped* ovl = (Overlapped*)acceptevent;
-	accept_overlap* ov = (accept_overlap*)ovl->m_params;
-
-	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
-	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
-
-	memcpy(addr, client_address, sizeof(sockaddr_in));
-	*addrlen = sizeof(sockaddr_in);
-
-	return ov->socket;
-}
-
-int __getsockname(SOCKET s, sockaddr * name, int * namelen, void * acceptevent)
-{
-	Overlapped* ovl = (Overlapped*)acceptevent;
-	accept_overlap* ov = (accept_overlap*)ovl->m_params;
-
-	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
-	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
-
-	memcpy(name, server_address, sizeof(sockaddr_in));
-	*namelen = sizeof(sockaddr_in);
-
-	return 0;
-}
-
-int __recvfrom(SOCKET s, char * buf, int len, int flags, struct sockaddr * from, int * fromlen, udp_overlap * ov)
-{
-	memcpy(buf, ov->udp_buffer, ov->udp_len);
-	memcpy(from, ov->udp_sockaddr, *fromlen);
-	return ov->udp_len;
-}
-
 EventHandler * IOCPEngine::GetRef(int fd)
 {
 	map<int, EventHandler*>::iterator itr = m_binding.find(fd);
@@ -477,4 +442,66 @@ EventHandler * IOCPEngine::GetIntRef(int fd)
 		return 0;
 	return ref[fd];
 }
+
+int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
+{
+	SOCKET s = fd->GetFd();
+
+	Overlapped* acceptevent = NULL;
+	if (!fd->GetExt("windows_acceptevent", acceptevent))
+		/* Shit, no accept event on this socket! :( */
+		return -1;
+
+	Overlapped* ovl = acceptevent;
+	accept_overlap* ov = (accept_overlap*)ovl->m_params;
+	
+	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
+	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
+
+	memcpy(addr, client_address, sizeof(sockaddr_in));
+	*addrlen = sizeof(sockaddr_in);
+
+	return ov->socket;
+}
+
+int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* name)
+{
+	Overlapped* ovl = NULL;
+	
+	if (!fd->GetExt("windows_acceptevent", acceptevent))
+		return -1;
+
+	accept_overlap* ov = (accept_overlap*)ovl->m_params;
+
+	sockaddr_in* server_address = (sockaddr_in*)&ov->buf[10];
+	sockaddr_in* client_address = (sockaddr_in*)&ov->buf[38];
+
+	memcpy(name, server_address, sizeof(sockaddr_in));
+	*namelen = sizeof(sockaddr_in);
+
+	return 0;
+}
+
+int IOCPEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen)
+{
+	udp_overlap * ov = NULL;
+	if (!fd->GetExt("windows_readevent", ov))
+		return -1;
+        memcpy(buf, ov->udp_buffer, ov->udp_len);
+	memcpy(from, ov->udp_sockaddr, *fromlen);
+	return ov->udp_len;
+}
+
+int IOCPEngine::Blocking(int fd)
+{
+	unsigned long opt = 0;
+	ioctlsocket(s, FIONBIO, &opt);
+}
+
+int IOCPEngine::NonBlocking(int fd)
+{
+	unsigned long opt = 1;
+	ioctlsocket(s, FIONBIO, &opt);
+}
+
 

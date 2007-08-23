@@ -676,7 +676,7 @@ class Notifier : public InspSocket
 		 * The function GetCharId translates a single character
 		 * back into an iterator.
 		 */
-		if (read(this->GetFd(), &data, 1) > 0)
+		if (Instance->SE->Recv(this, &data, 1, 0) > 0)
 		{
 			ConnMap::iterator iter = GetCharId(data);
 			if (iter != Connections.end())

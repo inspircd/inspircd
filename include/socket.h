@@ -37,23 +37,6 @@
 #include "inspircd_config.h"
 #include "socketengine.h"
 
-/* Accept Define */
-#ifdef CONFIG_USE_IOCP
-/* IOCP wrapper for accept() */
-#define _accept(s, addr, addrlen) __accept_socket(s, addr, addrlen, m_acceptEvent)
-/* IOCP wrapper for getsockname() */
-#define _getsockname(fd, sockptr, socklen) __getsockname(fd, sockptr, socklen, m_acceptEvent)
-/* IOCP wrapper for recvfrom() */
-#define _recvfrom(s, buf, len, flags, from, fromlen) __recvfrom(s, buf, len, flags, from, fromlen, ((IOCPEngine*)ServerInstance->SE)->udp_ov)
-#else
-/* No wrapper for recvfrom() */
-#define _recvfrom recvfrom
-/* No wrapper for accept() */
-#define _accept accept
-/* No wrapper for getsockname() */
-#define _getsockname getsockname
-#endif
-
 /* Contains irc-specific definitions */
 namespace irc
 {
@@ -147,16 +130,6 @@ namespace irc
 		 * or any other number upon failure.
 		 */
 		CoreExport int insp_aton(const char* a, insp_inaddr* n);
-
-		/** Make a socket file descriptor a blocking socket
-		 * @param s A valid file descriptor
-		 */
-		CoreExport void Blocking(int s);
-
-		/** Make a socket file descriptor into a nonblocking socket
-		 * @param s A valid file descriptor
-		 */
-		CoreExport void NonBlocking(int s);
 
 		/** Create a new valid file descriptor using socket()
 		 * @return On return this function will return a value >= 0 for success,

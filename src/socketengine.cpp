@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -98,5 +98,89 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 	if ((eh->GetFd() < 0) || (eh->GetFd() > MAX_DESCRIPTORS))
 		return false;
 	return true;
+}
+
+
+int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
+{
+	return accept(fd->GetFd(), addr, addrlen);
+}
+
+int SocketEngine::Close(EventHandler* fd)
+{
+	return close(fd->GetFd());
+}
+
+int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
+{
+	return send(fd->GetFd(), buf, len, flags);
+}
+
+int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
+{
+	return recv(fd->GetFd(), buf, len, flags);
+}
+
+int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
+{
+	return recvfrom(fd->GetFd(), buf, len, flags, from, fromlen);
+}
+
+int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
+{
+	return sendto(fd->GetFd(), buf, len, flags, to, tolen);
+}
+
+int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
+{
+	return connect(fd->GetFd(), serv_addr, addrlen);
+}
+
+int SocketEngine::Blocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	return fcntl(fd, F_SETFL, flags ^ O_NONBLOCK);
+}
+
+int SocketEngine::NonBlocking(int fd)
+{
+	int flags = fcntl(fd, F_GETFL, 0);
+	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+int SocketEngine::Shutdown(EventHandler* fd, int how)
+{
+	return shutdown(fd->GetFd(), how);
+}
+
+
+int SocketEngine::Bind(int fd, const sockaddr *my_addr, socklen_t addrlen)
+{
+	return bind(fd, my_addr, addrlen);
+}
+
+int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
+{
+	return getsockname(fd->GetFd(), name, namelen);
+}
+
+int SocketEngine::Listen(int sockfd, int backlog)
+{
+	return listen(sockfd, backlog);
+}
+
+
+int SocketEngine::Shutdown(int fd, int how)
+{
+	return shutdown(fd, how);
+}
+
+int SocketEngine::Close(int fd)
+{
+	return close(fd);
+}
+
+void SocketEngine::RecoverFromFork()
+{
 }
 

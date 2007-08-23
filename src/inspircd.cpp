@@ -41,8 +41,6 @@
 #include "exitcodes.h"
 #include "caller.h"
 
-using irc::sockets::NonBlocking;
-using irc::sockets::Blocking;
 using irc::sockets::insp_ntoa;
 using irc::sockets::insp_inaddr;
 using irc::sockets::insp_sockaddr;
@@ -309,6 +307,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	memset(&server, 0, sizeof(server));
 	memset(&client, 0, sizeof(client));
 
+        SocketEngineFactory* SEF = new SocketEngineFactory();
+	SE = SEF->Create(this);
+	delete SEF;
+
 	this->s_signal = 0;
 
 	this->unregistered_count = 0;
@@ -454,13 +456,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 
-
-	/* Because of limitations in kqueue on freebsd, we must fork BEFORE we
-	 * initialize the socket engine.
-	 */
-	SocketEngineFactory* SEF = new SocketEngineFactory();
-	SE = SEF->Create(this);
-	delete SEF;
+	SE->RecoverFromFork();
 
 	this->Modes = new ModeParser(this);
 	this->AddServerName(Config->ServerName);
