@@ -230,25 +230,16 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 			return -1;
 	}
 	else
+#endif
 	{
 		sockaddr_in addr;
 		memset(&addr,0,sizeof(addr));
 		memcpy(&addr.sin_addr.s_addr,&dnsobj->myserver4,sizeof(addr.sin_addr));
 		addr.sin_family = AF_INET;
 		addr.sin_port = htons(DNS::QUERY_PORT);
-		if (sendto(dnsobj->GetFd(), payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
+		if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
 			return -1;
 	}
-#else
-	sockaddr_in addr;
-	memset(&addr,0,sizeof(addr));
-	memcpy(&addr.sin_addr.s_addr, &dnsobj->myserver4, sizeof(addr.sin_addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(DNS::QUERY_PORT);
-	if (sendto(dnsobj->GetFd(), (const char*)payload, length + 12, 0, (sockaddr *) &addr, sizeof(addr)) != length+12)
-		return -1;
-#endif
-
 	return 0;
 }
 
