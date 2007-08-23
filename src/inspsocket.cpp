@@ -303,6 +303,8 @@ bool InspSocket::DoConnect()
 		}
 	}
 
+	Instance->SE->NonBlocking(this->fd);
+
 #ifdef WIN32
 	/* UGH for the LOVE OF ZOMBIE JESUS SOMEONE FIX THIS!!!!!!!!!!! */
 	Instance->SE->Blocking(this->fd);
