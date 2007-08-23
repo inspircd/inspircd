@@ -133,18 +133,18 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 /* Match raw bytes using CIDR bit matching, used by higher level MatchCIDR() */
 bool irc::sockets::MatchCIDRBits(unsigned char* address, unsigned char* mask, unsigned int mask_bits)
 {
-	unsigned int modulus = mask_bits % 8; /* Number of whole bytes in the mask */
-	unsigned int divisor = mask_bits / 8; /* Remaining bits in the mask after whole bytes are dealt with */
+	unsigned int divisor = mask_bits / 8; /* Number of whole bytes in the mask */
+	unsigned int modulus = mask_bits % 8; /* Remaining bits in the mask after whole bytes are dealt with */
 
-	/* First compare the whole bytes, if they dont match, return false */
-	if (memcmp(address, mask, divisor))
-		return false;
-
-	/* Now if there are any remainder bits, we compare them with logic AND */
+	/* First (this is faster) compare the odd bits with logic ops */
 	if (modulus)
 		if ((address[divisor] & inverted_bits[modulus]) != (mask[divisor] & inverted_bits[modulus]))
 			/* If they dont match, return false */
 			return false;
+
+	/* Secondly (this is slower) compare the whole bytes */
+	if (memcmp(address, mask, divisor))
+		return false;
 
 	/* The address matches the mask, to mask_bits bits of mask */
 	return true;
