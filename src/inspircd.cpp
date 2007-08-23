@@ -50,6 +50,7 @@ using irc::sockets::insp_sockaddr;
 InspIRCd* SI = NULL;
 int* mysig = NULL;
 
+
 /* Burlex: Moved from exitcodes.h -- due to duplicate symbols */
 const char* ExitCodes[] =
 {
