@@ -502,7 +502,7 @@ if ($has_epoll) {
 				{
 					$kernelv = $1;
 					# Fix for some retarded libc builds, strip off >> and << etc.
-					$kernelv =~ /([0-9\.\-])+/;
+					$kernelv =~ /([0-9\.])+/;
 					$kernelv = $1;
 				}
 			}
