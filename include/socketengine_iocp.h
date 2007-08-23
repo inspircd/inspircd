@@ -222,6 +222,10 @@ public:
 	virtual int NonBlocking(int fd);
 
 	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* name);
+
+	virtual int Close(int fd);
+
+	virtual int Close(EventHandler* fd);
 };
 
 /** Creates a SocketEngine

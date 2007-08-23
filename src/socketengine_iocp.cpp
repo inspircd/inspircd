@@ -504,4 +504,13 @@ int IOCPEngine::NonBlocking(int fd)
 	ioctlsocket(s, FIONBIO, &opt);
 }
 
+int IOCPEngine::Close(int fd)
+{
+	return closesocket(socket);
+}
+
+int IOCPEngine::Close(EventHandler* fd)
+{
+	return this->Close(fd->GetFd());
+}
 

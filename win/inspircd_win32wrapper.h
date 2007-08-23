@@ -79,9 +79,6 @@
 #define EADDRINUSE WSAEADDRINUSE
 #define EINPROGRESS WSAEWOULDBLOCK
 
-/* Remember file descriptors are treated differently on windows ;) */
-__inline int close(int socket) { return closesocket(socket); }
-
 /* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
 CoreExport int inet_pton(int af, const char * src, void * dst);
 
