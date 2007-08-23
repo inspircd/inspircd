@@ -467,7 +467,7 @@ void InspIRCd::OpenLog(char** argv, int argc)
 	if (!Config->log_file)
 	{
 		printf("ERROR: Could not write to logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
-		Exit(EXIT_STATUS_LOG);
+		exit(EXIT_STATUS_LOG);
 	}
 
 	this->Logger = new FileLogger(this, Config->log_file);
