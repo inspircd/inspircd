@@ -251,6 +251,11 @@ const std::string irc::sepstream::GetToken()
 
 	while (n != tokens.end())
 	{
+		/** Skip multi seps, converting "<sep><sep>" into "<sep>"
+		 */
+		while ((n+1 != tokens.end()) && (*n == sep) && (*(n+1) == sep))
+			n++;
+
 		if ((*n == sep) || (n+1 == tokens.end()))
 		{
 			last_starting_position = n+1;
