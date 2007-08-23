@@ -316,7 +316,7 @@ void InspIRCd::Rehash(int status)
 	SI->WriteOpers("*** Rehashing config file %s due to SIGHUP",ServerConfig::CleanFilename(SI->ConfigFileName));
 	SI->CloseLog();
 	if (!SI->OpenLog(SI->Config->argv, SI->Config->argc))
-		SI->WriteOpers("*** ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
+		SI->WriteOpers("*** ERROR: Could not open logfile %s: %s\n\n", SI->Config->logpath.c_str(), strerror(errno));
 	SI->RehashUsersAndChans();
 	FOREACH_MOD_I(SI, I_OnGarbageCollect, OnGarbageCollect());
 	SI->Config->Read(false,NULL);
