@@ -122,11 +122,6 @@ void InspIRCd::Cleanup()
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
 		delete (*itr);
-
-#ifdef WINDOWS
-	/* WSACleanup */
-	WSACleanup();
-#endif
 }
 
 void InspIRCd::Restart(const std::string &reason)

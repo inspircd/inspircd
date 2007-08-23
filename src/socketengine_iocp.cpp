@@ -37,7 +37,9 @@ IOCPEngine::IOCPEngine(InspIRCd * Instance) : SocketEngine(Instance)
 
 IOCPEngine::~IOCPEngine()
 {
+	/* Clean up winsock and close completion port */
 	CloseHandle(m_completionPort);
+	WSACleanup();
 }
 
 bool IOCPEngine::AddFd(EventHandler* eh)
