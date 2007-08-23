@@ -92,10 +92,8 @@ class cmd_helpop : public command_t
 			irc::sepstream stream(value, '\n');
 			std::string token = "*";
 
-			while ((token = stream.GetToken()) != "")
-			{
+			while (stream.GetToken(token))
 				user->WriteServ("NOTICE %s :%s", user->nick, token.c_str());
-			}
 
 			user->WriteServ("NOTICE %s :*** End of HELPOP", user->nick);
 		}

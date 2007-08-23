@@ -324,9 +324,10 @@ namespace irc
 		virtual ~sepstream();
 
 		/** Fetch the next token from the stream
-		 * @return The next token is returned, or an empty string if none remain
+		 * @param token The next token from the stream is placed here
+		 * @return True if tokens still remain, false if there are none left
 		 */
-		virtual const std::string GetToken();
+		virtual bool GetToken(std::string &token);
 		
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream

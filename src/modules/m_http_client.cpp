@@ -176,10 +176,10 @@ bool HTTPSocket::ParseURL(const std::string &iurl)
 	
 	for (int p = 0;; p++)
 	{
-		std::string part = tokenizer.GetToken();
-		if (part.empty() && tokenizer.StreamEnd())
+		std::string part;
+		if (!tokenizer.GetToken(part))
 			break;
-		
+
 		if ((p == 0) && (part[part.length() - 1] == ':'))
 		{
 			// Protocol ('http:')

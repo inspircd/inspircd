@@ -104,12 +104,12 @@ class ModuleAlias : public Module
 		std::string word;
 
 		for (int j = 0; j < index; j++)
-			word = ss.GetToken();
+			ss.GetToken(word);
 
 		if (everything_after)
 		{
-			std::string more = "*";
-			while ((more = ss.GetToken()) != "")
+			std::string more;
+			while (ss.GetToken(more))
 			{
 				word.append(" ");
 				word.append(more);
@@ -201,8 +201,8 @@ class ModuleAlias : public Module
 				else
 				{
 					irc::sepstream commands(Aliases[i].replace_with, '\n');
-					std::string command = "*";
-					while ((command = commands.GetToken()) != "")
+					std::string command;
+					while (commands.GetToken(command))
 					{
 						DoCommand(command, user, safe);
 					}

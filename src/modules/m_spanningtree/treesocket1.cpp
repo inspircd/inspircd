@@ -341,9 +341,9 @@ void TreeSocket::SendCapabilities()
 	this->WriteLine("CAPAB START");
 
 	/* Send module names, split at 509 length */
-	std::string item = "*";
+	std::string item;
 	std::string line = "CAPAB MODULES ";
-	while ((item = modulelist.GetToken()) != "")
+	while (modulelist.GetToken(item))
 	{
 		if (line.length() + item.length() + 1 > 509)
 		{
@@ -384,8 +384,9 @@ void TreeSocket::SendCapabilities()
 bool TreeSocket::HasItem(const std::string &list, const std::string &item)
 {
 	irc::commasepstream seplist(list);
-	std::string item2 = "*";
-	while ((item2 = seplist.GetToken()) != "")
+	std::string item2;
+
+	while (seplist.GetToken(item2))
 	{
 		if (item2 == item)
 			return true;
@@ -397,9 +398,9 @@ bool TreeSocket::HasItem(const std::string &list, const std::string &item)
 std::string TreeSocket::ListDifference(const std::string &one, const std::string &two)
 {
 	irc::commasepstream list_one(one);
-	std::string item = "*";
+	std::string item;
 	std::string result;
-	while ((item = list_one.GetToken()) != "")
+	while (list_one.GetToken(item))
 	{
 		if (!HasItem(two, item))
 		{

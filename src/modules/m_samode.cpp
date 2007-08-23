@@ -47,7 +47,7 @@ class cmd_samode : public command_t
 			std::deque<std::string> n;
 			irc::spacesepstream spaced(ServerInstance->Modes->GetLastParse());
 			std::string one = "*";
-			while ((one = spaced.GetToken()) != "")
+			while (spaced.GetToken(one))
 				n.push_back(one);
 
 			Event rmode((char *)&n, NULL, "send_mode");
