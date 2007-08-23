@@ -77,13 +77,16 @@ void InspIRCd::Cleanup()
 	std::vector<std::string> mymodnames;
 	int MyModCount = this->GetModuleCount();
 
-	for (unsigned int i = 0; i < Config->ports.size(); i++)
+	if (Config)
 	{
-		/* This calls the constructor and closes the listening socket */
-		delete Config->ports[i];
-	}
+		for (unsigned int i = 0; i < Config->ports.size(); i++)
+		{
+			/* This calls the constructor and closes the listening socket */
+			delete Config->ports[i];
+		}
 
-	Config->ports.clear();
+		Config->ports.clear();
+	}
 
 	/* Close all client sockets, or the new process inherits them */
 	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
@@ -101,16 +104,20 @@ void InspIRCd::Cleanup()
 		MyModCount = this->GetModuleCount();
 		mymodnames.clear();
 
-		/* Unload all modules, so they get a chance to clean up their listeners */
-		for (int j = 0; j <= MyModCount; j++)
-			mymodnames.push_back(Config->module_names[j]);
+		if (MyModCount)
+		{
+			/* Unload all modules, so they get a chance to clean up their listeners */
+			for (int j = 0; j <= MyModCount; j++)
+				mymodnames.push_back(Config->module_names[j]);
 
-		for (int k = 0; k <= MyModCount; k++)
-			this->UnloadModule(mymodnames[k].c_str());
+			for (int k = 0; k <= MyModCount; k++)
+				this->UnloadModule(mymodnames[k].c_str());
+		}
 	}
 
 	/* Close logging */
-	this->Logger->Close();
+	if (this->Logger)
+		this->Logger->Close();
 
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
@@ -183,7 +190,8 @@ void InspIRCd::RehashUsersAndChans()
 
 void InspIRCd::CloseLog()
 {
-	this->Logger->Close();
+	if (this->Logger)
+		this->Logger->Close();
 }
 
 void InspIRCd::SetSignals()
@@ -411,7 +419,11 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
 
-	this->OpenLog(argv, argc);
+	if (!this->OpenLog(argv, argc))
+	{
+		printf("ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
+		Exit(EXIT_STATUS_LOG);
+	}
 
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
