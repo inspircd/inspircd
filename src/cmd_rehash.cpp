@@ -37,7 +37,8 @@ CmdResult cmd_rehash::Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		ServerInstance->WriteOpers("*** %s is rehashing config file %s",user->nick,ServerConfig::CleanFilename(ServerInstance->ConfigFileName));
 		ServerInstance->CloseLog();
-		ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc);
+		if (!ServerInstance->OpenLog(ServerInstance->Config->argv, ServerInstance->Config->argc))
+			user->WriteServ("*** NOTICE %s :ERROR: Could not open logfile %s: %s", user->nick, ServerInstance->Config->logpath.c_str(), strerror(errno));
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 		ServerInstance->Config->Read(false,user);

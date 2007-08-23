@@ -693,8 +693,9 @@ class CoreExport InspIRCd : public classbase
 	/** Determine the right path for, and open, the logfile
 	 * @param argv The argv passed to main() initially, used to calculate program path
 	 * @param argc The argc passed to main() initially, used to calculate program path
+	 * @return True if the log could be opened, false if otherwise
 	 */
-	void OpenLog(char** argv, int argc);
+	bool OpenLog(char** argv, int argc);
 
 	/** Close the currently open log file
 	 */

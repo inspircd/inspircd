@@ -31,7 +31,7 @@ static time_t LAST = 0;
 void InspIRCd::Log(int level, const char* text, ...)
 {
 	/* sanity check, just in case */
-	if (!this->Config)
+	if (!this->Config || !this->Logger)
 		return;
 
 	/* Do this check again here so that we save pointless vsnprintf calls */
@@ -51,7 +51,7 @@ void InspIRCd::Log(int level, const char* text, ...)
 void InspIRCd::Log(int level, const std::string &text)
 {
 	/* sanity check, just in case */
-	if (!this->Config)
+	if (!this->Config || !this->Logger)
 		return;
 
 	/* If we were given -debug we output all messages, regardless of configured loglevel */
@@ -442,7 +442,7 @@ bool InspIRCd::IsIdent(const char* n)
 }
 
 /* open the proper logfile */
-void InspIRCd::OpenLog(char** argv, int argc)
+bool InspIRCd::OpenLog(char** argv, int argc)
 {
 	Config->MyDir = Config->GetFullProgDir();
 
@@ -466,11 +466,12 @@ void InspIRCd::OpenLog(char** argv, int argc)
 
 	if (!Config->log_file)
 	{
-		printf("ERROR: Could not write to logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
-		exit(EXIT_STATUS_LOG);
+		this->Logger = NULL;
+		return false;
 	}
 
 	this->Logger = new FileLogger(this, Config->log_file);
+	return true;
 }
 
 void InspIRCd::CheckRoot()
