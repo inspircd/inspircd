@@ -278,36 +278,115 @@ public:
 	 */
 	virtual bool BoundsCheckFd(EventHandler* eh);
 
+	/** Abstraction for BSD sockets accept(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
 
+	/** Abstraction for BSD sockets close(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Close(EventHandler* fd);
 
+	/** Abstraction for BSD sockets close(2).
+	 * This function should emulate its namesake system call exactly.
+	 * This function should emulate its namesake system call exactly.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Close(int fd);
 
+	/** Abstraction for BSD sockets send(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Send(EventHandler* fd, const void *buf, size_t len, int flags);
 
+	/** Abstraction for BSD sockets recv(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Recv(EventHandler* fd, void *buf, size_t len, int flags);
 
+	/** Abstraction for BSD sockets recvfrom(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
 
+	/** Abstraction for BSD sockets sendto(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
 
+	/** Abstraction for BSD sockets connect(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
 
+	/** Make a file descriptor blocking.
+	 * @param fd a file descriptor to set to blocking mode
+	 * @return 0 on success, -1 on failure, errno is set appropriately.
+	 */
 	virtual int Blocking(int fd);
 
+	/** Make a file descriptor nonblocking.
+	 * @param fd A file descriptor to set to nonblocking mode
+	 * @return 0 on success, -1 on failure, errno is set appropriately.
+	 */
 	virtual int NonBlocking(int fd);
 
+	/** Abstraction for BSD sockets shutdown(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Shutdown(EventHandler* fd, int how);
 
+	/** Abstraction for BSD sockets shutdownt(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Shutdown(int fd, int how);
 
+	/** Abstraction for BSD sockets bind(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Bind(int fd, const sockaddr *my_addr, socklen_t addrlen);
 
+	/** Abstraction for BSD sockets listen(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int Listen(int sockfd, int backlog);
 
+	/** Abstraction for BSD sockets getsockname(2).
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
 	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen);
 
+	/** This function is called immediately after fork().
+	 * Some socket engines (notably kqueue) cannot have their
+	 * handles inherited by forked processes. This method
+	 * allows for the socket engine to re-create its handle
+	 * after the daemon forks as the socket engine is created
+	 * long BEFORE the daemon forks.
+	 * @return void, but it is acceptable for this function to bail back to
+	 * the shell or operating system on fatal error.
+	 */
 	virtual void RecoverFromFork();
 };
 
