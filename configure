@@ -523,8 +523,6 @@ if ($has_epoll) {
 print "yes\n" if $has_epoll == 1;
 print "no\n" if $has_epoll == 0;
 
-exit;
-
 printf "Checking if Solaris I/O completion ports are available... ";
 $has_ports = 0;
 my $system = `uname -s`;
