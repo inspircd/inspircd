@@ -1,5 +1,7 @@
 package make::opensslcert;
 
+require 5.8.0;
+
 use Exporter 'import';
 use make::configure;
 @EXPORT = qw(make_openssl_cert);

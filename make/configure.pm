@@ -11,6 +11,9 @@
 # ---------------------------------------------------
 
 package make::configure;
+
+require 5.8.0;
+
 use Exporter 'import';
 use POSIX;
 use make::utilities;

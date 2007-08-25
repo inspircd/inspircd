@@ -1,5 +1,7 @@
 package make::gnutlscert;
 
+require 5.8.0;
+
 use Exporter 'import';
 use make::configure;
 @EXPORT = qw(make_gnutls_cert);

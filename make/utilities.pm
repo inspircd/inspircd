@@ -10,8 +10,10 @@
 #
 # ---------------------------------------------------
 
-
 package make::utilities;
+
+require 5.8.0;
+
 use Exporter 'import';
 use POSIX;
 use Getopt::Long;
