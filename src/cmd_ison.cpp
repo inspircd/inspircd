@@ -77,8 +77,6 @@ CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
 					}
 				}
 			}
-			/* There will only be one of these, we can bail after. */
-			break;
 		}
 	}
 
