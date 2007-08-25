@@ -26,28 +26,29 @@ class cmd_gloadmodule : public command_t
 	cmd_gloadmodule (InspIRCd* Instance) : command_t(Instance,"GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
-		syntax = "<modulename>";
+		syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (ServerInstance->LoadModule(parameters[0]))
-		{
-			ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
-			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+		std::string servername = pcnt > 1 ? parameters[1] : "*";
 
-			/* route it! */
-			return CMD_SUCCESS;
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
+		{
+			if (ServerInstance->LoadModule(parameters[0]))
+			{
+				ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
+				user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
+			}
+			else
+			{
+				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			}
 		}
 		else
-		{
-			user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-			/* XXX - returning CMD_FAILURE here could potentially mean half the net loads it, half doesn't. pass it on anyway? -- w00t
-			 *
-			 * Returning CMD_SUCCESS would have the same effect, just with less servers. Someone should update this module to properly
-			 * pass the success/failure for each server to the caller (or to all opers) -Special */
-			return CMD_FAILURE;
-		}
+			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0],user->nick);
+
+		return CMD_SUCCESS;
 	}
 };
 
@@ -59,21 +60,28 @@ class cmd_gunloadmodule : public command_t
 	cmd_gunloadmodule (InspIRCd* Instance) : command_t(Instance,"GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
-		syntax = "<modulename>";
+		syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		if (ServerInstance->UnloadModule(parameters[0]))
+		std::string servername = pcnt > 1 ? parameters[1] : "*";
+
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
-			user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+			if (ServerInstance->UnloadModule(parameters[0]))
+			{
+				ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
+				user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
+			}
+			else
+			{
+				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			}
 		}
 		else
-		{
-			/* Return CMD_SUCCESS so the module will be unloaded on any servers it is loaded on - this is a seperate case entirely from loading -Special */
-			user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-		}
+			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0],user->nick);
+
 		return CMD_SUCCESS;
 	}
 };
@@ -86,26 +94,29 @@ class cmd_greloadmodule : public command_t
 	cmd_greloadmodule (InspIRCd* Instance) : command_t(Instance, "GRELOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
-		syntax = "<modulename>";
+		syntax = "<modulename> [servermask]";
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
 	{
-		if (!ServerInstance->UnloadModule(parameters[0]))
-		{
-			user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-			return CMD_FAILURE;
-		}
+		std::string servername = pcnt > 1 ? parameters[1] : "*";
 
-		if (!ServerInstance->LoadModule(parameters[0]))
+		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
-			return CMD_FAILURE;
+			if (!ServerInstance->UnloadModule(parameters[0]))
+			{
+				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			}
+			if (!ServerInstance->LoadModule(parameters[0]))
+			{
+				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+			}
+			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
+			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 		}
+		else
+			ServerInstance->WriteOpers("*** MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0],user->nick);
 
-		ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
-		user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
-		
 		return CMD_SUCCESS;
 	}
 };
