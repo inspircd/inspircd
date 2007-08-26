@@ -78,7 +78,21 @@ class cmd_swhois : public command_t
 		text = new std::string(line);
 		dest->Extend("swhois", text);
 
-		return CMD_SUCCESS;
+		/* Bug #376 - feature request -
+		 * To cut down on the amount of commands services etc have to recognise, this only sends METADATA across the network now
+		 * not an actual SWHOIS command. Any SWHOIS command sent from services will be automatically translated to METADATA by this.
+		 * Sorry w00t i know this was your fix, but i got bored and wanted to clear down the tracker :)
+		 * -- Brain
+		 */
+ 		std::deque<std::string>* metadata = new std::deque<std::string>;
+		metadata->push_back(dest->nick);
+		metadata->push_back("swhois");          // The metadata id
+		metadata->push_back(*text);             // The value to send
+		Event event((char*)metadata,(Module*)this,"send_metadata");
+		event.Send(ServerInstance);
+		delete metadata;
+
+		return CMD_LOCALONLY;
 	}
 
 };
