@@ -78,8 +78,18 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		u->InviteTo(c->name);
 		u->WriteFrom(user,"INVITE %s :%s",u->nick,c->name);
 		user->WriteServ("341 %s %s %s",user->nick,u->nick,c->name);
-		if (ServerInstance->Config->AnnounceInvites)
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
+		switch (ServerInstance->Config->AnnounceInvites)
+		{
+			case ServerConfig::INVITE_ANNOUNCE_ALL:
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
+			break;
+			case ServerConfig::INVITE_ANNOUNCE_OPS:
+				c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
+			break;
+			default:
+				/* Nobody */
+			break;
+		}
 		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c));
 	}
 	else

@@ -857,10 +857,12 @@
 #                  if set to no, then only the nickname is shown.     #
 #                                                                     #
 # announceinvites                                                     #
-#                - If this option is set to yes (the default), then   #
-#                  invites are announced to the channel when a user   #
-#                  invites annother user. If you consider this to be  #
-#                  unnecessary noise, explicitly set this to no.      #
+#                - If this option is set, then invites are announced  #
+#                  to the channel when a user invites annother user.  #
+#                  If you consider this to be unnecessary noise,      #
+#                  set this to 'none'. To announce to all ops, set    #
+#                  this to 'ops' and to announce to all users set the #
+#                  value to 'all'.                                    #
 #                                                                     #
 #  disablehmac   - If you are linking your InspIRCd to older versions #
 #                  then you can specify this option and set it to     #
@@ -948,6 +950,7 @@
 	 serverpingfreq="60"
          allowhalfop="yes"
 	 defaultmodes="nt"
+	 announceinvites="all"
 	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	 exemptchanops="">
 

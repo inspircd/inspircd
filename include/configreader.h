@@ -239,7 +239,10 @@ class CoreExport ServerConfig : public Extensible
   
   public:
 
-	/* Pointer to function that validates dns server addresses (can be changed depending on platform) */
+	/** Used to indicate who we announce invites to on a channel */
+	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS };
+
+	/** Pointer to function that validates dns server addresses (can be changed depending on platform) */
 	Validator DNSServerValidator;
 
 	InspIRCd* GetInstance();
@@ -459,7 +462,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Announce invites to the channel with a server notice
 	 */
-	bool AnnounceInvites;
+	InviteAnnounceState AnnounceInvites;
 
 	/** If this is enabled then operators will
 	 * see invisible (+i) channels in /whois.

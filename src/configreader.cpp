@@ -353,6 +353,20 @@ bool ValidateExemptChanOps(ServerConfig* conf, const char* tag, const char* valu
 	return true;
 }
 
+bool ValidateInvite(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	std::string v = data.GetString();
+
+	if (v == "ops")
+		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_OPS;
+	else if (v == "all")
+		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_ALL;
+	else
+		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
+
+	return true;
+}
+
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
@@ -605,6 +619,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */
 	static char hidemodes[MAXBUF];	/* Modes to not allow listing from users below halfop */
 	static char exemptchanops[MAXBUF];	/* Exempt channel ops from these modes */
+	static char announceinvites[MAXBUF];	/* options:announceinvites setting */
 	int rem = 0, add = 0;		/* Number of modules added, number of modules removed */
 	std::ostringstream errstr;	/* String stream containing the error output */
 
@@ -649,7 +664,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"options",	"syntaxhints",	"0",			new ValueContainerBool (&this->SyntaxHints),		DT_BOOLEAN, NoValidation},
 		{"options",	"cyclehosts",	"0",			new ValueContainerBool (&this->CycleHosts),		DT_BOOLEAN, NoValidation},
 		{"options",	"ircumsgprefix","0",			new ValueContainerBool (&this->UndernetMsgPrefix),	DT_BOOLEAN, NoValidation},
-		{"options",	"announceinvites", "1",			new ValueContainerBool (&this->AnnounceInvites),	DT_BOOLEAN, NoValidation},
+		{"options",	"announceinvites", "1",			new ValueContainerChar (announceinvites),		DT_CHARPTR, ValidateInvite},
 		{"options",	"hostintopic",	"1",			new ValueContainerBool (&this->FullHostInTopic),	DT_BOOLEAN, NoValidation},
 		{"options",	"hidemodes",	"",			new ValueContainerChar (hidemodes),			DT_CHARPTR, ValidateModeLists},
 		{"options",	"exemptchanops","",			new ValueContainerChar (exemptchanops),			DT_CHARPTR, ValidateExemptChanOps},
