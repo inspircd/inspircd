@@ -624,7 +624,12 @@ int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, userrec
 	return 1;
 }
 
-/*
+/* This method will attempt to get a link message out to as many people as is required.
+ * If a user is provided, and that user is local, then the user is sent the message using
+ * WriteServ (they are the local initiator of that message). If the user is remote, they are
+ * sent that message remotely via PUSH.
+ * If the user is NULL, then the notice is sent locally via WriteToSnoMask with snomask 'l',
+ * and remotely via SNONOTICE with mask 'l'.
  */
 void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 {
