@@ -1361,6 +1361,12 @@
 #<module name="m_clones.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Common channels module: Adds user mode +c, which, when set, requires
+# that users must share a common channel with you to PRIVMSG or NOTICE
+# you.
+#<module name="m_commonchans.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Join: Allows you to force users to join one or more channels
 # automatically upon connecting to the server.
 #<module name="m_conn_join.so">
