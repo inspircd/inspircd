@@ -416,14 +416,14 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 		 */
 		for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 		{
-			if (item->GetName() == name)
+			if (item->GetName() == parent)
 			{
 				ConnectClass c(name, *item);
 				c.Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
 				conf->Classes.push_back(c);
 			}
 		}
-		throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(name) + "' which cannot be found.");
+		throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(parent) + "' which cannot be found.");
 	}
 	else
 	{
