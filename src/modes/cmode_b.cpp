@@ -85,6 +85,11 @@ void ModeChannelBan::DisplayList(userrec* user, chanrec* channel)
 	return;
 }
 
+void ModeChannelBan::DisplayEmptyList(userrec* user, chanrec* channel)
+{
+	user->WriteServ("368 %s %s :End of channel ban list",user->nick, channel->name);
+}
+
 std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
 {
 	if ((!user) || (!chan))

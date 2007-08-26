@@ -228,9 +228,17 @@ class CoreExport ModeHandler : public Extensible
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
 	 * without any parameter or other modes in the command.
 	 * @param user The user issuing the command
-	 * @parameter channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
+	 * @param channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
 	 */
 	virtual void DisplayList(userrec* user, chanrec* channel);
+
+	/**
+	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)
+	 * @param user The user issuing the command
+	 * @param channel The channel tehy're requesting an item list of (e.g. a banlist, or an exception list etc)
+	 */
+	virtual void DisplayEmptyList(userrec* user, chanrec* channel);
+
 	/**
 	 * If your mode needs special action during a server sync to determine which side wins when comparing timestamps,
 	 * override this function and use it to return true or false. The default implementation just returns true if
