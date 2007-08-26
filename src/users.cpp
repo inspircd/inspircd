@@ -325,8 +325,7 @@ void userrec::DecrementModes()
 
 userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	// the PROPER way to do it, AVOID bzero at *ALL* costs
-	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = 0;
+	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = *uuid = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time(true);
