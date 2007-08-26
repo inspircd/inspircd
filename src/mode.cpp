@@ -128,6 +128,10 @@ void ModeHandler::DisplayList(userrec* user, chanrec* channel)
 {
 }
 
+void ModeHandler::DisplayEmptyList(userrec* user, chanrec* channel)
+{
+}
+
 bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
 {
 	return (ours < theirs);
@@ -327,6 +331,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 				if (ServerInstance->Config->HideModeLists[mletter] && (targetchannel->GetStatus(user) < STATUS_HOP))
 				{
 					user->WriteServ("482 %s %s :Only half-operators and above may view the +%c list",user->nick, targetchannel->name, *mode++);
+					mh->DisplayEmptyList(user, targetchannel);
 					continue;
 				}
 

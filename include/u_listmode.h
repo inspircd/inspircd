@@ -174,6 +174,11 @@ class ListModeBase : public ModeHandler
 		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
+	virtual void DisplayEmptyList(userrec* user, chanrec* channel)
+	{
+		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
+	}
+
 	/** Remove all instances of the mode from a channel.
 	 * See mode.h
 	 * @param channel The channel to remove all instances of the mode from
