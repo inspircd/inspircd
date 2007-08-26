@@ -258,7 +258,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 			if (
 				this->bursting ||
 				Utils->FindRemoteBurstServer(remoteserver) ||
-				this->Instance->SilentULine(this->Instance->FindServerNamePtr(u->server)
+				this->Instance->SilentULine(this->Instance->FindServerNamePtr(u->server))
 			   )
 			{
 				dosend = false;
