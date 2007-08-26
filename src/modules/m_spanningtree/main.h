@@ -27,7 +27,7 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1105;
+const long ProtocolVersion = 1200;
 
 /** Forward declarations
  */
