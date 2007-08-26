@@ -245,7 +245,28 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 		this->Instance->all_opers.push_back(u);
 		strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 		Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
-		this->Instance->SNO->WriteToSnoMask('o',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick,u->ident,u->host,irc::Spacify(opertype.c_str()));
+
+		TreeServer* remoteserver=Utils->FindServer(u->server);
+		bool dosend = true;
+
+		if (this->Utils->quiet_bursts)
+		{
+			/*
+			 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
+			 * then do nothing. -- w00t
+			 */
+			if (
+				this->bursting ||
+				Utils->FindRemoteBurstServer(remoteserver) ||
+				this->Instance->SilentULine(this->Instance->FindServerNamePtr(u->server)
+			   )
+			{
+				dosend = false;
+			}
+		}
+
+		if (dosend)
+			this->Instance->SNO->WriteToSnoMask('o',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick,u->ident,u->host,irc::Spacify(opertype.c_str()));
 	}
 	return true;
 }
