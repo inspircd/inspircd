@@ -180,11 +180,12 @@ bool TreeSocket::OnConnected()
 		{
 			if (x->Name == this->myhost)
 			{
-				this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] started.");
+				Utils->Creator->RemoteMessage(NULL,"Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()));
 				if (Hook)
 				{
 					InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
-					this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+x->Hook+"\2");
+					Utils->Creator->RemoteMessage(NULL,"Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()),
+							x->Hook.c_str());
 				}
 				this->OutboundPass = x->SendPass;
 				sentcapab = false;
@@ -204,7 +205,7 @@ bool TreeSocket::OnConnected()
 	 * If that happens the connection hangs here until it's closed. Unlikely
 	 * and rather harmless.
 	 */
-	this->Instance->SNO->WriteToSnoMask('l',"Connection to \2"+myhost+"\2 lost link tag(!)");
+	this->Utils->Creator->RemoteMessage(NULL,"Connection to \2%s\2 lost link tag(!)", myhost.c_str());
 	return true;
 }
 
@@ -218,29 +219,26 @@ void TreeSocket::OnError(InspSocketError e)
 	switch (e)
 	{
 		case I_ERR_CONNECT:
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Connection to \002"+myhost+"\002 refused");
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: Connection to \002%s\002 refused", myhost.c_str());
 			MyLink = Utils->FindLink(myhost);
 			if (MyLink)
 				Utils->DoFailOver(MyLink);
 		break;
 		case I_ERR_SOCKET:
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Could not create socket");
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: Could not create socket");
 		break;
 		case I_ERR_BIND:
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Error binding socket to address or port");
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: Error binding socket to address or port");
 		break;
 		case I_ERR_WRITE:
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: I/O error on connection");
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: I/O error on connection");
 		break;
 		case I_ERR_NOMOREFDS:
-			this->Instance->SNO->WriteToSnoMask('l',"Connection failed: Operating system is out of file descriptors!");
+			Utils->Creator->RemoteMessage(NULL,"Connection failed: Operating system is out of file descriptors!");
 		break;
 		default:
 			if ((errno) && (errno != EINPROGRESS) && (errno != EAGAIN))
-			{
-				std::string errstr = strerror(errno);
-				this->Instance->SNO->WriteToSnoMask('l',"Connection to \002"+myhost+"\002 failed with OS error: " + errstr);
-			}
+				Utils->Creator->RemoteMessage(NULL,"Connection to \002%s\002 failed with OS error: %s", myhost.c_str(), strerror(errno));
 		break;
 	}
 }
@@ -415,7 +413,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 {
 	/* Display the error locally as well as sending it remotely */
 	this->WriteLine("ERROR :"+errormessage);
-	this->Instance->SNO->WriteToSnoMask('l',"Sent \2ERROR\2 to "+ (this->InboundServerName.empty() ? "<unknown>" : this->InboundServerName) +": "+errormessage);
+	Utils->Creator->RemoteMessage(NULL, "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? "<unknown>" : this->InboundServerName.c_str()), errormessage.c_str());
 	/* One last attempt to make sure the error reaches its target */
 	this->FlushWriteBuffer();
 }

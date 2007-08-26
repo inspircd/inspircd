@@ -68,7 +68,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		else
 		{
 			/* Something barfed, show the opers */
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
+			Utils->Creator->RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: %s.",MyLink.Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
 			Utils->DoFailOver(&MyLink);
@@ -86,7 +86,7 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 		ServerInstance->AddResolver(snr, cached);
 		return;
 	}
-	ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s",MyLink.Name.c_str(),errormessage.c_str());
+	Utils->Creator->RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink.Name.c_str(), errormessage.c_str() );
 	Utils->DoFailOver(&MyLink);
 }
 

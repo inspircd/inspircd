@@ -621,18 +621,18 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 	{
 		if (x->FailOver == x->Name)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
+			Creator->RemoteMessage(NULL,"FAILOVER: Some muppet configured the failover for server \002%s\002 to point at itself. Not following it!", x->Name.c_str());
 			return;
 		}
 		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
 		if (TryThisOne)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
+			Creator->RemoteMessage(NULL,"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
 			Creator->ConnectServer(TryThisOne);
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
+			Creator->RemoteMessage(NULL,"FAILOVER: Invalid failover server specified for server \002%s\002, will not follow!", x->Name.c_str());
 		}
 	}
 }

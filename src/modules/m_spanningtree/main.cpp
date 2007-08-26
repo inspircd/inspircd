@@ -552,7 +552,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		else
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
+			RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(),strerror(errno));
 			if (ServerInstance->SocketCull.find(newsocket) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[newsocket] = newsocket;
 			Utils->DoFailOver(x);
@@ -568,7 +568,7 @@ void ModuleSpanningTree::ConnectServer(Link* x)
 		}
 		catch (ModuleException& e)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
+			RemoteMessage(NULL, "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 			Utils->DoFailOver(x);
 		}
 	}
@@ -623,6 +623,40 @@ int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, userrec
 	}
 	return 1;
 }
+
+/*
+ */
+void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
+{
+	std::deque<std::string> params;
+	char text[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, format);
+	vsnprintf(text, MAXBUF, format, argsPtr);
+	va_end(argsPtr);
+
+	if (!user)
+	{
+		/* No user, target it generically at everyone */
+		ServerInstance->SNO->WriteToSnoMask('l', "%s", text);
+		params.push_back("l");
+		params.push_back(std::string(":") + text);
+		Utils->DoOneToMany(ServerInstance->Config->ServerName, "SNONOTICE", params);
+	}
+	else
+	{
+		if (IS_LOCAL(user))
+			user->WriteServ("NOTICE %s :%s", user->nick, text);
+		else
+		{
+			params.push_back(user->nick);
+			params.push_back(std::string("::") + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :*** From " +
+					ServerInstance->Config->ServerName+ ": " + text);
+			Utils->DoOneToMany(ServerInstance->Config->ServerName, "PUSH", params);
+		}
+	}
+}
 	
 int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec* user)
 {
@@ -633,18 +667,18 @@ int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec
 			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 			if (!CheckDupe)
 			{
-				user->WriteServ("NOTICE %s :*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
+				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 				ConnectServer(&(*x));
 				return 1;
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
+				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
 				return 1;
 			}
 		}
 	}
-	user->WriteServ("NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
+	RemoteMessage(user, "NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
 	return 1;
 }
 
