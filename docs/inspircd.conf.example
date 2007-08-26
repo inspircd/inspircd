@@ -864,6 +864,14 @@
 #                  this to 'ops' and to announce to all users set the #
 #                  value to 'all'.                                    #
 #                                                                     #
+#                  The value 'dynamic' varies between 'ops' and 'all' #
+#                  settings depending on if the channel is +i or not. #
+#                  When the channel is +i, messages go only to ops,   #
+#                  and when the channel is not +i, messages go to     #
+#                  everyone. In short, the messages will go to every  #
+#                  user who has power of INVITE on the channel. This  #
+#                  is the recommended setting.                        #
+#                                                                     #
 #  disablehmac   - If you are linking your InspIRCd to older versions #
 #                  then you can specify this option and set it to     #
 #                  yes. 1.1.6 and above support HMAC and challenge-   #
@@ -950,7 +958,7 @@
 	 serverpingfreq="60"
          allowhalfop="yes"
 	 defaultmodes="nt"
-	 announceinvites="all"
+	 announceinvites="dynamic"
 	 moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	 exemptchanops="">
 

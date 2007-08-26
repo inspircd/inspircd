@@ -361,6 +361,8 @@ bool ValidateInvite(ServerConfig* conf, const char* tag, const char* value, Valu
 		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_OPS;
 	else if (v == "all")
 		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_ALL;
+	else if (v == "dynamic")
+		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_DYNAMIC;
 	else
 		conf->AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
 

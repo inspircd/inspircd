@@ -240,7 +240,7 @@ class CoreExport ServerConfig : public Extensible
   public:
 
 	/** Used to indicate who we announce invites to on a channel */
-	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS };
+	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
 
 	/** Pointer to function that validates dns server addresses (can be changed depending on platform) */
 	Validator DNSServerValidator;

@@ -86,6 +86,12 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 			case ServerConfig::INVITE_ANNOUNCE_OPS:
 				c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
 			break;
+			case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
+				if (c->IsModeSet('i'))
+					c->WriteAllExceptSender(user, true, '@', "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
+				else
+					c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s invited %s into the channel", c->name, user->nick, u->nick);
+			break;
 			default:
 				/* Nobody */
 			break;
