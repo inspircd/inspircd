@@ -29,6 +29,7 @@
 #include <string>
 #include <sstream>
 #include "inspircd_config.h"
+#include "uid.h"
 #include "users.h"
 #include "channels.h"
 #include "socket.h"
@@ -254,6 +255,10 @@ class XLineManager;
 class CoreExport InspIRCd : public classbase
 {
  private:
+	/** Holds the current UID. Used to generate the next one.
+	 */
+	char current_uid[UUID_LENGTH];
+
 	/** Holds a string describing the last module error to occur
 	 */
 	char MODERR[MAXBUF];
@@ -389,6 +394,10 @@ class CoreExport InspIRCd : public classbase
 	 * We don't delete these immediately as this may cause a segmentation fault.
 	 */
 	std::map<InspSocket*,InspSocket*> SocketCull;
+
+	/** Returns the next available UID for this server.
+	 */
+	std::string GetUID();
 
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */

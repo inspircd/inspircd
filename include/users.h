@@ -490,6 +490,11 @@ class CoreExport userrec : public connection
 	 */
 	char nick[NICKMAX];
 
+	/** The user's unique identifier.
+	 * This is the unique identifier which the user has across the network.
+	 */
+	char uuid[UUID_LENGTH];
+
 	/** The users ident reply.
 	 * Two characters are added to the user-defined limit to compensate for the tilde etc.
 	 */

@@ -131,3 +131,10 @@ bool InspIRCd::FindServerName(const std::string &servername)
 	return false;
 }
 
+std::string InspIRCd::GetUID()
+{
+
+}
+
+
+
