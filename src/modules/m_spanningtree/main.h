@@ -16,6 +16,7 @@
 
 #include "inspircd.h"
 #include "modules.h"
+#include <stdarg.h>
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
@@ -140,6 +141,10 @@ class ModuleSpanningTree : public Module
 	/** Send out time sync to all servers
 	 */
 	void BroadcastTimeSync();
+
+	/** Attempt to send a message to a user
+	 */
+	void RemoteMessage(userrec* user, const char* format, ...);
 
 	/** Returns oper-specific MAP information
 	 */

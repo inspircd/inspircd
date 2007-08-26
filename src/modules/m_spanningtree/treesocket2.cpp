@@ -1495,7 +1495,7 @@ void TreeSocket::OnTimeout()
 {
 	if (this->LinkState == CONNECTING)
 	{
-		this->Instance->SNO->WriteToSnoMask('l',"CONNECT: Connection to \002"+myhost+"\002 timed out.");
+		Utils->Creator->RemoteMessage(NULL, "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
 		Link* MyLink = Utils->FindLink(myhost);
 		if (MyLink)
 			Utils->DoFailOver(MyLink);
@@ -1523,10 +1523,10 @@ void TreeSocket::OnClose()
 
 	if (!quitserver.empty())
 	{
-		this->Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' failed.",quitserver.c_str());
+		Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' failed.",quitserver.c_str());
 		time_t server_uptime = Instance->Time() - this->age;	
 		if (server_uptime)
-			Instance->SNO->WriteToSnoMask('l',"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+			Utils->Creator->RemoteMessage(NULL,"Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}
 }
 
@@ -1547,7 +1547,7 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 
 		if (!found)
 		{
-			this->Instance->SNO->WriteToSnoMask('l',"Server connection from %s denied (no link blocks with that IP address)", ip);
+			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
 			close(newsock);
 			return false;
 		}
