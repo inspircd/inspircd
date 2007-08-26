@@ -529,6 +529,21 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		FreeConsole();
 	}
 #endif
+
+
+	/*
+	 * Initialise UID. XXX, we need to read SID from config, and use it instead of 000.
+	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
+	 *   -- w00t
+	 */
+	int i;
+
+	for(i = 0; i < 3; i++)
+		current_uid[i] = '0';
+
+	for(i = 3; i < UUID_LENGTH - 1; i++)
+		current_uid[i] = 'A';
+
 	printf("\nInspIRCd is now running!\n");
 	Log(DEFAULT,"Startup complete.");
 

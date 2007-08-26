@@ -131,9 +131,62 @@ bool InspIRCd::FindServerName(const std::string &servername)
 	return false;
 }
 
+/*
+ * Retrieve the next valid UUID that is free for this server.
+ */
 std::string InspIRCd::GetUID()
 {
+	bool HasUID = false;
+	int i;
 
+	while (!HasUID)
+	{
+		/*
+		 * Okay. The rules for generating a UID go like this...
+		 * -- > ABCDEFGHIJKLMNOPQRSTUVWXYZ --> 012345679 --> WRAP
+		 * That is, we start at A. When we reach Z, we go to 0. At 9, we go to
+		 * A again, in an iterative fashion.. so..
+		 * AAA9 -> AABA, and so on. -- w00t
+		 */
+
+		/* start at the end of the current UID string, work backwards. don't trample on SID! */
+		for (i = UUID_LENGTH - 2; i > 3; i--)
+		{
+			if (current_uid[i] == 'Z')
+			{
+				/* reached the end of alphabetical, go to numeric range */
+				current_uid[i] = '0';
+			}
+			else if (current_uid[i] == '9')
+			{
+				/* we reached the end of the sequence, set back to A */
+				current_uid[i] = 'A';
+
+				/* we also need to increment the next digit. */
+				continue;
+			}
+			else
+			{
+				/* most common case .. increment current UID */
+				current_uid[i]++;
+			}
+
+			/*
+			 * XXX!
+			 * Check if it's in use here, continue; if it is!
+			 * This will only be an issue once we have a server that gets
+			 * an assload of connections, but.. -- w00t
+			 *
+			 * Until we have a map to check, just bail. -- w00t
+			 */
+			if (current_uid[3] == 'Z')
+			{
+				InspIRCd::Exit(0);
+			}
+			
+			return std::string(current_uid);
+		}
+	}
 }
 
 
