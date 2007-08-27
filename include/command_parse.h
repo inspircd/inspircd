@@ -203,6 +203,10 @@ class CoreExport CommandParser : public classbase
 	void SetupCommandTable(userrec* user);
 
 	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
+	 * @param to The translation type to use for the process.
+	 * @param source The input string
+	 * @param dest The output string, it is safe to pass source and dest as the same variable only for translation type TR_TEXT.
+	 * @return returns the number of substitutions made. Will always be 0 or 1 for TR_TEXT and 0..n for other types.
 	 */
 	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
 };
