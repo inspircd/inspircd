@@ -860,12 +860,14 @@ void userrec::AddToWhoWas()
 /* add a client connection to the sockets list */
 void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
+	/* NOTE: Calling this one parameter constructor for userrec automatically
+	 * allocates a new UUID and places it in the hash_map.
+	 */
 	userrec* New = new userrec(Instance);
 	int j = 0;
 
 	Instance->unregistered_count++;
 
-	user_hash::iterator iter = Instance->clientlist->find(New->uuid);
 	char ipaddr[MAXBUF];
 #ifdef IPV6
 	if (socketfamily == AF_INET6)
@@ -875,7 +877,9 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
 
 	(*(Instance->clientlist))[New->uuid] = New;
-	New->fd = socket;
+	New->SetFd(socket);
+
+	/* The users default nick is their UUID */
 	strlcpy(New->nick, New->uuid, NICKMAX - 1);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);

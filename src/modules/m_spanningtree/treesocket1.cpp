@@ -976,6 +976,10 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		tempnick = params[0].c_str();
 	}
 
+	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
+	 * sets it up in the UUID hash for us.
+	 * TODO: Make this throw an exception maybe, on UUID collision?
+	 */
 	userrec* _new = new userrec(this->Instance, params[0]);
 	(*(this->Instance->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
