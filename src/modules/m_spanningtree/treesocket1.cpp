@@ -932,16 +932,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		return true;
 	}
 
-	userrec *u = this->Instance->FindUUID(params[0]);
-
-	if (u)
-	{
-		/* barf! */
-		userrec::QuitUser(this->Instance, u, "UID collision (?!)");
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (UID collision (?!))");
-		return true;
-	}
-
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age)
 	{
