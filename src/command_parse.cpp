@@ -594,3 +594,31 @@ void CommandParser::SetupCommandTable(userrec* user)
 		this->CreateCommand(new cmd_reload(ServerInstance));
 }
 
+int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
+{
+	userrec* user = NULL;
+	switch (to)
+	{
+		case TR_NICK:
+			/* Translate single nickname */
+			user = ServerInstance->FindNick(source);
+			if (user)
+				dest = user->uuid;
+			else
+				dest = source;
+		break;
+		case TR_NICKLIST:
+			/* Translate comma seperated list of nicknames */
+		break;
+		case TR_SPACENICKLIST:
+			/* Translate space seperated list of nicknames */
+		break;
+		case TR_END:
+		case TR_TEXT:
+		default:
+			/* Do nothing */
+			dest = source;
+		break;
+	}
+}
+

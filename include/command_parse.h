@@ -201,6 +201,10 @@ class CoreExport CommandParser : public classbase
 	 * stdout then exit with EXIT_STATUS_HANDLER.
 	 */
 	void SetupCommandTable(userrec* user);
+
+	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
+	 */
+	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
 };
 
 /** Command handler class for the RELOAD command.

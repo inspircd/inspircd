@@ -803,6 +803,8 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 {
 	if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, pcnt, user)))
 	{
+		/* Safe, we know its non-null because IsValidModuleCommand returned true */
+		command_t* thiscmd = ServerInstance->Parser->GetHandler(command);
 		// this bit of code cleverly routes all module commands
 		// to all remote severs *automatically* so that modules
 		// can just handle commands locally, without having
@@ -810,19 +812,28 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 		// commands and linking protocols.
 		std::deque<std::string> params;
 		params.clear();
+		size_t n_translate = thiscmd->translation.size();
+		TranslationType translate_to;
+
 		for (int j = 0; j < pcnt; j++)
 		{
-			/* XXX UID: Translate nicks in this list to UIDs, potentially using some form of lookup
-			 * table that specifies a value type for each parameter, as part of the command_t.
-			 */
-			if (strchr(parameters[j],' '))
+			std::string target;
+
+			/* Map all items to UUIDs where neccessary */
+			if (j < n_translate)
 			{
-				params.push_back(":" + std::string(parameters[j]));
+				/* We have a translation mapping for this index */
+				translate_to = thiscmd->translation[j] != TR_END ? thiscmd->translation[j] : TR_TEXT;
 			}
 			else
-			{
-				params.push_back(std::string(parameters[j]));
-			}
+				translate_to = TR_TEXT;
+
+			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
+
+			if (strchr(parameters[j],' '))
+				params.push_back(":" + target);
+			else
+				params.push_back(target);
 		}
 		Utils->DoOneToMany(user->uuid, command, params);
 	}
