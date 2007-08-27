@@ -129,6 +129,9 @@ class ModuleNickLock : public Module
 
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
+		if (isdigit(newnick[0])) /* allow a switch to a UID */
+			return 0;
+
 		if (user->GetExt("nick_locked", n))
 		{
 			user->WriteServ("447 %s :You cannot change your nickname (your nick is locked)",user->nick);
