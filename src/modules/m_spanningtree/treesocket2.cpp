@@ -1117,16 +1117,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 			if (!prefix.empty())
 			{
 				std::string direction = prefix;
-				// XXX
+
 				userrec *t = this->Instance->FindUUID(prefix);
-				if (!t)
-				{
-					userrec* t = this->Instance->FindNick(prefix);
-					if (t)
-					{
-						Instance->Log(DEBUG,"Ack, legacy command!");
-					}
-				}
 				if (t)
 				{
 					direction = t->server;
@@ -1426,25 +1418,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * Not a special s2s command. Emulate the user doing it.
 				 * This saves us having a huge ugly command parser again.
 				 */
-
-
-				/*
-				 *
-				 * First, let's find them by UID. If we don't find, try again
-				 * by nick (to catch legacy commands temporarily).
-				 * If we still don't .. carry on and pray. -- w00t
-				 */
 				userrec *who = this->Instance->FindUUID(prefix);
-
-				if (!who)
-				{
-					userrec* who = this->Instance->FindNick(prefix);
-
-					if (who)
-					{
-						Instance->Log(DEBUG, "Glark! I got a legacy command!");
-					}
-				}
 
 				std::string sourceserv = this->myhost;
 				if (!this->InboundServerName.empty())
