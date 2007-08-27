@@ -151,6 +151,7 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 
 TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 {
+	ServerInstance->Log(DEBUG,"Looking for id: %s", id.c_str());
 	server_hash::iterator iter = sidlist.find(id);
 	if (iter != sidlist.end())
 		return iter->second;
@@ -175,6 +176,8 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 	OurSID += (char)(Instance->Config->sid % 10 + 48);
 
 	lines_to_apply = 0;
+
+	ServerInstance->Log(DEBUG, "SpanningTreeUtilities: SID: %s", OurSID.c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, OurSID);
 

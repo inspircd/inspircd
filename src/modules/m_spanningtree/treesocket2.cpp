@@ -799,6 +799,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
 		return false;
 	}
+
 	Link* lnk = Utils->FindLink(servername);
 
 	TreeServer *Node = new TreeServer(this->Utils, this->Instance, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
@@ -950,7 +951,17 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 				CheckDupeSocket->Close();
 				return false;
 			}
-			/* Now check for fully initialized instances of the server */
+			/* Check for fully initialized instances of the server by id */
+			Instance->Log(DEBUG,"Looking for dupe SID %s", sid.c_str());
+			TreeServer* CheckDupeSID = Utils->FindServerID(sid);
+			if (CheckDupeSID)
+			{
+				this->SendError("Server ID "+CheckDupeSID->GetID()+" already exists on server "+CheckDupeSID->GetName()+"!");
+				this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupeSID->GetID()+
+						"' already exists on server "+CheckDupeSID->GetName());
+				return false;
+			}
+			/* Now check for fully initialized instances of the server by name */
 			TreeServer* CheckDupe = Utils->FindServer(sname);
 			if (CheckDupe)
 			{
