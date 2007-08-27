@@ -1012,6 +1012,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 			if (age > iter->second->signon) /* It will never be equal here */
 			{
+				Instance->Log(DEBUG,"*** OUR client is older");
 				if (bFNCNewer)
 				{
 					/* incoming client "lost" - for now, send SVSNICK to them .. XXX use SAVE*/
@@ -1026,6 +1027,25 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 					/* we "lost", change us */
 					iter->second->ForceNickChange(iter->second->uuid);
 					Instance->Log(DEBUG,"*** OUR client lost, changing ours");
+				}
+			}
+			else
+			{
+				Instance->Log(DEBUG,"*** OUR client is newer");
+				if (bFNCNewer)
+				{
+					/* our client is newer */
+					iter->second->ForceNickChange(iter->second->uuid);
+					Instance->Log(DEBUG,"*** OUR client lost, changing ours");
+				}
+				else
+				{
+					/* incoming client "lost" - for now, send SVSNICK to them .. XXX use SAVE*/
+					this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
+
+					/* also, don't trample on the hash - use their UID as nick */
+					tempnick = params[0].c_str();
+					Instance->Log(DEBUG,"*** INCOMING client lost, changed theirs");
 				}
 			}
 		}
