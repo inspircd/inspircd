@@ -12,10 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "modules.h"
 #include "inspstring.h"
-#include "mode.h"
 
 /* +s (secret) */
 #include "modes/cmode_s.h"

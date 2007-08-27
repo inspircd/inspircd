@@ -13,11 +13,7 @@
 
 #include "inspircd.h"
 #include <stdarg.h>
-#include "configreader.h"
-#include "users.h"
-#include "modules.h"
 #include "wildcard.h"
-#include "mode.h"
 #include "xline.h"
 #include "exitcodes.h"
 

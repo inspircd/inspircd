@@ -13,8 +13,6 @@
 
 #include "inspircd.h"
 #include <stdarg.h>
-#include "configreader.h"
-#include "users.h"
 #include "snomasks.h"
 
 SnomaskManager::SnomaskManager(InspIRCd* Instance) : ServerInstance(Instance)

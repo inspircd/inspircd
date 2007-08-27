@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "typedefs.h"
-#include "users.h"
-#include "modules.h"
 #include "wildcard.h"
 #include "commands/cmd_oper.h"
 #include "hashcomp.h"

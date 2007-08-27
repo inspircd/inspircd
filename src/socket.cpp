@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <string>
-#include "configreader.h"
 #include "socket.h"
 #include "socketengine.h"
 #include "wildcard.h"

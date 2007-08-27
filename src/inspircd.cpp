@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
 #include <signal.h>
 
 #ifndef WIN32
@@ -28,15 +27,11 @@
 	#endif
 #endif
 
-#include <exception>
 #include <fstream>
-#include "modules.h"
-#include "mode.h"
 #include "xline.h"
 #include "socketengine.h"
 #include "inspircd_se_config.h"
 #include "socket.h"
-#include "typedefs.h"
 #include "command_parse.h"
 #include "exitcodes.h"
 #include "caller.h"

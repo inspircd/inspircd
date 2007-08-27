@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "users.h"
-#include "modules.h"
 #include "commands/cmd_whois.h"
 #include "hashcomp.h"
 

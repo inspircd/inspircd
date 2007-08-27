@@ -12,7 +12,6 @@
  */
 
 #include "socket.h"
-#include "configreader.h"
 #include "inspstring.h"
 #include "socketengine.h"
 #include "inspircd.h"

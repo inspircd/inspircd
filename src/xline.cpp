@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "modules.h"
 #include "wildcard.h"
 #include "xline.h"
 

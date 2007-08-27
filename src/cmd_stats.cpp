@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
 #ifndef WIN32
 #include <sys/resource.h>
 
@@ -22,8 +21,6 @@
 #endif
 
 #endif
-#include "users.h"
-#include "modules.h"
 #include "xline.h"
 #include "commands/cmd_stats.h"
 #include "commands/cmd_whowas.h"

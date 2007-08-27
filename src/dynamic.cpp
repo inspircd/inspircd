@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
 #include "dynamic.h"
 #ifndef WIN32
 #include <dlfcn.h>

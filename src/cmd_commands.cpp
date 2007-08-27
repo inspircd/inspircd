@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
 #include "commands/cmd_commands.h"
 
 /** Handle /COMMANDS

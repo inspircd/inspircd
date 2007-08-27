@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include <algorithm>
-#include "users.h"
-#include "modules.h"
 #include "wildcard.h"
 #include "xline.h"
 #include "socketengine.h"

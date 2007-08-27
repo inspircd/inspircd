@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include <sstream>
 #include <fstream>
 #include "xline.h"
 #include "exitcodes.h"

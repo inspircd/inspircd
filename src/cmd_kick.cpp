@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "inspircd.h"
 #include "commands/cmd_kick.h"
 
 extern "C" DllExport command_t* init_command(InspIRCd* Instance)

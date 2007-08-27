@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
 #include "cull_list.h"
 
 CullItem::CullItem(userrec* u, std::string &r, const char* o_reason)

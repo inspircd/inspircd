@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "users.h"
 #include "commands/cmd_restart.h"
 
 extern "C" DllExport command_t* init_command(InspIRCd* Instance)

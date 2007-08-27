@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <sstream>
 #include <fstream>
 #include "socketengine.h"
 #include "inspircd_se_config.h"

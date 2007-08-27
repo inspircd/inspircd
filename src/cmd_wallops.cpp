@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "modules.h"
 #include "commands/cmd_wallops.h"
 
 
