@@ -30,7 +30,7 @@ class cmd_nick : public command_t
  public:
 	/** Constructor for nick.
 	 */
-	cmd_nick (InspIRCd* Instance) : command_t(Instance,"NICK",0,1,true) { syntax = "<newnick>"; }
+	cmd_nick (InspIRCd* Instance) : command_t(Instance,"NICK",0,1,true), allowinvalid(false) { syntax = "<newnick>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -39,6 +39,11 @@ class cmd_nick : public command_t
 	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
 
+	/** Handle internal command
+	 * @param id Used to indicate if invalid nick changes are allowed.
+	 * Set to 1 to allow invalid nicks and 0 to deny them.
+	 * @param parameters Currently unused
+	 */
 	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
 };
 
