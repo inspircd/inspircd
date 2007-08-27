@@ -108,7 +108,7 @@ class CoreExport command_t : public Extensible
 		total_bytes = 0;
 		source = "<core>";
 		syntax = "";
-		translation.push_back(TR_END);
+		translation.clear();
 	}
 
 	/** Handle the command from a user.
