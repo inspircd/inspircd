@@ -75,6 +75,9 @@ class ModuleNoNickChange : public Module
 	{
 		if (IS_LOCAL(user))
 		{
+			if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
+				return 0;
+
 			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 			{
 				chanrec* curr = i->first;
