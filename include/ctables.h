@@ -33,6 +33,14 @@ enum CmdResult
 	CMD_USER_DELETED = 3	/* User was deleted - DEPRECIATED */
 };
 
+enum TranslateType
+{
+	TR_END,			/* End of known parameters, everything after this is TR_TEXT */
+	TR_TEXT,		/* Raw text, leave as-is */
+	TR_NICK,		/* Nickname, translate to UUID for server->server */
+	TR_NICKLIST		/* Comma seperated nickname list, translate to UUIDs */
+};
+
 /** For commands which should not be replicated to other
  * servers, we usually return CMD_FAILURE. this isnt readable,
  * so we define this alias for CMD_FAILURE called
@@ -81,6 +89,8 @@ class CoreExport command_t : public Extensible
 	 */
 	std::string syntax;
 
+	std::vector<TranslateType> translation;
+
 	/** Create a new command.
 	 * @param Instance Pointer to creator class
 	 * @param cmd Command name. This must be UPPER CASE.
@@ -97,6 +107,7 @@ class CoreExport command_t : public Extensible
 		total_bytes = 0;
 		source = "<core>";
 		syntax = "";
+		translation.push_back(TR_END);
 	}
 
 	/** Handle the command from a user.
