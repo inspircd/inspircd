@@ -59,6 +59,10 @@ class ModuleRestrictBanned : public Module
 		if (!IS_LOCAL(user))
 			return 0;
 
+		/* Allow changes to UID */
+		if (isdigit(newnick[0]))
+			return 0;
+
 		/* bit of a special case. */
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
