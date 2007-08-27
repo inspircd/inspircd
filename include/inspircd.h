@@ -625,17 +625,27 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void WriteOpers(const std::string &text);
 
-	/** Find a user in the nick hash
+	/** Find a user in the nick hash.
+	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
 	userrec* FindNick(const std::string &nick);
 
-	/** Find a user in the nick hash
+	/** Find a user in the nick hash.
+	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
 	userrec* FindNick(const char* nick);
+
+	/** Find a user in the nick hash ONLY
+	 */
+	userrec* FindNickOnly(const char* nick);
+
+	/** Find a user in the nick hash ONLY
+	 */
+	userrec* FindNickOnly(const std::string &nick);
 
 	/** Find a channel in the channels hash
 	 * @param chan The channel to find

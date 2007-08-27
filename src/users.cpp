@@ -351,8 +351,10 @@ userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(In
 	else
 		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
 
+	ServerInstance->Log(DEBUG,"New UUID for user: %s (%s)", uuid, uid.empty() ? "allocated new" : "used remote");
+
 	user_hash::iterator finduuid = Instance->uuidlist->find(uuid);
-	if (finduuid != Instance->uuidlist->end())
+	if (finduuid == Instance->uuidlist->end())
 		(*Instance->uuidlist)[uuid] = this;
 	else
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in userrec constructor");

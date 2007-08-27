@@ -76,7 +76,8 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * the nickname too, we force a nickchange on the older user (Simply the one who was
 		 * here first, no TS checks need to take place here)
 		 */
-		userrec* InUse = ServerInstance->FindNick(parameters[0]);
+		userrec* InUse = ServerInstance->FindNickOnly(parameters[0]);
+		ServerInstance->Log(DEBUG,"Nick in use");
 		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)
@@ -93,15 +94,19 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
+				ServerInstance->Log(DEBUG,"Nick in use and user REG_ALL");
 				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;
 			}
 		}
 	}
-	if (((!allowinvalid || !ServerInstance->IsNick(parameters[0]))) && (IS_LOCAL(user)))
+	if (((!ServerInstance->IsNick(parameters[0]))) && (IS_LOCAL(user)))
 	{
-		user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
-		return CMD_FAILURE;
+		if (!allowinvalid)
+		{
+			user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
+			return CMD_FAILURE;
+		}
 	}
 
 	if (user->registered == REG_ALL)

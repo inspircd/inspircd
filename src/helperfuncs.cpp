@@ -261,9 +261,29 @@ userrec* InspIRCd::FindNick(const char* nick)
 	return iter->second;
 }
 
+userrec* InspIRCd::FindNickOnly(const std::string &nick)
+{
+	user_hash::iterator iter = clientlist->find(nick);
+
+	if (iter == clientlist->end())
+		return NULL;
+
+	return iter->second;
+}
+
+userrec* InspIRCd::FindNickOnly(const char* nick)
+{
+	user_hash::iterator iter = clientlist->find(nick);
+
+	if (iter == clientlist->end())
+		return NULL;
+
+	return iter->second;
+}
+
 userrec *InspIRCd::FindUUID(const std::string &uid)
 {
-	return InspIRCd::FindUUID(uid.c_str());
+	return FindUUID(uid.c_str());
 }
 
 userrec *InspIRCd::FindUUID(const char *uid)
