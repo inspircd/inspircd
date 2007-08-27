@@ -547,12 +547,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		sid = 5 * sid + *y;
 	sid = sid % 999;
 	current_uid[0] = sid / 100 + 48;
-	current_uid[1] = sid / 10 + 48;
+	current_uid[1] = ((sid / 10) % 10) + 48;
 	current_uid[2] = sid % 10 + 48;
 
 	/* Initialise UID */
 	for(i = 3; i < UUID_LENGTH - 1; i++)
 		current_uid[i] = 'A';
+
+	printf ("%s\n", current_uid);
 
 	printf("\nInspIRCd is now running!\n");
 	Log(DEFAULT,"Startup complete.");
