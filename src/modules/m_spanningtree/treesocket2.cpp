@@ -801,13 +801,9 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	}
 	Link* lnk = Utils->FindLink(servername);
 
-	TreeServer *Node;
+	TreeServer *Node = new TreeServer(this->Utils, this->Instance, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 
-	try
-	{
-		Node = new TreeServer(this->Utils, this->Instance, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
-	}
-	catch (CoreException &e)
+	if (Node->DuplicateID())
 	{
 		this->SendError("Server ID "+sid+" already exists on the network!");
 		this->Instance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link with " + prefix);
@@ -886,18 +882,15 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			// to the servers tree, as a child of the root
 			// node.
 
-			TreeServer *Node;
+			TreeServer *Node = new TreeServer(this->Utils, this->Instance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 
-			try
-			{
-				Node = new TreeServer(this->Utils, this->Instance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-			}
-			catch (CoreException &e)
+			if (Node->DuplicateID())
 			{
 				this->SendError("Server ID "+sid+" already exists on the network!");
 				this->Instance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
 				return false;
 			}
+
 			Utils->TreeRoot->AddChild(Node);
 			params[4] = ":" + params[4];
 			Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
@@ -1099,11 +1092,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 				this->LinkState = CONNECTED;
 				Link* lnk = Utils->FindLink(InboundServerName);
-				try
-				{
-					Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
-				}
-				catch (CoreException &e)
+
+				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+
+				if (Node->DuplicateID())
 				{
 					this->SendError("Server ID "+InboundSID+" already exists on the network!");
 					this->Instance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, server ID already exists on the network. Closing link.");
