@@ -969,14 +969,58 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 *  Under old protocol rules, we would have had to kill both clients.
 		 *  Really, this sucks.
 		 * These days, we have UID. And, so what we do is, force nick change client(s)
-		 * involved to their UUID. No more kills. -- w00t
+		 * involved according to timestamp rules.
+		 *
+		 * RULES: 	 
+		 *  user@ip equal: 	 
+		 *   Force nick change on OLDER timestamped client 	 
+		 *  user@ip differ: 	 
+		 *   Force nick change on NEWER timestamped client 	 
+		 *  TS EQUAL: 	 
+		 *   FNC both. 	 
+		 * 	 
+		 * Note that remote clients MUST be dealt with also to remove desyncs. 	 
+		 *  XXX we don't do this yet. 	 
+		 * 	 
+		 * This stops abusive use of collisions, simplifies problems with loops, and so on. 	 
+		 *   -- w00t
 		 */
 		Instance->Log(DEBUG,"*** Collision on %s", tempnick);
 
-		iter->second->ForceNickChange(iter->second->uuid);
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
-		/* also, don't trample on the hash - use their UID as nick */
-		tempnick = params[0].c_str();
+		bool bChangeLocal = true;
+		bool bChangeRemote = true;
+
+		/* mmk. let's do this again. */
+		if (age == iter->second->age)
+		{
+			/* equal. fuck them both! do nada, let the handler at the bottom figure this out. */
+		}
+		else
+		{
+			/* fuck. now it gets complex. */
+
+			/* first, let's see if ident@host matches. */
+			bool SamePerson = strcmp(iter->second->ident, parv[5])
+					&& !strcmp(iter->second->GetIP(), parv[7]);
+
+			/*
+			 * if ident@ip is equal, and theirs is newer, or
+			 * ident@ip differ, and ours is newer
+			 */
+			if((SamePerson && age < iter->second->age) ||
+			   (!SamePerson && age > iter->second->age))
+			{
+				/* remote needs to change */
+				this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
+				/* also, don't trample on the hash - use their UID as nick */
+				tempnick = params[0].c_str();
+			}
+			else
+			{
+				/* ours needs to change */
+				iter->second->ForceNickChange(iter->second->uuid);
+			}
+		}
 	}
 
 	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
