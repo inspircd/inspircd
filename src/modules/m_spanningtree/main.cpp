@@ -248,7 +248,7 @@ int ModuleSpanningTree::HandleMotd(const char** parameters, int pcnt, userrec* u
 		if (s)
 		{
 			params[0] = s->GetName();
-			Utils->DoOneToOne(user->nick, "MOTD", params, s->GetName());
+			Utils->DoOneToOne(user->uuid, "MOTD", params, s->GetName());
 		}
 		else
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
@@ -272,7 +272,7 @@ int ModuleSpanningTree::HandleAdmin(const char** parameters, int pcnt, userrec* 
 		if (s)
 		{
 			params[0] = s->GetName();
-			Utils->DoOneToOne(user->nick, "ADMIN", params, s->GetName());
+			Utils->DoOneToOne(user->uuid, "ADMIN", params, s->GetName());
 		}
 		else
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
@@ -294,7 +294,7 @@ int ModuleSpanningTree::HandleModules(const char** parameters, int pcnt, userrec
 		if (s)
 		{
 			params[0] = s->GetName();
-			Utils->DoOneToOne(user->nick, "MODULES", params, s->GetName());
+			Utils->DoOneToOne(user->uuid, "MODULES", params, s->GetName());
 		}
 		else
 			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
@@ -320,7 +320,7 @@ int ModuleSpanningTree::HandleStats(const char** parameters, int pcnt, userrec* 
 		if (s)
 		{
 			params[1] = s->GetName();
-			Utils->DoOneToOne(user->nick, "STATS", params, s->GetName());
+			Utils->DoOneToOne(user->uuid, "STATS", params, s->GetName());
 		}
 		else
 		{
@@ -439,7 +439,7 @@ int ModuleSpanningTree::HandleTime(const char** parameters, int pcnt, userrec* u
 			
 			std::deque<std::string> params;
 			params.push_back(found->GetName());
-			params.push_back(user->nick);
+			params.push_back(user->uuid);
 			Utils->DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,found->GetName());
 		}
 		else
@@ -459,7 +459,7 @@ int ModuleSpanningTree::HandleRemoteWhois(const char** parameters, int pcnt, use
 		{
 			std::deque<std::string> params;
 			params.push_back(parameters[1]);
-			Utils->DoOneToOne(user->nick,"IDLE",params,remote->server);
+			Utils->DoOneToOne(user->uuid,"IDLE",params,remote->server);
 			return 1;
 		}
 		else if (!remote)
@@ -655,7 +655,7 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 			user->WriteServ("NOTICE %s :%s", user->nick, text);
 		else
 		{
-			params.push_back(user->nick);
+			params.push_back(user->uid);
 			params.push_back(std::string("::") + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :*** From " +
 					ServerInstance->Config->ServerName+ ": " + text);
 			Utils->DoOneToMany(ServerInstance->Config->ServerName, "PUSH", params);
@@ -812,6 +812,9 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 		params.clear();
 		for (int j = 0; j < pcnt; j++)
 		{
+			/* XXX UID: Translate nicks in this list to UIDs, potentially using some form of lookup
+			 * table that specifies a value type for each parameter, as part of the command_t.
+			 */
 			if (strchr(parameters[j],' '))
 			{
 				params.push_back(":" + std::string(parameters[j]));
@@ -839,7 +842,7 @@ void ModuleSpanningTree::OnUserInvite(userrec* source,userrec* dest,chanrec* cha
 	if (IS_LOCAL(source))
 	{
 		std::deque<std::string> params;
-		params.push_back(dest->nick);
+		params.push_back(dest->uuid);
 		params.push_back(channel->name);
 		Utils->DoOneToMany(source->uuid,"INVITE",params);
 	}
@@ -872,7 +875,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 		{
 			std::deque<std::string> params;
 			params.clear();
-			params.push_back(d->nick);
+			params.push_back(d->uuid);
 			params.push_back(":"+text);
 			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
 		}
@@ -922,7 +925,7 @@ void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_typ
 		{
 			std::deque<std::string> params;
 			params.clear();
-			params.push_back(d->nick);
+			params.push_back(d->uuid);
 			params.push_back(":"+text);
 			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
 		}
@@ -1094,7 +1097,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 	{
 		std::deque<std::string> params;
 		params.push_back(chan->name);
-		params.push_back(user->nick);
+		params.push_back(user->uuid);
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(source->uuid,"KICK",params);
 	}
@@ -1102,7 +1105,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 	{
 		std::deque<std::string> params;
 		params.push_back(chan->name);
-		params.push_back(user->nick);
+		params.push_back(user->uuid);
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(ServerInstance->Config->ServerName,"KICK",params);
 	}
@@ -1114,7 +1117,7 @@ void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std:
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
 	params.clear();
-	params.push_back(dest->nick);
+	params.push_back(dest->uuid);
 	params.push_back(":"+reason);
 	dest->SetOperQuit(operreason);
 	Utils->DoOneToMany(source->uuid,"KILL",params);
@@ -1240,7 +1243,7 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
-			params.push_back(u->nick);
+			params.push_back(u->uuid);
 			params.push_back(text);
 			command = "MODE";
 		}
@@ -1252,6 +1255,7 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 			params.push_back(text);
 			command = "FMODE";
 		}
+		/* XXX UID: Translate nick parameters to uuids */
 		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
@@ -1284,11 +1288,12 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* targ
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->nick+" "+ConvToStr(u->age)+" "+modeline);
+			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+modeline);
 		}
 		else
 		{
 			chanrec* c = (chanrec*)target;
+			/* XXX UID: Translate nicks in modeline to uids */
 			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+modeline);
 		}
 	}
@@ -1302,7 +1307,7 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* 
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+u->nick+" "+extname+" :"+extdata);
+			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
@@ -1344,6 +1349,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		userrec* a = ServerInstance->FindNick((*params)[0]);
 		if (a)
 		{
+			*(params)[0] = a->uuid;
 			ourTS = a->age;
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 			return;
@@ -1355,6 +1361,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			{
 				ourTS = a->age;
 				params->insert(params->begin() + 1,ConvToStr(ourTS));
+				/* XXX UID: Translate modes in string to uids */
 				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 			}
 		}
@@ -1363,6 +1370,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 	{
 		if (params->size() < 2)
 			return;
+		/* XXX UID: Translate modes in string to uids */
 		Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 	}
 	else if (event->GetEventID() == "send_opers")
@@ -1395,7 +1403,8 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			
 		if (!a)
 			return;
-			
+
+		(*params)[0] = a->uuid;
 		(*params)[1] = ":" + (*params)[1];
 		Utils->DoOneToOne(ServerInstance->Config->ServerName, "PUSH", *params, a->server);
 	}
