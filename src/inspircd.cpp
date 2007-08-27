@@ -165,15 +165,22 @@ void InspIRCd::ResetMaxBans()
 void InspIRCd::RehashUsersAndChans()
 {
 	user_hash* old_users = this->clientlist;
+	user_hash* old_uuid  = this->uuidlist;
 	chan_hash* old_chans = this->chanlist;
 
 	this->clientlist = new user_hash();
+	this->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
 	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
 		this->clientlist->insert(*n);
 
 	delete old_users;
+
+	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
+		this->uuidlist->insert(*n);
+
+	delete old_uuid;
 
 	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
 		this->chanlist->insert(*n);
@@ -316,6 +323,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->unregistered_count = 0;
 
 	this->clientlist = new user_hash();
+	this->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
 	this->Config = new ServerConfig(this);

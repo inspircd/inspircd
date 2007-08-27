@@ -347,6 +347,12 @@ userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(In
 	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 	if (!uid.empty())
 		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
+
+	user_hash::iterator finduuid = Instance->uuidlist->find(uuid);
+	if (finduuid != Instance->uuidlist->end())
+		(*Instance->uuidlist)[uuid] = this;
+	else
+		throw CoreException("Duplicate UUID "+uid+" in userrec constructor");
 }
 
 void userrec::RemoveCloneCounts()
@@ -393,6 +399,8 @@ userrec::~userrec()
 		}
 #endif
 	}
+
+	ServerInstance->uuidlist->erase(uuid);
 }
 
 char* userrec::MakeHost()

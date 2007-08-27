@@ -268,17 +268,12 @@ userrec *InspIRCd::FindUUID(const std::string &uid)
 
 userrec *InspIRCd::FindUUID(const char *uid)
 {
-	for (user_hash::const_iterator a = this->clientlist->begin(); a != this->clientlist->end(); a++)
-	{
-		userrec *u = a->second;
+	user_hash::iterator finduuid = uuidlist->find(uid);
 
-		if (strcmp(u->uuid, uid) == 0)
-		{
-			return u;
-		}
-	}
+	if (finduuid == uuidlist->end())
+		return NULL;
 
-	return NULL;
+	return finduuid->second;
 }
 
 /* find a channel record by channel name and return a pointer to it */
