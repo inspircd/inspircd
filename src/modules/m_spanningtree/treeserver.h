@@ -45,6 +45,12 @@ class TreeServer : public classbase
 	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string sid;			/* Server ID */
 
+	/** Set server ID
+	 * @param id Server ID
+	 * @throws CoreException on duplicate ID
+	 */
+	void SetID(const std::string &id);
+
  public:
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
@@ -52,19 +58,19 @@ class TreeServer : public classbase
 	/** We don't use this constructor. Its a dummy, and won't cause any insertion
 	 * of the TreeServer into the hash_map. See below for the two we DO use.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance);
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &id);
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc);
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id);
 	
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
 
@@ -185,10 +191,6 @@ class TreeServer : public classbase
 	/** Get server ID
 	 */
 	std::string& GetID();
-
-	/** Set server ID
-	 */
-	void SetID(const std::string &id);
 
 	/** Destructor
 	 */

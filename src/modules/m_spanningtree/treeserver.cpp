@@ -28,7 +28,7 @@
 
 /* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
 
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : ServerInstance(Instance), Utils(Util)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const std::string &id) : ServerInstance(Instance), Utils(Util)
 {
 	Parent = NULL;
 	ServerName.clear();
@@ -38,13 +38,15 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : Server
 	rtt = LastPing = 0;
 	Hidden = false;
 	VersionString = ServerInstance->GetVersionString();
+	SetID(id);
 }
 
 /** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc) : ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id)
+						: ServerInstance(Instance), ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util)
 {
 	Parent = NULL;
 	VersionString.clear();
@@ -56,13 +58,14 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	rtt = LastPing = 0;
 	Hidden = false;
 	AddHashEntry();
+	SetID(id);
 }
 
 /** When we create a new server, we call this constructor to initialize it.
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, TreeServer* Above, TreeSocket* Sock, bool Hide)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: ServerInstance(Instance), Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), Hidden(Hide)
 {
 	VersionString.clear();
@@ -122,6 +125,8 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	 */
 
 	this->AddHashEntry();
+
+	SetID(id);
 }
 
 std::string& TreeServer::GetID()

@@ -800,9 +800,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 		return false;
 	}
 	Link* lnk = Utils->FindLink(servername);
-	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL, lnk ? lnk->Hidden : false);
+	TreeServer* Node = new TreeServer(this->Utils, this->Instance, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 	ParentOfThis->AddChild(Node);
-	Node->SetID(sid);
 	params[4] = ":" + params[4];
 	Utils->SetRemoteBursting(Node, true);
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
@@ -873,10 +872,9 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			// we should add the details of this server now
 			// to the servers tree, as a child of the root
 			// node.
-			TreeServer* Node = new TreeServer(this->Utils,this->Instance,sname,description,Utils->TreeRoot,this,x->Hidden);
+			TreeServer* Node = new TreeServer(this->Utils, this->Instance, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 			Utils->TreeRoot->AddChild(Node);
 			params[4] = ":" + params[4];
-			Node->SetID(params[3]);
 			Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
 			this->bursting = true;
 			this->DoBurst(Node);
@@ -1076,7 +1074,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 				this->LinkState = CONNECTED;
 				Link* lnk = Utils->FindLink(InboundServerName);
-				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 				Utils->DelBurstingServer(this);
 				Utils->TreeRoot->AddChild(Node);
 				params.clear();
@@ -1085,7 +1083,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back("1");
 				params.push_back(InboundSID);
 				params.push_back(":"+InboundDescription);
-				Node->SetID(InboundSID);
 				Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,InboundServerName);
 				this->bursting = true;
 				this->DoBurst(Node);
