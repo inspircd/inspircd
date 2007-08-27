@@ -399,6 +399,18 @@ class CoreExport InspIRCd : public classbase
 	 */
 	std::string GetUID();
 
+	/** Find a user in the UUID hash
+	 * @param nick The nickname to find
+	 * @return A pointer to the user, or NULL if the user does not exist
+	 */
+	userrec *FindUUID(const std::string &);
+
+	/** Find a user in the UUID hash
+	 * @param nick The nickname to find
+	 * @return A pointer to the user, or NULL if the user does not exist
+	 */
+	userrec *FindUUID(const char *);
+
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */
 	void BuildISupport();
@@ -608,13 +620,13 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void WriteOpers(const std::string &text);
 
-	/** Find a nickname in the nick hash
+	/** Find a user in the nick hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
 	userrec* FindNick(const std::string &nick);
 
-	/** Find a nickname in the nick hash
+	/** Find a user in the nick hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */

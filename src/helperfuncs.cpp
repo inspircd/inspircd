@@ -255,6 +255,24 @@ userrec* InspIRCd::FindNick(const char* nick)
 	return iter->second;
 }
 
+userrec *InspIRCd::FindUUID(const std::string &uid)
+{
+	return InspIRCd::FindUID(uid.c_str());
+}
+
+userrec *InspIRCd::FindUUID(const char *uid)
+{
+	for (user_hash::const_iterator a = ServerInstance->clientlist->begin(); a != ServerInstance->clientlist->end(); a++)
+	{
+		userrec *u = a->second;
+
+		if (strcmp(u->uuid, uid) == 0
+		{
+			return u;
+		}
+	}
+}
+
 /* find a channel record by channel name and return a pointer to it */
 chanrec* InspIRCd::FindChan(const char* chan)
 {
