@@ -1043,9 +1043,18 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
 	 * sets it up in the UUID hash for us.
-	 * TODO: Make this throw an exception maybe, on UUID collision?
 	 */
-	userrec* _new = new userrec(this->Instance, params[0]);
+	userrec* _new = NULL;
+	try
+	{
+		_new = new userrec(this->Instance, params[0]);
+	}
+	catch (CoreException &e)
+	{
+		/** TODO: SQUIT the server here, the remote server is fucking with us
+		 * and has sent us the same UID twice!
+		 */
+	}
 	(*(this->Instance->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	strlcpy(_new->nick, tempnick, NICKMAX - 1);
