@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "hashcomp.h"
 
 /* $ModDesc: Provides XMLSocket support for clients */
 

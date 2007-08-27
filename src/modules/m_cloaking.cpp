@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */

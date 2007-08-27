@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 #include "wildcard.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */

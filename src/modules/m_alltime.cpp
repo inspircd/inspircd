@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "modules.h"
 
 /* $ModDesc: Display timestamps from all servers connected to the network */
 

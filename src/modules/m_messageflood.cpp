@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 

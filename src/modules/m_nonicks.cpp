@@ -12,11 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "hashcomp.h"
-#include "configreader.h"
 
 /* $ModDesc: Provides support for channel mode +N which prevents nick changes on channel */
 

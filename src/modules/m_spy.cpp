@@ -11,17 +11,9 @@
  * ---------------------------------------------------
  */
 
-/* NO, THIS MODULE DOES NOT SPY ON CHANNELS OR USERS.
- * IT JUST ALLOWS OPERS TO SEE +s CHANNELS IN LIST AND
- * WHOIS, WHICH IS SUPPORTED BY MOST IRCDS IN CORE.
- */
-
 /* $ModDesc: Provides SPYLIST and SPYNAMES capability, allowing opers to see who's in +s channels */
 
 #include "inspircd.h"
-#include "users.h" 
-#include "channels.h"
-#include "modules.h"
 #include "wildcard.h"
 
 void spy_userlist(userrec *user, chanrec *c)

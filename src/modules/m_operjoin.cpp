@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
 

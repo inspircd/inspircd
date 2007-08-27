@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Allows opers to set +W to see when a user uses WHOIS on them */
 

@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "wildcard.h"
 
 /* $ModDesc: Provides /tline command used to test who a mask matches */

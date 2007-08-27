@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Provides channel modes +a and +q */
 /* $ModDep: ../../include/u_listmode.h */

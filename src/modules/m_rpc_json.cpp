@@ -18,10 +18,6 @@
 #include <utility>
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "configreader.h"
-#include "modules.h"
 #include "inspsocket.h"
 #include "httpd.h"
 #include "json.h"

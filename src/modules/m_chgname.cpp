@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "modules.h"
 
 /* $ModDesc: Provides support for the CHGNAME command */
 

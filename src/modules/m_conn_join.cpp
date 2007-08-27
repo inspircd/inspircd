@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Forces users to join the specified channel(s) on connect */
 

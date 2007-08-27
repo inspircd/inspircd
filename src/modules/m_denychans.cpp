@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "hashcomp.h"
 #include "wildcard.h"
 
 /* $ModDesc: Implements config tags which allow blocking of joins to channels */

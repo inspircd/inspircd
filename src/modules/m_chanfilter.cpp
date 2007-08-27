@@ -15,10 +15,6 @@
 #define _SCL_SECURE_NO_DEPRECATE
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "hashcomp.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */

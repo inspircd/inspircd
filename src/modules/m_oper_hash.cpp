@@ -15,9 +15,6 @@
 /* $ModDep: m_hash.h */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_hash.h"
 
 typedef std::map<irc::string, Module*> hashymodules;

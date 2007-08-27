@@ -11,10 +11,7 @@
  * ---------------------------------------------------
  */
 
-#include "inspircd.h" 
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
+#include "inspircd.h"
 #include "wildcard.h"
 
 /** Holds a users m_safelist state

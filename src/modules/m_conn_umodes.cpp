@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "wildcard.h"
 
 /* $ModDesc: Sets (and unsets) modes on users when they connect */

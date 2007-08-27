@@ -12,12 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <stdio.h>
-#include <string>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 
 /* $ModDesc: Adds user mode +c, which if set, users must be on a common channel with you to private message you */
 

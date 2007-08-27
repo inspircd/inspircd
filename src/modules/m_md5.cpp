@@ -18,9 +18,6 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_hash.h"
 
 /* The four core functions - F1 is optimized somewhat */

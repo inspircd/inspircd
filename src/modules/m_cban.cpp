@@ -12,11 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <algorithm>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 
 /* $ModDesc: Gives /cban, aka C:lines. Think Q:lines, for channels. */
 

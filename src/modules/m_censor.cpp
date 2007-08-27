@@ -15,9 +15,6 @@
 #define _SCL_SECURE_NO_DEPRECATE
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 typedef std::map<irc::string,irc::string> censor_t;
 

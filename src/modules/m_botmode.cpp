@@ -12,12 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <stdio.h>
-#include <string>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 
 /* $ModDesc: Provides support for unreal-style umode +B */
 

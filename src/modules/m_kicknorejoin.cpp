@@ -12,10 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <sstream>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 

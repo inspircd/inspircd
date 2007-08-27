@@ -54,9 +54,6 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "m_hash.h"
 
 #ifndef HAS_STDINT

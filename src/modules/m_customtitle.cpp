@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "wildcard.h"
 
 /* $ModDesc: Provides the TITLE command which allows setting of CUSTOM WHOIS TITLE line */

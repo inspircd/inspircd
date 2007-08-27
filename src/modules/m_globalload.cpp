@@ -14,9 +14,6 @@
 /* $ModDesc: Allows global loading of a module. */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /** Handle /GLOADMODULE
  */

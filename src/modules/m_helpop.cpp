@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: /helpop Command, Works like Unreal helpop */
 static std::map<irc::string, std::string> helpop_map;

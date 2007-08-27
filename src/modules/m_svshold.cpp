@@ -12,11 +12,6 @@
  */
 
 #include "inspircd.h"
-#include <algorithm>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
-#include "configreader.h"
 
 /* $ModDesc: Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services. */
 

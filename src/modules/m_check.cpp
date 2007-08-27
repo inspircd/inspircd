@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "wildcard.h"
 
 /* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */

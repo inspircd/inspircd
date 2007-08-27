@@ -14,9 +14,6 @@
 // Globops and +g support module by C.J.Edwards
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 /* $ModDesc: Provides support for GLOBOPS and user mode +g */
 

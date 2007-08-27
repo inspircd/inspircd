@@ -12,11 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "configreader.h"
-#include "modules.h"
-#include "inspsocket.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */

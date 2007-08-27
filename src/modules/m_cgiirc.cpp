@@ -12,9 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "modules.h"
-#include "dns.h"
+
 #ifndef WINDOWS
 #include <sys/socket.h>
 #include <netinet/in.h>

@@ -13,10 +13,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "dns.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 #ifndef WINDOWS
 #include <sys/types.h>
