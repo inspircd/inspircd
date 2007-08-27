@@ -1036,6 +1036,7 @@ void ModuleSpanningTree::OnUserConnect(userrec* user)
 	{
 		std::deque<std::string> params;
 		snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
+		params.push_back(user->uuid);
 		params.push_back(agestr);
 		params.push_back(user->nick);
 		params.push_back(user->host);
@@ -1044,7 +1045,7 @@ void ModuleSpanningTree::OnUserConnect(userrec* user)
 		params.push_back("+"+std::string(user->FormatModes()));
 		params.push_back(user->GetIPString());
 		params.push_back(":"+std::string(user->fullname));
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"NICK",params);
+		Utils->DoOneToMany(ServerInstance->Config->ServerName, "UID", params);
 		// User is Local, change needs to be reflected!
 		TreeServer* SourceServer = Utils->FindServer(user->server);
 		if (SourceServer)
