@@ -1000,8 +1000,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 			/* fuck. now it gets complex. */
 
 			/* first, let's see if ident@host matches. */
-			bool SamePerson = strcmp(iter->second->ident, parv[5])
-					&& !strcmp(iter->second->GetIP(), parv[7]);
+			bool SamePerson = strcmp(iter->second->ident, params[5].c_str())
+					&& !strcmp(iter->second->GetIPString(), params[7].c_str());
 
 			/*
 			 * if ident@ip is equal, and theirs is newer, or
@@ -1011,15 +1011,25 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 			   (!SamePerson && age > iter->second->age))
 			{
 				/* remote needs to change */
-				this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
-				/* also, don't trample on the hash - use their UID as nick */
-				tempnick = params[0].c_str();
+				bChangeLocal = false;
 			}
 			else
 			{
 				/* ours needs to change */
-				iter->second->ForceNickChange(iter->second->uuid);
+				bChangeRemote = false;
 			}
+		}
+
+
+		if (bChangeLocal)
+		{
+			iter->second->ForceNickChange(iter->second->uuid);
+		}
+		if (bChangeRemote)
+		{
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
+			/* also, don't trample on the hash - use their UID as nick */
+			tempnick = params[0].c_str();
 		}
 	}
 
