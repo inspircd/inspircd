@@ -367,6 +367,18 @@ bool ValidateInvite(ServerConfig* conf, const char* tag, const char* value, Valu
 	return true;
 }
 
+bool ValidateSID(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+{
+	int sid = data.GetInteger();
+	if ((sid > 999) || (sid < 0))
+	{
+		sid = sid % 1000;
+		data.Set(sid);
+		conf->GetInstance()->Log(DEFAULT,"WARNING: Server ID is less than 0 or greater than 999. Set to %d", sid);
+	}
+	return true;
+}
+
 bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
@@ -634,6 +646,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{"server",	"name",		"",			new ValueContainerChar (this->ServerName),		DT_CHARPTR, ValidateServerName},
 		{"server",	"description",	"Configure Me",		new ValueContainerChar (this->ServerDesc),		DT_CHARPTR, NoValidation},
 		{"server",	"network",	"Network",		new ValueContainerChar (this->Network),			DT_CHARPTR, NoValidation},
+		{"server",	"id",		"0",			new ValueContainerInt  (&this->sid),			DT_INTEGER, ValidateSID},
 		{"admin",	"name",		"",			new ValueContainerChar (this->AdminName),		DT_CHARPTR, NoValidation},
 		{"admin",	"email",	"Mis@configu.red",	new ValueContainerChar (this->AdminEmail),		DT_CHARPTR, NoValidation},
 		{"admin",	"nick",		"Misconfigured",	new ValueContainerChar (this->AdminNick),		DT_CHARPTR, NoValidation},

@@ -603,6 +603,13 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	unsigned int OperMaxChans;
 
+	/** TS6-like server ID.
+	 * NOTE: 000...999 are usable for InspIRCd servers. This
+	 * makes code simpler. 0AA, 1BB etc with letters are reserved
+	 * for services use.
+	 */
+	int sid;
+
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig(InspIRCd* Instance);

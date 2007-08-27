@@ -544,11 +544,20 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	/* Generate SID */
         size_t sid = 0;
-	for (const char* x = Config->ServerName; *x; ++x)
-		sid = 5 * sid + *x;
-	for (const char* y = Config->ServerDesc; *y; ++y)
-		sid = 5 * sid + *y;
-	sid = sid % 999;
+	if (Config->sid)
+	{
+		sid = Config->sid;
+	}
+	else
+	{
+		for (const char* x = Config->ServerName; *x; ++x)
+			sid = 5 * sid + *x;
+		for (const char* y = Config->ServerDesc; *y; ++y)
+			sid = 5 * sid + *y;
+		sid = sid % 999;
+
+		Config->sid = sid;
+	}
 	current_uid[0] = sid / 100 + 48;
 	current_uid[1] = ((sid / 10) % 10) + 48;
 	current_uid[2] = sid % 10 + 48;

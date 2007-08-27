@@ -49,11 +49,23 @@
 #     <server name="server.name"                                      #
 #      description="Server Description"                               #
 #      networkemail="Email address shown on g/k/z/q lines"            #
+#      id="serverid"                                                  #
 #      network="MyNetwork">                                           #
+#                                                                     #
+#  The server ID is optional, and if omitted or set to 0, is auto-    #
+#  matically calculated from the server name and description. This is #
+#  similar in behaviour to the server id on ircu and charybdis ircds. #
+#  You should only need to set this manually if there is a collision  #
+#  between two server IDs on the network. The server ID must be       #
+#  between 1 and 999, if it is not, it will be wrapped to this range. #
+#  There is a range of server IDs which are suffixed by two letters   #
+#  rather than two numbers, e.g. 1AA, 2FF, 3ZZ, which are reserved    #
+#  for use by non-inspircd servers such as services and stats servers.#
 #                                                                     #
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
+	id="0"
 	network="Omega">
 
 

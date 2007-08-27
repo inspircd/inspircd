@@ -69,15 +69,13 @@ void InspIRCd::RehashServer()
 std::string InspIRCd::GetVersionString()
 {
 	char versiondata[MAXBUF];
-	char dnsengine[] = "singlethread-object";
-
 	if (*Config->CustomVersion)
 	{
 		snprintf(versiondata,MAXBUF,"%s %s :%s",VERSION,Config->ServerName,Config->CustomVersion);
 	}
 	else
 	{
-		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%s]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),dnsengine);
+		snprintf(versiondata,MAXBUF,"%s %s :%s [FLAGS=%s,%s,%d]",VERSION,Config->ServerName,SYSTEM,REVISION,SE->GetName().c_str(),Config->sid);
 	}
 	return versiondata;
 }
