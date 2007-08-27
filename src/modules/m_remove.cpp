@@ -211,9 +211,6 @@ class cmd_remove : public command_t, public RemoveBase
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
-
-		for (size_t x = 0; x < translation.size(); x++)
-			printf("translation[%ld] = %ld\n", x, translation[x]);
 	}
 	
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
