@@ -1119,11 +1119,21 @@ bool TreeSocket::ProcessLine(std::string &line)
 			if (!prefix.empty())
 			{
 				std::string direction = prefix;
-				userrec* t = this->Instance->FindNick(prefix);
+				// XXX
+				userrec *t = this->Instance->FindUUID(prefix);
+				if (!t)
+				{
+					userrec* t = this->Instance->FindNick(prefix);
+					if (t)
+					{
+						Instance->Log(DEBUG,"Ack, legacy command!");
+					}
+				}
 				if (t)
 				{
 					direction = t->server;
 				}
+
 				TreeServer* route_back_again = Utils->BestRouteTo(direction);
 				if ((!route_back_again) || (route_back_again->GetSocket() != this))
 				{
