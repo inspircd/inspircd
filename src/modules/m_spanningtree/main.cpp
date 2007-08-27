@@ -812,8 +812,8 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 		// commands and linking protocols.
 		std::deque<std::string> params;
 		params.clear();
-		size_t n_translate = thiscmd->translation.size();
-		TranslationType translate_to;
+		int n_translate = thiscmd->translation.size();
+		TranslateType translate_to;
 
 		for (int j = 0; j < pcnt; j++)
 		{

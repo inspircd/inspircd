@@ -597,6 +597,8 @@ void CommandParser::SetupCommandTable(userrec* user)
 int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
 {
 	userrec* user = NULL;
+	std::string item;
+
 	switch (to)
 	{
 		case TR_NICK:
@@ -608,10 +610,38 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 				dest = source;
 		break;
 		case TR_NICKLIST:
+		{
 			/* Translate comma seperated list of nicknames */
+			irc::commasepstream items(source);
+			while (items.GetToken(item))
+			{
+				user = ServerInstance->FindNick(item);
+				if (user)
+					dest.append(user->uuid);
+				else
+					dest.append(source);
+				dest.append(",");
+			}
+			if (!dest.empty())
+				dest.erase(dest.end() - 1);
+		}
 		break;
 		case TR_SPACENICKLIST:
+		{
 			/* Translate space seperated list of nicknames */
+			irc::spacesepstream items(source);
+			while (items.GetToken(item))
+			{
+				user = ServerInstance->FindNick(item);
+				if (user)
+					dest.append(user->uuid);
+				else
+					dest.append(source);
+				dest.append(" ");
+			}
+			if (!dest.empty())
+				dest.erase(dest.end() - 1);
+		}
 		break;
 		case TR_END:
 		case TR_TEXT:
