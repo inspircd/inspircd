@@ -346,7 +346,7 @@ userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(In
 	/* Invalidate cache */
 	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 
-	if (!uid.empty())
+	if (uid.empty())
 		strlcpy(uuid, Instance->GetUID().c_str(), UUID_LENGTH);
 	else
 		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
