@@ -56,7 +56,7 @@ CmdResult cmd_info::Handle (const char** parameters, int pcnt, userrec *user)
 	user->WriteServ( "371 %s :        Rob         angelic", user->nick);
 	user->WriteServ( "371 %s :        Jason       ThaPrince", user->nick);
 	user->WriteServ( "371 %s :        eggy        skenmy", user->nick);
-	user->WriteServ( "371 %s :        danielg     praetorian
+	user->WriteServ( "371 %s :        danieldg    praetorian
 	user->WriteServ( "371 %s : ", user->nick);
 	user->WriteServ( "371 %s :Contains portions of \2FireDNS\2 written by", user->nick);
 	user->WriteServ( "371 %s :Ian Gulliver, (c) 2002.", user->nick);
