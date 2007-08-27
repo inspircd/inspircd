@@ -979,9 +979,6 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 *  TS EQUAL: 	 
 		 *   FNC both. 	 
 		 * 	 
-		 * Note that remote clients MUST be dealt with also to remove desyncs. 	 
-		 *  XXX we don't do this yet. 	 
-		 * 	 
 		 * This stops abusive use of collisions, simplifies problems with loops, and so on. 	 
 		 *   -- w00t
 		 */
