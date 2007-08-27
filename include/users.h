@@ -660,7 +660,7 @@ class CoreExport userrec : public connection
 	bool exempt;
 
 	/** Default constructor
-	 * @throw Nothing at present
+	 * @throw CoreException if the UID allocated to the user already exists
 	 * @param Instance Creator instance
 	 * @param uid User UUID, or empty to allocate one automatically
 	 */
