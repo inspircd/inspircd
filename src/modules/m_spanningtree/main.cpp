@@ -655,7 +655,7 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 			user->WriteServ("NOTICE %s :%s", user->nick, text);
 		else
 		{
-			params.push_back(user->uid);
+			params.push_back(user->uuid);
 			params.push_back(std::string("::") + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :*** From " +
 					ServerInstance->Config->ServerName+ ": " + text);
 			Utils->DoOneToMany(ServerInstance->Config->ServerName, "PUSH", params);
@@ -1349,7 +1349,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		userrec* a = ServerInstance->FindNick((*params)[0]);
 		if (a)
 		{
-			*(params)[0] = a->uuid;
+			(*params)[0] = a->uuid;
 			ourTS = a->age;
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 			return;

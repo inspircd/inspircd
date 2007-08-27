@@ -236,7 +236,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 /* Find a user record by nickname and return a pointer to it */
 userrec* InspIRCd::FindNick(const std::string &nick)
 {
-	if (!nick.empty() && isnumeric(*nick.begin()))
+	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
 
 	user_hash::iterator iter = clientlist->find(nick);
@@ -250,7 +250,7 @@ userrec* InspIRCd::FindNick(const std::string &nick)
 
 userrec* InspIRCd::FindNick(const char* nick)
 {
-	if (isnumeric(*nick))
+	if (isdigit(*nick))
 		return FindUUID(nick);
 
 	user_hash::iterator iter = clientlist->find(nick);
