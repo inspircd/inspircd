@@ -43,6 +43,7 @@ class TreeServer : public classbase
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	SpanningTreeUtilities* Utils;		/* Utility class */
+	std::string sid;			/* Server ID */
 
  public:
 
@@ -180,6 +181,14 @@ class TreeServer : public classbase
 	 * server tree. It is slow, we don't use it for much else.
 	 */
 	bool Tidy();
+
+	/** Get server ID
+	 */
+	std::string& GetID();
+
+	/** Set server ID
+	 */
+	void SetID(const std::string &id);
 
 	/** Destructor
 	 */

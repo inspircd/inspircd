@@ -83,6 +83,7 @@ class TreeSocket : public InspSocket
 	ServerState LinkState;			/* Link state */
 	std::string InboundServerName;		/* Server name sent to us by other side */
 	std::string InboundDescription;		/* Server description (GECOS) sent to us by the other side */
+	std::string InboundSID;			/* Server ID sent to us by the other side */
 	int num_lost_users;			/* Users lost in split */
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */

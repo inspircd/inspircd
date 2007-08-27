@@ -779,12 +779,13 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 
 bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string> &params)
 {
-	if (params.size() < 4)
+	if (params.size() < 5)
 		return false;
 	std::string servername = params[0];
 	std::string password = params[1];
 	// hopcount is not used for a remote server, we calculate this ourselves
-	std::string description = params[3];
+	std::string sid = params[3];
+	std::string description = params[4];
 	TreeServer* ParentOfThis = Utils->FindServer(prefix);
 	if (!ParentOfThis)
 	{
@@ -801,7 +802,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 	Link* lnk = Utils->FindLink(servername);
 	TreeServer* Node = new TreeServer(this->Utils,this->Instance,servername,description,ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 	ParentOfThis->AddChild(Node);
-	params[3] = ":" + params[3];
+	Node->SetID(sid);
+	params[4] = ":" + params[4];
 	Utils->SetRemoteBursting(Node, true);
 	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 	this->Instance->SNO->WriteToSnoMask('l',"Server \002"+prefix+"\002 introduced server \002"+servername+"\002 ("+description+")");
@@ -828,17 +830,19 @@ bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 
 bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 {
-	if (params.size() < 4)
+	if (params.size() < 5)
 		return false;
 
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
 	std::string password = params[1];
-	std::string description = params[3];
+	std::string sid = params[3];
+	std::string description = params[4];
 	int hops = atoi(params[2].c_str());
 
 	this->InboundServerName = sname;
 	this->InboundDescription = description;
+	this->InboundSID = sid;
 
 	if (!sentcapab)
 		this->SendCapabilities();
@@ -871,7 +875,8 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 			// node.
 			TreeServer* Node = new TreeServer(this->Utils,this->Instance,sname,description,Utils->TreeRoot,this,x->Hidden);
 			Utils->TreeRoot->AddChild(Node);
-			params[3] = ":" + params[3];
+			params[4] = ":" + params[4];
+			Node->SetID(params[3]);
 			Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
 			this->bursting = true;
 			this->DoBurst(Node);
@@ -885,16 +890,23 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 
 bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 {
-	if (params.size() < 4)
+	if (params.size() < 5)
 		return false;
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
 	std::string password = params[1];
-	std::string description = params[3];
+	std::string sid = params[3];
+	std::string description = params[4];
+	std::string OurSID;
 	int hops = atoi(params[2].c_str());
 
 	this->InboundServerName = sname;
 	this->InboundDescription = description;
+	this->InboundSID = sid;
+
+	OurSID += (char)((Instance->Config->sid / 100) + 48);
+	OurSID += (char)((Instance->Config->sid / 10) % 10 + 48);
+	OurSID += (char)(Instance->Config->sid % 10 + 48);
 
 	if (!sentcapab)
 		this->SendCapabilities();
@@ -941,7 +953,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 
 			// this is good. Send our details: Our server name and description and hopcount of 0,
 			// along with the sendpass from this block.
-			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 :"+this->Instance->Config->ServerDesc);
+			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+OurSID+" :"+this->Instance->Config->ServerDesc);
 			// move to the next state, we are now waiting for THEM.
 			this->LinkState = WAIT_AUTH_2;
 			return true;
@@ -1071,7 +1083,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back(InboundServerName);
 				params.push_back("*");
 				params.push_back("1");
+				params.push_back(InboundSID);
 				params.push_back(":"+InboundDescription);
+				Node->SetID(InboundSID);
 				Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,InboundServerName);
 				this->bursting = true;
 				this->DoBurst(Node);

@@ -124,6 +124,16 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	this->AddHashEntry();
 }
 
+std::string& TreeServer::GetID()
+{
+	return sid;
+}
+
+void TreeServer::SetID(const std::string &id)
+{
+	sid = id;
+}
+
 int TreeServer::QuitUsers(const std::string &reason)
 {
 	const char* reason_s = reason.c_str();
