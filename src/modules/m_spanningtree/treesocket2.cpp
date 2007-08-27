@@ -1021,11 +1021,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				return this->Capab(params);
 			}
-			else if ((command == "U") || (command == "S"))
-			{
-				this->SendError("Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
-				return false;
-			}
 			else
 			{
 				irc::string error = "Invalid command in negotiation phase: " + command;
@@ -1041,11 +1036,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				// cant do this, they sent it to us in the WAIT_AUTH_1 state!
 				// silently ignore.
 				return true;
-			}
-			else if ((command == "U") || (command == "S"))
-			{
-				this->SendError("Cannot use the old-style mesh linking protocol with m_spanningtree.so!");
-				return false;
 			}
 			else if (command == "BURST")
 			{
