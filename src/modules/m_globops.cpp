@@ -26,6 +26,7 @@ class cmd_globops : public command_t
 	{
 		this->source = "m_globops.so";
 		syntax = "<any-text>";
+		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

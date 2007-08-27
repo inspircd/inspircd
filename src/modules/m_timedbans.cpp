@@ -37,6 +37,7 @@ class cmd_tban : public command_t
 	{
 		this->source = "m_timedbans.so";
 		syntax = "<channel> <duration> <banmask>";
+		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

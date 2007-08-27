@@ -51,6 +51,7 @@ class cmd_dccallow : public command_t
 	{
 		this->source = "m_dccallow.so";
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
+		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)

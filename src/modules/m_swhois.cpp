@@ -25,6 +25,7 @@ class cmd_swhois : public command_t
 	{
 		this->source = "m_swhois.so";
 		syntax = "<nick> <swhois>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec* user)

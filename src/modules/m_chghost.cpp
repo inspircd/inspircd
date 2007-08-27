@@ -26,6 +26,7 @@ class cmd_chghost : public command_t
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
  
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)

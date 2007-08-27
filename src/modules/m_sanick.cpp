@@ -24,6 +24,7 @@ class cmd_sanick : public command_t
 	{
 		this->source = "m_sanick.so";
 		syntax = "<nick> <new-nick>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

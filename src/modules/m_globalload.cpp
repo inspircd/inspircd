@@ -24,6 +24,7 @@ class cmd_gloadmodule : public command_t
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
+		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

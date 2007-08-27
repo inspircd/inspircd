@@ -210,6 +210,7 @@ class cmd_remove : public command_t, public RemoveBase
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
+		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 	
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

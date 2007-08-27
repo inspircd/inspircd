@@ -29,6 +29,7 @@ class cmd_devoice : public command_t
 	{
 		this->source = "m_devoice.so";
 		syntax = "<channel>";
+		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

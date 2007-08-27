@@ -26,6 +26,7 @@ class cmd_title : public command_t
 	{
 		this->source = "m_customtitle.so";
 		syntax = "<user> <password>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist)

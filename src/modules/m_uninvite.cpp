@@ -24,6 +24,7 @@ class cmd_uninvite : public command_t
 	{
 		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

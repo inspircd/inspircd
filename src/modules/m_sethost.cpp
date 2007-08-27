@@ -26,6 +26,7 @@ class cmd_sethost : public command_t
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
+		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

@@ -59,6 +59,7 @@ class cmd_silence : public command_t
 	{
 		this->source = "m_silence_ext.so";
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
+		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

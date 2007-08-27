@@ -24,6 +24,7 @@ class cmd_chgident : public command_t
 	{
 		this->source = "m_chgident.so";
 		syntax = "<nick> <newident>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 	
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)

@@ -196,6 +196,7 @@ class cmd_watch : public command_t
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
+		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

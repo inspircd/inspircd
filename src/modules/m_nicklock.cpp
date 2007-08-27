@@ -25,6 +25,7 @@ class cmd_nicklock : public command_t
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<oldnick> <newnick>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)

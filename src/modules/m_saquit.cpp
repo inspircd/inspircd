@@ -24,6 +24,7 @@ class cmd_saquit : public command_t
 	{
 		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

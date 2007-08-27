@@ -24,6 +24,7 @@ class cmd_setname : public command_t
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";
+		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)

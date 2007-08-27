@@ -966,6 +966,37 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	if (iter != this->Instance->clientlist->end())
 	{
 		/*
+		 * Nick collision.
+		 *  Under old protocol rules, we would have had to kill both clients.
+		 *  Really, this sucks.
+		 * These days, we have UID. And, so what we do is, force nick change client(s)
+		 * involved according to timestamp rules.
+		 *
+		 * RULES:
+		 *  user@host equal:
+		 *   Force nick change on OLDER timestamped client
+		 *  user@host differ:
+		 *   Force nick change on NEWER timestamped client
+		 *  TS EQUAL:
+		 *   FNC both.
+		 *
+		 * Note that remote clients MUST be dealt with also to remove desyncs.
+		 *  XXX we don't do this yet.
+		 *
+		 * This stops abusive use of collisions, simplifies problems with loops, and so on.
+		 *   -- w00t
+		 */
+
+		if (age == iter->second->signon)
+		{
+			/* TS equal, do both */
+			
+		}
+		else
+		{
+		}
+
+		/*
 		 * Uh oh, nick collision. Under old rules, we'd kill both. These days now we have UUID,
 		 * we force both clients to change nick to their UUID. Just change ours, and the other
 		 * server will change theirs when they see the collide. Problem solved! -- w00t

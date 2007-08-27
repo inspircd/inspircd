@@ -24,6 +24,7 @@ class cmd_setident : public command_t
 	{
 		this->source = "m_setident.so";
 		syntax = "<new-ident>";
+		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)

@@ -24,6 +24,7 @@ class cmd_cycle : public command_t
 	{
 		this->source = "m_cycle.so";
 		syntax = "<channel> :[reason]";
+		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
