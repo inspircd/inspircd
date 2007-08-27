@@ -284,18 +284,26 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 	if (u)
 	{
 		Utils->DoOneToAllButSender(prefix,"SVSNICK",params,prefix);
+
 		if (IS_LOCAL(u))
 		{
 			std::deque<std::string> par;
 			par.push_back(params[1]);
+
 			if (!u->ForceNickChange(params[1].c_str()))
 			{
-				userrec::QuitUser(this->Instance, u, "Nickname collision");
-				return true;
+				/* buh. UID them */
+				if (!u->ForceNickChange(u->uuid))
+				{
+					userrec::QuitUser(this->Instance, u, "Nickname collision");
+					return true;
+				}
 			}
+
 			u->age = atoi(params[2].c_str());
 		}
 	}
+
 	return true;
 }
 
