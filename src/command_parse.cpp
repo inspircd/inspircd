@@ -598,6 +598,7 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 {
 	userrec* user = NULL;
 	std::string item;
+	int translations = 0;
 
 	switch (to)
 	{
@@ -605,7 +606,10 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 			/* Translate single nickname */
 			user = ServerInstance->FindNick(source);
 			if (user)
+			{
 				dest = user->uuid;
+				translations++;
+			}
 			else
 				dest = source;
 		break;
@@ -617,7 +621,10 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 			{
 				user = ServerInstance->FindNick(item);
 				if (user)
+				{
 					dest.append(user->uuid);
+					translations++;
+				}
 				else
 					dest.append(source);
 				dest.append(",");
@@ -634,7 +641,10 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 			{
 				user = ServerInstance->FindNick(item);
 				if (user)
+				{
 					dest.append(user->uuid);
+					translations++;
+				}
 				else
 					dest.append(source);
 				dest.append(" ");
@@ -650,5 +660,7 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 			dest = source;
 		break;
 	}
+
+	return translations;
 }
 
