@@ -1250,12 +1250,15 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 	{
 		std::deque<std::string> params;
 		std::string command;
+		std::string output_text;
+
+		ServerInstance->Parser->TranslateUIDs(TR_SPACENICKLIST, text, output_text);
 
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)dest;
 			params.push_back(u->uuid);
-			params.push_back(text);
+			params.push_back(output_text);
 			command = "MODE";
 		}
 		else
@@ -1263,10 +1266,10 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 			chanrec* c = (chanrec*)dest;
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
-			params.push_back(text);
+			params.push_back(output_text);
 			command = "FMODE";
 		}
-		/* XXX UID: Translate nick parameters to uuids */
+
 		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
@@ -1294,18 +1297,21 @@ void ModuleSpanningTree::OnCancelAway(userrec* user)
 void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
+	std::string output_text;
+
+	ServerInstance->Parser->TranslateUIDs(TR_SPACENICKLIST, modeline, output_text);
+
 	if (target)
 	{
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+modeline);
+			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
 		}
 		else
 		{
 			chanrec* c = (chanrec*)target;
-			/* XXX UID: Translate nicks in modeline to uids */
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+modeline);
+			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
 		}
 	}
 }
@@ -1357,10 +1363,15 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			return;
 		// Insert the TS value of the object, either userrec or chanrec
 		time_t ourTS = 0;
+		std::string output_text;
+
+		/* Warning: in-place translation is only safe for type TR_NICK */
+		for (size_t n = 0; n < params->size(); n++)
+			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
+
 		userrec* a = ServerInstance->FindNick((*params)[0]);
 		if (a)
 		{
-			(*params)[0] = a->uuid;
 			ourTS = a->age;
 			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 			return;
@@ -1372,7 +1383,6 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			{
 				ourTS = a->age;
 				params->insert(params->begin() + 1,ConvToStr(ourTS));
-				/* XXX UID: Translate modes in string to uids */
 				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
 			}
 		}
@@ -1381,7 +1391,12 @@ void ModuleSpanningTree::OnEvent(Event* event)
 	{
 		if (params->size() < 2)
 			return;
-		/* XXX UID: Translate modes in string to uids */
+		std::string output_text;
+
+		/* Warning: in-place translation is only safe for type TR_NICK */
+		for (size_t n = 0; n < params->size(); n++)
+			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
+
 		Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
 	}
 	else if (event->GetEventID() == "send_opers")
