@@ -136,10 +136,12 @@ bool InspIRCd::FindServerName(const std::string &servername)
  */
 std::string InspIRCd::GetUID()
 {
-	bool HasUID = false;
 	int i;
 
-	while (!HasUID)
+	/*
+	 * This will only finish once we return a UUID that is not in use.
+	 */
+	while (1)
 	{
 		/*
 		 * Okay. The rules for generating a UID go like this...
@@ -171,22 +173,33 @@ std::string InspIRCd::GetUID()
 				current_uid[i]++;
 			}
 
-			/*
-			 * XXX!
-			 * Check if it's in use here, continue; if it is!
-			 * This will only be an issue once we have a server that gets
-			 * an assload of connections, but.. -- w00t
-			 *
-			 * Until we have a map to check, just bail. -- w00t
-			 */
 			if (current_uid[3] == 'Z')
 			{
-				InspIRCd::Exit(0);
+				/* If we get to here, we need to wrap around to AAAA. */
+				for(int j = 3; j < UUID_LENGTH - 1; j++)
+					current_uid[j] = 'A';
+
+				/*
+				 * and now we need to break the inner for () to continue the while (),
+				 * which will start the checking process over again. -- w00t
+				 */
+				break;
+				
 			}
 			
-			return std::string(current_uid);
+			if (this->FindUUID(current_uid))
+			{
+				/*
+				 * It's in use. We need to try the loop again.
+				 */
+				continue;
+			}
+
+			return current_uid;
 		}
 	}
+
+	/* not reached. */
 	return "";
 }
 
