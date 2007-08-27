@@ -858,7 +858,9 @@ void userrec::AddToWhoWas()
 /* add a client connection to the sockets list */
 void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
-	std::string tempnick = ConvToStr(socket) + "-unknown";
+	std::string tempnick = Instance->GetUID();
+
+	Instance->Log(DEBUG,"New client has UID %s ..", tempnick.c_str());
 	user_hash::iterator iter = Instance->clientlist->find(tempnick);
 	char ipaddr[MAXBUF];
 #ifdef IPV6
@@ -891,7 +893,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New = new userrec(Instance);
 	(*(Instance->clientlist))[tempnick] = New;
 	New->fd = socket;
-	strlcpy(New->nick,tempnick.c_str(),NICKMAX-1);
+	strlcpy(New->nick, tempnick.c_str(), NICKMAX - 1);
+	strlcpy(New->uuid, tempnick.c_str(), UUID_LENGTH);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */
@@ -1097,6 +1100,9 @@ void userrec::FullConnect()
 	this->WriteServ("004 %s %s %s %s %s %s", this->nick, ServerInstance->Config->ServerName, VERSION, ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
+
+	this->WriteServ("042 %s %s :your unique ID", this->nick, this->uuid);
+
 
 	this->ShowMOTD();
 
