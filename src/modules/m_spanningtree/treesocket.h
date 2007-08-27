@@ -230,8 +230,8 @@ class TreeSocket : public InspSocket
 	/** FJOIN, similar to TS6 SJOIN, but not quite. */
 	bool ForceJoin(const std::string &source, std::deque<std::string> &params);
 
-	/** NICK command */
-	bool IntroduceClient(const std::string &source, std::deque<std::string> &params);
+	/** UID command */
+	bool ParseUID(const std::string &source, std::deque<std::string> &params);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX

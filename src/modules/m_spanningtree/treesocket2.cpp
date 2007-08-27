@@ -1173,9 +1173,9 @@ bool TreeSocket::ProcessLine(std::string &line)
 			/* Yes, know, this is a mess. Its reasonably fast though as we're
 			 * working with std::string here.
 			 */
-			if ((command == "NICK") && (params.size() >= 8))
+			if (command == "UID")
 			{
-				return this->IntroduceClient(prefix,params);
+				return this->ParseUID(prefix, params);
 			}
 			else if (command == "FJOIN")
 			{

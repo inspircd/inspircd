@@ -906,80 +906,88 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	return true;
 }
 
-/** NICK command */
-bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::string> &params)
+bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params)
 {
 	/** Do we have enough parameters:
-	 * NICK age nick host dhost ident +modes ip :gecos
+	 * UID uuid age nick host dhost ident +modestr ip.string :gecos
 	 */
-	if (params.size() != 8)
+	if (params.size() != 9)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction ("+params[1]+"?)");
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+"?)");
 		return true;
 	}
 
-	time_t age = ConvToInt(params[0]);
-	const char* tempnick = params[1].c_str();
+	time_t age = ConvToInt(params[1]);
+	const char* tempnick = params[2].c_str();
 	std::string empty;
 
-	cmd_validation valid[] = { {"Nickname", 1, NICKMAX}, {"Hostname", 2, 64}, {"Displayed hostname", 3, 64}, {"Ident", 4, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
+	/* XXX probably validate UID length too -- w00t */
+	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
 
 	TreeServer* remoteserver = Utils->FindServer(source);
+
 	if (!remoteserver)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (Unknown server "+source+")");
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
 		return true;
 	}
 
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (Invalid TS?)");
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
 		return true;
 	}
+
 	for (size_t x = 0; valid[x].length; ++x)
 	{
 		if (params[valid[x].param].length() > valid[x].length)
 		{
-			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[1]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
 			return true;
 		}
 	}
 
 	/** Our client looks ok, lets introduce it now
 	 */
-	Instance->Log(DEBUG,"New remote client %s",tempnick);
+	Instance->Log(DEBUG,"New remote client %s", tempnick);
 	user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
 
 	if (iter != this->Instance->clientlist->end())
 	{
-		/* nick collision */
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+tempnick+" :Nickname collision");
-		userrec::QuitUser(this->Instance, iter->second, "Nickname collision");
-		return true;
+		/*
+		 * Uh oh, nick collision. Under old rules, we'd kill both. These days now we have UUID,
+		 * we force both clients to change nick to their UUID. Just change ours, and the other
+		 * server will change theirs when they see the collide. Problem solved! -- w00t
+		 */
+		iter->second->ForceNickChange(iter->second->uuid);
+
+		/* also reassign tempnick so we don't trample the hash - important! */
+		tempnick = params[0].c_str();
 	}
 
 	userrec* _new = new userrec(this->Instance);
 	(*(this->Instance->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
-	strlcpy(_new->nick, tempnick,NICKMAX-1);
-	strlcpy(_new->host, params[2].c_str(),64);
-	strlcpy(_new->dhost, params[3].c_str(),64);
+	strlcpy(_new->nick, tempnick, NICKMAX - 1);
+	strlcpy(_new->host, params[3].c_str(),64);
+	strlcpy(_new->dhost, params[4].c_str(),64);
 	_new->server = this->Instance->FindServerNamePtr(source.c_str());
-	strlcpy(_new->ident, params[4].c_str(),IDENTMAX);
-	strlcpy(_new->fullname, params[7].c_str(),MAXGECOS);
+	strlcpy(_new->ident, params[5].c_str(),IDENTMAX);
+	strlcpy(_new->fullname, params[8].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
 	_new->signon = age;
 
 	/* we need to remove the + from the modestring, so we can do our stuff */
-	std::string::size_type pos_after_plus = params[5].find_first_not_of('+');
+	std::string::size_type pos_after_plus = params[6].find_first_not_of('+');
 	if (pos_after_plus != std::string::npos)
-	params[5] = params[5].substr(pos_after_plus);
+	params[6] = params[6].substr(pos_after_plus);
 
-	for (std::string::iterator v = params[5].begin(); v != params[5].end(); v++)
+	for (std::string::iterator v = params[6].begin(); v != params[6].end(); v++)
 	{
 		/* For each mode thats set, increase counter */
 		ModeHandler* mh = Instance->Modes->FindMode(*v, MODETYPE_USER);
+
 		if (mh)
 		{
 			mh->OnModeChange(_new, _new, NULL, empty, true);
@@ -989,14 +997,14 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	}
 
 	/* now we've done with modes processing, put the + back for remote servers */
-	params[5] = "+" + params[5];
+	params[6] = "+" + params[6];
 
 #ifdef SUPPORT_IP6LINKS
-	if (params[6].find_first_of(":") != std::string::npos)
-		_new->SetSockAddr(AF_INET6, params[6].c_str(), 0);
+	if (params[7].find_first_of(":") != std::string::npos)
+		_new->SetSockAddr(AF_INET6, params[7].c_str(), 0);
 	else
 #endif
-		_new->SetSockAddr(AF_INET, params[6].c_str(), 0);
+		_new->SetSockAddr(AF_INET, params[7].c_str(), 0);
 
 	Instance->AddGlobalClone(_new);
 
@@ -1005,8 +1013,8 @@ bool TreeSocket::IntroduceClient(const std::string &source, std::deque<std::stri
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
 
-	params[7] = ":" + params[7];
-	Utils->DoOneToAllButSender(source,"NICK", params, source);
+	params[8] = ":" + params[8];
+	Utils->DoOneToAllButSender(source, "UID", params, source);
 
 	// Increment the Source Servers User Count..
 	TreeServer* SourceServer = Utils->FindServer(source);
@@ -1181,7 +1189,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 	{
 		if (u->second->registered == REG_ALL)
 		{
-			snprintf(data,MAXBUF,":%s NICK %lu %s %s %s %s +%s %s :%s",u->second->server,(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
+			snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", u->second->server, u->second->uuid, (unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
 			this->WriteLine(data);
 			if (*u->second->oper)
 			{
@@ -1195,6 +1203,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			}
 		}
 	}
+
 	for (user_hash::iterator u = this->Instance->clientlist->begin(); u != this->Instance->clientlist->end(); u++)
 	{
 		FOREACH_MOD_I(this->Instance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
