@@ -661,8 +661,10 @@ class CoreExport userrec : public connection
 
 	/** Default constructor
 	 * @throw Nothing at present
+	 * @param Instance Creator instance
+	 * @param uid User UUID, or empty to allocate one automatically
 	 */
-	userrec(InspIRCd* Instance);
+	userrec(InspIRCd* Instance, const std::string &uid = "");
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users

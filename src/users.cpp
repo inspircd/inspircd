@@ -323,7 +323,7 @@ void userrec::DecrementModes()
 	}
 }
 
-userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
+userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = *uuid = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
@@ -345,6 +345,8 @@ userrec::userrec(InspIRCd* Instance) : ServerInstance(Instance)
 	memset(snomasks,0,sizeof(snomasks));
 	/* Invalidate cache */
 	operquit = cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
+	if (!uid.empty())
+		strlcpy(uuid, uid.c_str(), UUID_LENGTH);
 }
 
 void userrec::RemoveCloneCounts()
@@ -858,10 +860,9 @@ void userrec::AddToWhoWas()
 /* add a client connection to the sockets list */
 void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
-	std::string tempnick = Instance->GetUID();
+	userrec* New = new userrec(Instance);
 
-	Instance->Log(DEBUG,"New client has UID %s ..", tempnick.c_str());
-	user_hash::iterator iter = Instance->clientlist->find(tempnick);
+	user_hash::iterator iter = Instance->clientlist->find(New->uuid);
 	char ipaddr[MAXBUF];
 #ifdef IPV6
 	if (socketfamily == AF_INET6)
@@ -874,27 +875,9 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 	Instance->unregistered_count++;
 
-	/*
-	 * fix by brain.
-	 * as these nicknames are 'RFC impossible', we can be sure nobody is going to be
-	 * using one as a registered connection. As they are per fd, we can also safely assume
-	 * that we wont have collisions. Therefore, if the nick exists in the list, its only
-	 * used by a dead socket, erase the iterator so that the new client may reclaim it.
-	 * this was probably the cause of 'server ignores me when i hammer it with reconnects'
-	 * issue in earlier alphas/betas
-	 */
-	if (iter != Instance->clientlist->end())
-	{
-		userrec* goner = iter->second;
-		DELETE(goner);
-		Instance->clientlist->erase(iter);
-	}
-
-	New = new userrec(Instance);
-	(*(Instance->clientlist))[tempnick] = New;
+	(*(Instance->clientlist))[user->uuid] = New;
 	New->fd = socket;
-	strlcpy(New->nick, tempnick.c_str(), NICKMAX - 1);
-	strlcpy(New->uuid, tempnick.c_str(), UUID_LENGTH);
+	strlcpy(New->nick, New->uuid, NICKMAX - 1);
 
 	New->server = Instance->FindServerNamePtr(Instance->Config->ServerName);
 	/* We don't need range checking here, we KNOW 'unknown\0' will fit into the ident field. */

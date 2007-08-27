@@ -461,6 +461,11 @@ class CoreExport InspIRCd : public classbase
 	 */
 	user_hash* clientlist;
 
+	/** Client list stored by UUID. Contains all clients, and is updated
+	 * automatically by the constructor and destructor of userrec.
+	 */
+	user_hash* uuidlist;
+
 	/** Channel list, a hash_map containing all channels
 	 */
 	chan_hash* chanlist;
