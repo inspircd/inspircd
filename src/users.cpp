@@ -1197,7 +1197,15 @@ bool userrec::ForceNickChange(const char* newnick)
 
 		if (this->registered == REG_ALL)
 		{
-			return (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
+			std::deque<classbase*> dummy;
+			command_t* nickhandler = ServerInstance->Parser->GetHandler("NICK");
+			if (nickhandler)
+			{
+				nickhandler->HandleInternal(1, dummy);
+				bool result = (ServerInstance->Parser->CallHandler("NICK", &newnick, 1, this) == CMD_SUCCESS);
+				nickhandler->HandleInternal(0, dummy);
+				return result;
+			}
 		}
 		return false;
 	}

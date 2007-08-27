@@ -77,7 +77,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * here first, no TS checks need to take place here)
 		 */
 		userrec* InUse = ServerInstance->FindNick(parameters[0]);
-		if (InUse && (InUse != user) && (ServerInstance->IsNick(parameters[0])))
+		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)
 			{
@@ -98,7 +98,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 		}
 	}
-	if ((!ServerInstance->IsNick(parameters[0])) && (IS_LOCAL(user)))
+	if (((!allowinvalid || !ServerInstance->IsNick(parameters[0]))) && (IS_LOCAL(user)))
 	{
 		user->WriteServ("432 %s %s :Erroneous Nickname",user->nick,parameters[0]);
 		return CMD_FAILURE;
@@ -178,5 +178,10 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 
 	return CMD_SUCCESS;
 
+}
+
+CmdResult cmd_nick::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
+{
+	allowinvalid = (id != 0);
 }
 

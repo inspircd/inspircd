@@ -26,6 +26,7 @@
  */
 class cmd_nick : public command_t
 {
+	bool allowinvalid;
  public:
 	/** Constructor for nick.
 	 */
@@ -37,6 +38,8 @@ class cmd_nick : public command_t
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
+
+	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
 };
 
 #endif
