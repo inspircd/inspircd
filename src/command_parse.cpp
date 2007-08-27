@@ -217,12 +217,15 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 	{
 		if ((pcnt>=n->second->min_params) && (n->second->source != "<core>"))
 		{
-			if ((!n->second->flags_needed) || (user->IsModeSet(n->second->flags_needed)))
+			if (IS_LOCAL(user) && n->second->flags_needed)
 			{
-				if (n->second->flags_needed)
+				if (user->IsModeSet(n->second->flags_needed))
 				{
-					return ((user->HasPermission(commandname)) || (ServerInstance->ULine(user->server)));
+					return (user->HasPermission(commandname));
 				}
+			}
+			else
+			{
 				return true;
 			}
 		}
