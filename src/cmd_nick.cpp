@@ -81,19 +81,12 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (InUse->registered != REG_ALL)
 			{
-				/* change the nick of the older user to nnn-overruled,
-				 * where nnn is their file descriptor. We know this to be unique.
-				 * NOTE: We must do this and not quit the user, even though we do
-				 * not have UID support yet. This is because if we set this user
-				 * as quitting and then introduce the new user before the old one
-				 * has quit, then the user hash gets totally buggered.
-				 * (Yes, that is a technical term). -- Brain
+				/* change the nick of the older user to its UUID
 				 */
-				std::string changeback = ConvToStr(InUse->GetFd()) + "-overruled";
-				InUse->WriteTo(InUse, "NICK %s", changeback.c_str());
+				InUse->WriteTo(InUse, "NICK %s", InUse->uuid);
 				InUse->WriteServ("433 %s %s :Nickname overruled.", InUse->nick, InUse->nick);
-				InUse->UpdateNickHash(changeback.c_str());
-				strlcpy(InUse->nick, changeback.c_str(), NICKMAX - 1);
+				InUse->UpdateNickHash(InUse->uuid);
+				strlcpy(InUse->nick, InUse->uuid, NICKMAX - 1);
 				InUse->InvalidateCache();
 				/* Take away their nickname-sent state forcing them to send a nick again */
 				InUse->registered &= ~REG_NICK;
