@@ -821,7 +821,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 				params.push_back(std::string(parameters[j]));
 			}
 		}
-		Utils->DoOneToMany(user->nick,command,params);
+		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
 
