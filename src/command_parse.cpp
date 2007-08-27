@@ -249,19 +249,28 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 	{
 		if (pcnt >= n->second->min_params)
 		{
-			if ((!n->second->flags_needed) || (user->IsModeSet(n->second->flags_needed)))
+			bool bOkay = false;
+
+			if (IS_LOCAL(user) && n->second->flags_needed)
 			{
-				if (n->second->flags_needed)
+				/* if user is local, and flags are needed .. */
+
+				if (user->IsModeSet(n->second->flags_needed))
 				{
-					if (IS_REMOTE(user) || user->HasPermission(commandname))
-					{
-						return n->second->Handle(parameters,pcnt,user);
-					}
+					/* if user has the flags, and now has the permissions, go ahead */
+					if (user->HasPermission(commandname))
+						bOkay = true;
 				}
-				else
-				{
-					return n->second->Handle(parameters,pcnt,user);
-				}
+			}
+			else
+			{
+				/* remote or no flags required anyway */
+				bOkay = true;
+			}
+
+			if (bOkay)
+			{
+				return n->second->Handle(parameters,pcnt,user);
 			}
 		}
 	}
