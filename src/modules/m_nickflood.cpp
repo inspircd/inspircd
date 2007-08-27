@@ -221,6 +221,9 @@ class ModuleNickFlood : public Module
 
 	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
 	{
+		if (isdigit(newnick[0])) /* allow switches to UID */
+			return 0;
+
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			chanrec *channel = i->first;
