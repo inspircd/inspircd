@@ -873,7 +873,17 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	/* NOTE: Calling this one parameter constructor for userrec automatically
 	 * allocates a new UUID and places it in the hash_map.
 	 */
-	userrec* New = new userrec(Instance);
+	userrec* New = NULL;
+	try
+	{
+		New = new userrec(Instance);
+	}
+	catch (CoreException &e)
+	{
+		Instance->Log(DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
+		return;
+	}
+
 	int j = 0;
 
 	Instance->unregistered_count++;
