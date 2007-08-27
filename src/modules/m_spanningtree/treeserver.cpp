@@ -36,7 +36,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 	VersionString.clear();
 	UserCount = OperCount = 0;
 	rtt = LastPing = 0;
-	Hidden = false;
+	Hidden = DupError = false;
 	VersionString = ServerInstance->GetVersionString();
 	SetID(id);
 }
@@ -56,7 +56,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
 	rtt = LastPing = 0;
-	Hidden = false;
+	Hidden = DupError = false;
 	AddHashEntry();
 	SetID(id);
 }
@@ -72,6 +72,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	UserCount = OperCount = 0;
 	this->SetNextPingTime(time(NULL) + Utils->PingFreq);
 	this->SetPingFlag();
+	DupError = false;
 	rtt = LastPing = 0;
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -141,7 +142,12 @@ void TreeServer::SetID(const std::string &id)
 	if (iter == Utils->sidlist.end())
 		Utils->sidlist[sid] = this;
 	else
-		throw CoreException("Server ID '"+id+"' already exists!");
+		DupError = true;
+}
+
+bool TreeServer::DuplicateID()
+{
+	return DupError;
 }
 
 int TreeServer::QuitUsers(const std::string &reason)

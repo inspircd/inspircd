@@ -44,6 +44,7 @@ class TreeServer : public classbase
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string sid;			/* Server ID */
+	bool DupError;				/* True if the server ID is duplicated (!) */
 
 	/** Set server ID
 	 * @param id Server ID
@@ -191,6 +192,10 @@ class TreeServer : public classbase
 	/** Get server ID
 	 */
 	std::string& GetID();
+
+	/** True on duplicate server ID (server not usable)
+	 */
+	bool DuplicateID();
 
 	/** Destructor
 	 */
