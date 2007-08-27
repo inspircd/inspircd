@@ -604,14 +604,19 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 	{
 		case TR_NICK:
 			/* Translate single nickname */
+			ServerInstance->Log(DEBUG,"TR_NICK");
 			user = ServerInstance->FindNick(source);
 			if (user)
 			{
+				ServerInstance->Log(DEBUG,"Managed UUID");
 				dest = user->uuid;
 				translations++;
 			}
 			else
+			{
+				ServerInstance->Log(DEBUG,"Had to use source.. (%s)", source.c_str());
 				dest = source;
+			}
 		break;
 		case TR_NICKLIST:
 		{

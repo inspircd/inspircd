@@ -828,6 +828,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 			else
 				translate_to = TR_TEXT;
 
+			ServerInstance->Log(DEBUG,"TRANSLATION: %s - type is %d", parameters[j], translate_to);
 			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
 
 			if (strchr(parameters[j],' '))
