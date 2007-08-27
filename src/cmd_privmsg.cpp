@@ -118,7 +118,11 @@ CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
 		return CMD_SUCCESS;
 	}
 
-	dest = ServerInstance->FindNick(parameters[0]);
+	if (IS_LOCAL(user))
+		dest = ServerInstance->FindNickOnly(parameters[0]);
+	else
+		dest = ServerInstance->FindNick(parameters[0]);
+
 	if (dest)
 	{
 		if (!*parameters[1])

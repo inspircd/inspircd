@@ -108,7 +108,10 @@ CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
 	if (pcnt > 1)
 		userindex = 1;
 
-	dest = ServerInstance->FindNick(parameters[userindex]);
+	if (IS_LOCAL(user))
+		dest = ServerInstance->FindNickOnly(parameters[userindex]);
+	else
+		dest = ServerInstance->FindNick(parameters[userindex]);
 
 	if (dest)
 	{
