@@ -51,6 +51,7 @@ class cmd_cban : public command_t
 	{
 		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";
+		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
 
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user)

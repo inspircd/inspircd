@@ -22,6 +22,7 @@ class cmd_alltime : public command_t
 	{
 		this->source = "m_alltime.so";
 		syntax.clear();
+		translation.push_back(TR_END);
 	}
 
 	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
