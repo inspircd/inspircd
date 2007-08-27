@@ -861,6 +861,9 @@ void userrec::AddToWhoWas()
 void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
 	userrec* New = new userrec(Instance);
+	int j = 0;
+
+	Instance->unregistered_count++;
 
 	user_hash::iterator iter = Instance->clientlist->find(New->uuid);
 	char ipaddr[MAXBUF];
@@ -870,12 +873,8 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	else
 #endif
 	inet_ntop(AF_INET, &((const sockaddr_in*)ip)->sin_addr, ipaddr, sizeof(ipaddr));
-	userrec* New;
-	int j = 0;
 
-	Instance->unregistered_count++;
-
-	(*(Instance->clientlist))[user->uuid] = New;
+	(*(Instance->clientlist))[New->uuid] = New;
 	New->fd = socket;
 	strlcpy(New->nick, New->uuid, NICKMAX - 1);
 

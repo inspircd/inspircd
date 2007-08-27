@@ -187,6 +187,7 @@ std::string InspIRCd::GetUID()
 			return std::string(current_uid);
 		}
 	}
+	return "";
 }
 
 
