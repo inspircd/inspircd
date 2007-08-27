@@ -149,6 +149,15 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 	return NULL;
 }
 
+TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
+{
+	server_hash::iterator iter = sidlist.find(id);
+	if (iter != sidlist.end())
+		return iter->second;
+	else
+		return NULL;
+}
+
 /* A convenient wrapper that returns true if a server exists */
 bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
 {

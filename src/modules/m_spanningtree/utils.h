@@ -89,6 +89,9 @@ class SpanningTreeUtilities
 	/** Hash of currently connected servers by name
 	 */
 	server_hash serverlist;
+	/** Hash of currently known server ids
+	 */
+	server_hash sidlist;
 	/** Hash of servers currently bursting but not initialized as connected
 	 */
 	std::map<irc::string,TreeSocket*> burstingserverlist;
@@ -163,6 +166,9 @@ class SpanningTreeUtilities
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);
+	/** Find server by SID
+	 */
+	TreeServer* FindServerID(const std::string &id);
 	/** Find a remote bursting server by name
 	 */
 	TreeServer* FindRemoteBurstServer(TreeServer* Server);

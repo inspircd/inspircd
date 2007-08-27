@@ -132,6 +132,11 @@ std::string& TreeServer::GetID()
 void TreeServer::SetID(const std::string &id)
 {
 	sid = id;
+	server_hash::iterator iter = Utils->sidlist.find(sid);
+	if (iter == Utils->sidlist.end())
+		Utils->sidlist[sid] = this;
+	else
+		throw CoreException("Server ID '"+id+"' already exists!");
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -330,6 +335,10 @@ TreeServer::~TreeServer()
 {
 	/* We'd better tidy up after ourselves, eh? */
 	this->DelHashEntry();
+
+	server_hash::iterator iter = Utils->sidlist.find(GetID());
+	if (iter != Utils->sidlist.end())
+		Utils->sidlist.erase(iter);
 }
 
 
