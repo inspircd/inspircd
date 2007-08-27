@@ -253,7 +253,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 			{
 				if (n->second->flags_needed)
 				{
-					if ((user->HasPermission(commandname)) || (!IS_LOCAL(user)))
+					if (IS_REMOTE(user) || user->HasPermission(commandname))
 					{
 						return n->second->Handle(parameters,pcnt,user);
 					}
