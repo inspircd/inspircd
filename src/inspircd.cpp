@@ -554,8 +554,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	for(i = 3; i < UUID_LENGTH - 1; i++)
 		current_uid[i] = 'A';
 
-	printf ("%s\n", current_uid);
-
 	printf("\nInspIRCd is now running!\n");
 	Log(DEFAULT,"Startup complete.");
 
