@@ -860,7 +860,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			usr++;
 			
 			/* Check the user actually exists */
-			who = this->Instance->FindNick(usr);
+			who = this->Instance->FindUUID(usr);
 			if (who)
 			{
 				/* Check that the user's 'direction' is correct */
@@ -980,6 +980,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	(*(this->Instance->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
 	strlcpy(_new->nick, tempnick, NICKMAX - 1);
+	strlcpy(_new->uuid, params[0].c_str(), UUID_LENGTH);
 	strlcpy(_new->host, params[3].c_str(),64);
 	strlcpy(_new->dhost, params[4].c_str(),64);
 	_new->server = this->Instance->FindServerNamePtr(source.c_str());
