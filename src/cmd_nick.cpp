@@ -183,5 +183,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 CmdResult cmd_nick::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
 {
 	allowinvalid = (id != 0);
+	return CMD_SUCCESS;
 }
 
