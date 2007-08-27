@@ -1027,6 +1027,17 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 		if (bChangeRemote)
 		{
+			/*
+			 * Cheat a little here. Instead of a dedicated command to change UID,
+			 * use SVSNICK and accept their client with it's UID (as we know the SVSNICK will
+			 * not fail under any circumstances -- UIDs are netwide exclusive).
+			 *
+			 * This means that each side of a collide will generate one extra NICK back to where
+			 * they have just linked (and where it got the SVSNICK from), however, it will
+			 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
+			 * have 928AAAB's nick set to that.
+			 *   -- w00t
+			 */
 			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
 			/* also, don't trample on the hash - use their UID as nick */
 			tempnick = params[0].c_str();
