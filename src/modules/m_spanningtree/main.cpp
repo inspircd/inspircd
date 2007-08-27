@@ -841,7 +841,7 @@ void ModuleSpanningTree::OnUserInvite(userrec* source,userrec* dest,chanrec* cha
 		std::deque<std::string> params;
 		params.push_back(dest->nick);
 		params.push_back(channel->name);
-		Utils->DoOneToMany(source->nick,"INVITE",params);
+		Utils->DoOneToMany(source->uuid,"INVITE",params);
 	}
 }
 
@@ -850,7 +850,7 @@ void ModuleSpanningTree::OnPostLocalTopicChange(userrec* user, chanrec* chan, co
 	std::deque<std::string> params;
 	params.push_back(chan->name);
 	params.push_back(":"+topic);
-	Utils->DoOneToMany(user->nick,"TOPIC",params);
+	Utils->DoOneToMany(user->uuid,"TOPIC",params);
 }
 
 void ModuleSpanningTree::OnWallops(userrec* user, const std::string &text)
@@ -859,7 +859,7 @@ void ModuleSpanningTree::OnWallops(userrec* user, const std::string &text)
 	{
 		std::deque<std::string> params;
 		params.push_back(":"+text);
-		Utils->DoOneToMany(user->nick,"WALLOPS",params);
+		Utils->DoOneToMany(user->uuid,"WALLOPS",params);
 	}
 }
 
@@ -874,7 +874,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 			params.clear();
 			params.push_back(d->nick);
 			params.push_back(":"+text);
-			Utils->DoOneToOne(user->nick,"NOTICE",params,d->server);
+			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
@@ -893,7 +893,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 				{
 					TreeSocket* Sock = i->second->GetSocket();
 					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" NOTICE "+cname+" :"+text);
+						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
 				}
 			}
 		}
@@ -906,7 +906,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 			std::deque<std::string> par;
 			par.push_back(target);
 			par.push_back(":"+text);
-			Utils->DoOneToMany(user->nick,"NOTICE",par);
+			Utils->DoOneToMany(user->uuid,"NOTICE",par);
 		}
 	}
 }
@@ -924,7 +924,7 @@ void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_typ
 			params.clear();
 			params.push_back(d->nick);
 			params.push_back(":"+text);
-			Utils->DoOneToOne(user->nick,"PRIVMSG",params,d->server);
+			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
@@ -943,7 +943,7 @@ void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_typ
 				{
 					TreeSocket* Sock = i->second->GetSocket();
 					if (Sock)
-						Sock->WriteLine(":"+std::string(user->nick)+" PRIVMSG "+cname+" :"+text);
+						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
 				}
 			}
 		}
@@ -956,7 +956,7 @@ void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_typ
 			std::deque<std::string> par;
 			par.push_back(target);
 			par.push_back(":"+text);
-			Utils->DoOneToMany(user->nick,"PRIVMSG",par);
+			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
 		}
 	}
 }
@@ -992,7 +992,7 @@ void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silen
 			std::deque<std::string> params;
 			params.push_back(channel->name);
 			params.push_back(ConvToStr(channel->age));
-			Utils->DoOneToMany(user->nick,"JOIN",params);
+			Utils->DoOneToMany(user->uuid,"JOIN",params);
 		}
 	}
 }
@@ -1004,7 +1004,7 @@ void ModuleSpanningTree::OnChangeHost(userrec* user, const std::string &newhost)
 		return;
 	std::deque<std::string> params;
 	params.push_back(newhost);
-	Utils->DoOneToMany(user->nick,"FHOST",params);
+	Utils->DoOneToMany(user->uuid,"FHOST",params);
 }
 
 void ModuleSpanningTree::OnChangeName(userrec* user, const std::string &gecos)
@@ -1014,7 +1014,7 @@ void ModuleSpanningTree::OnChangeName(userrec* user, const std::string &gecos)
 		return;
 	std::deque<std::string> params;
 	params.push_back(gecos);
-	Utils->DoOneToMany(user->nick,"FNAME",params);
+	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
 
 void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
@@ -1025,7 +1025,7 @@ void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::
 		params.push_back(channel->name);
 		if (!partmessage.empty())
 			params.push_back(":"+partmessage);
-		Utils->DoOneToMany(user->nick,"PART",params);
+		Utils->DoOneToMany(user->uuid,"PART",params);
 	}
 }
 
@@ -1064,11 +1064,11 @@ void ModuleSpanningTree::OnUserQuit(userrec* user, const std::string &reason, co
 		if (oper_message != reason)
 		{
 			params.push_back(":"+oper_message);
-			Utils->DoOneToMany(user->nick,"OPERQUIT",params);
+			Utils->DoOneToMany(user->uuid,"OPERQUIT",params);
 		}
 		params.clear();
 		params.push_back(":"+reason);
-		Utils->DoOneToMany(user->nick,"QUIT",params);
+		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}
 	// Regardless, We need to modify the user Counts..
 	TreeServer* SourceServer = Utils->FindServer(user->server);
@@ -1084,7 +1084,7 @@ void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnic
 	{
 		std::deque<std::string> params;
 		params.push_back(user->nick);
-		Utils->DoOneToMany(oldnick,"NICK",params);
+		Utils->DoOneToMany(user->uuid,"NICK",params);
 	}
 }
 
@@ -1096,7 +1096,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 		params.push_back(chan->name);
 		params.push_back(user->nick);
 		params.push_back(":"+reason);
-		Utils->DoOneToMany(source->nick,"KICK",params);
+		Utils->DoOneToMany(source->uuid,"KICK",params);
 	}
 	else if (!source)
 	{
@@ -1112,12 +1112,12 @@ void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std:
 {
 	std::deque<std::string> params;
 	params.push_back(":"+reason);
-	Utils->DoOneToMany(dest->nick,"OPERQUIT",params);
+	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
 	params.clear();
 	params.push_back(dest->nick);
 	params.push_back(":"+reason);
 	dest->SetOperQuit(operreason);
-	Utils->DoOneToMany(source->nick,"KILL",params);
+	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 
 void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
@@ -1147,7 +1147,7 @@ void ModuleSpanningTree::OnOper(userrec* user, const std::string &opertype)
 	{
 		std::deque<std::string> params;
 		params.push_back(opertype);
-		Utils->DoOneToMany(user->nick,"OPERTYPE",params);
+		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
 	}
 }
 
@@ -1178,13 +1178,13 @@ void ModuleSpanningTree::OnLine(userrec* source, const std::string &host, bool a
 				params.push_back(host);
 				params.push_back(sduration);
 				params.push_back(":"+reason);
-				Utils->DoOneToMany(source->nick,stype,params);
+				Utils->DoOneToMany(source->uuid,stype,params);
 			}
 			else
 			{
 				std::deque<std::string> params;
 				params.push_back(host);
-				Utils->DoOneToMany(source->nick,stype,params);
+				Utils->DoOneToMany(source->uuid,stype,params);
 			}
 		}
 	}
@@ -1252,7 +1252,7 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 			params.push_back(text);
 			command = "FMODE";
 		}
-		Utils->DoOneToMany(user->nick, command, params);
+		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
 
@@ -1262,7 +1262,7 @@ void ModuleSpanningTree::OnSetAway(userrec* user)
 	{
 		std::deque<std::string> params;
 		params.push_back(":"+std::string(user->awaymsg));
-		Utils->DoOneToMany(user->nick,"AWAY",params);
+		Utils->DoOneToMany(user->uuid,"AWAY",params);
 	}
 }
 
@@ -1272,7 +1272,7 @@ void ModuleSpanningTree::OnCancelAway(userrec* user)
 	{
 		std::deque<std::string> params;
 		params.clear();
-		Utils->DoOneToMany(user->nick,"AWAY",params);
+		Utils->DoOneToMany(user->uuid,"AWAY",params);
 	}
 }
 

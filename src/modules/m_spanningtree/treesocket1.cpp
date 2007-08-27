@@ -1203,12 +1203,12 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			this->WriteLine(data);
 			if (*u->second->oper)
 			{
-				snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->nick, u->second->oper);
+				snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid, u->second->oper);
 				this->WriteLine(data);
 			}
 			if (*u->second->awaymsg)
 			{
-				snprintf(data,MAXBUF,":%s AWAY :%s", u->second->nick, u->second->awaymsg);
+				snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid, u->second->awaymsg);
 				this->WriteLine(data);
 			}
 		}
