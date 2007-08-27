@@ -958,9 +958,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		}
 	}
 
-	/** Our client looks ok, lets introduce it now
-	 */
-	Instance->Log(DEBUG,"New remote client %s", tempnick);
+
+	/* check for collision */
 	user_hash::iterator iter = this->Instance->clientlist->find(tempnick);
 
 	if (iter != this->Instance->clientlist->end())
@@ -973,9 +972,9 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 * involved according to timestamp rules.
 		 *
 		 * RULES:
-		 *  user@host equal:
+		 *  user@ip equal:
 		 *   Force nick change on OLDER timestamped client
-		 *  user@host differ:
+		 *  user@ip differ:
 		 *   Force nick change on NEWER timestamped client
 		 *  TS EQUAL:
 		 *   FNC both.
@@ -986,25 +985,50 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 		 * This stops abusive use of collisions, simplifies problems with loops, and so on.
 		 *   -- w00t
 		 */
+		Instance->Log(DEBUG,"*** Collision on %s", tempnick);
 
 		if (age == iter->second->signon)
 		{
 			/* TS equal, do both */
-			
+			Instance->Log(DEBUG,"*** TS EQUAL, colliding both");
+			iter->second->ForceNickChange(iter->second->uuid);
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
+			/* also, don't trample on the hash - use their UID as nick */
+			tempnick = params[0].c_str();
 		}
 		else
 		{
+			/* default to FNC newer (more likely that ident@ip will differ) */
+			bool bFNCNewer = true;
+
+			if (
+				strcmp(iter->second->ident, params[5].c_str()) == 0 &&
+				strcmp(iter->second->GetIPString(), params[7].c_str()) == 0
+			   )
+			{
+				/* ident@ip same, FNC older client */
+				bFNCNewer = false;
+			}
+
+			if (age > iter->second->signon) /* It will never be equal here */
+			{
+				if (bFNCNewer)
+				{
+					/* incoming client "lost" - for now, send SVSNICK to them .. XXX use SAVE*/
+					this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
+
+					/* also, don't trample on the hash - use their UID as nick */
+					tempnick = params[0].c_str();
+					Instance->Log(DEBUG,"*** INCOMING client lost, changed theirs");
+				}
+				else
+				{
+					/* we "lost", change us */
+					iter->second->ForceNickChange(iter->second->uuid);
+					Instance->Log(DEBUG,"*** OUR client lost, changing ours");
+				}
+			}
 		}
-
-		/*
-		 * Uh oh, nick collision. Under old rules, we'd kill both. These days now we have UUID,
-		 * we force both clients to change nick to their UUID. Just change ours, and the other
-		 * server will change theirs when they see the collide. Problem solved! -- w00t
-		 */
-		iter->second->ForceNickChange(iter->second->uuid);
-
-		/* also reassign tempnick so we don't trample the hash - important! */
-		tempnick = params[0].c_str();
 	}
 
 	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
