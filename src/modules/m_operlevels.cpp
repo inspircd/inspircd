@@ -94,26 +94,5 @@ class ModuleOperLevels : public Module
 
 };
 
-class ModuleOperLevelsFactory : public ModuleFactory
-{
- public:
-	ModuleOperLevelsFactory()
-	{
-	}
-
-	~ModuleOperLevelsFactory()
-	{
-	}
-
-	virtual Module * CreateModule(InspIRCd* Me)
-	{
-		return new ModuleOperLevels(Me);
-	}
-
-};
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleOperLevelsFactory;
-}
+MODULE_INIT(ModuleOperLevels)
 
