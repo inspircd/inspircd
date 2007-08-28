@@ -430,12 +430,6 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 	}
 	else if (params[0] == "END")
 	{
-		std::string OurSID;
-
-		OurSID += (char)((Instance->Config->sid / 100) + 48);
-		OurSID += (char)((Instance->Config->sid / 10) % 10 + 48);
-		OurSID += (char)(Instance->Config->sid % 10 + 48);
-
 		std::string reason;
 		int ip6support = 0;
 #ifdef SUPPORT_IP6LINKS
@@ -508,14 +502,14 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 			if (!this->GetTheirChallenge().empty() && (this->LinkState == CONNECTING))
 			{
 				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(OutboundPass, this->GetTheirChallenge())+" 0 "+
-						OurSID+" :"+this->Instance->Config->ServerDesc);
+						Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
 			}
 		}
 		else
 		{
 			/* They didnt specify a challenge or we don't have m_sha256.so, we use plaintext */
 			if (this->LinkState == CONNECTING)
-				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+OutboundPass+" 0 "+OurSID+" :"+this->Instance->Config->ServerDesc);
+				this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+OutboundPass+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
 		}
 
 		if (reason.length())

@@ -1716,6 +1716,14 @@ InspIRCd* ServerConfig::GetInstance()
 	return ServerInstance;
 }
 
+std::string ServerConfig::GetSID()
+{
+	std::string OurSID;
+	OurSID += (char)((Instance->Config->sid / 100) + 48);
+	OurSID += (char)((Instance->Config->sid / 10) % 10 + 48);
+	OurSID += (char)(Instance->Config->sid % 10 + 48);
+	return OurSID;
+}
 
 ValueItem::ValueItem(int value)
 {

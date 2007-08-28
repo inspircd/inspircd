@@ -618,6 +618,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	void ClearStack();
 
+	/** Get server ID as string with required leading zeroes
+	 */
+	std::string GetSID();
+
 	/** Update the 005 vector
 	 */
 	void Update005();

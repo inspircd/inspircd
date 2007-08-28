@@ -910,16 +910,11 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	std::string OurSID;
 	int hops = atoi(params[2].c_str());
 
 	this->InboundServerName = sname;
 	this->InboundDescription = description;
 	this->InboundSID = sid;
-
-	OurSID += (char)((Instance->Config->sid / 100) + 48);
-	OurSID += (char)((Instance->Config->sid / 10) % 10 + 48);
-	OurSID += (char)(Instance->Config->sid % 10 + 48);
 
 	if (!sentcapab)
 		this->SendCapabilities();
@@ -976,7 +971,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 
 			// this is good. Send our details: Our server name and description and hopcount of 0,
 			// along with the sendpass from this block.
-			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+OurSID+" :"+this->Instance->Config->ServerDesc);
+			this->WriteLine(std::string("SERVER ")+this->Instance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+Instance->Config->GetSID()+" :"+this->Instance->Config->ServerDesc);
 			// move to the next state, we are now waiting for THEM.
 			this->LinkState = WAIT_AUTH_2;
 			return true;
