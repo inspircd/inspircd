@@ -231,6 +231,9 @@ class TreeSocket : public InspSocket
 	/** FJOIN, similar to TS6 SJOIN, but not quite. */
 	bool ForceJoin(const std::string &source, std::deque<std::string> &params);
 
+	/* Used on nick collision ... XXX ugly function HACK */
+	int DoCollision(userrec *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid);
+
 	/** UID command */
 	bool ParseUID(const std::string &source, std::deque<std::string> &params);
 

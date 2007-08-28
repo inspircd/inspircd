@@ -915,6 +915,99 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	return true;
 }
 
+/*
+ * Yes, this function looks a little ugly.
+ * However, in some circumstances we may not have a userrec, so we need to do things this way.
+ * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
+ * Sends SVSNICKs as appropriate and forces nickchanges too.
+ */
+int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid)
+{
+	/*
+	 *  Under old protocol rules, we would have had to kill both clients.
+	 *  Really, this sucks.
+	 * These days, we have UID. And, so what we do is, force nick change client(s)
+	 * involved according to timestamp rules.
+	 *
+	 * RULES: 	 
+	 *  user@ip equal: 	 
+	 *   Force nick change on OLDER timestamped client 	 
+	 *  user@ip differ: 	 
+	 *   Force nick change on NEWER timestamped client 	 
+	 *  TS EQUAL: 	 
+	 *   FNC both. 	 
+	 * 	 
+	 * This stops abusive use of collisions, simplifies problems with loops, and so on. 	 
+	 *   -- w00t
+	 */
+	bool bChangeLocal = true;
+	bool bChangeRemote = true;
+
+	/* for brevity, don't use the userrec */
+	time_t localts = u->age;
+	const char *localident = u->ident;
+	const char *localip = u->GetIPString();
+
+	/* mmk. let's do this again. */
+	if (remotets == localts)
+	{
+		/* equal. fuck them both! do nada, let the handler at the bottom figure this out. */
+	}
+	else
+	{
+		/* fuck. now it gets complex. */
+
+		/* first, let's see if ident@host matches. */
+		bool SamePerson = strcmp(localident, remoteident)
+				&& !strcmp(localip, remoteip);
+
+		/*
+		 * if ident@ip is equal, and theirs is newer, or
+		 * ident@ip differ, and ours is newer
+		 */
+		if((SamePerson && remotets < localts) ||
+		   (!SamePerson && remotets > localts))
+		{
+			/* remote needs to change */
+			bChangeLocal = false;
+		}
+		else
+		{
+			/* ours needs to change */
+			bChangeRemote = false;
+		}
+	}
+
+
+	if (bChangeLocal)
+	{
+		u->ForceNickChange(u->uuid);
+
+		if (!bChangeRemote)
+			return 1;
+	}
+	if (bChangeRemote)
+	{
+		/*
+		 * Cheat a little here. Instead of a dedicated command to change UID,
+		 * use SVSNICK and accept their client with it's UID (as we know the SVSNICK will
+		 * not fail under any circumstances -- UIDs are netwide exclusive).
+		 *
+		 * This means that each side of a collide will generate one extra NICK back to where
+		 * they have just linked (and where it got the SVSNICK from), however, it will
+		 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
+		 * have 928AAAB's nick set to that.
+		 *   -- w00t
+		 */
+		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+remoteuid+" " + remoteuid);
+
+		if (!bChangeRemote)
+			return 2;
+	}
+
+	return 3;
+}
+
 bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &params)
 {
 	/** Do we have enough parameters:
@@ -965,77 +1058,13 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	{
 		/*
 		 * Nick collision.
-		 *  Under old protocol rules, we would have had to kill both clients.
-		 *  Really, this sucks.
-		 * These days, we have UID. And, so what we do is, force nick change client(s)
-		 * involved according to timestamp rules.
-		 *
-		 * RULES: 	 
-		 *  user@ip equal: 	 
-		 *   Force nick change on OLDER timestamped client 	 
-		 *  user@ip differ: 	 
-		 *   Force nick change on NEWER timestamped client 	 
-		 *  TS EQUAL: 	 
-		 *   FNC both. 	 
-		 * 	 
-		 * This stops abusive use of collisions, simplifies problems with loops, and so on. 	 
-		 *   -- w00t
 		 */
 		Instance->Log(DEBUG,"*** Collision on %s", tempnick);
+		int collide = this->DoCollision(iter->second, age, params[5].c_str(), params[7].c_str(), params[0].c_str());
 
-		bool bChangeLocal = true;
-		bool bChangeRemote = true;
-
-		/* mmk. let's do this again. */
-		if (age == iter->second->age)
+		if (collide == 2)
 		{
-			/* equal. fuck them both! do nada, let the handler at the bottom figure this out. */
-		}
-		else
-		{
-			/* fuck. now it gets complex. */
-
-			/* first, let's see if ident@host matches. */
-			bool SamePerson = strcmp(iter->second->ident, params[5].c_str())
-					&& !strcmp(iter->second->GetIPString(), params[7].c_str());
-
-			/*
-			 * if ident@ip is equal, and theirs is newer, or
-			 * ident@ip differ, and ours is newer
-			 */
-			if((SamePerson && age < iter->second->age) ||
-			   (!SamePerson && age > iter->second->age))
-			{
-				/* remote needs to change */
-				bChangeLocal = false;
-			}
-			else
-			{
-				/* ours needs to change */
-				bChangeRemote = false;
-			}
-		}
-
-
-		if (bChangeLocal)
-		{
-			iter->second->ForceNickChange(iter->second->uuid);
-		}
-		if (bChangeRemote)
-		{
-			/*
-			 * Cheat a little here. Instead of a dedicated command to change UID,
-			 * use SVSNICK and accept their client with it's UID (as we know the SVSNICK will
-			 * not fail under any circumstances -- UIDs are netwide exclusive).
-			 *
-			 * This means that each side of a collide will generate one extra NICK back to where
-			 * they have just linked (and where it got the SVSNICK from), however, it will
-			 * be dropped harmlessly as it will come in as :928AAAB NICK 928AAAB, and we already
-			 * have 928AAAB's nick set to that.
-			 *   -- w00t
-			 */
-			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+params[0]+" " + params[0]);
-			/* also, don't trample on the hash - use their UID as nick */
+			/* remote client changed, make sure we change their nick for the hash too */
 			tempnick = params[0].c_str();
 		}
 	}
