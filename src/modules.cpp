@@ -427,38 +427,39 @@ bool InspIRCd::LoadModule(const char* filename)
 
 	if (!ServerConfig::DirValid(modfile))
 	{
-		this->Log(DEFAULT,"Module %s is not within the modules directory.",modfile);
-		snprintf(MODERR,MAXBUF,"Module %s is not within the modules directory.",modfile);
+		snprintf(MODERR, MAXBUF,"Module %s is not within the modules directory.", modfile);
+		this->Log(DEFAULT, MODERR);
 		return false;
 	}
+	
 	if (ServerConfig::FileExists(modfile))
 	{
-
 		for (unsigned int j = 0; j < Config->module_names.size(); j++)
 		{
 			if (Config->module_names[j] == filename_str)
 			{
 				this->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
-				snprintf(MODERR,MAXBUF,"Module already loaded");
+				snprintf(MODERR, MAXBUF, "Module already loaded");
 				return false;
 			}
 		}
+		
 		Module* m = NULL;
 		ircd_module* a = NULL;
+		
 		try
 		{
-			a = new ircd_module(this, modfile);
+			/* This will throw a CoreException if there's a problem loading
+			 * the module file or getting a pointer to the init_module symbol.
+			 */
+			a = new ircd_module(this, modfile, "init_module");
+			
 			factory[this->ModCount+1] = a;
-			if (factory[this->ModCount+1]->LastError())
-			{
-				this->Log(DEFAULT,"Unable to load %s: %s",modfile,factory[this->ModCount+1]->LastError());
-				snprintf(MODERR,MAXBUF,"Loader/Linker error: %s",factory[this->ModCount+1]->LastError());
-				return false;
-			}
-			if ((long)factory[this->ModCount+1]->factory != -1)
-			{
-				m = factory[this->ModCount+1]->factory->CreateModule(this);
+			
+			m = factory[this->ModCount+1]->CallInit();
 
+			if(m)
+			{
 				Version v = m->GetVersion();
 
 				if (v.API != API_VERSION)
@@ -474,6 +475,7 @@ bool InspIRCd::LoadModule(const char* filename)
 				}
 
 				modules[this->ModCount+1] = m;
+				
 				/* save the module and the module's classfactory, if
 				 * this isnt done, random crashes can occur :/ */
 				Config->module_names.push_back(filename);
@@ -489,10 +491,22 @@ bool InspIRCd::LoadModule(const char* filename)
 			}
 			else
 			{
-				this->Log(DEFAULT,"Unable to load %s",modfile);
-				snprintf(MODERR,MAXBUF,"Factory function failed: Probably missing init_module() entrypoint.");
+				this->Log(DEFAULT, "Unable to load %s",modfile);
+				snprintf(MODERR,MAXBUF, "Probably missing init_module() entrypoint, but dlsym() didn't notice a problem");
 				return false;
 			}
+		}
+		catch (LoadModuleException& modexcept)
+		{
+			this->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+			return false;
+		}
+		catch (FindSymbolException& modexcept)
+		{
+			this->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+			return false;
 		}
 		catch (CoreException& modexcept)
 		{
@@ -507,6 +521,7 @@ bool InspIRCd::LoadModule(const char* filename)
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
 	}
+	
 	this->ModCount++;
 	FOREACH_MOD_I(this,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
 	// now work out which modules, if any, want to move to the back of the queue,
@@ -1066,5 +1081,3 @@ int FileReader::FileSize()
 {
 	return fc.size();
 }
-
-

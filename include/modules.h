@@ -93,6 +93,7 @@ class ServerConfig;
 /* Forward-delacare module for ModuleMessage etc
  */
 class Module;
+class InspIRCd;
 
 /** Low level definition of a FileReader classes file cache area -
  * a text file seperated into lines.
@@ -359,68 +360,6 @@ class CoreExport Event : public ModuleMessage
 	 * no replies are expected.
 	 */
 	char* Send(InspIRCd* ServerInstance);
-};
-
-/** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
- * When a module whishes to abort, e.g. within a constructor, it should throw an exception using ModuleException or
- * a class derived from ModuleException. If a module throws an exception during its constructor, the module will not
- * be loaded. If this happens, the error message returned by ModuleException::GetReason will be displayed to the user
- * attempting to load the module, or dumped to the console if the ircd is currently loading for the first time.
- */
-class CoreExport CoreException : public std::exception
-{
- protected:
-	/** Holds the error message to be displayed
-	 */
-	const std::string err;
-	/** Source of the exception
-	 */
-	const std::string source;
- public:
-	/** Default constructor, just uses the error mesage 'Core threw an exception'.
-	 */
-	CoreException() : err("Core threw an exception"), source("The core") {}
-	/** This constructor can be used to specify an error message before throwing.
-	 */
-	CoreException(const std::string &message) : err(message), source("The core") {}
-	/** This constructor can be used to specify an error message before throwing,
-	 * and to specify the source of the exception.
-	 */
-	CoreException(const std::string &message, const std::string &src) : err(message), source(src) {}
-	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
-	 * Actually no, it does nothing. Never mind.
-	 * @throws Nothing!
-	 */
-	virtual ~CoreException() throw() {};
-	/** Returns the reason for the exception.
-	 * The module should probably put something informative here as the user will see this upon failure.
-	 */
-	virtual const char* GetReason()
-	{
-		return err.c_str();
-	}
-
-	virtual const char* GetSource()
-	{
-		return source.c_str();
-	}
-};
-
-class CoreExport ModuleException : public CoreException
-{
- public:
-	/** Default constructor, just uses the error mesage 'Module threw an exception'.
-	 */
-	ModuleException() : CoreException("Module threw an exception", "A Module") {}
-
-	/** This constructor can be used to specify an error message before throwing.
-	 */
-	ModuleException(const std::string &message) : CoreException(message, "A Module") {}
-	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
-	 * Actually no, it does nothing. Never mind.
-	 * @throws Nothing!
-	 */
-	virtual ~ModuleException() throw() {};
 };
 
 /** Priority types which can be returned from Module::Prioritize()
@@ -1639,32 +1578,10 @@ class CoreExport FileReader : public classbase
 	int FileSize();
 };
 
-
-/** Instantiates classes inherited from Module.
- * This class creates a class inherited from type Module, using new. This is to allow for modules
- * to create many different variants of Module, dependent on architecture, configuration, etc.
- * In most cases, the simple class shown in the example module m_foobar.so will suffice for most
- * modules.
+/** A DLLFactory (designed to load shared objects) containing a
+ * handle to a module's init_module() function.
  */
-class CoreExport ModuleFactory : public classbase
-{
- public:
-	/** The default constructor does nothing.
-	 */
-	ModuleFactory() { }
-	/** The default destructor does nothing
-	 */
-	virtual ~ModuleFactory() { }
-	/** Creates a new module.
-	 * Your inherited class of ModuleFactory must return a pointer to your Module class
-	 * using this method.
-	 */
-	virtual Module * CreateModule(InspIRCd* Me) = 0;
-};
-
-/** A DLLFactory (designed to load shared objects) containing a ModuleFactory.
- */
-typedef DLLFactory<ModuleFactory> ircd_module;
+typedef DLLFactory<Module> ircd_module;
 
 /** A list of loaded Modules
  */
@@ -1679,18 +1596,9 @@ typedef std::vector<ircd_module*> FactoryList;
  * It defines the class factory and external init_module function.
  */
 #define MODULE_INIT(y) \
-	class Factory : public ModuleFactory \
+	extern "C" DllExport Module * init_module(InspIRCd* Me) \
 	{ \
-	 public: \
-		virtual Module * CreateModule(InspIRCd* Me) \
-		{ \
-			return new y(Me); \
-		} \
-	}; \
-	extern "C" DllExport void * init_module(void) \
-	{ \
-		return new Factory; \
+		return new y(Me); \
 	}
 
 #endif
-

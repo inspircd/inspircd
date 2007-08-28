@@ -14,21 +14,19 @@
 #ifndef __DLL_H
 #define __DLL_H
 
-/** This typedef represents the init_module function within each module.
- * The init_module function is the only exported extern "C" declaration
- * in any module file.
- */
-typedef void * (initfunc) (void);
-
 #include "inspircd_config.h"
-
-class InspIRCd;
 
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
  */
 class CoreExport DLLManager
 {
+ protected:
+
+	/** The last error string, or NULL
+	 */
+	char *err;
+ 
  public:
 	/** This constructor loads the module using dlopen()
 	 * @param ServerInstance The creator class of this object
@@ -58,43 +56,64 @@ class CoreExport DLLManager
 	 * pointer (yes, really!) and on windows it is a library handle.
 	 */
 	void *h;
-
- protected:
-
-	/** The last error string, or NULL
-	 */
-	char *err;
 };
 
-/** This class is a specialized form of DLLManager designed to load InspIRCd modules.
- * It's job is to call the init_module function and receive a factory pointer.
- */
-class CoreExport DLLFactoryBase : public DLLManager
+class CoreExport LoadModuleException : public CoreException
 {
  public:
-	/** Default constructor.
-	 * This constructor loads a module file by calling its DLLManager subclass constructor,
-	 * then finds the symbol using DLLManager::GetSymbol(), and calls the symbol,
-	 * obtaining a valid pointer to the init_module function
+	/** This constructor can be used to specify an error message before throwing.
 	 */
-	DLLFactoryBase(InspIRCd* Instance, const char *fname, const char *func_name = 0);
-
-	/** Default destructor.
+	LoadModuleException(const std::string &message)
+	: CoreException(message, "the core")
+	{
+	}
+	
+	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
+	 * Actually no, it does nothing. Never mind.
+	 * @throws Nothing!
 	 */
-	virtual ~DLLFactoryBase();
-
-	/** A function pointer to the factory function.
-	 */
-	void * (*factory_func)(void);	
+	virtual ~LoadModuleException() throw() {};
 };
 
-/** This is the highest-level class of the DLLFactory system used to load InspIRCd modules.
- * Its job is to finally call the init_module function and obtain a pointer to a ModuleFactory.
- * This template is a container for ModuleFactory itself, so that it may 'plug' into ModuleFactory
- * and provide module loading capabilities transparently.
- */
-template <class T> class CoreExport DLLFactory : public DLLFactoryBase
+class CoreExport FindSymbolException : public CoreException
 {
+ public:
+	/** This constructor can be used to specify an error message before throwing.
+	 */
+	FindSymbolException(const std::string &message)
+	: CoreException(message, "the core")
+	{
+	}
+	
+	/** This destructor solves world hunger, cancels the world debt, and causes the world to end.
+	 * Actually no, it does nothing. Never mind.
+	 * @throws Nothing!
+	 */
+	virtual ~FindSymbolException() throw() {};
+};
+
+/** This is the highest-level class of the DLLFactory system used to load InspIRCd modules and commands.
+ * All the dirty mucking around with dl*() is done by DLLManager, all this does it put a pretty shell on
+ * it and make it nice to use to load modules and core commands. This class is quite specialised for these
+ * two uses and it may not be useful more generally -- use DLLManager directly for that.
+ */
+template <typename ReturnType> class CoreExport DLLFactory : public DLLManager
+{
+ protected:
+	/** This typedef represents the init_* function within each module or command.
+	 * The init_module function is the only exported extern "C" declaration
+	 * in any module file. In a cmd_*.cpp file the equivilant is init_command
+	 */
+	typedef ReturnType * (initfunctype) (InspIRCd*);	 
+ 
+	/** Pointer to the init function.
+	 */
+	initfunctype* init_func;
+
+	/** Instance pointer to be passed to init_*() when it is called.
+	 */
+	InspIRCd* ServerInstance;
+ 
  public:
 	/** Default constructor.
 	 * This constructor passes its paramerers down through DLLFactoryBase and then DLLManager
@@ -102,26 +121,41 @@ template <class T> class CoreExport DLLFactory : public DLLFactoryBase
 	 * class. It is then down to the core to call the ModuleFactory::CreateModule() method and
 	 * receive a Module* which it can insert into its module lists.
 	 */
-	DLLFactory(InspIRCd* Instance, const char *fname, const char *func_name=0) : DLLFactoryBase(Instance, fname, func_name)
-	{
-		if (factory_func)
-			factory = reinterpret_cast<T*>(factory_func());
+	DLLFactory(InspIRCd* Instance, const char *fname, const char *func_name)
+	: DLLManager(Instance, fname), init_func(NULL), ServerInstance(Instance)
+	{	
+		const char* error = LastError();
+		
+		if(!error)
+		{
+			if(!GetSymbol((void **)&init_func, func_name))
+			{
+				throw FindSymbolException("Missing " + std::string(func_name) + "() entrypoint!");
+			}
+		}
 		else
-			factory = reinterpret_cast<T*>(-1);
+		{
+			throw LoadModuleException(error);
+		}
+	}
+	
+	ReturnType* CallInit()
+	{
+		if(init_func)
+		{
+			return init_func(ServerInstance);
+		}
+		else
+		{
+			return NULL;
+		}
 	}
 	
 	/** The destructor deletes the ModuleFactory pointer.
 	 */
 	~DLLFactory()
 	{
-		if (factory)
-			delete factory;
 	}
-
-	/** The ModuleFactory pointer.
-	 */
-	T *factory;
 };
 
 #endif
-

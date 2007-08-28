@@ -11,6 +11,7 @@
  * ---------------------------------------------------
  */
 
+#include "globals.h"
 #include "inspircd.h"
 #include "dynamic.h"
 #ifndef WIN32
@@ -63,22 +64,3 @@ bool DLLManager::GetSymbol(void** v, const char* sym_name)
 	/* succeeded :) */
 	return true;
 }
-
-DLLFactoryBase::DLLFactoryBase(InspIRCd* Instance, const char* fname, const char* symbol) : DLLManager(Instance, fname)
-{
-	/* try get the factory function if there is no error yet */
-	factory_func = 0;
-	
-	if (!LastError())
-	{
-		if (!GetSymbol( (void **)&factory_func, symbol ? symbol : "init_module"))
-		{
-			throw ModuleException("Missing init_module() entrypoint!");
-		}
-	}
-}
-
-DLLFactoryBase::~DLLFactoryBase()
-{
-}
-

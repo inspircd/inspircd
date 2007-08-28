@@ -36,4 +36,3 @@ typedef std::vector< KeyVal > KeyValList;
 typedef std::multimap< std::string, KeyValList > ConfigDataHash;
 
 #endif
-
