@@ -199,7 +199,7 @@ class SpanningTreeUtilities
 	/** Return true if str looks like a server ID
 	 * @param string to check against
 	 */
-	bool issid(const std::string &str);
+	bool IsSID(const std::string &str);
 };
 
 #endif

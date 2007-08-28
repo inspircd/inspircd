@@ -29,7 +29,7 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
-bool SpanningTreeUtilities::issid(const std::string &str)
+bool SpanningTreeUtilities::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * contains no '.' chars and starts with a digit.
@@ -45,7 +45,7 @@ bool SpanningTreeUtilities::issid(const std::string &str)
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	if (issid(ServerName))
+	if (IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
 	server_hash::iterator iter = serverlist.find(ServerName.c_str());
