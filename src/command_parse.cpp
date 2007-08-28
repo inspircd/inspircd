@@ -358,8 +358,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 					return;
 
 				/*
-				 * WARNING: nothing should come after this, as the user may be on a cull list to
-				 * be nuked next loop iteration. be sensible.
+				 * WARNING: be careful, the user may be deleted soon
 				 */
 				CmdResult result = cm->second->Handle(command_p,items,user);
 
