@@ -15,8 +15,6 @@
 
 /* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
 
-static ConfigReader* Conf;
-
 /** Handle /VHOST
  */
 class cmd_vhost : public command_t
@@ -30,6 +28,8 @@ class cmd_vhost : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
+		ConfigReader *Conf = new ConfigReader(ServerInstance);
+
 		for (int index = 0; index < Conf->Enumerate("vhost"); index++)
 		{
 			std::string mask = Conf->ReadValue("vhost","host",index);
@@ -42,12 +42,14 @@ class cmd_vhost : public command_t
 				{
 					user->WriteServ("NOTICE "+std::string(user->nick)+" :Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
+					delete Conf;
 					return CMD_LOCALONLY;
 				}
 			}
 		}
 
 		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
+		delete Conf;
 		return CMD_FAILURE;
 	}
 };
@@ -61,28 +63,18 @@ class ModuleVHost : public Module
  public:
 	ModuleVHost(InspIRCd* Me) : Module(Me)
 	{
-		
-		Conf = new ConfigReader(ServerInstance);
 		mycommand = new cmd_vhost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	
 	virtual ~ModuleVHost()
 	{
-		DELETE(Conf);
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
-	{
-		DELETE(Conf);
-		Conf = new ConfigReader(ServerInstance);
-	}
-	
 	virtual Version GetVersion()
 	{
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);

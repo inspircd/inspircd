@@ -141,7 +141,7 @@ public:
 	virtual ~ModuleBanException()
 	{
 		ServerInstance->Modes->DelMode(be);
-		DELETE(be);
+		delete be;
 		ServerInstance->UnpublishInterface("ChannelBanList", this);
 	}
 };

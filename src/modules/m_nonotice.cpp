@@ -88,7 +88,7 @@ class ModuleNoNotice : public Module
 	virtual ~ModuleNoNotice()
 	{
 		ServerInstance->Modes->DelMode(nt);
-		DELETE(nt);
+		delete nt;
 	}
 	
 	virtual Version GetVersion()

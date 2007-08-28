@@ -100,10 +100,11 @@ class ModuleKnock : public Module
  public:
 	ModuleKnock(InspIRCd* Me) : Module(Me)
 	{
-		
 		kn = new Knock(ServerInstance);
+
 		if (!ServerInstance->AddMode(kn, 'K'))
 			throw ModuleException("Could not add new modes!");
+
 		mycommand = new cmd_knock(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
@@ -115,7 +116,7 @@ class ModuleKnock : public Module
 	virtual ~ModuleKnock()
 	{
 		ServerInstance->Modes->DelMode(kn);
-		DELETE(kn);
+		delete kn;
 	}
 
 	virtual Version GetVersion()

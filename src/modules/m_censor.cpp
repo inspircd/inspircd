@@ -110,8 +110,8 @@ class ModuleCensor : public Module
 	{
 		ServerInstance->Modes->DelMode(cu);
 		ServerInstance->Modes->DelMode(cc);
-		DELETE(cu);
-		DELETE(cc);
+		delete cu;
+		delete cc;
 	}
 
 	virtual void ReplaceLine(irc::string &text, irc::string pattern, irc::string replace)
@@ -174,13 +174,15 @@ class ModuleCensor : public Module
 		 */
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 		censors.clear();
+
 		for (int index = 0; index < MyConf->Enumerate("badword"); index++)
 		{
 			irc::string pattern = (MyConf->ReadValue("badword","text",index)).c_str();
 			irc::string replace = (MyConf->ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
-		DELETE(MyConf);
+
+		delete MyConf;
 	}
 	
 	virtual Version GetVersion()

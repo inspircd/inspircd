@@ -314,9 +314,9 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modes->DelMode(m1);
 		ServerInstance->Modes->DelMode(m2);
 		ServerInstance->Modes->DelMode(m3);
-		DELETE(m1);
-		DELETE(m2);
-		DELETE(m3);
+		delete m1;
+		delete m2;
+		delete m3;
 	}
 	
 	virtual Version GetVersion()

@@ -290,11 +290,11 @@ class ModuleServices : public Module
 		ServerInstance->Modes->DelMode(m3);
 		ServerInstance->Modes->DelMode(m4);
 		ServerInstance->Modes->DelMode(m5);
-		DELETE(m1);
-		DELETE(m2);
-		DELETE(m3);
-		DELETE(m4);
-		DELETE(m5);
+		delete m1;
+		delete m2;
+		delete m3;
+		delete m4;
+		delete m5;
 	}
 	
 	virtual Version GetVersion()

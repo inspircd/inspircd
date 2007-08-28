@@ -112,7 +112,7 @@ class cmd_dccallow : public command_t
 					}
 					else
 					{
-						DELETE(dl);
+						delete  dl;
 						user->Shrink("dccallow_list");
 				
 						// remove from userlist
@@ -276,7 +276,7 @@ class ModuleDCCAllow : public Module
 		user->GetExt("dccallow_list", dl);
 		if (dl)
 		{
-			DELETE(dl);
+			delete dl;
 			user->Shrink("dccallow_list");
 			RemoveFromUserlist(user);
 		}

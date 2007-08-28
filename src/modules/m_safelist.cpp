@@ -139,7 +139,7 @@ class ModuleSafeList : public Module
 				return 1;
 			}
 
-			DELETE(last_list_time);
+			delete last_list_time;
 			user->Shrink("safelist_last");
 		}
 
@@ -221,7 +221,7 @@ class ModuleSafeList : public Module
 			if (ld->list_ended)
 			{
 				user->Shrink("safelist_cache");
-				DELETE(ld);
+				delete ld;
 				global_listing--;
 			}
 		}
@@ -237,14 +237,14 @@ class ModuleSafeList : public Module
 			if (ld)
 			{
 				u->Shrink("safelist_cache");
-				DELETE(ld);
+				delete ld;
 				global_listing--;
 			}
 			time_t* last_list_time;
 			u->GetExt("safelist_last", last_list_time);
 			if (last_list_time)
 			{
-				DELETE(last_list_time);
+				delete last_list_time;
 				u->Shrink("safelist_last");
 			}
 		}

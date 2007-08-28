@@ -60,7 +60,7 @@ class ModuleOperjoin : public Module
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
 
-			DELETE(conf);
+			delete conf;
 		}
 
 		virtual ~ModuleOperjoin()

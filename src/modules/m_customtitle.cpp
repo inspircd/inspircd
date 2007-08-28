@@ -71,7 +71,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 				if (text)
 				{
 					user->Shrink("ctitle");
-					DELETE(text);
+					delete text;
 				}
 
 				text = new std::string(title);
@@ -173,7 +173,7 @@ class ModuleCustomTitle : public Module
 		if (ctitle)
 		{
 			user->Shrink("ctitle");
-			DELETE(ctitle);
+			delete ctitle;
 		}
 	}
 
@@ -188,7 +188,7 @@ class ModuleCustomTitle : public Module
 			if (ctitle)
 			{
 				user->Shrink("ctitle");
-				DELETE(ctitle);
+				delete ctitle;
 			}
 		}
 	}

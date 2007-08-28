@@ -189,9 +189,11 @@ class ModuleIdent : public Module
 		Conf = new ConfigReader(ServerInstance);
 		IdentTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
 		PortBind = Conf->ReadValue("ident", "bind", 0);
+
 		if (!IdentTimeout)
 			IdentTimeout = 1;
-		DELETE(Conf);
+
+		delete Conf;
 	}
 
 	ModuleIdent(InspIRCd* Me)
