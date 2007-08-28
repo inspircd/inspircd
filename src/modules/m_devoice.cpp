@@ -42,10 +42,7 @@ class cmd_devoice : public command_t
 			modes[1] = "-v";
 			modes[2] = user->nick;
 
-			userrec* n = new userrec(ServerInstance);
-			n->SetFd(FD_MAGIC_NUMBER);
-			ServerInstance->SendMode(modes,3,n);
-			delete n;
+			ServerInstance->SendMode(modes, 3, ServerInstance->FakeClient);
 
 			/* route it -- SendMode doesn't distribute over the whole network */
 			return CMD_SUCCESS;
