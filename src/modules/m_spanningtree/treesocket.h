@@ -299,6 +299,10 @@ class TreeSocket : public InspSocket
 	 */
 	bool ServiceJoin(const std::string &prefix, std::deque<std::string> &params);
 
+	/** SVSPART
+	 */
+	bool ServicePart(const std::string &prefix, std::deque<std::string> &params);
+
 	/** REHASH
 	 */
 	bool RemoteRehash(const std::string &prefix, std::deque<std::string> &params);
