@@ -12,6 +12,9 @@
  */
 
 #include "inspircd.h"
+#include "users.h"
+#include "channels.h"
+#include "modules.h"
 
 /* $ModDesc: Provides support for ircu style usermode +d (deaf to channel messages and channel notices) */
 
@@ -48,6 +51,10 @@ class User_d : public ModeHandler
 class ModuleDeaf : public Module
 {
 	User_d* m1;
+
+	std::string deaf_bypasschars;
+	std::string deaf_bypasschars_uline;
+
  public:
 	ModuleDeaf(InspIRCd* Me)
 		: Module(Me)
@@ -55,26 +62,76 @@ class ModuleDeaf : public Module
 		m1 = new User_d(ServerInstance);
 		if (!ServerInstance->AddMode(m1, 'd'))
 			throw ModuleException("Could not add new modes!");
+
+		OnRehash(NULL, "");
 	}
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnBuildExemptList] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+	}
+
+	virtual void OnRehash(userrec* user, const std::string&)
+	{
+		ConfigReader* conf = new ConfigReader(ServerInstance);
+		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);
+		deaf_bypasschars_uline = conf->ReadValue("deaf", "bypasscharsuline", 0);
+
+		DELETE(conf);
 	}
 
 	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return PreText(user, dest, target_type, text, status, exempt_list);
+		if (target_type == TYPE_CHANNEL)
+		{
+			chanrec* chan = (chanrec*)dest;
+			if (chan)
+				this->BuildDeafList(MSG_NOTICE, chan, user, status, text, exempt_list);
+		}
+
+		return 0;
 	}
 
 	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		return PreText(user, dest, target_type, text, status, exempt_list);
+		if (target_type == TYPE_CHANNEL)
+		{
+			chanrec* chan = (chanrec*)dest;
+			if (chan)
+				this->BuildDeafList(MSG_PRIVMSG, chan, user, status, text, exempt_list);
+		}
+
+		return 0;
 	}
 
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list)
+	virtual void BuildDeafList(MessageType message_type, chanrec* chan, userrec* sender, char status, std::string &text, CUList &exempt_list)
 	{
 		CUList *ulist;
+		bool is_a_uline;
+		bool is_bypasschar, is_bypasschar_avail;
+		bool is_bypasschar_uline, is_bypasschar_uline_avail;
+
+		is_bypasschar = is_bypasschar_avail = is_bypasschar_uline = is_bypasschar_uline_avail = 0;
+		if (!deaf_bypasschars.empty())
+		{
+			is_bypasschar_avail = 1;
+			if (deaf_bypasschars.find(text[0], 0) != string::npos)
+				is_bypasschar = 1;
+		}
+		if (!deaf_bypasschars_uline.empty())
+		{
+			is_bypasschar_uline_avail = 1;
+			if (deaf_bypasschars_uline.find(text[0], 0) != string::npos)
+				is_bypasschar_uline = 1;
+		}
+
+		/*
+		 * If we have no bypasschars_uline in config, and this is a bypasschar (regular)
+		 * Than it is obviously going to get through +d, no build required
+		 */
+		if (!is_bypasschar_uline_avail && is_bypasschar)
+			return;
+
 		switch (status)
 		{
 			case '@':
@@ -93,28 +150,24 @@ class ModuleDeaf : public Module
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			if (IS_LOCAL(i->first))
-			{
-				if (i->first->IsModeSet('d'))
-				{
-					exempt_list[i->first] = i->first->nick;
-				}
-			}
-		}
-	}
+			/* not +d ? */
+			if (!i->first->IsModeSet('d'))
+				continue; /* deliver message */
+			/* matched both U-line only and regular bypasses */
+			if (is_bypasschar && is_bypasschar_uline)
+				continue; /* deliver message */
 
-	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			chanrec* chan = (chanrec*)dest;
+			is_a_uline = ServerInstance->ULine(i->first->server);
+			/* matched a U-line only bypass */
+			if (is_bypasschar_uline && is_a_uline)
+				continue; /* deliver message */
+			/* matched a regular bypass */
+			if (is_bypasschar && !is_a_uline)
+				continue; /* deliver message */
 
-			if (chan)
-			{
-				this->OnBuildExemptList(MSG_PRIVMSG, chan, user, status, exempt_list);
-			}
+			/* don't deliver message! */
+			exempt_list[i->first] = i->first->nick;
 		}
-		return 0;
 	}
 
 	virtual ~ModuleDeaf()
