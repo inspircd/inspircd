@@ -176,17 +176,11 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 {
 	Bindings.clear();
 
-	std::string OurSID;
-
-	OurSID += (char)((Instance->Config->sid / 100) + 48);
-	OurSID += (char)((Instance->Config->sid / 10) % 10 + 48);
-	OurSID += (char)(Instance->Config->sid % 10 + 48);
-
 	lines_to_apply = 0;
 
 	ServerInstance->Log(DEBUG, "SpanningTreeUtilities: SID: %s", OurSID.c_str());
 
-	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, OurSID);
+	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
 	modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
 
