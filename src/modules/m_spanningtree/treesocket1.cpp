@@ -990,7 +990,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 		else
 		{
 			/* user has not been introduced yet, just inform their server */
-			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid);
+			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid + " " + remotets);
 		}
 
 		if (!bChangeLocal)
