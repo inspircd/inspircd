@@ -32,9 +32,9 @@
 bool SpanningTreeUtilities::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
-	 * contains no '.' chars and starts with a digit.
+	 * starts with a digit, and has no '.' in the other 2
 	 */
-	return (str.length() == 3) && (str[0] != '.' && str[1] != '.' && str[2] != '.') && (isdigit(str[0]));
+	return ((str.length() == 3) && isdigit(str[0]) && (str[1] != '.' && str[2] != '.'));
 }
 
 /** Yay for fast searches!
