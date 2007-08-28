@@ -34,7 +34,7 @@ static std::map<std::string, std::string> warned;       /* Server names that hav
 
 int TreeSocket::WriteLine(std::string line)
 {
-	Instance->Log(DEBUG, "S[%d] -> %s", this->GetFd(), line.c_str());
+	Instance->Log(DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
 	return this->Write(line);
 }
@@ -1011,7 +1011,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 	if (line.empty())
 		return true;
 
-	Instance->Log(DEBUG, "S[%d] <- %s", this->GetFd(), line.c_str());
+	Instance->Log(DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	this->Split(line.c_str(),params);
 	
