@@ -402,7 +402,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 	else
 	{
 		std::string forwardto = params[1];
-		if (forwardto == this->Instance->Config->GetSID() || forwardto == this->Instance->ServerName)
+		if (forwardto == Instance->Config->GetSID() || forwardto == Instance->Config->ServerName)
 		{
 			/*
 			 * this is a PONG for us
@@ -1547,7 +1547,7 @@ Old nickname collision logic..
 				{
 					// its not a user. Its either a server, or somethings screwed up.
 					if (Utils->IsServer(prefix))
-						target = this->Instance->Config->GetID();
+						target = this->Instance->Config->GetSID();
 					else
 						return true;
 				}

@@ -177,8 +177,6 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 
 	lines_to_apply = 0;
 
-	ServerInstance->Log(DEBUG, "SpanningTreeUtilities: SID: %s", OurSID.c_str());
-
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
 	modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
