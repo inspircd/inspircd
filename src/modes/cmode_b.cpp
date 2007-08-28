@@ -53,21 +53,18 @@ void ModeChannelBan::RemoveMode(chanrec* channel)
 {
 	BanList copy;
 	char moderemove[MAXBUF];
-	userrec* n = new userrec(ServerInstance);
-	n->SetFd(FD_MAGIC_NUMBER);
 
 	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 	{
 		copy.push_back(*i);
 	}
+
 	for (BanList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
 		sprintf(moderemove,"-%c",this->GetModeChar());
 		const char* parameters[] = { channel->name, moderemove, i->data };
-		ServerInstance->SendMode(parameters, 3, n);
+		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
 	}
-
-	delete n;
 }
 
 void ModeChannelBan::RemoveMode(userrec* user)

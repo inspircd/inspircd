@@ -177,9 +177,6 @@ void chanrec::SetDefaultModes()
 
 	list.GetToken(modeseq);
 
-	userrec* dummyuser = new userrec(ServerInstance);
-	dummyuser->SetFd(FD_MAGIC_NUMBER);
-
 	for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
 	{
 		ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
@@ -190,11 +187,9 @@ void chanrec::SetDefaultModes()
 			else
 				parameter.clear();
 
-			mode->OnModeChange(dummyuser, dummyuser, this, parameter, true);
+			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);
 		}
 	}
-
-	delete dummyuser;
 }
 
 /* 
@@ -367,11 +362,9 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 
 chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs)
 {
-	userrec* dummyuser = new userrec(Instance);
 	std::string nick = user->nick;
 	bool silent = false;
 
-	dummyuser->SetFd(FD_MAGIC_NUMBER);
 	Ptr->AddUser(user);
 
 	/* Just in case they have no permissions */
@@ -385,7 +378,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 		{
 			Ptr->SetPrefix(user, status, mh->GetPrefixRank(), true);
 			/* Make sure that the mode handler knows this mode was now set */
-			mh->OnModeChange(dummyuser, dummyuser, Ptr, nick, true);
+			mh->OnModeChange(Instance->FakeClient, Instance->FakeClient, Ptr, nick, true);
 
 			switch (mh->GetPrefix())
 			{
@@ -409,8 +402,6 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 			}
 		}
 	}
-
-	delete dummyuser;
 
 	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, silent));
 

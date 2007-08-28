@@ -50,21 +50,19 @@ void ModeChannelVoice::RemoveMode(chanrec* channel)
 	CUList* list = channel->GetVoicedUsers();
 	CUList copy;
 	char moderemove[MAXBUF];
-	userrec* n = new userrec(ServerInstance);
-	n->SetFd(FD_MAGIC_NUMBER);
 
 	for (CUList::iterator i = list->begin(); i != list->end(); i++)
 	{
 		userrec* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));
 	}
+
 	for (CUList::iterator i = copy.begin(); i != copy.end(); i++)
 	{
 		sprintf(moderemove,"-%c",this->GetModeChar());
 		const char* parameters[] = { channel->name, moderemove, i->first->nick };
-		ServerInstance->SendMode(parameters, 3, n);
+		ServerInstance->SendMode(parameters, 3, ServerInstance->FakeClient);
 	}
-	delete n;
 }
 
 void ModeChannelVoice::RemoveMode(userrec* user)

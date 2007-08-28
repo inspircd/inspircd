@@ -1018,14 +1018,8 @@ void ModeHandler::RemoveMode(chanrec* channel)
 
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
-		userrec* n = new userrec(ServerInstance);
-
 		sprintf(moderemove,"-%c",this->GetModeChar());
-		n->SetFd(FD_MAGIC_NUMBER);
-
-		ServerInstance->SendMode(parameters, 2, n);
-
-		delete n;
+		ServerInstance->SendMode(parameters, 2, ServerInstance->FakeClient);
 	}
 }
 
