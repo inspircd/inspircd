@@ -396,6 +396,12 @@ class CoreExport InspIRCd : public classbase
 	std::map<InspSocket*,InspSocket*> SocketCull;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
+	 * Reason for it:
+	 * kludge alert!
+	 * SendMode expects a userrec* to send the numeric replies
+	 * back to, so we create it a fake user that isnt in the user
+	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
+	 * falls into the abyss :p
 	 */
 	userrec *FakeClient;
 
