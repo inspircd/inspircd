@@ -1095,7 +1095,12 @@ void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnic
 	{
 		std::deque<std::string> params;
 		params.push_back(user->nick);
-		user->age = ServerInstance->Time(true);
+
+		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
+		 */
+		if (irc::string(user->nick) != assign(oldnick))
+			user->age = ServerInstance->Time(true);
+
 		params.push_back(ConvToStr(user->age));
 		Utils->DoOneToMany(user->uuid,"NICK",params);
 	}
