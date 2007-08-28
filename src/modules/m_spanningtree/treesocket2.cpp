@@ -1489,8 +1489,13 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 				if (who)
 				{
-					if ((command == "NICK") && (params.size() > 1))
+					if (command == "NICK")
 					{
+						if (params.size() != 2)
+						{
+							SendError("Protocol violation: NICK message without TS - :"+std::string(who->uuid)+" NICK "+params[0]);
+							return false;
+						}
 						/* Update timestamp on user when they change nicks */
 						who->age = atoi(params[1].c_str());
 
