@@ -117,26 +117,5 @@ class ModuleSSLModes : public Module
 };
 
 
-class ModuleSSLModesFactory : public ModuleFactory
-{
- public:
-	ModuleSSLModesFactory()
-	{
-	}
-	
-	~ModuleSSLModesFactory()
-	{
-	}
-	
-	virtual Module* CreateModule(InspIRCd* Me)
-	{
-		return new ModuleSSLModes(Me);
-	}
-	
-};
+MODULE_INIT(ModuleSSLModes);
 
-
-extern "C" DllExport void * init_module( void )
-{
-	return new ModuleSSLModesFactory;
-}
