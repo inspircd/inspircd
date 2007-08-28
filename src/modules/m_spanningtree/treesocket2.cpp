@@ -1489,8 +1489,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 				}
 				if (who)
 				{
-					if ((command == "NICK") && (params.size() > 0))
+					if ((command == "NICK") && (params.size() > 1))
 					{
+						/* Update timestamp on user when they change nicks */
+						who->age = atoi(params[1].c_str());
+
 						/* On nick messages, check that the nick doesnt
 						 * already exist here. If it does, kill their copy,
 						 * and our copy.

@@ -1095,6 +1095,8 @@ void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnic
 	{
 		std::deque<std::string> params;
 		params.push_back(user->nick);
+		user->age = ServerInstance->Time(true);
+		params.push_back(ConvToStr(user->age));
 		Utils->DoOneToMany(user->uuid,"NICK",params);
 	}
 }
