@@ -1489,7 +1489,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 						 * already exist here. If it does, kill their copy,
 						 * and our copy.
 						 */
-						userrec* x = this->Instance->FindNick(params[0]);
+						userrec* x = this->Instance->FindNickOnly(params[0]);
 						if ((x) && (x != who))
 						{
 							/* x is local, who is remote */
