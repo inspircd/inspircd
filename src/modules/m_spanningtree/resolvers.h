@@ -14,10 +14,6 @@
 #ifndef __RESOLVERS__H__
 #define __RESOLVERS__H__
 
-#include "configreader.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
 #include "socket.h"

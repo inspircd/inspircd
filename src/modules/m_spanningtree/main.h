@@ -15,7 +15,6 @@
 #define __ST_MAIN__
 
 #include "inspircd.h"
-#include "modules.h"
 #include <stdarg.h>
 
 /** If you make a change which breaks the protocol, increment this.

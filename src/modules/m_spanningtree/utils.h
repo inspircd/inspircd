@@ -14,10 +14,6 @@
 #ifndef __ST__UTIL__
 #define __ST__UTIL__
 
-#include "configreader.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 #include "inspircd.h"
 
 /* Foward declarations */
