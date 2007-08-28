@@ -1091,6 +1091,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	strlcpy(_new->fullname, params[8].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
 	_new->signon = age;
+	_new->age = age;
 
 	/* we need to remove the + from the modestring, so we can do our stuff */
 	std::string::size_type pos_after_plus = params[6].find_first_not_of('+');
