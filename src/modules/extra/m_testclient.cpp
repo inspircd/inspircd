@@ -41,7 +41,7 @@ public:
 	
 	virtual void OnBackgroundTimer(time_t foo)
 	{
-		Module* target = ServerInstance->FindFeature("SQL");
+		Module* target = ServerInstance->Modules->FindFeature("SQL");
 		
 		if(target)
 		{
@@ -107,4 +107,3 @@ public:
 };
 
 MODULE_INIT(ModuleTestClient);
-

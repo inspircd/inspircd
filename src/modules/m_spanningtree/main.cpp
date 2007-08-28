@@ -36,7 +36,7 @@
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	: Module(Me), max_local(0), max_global(0)
 {
-	ServerInstance->UseInterface("InspSocketHook");
+	ServerInstance->Modules->UseInterface("InspSocketHook");
 	Utils = new SpanningTreeUtilities(Me, this);
 	command_rconnect = new cmd_rconnect(ServerInstance, this, Utils);
 	ServerInstance->AddCommand(command_rconnect);
@@ -1449,7 +1449,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 
 	ServerInstance->Timers->DelTimer(RefreshTimer);
 
-	ServerInstance->DoneWithInterface("InspSocketHook");
+	ServerInstance->Modules->DoneWithInterface("InspSocketHook");
 }
 
 Version ModuleSpanningTree::GetVersion()
@@ -1481,4 +1481,3 @@ Priority ModuleSpanningTree::Prioritize()
 }
 
 MODULE_INIT(ModuleSpanningTree)
-

@@ -35,16 +35,16 @@ public:
 	ModuleSQLOper(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		ServerInstance->UseInterface("SQLutils");
-		ServerInstance->UseInterface("SQL");
-		ServerInstance->UseInterface("HashRequest");
+		ServerInstance->Modules->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQL");
+		ServerInstance->Modules->UseInterface("HashRequest");
 
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->FindModule("m_md5.so");
+		HashModule = ServerInstance->Modules->Find("m_md5.so");
 		if (!HashModule)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_sqloper.so.");
 
-		SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
 
@@ -53,9 +53,9 @@ public:
 
 	virtual ~ModuleSQLOper()
 	{
-		ServerInstance->DoneWithInterface("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
-		ServerInstance->DoneWithInterface("HashRequest");
+		ServerInstance->Modules->DoneWithInterface("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
+		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 
 	void Implements(char* List)
@@ -91,7 +91,7 @@ public:
 	{
 		Module* target;
 		
-		target = ServerInstance->FindFeature("SQL");
+		target = ServerInstance->Modules->FindFeature("SQL");
 
 		if (target)
 		{
@@ -280,4 +280,3 @@ public:
 };
 
 MODULE_INIT(ModuleSQLOper);
-

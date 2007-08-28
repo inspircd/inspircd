@@ -936,7 +936,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{
 			for (std::vector<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
 			{
-				if (ServerInstance->UnloadModule(removing->c_str()))
+				if (ServerInstance->Modules->Unload(removing->c_str()))
 				{
 					ServerInstance->WriteOpers("*** REHASH UNLOADED MODULE: %s",removing->c_str());
 
@@ -948,7 +948,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 				else
 				{
 					if (user)
-						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->ModuleError());
+						user->WriteServ("972 %s %s :Failed to unload module %s: %s",user->nick, removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError());
 				}
 			}
 		}
@@ -957,7 +957,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 		{
 			for (std::vector<std::string>::iterator adding = added_modules.begin(); adding != added_modules.end(); adding++)
 			{
-				if (ServerInstance->LoadModule(adding->c_str()))
+				if (ServerInstance->Modules->Load(adding->c_str()))
 				{
 					ServerInstance->WriteOpers("*** REHASH LOADED MODULE: %s",adding->c_str());
 
@@ -969,7 +969,7 @@ void ServerConfig::Read(bool bail, userrec* user)
 				else
 				{
 					if (user)
-						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->ModuleError());
+						user->WriteServ("974 %s %s :Failed to load module %s: %s",user->nick, adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError());
 				}
 			}
 		}
@@ -1777,4 +1777,3 @@ bool ValueItem::GetBool()
 {
 	return (GetInteger() || v == "yes" || v == "true");
 }
-

@@ -68,7 +68,7 @@ const char* ExitCodes[] =
 void InspIRCd::Cleanup()
 {
 	std::vector<std::string> mymodnames;
-	int MyModCount = this->GetModuleCount();
+	int MyModCount = this->Modules->GetCount();
 
 	if (Config)
 	{
@@ -94,7 +94,7 @@ void InspIRCd::Cleanup()
 	 */
 	for (int tries = 0; tries < 3; tries++)
 	{
-		MyModCount = this->GetModuleCount();
+		MyModCount = this->Modules->GetCount();
 		mymodnames.clear();
 
 		if (MyModCount)
@@ -104,7 +104,7 @@ void InspIRCd::Cleanup()
 				mymodnames.push_back(Config->module_names[j]);
 
 			for (int k = 0; k <= MyModCount; k++)
-				this->UnloadModule(mymodnames[k].c_str());
+				this->Modules->Unload(mymodnames[k].c_str());
 		}
 	}
 
@@ -280,8 +280,7 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv)
-	: ModCount(0),
-	  GlobalCulls(this),
+	: GlobalCulls(this),
 
 	 /* Functor initialisation. Note that the ordering here is very important. */
 	 HandleProcessUser(this),
@@ -304,8 +303,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	int do_version = 0, do_nofork = 0, do_debug = 0, do_nolog = 0, do_root = 0;    /* flag variables */
 	char c = 0;
 
-	modules.resize(255);
-	factory.resize(255);
 	memset(&server, 0, sizeof(server));
 	memset(&client, 0, sizeof(client));
 
@@ -425,12 +422,17 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_LOG);
 	}
 
+	this->Modules = new ModuleManager(this);
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
 	this->XLines = new XLineManager(this);
+	
 	Config->ClearStack();
 	Config->Read(true, NULL);
+	
+	this->Modules->modules.resize(255);
+	this->Modules->handles.resize(255);
 
 	/*
 	 * Initialise UID. XXX, we need to read SID from config, and use it instead of 000.
@@ -510,7 +512,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	this->Res = new DNS(this);
 
-	this->LoadAllModules();
+	this->Modules->LoadAll();
+	
 	/* Just in case no modules were loaded - fix for bug #101 */
 	this->BuildISupport();
 	InitializeDisabledCommands(Config->DisabledCommands, this);
@@ -702,21 +705,16 @@ bool InspIRCd::AllModulesReportReady(userrec* user)
 	if (!Config->global_implementation[I_OnCheckReady])
 		return true;
 
-	for (int i = 0; i <= this->GetModuleCount(); i++)
+	for (int i = 0; i <= this->Modules->GetCount(); i++)
 	{
 		if (Config->implement_lists[i][I_OnCheckReady])
 		{
-			int res = modules[i]->OnCheckReady(user);
+			int res = this->Modules->modules[i]->OnCheckReady(user);
 			if (!res)
 				return false;
 		}
 	}
 	return true;
-}
-
-int InspIRCd::GetModuleCount()
-{
-	return this->ModCount;
 }
 
 time_t InspIRCd::Time(bool delta)
@@ -761,4 +759,3 @@ void InspIRCd::SetSignal(int signal)
 {
 	*mysig = signal;
 }
-    

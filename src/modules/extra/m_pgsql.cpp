@@ -723,20 +723,20 @@ class ModulePgSQL : public Module
 	ModulePgSQL(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
-		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQLutils");
 
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
 
 		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS));
 
-		if (!ServerInstance->PublishFeature("SQL", this))
+		if (!ServerInstance->Modules->PublishFeature("SQL", this))
 		{
 			throw ModuleException("BUG: PgSQL Unable to publish feature 'SQL'");
 		}
 
 		ReadConf();
 
-		ServerInstance->PublishInterface("SQL", this);
+		ServerInstance->Modules->PublishInterface("SQL", this);
 	}
 
 	virtual ~ModulePgSQL()
@@ -745,9 +745,9 @@ class ModulePgSQL : public Module
 			ServerInstance->Timers->DelTimer(retimer);
 		ClearAllConnections();
 		delete[] sqlsuccess;
-		ServerInstance->UnpublishInterface("SQL", this);
-		ServerInstance->UnpublishFeature("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
+		ServerInstance->Modules->UnpublishInterface("SQL", this);
+		ServerInstance->Modules->UnpublishFeature("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 	void Implements(char* List)
@@ -984,4 +984,3 @@ void SQLConn::DelayReconnect()
 }
 
 MODULE_INIT(ModulePgSQL);
-

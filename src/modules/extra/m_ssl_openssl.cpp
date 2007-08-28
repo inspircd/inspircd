@@ -133,7 +133,7 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL(InspIRCd* Me)
 		: Module(Me), PublicInstance(Me)
 	{
-		ServerInstance->PublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -891,4 +891,3 @@ static int error_callback(const char *str, size_t len, void *u)
 }
 
 MODULE_INIT(ModuleSSLOpenSSL);
-

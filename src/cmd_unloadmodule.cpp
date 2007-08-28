@@ -23,14 +23,14 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_unloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (ServerInstance->UnloadModule(parameters[0]))
+	if (ServerInstance->Modules->Unload(parameters[0]))
 	{
 		ServerInstance->WriteOpers("*** MODULE UNLOADED: %s unloaded %s", user->nick, parameters[0]);
 		user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 	}
 	else
 	{
-		user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+		user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
 		return CMD_FAILURE;
 	}
 

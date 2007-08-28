@@ -21,10 +21,10 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_reloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	if (ServerInstance->UnloadModule(parameters[0]))
+	if (ServerInstance->Modules->Unload(parameters[0]))
 	{
 		ServerInstance->WriteOpers("*** RELOAD MODULE: %s unloaded %s",user->nick, parameters[0]);
-		if (ServerInstance->LoadModule(parameters[0]))
+		if (ServerInstance->Modules->Load(parameters[0]))
 		{
 			ServerInstance->WriteOpers("*** RELOAD MODULE: %s reloaded %s",user->nick, parameters[0]);
 			user->WriteServ("975 %s %s :Module successfully reloaded.",user->nick, parameters[0]);

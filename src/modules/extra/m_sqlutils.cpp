@@ -37,12 +37,12 @@ public:
 	ModuleSQLutils(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		ServerInstance->PublishInterface("SQLutils", this);
+		ServerInstance->Modules->PublishInterface("SQLutils", this);
 	}
 
 	virtual ~ModuleSQLutils()
 	{
-		ServerInstance->UnpublishInterface("SQLutils", this);
+		ServerInstance->Modules->UnpublishInterface("SQLutils", this);
 	}	
 
 	void Implements(char* List)
@@ -235,4 +235,3 @@ public:
 };
 
 MODULE_INIT(ModuleSQLutils);
-

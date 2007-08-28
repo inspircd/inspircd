@@ -311,10 +311,10 @@ class ModuleCloaking : public Module
 	ModuleCloaking(InspIRCd* Me)
 		: Module(Me)
 	{
-		ServerInstance->UseInterface("HashRequest");
+		ServerInstance->Modules->UseInterface("HashRequest");
 
 		/* Attempt to locate the md5 service provider, bail if we can't find it */
-		HashModule = ServerInstance->FindModule("m_md5.so");
+		HashModule = ServerInstance->Modules->Find("m_md5.so");
 		if (!HashModule)
 			throw ModuleException("Can't find m_md5.so. Please load m_md5.so before m_cloaking.so.");
 
@@ -332,7 +332,7 @@ class ModuleCloaking : public Module
 	{
 		ServerInstance->Modes->DelMode(cu);
 		DELETE(cu);
-		ServerInstance->DoneWithInterface("HashRequest");
+		ServerInstance->Modules->DoneWithInterface("HashRequest");
 	}
 	
 	virtual Version GetVersion()

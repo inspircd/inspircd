@@ -51,7 +51,7 @@ class ModuleRpcJson : public Module
  public:
 	ModuleRpcJson(InspIRCd* Me) : Module(Me)
 	{
-		ServerInstance->PublishInterface("JSON-RPC", this);
+		ServerInstance->Modules->PublishInterface("JSON-RPC", this);
 		json::rpc::add_method ("system.listMethods", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::system_list_methods);
 		json::rpc::add_method ("ircd.moduleVersion", (Module *)this, (void (Module::*)(HTTPRequest*, json::Value&, json::Value&))&ModuleRpcJson::MthModuleVersion);
 	}
@@ -95,7 +95,7 @@ class ModuleRpcJson : public Module
 
 	virtual ~ModuleRpcJson()
 	{
-		ServerInstance->UnpublishInterface("JSON-RPC", this);
+		ServerInstance->Modules->UnpublishInterface("JSON-RPC", this);
 	}
 
 	virtual Version GetVersion()

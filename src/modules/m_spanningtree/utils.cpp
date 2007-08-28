@@ -179,7 +179,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
-	modulelist* ml = ServerInstance->FindInterface("InspSocketHook");
+	modulelist* ml = ServerInstance->Modules->FindInterface("InspSocketHook");
 
 	/* Did we find any modules? */
 	if (ml)
@@ -664,4 +664,3 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	}
 	return NULL;
 }
-

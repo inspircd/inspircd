@@ -122,11 +122,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
  */
 #define FOREACH_MOD(y,x) if (ServerInstance->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= ServerInstance->GetModuleCount(); _i++) { \
+	for (int _i = 0; _i <= ServerInstance->Modules->GetCount(); _i++) { \
 	if (ServerInstance->Config->implement_lists[_i][y]) \
 		try \
 		{ \
-			ServerInstance->modules[_i]->x ; \
+			ServerInstance->Modules->modules[_i]->x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -142,11 +142,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  * 'FOREACH_MOD_I(Instance, OnConnect, OnConnect(user));'
  */
 #define FOREACH_MOD_I(z,y,x) if (z->Config->global_implementation[y] > 0) { \
-	for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
+	for (int _i = 0; _i <= z->Modules->GetCount(); _i++) { \
 		if (z->Config->implement_lists[_i][y]) \
 		try \
 		{ \
-			z->modules[_i]->x ; \
+			z->Modules->modules[_i]->x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -161,11 +161,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  */
 #define FOREACH_RESULT(y,x) { if (ServerInstance->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= ServerInstance->GetModuleCount(); _i++) { \
+			for (int _i = 0; _i <= ServerInstance->Modules->GetCount(); _i++) { \
 			if (ServerInstance->Config->implement_lists[_i][y]) { \
 				try \
 				{ \
-					int res = ServerInstance->modules[_i]->x ; \
+					int res = ServerInstance->Modules->modules[_i]->x ; \
 					if (res != 0) { \
 						MOD_RESULT = res; \
 						break; \
@@ -187,11 +187,11 @@ typedef std::map<std::string, std::pair<int, modulelist> > interfacelist;
  */
 #define FOREACH_RESULT_I(z,y,x) { if (z->Config->global_implementation[y] > 0) { \
 			MOD_RESULT = 0; \
-			for (int _i = 0; _i <= z->GetModuleCount(); _i++) { \
+			for (int _i = 0; _i <= z->Modules->GetCount(); _i++) { \
 			if (z->Config->implement_lists[_i][y]) { \
 				try \
 				{ \
-					int res = z->modules[_i]->x ; \
+					int res = z->Modules->modules[_i]->x ; \
 					if (res != 0) { \
 						MOD_RESULT = res; \
 						break; \
@@ -1587,9 +1587,252 @@ typedef DLLFactory<Module> ircd_module;
  */
 typedef std::vector<Module*> ModuleList;
 
-/** A list of loaded ModuleFactories
+/** A list of loaded module handles (ircd_module)
  */
-typedef std::vector<ircd_module*> FactoryList;
+typedef std::vector<ircd_module*> ModuleHandleList;
+
+/** ModuleManager takes care of all things module-related
+ * in the core.
+ */
+class CoreExport ModuleManager : public classbase
+{
+ private:
+	/** Holds a string describing the last module error to occur
+	 */
+	char MODERR[MAXBUF];
+ 
+ 	/** The feature names published by various modules
+	 */
+	featurelist Features;
+
+	/** The interface names published by various modules
+	 */
+	interfacelist Interfaces;
+ 
+	/** Total number of modules loaded into the ircd, minus one
+	 */
+	int ModCount; 
+	
+	/** Our pointer to the main insp instance
+	 */
+	InspIRCd* Instance;
+
+ public:
+	/** A list of ircd_module* module handles
+	 * Note that this list is always exactly 255 in size.
+	 * The actual number of loaded modules is available from GetModuleCount()
+	 */
+	ModuleHandleList handles;
+ 
+  	/** A list of Module* module classes
+	 * Note that this list is always exactly 255 in size.
+	 * The actual number of loaded modules is available from GetModuleCount()
+	 */
+	ModuleList modules;	 
+ 
+	ModuleManager(InspIRCd* Ins);
+
+	~ModuleManager(); 
+ 
+	/** Returns text describing the last module error
+	 * @return The last error message to occur
+	 */
+	const char* LastError();
+
+	/** Load a given module file
+	 * @param filename The file to load
+	 * @return True if the module was found and loaded
+	 */
+	bool Load(const char* filename);
+
+	/** Unload a given module file
+	 * @param filename The file to unload
+	 * @return True if the module was unloaded
+	 */
+	bool Unload(const char* filename);
+	
+	/** Called by the InspIRCd constructor to load all modules from the config file.
+	 */
+	void LoadAll();
+	
+	/** Get the total number of currently loaded modules
+	 * @return The number of loaded modules
+	 */
+	int GetCount()
+	{
+		return this->ModCount;
+	}
+	
+	/** Find a module by name, and return a Module* to it.
+	 * This is preferred over iterating the module lists yourself.
+	 * @param name The module name to look up
+	 * @return A pointer to the module, or NULL if the module cannot be found
+	 */
+	Module* Find(const std::string &name);
+ 
+	/** Remove a module handle pointer
+	 * @param j Index number of the module handle to remove
+	 * @return True if a handle existed at the given index, false otherwise
+	 */
+	bool EraseHandle(unsigned int j);
+
+	/** Remove a Module pointer
+	 * @param j Index number of the Module to remove
+	 * @return True if a handle existed at the given index, false otherwise
+	 */
+	bool EraseModule(unsigned int j);
+
+	/** Move a given module to a specific slot in the list
+	 * @param modulename The module name to relocate
+	 * @param slot The slot to move the module into
+	 */
+	void MoveTo(std::string modulename,int slot);
+
+	/** Moves the given module to the last slot in the list
+	 * @param modulename The module name to relocate
+	 */
+	void MoveToLast(std::string modulename);
+
+	/** Moves the given module to the first slot in the list
+	 * @param modulename The module name to relocate
+	 */
+	void MoveToFirst(std::string modulename);
+
+	/** Moves one module to be placed after another in the list
+	 * @param modulename The module name to relocate
+	 * @param after The module name to place the module after
+	 */
+	void MoveAfter(std::string modulename, std::string after);
+
+	/** Moves one module to be placed before another in the list
+	 * @param modulename The module name to relocate
+	 * @param after The module name to place the module before
+	 */
+	void MoveBefore(std::string modulename, std::string before);
+	
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly BEFORE 'modulename'. For more information
+	 * please see Module::Prioritize().
+	 * @param modulename The module your module wants to be before in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityBefore(const std::string &modulename);
+
+	/** For use with Module::Prioritize().
+	 * When the return value of this function is returned from
+	 * Module::Prioritize(), this specifies that the module wishes
+	 * to be ordered exactly AFTER 'modulename'. For more information please
+	 * see Module::Prioritize().
+	 * @param modulename The module your module wants to be after in the call list
+	 * @returns a priority ID which the core uses to relocate the module in the list
+	 */
+	long PriorityAfter(const std::string &modulename);
+
+	/** Publish a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using InspIRCd::FindModule, or by feature, using this
+	 * function. A feature is an arbitary string which identifies something this
+	 * module can do. For example, if your module provides SSL support, but other
+	 * modules provide SSL support too, all the modules supporting SSL should
+	 * publish an identical 'SSL' feature. This way, any module requiring use
+	 * of SSL functions can just look up the 'SSL' feature using FindFeature,
+	 * then use the module pointer they are given.
+	 * @param FeatureName The case sensitive feature name to make available
+	 * @param Mod a pointer to your module class
+	 * @returns True on success, false if the feature is already published by
+	 * another module.
+	 */
+	bool PublishFeature(const std::string &FeatureName, Module* Mod);
+
+	/** Publish a module to an 'interface'.
+	 * Modules which implement the same interface (the same way of communicating
+	 * with other modules) can publish themselves to an interface, using this
+	 * method. When they do so, they become part of a list of related or
+	 * compatible modules, and a third module may then query for that list
+	 * and know that all modules within that list offer the same API.
+	 * A prime example of this is the hashing modules, which all accept the
+	 * same types of Request class. Consider this to be similar to PublishFeature,
+	 * except for that multiple modules may publish the same 'feature'.
+	 * @param InterfaceName The case sensitive interface name to make available
+	 * @param Mod a pointer to your module class
+	 * @returns True on success, false on failure (there are currently no failure
+	 * cases)
+	 */
+	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
+
+	/** Return a pair saying how many other modules are currently using the
+	 * interfaces provided by module m.
+	 * @param m The module to count usage for
+	 * @return A pair, where the first value is the number of uses of the interface,
+	 * and the second value is the interface name being used.
+	 */
+	std::pair<int,std::string> GetInterfaceInstanceCount(Module* m);
+
+	/** Mark your module as using an interface.
+	 * If you mark your module as using an interface, then that interface
+	 * module may not unload until your module has unloaded first.
+	 * This can be used to prevent crashes by ensuring code you depend on
+	 * is always in memory while your module is active.
+	 * @param InterfaceName The interface to use
+	 */
+	void UseInterface(const std::string &InterfaceName);
+
+	/** Mark your module as finished with an interface.
+	 * If you used UseInterface() above, you should use this method when
+	 * your module is finished with the interface (usually in its destructor)
+	 * to allow the modules which implement the given interface to be unloaded.
+	 * @param InterfaceName The interface you are finished with using.
+	 */
+	void DoneWithInterface(const std::string &InterfaceName);
+
+	/** Unpublish a 'feature'.
+	 * When your module exits, it must call this method for every feature it
+	 * is providing so that the feature table is cleaned up.
+	 * @param FeatureName the feature to remove
+	 */
+	bool UnpublishFeature(const std::string &FeatureName);
+
+	/** Unpublish your module from an interface
+	 * When your module exits, it must call this method for every interface
+	 * it is part of so that the interfaces table is cleaned up. Only when
+	 * the last item is deleted from an interface does the interface get
+	 * removed.
+	 * @param InterfaceName the interface to be removed from
+	 * @param Mod The module to remove from the interface list
+	 */
+	bool UnpublishInterface(const std::string &InterfaceName, Module* Mod);
+
+	/** Find a 'feature'.
+	 * There are two ways for a module to find another module it depends on.
+	 * Either by name, using InspIRCd::FindModule, or by feature, using the
+	 * InspIRCd::PublishFeature method. A feature is an arbitary string which
+	 * identifies something this module can do. For example, if your module
+	 * provides SSL support, but other modules provide SSL support too, all
+	 * the modules supporting SSL should publish an identical 'SSL' feature.
+	 * To find a module capable of providing the feature you want, simply
+	 * call this method with the feature name you are looking for.
+	 * @param FeatureName The feature name you wish to obtain the module for
+	 * @returns A pointer to a valid module class on success, NULL on failure.
+	 */
+	Module* FindFeature(const std::string &FeatureName);
+
+	/** Find an 'interface'.
+	 * An interface is a list of modules which all implement the same API.
+	 * @param InterfaceName The Interface you wish to obtain the module
+	 * list of.
+	 * @return A pointer to a deque of Module*, or NULL if the interface
+	 * does not exist.
+	 */
+	modulelist* FindInterface(const std::string &InterfaceName);
+
+	/** Given a pointer to a Module, return its filename
+	 * @param m The module pointer to identify
+	 * @return The module name or an empty string
+	 */
+	const std::string& GetModuleName(Module* m);
+};
 
 /** This definition is used as shorthand for the various classes
  * and functions needed to make a module loadable by the OS.

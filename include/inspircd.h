@@ -259,26 +259,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	char current_uid[UUID_LENGTH];
 
-	/** Holds a string describing the last module error to occur
-	 */
-	char MODERR[MAXBUF];
-
-	/** Remove a ModuleFactory pointer
-	 * @param j Index number of the ModuleFactory to remove
-	 */
-	void EraseFactory(int j);
-
-	/** Remove a Module pointer
-	 * @param j Index number of the Module to remove
-	 */
-	void EraseModule(int j);
-
-	/** Move a given module to a specific slot in the list
-	 * @param modulename The module name to relocate
-	 * @param slot The slot to move the module into
-	 */
-	void MoveTo(std::string modulename,int slot);
-
 	/** Set up the signal handlers
 	 */
 	void SetSignals();
@@ -287,28 +267,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return True if the program daemonized succesfully
 	 */
 	bool DaemonSeed();
-
-	/** Moves the given module to the last slot in the list
-	 * @param modulename The module name to relocate
-	 */
-	void MoveToLast(std::string modulename);
-
-	/** Moves the given module to the first slot in the list
-	 * @param modulename The module name to relocate
-	 */
-	void MoveToFirst(std::string modulename);
-
-	/** Moves one module to be placed after another in the list
-	 * @param modulename The module name to relocate
-	 * @param after The module name to place the module after
-	 */
-	void MoveAfter(std::string modulename, std::string after);
-
-	/** Moves one module to be placed before another in the list
-	 * @param modulename The module name to relocate
-	 * @param after The module name to place the module before
-	 */
-	void MoveBefore(std::string modulename, std::string before);
 
 	/** Iterate the list of InspSocket objects, removing ones which have timed out
 	 * @param TIME the current time
@@ -326,21 +284,9 @@ class CoreExport InspIRCd : public classbase
 	 */
 	bool AllModulesReportReady(userrec* user);
 
-	/** Total number of modules loaded into the ircd, minus one
-	 */
-	int ModCount;
-
 	/** Logfile pathname specified on the commandline, or empty string
 	 */
 	char LogFileName[MAXBUF];
-
-	/** The feature names published by various modules
-	 */
-	featurelist Features;
-
-	/** The interface names published by various modules
-	 */
-	interfacelist Interfaces;
 
 	/** The current time, updated in the mainloop
 	 */
@@ -380,7 +326,6 @@ class CoreExport InspIRCd : public classbase
 	/** Global cull list, will be processed on next iteration
 	 */
 	CullList GlobalCulls;
-
 
 	/**** Functors ****/
 
@@ -453,6 +398,11 @@ class CoreExport InspIRCd : public classbase
 	/** Socket engine, handles socket activity events
 	 */
 	SocketEngine* SE;
+	
+	/** ModuleManager contains everything related to loading/unloading
+	 * modules.
+	 */
+	ModuleManager* Modules;
 
 	/** Stats class, holds miscellaneous stats counters
 	 */
@@ -508,18 +458,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	XLineManager* XLines;
 
-	/** A list of Module* module classes
-	 * Note that this list is always exactly 255 in size.
-	 * The actual number of loaded modules is available from GetModuleCount()
-	 */
-	ModuleList modules;
-
-	/** A list of ModuleFactory* module factories
-	 * Note that this list is always exactly 255 in size.
-	 * The actual number of loaded modules is available from GetModuleCount()
-	 */
-	FactoryList factory;
-
 	/** The time we next call our ping timeout and reg timeout checks
 	 */
 	time_t next_call;
@@ -553,7 +491,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to add
 	 */
 	void AddGlobalClone(userrec* user);
-
+	
 	/** Number of users with a certain mode set on them
 	 */
 	int ModeCount(const char mode);
@@ -569,18 +507,6 @@ class CoreExport InspIRCd : public classbase
 	 * marked for deletion in the global CullList.
 	 */
 	caller1<void, userrec*> ProcessUser;
-
-	/** Get the total number of currently loaded modules
-	 * @return The number of loaded modules
-	 */
-	int GetModuleCount();
-
-	/** Find a module by name, and return a Module* to it.
-	 * This is preferred over iterating the module lists yourself.
-	 * @param name The module name to look up
-	 * @return A pointer to the module, or NULL if the module cannot be found
-	 */
-	Module* FindModule(const std::string &name);
 
 	/** Bind all ports specified in the configuration file.
 	 * @param bail True if the function should bail back to the shell on failure
@@ -668,10 +594,6 @@ class CoreExport InspIRCd : public classbase
 	 * @return A pointer to the channel, or NULL if the channel does not exist
 	 */
 	chanrec* FindChan(const char* chan);
-
-	/** Called by the constructor to load all modules from the config file.
-	 */
-	void LoadAllModules();
 
 	/** Check for a 'die' tag in the config file, and abort if found
 	 * @return Depending on the configuration, this function may never return
@@ -788,129 +710,6 @@ class CoreExport InspIRCd : public classbase
 	 * @param s The error string to send
 	 */
 	void SendError(const std::string &s);
-
-	/** For use with Module::Prioritize().
-	 * When the return value of this function is returned from
-	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly BEFORE 'modulename'. For more information
-	 * please see Module::Prioritize().
-	 * @param modulename The module your module wants to be before in the call list
-	 * @returns a priority ID which the core uses to relocate the module in the list
-	 */
-	long PriorityBefore(const std::string &modulename);
-
-	/** For use with Module::Prioritize().
-	 * When the return value of this function is returned from
-	 * Module::Prioritize(), this specifies that the module wishes
-	 * to be ordered exactly AFTER 'modulename'. For more information please
-	 * see Module::Prioritize().
-	 * @param modulename The module your module wants to be after in the call list
-	 * @returns a priority ID which the core uses to relocate the module in the list
-	 */
-	long PriorityAfter(const std::string &modulename);
-
-	/** Publish a 'feature'.
-	 * There are two ways for a module to find another module it depends on.
-	 * Either by name, using InspIRCd::FindModule, or by feature, using this
-	 * function. A feature is an arbitary string which identifies something this
-	 * module can do. For example, if your module provides SSL support, but other
-	 * modules provide SSL support too, all the modules supporting SSL should
-	 * publish an identical 'SSL' feature. This way, any module requiring use
-	 * of SSL functions can just look up the 'SSL' feature using FindFeature,
-	 * then use the module pointer they are given.
-	 * @param FeatureName The case sensitive feature name to make available
-	 * @param Mod a pointer to your module class
-	 * @returns True on success, false if the feature is already published by
-	 * another module.
-	 */
-	bool PublishFeature(const std::string &FeatureName, Module* Mod);
-
-	/** Publish a module to an 'interface'.
-	 * Modules which implement the same interface (the same way of communicating
-	 * with other modules) can publish themselves to an interface, using this
-	 * method. When they do so, they become part of a list of related or
-	 * compatible modules, and a third module may then query for that list
-	 * and know that all modules within that list offer the same API.
-	 * A prime example of this is the hashing modules, which all accept the
-	 * same types of Request class. Consider this to be similar to PublishFeature,
-	 * except for that multiple modules may publish the same 'feature'.
-	 * @param InterfaceName The case sensitive interface name to make available
-	 * @param Mod a pointer to your module class
-	 * @returns True on success, false on failure (there are currently no failure
-	 * cases)
-	 */
-	bool PublishInterface(const std::string &InterfaceName, Module* Mod);
-
-	/** Return a pair saying how many other modules are currently using the
-	 * interfaces provided by module m.
-	 * @param m The module to count usage for
-	 * @return A pair, where the first value is the number of uses of the interface,
-	 * and the second value is the interface name being used.
-	 */
-	std::pair<int,std::string> GetInterfaceInstanceCount(Module* m);
-
-	/** Mark your module as using an interface.
-	 * If you mark your module as using an interface, then that interface
-	 * module may not unload until your module has unloaded first.
-	 * This can be used to prevent crashes by ensuring code you depend on
-	 * is always in memory while your module is active.
-	 * @param InterfaceName The interface to use
-	 */
-	void UseInterface(const std::string &InterfaceName);
-
-	/** Mark your module as finished with an interface.
-	 * If you used UseInterface() above, you should use this method when
-	 * your module is finished with the interface (usually in its destructor)
-	 * to allow the modules which implement the given interface to be unloaded.
-	 * @param InterfaceName The interface you are finished with using.
-	 */
-	void DoneWithInterface(const std::string &InterfaceName);
-
-	/** Unpublish a 'feature'.
-	 * When your module exits, it must call this method for every feature it
-	 * is providing so that the feature table is cleaned up.
-	 * @param FeatureName the feature to remove
-	 */
-	bool UnpublishFeature(const std::string &FeatureName);
-
-	/** Unpublish your module from an interface
-	 * When your module exits, it must call this method for every interface
-	 * it is part of so that the interfaces table is cleaned up. Only when
-	 * the last item is deleted from an interface does the interface get
-	 * removed.
-	 * @param InterfaceName the interface to be removed from
-	 * @param Mod The module to remove from the interface list
-	 */
-	bool UnpublishInterface(const std::string &InterfaceName, Module* Mod);
-
-	/** Find a 'feature'.
-	 * There are two ways for a module to find another module it depends on.
-	 * Either by name, using InspIRCd::FindModule, or by feature, using the
-	 * InspIRCd::PublishFeature method. A feature is an arbitary string which
-	 * identifies something this module can do. For example, if your module
-	 * provides SSL support, but other modules provide SSL support too, all
-	 * the modules supporting SSL should publish an identical 'SSL' feature.
-	 * To find a module capable of providing the feature you want, simply
-	 * call this method with the feature name you are looking for.
-	 * @param FeatureName The feature name you wish to obtain the module for
-	 * @returns A pointer to a valid module class on success, NULL on failure.
-	 */
-	Module* FindFeature(const std::string &FeatureName);
-
-	/** Find an 'interface'.
-	 * An interface is a list of modules which all implement the same API.
-	 * @param InterfaceName The Interface you wish to obtain the module
-	 * list of.
-	 * @return A pointer to a deque of Module*, or NULL if the interface
-	 * does not exist.
-	 */
-	modulelist* FindInterface(const std::string &InterfaceName);
-
-	/** Given a pointer to a Module, return its filename
-	 * @param m The module pointer to identify
-	 * @return The module name or an empty string
-	 */
-	const std::string& GetModuleName(Module* m);
 
 	/** Return true if a nickname is valid
 	 * @param n A nickname to verify
@@ -1168,23 +967,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void WritePID(const std::string &filename);
 
-	/** Returns text describing the last module error
-	 * @return The last error message to occur
-	 */
-	char* ModuleError();
-
-	/** Load a given module file
-	 * @param filename The file to load
-	 * @return True if the module was found and loaded
-	 */
-	bool LoadModule(const char* filename);
-
-	/** Unload a given module file
-	 * @param filename The file to unload
-	 * @return True if the module was unloaded
-	 */
-	bool UnloadModule(const char* filename);
-
 	/** This constructor initialises all the subsystems and reads the config file.
 	 * @param argc The argument count passed to main()
 	 * @param argv The argument list passed to main()
@@ -1289,4 +1071,3 @@ class CoreExport InspIRCd : public classbase
 };
 
 #endif
-

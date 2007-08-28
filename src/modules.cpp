@@ -18,7 +18,7 @@
 #include "socketengine.h"
 #include "command_parse.h"
 #include "dns.h"
-
+#include "exitcodes.h"
 
 #ifndef WIN32
 	#include <dirent.h>
@@ -196,60 +196,88 @@ void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(userrec* user) { }
 
 
-char* InspIRCd::ModuleError()
+ModuleManager::ModuleManager(InspIRCd* Ins)
+: ModCount(0), Instance(Ins)
+{
+}
+
+ModuleManager::~ModuleManager()
+{
+}
+
+const char* ModuleManager::LastError()
 {
 	return MODERR;
 }
 
-void InspIRCd::EraseFactory(int j)
+bool ModuleManager::EraseHandle(unsigned int j)
 {
-	int v = 0;
-	for (std::vector<ircd_module*>::iterator t = factory.begin(); t != factory.end(); t++)
+	ModuleHandleList::iterator iter;
+	
+	if((j < 0) || (j >= handles.size()))
 	{
-		if (v == j)
-		{
-			delete *t;
-			factory.erase(t);
-		 	factory.push_back(NULL);
-		 	return;
-	   	}
-		v++;
+		return false;
 	}
+	
+	iter = handles.begin() + j;
+
+	if(*iter)
+	{
+		delete *iter;	
+		handles.erase(iter);
+ 		handles.push_back(NULL);
+	}
+
+	return true;
 }
 
-void InspIRCd::EraseModule(int j)
+bool ModuleManager::EraseModule(unsigned int j)
 {
-	int v1 = 0;
-	for (ModuleList::iterator m = modules.begin(); m!= modules.end(); m++)
+	bool success = false;
+	
 	{
-		if (v1 == j)
+		ModuleList::iterator iter;	
+	
+		if((j < 0) || (j >= modules.size()))
 		{
-			delete *m;
-			modules.erase(m);
-			modules.push_back(NULL);
-			break;
+			return false;
 		}
-		v1++;
+	
+		iter = modules.begin() + j;
+
+		if(*iter)
+		{
+			delete *iter;	
+			modules.erase(iter);
+	 		modules.push_back(NULL);
+			success = true;
+		}
 	}
-	int v2 = 0;
-	for (std::vector<std::string>::iterator v = Config->module_names.begin(); v != Config->module_names.end(); v++)
+	
 	{
-		if (v2 == j)
+		std::vector<std::string>::iterator iter;	
+	
+		if((j < 0) || (j >= Instance->Config->module_names.size()))
 		{
-			Config->module_names.erase(v);
-			break;
+			return false;
 		}
-		v2++;
+	
+		iter = Instance->Config->module_names.begin() + j;
+
+		Instance->Config->module_names.erase(iter);
+		success = true;
 	}
 
+	return success;
 }
 
-void InspIRCd::MoveTo(std::string modulename,int slot)
+void ModuleManager::MoveTo(std::string modulename,int slot)
 {
 	unsigned int v2 = 256;
-	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	
+	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
 	{
-		if (Config->module_names[v] == modulename)
+		if (Instance->Config->module_names[v] == modulename)
 		{
 			// found an instance, swap it with the item at the end
 			v2 = v;
@@ -259,12 +287,12 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 	if ((v2 != (unsigned int)slot) && (v2 < 256))
 	{
 		// Swap the module names over
-		Config->module_names[v2] = Config->module_names[slot];
-		Config->module_names[slot] = modulename;
+		Instance->Config->module_names[v2] = Instance->Config->module_names[slot];
+		Instance->Config->module_names[slot] = modulename;
 		// now swap the module factories
-		ircd_module* temp = factory[v2];
-		factory[v2] = factory[slot];
-		factory[slot] = temp;
+		ircd_module* temp = handles[v2];
+		handles[v2] = handles[slot];
+		handles[slot] = temp;
 		// now swap the module objects
 		Module* temp_module = modules[v2];
 		modules[v2] = modules[slot];
@@ -273,18 +301,18 @@ void InspIRCd::MoveTo(std::string modulename,int slot)
 		// need to swap the global or recount it)
 		for (int n = 0; n < 255; n++)
 		{
-			char x = Config->implement_lists[v2][n];
-			Config->implement_lists[v2][n] = Config->implement_lists[slot][n];
-			Config->implement_lists[slot][n] = x;
+			char x = Instance->Config->implement_lists[v2][n];
+			Instance->Config->implement_lists[v2][n] = Instance->Config->implement_lists[slot][n];
+			Instance->Config->implement_lists[slot][n] = x;
 		}
 	}
 }
 
-void InspIRCd::MoveAfter(std::string modulename, std::string after)
+void ModuleManager::MoveAfter(std::string modulename, std::string after)
 {
-	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
 	{
-		if (Config->module_names[v] == after)
+		if (Instance->Config->module_names[v] == after)
 		{
 			MoveTo(modulename, v);
 			return;
@@ -292,11 +320,11 @@ void InspIRCd::MoveAfter(std::string modulename, std::string after)
 	}
 }
 
-void InspIRCd::MoveBefore(std::string modulename, std::string before)
+void ModuleManager::MoveBefore(std::string modulename, std::string before)
 {
-	for (unsigned int v = 0; v < Config->module_names.size(); v++)
+	for (unsigned int v = 0; v < Instance->Config->module_names.size(); v++)
 	{
-		if (Config->module_names[v] == before)
+		if (Instance->Config->module_names[v] == before)
 		{
 			if (v > 0)
 			{
@@ -311,33 +339,33 @@ void InspIRCd::MoveBefore(std::string modulename, std::string before)
 	}
 }
 
-void InspIRCd::MoveToFirst(std::string modulename)
+void ModuleManager::MoveToFirst(std::string modulename)
 {
 	MoveTo(modulename,0);
 }
 
-void InspIRCd::MoveToLast(std::string modulename)
+void ModuleManager::MoveToLast(std::string modulename)
 {
-	MoveTo(modulename,this->GetModuleCount());
+	MoveTo(modulename,this->GetCount());
 }
 
-bool InspIRCd::UnloadModule(const char* filename)
+bool ModuleManager::Unload(const char* filename)
 {
 	std::string filename_str = filename;
-	for (unsigned int j = 0; j != Config->module_names.size(); j++)
+	for (unsigned int j = 0; j != Instance->Config->module_names.size(); j++)
 	{
-		if (Config->module_names[j] == filename_str)
+		if (Instance->Config->module_names[j] == filename_str)
 		{
 			if (modules[j]->GetVersion().Flags & VF_STATIC)
 			{
-				this->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
+				Instance->Log(DEFAULT,"Failed to unload STATIC module %s",filename);
 				snprintf(MODERR,MAXBUF,"Module not unloadable (marked static)");
 				return false;
 			}
 			std::pair<int,std::string> intercount = GetInterfaceInstanceCount(modules[j]);
 			if (intercount.first > 0)
 			{
-				this->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
+				Instance->Log(DEFAULT,"Failed to unload module %s, being used by %d other(s) via interface '%s'",filename, intercount.first, intercount.second.c_str());
 				snprintf(MODERR,MAXBUF,"Module not unloadable (Still in use by %d other module%s which %s using its interface '%s') -- unload dependent modules first!",
 						intercount.first,
 						intercount.first > 1 ? "s" : "",
@@ -346,23 +374,23 @@ bool InspIRCd::UnloadModule(const char* filename)
 				return false;
 			}
 			/* Give the module a chance to tidy out all its metadata */
-			for (chan_hash::iterator c = this->chanlist->begin(); c != this->chanlist->end(); c++)
+			for (chan_hash::iterator c = Instance->chanlist->begin(); c != Instance->chanlist->end(); c++)
 			{
 				modules[j]->OnCleanup(TYPE_CHANNEL,c->second);
 			}
-			for (user_hash::iterator u = this->clientlist->begin(); u != this->clientlist->end(); u++)
+			for (user_hash::iterator u = Instance->clientlist->begin(); u != Instance->clientlist->end(); u++)
 			{
 				modules[j]->OnCleanup(TYPE_USER,u->second);
 			}
 
 			/* Tidy up any dangling resolvers */
-			this->Res->CleanResolvers(modules[j]);
+			Instance->Res->CleanResolvers(modules[j]);
 
-			FOREACH_MOD_I(this,I_OnUnloadModule,OnUnloadModule(modules[j],Config->module_names[j]));
+			FOREACH_MOD_I(Instance,I_OnUnloadModule,OnUnloadModule(modules[j],Instance->Config->module_names[j]));
 
 			for(int t = 0; t < 255; t++)
 			{
-				Config->global_implementation[t] -= Config->implement_lists[j][t];
+				Instance->Config->global_implementation[t] -= Instance->Config->implement_lists[j][t];
 			}
 
 			/* We have to renumber implement_lists after unload because the module numbers change!
@@ -371,26 +399,49 @@ bool InspIRCd::UnloadModule(const char* filename)
 			{
 				for(int t = 0; t < 255; t++)
 				{
-					Config->implement_lists[j2][t] = Config->implement_lists[j2+1][t];
+					Instance->Config->implement_lists[j2][t] = Instance->Config->implement_lists[j2+1][t];
 				}
 			}
 
 			// found the module
-			Parser->RemoveCommands(filename);
+			Instance->Parser->RemoveCommands(filename);
 			this->EraseModule(j);
-			this->EraseFactory(j);
-			this->Log(DEFAULT,"Module %s unloaded",filename);
+			this->EraseHandle(j);
+			Instance->Log(DEFAULT,"Module %s unloaded",filename);
 			this->ModCount--;
-			BuildISupport();
+			Instance->BuildISupport();
 			return true;
 		}
 	}
-	this->Log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
+	Instance->Log(DEFAULT,"Module %s is not loaded, cannot unload it!",filename);
 	snprintf(MODERR,MAXBUF,"Module not loaded");
 	return false;
 }
 
-bool InspIRCd::LoadModule(const char* filename)
+/* We must load the modules AFTER initializing the socket engine, now */
+void ModuleManager::LoadAll()
+{
+	char configToken[MAXBUF];
+	Instance->Config->module_names.clear();
+	ModCount = -1;
+
+	for(int count = 0; count < Instance->Config->ConfValueEnum(Instance->Config->config_data, "module"); count++)
+	{
+		Instance->Config->ConfValue(Instance->Config->config_data, "module", "name", count, configToken, MAXBUF);
+		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",configToken);
+		
+		if (!this->Load(configToken))		
+		{
+			Instance->Log(DEFAULT,"There was an error loading the module '%s': %s", configToken, this->LastError());
+			printf_c("\n[\033[1;31m*\033[0m] There was an error loading the module '%s': %s\n\n", configToken, this->LastError());
+			Instance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->GetCount(), this->GetCount() == 1 ? " has" : "s have");
+	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount());
+}
+
+bool ModuleManager::Load(const char* filename)
 {
 	/* Do we have a glob pattern in the filename?
 	 * The user wants to load multiple modules which
@@ -399,16 +450,16 @@ bool InspIRCd::LoadModule(const char* filename)
 	if (strchr(filename,'*') || (strchr(filename,'?')))
 	{
 		int n_match = 0;
-		DIR* library = opendir(Config->ModPath);
+		DIR* library = opendir(Instance->Config->ModPath);
 		if (library)
 		{
 			/* Try and locate and load all modules matching the pattern */
 			dirent* entry = NULL;
 			while ((entry = readdir(library)))
 			{
-				if (this->MatchText(entry->d_name, filename))
+				if (Instance->MatchText(entry->d_name, filename))
 				{
-					if (!this->LoadModule(entry->d_name))
+					if (!this->Load(entry->d_name))
 						n_match++;
 				}
 			}
@@ -422,23 +473,23 @@ bool InspIRCd::LoadModule(const char* filename)
 	}
 
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",Config->ModPath,filename);
+	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath,filename);
 	std::string filename_str = filename;
 
 	if (!ServerConfig::DirValid(modfile))
 	{
 		snprintf(MODERR, MAXBUF,"Module %s is not within the modules directory.", modfile);
-		this->Log(DEFAULT, MODERR);
+		Instance->Log(DEFAULT, MODERR);
 		return false;
 	}
 	
 	if (ServerConfig::FileExists(modfile))
 	{
-		for (unsigned int j = 0; j < Config->module_names.size(); j++)
+		for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
 		{
-			if (Config->module_names[j] == filename_str)
+			if (Instance->Config->module_names[j] == filename_str)
 			{
-				this->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
+				Instance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
 				snprintf(MODERR, MAXBUF, "Module already loaded");
 				return false;
 			}
@@ -452,11 +503,11 @@ bool InspIRCd::LoadModule(const char* filename)
 			/* This will throw a CoreException if there's a problem loading
 			 * the module file or getting a pointer to the init_module symbol.
 			 */
-			a = new ircd_module(this, modfile, "init_module");
+			a = new ircd_module(Instance, modfile, "init_module");
 			
-			factory[this->ModCount+1] = a;
+			handles[this->ModCount+1] = a;
 			
-			m = factory[this->ModCount+1]->CallInit();
+			m = handles[this->ModCount+1]->CallInit();
 
 			if(m)
 			{
@@ -465,81 +516,81 @@ bool InspIRCd::LoadModule(const char* filename)
 				if (v.API != API_VERSION)
 				{
 					delete m;
-					this->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
+					Instance->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
 					snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
 					return false;
 				}
 				else
 				{
-					this->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+					Instance->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 				}
 
 				modules[this->ModCount+1] = m;
 				
 				/* save the module and the module's classfactory, if
 				 * this isnt done, random crashes can occur :/ */
-				Config->module_names.push_back(filename);
+				Instance->Config->module_names.push_back(filename);
 
-				char* x = &Config->implement_lists[this->ModCount+1][0];
+				char* x = &Instance->Config->implement_lists[this->ModCount+1][0];
 				for(int t = 0; t < 255; t++)
 					x[t] = 0;
 
 				modules[this->ModCount+1]->Implements(x);
 
 				for(int t = 0; t < 255; t++)
-					Config->global_implementation[t] += Config->implement_lists[this->ModCount+1][t];
+					Instance->Config->global_implementation[t] += Instance->Config->implement_lists[this->ModCount+1][t];
 			}
 			else
 			{
-				this->Log(DEFAULT, "Unable to load %s",modfile);
+				Instance->Log(DEFAULT, "Unable to load %s",modfile);
 				snprintf(MODERR,MAXBUF, "Probably missing init_module() entrypoint, but dlsym() didn't notice a problem");
 				return false;
 			}
 		}
 		catch (LoadModuleException& modexcept)
 		{
-			this->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+			Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
 			return false;
 		}
 		catch (FindSymbolException& modexcept)
 		{
-			this->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+			Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
 			return false;
 		}
 		catch (CoreException& modexcept)
 		{
-			this->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
+			Instance->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
 			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 			return false;
 		}
 	}
 	else
 	{
-		this->Log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
+		Instance->Log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
 		snprintf(MODERR,MAXBUF,"Module file could not be found");
 		return false;
 	}
 	
 	this->ModCount++;
-	FOREACH_MOD_I(this,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
+	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
 	// now work out which modules, if any, want to move to the back of the queue,
 	// and if they do, move them there.
 	std::vector<std::string> put_to_back;
 	std::vector<std::string> put_to_front;
 	std::map<std::string,std::string> put_before;
 	std::map<std::string,std::string> put_after;
-	for (unsigned int j = 0; j < Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
 	{
 		if (modules[j]->Prioritize() == PRIORITY_LAST)
-			put_to_back.push_back(Config->module_names[j]);
+			put_to_back.push_back(Instance->Config->module_names[j]);
 		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
-			put_to_front.push_back(Config->module_names[j]);
+			put_to_front.push_back(Instance->Config->module_names[j]);
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
-			put_before[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
+			put_before[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
 		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
-			put_after[Config->module_names[j]] = Config->module_names[modules[j]->Prioritize() >> 8];
+			put_after[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
 	}
 	for (unsigned int j = 0; j < put_to_back.size(); j++)
 		MoveToLast(put_to_back[j]);
@@ -549,15 +600,15 @@ bool InspIRCd::LoadModule(const char* filename)
 		MoveBefore(j->first,j->second);
 	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
 		MoveAfter(j->first,j->second);
-	BuildISupport();
+	Instance->BuildISupport();
 	return true;
 }
 
-long InspIRCd::PriorityAfter(const std::string &modulename)
+long ModuleManager::PriorityAfter(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < this->Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
 	{
-		if (this->Config->module_names[j] == modulename)
+		if (Instance->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_AFTER);
 		}
@@ -565,11 +616,11 @@ long InspIRCd::PriorityAfter(const std::string &modulename)
 	return PRIORITY_DONTCARE;
 }
 
-long InspIRCd::PriorityBefore(const std::string &modulename)
+long ModuleManager::PriorityBefore(const std::string &modulename)
 {
-	for (unsigned int j = 0; j < this->Config->module_names.size(); j++)
+	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
 	{
-		if (this->Config->module_names[j] == modulename)
+		if (Instance->Config->module_names[j] == modulename)
 		{
 			return ((j << 8) | PRIORITY_BEFORE);
 		}
@@ -577,7 +628,7 @@ long InspIRCd::PriorityBefore(const std::string &modulename)
 	return PRIORITY_DONTCARE;
 }
 
-bool InspIRCd::PublishFeature(const std::string &FeatureName, Module* Mod)
+bool ModuleManager::PublishFeature(const std::string &FeatureName, Module* Mod)
 {
 	if (Features.find(FeatureName) == Features.end())
 	{
@@ -587,7 +638,7 @@ bool InspIRCd::PublishFeature(const std::string &FeatureName, Module* Mod)
 	return false;
 }
 
-bool InspIRCd::UnpublishFeature(const std::string &FeatureName)
+bool ModuleManager::UnpublishFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 	
@@ -598,7 +649,7 @@ bool InspIRCd::UnpublishFeature(const std::string &FeatureName)
 	return true;
 }
 
-Module* InspIRCd::FindFeature(const std::string &FeatureName)
+Module* ModuleManager::FindFeature(const std::string &FeatureName)
 {
 	featurelist::iterator iter = Features.find(FeatureName);
 
@@ -608,7 +659,7 @@ Module* InspIRCd::FindFeature(const std::string &FeatureName)
 	return iter->second;
 }
 
-bool InspIRCd::PublishInterface(const std::string &InterfaceName, Module* Mod)
+bool ModuleManager::PublishInterface(const std::string &InterfaceName, Module* Mod)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);
 
@@ -627,7 +678,7 @@ bool InspIRCd::PublishInterface(const std::string &InterfaceName, Module* Mod)
 	return false;
 }
 
-bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
+bool ModuleManager::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);
 
@@ -647,7 +698,7 @@ bool InspIRCd::UnpublishInterface(const std::string &InterfaceName, Module* Mod)
 	return false;
 }
 
-modulelist* InspIRCd::FindInterface(const std::string &InterfaceName)
+modulelist* ModuleManager::FindInterface(const std::string &InterfaceName)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);
 	if (iter == Interfaces.end())
@@ -656,7 +707,7 @@ modulelist* InspIRCd::FindInterface(const std::string &InterfaceName)
 		return &(iter->second.second);
 }
 
-void InspIRCd::UseInterface(const std::string &InterfaceName)
+void ModuleManager::UseInterface(const std::string &InterfaceName)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);
 	if (iter != Interfaces.end())
@@ -664,14 +715,14 @@ void InspIRCd::UseInterface(const std::string &InterfaceName)
 
 }
 
-void InspIRCd::DoneWithInterface(const std::string &InterfaceName)
+void ModuleManager::DoneWithInterface(const std::string &InterfaceName)
 {
 	interfacelist::iterator iter = Interfaces.find(InterfaceName);
 	if (iter != Interfaces.end())
 		iter->second.first--;
 }
 
-std::pair<int,std::string> InspIRCd::GetInterfaceInstanceCount(Module* m)
+std::pair<int,std::string> ModuleManager::GetInterfaceInstanceCount(Module* m)
 {
 	for (interfacelist::iterator iter = Interfaces.begin(); iter != Interfaces.end(); iter++)
 	{
@@ -686,18 +737,18 @@ std::pair<int,std::string> InspIRCd::GetInterfaceInstanceCount(Module* m)
 	return std::make_pair(0, "");
 }
 
-const std::string& InspIRCd::GetModuleName(Module* m)
+const std::string& ModuleManager::GetModuleName(Module* m)
 {
 	static std::string nothing; /* Prevent compiler warning */
 
-	if (!this->GetModuleCount())
+	if (!this->GetCount())
 		return nothing;
 
-	for (int i = 0; i <= this->GetModuleCount(); i++)
+	for (int i = 0; i <= this->GetCount(); i++)
 	{
 		if (this->modules[i] == m)
 		{
-			return this->Config->module_names[i];
+			return Instance->Config->module_names[i];
 		}
 	}
 	return nothing; /* As above */
@@ -888,11 +939,11 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 	return true;
 }
 
-Module* InspIRCd::FindModule(const std::string &name)
+Module* ModuleManager::Find(const std::string &name)
 {
-	for (int i = 0; i <= this->GetModuleCount(); i++)
+	for (int i = 0; i <= this->GetCount(); i++)
 	{
-		if (this->Config->module_names[i] == name)
+		if (Instance->Config->module_names[i] == name)
 		{
 			return this->modules[i];
 		}

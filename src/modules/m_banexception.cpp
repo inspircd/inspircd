@@ -48,7 +48,7 @@ public:
 		be = new BanException(ServerInstance);
 		if (!ServerInstance->AddMode(be, 'e'))
 			throw ModuleException("Could not add new modes!");
-		ServerInstance->PublishInterface("ChannelBanList", this);
+		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 	
 	virtual void Implements(char* List)
@@ -142,7 +142,7 @@ public:
 	{
 		ServerInstance->Modes->DelMode(be);
 		delete be;
-		ServerInstance->UnpublishInterface("ChannelBanList", this);
+		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };
 

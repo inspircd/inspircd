@@ -713,7 +713,7 @@ class ModuleSQL : public Module
 	ModuleSQL(InspIRCd* Me)
 	: Module::Module(Me), rehashing(false)
 	{
-		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQLutils");
 
 		Conf = new ConfigReader(ServerInstance);
 		PublicServerInstance = ServerInstance;
@@ -730,24 +730,24 @@ class ModuleSQL : public Module
 			throw ModuleException("m_mysql: Failed to create dispatcher thread: " + std::string(strerror(errno)));
 		}
 
-		if (!ServerInstance->PublishFeature("SQL", this))
+		if (!ServerInstance->Modules->PublishFeature("SQL", this))
 		{
 			/* Tell worker thread to exit NOW */
 			giveup = true;
 			throw ModuleException("m_mysql: Unable to publish feature 'SQL'");
 		}
 
-		ServerInstance->PublishInterface("SQL", this);
+		ServerInstance->Modules->PublishInterface("SQL", this);
 	}
 
 	virtual ~ModuleSQL()
 	{
 		giveup = true;
 		ClearAllConnections();
-		DELETE(Conf);
-		ServerInstance->UnpublishInterface("SQL", this);
-		ServerInstance->UnpublishFeature("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
+		delete Conf;
+		ServerInstance->Modules->UnpublishInterface("SQL", this);
+		ServerInstance->Modules->UnpublishFeature("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 
@@ -886,4 +886,3 @@ void* DispatcherThread(void* arg)
 }
 
 MODULE_INIT(ModuleSQL);
-

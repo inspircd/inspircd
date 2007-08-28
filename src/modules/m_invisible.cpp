@@ -81,7 +81,7 @@ class InvisibleMode : public ModeHandler
 			dest->SetMode('Q', adding);
 
 			/* Fix for bug #379 reported by stealth. On +/-Q make m_watch think the user has signed on/off */
-			Module* m = ServerInstance->FindModule("m_watch.so");
+			Module* m = ServerInstance->Modules->Find("m_watch.so");
 
 			/* This must come before setting/unsetting the handler */
 			if (m && adding)

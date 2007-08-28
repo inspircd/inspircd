@@ -241,12 +241,12 @@ class ModuleSHA256 : public Module
 
 	ModuleSHA256(InspIRCd* Me) : Module(Me), key(NULL), chars(NULL)
 	{
-		ServerInstance->PublishInterface("HashRequest", this);
+		ServerInstance->Modules->PublishInterface("HashRequest", this);
 	}
 
 	virtual ~ModuleSHA256()
 	{
-		ServerInstance->UnpublishInterface("HashRequest", this);
+		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
 	}
 
 	void Implements(char *List)
@@ -290,4 +290,3 @@ class ModuleSHA256 : public Module
 };
 
 MODULE_INIT(ModuleSHA256)
-

@@ -46,7 +46,7 @@ public:
 		ie = new InviteException(ServerInstance);
 		if (!ServerInstance->AddMode(ie, 'I'))
 			throw ModuleException("Could not add new modes!");
-		ServerInstance->PublishInterface("ChannelBanList", this);
+		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}
 
 	virtual void Implements(char* List)
@@ -139,7 +139,7 @@ public:
 	{
 		ServerInstance->Modes->DelMode(ie);
 		DELETE(ie);
-		ServerInstance->UnpublishInterface("ChannelBanList", this);
+		ServerInstance->Modules->UnpublishInterface("ChannelBanList", this);
 	}
 };
 

@@ -73,7 +73,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 
 	for (unsigned int i = 0; i < Instance->Config->module_names.size(); i++)
 	{
-		Version V = Instance->modules[i]->GetVersion();
+		Version V = Instance->Modules->modules[i]->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
 		*flagstate = 0;
@@ -90,7 +90,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 		strlcpy(modulename,Instance->Config->module_names[i].c_str(),256);
 		if (*source->oper)
 		{
-			snprintf(strbuf, MAXBUF, "::%s 900 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(long unsigned int)Instance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			snprintf(strbuf, MAXBUF, "::%s 900 %s :0x%08lx %d.%d.%d.%d %s (%s)",Instance->Config->ServerName,source->nick,(long unsigned int)Instance->Modules->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{
@@ -849,7 +849,7 @@ bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 		/* One or both of us specified hmac sha256, but we don't have sha256 module loaded!
 		 * We can't allow this password as valid.
 		 */
-		if (!Instance->FindModule("m_sha256.so") || !Utils->ChallengeResponse)
+		if (!Instance->Modules->Find("m_sha256.so") || !Utils->ChallengeResponse)
 				return false;
 		else
 			/* Straight string compare of hashes */

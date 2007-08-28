@@ -117,11 +117,11 @@ class ModuleHttpStats : public Module
 
 				data << "</general>";
 				data << "<modulelist>";
-				for (int i = 0; i <= ServerInstance->GetModuleCount(); i++)
+				for (int i = 0; i <= ServerInstance->Modules->GetCount(); i++)
 				{
 					if (!ServerInstance->Config->module_names[i].empty())
 					{
-						Version v = ServerInstance->modules[i]->GetVersion();
+						Version v = ServerInstance->Modules->modules[i]->GetVersion();
 						data << "<module><name>" << ServerInstance->Config->module_names[i] << "</name><version>" << 
 							v.Major << "." <<  v.Minor << "." << v.Revision << "." << v.Build << "</version></module>";
 					}

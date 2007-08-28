@@ -42,7 +42,7 @@ CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 {
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{
-		Version V = ServerInstance->modules[i]->GetVersion();
+		Version V = ServerInstance->Modules->modules[i]->GetVersion();
 		char modulename[MAXBUF];
 		char flagstate[MAXBUF];
 		*flagstate = 0;
@@ -59,7 +59,7 @@ CmdResult cmd_modules::Handle (const char** parameters, int pcnt, userrec *user)
 		strlcpy(modulename,ServerInstance->Config->module_names[i].c_str(),256);
 		if (IS_OPER(user))
 		{
-			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
+			user->WriteServ("900 %s :0x%08lx %d.%d.%d.%d %s (%s)",user->nick,ServerInstance->Modules->modules[i],V.Major,V.Minor,V.Revision,V.Build,ServerConfig::CleanFilename(modulename),flagstate+2);
 		}
 		else
 		{

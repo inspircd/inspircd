@@ -267,12 +267,12 @@ class ModuleMD5 : public Module
 	ModuleMD5(InspIRCd* Me)
 		: Module(Me), key(NULL), chars(NULL)
 	{
-		ServerInstance->PublishInterface("HashRequest", this);
+		ServerInstance->Modules->PublishInterface("HashRequest", this);
 	}
 	
 	virtual ~ModuleMD5()
 	{
-		ServerInstance->UnpublishInterface("HashRequest", this);
+		ServerInstance->Modules->UnpublishInterface("HashRequest", this);
 	}
 
 	void Implements(char* List)

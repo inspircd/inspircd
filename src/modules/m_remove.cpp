@@ -149,7 +149,7 @@ class RemoveBase
 			tlevel = chartolevel(channel->GetPrefixChar(target));
 		}
 		
-		hasnokicks = (ServerInstance->FindModule("m_nokicks.so") && channel->IsModeSet('Q'));
+		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
 		
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
 		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks || (ulevel == ULINE)))

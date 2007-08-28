@@ -33,14 +33,14 @@ class cmd_gloadmodule : public command_t
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (ServerInstance->LoadModule(parameters[0]))
+			if (ServerInstance->Modules->Load(parameters[0]))
 			{
 				ServerInstance->WriteOpers("*** NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0],user->nick);
 				user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);
 			}
 			else
 			{
-				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -67,14 +67,14 @@ class cmd_gunloadmodule : public command_t
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (ServerInstance->UnloadModule(parameters[0]))
+			if (ServerInstance->Modules->Unload(parameters[0]))
 			{
 				ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0],user->nick);
 				user->WriteServ("973 %s %s :Module successfully unloaded.",user->nick, parameters[0]);
 			}
 			else
 			{
-				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
 			}
 		}
 		else
@@ -101,13 +101,13 @@ class cmd_greloadmodule : public command_t
 
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName, servername))
 		{
-			if (!ServerInstance->UnloadModule(parameters[0]))
+			if (!ServerInstance->Modules->Unload(parameters[0]))
 			{
-				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+				user->WriteServ("972 %s %s :Failed to unload module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
 			}
-			if (!ServerInstance->LoadModule(parameters[0]))
+			if (!ServerInstance->Modules->Load(parameters[0]))
 			{
-				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->ModuleError());
+				user->WriteServ("974 %s %s :Failed to load module: %s",user->nick, parameters[0],ServerInstance->Modules->LastError());
 			}
 			ServerInstance->WriteOpers("*** MODULE '%s' GLOBALLY RELOADED BY '%s'",parameters[0],user->nick);
 			user->WriteServ("975 %s %s :Module successfully loaded.",user->nick, parameters[0]);

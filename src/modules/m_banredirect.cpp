@@ -253,7 +253,7 @@ class ModuleBanRedirect : public Module
 
 	virtual void OnRehash(userrec* user, const std::string &param)
 	{
-		ExceptionModule = ServerInstance->FindModule("m_banexception.so");
+		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
 	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
@@ -295,7 +295,7 @@ class ModuleBanRedirect : public Module
 						/* tell them they're banned and are being transferred */
 						chanrec* destchan = ServerInstance->FindChan(redir->targetchan);
 						
-						if(destchan && ServerInstance->FindModule("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
+						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
 						{
 							user->WriteServ("474 %s %s :Cannot join channel (You are banned)", user->nick, chan->name);
 							return 1;
@@ -329,7 +329,7 @@ class ModuleBanRedirect : public Module
 	
 	Priority Prioritize()
 	{
-		return (Priority)ServerInstance->PriorityBefore("m_banexception.so");
+		return (Priority)ServerInstance->Modules->PriorityBefore("m_banexception.so");
 	}
 };
 

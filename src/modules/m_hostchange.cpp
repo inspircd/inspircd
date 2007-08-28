@@ -54,7 +54,7 @@ class ModuleHostChange : public Module
 
 	Priority Prioritize()
 	{
-		return (Priority)ServerInstance->PriorityAfter("m_cloaking.so");
+		return (Priority)ServerInstance->Modules->PriorityAfter("m_cloaking.so");
 	}
 
 	void Implements(char* List)

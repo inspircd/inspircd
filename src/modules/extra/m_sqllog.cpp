@@ -187,14 +187,14 @@ class ModuleSQLLog : public Module
 	ModuleSQLLog(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		ServerInstance->UseInterface("SQLutils");
-		ServerInstance->UseInterface("SQL");
+		ServerInstance->Modules->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQL");
 
-		Module* SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		Module* SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLModule = ServerInstance->FindFeature("SQL");
+		SQLModule = ServerInstance->Modules->FindFeature("SQL");
 
 		OnRehash(NULL,"");
 		MyMod = this;
@@ -203,8 +203,8 @@ class ModuleSQLLog : public Module
 
 	virtual ~ModuleSQLLog()
 	{
-		ServerInstance->DoneWithInterface("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
+		ServerInstance->Modules->DoneWithInterface("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 	void Implements(char* List)
@@ -311,4 +311,3 @@ class ModuleSQLLog : public Module
 };
 
 MODULE_INIT(ModuleSQLLog);
-

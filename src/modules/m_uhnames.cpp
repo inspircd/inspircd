@@ -54,7 +54,7 @@ class ModuleUHNames : public Module
 
 	Priority Prioritize()
 	{
-		return (Priority)ServerInstance->PriorityBefore("m_namesx.so");
+		return (Priority)ServerInstance->Modules->PriorityBefore("m_namesx.so");
 	}
 
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
@@ -92,4 +92,3 @@ class ModuleUHNames : public Module
 };
 
 MODULE_INIT(ModuleUHNames)
-

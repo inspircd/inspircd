@@ -125,7 +125,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
-	Module* sha256 = Instance->FindModule("m_sha256.so");
+	Module* sha256 = Instance->Modules->Find("m_sha256.so");
 	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
 	{
 		/* XXX: This is how HMAC is supposed to be done:
@@ -279,9 +279,9 @@ std::string TreeSocket::MyCapabilities()
 {
 	std::vector<std::string> modlist;
 	std::string capabilities;
-	for (int i = 0; i <= this->Instance->GetModuleCount(); i++)
+	for (int i = 0; i <= this->Instance->Modules->GetCount(); i++)
 	{
-		if (this->Instance->modules[i]->GetVersion().Flags & VF_COMMON)
+		if (this->Instance->Modules->modules[i]->GetVersion().Flags & VF_COMMON)
 			modlist.push_back(this->Instance->Config->module_names[i]);
 	}
 	sort(modlist.begin(),modlist.end());
@@ -365,7 +365,7 @@ void TreeSocket::SendCapabilities()
 #endif
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
-	if (Utils->ChallengeResponse && (Instance->FindModule("m_sha256.so")))
+	if (Utils->ChallengeResponse && (Instance->Modules->Find("m_sha256.so")))
 	{
 		this->SetOurChallenge(RandString(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
@@ -495,7 +495,7 @@ bool TreeSocket::Capab(const std::deque<std::string> &params)
 	
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->CapKeys.find("CHALLENGE");
-		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (Instance->FindModule("m_sha256.so")))
+		if (Utils->ChallengeResponse && (n != this->CapKeys.end()) && (Instance->Modules->Find("m_sha256.so")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);
@@ -1400,4 +1400,3 @@ bool TreeSocket::OnDataReady()
 	 */
 	return (data && !*data);
 }
-

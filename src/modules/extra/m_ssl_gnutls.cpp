@@ -90,7 +90,7 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS(InspIRCd* Me)
 		: Module(Me)
 	{
-		ServerInstance->PublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -854,4 +854,3 @@ class ModuleSSLGnuTLS : public Module
 };
 
 MODULE_INIT(ModuleSSLGnuTLS);
-

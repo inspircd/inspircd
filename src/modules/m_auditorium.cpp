@@ -74,7 +74,7 @@ class ModuleAuditorium : public Module
 	Priority Prioritize()
 	{
 		/* To ensure that we get priority over namesx for names list generation on +u channels */
-		return (Priority)ServerInstance->PriorityBefore("m_namesx.so");
+		return (Priority)ServerInstance->Modules->PriorityBefore("m_namesx.so");
 	}
 
 	virtual Version GetVersion()

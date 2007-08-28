@@ -40,14 +40,14 @@ public:
 	ModuleSQLAuth(InspIRCd* Me)
 	: Module::Module(Me)
 	{
-		ServerInstance->UseInterface("SQLutils");
-		ServerInstance->UseInterface("SQL");
+		ServerInstance->Modules->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQL");
 
-		SQLutils = ServerInstance->FindModule("m_sqlutils.so");
+		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
 
-		SQLprovider = ServerInstance->FindFeature("SQL");
+		SQLprovider = ServerInstance->Modules->FindFeature("SQL");
 		if (!SQLprovider)
 			throw ModuleException("Can't find an SQL provider module. Please load one before attempting to load m_sqlauth.");
 
@@ -56,8 +56,8 @@ public:
 
 	virtual ~ModuleSQLAuth()
 	{
-		ServerInstance->DoneWithInterface("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
+		ServerInstance->Modules->DoneWithInterface("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 	void Implements(char* List)
@@ -191,4 +191,3 @@ public:
 };
 
 MODULE_INIT(ModuleSQLAuth);
-
