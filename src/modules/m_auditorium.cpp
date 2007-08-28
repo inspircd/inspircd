@@ -114,7 +114,7 @@ class ModuleAuditorium : public Module
 			else
 			{
 				/* HELLOOO, IS ANYBODY THERE? -- nope, just us. */
-				user->WriteServ("353 %s = %s :%s", user->nick, Ptr->name, user->nick);
+				user->WriteServ("353 %s %c %s :%s", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name, user->nick);
 				user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, Ptr->name);
 				return 1;
 			}

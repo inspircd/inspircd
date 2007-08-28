@@ -79,7 +79,7 @@ class ModuleNamesX : public Module
 		{
 			char list[MAXBUF];
 			size_t dlen, curlen;
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, Ptr->name);
+			dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name);
 			int numusers = 0;
 			char* ptr = list + dlen;
 
@@ -106,7 +106,7 @@ class ModuleNamesX : public Module
 					/* list overflowed into multiple numerics */
 					user->WriteServ(std::string(list));
 					/* reset our lengths */
-					dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, Ptr->name);
+					dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, Ptr->IsModeSet('s') ? '@' : Ptr->IsModeSet('p') ? '*' : '=', Ptr->name);
 					ptr = list + dlen;
 					ptrlen = 0;
 					numusers = 0;
