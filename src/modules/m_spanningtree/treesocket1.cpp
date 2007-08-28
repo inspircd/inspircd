@@ -731,7 +731,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				userrec* user = this->Instance->FindNick(source);
 				if (!user)
 				{
-					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
+					c->WriteChannelWithServ(Instance->Config->GetSID(), "TOPIC %s :%s", c->name, c->topic);
 				}
 				else
 				{
@@ -824,7 +824,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		{
 			chan->age = TS;
 			param_list.push_back(channel);
-			this->RemoveStatus(Instance->Config->ServerName, param_list);
+			this->RemoveStatus(Instance->Config->GetSID(), param_list);
 		}
 	}
 
@@ -990,7 +990,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 		else
 		{
 			/* user has not been introduced yet, just inform their server */
-			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+remoteuid+" " + remoteuid);
+			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" SVSNICK "+remoteuid+" " + remoteuid);
 		}
 
 		if (!bChangeLocal)
@@ -1007,7 +1007,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	 */
 	if (params.size() != 9)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+"?)");
+		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+"?)");
 		return true;
 	}
 
@@ -1022,14 +1022,14 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 
 	if (!remoteserver)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
+		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Unknown server "+source+")");
 		return true;
 	}
 
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
+		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (Invalid TS?)");
 		return true;
 	}
 
@@ -1037,7 +1037,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	{
 		if (params[valid[x].param].length() > valid[x].length)
 		{
-			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" KILL "+params[0]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
+			this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction (" + valid[x].item + " > " + ConvToStr(valid[x].length) + ")");
 			return true;
 		}
 	}
@@ -1145,10 +1145,10 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 {
 	std::string buffer;
 	char list[MAXBUF];
-	std::string individual_halfops = std::string(":")+this->Instance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age);
+	std::string individual_halfops = std::string(":")+this->Instance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age);
 
 	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
+	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID(),c->name,(unsigned long)c->age);
 	int numusers = 0;
 	char* ptr = list + dlen;
 
@@ -1169,7 +1169,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		if (curlen > (480-NICKMAX))
 		{
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->ServerName,c->name,(unsigned long)c->age);
+			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID(),c->name,(unsigned long)c->age);
 			ptr = list + dlen;
 			ptrlen = 0;
 			numusers = 0;
@@ -1179,7 +1179,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	if (numusers)
 		buffer.append(list).append("\r\n");
 
-	buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
+	buffer.append(":").append(this->Instance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(c->ChanModes(true)).append("\r\n");
 
 	int linesize = 1;
 	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
@@ -1195,7 +1195,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		if ((params.length() >= MAXMODES) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
-			buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
+			buffer.append(":").append(this->Instance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
 			modes.clear();
 			params.clear();
 			linesize = 1;
@@ -1204,7 +1204,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 
 	/* Only send these if there are any */
 	if (!modes.empty())
-		buffer.append(":").append(this->Instance->Config->ServerName).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
+		buffer.append(":").append(this->Instance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
 
 	this->WriteLine(buffer);
 }
@@ -1214,7 +1214,7 @@ void TreeSocket::SendXLines(TreeServer* Current)
 {
 	char data[MAXBUF];
 	std::string buffer;
-	std::string n = this->Instance->Config->ServerName;
+	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
 	/* Yes, these arent too nice looking, but they get the job done */
 	for (std::vector<ZLine*>::iterator i = Instance->XLines->zlines.begin(); i != Instance->XLines->zlines.end(); i++)
@@ -1267,7 +1267,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 {
 	char data[MAXBUF];
 	std::deque<std::string> list;
-	std::string n = this->Instance->Config->ServerName;
+	std::string n = this->Instance->Config->GetSID();
 	const char* sn = n.c_str();
 	Instance->Log(DEBUG,"Sending channels and modes, %d to send", this->Instance->chanlist->size());
 	for (chan_hash::iterator c = this->Instance->chanlist->begin(); c != this->Instance->chanlist->end(); c++)
@@ -1298,17 +1298,23 @@ void TreeSocket::SendUsers(TreeServer* Current)
 	{
 		if (u->second->registered == REG_ALL)
 		{
-			snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", u->second->server, u->second->uuid, (unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
-			this->WriteLine(data);
-			if (*u->second->oper)
+			TreeServer* theirserver = Utils->FindServer(u->second->server);
+			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid, u->second->oper);
+				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", theirserver->GetID(), u->second->uuid,
+						(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,
+						u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
 				this->WriteLine(data);
-			}
-			if (*u->second->awaymsg)
-			{
-				snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid, u->second->awaymsg);
-				this->WriteLine(data);
+				if (*u->second->oper)
+				{
+					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid, u->second->oper);
+					this->WriteLine(data);
+				}
+				if (*u->second->awaymsg)
+				{
+					snprintf(data,MAXBUF,":%s AWAY :%s", u->second->uuid, u->second->awaymsg);
+					this->WriteLine(data);
+				}
 			}
 		}
 	}
@@ -1338,7 +1344,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->Instance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s).", name.c_str(), this->GetTheirChallenge().empty() ? "plaintext password" : "SHA256-HMAC challenge-response");
 	this->WriteLine(burst);
 	/* send our version string */
-	this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" VERSION :"+this->Instance->GetVersionString());
+	this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" VERSION :"+this->Instance->GetVersionString());
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot,s,1);
 	/* Send users and their oper status */

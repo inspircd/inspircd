@@ -114,6 +114,7 @@ void cmd_rsquit::NoticeUser(userrec* user, const std::string &msg)
 		std::deque<std::string> params;
 		params.push_back(user->nick);
 		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
-		Utils->DoOneToOne(ServerInstance->Config->ServerName, "PUSH", params, user->server);
+		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", params, user->server);
 	}
 }
+

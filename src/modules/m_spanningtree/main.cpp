@@ -436,7 +436,7 @@ int ModuleSpanningTree::HandleTime(const char** parameters, int pcnt, userrec* u
 			std::deque<std::string> params;
 			params.push_back(found->GetName());
 			params.push_back(user->uuid);
-			Utils->DoOneToOne(ServerInstance->Config->ServerName,"TIME",params,found->GetName());
+			Utils->DoOneToOne(ServerInstance->Config->GetSID(),"TIME",params,found->GetName());
 		}
 		else
 		{
@@ -480,7 +480,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 			{
 				if (serv->AnsweredLastPing())
 				{
-					sock->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" PING "+serv->GetName());
+					sock->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PING "+serv->GetName());
 					serv->SetNextPingTime(curtime + Utils->PingFreq);
 					serv->LastPing = curtime;
 					timeval t;
@@ -643,7 +643,7 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 		ServerInstance->SNO->WriteToSnoMask('l', "%s", text);
 		params.push_back("l");
 		params.push_back(std::string(":") + text);
-		Utils->DoOneToMany(ServerInstance->Config->ServerName, "SNONOTICE", params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "SNONOTICE", params);
 	}
 	else
 	{
@@ -654,7 +654,7 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 			params.push_back(user->uuid);
 			params.push_back(std::string("::") + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :*** From " +
 					ServerInstance->Config->ServerName+ ": " + text);
-			Utils->DoOneToMany(ServerInstance->Config->ServerName, "PUSH", params);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(), "PUSH", params);
 		}
 	}
 }
@@ -992,11 +992,11 @@ void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silen
 			params.push_back(channel->name);
 			params.push_back(ConvToStr(channel->age));
 			params.push_back(std::string(channel->GetAllPrefixChars(user))+","+std::string(user->uuid));
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FJOIN",params);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 			/* First user in, sync the modes for the channel */
 			params.pop_back();
 			params.push_back(channel->ChanModes(true));
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",params);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",params);
 		}
 		else
 		{
@@ -1056,7 +1056,7 @@ void ModuleSpanningTree::OnUserConnect(userrec* user)
 		params.push_back("+"+std::string(user->FormatModes()));
 		params.push_back(user->GetIPString());
 		params.push_back(":"+std::string(user->fullname));
-		Utils->DoOneToMany(ServerInstance->Config->ServerName, "UID", params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 		// User is Local, change needs to be reflected!
 		TreeServer* SourceServer = Utils->FindServer(user->server);
 		if (SourceServer)
@@ -1115,7 +1115,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 		params.push_back(chan->name);
 		params.push_back(user->uuid);
 		params.push_back(":"+reason);
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"KICK",params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
 	}
 }
 
@@ -1137,7 +1137,7 @@ void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
 	{
 		std::deque<std::string> params;
 		params.push_back(parameter);
-		Utils->DoOneToMany(user ? user->nick : ServerInstance->Config->ServerName, "REHASH", params);
+		Utils->DoOneToMany(user ? user->nick : ServerInstance->Config->GetSID(), "REHASH", params);
 		// check for self
 		if (ServerInstance->MatchText(ServerInstance->Config->ServerName,parameter))
 		{
@@ -1172,7 +1172,7 @@ void ModuleSpanningTree::OnLine(userrec* source, const std::string &host, bool a
 				(unsigned long)duration, reason.c_str());
 		std::deque<std::string> params;
 		params.push_back(data);
-		Utils->DoOneToMany(ServerInstance->Config->ServerName, "ADDLINE", params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
 	}
 	else
 	{
@@ -1303,12 +1303,12 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* targ
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
+			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
 		}
 		else
 		{
 			chanrec* c = (chanrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
+			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
 		}
 	}
 }
@@ -1321,17 +1321,17 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* 
 		if (target_type == TYPE_USER)
 		{
 			userrec* u = (userrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+u->uuid+" "+extname+" :"+extdata);
+			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			chanrec* c = (chanrec*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA "+c->name+" "+extname+" :"+extdata);
+			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
 		}
 	}
 	if (target_type == TYPE_OTHER)
 	{
-		s->WriteLine(std::string(":")+ServerInstance->Config->ServerName+" METADATA * "+extname+" :"+extdata);
+		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 	}
 }
 
@@ -1343,7 +1343,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (params->size() < 3)
 			return;
 		(*params)[2] = ":" + (*params)[2];
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"METADATA",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"METADATA",*params);
 	}
 	else if (event->GetEventID() == "send_topic")
 	{
@@ -1352,7 +1352,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		(*params)[1] = ":" + (*params)[1];
 		params->insert(params->begin() + 1,ServerInstance->Config->ServerName);
 		params->insert(params->begin() + 1,ConvToStr(ServerInstance->Time(true)));
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"FTOPIC",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC",*params);
 	}
 	else if (event->GetEventID() == "send_mode")
 	{
@@ -1370,7 +1370,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (a)
 		{
 			ourTS = a->age;
-			Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",*params);
 			return;
 		}
 		else
@@ -1380,7 +1380,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 			{
 				ourTS = a->age;
 				params->insert(params->begin() + 1,ConvToStr(ourTS));
-				Utils->DoOneToMany(ServerInstance->Config->ServerName,"FMODE",*params);
+				Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",*params);
 			}
 		}
 	}
@@ -1394,28 +1394,28 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		for (size_t n = 0; n < params->size(); n++)
 			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
 
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODE",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",*params);
 	}
 	else if (event->GetEventID() == "send_opers")
 	{
 		if (params->size() < 1)
 			return;
 		(*params)[0] = ":" + (*params)[0];
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"OPERNOTICE",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"OPERNOTICE",*params);
 	}
 	else if (event->GetEventID() == "send_modeset")
 	{
 		if (params->size() < 2)
 			return;
 		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"MODENOTICE",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODENOTICE",*params);
 	}
 	else if (event->GetEventID() == "send_snoset")
 	{
 		if (params->size() < 2)
 			return;
 		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToMany(ServerInstance->Config->ServerName,"SNONOTICE",*params);
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SNONOTICE",*params);
 	}
 	else if (event->GetEventID() == "send_push")
 	{
@@ -1429,7 +1429,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 
 		(*params)[0] = a->uuid;
 		(*params)[1] = ":" + (*params)[1];
-		Utils->DoOneToOne(ServerInstance->Config->ServerName, "PUSH", *params, a->server);
+		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", *params, a->server);
 	}
 }
 
