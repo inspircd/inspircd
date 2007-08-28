@@ -342,10 +342,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	interfacelist Interfaces;
 
-	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
-	 */
-	userrec *FakeClient;
-
 	/** The current time, updated in the mainloop
 	 */
 	time_t TIME;
@@ -398,6 +394,10 @@ class CoreExport InspIRCd : public classbase
 	 * We don't delete these immediately as this may cause a segmentation fault.
 	 */
 	std::map<InspSocket*,InspSocket*> SocketCull;
+
+	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
+	 */
+	userrec *FakeClient;
 
 	/** Returns the next available UID for this server.
 	 */
