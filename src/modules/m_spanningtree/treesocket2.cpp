@@ -339,6 +339,29 @@ bool TreeSocket::ServiceJoin(const std::string &prefix, std::deque<std::string> 
 	return true;
 }
 
+bool TreeSocket::ServicePart(const std::string &prefix, std::deque<std::string> &params)
+{
+	if (params.size() < 2)
+		return true;
+
+	if (!this->Instance->IsChannel(params[1].c_str()))
+		return true;
+
+	userrec* u = this->Instance->FindNick(params[0]);
+	chanrec* c = this->Instance->FindChan(params[1]);
+
+	if (u)
+	{
+		/* only part if it's local, otherwise just pass it on! */
+		if (IS_LOCAL(u))
+			if (!c->PartUser(u, "Services forced part"))
+				delete c;
+		Utils->DoOneToAllButSender(prefix,"SVSPART",params,prefix);
+	}
+
+	return true;
+}
+
 bool TreeSocket::RemoteRehash(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 1)
@@ -1407,6 +1430,12 @@ bool TreeSocket::ProcessLine(std::string &line)
 					prefix = this->GetName();
 				}
 				return this->ServiceJoin(prefix,params);
+			}
+			else if (command == "SVSPART")
+			{
+				if (prefix.empty())
+					prefix = this->GetName();
+				return this->ServicePart(prefix,params);
 			}
 			else if (command == "SQUIT")
 			{
