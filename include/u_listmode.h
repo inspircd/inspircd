@@ -24,13 +24,6 @@
 #include "wildcard.h"
 #include "inspircd.h"
 
-/* Updated to use the <banlist> config tag if it exists
- * Written by Om <omster@gmail.com>, December 2005.
- * Based on code previously written by Om - April 2005
- * Updated to new API July 8th 2006 by Brain
- * Originally based on m_chanprotect and m_silence
- */
-
 /** Get the time as a string
  */
 inline std::string stringtime()
