@@ -425,10 +425,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_LOG);
 	}
 
-	/* set up fake client */
-	this->FakeClient = new userrec(this);
-	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
-
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
@@ -466,6 +462,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	/* Initialise UID */
 	for(i = 3; i < UUID_LENGTH - 1; i++)
 		current_uid[i] = 'A';
+
+	/* set up fake client */
+	this->FakeClient = new userrec(this);
+	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
 	if (!do_root)
 		this->CheckRoot();
