@@ -74,7 +74,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * here first, no TS checks need to take place here)
 		 */
 		userrec* InUse = ServerInstance->FindNickOnly(parameters[0]);
-		ServerInstance->Log(DEBUG,"Nick in use");
 		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)
@@ -91,7 +90,6 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG,"Nick in use and user REG_ALL");
 				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;
 			}
