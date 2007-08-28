@@ -945,7 +945,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 		/* fuck. now it gets complex. */
 
 		/* first, let's see if ident@host matches. */
-		bool SamePerson = strcmp(localident, remoteident)
+		bool SamePerson = !strcmp(localident, remoteident)
 				&& !strcmp(localip, remoteip);
 
 		/*
