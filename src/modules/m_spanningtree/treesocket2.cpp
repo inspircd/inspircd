@@ -1492,9 +1492,21 @@ bool TreeSocket::ProcessLine(std::string &line)
 						userrec* x = this->Instance->FindNickOnly(params[0]);
 						if ((x) && (x != who))
 						{
+							int collideret = 0;
 							/* x is local, who is remote */
-							this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
-							return true;
+							collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
+							if (collideret != 1)
+							{
+								/*
+								 * Remote client lost, or both lost,
+								 * parsing this nickchange would be
+								 * pointless, as the incoming client's
+								 * server will soon recieve SVSNICK to
+								 * change its nick to its UID. :)
+								 *   -- w00t
+								 */
+								return true;
+							}
 /*
 Old nickname collision logic..
 							std::deque<std::string> p;
