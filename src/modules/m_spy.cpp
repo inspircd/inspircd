@@ -21,7 +21,7 @@ void spy_userlist(userrec *user, chanrec *c)
 	char list[MAXBUF];
 	size_t dlen, curlen;
 
-	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+	dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, c->IsModeSet('s') ? '@' : c->IsModeSet('p') ? '*' : '=', c->name);
 
 	int numusers = 0;
 	char* ptr = list + dlen;
@@ -43,7 +43,7 @@ void spy_userlist(userrec *user, chanrec *c)
 			user->WriteServ(std::string(list));
 
 			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, c->name);
+			dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, c->IsModeSet('s') ? '@' : c->IsModeSet('p') ? '*' : '=', c->name);
 			ptr = list + dlen;
 
 			ptrlen = 0;

@@ -834,7 +834,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 	if (MOD_RESULT == 1)
 		return;
 
-	dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
+	dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name);
 
 	int numusers = 0;
 	char* ptr = list + dlen;
@@ -876,7 +876,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 			user->WriteServ(std::string(list));
 
 			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"353 %s = %s :", user->nick, this->name);
+			dlen = curlen = snprintf(list,MAXBUF,"353 %s %c %s :", user->nick, this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name);
 			ptr = list + dlen;
 
 			ptrlen = 0;
