@@ -776,7 +776,11 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string> &params)
 {
 	if (params.size() < 5)
+	{
+		SendError("Protocol error - Missing SID");
 		return false;
+	}
+
 	std::string servername = params[0];
 	std::string password = params[1];
 	// hopcount is not used for a remote server, we calculate this ourselves
@@ -836,7 +840,10 @@ bool TreeSocket::ComparePass(const std::string &ours, const std::string &theirs)
 bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 {
 	if (params.size() < 5)
+	{
+		SendError("Protocol error - Missing SID");
 		return false;
+	}
 
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
@@ -904,7 +911,11 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 {
 	if (params.size() < 5)
+	{
+		SendError("Protocol error - Missing SID");
 		return false;
+	}
+
 	irc::string servername = params[0].c_str();
 	std::string sname = params[0];
 	std::string password = params[1];
