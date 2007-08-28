@@ -1213,7 +1213,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else
 			{
-				prefix = this->GetName();
+				TreeServer* n = Utils->FindServer(GetName());
+				if (n)
+					prefix = n->GetID();
+				else
+					prefix = GetName();
 			}
 
 			if ((command == "MODE") && (params.size() >= 2))
@@ -1314,8 +1318,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PING")
 			{
-				if (prefix.empty())
-					prefix = this->GetName();
 				/*
 				 * We just got a ping from a server that's bursting.
 				 * This can't be right, so set them to not bursting, and
@@ -1336,8 +1338,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "PONG")
 			{
-				if (prefix.empty())
-					prefix = this->GetName();
 				/*
 				 * We just got a pong from a server that's bursting.
 				 * This can't be right, so set them to not bursting, and
@@ -1377,10 +1377,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SVSNICK")
 			{
-				if (prefix.empty())
-				{
-					prefix = this->GetName();
-				}
 				return this->ForceNick(prefix,params);
 			}
 			else if (command == "OPERQUIT")
@@ -1425,16 +1421,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 			}
 			else if (command == "SVSJOIN")
 			{
-				if (prefix.empty())
-				{
-					prefix = this->GetName();
-				}
 				return this->ServiceJoin(prefix,params);
 			}
 			else if (command == "SVSPART")
 			{
-				if (prefix.empty())
-					prefix = this->GetName();
 				return this->ServicePart(prefix,params);
 			}
 			else if (command == "SQUIT")
