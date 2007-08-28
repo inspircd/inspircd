@@ -224,7 +224,7 @@ void InspIRCd::EraseModule(int j)
 	{
 		if (v1 == j)
 		{
-			DELETE(*m);
+			delete *m;
 			modules.erase(m);
 			modules.push_back(NULL);
 			break;
@@ -916,9 +916,9 @@ ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 ConfigReader::~ConfigReader()
 {
 	if (this->errorlog)
-		DELETE(this->errorlog);
+		delete this->errorlog;
 	if(this->privatehash)
-		DELETE(this->data);
+		delete this->data;
 }
 
 

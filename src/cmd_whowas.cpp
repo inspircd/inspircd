@@ -155,16 +155,18 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 			if (iter != whowas.end())
 			{
 				whowas_set* n = (whowas_set*)iter->second;
+
 				if (n->size())
 				{
 					while (n->begin() != n->end())
 					{
 						WhoWasGroup *a = *(n->begin());
-						DELETE(a);
+						delete a;
 						n->pop_front();
 					}
 				}
-				DELETE(n);
+
+				delete n;
 				whowas.erase(iter);
 			}
 			whowas_fifo.pop_front();
@@ -179,7 +181,7 @@ void cmd_whowas::AddToWhoWas(userrec* user)
 		if ((int)(group->size()) > ServerInstance->Config->WhoWasGroupSize)
 		{
 			WhoWasGroup *a = (WhoWasGroup*)*(group->begin());
-			DELETE(a);
+			delete a;
 			group->pop_front();
 		}
 	}
@@ -201,6 +203,7 @@ void cmd_whowas::PruneWhoWas(time_t t)
 		if (fifosize > maxgroups || whowas_fifo[0].first < t - maxkeep)
 		{
 			iter = whowas.find(whowas_fifo[0].second);
+
 			/* hopefully redundant integrity check, but added while debugging r6216 */
 			if (iter == whowas.end())
 			{
@@ -208,17 +211,20 @@ void cmd_whowas::PruneWhoWas(time_t t)
 				ServerInstance->Log(DEFAULT, "BUG: Whowas maps got corrupted! (1)");
 				return;
 			}
+
 			whowas_set* n = (whowas_set*)iter->second;
+
 			if (n->size())
 			{
 				while (n->begin() != n->end())
 				{
 					WhoWasGroup *a = *(n->begin());
-					DELETE(a);
+					delete a;
 					n->pop_front();
 				}
 			}
-			DELETE(n);
+
+			delete n;
 			whowas.erase(iter);
 			whowas_fifo.pop_front();
 		}
@@ -245,7 +251,7 @@ void cmd_whowas::PruneWhoWas(time_t t)
 			while (n->begin() != n->end() && nickcount > groupsize)
 			{
 				WhoWasGroup *a = *(n->begin());
-				DELETE(a);
+				delete a;
 				n->pop_front();
 				nickcount--;
 			}
@@ -264,7 +270,7 @@ void cmd_whowas::MaintainWhoWas(time_t t)
 			while ((n->begin() != n->end()) && ((*n->begin())->signon < t - ServerInstance->Config->WhoWasMaxKeep))
 			{
 				WhoWasGroup *a = *(n->begin());
-				DELETE(a);
+				delete a;
 				n->erase(n->begin());
 			}
 		}
@@ -283,6 +289,7 @@ cmd_whowas::~cmd_whowas()
 	while ((fifosize = (int)whowas_fifo.size()) > 0)
 	{
 		iter = whowas.find(whowas_fifo[0].second);
+
 		/* hopefully redundant integrity check, but added while debugging r6216 */
 		if (iter == whowas.end())
 		{
@@ -290,17 +297,20 @@ cmd_whowas::~cmd_whowas()
 			ServerInstance->Log(DEFAULT, "BUG: Whowas maps got corrupted! (3)");
 			return;
 		}
+
 		whowas_set* n = (whowas_set*)iter->second;
+
 		if (n->size())
 		{
 			while (n->begin() != n->end())
 			{
 				WhoWasGroup *a = *(n->begin());
-				DELETE(a);
+				delete a;
 				n->pop_front();
 			}
 		}
-		DELETE(n);
+
+		delete n;
 		whowas.erase(iter);
 		whowas_fifo.pop_front();
 	}
