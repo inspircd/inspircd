@@ -31,11 +31,7 @@ class cmd_samode : public command_t
 		/*
 		 * Handles an SAMODE request. Notifies all +s users.
 	 	 */
-
-		userrec* n = new userrec(ServerInstance);
-		n->SetFd(FD_MAGIC_NUMBER);
-		ServerInstance->SendMode(parameters,pcnt,n);
-		delete n;
+		ServerInstance->SendMode(parameters, pcnt, ServerInstance->FakeClient);
 
 		if (ServerInstance->Modes->GetLastParse().length())
 		{

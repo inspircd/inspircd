@@ -78,11 +78,10 @@ class FounderProtectBase
 		CUList* cl = channel->GetUsers();
 		std::string item = extend + std::string(channel->name);
 		const char* mode_junk[MAXMODES+2];
-		userrec* n = new userrec(MyInstance);
-		n->SetFd(FD_MAGIC_NUMBER);
 		mode_junk[0] = channel->name;
 		irc::modestacker modestack(false);
 		std::deque<std::string> stackresult;				
+
 		for (CUList::iterator i = cl->begin(); i != cl->end(); i++)
 		{
 			if (i->first->GetExt(item, dummyptr))
@@ -97,10 +96,9 @@ class FounderProtectBase
 			{
 				mode_junk[j+1] = stackresult[j].c_str();
 			}
-			MyInstance->SendMode(mode_junk, stackresult.size() + 1, n);
+			MyInstance->SendMode(mode_junk, stackresult.size() + 1, MyInstance->FakeClient);
 		}
 		
-		delete n;
 		unload_kludge = false;
 	}
 

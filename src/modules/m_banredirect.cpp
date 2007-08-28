@@ -221,8 +221,6 @@ class ModuleBanRedirect : public Module
 				irc::modestacker modestack(false);
 				StringDeque stackresult;
 				const char* mode_junk[MAXMODES+2];
-				userrec* myhorriblefakeuser = new userrec(ServerInstance);
-				myhorriblefakeuser->SetFd(FD_MAGIC_NUMBER);
 				
 				mode_junk[0] = chan->name;
 				
@@ -244,10 +242,9 @@ class ModuleBanRedirect : public Module
 						mode_junk[i+1] = stackresult[i].c_str();
 					}
 					
-					ServerInstance->SendMode(mode_junk, stackresult.size() + 1, myhorriblefakeuser);
+					ServerInstance->SendMode(mode_junk, stackresult.size() + 1, ServerInstance->FakeClient);
 				}
 				
-				DELETE(myhorriblefakeuser);
 				DELETE(redirects);
 				chan->Shrink("banredirects");
 			}

@@ -640,9 +640,8 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	else
 	{
-		/* FMODE from a server, create a fake user to receive mode feedback */
-		who = new userrec(this->Instance);
-		who->SetFd(FD_MAGIC_NUMBER);
+		/* FMODE from a server, use a fake user to receive mode feedback */
+		who = this->Instance->FakeClient;
 		smode = true;	   /* Setting this flag tells us we should free the userrec later */
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
@@ -714,10 +713,6 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	}
 	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
 	 */
-
-	if (smode)
-		DELETE(who);
-
 	return true;
 }
 
@@ -896,8 +891,6 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 	{
 		std::deque<std::string> stackresult;
 		const char* mode_junk[MAXMODES+2];
-		userrec* n = new userrec(Instance);
-		n->SetFd(FD_MAGIC_NUMBER);
 		mode_junk[0] = channel.c_str();
 
 		while (modestack.GetStackedLine(stackresult))
@@ -906,10 +899,8 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 			{
 				mode_junk[j+1] = stackresult[j].c_str();
 			}
-			Instance->SendMode(mode_junk, stackresult.size() + 1, n);
+			Instance->SendMode(mode_junk, stackresult.size() + 1, Instance->FakeClient);
 		}
-
-		delete n;
 	}
 
 	return true;

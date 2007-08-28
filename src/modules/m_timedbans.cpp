@@ -161,22 +161,15 @@ class ModuleTimedBans : public Module
 						setban[0] = i->channel.c_str();
 						setban[1] = "-b";
 						setban[2] = i->mask.c_str();
-						// kludge alert!
-						// ::SendMode expects a userrec* to send the numeric replies
-						// back to, so we create it a fake user that isnt in the user
-						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
-						// falls into the abyss :p
-						userrec* temp = new userrec(ServerInstance);
-						temp->SetFd(FD_MAGIC_NUMBER);
-						/* FIX: Send mode remotely*/
+
+						/* Send mode remotely*/
 						std::deque<std::string> n;
 						n.push_back(setban[0]);
 						n.push_back("-b");
 						n.push_back(setban[2]);
-						ServerInstance->SendMode(setban,3,temp);
+						ServerInstance->SendMode(setban,3, ServerInstance->FakeClient);
 						Event rmode((char *)&n, NULL, "send_mode");
 						rmode.Send(ServerInstance);
-						DELETE(temp);
 					}
 					else
 					{

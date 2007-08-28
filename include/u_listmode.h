@@ -186,22 +186,21 @@ class ListModeBase : public ModeHandler
 			std::deque<std::string> stackresult;
 			const char* mode_junk[MAXMODES+2];
 			mode_junk[0] = channel->name;
-			userrec* n = new userrec(ServerInstance);
-			n->SetFd(FD_MAGIC_NUMBER);
+
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
 				modestack.Push(this->GetModeChar(), assign(it->mask));
 			}
+
 			while (modestack.GetStackedLine(stackresult))
 			{
 				for (size_t j = 0; j < stackresult.size(); j++)
 				{
 					mode_junk[j+1] = stackresult[j].c_str();
 				}
-				ServerInstance->SendMode(mode_junk, stackresult.size() + 1, n);		
-			}
 
-			delete n;
+				ServerInstance->SendMode(mode_junk, stackresult.size() + 1, ServerInstance->FakeClient);		
+			}
 		}
 	}
 

@@ -1480,11 +1480,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 						const char* modelist[MAXPARAMETERS];
 						for (size_t i = 0; i < params.size(); i++)
 							modelist[i] = params[i].c_str();
-						userrec* fake = new userrec(Instance);
-						fake->SetFd(FD_MAGIC_NUMBER);
-						this->Instance->SendMode(modelist, params.size(), fake);
-
-						delete fake;
+						this->Instance->SendMode(modelist, params.size(), this->Instance->FakeClient);
 						/* Hot potato! pass it on! */
 						return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 					}
