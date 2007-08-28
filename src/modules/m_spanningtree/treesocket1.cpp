@@ -731,7 +731,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 				userrec* user = this->Instance->FindNick(source);
 				if (!user)
 				{
-					c->WriteChannelWithServ(Instance->Config->GetSID(), "TOPIC %s :%s", c->name, c->topic);
+					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
 				}
 				else
 				{
@@ -1148,7 +1148,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 	std::string individual_halfops = std::string(":")+this->Instance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age);
 
 	size_t dlen, curlen;
-	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID(),c->name,(unsigned long)c->age);
+	dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age);
 	int numusers = 0;
 	char* ptr = list + dlen;
 
@@ -1169,7 +1169,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
 		if (curlen > (480-NICKMAX))
 		{
 			buffer.append(list).append("\r\n");
-			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID(),c->name,(unsigned long)c->age);
+			dlen = curlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu",this->Instance->Config->GetSID().c_str(),c->name,(unsigned long)c->age);
 			ptr = list + dlen;
 			ptrlen = 0;
 			numusers = 0;
@@ -1301,7 +1301,7 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			TreeServer* theirserver = Utils->FindServer(u->second->server);
 			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", theirserver->GetID(), u->second->uuid,
+				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", theirserver->GetID().c_str(), u->second->uuid,
 						(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,
 						u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
 				this->WriteLine(data);
