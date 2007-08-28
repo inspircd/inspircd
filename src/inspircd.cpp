@@ -425,6 +425,10 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		Exit(EXIT_STATUS_LOG);
 	}
 
+	/* set up fake client */
+	this->FakeClient = new userrec(this);
+	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
+
 	this->stats = new serverstats();
 	this->Timers = new TimerManager(this);
 	this->Parser = new CommandParser(this);
