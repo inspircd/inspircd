@@ -999,7 +999,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+remoteuid+" " + remoteuid);
 		}
 
-		if (!bChangeRemote)
+		if (!bChangeLocal)
 			return 2;
 	}
 
