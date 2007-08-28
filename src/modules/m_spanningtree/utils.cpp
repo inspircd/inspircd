@@ -127,7 +127,7 @@ void SpanningTreeUtilities::DelBurstingServer(TreeSocket* s)
  */
 TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 {
-	if (ServerName.c_str() == TreeRoot->GetName())
+	if (ServerName.c_str() == TreeRoot->GetName() || ServerName == ServerInstance->Config->GetSID())
 		return NULL;
 	TreeServer* Found = FindServer(ServerName);
 	if (Found)
@@ -158,7 +158,6 @@ TreeServer* SpanningTreeUtilities::FindServerMask(const std::string &ServerName)
 
 TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 {
-	ServerInstance->Log(DEBUG,"Looking for id: %s", id.c_str());
 	server_hash::iterator iter = sidlist.find(id);
 	if (iter != sidlist.end())
 		return iter->second;

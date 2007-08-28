@@ -690,7 +690,7 @@ void ModuleSpanningTree::BroadcastTimeSync()
 		std::deque<std::string> params;
 		params.push_back(ConvToStr(ServerInstance->Time(false)));
 		params.push_back("FORCE");
-		Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
+		Utils->DoOneToMany(Instance->Config->GetSID(), "TIMESET", params);
 	}
 }
 

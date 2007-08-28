@@ -97,11 +97,11 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 			snprintf(strbuf, MAXBUF, "::%s 900 %s :%s",Instance->Config->ServerName,source->nick,ServerConfig::CleanFilename(modulename));
 		}
 		par[1] = strbuf;
-		Utils->DoOneToOne(Instance->Config->ServerName, "PUSH", par, source->server);
+		Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
 	}
 	snprintf(strbuf, MAXBUF, "::%s 901 %s :End of MODULES list", Instance->Config->ServerName, source->nick);
 	par[1] = strbuf;
-	Utils->DoOneToOne(Instance->Config->ServerName, "PUSH", par, source->server);
+	Utils->DoOneToOne(Instance->Config->GetSID(), "PUSH", par, source->server);
 	return true;
 }
 
@@ -125,21 +125,21 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 				if (!Instance->Config->MOTD.size())
 				{
 					par[1] = std::string("::")+Instance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
-					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 					return true;
 				}
 
 				par[1] = std::string("::")+Instance->Config->ServerName+" 375 "+source->nick+" :"+Instance->Config->ServerName+" message of the day";
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 
 				for (unsigned int i = 0; i < Instance->Config->MOTD.size(); i++)
 				{
 					par[1] = std::string("::")+Instance->Config->ServerName+" 372 "+source->nick+" :- "+Instance->Config->MOTD[i];
-					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 				}
 
 				par[1] = std::string("::")+Instance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.";
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 			}
 		}
 		else
@@ -169,13 +169,13 @@ bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &param
 				par.push_back(prefix);
 				par.push_back("");
 				par[1] = std::string("::")+Instance->Config->ServerName+" 256 "+source->nick+" :Administrative info for "+Instance->Config->ServerName;
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 				par[1] = std::string("::")+Instance->Config->ServerName+" 257 "+source->nick+" :Name     - "+Instance->Config->AdminName;
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 				par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :Nickname - "+Instance->Config->AdminNick;
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 				par[1] = std::string("::")+Instance->Config->ServerName+" 258 "+source->nick+" :E-Mail   - "+Instance->Config->AdminEmail;
-				Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 			}
 		}
 		else
@@ -210,7 +210,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 				for (size_t i = 0; i < results.size(); i++)
 				{
 					par[1] = "::" + results[i];
-					Utils->DoOneToOne(this->Instance->Config->ServerName, "PUSH",par, source->server);
+					Utils->DoOneToOne(this->Instance->Config->GetSID(), "PUSH",par, source->server);
 				}
 			}
 		}
@@ -219,7 +219,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 			/* Pass it on */
 			userrec* source = this->Instance->FindNick(prefix);
 			if (source)
-				Utils->DoOneToOne(prefix, "STATS", params, params[1]);
+				Utils->DoOneToOne(source->uuid, "STATS", params, params[1]);
 		}
 	}
 	return true;
@@ -242,7 +242,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 		strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 		Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 
-		TreeServer* remoteserver=Utils->FindServer(u->server);
+		TreeServer* remoteserver = Utils->FindServer(u->server);
 		bool dosend = true;
 
 		if (this->Utils->quiet_bursts)
@@ -402,7 +402,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 	else
 	{
 		std::string forwardto = params[1];
-		if (forwardto == this->Instance->Config->ServerName)
+		if (forwardto == this->Instance->Config->GetSID() || forwardto == this->Instance->ServerName)
 		{
 			/*
 			 * this is a PONG for us
@@ -684,14 +684,14 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 	if (params.size() == 2)
 	{
 		// someone querying our time?
-		if (this->Instance->Config->ServerName == params[0])
+		if (this->Instance->Config->ServerName == params[0] || this->Instance->Config->GetSID() == params[0])
 		{
 			userrec* u = this->Instance->FindNick(params[1]);
 			if (u)
 			{
 				params.push_back(ConvToStr(Instance->Time(false)));
 				params[0] = prefix;
-				Utils->DoOneToOne(this->Instance->Config->ServerName,"TIME",params,params[0]);
+				Utils->DoOneToOne(this->Instance->Config->GetSID(),"TIME",params,params[0]);
 			}
 		}
 		else
@@ -732,13 +732,13 @@ bool TreeSocket::LocalPing(const std::string &prefix, std::deque<std::string> &p
 	if (params.size() == 1)
 	{
 		std::string stufftobounce = params[0];
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" PONG "+stufftobounce);
+		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" PONG "+stufftobounce);
 		return true;
 	}
 	else
 	{
 		std::string forwardto = params[1];
-		if (forwardto == this->Instance->Config->ServerName)
+		if (forwardto == this->Instance->Config->ServerName || forwardto == this->Instance->Config->GetSID())
 		{
 			// this is a ping for us, send back PONG to the requesting server
 			params[1] = params[0];
@@ -890,7 +890,7 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 
 			Utils->TreeRoot->AddChild(Node);
 			params[4] = ":" + params[4];
-			Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,sname);
+			Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,sname);
 			this->bursting = true;
 			this->DoBurst(Node);
 			return true;
@@ -1089,13 +1089,13 @@ bool TreeSocket::ProcessLine(std::string &line)
 					{
 						this->Instance->SetTimeDelta(delta);
 						// Send this new timestamp to any other servers
-						Utils->DoOneToMany(Utils->TreeRoot->GetName(), "TIMESET", params);
+						Utils->DoOneToMany(Instance->Config->GetSID(), "TIMESET", params);
 					}
 				}
 				this->LinkState = CONNECTED;
 				Link* lnk = Utils->FindLink(InboundServerName);
 
-				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+				Node = new TreeServer(this->Utils, this->Instance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 
 				if (Node->DuplicateID())
 				{
@@ -1111,7 +1111,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				params.push_back("1");
 				params.push_back(InboundSID);
 				params.push_back(":"+InboundDescription);
-				Utils->DoOneToAllButSender(Utils->TreeRoot->GetName(),"SERVER",params,InboundServerName);
+				Utils->DoOneToAllButSender(Instance->Config->GetSID(),"SERVER",params,InboundServerName);
 				this->bursting = true;
 				this->DoBurst(Node);
 			}
@@ -1547,7 +1547,7 @@ Old nickname collision logic..
 				{
 					// its not a user. Its either a server, or somethings screwed up.
 					if (Utils->IsServer(prefix))
-						target = this->Instance->Config->ServerName;
+						target = this->Instance->Config->GetID();
 					else
 						return true;
 				}
