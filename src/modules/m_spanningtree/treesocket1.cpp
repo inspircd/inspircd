@@ -999,7 +999,18 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 		 * have 928AAAB's nick set to that.
 		 *   -- w00t
 		 */
-		this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+remoteuid+" " + remoteuid);
+		userrec *remote = this->Instance->FindUUID(remoteuid);
+
+		if (remote)
+		{
+			/* buh.. nick change collide. force change their nick. */
+			remote->ForceNickChange(remote->uuid);
+		}
+		else
+		{
+			/* user has not been introduced yet, just inform their server */
+			this->WriteLine(std::string(":")+this->Instance->Config->ServerName+" SVSNICK "+remoteuid+" " + remoteuid);
+		}
 
 		if (!bChangeRemote)
 			return 2;

@@ -1500,6 +1500,11 @@ bool TreeSocket::ProcessLine(std::string &line)
 						userrec* x = this->Instance->FindNick(params[0]);
 						if ((x) && (x != who))
 						{
+							/* x is local, who is remote */
+							this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
+							return true;
+/*
+Old nickname collision logic..
 							std::deque<std::string> p;
 							p.push_back(params[0]);
 							p.push_back(":Nickname collision ("+prefix+" -> "+params[0]+")");
@@ -1515,6 +1520,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 								userrec::QuitUser(this->Instance,y,"Nickname collision");
 							}
 							return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
+*/
 						}
 					}
 					// its a user
