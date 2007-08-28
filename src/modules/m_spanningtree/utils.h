@@ -195,6 +195,11 @@ class SpanningTreeUtilities
 	void AddBurstingServer(const std::string &ServerName, TreeSocket* s);
 
 	void DelBurstingServer(TreeSocket* s);
+
+	/** Return true if str looks like a server ID
+	 * @param string to check against
+	 */
+	bool issid(const std::string &str);
 };
 
 #endif
