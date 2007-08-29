@@ -1005,18 +1005,20 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	/** Do we have enough parameters:
 	 * UID uuid age nick host dhost ident +modestr ip.string :gecos
 	 */
-	if (params.size() != 9)
+	if (params.size() != 10)
 	{
-		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+"?)");
+		this->WriteLine(std::string(":")+this->Instance->Config->GetSID()+" KILL "+params[0]+" :Invalid client introduction ("+params[0]+" with only "+
+				ConvToStr(params.size())+" of 10 parameters?)");
 		return true;
 	}
 
 	time_t age = ConvToInt(params[1]);
+	time_t signon = ConvToInt(params[8]);
 	const char* tempnick = params[2].c_str();
 	std::string empty;
 
 	/* XXX probably validate UID length too -- w00t */
-	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX}, {"GECOS", 7, MAXGECOS}, {"", 0, 0} };
+	cmd_validation valid[] = { {"Nickname", 2, NICKMAX}, {"Hostname", 3, 64}, {"Displayed hostname", 4, 64}, {"Ident", 5, IDENTMAX}, {"GECOS", 9, MAXGECOS}, {"", 0, 0} };
 
 	TreeServer* remoteserver = Utils->FindServer(source);
 
@@ -1084,7 +1086,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	strlcpy(_new->ident, params[5].c_str(),IDENTMAX);
 	strlcpy(_new->fullname, params[8].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
-	_new->signon = age;
+	_new->signon = signon;
 	_new->age = age;
 
 	/* we need to remove the + from the modestring, so we can do our stuff */
