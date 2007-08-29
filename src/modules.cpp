@@ -210,6 +210,167 @@ const char* ModuleManager::LastError()
 	return MODERR;
 }
 
+bool ModuleManager::Load(const char* filename)
+{
+	/* Do we have a glob pattern in the filename?
+	 * The user wants to load multiple modules which
+	 * match the pattern.
+	 */
+	if (strchr(filename,'*') || (strchr(filename,'?')))
+	{
+		int n_match = 0;
+		DIR* library = opendir(Instance->Config->ModPath);
+		if (library)
+		{
+			/* Try and locate and load all modules matching the pattern */
+			dirent* entry = NULL;
+			while ((entry = readdir(library)))
+			{
+				if (Instance->MatchText(entry->d_name, filename))
+				{
+					if (!this->Load(entry->d_name))
+						n_match++;
+				}
+			}
+			closedir(library);
+		}
+		/* Loadmodule will now return false if any one of the modules failed
+		 * to load (but wont abort when it encounters a bad one) and when 1 or
+		 * more modules were actually loaded.
+		 */
+		return (n_match > 0);
+	}
+
+	char modfile[MAXBUF];
+	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath,filename);
+	std::string filename_str = filename;
+
+	if (!ServerConfig::DirValid(modfile))
+	{
+		snprintf(MODERR, MAXBUF,"Module %s is not within the modules directory.", modfile);
+		Instance->Log(DEFAULT, MODERR);
+		return false;
+	}
+	
+	if (!ServerConfig::FileExists(modfile))
+	{
+		snprintf(MODERR,MAXBUF,"Module file could not be found: %s", modfile);
+		Instance->Log(DEFAULT, MODERR);
+		return false;
+	}
+	
+	if(find(Instance->Config->module_names.begin(), Instance->Config->module_names.end(), filename_str) != Instance->Config->module_names.end())
+	{	
+		Instance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
+		snprintf(MODERR, MAXBUF, "Module already loaded");
+		return false;
+	}
+		
+	Module* newmod;
+	ircd_module* newhandle;
+	
+	newmod = NULL;
+	newhandle = NULL;
+		
+	try
+	{
+		/* This will throw a CoreException if there's a problem loading
+		 * the module file or getting a pointer to the init_module symbol.
+		 */
+		newhandle = new ircd_module(Instance, modfile, "init_module");
+			
+		handles[this->ModCount+1] = newhandle;
+			
+		newmod = handles[this->ModCount+1]->CallInit();
+
+		if(newmod)
+		{
+			Version v = newmod->GetVersion();
+
+			if (v.API != API_VERSION)
+			{
+				delete newmod;
+				Instance->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
+				snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
+				return false;
+			}
+			else
+			{
+				Instance->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+			}
+
+			modules[this->ModCount+1] = newmod;
+				
+			/* save the module and the module's classfactory, if
+			 * this isnt done, random crashes can occur :/ */
+			Instance->Config->module_names.push_back(filename);
+
+			char* x = &Instance->Config->implement_lists[this->ModCount+1][0];
+			for(int t = 0; t < 255; t++)
+				x[t] = 0;
+
+			modules[this->ModCount+1]->Implements(x);
+
+			for(int t = 0; t < 255; t++)
+				Instance->Config->global_implementation[t] += Instance->Config->implement_lists[this->ModCount+1][t];
+		}
+		else
+		{
+			Instance->Log(DEFAULT, "Unable to load %s",modfile);
+			snprintf(MODERR,MAXBUF, "Probably missing init_module() entrypoint, but dlsym() didn't notice a problem");
+			return false;
+		}
+	}
+	catch (LoadModuleException& modexcept)
+	{
+		Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+		snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+		return false;
+	}
+	catch (FindSymbolException& modexcept)
+	{
+		Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
+		snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
+		return false;
+	}
+	catch (CoreException& modexcept)
+	{
+		Instance->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
+		snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+		return false;
+	}
+	
+	this->ModCount++;
+	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
+	// now work out which modules, if any, want to move to the back of the queue,
+	// and if they do, move them there.
+	std::vector<std::string> put_to_back;
+	std::vector<std::string> put_to_front;
+	std::map<std::string,std::string> put_before;
+	std::map<std::string,std::string> put_after;
+	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
+	{
+		if (modules[j]->Prioritize() == PRIORITY_LAST)
+			put_to_back.push_back(Instance->Config->module_names[j]);
+		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
+			put_to_front.push_back(Instance->Config->module_names[j]);
+		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
+			put_before[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
+		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
+			put_after[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
+	}
+	for (unsigned int j = 0; j < put_to_back.size(); j++)
+		MoveToLast(put_to_back[j]);
+	for (unsigned int j = 0; j < put_to_front.size(); j++)
+		MoveToFirst(put_to_front[j]);
+	for (std::map<std::string,std::string>::iterator j = put_before.begin(); j != put_before.end(); j++)
+		MoveBefore(j->first,j->second);
+	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
+		MoveAfter(j->first,j->second);
+	Instance->BuildISupport();
+	return true;
+}
+
 bool ModuleManager::EraseHandle(unsigned int j)
 {
 	ModuleHandleList::iterator iter;
@@ -439,169 +600,6 @@ void ModuleManager::LoadAll()
 	}
 	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->GetCount(), this->GetCount() == 1 ? " has" : "s have");
 	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount());
-}
-
-bool ModuleManager::Load(const char* filename)
-{
-	/* Do we have a glob pattern in the filename?
-	 * The user wants to load multiple modules which
-	 * match the pattern.
-	 */
-	if (strchr(filename,'*') || (strchr(filename,'?')))
-	{
-		int n_match = 0;
-		DIR* library = opendir(Instance->Config->ModPath);
-		if (library)
-		{
-			/* Try and locate and load all modules matching the pattern */
-			dirent* entry = NULL;
-			while ((entry = readdir(library)))
-			{
-				if (Instance->MatchText(entry->d_name, filename))
-				{
-					if (!this->Load(entry->d_name))
-						n_match++;
-				}
-			}
-			closedir(library);
-		}
-		/* Loadmodule will now return false if any one of the modules failed
-		 * to load (but wont abort when it encounters a bad one) and when 1 or
-		 * more modules were actually loaded.
-		 */
-		return (n_match > 0);
-	}
-
-	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",Instance->Config->ModPath,filename);
-	std::string filename_str = filename;
-
-	if (!ServerConfig::DirValid(modfile))
-	{
-		snprintf(MODERR, MAXBUF,"Module %s is not within the modules directory.", modfile);
-		Instance->Log(DEFAULT, MODERR);
-		return false;
-	}
-	
-	if (ServerConfig::FileExists(modfile))
-	{
-		for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
-		{
-			if (Instance->Config->module_names[j] == filename_str)
-			{
-				Instance->Log(DEFAULT,"Module %s is already loaded, cannot load a module twice!",modfile);
-				snprintf(MODERR, MAXBUF, "Module already loaded");
-				return false;
-			}
-		}
-		
-		Module* m = NULL;
-		ircd_module* a = NULL;
-		
-		try
-		{
-			/* This will throw a CoreException if there's a problem loading
-			 * the module file or getting a pointer to the init_module symbol.
-			 */
-			a = new ircd_module(Instance, modfile, "init_module");
-			
-			handles[this->ModCount+1] = a;
-			
-			m = handles[this->ModCount+1]->CallInit();
-
-			if(m)
-			{
-				Version v = m->GetVersion();
-
-				if (v.API != API_VERSION)
-				{
-					delete m;
-					Instance->Log(DEFAULT,"Unable to load %s: Incorrect module API version: %d (our version: %d)",modfile,v.API,API_VERSION);
-					snprintf(MODERR,MAXBUF,"Loader/Linker error: Incorrect module API version: %d (our version: %d)",v.API,API_VERSION);
-					return false;
-				}
-				else
-				{
-					Instance->Log(DEFAULT,"New module introduced: %s (API version %d, Module version %d.%d.%d.%d)%s", filename, v.API, v.Major, v.Minor, v.Revision, v.Build, (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
-				}
-
-				modules[this->ModCount+1] = m;
-				
-				/* save the module and the module's classfactory, if
-				 * this isnt done, random crashes can occur :/ */
-				Instance->Config->module_names.push_back(filename);
-
-				char* x = &Instance->Config->implement_lists[this->ModCount+1][0];
-				for(int t = 0; t < 255; t++)
-					x[t] = 0;
-
-				modules[this->ModCount+1]->Implements(x);
-
-				for(int t = 0; t < 255; t++)
-					Instance->Config->global_implementation[t] += Instance->Config->implement_lists[this->ModCount+1][t];
-			}
-			else
-			{
-				Instance->Log(DEFAULT, "Unable to load %s",modfile);
-				snprintf(MODERR,MAXBUF, "Probably missing init_module() entrypoint, but dlsym() didn't notice a problem");
-				return false;
-			}
-		}
-		catch (LoadModuleException& modexcept)
-		{
-			Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
-			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
-			return false;
-		}
-		catch (FindSymbolException& modexcept)
-		{
-			Instance->Log(DEFAULT,"Unable to load %s: %s", modfile, modexcept.GetReason());
-			snprintf(MODERR,MAXBUF,"Loader/Linker error: %s", modexcept.GetReason());
-			return false;
-		}
-		catch (CoreException& modexcept)
-		{
-			Instance->Log(DEFAULT,"Unable to load %s: %s",modfile,modexcept.GetReason());
-			snprintf(MODERR,MAXBUF,"Factory function of %s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			return false;
-		}
-	}
-	else
-	{
-		Instance->Log(DEFAULT,"InspIRCd: startup: Module Not Found %s",modfile);
-		snprintf(MODERR,MAXBUF,"Module file could not be found");
-		return false;
-	}
-	
-	this->ModCount++;
-	FOREACH_MOD_I(Instance,I_OnLoadModule,OnLoadModule(modules[this->ModCount],filename_str));
-	// now work out which modules, if any, want to move to the back of the queue,
-	// and if they do, move them there.
-	std::vector<std::string> put_to_back;
-	std::vector<std::string> put_to_front;
-	std::map<std::string,std::string> put_before;
-	std::map<std::string,std::string> put_after;
-	for (unsigned int j = 0; j < Instance->Config->module_names.size(); j++)
-	{
-		if (modules[j]->Prioritize() == PRIORITY_LAST)
-			put_to_back.push_back(Instance->Config->module_names[j]);
-		else if (modules[j]->Prioritize() == PRIORITY_FIRST)
-			put_to_front.push_back(Instance->Config->module_names[j]);
-		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_BEFORE)
-			put_before[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
-		else if ((modules[j]->Prioritize() & 0xFF) == PRIORITY_AFTER)
-			put_after[Instance->Config->module_names[j]] = Instance->Config->module_names[modules[j]->Prioritize() >> 8];
-	}
-	for (unsigned int j = 0; j < put_to_back.size(); j++)
-		MoveToLast(put_to_back[j]);
-	for (unsigned int j = 0; j < put_to_front.size(); j++)
-		MoveToFirst(put_to_front[j]);
-	for (std::map<std::string,std::string>::iterator j = put_before.begin(); j != put_before.end(); j++)
-		MoveBefore(j->first,j->second);
-	for (std::map<std::string,std::string>::iterator j = put_after.begin(); j != put_after.end(); j++)
-		MoveAfter(j->first,j->second);
-	Instance->BuildISupport();
-	return true;
 }
 
 long ModuleManager::PriorityAfter(const std::string &modulename)

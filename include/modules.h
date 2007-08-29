@@ -1629,7 +1629,9 @@ class CoreExport ModuleManager : public classbase
 	 * The actual number of loaded modules is available from GetModuleCount()
 	 */
 	ModuleList modules;	 
- 
+
+	/** Simple, bog-standard, boring constructor.
+	 */
 	ModuleManager(InspIRCd* Ins);
 
 	~ModuleManager(); 
