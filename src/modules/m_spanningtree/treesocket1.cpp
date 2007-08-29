@@ -1073,9 +1073,8 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	}
 	catch (CoreException &e)
 	{
-		/** TODO: SQUIT the server here, the remote server is fucking with us
-		 * and has sent us the same UID twice!
-		 */
+		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
+		return false;
 	}
 	(*(this->Instance->clientlist))[tempnick] = _new;
 	_new->SetFd(FD_MAGIC_NUMBER);
