@@ -881,6 +881,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	catch (CoreException &e)
 	{
 		Instance->Log(DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
+		Instance->WriteOpers("*** WARNING *** Duplicate UUID allocated!");
 		return;
 	}
 
