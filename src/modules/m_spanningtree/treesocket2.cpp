@@ -815,6 +815,11 @@ bool TreeSocket::RemoteServer(const std::string &prefix, std::deque<std::string>
 		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
 		return false;
 	}
+	if (!Utils->IsSID(sid))
+	{
+		this->SendError("Invalid format server ID: "+sid+"!");
+		return false;
+	}
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
@@ -889,6 +894,12 @@ bool TreeSocket::Outbound_Reply_Server(std::deque<std::string> &params)
 		return false;
 	}
 
+	if (!Utils->IsSID(sid))
+	{
+		this->SendError("Invalid format server ID: "+sid+"!");
+		return false;
+	}
+
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
 		if ((x->Name == servername) && ((ComparePass(this->MakePass(x->RecvPass,this->GetOurChallenge()),password)) || (x->RecvPass == password && (this->GetTheirChallenge().empty()))))
@@ -957,6 +968,12 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 	{
 		this->SendError("Server too far away for authentication");
 		this->Instance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
+		return false;
+	}
+
+	if (!Utils->IsSID(sid))
+	{
+		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;
 	}
 
