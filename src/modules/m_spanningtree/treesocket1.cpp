@@ -1303,9 +1303,10 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			TreeServer* theirserver = Utils->FindServer(u->second->server);
 			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s :%s", theirserver->GetID().c_str(), u->second->uuid,
-						(unsigned long)u->second->age,u->second->nick,u->second->host,u->second->dhost,
-						u->second->ident,u->second->FormatModes(),u->second->GetIPString(),u->second->fullname);
+				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s +%s %s %lu :%s", theirserver->GetID().c_str(), u->second->uuid,
+						(unsigned long)u->second->age, u->second->nick, u->second->host, u->second->dhost,
+						u->second->ident, u->second->FormatModes(), u->second->GetIPString(),
+						(unsigned long)u->second->signon, u->second->fullname);
 				this->WriteLine(data);
 				if (*u->second->oper)
 				{
