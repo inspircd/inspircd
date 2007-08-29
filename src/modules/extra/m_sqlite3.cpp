@@ -468,9 +468,9 @@ class ModuleSQLite3 : public Module
 	ModuleSQLite3(InspIRCd* Me)
 	: Module::Module(Me), currid(0)
 	{
-		ServerInstance->UseInterface("SQLutils");
+		ServerInstance->Modules->UseInterface("SQLutils");
 
-		if (!ServerInstance->PublishFeature("SQL", this))
+		if (!ServerInstance->Modules->PublishFeature("SQL", this))
 		{
 			throw ModuleException("m_sqlite3: Unable to publish feature 'SQL'");
 		}
@@ -479,7 +479,7 @@ class ModuleSQLite3 : public Module
 
 		ReadConf();
 
-		ServerInstance->PublishInterface("SQL", this);
+		ServerInstance->Modules->PublishInterface("SQL", this);
 	}
 
 	virtual ~ModuleSQLite3()
@@ -491,9 +491,9 @@ class ModuleSQLite3 : public Module
 		resultnotify->OnError(I_ERR_SOCKET);
 		resultnotify->ClosePending = true;
 		delete resultnotify;
-		ServerInstance->UnpublishInterface("SQL", this);
-		ServerInstance->UnpublishFeature("SQL");
-		ServerInstance->DoneWithInterface("SQLutils");
+		ServerInstance->Modules->UnpublishInterface("SQL", this);
+		ServerInstance->Modules->UnpublishFeature("SQL");
+		ServerInstance->Modules->DoneWithInterface("SQLutils");
 	}
 
 	void Implements(char* List)

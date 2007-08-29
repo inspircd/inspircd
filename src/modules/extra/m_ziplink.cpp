@@ -150,7 +150,7 @@ class ModuleZLib : public Module
 	ModuleZLib(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		ServerInstance->PublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
@@ -158,7 +158,7 @@ class ModuleZLib : public Module
 
 	virtual ~ModuleZLib()
 	{
-		ServerInstance->UnpublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->UnpublishInterface("InspSocketHook", this);
 	}
 
 	virtual Version GetVersion()
