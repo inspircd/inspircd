@@ -1042,19 +1042,18 @@ void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::
 
 void ModuleSpanningTree::OnUserConnect(userrec* user)
 {
-	char agestr[MAXBUF];
 	if (IS_LOCAL(user))
 	{
 		std::deque<std::string> params;
-		snprintf(agestr,MAXBUF,"%lu",(unsigned long)user->age);
 		params.push_back(user->uuid);
-		params.push_back(agestr);
+		params.push_back(ConvToStr(user->age));
 		params.push_back(user->nick);
 		params.push_back(user->host);
 		params.push_back(user->dhost);
 		params.push_back(user->ident);
 		params.push_back("+"+std::string(user->FormatModes()));
 		params.push_back(user->GetIPString());
+		params.push_back(ConvToStr(user->signon));
 		params.push_back(":"+std::string(user->fullname));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 		// User is Local, change needs to be reflected!
