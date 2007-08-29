@@ -74,7 +74,7 @@ public:
 	issl_io_status wstat;
 
 	unsigned int inbufoffset;
-	char* inbuf; 			// Buffer OpenSSL reads into.
+	char* inbuf;			// Buffer OpenSSL reads into.
 	std::string outbuf;	// Buffer for outgoing data that OpenSSL will not take.
 	int fd;
 	bool outbound;
@@ -103,9 +103,6 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 
 class ModuleSSLOpenSSL : public Module
 {
-
-	ConfigReader* Conf;
-
 	std::vector<int> listenports;
 
 	int inbufsize;
@@ -131,7 +128,7 @@ class ModuleSSLOpenSSL : public Module
 	InspIRCd* PublicInstance;
 
 	ModuleSSLOpenSSL(InspIRCd* Me)
-		: Module(Me), PublicInstance(Me)
+	: Module(Me), PublicInstance(Me)
 	{
 		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
 
@@ -160,7 +157,7 @@ class ModuleSSLOpenSSL : public Module
 		if (param != "ssl")
 			return;
 
-		Conf = new ConfigReader(ServerInstance);
+		ConfigReader Conf(ServerInstance);
 
 		for (unsigned int i = 0; i < listenports.size(); i++)
 		{
@@ -171,14 +168,14 @@ class ModuleSSLOpenSSL : public Module
 		clientactive = 0;
 		sslports.clear();
 
-		for (int i = 0; i < Conf->Enumerate("bind"); i++)
+		for (int i = 0; i < Conf.Enumerate("bind"); i++)
 		{
 			// For each <bind> tag
-			std::string x = Conf->ReadValue("bind", "type", i);
-			if (((x.empty()) || (x == "clients")) && (Conf->ReadValue("bind", "ssl", i) == "openssl"))
+			std::string x = Conf.ReadValue("bind", "type", i);
+			if (((x.empty()) || (x == "clients")) && (Conf.ReadValue("bind", "ssl", i) == "openssl"))
 			{
 				// Get the port we're meant to be listening on with SSL
-				std::string port = Conf->ReadValue("bind", "port", i);
+				std::string port = Conf.ReadValue("bind", "port", i);
 				irc::portparser portrange(port, false);
 				long portno = -1;
 				while ((portno = portrange.GetToken()))
@@ -215,10 +212,10 @@ class ModuleSSLOpenSSL : public Module
 		// +1 so we the path ends with a /
 		confdir = confdir.substr(0, confdir.find_last_of('/') + 1);
 
-		cafile	 = Conf->ReadValue("openssl", "cafile", 0);
-		certfile = Conf->ReadValue("openssl", "certfile", 0);
-		keyfile	 = Conf->ReadValue("openssl", "keyfile", 0);
-		dhfile	 = Conf->ReadValue("openssl", "dhfile", 0);
+		cafile	 = Conf.ReadValue("openssl", "cafile", 0);
+		certfile = Conf.ReadValue("openssl", "certfile", 0);
+		keyfile	 = Conf.ReadValue("openssl", "keyfile", 0);
+		dhfile	 = Conf.ReadValue("openssl", "dhfile", 0);
 
 		// Set all the default values needed.
 		if (cafile.empty())
@@ -287,8 +284,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		fclose(dhpfile);
-
-		DELETE(Conf);
 	}
 
 	virtual void On005Numeric(std::string &output)
