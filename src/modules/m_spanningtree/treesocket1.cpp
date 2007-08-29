@@ -410,8 +410,8 @@ std::string TreeSocket::ListDifference(const std::string &one, const std::string
 void TreeSocket::SendError(const std::string &errormessage)
 {
 	/* Display the error locally as well as sending it remotely */
-	this->WriteLine("ERROR :"+errormessage);
 	Utils->Creator->RemoteMessage(NULL, "Sent \2ERROR\2 to %s: %s", (this->InboundServerName.empty() ? "<unknown>" : this->InboundServerName.c_str()), errormessage.c_str());
+	this->WriteLine("ERROR :"+errormessage);
 	/* One last attempt to make sure the error reaches its target */
 	this->FlushWriteBuffer();
 }
