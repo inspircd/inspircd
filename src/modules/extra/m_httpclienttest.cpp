@@ -51,7 +51,7 @@ public:
 		std::string nick = user->nick;
 		ServerInstance->Log(DEBUG,"User " + nick + " joined " + chan);
 
-		Module* target = ServerInstance->FindModule("m_http_client.so");
+		Module* target = ServerInstance->Modules->Find("m_http_client.so");
 		if(target)
 		{
 			HTTPClientRequest req(ServerInstance, this, target, "http://znc.in/~psychon");
