@@ -173,9 +173,11 @@ std::string InspIRCd::GetUID()
 
 			if (current_uid[3] == 'Z')
 			{
-				/* If we get to here, we need to wrap around to AAAA. */
-				for(int j = 3; j < UUID_LENGTH - 1; j++)
-					current_uid[j] = 'A';
+				/*
+				 * Ugh. We have run out of room.. roll back around to the
+				 * start of the UUID namespace. -- w00t
+				 */
+				this->InitialiseUID();
 
 				/*
 				 * and now we need to break the inner for () to continue the while (),

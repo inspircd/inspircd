@@ -273,6 +273,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void DoSocketTimeouts(time_t TIME);
 
+	/** Sets up UID subsystem
+	 */
+	void InitialiseUID();
+
 	/** Perform background user events such as PING checks
 	 * @param TIME the current time
 	 */

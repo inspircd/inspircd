@@ -435,7 +435,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->Modules->handles.resize(255);
 
 	/*
-	 * Initialise UID. XXX, we need to read SID from config, and use it instead of 000.
+	 * Initialise SID/UID.
 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
 	 *   -- w00t
 	 */
@@ -457,13 +457,8 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 		Config->sid = sid;
 	}
-	current_uid[0] = sid / 100 + 48;
-	current_uid[1] = ((sid / 10) % 10) + 48;
-	current_uid[2] = sid % 10 + 48;
 
-	/* Initialise UID */
-	for(i = 3; i < UUID_LENGTH - 1; i++)
-		current_uid[i] = 'A';
+	this->InitialiseUID();
 
 	/* set up fake client */
 	this->FakeClient = new userrec(this);
@@ -575,6 +570,20 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Log(DEFAULT,"Startup complete.");
 
 	this->WritePID(Config->PID);
+}
+
+/* moved to a function, as UID generation can call this also */
+void InspIRCd::InitialiseUID()
+{
+	size_t sid = Config->sid;
+
+	current_uid[0] = sid / 100 + 48;
+	current_uid[1] = ((sid / 10) % 10) + 48;
+	current_uid[2] = sid % 10 + 48;
+
+	/* Initialise UID */
+	for(i = 3; i < UUID_LENGTH - 1; i++)
+		current_uid[i] = 'A';
 }
 
 void InspIRCd::DoOneIteration(bool process_module_sockets)
