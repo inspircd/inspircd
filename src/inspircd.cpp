@@ -439,8 +439,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
 	 *   -- w00t
 	 */
-	int i;
-
 	/* Generate SID */
 	size_t sid = 0;
 	if (Config->sid)
@@ -575,6 +573,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 /* moved to a function, as UID generation can call this also */
 void InspIRCd::InitialiseUID()
 {
+	int i;
 	size_t sid = Config->sid;
 
 	current_uid[0] = sid / 100 + 48;
