@@ -283,6 +283,7 @@ class ModuleIdent : public Module
 			if (user->GetExt("IDENT", identstr))
 			{
 				delete identstr;
+				user->Shrink("IDENT");
 			}
 		}
 	}
@@ -307,6 +308,7 @@ class ModuleIdent : public Module
 		if (user->GetExt("IDENT", identstr))
 		{
 			delete identstr;
+			user->Shrink("IDENT");
 		}
 	}
 
