@@ -629,6 +629,15 @@ int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, userrec
  */
 void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 {
+	/* This could cause an infinite loop, because DoOneToMany() will, on error,
+	 * call TreeSocket::OnError(), which in turn will call this function to
+	 * notify everyone of the error. So, drop any messages that are generated
+	 * during the sending of another message. -Special */
+	static bool SendingRemoteMessage = false;
+	if (SendingRemoteMessage)
+		return;
+	SendingRemoteMessage = true;
+
 	std::deque<std::string> params;
 	char text[MAXBUF];
 	va_list argsPtr;
@@ -657,6 +666,8 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 			Utils->DoOneToMany(ServerInstance->Config->GetSID(), "PUSH", params);
 		}
 	}
+	
+	SendingRemoteMessage = false;
 }
 	
 int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec* user)
