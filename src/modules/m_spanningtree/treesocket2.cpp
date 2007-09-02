@@ -1040,8 +1040,7 @@ void TreeSocket::Split(const std::string &line, std::deque<std::string> &n)
 	std::string param;
 	while (tokens.GetToken(param))
 	{
-		if (!param.empty())
-			n.push_back(param);
+		n.push_back(param);
 	}
 	return;
 }

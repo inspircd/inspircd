@@ -822,6 +822,10 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 		int n_translate = thiscmd->translation.size();
 		TranslateType translate_to;
 
+		/* To make sure that parameters with spaces, or empty
+		 * parameters, etc, are always sent properly, *always*
+		 * prefix the last parameter with a :. This also removes
+		 * an extra strchr() */
 		for (int j = 0; j < pcnt; j++)
 		{
 			std::string target;
@@ -837,8 +841,8 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 
 			ServerInstance->Log(DEBUG,"TRANSLATION: %s - type is %d", parameters[j], translate_to);
 			ServerInstance->Parser->TranslateUIDs(translate_to, parameters[j], target);
-
-			if (strchr(parameters[j],' '))
+			
+			if (j == (pcnt - 1))
 				params.push_back(":" + target);
 			else
 				params.push_back(target);
