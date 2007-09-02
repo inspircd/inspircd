@@ -823,17 +823,18 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 		// commands and linking protocols.
 		std::deque<std::string> params;
 		params.clear();
-		for (int j = 0; j < pcnt; j++)
+
+		/* To make sure that parameters with spaces, or empty
+		 * parameters, etc, are always send properly, *always*
+		 * prefix the last parameter with a :. This also removes
+		 * an extra strchr() */
+		for (int j = 0; j < pcnt - 1; j++)
 		{
-			if (strchr(parameters[j],' '))
-			{
-				params.push_back(":" + std::string(parameters[j]));
-			}
-			else
-			{
-				params.push_back(std::string(parameters[j]));
-			}
+			params.push_back(parameters[j]);
 		}
+		if (pcnt)
+			params.push_back(":" + std::string(parameters[pcnt - 1]));
+		
 		Utils->DoOneToMany(user->nick,command,params);
 	}
 }
