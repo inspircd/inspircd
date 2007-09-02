@@ -16,312 +16,206 @@
 #include "channels.h"
 #include "modules.h"
 
-/* $ModDesc: Provides support for RFC 1413 ident lookups */
+/* $ModDesc: Provides support for RFC1413 ident lookups */
 
-// Version 1.5.0.0 - Updated to use InspSocket, faster and neater.
-
-/** Handles RFC1413 ident connections to users
- */
-class RFC1413 : public InspSocket
+class IdentRequestSocket : public InspSocket
 {
- protected:
-	socklen_t uslen;	 // length of our port number
-	socklen_t themlen;	 // length of their port number
-	char ident_request[128]; // buffer used to make up the request string
+ private:
+	userrec *user;
  public:
-
-	userrec* u;		 // user record that the lookup is associated with
-	int ufd;
-
-	RFC1413(InspIRCd* SI, userrec* user, int maxtime, const std::string &bindto) : InspSocket(SI, user->GetIPString(), 113, false, maxtime, bindto), u(user)
+	IdentRequestSocket(InspIRCd *Server, userrec *user, int timeout, const std::string &bindip)
+		: InspSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
 	{
-		ufd = user->GetFd();
+		
 	}
-
-	virtual void OnTimeout()
+	
+	virtual bool OnConnected()
 	{
-		// When we timeout, the connection failed within the allowed timeframe,
-		// so we just display a notice, and tidy off the ident_data.
-		if (u && (Instance->SE->GetRef(ufd) == u))
-		{
-			u->Shrink("ident_data");
-			Instance->next_call = Instance->Time();
-		}
-	}
+		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
+		 * only members we use are in a part of the struct that should always be identical (at the
+		 * byte level). */
 
-	virtual bool OnDataReady()
-	{
-		char* ibuf = this->Read();
-		if (ibuf)
+		Instance->Log(DEBUG, "Sending ident request to %s", user->GetIPString());
+		
+		#ifndef IPV6
+		sockaddr_in laddr, raddr;
+		#else
+		sockaddr_in6 laddr, raddr;
+		#endif
+		
+		socklen_t laddrsz = sizeof(laddr);
+		socklen_t raddrsz = sizeof(raddr);
+		
+		if ((getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0) || (getpeername(user->GetFd(), (sockaddr*) &raddr, &raddrsz) != 0))
 		{
-			char* savept;
-			char* section = strtok_r(ibuf,":",&savept);
-			while (section)
-			{
-				if (strstr(section,"USERID"))
-				{
-					section = strtok_r(NULL,":",&savept);
-					if (section)
-					{
-						// ID type, usually UNIX or OTHER... we dont want it, so read the next token
-						section = strtok_r(NULL,":",&savept);
-						if (section)
-						{
-							while (*section == ' ') section++; // strip leading spaces
-							for (char* j = section; *j; j++)
-							if ((*j < 33) || (*j > 126))
-								*j = '\0'; // truncate at invalid chars
-							if (*section)
-							{
-								if (u && (Instance->SE->GetRef(ufd) == u))
-								{
-									if (this->Instance->IsIdent(section))
-									{
-										u->Extend("IDENT", new std::string(std::string(section) + "," + std::string(u->ident)));
-										strlcpy(u->ident,section,IDENTMAX);
-										u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Found your ident: "+std::string(u->ident));
-									}
-								}
-							}
-							return false;
-						}
-					}
-				}
-				section = strtok_r(NULL,":",&savept);
-			}
+			// Error
+			return false;
 		}
-		return false;
+		
+		char req[32];
+		
+		#ifndef IPV6
+		snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin_port), ntohs(laddr.sin_port));
+		#else
+		snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
+		#endif
+		
+		this->Write(req);
+		
+		return true;
 	}
 
 	virtual void OnClose()
 	{
-		// tidy up after ourselves when the connection is done.
-		// We receive this event straight after a timeout, too.
-		//
-		//
-		// OK, now listen up. The weird looking check here is
-		// REQUIRED. Don't try and optimize it away.
-		//
-		// When a socket is closed, it is not immediately removed
-		// from the socket list, there can be a short delay
-		// before it is culled from the list. This means that
-		// without this check, there is a chance that a user
-		// may not exist when we come to ::Shrink them, which
-		// results in a segfault. The value of "u" may not
-		// always be NULL at this point, so, what we do is
-		// check against the fd_ref_table, to see if (1) the user
-		// exists, and (2) its the SAME user, on the same file
-		// descriptor that they were when the lookup began.
-		//
-		// Fixes issue reported by webs, 7 Jun 2006
-		if (u && (Instance->SE->GetRef(ufd) == u))
-		{
-			Instance->next_call = Instance->Time();
-			u->Shrink("ident_data");
-		}
-	}
+		/* There used to be a check against the fd table here, to make sure the user hadn't been
+		 * deleted but not yet had their socket closed or something along those lines, dated june
+		 * 2006. Since we added the global cull list and such, I don't *think* that is necessary
+		 * anymore. If you're getting odd crashes here, that's probably why ;) -Special */
 
+		if (*user->ident == '~' && user->GetExt("ident_socket"))
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
+
+		user->Shrink("ident_socket");
+		Instance->next_call = Instance->Time();
+	}
+	
 	virtual void OnError(InspSocketError e)
 	{
-		if (u && (Instance->SE->GetRef(ufd) == u))
-		{
-			if (*u->ident == '~')
-				u->WriteServ("NOTICE "+std::string(u->nick)+" :*** Could not find your ident, using "+std::string(u->ident)+" instead.");
-
-			Instance->next_call = Instance->Time();
-			u->Shrink("ident_data");
-		}
+		// Quick check to make sure that this hasn't been sent ;)
+		if (*user->ident == '~' && user->GetExt("ident_socket"))
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
+		
+		user->Shrink("ident_socket");
+		Instance->next_call = Instance->Time();
 	}
-
-	virtual bool OnConnected()
+	
+	virtual bool OnDataReady()
 	{
-		if (u && (Instance->SE->GetRef(ufd) == u))
+		char *ibuf = this->Read();
+		if (!ibuf)
+			return false;
+		
+		// We don't really need to buffer for incomplete replies here, since IDENT replies are
+		// extremely short - there is *no* sane reason it'd be in more than one packet
+		
+		irc::sepstream sep(ibuf, ':');
+		std::string token;
+		for (int i = 0; sep.GetToken(token); i++)
 		{
-			sockaddr* sock_us = new sockaddr[2];
-			sockaddr* sock_them = new sockaddr[2];
-			bool success = false;
-			uslen = sizeof(sockaddr_in);
-			themlen = sizeof(sockaddr_in);
-#ifdef IPV6
-			if (this->u->GetProtocolFamily() == AF_INET6)
+			// We only really care about the 4th portion
+			if (i < 3)
+				continue;
+			
+			char ident[IDENTMAX + 2];
+			
+			// Truncate the ident at any characters we don't like, skip leading spaces
+			int k = 0;
+			for (const char *j = token.c_str(); *j && (k < IDENTMAX + 1); j++)
 			{
-				themlen = sizeof(sockaddr_in6);
-				uslen = sizeof(sockaddr_in6);
+				if (*j == ' ')
+					continue;
+				
+				// Rules taken from InspIRCd::IsIdent
+				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
+				{
+					ident[k++] = *j;
+					continue;
+				}
+				
+				break;
 			}
-#endif
-			success = ((getsockname(this->u->GetFd(),sock_us,&uslen) || getpeername(this->u->GetFd(), sock_them, &themlen)));
-			if (success)
+			
+			ident[k] = '\0';
+			
+			// Redundant check with IsIdent, in case that changes and this doesn't (paranoia!)
+			if (*ident && Instance->IsIdent(ident))
 			{
-				delete[] sock_us;
-				delete[] sock_them;
-				return false;
+				strlcpy(user->ident, ident, IDENTMAX);
+				user->WriteServ("NOTICE Auth :*** Found your ident: %s", user->ident);
+				Instance->next_call = Instance->Time();
 			}
-			else
-			{
-				// send the request in the following format: theirsocket,oursocket
-#ifdef IPV6
-				if (this->u->GetProtocolFamily() == AF_INET6)
-					snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in6*)sock_them)->sin6_port),ntohs(((sockaddr_in6*)sock_us)->sin6_port));
-				else
-#endif
-				snprintf(ident_request,127,"%d,%d\r\n",ntohs(((sockaddr_in*)sock_them)->sin_port),ntohs(((sockaddr_in*)sock_us)->sin_port));
-				this->Write(ident_request);
-				delete[] sock_us;
-				delete[] sock_them;
-				return true;
-			}
+			
+			break;
 		}
-		else
-		{
-			Instance->next_call = Instance->Time();
-			return true;
-		}
+		
+		return false;
 	}
 };
 
 class ModuleIdent : public Module
 {
-
-	ConfigReader* Conf;
-	int IdentTimeout;
-	std::string PortBind;
-
+ private:
+	int RequestTimeout;
+	std::string IdentBindIP;
  public:
-	void ReadSettings()
+	ModuleIdent(InspIRCd *Me)
+		: Module::Module(Me)
 	{
-		Conf = new ConfigReader(ServerInstance);
-		IdentTimeout = Conf->ReadInteger("ident", "timeout", 0, true);
-		PortBind = Conf->ReadValue("ident", "bind", 0);
-		if (!IdentTimeout)
-			IdentTimeout = 1;
-		DELETE(Conf);
+		OnRehash(NULL, "");
 	}
-
-	ModuleIdent(InspIRCd* Me)
-		: Module(Me)
+	
+	virtual ~ModuleIdent()
 	{
-
-		ReadSettings();
 	}
-
-	void Implements(char* List)
+	
+	virtual Version GetVersion()
 	{
-		List[I_OnCleanup] = List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnUserDisconnect] = 1;
+		return Version(1, 1, 1, 0, VF_VENDOR, API_VERSION);
 	}
-
-	void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable)
+	
+	virtual void Implements(char *List)
 	{
-		if ((displayable) && (extname == "IDENT"))
-		{
-			std::string* ident;
-			if (GetExt("IDENT", ident))
-				proto->ProtoSendMetaData(opaque, TYPE_USER, user, extname, *ident);
-		}
+		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnCleanup] = List[I_OnUserDisconnect] = 1;
 	}
-
-
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	
+	virtual void OnRehash(userrec *user, const std::string &param)
 	{
-		ReadSettings();
-	}
-
-	virtual int OnUserRegister(userrec* user)
-	{
-		/*
-		 * when the new user connects, before they authenticate with USER/NICK/PASS, we do
-		 * their ident lookup. We do this by instantiating an object of type RFC1413, which
-		 * is derived from InspSocket, and inserting it into the socket engine using the
-		 * Server::AddSocket() call.
-		 */
-		char newident[MAXBUF];
-		strcpy(newident,"~");
-		strlcat(newident,user->ident,IDENTMAX);
-		strlcpy(user->ident,newident,IDENTMAX);
+		ConfigReader MyConf(ServerInstance);
 		
-
-		user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Looking up your ident...");
-		RFC1413* ident = new RFC1413(ServerInstance, user, IdentTimeout, PortBind);
-		if ((ident->GetState() == I_CONNECTING) || (ident->GetState() == I_CONNECTED))
-		{
-			user->Extend("ident_data", (char*)ident);
-		}
-		else
-		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not find your ident, using "+std::string(user->ident)+" instead.");
-			ServerInstance->next_call = ServerInstance->Time();
-		}
+		RequestTimeout = MyConf.ReadInteger("ident", "timeout", 0, true);
+		if (!RequestTimeout)
+			RequestTimeout = 5;
+		IdentBindIP = MyConf.ReadValue("ident", "bind", 0);
+	}
+	
+	virtual int OnUserRegister(userrec *user)
+	{
+		/* userrec::ident is currently the username field from USER; with m_ident loaded, that
+		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
+		memmove(user->ident + 1, user->ident, IDENTMAX);
+		user->ident[0] = '~';
+		// Ensure that it is null terminated
+		user->ident[IDENTMAX + 1] = '\0';
+		
+		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
+		
+		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, IdentBindIP);
+		user->Extend("ident_socket", isock);
 		return 0;
 	}
-
-	virtual bool OnCheckReady(userrec* user)
+	
+	virtual bool OnCheckReady(userrec *user)
 	{
-		/*
-		 * The socket engine will clean up their ident request for us when it completes,
-		 * either due to timeout or due to closing, so, we just hold them until they dont
-		 * have an ident field any more.
-		 */
-		RFC1413* ident;
-		return (!user->GetExt("ident_data", ident));
+		return (!user->GetExt("ident_socket"));
 	}
-
-	virtual void OnCleanup(int target_type, void* item)
+	
+	virtual void OnCleanup(int target_type, void *item)
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
-			RFC1413* ident;
-			std::string* identstr;
-			if (user->GetExt("ident_data", ident))
-			{
-				// FIX: If the user record is deleted, the socket wont be removed
-				// immediately so there is chance of the socket trying to write to
-				// a user which has now vanished! To prevent this, set ident::u
-				// to NULL and check it so that we dont write users who have gone away.
-				ident->u = NULL;
-				ServerInstance->SE->DelFd(ident);
-			}
-			if (user->GetExt("IDENT", identstr))
-			{
-				delete identstr;
-				user->Shrink("IDENT");
-			}
+			IdentRequestSocket *isock;
+			userrec *user = (userrec*)item;
+			if (user->GetExt("ident_socket", isock))
+				isock->Close();
 		}
 	}
-
-	virtual void OnUserDisconnect(userrec* user)
+	
+	virtual void OnUserDisconnect(userrec *user)
 	{
-		/*
-		 * when the user quits tidy up any ident lookup they have pending to keep things tidy.
-		 * When we call RemoveSocket, the abstractions tied into the system evnetually work their
-		 * way to RFC1459::OnClose(), which shrinks off the ident_data for us, so we dont need
-		 * to do it here. If we don't tidy this up, there may still be lingering idents for users
-		 * who have quit, as class RFC1459 is only loosely bound to userrec* via a pair of pointers
-		 * and this would leave at least one of the invalid ;)
-		 */
-		RFC1413* ident;
-		std::string* identstr;
-		if (user->GetExt("ident_data", ident))
-		{
-			ident->u = NULL;
-			ServerInstance->SE->DelFd(ident);
-		}
-		if (user->GetExt("IDENT", identstr))
-		{
-			delete identstr;
-			user->Shrink("IDENT");
-		}
+		IdentRequestSocket *isock;
+		if (user->GetExt("ident_socket", isock))
+			isock->Close();
 	}
-
-	virtual ~ModuleIdent()
-	{
-		ServerInstance->next_call = ServerInstance->Time();
-	}
-
-	virtual Version GetVersion()
-	{
-		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
-	}
-
 };
 
-MODULE_INIT(ModuleIdent)
+MODULE_INIT(ModuleIdent);
