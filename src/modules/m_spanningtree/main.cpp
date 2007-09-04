@@ -685,18 +685,18 @@ int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec
 			TreeServer* CheckDupe = Utils->FindServer(x->Name.c_str());
 			if (!CheckDupe)
 			{
-				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",user->nick,x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
+				RemoteMessage(user, "*** CONNECT: Connecting to server: \002%s\002 (%s:%d)",x->Name.c_str(),(x->HiddenFromStats ? "<hidden>" : x->IPAddr.c_str()),x->Port);
 				ConnectServer(&(*x));
 				return 1;
 			}
 			else
 			{
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",user->nick,x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
+				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
 				return 1;
 			}
 		}
 	}
-	RemoteMessage(user, "NOTICE %s :*** CONNECT: No server matching \002%s\002 could be found in the config file.",user->nick,parameters[0]);
+	RemoteMessage(user, "*** CONNECT: No server matching \002%s\002 could be found in the config file.",parameters[0]);
 	return 1;
 }
 
