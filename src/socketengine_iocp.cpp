@@ -464,11 +464,11 @@ int IOCPEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 	return ov->socket;
 }
 
-int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* name)
+int IOCPEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
 {
 	Overlapped* ovl = NULL;
 	
-	if (!fd->GetExt("windows_acceptevent", acceptevent))
+	if (!fd->GetExt("windows_acceptevent", ovl))
 		return -1;
 
 	accept_overlap* ov = (accept_overlap*)ovl->m_params;
@@ -495,18 +495,18 @@ int IOCPEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, str
 int IOCPEngine::Blocking(int fd)
 {
 	unsigned long opt = 0;
-	ioctlsocket(s, FIONBIO, &opt);
+	return ioctlsocket(fd, FIONBIO, &opt);
 }
 
 int IOCPEngine::NonBlocking(int fd)
 {
 	unsigned long opt = 1;
-	ioctlsocket(s, FIONBIO, &opt);
+	return ioctlsocket(fd, FIONBIO, &opt);
 }
 
 int IOCPEngine::Close(int fd)
 {
-	return closesocket(socket);
+	return closesocket(fd);
 }
 
 int IOCPEngine::Close(EventHandler* fd)

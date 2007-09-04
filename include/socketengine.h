@@ -353,7 +353,7 @@ public:
 	 */
 	virtual int Shutdown(EventHandler* fd, int how);
 
-	/** Abstraction for BSD sockets shutdownt(2).
+	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */

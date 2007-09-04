@@ -100,6 +100,17 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 	return true;
 }
 
+#ifdef WINDOWS
+
+int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen) { return -1; }
+int SocketEngine::Close(int fd) { return -1; }
+int SocketEngine::Close(EventHandler* fd) { return -1; }
+int SocketEngine::Blocking(int fd) { return -1; }
+int SocketEngine::NonBlocking(int fd) { return -1; }
+int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen) { return -1; }
+int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen) { return -1; }
+
+#else
 
 int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 {
@@ -111,29 +122,9 @@ int SocketEngine::Close(EventHandler* fd)
 	return close(fd->GetFd());
 }
 
-int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
+int SocketEngine::Close(int fd)
 {
-	return send(fd->GetFd(), buf, len, flags);
-}
-
-int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
-{
-	return recv(fd->GetFd(), buf, len, flags);
-}
-
-int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
-{
-	return recvfrom(fd->GetFd(), buf, len, flags, from, fromlen);
-}
-
-int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
-{
-	return sendto(fd->GetFd(), buf, len, flags, to, tolen);
-}
-
-int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
-{
-	return connect(fd->GetFd(), serv_addr, addrlen);
+	return close(fd);
 }
 
 int SocketEngine::Blocking(int fd)
@@ -148,20 +139,46 @@ int SocketEngine::NonBlocking(int fd)
 	return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
+int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
+{
+	return getsockname(fd->GetFd(), name, namelen);
+}
+
+int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
+{
+	return recvfrom(fd->GetFd(), buf, len, flags, from, fromlen);
+}
+
+#endif
+
+int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
+{
+	return send(fd->GetFd(), (const char*)buf, len, flags);
+}
+
+int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
+{
+	return recv(fd->GetFd(), (char*)buf, len, flags);
+}
+
+int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
+{
+	return sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
+}
+
+int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
+{
+	return connect(fd->GetFd(), serv_addr, addrlen);
+}
+
 int SocketEngine::Shutdown(EventHandler* fd, int how)
 {
 	return shutdown(fd->GetFd(), how);
 }
 
-
 int SocketEngine::Bind(int fd, const sockaddr *my_addr, socklen_t addrlen)
 {
 	return bind(fd, my_addr, addrlen);
-}
-
-int SocketEngine::GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen)
-{
-	return getsockname(fd->GetFd(), name, namelen);
 }
 
 int SocketEngine::Listen(int sockfd, int backlog)
@@ -169,15 +186,9 @@ int SocketEngine::Listen(int sockfd, int backlog)
 	return listen(sockfd, backlog);
 }
 
-
 int SocketEngine::Shutdown(int fd, int how)
 {
 	return shutdown(fd, how);
-}
-
-int SocketEngine::Close(int fd)
-{
-	return close(fd);
 }
 
 void SocketEngine::RecoverFromFork()

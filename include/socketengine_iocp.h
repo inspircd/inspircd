@@ -221,7 +221,7 @@ public:
 
 	virtual int NonBlocking(int fd);
 
-	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* name);
+	virtual int GetSockName(EventHandler* fd, sockaddr *name, socklen_t* namelen);
 
 	virtual int Close(int fd);
 

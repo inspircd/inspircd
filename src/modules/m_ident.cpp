@@ -149,7 +149,7 @@ class ModuleIdent : public Module
 	std::string IdentBindIP;
  public:
 	ModuleIdent(InspIRCd *Me)
-		: Module::Module(Me)
+		: Module(Me)
 	{
 		OnRehash(NULL, "");
 	}

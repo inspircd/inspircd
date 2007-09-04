@@ -1681,7 +1681,7 @@ int TreeSocket::OnIncomingConnection(int newsock, char* ip)
 		if (!found)
 		{
 			Utils->Creator->RemoteMessage(NULL,"Server connection from %s denied (no link blocks with that IP address)", ip);
-			close(newsock);
+			Instance->SE->Close(newsock);
 			return false;
 		}
 	}

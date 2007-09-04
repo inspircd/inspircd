@@ -175,6 +175,16 @@ class CoreExport ConnectClass : public classbase
 
 public:
 
+	/** Create a new connect class based on an existing connect class. This is required for std::vector (at least under windows).
+	 */
+	ConnectClass(const ConnectClass& source) : type(source.type), name(source.name),
+		registration_timeout(source.registration_timeout), flood(source.flood), host(source.host),
+		pingtime(source.pingtime), pass(source.pass), threshold(source.threshold), sendqmax(source.sendqmax),
+		recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),
+		port(source.port)
+	{
+	}
+
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
@@ -351,9 +361,27 @@ public:
 		return maxglobal;
 	}
 
-	bool operator= (ConnectClass &other)
+	bool operator== (ConnectClass &other)
 	{
 		return (other.GetName() == name);
+	}
+
+	void operator=(const ConnectClass & other)
+	{
+		type = other.type;
+		name = other.name;
+		registration_timeout = other.registration_timeout;
+		flood = other.flood;
+		host = other.host;
+		pingtime = other.pingtime;
+		pass = other.pass;
+		threshold = other.threshold;
+		sendqmax = other.sendqmax;
+		recvqmax = other.recvqmax;
+		maxlocal = other.maxlocal;
+		maxglobal = other.maxglobal;
+		maxchans = other.maxchans;
+		port = other.port;
 	}
 };
 

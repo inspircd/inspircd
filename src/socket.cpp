@@ -120,7 +120,7 @@ void ListenSocket::HandleEvent(EventType et, int errornum)
 	else
 	{
 		ServerInstance->SE->Shutdown(incomingSockfd, 2);
-		close(incomingSockfd);
+		ServerInstance->SE->Close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 	}
 	delete[] client;
