@@ -1170,13 +1170,30 @@ int InspIRCd::Run()
  * An ircd in four lines! bwahahaha. ahahahahaha. ahahah *cough*.
  */
 
-int main(int argc, char** argv)
+int ircd(int argc, char** argv)
 {
 	SI = new InspIRCd(argc, argv);
 	SI->Run();
 	delete SI;
 	return 0;
 }
+
+#ifdef WINDOWS
+
+int main(int argc, char ** argv)
+{
+	__try {
+		ircd(argc,argv);
+	} __except(__exceptionHandler(GetExceptionInformation())) {}
+	return 0;
+}
+
+#else
+int main(int argc, char** argv)
+{
+	return ircd(argc,argv);
+}
+#endif
 
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the

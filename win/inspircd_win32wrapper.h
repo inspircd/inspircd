@@ -21,6 +21,7 @@
 /* Define the WINDOWS macro. This means we're building on windows to the rest of the server.
    I think this is more reasonable than using WIN32, especially if we're gonna be doing 64-bit compiles */
 #define WINDOWS 1
+#define ENABLE_CRASHDUMPS 1
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
@@ -65,6 +66,10 @@
 #include <process.h>
 #include <stdio.h>
 #include <algorithm>
+
+#ifdef ENABLE_CRASHDUMPS
+#include <DbgHelp.h>
+#endif
 
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
@@ -187,6 +192,11 @@ CoreExport void ClearConsole();
 
 /* Windows does not have gettimeofday() */
 CoreExport int gettimeofday(struct timeval * tv, void * tz);
+
+#ifdef ENABLE_CRASHDUMPS
+typedef struct _EXCEPTION_POINTERS EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
+int __cdecl __exceptionHandler(PEXCEPTION_POINTERS pExceptPtrs);
+#endif
 
 #endif
 

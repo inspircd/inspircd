@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib dbghelp.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)/inspircd.exe"
 				LinkIncremental="1"

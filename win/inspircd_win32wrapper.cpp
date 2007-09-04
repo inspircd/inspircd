@@ -525,3 +525,68 @@ int gettimeofday(struct timeval * tv, void * tz)
 	return 0;
 }
 
+#ifdef ENABLE_CRASHDUMPS
+int __exceptionHandler(PEXCEPTION_POINTERS pExceptPtrs)
+{
+	SYSTEMTIME _time;
+	HANDLE hDump;
+	char mod[MAX_PATH*2];
+	char * pMod = mod;
+	char dump_filename[MAX_PATH];
+	MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+	DWORD code;
+
+	if(pExceptPtrs == NULL) {
+		__try {
+			RaiseException(EXCEPTION_BREAKPOINT, 0, 0, NULL);
+		} __except(__exceptionHandler(GetExceptionInformation()), EXCEPTION_CONTINUE_EXECUTION) {}
+	}
+
+	printf("Exception caught at 0x%.8X! Attempting to write crash dump file.\n", (unsigned long)pExceptPtrs->ExceptionRecord->ExceptionAddress);
+
+	if(GetModuleFileName(0, mod, MAX_PATH*2) > 0)
+	{
+		if( (pMod = strrchr(mod, '\\')) != NULL )
+			++pMod;
+		else
+			strcpy(mod, "unk");
+	}
+	else
+		strcpy(mod, "unk");
+
+	GetSystemTime(&_time);
+	snprintf(dump_filename, MAX_PATH, "dump-%s-%u-%u-%u-%u-%u-%u.dmp",
+		pMod, _time.wYear, _time.wMonth, _time.wDay, _time.wHour, _time.wMinute, _time.wSecond);
+
+	hDump = CreateFile(dump_filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_WRITE_THROUGH, 0);
+	if(hDump != INVALID_HANDLE_VALUE)
+	{
+		dumpInfo.ClientPointers = FALSE;
+		dumpInfo.ExceptionPointers = pExceptPtrs;
+		dumpInfo.ThreadId = GetCurrentThreadId();
+
+		/* let's write a full memory dump. insp shouldn't be using much memory anyway, and it will help a lot with debugging. */
+		MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDump, MiniDumpWithFullMemory, &dumpInfo, NULL, NULL);
+		FlushFileBuffers(hDump);
+		CloseHandle(hDump);
+	}
+
+	/* check for a debugger */
+	__asm {
+		pushad
+		pushfd
+		mov eax, fs:[18h]
+		mov eax, dword ptr [eax+30h]
+		mov ebx, dword ptr [eax]
+		mov code, ebx
+		popfd
+		popad
+	}
+
+	/* break into debugger if we have one */
+	if(code & 0x10000)
+		return EXCEPTION_CONTINUE_SEARCH;
+	else	/* otherwise exit abnormally */
+		return EXCEPTION_CONTINUE_EXECUTION;
+}
+#endif
