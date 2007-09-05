@@ -729,15 +729,7 @@ DNSResult DNS::GetResult()
 
 			case DNS_QUERY_AAAA:
 			{
-				snprintf(formatted,40,"%x:%x:%x:%x:%x:%x:%x:%x",
-						(ntohs(data.first[0]) + ntohs(data.first[1] << 8)),
-						(ntohs(data.first[2]) + ntohs(data.first[3] << 8)),
-						(ntohs(data.first[4]) + ntohs(data.first[5] << 8)),
-						(ntohs(data.first[6]) + ntohs(data.first[7] << 8)),
-						(ntohs(data.first[8]) + ntohs(data.first[9] << 8)),
-						(ntohs(data.first[10]) + ntohs(data.first[11] << 8)),
-						(ntohs(data.first[12]) + ntohs(data.first[13] << 8)),
-						(ntohs(data.first[14]) + ntohs(data.first[15] << 8)));
+				inet_ntop(AF_INET6, data.first, formatted, sizeof(formatted));
 				char* c = strstr(formatted,":0:");
 				if (c != NULL)
 				{
