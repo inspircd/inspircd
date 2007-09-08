@@ -48,7 +48,7 @@ class ModuleOperLog : public Module
 		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			command_t* thiscommand = ServerInstance->Parser->GetHandler(command);
-			if ((thiscommand) && (thiscommand->flags_needed = 'o'))
+			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
 				std::string plist;
 				for (int j = 0; j < pcnt; j++)
