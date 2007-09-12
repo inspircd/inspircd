@@ -254,12 +254,17 @@ class CloakUser : public ModeHandler
 	{
 		ConfigReader Conf(ServerInstance);
 		bool lowercase;
-
+		
+		/* These are *not* using the need_positive parameter of ReadInteger - 
+		 * that will limit the valid values to only the positive values in a
+		 * signed int. Instead, accept any value that fits into an int and
+		 * cast it to an unsigned int. That will, a bit oddly, give us the full
+		 * spectrum of an unsigned integer. - Special */
 		key1 = key2 = key3 = key4 = 0;
-		key1 = Conf.ReadInteger("cloak","key1",0,true);
-		key2 = Conf.ReadInteger("cloak","key2",0,true);
-		key3 = Conf.ReadInteger("cloak","key3",0,true);
-		key4 = Conf.ReadInteger("cloak","key4",0,true);
+		key1 = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
+		key2 = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
+		key3 = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
+		key4 = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
 		prefix = Conf.ReadValue("cloak","prefix",0);
 		ipalways = Conf.ReadFlag("cloak", "ipalways", 0);
 		lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
