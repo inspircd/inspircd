@@ -1012,7 +1012,7 @@ bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int
 }
 
 
-long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool needs_unsigned)
+int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
 {
 	int result;
 	
@@ -1022,18 +1022,18 @@ long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, 
 		return 0;
 	}
 	
-	if ((needs_unsigned) && (result < 0))
+	if ((need_positive) && (result < 0))
 	{
-		this->error = CONF_NOT_UNSIGNED;
+		this->error = CONF_INT_NEGATIVE;
 		return 0;
 	}
 	
 	return result;
 }
 
-long ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned)
+int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive)
 {
-	return ReadInteger(tag, name, "", index, needs_unsigned);
+	return ReadInteger(tag, name, "", index, need_positive);
 }
 
 long ConfigReader::GetError()

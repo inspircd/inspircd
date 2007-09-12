@@ -1376,7 +1376,7 @@ class CoreExport Module : public Extensible
 
 
 #define CONF_NOT_A_NUMBER	0x000010
-#define CONF_NOT_UNSIGNED	0x000080
+#define CONF_INT_NEGATIVE	0x000080
 #define CONF_VALUE_NOT_FOUND	0x000100
 #define CONF_FILE_NOT_FOUND	0x000200
 
@@ -1455,11 +1455,12 @@ class CoreExport ConfigReader : public classbase
 	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
 	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
-	 * return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned.
-	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
-	 * will return CONF_NOT_UNSIGNED
+	 * return CONF_INVALID_NUMBER to be returned. need_positive is set if the number must be non-negative.
+	 * If a negative number is placed into a tag which is specified positive, 0 will be returned and GetError()
+	 * will return CONF_INT_NEGATIVE. Note that need_positive is not suitable to get an unsigned int - you
+	 * should cast the result to achieve that effect.
 	 */
-	long ReadInteger(const std::string &tag, const std::string &name, int index, bool needs_unsigned);
+	int ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive);
 	/** Retrieves an integer value from the config file.
 	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
 	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
@@ -1468,7 +1469,7 @@ class CoreExport ConfigReader : public classbase
 	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
 	 * will return CONF_NOT_UNSIGNED. If the tag is not found, the default value is used instead.
 	 */
-	long ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool needs_unsigned);
+	int ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive);
 
 	/** Returns the last error to occur.
 	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
