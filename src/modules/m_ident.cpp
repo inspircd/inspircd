@@ -146,7 +146,6 @@ class ModuleIdent : public Module
 {
  private:
 	int RequestTimeout;
-	std::string IdentBindIP;
  public:
 	ModuleIdent(InspIRCd *Me)
 		: Module(Me)
@@ -175,7 +174,6 @@ class ModuleIdent : public Module
 		RequestTimeout = MyConf.ReadInteger("ident", "timeout", 0, true);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
-		IdentBindIP = MyConf.ReadValue("ident", "bind", 0);
 	}
 	
 	virtual int OnUserRegister(userrec *user)
@@ -189,7 +187,28 @@ class ModuleIdent : public Module
 		
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 		
-		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, IdentBindIP);
+		// Get the IP that the user is connected to, and bind to that for the outgoing connection
+		#ifndef IPV6
+		sockaddr_in laddr;
+		#else
+		sockaddr_in6 laddr;
+		#endif
+		socklen_t laddrsz = sizeof(laddr);
+		
+		if (getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0)
+		{
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident);
+			return 0;
+		}
+		
+		#ifndef IPV6
+		const char *ip = inet_ntoa(laddr.sin_addr);
+		#else
+		char ip[INET6_ADDRSTRLEN + 1];
+		inet_ntop(laddr.sin6_family, laddr.sin6_addr, ip, INET6_ADDRSTRLEN);
+		#endif
+		
+		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, ip);
 		user->Extend("ident_socket", isock);
 		return 0;
 	}
