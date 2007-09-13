@@ -205,7 +205,7 @@ class ModuleIdent : public Module
 		const char *ip = inet_ntoa(laddr.sin_addr);
 		#else
 		char ip[INET6_ADDRSTRLEN + 1];
-		inet_ntop(laddr.sin6_family, laddr.sin6_addr, ip, INET6_ADDRSTRLEN);
+		inet_ntop(laddr.sin6_family, &laddr.sin6_addr, ip, INET6_ADDRSTRLEN);
 		#endif
 		
 		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, ip);
