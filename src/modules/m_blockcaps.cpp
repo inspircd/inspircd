@@ -105,22 +105,22 @@ public:
 	{
 		ConfigReader Conf(ServerInstance);
 		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);
-		minlen = Conf.ReadInteger("blockcaps", "minlen", "0", 0, true);
+		minlen = Conf.ReadInteger("blockcaps", "minlen", "1", 0, true);
 		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		memset(&capsmap, 0, 255);
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;
-		if (percent < 0 || percent > 100)
+		if (percent < 1 || percent > 100)
 		{
 			ServerInstance->Log(DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
 			percent = 100;
 		}
-		if (minlen < 0 || minlen > MAXBUF-1)
+		if (minlen < 1 || minlen > MAXBUF-1)
 		{
-			ServerInstance->Log(DEFAULT, "<blockcaps:minlen> out of range, setting to default of 0.");
-			minlen = 0;
+			ServerInstance->Log(DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
+			minlen = 1;
 		}
 	}
 
