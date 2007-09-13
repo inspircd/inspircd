@@ -508,6 +508,12 @@ bool InspSocket::FlushWriteBuffer()
 						errno = EAGAIN;
 					}
 				}
+				else if (result == 0)
+				{
+					this->Instance->SE->DelFd(this);
+					this->Close();
+					return true;
+				}
 				else if ((result == -1) && (errno != EAGAIN))
 				{
 					this->OnError(I_ERR_WRITE);
