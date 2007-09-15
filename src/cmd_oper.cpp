@@ -118,10 +118,13 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, userrec *user)
 			std::string fields;
 			if (!match_login)
 				fields.append("login ");
-			if (!match_pass)
-				fields.append("password ");
-			if (!match_hosts)
-				fields.append("hosts");
+			else
+			{
+				if (!match_pass)
+					fields.append("password ");
+				if (!match_hosts)
+					fields.append("hosts");
+			}
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
 			
 			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
