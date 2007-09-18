@@ -22,6 +22,6 @@ extern "C" DllExport command_t* init_command(InspIRCd* Instance)
 
 CmdResult cmd_users::Handle (const char** parameters, int pcnt, userrec *user)
 {
-	user->WriteServ("445 %s :USERS has been disabled (depreciated command)",user->nick);
+	user->WriteServ("446 %s :USERS has been disabled (depreciated command)",user->nick);
 	return CMD_FAILURE;
 }
