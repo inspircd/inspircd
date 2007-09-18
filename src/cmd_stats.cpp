@@ -48,7 +48,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
-	if ((*ServerInstance->Config->UserStats) && !IS_OPER(user) && !ServerInstance->ULine(user->server) && !strchr(ServerInstance->Config->UserStats,statschar))
+	if ((!*ServerInstance->Config->UserStats) || (!IS_OPER(user) && !ServerInstance->ULine(user->server) && !strchr(ServerInstance->Config->UserStats,statschar)))
 	{
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
