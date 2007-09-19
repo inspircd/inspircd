@@ -37,12 +37,16 @@ class cmd_saquit : public command_t
 				user->WriteServ("990 %s :Cannot use an SA command on a u-lined client",user->nick);
 				return CMD_FAILURE;
 			}
+			
 			irc::stringjoiner reason_join(" ", parameters, 1, pcnt - 1);
 			std::string line = reason_join.GetJoined();
-
 			ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAQUIT to make "+std::string(dest->nick)+" quit with a reason of "+line);
+			
+			// Pass the command on, so the client's server can quit it properly.
+			if (!IS_LOCAL(dest))
+				return CMD_SUCCESS;
+			
 			userrec::QuitUser(ServerInstance, dest, line);
-
 			return CMD_SUCCESS;
 		}
 		else
