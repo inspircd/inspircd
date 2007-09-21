@@ -20,7 +20,7 @@
 #         This is an example of the config file for InspIRCd.          #
 #             Change the options to suit your network                  #
 #                                                                      #
-#     $Id$
+#     $Id$      #
 #                                                                      #
 #    ____                _   _____ _     _       ____  _ _   _         #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |        #
@@ -56,17 +56,17 @@
 #  matically calculated from the server name and description. This is #
 #  similar in behaviour to the server id on ircu and charybdis ircds. #
 #  You should only need to set this manually if there is a collision  #
-#  between two server IDs on the network. The server ID must be       #
+#  between two server ID's on the network. The server ID must be      #
 #  between 1 and 999, if it is not, it will be wrapped to this range. #
-#  There is a range of server IDs which are suffixed by two letters   #
+#  There is a range of server ID's which are suffixed by two letters  #
 #  rather than two numbers, e.g. 1AA, 2FF, 3ZZ, which are reserved    #
 #  for use by non-inspircd servers such as services and stats servers.#
 #                                                                     #
 
 <server name="penguin.omega.org.za"
         description="Waddle World"
-	id="0"
-	network="Omega">
+	    id="0"
+	    network="Omega">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-   ADMIN INFORMATION   -#-#-#-#-#-#-#-#-#-#-#-#
@@ -90,7 +90,7 @@
 #   Enter the port and address bindings here.                         #
 #                                                                     #
 #  bind address - specifies which address ports bind to. Leaving this #
-#                 field blank binds the port to all IPs available.    #
+#                 field blank binds the port to all IP's available.   #
 #                                                                     #
 #  port         - The port number to bind to. You may specify a port  #
 #                 range here, e.g. "6667-6669,7000,7001". If you do   #
@@ -102,7 +102,7 @@
 #                 port number.                                        #
 #                                                                     #
 #  type         - can be 'clients' or 'servers'. The clients type is  #
-#                 a standard tcp based socket, the servers type is a  #
+#                 a standard TCP based socket, the servers type is a  #
 #                 also a TCP based connection but of a different      #
 #                 format. SSL support is provided by modules, to      #
 #                 enable SSL support, please read the module section  #
@@ -115,7 +115,7 @@
 #                 setting is ignored.                                 #
 #                                                                     #
 #  transport    - If you have m_spanningtree.so loaded, along with    #
-#                 either of the SSL modules (m_ssl_gnutls or          #
+#                 either one of the SSL modules (m_ssl_gnutls or      #
 #                 m_ssl_openssl) or m_ziplinks.so, then you may make  #
 #                 use of this value.                                  #
 #                 setting it to 'openssl' or 'gnutls' or 'zip'        #
@@ -134,7 +134,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree module! Please see the modules list below for       #
+#  m_spanningtree.so module! Please see the modules list below for    #
 #  information on how to load this module! If you do not load this    #
 #  module, server ports will NOT be bound!                            #
 #                                                                     #
@@ -145,21 +145,21 @@
 # <bind address="ip address" port="port" type="clients">              #
 # <bind address="ip address" port="port" type="servers">              #
 #                                                                     #
-# If InspIRCd is built for IPV6, and you wish to accept IPV4 clients, #
-# then you can specify IPV4 ip addresses here to bind. You may also   #
-# use the 4in6 notation, ::ffff:1.2.3.4, where 1.2.3.4 is the IPV4    #
+# If InspIRCd is built for IPv6, and you wish to accept IPv4 clients, #
+# then you can specify IPv4 ip addresses here to bind. You may also   #
+# use the 4in6 notation, ::ffff:1.2.3.4, where 1.2.3.4 is the IPv4    #
 # address to bind the port, but as of InspIRCd 1.1.1, this is not     #
 # required.                                                           #
 #                                                                     #
 # ------------------------------------------------------------------- #
 #                                                                     #
-# PLEASE NOTE: If you have build InspIRCd as an ipv6 server, and you  #
+# PLEASE NOTE: If you have build InspIRCd as an IPv6 server, and you  #
 # specify an empty bind address, the binding will be bound to ALL THE #
-# IPV6 IP ADDRESSES, and not the ipv4 addresses. If you are using an  #
-# ipv6 enabled InspIRCd and want to bind to multiple IPV4 addresses   #
+# IPv6 IP ADDRESSES, and not the IPv4 addresses. If you are using an  #
+# IPv6 enabled InspIRCd and want to bind to multiple IPv4 addresses   #
 # in this way, you must specify them by hand. If you have built the   #
-# server for ipv4 connections only, then specifying an empty bind     #
-# address binds the port to all ipv4 IP addresses, as expected.       #
+# server for IPv4 connections only, then specifying an empty bind     #
+# address binds the port to all IPv4 IP addresses, as expected.       #
 #                                                                     #
 
 <bind address="" port="6000" type="clients">
@@ -176,7 +176,7 @@
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   You can configure the passwords here which you wish to use for    #
-#   the die and restart commands. Only trusted ircops who will        #
+#   the die and restart commands. Only trusted IRCop's who will       #
 #   need this ability should know the die and restart password.       #
 #                                                                     #
 #  Syntax is as follows:                                              #
@@ -222,7 +222,7 @@
 #       <connect name="something" parent="myallow" pingfreq="60">     #
 #                                                                     #
 #   IP masks may be specified in CIDR format or wildcard format,      #
-#   for IPV4 and IPV6. You *cannot* use hostnames in the allow or     #
+#   for IPv4 and IPv6. You *cannot* use hostnames in the allow or     #
 #   deny field, as the state is applied before the user's DNS has     #
 #   been resolved.                                                    #
 #                                                                     #
@@ -239,7 +239,7 @@
 #                                                                     #
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
-#   is closed if USER/NICK/PASS are not given. This value is in secs  #
+#   is closed if USER/NICK/PASS are not given. This value is in secs. #
 #                                                                     #
 #   You should also include a flood="x" line which indicates          #
 #   the number of lines a user may place into their buffer at once    #
@@ -257,7 +257,7 @@
 #   settings as shown in the full example below.                      #
 #   The ping frequency is specified in seconds, and the sendq size    #
 #   in bytes. It is recommended, although not enforced, that you      #
-#   should never set your sendq size to less than 8k. Send Queues are #
+#   should never set your sendq size to less than 8K. Send Queues are #
 #   dynamically allocated and can grow as needed up to the maximum    #
 #   size specified.                                                   #
 #                                                                     #
