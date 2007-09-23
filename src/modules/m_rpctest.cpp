@@ -25,8 +25,7 @@ class ModuleRPCTest : public Module
  private:
 	
  public:
-	ModuleRPCTest(InspIRCd *Me)
-		: Module::Module(Me)
+	ModuleRPCTest(InspIRCd *Me) : Module(Me)
 	{
 	}
 	
