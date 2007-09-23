@@ -494,9 +494,15 @@ void WriteCompileModules()
 	#ifdef _DEBUG
 		fprintf(f, "  cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /Gm /RTC1 /MTd /Fo\"Debug/\" /Fd\"Debug/vc70.pdb\" /W2 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
 		CreateDirectory("..\\src\\modules\\debug", NULL);
+		CreateDirectory("..\\src\\modules\\debug\\lib", NULL);
+		CreateDirectory("..\\src\\modules\\debug\\modules", NULL);
+		CreateDirectory("..\\src\\modules\\debug\\bin", NULL);
 	#else
 		fprintf(f, "  cl /nologo -Dssize_t=long /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /EHsc /Gm /MT /Fo\"Release/\" /Fd\"Release/vc70.pdb\" /W2 /Wp64 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
 		CreateDirectory("..\\src\\modules\\release", NULL);
+		CreateDirectory("..\\src\\modules\\release\\lib", NULL);
+		CreateDirectory("..\\src\\modules\\release\\modules", NULL);
+		CreateDirectory("..\\src\\modules\\release\\bin", NULL);
 	#endif
 #endif
 	
