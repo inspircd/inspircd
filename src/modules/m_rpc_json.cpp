@@ -45,8 +45,7 @@ class ModuleRpcJson : public Module
  private:
 	
  public:
-	ModuleRpcJson(InspIRCd *Me)
-		: Module::Module(Me)
+	ModuleRpcJson(InspIRCd *Me) : Module(Me)
 	{
 		ServerInstance->Modules->PublishInterface("RPC", this);
 	}
