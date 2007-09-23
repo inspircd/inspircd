@@ -435,7 +435,7 @@ void WriteCompileCommands()
 	#endif
 #endif
 
-	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
+	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n  if not exist release mkdir release\n\n");
 	
 	// dump modules.. again the second and last time :)
 	for(int i = 0; i < command_count; ++i)
@@ -500,7 +500,7 @@ void WriteCompileModules()
 	#endif
 #endif
 	
-	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
+	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n  if not exist release mkdir release\n\n");
 
 	// dump modules.. again the second and last time :)
 	for(int i = 0; i < module_count; ++i)
