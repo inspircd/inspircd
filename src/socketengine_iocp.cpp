@@ -101,7 +101,6 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		/* Ohshi-, map::insert failed :/ */
 		return false;
 	}
-
 	return true;
 }
 
