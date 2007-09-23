@@ -980,12 +980,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	InspIRCd(int argc, char** argv);
 
-	/** Do one iteration of the mainloop
-	 * @param process_module_sockets True if module sockets are to be processed
-	 * this time around the event loop. The is the default.
-	 */
-	void DoOneIteration(bool process_module_sockets = true);
-
 	/** Output a log message to the ircd.log file
 	 * The text will only be output if the current loglevel
 	 * is less than or equal to the level you provide
@@ -1057,8 +1051,7 @@ class CoreExport InspIRCd : public classbase
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
-	 * after performing some initialisation routines,
-	 * it will repeatedly call DoOneIteration in a loop.
+	 * it will repeatedly loop.
 	 * @return The return value for this function is undefined.
 	 */
 	int Run();

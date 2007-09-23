@@ -585,87 +585,91 @@ void InspIRCd::InitialiseUID()
 		current_uid[i] = 'A';
 }
 
-void InspIRCd::DoOneIteration(bool process_module_sockets)
+int InspIRCd::Run()
 {
+	while (true)
+	{
 #ifndef WIN32
-	static rusage ru;
+		static rusage ru;
 #else
-	static time_t uptime;
-	static struct tm * stime;
-	static char window_title[100];
+		static time_t uptime;
+		static struct tm * stime;
+		static char window_title[100];
 #endif
 
-	/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
-	 * Once per loop iteration is pleanty.
-	 */
-	OLDTIME = TIME;
-	TIME = time(NULL);
+		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
+		 * Once per loop iteration is pleanty.
+		 */
+		OLDTIME = TIME;
+		TIME = time(NULL);
 
-	/* Run background module timers every few seconds
-	 * (the docs say modules shouldnt rely on accurate
-	 * timing using this event, so we dont have to
-	 * time this exactly).
-	 */
-	if (TIME != OLDTIME)
-	{
-		if (TIME < OLDTIME)
-			WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
-		if ((TIME % 3600) == 0)
+		/* Run background module timers every few seconds
+		 * (the docs say modules shouldnt rely on accurate
+		 * timing using this event, so we dont have to
+		 * time this exactly).
+		 */
+		if (TIME != OLDTIME)
 		{
-			this->RehashUsersAndChans();
-			FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
-		}
-		Timers->TickTimers(TIME);
-		this->DoBackgroundUserStuff(TIME);
+			if (TIME < OLDTIME)
+				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
+			if ((TIME % 3600) == 0)
+			{
+				this->RehashUsersAndChans();
+				FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
+			}
+			Timers->TickTimers(TIME);
+			this->DoBackgroundUserStuff(TIME);
 
-		if ((TIME % 5) == 0)
-		{
-			XLines->expire_lines();
-			FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
-			Timers->TickMissedTimers(TIME);
-		}
+			if ((TIME % 5) == 0)
+			{
+				XLines->expire_lines();
+				FOREACH_MOD_I(this,I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+				Timers->TickMissedTimers(TIME);
+			}
 #ifndef WIN32
-		/* Same change as in cmd_stats.cpp, use RUSAGE_SELF rather than '0' -- Om */
-		if (!getrusage(RUSAGE_SELF, &ru))
-		{
-			gettimeofday(&this->stats->LastSampled, NULL);
-			this->stats->LastCPU = ru.ru_utime;
-		}
+			/* Same change as in cmd_stats.cpp, use RUSAGE_SELF rather than '0' -- Om */
+			if (!getrusage(RUSAGE_SELF, &ru))
+			{
+				gettimeofday(&this->stats->LastSampled, NULL);
+				this->stats->LastCPU = ru.ru_utime;
+			}
 #else
-		WindowsIPC->Check();
-
-		if(Config->nofork)
-		{
-			uptime = Time() - startup_time;
-			stime = gmtime(&uptime);
-			snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
-				LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
-			SetConsoleTitle(window_title);
-		}
+			WindowsIPC->Check();
+	
+			if(Config->nofork)
+			{
+				uptime = Time() - startup_time;
+				stime = gmtime(&uptime);
+				snprintf(window_title, 100, "InspIRCd - %u clients, %u accepted connections - Up %u days, %.2u:%.2u:%.2u",
+					LocalUserCount(), stats->statsAccept, stime->tm_yday, stime->tm_hour, stime->tm_min, stime->tm_sec);
+				SetConsoleTitle(window_title);
+			}
 #endif
+		}
+
+		/* Call the socket engine to wait on the active
+		 * file descriptors. The socket engine has everything's
+		 * descriptors in its list... dns, modules, users,
+		 * servers... so its nice and easy, just one call.
+		 * This will cause any read or write events to be
+		 * dispatched to their handlers.
+		 */
+		this->SE->DispatchEvents();
+
+		/* if any users was quit, take them out */
+		this->GlobalCulls.Apply();
+
+		/* If any inspsockets closed, remove them */
+		this->InspSocketCull();
+
+		if (this->s_signal)
+		{
+			this->SignalHandler(s_signal);
+			this->s_signal = 0;
+		}
 	}
 
-	/* Call the socket engine to wait on the active
-	 * file descriptors. The socket engine has everything's
-	 * descriptors in its list... dns, modules, users,
-	 * servers... so its nice and easy, just one call.
-	 * This will cause any read or write events to be
-	 * dispatched to their handlers.
-	 */
-	this->SE->DispatchEvents();
-
-	/* if any users was quit, take them out */
-	this->GlobalCulls.Apply();
-
-	/* If any inspsockets closed, remove them */
-	this->InspSocketCull();
-
-	if (this->s_signal)
-	{
-		this->SignalHandler(s_signal);
-		this->s_signal = 0;
-	}
-
+	return 0;
 }
 
 void InspIRCd::InspSocketCull()
@@ -677,16 +681,6 @@ void InspIRCd::InspSocketCull()
 		delete x->second;
 	}
 	SocketCull.clear();
-}
-
-int InspIRCd::Run()
-{
-	while (true)
-	{
-		DoOneIteration(true);
-	}
-	/* This is never reached -- we hope! */
-	return 0;
 }
 
 /**********************************************************************************/
