@@ -238,7 +238,7 @@ class RPCValue : public classbase
 		return it->second;
 	}
 	
-	std::pair<RPCObjectContainer::iterator,RPCObjectContainer::iterator> GetObjectIterator() throw()
+	std::pair<RPCObjectContainer::iterator,RPCObjectContainer::iterator> GetObjectIterator()
 	{
 		if (type != RPCObject)
 			throw std::runtime_error("Cannot get iterator for a non-object RPC value");

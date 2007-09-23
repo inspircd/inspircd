@@ -1071,7 +1071,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	{
 		_new = new userrec(this->Instance, params[0]);
 	}
-	catch (CoreException &e)
+	catch (...)
 	{
 		SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
 		return false;
