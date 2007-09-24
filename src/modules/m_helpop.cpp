@@ -60,11 +60,11 @@ class cmd_helpop : public command_t
 
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
-		irc::string parameter;
+		irc::string parameter("start");
 		if (pcnt > 0)
 			parameter = parameters[0];
 
-		if (pcnt == 0 || parameter == "index")
+		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
 			user->WriteServ("NOTICE %s :HELPOP topic index", user->nick);
