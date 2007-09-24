@@ -307,8 +307,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CLASS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
-#   Classes are a group of commands which are grouped together        #
-#   and given a unique name. They used to define which commands       #
+#   Classes are a group of commands which are grouped together and    #
+#   given a unique name. They're used to define which commands        #
 #   are available to certain types of Operators.                      #
 #                                                                     #
 #  Syntax is as follows:                                              #
@@ -344,7 +344,7 @@
 #   your server, as well as the commands they are allowed to use.     #
 #   This works alongside with the classes specified above.            #
 #                                                                     #
-#  type name  - a name for the combined class types                   #
+#  type name  - a name for the combined class types.                  #
 #               a type name cannot contain spaces, however if you     #
 #               put an _ symbol in the name, it will be translated    #
 #               to a space when displayed in a WHOIS.                 #
@@ -379,9 +379,9 @@
 #-#-#-#-#-#-#-#-#-#-#-  OPERATOR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 #   Opers are defined here. This is a very important section.         #
-#   Remember to only make operators out of truthworthy people.        #
+#   Remember to only make operators out of trust worthy people.       #
 #                                                                     #
-#  name        - oper name, This is case sensitive, so it is best to  #
+#  name        - oper name, this is case sensitive, so it is best to  #
 #                use lower-case.                                      #
 #                                                                     #
 #  password    - password to oper-up, also case sensitive.            #
@@ -392,16 +392,16 @@
 #                                                                     #
 #  host        - hosts of client allowed to oper-up.                  #
 #                wildcards accepted, seperate multiple hosts with a   #
-#                space. You may also specify CIDR ip addresses.       #
+#                space. You may also specify CIDR IP addresses.       #
 #                                                                     #
-#  fingerprint - When using the m_ssl_oper_cert.so module, you may    #
+#  fingerprint - when using the m_ssl_oper_cert.so module, you may    #
 #                specify a key fingerprint here. This can be obtained #
 #                using the /fingerprint command whilst the module is  #
 #                loaded, or from the notice given to you when you     #
 #                connect to the ircd using a client certificate,      #
 #                and will lock this oper block to only the user who   #
 #                has that specific key/certificate pair.              #
-#                This enhances security a great deal, however it      #
+#                this enhances security a great deal, however it      #
 #                requires that opers use clients which can send ssl   #
 #                client certificates, if this is configured for that  #
 #                oper. Note that if the m_ssl_oper.so module is not   #
@@ -409,14 +409,14 @@
 #                is not loaded, this configuration option has no      #
 #                effect and will be ignored.                          #
 #                                                                     #
-#  type        - Defines the kind of operator. This must match a type #
+#  type        - defines the kind of operator. This must match a type #
 #                tag you defined above, and is case sensitive.        #
 #                                                                     #
 #  Syntax is as follows:                                              #
 #       <oper name="login"                                            #
 #             password="pass"                                         #
 #             host="hostmask@of.oper"                                 #
-#           fingerprint="hexsequence"                               #
+#             fingerprint="hexsequence"                               #
 #             type="oper type">                                       #
 #                                                                     #
 
@@ -431,29 +431,29 @@
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
 #                                                                     #
-# name        -   The name is the canocial name of the server, does   #
+# name        -   the name is the canocial name of the server, does   #
 #                 not have to resolve - but it is expected to be set  #
 #                 in the remote servers connection info.              #
 #                                                                     #
-# ipaddr      -   Valid host or ip address for remote server. These   #
+# ipaddr      -   valid host or IP address for remote server. These   #
 #                 hosts are resolved on rehash, and cached, if you    #
-#                 specify a hostname, so if you find that your server #
+#                 specify a hostname; so if you find that your server #
 #                 is still trying to connect to an old IP after you   #
 #                 have updated your dns, try rehashing and then       #
 #                 attempting the connect again.                       #
 #                                                                     #
-# port        -   The TCP port for the remote server.                 #
+# port        -   the TCP port for the remote server.                 #
 #                                                                     #
-# sendpass    -   Password to send to create an outbound connection   #
+# sendpass    -   password to send to create an outbound connection   #
 #                 to this server.                                     #
 #                                                                     #
-# recvpass    -   Password to receive to accept an inbound connection #
+# recvpass    -   password to receive to accept an inbound connection #
 #                 from this server.                                   #
 #                                                                     #
-# autoconnect -   Sets the server to autoconnect. Where x is the num. #
+# autoconnect -   sets the server to autoconnect. Where x is the num. #
 # (optional)      of seconds between attempts. e.g. 300 = 5 minutes.  #
 #                                                                     #
-# transport     - If defined, this is a transport name implemented by #
+# transport     - if defined, this is a transport name implemented by #
 #                 another module. Transports are layers on top of     #
 #                 plaintext connections, which alter them in certain  #
 #                 ways. Currently the three supported transports are  #
@@ -464,16 +464,16 @@
 #                 link to succeed. OpenSSL and GnuTLS are link-       #
 #                 compatible with each other.                         #
 #                                                                     #
-# statshidden   - When using m_spanningtree.so for linking. you may   #
+# statshidden   - when using m_spanningtree.so for linking. you may   #
 #                 set this to 'yes', and if you do, the IP address/   #
 #                 hostname of this connection will NEVER be shown to  #
-#                 any opers on the network. In /STATS c its address   #
+#                 any opers on the network. In /stats c its address   #
 #                 will show as *@<hidden>, and during CONNECT and     #
-#                 inbound connections, its IP will show as <hidden>   #
+#                 inbound connections, it's IP will show as <hidden>  #
 #                 UNLESS the connection fails (e.g. due to a bad      #
 #                 password or servername)                             #
 #                                                                     #
-# allowmask     - When this is defined, it indicates a range of IP    #
+# allowmask     - when this is defined, it indicates a range of IP    #
 #                 addresses to allow for this link (You may use CIDR  #
 #                 or wildcard form for this address).                 #
 #                 e.g. if your server is going to connect to you from #
@@ -481,7 +481,7 @@
 #                 into this value. If it is not defined, then only    #
 #                 the ipaddr field of the server shall be allowed.    #
 #                                                                     #
-# failover      - If you define this option, it must be the name of a #
+# failover      - if you define this option, it must be the name of a #
 #                 different link tag in your configuration. This      #
 #                 option causes the ircd to attempt a connection to   #
 #                 the failover link in the event that the connection  #
@@ -499,28 +499,28 @@
 #                 apply to autoconnected servers as well as manually  #
 #                 connected ones.                                     #
 #                                                                     #
-# timeout       - If this is defined, then outbound connections will  #
+# timeout       - if this is defined, then outbound connections will  #
 #                 time out if they are not connected within this many #
 #                 seconds. If this is not defined, the default of ten #
 #                 seconds is used.                                    #
 #                                                                     #
-# bind          - If you specify this value, then when creating an    #
+# bind          - if you specify this value, then when creating an    #
 #                 outbound connection to the given server, the IP you #
 #                 place here will be bound to. This is for multi-     #
 #                 homed servers which may have multiple IP addresses. #
-#                 If you do not define this value, the first IP that  #
+#                 if you do not define this value, the first IP that  #
 #                 is not empty or localhost from your <bind> tags     #
 #                 will be bound to. This is usually acceptable,       #
 #                 however if your server has multiple network cards   #
 #                 then you may have to manually specify the bind      #
 #                 value instead of leaving it to automatic binding.   #
-#                 You can usually tell if you need to set this by     #
+#                 you can usually tell if you need to set this by     #
 #                 looking for the error 'Could not assign requested   #
 #                 address' in your log when connecting to servers.    #
 #                                                                     #
-# hidden        - If this is set to true, yes, or 1, then the server  #
+# hidden        - if this is set to true, yes, or 1, then the server  #
 #                 is completely hidden from non-opers. It does not    #
-#                 show in LINKS and it does not show in MAP. Also,    #
+#                 show in /links and it does not show in /map. Also,  #
 #                 any servers which are child servers of this one     #
 #                 in the network will *also* be hidden. Use with      #
 #                 care! You can use this to 'mask off' sections of    #
@@ -540,12 +540,12 @@
 #                                                                     #
 # ------------------------------------------------------------------- #
 #                                                                     #
-# NOTE: If you have built your server as an ipv6 server, then when a  #
-# DNS lookup of a server's host occurs, AAAA records (ipv6) are       #
-# priorotized over A records (ipv4). Therefore, if the server you are #
-# connecting to has both an IPV6 ip address and an IPV4 ip address in #
-# its DNS entry, the IPV6 address will *always* be selected. To       #
-# change this behaviour simply specify the IPV4 IP address rather     #
+# NOTE: If you have built your server as an IPv6 server, then when a  #
+# DNS lookup of a server's host occurs, AAAA records (IPv6) are       #
+# priorotized over A records (IPv4). Therefore, if the server you are #
+# connecting to has both an IPv6 IP address and an IPv4 IP address in #
+# its DNS entry, the IPv6 address will *always* be selected. To       #
+# change this behaviour simply specify the IPv4 IP address rather     #
 # than the hostname of the server.                                    #
 #                                                                     #
 # ------------------------------------------------------------------- #
@@ -557,7 +557,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree module! Please see the modules list below for       #
+#  m_spanningtree.so module! Please see the modules list below for    #
 #  information on how to load this module! If you do not load this    #
 #  module, server links will NOT work!                                #
 #                                                                     #
