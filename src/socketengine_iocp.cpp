@@ -71,10 +71,6 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	if (!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
 		return false;
 
-	/* set up binding, increase set size */
-	ref[fake_fd] = eh;
-	++CurrentSetSize;
-
 	/* setup initial events */
 	if(is_accept)
 		PostAcceptEvent(eh);
@@ -98,6 +94,9 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		/* Ohshi-, map::insert failed :/ */
 		return false;
 	}
+
+	++CurrentSetSize;
+	ref[*fake_fd] = eh;
 
 	return true;
 }

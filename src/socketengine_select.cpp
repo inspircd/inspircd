@@ -42,7 +42,6 @@ bool SelectEngine::AddFd(EventHandler* eh)
 		return false;
 
 	ref[fd] = eh;
-
 	CurrentSetSize++;
 
 	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
