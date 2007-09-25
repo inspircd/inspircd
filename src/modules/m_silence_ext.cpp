@@ -274,7 +274,7 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
 	}
 
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list)
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
 		CUList *ulist;

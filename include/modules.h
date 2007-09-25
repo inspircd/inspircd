@@ -678,8 +678,9 @@ class CoreExport Module : public Extensible
 	 * @param sender The original sender of the PRIVMSG or NOTICE
 	 * @param status The status char to be used for the channel list
 	 * @param exempt_list The exempt list to be populated
+	 * @param text The original message text causing the exempt list to be built
 	 */
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list);
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

@@ -68,7 +68,7 @@ class ModuleDeaf : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
+		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = List[I_OnBuildExemptList] = 1;
 	}
 
 	virtual void OnRehash(userrec* user, const std::string&)
@@ -104,7 +104,12 @@ class ModuleDeaf : public Module
 		return 0;
 	}
 
-	virtual void BuildDeafList(MessageType message_type, chanrec* chan, userrec* sender, char status, std::string &text, CUList &exempt_list)
+	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text)
+	{
+		BuildDeafList(message_type, chan, sender, status, text, exempt_list);
+	}
+
+	virtual void BuildDeafList(MessageType message_type, chanrec* chan, userrec* sender, char status, const std::string &text, CUList &exempt_list)
 	{
 		CUList *ulist;
 		bool is_a_uline;

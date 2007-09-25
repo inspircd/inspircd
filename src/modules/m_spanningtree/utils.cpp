@@ -303,7 +303,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 				{
 					CUList elist;
 					TreeServerList list;
-					FOREACH_MOD(I_OnBuildExemptList, OnBuildExemptList((command == "PRIVMSG" ? MSG_PRIVMSG : MSG_NOTICE), c, u, pfx, elist));
+					FOREACH_MOD(I_OnBuildExemptList, OnBuildExemptList((command == "PRIVMSG" ? MSG_PRIVMSG : MSG_NOTICE), c, u, pfx, elist, params[1]));
 					GetListOfServersForChannel(c,list,pfx,elist);
 
 					for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
