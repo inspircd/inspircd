@@ -33,7 +33,6 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 
 	userrec *u = ServerInstance->FindNick(parameters[0]);
 	char killreason[MAXBUF];
-	char killoperreason[MAXBUF];
 	int MOD_RESULT = 0;
 
 	if (u)
@@ -66,18 +65,11 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 				// hidekills is off, do nothing
 				snprintf(killreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1]);
 			}
-
-			// opers are lucky ducks, they always see the real reason
-			snprintf(killoperreason, MAXQUIT, "Killed (%s (%s))", user->nick, parameters[1]);
 		}
 		else
 		{
+			/* Leave it alone, remote server has already formatted it */
 			snprintf(killreason, MAXQUIT, "%s", parameters[1]);
-			/*
-			 * XXX - yes, this means opers will probably see a censored kill remotely. this needs fixing.
-			 * maybe a version of QuitUser that doesn't take nor propegate an oper reason? -- w00t
-			 */
-			snprintf(killoperreason, MAXQUIT, "%s", parameters[1]);
 		}
 
 		/*
@@ -88,7 +80,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			// remote kill
 			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s!%s@%s (%s)", user->nick, u->nick, u->ident, u->host, parameters[1]);
-			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason, killoperreason));
+			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason, killreason));
 		}
 		else
 		{
@@ -115,7 +107,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 
 		// send the quit out
-		userrec::QuitUser(ServerInstance, u, killreason, killoperreason);
+		userrec::QuitUser(ServerInstance, u, killreason);
 	}
 	else
 	{
