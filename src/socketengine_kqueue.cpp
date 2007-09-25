@@ -61,15 +61,16 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 	if (ref[fd])
 		return false;
 
-	ref[fd] = eh;
-
 	struct kevent ke;
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
+	{
 		return false;
+	}
 
+	ref[fd] = eh;
 	CurrentSetSize++;
 
 	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);

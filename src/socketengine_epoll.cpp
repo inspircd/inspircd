@@ -48,7 +48,6 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	if (ref[fd])
 		return false;
 
-	ref[fd] = eh;
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
@@ -60,6 +59,8 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	}
 
 	ServerInstance->Log(DEBUG,"New file descriptor: %d", fd);
+
+	ref[fd] = eh;
 	CurrentSetSize++;
 	return true;
 }
