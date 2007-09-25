@@ -11,7 +11,6 @@
  * ---------------------------------------------------
  */
 
-#include "globals.h"
 #include "inspircd.h"
 #include "dynamic.h"
 #ifndef WIN32
