@@ -1066,6 +1066,13 @@ bool TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 				this->LinkState = CONNECTED;
+				TreeServer* CheckDupe = Utils->FindServer(InboundServerName);
+				if (CheckDupe)
+				{
+					this->SendError("Server "+InboundServerName+" already exists!");
+					this->Instance->SNO->WriteToSnoMask('l',"Server \2"+InboundServerName+"\2 being introduced from \2" + prefix + "\2 denied, already exists. Closing link with " + prefix);
+					return false;
+				}
 				Link* lnk = Utils->FindLink(InboundServerName);
 				Node = new TreeServer(this->Utils,this->Instance, InboundServerName, InboundDescription, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
 				Utils->DelBurstingServer(this);
