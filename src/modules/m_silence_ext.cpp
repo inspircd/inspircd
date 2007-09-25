@@ -320,7 +320,7 @@ class ModuleSilence : public Module
 			chanrec* chan = (chanrec*)dest;
 			if (chan)
 			{
-				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list);
+				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
 			}
 		}
 		return 0;
