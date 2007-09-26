@@ -299,7 +299,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
-			for (std::vector<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+			for (std::list<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 			{
 				userrec* oper = *i;
 

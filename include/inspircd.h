@@ -28,6 +28,7 @@
 #include <time.h>
 #include <string>
 #include <sstream>
+#include <list>
 #include "inspircd_config.h"
 #include "users.h"
 #include "channels.h"
@@ -503,7 +504,7 @@ class CoreExport InspIRCd : public classbase
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
-	std::vector<userrec*> all_opers;
+	std::list<userrec*> all_opers;
 
 	/** Map of local ip addresses for clone counting
 	 */
