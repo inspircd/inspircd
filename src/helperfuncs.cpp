@@ -114,7 +114,7 @@ void InspIRCd::WriteOpers(const char* text, ...)
 
 void InspIRCd::WriteOpers(const std::string &text)
 {
-	for (std::vector<userrec*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
+	for (std::list<userrec*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
 	{
 		userrec* a = *i;
 		if (IS_LOCAL(a) && a->IsModeSet('s'))

@@ -53,7 +53,7 @@ void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 	if (n != SnoMasks.end())
 	{
 		/* Only opers can receive snotices, so we iterate the oper list */
-		for (std::vector<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+		for (std::list<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 		{
 			userrec* a = *i;
 			if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsModeSet('n') && a->IsNoticeMaskSet(n->first))

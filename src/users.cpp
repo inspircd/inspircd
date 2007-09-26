@@ -830,16 +830,9 @@ void userrec::UnOper()
 			// unset their oper type (what IS_OPER checks), and remove +o
 			*this->oper = 0;
 			this->modes[UM_OPERATOR] = 0;
-
-			// remove them from the opers list.
-			for (std::vector<userrec*>::iterator a = ServerInstance->all_opers.begin(); a < ServerInstance->all_opers.end(); a++)
-			{
-				if (*a == this)
-				{
-					ServerInstance->all_opers.erase(a);
-					return;
-				}
-			}
+			
+			// remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404
+			ServerInstance->all_opers.remove(this);
 		}
 	}
 
