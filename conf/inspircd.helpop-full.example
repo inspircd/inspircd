@@ -28,10 +28,10 @@ PONG      ADMIN    PRIVMSG  INFO       TIME
 WHOIS     NOTICE   JOIN     NAMES      PART
 KICK      MODE     TOPIC    WHO        MOTD
 RULES     OPER     LIST     LUSERS     STATS
-USERHOST  AWAY     ISON     SUMMON     USERS
-INVITE    PASS     WHOWAS   LINKS      MAP
-COMMANDS  MODULES  KNOCK    SILENCE    DEVOICE
-REMOVE    UNINVITE VHOST    WATCH      USERIP">
+USERHOST  AWAY     ISON     INVITE     PASS
+WHOWAS    LINKS    MAP      COMMANDS   MODULES
+KNOCK     SILENCE  DEVOICE  REMOVE     UNINVITE
+VHOST    WATCH      USERIP">
 
 <helpop key="watch" value="/WATCH [C|S|+/-[NICK]]
 Adds or deletes a user from the watch list. C clears the list
@@ -190,14 +190,6 @@ removes your away status and previous message.">
 <helpop key="ison" value="/ISON [nick] {[nick]...}
 Returns a subset of the nicks you give, showing only those
 that are currently online.">
-
-<helpop key="summon" value="/SUMMON [user]
-Summons a user from the shell where the ircd is running onto irc
-This command is deprecated in the current protocol.">
-
-<helpop key="users" value="/USERS
-Shows users logged into the shell where the ircd is running.
-This command is deprecated in the current protocol.">
 
 <helpop key="invite" value="/INVITE [nick] [channel]
 Invites a user to a channel. If the channel is NOT +i, any

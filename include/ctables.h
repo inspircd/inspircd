@@ -72,10 +72,10 @@ class CoreExport command_t : public Extensible
 	int min_params;
 	/** used by /stats m
 	 */
-	long use_count;
+	long double use_count;
 	/** used by /stats m
  	 */
-	float total_bytes;
+	long double total_bytes;
 	/** used for resource tracking between modules
 	 */
 	std::string source;
