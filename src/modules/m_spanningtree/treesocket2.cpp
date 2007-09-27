@@ -241,8 +241,9 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 	userrec* u = this->Instance->FindNick(prefix);
 	if (u)
 	{
+		if (!u->IsModeSet('o'))
+			this->Instance->all_opers.push_back(u);
 		u->modes[UM_OPERATOR] = 1;
-		this->Instance->all_opers.push_back(u);
 		strlcpy(u->oper,opertype.c_str(),NICKMAX-1);
 		Utils->DoOneToAllButSender(u->nick,"OPERTYPE",params,u->server);
 		this->Instance->SNO->WriteToSnoMask('o',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server, u->nick,u->ident,u->host,irc::Spacify(opertype.c_str()));
