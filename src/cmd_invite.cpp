@@ -51,7 +51,7 @@ CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
 		{
 			if (c->GetStatus(user) < STATUS_HOP)
 			{
-				user->WriteServ("482 %s %s :You must be at least a half-operator to change modes on this channel",user->nick, c->name);
+				user->WriteServ("482 %s %s :You must be a channel %soperator", user->nick, c->name, c->GetStatus(u) == STATUS_HOP ? "" : "half-");
 				return CMD_FAILURE;
 			}
 		}
