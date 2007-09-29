@@ -1,2 +1,2 @@
 #!sh
-echo "InspIRCd-1.1.12+Esrom"
+echo "InspIRCd-1.1.13+Tyramine"
