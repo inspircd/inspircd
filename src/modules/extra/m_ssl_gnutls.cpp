@@ -506,7 +506,6 @@ class ModuleSSLGnuTLS : public Module
 
 		if (!session->sess)
 		{
-			ServerInstance->Log(DEBUG,"No session");
 			CloseSession(session);
 			return 1;
 		}
@@ -518,7 +517,6 @@ class ModuleSSLGnuTLS : public Module
 		if (session->status == ISSL_HANDSHAKING_WRITE)
 		{
 			// The handshake isn't finished, try to finish it.
-			ServerInstance->Log(DEBUG,"Finishing handshake");
 			Handshake(session);
 			errno = EAGAIN;
 			return -1;
@@ -528,9 +526,7 @@ class ModuleSSLGnuTLS : public Module
 
 		if (session->status == ISSL_HANDSHAKEN)
 		{
-			ServerInstance->Log(DEBUG,"Send record");
 			ret = gnutls_record_send(session->sess, sendbuffer, count);
-			ServerInstance->Log(DEBUG,"Return: %d", ret);
 
 			if (ret == 0)
 			{
@@ -540,18 +536,15 @@ class ModuleSSLGnuTLS : public Module
 			{
 				if(ret != GNUTLS_E_AGAIN && ret != GNUTLS_E_INTERRUPTED)
 				{
-					ServerInstance->Log(DEBUG,"Not egain or interrupt, close session");
 					CloseSession(session);
 				}
 				else
 				{
-					ServerInstance->Log(DEBUG,"Again please");
 					errno = EAGAIN;
 				}
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG,"Trim buffer");
 				session->outbuf = session->outbuf.substr(ret);
 			}
 		}
@@ -691,14 +684,12 @@ class ModuleSSLGnuTLS : public Module
 		EventHandler* eh = ServerInstance->FindDescriptor(session->fd);
 		if (eh)
 			ServerInstance->SE->WantWrite(eh);
-		ServerInstance->Log(DEBUG, "Want write set");
 	}
 
 	virtual void OnBufferFlushed(userrec* user)
 	{
 		if (user->GetExt("ssl"))
 		{
-			ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
 				OnRawSocketWrite(user->GetFd(), NULL, 0);
