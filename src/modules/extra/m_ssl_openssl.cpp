@@ -371,7 +371,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
-			ServerInstance->Log(DEBUG,"Module checking if handshake is done");
 			if (ISR->Sock->GetFd() < 0)
 				return (char*)"OK";
 
@@ -797,7 +796,6 @@ class ModuleSSLOpenSSL : public Module
 	{
 		if (user->GetExt("ssl"))
 		{
-			ServerInstance->Log(DEBUG,"OnBufferFlushed for ssl user");
 			issl_session* session = &sessions[user->GetFd()];
 			if (session && session->outbuf.size())
 				OnRawSocketWrite(user->GetFd(), NULL, 0);
