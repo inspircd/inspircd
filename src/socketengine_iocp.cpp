@@ -96,7 +96,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	}
 
 	++CurrentSetSize;
-	ref[*fake_fd] = eh;
+	ref[fake_fd] = eh;
 
 	return true;
 }
