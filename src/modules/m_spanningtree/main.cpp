@@ -480,7 +480,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 			{
 				if (serv->AnsweredLastPing())
 				{
-					sock->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PING "+serv->GetName());
+					sock->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PING "+serv->GetID());
 					serv->SetNextPingTime(curtime + Utils->PingFreq);
 					serv->LastPing = curtime;
 					timeval t;
