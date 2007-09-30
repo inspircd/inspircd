@@ -309,13 +309,18 @@ const char* userrec::FormatModes()
 
 void userrec::DecrementModes()
 {
-	for (int n = 0; n < 64; n++)
+	ServerInstance->Log(DEBUG,"DecrementModes()");
+	for (unsigned char n = 'A'; n <= 'z'; n++)
 	{
-		if (modes[n])
+		if (modes[n-65])
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(n+65, MODETYPE_USER);
+			ServerInstance->Log(DEBUG,"DecrementModes() found mode %c", n);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(n, MODETYPE_USER);
 			if (mh)
+			{
+				ServerInstance->Log(DEBUG,"Found handler %c and call ChangeCount", n);
 				mh->ChangeCount(-1);
+			}
 		}
 	}
 }

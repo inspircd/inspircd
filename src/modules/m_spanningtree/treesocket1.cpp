@@ -1083,7 +1083,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	strlcpy(_new->dhost, params[4].c_str(),64);
 	_new->server = this->Instance->FindServerNamePtr(source.c_str());
 	strlcpy(_new->ident, params[5].c_str(),IDENTMAX);
-	strlcpy(_new->fullname, params[8].c_str(),MAXGECOS);
+	strlcpy(_new->fullname, params[9].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age;
@@ -1123,7 +1123,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	if (dosend)
 		this->Instance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]",_new->server,_new->nick,_new->ident,_new->host, _new->GetIPString(), _new->fullname);
 
-	params[8] = ":" + params[8];
+	params[9] = ":" + params[9];
 	Utils->DoOneToAllButSender(source, "UID", params, source);
 
 	// Increment the Source Servers User Count..
