@@ -79,7 +79,7 @@ class cmd_helpop : public command_t
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameters[0]);
+			user->WriteServ("NOTICE %s :*** HELPOP for %s", user->nick, parameter.c_str());
 
 			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
 
