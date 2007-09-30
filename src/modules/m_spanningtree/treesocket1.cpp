@@ -1081,7 +1081,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	strlcpy(_new->nick, tempnick, NICKMAX - 1);
 	strlcpy(_new->host, params[3].c_str(),64);
 	strlcpy(_new->dhost, params[4].c_str(),64);
-	_new->server = this->Instance->FindServerNamePtr(source.c_str());
+	_new->server = this->Instance->FindServerNamePtr(remoteserver->GetName().c_str());
 	strlcpy(_new->ident, params[5].c_str(),IDENTMAX);
 	strlcpy(_new->fullname, params[9].c_str(),MAXGECOS);
 	_new->registered = REG_ALL;
