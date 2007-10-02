@@ -209,7 +209,11 @@ class ModuleIdent : public Module
 		#endif
 		
 		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, ip);
-		user->Extend("ident_socket", isock);
+		if (isock->GetFd() > -1)
+			user->Extend("ident_socket", isock);
+		else
+			if (ServerInstance->SocketCull.find(isock) == ServerInstance->SocketCull.end())
+				ServerInstance->SocketCull[isock] = isock;
 		return 0;
 	}
 	
