@@ -233,7 +233,7 @@
 #   be copied from the parent.                                        #
 #                                                                     #
 #   If the value maxchans is included, this overrides all other max   #
-#   channels related settings, including the seperate oper maximum.   #
+#   channels related settings, including the separate oper maximum.   #
 #   You may set this to any (sane) value you wish and it applies to   #
 #   all users within this connect tag.                                #
 #                                                                     #
@@ -391,7 +391,7 @@
 #                plaintext password in this value.                    #
 #                                                                     #
 #  host        - hosts of client allowed to oper-up.                  #
-#                wildcards accepted, seperate multiple hosts with a   #
+#                wildcards accepted, separate multiple hosts with a   #
 #                space. You may also specify CIDR IP addresses.       #
 #                                                                     #
 #  fingerprint - when using the m_ssl_oper_cert.so module, you may    #
@@ -439,7 +439,7 @@
 #                 hosts are resolved on rehash, and cached, if you    #
 #                 specify a hostname; so if you find that your server #
 #                 is still trying to connect to an old IP after you   #
-#                 have updated your dns, try rehashing and then       #
+#                 have updated your DNS, try rehashing and then       #
 #                 attempting the connect again.                       #
 #                                                                     #
 # port        -   the TCP port for the remote server.                 #
@@ -870,7 +870,7 @@
 #                                                                     #
 # announceinvites                                                     #
 #                - If this option is set, then invites are announced  #
-#                  to the channel when a user invites annother user.  #
+#                  to the channel when a user invites another user.   #
 #                  If you consider this to be unnecessary noise,      #
 #                  set this to 'none'. To announce to all ops, set    #
 #                  this to 'ops' and to announce to all users set the #
@@ -930,7 +930,7 @@
 #                  creation. Defaults to 'nt'. There should be no +   #
 #                  or - symbols in this sequence, if you add them     #
 #                  they will be ignored. You may add parameters for   #
-#                  parameterised modes.                               #
+#                  modes which take them.                             #
 #                                                                     #
 #  moronbanner   - The NOTICE to show to users who are glined, zlined #
 #                  klined or qlined when they are disconnected. This  #
@@ -1123,7 +1123,7 @@
 #                    command "foo bar baz qux quz" then $3- will hold #
 #                    "baz qux quz" and $2 will contain "bar". You may #
 #                    also use the special variables: $nick, $ident,   #
-#                    $host and $vhost, and you may seperate multiple  #
+#                    $host and $vhost, and you may separate multiple  #
 #                    commands with \n. If you wish to use the ACTUAL  #
 #                    characters \ and n together in a line, you must  #
 #                    use the sequence "\\n".                          #
