@@ -975,10 +975,10 @@
 	 exemptchanops="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
-# Time synchronisation options for m_spanningtree linking.             #
+# Time synchronisation options for m_spanningtree linking.            #
 #                                                                     #
 # Because IRC is very time and clock dependent, InspIRCd provides its #
-# own methods for synchronisation of time between servers as shown     #
+# own methods for synchronisation of time between servers as shown    #
 # in the example below, for servers that don't have ntpd running.     #
 #                                                                     #
 #  enable    -     If this value is 'yes', 'true', or '1', time       #
