@@ -55,7 +55,7 @@ class cmd_mkpasswd : public command_t
 	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
 	{
 		MakeHash(user, parameters[0], parameters[1]);
-		/* NOTE: Don't propogate this across the network!
+		/* NOTE: Don't propagate this across the network!
 		 * We dont want plaintext passes going all over the place...
 		 * To make sure it goes nowhere, return CMD_FAILURE!
 		 */

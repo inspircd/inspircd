@@ -51,7 +51,7 @@ class cmd_samode : public command_t
 			Event rmode2((char *)&n, NULL, "send_opers");
 			rmode2.Send(ServerInstance);
 
-			/* XXX: Yes, this is right. We dont want to propogate the
+			/* XXX: Yes, this is right. We dont want to propagate the
 			 * actual SAMODE command, just the MODE command generated
 			 * by the send_mode
 			 */

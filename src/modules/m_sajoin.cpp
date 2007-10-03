@@ -45,13 +45,13 @@ class cmd_sajoin : public command_t
 			}
 
 			/* For local users, we send the JoinUser which may create a channel and set its TS.
-			 * For non-local users, we just return CMD_SUCCESS, knowing this will propogate it where it needs to be
+			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
 			 * and then that server will generate the users JOIN or FJOIN instead.
 			 */
 			if (IS_LOCAL(dest))
 			{
 				chanrec::JoinUser(ServerInstance, dest, parameters[1], true, "", ServerInstance->Time(true));
-				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propogate */
+				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
 				chanrec* n = ServerInstance->FindChan(parameters[1]);
 				if (n)
 				{

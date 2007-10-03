@@ -490,8 +490,8 @@ class ModuleChanProtect : public Module
 	
 	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
 	{
-		/* NOTE: If +qa prefix is on, this is propogated by the channel join,
-		 * so we dont need to propogate it manually
+		/* NOTE: If +qa prefix is on, this is propagated by the channel join,
+		 * so we dont need to propagate it manually
 		 */
 		if (!QAPrefixes)
 		{

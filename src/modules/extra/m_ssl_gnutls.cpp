@@ -654,7 +654,7 @@ class ModuleSSLGnuTLS : public Module
 	virtual void OnPostConnect(userrec* user)
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
-		// protocol module has propogated the NICK message.
+		// protocol module has propagated the NICK message.
 		if ((user->GetExt("ssl", dummy)) && (IS_LOCAL(user)))
 		{
 			// Tell whatever protocol module we're using that we need to inform other servers of this metadata NOW.
