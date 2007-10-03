@@ -542,7 +542,7 @@
 #                                                                     #
 # NOTE: If you have built your server as an IPv6 server, then when a  #
 # DNS lookup of a server's host occurs, AAAA records (IPv6) are       #
-# priorotized over A records (IPv4). Therefore, if the server you are #
+# prioritised over A records (IPv4). Therefore, if the server you are #
 # connecting to has both an IPv6 IP address and an IPv4 IP address in #
 # its DNS entry, the IPv6 address will *always* be selected. To       #
 # change this behaviour simply specify the IPv4 IP address rather     #
@@ -677,7 +677,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Use these tags to customize the ban limits on a per channel basis.  #
+# Use these tags to customise the ban limits on a per channel basis.  #
 # The tags are read from top to bottom, and any tag found which       #
 # matches the channels name applies the banlimit to that channel.     #
 # It is advisable to put an entry with the channel as '*' at the      #
@@ -975,16 +975,16 @@
 	 exemptchanops="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#- TIME SYNC OPTIONS -#-#-#-#-#-#-#-#-#-#-#-#
-# Time sychronization options for m_spanningtree linking.             #
+# Time synchronisation options for m_spanningtree linking.             #
 #                                                                     #
 # Because IRC is very time and clock dependent, InspIRCd provides its #
-# own methods for syncronization of time between servers as shown     #
+# own methods for synchronisation of time between servers as shown     #
 # in the example below, for servers that don't have ntpd running.     #
 #                                                                     #
 #  enable    -     If this value is 'yes', 'true', or '1', time       #
-#                  synchronization is enabled on this server. This    #
+#                  synchronisation is enabled on this server. This    #
 #                  means any servers you are linked to will           #
-#                  automatically synchronize time, however you should #
+#                  automatically synchronise time, however you should #
 #                  use ntpd instead where possible, NOT this option.  #
 #                                                                     #
 #  master    -     If this value is set to yes, then this server will #
@@ -1277,7 +1277,7 @@
 #-#-#-#-#-#-#-#-#-#-#-# CGIIRC  CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
 #
 # Optional - If you specify to use m_cgiirc, then you must specify one
-# or more cgihost tags which indicate authorized CGI:IRC servers which
+# or more cgihost tags which indicate authorised CGI:IRC servers which
 # will be connecting to your network, and an optional cgiirc tag.
 # For more information see: http://www.inspircd.org/wiki/CGI-IRC_Module
 #
@@ -1967,8 +1967,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Spy module: Adds the commands SPYLIST and SPYNAMES that let opers
 # see who is in a +s channel, and list +s channels, show keys of keyed
-# channels the oper is not a member of etc. (standard 'abusive' features
-# of many other ircds, modulized here in InspIRCd).
+# channels the oper is not a member of etc. Like most standard 'abusive'
+# features of many other ircds, this is modular in InspIRCd.
 #<module name="m_spy.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -2090,7 +2090,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL logging module: Allows you to log network-wide data for your
-# network in a fully normalized set of SQL tables. You must copy the
+# network in a fully normalised set of SQL tables. You must copy the
 # source for this module from the directory src/modules/extra
 #<module name="m_sqllog.so">
 #
