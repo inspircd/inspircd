@@ -36,11 +36,10 @@ bool SelectEngine::AddFd(EventHandler* eh)
 	if (GetRemainingFds() <= 1)
 		return false;
 
-	fds[fd] = fd;
-
 	if (ref[fd])
 		return false;
 
+	fds[fd] = fd;
 	ref[fd] = eh;
 	CurrentSetSize++;
 
