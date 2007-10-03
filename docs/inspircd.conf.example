@@ -95,8 +95,8 @@
 #  port         - The port number to bind to. You may specify a port  #
 #                 range here, e.g. "6667-6669,7000,7001". If you do   #
 #                 this, the server will count each port within your   #
-#                 range as a seperate binding, making the above       #
-#                 example equivalent to five seperate bind tags.      #
+#                 range as a separate binding, making the above       #
+#                 example equivalent to five separate bind tags.      #
 #                 A failure on one port in the range does not prevent #
 #                 the entire range from being bound, just that one    #
 #                 port number.                                        #
@@ -352,7 +352,7 @@
 #  classes    - specified above, used for flexibility for the         #
 #               server admin to decide on which operators get         #
 #               what commands. Class names are case sensitive,        #
-#               seperate multiple class names with spaces.            #
+#               separate multiple class names with spaces.            #
 #                                                                     #
 #  host       - optional hostmask operators will receive on oper-up.  #
 #                                                                     #
@@ -431,7 +431,7 @@
 # Defines which servers can link to this one, and which servers this  #
 # server may create outbound links to.                                #
 #                                                                     #
-# name        -   the name is the canocial name of the server, does   #
+# name        -   the name is the canonical name of the server, does   #
 #                 not have to resolve - but it is expected to be set  #
 #                 in the remote servers connection info.              #
 #                                                                     #
@@ -530,7 +530,7 @@
 #                 example to hide a non-client hub, for which clients #
 #                 do not have an IP address or resolvable hostname.   #
 #                                                                     #
-# to u:line a server (give it extra privilages required for running   #
+# to u:line a server (give it extra privileges required for running   #
 # services, Q, etc) you must include the <uline server> tag as shown  #
 # in the example below. You can have as many of these as you like.    #
 #                                                                     #
@@ -606,7 +606,7 @@
 #                                                                     #
 #   These options let you define the path to your motd and rules      #
 #   files. If these are relative paths, they are relative to the      #
-#   configurtion directory.                                           #
+#   configuration directory.                                           #
 #                                                                     #
 
 <files motd="inspircd.motd.example"
@@ -712,7 +712,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  SERVER OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-#   Settings to define which features are useable on your server.     #
+#   Settings to define which features are usable on your server.     #
 #                                                                     #
 #  prefixquit    - A prefix to be placed on the start of a client's   #
 #                  quit message                                       #
