@@ -595,7 +595,7 @@
 # permissions, and should be used with caution. Services servers are  #
 # usually u-lined in this manner.                                     #
 #                                                                     #
-# The 'silent' value if set to yes indicates that this server should  #
+# The 'silent' value, if set to yes, indicates that this server should#
 # not generate quit and connect notices, which can cut down on noise  #
 # to opers on the network.                                            #
 #                                                                     #
@@ -616,7 +616,7 @@
 #                                                                     #
 # This optional configuration tag lets you define the maximum number  #
 # of channels that both opers and users may be on at any one time.    #
-# the default is 20 for user and 60 for opers if this tag is not      #
+# The default is 20 for users and 60 for opers if this tag is not     #
 # defined. Remote users are not restricted in any manner.             #
 #                                                                     #
 
@@ -626,7 +626,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Define your DNS server address here. InspIRCd has its own resolver. #
-# If you do not define this value, then then InspIRCd will attempt to #
+# If you do not define this value, then InspIRCd will attempt to      #
 # determine your DNS server from your operating system. On POSIX      #
 # platforms, InspIRCd will read /etc/resolv.conf, and populate this   #
 # value with the first DNS server address found. On Windows platforms #
@@ -643,7 +643,7 @@
 #                                                                     #
 # When choosing a server, be sure to choose one which will do a       #
 # RECURSIVE LOOKUP. InspIRCd's resolver does not currently do these   #
-# recursive lookups itself, to save time and resources. The dns       #
+# recursive lookups itself, to save time and resources. The DNS       #
 # server recommended by the InspIRCd team is bind, available from the #
 # ISC website. If your DNS server does not do a recursive lookup, you #
 # will be able to notice this by the fact that none of your users are #
@@ -652,22 +652,22 @@
 #                                                                     #
 # ------------------------------------------------------------------- #
 #                                                                     #
-# NOTE: if you have built InspIRCd with IPV6 support, then both       #
-# ipv6 and ipv4 addresses are allowed here, and also in the system    #
-# resolv.conf file. Remember that an ipv4 dns server can still        #
-# resolve ipv6 addresses, and vice versa.                             #
+# NOTE: if you have built InspIRCd with IPv6 support, then both       #
+# IPv6 and IPv4 addresses are allowed here, and also in the system    #
+# resolv.conf file. Remember that an IPv4 DNS server can still        #
+# resolve IPv6 addresses, and vice versa.                             #
 #                                                                     #
 
 <dns server="127.0.0.1" timeout="5">
 
-# An example of using an IPV6 nameserver
+# An example of using an IPv6 nameserver
 #<dns server="::1" timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#  PID FILE  -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Define the path to the PID file here. The PID file can be used to   #
 # rehash the ircd from the shell or to terminate the ircd from the    #
-# shell using shell scripts, perl scripts etc, and to monitor the     #
+# shell using shell scripts, perl scripts, etc... and to monitor the  #
 # ircd's state via cron jobs. If this is a relative path, it will be  #
 # relative to the configuration directory, and if it is not defined,  #
 # the default of 'inspircd.pid' is used.                              #
@@ -677,8 +677,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#- BANLIST LIMITS #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Use these tags to customise the ban limits on a per channel basis.  #
-# the tags are read from top to bottom, and any tag found which       #
+# Use these tags to customize the ban limits on a per channel basis.  #
+# The tags are read from top to bottom, and any tag found which       #
 # matches the channels name applies the banlimit to that channel.     #
 # It is advisable to put an entry with the channel as '*' at the      #
 # bottom of the list. If none are specified or no maxbans tag is      #
