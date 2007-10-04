@@ -975,6 +975,7 @@ sub getosflags {
 
 	if ($config{OSNAME} =~ /OpenBSD/i) {
 		$config{MAKEPROG} = "gmake";
+		$config{LDLIBS} = $config{LDLIBS} . " -lunwind";
 		chomp($foo = `eg++ -dumpversion | cut -c 1`);
 		# theyre running the package version of gcc (eg++)... detect it and set up its version numbers.
 		# if theyre not running this, configure lets the build continue but they probably wont manage to
