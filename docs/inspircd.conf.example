@@ -833,28 +833,27 @@
 #                  actual server the user is on.                      #
 #                                                                     #
 #  flatlinks     - When you are using m_spanningtree.so, and this     #
-#                  value is set to true, yes or 1, /MAP and /LINKS    #
-#                  will be flattened when shown to a non-oper.        #
+#                  value is set to yes, true or 1, /MAP and /LINKS    #
+#                  will be flattened when shown to a non-opers.       #
 #                                                                     #
 #  hideulines    - When you are using m_spanningtree.so, and this     #
-#                  value is set to true, yes or 1, then U-lined       #
-#                  servers will be hidden in /LINKS and /MAP. For non #
+#                  value is set to yes, true or 1, then U-lined       #
+#                  servers will be hidden in /LINKS and /MAP for non  #
 #                  opers. Please be aware that this will also hide    #
 #                  any leaf servers of a U-lined server, e.g. jupes.  #
 #                                                                     #
-#  nouserdns     - If set to 'yes', 'true' or '1', no user dns        #
-#                  lookups will be performed for connecting users.    #
-#                  this can save a lot of resources on very busy irc  #
-#                  servers.                                           #
+#  nouserdns     - If set to yes, true or 1, no user DNS lookups      #
+#                  will be performed for connecting users. This can   #
+#                  save a lot of resources on very busy IRC servers.  #
 #                                                                     #
-#  syntaxhints   - If set to 'yes', 'true' or '1', when a user does   #
-#                  not give enough parameters for a command, a syntax #
+#  syntaxhints   - If set to yes, true or 1, when a user does not     #
+#                  give enough parameters for a command, a syntax     #
 #                  hint will be given (using the RPL_TEXT numeric)    #
 #                  as well as the standard ERR_NEEDMOREPARAMS.        #
 #                                                                     #
-#  announcets    - If this value is defined to 'yes', 'true' or '1',  #
-#                  then if a channel's timestamp is updated the users #
-#                  on the channel will be informed of the change via  #
+#  announcets    - If this value is defined to yes, true or 1, then   #
+#                  a channel's timestamp is updated, the users on     #
+#                  the channel will be informed of the change via     #
 #                  a server notice to the channel with the old and    #
 #                  new TS values in the timestamp. If you think this  #
 #                  is just pointless noise, define the value to 0.    #
@@ -902,7 +901,7 @@
 #                  +b, as it may break some features in popular       #
 #                  clients such as mIRC.                              #
 #                                                                     #
-#  quietbursts   - When synching or splitting from the network, a     #
+#  quietbursts   - When syncing or splitting from the network, a      #
 #                  server can generate a lot of connect and quit      #
 #                  snotices to the +C and +Q snomasks. Setting this   #
 #                  value to yes squelches those messages, which can   #
