@@ -247,29 +247,38 @@ command_t* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
 {
-	command_table::iterator n = cmdlist.find(commandname);
+        command_table::iterator n = cmdlist.find(commandname);
 
-	if (n != cmdlist.end())
-	{
-		if (pcnt >= n->second->min_params)
-		{
-			if ((!n->second->flags_needed) || (user->IsModeSet(n->second->flags_needed)))
-			{
-				if (n->second->flags_needed)
-				{
-					if ((user->HasPermission(commandname)) || (!IS_LOCAL(user)))
-					{
-						return n->second->Handle(parameters,pcnt,user);
-					}
-				}
-				else
-				{
-					return n->second->Handle(parameters,pcnt,user);
-				}
-			}
-		}
-	}
-	return CMD_INVALID;
+        if (n != cmdlist.end())
+        {
+                if (pcnt >= n->second->min_params)
+                {
+                        bool bOkay = false;
+
+                        if (IS_LOCAL(user) && n->second->flags_needed)
+                        {
+                                /* if user is local, and flags are needed .. */
+
+                                if (user->IsModeSet(n->second->flags_needed))
+                                {
+                                        /* if user has the flags, and now has the permissions, go ahead */
+                                        if (user->HasPermission(commandname))
+                                                bOkay = true;
+                                }
+                        }
+                        else
+                        {
+                                /* remote or no flags required anyway */
+                                bOkay = true;
+                        }
+
+                        if (bOkay)
+                        {
+                                return n->second->Handle(parameters,pcnt,user);
+                        }
+                }
+        }
+        return CMD_INVALID;
 }
 
 void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
