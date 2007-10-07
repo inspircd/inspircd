@@ -40,7 +40,13 @@ class cmd_cycle : public command_t
 			reason = reason + ": " + parameters[1];
 		}
 		
-		if (channel)
+		if (!channel)
+		{
+			user->WriteServ("403 %s %s :No such channel", user->nick, parameters[0]);
+			return CMD_FAILURE;
+		}
+		
+		if (channel->HasUser(user))
 		{
 			/*
 			 * technically, this is only ever sent locally, but pays to be safe ;p
@@ -65,7 +71,7 @@ class cmd_cycle : public command_t
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** You are not on this channel", user->nick);
+			user->WriteServ("442 %s %s :You're not on that channel", user->nick, channel->name);
 		}
 
 		return CMD_FAILURE;
