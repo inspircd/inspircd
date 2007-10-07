@@ -40,7 +40,7 @@ class cmd_cycle : public command_t
 		
 		if (!channel)
 		{
-			user->WriteServ("403 %s %s :No such channel", user->nick, channel->name);
+			user->WriteServ("403 %s %s :No such channel", user->nick, parameters[0]);
 			return CMD_FAILURE;
 		}
 		
