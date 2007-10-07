@@ -604,7 +604,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 					else
 					{
 						/* No mode handler? Unknown mode character then. */
-						user->WriteServ("472 %s %c :is unknown mode char to me",user->nick, modechar);
+						user->WriteServ("%d %s %c :is unknown mode char to me", type == MODETYPE_CHANNEL ? 472 : 501, user->nick, modechar);
 					}
 				break;
 			}
