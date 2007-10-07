@@ -111,18 +111,14 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		return CMD_FAILURE;
 	}
 
+	int MOD_RESULT = 0;
+	FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
+	if (MOD_RESULT)
+		// if a module returns true, the nick change is silently forbidden.
+		return CMD_FAILURE;
+
 	if (user->registered == REG_ALL)
-	{
-		int MOD_RESULT = 0;
-		FOREACH_RESULT(I_OnUserPreNick,OnUserPreNick(user,parameters[0]));
-		if (MOD_RESULT) {
-			// if a module returns true, the nick change is silently forbidden.
-			return CMD_FAILURE;
-		}
-
 		user->WriteCommon("NICK %s",parameters[0]);
-
-	}
 
 	strlcpy(oldnick, user->nick, NICKMAX - 1);
 
@@ -130,8 +126,10 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 	user = user->UpdateNickHash(parameters[0]);
 
 	/* actually change the nick within the record */
-	if (!user) return CMD_FAILURE;
-	if (!*user->nick) return CMD_FAILURE;
+	if (!user)
+		return CMD_FAILURE;
+	if (!*user->nick)
+		return CMD_FAILURE;
 
 	strlcpy(user->nick, parameters[0], NICKMAX - 1);
 
