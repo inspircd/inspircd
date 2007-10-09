@@ -627,8 +627,16 @@ void SpanningTreeUtilities::DoFailOver(Link* x)
 		Link* TryThisOne = this->FindLink(x->FailOver.c_str());
 		if (TryThisOne)
 		{
-			Creator->RemoteMessage(NULL,"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
-			Creator->ConnectServer(TryThisOne);
+			TreeServer* CheckDupe = this->FindServer(x->FailOver.c_str());
+			if (CheckDupe)
+			{
+				ServerInstance->Log(DEBUG,"Skipping existing failover: %s", x->FailOver.c_str());
+			}
+			else
+			{
+				Creator->RemoteMessage(NULL,"FAILOVER: Trying failover link for \002%s\002: \002%s\002...", x->Name.c_str(), TryThisOne->Name.c_str());
+				Creator->ConnectServer(TryThisOne);
+			}
 		}
 		else
 		{
