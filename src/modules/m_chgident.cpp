@@ -44,7 +44,7 @@ class cmd_chgident : public command_t
 			return CMD_FAILURE;
 		}
 		
-		if (strlen(parameters[1]) > IDENTMAX)
+		if (strlen(parameters[1]) > IDENTMAX - 1)
 		{
 			user->WriteServ("NOTICE %s :*** CHGIDENT: Ident is too long", user->nick);
 			return CMD_FAILURE;
