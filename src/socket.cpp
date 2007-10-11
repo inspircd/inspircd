@@ -464,7 +464,10 @@ int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_port
 		Config->ConfValue(Config->config_data, "bind", "port", count, configToken, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "address", count, Addr, MAXBUF);
 		Config->ConfValue(Config->config_data, "bind", "type", count, Type, MAXBUF);
-
+		
+		if (strncmp(Addr, "::ffff:", 7) == 0)
+			this->Log(DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
+		
 		if ((!*Type) || (!strcmp(Type,"clients")))
 		{
 			irc::portparser portrange(configToken, false);
