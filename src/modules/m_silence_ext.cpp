@@ -124,7 +124,7 @@ class cmd_silence : public command_t
 								DELETE(sl);
 								user->Shrink("silence_list");
 							}
-							break;
+							return CMD_SUCCESS;
 						}
 					}
 				}
@@ -164,7 +164,7 @@ class cmd_silence : public command_t
 					sl->push_back(silenceset(mask,pattern));
 				}
 				user->WriteServ("951 %s %s :Added %s %s to silence list",user->nick, user->nick, mask.c_str(), DecompPattern(pattern).c_str());
-				return CMD_LOCALONLY;
+				return CMD_SUCCESS;
 			}
 		}
 		return CMD_LOCALONLY;
