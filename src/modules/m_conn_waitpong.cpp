@@ -73,16 +73,16 @@ class ModuleWaitPong : public Module
 	
 	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec* user, bool validated, const std::string &original_line)
 	{
-		if(command == "PONG")
+		if (command == "PONG")
 		{
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
 			
-			if(pingrpl)
+			if (pingrpl)
 			{
-				if(strcmp(pingrpl, parameters[0]) == 0)
+				if (strcmp(pingrpl, parameters[0]) == 0)
 				{
-					DELETE(pingrpl);
+					delete[] pingrpl;
 					user->Shrink(extenstr);
 					return 1;
 				}
@@ -108,24 +108,24 @@ class ModuleWaitPong : public Module
 		char* pingrpl;
 		user->GetExt(extenstr, pingrpl);
 
-		if(pingrpl)
+		if (pingrpl)
 		{
-			DELETE(pingrpl);
+			delete[] pingrpl;
 			user->Shrink(extenstr);
 		}
 	}
 	
 	virtual void OnCleanup(int target_type, void* item)
 	{
-		if(target_type == TYPE_USER)
+		if (target_type == TYPE_USER)
 		{
 			userrec* user = (userrec*)item;
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
 			
-			if(pingrpl)
+			if (pingrpl)
 			{
-				DELETE(pingrpl);
+				delete[] pingrpl;
 				user->Shrink(extenstr);
 			} 
 		}
