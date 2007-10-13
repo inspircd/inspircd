@@ -392,6 +392,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketAccept(int fd, const std::string &ip, int localport)
 	{
+		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+			return;
+
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
@@ -415,6 +419,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketConnect(int fd)
 	{
+                /* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+			return;
+
 		issl_session* session = &sessions[fd];
 
 		session->fd = fd;
@@ -438,6 +446,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
+		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+			return;
+
 		CloseSession(&sessions[fd]);
 
 		EventHandler* user = ServerInstance->SE->GetRef(fd);
@@ -453,6 +465,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
+		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+			return 0;
+
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
@@ -534,6 +550,10 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
+		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
+		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+			return 0;
+
 		issl_session* session = &sessions[fd];
 
 		if (!session->sess)
