@@ -18,6 +18,7 @@
 #include "inspircd.h"
 
 using irc::sockets::OpenTCPSocket;
+using irc::sockets::NonBlocking;
 
 bool InspSocket::Readable()
 {
@@ -630,6 +631,8 @@ bool InspSocket::Poll()
 #endif
 			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
+
+			NonBlocking(incoming);
 
 			if (this->IsIOHooked)
 			{
