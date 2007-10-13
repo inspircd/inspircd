@@ -57,7 +57,7 @@ class IdentRequestSocket : public InspSocket
 		if ((getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0) || (getpeername(user->GetFd(), (sockaddr*) &raddr, &raddrsz) != 0))
 		{
 			// Error
-			user->Shrink("ident_socket");
+			TidyUser();
 			return false;
 		}
 		
@@ -91,7 +91,7 @@ class IdentRequestSocket : public InspSocket
 		if (*user->ident == '~' && user->GetExt("ident_socket"))
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
 
-		user->Shrink("ident_socket");
+		TidyUser();
 		Instance->next_call = Instance->Time();
 	}
 	
@@ -107,7 +107,7 @@ class IdentRequestSocket : public InspSocket
 		if (*user->ident == '~' && user->GetExt("ident_socket"))
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
 		
-		user->Shrink("ident_socket");
+		TidyUser();
 		Instance->next_call = Instance->Time();
 	}
 	
@@ -121,7 +121,10 @@ class IdentRequestSocket : public InspSocket
 
 		char *ibuf = this->Read();
 		if (!ibuf)
+		{
+			TidyUser();
 			return false;
+		}
 		
 		// We don't really need to buffer for incomplete replies here, since IDENT replies are
 		// extremely short - there is *no* sane reason it'd be in more than one packet
@@ -166,8 +169,19 @@ class IdentRequestSocket : public InspSocket
 			break;
 		}
 		
-		user->Shrink("ident_socket");
+		TidyUser();
 		return false;
+	}
+
+	void TidyUser()
+	{
+		user->Shrink("ident_socket");
+		int* delfd;
+		if (user->GetExt("ident_socket_fd", delfd))
+		{
+			delete delfd;
+			user->Shrink("ident_socket_fd");
+		}
 	}
 };
 
@@ -239,7 +253,10 @@ class ModuleIdent : public Module
 		
 		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, ip);
 		if (isock->GetFd() > -1)
+		{
+			user->Extend("ident_socket_fd", new int(isock->GetFd()));
 			user->Extend("ident_socket", isock);
+		}
 		else
 			if (ServerInstance->SocketCull.find(isock) == ServerInstance->SocketCull.end())
 				ServerInstance->SocketCull[isock] = isock;
@@ -258,7 +275,15 @@ class ModuleIdent : public Module
 			IdentRequestSocket *isock;
 			userrec *user = (userrec*)item;
 			if (user->GetExt("ident_socket", isock))
-				isock->Close();
+			{
+				int *fd;
+				if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+				{
+					user->Shrink("ident_socket_fd");
+					delete fd;
+					isock->Close();
+				}
+			}
 		}
 	}
 	
@@ -266,8 +291,17 @@ class ModuleIdent : public Module
 	{
 		IdentRequestSocket *isock;
 		if (user->GetExt("ident_socket", isock))
-			isock->Close();
+		{
+			int *fd;
+			if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+			{
+				user->Shrink("ident_socket_fd");
+				delete fd;
+				isock->Close();
+			}
+		}
 	}
 };
 
 MODULE_INIT(ModuleIdent);
+
