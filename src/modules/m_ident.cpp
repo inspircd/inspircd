@@ -57,6 +57,7 @@ class IdentRequestSocket : public InspSocket
 		if ((getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0) || (getpeername(user->GetFd(), (sockaddr*) &raddr, &raddrsz) != 0))
 		{
 			// Error
+			user->Shrink("ident_socket");
 			return false;
 		}
 		
@@ -164,7 +165,8 @@ class IdentRequestSocket : public InspSocket
 			
 			break;
 		}
-		
+
+		user->Shrink("ident_socket");
 		return false;
 	}
 };
