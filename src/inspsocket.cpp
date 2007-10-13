@@ -615,6 +615,8 @@ bool InspSocket::Poll()
 			}
 			else
 #endif
+			Instance->SE->NonBlocking(incoming);
+
 			recvip = inet_ntoa(((sockaddr_in*)client)->sin_addr);
 			this->OnIncomingConnection(incoming, (char*)recvip.c_str());
 
