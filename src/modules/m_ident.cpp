@@ -277,27 +277,39 @@ class ModuleIdent : public Module
 			if (user->GetExt("ident_socket", isock))
 			{
 				int *fd;
-				if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+				if (user->GetExt("ident_socket_fd", fd))
 				{
-					user->Shrink("ident_socket_fd");
-					delete fd;
-					isock->Close();
+					if (ServerInstance->SE->GetRef(*fd) == isock)
+						isock->Close();
+
+					/* Check again, isock->Close() can confuse us */
+					if (user->GetExt("ident_socket_fd", fd))
+					{
+						user->Shrink("ident_socket_fd");
+						delete fd;
+					}
 				}
 			}
 		}
 	}
-	
+
 	virtual void OnUserDisconnect(userrec *user)
 	{
 		IdentRequestSocket *isock;
 		if (user->GetExt("ident_socket", isock))
 		{
 			int *fd;
-			if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+			if (user->GetExt("ident_socket_fd", fd))
 			{
-				user->Shrink("ident_socket_fd");
-				delete fd;
-				isock->Close();
+				if (ServerInstance->SE->GetRef(*fd) == isock)
+					isock->Close();
+
+				/* Check again, isock->Close() can confuse us */
+				if (user->GetExt("ident_socket_fd", fd))
+				{
+					user->Shrink("ident_socket_fd");
+					delete fd;
+				}
 			}
 		}
 	}
