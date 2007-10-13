@@ -1376,6 +1376,7 @@ class CoreExport Module : public Extensible
 };
 
 
+#define CONF_NO_ERROR		0x000000
 #define CONF_NOT_A_NUMBER	0x000010
 #define CONF_INT_NEGATIVE	0x000080
 #define CONF_VALUE_NOT_FOUND	0x000100

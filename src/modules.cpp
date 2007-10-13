@@ -956,7 +956,7 @@ ConfigReader::ConfigReader(InspIRCd* Instance) : ServerInstance(Instance)
 	 * default one we can just use the global config data - pre-parsed!
 	 */
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
-	
+	this->error = CONF_NO_ERROR;
 	this->data = &ServerInstance->Config->config_data;
 	this->privatehash = false;
 }
@@ -975,6 +975,7 @@ ConfigReader::ConfigReader(InspIRCd* Instance, const std::string &filename) : Se
 {
 	ServerInstance->Config->ClearStack();
 
+	this->error = CONF_NO_ERROR;
 	this->data = new ConfigDataHash;
 	this->privatehash = true;
 	this->errorlog = new std::ostringstream(std::stringstream::in | std::stringstream::out);
