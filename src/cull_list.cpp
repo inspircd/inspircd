@@ -191,7 +191,7 @@ int CullList::Apply()
 					ServerInstance->local_users.erase(x);
 			}
 			ServerInstance->clientlist->erase(iter);
-			DELETE(a->GetUser());
+			delete a->GetUser();
 		}
 
 		list.erase(list.begin());
