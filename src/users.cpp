@@ -832,6 +832,7 @@ void userrec::UnOper()
 
 void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason, const char* operreason)
 {
+	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, operreason);
 	user->muted = true;
 	Instance->GlobalCulls.AddItem(user, quitreason.c_str(), operreason);
 }
