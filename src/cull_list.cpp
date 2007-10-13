@@ -126,7 +126,6 @@ int CullList::Apply()
 
 		if (IS_LOCAL(a->GetUser()))
 		{
-			a->GetUser()->Write("ERROR :Closing link (%s@%s) [%s]", a->GetUser()->ident, a->GetUser()->host, oper_reason.c_str());
 			if ((!a->GetUser()->sendq.empty()) && (!(*a->GetUser()->GetWriteError())))
 				a->GetUser()->FlushWriteBuf();
 		}
