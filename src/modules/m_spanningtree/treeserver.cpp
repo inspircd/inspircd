@@ -36,7 +36,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance) : Server
 	VersionString.clear();
 	UserCount = OperCount = 0;
 	rtt = LastPing = 0;
-	Hidden = false;
+	Hidden = Warned = false;
 	VersionString = ServerInstance->GetVersionString();
 }
 
@@ -54,7 +54,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
 	rtt = LastPing = 0;
-	Hidden = false;
+	Hidden = Warned = false;
 	AddHashEntry();
 }
 
