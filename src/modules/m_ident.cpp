@@ -278,7 +278,11 @@ class ModuleIdent : public Module
 			{
 				int *fd;
 				if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+				{
+					user->Shrink("ident_socket_fd");
+					delete fd;
 					isock->Close();
+				}
 			}
 		}
 	}
@@ -290,7 +294,11 @@ class ModuleIdent : public Module
 		{
 			int *fd;
 			if (user->GetExt("ident_socket_fd", fd) && (ServerInstance->SE->GetRef(*fd) == isock))
+			{
+				user->Shrink("ident_socket_fd");
+				delete fd;
 				isock->Close();
+			}
 		}
 	}
 };
