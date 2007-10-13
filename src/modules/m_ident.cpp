@@ -22,15 +22,23 @@ class IdentRequestSocket : public InspSocket
 {
  private:
 	userrec *user;
+	int original_fd;
  public:
 	IdentRequestSocket(InspIRCd *Server, userrec *user, int timeout, const std::string &bindip)
 		: InspSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
 	{
-		
+		original_fd = user->GetFd();
+		Instance->Log(DEBUG, "Ident request against user with fd %d", original_fd);
 	}
-	
+
 	virtual bool OnConnected()
 	{
+		if (Instance->SE->GetRef(original_fd) == user)
+		{
+			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
+			return false;
+		}
+
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
 		 * byte level). */
@@ -70,7 +78,14 @@ class IdentRequestSocket : public InspSocket
 		/* There used to be a check against the fd table here, to make sure the user hadn't been
 		 * deleted but not yet had their socket closed or something along those lines, dated june
 		 * 2006. Since we added the global cull list and such, I don't *think* that is necessary
-		 * anymore. If you're getting odd crashes here, that's probably why ;) -Special */
+		 * 
+		 * -- YES IT IS!!!! DO NOT REMOVE IT, THIS IS WHAT THE WARNING ABOVE THE OLD CODE SAID :P
+		 */
+		if (Instance->SE->GetRef(original_fd) == user)
+		{
+			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
+			return;
+		}
 
 		if (*user->ident == '~' && user->GetExt("ident_socket"))
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
@@ -81,6 +96,12 @@ class IdentRequestSocket : public InspSocket
 	
 	virtual void OnError(InspSocketError e)
 	{
+		if (Instance->SE->GetRef(original_fd) == user)
+		{
+			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
+			return;
+		}
+
 		// Quick check to make sure that this hasn't been sent ;)
 		if (*user->ident == '~' && user->GetExt("ident_socket"))
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
@@ -91,6 +112,12 @@ class IdentRequestSocket : public InspSocket
 	
 	virtual bool OnDataReady()
 	{
+		if (Instance->SE->GetRef(original_fd) == user)
+		{
+			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
+			return false;
+		}
+
 		char *ibuf = this->Read();
 		if (!ibuf)
 			return false;
