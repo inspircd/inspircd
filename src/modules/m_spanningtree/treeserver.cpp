@@ -32,7 +32,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, const st
 	VersionString.clear();
 	UserCount = OperCount = 0;
 	rtt = LastPing = 0;
-	Hidden = DupError = false;
+	Warned = Hidden = DupError = false;
 	VersionString = ServerInstance->GetVersionString();
 	SetID(id);
 }
@@ -52,7 +52,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, InspIRCd* Instance, std::str
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
 	rtt = LastPing = 0;
-	Hidden = DupError = false;
+	Warned = Hidden = DupError = false;
 	AddHashEntry();
 	SetID(id);
 }
