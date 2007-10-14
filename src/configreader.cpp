@@ -230,6 +230,11 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 		 */
 		if (nameserver.find(',') != std::string::npos)
 			nameserver = nameserver.substr(0, nameserver.find(','));
+		/* Out of the akwardness that spawned it, vista must be different and seperates
+		 * using spaces rather than commas. Go figure.
+		 */
+		if (nameserver.find(' ') != std::string::npos)
+			nameserver = nameserver.substr(0, nameserver.find(' '));
 		data.Set(nameserver.c_str());
 		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 #else
