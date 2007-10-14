@@ -598,7 +598,7 @@ void ModuleManager::LoadAll()
 			Instance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
-	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", this->GetCount(), this->GetCount() == 1 ? " has" : "s have");
+	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", (this->GetCount()+1), (this->GetCount()+1) == 1 ? " has" : "s have");
 	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount());
 }
 
