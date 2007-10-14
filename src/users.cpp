@@ -909,6 +909,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
                         Instance->Log(DEBUG,"ERROR: Could not add new user %s!%s@%s to the socket engine!!!", New->nick, New->ident, New->host);
                         close(socket);
                         shutdown(socket,2);
+			Instance->clientlist->erase(tempnick);
                         delete New;
                         return;
                 }
