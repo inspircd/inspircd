@@ -6,13 +6,13 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *          the file COPYING for details.
+ *	  the file COPYING for details.
  *
  * ---------------------------------------------------
  */
 
 /* $ModDesc: Provides a spanning tree server link protocol */
-                
+		
 #include "inspircd.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
@@ -35,32 +35,32 @@
 
 int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user)
 {
-        TreeServer* s = Utils->FindServerMask(parameters[0]);
-        if (s)
-        {
-                if (s == Utils->TreeRoot)
-                {
-                        user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
-                        return 1;
-                }
-                TreeSocket* sock = s->GetSocket();
-                if (sock)
-                {
-                        ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
-                        sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
-                        ServerInstance->SE->DelFd(sock);
-                        sock->Close();
-                }
-                else
-                {
-                        if (IS_LOCAL(user))
-                                user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated. Please use RSQUIT instead.",user->nick);
-                }
-        }
-        else
-        {
-                 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0]);
-        }
-        return 1;
+	TreeServer* s = Utils->FindServerMask(parameters[0]);
+	if (s)
+	{
+		if (s == Utils->TreeRoot)
+		{
+			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick,parameters[0]);
+			return 1;
+		}
+		TreeSocket* sock = s->GetSocket();
+		if (sock)
+		{
+			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0],user->nick);
+			sock->Squit(s,std::string("Server quit by ") + user->GetFullRealHost());
+			ServerInstance->SE->DelFd(sock);
+			sock->Close();
+		}
+		else
+		{
+			if (IS_LOCAL(user))
+				user->WriteServ("NOTICE %s :*** WARNING: Using SQUIT to split remote servers is deprecated. Please use RSQUIT instead.",user->nick);
+		}
+	}
+	else
+	{
+		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick,parameters[0]);
+	}
+	return 1;
 }
 

@@ -6,13 +6,13 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *          the file COPYING for details.
+ *	  the file COPYING for details.
  *
  * ---------------------------------------------------
  */
 
 /* $ModDesc: Provides a spanning tree server link protocol */
-                
+		
 #include "inspircd.h"
 #include "commands/cmd_whois.h"
 #include "commands/cmd_stats.h"
@@ -20,7 +20,7 @@
 #include "wildcard.h"
 #include "xline.h"      
 #include "transport.h"  
-                        
+			
 #include "m_spanningtree/timesynctimer.h"
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/main.h"
@@ -35,25 +35,25 @@
 
 int ModuleSpanningTree::HandleMotd(const char** parameters, int pcnt, userrec* user)
 {
-        if (pcnt > 0)
-        {
-                if (match(ServerInstance->Config->ServerName, parameters[0]))
-                        return 0;
+	if (pcnt > 0)
+	{
+		if (match(ServerInstance->Config->ServerName, parameters[0]))
+			return 0;
 
-                /* Remote MOTD, the server is within the 1st parameter */
-                std::deque<std::string> params;
-                params.push_back(parameters[0]);
-                /* Send it out remotely, generate no reply yet */
-                TreeServer* s = Utils->FindServerMask(parameters[0]);
-                if (s)
-                {
-                        params[0] = s->GetName();
-                        Utils->DoOneToOne(user->uuid, "MOTD", params, s->GetName());
-                }
-                else
-                        user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
-                return 1;
-        }
-        return 0;
+		/* Remote MOTD, the server is within the 1st parameter */
+		std::deque<std::string> params;
+		params.push_back(parameters[0]);
+		/* Send it out remotely, generate no reply yet */
+		TreeServer* s = Utils->FindServerMask(parameters[0]);
+		if (s)
+		{
+			params[0] = s->GetName();
+			Utils->DoOneToOne(user->uuid, "MOTD", params, s->GetName());
+		}
+		else
+			user->WriteServ( "402 %s %s :No such server", user->nick, parameters[0]);
+		return 1;
+	}
+	return 0;
 }
 
