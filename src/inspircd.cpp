@@ -702,9 +702,7 @@ int ircd(int argc, char ** argv)
 
 int main(int argc, char ** argv)
 {
-	__try {
-		ircd(argc,argv);
-	} __except(__exceptionHandler(GetExceptionInformation())) {}
+	ircd(argc,argv);
 	return 0;
 }
 

@@ -21,7 +21,7 @@
 /* Define the WINDOWS macro. This means we're building on windows to the rest of the server.
    I think this is more reasonable than using WIN32, especially if we're gonna be doing 64-bit compiles */
 #define WINDOWS 1
-#define ENABLE_CRASHDUMPS 1
+#define ENABLE_CRASHDUMPS 0
 
 /* Make builds smaller, leaner and faster */
 #define VC_EXTRALEAN
@@ -203,11 +203,6 @@ void WindowsForkKillOwner(InspIRCd* Instance);
 void ChangeWindowsSpecificPointers(InspIRCd* Instance);
 
 bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data);
-
-#ifdef ENABLE_CRASHDUMPS
-typedef struct _EXCEPTION_POINTERS EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
-int __cdecl __exceptionHandler(PEXCEPTION_POINTERS pExceptPtrs);
-#endif
 
 #endif
 
