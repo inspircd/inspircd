@@ -41,19 +41,19 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Log(DEBUG,"Not adding fd as it is out of range");
+		ServerInstance->Log(DEBUG,"Not adding fd %d as it is out of range",fd);
 		return false;
 	}
 
 	if (GetRemainingFds() <= 1)
 	{
-		ServerInstance->Log(DEBUG,"Not adding fd as GetRemainingFds() <= 1");
+		ServerInstance->Log(DEBUG,"Not adding fd %d as GetRemainingFds() <= 1",fd);
 		return false;
 	}
 
 	if (ref[fd])
 	{
-		ServerInstance->Log(DEBUG,"Not adding fd as ref[fd] != NULL");
+		ServerInstance->Log(DEBUG,"Not adding %d fd as ref[fd] != NULL, it's %8x!",fd, ref[fd]);
 		return false;
 	}
 
