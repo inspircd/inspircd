@@ -1387,7 +1387,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				if (!this->InboundServerName.empty())
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 1)
-					Instance->WriteOpers("*** From " + sourceserv + ": " + params[0]);
+					Instance->WriteOpers("*** From " + prefix + ": " + params[0]);
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
 			else if (command == "MODENOTICE")
@@ -1397,7 +1397,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
-					Instance->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", sourceserv.c_str(), params[1].c_str());
+					Instance->WriteMode(params[0].c_str(), WM_AND, "*** From %s: %s", prefix.c_str(), params[1].c_str());
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
@@ -1408,7 +1408,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 					sourceserv = this->InboundServerName;
 				if (params.size() >= 2)
 				{
-					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + sourceserv + ": "+ params[1]);
+					Instance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + prefix + ": "+ params[1]);
 				}
 				return Utils->DoOneToAllButSenderRaw(line, sourceserv, prefix, command, params);
 			}
