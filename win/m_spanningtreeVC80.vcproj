@@ -366,6 +366,46 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\modules\m_spanningtree\override_admin.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_map.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_modules.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_motd.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_squit.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_stats.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_time.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\override_whois.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\postcommand.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\modules\m_spanningtree\precommand.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\modules\m_spanningtree\rconnect.cpp"
 				>
 			</File>
