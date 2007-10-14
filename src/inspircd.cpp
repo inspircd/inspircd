@@ -106,15 +106,19 @@ void InspIRCd::Cleanup()
 			for (int k = 0; k <= MyModCount; k++)
 				this->Modules->Unload(mymodnames[k].c_str());
 		}
+
 	}
 
 	/* Close logging */
 	if (this->Logger)
 		this->Logger->Close();
 
+
 	/* Cleanup Server Names */
 	for(servernamelist::iterator itr = servernames.begin(); itr != servernames.end(); ++itr)
 		delete (*itr);
+
+
 }
 
 void InspIRCd::Restart(const std::string &reason)
@@ -388,7 +392,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	{
 		DWORD ExitCode = WindowsForkStart(this);
 		if(ExitCode)
-			Exit(ExitCode);
+			exit(ExitCode);
 	}
 
 	// Set up winsock

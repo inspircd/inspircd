@@ -31,6 +31,7 @@ void InspIRCd::SignalHandler(int signal)
 
 void InspIRCd::Exit(int status)
 {
+	printf("exit with status %d\n", status);
 #ifdef WINDOWS
 	delete WindowsIPC;
 #endif
@@ -38,8 +39,9 @@ void InspIRCd::Exit(int status)
 	{
 		this->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
 		this->Cleanup();
-    }
-    exit (status);
+	}
+	printf("Exit done.\n");
+	exit (status);
 }
 
 void InspIRCd::Rehash()
