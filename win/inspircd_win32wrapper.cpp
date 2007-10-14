@@ -638,6 +638,11 @@ bool ValidateWindowsDnsServer(ServerConfig* conf, const char* tag, const char* v
 		 */
 		if (nameserver.find(',') != std::string::npos)
 			nameserver = nameserver.substr(0, nameserver.find(','));
+		/* Just to be FUCKING AKWARD, windows fister... err i mean vista...
+		 * seperates the nameservers with spaces instead.
+		 */
+		if (nameserver.find(' ') != std::string::npos)
+			nameserver = nameserver.substr(0, nameserver.find(' '));
 		data.Set(nameserver.c_str());
 		conf->GetInstance()->Log(DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 	}
