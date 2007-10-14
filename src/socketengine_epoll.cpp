@@ -40,13 +40,22 @@ bool EPollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	{
+		ServerInstance->Log(DEBUG,"Not adding fd as it is out of range");
 		return false;
+	}
 
 	if (GetRemainingFds() <= 1)
+	{
+		ServerInstance->Log(DEBUG,"Not adding fd as GetRemainingFds() <= 1");
 		return false;
+	}
 
 	if (ref[fd])
+	{
+		ServerInstance->Log(DEBUG,"Not adding fd as ref[fd] != NULL");
 		return false;
+	}
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
@@ -55,6 +64,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
+		ServerInstance->Log(DEBUG,"Not adding fd as epoll_ctl failed with error: %s", strerror(errno));
 		return false;
 	}
 
