@@ -917,18 +917,6 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 		New->dhost[j] = New->host[j] = *temp;
 	New->dhost[j] = New->host[j] = 0;
 
-        if (socket > -1)
-        {
-                if (!Instance->SE->AddFd(New))
-                {
-                        Instance->Log(DEBUG,"ERROR: Could not add new user %s!%s@%s to the socket engine!!!", New->nick, New->ident, New->host);
-                        close(socket);
-                        shutdown(socket,2);
-                        delete New;
-                        return;
-                }
-        }
-
 	Instance->AddLocalClone(New);
 	Instance->AddGlobalClone(New);
 
@@ -991,6 +979,14 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 			return;
 		}
 	}
+
+        if (socket > -1)
+        {
+                if (!Instance->SE->AddFd(New))
+                {
+			userrec::QuitUser(Instance, New, "Internal error handling connection");
+                }
+        }
 
 	/* NOTE: even if dns lookups are *off*, we still need to display this.
 	 * BOPM and other stuff requires it.
