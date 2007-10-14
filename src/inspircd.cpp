@@ -397,6 +397,14 @@ InspIRCd::InspIRCd(int argc, char** argv)
 
 	ChangeWindowsSpecificPointers(this);
 #endif
+	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
+
+	if (!this->OpenLog(argv, argc))
+	{
+		printf("ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
+		Exit(EXIT_STATUS_LOG);
+	}
+
 	if (!ServerConfig::FileExists(this->ConfigFileName))
 	{
 		printf("ERROR: Cannot open config file: %s\nExiting...\n", this->ConfigFileName);
@@ -413,14 +421,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	Config->nofork = do_nofork;
 	Config->forcedebug = do_debug;
 	Config->writelog = !do_nolog;
-
-	strlcpy(Config->MyExecutable,argv[0],MAXBUF);
-
-	if (!this->OpenLog(argv, argc))
-	{
-		printf("ERROR: Could not open logfile %s: %s\n\n", Config->logpath.c_str(), strerror(errno));
-		Exit(EXIT_STATUS_LOG);
-	}
 
 	this->Modules = new ModuleManager(this);
 	this->stats = new serverstats();
