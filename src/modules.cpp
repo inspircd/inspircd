@@ -599,7 +599,7 @@ void ModuleManager::LoadAll()
 		}
 	}
 	printf_c("\nA total of \033[1;32m%d\033[0m module%s been loaded.\n", (this->GetCount()+1), (this->GetCount()+1) == 1 ? " has" : "s have");
-	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount());
+	Instance->Log(DEFAULT,"Total loaded modules: %d", this->GetCount()+1);
 }
 
 long ModuleManager::PriorityAfter(const std::string &modulename)
