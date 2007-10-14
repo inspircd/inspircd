@@ -59,9 +59,10 @@ class CoreExport CommandParser : public classbase
 	/** Finds the init_command symbol in a .so file
 	 * @param v A function pointer to be initialized
 	 * @param h A valid shared object handle
+	 * @param name The filename being loaded, used for error reporting
 	 * @return True if the symbol could be found
 	 */
-	bool FindSym(void** v, void* h);
+	bool FindSym(void** v, void* h, const std::string &name);
 
 	/** A list of core-implemented modes and their shared object handles
 	 */

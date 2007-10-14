@@ -458,13 +458,13 @@ CommandParser::CommandParser(InspIRCd* Instance) : ServerInstance(Instance)
 	para.resize(128);
 }
 
-bool CommandParser::FindSym(void** v, void* h)
+bool CommandParser::FindSym(void** v, void* h, const std::string &name)
 {
 	*v = dlsym(h, "init_command");
 	const char* err = dlerror();
 	if (err && !(*v))
 	{
-		ServerInstance->Log(SPARSE, "Error loading core command: %s\n", err);
+		ServerInstance->Log(SPARSE, "Error loading core command %s: %s\n", name, err);
 		return false;
 	}
 	return true;
@@ -546,11 +546,11 @@ const char* CommandParser::LoadCommand(const char* name)
 	if (!h)
 	{
 		const char* n = dlerror();
-		ServerInstance->Log(SPARSE, "Error loading core command: %s", n);
+		ServerInstance->Log(SPARSE, "Error loading core command %s: %s", name, n);
 		return n;
 	}
 
-	if (this->FindSym((void **)&cmd_factory_func, h))
+	if (this->FindSym((void **)&cmd_factory_func, h, name))
 	{
 		command_t* newcommand = cmd_factory_func(ServerInstance);
 		this->CreateCommand(newcommand, h);
