@@ -548,3 +548,48 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 
 	this->SendWhoisLine(user, dest, numeric, std::string(textbuffer));
 }
+
+/** Refactored by Brain, Jun 2007. Much faster with some clever O(1) array
+ * lookups and pointer maths.
+ */
+long InspIRCd::Duration(const std::string &str)
+{
+	unsigned char multiplier = 0;
+	long total = 0;
+	long times = 1;
+	long subtotal = 0;
+
+	/* Iterate each item in the string, looking for number or multiplier */
+	for (std::string::const_reverse_iterator i = str.rbegin(); i != str.rend(); ++i)
+	{
+		/* Found a number, queue it onto the current number */
+		if ((*i >= '0') && (*i <= '9'))
+		{
+			subtotal = subtotal + ((*i - '0') * times);
+			times = times * 10;
+		}
+		else
+		{
+			/* Found something thats not a number, find out how much
+			 * it multiplies the built up number by, multiply the total
+			 * and reset the built up number.
+			 */
+			if (subtotal)
+				total += subtotal * duration_multi[multiplier];
+
+			/* Next subtotal please */
+			subtotal = 0;
+			multiplier = *i;
+			times = 1;
+		}
+	}
+	if (multiplier)
+	{
+		total += subtotal * duration_multi[multiplier];
+		subtotal = 0;
+	}
+	/* Any trailing values built up are treated as raw seconds */
+	return total + subtotal;
+}
+
+
