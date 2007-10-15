@@ -455,6 +455,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\user_resolver.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\userprocess.cpp"
 				>
 			</File>
