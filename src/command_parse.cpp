@@ -244,72 +244,80 @@ void CommandParser::ProcessCommand(User *user, std::string &cmd)
 		return;
 	}
 
+	if (!user)
+	{
+		/*
+		 * before, we went and found the command even with no user.. seems nonsensical.
+		 * I'm not entirely sure when we would be passed NULL, but let's handle it
+		 * anyway, by dropping it like a hot potato. -- w00t
+		 */
+		return;
+	}
+
+	/* find the command, check it exists */
 	Commandable::iterator cm = cmdlist.find(command);
 	
-	if (cm != cmdlist.end())
-	{
-		if (user)
-		{
-			/* activity resets the ping pending timer */
-			user->nping = ServerInstance->Time() + user->pingmax;
-			if (cm->second->flags_needed)
-			{
-				if (!user->IsModeSet(cm->second->flags_needed))
-				{
-					user->WriteServ("481 %s :Permission Denied - You do not have the required operator privileges",user->nick);
-					return;
-				}
-				if (!user->HasPermission(command))
-				{
-					user->WriteServ("481 %s :Permission Denied - Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
-					return;
-				}
-			}
-			if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
-			{
-				/* command is disabled! */
-				user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
-				ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
-						command.c_str(), user->nick, user->ident, user->host);
-				return;
-			}
-			if (items < cm->second->min_params)
-			{
-				user->WriteServ("461 %s %s :Not enough parameters.", user->nick, command.c_str());
-				if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-					user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
-				return;
-			}
-			if ((user->registered == REG_ALL) || (cm->second->WorksBeforeReg()))
-			{
-				/* ikky /stats counters */
-				cm->second->use_count++;
-				cm->second->total_bytes += cmd.length();
-
-				int MOD_RESULT = 0;
-				FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true,cmd));
-				if (MOD_RESULT == 1)
-					return;
-
-				/*
-				 * WARNING: be careful, the user may be deleted soon
-				 */
-				CmdResult result = cm->second->Handle(command_p,items,user);
-
-				FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
-				return;
-			}
-			else
-			{
-				user->WriteServ("451 %s :You have not registered",command.c_str());
-				return;
-			}
-		}
-	}
-	else if (user)
+	if (cm == cmdlist.end())
 	{
 		ServerInstance->stats->statsUnknown++;
 		user->WriteServ("421 %s %s :Unknown command",user->nick,command.c_str());
+		return;
+	}
+
+	/* activity resets the ping pending timer */
+	user->nping = ServerInstance->Time() + user->pingmax;
+	if (cm->second->flags_needed)
+	{
+		if (!user->IsModeSet(cm->second->flags_needed))
+		{
+			user->WriteServ("481 %s :Permission Denied - You do not have the required operator privileges",user->nick);
+			return;
+		}
+		if (!user->HasPermission(command))
+		{
+			user->WriteServ("481 %s :Permission Denied - Oper type %s does not have access to command %s",user->nick,user->oper,command.c_str());
+			return;
+		}
+	}
+	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
+	{
+		/* command is disabled! */
+		user->WriteServ("421 %s %s :This command has been disabled.",user->nick,command.c_str());
+		ServerInstance->SNO->WriteToSnoMask('d', "%s denied for %s (%s@%s)",
+				command.c_str(), user->nick, user->ident, user->host);
+		return;
+	}
+	if (items < cm->second->min_params)
+	{
+		user->WriteServ("461 %s %s :Not enough parameters.", user->nick, command.c_str());
+		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
+			user->WriteServ("304 %s :SYNTAX %s %s", user->nick, cm->second->command.c_str(), cm->second->syntax.c_str());
+		return;
+	}
+	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
+	{
+		user->WriteServ("451 %s :You have not registered",command.c_str());
+		return;
+	}
+	else
+	{
+		/* passed all checks.. first, do the (ugly) stats counters. */
+		cm->second->use_count++;
+		cm->second->total_bytes += cmd.length();
+
+		/* module calls too */
+		int MOD_RESULT = 0;
+		FOREACH_RESULT(I_OnPreCommand,OnPreCommand(command,command_p,items,user,true,cmd));
+		if (MOD_RESULT == 1)
+			return;
+
+		/*
+		 * WARNING: be careful, the user may be deleted soon
+		 */
+		CmdResult result = cm->second->Handle(command_p,items,user);
+
+		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, items, user, result,cmd));
+		return;
 	}
 }
 
