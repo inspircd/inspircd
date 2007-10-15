@@ -150,7 +150,7 @@ class ModuleZLib : public Module
 	ModuleZLib(InspIRCd* Me)
 		: Module::Module(Me)
 	{
-		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		total_out_compressed = total_in_compressed = 0;
 		total_out_uncompressed = total_out_uncompressed = 0;
@@ -158,7 +158,7 @@ class ModuleZLib : public Module
 
 	virtual ~ModuleZLib()
 	{
-		ServerInstance->Modules->UnpublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->UnpublishInterface("BufferedSocketHook", this);
 	}
 
 	virtual Version GetVersion()
@@ -172,7 +172,7 @@ class ModuleZLib : public Module
 		List[I_OnStats] = List[I_OnRequest] = 1;
 	}
 
-	/* Handle InspSocketHook API requests */
+	/* Handle BufferedSocketHook API requests */
 	virtual char* OnRequest(Request* request)
 	{
 		ISHRequest* ISR = (ISHRequest*)request;
@@ -187,7 +187,7 @@ class ModuleZLib : public Module
 			char* ret = "OK";
 			try
 			{
-				ret = ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 			}
 			catch (ModuleException& e)
 			{
@@ -198,7 +198,7 @@ class ModuleZLib : public Module
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
 			/* Detatch from an inspsocket */
-			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{

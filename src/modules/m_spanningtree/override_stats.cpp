@@ -88,7 +88,7 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 
 			std::string transport("plaintext");
 			if (Utils->Bindings[i]->GetHook())
-				transport = InspSocketNameRequest(this, Utils->Bindings[i]->GetHook()).Send();
+				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->GetHook()).Send();
 
 			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->port)+
 				" (server, " + transport + ")");

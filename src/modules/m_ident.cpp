@@ -18,14 +18,14 @@
 
 /* $ModDesc: Provides support for RFC1413 ident lookups */
 
-class IdentRequestSocket : public InspSocket
+class IdentRequestSocket : public BufferedSocket
 {
  private:
 	User *user;
 	int original_fd;
  public:
 	IdentRequestSocket(InspIRCd *Server, User *user, int timeout, const std::string &bindip)
-		: InspSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
+		: BufferedSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
 	{
 		original_fd = user->GetFd();
 		Instance->Log(DEBUG, "Ident request against user with fd %d", original_fd);
@@ -95,7 +95,7 @@ class IdentRequestSocket : public InspSocket
 		Instance->next_call = Instance->Time();
 	}
 	
-	virtual void OnError(InspSocketError e)
+	virtual void OnError(BufferedSocketError e)
 	{
 		if (Instance->SE->GetRef(original_fd) == user)
 		{

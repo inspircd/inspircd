@@ -29,7 +29,7 @@
 
 /* SQLConn rewritten by peavey to
  * use EventHandler instead of
- * InspSocket. This is much neater
+ * BufferedSocket. This is much neater
  * and gives total control of destroy
  * and delete of resources.
  */

@@ -624,7 +624,7 @@ void* DispatcherThread(void* arg);
 
 /** Used by m_mysql to notify one thread when the other has a result
  */
-class Notifier : public InspSocket
+class Notifier : public BufferedSocket
 {
 	insp_sockaddr sock_us;
 	socklen_t uslen;
@@ -634,9 +634,9 @@ class Notifier : public InspSocket
 
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	Notifier(InspIRCd* SI) : InspSocket(SI, "::1", 0, true, 3000)
+	Notifier(InspIRCd* SI) : BufferedSocket(SI, "::1", 0, true, 3000)
 #else
-	Notifier(InspIRCd* SI) : InspSocket(SI, "127.0.0.1", 0, true, 3000)
+	Notifier(InspIRCd* SI) : BufferedSocket(SI, "127.0.0.1", 0, true, 3000)
 #endif
 	{
 		uslen = sizeof(sock_us);
@@ -646,7 +646,7 @@ class Notifier : public InspSocket
 		}
 	}
 
-	Notifier(InspIRCd* SI, int newfd, char* ip) : InspSocket(SI, newfd, ip)
+	Notifier(InspIRCd* SI, int newfd, char* ip) : BufferedSocket(SI, newfd, ip)
 	{
 	}
 

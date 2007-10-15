@@ -1297,7 +1297,7 @@ class CoreExport Module : public Extensible
 	 */
 	virtual void OnRawSocketClose(int fd);
 
-	/** Called immediately upon connection of an outbound InspSocket which has been hooked
+	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
 	 * by a module.
 	 * @param fd The file descriptor of the socket immediately after connect()
 	 */

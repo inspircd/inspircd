@@ -181,7 +181,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 
 	this->TreeRoot = new TreeServer(this, ServerInstance, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 
-	modulelist* ml = ServerInstance->Modules->FindInterface("InspSocketHook");
+	modulelist* ml = ServerInstance->Modules->FindInterface("BufferedSocketHook");
 
 	/* Did we find any modules? */
 	if (ml)
@@ -190,9 +190,9 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 		for (modulelist::iterator m = ml->begin(); m != ml->end(); m++)
 		{
 			/* Make a request to it for its name, its implementing
-			 * InspSocketHook so we know its safe to do this
+			 * BufferedSocketHook so we know its safe to do this
 			 */
-			std::string name = InspSocketNameRequest((Module*)Creator, *m).Send();
+			std::string name = BufferedSocketNameRequest((Module*)Creator, *m).Send();
 			/* Build a map of them */
 			hooks[name.c_str()] = *m;
 			hooknames.push_back(name);
@@ -220,7 +220,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		}
 	}
 	delete TreeRoot;
-	ServerInstance->InspSocketCull();
+	ServerInstance->BufferedSocketCull();
 }
 
 void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)

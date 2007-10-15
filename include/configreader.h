@@ -34,7 +34,7 @@
 /* Required forward definitions */
 class ServerConfig;
 class InspIRCd;
-class InspSocket;
+class BufferedSocket;
 
 /** Types of data in the core config
  */
@@ -515,7 +515,7 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	std::map<int,Module*> IOHookModule;
 
-	std::map<InspSocket*, Module*> SocketIOHookModule;
+	std::map<BufferedSocket*, Module*> SocketIOHookModule;
 
 	/** The 005 tokens of this server (ISUPPORT)
 	 * populated/repopulated upon loading or unloading
@@ -734,25 +734,25 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool DelIOHook(int port);
 	
-	/** Get a pointer to the module which has hooked the given InspSocket class.
+	/** Get a pointer to the module which has hooked the given BufferedSocket class.
 	 * @parameter port Port number
 	 * @return Returns a pointer to the hooking module, or NULL
 	 */
-	Module* GetIOHook(InspSocket* is);
+	Module* GetIOHook(BufferedSocket* is);
 
-	/** Hook a module to an InspSocket class, so that it can receive notifications
+	/** Hook a module to an BufferedSocket class, so that it can receive notifications
 	 * of low-level socket activity.
 	 * @param iomod The module to hook to the socket
-	 * @param is The InspSocket to attach to
+	 * @param is The BufferedSocket to attach to
 	 * @return True if the hook was successful.
 	 */
-	bool AddIOHook(Module* iomod, InspSocket* is);
+	bool AddIOHook(Module* iomod, BufferedSocket* is);
 
-	/** Delete a module hook from an InspSocket.
-	 * @param is The InspSocket to detatch from.
+	/** Delete a module hook from an BufferedSocket.
+	 * @param is The BufferedSocket to detatch from.
 	 * @return True if the unhook was successful
 	 */
-	bool DelIOHook(InspSocket* is);
+	bool DelIOHook(BufferedSocket* is);
 
 	/** Returns the fully qualified path to the inspircd directory
 	 * @return The full program directory

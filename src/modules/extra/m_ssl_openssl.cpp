@@ -130,7 +130,7 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL(InspIRCd* Me)
 	: Module(Me), PublicInstance(Me)
 	{
-		ServerInstance->Modules->PublishInterface("InspSocketHook", this);
+		ServerInstance->Modules->PublishInterface("BufferedSocketHook", this);
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
 		inbufsize = ServerInstance->Config->NetBufferSize;
@@ -356,7 +356,7 @@ class ModuleSSLOpenSSL : public Module
 			char* ret = "OK";
 			try
 			{
-				ret = ServerInstance->Config->AddIOHook((Module*)this, (InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+				ret = ServerInstance->Config->AddIOHook((Module*)this, (BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 			}
 			catch (ModuleException &e)
 			{
@@ -367,7 +367,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (strcmp("IS_UNHOOK", request->GetId()) == 0)
 		{
-			return ServerInstance->Config->DelIOHook((InspSocket*)ISR->Sock) ? (char*)"OK" : NULL;
+			return ServerInstance->Config->DelIOHook((BufferedSocket*)ISR->Sock) ? (char*)"OK" : NULL;
 		}
 		else if (strcmp("IS_HSDONE", request->GetId()) == 0)
 		{
@@ -382,7 +382,7 @@ class ModuleSSLOpenSSL : public Module
 			issl_session* session = &sessions[ISR->Sock->GetFd()];
 			if (session->sess)
 			{
-				VerifyCertificate(session, (InspSocket*)ISR->Sock);
+				VerifyCertificate(session, (BufferedSocket*)ISR->Sock);
 				return "OK";
 			}
 		}

@@ -33,30 +33,30 @@
 
 
 /** Because most of the I/O gubbins are encapsulated within
- * InspSocket, we just call the superclass constructor for
+ * BufferedSocket, we just call the superclass constructor for
  * most of the action, and append a few of our own values
  * to it.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, Module* HookMod)
-	: InspSocket(SI, host, port, listening, maxtime), Utils(Util), Hook(HookMod)
+	: BufferedSocket(SI, host, port, listening, maxtime), Utils(Util), Hook(HookMod)
 {
 	myhost = host;
 	this->LinkState = LISTENER;
 	theirchallenge.clear();
 	ourchallenge.clear();
 	if (listening && Hook)
-		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
 
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Module* HookMod)
-	: InspSocket(SI, host, port, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
+	: BufferedSocket(SI, host, port, listening, maxtime, bindto), Utils(Util), Hook(HookMod)
 {
 	myhost = ServerName;
 	theirchallenge.clear();
 	ourchallenge.clear();
 	this->LinkState = CONNECTING;
 	if (Hook)
-		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 }
 
 /** When a listening socket gives us a new file descriptor,
@@ -64,7 +64,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string ho
  * connection. This constructor is used for this purpose.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, char* ip, Module* HookMod)
-	: InspSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
+	: BufferedSocket(SI, newfd, ip), Utils(Util), Hook(HookMod)
 {
 	this->LinkState = WAIT_AUTH_1;
 	theirchallenge.clear();
@@ -74,7 +74,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, int newfd, cha
 	 * socket, and set a timer waiting for handshake before we send CAPAB etc.
 	 */
 	if (Hook)
-		InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+		BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
 	Instance->Timers->AddTimer(new HandshakeTimer(Instance, this, &(Utils->LinkBlocks[0]), this->Utils, 1));
 }
@@ -92,7 +92,7 @@ Module* TreeSocket::GetHook()
 TreeSocket::~TreeSocket()
 {
 	if (Hook)
-		InspSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
+		BufferedSocketUnhookRequest(this, (Module*)Utils->Creator, Hook).Send();
 
 	Utils->DelBurstingServer(this);
 }
@@ -179,7 +179,7 @@ bool TreeSocket::OnConnected()
 				Utils->Creator->RemoteMessage(NULL,"Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()));
 				if (Hook)
 				{
-					InspSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
+					BufferedSocketHookRequest(this, (Module*)Utils->Creator, Hook).Send();
 					Utils->Creator->RemoteMessage(NULL,"Connection to \2%s\2[%s] using transport \2%s\2", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->GetIP().c_str()),
 							x->Hook.c_str());
 				}
@@ -205,7 +205,7 @@ bool TreeSocket::OnConnected()
 	return true;
 }
 
-void TreeSocket::OnError(InspSocketError e)
+void TreeSocket::OnError(BufferedSocketError e)
 {
 	Link* MyLink;
 
@@ -1358,7 +1358,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 /** This function is called when we receive data from a remote
  * server. We buffer the data in a std::string (it doesnt stay
- * there for long), reading using InspSocket::Read() which can
+ * there for long), reading using BufferedSocket::Read() which can
  * read up to 16 kilobytes in one operation.
  *
  * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES

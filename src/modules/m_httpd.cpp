@@ -56,7 +56,7 @@ class HttpServerTimeout : public Timer
 
 /** A socket used for HTTP transport
  */
-class HttpServerSocket : public InspSocket
+class HttpServerSocket : public BufferedSocket
 {
 	FileReader* index;
 	HttpState InternalState;
@@ -76,13 +76,13 @@ class HttpServerSocket : public InspSocket
 	
  public:
 
-	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : InspSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
+	HttpServerSocket(InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, FileReader* index_page) : BufferedSocket(SI, host, port, listening, maxtime), index(index_page), postsize(0)
 	{
 		InternalState = HTTP_LISTEN;
 		Timeout = NULL;
 	}
 
-	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : InspSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false), DataSinceLastTick(false)
+	HttpServerSocket(InspIRCd* SI, int newfd, char* ip, FileReader* ind) : BufferedSocket(SI, newfd, ip), index(ind), postsize(0), keepalive(false), DataSinceLastTick(false)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 		Timeout = new HttpServerTimeout(this, Instance->SE);
@@ -498,7 +498,7 @@ class ModuleHttpServer : public Module
 			httpsocks[i]->Close();
 			delete httpsocks[i]->GetIndex();
 		}
-		ServerInstance->InspSocketCull();
+		ServerInstance->BufferedSocketCull();
 	}
 
 	virtual Version GetVersion()

@@ -43,9 +43,9 @@ void HandshakeTimer::Tick(time_t TIME)
 		}
 		else
 		{
-			if (sock->GetHook() && InspSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
+			if (sock->GetHook() && BufferedSocketHSCompleteRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send())
 			{
-				InspSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
+				BufferedSocketAttachCertRequest(sock, (Module*)Utils->Creator, sock->GetHook()).Send();
 				sock->SendCapabilities();
 			}
 			else

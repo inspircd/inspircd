@@ -33,7 +33,7 @@ typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<string>, irc::St
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 
-/** A group of modules that implement InspSocketHook
+/** A group of modules that implement BufferedSocketHook
  * that we can use to hook our server to server connections.
  */
 typedef std::map<irc::string, Module*> hookmodules;

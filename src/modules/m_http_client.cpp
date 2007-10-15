@@ -24,7 +24,7 @@ class URL
 	int port;
 };
 
-class HTTPSocket : public InspSocket
+class HTTPSocket : public BufferedSocket
 {
  private:
 	InspIRCd *Server;
@@ -111,7 +111,7 @@ class ModuleHTTPClient : public Module
 };
 
 HTTPSocket::HTTPSocket(InspIRCd *Instance, ModuleHTTPClient *Mod)
-		: InspSocket(Instance), Server(Instance), Mod(Mod), status(HTTP_CLOSED)
+		: BufferedSocket(Instance), Server(Instance), Mod(Mod), status(HTTP_CLOSED)
 {
 	this->ClosePending = false;
 	this->port = 80;

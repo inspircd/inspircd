@@ -167,62 +167,62 @@ class ssl_cert
 class ISHRequest : public Request
 {
  public:
-	InspSocket* Sock;
+	BufferedSocket* Sock;
 
-	ISHRequest(Module* Me, Module* Target, const char* rtype, InspSocket* sock) : Request(Me, Target, rtype), Sock(sock)
+	ISHRequest(Module* Me, Module* Target, const char* rtype, BufferedSocket* sock) : Request(Me, Target, rtype), Sock(sock)
 	{
 	}
 };
 
-/** Used to represent a request to attach a cert to an InspSocket
+/** Used to represent a request to attach a cert to an BufferedSocket
  */
-class InspSocketAttachCertRequest : public ISHRequest
+class BufferedSocketAttachCertRequest : public ISHRequest
 {
  public:
 	/** Initialize the request as an attach cert message */
-	InspSocketAttachCertRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_ATTACH", is)
+	BufferedSocketAttachCertRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_ATTACH", is)
 	{
 	}
 };
 
-/** Used to check if a handshake is complete on an InspSocket yet
+/** Used to check if a handshake is complete on an BufferedSocket yet
  */
-class InspSocketHSCompleteRequest : public ISHRequest
+class BufferedSocketHSCompleteRequest : public ISHRequest
 {
  public:
 	/** Initialize the request as a 'handshake complete?' message */
-	InspSocketHSCompleteRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HSDONE", is)
+	BufferedSocketHSCompleteRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HSDONE", is)
 	{
 	}
 };
 
-/** Used to hook a transport provider to an InspSocket
+/** Used to hook a transport provider to an BufferedSocket
  */
-class InspSocketHookRequest : public ISHRequest
+class BufferedSocketHookRequest : public ISHRequest
 {
  public:
 	/** Initialize request as a hook message */
-	InspSocketHookRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HOOK", is)
+	BufferedSocketHookRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_HOOK", is)
 	{
 	}
 };
 
-/** Used to unhook a transport provider from an InspSocket
+/** Used to unhook a transport provider from an BufferedSocket
  */
-class InspSocketUnhookRequest : public ISHRequest
+class BufferedSocketUnhookRequest : public ISHRequest
 {
  public:
 	/** Initialize request as an unhook message */
-	InspSocketUnhookRequest(InspSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_UNHOOK", is)
+	BufferedSocketUnhookRequest(BufferedSocket* is, Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_UNHOOK", is)
 	{
 	}
 };
 
-class InspSocketNameRequest : public ISHRequest
+class BufferedSocketNameRequest : public ISHRequest
 {
  public:
 	/** Initialize request as a get name message */
-	InspSocketNameRequest(Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_NAME", NULL)
+	BufferedSocketNameRequest(Module* Me, Module* Target) : ISHRequest(Me, Target, "IS_NAME", NULL)
 	{
 	}
 };

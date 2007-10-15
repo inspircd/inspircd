@@ -29,7 +29,7 @@
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h */
 
 /** This class is used to resolve server hostnames during /connect and autoconnect.
- * As of 1.1, the resolver system is seperated out from InspSocket, so we must do this
+ * As of 1.1, the resolver system is seperated out from BufferedSocket, so we must do this
  * resolver step first ourselves if we need it. This is totally nonblocking, and will
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
@@ -45,7 +45,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 		return;
 
 	/* Initiate the connection, now that we have an IP to use.
-	 * Passing a hostname directly to InspSocket causes it to
+	 * Passing a hostname directly to BufferedSocket causes it to
 	 * just bail and set its FD to -1.
 	 */
 	TreeServer* CheckDupe = Utils->FindServer(MyLink.Name.c_str());

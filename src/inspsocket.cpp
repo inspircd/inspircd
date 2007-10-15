@@ -18,12 +18,12 @@
 
 using irc::sockets::OpenTCPSocket;
 
-bool InspSocket::Readable()
+bool BufferedSocket::Readable()
 {
 	return ((this->state != I_CONNECTING) && (this->WaitingForWriteEvent == false));
 }
 
-InspSocket::InspSocket(InspIRCd* SI)
+BufferedSocket::BufferedSocket(InspIRCd* SI)
 {
 	this->Timeout = NULL;
 	this->state = I_DISCONNECTED;
@@ -33,7 +33,7 @@ InspSocket::InspSocket(InspIRCd* SI)
 	this->IsIOHooked = false;
 }
 
-InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
+BufferedSocket::BufferedSocket(InspIRCd* SI, int newfd, const char* ip)
 {
 	this->Timeout = NULL;
 	this->fd = newfd;
@@ -46,7 +46,7 @@ InspSocket::InspSocket(InspIRCd* SI, int newfd, const char* ip)
 		this->Instance->SE->AddFd(this);
 }
 
-InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime, const std::string &connectbindip)
+BufferedSocket::BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool listening, unsigned long maxtime, const std::string &connectbindip)
 {
 	this->cbindip = connectbindip;
 	this->fd = -1;
@@ -114,7 +114,7 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 		}
 		if (!ipvalid)
 		{
-			this->Instance->Log(DEBUG,"BUG: Hostname passed to InspSocket, rather than an IP address!");
+			this->Instance->Log(DEBUG,"BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 			this->OnError(I_ERR_CONNECT);
 			this->Close();
 			this->fd = -1;
@@ -137,13 +137,13 @@ InspSocket::InspSocket(InspIRCd* SI, const std::string &ipaddr, int aport, bool 
 	}
 }
 
-void InspSocket::WantWrite()
+void BufferedSocket::WantWrite()
 {
 	this->Instance->SE->WantWrite(this);
 	this->WaitingForWriteEvent = true;
 }
 
-void InspSocket::SetQueues(int nfd)
+void BufferedSocket::SetQueues(int nfd)
 {
 	// attempt to increase socket sendq and recvq as high as its possible
 	int sendbuf = 32768;
@@ -160,7 +160,7 @@ void InspSocket::SetQueues(int nfd)
  * This is easier to configure when you have a lot of links and a lot
  * of servers to configure.
  */
-bool InspSocket::BindAddr(const std::string &ip)
+bool BufferedSocket::BindAddr(const std::string &ip)
 {
 	ConfigReader Conf(this->Instance);
 	socklen_t size = sizeof(sockaddr_in);
@@ -234,7 +234,7 @@ bool InspSocket::BindAddr(const std::string &ip)
 	return true;
 }
 
-bool InspSocket::DoConnect()
+bool BufferedSocket::DoConnect()
 {
 	/* The [2] is required because we may write a sockaddr_in6 here, and sockaddr_in6 is larger than sockaddr, where sockaddr_in4 is not. */
 	sockaddr* addr = new sockaddr[2];
@@ -342,7 +342,7 @@ bool InspSocket::DoConnect()
 }
 
 
-void InspSocket::Close()
+void BufferedSocket::Close()
 {
 	/* Save this, so we dont lose it,
 	 * otherise on failure, error messages
@@ -372,12 +372,12 @@ void InspSocket::Close()
 	errno = save;
 }
 
-std::string InspSocket::GetIP()
+std::string BufferedSocket::GetIP()
 {
 	return this->IP;
 }
 
-char* InspSocket::Read()
+char* BufferedSocket::Read()
 {
 	if (!Instance->SE->BoundsCheckFd(this))
 		return NULL;
@@ -426,7 +426,7 @@ char* InspSocket::Read()
 	}
 }
 
-void InspSocket::MarkAsClosed()
+void BufferedSocket::MarkAsClosed()
 {
 }
 
@@ -434,7 +434,7 @@ void InspSocket::MarkAsClosed()
 // It will either write all of the data, or an undefined amount.
 // If an undefined amount is written the connection has failed
 // and should be aborted.
-int InspSocket::Write(const std::string &data)
+int BufferedSocket::Write(const std::string &data)
 {
 	/* Try and append the data to the back of the queue, and send it on its way
 	 */
@@ -443,7 +443,7 @@ int InspSocket::Write(const std::string &data)
 	return (!this->FlushWriteBuffer());
 }
 
-bool InspSocket::FlushWriteBuffer()
+bool BufferedSocket::FlushWriteBuffer()
 {
 	errno = 0;
 	if ((this->fd > -1) && (this->state == I_CONNECTED))
@@ -554,7 +554,7 @@ void SocketTimeout::Tick(time_t now)
 	this->sock->Timeout = NULL;
 }
 
-bool InspSocket::Poll()
+bool BufferedSocket::Poll()
 {
 	int incoming = -1;
 
@@ -648,31 +648,31 @@ bool InspSocket::Poll()
 	return true;
 }
 
-void InspSocket::SetState(InspSocketState s)
+void BufferedSocket::SetState(BufferedSocketState s)
 {
 	this->state = s;
 }
 
-InspSocketState InspSocket::GetState()
+BufferedSocketState BufferedSocket::GetState()
 {
 	return this->state;
 }
 
-int InspSocket::GetFd()
+int BufferedSocket::GetFd()
 {
 	return this->fd;
 }
 
-bool InspSocket::OnConnected() { return true; }
-void InspSocket::OnError(InspSocketError e) { return; }
-int InspSocket::OnDisconnect() { return 0; }
-int InspSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
-bool InspSocket::OnDataReady() { return true; }
-bool InspSocket::OnWriteReady() { return true; }
-void InspSocket::OnTimeout() { return; }
-void InspSocket::OnClose() { return; }
+bool BufferedSocket::OnConnected() { return true; }
+void BufferedSocket::OnError(BufferedSocketError e) { return; }
+int BufferedSocket::OnDisconnect() { return 0; }
+int BufferedSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
+bool BufferedSocket::OnDataReady() { return true; }
+bool BufferedSocket::OnWriteReady() { return true; }
+void BufferedSocket::OnTimeout() { return; }
+void BufferedSocket::OnClose() { return; }
 
-InspSocket::~InspSocket()
+BufferedSocket::~BufferedSocket()
 {
 	this->Close();
 	if (Timeout)
@@ -682,7 +682,7 @@ InspSocket::~InspSocket()
 	}
 }
 
-void InspSocket::HandleEvent(EventType et, int errornum)
+void BufferedSocket::HandleEvent(EventType et, int errornum)
 {
 	switch (et)
 	{
@@ -732,7 +732,7 @@ void InspSocket::HandleEvent(EventType et, int errornum)
 				/* This might look wrong as if we should be actually calling
 				 * with EVENT_WRITE, but trust me it is correct. There are some
 				 * writeability-state things in the read code, because of how
-				 * InspSocket used to work regarding write buffering in previous
+				 * BufferedSocket used to work regarding write buffering in previous
 				 * versions of InspIRCd. - Brain
 				 */
 				this->HandleEvent(EVENT_READ);

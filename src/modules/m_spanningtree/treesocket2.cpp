@@ -1015,7 +1015,7 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 			this->Instance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] ("+description+")");
 			if (this->Hook)
 			{
-				std::string name = InspSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
+				std::string name = BufferedSocketNameRequest((Module*)Utils->Creator, this->Hook).Send();
 				this->Instance->SNO->WriteToSnoMask('l',"Connection from \2"+sname+"\2["+(x->HiddenFromStats ? "<hidden>" : this->GetIP())+"] using transport \2"+name+"\2");
 			}
 

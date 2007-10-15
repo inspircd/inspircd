@@ -62,7 +62,7 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
 /** Every SERVER connection inbound or outbound is represented by
  * an object of type TreeSocket.
- * TreeSockets, being inherited from InspSocket, can be tied into
+ * TreeSockets, being inherited from BufferedSocket, can be tied into
  * the core socket engine, and we cn therefore receive activity events
  * for them, just like activex objects on speed. (yes really, that
  * is a technical term!) Each of these which relates to a locally
@@ -71,7 +71,7 @@ enum ServerState { LISTENER, CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
  * maintain a list of servers, some of which are directly connected,
  * some of which are not.
  */
-class TreeSocket : public InspSocket
+class TreeSocket : public BufferedSocket
 {
 	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string myhost;			/* Canonical hostname */
@@ -96,14 +96,14 @@ class TreeSocket : public InspSocket
  public:
 
 	/** Because most of the I/O gubbins are encapsulated within
-	 * InspSocket, we just call the superclass constructor for
+	 * BufferedSocket, we just call the superclass constructor for
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
 	TreeSocket(SpanningTreeUtilities* Util, InspIRCd* SI, std::string host, int port, bool listening, unsigned long maxtime, Module* HookMod = NULL);
 
 	/** Because most of the I/O gubbins are encapsulated within
-	 * InspSocket, we just call the superclass constructor for
+	 * BufferedSocket, we just call the superclass constructor for
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
@@ -166,7 +166,7 @@ class TreeSocket : public InspSocket
 
 	/** Handle socket error event
 	 */
-	virtual void OnError(InspSocketError e);
+	virtual void OnError(BufferedSocketError e);
 
 	/** Sends an error to the remote server, and displays it locally to show
 	 * that it was sent.
@@ -257,7 +257,7 @@ class TreeSocket : public InspSocket
 
 	/** This function is called when we receive data from a remote
 	 * server. We buffer the data in a std::string (it doesnt stay
-	 * there for long), reading using InspSocket::Read() which can
+	 * there for long), reading using BufferedSocket::Read() which can
 	 * read up to 16 kilobytes in one operation.
 	 *
 	 * IF THIS FUNCTION RETURNS FALSE, THE CORE CLOSES AND DELETES

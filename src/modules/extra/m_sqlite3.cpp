@@ -36,7 +36,7 @@ typedef std::deque<SQLite3Result*> ResultQueue;
 ResultNotifier* resultnotify = NULL;
 
 
-class ResultNotifier : public InspSocket
+class ResultNotifier : public BufferedSocket
 {
 	Module* mod;
 	insp_sockaddr sock_us;
@@ -45,9 +45,9 @@ class ResultNotifier : public InspSocket
  public:
 	/* Create a socket on a random port. Let the tcp stack allocate us an available port */
 #ifdef IPV6
-	ResultNotifier(InspIRCd* SI, Module* m) : InspSocket(SI, "::1", 0, true, 3000), mod(m)
+	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "::1", 0, true, 3000), mod(m)
 #else
-	ResultNotifier(InspIRCd* SI, Module* m) : InspSocket(SI, "127.0.0.1", 0, true, 3000), mod(m)
+	ResultNotifier(InspIRCd* SI, Module* m) : BufferedSocket(SI, "127.0.0.1", 0, true, 3000), mod(m)
 #endif
 	{
 		uslen = sizeof(sock_us);
@@ -57,7 +57,7 @@ class ResultNotifier : public InspSocket
 		}
 	}
 
-	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : InspSocket(SI, newfd, ip), mod(m)
+	ResultNotifier(InspIRCd* SI, Module* m, int newfd, char* ip) : BufferedSocket(SI, newfd, ip), mod(m)
 	{
 	}
 

@@ -26,7 +26,7 @@
 /**
  * States which a socket may be in
  */
-enum InspSocketState
+enum BufferedSocketState
 {
 	/** Socket disconnected */
 	I_DISCONNECTED,
@@ -43,7 +43,7 @@ enum InspSocketState
 /**
  * Error types which a socket may exhibit
  */
-enum InspSocketError
+enum BufferedSocketError
 {
 	/** Socket connect timed out */
 	I_ERR_TIMEOUT,
@@ -62,7 +62,7 @@ enum InspSocketError
 };
 
 /* Required forward declarations */
-class InspSocket;
+class BufferedSocket;
 class InspIRCd;
 
 using irc::sockets::insp_sockaddr;
@@ -75,9 +75,9 @@ using irc::sockets::insp_aton;
 class CoreExport SocketTimeout : public Timer
 {
  private:
-	/** InspSocket the class is attached to
+	/** BufferedSocket the class is attached to
 	 */
-	InspSocket* sock;
+	BufferedSocket* sock;
 	/** Server instance creating the timeout class
 	 */
 	InspIRCd* ServerInstance;
@@ -86,30 +86,30 @@ class CoreExport SocketTimeout : public Timer
 	int sfd;
  public:
 	/** Create a socket timeout class
-	 * @param fd File descriptor of InspSocket
+	 * @param fd File descriptor of BufferedSocket
 	 * @pram Instance server instance to attach to
-	 * @param thesock InspSocket to attach to
+	 * @param thesock BufferedSocket to attach to
 	 * @param secs_from_now Seconds from now to time out
 	 * @param now The current time
 	 */
-	SocketTimeout(int fd, InspIRCd* Instance, InspSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
+	SocketTimeout(int fd, InspIRCd* Instance, BufferedSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
 	/** Handle tick event
 	 */
 	virtual void Tick(time_t now);
 };
 
 /**
- * InspSocket is an extendable socket class which modules
+ * BufferedSocket is an extendable socket class which modules
  * can use for TCP socket support. It is fully integrated
  * into InspIRCds socket loop and attaches its sockets to
  * the core's instance of the SocketEngine class, meaning
  * that any sockets you create have the same power and
  * abilities as a socket created by the core itself.
- * To use InspSocket, you must inherit a class from it,
- * and use the InspSocket constructors to establish connections
+ * To use BufferedSocket, you must inherit a class from it,
+ * and use the BufferedSocket constructors to establish connections
  * and bindings.
  */
-class CoreExport InspSocket : public EventHandler
+class CoreExport BufferedSocket : public EventHandler
 {
  public:
 
@@ -159,7 +159,7 @@ class CoreExport InspSocket : public EventHandler
 	 * listening, connecting, connected
 	 * or error.
 	 */
-	InspSocketState state;
+	BufferedSocketState state;
 
 	/**
 	 * This value is true if the
@@ -169,7 +169,7 @@ class CoreExport InspSocket : public EventHandler
 	
 	/**
 	 * Socket input buffer, used by read(). The class which
-	 * extends InspSocket is expected to implement an extendable
+	 * extends BufferedSocket is expected to implement an extendable
 	 * buffer which can grow much larger than 64k,
 	 * this buffer is just designed to be temporary storage.
 	 * space.
@@ -224,23 +224,23 @@ class CoreExport InspSocket : public EventHandler
 	 * The default constructor does nothing
 	 * and should not be used.
 	 */
-	InspSocket(InspIRCd* SI);
+	BufferedSocket(InspIRCd* SI);
 
 	/**
 	 * This constructor is used to associate
-	 * an existing connecting with an InspSocket
+	 * an existing connecting with an BufferedSocket
 	 * class. The given file descriptor must be
-	 * valid, and when initialized, the InspSocket
+	 * valid, and when initialized, the BufferedSocket
 	 * will be set with the given IP address
 	 * and placed in CONNECTED state.
 	 */
-	InspSocket(InspIRCd* SI, int newfd, const char* ip);
+	BufferedSocket(InspIRCd* SI, int newfd, const char* ip);
 
 	/**
 	 * This constructor is used to create a new
 	 * socket, either listening for connections, or an outbound connection to another host.
 	 * Note that if you specify a hostname in the 'ipaddr' parameter, this class will not
-	 * connect. You must resolve your hostnames before passing them to InspSocket. To do so,
+	 * connect. You must resolve your hostnames before passing them to BufferedSocket. To do so,
 	 * you should use the nonblocking class 'Resolver'.
 	 * @param ipaddr The IP to connect to, or bind to
 	 * @param port The port number to connect to, or bind to
@@ -249,7 +249,7 @@ class CoreExport InspSocket : public EventHandler
 	 * @param connectbindip When creating an outbound connection, the IP to bind the connection to. If not defined, the port is not bound.
 	 * @return On exit, GetState() returns I_ERROR if an error occured, and errno can be used to read the socket error.
 	 */
-	InspSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime, const std::string &connectbindip = "");
+	BufferedSocket(InspIRCd* SI, const std::string &ipaddr, int port, bool listening, unsigned long maxtime, const std::string &connectbindip = "");
 
 	/**
 	 * This method is called when an outbound
@@ -264,7 +264,7 @@ class CoreExport InspSocket : public EventHandler
 	 * however errors also generate close events.
 	 * @param e The error type which occured
 	 */
-	virtual void OnError(InspSocketError e);
+	virtual void OnError(BufferedSocketError e);
 
 	/**
 	 * When an established connection is terminated,
@@ -281,7 +281,7 @@ class CoreExport InspSocket : public EventHandler
 	 * the socket engine. If you return false from this
 	 * function, the core removes your socket from its
 	 * list and erases it from the socket engine, then
-	 * calls InspSocket::Close() and deletes it.
+	 * calls BufferedSocket::Close() and deletes it.
 	 * @return false to close the socket
 	 */
 	virtual bool OnDataReady();
@@ -361,7 +361,7 @@ class CoreExport InspSocket : public EventHandler
 	 * to change socket states, and you should not call
 	 * it directly.
 	 */
-	void SetState(InspSocketState s);
+	void SetState(BufferedSocketState s);
 
 	/**
 	 * Call this to receive the next write event
@@ -373,13 +373,13 @@ class CoreExport InspSocket : public EventHandler
 	/**
 	 * Returns the current socket state.
 	 */
-	InspSocketState GetState();
+	BufferedSocketState GetState();
 
 	/**
 	 * Only the core should call this function.
 	 * When called, it is assumed the socket is ready
 	 * to read data, and the method call routes the
-	 * event to the various methods of InspSocket
+	 * event to the various methods of BufferedSocket
 	 * for you to handle. This can also cause the
 	 * socket's state to change.
 	 */
@@ -404,7 +404,7 @@ class CoreExport InspSocket : public EventHandler
 	 * will close() and shutdown() the file descriptor
 	 * used for this socket.
 	 */
-	virtual ~InspSocket();
+	virtual ~BufferedSocket();
 
 	/**
 	 * This method attempts to connect to a hostname.

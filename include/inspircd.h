@@ -269,7 +269,7 @@ class CoreExport InspIRCd : public classbase
 	 */
 	bool DaemonSeed();
 
-	/** Iterate the list of InspSocket objects, removing ones which have timed out
+	/** Iterate the list of BufferedSocket objects, removing ones which have timed out
 	 * @param TIME the current time
 	 */
 	void DoSocketTimeouts(time_t TIME);
@@ -340,10 +340,10 @@ class CoreExport InspIRCd : public classbase
 	FindDescriptorHandler HandleFindDescriptor;
 	FloodQuitUserHandler HandleFloodQuitUser;
 
-	/** InspSocket classes pending deletion after being closed.
+	/** BufferedSocket classes pending deletion after being closed.
 	 * We don't delete these immediately as this may cause a segmentation fault.
 	 */
-	std::map<InspSocket*,InspSocket*> SocketCull;
+	std::map<BufferedSocket*,BufferedSocket*> SocketCull;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -1057,10 +1057,10 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int Run();
 
-	/** Force all InspSockets to be removed which are due to
+	/** Force all BufferedSockets to be removed which are due to
 	 * be culled.
 	 */
-	void InspSocketCull();
+	void BufferedSocketCull();
 
 	char* GetReadBuffer()
 	{

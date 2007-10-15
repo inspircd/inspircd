@@ -664,7 +664,7 @@ int InspIRCd::Run()
 		this->GlobalCulls.Apply();
 
 		/* If any inspsockets closed, remove them */
-		this->InspSocketCull();
+		this->BufferedSocketCull();
 
 		if (this->s_signal)
 		{
@@ -676,9 +676,9 @@ int InspIRCd::Run()
 	return 0;
 }
 
-void InspIRCd::InspSocketCull()
+void InspIRCd::BufferedSocketCull()
 {
-	for (std::map<InspSocket*,InspSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
+	for (std::map<BufferedSocket*,BufferedSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
 	{
 		SE->DelFd(x->second);
 		x->second->Close();
