@@ -23,59 +23,6 @@ static unsigned long already_sent[MAX_DESCRIPTORS] = {0};
 /* XXX: Used for speeding up WriteCommon operations */
 unsigned long uniq_id = 0;
 
-bool InitTypes(ServerConfig* conf, const char* tag)
-{
-	if (conf->opertypes.size())
-	{
-		for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
-		{
-			if (n->second)
-				delete[] n->second;
-		}
-	}
-
-	conf->opertypes.clear();
-	return true;
-}
-
-bool InitClasses(ServerConfig* conf, const char* tag)
-{
-	if (conf->operclass.size())
-	{
-		for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
-		{
-			if (n->second)
-				delete[] n->second;
-		}
-	}
-
-	conf->operclass.clear();
-	return true;
-}
-
-bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* TypeName = values[0].GetString();
-	const char* Classes = values[1].GetString();
-
-	conf->opertypes[TypeName] = strnewdup(Classes);
-	return true;
-}
-
-bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
-{
-	const char* ClassName = values[0].GetString();
-	const char* CommandList = values[1].GetString();
-
-	conf->operclass[ClassName] = strnewdup(CommandList);
-	return true;
-}
-
-bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
-{
-	return true;
-}
-
 std::string User::ProcessNoticeMasks(const char *sm)
 {
 	bool adding = true, oldadding = false;
@@ -475,37 +422,44 @@ bool User::HasPermission(const std::string &command)
 		return true;
 
 	// are they even an oper at all?
-	if (IS_OPER(this))
+	if (!IS_OPER(this))
 	{
-		opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
-		if (iter_opertype != ServerInstance->Config->opertypes.end())
-		{
-			char* Classes = strdup(iter_opertype->second);
-			char* myclass = strtok_r(Classes," ",&savept);
-			while (myclass)
-			{
-				operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
-				if (iter_operclass != ServerInstance->Config->operclass.end())
-				{
-					char* CommandList = strdup(iter_operclass->second);
-					mycmd = strtok_r(CommandList," ",&savept2);
-					while (mycmd)
-					{
-						if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
-						{
-							free(Classes);
-							free(CommandList);
-							return true;
-						}
-						mycmd = strtok_r(NULL," ",&savept2);
-					}
-					free(CommandList);
-				}
-				myclass = strtok_r(NULL," ",&savept);
-			}
-			free(Classes);
-		}
+		return false;
 	}
+
+	// check their opertype exists (!). This won't affect local users, of course.
+	opertype_t::iterator iter_opertype = ServerInstance->Config->opertypes.find(this->oper);
+	if (iter_opertype == ServerInstance->Config->opertypes.end())
+	{
+		return false;
+	}
+
+	/* XXX all this strtok/strdup stuff is a bit ick and horrid -- w00t */
+	char* Classes = strdup(iter_opertype->second);
+	char* myclass = strtok_r(Classes," ",&savept);
+	while (myclass)
+	{
+		operclass_t::iterator iter_operclass = ServerInstance->Config->operclass.find(myclass);
+		if (iter_operclass != ServerInstance->Config->operclass.end())
+		{
+			char* CommandList = strdup(iter_operclass->second);
+			mycmd = strtok_r(CommandList," ",&savept2);
+			while (mycmd)
+			{
+				if ((!strcasecmp(mycmd,command.c_str())) || (*mycmd == '*'))
+				{
+					free(Classes);
+					free(CommandList);
+					return true;
+				}
+				mycmd = strtok_r(NULL," ",&savept2);
+			}
+			free(CommandList);
+		}
+		myclass = strtok_r(NULL," ",&savept);
+	}
+	free(Classes);
+
 	return false;
 }
 

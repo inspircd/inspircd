@@ -1777,3 +1777,74 @@ bool ValueItem::GetBool()
 {
 	return (GetInteger() || v == "yes" || v == "true");
 }
+
+
+
+
+/*
+ * XXX should this be in a class? -- w00t
+ */
+bool InitTypes(ServerConfig* conf, const char* tag)
+{
+	if (conf->opertypes.size())
+	{
+		for (opertype_t::iterator n = conf->opertypes.begin(); n != conf->opertypes.end(); n++)
+		{
+			if (n->second)
+				delete[] n->second;
+		}
+	}
+
+	conf->opertypes.clear();
+	return true;
+}
+
+/*
+ * XXX should this be in a class? -- w00t
+ */
+bool InitClasses(ServerConfig* conf, const char* tag)
+{
+	if (conf->operclass.size())
+	{
+		for (operclass_t::iterator n = conf->operclass.begin(); n != conf->operclass.end(); n++)
+		{
+			if (n->second)
+				delete[] n->second;
+		}
+	}
+
+	conf->operclass.clear();
+	return true;
+}
+
+/*
+ * XXX should this be in a class? -- w00t
+ */
+bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* TypeName = values[0].GetString();
+	const char* Classes = values[1].GetString();
+
+	conf->opertypes[TypeName] = strnewdup(Classes);
+	return true;
+}
+
+/*
+ * XXX should this be in a class? -- w00t
+ */
+bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+{
+	const char* ClassName = values[0].GetString();
+	const char* CommandList = values[1].GetString();
+
+	conf->operclass[ClassName] = strnewdup(CommandList);
+	return true;
+}
+
+/*
+ * XXX should this be in a class? -- w00t
+ */
+bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
+{
+	return true;
+}
