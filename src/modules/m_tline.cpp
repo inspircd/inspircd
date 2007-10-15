@@ -18,10 +18,10 @@
 
 /** Handle /TLINE
  */ 
-class cmd_tline : public command_t
+class cmd_tline : public Command
 {
  public:
-	cmd_tline (InspIRCd* Instance) : command_t(Instance,"TLINE", 'o', 1)
+	cmd_tline (InspIRCd* Instance) : Command(Instance,"TLINE", 'o', 1)
 	{
 		this->source = "m_tline.so";
 		this->syntax = "<mask>";

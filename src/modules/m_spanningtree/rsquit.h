@@ -16,7 +16,7 @@
 
 /** Handle /RCONNECT
  */
-class cmd_rsquit : public command_t
+class cmd_rsquit : public Command
 {
         Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */

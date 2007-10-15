@@ -227,7 +227,7 @@ public:
 
 	void LoginFail(userrec* user, const std::string &username, const std::string &pass)
 	{
-		command_t* oper_command = ServerInstance->Parser->GetHandler("OPER");
+		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
 
 		if (oper_command)
 		{

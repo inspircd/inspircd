@@ -23,12 +23,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_clearcache : public command_t
+class cmd_clearcache : public Command
 {
  public:
 	/** Constructor for clearcache.
 	 */
-	cmd_clearcache (InspIRCd* Instance) : command_t(Instance,"CLEARCACHE",'o',0) { }
+	cmd_clearcache (InspIRCd* Instance) : Command(Instance,"CLEARCACHE",'o',0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

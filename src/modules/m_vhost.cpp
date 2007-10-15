@@ -17,10 +17,10 @@
 
 /** Handle /VHOST
  */
-class cmd_vhost : public command_t
+class cmd_vhost : public Command
 {
  public:
-	cmd_vhost (InspIRCd* Instance) : command_t(Instance,"VHOST", 0, 2)
+	cmd_vhost (InspIRCd* Instance) : Command(Instance,"VHOST", 0, 2)
 	{
 		this->source = "m_vhost.so";
 		syntax = "<username> <password>";

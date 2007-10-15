@@ -47,10 +47,10 @@ SVSHoldMap HoldMap;
 
 /** Handle /SVSHold
  */
-class cmd_svshold : public command_t
+class cmd_svshold : public Command
 {
  public:
-	cmd_svshold(InspIRCd* Me) : command_t(Me, "SVSHOLD", 'o', 1)
+	cmd_svshold(InspIRCd* Me) : Command(Me, "SVSHOLD", 'o', 1)
 	{
 		this->source = "m_svshold.so";
 		this->syntax = "<nickname> [<duration> :<reason>]";

@@ -17,10 +17,10 @@
 
 /** Handle /SETIDENT
  */
-class cmd_setident : public command_t
+class cmd_setident : public Command
 {
  public:
- cmd_setident (InspIRCd* Instance) : command_t(Instance,"SETIDENT", 'o', 1)
+ cmd_setident (InspIRCd* Instance) : Command(Instance,"SETIDENT", 'o', 1)
 	{
 		this->source = "m_setident.so";
 		syntax = "<new-ident>";

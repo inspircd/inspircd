@@ -17,10 +17,10 @@
 
 /** Handle /CHGNAME
  */
-class cmd_chgname : public command_t
+class cmd_chgname : public Command
 {
  public:
-	cmd_chgname (InspIRCd* Instance) : command_t(Instance,"CHGNAME", 'o', 2)
+	cmd_chgname (InspIRCd* Instance) : Command(Instance,"CHGNAME", 'o', 2)
 	{
 		this->source = "m_chgname.so";
 		syntax = "<nick> <newname>";

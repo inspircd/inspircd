@@ -23,10 +23,10 @@ std::string suffix;
 
 /** Handle /RANDQUOTE
  */
-class cmd_randquote : public command_t
+class cmd_randquote : public Command
 {
  public:
-	cmd_randquote (InspIRCd* Instance) : command_t(Instance,"RANDQUOTE", 0, 0)
+	cmd_randquote (InspIRCd* Instance) : Command(Instance,"RANDQUOTE", 0, 0)
 	{
 		this->source = "m_randquote.so";
 	}

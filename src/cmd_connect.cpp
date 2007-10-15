@@ -18,7 +18,7 @@
  * This is handled by the server linking module, if necessary. Do not remove this stub.
  */
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_connect(Instance);
 }

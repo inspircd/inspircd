@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_eline : public command_t
+class cmd_eline : public Command
 {
  public:
 	/** Constructor for eline.
 	 */
-	cmd_eline (InspIRCd* Instance) : command_t(Instance,"ELINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	cmd_eline (InspIRCd* Instance) : Command(Instance,"ELINE",'o',1) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

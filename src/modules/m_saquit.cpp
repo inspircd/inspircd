@@ -17,10 +17,10 @@
 
 /** Handle /SAQUIT
  */
-class cmd_saquit : public command_t
+class cmd_saquit : public Command
 {
  public:
- cmd_saquit (InspIRCd* Instance) : command_t(Instance,"SAQUIT",'o',2)
+ cmd_saquit (InspIRCd* Instance) : Command(Instance,"SAQUIT",'o',2)
 	{
 		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";

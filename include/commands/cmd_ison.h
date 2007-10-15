@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_ison : public command_t
+class cmd_ison : public Command
 {
  public:
 	/** Constructor for ison.
 	 */
-	cmd_ison (InspIRCd* Instance) : command_t(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
+	cmd_ison (InspIRCd* Instance) : Command(Instance,"ISON",0,0) { syntax = "<nick> {nick}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

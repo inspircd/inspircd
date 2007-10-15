@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_wallops : public command_t
+class cmd_wallops : public Command
 {
  public:
 	/** Constructor for wallops.
 	 */
-	cmd_wallops (InspIRCd* Instance) : command_t(Instance,"WALLOPS",'o',1) { syntax = "<any-text>"; }
+	cmd_wallops (InspIRCd* Instance) : Command(Instance,"WALLOPS",'o',1) { syntax = "<any-text>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

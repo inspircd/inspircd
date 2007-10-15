@@ -44,10 +44,10 @@ dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
 
-class cmd_dccallow : public command_t
+class cmd_dccallow : public Command
 {
  public:
-	cmd_dccallow(InspIRCd* Me) : command_t(Me, "DCCALLOW", 0, 0)
+	cmd_dccallow(InspIRCd* Me) : Command(Me, "DCCALLOW", 0, 0)
 	{
 		this->source = "m_dccallow.so";
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";

@@ -44,10 +44,10 @@ cbanlist cbans;
 
 /** Handle /CBAN
  */
-class cmd_cban : public command_t
+class cmd_cban : public Command
 {
  public:
-	cmd_cban(InspIRCd* Me) : command_t(Me, "CBAN", 'o', 1)
+	cmd_cban(InspIRCd* Me) : Command(Me, "CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";

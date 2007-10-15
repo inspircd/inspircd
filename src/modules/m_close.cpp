@@ -15,11 +15,11 @@
 
 /** Handle /CLOSE
  */
-class cmd_close : public command_t
+class cmd_close : public Command
 {
  public:
 	/* Command 'close', needs operator */
-	cmd_close (InspIRCd* Instance) : command_t(Instance,"CLOSE", 'o', 0)
+	cmd_close (InspIRCd* Instance) : Command(Instance,"CLOSE", 'o', 0)
 	{
 		this->source = "m_close.so";
 	}

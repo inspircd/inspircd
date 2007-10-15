@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_notice : public command_t
+class cmd_notice : public Command
 {
  public:
 	/** Constructor for notice.
 	 */
-	cmd_notice (InspIRCd* Instance) : command_t(Instance,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
+	cmd_notice (InspIRCd* Instance) : Command(Instance,"NOTICE",0,2) { syntax = "<target>{,<target>} <message>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

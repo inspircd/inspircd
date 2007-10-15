@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_privmsg : public command_t
+class cmd_privmsg : public Command
 {
  public:
 	/** Constructor for privmsg.
 	 */
-	cmd_privmsg (InspIRCd* Instance) : command_t(Instance,"PRIVMSG",0,2) { syntax = "<target>{,<target>} <message>"; }
+	cmd_privmsg (InspIRCd* Instance) : Command(Instance,"PRIVMSG",0,2) { syntax = "<target>{,<target>} <message>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

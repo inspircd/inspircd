@@ -16,7 +16,7 @@
 
 /** Handle /RCONNECT
  */
-class cmd_rconnect : public command_t
+class cmd_rconnect : public Command
 {
         Module* Creator;		/* Creator */
         SpanningTreeUtilities* Utils;	/* Utility class */

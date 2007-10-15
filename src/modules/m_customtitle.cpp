@@ -18,11 +18,11 @@
 
 /** Handle /TITLE
  */
-class cmd_title : public command_t
+class cmd_title : public Command
 {
 	
  public:
-	cmd_title (InspIRCd* Instance) : command_t(Instance,"TITLE",0,2)
+	cmd_title (InspIRCd* Instance) : Command(Instance,"TITLE",0,2)
 	{
 		this->source = "m_customtitle.so";
 		syntax = "<user> <password>";

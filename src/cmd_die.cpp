@@ -15,7 +15,7 @@
 #include "commands/cmd_die.h"
 #include "exitcodes.h"
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_die(Instance);
 }

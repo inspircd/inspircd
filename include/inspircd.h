@@ -773,10 +773,10 @@ class CoreExport InspIRCd : public classbase
 	bool AddResolver(Resolver* r, bool cached);
 
 	/** Add a command to this server's command parser
-	 * @param f A command_t command handler object to add
+	 * @param f A Command command handler object to add
 	 * @throw ModuleException Will throw ModuleExcption if the command already exists
 	 */
-	void AddCommand(command_t *f);
+	void AddCommand(Command *f);
 
 	/** Send a modechange.
 	 * The parameters provided are identical to that sent to the

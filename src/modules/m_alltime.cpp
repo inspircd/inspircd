@@ -15,10 +15,10 @@
 
 /* $ModDesc: Display timestamps from all servers connected to the network */
 
-class cmd_alltime : public command_t
+class cmd_alltime : public Command
 {
  public:
-	cmd_alltime(InspIRCd *Instance) : command_t(Instance, "ALLTIME", 'o', 0)
+	cmd_alltime(InspIRCd *Instance) : Command(Instance, "ALLTIME", 'o', 0)
 	{
 		this->source = "m_alltime.so";
 		syntax.clear();

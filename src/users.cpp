@@ -857,7 +857,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 /* adds or updates an entry in the whowas list */
 void userrec::AddToWhoWas()
 {
-	command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
+	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 	if (whowas_command)
 	{
 		std::deque<classbase*> params;
@@ -1203,7 +1203,7 @@ bool userrec::ForceNickChange(const char* newnick)
 		if (this->registered == REG_ALL)
 		{
 			std::deque<classbase*> dummy;
-			command_t* nickhandler = ServerInstance->Parser->GetHandler("NICK");
+			Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
 			if (nickhandler)
 			{
 				nickhandler->HandleInternal(1, dummy);

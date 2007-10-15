@@ -24,10 +24,10 @@
 
 /** Handle /FINGERPRINT
  */
-class cmd_fingerprint : public command_t
+class cmd_fingerprint : public Command
 {
  public:
-	cmd_fingerprint (InspIRCd* Instance) : command_t(Instance,"FINGERPRINT", 0, 1)
+	cmd_fingerprint (InspIRCd* Instance) : Command(Instance,"FINGERPRINT", 0, 1)
 	{
 		this->source = "m_ssl_oper_cert.so";
 		syntax = "<nickname>";

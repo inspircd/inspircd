@@ -56,7 +56,7 @@ typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_whowas : public command_t
+class cmd_whowas : public Command
 {
   private:
 	/** Whowas container, contains a map of vectors of users tracked by WHOWAS

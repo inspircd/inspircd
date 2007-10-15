@@ -17,7 +17,7 @@
 
 /** Handle /SAPART
  */
-class cmd_jumpserver : public command_t
+class cmd_jumpserver : public Command
 {
  public:
 	bool redirect_all_immediately;
@@ -27,7 +27,7 @@ class cmd_jumpserver : public command_t
 	std::string reason;
 	int port;
 
-	cmd_jumpserver (InspIRCd* Instance) : command_t(Instance, "JUMPSERVER", 'o', 0)
+	cmd_jumpserver (InspIRCd* Instance) : Command(Instance, "JUMPSERVER", 'o', 0)
 	{
 		this->source = "m_jumpserver.so";
 		syntax = "[<server> <port> <+/-a> :<reason>]";

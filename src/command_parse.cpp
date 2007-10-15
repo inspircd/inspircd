@@ -112,7 +112,7 @@ long InspIRCd::Duration(const std::string &str)
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
+int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -161,7 +161,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 	return 1;
 }
 
-int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
+int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -211,7 +211,7 @@ int CommandParser::LoopCall(userrec* user, command_t* CommandObj, const char** p
 
 bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, userrec * user)
 {
-	command_table::iterator n = cmdlist.find(commandname);
+	Commandable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -233,9 +233,9 @@ bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, use
 	return false;
 }
 
-command_t* CommandParser::GetHandler(const std::string &commandname)
+Command* CommandParser::GetHandler(const std::string &commandname)
 {
-	command_table::iterator n = cmdlist.find(commandname);
+	Commandable::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -246,7 +246,7 @@ command_t* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
 {
-	command_table::iterator n = cmdlist.find(commandname);
+	Commandable::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -310,7 +310,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 		return;
 	}
 
-	command_table::iterator cm = cmdlist.find(command);
+	Commandable::iterator cm = cmdlist.find(command);
 	
 	if (cm != cmdlist.end())
 	{
@@ -381,7 +381,7 @@ void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
 
 bool CommandParser::RemoveCommands(const char* source)
 {
-	command_table::iterator i,safei;
+	Commandable::iterator i,safei;
 	for (i = cmdlist.begin(); i != cmdlist.end(); i++)
 	{
 		safei = i;
@@ -399,9 +399,9 @@ bool CommandParser::RemoveCommands(const char* source)
 	return true;
 }
 
-void CommandParser::RemoveCommand(command_table::iterator safei, const char* source)
+void CommandParser::RemoveCommand(Commandable::iterator safei, const char* source)
 {
-	command_t* x = safei->second;
+	Command* x = safei->second;
 	if (x->source == std::string(source))
 	{
 		cmdlist.erase(safei);
@@ -431,7 +431,7 @@ void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
 	}
 }
 
-bool CommandParser::CreateCommand(command_t *f, void* so_handle)
+bool CommandParser::CreateCommand(Command *f, void* so_handle)
 {
 	if (so_handle)
 	{
@@ -485,7 +485,7 @@ bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
 
 	if (command != RFCCommands.end())
 	{
-		command_t* cmdptr = cmdlist.find(commandname)->second;
+		Command* cmdptr = cmdlist.find(commandname)->second;
 		cmdlist.erase(cmdlist.find(commandname));
 
 		for (char* x = commandname; *x; x++)
@@ -531,7 +531,7 @@ const char* CommandParser::LoadCommand(const char* name)
 {
 	char filename[MAXBUF];
 	void* h;
-	command_t* (*cmd_factory_func)(InspIRCd*);
+	Command* (*cmd_factory_func)(InspIRCd*);
 
 	/* Command already exists? Succeed silently - this is needed for REHASH */
 	if (RFCCommands.find(name) != RFCCommands.end())
@@ -552,7 +552,7 @@ const char* CommandParser::LoadCommand(const char* name)
 
 	if (this->FindSym((void **)&cmd_factory_func, h, name))
 	{
-		command_t* newcommand = cmd_factory_func(ServerInstance);
+		Command* newcommand = cmd_factory_func(ServerInstance);
 		this->CreateCommand(newcommand, h);
 	}
 	return NULL;

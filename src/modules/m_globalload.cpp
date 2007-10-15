@@ -17,10 +17,10 @@
 
 /** Handle /GLOADMODULE
  */
-class cmd_gloadmodule : public command_t
+class cmd_gloadmodule : public Command
 {
  public:
-	cmd_gloadmodule (InspIRCd* Instance) : command_t(Instance,"GLOADMODULE", 'o', 1)
+	cmd_gloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -52,10 +52,10 @@ class cmd_gloadmodule : public command_t
 
 /** Handle /GUNLOADMODULE
  */
-class cmd_gunloadmodule : public command_t
+class cmd_gunloadmodule : public Command
 {
  public:
-	cmd_gunloadmodule (InspIRCd* Instance) : command_t(Instance,"GUNLOADMODULE", 'o', 1)
+	cmd_gunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -86,10 +86,10 @@ class cmd_gunloadmodule : public command_t
 
 /** Handle /GRELOADMODULE
  */
-class cmd_greloadmodule : public command_t
+class cmd_greloadmodule : public Command
 {
  public:
-	cmd_greloadmodule (InspIRCd* Instance) : command_t(Instance, "GRELOADMODULE", 'o', 1)
+	cmd_greloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";

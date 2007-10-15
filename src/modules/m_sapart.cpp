@@ -17,10 +17,10 @@
 
 /** Handle /SAPART
  */
-class cmd_sapart : public command_t
+class cmd_sapart : public Command
 {
  public:
-	cmd_sapart (InspIRCd* Instance) : command_t(Instance,"SAPART", 'o', 2)
+	cmd_sapart (InspIRCd* Instance) : Command(Instance,"SAPART", 'o', 2)
 	{
 		this->source = "m_sapart.so";
 		syntax = "<nick> <channel>";

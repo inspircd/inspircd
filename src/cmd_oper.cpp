@@ -30,7 +30,7 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 	return false;
 }
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_oper(Instance);
 }

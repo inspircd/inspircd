@@ -17,11 +17,11 @@
 
 /** Handle /SWHOIS
  */
-class cmd_swhois : public command_t
+class cmd_swhois : public Command
 {
 	
  public:
-	cmd_swhois (InspIRCd* Instance) : command_t(Instance,"SWHOIS",'o',2)
+	cmd_swhois (InspIRCd* Instance) : Command(Instance,"SWHOIS",'o',2)
 	{
 		this->source = "m_swhois.so";
 		syntax = "<nick> <swhois>";

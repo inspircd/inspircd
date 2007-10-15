@@ -26,7 +26,7 @@
 #include "commands/cmd_whowas.h"
 
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_stats(Instance);
 }
@@ -159,7 +159,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
-			for (command_table::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+			for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 			{
 				if (i->second->use_count)
 				{
@@ -175,11 +175,11 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
 			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes)");
 			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes)");
-			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(command_t))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(Command))+" bytes)");
 
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
 			{
-				command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
+				Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 				if (whowas_command)
 				{
 					std::deque<classbase*> params;

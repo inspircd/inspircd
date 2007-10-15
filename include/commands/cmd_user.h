@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_user : public command_t
+class cmd_user : public Command
 {
  public:
 	/** Constructor for user.
 	 */
-	cmd_user (InspIRCd* Instance) : command_t(Instance,"USER",0,4,true) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
+	cmd_user (InspIRCd* Instance) : Command(Instance,"USER",0,4,true) { syntax = "<username> <localhost> <remotehost> <GECOS>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

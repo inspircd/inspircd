@@ -15,7 +15,7 @@
 #include "wildcard.h"
 #include "commands/cmd_notice.h"
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_notice(Instance);
 }

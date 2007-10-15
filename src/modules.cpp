@@ -785,7 +785,7 @@ bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, us
 	return this->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
-void InspIRCd::AddCommand(command_t *f)
+void InspIRCd::AddCommand(Command *f)
 {
 	if (!this->Parser->CreateCommand(f))
 	{

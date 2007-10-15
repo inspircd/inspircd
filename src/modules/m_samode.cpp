@@ -17,10 +17,10 @@
 
 /** Handle /SAMODE
  */
-class cmd_samode : public command_t
+class cmd_samode : public Command
 {
  public:
-	cmd_samode (InspIRCd* Instance) : command_t(Instance,"SAMODE", 'o', 2)
+	cmd_samode (InspIRCd* Instance) : Command(Instance,"SAMODE", 'o', 2)
 	{
 		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";

@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_kick : public command_t
+class cmd_kick : public Command
 {
  public:
 	/** Constructor for kick.
 	 */
-	cmd_kick (InspIRCd* Instance) : command_t(Instance,"KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
+	cmd_kick (InspIRCd* Instance) : Command(Instance,"KICK",0,2) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

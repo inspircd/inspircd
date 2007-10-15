@@ -21,14 +21,14 @@
 */
 
 
-class cmd_lockserv : public command_t
+class cmd_lockserv : public Command
 {
 private:
 	bool& locked;
 
 public:
 	cmd_lockserv (InspIRCd* Instance, bool &lock)
-	: command_t(Instance, "LOCKSERV", 'o', 0), locked(lock)
+	: Command(Instance, "LOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
 		syntax.clear();
@@ -44,14 +44,14 @@ public:
 	}
 };
 
-class cmd_unlockserv : public command_t
+class cmd_unlockserv : public Command
 {
 private:
 	bool& locked;
 
 public:
 	cmd_unlockserv (InspIRCd* Instance, bool &lock)
-	: command_t(Instance, "UNLOCKSERV", 'o', 0), locked(lock)
+	: Command(Instance, "UNLOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
 		syntax.clear();

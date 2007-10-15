@@ -17,10 +17,10 @@
 
 
 
-class cmd_setname : public command_t
+class cmd_setname : public Command
 {
  public:
-	cmd_setname (InspIRCd* Instance) : command_t(Instance,"SETNAME", 0, 1)
+	cmd_setname (InspIRCd* Instance) : Command(Instance,"SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";

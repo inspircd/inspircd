@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_away : public command_t
+class cmd_away : public Command
 {
  public:
 	/** Constructor for away.
 	 */
-	cmd_away (InspIRCd* Instance) : command_t(Instance,"AWAY",0,0) { syntax = "[<message>]"; }
+	cmd_away (InspIRCd* Instance) : Command(Instance,"AWAY",0,0) { syntax = "[<message>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

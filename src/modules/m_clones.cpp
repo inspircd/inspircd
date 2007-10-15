@@ -18,10 +18,10 @@
 
 /** Handle /CHECK
  */
-class cmd_clones : public command_t
+class cmd_clones : public Command
 {
  public:
- 	cmd_clones (InspIRCd* Instance) : command_t(Instance,"CLONES", 'o', 1)
+ 	cmd_clones (InspIRCd* Instance) : Command(Instance,"CLONES", 'o', 1)
 	{
 		this->source = "m_clones.so";
 		syntax = "<limit>";

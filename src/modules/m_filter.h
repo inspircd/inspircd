@@ -116,11 +116,11 @@ class FilterBase : public Module
 	bool AppliesToMe(userrec* user, FilterResult* filter, int flags);
 };
 
-class cmd_filter : public command_t
+class cmd_filter : public Command
 {
 	FilterBase* Base;
  public:
-	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : command_t(Me, "FILTER", 'o', 1), Base(f)
+	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : Command(Me, "FILTER", 'o', 1), Base(f)
 	{
 		this->source = source;
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
@@ -338,7 +338,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 			return 0;
 
 		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
-		command_t* c = ServerInstance->Parser->GetHandler(command);
+		Command* c = ServerInstance->Parser->GetHandler(command);
 		if (c)
 		{
 			const char* params[MAXPARAMETERS];

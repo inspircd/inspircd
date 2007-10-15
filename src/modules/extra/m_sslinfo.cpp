@@ -24,10 +24,10 @@
 
 /** Handle /SSLINFO
  */
-class cmd_sslinfo : public command_t
+class cmd_sslinfo : public Command
 {
  public:
-	cmd_sslinfo (InspIRCd* Instance) : command_t(Instance,"SSLINFO", 0, 1)
+	cmd_sslinfo (InspIRCd* Instance) : Command(Instance,"SSLINFO", 0, 1)
 	{
 		this->source = "m_sslinfo.so";
 		this->syntax = "<nick>";

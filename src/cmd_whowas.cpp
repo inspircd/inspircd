@@ -16,13 +16,13 @@
 
 WhoWasMaintainTimer * timer;
 
-extern "C" DllExport command_t* init_command(InspIRCd* Instance)
+extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
 	return new cmd_whowas(Instance);
 }
 
 cmd_whowas::cmd_whowas(InspIRCd* Instance)
-: command_t(Instance, "WHOWAS", 0, 1)
+: Command(Instance, "WHOWAS", 0, 1)
 {
 	syntax = "<nick>{,<nick>}";
 	timer = new WhoWasMaintainTimer(Instance, 3600);
@@ -340,7 +340,7 @@ WhoWasGroup::~WhoWasGroup()
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
 void WhoWasMaintainTimer::Tick(time_t t)
 {
-	command_t* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
+	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 	if (whowas_command)
 	{
 		std::deque<classbase*> params;

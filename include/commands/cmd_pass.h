@@ -27,12 +27,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_pass : public command_t
+class cmd_pass : public Command
 {
  public:
 	/** Constructor for pass.
 	 */
-	cmd_pass (InspIRCd* Instance) : command_t(Instance,"PASS",0,1,true) { syntax = "<password>"; }
+	cmd_pass (InspIRCd* Instance) : Command(Instance,"PASS",0,1,true) { syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

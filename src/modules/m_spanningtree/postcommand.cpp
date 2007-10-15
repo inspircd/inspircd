@@ -38,7 +38,7 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const char** 
 	if ((result == CMD_SUCCESS) && (ServerInstance->IsValidModuleCommand(command, pcnt, user)))
 	{
 		/* Safe, we know its non-null because IsValidModuleCommand returned true */
-		command_t* thiscmd = ServerInstance->Parser->GetHandler(command);
+		Command* thiscmd = ServerInstance->Parser->GetHandler(command);
 		// this bit of code cleverly routes all module commands
 		// to all remote severs *automatically* so that modules
 		// can just handle commands locally, without having

@@ -63,10 +63,10 @@ void spy_userlist(userrec *user, chanrec *c)
 
 /** Handle /SPYLIST
  */
-class cmd_spylist : public command_t
+class cmd_spylist : public Command
 {
   public:
-	cmd_spylist (InspIRCd* Instance) : command_t(Instance,"SPYLIST", 'o', 0)
+	cmd_spylist (InspIRCd* Instance) : Command(Instance,"SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax.clear();
@@ -91,10 +91,10 @@ class cmd_spylist : public command_t
 
 /** Handle /SPYNAMES
  */
-class cmd_spynames : public command_t
+class cmd_spynames : public Command
 {
   public:
-	cmd_spynames (InspIRCd* Instance) : command_t(Instance,"SPYNAMES", 'o', 0)
+	cmd_spynames (InspIRCd* Instance) : Command(Instance,"SPYNAMES", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "{<channel>{,<channel>}}";

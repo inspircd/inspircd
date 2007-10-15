@@ -17,13 +17,13 @@
 
 /** Handle /TAXONOMY
  */
-class cmd_taxonomy : public command_t
+class cmd_taxonomy : public Command
 {
 	Module* Creator;
 	bool& claimed;
  public:
 	/* Command 'taxonomy', takes no parameters and needs no special modes */
-	cmd_taxonomy (InspIRCd* Instance, Module* maker, bool &claim) : command_t(Instance,"TAXONOMY", 'o', 1), Creator(maker), claimed(claim)
+	cmd_taxonomy (InspIRCd* Instance, Module* maker, bool &claim) : Command(Instance,"TAXONOMY", 'o', 1), Creator(maker), claimed(claim)
 	{
 		this->source = "m_taxonomy.so";
 		syntax = "<nickname>";

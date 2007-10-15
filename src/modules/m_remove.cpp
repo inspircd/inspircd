@@ -203,10 +203,10 @@ class RemoveBase
 
 /** Handle /REMOVE
  */
-class cmd_remove : public command_t, public RemoveBase
+class cmd_remove : public Command, public RemoveBase
 {
  public:
-	cmd_remove(InspIRCd* Instance, bool& snk) : command_t(Instance, "REMOVE", 0, 2), RemoveBase(Instance, snk)
+	cmd_remove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -221,10 +221,10 @@ class cmd_remove : public command_t, public RemoveBase
 
 /** Handle /FPART
  */
-class cmd_fpart : public command_t, public RemoveBase
+class cmd_fpart : public Command, public RemoveBase
 {
  public:
-	cmd_fpart(InspIRCd* Instance, bool& snk) : command_t(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
+	cmd_fpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";

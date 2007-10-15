@@ -27,12 +27,12 @@ DllExport void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigne
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_whois : public command_t
+class cmd_whois : public Command
 {
  public:
 	/** Constructor for whois.
 	 */
-	cmd_whois (InspIRCd* Instance) : command_t(Instance,"WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
+	cmd_whois (InspIRCd* Instance) : Command(Instance,"WHOIS",0,1) { syntax = "<nick>{,<nick>}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

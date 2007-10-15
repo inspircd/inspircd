@@ -40,13 +40,13 @@ public:
 };
 typedef std::vector<CGIhost> CGIHostlist;
 
-class cmd_webirc : public command_t
+class cmd_webirc : public Command
 {
 	InspIRCd* Me;
 	CGIHostlist Hosts;
 	bool notify;
 	public:
-		cmd_webirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : command_t(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
+		cmd_webirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : Command(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
 		{
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";

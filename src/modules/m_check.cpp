@@ -18,10 +18,10 @@
 
 /** Handle /CHECK
  */
-class cmd_check : public command_t
+class cmd_check : public Command
 {
  public:
- 	cmd_check (InspIRCd* Instance) : command_t(Instance,"CHECK", 'o', 1)
+ 	cmd_check (InspIRCd* Instance) : Command(Instance,"CHECK", 'o', 1)
 	{
 		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";

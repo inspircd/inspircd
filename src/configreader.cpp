@@ -204,13 +204,13 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	std::string thiscmd;
 
 	/* Enable everything first */
-	for (command_table::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+	for (Commandable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
 		x->second->Disable(false);
 
 	/* Now disable all the ones which the user wants disabled */
 	while (dcmds >> thiscmd)
 	{
-		command_table::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
+		Commandable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
 		if (cm != ServerInstance->Parser->cmdlist.end())
 		{
 			cm->second->Disable(true);
@@ -395,7 +395,7 @@ bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, Valu
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <whowas:maxkeep> value less than 3600, setting to default 3600");
 	}
 
-	command_t* whowas_command = conf->GetInstance()->Parser->GetHandler("WHOWAS");
+	Command* whowas_command = conf->GetInstance()->Parser->GetHandler("WHOWAS");
 	if (whowas_command)
 	{
 		std::deque<classbase*> params;

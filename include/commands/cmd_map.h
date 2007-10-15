@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_map : public command_t
+class cmd_map : public Command
 {
  public:
 	/** Constructor for map.
 	 */
-	cmd_map (InspIRCd* Instance) : command_t(Instance,"MAP",0,0) { }
+	cmd_map (InspIRCd* Instance) : Command(Instance,"MAP",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -40,10 +40,10 @@ CmdResult ShowOperMOTD(userrec* user)
 
 /** Handle /OPERMOTD
  */
-class cmd_opermotd : public command_t
+class cmd_opermotd : public Command
 {
  public:
-	cmd_opermotd (InspIRCd* Instance) : command_t(Instance,"OPERMOTD", 'o', 0)
+	cmd_opermotd (InspIRCd* Instance) : Command(Instance,"OPERMOTD", 'o', 0)
 	{
 		this->source = "m_opermotd.so";
 		syntax = "[<servername>]";

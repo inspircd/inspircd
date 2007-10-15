@@ -17,10 +17,10 @@
 
 /** Handle /SANICK
  */
-class cmd_sanick : public command_t
+class cmd_sanick : public Command
 {
  public:
- cmd_sanick (InspIRCd* Instance) : command_t(Instance,"SANICK", 'o', 2)
+ cmd_sanick (InspIRCd* Instance) : Command(Instance,"SANICK", 'o', 2)
 	{
 		this->source = "m_sanick.so";
 		syntax = "<nick> <new-nick>";

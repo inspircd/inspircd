@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_reloadmodule : public command_t
+class cmd_reloadmodule : public Command
 {
  public:
 	/** Constructor for reloadmodule.
 	 */
-	cmd_reloadmodule (InspIRCd* Instance) : command_t(Instance,"RELOADMODULE",'o',1) { syntax = "<modulename>"; }
+	cmd_reloadmodule (InspIRCd* Instance) : Command(Instance,"RELOADMODULE",'o',1) { syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_links : public command_t
+class cmd_links : public Command
 {
  public:
 	/** Constructor for links.
 	 */
-	cmd_links (InspIRCd* Instance) : command_t(Instance,"LINKS",0,0) { }
+	cmd_links (InspIRCd* Instance) : Command(Instance,"LINKS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_join : public command_t
+class cmd_join : public Command
 {
  public:
 	/** Constructor for join.
 	 */
-	cmd_join (InspIRCd* Instance) : command_t(Instance,"JOIN",0,1) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
+	cmd_join (InspIRCd* Instance) : Command(Instance,"JOIN",0,1) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

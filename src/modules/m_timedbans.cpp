@@ -30,10 +30,10 @@ timedbans TimedBanList;
 
 /** Handle /TBAN
  */
-class cmd_tban : public command_t
+class cmd_tban : public Command
 {
  public:
- cmd_tban (InspIRCd* Instance) : command_t(Instance,"TBAN", 0, 3)
+ cmd_tban (InspIRCd* Instance) : Command(Instance,"TBAN", 0, 3)
 	{
 		this->source = "m_timedbans.so";
 		syntax = "<channel> <duration> <banmask>";

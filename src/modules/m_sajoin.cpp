@@ -17,10 +17,10 @@
 
 /** Handle /SAJOIN
  */
-class cmd_sajoin : public command_t
+class cmd_sajoin : public Command
 {
  public:
- cmd_sajoin (InspIRCd* Instance) : command_t(Instance,"SAJOIN", 'o', 2)
+ cmd_sajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", 'o', 2)
 	{
 		this->source = "m_sajoin.so";
 		syntax = "<nick> <channel>";

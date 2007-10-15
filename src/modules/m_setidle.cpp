@@ -17,10 +17,10 @@
 
 /** Handle /SETIDLE
  */
-class cmd_setidle : public command_t
+class cmd_setidle : public Command
 {
  public:
-	cmd_setidle (InspIRCd* Instance) : command_t(Instance,"SETIDLE", 'o', 1)
+	cmd_setidle (InspIRCd* Instance) : Command(Instance,"SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
 		syntax = "<duration>";

@@ -76,7 +76,7 @@ watchentries* whos_watching_me;
 
 /** Handle /WATCH
  */
-class cmd_watch : public command_t
+class cmd_watch : public Command
 {
 	unsigned int& MAX_WATCH;
  public:
@@ -192,7 +192,7 @@ class cmd_watch : public command_t
 		return CMD_FAILURE;
 	}
 
-	cmd_watch (InspIRCd* Instance, unsigned int &maxwatch) : command_t(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
+	cmd_watch (InspIRCd* Instance, unsigned int &maxwatch) : Command(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";

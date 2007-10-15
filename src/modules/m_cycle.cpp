@@ -17,10 +17,10 @@
 
 /** Handle /CYCLE
  */
-class cmd_cycle : public command_t
+class cmd_cycle : public Command
 {
  public:
-	cmd_cycle (InspIRCd* Instance) : command_t(Instance,"CYCLE", 0, 1)
+	cmd_cycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1)
 	{
 		this->source = "m_cycle.so";
 		syntax = "<channel> :[reason]";

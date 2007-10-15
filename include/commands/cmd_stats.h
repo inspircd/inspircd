@@ -27,12 +27,12 @@ DllExport void DoStats(InspIRCd* Instance, char statschar, userrec* user, string
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_stats : public command_t
+class cmd_stats : public Command
 {
  public:
 	/** Constructor for stats.
 	 */
-	cmd_stats (InspIRCd* Instance) : command_t(Instance,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
+	cmd_stats (InspIRCd* Instance) : Command(Instance,"STATS",0,1) { syntax = "<stats-symbol> [<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

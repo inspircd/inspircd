@@ -17,11 +17,11 @@
 
 /** Handle /DALINFO
  */
-class cmd_dalinfo : public command_t
+class cmd_dalinfo : public Command
 {
  public:
 	/* Command 'dalinfo', takes no parameters and needs no special modes */
-	cmd_dalinfo (InspIRCd* Instance) : command_t(Instance,"DALINFO", 0, 0)
+	cmd_dalinfo (InspIRCd* Instance) : Command(Instance,"DALINFO", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}

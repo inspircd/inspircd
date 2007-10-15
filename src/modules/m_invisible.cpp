@@ -221,7 +221,7 @@ class ModuleInvisible : public Module
 	{
 		if (user->IsModeSet('Q'))
 		{
-			command_t* parthandler = ServerInstance->Parser->GetHandler("PART");
+			Command* parthandler = ServerInstance->Parser->GetHandler("PART");
 			std::vector<std::string> to_leave;
 			const char* parameters[2];
 			if (parthandler)

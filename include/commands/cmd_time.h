@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_time : public command_t
+class cmd_time : public Command
 {
  public:
 	/** Constructor for time.
 	 */
-	cmd_time (InspIRCd* Instance) : command_t(Instance,"TIME",0,0) { syntax = "[<servername>]"; }
+	cmd_time (InspIRCd* Instance) : Command(Instance,"TIME",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

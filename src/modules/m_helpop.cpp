@@ -49,10 +49,10 @@ class Helpop : public ModeHandler
 
 /** Handles /HELPOP
  */
-class cmd_helpop : public command_t
+class cmd_helpop : public Command
 {
  public:
-	cmd_helpop (InspIRCd* Instance) : command_t(Instance, "HELPOP", 0, 0)
+	cmd_helpop (InspIRCd* Instance) : Command(Instance, "HELPOP", 0, 0)
 	{
 		this->source = "m_helpop.so";
 		syntax = "<any-text>";

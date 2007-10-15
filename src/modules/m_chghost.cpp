@@ -17,12 +17,12 @@
 
 /** Handle /CHGHOST
  */
-class cmd_chghost : public command_t
+class cmd_chghost : public Command
 {
  private:
 	char* hostmap;
  public:
-	cmd_chghost (InspIRCd* Instance, char* hmap) : command_t(Instance,"CHGHOST",'o',2), hostmap(hmap)
+	cmd_chghost (InspIRCd* Instance, char* hmap) : Command(Instance,"CHGHOST",'o',2), hostmap(hmap)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";

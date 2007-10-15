@@ -52,9 +52,9 @@ enum TranslateType
 
 
 /** A structure that defines a command. Every command available
- * in InspIRCd must be defined as derived from command_t.
+ * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport command_t : public Extensible
+class CoreExport Command : public Extensible
 {
  protected:
 	/** Owner/Creator object
@@ -102,7 +102,7 @@ class CoreExport command_t : public Extensible
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	command_t(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg)
+	Command(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg)
 	{
 		use_count = 0;
 		total_bytes = 0;
@@ -173,12 +173,12 @@ class CoreExport command_t : public Extensible
 
 	/** Standard constructor gubbins
 	 */
-	virtual ~command_t() {}
+	virtual ~Command() {}
 };
 
 /** A hash of commands used by the core
  */
-typedef nspace::hash_map<std::string,command_t*> command_table;
+typedef nspace::hash_map<std::string,Command*> Commandable;
 
 #define TRANSLATE1(x1)	translation.push_back(x1);
 #define TRANSLATE2(x1,x2)  translation.push_back(x1);translation.push_back(x2);

@@ -17,10 +17,10 @@
 
 /** Handle /USERIP
  */
-class cmd_userip : public command_t
+class cmd_userip : public Command
 {
  public:
-	cmd_userip (InspIRCd* Instance) : command_t(Instance,"USERIP", 'o', 1)
+	cmd_userip (InspIRCd* Instance) : Command(Instance,"USERIP", 'o', 1)
 	{
 		this->source = "m_userip.so";
 		syntax = "<nick>{,<nick>}";

@@ -19,10 +19,10 @@
 
 /** Handle /GLOBOPS
  */
-class cmd_globops : public command_t
+class cmd_globops : public Command
 {
  public:
-	cmd_globops (InspIRCd* Instance) : command_t(Instance,"GLOBOPS",'o',1)
+	cmd_globops (InspIRCd* Instance) : Command(Instance,"GLOBOPS",'o',1)
 	{
 		this->source = "m_globops.so";
 		syntax = "<any-text>";

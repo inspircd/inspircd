@@ -17,10 +17,10 @@
 
 /** Handles the /KNOCK command
  */
-class cmd_knock : public command_t
+class cmd_knock : public Command
 {
  public:
-	cmd_knock (InspIRCd* Instance) : command_t(Instance,"KNOCK", 0, 2)
+	cmd_knock (InspIRCd* Instance) : Command(Instance,"KNOCK", 0, 2)
 	{
 		this->source = "m_knock.so";
 		syntax = "<channel> <reason>";

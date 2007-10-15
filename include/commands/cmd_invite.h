@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_invite : public command_t
+class cmd_invite : public Command
 {
  public:
 	/** Constructor for invite.
 	 */
-	cmd_invite (InspIRCd* Instance) : command_t(Instance,"INVITE",0,0) { syntax = "[<nick> <channel>]"; }
+	cmd_invite (InspIRCd* Instance) : Command(Instance,"INVITE",0,0) { syntax = "[<nick> <channel>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

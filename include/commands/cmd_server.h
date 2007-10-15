@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_server : public command_t
+class cmd_server : public Command
 {
  public:
 	/** Constructor for server.
 	 */
-	cmd_server (InspIRCd* Instance) : command_t(Instance,"SERVER",0,0) { }
+	cmd_server (InspIRCd* Instance) : Command(Instance,"SERVER",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

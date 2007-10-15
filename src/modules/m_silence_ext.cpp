@@ -51,11 +51,11 @@ static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
 static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
 
-class cmd_silence : public command_t
+class cmd_silence : public Command
 {
 	unsigned int& maxsilence;
  public:
-	cmd_silence (InspIRCd* Instance, unsigned int &max) : command_t(Instance,"SILENCE", 0, 0), maxsilence(max)
+	cmd_silence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
 		this->source = "m_silence_ext.so";
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";

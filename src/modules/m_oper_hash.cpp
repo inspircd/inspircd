@@ -21,14 +21,14 @@ typedef std::map<irc::string, Module*> hashymodules;
 
 /* Handle /MKPASSWD
  */
-class cmd_mkpasswd : public command_t
+class cmd_mkpasswd : public Command
 {
 	Module* Sender;
 	hashymodules &hashers;
 	std::deque<std::string> &names;
  public:
 	cmd_mkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
-		: command_t(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
+		: Command(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
 		this->source = "m_oper_hash.so";
 		syntax = "<hashtype> <any-text>";

@@ -22,10 +22,10 @@
 
 /** Handle /DEVOICE
  */
-class cmd_devoice : public command_t
+class cmd_devoice : public Command
 {
  public:
-	cmd_devoice (InspIRCd* Instance) : command_t(Instance,"DEVOICE", 0, 1)
+	cmd_devoice (InspIRCd* Instance) : Command(Instance,"DEVOICE", 0, 1)
 	{
 		this->source = "m_devoice.so";
 		syntax = "<channel>";

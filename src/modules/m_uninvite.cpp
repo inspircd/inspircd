@@ -17,10 +17,10 @@
 
 /** Handle /UNINVITE
  */	 
-class cmd_uninvite : public command_t
+class cmd_uninvite : public Command
 {
  public:
-	cmd_uninvite (InspIRCd* Instance) : command_t(Instance,"UNINVITE", 0, 2)
+	cmd_uninvite (InspIRCd* Instance) : Command(Instance,"UNINVITE", 0, 2)
 	{
 		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";

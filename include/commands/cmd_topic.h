@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_topic : public command_t
+class cmd_topic : public Command
 {
  public:
 	/** Constructor for topic.
 	 */
-	cmd_topic (InspIRCd* Instance) : command_t(Instance,"TOPIC",0,1) { syntax = "<channel> [<topic>]"; }
+	cmd_topic (InspIRCd* Instance) : Command(Instance,"TOPIC",0,1) { syntax = "<channel> [<topic>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

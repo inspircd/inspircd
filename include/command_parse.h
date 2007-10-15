@@ -77,13 +77,13 @@ class CoreExport CommandParser : public classbase
 	/** Removes a command if the sources match. Used as a helper for
 	 *  safe hash_map delete while iter in RemoveCommands(const char* source).
 	 */
-	void RemoveCommand(nspace::hash_map<std::string,command_t*>::iterator safei, const char* source);
+	void RemoveCommand(nspace::hash_map<std::string,Command*>::iterator safei, const char* source);
 
 
  public:
-	/** Command list, a hash_map of command names to command_t*
+	/** Command list, a hash_map of command names to Command*
 	 */
-	command_table cmdlist;
+	Commandable cmdlist;
 
 	/** Reload a core command.
 	 * This will only reload commands implemented by the core,
@@ -117,7 +117,7 @@ class CoreExport CommandParser : public classbase
 	 * @param commandname The command required. Always use uppercase for this parameter.
 	 * @return a pointer to the command handler, or NULL
 	 */
-	command_t* GetHandler(const std::string &commandname);
+	Command* GetHandler(const std::string &commandname);
 
 	/** This function returns true if a command is valid with the given number of parameters and user.
 	 * @param commandname The command name to check
@@ -150,7 +150,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
+	int LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
 
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -173,7 +173,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(userrec* user, command_t* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
+	int LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
@@ -188,13 +188,13 @@ class CoreExport CommandParser : public classbase
 	bool RemoveCommands(const char* source);
 
 	/** Add a new command to the commands hash
-	 * @param f The new command_t to add to the list
+	 * @param f The new Command to add to the list
 	 * @param so_handle The handle to the shared object where the command can be found.
 	 * Only core commands loaded via cmd_*.so files should set this parameter to anything
 	 * meaningful. Module authors should leave this parameter at its default of NULL.
 	 * @return True if the command was added
 	 */
-	bool CreateCommand(command_t *f, void* so_handle = NULL);
+	bool CreateCommand(Command *f, void* so_handle = NULL);
 
 	/** Insert the default RFC1459 commands into the command hash.
 	 * Ignore any already loaded commands.
@@ -215,12 +215,12 @@ class CoreExport CommandParser : public classbase
 /** Command handler class for the RELOAD command.
  * A command cant really reload itself, so this has to be in here.
  */
-class cmd_reload : public command_t
+class cmd_reload : public Command
 {
  public:
 	/** Standard constructor
 	 */
-	cmd_reload (InspIRCd* Instance) : command_t(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
+	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
 	CmdResult Handle(const char** parameters, int pcnt, userrec *user);

@@ -164,7 +164,7 @@ class ModuleAuditorium : public Module
 
 	void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
 	{
-		command_t* parthandler = ServerInstance->Parser->GetHandler("PART");
+		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
 		std::vector<std::string> to_leave;
 		const char* parameters[2];
 		if (parthandler)
