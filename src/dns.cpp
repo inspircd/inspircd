@@ -108,14 +108,14 @@ class DNSRequest
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
-class CacheTimer : public InspTimer
+class CacheTimer : public Timer
 {
  private:
 	InspIRCd* ServerInstance;
 	DNS* dns;
  public:
 	CacheTimer(InspIRCd* Instance, DNS* thisdns)
-		: InspTimer(3600, Instance->Time(), true), ServerInstance(Instance), dns(thisdns) { }
+		: Timer(3600, Instance->Time(), true), ServerInstance(Instance), dns(thisdns) { }
 
 	virtual void Tick(time_t TIME)
 	{
@@ -123,13 +123,13 @@ class CacheTimer : public InspTimer
 	}
 };
 
-class RequestTimeout : public InspTimer
+class RequestTimeout : public Timer
 {
 	InspIRCd* ServerInstance;
 	DNSRequest* watch;
 	int watchid;
  public:
-	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : InspTimer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id)
+	RequestTimeout(unsigned long n, InspIRCd* SI, DNSRequest* watching, int id) : Timer(n, time(NULL)), ServerInstance(SI), watch(watching), watchid(id)
 	{
 	}
 

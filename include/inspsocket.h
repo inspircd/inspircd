@@ -72,7 +72,7 @@ using irc::sockets::insp_aton;
 
 /** Used to time out socket connections
  */
-class CoreExport SocketTimeout : public InspTimer
+class CoreExport SocketTimeout : public Timer
 {
  private:
 	/** InspSocket the class is attached to
@@ -92,7 +92,7 @@ class CoreExport SocketTimeout : public InspTimer
 	 * @param secs_from_now Seconds from now to time out
 	 * @param now The current time
 	 */
-	SocketTimeout(int fd, InspIRCd* Instance, InspSocket* thesock, long secs_from_now, time_t now) : InspTimer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
+	SocketTimeout(int fd, InspIRCd* Instance, InspSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), ServerInstance(Instance), sfd(fd) { };
 	/** Handle tick event
 	 */
 	virtual void Tick(time_t now);

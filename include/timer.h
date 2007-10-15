@@ -17,16 +17,16 @@
 class InspIRCd;
 
 /** Timer class for one-second resolution timers
- * InspTimer provides a facility which allows module
+ * Timer provides a facility which allows module
  * developers to create one-shot timers. The timer
  * can be made to trigger at any time up to a one-second
- * resolution. To use InspTimer, inherit a class from
- * InspTimer, then insert your inherited class into the
+ * resolution. To use Timer, inherit a class from
+ * Timer, then insert your inherited class into the
  * queue using Server::AddTimer(). The Tick() method of
  * your object (which you should override) will be called
  * at the given time.
  */
-class CoreExport InspTimer : public Extensible
+class CoreExport Timer : public Extensible
 {
  private:
 	/** The triggering time
@@ -44,7 +44,7 @@ class CoreExport InspTimer : public Extensible
 	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	InspTimer(long secs_from_now,time_t now, bool repeating = false)
+	Timer(long secs_from_now,time_t now, bool repeating = false)
 	{
 		trigger = now + secs_from_now;
 		secs = secs_from_now;
@@ -53,7 +53,7 @@ class CoreExport InspTimer : public Extensible
 
 	/** Default destructor, does nothing.
 	 */
-	virtual ~InspTimer() { }
+	virtual ~Timer() { }
 
 	/** Retrieve the current triggering time
 	 */
@@ -89,7 +89,7 @@ class CoreExport InspTimer : public Extensible
 	 * You should use this method call to remove a recurring
 	 * timer if you wish to do so within the timer's Tick
 	 * event, as calling TimerManager::DelTimer() from within
-	 * the InspTimer::Tick() method is dangerous and may
+	 * the Timer::Tick() method is dangerous and may
 	 * cause a segmentation fault. Calling CancelRepeat()
 	 * is safe in this case.
 	 */
@@ -100,7 +100,7 @@ class CoreExport InspTimer : public Extensible
 };
 
 
-/** This class manages sets of InspTimers, and triggers them at their defined times.
+/** This class manages sets of Timers, and triggers them at their defined times.
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
@@ -109,7 +109,7 @@ class CoreExport TimerManager : public Extensible
  protected:
 	/** A group of timers all set to trigger at the same time
 	 */
-	typedef std::vector<InspTimer*> timergroup;
+	typedef std::vector<Timer*> timergroup;
 	/** A map of timergroups, each group has a specific trigger time
 	 */
 	typedef std::map<time_t, timergroup*> timerlist;
@@ -129,23 +129,23 @@ class CoreExport TimerManager : public Extensible
 	/** Constructor
 	 */
 	TimerManager(InspIRCd* Instance);
-	/** Tick all pending InspTimers
+	/** Tick all pending Timers
 	 * @param TIME the current system time
 	 */
 	void TickTimers(time_t TIME);
-	/** Add an InspTimer
-	 * @param T an InspTimer derived class to add
+	/** Add an Timer
+	 * @param T an Timer derived class to add
 	 * @param secs_from_now You may set this to the number of seconds
 	 * from the current time when the timer will tick, or you may just
-	 * leave this unset and the values set by the InspTimers constructor
+	 * leave this unset and the values set by the Timers constructor
 	 * will be used. This is used internally for re-triggering repeating
 	 * timers.
 	 */
-	void AddTimer(InspTimer* T, long secs_from_now = 0);
-	/** Delete an InspTimer
-	 * @param T an InspTimer derived class to delete
+	void AddTimer(Timer* T, long secs_from_now = 0);
+	/** Delete an Timer
+	 * @param T an Timer derived class to delete
 	 */
-	void DelTimer(InspTimer* T);
+	void DelTimer(Timer* T);
 	/** Tick any timers that have been missed due to lag
 	 * @param TIME the current system time
 	 */

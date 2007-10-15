@@ -455,7 +455,7 @@ class CoreExport InspIRCd : public classbase
 	 */
 	DNS* Res;
 
-	/** Timer manager class, triggers InspTimer timer events
+	/** Timer manager class, triggers Timer timer events
 	 */
 	TimerManager* Timers;
 

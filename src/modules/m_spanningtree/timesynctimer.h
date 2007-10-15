@@ -20,11 +20,11 @@ class ModuleSpanningTree;
 class SpanningTreeUtilities;
 class InspIRCd;
 
-/** Create a timer which recurs every second, we inherit from InspTimer.
- * InspTimer is only one-shot however, so at the end of each Tick() we simply
+/** Create a timer which recurs every second, we inherit from Timer.
+ * Timer is only one-shot however, so at the end of each Tick() we simply
  * insert another of ourselves into the pending queue :)
  */
-class TimeSyncTimer : public InspTimer
+class TimeSyncTimer : public Timer
 {
  private:
 	InspIRCd *Instance;
@@ -34,7 +34,7 @@ class TimeSyncTimer : public InspTimer
 	virtual void Tick(time_t TIME);
 };
 
-class CacheRefreshTimer : public InspTimer
+class CacheRefreshTimer : public Timer
 {
  private:
 	InspIRCd *Instance;

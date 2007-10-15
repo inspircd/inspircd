@@ -36,7 +36,7 @@ class HttpServerSocket;
 
 /** This class is used to handle HTTP socket timeouts
  */
-class HttpServerTimeout : public InspTimer
+class HttpServerTimeout : public Timer
 {
  private:
 	/** HttpServerSocket we are attached to
@@ -422,7 +422,7 @@ class HttpServerSocket : public InspSocket
 	}
 };
 
-HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : InspTimer(15, time(NULL), true), s(sock), SE(engine)
+HttpServerTimeout::HttpServerTimeout(HttpServerSocket* sock, SocketEngine* engine) : Timer(15, time(NULL), true), s(sock), SE(engine)
 {
 }
 

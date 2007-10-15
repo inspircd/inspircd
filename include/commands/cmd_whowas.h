@@ -35,7 +35,7 @@ class WhoWasMaintainTimer;
 /* Forward ref for typedefs */
 class WhoWasGroup;
 
-/** InspTimer that is used to maintain the whowas list, called once an hour
+/** Timer that is used to maintain the whowas list, called once an hour
  */
 extern WhoWasMaintainTimer* timer;
 
@@ -127,13 +127,13 @@ class WhoWasGroup : public classbase
 	~WhoWasGroup();
 };
 
-class WhoWasMaintainTimer : public InspTimer
+class WhoWasMaintainTimer : public Timer
 {
   private:
 	InspIRCd* ServerInstance;
   public:
 	WhoWasMaintainTimer(InspIRCd* Instance, long interval)
-	: InspTimer(interval, Instance->Time(), true), ServerInstance(Instance)
+	: Timer(interval, Instance->Time(), true), ServerInstance(Instance)
 	{
 	}
 	virtual void Tick(time_t TIME);

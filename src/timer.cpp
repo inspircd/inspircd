@@ -33,7 +33,7 @@ void TimerManager::TickTimers(time_t TIME)
 		 */
 		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 		{
-			InspTimer* n = *y;
+			Timer* n = *y;
 			n->Tick(TIME);
 			if (n->GetRepeat())
 			{
@@ -52,7 +52,7 @@ void TimerManager::TickTimers(time_t TIME)
 	this->CantDeleteHere = false;
 }
 
-void TimerManager::DelTimer(InspTimer* T)
+void TimerManager::DelTimer(Timer* T)
 {
 	if (this->CantDeleteHere)
 	{
@@ -79,7 +79,7 @@ void TimerManager::DelTimer(InspTimer* T)
 		timergroup* x = found->second;
 		for (timergroup::iterator y = x->begin(); y != x->end(); y++)
 		{
-			InspTimer* n = *y;
+			Timer* n = *y;
 			if (n == T)
 			{
 				DELETE(n);
@@ -108,7 +108,7 @@ void TimerManager::TickMissedTimers(time_t TIME)
 		this->TickTimers(TIME);
 }
 
-void TimerManager::AddTimer(InspTimer* T, long secs_from_now)
+void TimerManager::AddTimer(Timer* T, long secs_from_now)
 {
 	timergroup* x = NULL;
 

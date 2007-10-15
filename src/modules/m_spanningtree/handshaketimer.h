@@ -21,7 +21,7 @@ class SpanningTreeUtilities;
 class TreeSocket;
 class Link;
 
-class HandshakeTimer : public InspTimer
+class HandshakeTimer : public Timer
 {
  private:
 	InspIRCd* Instance;

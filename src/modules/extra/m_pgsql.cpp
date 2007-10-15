@@ -81,13 +81,13 @@ std::string SQLhost::GetDSN()
 	return conninfo.str();
 }
 
-class ReconnectTimer : public InspTimer
+class ReconnectTimer : public Timer
 {
   private:
 	Module* mod;
   public:
 	ReconnectTimer(InspIRCd* SI, Module* m)
-	: InspTimer(5, SI->Time(), false), mod(m)
+	: Timer(5, SI->Time(), false), mod(m)
 	{
 	}
 	virtual void Tick(time_t TIME);
