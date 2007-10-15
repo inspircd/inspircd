@@ -76,7 +76,7 @@ bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
 	return true;
 }
 
-std::string userrec::ProcessNoticeMasks(const char *sm)
+std::string User::ProcessNoticeMasks(const char *sm)
 {
 	bool adding = true, oldadding = false;
 	const char *c = sm;
@@ -133,7 +133,7 @@ std::string userrec::ProcessNoticeMasks(const char *sm)
 	return output;
 }
 
-void userrec::StartDNSLookup()
+void User::StartDNSLookup()
 {
 	try
 	{
@@ -154,7 +154,7 @@ void userrec::StartDNSLookup()
 	}
 }
 
-UserResolver::UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt, bool &cache) :
+UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache) :
 	Resolver(Instance, to_resolve, qt, cache), bound_user(user)
 {
 	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
@@ -257,17 +257,17 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 }
 
 
-bool userrec::IsNoticeMaskSet(unsigned char sm)
+bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	return (snomasks[sm-65]);
 }
 
-void userrec::SetNoticeMask(unsigned char sm, bool value)
+void User::SetNoticeMask(unsigned char sm, bool value)
 {
 	snomasks[sm-65] = value;
 }
 
-const char* userrec::FormatNoticeMasks()
+const char* User::FormatNoticeMasks()
 {
 	static char data[MAXBUF];
 	int offset = 0;
@@ -284,17 +284,17 @@ const char* userrec::FormatNoticeMasks()
 
 
 
-bool userrec::IsModeSet(unsigned char m)
+bool User::IsModeSet(unsigned char m)
 {
 	return (modes[m-65]);
 }
 
-void userrec::SetMode(unsigned char m, bool value)
+void User::SetMode(unsigned char m, bool value)
 {
 	modes[m-65] = value;
 }
 
-const char* userrec::FormatModes()
+const char* User::FormatModes()
 {
 	static char data[MAXBUF];
 	int offset = 0;
@@ -307,7 +307,7 @@ const char* userrec::FormatModes()
 	return data;
 }
 
-void userrec::DecrementModes()
+void User::DecrementModes()
 {
 	ServerInstance->Log(DEBUG,"DecrementModes()");
 	for (unsigned char n = 'A'; n <= 'z'; n++)
@@ -325,7 +325,7 @@ void userrec::DecrementModes()
 	}
 }
 
-userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
+User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance)
 {
 	*password = *nick = *ident = *host = *dhost = *fullname = *awaymsg = *oper = *uuid = 0;
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
@@ -359,10 +359,10 @@ userrec::userrec(InspIRCd* Instance, const std::string &uid) : ServerInstance(In
 	if (finduuid == Instance->uuidlist->end())
 		(*Instance->uuidlist)[uuid] = this;
 	else
-		throw CoreException("Duplicate UUID "+std::string(uuid)+" in userrec constructor");
+		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
-void userrec::RemoveCloneCounts()
+void User::RemoveCloneCounts()
 {
 	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
 	if (x != ServerInstance->local_clones.end())
@@ -385,7 +385,7 @@ void userrec::RemoveCloneCounts()
 	}
 }
 
-userrec::~userrec()
+User::~User()
 {
 	this->InvalidateCache();
 	this->DecrementModes();
@@ -410,7 +410,7 @@ userrec::~userrec()
 	ServerInstance->uuidlist->erase(uuid);
 }
 
-char* userrec::MakeHost()
+char* User::MakeHost()
 {
 	if (this->cached_makehost)
 		return this->cached_makehost;
@@ -430,7 +430,7 @@ char* userrec::MakeHost()
 	return this->cached_makehost;
 }
 
-char* userrec::MakeHostIP()
+char* User::MakeHostIP()
 {
 	if (this->cached_hostip)
 		return this->cached_hostip;
@@ -450,13 +450,13 @@ char* userrec::MakeHostIP()
 	return this->cached_hostip;
 }
 
-void userrec::CloseSocket()
+void User::CloseSocket()
 {
 	ServerInstance->SE->Shutdown(this, 2);
 	ServerInstance->SE->Close(this);
 }
 
-char* userrec::GetFullHost()
+char* User::GetFullHost()
 {
 	if (this->cached_fullhost)
 		return this->cached_fullhost;
@@ -478,7 +478,7 @@ char* userrec::GetFullHost()
 	return this->cached_fullhost;
 }
 
-char* userrec::MakeWildHost()
+char* User::MakeWildHost()
 {
 	static char nresult[MAXBUF];
 	char* t = nresult;
@@ -490,7 +490,7 @@ char* userrec::MakeWildHost()
 	return nresult;
 }
 
-int userrec::ReadData(void* buffer, size_t size)
+int User::ReadData(void* buffer, size_t size)
 {
 	if (IS_LOCAL(this))
 	{
@@ -505,7 +505,7 @@ int userrec::ReadData(void* buffer, size_t size)
 }
 
 
-char* userrec::GetFullRealHost()
+char* User::GetFullRealHost()
 {
 	if (this->cached_fullrealhost)
 		return this->cached_fullrealhost;
@@ -527,7 +527,7 @@ char* userrec::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool userrec::IsInvited(const irc::string &channel)
+bool User::IsInvited(const irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
@@ -539,17 +539,17 @@ bool userrec::IsInvited(const irc::string &channel)
 	return false;
 }
 
-InvitedList* userrec::GetInviteList()
+InvitedList* User::GetInviteList()
 {
 	return &invites;
 }
 
-void userrec::InviteTo(const irc::string &channel)
+void User::InviteTo(const irc::string &channel)
 {
 	invites.push_back(channel);
 }
 
-void userrec::RemoveInvite(const irc::string &channel)
+void User::RemoveInvite(const irc::string &channel)
 {
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
 	{
@@ -561,7 +561,7 @@ void userrec::RemoveInvite(const irc::string &channel)
 	}
 }
 
-bool userrec::HasPermission(const std::string &command)
+bool User::HasPermission(const std::string &command)
 {
 	char* mycmd;
 	char* savept;
@@ -618,7 +618,7 @@ bool userrec::HasPermission(const std::string &command)
  * something we can change anyway. Makes sense to just let
  * the compiler do that copy for us.
  */
-bool userrec::AddBuffer(std::string a)
+bool User::AddBuffer(std::string a)
 {
 	try
 	{
@@ -645,22 +645,22 @@ bool userrec::AddBuffer(std::string a)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::AddBuffer()");
+		ServerInstance->Log(DEBUG,"Exception in User::AddBuffer()");
 		return false;
 	}
 }
 
-bool userrec::BufferIsReady()
+bool User::BufferIsReady()
 {
 	return (recvq.find('\n') != std::string::npos);
 }
 
-void userrec::ClearBuffer()
+void User::ClearBuffer()
 {
 	recvq.clear();
 }
 
-std::string userrec::GetBuffer()
+std::string User::GetBuffer()
 {
 	try
 	{
@@ -695,12 +695,12 @@ std::string userrec::GetBuffer()
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::GetBuffer()");
+		ServerInstance->Log(DEBUG,"Exception in User::GetBuffer()");
 		return "";
 	}
 }
 
-void userrec::AddWriteBuf(const std::string &data)
+void User::AddWriteBuf(const std::string &data)
 {
 	if (*this->GetWriteError())
 		return;
@@ -732,7 +732,7 @@ void userrec::AddWriteBuf(const std::string &data)
 }
 
 // send AS MUCH OF THE USERS SENDQ as we are able to (might not be all of it)
-void userrec::FlushWriteBuf()
+void User::FlushWriteBuf()
 {
 	try
 	{
@@ -778,7 +778,7 @@ void userrec::FlushWriteBuf()
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::FlushWriteBuf()");
+		ServerInstance->Log(DEBUG,"Exception in User::FlushWriteBuf()");
 	}
 
 	if (this->sendq.empty())
@@ -787,7 +787,7 @@ void userrec::FlushWriteBuf()
 	}
 }
 
-void userrec::SetWriteError(const std::string &error)
+void User::SetWriteError(const std::string &error)
 {
 	try
 	{
@@ -798,16 +798,16 @@ void userrec::SetWriteError(const std::string &error)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::SetWriteError()");
+		ServerInstance->Log(DEBUG,"Exception in User::SetWriteError()");
 	}
 }
 
-const char* userrec::GetWriteError()
+const char* User::GetWriteError()
 {
 	return this->WriteError.c_str();
 }
 
-void userrec::Oper(const std::string &opertype)
+void User::Oper(const std::string &opertype)
 {
 	try
 	{
@@ -822,11 +822,11 @@ void userrec::Oper(const std::string &opertype)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::Oper()");
+		ServerInstance->Log(DEBUG,"Exception in User::Oper()");
 	}
 }
 
-void userrec::UnOper()
+void User::UnOper()
 {
 	try
 	{
@@ -843,11 +843,11 @@ void userrec::UnOper()
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::UnOper()");
+		ServerInstance->Log(DEBUG,"Exception in User::UnOper()");
 	}
 }
 
-void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &quitreason, const char* operreason)
+void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreason, const char* operreason)
 {
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, operreason);
 	user->muted = true;
@@ -855,7 +855,7 @@ void userrec::QuitUser(InspIRCd* Instance, userrec *user, const std::string &qui
 }
 
 /* adds or updates an entry in the whowas list */
-void userrec::AddToWhoWas()
+void User::AddToWhoWas()
 {
 	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 	if (whowas_command)
@@ -867,15 +867,15 @@ void userrec::AddToWhoWas()
 }
 
 /* add a client connection to the sockets list */
-void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
+void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, int socketfamily, sockaddr* ip)
 {
-	/* NOTE: Calling this one parameter constructor for userrec automatically
+	/* NOTE: Calling this one parameter constructor for User automatically
 	 * allocates a new UUID and places it in the hash_map.
 	 */
-	userrec* New = NULL;
+	User* New = NULL;
 	try
 	{
-		New = new userrec(Instance);
+		New = new User(Instance);
 	}
 	catch (...)
 	{
@@ -928,12 +928,12 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 
 	if (!i)
 	{
-		userrec::QuitUser(Instance, New, "Access denied by configuration");
+		User::QuitUser(Instance, New, "Access denied by configuration");
 		return;
 	}
 
 	/*
-	 * Check connect class settings and initialise settings into userrec.
+	 * Check connect class settings and initialise settings into User.
 	 * This will be done again after DNS resolution. -- w00t
 	 */
 	New->CheckClass();
@@ -943,7 +943,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	if ((Instance->local_users.size() > Instance->Config->SoftLimit) || (Instance->local_users.size() >= MAXCLIENTS))
 	{
 		Instance->WriteOpers("*** Warning: softlimit value has been reached: %d clients", Instance->Config->SoftLimit);
-		userrec::QuitUser(Instance, New,"No more connections allowed");
+		User::QuitUser(Instance, New,"No more connections allowed");
 		return;
 	}
 
@@ -960,7 +960,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 #ifndef WINDOWS
 	if ((unsigned int)socket >= MAX_DESCRIPTORS)
 	{
-		userrec::QuitUser(Instance, New, "Server is full");
+		User::QuitUser(Instance, New, "Server is full");
 		return;
 	}
 #endif
@@ -975,7 +975,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 			if (*Instance->Config->MoronBanner)
 				New->WriteServ("NOTICE %s :*** %s", New->nick, Instance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"Z-Lined: %s",r->reason);
-			userrec::QuitUser(Instance, New, reason);
+			User::QuitUser(Instance, New, reason);
 			return;
 		}
 	}
@@ -984,7 +984,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
         {
                 if (!Instance->SE->AddFd(New))
                 {
-			userrec::QuitUser(Instance, New, "Internal error handling connection");
+			User::QuitUser(Instance, New, "Internal error handling connection");
                 }
         }
 
@@ -994,7 +994,7 @@ void userrec::AddClient(InspIRCd* Instance, int socket, int port, bool iscached,
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 }
 
-unsigned long userrec::GlobalCloneCount()
+unsigned long User::GlobalCloneCount()
 {
 	clonemap::iterator x = ServerInstance->global_clones.find(this->GetIPString());
 	if (x != ServerInstance->global_clones.end())
@@ -1003,7 +1003,7 @@ unsigned long userrec::GlobalCloneCount()
 		return 0;
 }
 
-unsigned long userrec::LocalCloneCount()
+unsigned long User::LocalCloneCount()
 {
 	clonemap::iterator x = ServerInstance->local_clones.find(this->GetIPString());
 	if (x != ServerInstance->local_clones.end())
@@ -1015,24 +1015,24 @@ unsigned long userrec::LocalCloneCount()
 /*
  * Check class restrictions
  */
-void userrec::CheckClass(const std::string &explicit_class)
+void User::CheckClass(const std::string &explicit_class)
 {
 	ConnectClass* a = this->GetClass(explicit_class);
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
-		userrec::QuitUser(ServerInstance, this, "Unauthorised connection");
+		User::QuitUser(ServerInstance, this, "Unauthorised connection");
 		return;
 	}
 	else if ((a->GetMaxLocal()) && (this->LocalCloneCount() > a->GetMaxLocal()))
 	{
-		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
+		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (local)");
 		ServerInstance->WriteOpers("*** WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (this->GlobalCloneCount() > a->GetMaxGlobal()))
 	{
-		userrec::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
+		User::QuitUser(ServerInstance, this, "No more connections allowed from your host via this connect class (global)");
 		ServerInstance->WriteOpers("*** WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
@@ -1047,13 +1047,13 @@ void userrec::CheckClass(const std::string &explicit_class)
 	this->MaxChans = a->GetMaxChans();
 }
 
-void userrec::FullConnect()
+void User::FullConnect()
 {
 	ServerInstance->stats->statsConnects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
 	/*
-	 * You may be thinking "wtf, we checked this in userrec::AddClient!" - and yes, we did, BUT.
+	 * You may be thinking "wtf, we checked this in User::AddClient!" - and yes, we did, BUT.
 	 * At the time AddClient is called, we don't have a resolved host, by here we probably do - which
 	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
@@ -1065,7 +1065,7 @@ void userrec::FullConnect()
 	 */
 	if ((!this->GetClass()->GetPass().empty()) && (!this->haspassed))
 	{
-		userrec::QuitUser(ServerInstance, this, "Invalid password");
+		User::QuitUser(ServerInstance, this, "Invalid password");
 		return;
 	}
 	
@@ -1080,7 +1080,7 @@ void userrec::FullConnect()
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this->nick, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"G-Lined: %s",r->reason);
-			userrec::QuitUser(ServerInstance, this, reason);
+			User::QuitUser(ServerInstance, this, reason);
 			return;
 		}
 
@@ -1093,7 +1093,7 @@ void userrec::FullConnect()
 			if (*ServerInstance->Config->MoronBanner)
 				this->WriteServ("NOTICE %s :*** %s", this, ServerInstance->Config->MoronBanner);
 			snprintf(reason,MAXBUF,"K-Lined: %s",n->reason);
-			userrec::QuitUser(ServerInstance, this, reason);
+			User::QuitUser(ServerInstance, this, reason);
 			return;
 		}
 	}
@@ -1134,11 +1134,11 @@ void userrec::FullConnect()
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]", this->GetPort(), this->nick, this->ident, this->host, this->GetIPString(), this->fullname);
 }
 
-/** userrec::UpdateNick()
+/** User::UpdateNick()
  * re-allocates a nick in the user_hash after they change nicknames,
  * returns a pointer to the new user as it may have moved
  */
-userrec* userrec::UpdateNickHash(const char* New)
+User* User::UpdateNickHash(const char* New)
 {
 	try
 	{
@@ -1151,7 +1151,7 @@ userrec* userrec::UpdateNickHash(const char* New)
 		if (oldnick == ServerInstance->clientlist->end())
 			return NULL; /* doesnt exist */
 
-		userrec* olduser = oldnick->second;
+		User* olduser = oldnick->second;
 		(*(ServerInstance->clientlist))[New] = olduser;
 		ServerInstance->clientlist->erase(oldnick);
 		return olduser;
@@ -1159,12 +1159,12 @@ userrec* userrec::UpdateNickHash(const char* New)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::UpdateNickHash()");
+		ServerInstance->Log(DEBUG,"Exception in User::UpdateNickHash()");
 		return NULL;
 	}
 }
 
-void userrec::InvalidateCache()
+void User::InvalidateCache()
 {
 	/* Invalidate cache */
 	if (cached_fullhost)
@@ -1178,7 +1178,7 @@ void userrec::InvalidateCache()
 	cached_fullhost = cached_hostip = cached_makehost = cached_fullrealhost = NULL;
 }
 
-bool userrec::ForceNickChange(const char* newnick)
+bool User::ForceNickChange(const char* newnick)
 {
 	try
 	{
@@ -1217,12 +1217,12 @@ bool userrec::ForceNickChange(const char* newnick)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::ForceNickChange()");
+		ServerInstance->Log(DEBUG,"Exception in User::ForceNickChange()");
 		return false;
 	}
 }
 
-void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
+void User::SetSockAddr(int protocol_family, const char* ip, int port)
 {
 	switch (protocol_family)
 	{
@@ -1252,7 +1252,7 @@ void userrec::SetSockAddr(int protocol_family, const char* ip, int port)
 	}
 }
 
-int userrec::GetPort()
+int User::GetPort()
 {
 	if (this->ip == NULL)
 		return 0;
@@ -1279,7 +1279,7 @@ int userrec::GetPort()
 	return 0;
 }
 
-int userrec::GetProtocolFamily()
+int User::GetProtocolFamily()
 {
 	if (this->ip == NULL)
 		return 0;
@@ -1288,7 +1288,7 @@ int userrec::GetProtocolFamily()
 	return sin->sin_family;
 }
 
-const char* userrec::GetIPString()
+const char* User::GetIPString()
 {
 	static char buf[1024];
 
@@ -1328,7 +1328,7 @@ const char* userrec::GetIPString()
 	return "";
 }
 
-const char* userrec::GetIPString(char* buf)
+const char* User::GetIPString(char* buf)
 {
 	if (this->ip == NULL)
 	{
@@ -1376,7 +1376,7 @@ const char* userrec::GetIPString(char* buf)
  * something we can change anyway. Makes sense to just let
  * the compiler do that copy for us.
  */
-void userrec::Write(std::string text)
+void User::Write(std::string text)
 {
 	if (!ServerInstance->SE->BoundsCheckFd(this))
 		return;
@@ -1392,7 +1392,7 @@ void userrec::Write(std::string text)
 	}
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::Write() std::string::append");
+		ServerInstance->Log(DEBUG,"Exception in User::Write() std::string::append");
 		return;
 	}
 
@@ -1420,7 +1420,7 @@ void userrec::Write(std::string text)
 
 /** Write()
  */
-void userrec::Write(const char *text, ...)
+void User::Write(const char *text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
@@ -1432,7 +1432,7 @@ void userrec::Write(const char *text, ...)
 	this->Write(std::string(textbuffer));
 }
 
-void userrec::WriteServ(const std::string& text)
+void User::WriteServ(const std::string& text)
 {
 	char textbuffer[MAXBUF];
 
@@ -1443,7 +1443,7 @@ void userrec::WriteServ(const std::string& text)
 /** WriteServ()
  *  Same as Write(), except `text' is prefixed with `:server.name '.
  */
-void userrec::WriteServ(const char* text, ...)
+void User::WriteServ(const char* text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
@@ -1456,7 +1456,7 @@ void userrec::WriteServ(const char* text, ...)
 }
 
 
-void userrec::WriteFrom(userrec *user, const std::string &text)
+void User::WriteFrom(User *user, const std::string &text)
 {
 	char tb[MAXBUF];
 
@@ -1468,7 +1468,7 @@ void userrec::WriteFrom(userrec *user, const std::string &text)
 
 /* write text from an originating user to originating user */
 
-void userrec::WriteFrom(userrec *user, const char* text, ...)
+void User::WriteFrom(User *user, const char* text, ...)
 {
 	va_list argsPtr;
 	char textbuffer[MAXBUF];
@@ -1483,7 +1483,7 @@ void userrec::WriteFrom(userrec *user, const char* text, ...)
 
 /* write text to an destination user from a source user (e.g. user privmsg) */
 
-void userrec::WriteTo(userrec *dest, const char *data, ...)
+void User::WriteTo(User *dest, const char *data, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1495,13 +1495,13 @@ void userrec::WriteTo(userrec *dest, const char *data, ...)
 	this->WriteTo(dest, std::string(textbuffer));
 }
 
-void userrec::WriteTo(userrec *dest, const std::string &data)
+void User::WriteTo(User *dest, const std::string &data)
 {
 	dest->WriteFrom(this, data);
 }
 
 
-void userrec::WriteCommon(const char* text, ...)
+void User::WriteCommon(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1516,7 +1516,7 @@ void userrec::WriteCommon(const char* text, ...)
 	this->WriteCommon(std::string(textbuffer));
 }
 
-void userrec::WriteCommon(const std::string &text)
+void User::WriteCommon(const std::string &text)
 {
 	try
 	{
@@ -1558,7 +1558,7 @@ void userrec::WriteCommon(const std::string &text)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::WriteCommon()");
+		ServerInstance->Log(DEBUG,"Exception in User::WriteCommon()");
 	}
 }
 
@@ -1567,7 +1567,7 @@ void userrec::WriteCommon(const std::string &text)
  * channel, NOT including the source user e.g. for use in QUIT
  */
 
-void userrec::WriteCommonExcept(const char* text, ...)
+void User::WriteCommonExcept(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1579,7 +1579,7 @@ void userrec::WriteCommonExcept(const char* text, ...)
 	this->WriteCommonExcept(std::string(textbuffer));
 }
 
-void userrec::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
+void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
 {
 	char tb1[MAXBUF];
 	char tb2[MAXBUF];
@@ -1610,7 +1610,7 @@ void userrec::WriteCommonQuit(const std::string &normal_text, const std::string 
 	}
 }
 
-void userrec::WriteCommonExcept(const std::string &text)
+void User::WriteCommonExcept(const std::string &text)
 {
 	char tb1[MAXBUF];
 	std::string out1;
@@ -1640,7 +1640,7 @@ void userrec::WriteCommonExcept(const std::string &text)
 
 }
 
-void userrec::WriteWallOps(const std::string &text)
+void User::WriteWallOps(const std::string &text)
 {
 	if (!IS_OPER(this) && IS_LOCAL(this))
 		return;
@@ -1648,15 +1648,15 @@ void userrec::WriteWallOps(const std::string &text)
 	std::string wallop("WALLOPS :");
 	wallop.append(text);
 
-	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
-		userrec* t = *i;
+		User* t = *i;
 		if (t->IsModeSet('w'))
 			this->WriteTo(t,wallop);
 	}
 }
 
-void userrec::WriteWallOps(const char* text, ...)
+void User::WriteWallOps(const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -1675,12 +1675,12 @@ void userrec::WriteWallOps(const char* text, ...)
  * the first users channels then the second users channels within the outer loop,
  * therefore it was a maximum of x*y iterations (upon returning 0 and checking
  * all possible iterations). However this new function instead checks against the
- * channel's userlist in the inner loop which is a std::map<userrec*,userrec*>
+ * channel's userlist in the inner loop which is a std::map<User*,User*>
  * and saves us time as we already know what pointer value we are after.
  * Don't quote me on the maths as i am not a mathematician or computer scientist,
  * but i believe this algorithm is now x+(log y) maximum iterations instead.
  */
-bool userrec::SharesChannelWith(userrec *other)
+bool User::SharesChannelWith(User *other)
 {
 	if ((!other) || (this->registered != REG_ALL) || (other->registered != REG_ALL))
 		return false;
@@ -1697,7 +1697,7 @@ bool userrec::SharesChannelWith(userrec *other)
 	return false;
 }
 
-bool userrec::ChangeName(const char* gecos)
+bool User::ChangeName(const char* gecos)
 {
 	if (!strcmp(gecos, this->fullname))
 		return true;
@@ -1715,7 +1715,7 @@ bool userrec::ChangeName(const char* gecos)
 	return true;
 }
 
-bool userrec::ChangeDisplayedHost(const char* host)
+bool User::ChangeDisplayedHost(const char* host)
 {
 	if (!strcmp(host, this->dhost))
 		return true;
@@ -1731,7 +1731,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	if (this->ServerInstance->Config->CycleHosts)
 		this->WriteCommonExcept("QUIT :Changing hosts");
 
-	/* Fix by Om: userrec::dhost is 65 long, this was truncating some long hosts */
+	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
 	strlcpy(this->dhost,host,64);
 
 	this->InvalidateCache();
@@ -1753,7 +1753,7 @@ bool userrec::ChangeDisplayedHost(const char* host)
 	return true;
 }
 
-bool userrec::ChangeIdent(const char* newident)
+bool User::ChangeIdent(const char* newident)
 {
 	if (!strcmp(newident, this->ident))
 		return true;
@@ -1779,7 +1779,7 @@ bool userrec::ChangeIdent(const char* newident)
 	return true;
 }
 
-void userrec::SendAll(const char* command, char* text, ...)
+void User::SendAll(const char* command, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	char formatbuffer[MAXBUF];
@@ -1792,14 +1792,14 @@ void userrec::SendAll(const char* command, char* text, ...)
 	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
-	for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 	{
 		(*i)->Write(fmt);
 	}
 }
 
 
-std::string userrec::ChannelList(userrec* source)
+std::string User::ChannelList(User* source)
 {
 	try
 	{
@@ -1819,12 +1819,12 @@ std::string userrec::ChannelList(userrec* source)
 	}
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::ChannelList()");
+		ServerInstance->Log(DEBUG,"Exception in User::ChannelList()");
 		return "";
 	}
 }
 
-void userrec::SplitChanList(userrec* dest, const std::string &cl)
+void User::SplitChanList(User* dest, const std::string &cl)
 {
 	std::string line;
 	std::ostringstream prefix;
@@ -1865,11 +1865,11 @@ void userrec::SplitChanList(userrec* dest, const std::string &cl)
 
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::SplitChanList()");
+		ServerInstance->Log(DEBUG,"Exception in User::SplitChanList()");
 	}
 }
 
-unsigned int userrec::GetMaxChans()
+unsigned int User::GetMaxChans()
 {
 	return this->MaxChans;
 }
@@ -1879,7 +1879,7 @@ unsigned int userrec::GetMaxChans()
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
  */
-ConnectClass* userrec::GetClass(const std::string &explicit_name)
+ConnectClass* User::GetClass(const std::string &explicit_name)
 {
 	if (!explicit_name.empty())
 	{
@@ -1910,9 +1910,9 @@ ConnectClass* userrec::GetClass(const std::string &explicit_name)
 	return NULL;
 }
 
-void userrec::PurgeEmptyChannels()
+void User::PurgeEmptyChannels()
 {
-	std::vector<chanrec*> to_delete;
+	std::vector<Channel*> to_delete;
 
 	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
@@ -1927,14 +1927,14 @@ void userrec::PurgeEmptyChannels()
 			}
 			catch (...)
 			{
-				ServerInstance->Log(DEBUG,"Exception in userrec::PurgeEmptyChannels to_delete.push_back()");
+				ServerInstance->Log(DEBUG,"Exception in User::PurgeEmptyChannels to_delete.push_back()");
 			}
 		}
 	}
 
-	for (std::vector<chanrec*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
+	for (std::vector<Channel*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
 	{
-		chanrec* thischan = *n;
+		Channel* thischan = *n;
 		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
 		if (i2 != ServerInstance->chanlist->end())
 		{
@@ -1948,7 +1948,7 @@ void userrec::PurgeEmptyChannels()
 	this->UnOper();
 }
 
-void userrec::ShowMOTD()
+void User::ShowMOTD()
 {
 	if (!ServerInstance->Config->MOTD.size())
 	{
@@ -1963,7 +1963,7 @@ void userrec::ShowMOTD()
 	this->WriteServ("376 %s :End of message of the day.", this->nick);
 }
 
-void userrec::ShowRULES()
+void User::ShowRULES()
 {
 	if (!ServerInstance->Config->RULES.size())
 	{
@@ -1979,7 +1979,7 @@ void userrec::ShowRULES()
 	this->WriteServ("309 %s :End of RULES command.",this->nick);
 }
 
-void userrec::HandleEvent(EventType et, int errornum)
+void User::HandleEvent(EventType et, int errornum)
 {
 	/* WARNING: May delete this user! */
 	int thisfd = this->GetFd();
@@ -2002,7 +2002,7 @@ void userrec::HandleEvent(EventType et, int errornum)
 	}
 	catch (...)
 	{
-		ServerInstance->Log(DEBUG,"Exception in userrec::HandleEvent intercepted");
+		ServerInstance->Log(DEBUG,"Exception in User::HandleEvent intercepted");
 	}
 
 	/* If the user has raised an error whilst being processed, quit them now we're safe to */
@@ -2010,12 +2010,12 @@ void userrec::HandleEvent(EventType et, int errornum)
 	{
 		if (!WriteError.empty())
 		{
-			userrec::QuitUser(ServerInstance, this, GetWriteError());
+			User::QuitUser(ServerInstance, this, GetWriteError());
 		}
 	}
 }
 
-void userrec::SetOperQuit(const std::string &oquit)
+void User::SetOperQuit(const std::string &oquit)
 {
 	if (operquit)
 		return;
@@ -2023,7 +2023,7 @@ void userrec::SetOperQuit(const std::string &oquit)
 	operquit = strdup(oquit.c_str());
 }
 
-const char* userrec::GetOperQuit()
+const char* User::GetOperQuit()
 {
 	return operquit ? operquit : "";
 }
@@ -2036,7 +2036,7 @@ VisData::~VisData()
 {
 }
 
-bool VisData::VisibleTo(userrec* user)
+bool VisData::VisibleTo(User* user)
 {
 	return true;
 }

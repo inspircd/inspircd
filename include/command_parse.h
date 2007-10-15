@@ -54,7 +54,7 @@ class CoreExport CommandParser : public classbase
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
 	 */
-	void ProcessCommand(userrec *user, std::string &cmd);
+	void ProcessCommand(User *user, std::string &cmd);
 
 	/** Finds the init_command symbol in a .so file
 	 * @param v A function pointer to be initialized
@@ -93,7 +93,7 @@ class CoreExport CommandParser : public classbase
 	 * @return True if the command was reloaded, false if it could not be found
 	 * or another error occured
 	 */
-	bool ReloadCommand(const char* cmd, userrec* user);
+	bool ReloadCommand(const char* cmd, User* user);
 
 	/** Default constructor.
 	 * @param Instance The creator of this class
@@ -111,7 +111,7 @@ class CoreExport CommandParser : public classbase
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */
-	CmdResult CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user);
+	CmdResult CallHandler(const std::string &commandname,const char** parameters, int pcnt, User *user);
 
 	/** Get the handler function for a command.
 	 * @param commandname The command required. Always use uppercase for this parameter.
@@ -127,7 +127,7 @@ class CoreExport CommandParser : public classbase
 	 * equal to or greater than the minimum number of parameters to the given command, then this
 	 * function will return true, otherwise it will return false.
 	 */
-	bool IsValidCommand(const std::string &commandname, int pcnt, userrec * user);
+	bool IsValidCommand(const std::string &commandname, int pcnt, User * user);
 	
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -150,7 +150,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
+	int LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra);
 
 	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
 	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
@@ -173,13 +173,13 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
+	int LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
 	 * @param user The user to whom this line belongs
 	 */
-	void ProcessBuffer(std::string &buffer,userrec *user);
+	void ProcessBuffer(std::string &buffer,User *user);
 
 	/** Remove all commands relating to module 'source'.
 	 * @param source A module name which has introduced new commands
@@ -201,7 +201,7 @@ class CoreExport CommandParser : public classbase
 	 * @param user User to spool errors to, or if NULL, when an error occurs spool the errors to
 	 * stdout then exit with EXIT_STATUS_HANDLER.
 	 */
-	void SetupCommandTable(userrec* user);
+	void SetupCommandTable(User* user);
 
 	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
 	 * @param to The translation type to use for the process.
@@ -223,7 +223,7 @@ class cmd_reload : public Command
 	cmd_reload (InspIRCd* Instance) : Command(Instance,"RELOAD",'o',1) { syntax = "<core-command>"; }
 	/** Handle RELOAD
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
+	CmdResult Handle(const char** parameters, int pcnt, User *user);
 };
 
 /** A lookup table of values for multiplier characters used by

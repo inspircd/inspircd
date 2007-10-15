@@ -62,7 +62,7 @@ public:
 		output.append(" EXCEPTS=e");
 	}
 
-	virtual int OnCheckBan(userrec* user, chanrec* chan)
+	virtual int OnCheckBan(User* user, Channel* chan)
 	{
 		if (chan != NULL)
 		{
@@ -93,17 +93,17 @@ public:
 		be->DoCleanup(target_type, item);
 	}
 
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		be->DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		be->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		be->DoRehash();
 	}

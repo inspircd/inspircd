@@ -149,7 +149,7 @@ bool TreeServer::DuplicateID()
 int TreeServer::QuitUsers(const std::string &reason)
 {
 	const char* reason_s = reason.c_str();
-	std::vector<userrec*> time_to_die;
+	std::vector<User*> time_to_die;
 	for (user_hash::iterator n = ServerInstance->clientlist->begin(); n != ServerInstance->clientlist->end(); n++)
 	{
 		if (!strcmp(n->second->server, this->ServerName.c_str()))
@@ -157,15 +157,15 @@ int TreeServer::QuitUsers(const std::string &reason)
 			time_to_die.push_back(n->second);
 		}
 	}
-	for (std::vector<userrec*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
+	for (std::vector<User*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
 	{
-		userrec* a = (userrec*)*n;
+		User* a = (User*)*n;
 		if (!IS_LOCAL(a))
 		{
 			if (ServerInstance->Config->HideSplits)
-				userrec::QuitUser(ServerInstance, a, "*.net *.split", reason_s);
+				User::QuitUser(ServerInstance, a, "*.net *.split", reason_s);
 			else
-				userrec::QuitUser(ServerInstance, a, reason_s);
+				User::QuitUser(ServerInstance, a, reason_s);
 
 			if (this->Utils->quiet_bursts)
 				ServerInstance->GlobalCulls.MakeSilent(a);

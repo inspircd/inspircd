@@ -21,13 +21,13 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KILL
  */
-CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kill::Handle (const char** parameters, int pcnt, User *user)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
 
-	userrec *u = ServerInstance->FindNick(parameters[0]);
+	User *u = ServerInstance->FindNick(parameters[0]);
 	char killreason[MAXBUF];
 	int MOD_RESULT = 0;
 
@@ -103,7 +103,7 @@ CmdResult cmd_kill::Handle (const char** parameters, int pcnt, userrec *user)
 		}
 
 		// send the quit out
-		userrec::QuitUser(ServerInstance, u, killreason);
+		User::QuitUser(ServerInstance, u, killreason);
 	}
 	else
 	{

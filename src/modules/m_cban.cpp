@@ -54,7 +54,7 @@ class cmd_cban : public Command
 		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
 		/* syntax: CBAN #channel time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -134,7 +134,7 @@ class ModuleCBan : public Module
 		List[I_OnUserPreJoin] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnStats] = 1;
 	}
 	
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		ExpireBans();
 	
@@ -150,7 +150,7 @@ class ModuleCBan : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname, std::string &privs)
+	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs)
 	{
 		ExpireBans();
 	

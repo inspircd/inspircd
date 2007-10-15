@@ -21,7 +21,7 @@ ModeUserOperator::ModeUserOperator(InspIRCd* Instance) : ModeHandler(Instance, '
 {
 }
 
-ModeAction ModeUserOperator::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* Only opers can execute this class at all */
 	if (!*source->oper)
@@ -35,7 +35,7 @@ ModeAction ModeUserOperator::OnModeChange(userrec* source, userrec* dest, chanre
 	 * Note that oper status is only given in cmd_oper.cpp
 	 * NOT here. It is impossible to directly set +o without
 	 * verifying as an oper and getting an opertype assigned
-	 * to your userrec!
+	 * to your User!
 	 */
 	ServerInstance->SNO->WriteToSnoMask('o', "User %s de-opered (by %s)", dest->nick, source->nick);
 	dest->UnOper();

@@ -24,7 +24,7 @@ class Helpop : public ModeHandler
  public:
 	Helpop(InspIRCd* Instance) : ModeHandler(Instance, 'h', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -58,7 +58,7 @@ class cmd_helpop : public Command
 		syntax = "<any-text>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		irc::string parameter("start");
 		if (pcnt > 0)
@@ -158,12 +158,12 @@ class ModuleHelpop : public Module
 			List[I_OnRehash] = List[I_OnWhois] = 1;
 		}
 
-		virtual void OnRehash(userrec* user, const std::string &parameter)
+		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			ReadConfig();
 		}
 
-		virtual void OnWhois(userrec* src, userrec* dst)
+		virtual void OnWhois(User* src, User* dst)
 		{
 			if (dst->IsModeSet('h'))
 			{

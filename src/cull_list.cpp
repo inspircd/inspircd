@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "cull_list.h"
 
-CullItem::CullItem(userrec* u, std::string &r, const char* o_reason)
+CullItem::CullItem(User* u, std::string &r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
@@ -26,7 +26,7 @@ CullItem::CullItem(userrec* u, std::string &r, const char* o_reason)
 		this->oper_reason = r;
 }
 
-CullItem::CullItem(userrec* u, const char* r, const char* o_reason)
+CullItem::CullItem(User* u, const char* r, const char* o_reason)
 {
 	this->user = u;
 	this->reason = r;
@@ -52,7 +52,7 @@ CullItem::~CullItem()
 {
 }
 
-userrec* CullItem::GetUser()
+User* CullItem::GetUser()
 {
 	return this->user;
 }
@@ -73,13 +73,13 @@ CullList::CullList(InspIRCd* Instance) : ServerInstance(Instance)
 	exempt.clear();
 }
 
-void CullList::AddItem(userrec* user, std::string &reason, const char* o_reason)
+void CullList::AddItem(User* user, std::string &reason, const char* o_reason)
 {
 	AddItem(user, reason.c_str(), o_reason);
 }
 
 
-void CullList::AddItem(userrec* user, const char* reason, const char* o_reason)
+void CullList::AddItem(User* user, const char* reason, const char* o_reason)
 {
 	if (exempt.find(user) == exempt.end())
 	{
@@ -89,7 +89,7 @@ void CullList::AddItem(userrec* user, const char* reason, const char* o_reason)
 	}
 }
 
-void CullList::MakeSilent(userrec* user)
+void CullList::MakeSilent(User* user)
 {
 	for (std::vector<CullItem>::iterator a = list.begin(); a != list.end(); ++a)
 	{
@@ -110,7 +110,7 @@ int CullList::Apply()
 		std::vector<CullItem>::iterator a = list.begin();
 
 		user_hash::iterator iter = ServerInstance->clientlist->find(a->GetUser()->nick);
-		std::map<userrec*, userrec*>::iterator exemptiter = exempt.find(a->GetUser());
+		std::map<User*, User*>::iterator exemptiter = exempt.find(a->GetUser());
 		const char* preset_reason = a->GetUser()->GetOperQuit();
 		std::string reason = a->GetReason();
 		std::string oper_reason = *preset_reason ? preset_reason : a->GetOperReason();
@@ -184,7 +184,7 @@ int CullList::Apply()
 		{
 			if (IS_LOCAL(a->GetUser()))
 			{
-				std::vector<userrec*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),a->GetUser());
+				std::vector<User*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),a->GetUser());
 				if (x != ServerInstance->local_users.end())
 					ServerInstance->local_users.erase(x);
 			}

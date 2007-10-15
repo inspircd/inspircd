@@ -114,9 +114,9 @@ void InspIRCd::WriteOpers(const char* text, ...)
 
 void InspIRCd::WriteOpers(const std::string &text)
 {
-	for (std::list<userrec*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
+	for (std::list<User*>::iterator i = this->all_opers.begin(); i != this->all_opers.end(); i++)
 	{
-		userrec* a = *i;
+		User* a = *i;
 		if (IS_LOCAL(a) && a->IsModeSet('s'))
 		{
 			// send server notices to all with +s
@@ -139,9 +139,9 @@ void InspIRCd::ServerNoticeAll(char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s",Config->ServerName,textbuffer);
 
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		userrec* t = *i;
+		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));
 	}
 }
@@ -160,9 +160,9 @@ void InspIRCd::ServerPrivmsgAll(char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s",Config->ServerName,textbuffer);
 
-	for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
-		userrec* t = *i;
+		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));
 	}
 }
@@ -186,9 +186,9 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 
 	if (flags == WM_AND)
 	{
-		for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
-			userrec* t = *i;
+			User* t = *i;
 			bool send_to_user = true;
 
 			for (int n = 0; n < modelen; n++)
@@ -207,9 +207,9 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 	}
 	else if (flags == WM_OR)
 	{
-		for (std::vector<userrec*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+		for (std::vector<User*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 		{
-			userrec* t = *i;
+			User* t = *i;
 			bool send_to_user = false;
 
 			for (int n = 0; n < modelen; n++)
@@ -230,7 +230,7 @@ void InspIRCd::WriteMode(const char* modes, int flags, const char* text, ...)
 }
 
 /* Find a user record by nickname and return a pointer to it */
-userrec* InspIRCd::FindNick(const std::string &nick)
+User* InspIRCd::FindNick(const std::string &nick)
 {
 	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
@@ -244,7 +244,7 @@ userrec* InspIRCd::FindNick(const std::string &nick)
 	return iter->second;
 }
 
-userrec* InspIRCd::FindNick(const char* nick)
+User* InspIRCd::FindNick(const char* nick)
 {
 	if (isdigit(*nick))
 		return FindUUID(nick);
@@ -257,7 +257,7 @@ userrec* InspIRCd::FindNick(const char* nick)
 	return iter->second;
 }
 
-userrec* InspIRCd::FindNickOnly(const std::string &nick)
+User* InspIRCd::FindNickOnly(const std::string &nick)
 {
 	user_hash::iterator iter = clientlist->find(nick);
 
@@ -267,7 +267,7 @@ userrec* InspIRCd::FindNickOnly(const std::string &nick)
 	return iter->second;
 }
 
-userrec* InspIRCd::FindNickOnly(const char* nick)
+User* InspIRCd::FindNickOnly(const char* nick)
 {
 	user_hash::iterator iter = clientlist->find(nick);
 
@@ -277,12 +277,12 @@ userrec* InspIRCd::FindNickOnly(const char* nick)
 	return iter->second;
 }
 
-userrec *InspIRCd::FindUUID(const std::string &uid)
+User *InspIRCd::FindUUID(const std::string &uid)
 {
 	return FindUUID(uid.c_str());
 }
 
-userrec *InspIRCd::FindUUID(const char *uid)
+User *InspIRCd::FindUUID(const char *uid)
 {
 	user_hash::iterator finduuid = uuidlist->find(uid);
 
@@ -293,7 +293,7 @@ userrec *InspIRCd::FindUUID(const char *uid)
 }
 
 /* find a channel record by channel name and return a pointer to it */
-chanrec* InspIRCd::FindChan(const char* chan)
+Channel* InspIRCd::FindChan(const char* chan)
 {
 	chan_hash::iterator iter = chanlist->find(chan);
 
@@ -304,7 +304,7 @@ chanrec* InspIRCd::FindChan(const char* chan)
 	return iter->second;
 }
 
-chanrec* InspIRCd::FindChan(const std::string &chan)
+Channel* InspIRCd::FindChan(const std::string &chan)
 {
 	chan_hash::iterator iter = chanlist->find(chan);
 
@@ -318,7 +318,7 @@ chanrec* InspIRCd::FindChan(const std::string &chan)
 /* Send an error notice to all users, registered or not */
 void InspIRCd::SendError(const std::string &s)
 {
-	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 	{
 		if ((*i)->registered == REG_ALL)
 		{
@@ -527,7 +527,7 @@ void InspIRCd::CheckDie()
 	}
 }
 
-void InspIRCd::SendWhoisLine(userrec* user, userrec* dest, int numeric, const std::string &text)
+void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
 {
 	std::string copy_text = text;
 
@@ -538,7 +538,7 @@ void InspIRCd::SendWhoisLine(userrec* user, userrec* dest, int numeric, const st
 		user->WriteServ("%d %s", numeric, copy_text.c_str());
 }
 
-void InspIRCd::SendWhoisLine(userrec* user, userrec* dest, int numeric, const char* format, ...)
+void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;

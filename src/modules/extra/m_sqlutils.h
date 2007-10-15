@@ -33,9 +33,9 @@ public:
 	unsigned long id;
 	/** User
 	 */
-	userrec* user;
+	User* user;
 	
-	AssociateUser(Module* s, Module* d, unsigned long i, userrec* u)
+	AssociateUser(Module* s, Module* d, unsigned long i, User* u)
 	: Request(s, d, SQLUTILAU), id(i), user(u)
 	{
 	}
@@ -57,9 +57,9 @@ public:
 	unsigned long id;
 	/** Channel
 	 */
-	chanrec* chan;
+	Channel* chan;
 	
-	AssociateChan(Module* s, Module* d, unsigned long i, chanrec* u)
+	AssociateChan(Module* s, Module* d, unsigned long i, Channel* u)
 	: Request(s, d, SQLUTILAC), id(i), chan(u)
 	{
 	}
@@ -102,7 +102,7 @@ public:
 	unsigned long id;
 	/** The user
 	 */
-	userrec* user;
+	User* user;
 
 	GetAssocUser(Module* s, Module* d, unsigned long i)
 	: Request(s, d, SQLUTILGU), id(i), user(NULL)
@@ -126,7 +126,7 @@ public:
 	unsigned long id;
 	/** The channel
 	 */
-	chanrec* chan;
+	Channel* chan;
 
 	GetAssocChan(Module* s, Module* d, unsigned long i)
 	: Request(s, d, SQLUTILGC), id(i), chan(NULL)

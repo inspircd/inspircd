@@ -65,7 +65,7 @@ public:
 		List[I_OnUserDisconnect] = List[I_OnCheckReady] = List[I_OnRequest] = List[I_OnRehash] = List[I_OnUserRegister] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		
@@ -86,7 +86,7 @@ public:
 		}
 	}	
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		if ((!allowpattern.empty()) && (ServerInstance->MatchText(user->nick,allowpattern)))
 		{
@@ -96,20 +96,20 @@ public:
 		
 		if (!CheckCredentials(user))
 		{
-			userrec::QuitUser(ServerInstance,user,killreason);
+			User::QuitUser(ServerInstance,user,killreason);
 			return 1;
 		}
 		return 0;
 	}
 
-	bool CheckCredentials(userrec* user)
+	bool CheckCredentials(User* user)
 	{
 		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, user->nick, passfield, encryption, user->password);
 			
 		if(req.Send())
 		{
 			/* When we get the query response from the service provider we will be given an ID to play with,
-			 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
+			 * just an ID number which is unique to this query. We need a way of associating that ID with a User
 			 * so we insert it into a map mapping the IDs to users.
 			 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
 			 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
@@ -133,7 +133,7 @@ public:
 		{
 			SQLresult* res = static_cast<SQLresult*>(request);
 
-			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
+			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 			
 			if(user)
@@ -165,20 +165,20 @@ public:
 
 			if (!user->GetExt("sqlauthed"))
 			{
-				userrec::QuitUser(ServerInstance,user,killreason);
+				User::QuitUser(ServerInstance,user,killreason);
 			}
 			return SQLSUCCESS;
 		}		
 		return NULL;
 	}
 	
-	virtual void OnUserDisconnect(userrec* user)
+	virtual void OnUserDisconnect(User* user)
 	{
 		user->Shrink("sqlauthed");
 		user->Shrink("sqlauth_failed");		
 	}
 	
-	virtual bool OnCheckReady(userrec* user)
+	virtual bool OnCheckReady(User* user)
 	{
 		return user->GetExt("sqlauthed");
 	}

@@ -35,7 +35,7 @@ class ModuleFilter : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(userrec* user, const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags)
 	{
 		for (filter_t::iterator index = filters.begin(); index != filters.end(); index++)
 		{
@@ -91,7 +91,7 @@ class ModuleFilter : public FilterBase
 		}
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader* MyConf = new ConfigReader(ServerInstance);
 
@@ -114,7 +114,7 @@ class ModuleFilter : public FilterBase
 		DELETE(MyConf);
 	}
 
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 's')
 		{

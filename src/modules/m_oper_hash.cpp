@@ -34,7 +34,7 @@ class cmd_mkpasswd : public Command
 		syntax = "<hashtype> <any-text>";
 	}
 
-	void MakeHash(userrec* user, const char* algo, const char* stuff)
+	void MakeHash(User* user, const char* algo, const char* stuff)
 	{
 		/* Lets see if they gave us an algorithm which has been implemented */
 		hashymodules::iterator x = hashers.find(algo);
@@ -52,7 +52,7 @@ class cmd_mkpasswd : public Command
 		}
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		MakeHash(user, parameters[0], parameters[1]);
 		/* NOTE: Don't propagate this across the network!
@@ -120,7 +120,7 @@ class ModuleOperHash : public Module
 		List[I_OnRehash] = List[I_OnOperCompare] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		/* Re-read configuration file */
 		if (Conf)

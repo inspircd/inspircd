@@ -44,7 +44,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &param, bool adding, ModeType type)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan
@@ -204,7 +204,7 @@ class ModuleBanRedirect : public Module
 		List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnChannelDelete] = List[I_OnCleanup] = 1;
 	}
 	
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		OnCleanup(TYPE_CHANNEL, chan);
 	}
@@ -213,7 +213,7 @@ class ModuleBanRedirect : public Module
 	{
 		if(target_type == TYPE_CHANNEL)
 		{
-			chanrec* chan = static_cast<chanrec*>(item);
+			Channel* chan = static_cast<Channel*>(item);
 			BanRedirectList* redirects;
 			
 			if(chan->GetExt("banredirects", redirects))
@@ -251,12 +251,12 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
 		 * (thanks Potter)
@@ -293,7 +293,7 @@ class ModuleBanRedirect : public Module
 					if(ServerInstance->MatchText(user->GetFullRealHost(), redir->banmask) || ServerInstance->MatchText(user->GetFullHost(), redir->banmask) || ServerInstance->MatchText(ipmask, redir->banmask))
 					{
 						/* tell them they're banned and are being transferred */
-						chanrec* destchan = ServerInstance->FindChan(redir->targetchan);
+						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
 						
 						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && destchan->limit && (destchan->GetUserCounter() >= destchan->limit))
 						{
@@ -305,7 +305,7 @@ class ModuleBanRedirect : public Module
 							user->WriteServ("474 %s %s :Cannot join channel (You are banned)", user->nick, chan->name);
 							user->WriteServ("470 %s :You are being automatically redirected to %s", user->nick, redir->targetchan.c_str());
 							nofollow = true;
-							chanrec::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", ServerInstance->Time(true));
+							Channel::JoinUser(ServerInstance, user, redir->targetchan.c_str(), false, "", ServerInstance->Time(true));
 							nofollow = false;
 							return 1;
 						}

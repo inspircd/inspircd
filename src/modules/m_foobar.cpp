@@ -54,7 +54,7 @@ class ModuleFoobar : public Module
 		List[I_OnUserConnect] = List[I_OnUserQuit] = List[I_OnUserJoin] = List[I_OnUserPart] = 1;
 	}
 	
-	virtual void OnUserConnect(userrec* user)
+	virtual void OnUserConnect(User* user)
 	{
 		// method called when a user connects
 	
@@ -62,7 +62,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User connecting: "+b);
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		// method called when a user disconnects
 	
@@ -70,7 +70,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User quitting: "+b);
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		// method called when a user joins a channel
 	
@@ -79,7 +79,7 @@ class ModuleFoobar : public Module
 		ServerInstance->Log(DEBUG,"Foobar: User "+b+" joined "+c);
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason, bool &silent)
+	virtual void OnUserPart(User* user, Channel* channel, const std::string &partreason, bool &silent)
 	{
 		// method called when a user parts a channel
 	

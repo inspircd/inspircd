@@ -22,7 +22,7 @@ class PrivacyMode : public ModeHandler
  public:
 	PrivacyMode(InspIRCd* Instance) : ModeHandler(Instance, 'c', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -72,11 +72,11 @@ class ModulePrivacyMode : public Module
 		return Version(1,1,0,0, VF_COMMON|VF_VENDOR, API_VERSION);
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* t = (userrec*)dest;
+			User* t = (User*)dest;
 			if (!IS_OPER(user) && (t->IsModeSet('c')) && (!ServerInstance->ULine(user->server)) && !user->SharesChannelWith(t))
 			{
 				user->WriteServ("531 %s %s :You are not permitted to send private messages to this user (+c set)", user->nick, t->nick);
@@ -86,7 +86,7 @@ class ModulePrivacyMode : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}

@@ -35,7 +35,7 @@ class ModuleModesOnOper : public Module
 		List[I_OnPostOper] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);
@@ -51,7 +51,7 @@ class ModuleModesOnOper : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnPostOper(userrec* user, const std::string &opertype)
+	virtual void OnPostOper(User* user, const std::string &opertype)
 	{
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes

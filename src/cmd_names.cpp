@@ -21,9 +21,9 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /NAMES
  */
-CmdResult cmd_names::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_names::Handle (const char** parameters, int pcnt, User *user)
 {
-	chanrec* c;
+	Channel* c;
 
 	if (!pcnt)
 	{

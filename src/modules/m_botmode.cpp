@@ -22,7 +22,7 @@ class BotMode : public ModeHandler
  public:
 	BotMode(InspIRCd* Instance) : ModeHandler(Instance, 'B', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -75,7 +75,7 @@ class ModuleBotMode : public Module
 		return Version(1,1,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnWhois(userrec* src, userrec* dst)
+	virtual void OnWhois(User* src, User* dst)
 	{
 		if (dst->IsModeSet('B'))
 		{

@@ -27,9 +27,9 @@ class cmd_sajoin : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
 			if (ServerInstance->ULine(dest->server))
@@ -50,9 +50,9 @@ class cmd_sajoin : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				chanrec::JoinUser(ServerInstance, dest, parameters[1], true, "", ServerInstance->Time(true));
+				Channel::JoinUser(ServerInstance, dest, parameters[1], true, "", ServerInstance->Time(true));
 				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
-				chanrec* n = ServerInstance->FindChan(parameters[1]);
+				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (n)
 				{
 					if (n->HasUser(dest))

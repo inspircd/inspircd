@@ -20,10 +20,10 @@ extern "C" DllExport  Command* init_command(InspIRCd* Instance)
 	return new cmd_privmsg(Instance);
 }
 
-CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, User *user)
 {
-	userrec *dest;
-	chanrec *chan;
+	User *dest;
+	Channel *chan;
 	CUList except_list;
 
 	user->idle_lastmsg = ServerInstance->Time();

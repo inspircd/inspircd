@@ -27,9 +27,9 @@ class cmd_sanick : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* source = ServerInstance->FindNick(parameters[0]);
+		User* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
 		{
 			if (ServerInstance->ULine(source->server))

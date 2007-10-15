@@ -22,7 +22,7 @@ class AChannel_R : public ModeHandler
  public:
 	AChannel_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -52,7 +52,7 @@ class AUser_R : public ModeHandler
  public:
 	AUser_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -82,7 +82,7 @@ class AChannel_M : public ModeHandler
  public:
 	AChannel_M(InspIRCd* Instance) : ModeHandler(Instance, 'M', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -123,7 +123,7 @@ class ModuleServicesAccount : public Module
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	virtual void OnWhois(userrec* source, userrec* dest)
+	virtual void OnWhois(User* source, User* dest)
 	{
 		std::string *account;
 		dest->GetExt("accountname", account);
@@ -140,7 +140,7 @@ class ModuleServicesAccount : public Module
 		List[I_OnSyncUserMetaData] = List[I_OnUserQuit] = List[I_OnCleanup] = List[I_OnDecodeMetaData] = 1;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		std::string *account;
 
@@ -151,7 +151,7 @@ class ModuleServicesAccount : public Module
 		
 		if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* c = (chanrec*)dest;
+			Channel* c = (Channel*)dest;
 			
 			if ((c->IsModeSet('M')) && (!account))
 			{
@@ -168,7 +168,7 @@ class ModuleServicesAccount : public Module
 		}
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)dest;
+			User* u = (User*)dest;
 			
 			if ((u->modes['R'-65]) && (!account))
 			{
@@ -186,12 +186,12 @@ class ModuleServicesAccount : public Module
 		return 0;
 	}
 	 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 	 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		std::string *account;
 		user->GetExt("accountname", account);
@@ -217,11 +217,11 @@ class ModuleServicesAccount : public Module
 	}
 	
 	// Whenever the linking module wants to send out data, but doesnt know what the data
-	// represents (e.g. it is metadata, added to a userrec or chanrec by a module) then
+	// represents (e.g. it is metadata, added to a User or Channel by a module) then
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if (extname == "accountname")
@@ -242,7 +242,7 @@ class ModuleServicesAccount : public Module
 	}
 
 	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* account;
 		user->GetExt("accountname", account);
@@ -258,7 +258,7 @@ class ModuleServicesAccount : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			std::string* account;
 			user->GetExt("accountname", account);
 			if (account)
@@ -281,7 +281,7 @@ class ModuleServicesAccount : public Module
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "accountname"))
 		{	
-			userrec* dest = (userrec*)target;
+			User* dest = (User*)target;
 			
 			/* logging them out? */
 			if (extdata.empty())

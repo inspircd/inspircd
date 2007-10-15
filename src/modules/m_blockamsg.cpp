@@ -65,7 +65,7 @@ class ModuleBlockAmsg : public Module
 		return Version(1,1,0,0,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		
@@ -88,7 +88,7 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
@@ -144,7 +144,7 @@ class ModuleBlockAmsg : public Module
 					ServerInstance->WriteOpers("*** %s had an /amsg or /ame denied", user->nick);
 
 				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
-					userrec::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");
+					User::QuitUser(ServerInstance, user, "Global message (/amsg or /ame) detected");
 				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
 					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) detected", user->nick);
 									
@@ -171,7 +171,7 @@ class ModuleBlockAmsg : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			BlockedMessage* m;
 			user->GetExt("amsgblock", m);
 			if(m)

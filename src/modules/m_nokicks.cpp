@@ -20,7 +20,7 @@ class NoKicks : public ModeHandler
  public:
 	NoKicks(InspIRCd* Instance) : ModeHandler(Instance, 'Q', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -64,7 +64,7 @@ class ModuleNoKicks : public Module
 		List[I_OnAccessCheck] = 1;
 	}
 
-	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
+	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (access_type == AC_KICK)
 		{

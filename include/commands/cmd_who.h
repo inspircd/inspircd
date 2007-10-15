@@ -26,7 +26,7 @@
  */
 class cmd_who : public Command
 {
-	bool CanView(chanrec* chan, userrec* user);
+	bool CanView(Channel* chan, User* user);
 	bool opt_viewopersonly;
 	bool opt_showrealhost;
 	bool opt_unlimit;
@@ -42,15 +42,15 @@ class cmd_who : public Command
 	/** Constructor for who.
 	 */
 	cmd_who (InspIRCd* Instance) : Command(Instance,"WHO",0,1) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
-	void SendWhoLine(userrec* user, const std::string &initial, chanrec* ch, userrec* u, std::vector<std::string> &whoresults);
+	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
-	bool whomatch(userrec* user, const char* matchtext);
+	CmdResult Handle(const char** parameters, int pcnt, User *user);
+	bool whomatch(User* user, const char* matchtext);
 };
 
 #endif

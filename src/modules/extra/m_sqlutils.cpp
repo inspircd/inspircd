@@ -23,8 +23,8 @@
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */
 /* $ModDep: m_sqlutils.h */
 
-typedef std::map<unsigned long, userrec*> IdUserMap;
-typedef std::map<unsigned long, chanrec*> IdChanMap;
+typedef std::map<unsigned long, User*> IdUserMap;
+typedef std::map<unsigned long, Channel*> IdChanMap;
 typedef std::list<unsigned long> AssocIdList;
 
 class ModuleSQLutils : public Module
@@ -105,7 +105,7 @@ public:
 		return SQLUTILSUCCESS;
 	}
 	
-	virtual void OnUserDisconnect(userrec* user)
+	virtual void OnUserDisconnect(User* user)
 	{
 		/* A user is disconnecting, first we need to check if they have a list of queries associated with them.
 		 * Then, if they do, we need to erase each of them from our IdUserMap (iduser) so when the module that
@@ -125,7 +125,7 @@ public:
 				{
 					if(iter->second != user)
 					{
-						ServerInstance->Log(DEBUG, "BUG: ID associated with user %s doesn't have the same userrec* associated with it in the map (erasing anyway)", user->nick);
+						ServerInstance->Log(DEBUG, "BUG: ID associated with user %s doesn't have the same User* associated with it in the map (erasing anyway)", user->nick);
 					}
 
 					iduser.erase(iter);
@@ -192,7 +192,7 @@ public:
 		}
 	}
 	
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		/* A channel is being destroyed, first we need to check if it has a list of queries associated with it.
 		 * Then, if it does, we need to erase each of them from our IdChanMap (idchan) so when the module that
@@ -212,7 +212,7 @@ public:
 				{
 					if(iter->second != chan)
 					{
-						ServerInstance->Log(DEBUG, "BUG: ID associated with channel %s doesn't have the same chanrec* associated with it in the map (erasing anyway)", chan->name);
+						ServerInstance->Log(DEBUG, "BUG: ID associated with channel %s doesn't have the same Channel* associated with it in the map (erasing anyway)", chan->name);
 					}
 					idchan.erase(iter);					
 				}

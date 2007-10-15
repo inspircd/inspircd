@@ -67,7 +67,7 @@ class CloakUser : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (source != dest)
 			return MODEACTION_DENY;
@@ -347,7 +347,7 @@ class ModuleCloaking : public Module
 		return Version(1,1,0,2,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		cu->DoRehash();
 	}

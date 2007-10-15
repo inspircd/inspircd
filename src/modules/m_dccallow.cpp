@@ -37,7 +37,7 @@ class DCCAllow
 	DCCAllow(const std::string &nick, const std::string &hm, const time_t so, const long ln) : nickname(nick), hostmask(hm), set_on(so), length(ln) { }
 };
 
-typedef std::vector<userrec *> userlist;
+typedef std::vector<User *> userlist;
 userlist ul;
 typedef std::vector<DCCAllow> dccallowlist;
 dccallowlist* dl;
@@ -54,7 +54,7 @@ class cmd_dccallow : public Command
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
-	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char **parameters, int pcnt, User *user)
 	{
 		/* syntax: DCCALLOW [+|-]<nick> (<time>) */
 		if (!pcnt)
@@ -85,7 +85,7 @@ class cmd_dccallow : public Command
 			}
 			
 			std::string nick = parameters[0] + 1;
-			userrec *target = ServerInstance->FindNick(nick);
+			User *target = ServerInstance->FindNick(nick);
 	
 			if (target)
 			{
@@ -118,7 +118,7 @@ class cmd_dccallow : public Command
 						// remove from userlist
 						for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
 						{
-							userrec* u = (userrec*)(*j);
+							User* u = (User*)(*j);
 							if (u == user)
 							{
 								ul.erase(j);
@@ -200,7 +200,7 @@ class cmd_dccallow : public Command
 		return CMD_FAILURE;
 	}
 
-	void DisplayHelp(userrec* user)
+	void DisplayHelp(User* user)
 	{
 		user->WriteServ("998 %s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick);
 		user->WriteServ("998 %s :You may allow DCCs from specific users by specifying a", user->nick);
@@ -224,7 +224,7 @@ class cmd_dccallow : public Command
 		user->WriteServ("999 %s :End of DCCALLOW HELP", user->nick);
 	}
 	
-	void DisplayDCCAllowList(userrec* user)
+	void DisplayDCCAllowList(User* user)
 	{
 		 // display current DCCALLOW list
 		user->WriteServ("990 %s :Users on your DCCALLOW list:", user->nick);
@@ -262,13 +262,13 @@ class ModuleDCCAllow : public Module
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserQuit] = List[I_OnUserPreNick] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		delete Conf;
 		Conf = new ConfigReader(ServerInstance);
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		dccallowlist* dl;
 	
@@ -287,25 +287,25 @@ class ModuleDCCAllow : public Module
 	}
 
 
-	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
+	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
 		RemoveNick(user);
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual int OnUserPreNotice(userrec* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
 
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)dest;
+			User* u = (User*)dest;
 
 			/* Always allow a user to dcc themselves (although... why?) */
 			if (user == u)
@@ -384,7 +384,7 @@ class ModuleDCCAllow : public Module
 	{
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
-			userrec* u = (userrec*)(*iter);
+			User* u = (User*)(*iter);
 			u->GetExt("dccallow_list", dl);
 	
 			if (dl)
@@ -413,12 +413,12 @@ class ModuleDCCAllow : public Module
 		}
 	}
 	
-	void RemoveNick(userrec* user)
+	void RemoveNick(User* user)
 	{
 		/* Iterate through all DCCALLOW lists and remove user */
 		for (userlist::iterator iter = ul.begin(); iter != ul.end(); ++iter)
 		{
-			userrec *u = (userrec*)(*iter);
+			User *u = (User*)(*iter);
 			u->GetExt("dccallow_list", dl);
 	
 			if (dl)
@@ -445,12 +445,12 @@ class ModuleDCCAllow : public Module
 		}
 	}
 
-	void RemoveFromUserlist(userrec *user)
+	void RemoveFromUserlist(User *user)
 	{
 		// remove user from userlist
 		for (userlist::iterator j = ul.begin(); j != ul.end(); ++j)
 		{
-			userrec* u = (userrec*)(*j);
+			User* u = (User*)(*j);
 			if (u == user)
 			{
 				ul.erase(j);

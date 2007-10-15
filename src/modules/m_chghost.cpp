@@ -29,7 +29,7 @@ class cmd_chghost : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
  
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
 		const char * x = parameters[1];
 
@@ -52,7 +52,7 @@ class cmd_chghost : public Command
 			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick);
 			return CMD_FAILURE;
 		}
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{
@@ -91,7 +91,7 @@ class ModuleChgHost : public Module
 		List[I_OnRehash] = 1;
 	}
 	
-	void OnRehash(userrec* user, const std::string &parameter)
+	void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);

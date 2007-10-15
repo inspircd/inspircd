@@ -82,7 +82,7 @@ void InspIRCd::Cleanup()
 	}
 
 	/* Close all client sockets, or the new process inherits them */
-	for (std::vector<userrec*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (std::vector<User*>::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
 	{
 		(*i)->SetWriteError("Server shutdown");
 		(*i)->CloseSocket();
@@ -463,7 +463,7 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->InitialiseUID();
 
 	/* set up fake client */
-	this->FakeClient = new userrec(this);
+	this->FakeClient = new User(this);
 	this->FakeClient->SetFd(FD_MAGIC_NUMBER);
 
 	if (!do_root)
@@ -721,7 +721,7 @@ int main(int argc, char** argv)
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
  * registration timeout maximum seconds)
  */
-bool InspIRCd::AllModulesReportReady(userrec* user)
+bool InspIRCd::AllModulesReportReady(User* user)
 {
 	if (!Config->global_implementation[I_OnCheckReady])
 		return true;
@@ -753,7 +753,7 @@ int InspIRCd::SetTimeDelta(int delta)
 	return old;
 }
 
-void InspIRCd::AddLocalClone(userrec* user)
+void InspIRCd::AddLocalClone(User* user)
 {
 	clonemap::iterator x = local_clones.find(user->GetIPString());
 	if (x != local_clones.end())
@@ -762,7 +762,7 @@ void InspIRCd::AddLocalClone(userrec* user)
 		local_clones[user->GetIPString()] = 1;
 }
 
-void InspIRCd::AddGlobalClone(userrec* user)
+void InspIRCd::AddGlobalClone(User* user)
 {
 	clonemap::iterator y = global_clones.find(user->GetIPString());
 	if (y != global_clones.end())

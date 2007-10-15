@@ -24,15 +24,15 @@ class cmd_close : public Command
 		this->source = "m_close.so";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		std::map<std::string,int> closed;
 
-		for (std::vector<userrec*>::iterator u = ServerInstance->local_users.begin(); u != ServerInstance->local_users.end(); u++)
+		for (std::vector<User*>::iterator u = ServerInstance->local_users.begin(); u != ServerInstance->local_users.end(); u++)
 		{
 			if ((*u)->registered != REG_ALL)
 			{
-				userrec::QuitUser(ServerInstance, *u, "Closing all unknown connections per request");
+				User::QuitUser(ServerInstance, *u, "Closing all unknown connections per request");
 				std::string key = ConvToStr((*u)->GetIPString())+"."+ConvToStr((*u)->GetPort());
 				closed[key]++;
 			}

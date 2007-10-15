@@ -28,7 +28,7 @@ class ModuleRegOnlyCreate : public Module
 		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 			return 0;

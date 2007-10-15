@@ -17,13 +17,13 @@
 #include "socketengine.h"
 #include "command_parse.h"
 
-void FloodQuitUserHandler::Call(userrec* current)
+void FloodQuitUserHandler::Call(User* current)
 {
 	Server->Log(DEFAULT,"Excess flood from: %s@%s", current->ident, current->host);
 	Server->SNO->WriteToSnoMask('f',"Excess flood from: %s%s%s@%s",
 			current->registered == REG_ALL ? current->nick : "",
 			current->registered == REG_ALL ? "!" : "", current->ident, current->host);
-	userrec::QuitUser(Server, current, "Excess flood");
+	User::QuitUser(Server, current, "Excess flood");
 	if (current->registered != REG_ALL)
 	{
 		Server->XLines->add_zline(120, Server->Config->ServerName, "Flood from unregistered connection", current->GetIPString());
@@ -31,7 +31,7 @@ void FloodQuitUserHandler::Call(userrec* current)
 	}
 }
 
-void ProcessUserHandler::Call(userrec* cu)
+void ProcessUserHandler::Call(User* cu)
 {
 	int result = EAGAIN;
 
@@ -70,7 +70,7 @@ void ProcessUserHandler::Call(userrec* cu)
 
 	if ((result) && (result != -EAGAIN))
 	{
-		userrec *current;
+		User *current;
 		int currfd;
 		int floodlines = 0;
 
@@ -159,7 +159,7 @@ void ProcessUserHandler::Call(userrec* cu)
 
 		if ((result == -1) && (errno != EAGAIN) && (errno != EINTR))
 		{
-			userrec::QuitUser(Server, cu, errno ? strerror(errno) : "EOF from client");
+			User::QuitUser(Server, cu, errno ? strerror(errno) : "EOF from client");
 			return;
 		}
 	}
@@ -171,7 +171,7 @@ void ProcessUserHandler::Call(userrec* cu)
 	}
 	else if (result == 0)
 	{
-		userrec::QuitUser(Server, cu, "Connection closed");
+		User::QuitUser(Server, cu, "Connection closed");
 		return;
 	}
 }
@@ -192,9 +192,9 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 		const time_t DUMMY_VALUE = 32768;
 		next_call = TIME + DUMMY_VALUE;
 
-		for (std::vector<userrec*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
+		for (std::vector<User*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 		{
-			userrec* curr = *count2;
+			User* curr = *count2;
 
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
@@ -203,7 +203,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 			if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
 			{
 				curr->muted = true;
-				userrec::QuitUser(this, curr, "Registration timeout");
+				User::QuitUser(this, curr, "Registration timeout");
 				continue;
 			}
 			else
@@ -257,7 +257,7 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 					curr->muted = true;
 					curr->lastping = 1;
 					curr->nping = TIME+curr->pingmax;
-					userrec::QuitUser(this, curr, message);
+					User::QuitUser(this, curr, message);
 					continue;
 				}
 				curr->Write("PING :%s",this->Config->ServerName);

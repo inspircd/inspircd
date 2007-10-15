@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_time(Instance);
 }
 
-CmdResult cmd_time::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_time::Handle (const char** parameters, int pcnt, User *user)
 {
 	struct tm* timeinfo;
 	time_t local = ServerInstance->Time();

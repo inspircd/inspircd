@@ -57,7 +57,7 @@ class cmd_svshold : public Command
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
@@ -166,7 +166,7 @@ class ModuleSVSHold : public Module
 		List[I_OnUserPreNick] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnStats] = 1;
 	}
 	
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		ExpireBans();
 	
@@ -182,7 +182,7 @@ class ModuleSVSHold : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreNick(userrec *user, const std::string &newnick)
+	virtual int OnUserPreNick(User *user, const std::string &newnick)
 	{
 		ExpireBans();
 	

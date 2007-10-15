@@ -17,7 +17,7 @@
 
 static FileReader* opermotd;
 
-CmdResult ShowOperMOTD(userrec* user)
+CmdResult ShowOperMOTD(User* user)
 {
 	if(!opermotd->FileSize())
 	{
@@ -49,7 +49,7 @@ class cmd_opermotd : public Command
 		syntax = "[<servername>]";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec* user)
+	CmdResult Handle (const char** parameters, int pcnt, User* user)
 	{
 		return ShowOperMOTD(user);
 	}
@@ -99,12 +99,12 @@ class ModuleOpermotd : public Module
 		List[I_OnRehash] = List[I_OnOper] = 1;
 	}
 
-	virtual void OnOper(userrec* user, const std::string &opertype)
+	virtual void OnOper(User* user, const std::string &opertype)
 	{
 		ShowOperMOTD(user);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		LoadOperMOTD();
 	}

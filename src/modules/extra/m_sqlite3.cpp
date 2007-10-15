@@ -610,7 +610,7 @@ class ModuleSQLite3 : public Module
 		}
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ReadConf();
 	}

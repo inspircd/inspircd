@@ -30,7 +30,7 @@
  * and Om by reading their 'watched by' list. When this occurs, their online status
  * in each of these users lists (see below) is also updated.
  *
- * Each user also has a seperate (smaller) map attached to their userrec whilst they
+ * Each user also has a seperate (smaller) map attached to their User whilst they
  * have any watch entries, which is managed by class Extensible. When they add or remove
  * a watch entry from their list, it is inserted here, as well as the main list being
  * maintained. This map also contains the user's online status. For users that are
@@ -62,9 +62,9 @@
  * Yes, it's horrid. Blame cl for being different. -- w00t
  */
 #ifdef WINDOWS
-typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash_compare<irc::string, less<irc::string> > > watchentries;
+typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash_compare<irc::string, less<irc::string> > > watchentries;
 #else
-typedef nspace::hash_map<irc::string, std::deque<userrec*>, nspace::hash<irc::string> > watchentries;
+typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash<irc::string> > watchentries;
 #endif
 typedef std::map<irc::string, std::string> watchlist;
 
@@ -80,7 +80,7 @@ class cmd_watch : public Command
 {
 	unsigned int& MAX_WATCH;
  public:
-	CmdResult remove_watch(userrec* user, const char* nick)
+	CmdResult remove_watch(User* user, const char* nick)
 	{
 		// removing an item from the list
 		if (!ServerInstance->IsNick(nick))
@@ -114,7 +114,7 @@ class cmd_watch : public Command
 			if (x != whos_watching_me->end())
 			{
 				/* People are watching this user, am i one of them? */
-				std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+				std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
 				if (n != x->second.end())
 					/* I'm no longer watching you... */
 					x->second.erase(n);
@@ -131,7 +131,7 @@ class cmd_watch : public Command
 		return CMD_FAILURE;
 	}
 
-	CmdResult add_watch(userrec* user, const char* nick)
+	CmdResult add_watch(User* user, const char* nick)
 	{
 		if (!ServerInstance->IsNick(nick))
 		{
@@ -164,12 +164,12 @@ class cmd_watch : public Command
 			}
 			else
 			{
-				std::deque<userrec*> newlist;
+				std::deque<User*> newlist;
 				newlist.push_back(user);
 				(*(whos_watching_me))[nick] = newlist;
 			}
 
-			userrec* target = ServerInstance->FindNick(nick);
+			User* target = ServerInstance->FindNick(nick);
 			if (target)
 			{
 				if (target->Visibility && !target->Visibility->VisibleTo(user))
@@ -199,7 +199,7 @@ class cmd_watch : public Command
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		if (!pcnt)
 		{
@@ -231,7 +231,7 @@ class cmd_watch : public Command
 							if (x != whos_watching_me->end())
 							{
 								/* People are watching this user, am i one of them? */
-								std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+								std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
 								if (n != x->second.end())
 									/* I'm no longer watching you... */
 									x->second.erase(n);
@@ -314,7 +314,7 @@ class Modulewatch : public Module
 		ServerInstance->AddCommand(mycommand);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);
@@ -327,12 +327,12 @@ class Modulewatch : public Module
 		List[I_OnRehash] = List[I_OnGarbageCollect] = List[I_OnCleanup] = List[I_OnUserQuit] = List[I_OnPostConnect] = List[I_OnUserPostNick] = List[I_On005Numeric] = 1;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick);
 		if (x != whos_watching_me->end())
 		{
-			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
+			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
 					(*n)->WriteServ("601 %s %s %s %s %lu :went offline", (*n)->nick ,user->nick, user->ident, user->dhost, ServerInstance->Time());
@@ -355,7 +355,7 @@ class Modulewatch : public Module
 				if (x != whos_watching_me->end())
 				{
 						/* People are watching this user, am i one of them? */
-						std::deque<userrec*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
+						std::deque<User*>::iterator n = std::find(x->second.begin(), x->second.end(), user);
 						if (n != x->second.end())
 							/* I'm no longer watching you... */
 							x->second.erase(n);
@@ -386,7 +386,7 @@ class Modulewatch : public Module
 		if (target_type == TYPE_USER)
 		{
 			watchlist* wl;
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 
 			if (user->GetExt("watchlist", wl))
 			{
@@ -396,12 +396,12 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnPostConnect(userrec* user)
+	virtual void OnPostConnect(User* user)
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick);
 		if (x != whos_watching_me->end())
 		{
-			for (std::deque<userrec*>::iterator n = x->second.begin(); n != x->second.end(); n++)
+			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
 				if (!user->Visibility || user->Visibility->VisibleTo(user))
 					(*n)->WriteServ("600 %s %s %s %s %lu :arrived online", (*n)->nick, user->nick, user->ident, user->dhost, user->age);
@@ -414,14 +414,14 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
+	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		watchentries::iterator new_offline = whos_watching_me->find(assign(oldnick));
 		watchentries::iterator new_online = whos_watching_me->find(user->nick);
 
 		if (new_offline != whos_watching_me->end())
 		{
-			for (std::deque<userrec*>::iterator n = new_offline->second.begin(); n != new_offline->second.end(); n++)
+			for (std::deque<User*>::iterator n = new_offline->second.begin(); n != new_offline->second.end(); n++)
 			{
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))
@@ -435,7 +435,7 @@ class Modulewatch : public Module
 
 		if (new_online != whos_watching_me->end())
 		{
-			for (std::deque<userrec*>::iterator n = new_online->second.begin(); n != new_online->second.end(); n++)
+			for (std::deque<User*>::iterator n = new_online->second.begin(); n != new_online->second.end(); n++)
 			{
 				watchlist* wl;
 				if ((*n)->GetExt("watchlist", wl))

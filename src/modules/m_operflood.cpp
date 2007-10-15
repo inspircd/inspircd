@@ -32,7 +32,7 @@ public:
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 
-	void OnPostOper(userrec* user, const std::string &opertype)
+	void OnPostOper(User* user, const std::string &opertype)
 	{
 		if(!IS_LOCAL(user))
 			return;

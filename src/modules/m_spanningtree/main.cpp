@@ -54,7 +54,7 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 }
 
-void ModuleSpanningTree::ShowLinks(TreeServer* Current, userrec* user, int hops)
+void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 {
 	std::string Parent = Utils->TreeRoot->GetName();
 	if (Current->GetParent())
@@ -98,14 +98,14 @@ int ModuleSpanningTree::CountServs()
 	return Utils->serverlist.size();
 }
 
-void ModuleSpanningTree::HandleLinks(const char** parameters, int pcnt, userrec* user)
+void ModuleSpanningTree::HandleLinks(const char** parameters, int pcnt, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
 	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);
 	return;
 }
 
-void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, userrec* user)
+void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, User* user)
 {
 	unsigned int n_users = ServerInstance->UserCount();
 
@@ -299,7 +299,7 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 	}
 }
 
-int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, userrec* user)
+int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, User* user)
 {
 	// we've already checked if pcnt > 0, so this is safe
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
@@ -326,7 +326,7 @@ int ModuleSpanningTree::HandleVersion(const char** parameters, int pcnt, userrec
  * If the user is NULL, then the notice is sent locally via WriteToSnoMask with snomask 'l',
  * and remotely via SNONOTICE with mask 'l'.
  */
-void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
+void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 {
 	/* This could cause an infinite loop, because DoOneToMany() will, on error,
 	 * call TreeSocket::OnError(), which in turn will call this function to
@@ -369,7 +369,7 @@ void ModuleSpanningTree::RemoteMessage(userrec* user, const char* format, ...)
 	SendingRemoteMessage = false;
 }
 	
-int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, userrec* user)
+int ModuleSpanningTree::HandleConnect(const char** parameters, int pcnt, User* user)
 {
 	for (std::vector<Link>::iterator x = Utils->LinkBlocks.begin(); x < Utils->LinkBlocks.end(); x++)
 	{
@@ -413,7 +413,7 @@ void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,st
 	}
 }
 
-void ModuleSpanningTree::OnUserInvite(userrec* source,userrec* dest,chanrec* channel)
+void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel)
 {
 	if (IS_LOCAL(source))
 	{
@@ -424,7 +424,7 @@ void ModuleSpanningTree::OnUserInvite(userrec* source,userrec* dest,chanrec* cha
 	}
 }
 
-void ModuleSpanningTree::OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic)
+void ModuleSpanningTree::OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic)
 {
 	std::deque<std::string> params;
 	params.push_back(chan->name);
@@ -432,7 +432,7 @@ void ModuleSpanningTree::OnPostLocalTopicChange(userrec* user, chanrec* chan, co
 	Utils->DoOneToMany(user->uuid,"TOPIC",params);
 }
 
-void ModuleSpanningTree::OnWallops(userrec* user, const std::string &text)
+void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 {
 	if (IS_LOCAL(user))
 	{
@@ -442,11 +442,11 @@ void ModuleSpanningTree::OnWallops(userrec* user, const std::string &text)
 	}
 }
 
-void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
 	if (target_type == TYPE_USER)
 	{
-		userrec* d = (userrec*)dest;
+		User* d = (User*)dest;
 		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 		{
 			std::deque<std::string> params;
@@ -460,7 +460,7 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 	{
 		if (IS_LOCAL(user))
 		{
-			chanrec *c = (chanrec*)dest;
+			Channel *c = (Channel*)dest;
 			if (c)
 			{
 				std::string cname = c->name;
@@ -490,13 +490,13 @@ void ModuleSpanningTree::OnUserNotice(userrec* user, void* dest, int target_type
 	}
 }
 
-void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
 	if (target_type == TYPE_USER)
 	{
 		// route private messages which are targetted at clients only to the server
 		// which needs to receive them
-		userrec* d = (userrec*)dest;
+		User* d = (User*)dest;
 		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
 		{
 			std::deque<std::string> params;
@@ -510,7 +510,7 @@ void ModuleSpanningTree::OnUserMessage(userrec* user, void* dest, int target_typ
 	{
 		if (IS_LOCAL(user))
 		{
-			chanrec *c = (chanrec*)dest;
+			Channel *c = (Channel*)dest;
 			if (c)
 			{
 				std::string cname = c->name;
@@ -546,7 +546,7 @@ void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 	DoPingChecks(curtime);
 }
 
-void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool &silent)
 {
 	// Only do this for local users
 	if (IS_LOCAL(user))
@@ -576,7 +576,7 @@ void ModuleSpanningTree::OnUserJoin(userrec* user, chanrec* channel, bool &silen
 	}
 }
 
-void ModuleSpanningTree::OnChangeHost(userrec* user, const std::string &newhost)
+void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 {
 	// only occurs for local clients
 	if (user->registered != REG_ALL)
@@ -586,7 +586,7 @@ void ModuleSpanningTree::OnChangeHost(userrec* user, const std::string &newhost)
 	Utils->DoOneToMany(user->uuid,"FHOST",params);
 }
 
-void ModuleSpanningTree::OnChangeName(userrec* user, const std::string &gecos)
+void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 {
 	// only occurs for local clients
 	if (user->registered != REG_ALL)
@@ -596,7 +596,7 @@ void ModuleSpanningTree::OnChangeName(userrec* user, const std::string &gecos)
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
 
-void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
+void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
 {
 	if (IS_LOCAL(user))
 	{
@@ -608,7 +608,7 @@ void ModuleSpanningTree::OnUserPart(userrec* user, chanrec* channel, const std::
 	}
 }
 
-void ModuleSpanningTree::OnUserConnect(userrec* user)
+void ModuleSpanningTree::OnUserConnect(User* user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -633,7 +633,7 @@ void ModuleSpanningTree::OnUserConnect(userrec* user)
 	}
 }
 
-void ModuleSpanningTree::OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
@@ -656,7 +656,7 @@ void ModuleSpanningTree::OnUserQuit(userrec* user, const std::string &reason, co
 	}
 }
 
-void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnick)
+void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 {
 	if (IS_LOCAL(user))
 	{
@@ -673,7 +673,7 @@ void ModuleSpanningTree::OnUserPostNick(userrec* user, const std::string &oldnic
 	}
 }
 
-void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
+void ModuleSpanningTree::OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 {
 	if ((source) && (IS_LOCAL(source)))
 	{
@@ -693,7 +693,7 @@ void ModuleSpanningTree::OnUserKick(userrec* source, userrec* user, chanrec* cha
 	}
 }
 
-void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason)
+void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason)
 {
 	std::deque<std::string> params;
 	params.push_back(":"+reason);
@@ -705,7 +705,7 @@ void ModuleSpanningTree::OnRemoteKill(userrec* source, userrec* dest, const std:
 	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 
-void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
+void ModuleSpanningTree::OnRehash(User* user, const std::string &parameter)
 {
 	if (!parameter.empty())
 	{
@@ -726,7 +726,7 @@ void ModuleSpanningTree::OnRehash(userrec* user, const std::string &parameter)
 // note: the protocol does not allow direct umode +o except
 // via NICK with 8 params. sending OPERTYPE infers +o modechange
 // locally.
-void ModuleSpanningTree::OnOper(userrec* user, const std::string &opertype)
+void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
 	if (IS_LOCAL(user))
 	{
@@ -736,7 +736,7 @@ void ModuleSpanningTree::OnOper(userrec* user, const std::string &opertype)
 	}
 }
 
-void ModuleSpanningTree::OnLine(userrec* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason)
+void ModuleSpanningTree::OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason)
 {
 	if (!source)
 	{
@@ -775,47 +775,47 @@ void ModuleSpanningTree::OnLine(userrec* source, const std::string &host, bool a
 	}
 }
 
-void ModuleSpanningTree::OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask)
+void ModuleSpanningTree::OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask)
 {
 	OnLine(source,hostmask,true,'G',duration,reason);
 }
 	
-void ModuleSpanningTree::OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask)
+void ModuleSpanningTree::OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask)
 {
 	OnLine(source,ipmask,true,'Z',duration,reason);
 }
 
-void ModuleSpanningTree::OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask)
+void ModuleSpanningTree::OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask)
 {
 	OnLine(source,nickmask,true,'Q',duration,reason);
 }
 
-void ModuleSpanningTree::OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask)
+void ModuleSpanningTree::OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask)
 {
 	OnLine(source,hostmask,true,'E',duration,reason);
 }
 
-void ModuleSpanningTree::OnDelGLine(userrec* source, const std::string &hostmask)
+void ModuleSpanningTree::OnDelGLine(User* source, const std::string &hostmask)
 {
 	OnLine(source,hostmask,false,'G',0,"");
 }
 
-void ModuleSpanningTree::OnDelZLine(userrec* source, const std::string &ipmask)
+void ModuleSpanningTree::OnDelZLine(User* source, const std::string &ipmask)
 {
 	OnLine(source,ipmask,false,'Z',0,"");
 }
 
-void ModuleSpanningTree::OnDelQLine(userrec* source, const std::string &nickmask)
+void ModuleSpanningTree::OnDelQLine(User* source, const std::string &nickmask)
 {
 	OnLine(source,nickmask,false,'Q',0,"");
 }
 
-void ModuleSpanningTree::OnDelELine(userrec* source, const std::string &hostmask)
+void ModuleSpanningTree::OnDelELine(User* source, const std::string &hostmask)
 {
 	OnLine(source,hostmask,false,'E',0,"");
 }
 
-void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, const std::string &text)
+void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::string &text)
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
@@ -827,14 +827,14 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)dest;
+			User* u = (User*)dest;
 			params.push_back(u->uuid);
 			params.push_back(output_text);
 			command = "MODE";
 		}
 		else
 		{
-			chanrec* c = (chanrec*)dest;
+			Channel* c = (Channel*)dest;
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
 			params.push_back(output_text);
@@ -845,7 +845,7 @@ void ModuleSpanningTree::OnMode(userrec* user, void* dest, int target_type, cons
 	}
 }
 
-void ModuleSpanningTree::OnSetAway(userrec* user)
+void ModuleSpanningTree::OnSetAway(User* user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -855,7 +855,7 @@ void ModuleSpanningTree::OnSetAway(userrec* user)
 	}
 }
 
-void ModuleSpanningTree::OnCancelAway(userrec* user)
+void ModuleSpanningTree::OnCancelAway(User* user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -876,12 +876,12 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, int target_type, void* targ
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)target;
+			User* u = (User*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+u->uuid+" "+ConvToStr(u->age)+" "+output_text);
 		}
 		else
 		{
-			chanrec* c = (chanrec*)target;
+			Channel* c = (Channel*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
 		}
 	}
@@ -894,12 +894,12 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, int target_type, void* 
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)target;
+			User* u = (User*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* c = (chanrec*)target;
+			Channel* c = (Channel*)target;
 			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
 		}
 	}
@@ -932,7 +932,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 	{
 		if (params->size() < 2)
 			return;
-		// Insert the TS value of the object, either userrec or chanrec
+		// Insert the TS value of the object, either User or Channel
 		time_t ourTS = 0;
 		std::string output_text;
 
@@ -940,7 +940,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		for (size_t n = 0; n < params->size(); n++)
 			ServerInstance->Parser->TranslateUIDs(TR_NICK, (*params)[n], (*params)[n]);
 
-		userrec* a = ServerInstance->FindNick((*params)[0]);
+		User* a = ServerInstance->FindNick((*params)[0]);
 		if (a)
 		{
 			ourTS = a->age;
@@ -949,7 +949,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		}
 		else
 		{
-			chanrec* a = ServerInstance->FindChan((*params)[0]);
+			Channel* a = ServerInstance->FindChan((*params)[0]);
 			if (a)
 			{
 				ourTS = a->age;
@@ -996,7 +996,7 @@ void ModuleSpanningTree::OnEvent(Event* event)
 		if (params->size() < 2)
 			return;
 			
-		userrec *a = ServerInstance->FindNick((*params)[0]);
+		User *a = ServerInstance->FindNick((*params)[0]);
 			
 		if (!a)
 			return;

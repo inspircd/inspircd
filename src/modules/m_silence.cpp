@@ -32,7 +32,7 @@ class cmd_silence : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		if (!pcnt)
 		{
@@ -142,7 +142,7 @@ class ModuleSilence : public Module
 		List[I_OnRehash] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
@@ -150,7 +150,7 @@ class ModuleSilence : public Module
 			maxsilence = 32;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
 		// and to prevent a HONKING BIG MEMORY LEAK!
@@ -169,7 +169,7 @@ class ModuleSilence : public Module
 		output = output + " SILENCE=" + ConvToStr(maxsilence);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		// im not sure how unreal's silence operates but ours is sensible. It blocks notices and
 		// privmsgs from people on the silence list, directed privately at the user.
@@ -177,7 +177,7 @@ class ModuleSilence : public Module
 		// a channel when you've set an ignore on the two most talkative people?)
 		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
-			userrec* u = (userrec*)dest;
+			User* u = (User*)dest;
 			silencelist* sl;
 			u->GetExt("silence_list", sl);
 			if (sl)
@@ -194,7 +194,7 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}

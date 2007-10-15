@@ -35,7 +35,7 @@ class ModuleModesOnConnect : public Module
 		List[I_OnPostConnect] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);
@@ -51,7 +51,7 @@ class ModuleModesOnConnect : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnPostConnect(userrec* user)
+	virtual void OnPostConnect(User* user)
 	{
 		if (!IS_LOCAL(user))
 			return;

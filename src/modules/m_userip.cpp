@@ -26,13 +26,13 @@ class cmd_userip : public Command
 		syntax = "<nick>{,<nick>}";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		std::string retbuf = std::string("340 ") + user->nick + " :";
 
 		for (int i = 0; i < pcnt; i++)
 		{
-			userrec *u = ServerInstance->FindNick(parameters[i]);
+			User *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
 				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=+" + u->ident + "@" + u->GetIPString() + " ";

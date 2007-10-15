@@ -40,7 +40,7 @@ class ModuleAntiBear : public Module
 		List[I_OnUserRegister] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		if (command == "NOTICE" && !validated && pcnt > 1 && user->GetExt("antibear_timewait"))
 		{
@@ -62,7 +62,7 @@ class ModuleAntiBear : public Module
 		return 0;
 	}
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		user->WriteServ("439 %s :This server has anti-spambot mechanisms enabled.", user->nick);
 		user->WriteServ("931 %s :Malicious bots, spammers, and other automated systems of dubious origin are NOT welcome here.", user->nick);

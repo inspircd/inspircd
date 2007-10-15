@@ -28,7 +28,7 @@ class ModuleXMLSocket : public Module
 		OnRehash(NULL,"");
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 
 		Conf = new ConfigReader(ServerInstance);
@@ -107,7 +107,7 @@ class ModuleXMLSocket : public Module
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
-		userrec* user = dynamic_cast<userrec*>(ServerInstance->FindDescriptor(fd));
+		User* user = dynamic_cast<User*>(ServerInstance->FindDescriptor(fd));
 
 		if (user == NULL)
 			return -1;
@@ -135,7 +135,7 @@ class ModuleXMLSocket : public Module
 
 	virtual int OnRawSocketWrite(int fd, const char* buffer, int count)
 	{
-		userrec* user = dynamic_cast<userrec*>(ServerInstance->FindDescriptor(fd));
+		User* user = dynamic_cast<User*>(ServerInstance->FindDescriptor(fd));
 
 		if (user == NULL)
 			return -1;

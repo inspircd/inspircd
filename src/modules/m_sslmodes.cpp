@@ -24,7 +24,7 @@ class SSLMode : public ModeHandler
  public:
 	SSLMode(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -84,7 +84,7 @@ class ModuleSSLModes : public Module
 		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{

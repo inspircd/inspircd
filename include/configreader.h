@@ -235,7 +235,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Check that there is only one of each configuration item
 	 */
-	bool CheckOnce(char* tag, bool bail, userrec* user);
+	bool CheckOnce(char* tag, bool bail, User* user);
   
   public:
 
@@ -628,13 +628,13 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Send the 005 numerics (ISUPPORT) to a user
 	 */
-	void Send005(userrec* user);
+	void Send005(User* user);
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
 	 */
-	void Read(bool bail, userrec* user);
+	void Read(bool bail, User* user);
 
 	/** Read a file into a file_cache object
 	 */
@@ -646,7 +646,7 @@ class CoreExport ServerConfig : public Extensible
 	 * this user as SNOTICEs.
 	 * If the parameter is NULL, the messages are spooled to all users via WriteOpers as SNOTICEs.
 	 */
-	void ReportConfigError(const std::string &errormessage, bool bail, userrec* user);
+	void ReportConfigError(const std::string &errormessage, bool bail, User* user);
 
 	/** Load 'filename' into 'target', with the new config parser everything is parsed into
 	 * tag/key/value at load-time rather than at read-value time.

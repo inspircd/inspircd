@@ -22,7 +22,7 @@ class SeeWhois : public ModeHandler
  public:
 	SeeWhois(InspIRCd* Instance) : ModeHandler(Instance, 'W', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		/* Only opers can change other users modes */
 		if (source != dest)
@@ -80,7 +80,7 @@ class ModuleShowwhois : public Module
 		return Version(1,1,0,3,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	virtual void OnWhois(userrec* source, userrec* dest)
+	virtual void OnWhois(User* source, User* dest)
 	{
 		if ((dest->IsModeSet('W')) && (source != dest))
 		{

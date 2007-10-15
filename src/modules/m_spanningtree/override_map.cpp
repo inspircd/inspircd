@@ -40,7 +40,7 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 }	       
 		
 // WARNING: NOT THREAD SAFE - DONT GET ANY SMART IDEAS.
-void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][128], float &totusers, float &totservers)
+void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers)
 {	       
 	if (line < 128)
 	{	       
@@ -104,7 +104,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, userrec* user, int depth, 
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, userrec* user)
+void ModuleSpanningTree::HandleMap(const char** parameters, int pcnt, User* user)
 {
 	// This array represents a virtual screen which we will
 	// "scratch" draw to, as the console device of an irc

@@ -28,9 +28,9 @@ class cmd_nicklock : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
-		userrec* source = ServerInstance->FindNick(parameters[0]);
+		User* source = ServerInstance->FindNick(parameters[0]);
 		irc::string server;
 		irc::string me;
 
@@ -59,7 +59,7 @@ class cmd_nicklock : public Command
 		if (!source->ForceNickChange(parameters[1]))
 		{
 			// ugh, nickchange failed for some reason -- possibly existing nick?
-			userrec::QuitUser(ServerInstance, source, "Nickname collision");
+			User::QuitUser(ServerInstance, source, "Nickname collision");
 		}
 
 		// give them a lock flag
@@ -81,9 +81,9 @@ class cmd_nickunlock : public Command
 		syntax = "<locked-nick>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* source = ServerInstance->FindNick(parameters[0]);
+		User* source = ServerInstance->FindNick(parameters[0]);
 		if (source)
 		{
 			source->Shrink("nick_locked");
@@ -127,7 +127,7 @@ class ModuleNickLock : public Module
 		List[I_OnUserPreNick] = List[I_OnUserQuit] = List[I_OnCleanup] = 1;
 	}
 
-	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
+	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (isdigit(newnick[0])) /* allow a switch to a UID */
 			return 0;
@@ -140,7 +140,7 @@ class ModuleNickLock : public Module
 		return 0;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		user->Shrink("nick_locked");
 	}
@@ -149,7 +149,7 @@ class ModuleNickLock : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			user->Shrink("nick_locked");
 		}
 	}

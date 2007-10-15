@@ -67,7 +67,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	par.push_back(prefix);
 	par.push_back("");
 
-	userrec* source = this->Instance->FindNick(prefix);
+	User* source = this->Instance->FindNick(prefix);
 	if (!source)
 		return true;
 
@@ -114,7 +114,7 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 		{
 			/* It's for our server */
 			string_list results;
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 
 			if (source)
 			{
@@ -145,7 +145,7 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 		else
 		{
 			/* Pass it on */
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(prefix, "MOTD", params, params[0]);
 		}
@@ -162,7 +162,7 @@ bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &param
 		{
 			/* It's for our server */
 			string_list results;
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 			if (source)
 			{
 				std::deque<std::string> par;
@@ -181,7 +181,7 @@ bool TreeSocket::Admin(const std::string &prefix, std::deque<std::string> &param
 		else
 		{
 			/* Pass it on */
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(prefix, "ADMIN", params, params[0]);
 		}
@@ -200,7 +200,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 		{
 			/* It's for our server */
 			string_list results;
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 			if (source)
 			{
 				std::deque<std::string> par;
@@ -217,7 +217,7 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 		else
 		{
 			/* Pass it on */
-			userrec* source = this->Instance->FindNick(prefix);
+			User* source = this->Instance->FindNick(prefix);
 			if (source)
 				Utils->DoOneToOne(source->uuid, "STATS", params, params[1]);
 		}
@@ -234,7 +234,7 @@ bool TreeSocket::OperType(const std::string &prefix, std::deque<std::string> &pa
 	if (params.size() != 1)
 		return true;
 	std::string opertype = params[0];
-	userrec* u = this->Instance->FindNick(prefix);
+	User* u = this->Instance->FindNick(prefix);
 	if (u)
 	{
 		if (!u->IsModeSet('o'))
@@ -276,7 +276,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 	if (params.size() < 3)
 		return true;
 
-	userrec* u = this->Instance->FindNick(params[0]);
+	User* u = this->Instance->FindNick(params[0]);
 
 	if (u)
 	{
@@ -292,7 +292,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 				/* buh. UID them */
 				if (!u->ForceNickChange(u->uuid))
 				{
-					userrec::QuitUser(this->Instance, u, "Nickname collision");
+					User::QuitUser(this->Instance, u, "Nickname collision");
 					return true;
 				}
 			}
@@ -309,7 +309,7 @@ bool TreeSocket::OperQuit(const std::string &prefix, std::deque<std::string> &pa
 	if (params.size() < 1)
 		return true;
 
-	userrec* u = this->Instance->FindNick(prefix);
+	User* u = this->Instance->FindNick(prefix);
 
 	if (u)
 	{
@@ -328,13 +328,13 @@ bool TreeSocket::ServiceJoin(const std::string &prefix, std::deque<std::string> 
 	if (!this->Instance->IsChannel(params[1].c_str()))
 		return true;
 
-	userrec* u = this->Instance->FindNick(params[0]);
+	User* u = this->Instance->FindNick(params[0]);
 
 	if (u)
 	{
 		/* only join if it's local, otherwise just pass it on! */
 		if (IS_LOCAL(u))
-			chanrec::JoinUser(this->Instance, u, params[1].c_str(), false, "", Instance->Time());
+			Channel::JoinUser(this->Instance, u, params[1].c_str(), false, "", Instance->Time());
 		Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
 	}
 	return true;
@@ -348,8 +348,8 @@ bool TreeSocket::ServicePart(const std::string &prefix, std::deque<std::string> 
 	if (!this->Instance->IsChannel(params[1].c_str()))
 		return true;
 
-	userrec* u = this->Instance->FindNick(params[0]);
-	chanrec* c = this->Instance->FindChan(params[1]);
+	User* u = this->Instance->FindNick(params[0]);
+	Channel* c = this->Instance->FindChan(params[1]);
 
 	if (u)
 	{
@@ -386,7 +386,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 	if (params.size() != 2)
 		return true;
 
-	userrec* who = this->Instance->FindNick(params[0]);
+	User* who = this->Instance->FindNick(params[0]);
 
 	if (who)
 	{
@@ -401,7 +401,7 @@ bool TreeSocket::RemoteKill(const std::string &prefix, std::deque<std::string> &
 		// NOTE: This is safe with kill hiding on, as RemoteKill is only reached if we have a server prefix.
 		// in short this is not executed for USERS.
 		who->Write(":%s KILL %s :%s (%s)", prefix.c_str(), who->nick, prefix.c_str(), reason.c_str());
-		userrec::QuitUser(this->Instance,who,reason);
+		User::QuitUser(this->Instance,who,reason);
 	}
 	return true;
 }
@@ -434,7 +434,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, std::deque<std::string> &p
 			 * dump the PONG reply back to their fd. If its a server, do nowt.
 			 * Services might want to send these s->s, but we dont need to yet.
 			 */
-			userrec* u = this->Instance->FindNick(prefix);
+			User* u = this->Instance->FindNick(prefix);
 			if (u)
 			{
 				u->WriteServ("PONG %s %s",params[0].c_str(),params[1].c_str());
@@ -467,7 +467,7 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 		}
 		else if (*(params[0].c_str()) == '#')
 		{
-			chanrec* c = this->Instance->FindChan(params[0]);
+			Channel* c = this->Instance->FindChan(params[0]);
 			if (c)
 			{
 				FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
@@ -475,7 +475,7 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 		}
 		else if (*(params[0].c_str()) != '#')
 		{
-			userrec* u = this->Instance->FindNick(params[0]);
+			User* u = this->Instance->FindNick(params[0]);
 			if (u)
 			{
 				FOREACH_MOD_I(this->Instance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_USER,u,params[1],params[2]));
@@ -508,7 +508,7 @@ bool TreeSocket::ChangeHost(const std::string &prefix, std::deque<std::string> &
 {
 	if (params.size() < 1)
 		return true;
-	userrec* u = this->Instance->FindNick(prefix);
+	User* u = this->Instance->FindNick(prefix);
 
 	if (u)
 	{
@@ -587,7 +587,7 @@ bool TreeSocket::ChangeName(const std::string &prefix, std::deque<std::string> &
 {
 	if (params.size() < 1)
 		return true;
-	userrec* u = this->Instance->FindNick(prefix);
+	User* u = this->Instance->FindNick(prefix);
 	if (u)
 	{
 		u->ChangeName(params[0].c_str());
@@ -601,16 +601,16 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() < 1)
 		return true;
-	userrec* u = this->Instance->FindNick(prefix);
+	User* u = this->Instance->FindNick(prefix);
 	if (u)
 	{
 		// an incoming request
 		if (params.size() == 1)
 		{
-			userrec* x = this->Instance->FindNick(params[0]);
+			User* x = this->Instance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
-				userrec* x = this->Instance->FindNick(params[0]);
+				User* x = this->Instance->FindNick(params[0]);
 				char signon[MAXBUF];
 				char idle[MAXBUF];
 				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
@@ -632,7 +632,7 @@ bool TreeSocket::Whois(const std::string &prefix, std::deque<std::string> &param
 		else if (params.size() == 3)
 		{
 			std::string who_did_the_whois = params[0];
-			userrec* who_to_send_to = this->Instance->FindNick(who_did_the_whois);
+			User* who_to_send_to = this->Instance->FindNick(who_did_the_whois);
 			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 			{
 				// an incoming reply to a whois we sent out
@@ -659,7 +659,7 @@ bool TreeSocket::Push(const std::string &prefix, std::deque<std::string> &params
 {
 	if (params.size() < 2)
 		return true;
-	userrec* u = this->Instance->FindNick(params[0]);
+	User* u = this->Instance->FindNick(params[0]);
 	if (!u)
 		return true;
 	if (IS_LOCAL(u))
@@ -710,7 +710,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 		// someone querying our time?
 		if (this->Instance->Config->ServerName == params[0] || this->Instance->Config->GetSID() == params[0])
 		{
-			userrec* u = this->Instance->FindNick(params[1]);
+			User* u = this->Instance->FindNick(params[1]);
 			if (u)
 			{
 				params.push_back(ConvToStr(Instance->Time(false)));
@@ -721,7 +721,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 		else
 		{
 			// not us, pass it on
-			userrec* u = this->Instance->FindNick(params[1]);
+			User* u = this->Instance->FindNick(params[1]);
 			if (u)
 				Utils->DoOneToOne(prefix,"TIME",params,params[0]);
 		}
@@ -729,7 +729,7 @@ bool TreeSocket::Time(const std::string &prefix, std::deque<std::string> &params
 	else if (params.size() == 3)
 	{
 		// a response to a previous TIME
-		userrec* u = this->Instance->FindNick(params[1]);
+		User* u = this->Instance->FindNick(params[1]);
 		if ((u) && (IS_LOCAL(u)))
 		{
 			time_t rawtime = atol(params[2].c_str());
@@ -784,7 +784,7 @@ bool TreeSocket::RemoveStatus(const std::string &prefix, std::deque<std::string>
 {
 	if (params.size() < 1)
 		return true;
-	chanrec* c = Instance->FindChan(params[0]);
+	Channel* c = Instance->FindChan(params[0]);
 	if (c)
 	{
 		for (char modeletter = 'A'; modeletter <= 'z'; modeletter++)
@@ -1208,7 +1208,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 			{
 				std::string direction = prefix;
 
-				userrec *t = this->Instance->FindUUID(prefix);
+				User *t = this->Instance->FindUUID(prefix);
 				if (t)
 				{
 					direction = t->server;
@@ -1239,10 +1239,10 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 			if ((command == "MODE") && (params.size() >= 2))
 			{
-				chanrec* channel = Instance->FindChan(params[0]);
+				Channel* channel = Instance->FindChan(params[0]);
 				if (channel)
 				{
-					userrec* x = Instance->FindNick(prefix);
+					User* x = Instance->FindNick(prefix);
 					if (x)
 					{
 						if (warned.find(x->server) == warned.end())
@@ -1421,8 +1421,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 				std::string sourceserv = this->myhost;
 				if (params.size() == 3)
 				{
-					userrec* user = this->Instance->FindNick(params[1]);
-					chanrec* chan = this->Instance->FindChan(params[0]);
+					User* user = this->Instance->FindNick(params[1]);
+					Channel* chan = this->Instance->FindChan(params[0]);
 					if (user && chan)
 					{
 						if (!chan->ServerKickUser(user, params[2].c_str(), false))
@@ -1504,7 +1504,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 				 * Not a special s2s command. Emulate the user doing it.
 				 * This saves us having a huge ugly command parser again.
 				 */
-				userrec *who = this->Instance->FindUUID(prefix);
+				User *who = this->Instance->FindUUID(prefix);
 
 				std::string sourceserv = this->myhost;
 				if (!this->InboundServerName.empty())
@@ -1539,7 +1539,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 						 * already exist here. If it does, kill their copy,
 						 * and our copy.
 						 */
-						userrec* x = this->Instance->FindNickOnly(params[0]);
+						User* x = this->Instance->FindNickOnly(params[0]);
 						if ((x) && (x != who))
 						{
 							int collideret = 0;
@@ -1567,11 +1567,11 @@ Old nickname collision logic..
 							p.push_back(prefix);
 							p.push_back(":Nickname collision");
 							Utils->DoOneToMany(this->Instance->Config->ServerName,"KILL",p);
-							userrec::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
-							userrec* y = this->Instance->FindNick(prefix);
+							User::QuitUser(this->Instance,x,"Nickname collision ("+prefix+" -> "+params[0]+")");
+							User* y = this->Instance->FindNick(prefix);
 							if (y)
 							{
-								userrec::QuitUser(this->Instance,y,"Nickname collision");
+								User::QuitUser(this->Instance,y,"Nickname collision");
 							}
 							return Utils->DoOneToAllButSenderRaw(line,sourceserv,prefix,command,params);
 */

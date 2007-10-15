@@ -90,7 +90,7 @@ class JoinFlood : public ModeHandler
  public:
 	JoinFlood(InspIRCd* Instance) : ModeHandler(Instance, 'j', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		joinfloodsettings* x;
 		if (channel->GetExt("joinflood",x))
@@ -99,13 +99,13 @@ class JoinFlood : public ModeHandler
 			return std::make_pair(false, parameter);
 	} 
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		joinfloodsettings* dummy;
 
@@ -220,7 +220,7 @@ class ModuleJoinFlood : public Module
 			throw ModuleException("Could not add new modes!");
 	}
 	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{
@@ -237,7 +237,7 @@ class ModuleJoinFlood : public Module
 		return 0;
 	}
 
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		joinfloodsettings *f;
 		if (channel->GetExt("joinflood",f))
@@ -252,7 +252,7 @@ class ModuleJoinFlood : public Module
 		}
 	}
 
-	void OnChannelDelete(chanrec* chan)
+	void OnChannelDelete(Channel* chan)
 	{
 		joinfloodsettings *f;
 		if (chan->GetExt("joinflood",f))

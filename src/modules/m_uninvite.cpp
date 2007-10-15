@@ -27,10 +27,10 @@ class cmd_uninvite : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* u = ServerInstance->FindNick(parameters[0]);
-		chanrec* c = ServerInstance->FindChan(parameters[1]);
+		User* u = ServerInstance->FindNick(parameters[0]);
+		Channel* c = ServerInstance->FindChan(parameters[1]);
 			 
 		if ((!c) || (!u))
 		{	

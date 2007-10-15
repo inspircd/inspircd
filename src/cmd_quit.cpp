@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_quit(Instance);
 }
 
-CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_quit::Handle (const char** parameters, int pcnt, User *user)
 {
 
 	std::string quitmsg;
@@ -38,7 +38,7 @@ CmdResult cmd_quit::Handle (const char** parameters, int pcnt, userrec *user)
 	else
 		quitmsg = pcnt ? parameters[0] : "Client exited";
 
-	userrec::QuitUser(ServerInstance, user, quitmsg);
+	User::QuitUser(ServerInstance, user, quitmsg);
 
 	return CMD_SUCCESS;
 }

@@ -21,7 +21,7 @@ ModeChannelKey::ModeChannelKey(InspIRCd* Instance) : ModeHandler(Instance, 'k', 
 {
 }
 
-ModePair ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelKey::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {       
         if (channel->modes[CM_KEY])
         {
@@ -33,7 +33,7 @@ ModePair ModeChannelKey::ModeSet(userrec* source, userrec* dest, chanrec* channe
         }
 }
 
-void ModeChannelKey::RemoveMode(chanrec* channel)
+void ModeChannelKey::RemoveMode(Channel* channel)
 {
 	/** +k needs a parameter when being removed,
 	 * so we have a special-case RemoveMode here for it
@@ -48,17 +48,17 @@ void ModeChannelKey::RemoveMode(chanrec* channel)
 	}
 }
 
-void ModeChannelKey::RemoveMode(userrec* user)
+void ModeChannelKey::RemoveMode(User* user)
 {
 }
 
-bool ModeChannelKey::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+bool ModeChannelKey::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 {
 	/* When TS is equal, the alphabetically later channel key wins */
 	return (their_param < our_param);
 }
 
-ModeAction ModeChannelKey::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelKey::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if ((channel->modes[CM_KEY] != adding) || (!IS_LOCAL(source)))
 	{

@@ -22,7 +22,7 @@ class HideChans : public ModeHandler
  public:
 	HideChans(InspIRCd* Instance) : ModeHandler(Instance, 'I', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		/* Only opers can change other users modes */
 		if (source != dest)
@@ -79,7 +79,7 @@ class ModuleHideChans : public Module
 		return Version(1,1,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text)
+	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* Dont display channels if they have +I set and the
 		 * person doing the WHOIS is not an oper

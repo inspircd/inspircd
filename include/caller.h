@@ -21,10 +21,10 @@
  * according to the number of parameters it takes, e.g. caller0, caller1, caller2.
  * These have been generated from zero parameters to eight.
  *
- * If you want to declare a functor which takes two parameters, a userrec and a chanrec,
+ * If you want to declare a functor which takes two parameters, a User and a Channel,
  * and returns bool, simply create it like this:
  *
- * caller2<bool, userrec*, chanrec*> MyFunction;
+ * caller2<bool, User*, Channel*> MyFunction;
  *
  * and initialize it correctly, when placed into a class you will be able to call it:
  *

@@ -98,22 +98,22 @@ class FilterBase : public Module
 	FilterBase(InspIRCd* Me, const std::string &source);
 	virtual ~FilterBase();
 	virtual void Implements(char* List);
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual FilterResult* FilterMatch(userrec* user, const std::string &text, int flags) = 0;
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags) = 0;
 	virtual bool DeleteFilter(const std::string &freeform) = 0;
 	virtual void SyncFilters(Module* proto, void* opaque) = 0;
 	virtual void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	virtual std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags) = 0;
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	virtual void OnRehash(userrec* user, const std::string &parameter);
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	virtual void OnRehash(User* user, const std::string &parameter);
 	virtual Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
 	virtual void OnSyncOtherMetaData(Module* proto, void* opaque, bool displayable = false);
 	virtual void OnDecodeMetaData(int target_type, void* target, const std::string &extname, const std::string &extdata);
-	virtual int OnStats(char symbol, userrec* user, string_list &results) = 0;
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
-	bool AppliesToMe(userrec* user, FilterResult* filter, int flags);
+	virtual int OnStats(char symbol, User* user, string_list &results) = 0;
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 };
 
 class cmd_filter : public Command
@@ -126,7 +126,7 @@ class cmd_filter : public Command
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
 		if (pcnt == 1)
 		{
@@ -200,13 +200,13 @@ class cmd_filter : public Command
 		}
 	}
 
-	void TooFewParams(userrec* user, const std::string &extra_text)
+	void TooFewParams(User* user, const std::string &extra_text)
 	{
 		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick, extra_text.c_str());
 	}
 };
 
-bool FilterBase::AppliesToMe(userrec* user, FilterResult* filter, int flags)
+bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int flags)
 {
 	if ((filter->flag_no_opers) && IS_OPER(user))
 		return false;
@@ -236,13 +236,13 @@ void FilterBase::Implements(char* List)
 	List[I_OnPreCommand] = List[I_OnStats] = List[I_OnSyncOtherMetaData] = List[I_OnDecodeMetaData] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = 1;
 }
 
-int FilterBase::OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+int FilterBase::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	flags = FLAG_PRIVMSG;
 	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 }
 
-int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	if (!flags)
 		flags = FLAG_NOTICE;
@@ -257,12 +257,12 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 		std::string target = "";
 		if (target_type == TYPE_USER)
 		{
-			userrec* t = (userrec*)dest;
+			User* t = (User*)dest;
 			target = std::string(t->nick);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* t = (chanrec*)dest;
+			Channel* t = (Channel*)dest;
 			target = std::string(t->name);
 		}
 		if (f->action == "block")
@@ -276,7 +276,7 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 		}
 		if (f->action == "kill")
 		{
-			userrec::QuitUser(ServerInstance,user,"Filtered: "+f->reason);
+			User::QuitUser(ServerInstance,user,"Filtered: "+f->reason);
 		}
 		if (f->action == "gline")
 		{
@@ -293,7 +293,7 @@ int FilterBase::OnUserPreNotice(userrec* user,void* dest,int target_type, std::s
 	return 0;
 }
 
-int FilterBase::OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+int FilterBase::OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if ((validated == 1) && (IS_LOCAL(user)))
@@ -360,7 +360,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 				if ((parting) && (f->action == "kill"))
 				{
 					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick, f->reason.c_str());
-					userrec::QuitUser(ServerInstance, user, "Filtered: " + f->reason);
+					User::QuitUser(ServerInstance, user, "Filtered: " + f->reason);
 				}
 				if (f->action == "gline")
 				{
@@ -382,7 +382,7 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 	return 0;
 }
 
-void FilterBase::OnRehash(userrec* user, const std::string &parameter)
+void FilterBase::OnRehash(User* user, const std::string &parameter)
 {
 }
 	

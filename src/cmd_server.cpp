@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_server(Instance);
 }
 
-CmdResult cmd_server::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_server::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("666 %s :You cannot identify as a server, you are a USER. IRC Operators informed.",user->nick);
 	ServerInstance->WriteOpers("*** WARNING: %s attempted to issue a SERVER command and is registered as a user!",user->nick);

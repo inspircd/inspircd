@@ -141,7 +141,7 @@ namespace irc
 }
 
 /** This class handles incoming connections on client ports.
- * It will create a new userrec for every valid connection
+ * It will create a new User for every valid connection
  * and assign it a file descriptor.
  */
 class CoreExport ListenSocket : public EventHandler

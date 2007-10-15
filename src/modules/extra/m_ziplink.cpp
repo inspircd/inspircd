@@ -218,7 +218,7 @@ class ModuleZLib : public Module
 	}
 
 	/* Handle stats z (misc stats) */
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
 		{

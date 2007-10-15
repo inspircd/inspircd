@@ -449,43 +449,43 @@ class CoreExport Module : public Extensible
 	virtual Priority Prioritize();
 
 	/** Called when a user connects.
-	 * The details of the connecting user are available to you in the parameter userrec *user
+	 * The details of the connecting user are available to you in the parameter User *user
 	 * @param user The user who is connecting
 	 */
-	virtual void OnUserConnect(userrec* user);
+	virtual void OnUserConnect(User* user);
 
 	/** Called when a user quits.
-	 * The details of the exiting user are available to you in the parameter userrec *user
+	 * The details of the exiting user are available to you in the parameter User *user
 	 * This event is only called when the user is fully registered when they quit. To catch
 	 * raw disconnections, use the OnUserDisconnect method.
 	 * @param user The user who is quitting
 	 * @param message The user's quit message (as seen by non-opers)
 	 * @param oper_message The user's quit message (as seen by opers)
 	 */
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message);
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message);
 
 	/** Called whenever a user's socket is closed.
-	 * The details of the exiting user are available to you in the parameter userrec *user
+	 * The details of the exiting user are available to you in the parameter User *user
 	 * This event is called for all users, registered or not, as a cleanup method for modules
 	 * which might assign resources to user, such as dns lookups, objects and sockets.
 	 * @param user The user who is disconnecting
 	 */
-	virtual void OnUserDisconnect(userrec* user);
+	virtual void OnUserDisconnect(User* user);
 
 	/** Called whenever a channel is deleted, either by QUIT, KICK or PART.
 	 * @param chan The channel being deleted
 	 */
-	virtual void OnChannelDelete(chanrec* chan);
+	virtual void OnChannelDelete(Channel* chan);
 
 	/** Called when a user joins a channel.
-	 * The details of the joining user are available to you in the parameter userrec *user,
-	 * and the details of the channel they have joined is available in the variable chanrec *channel
+	 * The details of the joining user are available to you in the parameter User *user,
+	 * and the details of the channel they have joined is available in the variable Channel *channel
 	 * @param user The user who is joining
 	 * @param channel The channel being joined
 	 * @param silent Change this to true if you want to conceal the JOIN command from the other users
 	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent);
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent);
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
@@ -493,18 +493,18 @@ class CoreExport Module : public Extensible
 	 * @param user The user who is joining
 	 * @param channel The channel being joined
 	 */
-	virtual void OnPostJoin(userrec* user, chanrec* channel);
+	virtual void OnPostJoin(User* user, Channel* channel);
 
 	/** Called when a user parts a channel.
-	 * The details of the leaving user are available to you in the parameter userrec *user,
-	 * and the details of the channel they have left is available in the variable chanrec *channel
+	 * The details of the leaving user are available to you in the parameter User *user,
+	 * and the details of the channel they have left is available in the variable Channel *channel
 	 * @param user The user who is parting
 	 * @param channel The channel being parted
 	 * @param partmessage The part message, or an empty string
 	 * @param silent Change this to true if you want to conceal the PART command from the other users
 	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent);
+	virtual void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent);
 
 	/** Called on rehash.
 	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
@@ -515,20 +515,20 @@ class CoreExport Module : public Extensible
 	 * value of this variable will be NULL.
 	 * @param parameter The (optional) parameter given to REHASH from the user.
 	 */
- 	virtual void OnRehash(userrec* user, const std::string &parameter);
+ 	virtual void OnRehash(User* user, const std::string &parameter);
 
 	/** Called when a raw command is transmitted or received.
 	 * This method is the lowest level of handler available to a module. It will be called with raw
 	 * data which is passing through a connected socket. If you wish, you may munge this data by changing
 	 * the string parameter "raw". If you do this, after your function exits it will immediately be
 	 * cut down to 510 characters plus a carriage return and linefeed. For INBOUND messages only (where
-	 * inbound is set to true) the value of user will be the userrec of the connection sending the
+	 * inbound is set to true) the value of user will be the User of the connection sending the
 	 * data. This is not possible for outbound data because the data may be being routed to multiple targets.
 	 * @param raw The raw string in RFC1459 format
 	 * @param inbound A flag to indicate wether the data is coming into the daemon or going out to the user
 	 * @param user The user record sending the text, when inbound == true.
 	 */
- 	virtual void OnServerRaw(std::string &raw, bool inbound, userrec* user);
+ 	virtual void OnServerRaw(std::string &raw, bool inbound, User* user);
 
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -539,7 +539,7 @@ class CoreExport Module : public Extensible
 	 * IMPORTANT NOTE!
 	 *
 	 * If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be called BEFORE the channel
-	 * record is created. This will cause chanrec* chan to be NULL. There is very little you can do in form of
+	 * record is created. This will cause Channel* chan to be NULL. There is very little you can do in form of
 	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
 	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
 	 * @param user The user joining the channel
@@ -549,7 +549,7 @@ class CoreExport Module : public Extensible
 	 * You may alter this string to alter the user's modes on the channel.
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs);
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs);
 	
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -561,7 +561,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
-	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason);
+	virtual int OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason);
 
 	/** Called whenever a user is kicked.
 	 * If this method is called, the kick is already underway and cannot be prevented, so
@@ -573,15 +573,15 @@ class CoreExport Module : public Extensible
 	 * @param silent Change this to true if you want to conceal the PART command from the other users
 	 * of the channel (useful for modules such as auditorium)
 	 */
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent);
+	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
 
 	/** Called whenever a user opers locally.
-	 * The userrec will contain the oper mode 'o' as this function is called after any modifications
+	 * The User will contain the oper mode 'o' as this function is called after any modifications
 	 * are made to the user's structure by the core.
 	 * @param user The user who is opering up
 	 * @param opertype The opers type name
 	 */
-	virtual void OnOper(userrec* user, const std::string &opertype);
+	virtual void OnOper(User* user, const std::string &opertype);
 
 	/** Called after a user opers locally.
 	 * This is identical to Module::OnOper(), except it is called after OnOper so that other modules
@@ -590,10 +590,10 @@ class CoreExport Module : public Extensible
 	 * @param user The user who is opering up
 	 * @param opertype The opers type name
 	 */
-	virtual void OnPostOper(userrec* user, const std::string &opertype);
+	virtual void OnPostOper(User* user, const std::string &opertype);
 	
 	/** Called whenever a user types /INFO.
-	 * The userrec will contain the information of the user who typed the command. Modules may use this
+	 * The User will contain the information of the user who typed the command. Modules may use this
 	 * method to output their own credits in /INFO (which is the ircd's version of an about box).
 	 * It is purposefully not possible to modify any info that has already been output, or halt the list.
 	 * You must write a 371 numeric to the user, containing your info in the following format:
@@ -602,7 +602,7 @@ class CoreExport Module : public Extensible
 	 *
 	 * @param user The user issuing /INFO
 	 */
-	virtual void OnInfo(userrec* user);
+	virtual void OnInfo(User* user);
 	
 	/** Called whenever a /WHOIS is performed on a local user.
 	 * The source parameter contains the details of the user who issued the WHOIS command, and
@@ -610,7 +610,7 @@ class CoreExport Module : public Extensible
 	 * @param source The user issuing the WHOIS command
 	 * @param dest The user who is being WHOISed
 	 */
-	virtual void OnWhois(userrec* source, userrec* dest);
+	virtual void OnWhois(User* source, User* dest);
 	
 	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
 	 * Returning 1 from this function stops the process immediately, causing no
@@ -621,7 +621,7 @@ class CoreExport Module : public Extensible
 	 * @param channel The channel the user is being invited to
 	 * @return 1 to deny the invite, 0 to allow
 	 */
-	virtual int OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel);
+	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel);
 	
 	/** Called after a user has been successfully invited to a channel.
 	 * You cannot prevent the invite from occuring using this function, to do that,
@@ -630,17 +630,17 @@ class CoreExport Module : public Extensible
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
 	 */
-	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel);
+	virtual void OnUserInvite(User* source,User* dest,Channel* channel);
 	
 	/** Called whenever a user is about to PRIVMSG A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
 	 * notices etc. This is useful for modules which may want to filter or redirect messages.
 	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
-	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
+	 * you must cast dest to a User* otherwise you must cast it to a Channel*, this is the details
 	 * of where the message is destined to be sent.
 	 * @param user The user sending the message
-	 * @param dest The target of the message (chanrec* or userrec*)
+	 * @param dest The target of the message (Channel* or User*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
@@ -648,20 +648,20 @@ class CoreExport Module : public Extensible
 	 * It will be ignored for private messages.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
 	/** Called whenever a user is about to NOTICE A user or a channel, before any processing is done.
 	 * Returning any nonzero value from this function stops the process immediately, causing no
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
 	 * notices etc. This is useful for modules which may want to filter or redirect messages.
 	 * target_type can be one of TYPE_USER or TYPE_CHANNEL. If the target_type value is a user,
-	 * you must cast dest to a userrec* otherwise you must cast it to a chanrec*, this is the details
+	 * you must cast dest to a User* otherwise you must cast it to a Channel*, this is the details
 	 * of where the message is destined to be sent.
 	 * You may alter the message text as you wish before relinquishing control to the next module
 	 * in the chain, and if no other modules block the text this altered form of the text will be sent out
 	 * to the user and possibly to other servers.
 	 * @param user The user sending the message
-	 * @param dest The target of the message (chanrec* or userrec*)
+	 * @param dest The target of the message (Channel* or User*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text Changeable text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
@@ -669,7 +669,7 @@ class CoreExport Module : public Extensible
 	 * It will be ignored for private notices.
 	 * @return 1 to deny the NOTICE, 0 to allow it
 	 */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text,char status, CUList &exempt_list);
 
 	/** Called whenever the server wants to build the exemption list for a channel, but is not directly doing a PRIVMSG or NOTICE.
 	 * For example, the spanningtree protocol will call this event when passing a privmsg on (but not processing it directly).
@@ -680,11 +680,11 @@ class CoreExport Module : public Extensible
 	 * @param exempt_list The exempt list to be populated
 	 * @param text The original message text causing the exempt list to be built
 	 */
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text);
+	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text);
 	
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
+	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
@@ -692,10 +692,10 @@ class CoreExport Module : public Extensible
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual int OnUserPreNick(userrec* user, const std::string &newnick);
+	virtual int OnUserPreNick(User* user, const std::string &newnick);
 
 	/** Called after any PRIVMSG sent from a user.
-	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
+	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
 	 * if target_type is TYPE_CHANNEL.
 	 * @param user The user sending the message
 	 * @param dest The target of the message
@@ -703,10 +703,10 @@ class CoreExport Module : public Extensible
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
 	/** Called after any NOTICE sent from a user.
-	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
+	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
 	 * if target_type is TYPE_CHANNEL.
 	 * @param user The user sending the message
 	 * @param dest The target of the message
@@ -714,18 +714,18 @@ class CoreExport Module : public Extensible
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
 	 */
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
-	 * The dest variable contains a userrec* if target_type is TYPE_USER and a chanrec*
+	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
 	 * if target_type is TYPE_CHANNEL. The text variable contains the remainder of the
 	 * mode string after the target, e.g. "+wsi" or "+ooo nick1 nick2 nick3".
 	 * @param user The user sending the MODEs
-	 * @param dest The target of the modes (userrec* or chanrec*)
+	 * @param dest The target of the modes (User* or Channel*)
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text The actual modes and their parameters if any
 	 */
-	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text);
+	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in
@@ -749,7 +749,7 @@ class CoreExport Module : public Extensible
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 */
-	virtual void OnSyncUser(userrec* user, Module* proto, void* opaque);
+	virtual void OnSyncUser(User* user, Module* proto, void* opaque);
 
 	/** Allows modules to synchronize data which relates to channels during a netburst.
 	 * When this function is called, it will be called from the module which implements
@@ -766,11 +766,11 @@ class CoreExport Module : public Extensible
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 */
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque);
+	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque);
 
 	/* Allows modules to syncronize metadata related to channels over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then
+	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
 	 * this method is called.You should use the ProtoSendMetaData function after you've
 	 * correctly decided how the data should be represented, to send the metadata on its way if it belongs
 	 * to your module. For a good example of how to use this method, see src/modules/m_swhois.cpp.
@@ -781,11 +781,11 @@ class CoreExport Module : public Extensible
 	 * @param displayable If this value is true, the data is going to be displayed to a user,
 	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncChannelMetaData(chanrec* chan, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
+	virtual void OnSyncChannelMetaData(Channel* chan, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
 
 	/* Allows modules to syncronize metadata related to users over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then
+	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
 	 * this method is called. You should use the ProtoSendMetaData function after you've
 	 * correctly decided how the data should be represented, to send the metadata on its way if
 	 * if it belongs to your module.
@@ -796,11 +796,11 @@ class CoreExport Module : public Extensible
 	 * @param displayable If this value is true, the data is going to be displayed to a user,
 	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
 	 */
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
+	virtual void OnSyncUserMetaData(User* user, Module* proto,void* opaque, const std::string &extname, bool displayable = false);
 
 	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
-	 * represents (e.g. it is Extensible metadata, added to a userrec or chanrec by a module) then
+	 * represents (e.g. it is Extensible metadata, added to a User or Channel by a module) then
 	 * this method is called. You should use the ProtoSendMetaData function after you've
 	 * correctly decided how the data should be represented, to send the metadata on its way if
 	 * if it belongs to your module.
@@ -814,7 +814,7 @@ class CoreExport Module : public Extensible
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The chanrec* or userrec* that data should be added to
+	 * @param target The Channel* or User* that data should be added to
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
@@ -830,7 +830,7 @@ class CoreExport Module : public Extensible
 	 *
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The chanrec* or userrec* that modes should be sent for
+	 * @param target The Channel* or User* that modes should be sent for
 	 * @param modeline The modes and parameters to be sent
 	 */
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline);
@@ -845,7 +845,7 @@ class CoreExport Module : public Extensible
 	 * how to use this function.
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The chanrec* or userrec* that metadata should be sent for
+	 * @param target The Channel* or User* that metadata should be sent for
 	 * @param extname The extension name to send metadata for
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
@@ -855,21 +855,21 @@ class CoreExport Module : public Extensible
 	 * @param user The user sending the WALLOPS
 	 * @param text The content of the WALLOPS message
 	 */
-	virtual void OnWallops(userrec* user, const std::string &text);
+	virtual void OnWallops(User* user, const std::string &text);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.
 	 * @param user The user whos host is being changed
 	 * @param newhost The new hostname being set
 	 */
-	virtual void OnChangeHost(userrec* user, const std::string &newhost);
+	virtual void OnChangeHost(User* user, const std::string &newhost);
 
 	/** Called whenever a user's GECOS (realname) is changed.
 	 * This event triggers after the name has been set.
 	 * @param user The user who's GECOS is being changed
 	 * @param gecos The new GECOS being set on the user
 	 */
-	virtual void OnChangeName(userrec* user, const std::string &gecos);
+	virtual void OnChangeName(User* user, const std::string &gecos);
 
 	/** Called whenever a gline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -878,7 +878,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The reason text to be displayed
 	 * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a zline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -887,7 +887,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The reason text to be displayed
 	 * @param ipmask The hostmask to add
 	 */
-	virtual void OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask);
+	virtual void OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask);
 
 	/** Called whenever a kline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -896,7 +896,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The reason text to be displayed
 	 * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddKLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnAddKLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a qline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -905,7 +905,7 @@ class CoreExport Module : public Extensible
 	 * @param reason The reason text to be displayed
 	 * @param nickmask The hostmask to add
 	 */
-	virtual void OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask);
+	virtual void OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask);
 
 	/** Called whenever a eline is added by a local user.
 	 * This method is triggered after the line is added.
@@ -914,49 +914,49 @@ class CoreExport Module : public Extensible
 	 * @param reason The reason text to be displayed
 	 * @param hostmask The hostmask to add
 	 */
-	virtual void OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask);
 
 	/** Called whenever a gline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelGLine(userrec* source, const std::string &hostmask);
+	virtual void OnDelGLine(User* source, const std::string &hostmask);
 
 	/** Called whenever a zline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelZLine(userrec* source, const std::string &ipmask);
+	virtual void OnDelZLine(User* source, const std::string &ipmask);
 
 	/** Called whenever a kline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelKLine(userrec* source, const std::string &hostmask);
+	virtual void OnDelKLine(User* source, const std::string &hostmask);
 	
 	/** Called whenever a qline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelQLine(userrec* source, const std::string &nickmask);
+	virtual void OnDelQLine(User* source, const std::string &nickmask);
 
 	/** Called whenever a eline is deleted.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line
 	 * @param hostmask The hostmask to delete
 	 */
-	virtual void OnDelELine(userrec* source, const std::string &hostmask);
+	virtual void OnDelELine(User* source, const std::string &hostmask);
 
 	/** Called before your module is unloaded to clean up Extensibles.
 	 * This method is called once for every user and channel on the network,
 	 * so that when your module unloads it may clear up any remaining data
 	 * in the form of Extensibles added using Extensible::Extend().
 	 * If the target_type variable is TYPE_USER, then void* item refers to
-	 * a userrec*, otherwise it refers to a chanrec*.
+	 * a User*, otherwise it refers to a Channel*.
 	 * @param target_type The type of item being cleaned
 	 * @param item A pointer to the item's class
 	 */
@@ -964,14 +964,14 @@ class CoreExport Module : public Extensible
 
 	/** Called after any nickchange, local or remote. This can be used to track users after nickchanges
 	 * have been applied. Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the userrec if the user is a remote user as this may cause a desnyc.
+	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
 	 * check user->server before taking any action (including returning nonzero from the method).
 	 * Because this method is called after the nickchange is taken place, no return values are possible
 	 * to indicate forbidding of the nick change. Use OnUserPreNick for this.
 	 * @param user The user changing their nick
 	 * @param oldnick The old nickname of the user before the nickchange
 	 */
-	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
+	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 
 	/** Called before an action which requires a channel privilage check.
 	 * This function is called before many functions which check a users status on a channel, for example
@@ -998,7 +998,7 @@ class CoreExport Module : public Extensible
 	 * @param channel The channel which is being checked
 	 * @param access_type See above
 	 */
-	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type);
+	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
@@ -1019,14 +1019,14 @@ class CoreExport Module : public Extensible
 	 * @param reason The kill reason
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
-	virtual int OnKill(userrec* source, userrec* dest, const std::string &reason);
+	virtual int OnKill(User* source, User* dest, const std::string &reason);
 
 	/** Called when an oper wants to disconnect a remote user via KILL
 	 * @param source The user sending the KILL
 	 * @param dest The user being killed
 	 * @param reason The kill reason
 	 */
-	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason);
+	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,
@@ -1081,7 +1081,7 @@ class CoreExport Module : public Extensible
 	 * @param original_line The entire original line as passed to the parser from the user
 	 * @return 1 to block the command, 0 to allow
 	 */
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
 
 	/** Called after any command has been executed.
 	 * This event occurs for all registered commands, wether they are registered in the core,
@@ -1095,7 +1095,7 @@ class CoreExport Module : public Extensible
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line);
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
@@ -1107,7 +1107,7 @@ class CoreExport Module : public Extensible
 	 * @param user The user to check
 	 * @return true to indicate readiness, false if otherwise
 	 */
-	virtual bool OnCheckReady(userrec* user);
+	virtual bool OnCheckReady(User* user);
 
 	/** Called whenever a user is about to register their connection (e.g. before the user
 	 * is sent the MOTD etc). Modules can use this method if they are performing a function
@@ -1118,7 +1118,7 @@ class CoreExport Module : public Extensible
 	 * @param user The user registering
 	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual int OnUserRegister(userrec* user);
+	virtual int OnUserRegister(User* user);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and
@@ -1128,7 +1128,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckInvite(userrec* user, chanrec* chan);
+	virtual int OnCheckInvite(User* user, Channel* chan);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and
@@ -1139,7 +1139,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckKey(userrec* user, chanrec* chan, const std::string &keygiven);
+	virtual int OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
 
 	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +l, and
@@ -1149,7 +1149,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckLimit(userrec* user, chanrec* chan);
+	virtual int OnCheckLimit(User* user, Channel* chan);
 
 	/** Called whenever a user joins a channel, to determine if banlist checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the user actually matches a channel ban, and
@@ -1159,7 +1159,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channel being joined
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
-	virtual int OnCheckBan(userrec* user, chanrec* chan);
+	virtual int OnCheckBan(User* user, Channel* chan);
 
 	/** Called on all /STATS commands
 	 * This method is triggered for all /STATS use, including stats symbols handled by the core.
@@ -1170,7 +1170,7 @@ class CoreExport Module : public Extensible
 	 * work when remote STATS queries are received.
 	 * @return 1 to block the /STATS from being processed by the core, 0 to allow it
 	 */
-	virtual int OnStats(char symbol, userrec* user, string_list &results);
+	virtual int OnStats(char symbol, User* user, string_list &results);
 
 	/** Called whenever a change of a local users displayed host is attempted.
 	 * Return 1 to deny the host change, or 0 to allow it.
@@ -1178,7 +1178,7 @@ class CoreExport Module : public Extensible
 	 * @param newhost The new hostname
 	 * @return 1 to deny the host change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserHost(userrec* user, const std::string &newhost);
+	virtual int OnChangeLocalUserHost(User* user, const std::string &newhost);
 
 	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
 	 * return 1 to deny the name change, or 0 to allow it.
@@ -1186,7 +1186,7 @@ class CoreExport Module : public Extensible
 	 * @param newhost The new GECOS
 	 * @return 1 to deny the GECOS change, 0 to allow
 	 */
-	virtual int OnChangeLocalUserGECOS(userrec* user, const std::string &newhost); 
+	virtual int OnChangeLocalUserGECOS(User* user, const std::string &newhost); 
 
 	/** Called whenever a topic is changed by a local user.
 	 * Return 1 to deny the topic change, or 0 to allow it.
@@ -1195,7 +1195,7 @@ class CoreExport Module : public Extensible
 	 * @param topic The actual topic text
 	 * @param 1 to block the topic change, 0 to allow
 	 */
-	virtual int OnLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic);
+	virtual int OnLocalTopicChange(User* user, Channel* chan, const std::string &topic);
 
 	/** Called whenever a local topic has been changed.
 	 * To block topic changes you must use OnLocalTopicChange instead.
@@ -1203,7 +1203,7 @@ class CoreExport Module : public Extensible
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
 	 */
-	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic);
+	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);
 
 	/** Called whenever an Event class is sent to all module by another module.
 	 * Please see the documentation of Event::Send() for further information. The Event sent can
@@ -1240,7 +1240,7 @@ class CoreExport Module : public Extensible
 	 * servermodes out to reverse mode changes.
 	 * @param user The user who is opering
 	 */
-	virtual void OnGlobalOper(userrec* user);
+	virtual void OnGlobalOper(User* user);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
@@ -1248,7 +1248,7 @@ class CoreExport Module : public Extensible
 	 * This is called for both local and remote users.
 	 * @param user The user who is connecting
 	 */
-	virtual void OnPostConnect(userrec* user);
+	virtual void OnPostConnect(User* user);
 
 	/** Called whenever a ban is added to a channel's list.
 	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
@@ -1257,7 +1257,7 @@ class CoreExport Module : public Extensible
 	 * @param banmask The ban mask being added
 	 * @return 1 to block the ban, 0 to continue as normal
 	 */
-	virtual int OnAddBan(userrec* source, chanrec* channel,const std::string &banmask);
+	virtual int OnAddBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called whenever a ban is removed from a channel's list.
 	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
@@ -1266,7 +1266,7 @@ class CoreExport Module : public Extensible
 	 * @param banmask The ban mask being deleted
 	 * @return 1 to block the unban, 0 to continue as normal
 	 */
-	virtual int OnDelBan(userrec* source, chanrec* channel,const std::string &banmask);
+	virtual int OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called immediately after any  connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
@@ -1322,15 +1322,15 @@ class CoreExport Module : public Extensible
 
 	/** Called whenever a user sets away.
 	 * This method has no parameter for the away message, as it is available in the
-	 * user record as userrec::awaymsg.
+	 * user record as User::awaymsg.
 	 * @param user The user setting away
 	 */
-	virtual void OnSetAway(userrec* user);
+	virtual void OnSetAway(User* user);
 
 	/** Called when a user cancels their away state.
 	 * @param user The user returning from away
 	 */
-	virtual void OnCancelAway(userrec* user);
+	virtual void OnCancelAway(User* user);
 
 	/** Called whenever a NAMES list is requested.
 	 * You can produce the nameslist yourself, overriding the current list,
@@ -1343,12 +1343,12 @@ class CoreExport Module : public Extensible
 	 * point the pointer at your copy)
 	 * @return 1 to prevent the user list being sent to the client, 0 to allow it
 	 */
-	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &userlist);
+	virtual int OnUserList(User* user, Channel* Ptr, CUList* &userlist);
 
 	/** Called whenever a line of WHOIS output is sent to a user.
 	 * You may change the numeric and the text of the output by changing
 	 * the values numeric and text, but you cannot change the user the
-	 * numeric is sent to. You may however change the user's userrec values.
+	 * numeric is sent to. You may however change the user's User values.
 	 * @param user The user the numeric is being sent to
 	 * @param dest The user being WHOISed
 	 * @param numeric The numeric of the line being sent
@@ -1356,7 +1356,7 @@ class CoreExport Module : public Extensible
 	 * @return nonzero to drop the line completely so that the user does not
 	 * receive it, or zero to allow the line to be sent.
 	 */
-	virtual int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text);
+	virtual int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text);
 
 	/** Called at intervals for modules to garbage-collect any hashes etc.
 	 * Certain data types such as hash_map 'leak' buckets, which must be
@@ -1372,7 +1372,7 @@ class CoreExport Module : public Extensible
 	 * data which is being spooled in a controlled manner, e.g. LIST lines.
 	 * @param user The user who's buffer is now empty.
 	 */
-	virtual void OnBufferFlushed(userrec* user);
+	virtual void OnBufferFlushed(User* user);
 };
 
 
@@ -1496,7 +1496,7 @@ class CoreExport ConfigReader : public classbase
 	 * if bool is false AND user is false, the error report will be spooled to all opers
 	 * by means of a NOTICE to all opers.
 	 */
-	void DumpErrors(bool bail,userrec* user);
+	void DumpErrors(bool bail,User* user);
 
 	/** Returns the number of items within a tag.
 	 * For example if the tag was &lt;test tag="blah" data="foo"&gt; then this

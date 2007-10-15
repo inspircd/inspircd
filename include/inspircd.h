@@ -231,11 +231,11 @@ typedef std::map<irc::string, unsigned int> clonemap;
 
 class InspIRCd;
 
-DEFINE_HANDLER1(ProcessUserHandler, void, userrec*);
+DEFINE_HANDLER1(ProcessUserHandler, void, User*);
 DEFINE_HANDLER1(IsNickHandler, bool, const char*);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER1(FindDescriptorHandler, userrec*, int);
-DEFINE_HANDLER1(FloodQuitUserHandler, void, userrec*);
+DEFINE_HANDLER1(FindDescriptorHandler, User*, int);
+DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 
 /* Forward declaration - required */
 class XLineManager;
@@ -287,7 +287,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to verify
 	 * @return True if all modules have finished checking this user
 	 */
-	bool AllModulesReportReady(userrec* user);
+	bool AllModulesReportReady(User* user);
 
 	/** Logfile pathname specified on the commandline, or empty string
 	 */
@@ -348,12 +348,12 @@ class CoreExport InspIRCd : public classbase
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
 	 * kludge alert!
-	 * SendMode expects a userrec* to send the numeric replies
+	 * SendMode expects a User* to send the numeric replies
 	 * back to, so we create it a fake user that isnt in the user
 	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
 	 * falls into the abyss :p
 	 */
-	userrec *FakeClient;
+	User *FakeClient;
 
 	/** Returns the next available UID for this server.
 	 */
@@ -363,13 +363,13 @@ class CoreExport InspIRCd : public classbase
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	userrec *FindUUID(const std::string &);
+	User *FindUUID(const std::string &);
 
 	/** Find a user in the UUID hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	userrec *FindUUID(const char *);
+	User *FindUUID(const char *);
 
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */
@@ -427,7 +427,7 @@ class CoreExport InspIRCd : public classbase
 	user_hash* clientlist;
 
 	/** Client list stored by UUID. Contains all clients, and is updated
-	 * automatically by the constructor and destructor of userrec.
+	 * automatically by the constructor and destructor of User.
 	 */
 	user_hash* uuidlist;
 
@@ -437,11 +437,11 @@ class CoreExport InspIRCd : public classbase
 
 	/** Local client list, a vector containing only local clients
 	 */
-	std::vector<userrec*> local_users;
+	std::vector<User*> local_users;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
-	std::list<userrec*> all_opers;
+	std::list<User*> all_opers;
 
 	/** Map of local ip addresses for clone counting
 	 */
@@ -490,12 +490,12 @@ class CoreExport InspIRCd : public classbase
 	/** Add a user to the local clone map
 	 * @param user The user to add
 	 */
-	void AddLocalClone(userrec* user);
+	void AddLocalClone(User* user);
 
 	/** Add a user to the global clone map
 	 * @param user The user to add
 	 */
-	void AddGlobalClone(userrec* user);
+	void AddGlobalClone(User* user);
 	
 	/** Number of users with a certain mode set on them
 	 */
@@ -511,7 +511,7 @@ class CoreExport InspIRCd : public classbase
 	 * @return There is no actual return value, however upon exit, the user 'cu' may have been
 	 * marked for deletion in the global CullList.
 	 */
-	caller1<void, userrec*> ProcessUser;
+	caller1<void, User*> ProcessUser;
 
 	/** Bind all ports specified in the configuration file.
 	 * @param bail True if the function should bail back to the shell on failure
@@ -534,7 +534,7 @@ class CoreExport InspIRCd : public classbase
 	void AddServerName(const std::string &servername);
 
 	/** Finds a cached char* pointer of a server name,
-	 * This is used to optimize userrec by storing only the pointer to the name
+	 * This is used to optimize User by storing only the pointer to the name
 	 * @param The servername to find
 	 * @return A pointer to this name, gauranteed to never become invalid
 	 */
@@ -571,34 +571,34 @@ class CoreExport InspIRCd : public classbase
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	userrec* FindNick(const std::string &nick);
+	User* FindNick(const std::string &nick);
 
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	userrec* FindNick(const char* nick);
+	User* FindNick(const char* nick);
 
 	/** Find a user in the nick hash ONLY
 	 */
-	userrec* FindNickOnly(const char* nick);
+	User* FindNickOnly(const char* nick);
 
 	/** Find a user in the nick hash ONLY
 	 */
-	userrec* FindNickOnly(const std::string &nick);
+	User* FindNickOnly(const std::string &nick);
 
 	/** Find a channel in the channels hash
 	 * @param chan The channel to find
 	 * @return A pointer to the channel, or NULL if the channel does not exist
 	 */
-	chanrec* FindChan(const std::string &chan);
+	Channel* FindChan(const std::string &chan);
 
 	/** Find a channel in the channels hash
 	 * @param chan The channel to find
 	 * @return A pointer to the channel, or NULL if the channel does not exist
 	 */
-	chanrec* FindChan(const char* chan);
+	Channel* FindChan(const char* chan);
 
 	/** Check for a 'die' tag in the config file, and abort if found
 	 * @return Depending on the configuration, this function may never return
@@ -733,7 +733,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param socket The file descriptor of a user
 	 * @return A pointer to the user if the user exists locally on this descriptor
 	 */
-	caller1<userrec*, int> FindDescriptor;
+	caller1<User*, int> FindDescriptor;
 
 	/** Add a new mode to this server's mode parser
 	 * @param mh The modehandler to add
@@ -785,7 +785,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param pcnt The number of items you have given in the first parameter
 	 * @param user The user to send error messages to
 	 */
-	void SendMode(const char **parameters, int pcnt, userrec *user);
+	void SendMode(const char **parameters, int pcnt, User *user);
 
 	/** Match two strings using pattern matching.
 	 * This operates identically to the global function match(),
@@ -803,7 +803,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to execute the command as
 	 * @return True if the command handler was called successfully
 	 */
-	CmdResult CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, userrec* user);
+	CmdResult CallCommandHandler(const std::string &commandname, const char** parameters, int pcnt, User* user);
 
 	/** Return true if the command is a module-implemented command and the given parameters are valid for it
 	 * @param parameters The mode parameters
@@ -811,7 +811,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param user The user to test-execute the command as
 	 * @return True if the command handler is a module command, and there are enough parameters and the user has permission to the command
 	 */
-	bool IsValidModuleCommand(const std::string &commandname, int pcnt, userrec* user);
+	bool IsValidModuleCommand(const std::string &commandname, int pcnt, User* user);
 
 	/** Add a gline and apply it
 	 * @param duration How long the line should last
@@ -897,35 +897,35 @@ class CoreExport InspIRCd : public classbase
 	 * @param The index number of the channel to fetch
 	 * @return A channel record, or NUll if index < 0 or index >= InspIRCd::ChannelCount()
 	 */
-	chanrec* GetChannelIndex(long index);
+	Channel* GetChannelIndex(long index);
 
 	/** Dump text to a user target, splitting it appropriately to fit
 	 * @param User the user to dump the text to
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-	void DumpText(userrec* User, const std::string &LinePrefix, stringstream &TextStream);
+	void DumpText(User* User, const std::string &LinePrefix, stringstream &TextStream);
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against
 	 * @param user A user to send error text to
 	 * @return True if the nick matches too many users
 	 */
-	bool NickMatchesEveryone(const std::string &nick, userrec* user);
+	bool NickMatchesEveryone(const std::string &nick, User* user);
 
 	/** Check if the given IP mask matches too many users, send errors to the given user
 	 * @param ip An ipmask to match against
 	 * @param user A user to send error text to
 	 * @return True if the ip matches too many users
 	 */
-	bool IPMatchesEveryone(const std::string &ip, userrec* user);
+	bool IPMatchesEveryone(const std::string &ip, User* user);
 
 	/** Check if the given hostmask matches too many users, send errors to the given user
 	 * @param mask A hostmask to match against
 	 * @param user A user to send error text to
 	 * @return True if the host matches too many users
 	 */
-	bool HostMatchesEveryone(const std::string &mask, userrec* user);
+	bool HostMatchesEveryone(const std::string &mask, User* user);
 
 	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
 	 * @param str A string containing a time in the form 1y2w3d4h6m5s
@@ -1004,7 +1004,7 @@ class CoreExport InspIRCd : public classbase
 	 * @param numeric Numeric to send
 	 * @param text Text of the numeric
 	 */
-	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const std::string &text);
+	void SendWhoisLine(User* user, User* dest, int numeric, const std::string &text);
 
 	/** Send a line of WHOIS data to a user.
 	 * @param user user to send the line to
@@ -1013,13 +1013,13 @@ class CoreExport InspIRCd : public classbase
 	 * @param format Format string for the numeric
 	 * @param ... Parameters for the format string
 	 */
-	void SendWhoisLine(userrec* user, userrec* dest, int numeric, const char* format, ...);
+	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...);
 
 	/** Quit a user for excess flood, and if they are not
 	 * fully registered yet, temporarily zline their IP.
 	 * @param current user to quit
 	 */
-	caller1<void, userrec*> FloodQuitUser;
+	caller1<void, User*> FloodQuitUser;
 
 	/** Restart the server.
 	 * This function will not return. If an error occurs,

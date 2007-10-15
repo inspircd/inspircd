@@ -25,7 +25,7 @@ class User_d : public ModeHandler
  public:
 	User_d(InspIRCd* Instance) : ModeHandler(Instance, 'd', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -71,7 +71,7 @@ class ModuleDeaf : public Module
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnRehash] = List[I_OnBuildExemptList] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string&)
+	virtual void OnRehash(User* user, const std::string&)
 	{
 		ConfigReader* conf = new ConfigReader(ServerInstance);
 		deaf_bypasschars = conf->ReadValue("deaf", "bypasschars", 0);
@@ -80,11 +80,11 @@ class ModuleDeaf : public Module
 		DELETE(conf);
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* chan = (chanrec*)dest;
+			Channel* chan = (Channel*)dest;
 			if (chan)
 				this->BuildDeafList(MSG_NOTICE, chan, user, status, text, exempt_list);
 		}
@@ -92,11 +92,11 @@ class ModuleDeaf : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* chan = (chanrec*)dest;
+			Channel* chan = (Channel*)dest;
 			if (chan)
 				this->BuildDeafList(MSG_PRIVMSG, chan, user, status, text, exempt_list);
 		}
@@ -104,12 +104,12 @@ class ModuleDeaf : public Module
 		return 0;
 	}
 
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text)
+	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
 	{
 		BuildDeafList(message_type, chan, sender, status, text, exempt_list);
 	}
 
-	virtual void BuildDeafList(MessageType message_type, chanrec* chan, userrec* sender, char status, const std::string &text, CUList &exempt_list)
+	virtual void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
 	{
 		CUList *ulist;
 		bool is_a_uline;

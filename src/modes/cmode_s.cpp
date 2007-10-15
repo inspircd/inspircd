@@ -21,7 +21,7 @@ ModeChannelSecret::ModeChannelSecret(InspIRCd* Instance) : ModeHandler(Instance,
 {
 }
 
-ModeAction ModeChannelSecret::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelSecret::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (channel->modes[CM_SECRET] != adding)
 	{

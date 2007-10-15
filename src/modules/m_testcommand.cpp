@@ -26,7 +26,7 @@ class cmd_dalinfo : public Command
 		this->source = "m_testcommand.so";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		user->WriteServ("NOTICE %s :*** DALNet had nothing to do with it.", user->nick);
 		return CMD_FAILURE;

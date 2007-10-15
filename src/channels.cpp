@@ -16,7 +16,7 @@
 #include "wildcard.h"
 #include "mode.h"
 
-chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
+Channel::Channel(InspIRCd* Instance) : ServerInstance(Instance)
 {
 	*name = *topic = *setby = *key = 0;
 	maxbans = created = topicset = limit = 0;
@@ -24,7 +24,7 @@ chanrec::chanrec(InspIRCd* Instance) : ServerInstance(Instance)
 	age = ServerInstance->Time(true);
 }
 
-void chanrec::SetMode(char mode,bool mode_on)
+void Channel::SetMode(char mode,bool mode_on)
 {
 	modes[mode-65] = mode_on;
 	if (!mode_on)
@@ -32,7 +32,7 @@ void chanrec::SetMode(char mode,bool mode_on)
 }
 
 
-void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
+void Channel::SetModeParam(char mode,const char* parameter,bool mode_on)
 {
 	CustomModeList::iterator n = custom_mode_params.find(mode);	
 
@@ -51,12 +51,12 @@ void chanrec::SetModeParam(char mode,const char* parameter,bool mode_on)
 	}
 }
 
-bool chanrec::IsModeSet(char mode)
+bool Channel::IsModeSet(char mode)
 {
 	return modes[mode-65];
 }
 
-std::string chanrec::GetModeParameter(char mode)
+std::string Channel::GetModeParameter(char mode)
 {
 	switch (mode)
 	{
@@ -73,17 +73,17 @@ std::string chanrec::GetModeParameter(char mode)
 	}
 }
 
-long chanrec::GetUserCounter()
+long Channel::GetUserCounter()
 {
 	return (this->internal_userlist.size());
 }
 
-void chanrec::AddUser(userrec* user)
+void Channel::AddUser(User* user)
 {
 	internal_userlist[user] = user->nick;
 }
 
-unsigned long chanrec::DelUser(userrec* user)
+unsigned long Channel::DelUser(User* user)
 {
 	CUListIter a = internal_userlist.find(user);
 	
@@ -99,17 +99,17 @@ unsigned long chanrec::DelUser(userrec* user)
 	return internal_userlist.size();
 }
 
-bool chanrec::HasUser(userrec* user)
+bool Channel::HasUser(User* user)
 {
 	return (internal_userlist.find(user) != internal_userlist.end());
 }
 
-void chanrec::AddOppedUser(userrec* user)
+void Channel::AddOppedUser(User* user)
 {
 	internal_op_userlist[user] = user->nick;
 }
 
-void chanrec::DelOppedUser(userrec* user)
+void Channel::DelOppedUser(User* user)
 {
 	CUListIter a = internal_op_userlist.find(user);
 	if (a != internal_op_userlist.end())
@@ -119,12 +119,12 @@ void chanrec::DelOppedUser(userrec* user)
 	}
 }
 
-void chanrec::AddHalfoppedUser(userrec* user)
+void Channel::AddHalfoppedUser(User* user)
 {
 	internal_halfop_userlist[user] = user->nick;
 }
 
-void chanrec::DelHalfoppedUser(userrec* user)
+void Channel::DelHalfoppedUser(User* user)
 {
 	CUListIter a = internal_halfop_userlist.find(user);
 
@@ -134,12 +134,12 @@ void chanrec::DelHalfoppedUser(userrec* user)
 	}
 }
 
-void chanrec::AddVoicedUser(userrec* user)
+void Channel::AddVoicedUser(User* user)
 {
 	internal_voice_userlist[user] = user->nick;
 }
 
-void chanrec::DelVoicedUser(userrec* user)
+void Channel::DelVoicedUser(User* user)
 {
 	CUListIter a = internal_voice_userlist.find(user);
 	
@@ -149,27 +149,27 @@ void chanrec::DelVoicedUser(userrec* user)
 	}
 }
 
-CUList* chanrec::GetUsers()
+CUList* Channel::GetUsers()
 {
 	return &internal_userlist;
 }
 
-CUList* chanrec::GetOppedUsers()
+CUList* Channel::GetOppedUsers()
 {
 	return &internal_op_userlist;
 }
 
-CUList* chanrec::GetHalfoppedUsers()
+CUList* Channel::GetHalfoppedUsers()
 {
 	return &internal_halfop_userlist;
 }
 
-CUList* chanrec::GetVoicedUsers()
+CUList* Channel::GetVoicedUsers()
 {
 	return &internal_voice_userlist;
 }
 
-void chanrec::SetDefaultModes()
+void Channel::SetDefaultModes()
 {
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;
@@ -196,7 +196,7 @@ void chanrec::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record 
  */
-chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bool override, const char* key, time_t TS)
+Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool override, const char* key, time_t TS)
 {
 	if (!user || !cn)
 		return NULL;
@@ -204,7 +204,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 	char cname[MAXBUF];
 	int MOD_RESULT = 0;
 	std::string privs;
-	chanrec *Ptr;
+	Channel *Ptr;
 
 	/*
 	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
@@ -254,7 +254,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				Instance->Log(DEBUG,"*** BUG *** chanrec::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
+				Instance->Log(DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick, cn);
 		}
 		else
 		{
@@ -270,7 +270,7 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 
 		/* create a new one */
-		Ptr = new chanrec(Instance);
+		Ptr = new Channel(Instance);
 		(*(Instance->chanlist))[cname] = Ptr;
 
 		strlcpy(Ptr->name, cname,CHANMAX);
@@ -357,10 +357,10 @@ chanrec* chanrec::JoinUser(InspIRCd* Instance, userrec *user, const char* cn, bo
 		}
 	}
 
-	return chanrec::ForceChan(Instance, Ptr, user, privs);
+	return Channel::ForceChan(Instance, Ptr, user, privs);
 }
 
-chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs)
+Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs)
 {
 	std::string nick = user->nick;
 	bool silent = false;
@@ -427,7 +427,7 @@ chanrec* chanrec::ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, con
 	return Ptr;
 }
 
-bool chanrec::IsBanned(userrec* user)
+bool Channel::IsBanned(User* user)
 {
 	char mask[MAXBUF];
 	int MOD_RESULT = 0;
@@ -450,11 +450,11 @@ bool chanrec::IsBanned(userrec* user)
 	return false;
 }
 
-/* chanrec::PartUser
+/* Channel::PartUser
  * remove a channel from a users record, and return the number of users left.
- * Therefore, if this function returns 0 the caller should delete the chanrec.
+ * Therefore, if this function returns 0 the caller should delete the Channel.
  */
-long chanrec::PartUser(userrec *user, const char* reason)
+long Channel::PartUser(User *user, const char* reason)
 {
 	bool silent = false;
 
@@ -488,7 +488,7 @@ long chanrec::PartUser(userrec *user, const char* reason)
 	return this->GetUserCounter();
 }
 
-long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggerevents)
+long Channel::ServerKickUser(User* user, const char* reason, bool triggerevents)
 {
 	bool silent = false;
 
@@ -534,7 +534,7 @@ long chanrec::ServerKickUser(userrec* user, const char* reason, bool triggereven
 	return this->GetUserCounter();
 }
 
-long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
+long Channel::KickUser(User *src, User *user, const char* reason)
 {
 	bool silent = false;
 
@@ -612,7 +612,7 @@ long chanrec::KickUser(userrec *src, userrec *user, const char* reason)
 	return this->GetUserCounter();
 }
 
-void chanrec::WriteChannel(userrec* user, char* text, ...)
+void Channel::WriteChannel(User* user, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -627,7 +627,7 @@ void chanrec::WriteChannel(userrec* user, char* text, ...)
 	this->WriteChannel(user, std::string(textbuffer));
 }
 
-void chanrec::WriteChannel(userrec* user, const std::string &text)
+void Channel::WriteChannel(User* user, const std::string &text)
 {
 	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
@@ -645,7 +645,7 @@ void chanrec::WriteChannel(userrec* user, const std::string &text)
 	}
 }
 
-void chanrec::WriteChannelWithServ(const char* ServName, const char* text, ...)
+void Channel::WriteChannelWithServ(const char* ServName, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -660,7 +660,7 @@ void chanrec::WriteChannelWithServ(const char* ServName, const char* text, ...)
 	this->WriteChannelWithServ(ServName, std::string(textbuffer));
 }
 
-void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text)
+void Channel::WriteChannelWithServ(const char* ServName, const std::string &text)
 {
 	CUList *ulist = this->GetUsers();
 	char tb[MAXBUF];
@@ -677,7 +677,7 @@ void chanrec::WriteChannelWithServ(const char* ServName, const std::string &text
 
 /* write formatted text from a source user to all users on a channel except
  * for the sender (for privmsg etc) */
-void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...)
+void Channel::WriteAllExceptSender(User* user, bool serversource, char status, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -692,7 +692,7 @@ void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status
 	this->WriteAllExceptSender(user, serversource, status, std::string(textbuffer));
 }
 
-void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, char* text, ...)
+void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, char* text, ...)
 {
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
@@ -707,7 +707,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 	this->WriteAllExcept(user, serversource, status, except_list, std::string(textbuffer));
 }
 
-void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string &text)
+void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
 	CUList *ulist;
 	char tb[MAXBUF];
@@ -743,7 +743,7 @@ void chanrec::WriteAllExcept(userrec* user, bool serversource, char status, CULi
 	}
 }
 
-void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text)
+void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const std::string& text)
 {
 	CUList except_list;
 	except_list[user] = user->nick;
@@ -754,7 +754,7 @@ void chanrec::WriteAllExceptSender(userrec* user, bool serversource, char status
  * return a count of the users on a specific channel accounting for
  * invisible users who won't increase the count. e.g. for /LIST
  */
-int chanrec::CountInvisible()
+int Channel::CountInvisible()
 {
 	int count = 0;
 	CUList *ulist= this->GetUsers();
@@ -767,7 +767,7 @@ int chanrec::CountInvisible()
 	return count;
 }
 
-char* chanrec::ChanModes(bool showkey)
+char* Channel::ChanModes(bool showkey)
 {
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
@@ -777,7 +777,7 @@ char* chanrec::ChanModes(bool showkey)
 	*scratch = '\0';
 	*sparam = '\0';
 
-	/* This was still iterating up to 190, chanrec::modes is only 64 elements -- Om */
+	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
 		if(this->modes[n])
@@ -821,7 +821,7 @@ char* chanrec::ChanModes(bool showkey)
 /* compile a userlist of a channel into a string, each nick seperated by
  * spaces and op, voice etc status shown as @ and +, and send it to 'user'
  */
-void chanrec::UserList(userrec *user, CUList *ulist)
+void Channel::UserList(User *user, CUList *ulist)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
@@ -893,7 +893,7 @@ void chanrec::UserList(userrec *user, CUList *ulist)
 	user->WriteServ("366 %s %s :End of /NAMES list.", user->nick, this->name);
 }
 
-long chanrec::GetMaxBans()
+long Channel::GetMaxBans()
 {
 	/* Return the cached value if there is one */
 	if (this->maxbans)
@@ -914,7 +914,7 @@ long chanrec::GetMaxBans()
 	return this->maxbans;
 }
 
-void chanrec::ResetMaxBans()
+void Channel::ResetMaxBans()
 {
 	this->maxbans = 0;
 }
@@ -923,7 +923,7 @@ void chanrec::ResetMaxBans()
  * % for halfop etc. If the user has several modes set, the highest mode
  * the user has must be returned.
  */
-const char* chanrec::GetPrefixChar(userrec *user)
+const char* Channel::GetPrefixChar(User *user)
 {
 	static char pf[2] = {0, 0};
 	
@@ -946,7 +946,7 @@ const char* chanrec::GetPrefixChar(userrec *user)
 	return pf;
 }
 
-const char* chanrec::GetAllPrefixChars(userrec* user)
+const char* Channel::GetAllPrefixChars(User* user)
 {
 	static char prefix[MAXBUF];
 	int ctr = 0;
@@ -966,7 +966,7 @@ const char* chanrec::GetAllPrefixChars(userrec* user)
 	return prefix;
 }
 
-unsigned int chanrec::GetPrefixValue(userrec* user)
+unsigned int Channel::GetPrefixValue(User* user)
 {
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())
@@ -977,7 +977,7 @@ unsigned int chanrec::GetPrefixValue(userrec* user)
 	return 0;
 }
 
-int chanrec::GetStatusFlags(userrec *user)
+int Channel::GetStatusFlags(User *user)
 {
 	UCListIter i = user->chans.find(this);
 	if (i != user->chans.end())
@@ -987,7 +987,7 @@ int chanrec::GetStatusFlags(userrec *user)
 	return 0;
 }
 
-int chanrec::GetStatus(userrec *user)
+int Channel::GetStatus(User *user)
 {
 	if (ServerInstance->ULine(user->server))
 		return STATUS_OP;
@@ -1012,7 +1012,7 @@ int chanrec::GetStatus(userrec *user)
 	return STATUS_NORMAL;
 }
 
-void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, bool adding)
+void Channel::SetPrefix(User* user, char prefix, unsigned int prefix_value, bool adding)
 {
 	prefixlist::iterator n = prefixes.find(user);
 	prefixtype pfx = std::make_pair(prefix,prefix_value);
@@ -1035,7 +1035,7 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 		{
 			pfxcontainer one;
 			one.push_back(pfx);
-			prefixes.insert(std::make_pair<userrec*,pfxcontainer>(user, one));
+			prefixes.insert(std::make_pair<User*,pfxcontainer>(user, one));
 		}
 	}
 	else
@@ -1049,7 +1049,7 @@ void chanrec::SetPrefix(userrec* user, char prefix, unsigned int prefix_value, b
 	}
 }
 
-void chanrec::RemoveAllPrefixes(userrec* user)
+void Channel::RemoveAllPrefixes(User* user)
 {
 	prefixlist::iterator n = prefixes.find(user);
 	if (n != prefixes.end())

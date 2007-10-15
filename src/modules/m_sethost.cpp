@@ -29,7 +29,7 @@ class cmd_sethost : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		size_t len = 0;
 		for (const char* x = parameters[0]; *x; x++, len++)
@@ -79,7 +79,7 @@ class ModuleSetHost : public Module
 		List[I_OnRehash] = 1;
 	}
 
-	void OnRehash(userrec* user, const std::string &parameter)
+	void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);

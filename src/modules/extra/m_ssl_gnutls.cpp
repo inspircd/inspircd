@@ -111,7 +111,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		if(param != "ssl")
 			return;
@@ -247,13 +247,13 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 
 			if(user->GetExt("ssl", dummy) && isin(user->GetPort(), listenports))
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				userrec::QuitUser(ServerInstance, user, "SSL module unloading");
+				User::QuitUser(ServerInstance, user, "SSL module unloading");
 			}
 			if (user->GetExt("ssl_cert", dummy) && isin(user->GetPort(), listenports))
 			{
@@ -578,7 +578,7 @@ class ModuleSSLGnuTLS : public Module
 	}
 
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
-	virtual void OnWhois(userrec* source, userrec* dest)
+	virtual void OnWhois(User* source, User* dest)
 	{
 		if (!clientactive)
 			return;
@@ -590,7 +590,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if(extname == "ssl")
@@ -610,7 +610,7 @@ class ModuleSSLGnuTLS : public Module
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "ssl"))
 		{
-			userrec* dest = (userrec*)target;
+			User* dest = (User*)target;
 			// if they dont already have an ssl flag, accept the remote server's
 			if (!dest->GetExt(extname, dummy))
 			{
@@ -654,7 +654,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
-			userrec* extendme = ServerInstance->FindDescriptor(session->fd);
+			User* extendme = ServerInstance->FindDescriptor(session->fd);
 			if (extendme)
 			{
 				if (!extendme->GetExt("ssl", dummy))
@@ -671,7 +671,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	virtual void OnPostConnect(userrec* user)
+	virtual void OnPostConnect(User* user)
 	{
 		// This occurs AFTER OnUserConnect so we can be sure the
 		// protocol module has propagated the NICK message.
@@ -706,7 +706,7 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->SE->WantWrite(eh);
 	}
 
-	virtual void OnBufferFlushed(userrec* user)
+	virtual void OnBufferFlushed(User* user)
 	{
 		if (user->GetExt("ssl"))
 		{

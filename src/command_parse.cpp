@@ -112,7 +112,7 @@ long InspIRCd::Duration(const std::string &str)
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere, unsigned int extra)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -161,7 +161,7 @@ int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** par
 	return 1;
 }
 
-int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const char** parameters, int pcnt, unsigned int splithere)
 {
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -209,7 +209,7 @@ int CommandParser::LoopCall(userrec* user, Command* CommandObj, const char** par
 	return 1;
 }
 
-bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, userrec * user)
+bool CommandParser::IsValidCommand(const std::string &commandname, int pcnt, User * user)
 {
 	Commandable::iterator n = cmdlist.find(commandname);
 
@@ -244,7 +244,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, userrec *user)
+CmdResult CommandParser::CallHandler(const std::string &commandname,const char** parameters, int pcnt, User *user)
 {
 	Commandable::iterator n = cmdlist.find(commandname);
 
@@ -280,7 +280,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 	return CMD_INVALID;
 }
 
-void CommandParser::ProcessCommand(userrec *user, std::string &cmd)
+void CommandParser::ProcessCommand(User *user, std::string &cmd)
 {
 	const char *command_p[MAXPARAMETERS];
 	int items = 0;
@@ -409,7 +409,7 @@ void CommandParser::RemoveCommand(Commandable::iterator safei, const char* sourc
 	}
 }
 
-void CommandParser::ProcessBuffer(std::string &buffer,userrec *user)
+void CommandParser::ProcessBuffer(std::string &buffer,User *user)
 {
 	std::string::size_type a;
 
@@ -470,7 +470,7 @@ bool CommandParser::FindSym(void** v, void* h, const std::string &name)
 	return true;
 }
 
-bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
+bool CommandParser::ReloadCommand(const char* cmd, User* user)
 {
 	char filename[MAXBUF];
 	char commandname[MAXBUF];
@@ -511,7 +511,7 @@ bool CommandParser::ReloadCommand(const char* cmd, userrec* user)
 	return false;
 }
 
-CmdResult cmd_reload::Handle(const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_reload::Handle(const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("NOTICE %s :*** Reloading command '%s'",user->nick, parameters[0]);
 	if (ServerInstance->Parser->ReloadCommand(parameters[0], user))
@@ -558,7 +558,7 @@ const char* CommandParser::LoadCommand(const char* name)
 	return NULL;
 }
 
-void CommandParser::SetupCommandTable(userrec* user)
+void CommandParser::SetupCommandTable(User* user)
 {
 	RFCCommands.clear();
 
@@ -607,7 +607,7 @@ void CommandParser::SetupCommandTable(userrec* user)
 
 int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
 {
-	userrec* user = NULL;
+	User* user = NULL;
 	std::string item;
 	int translations = 0;
 

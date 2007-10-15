@@ -29,7 +29,7 @@ class QuietOper : public VisData
 	{
 	}
 
-	virtual bool VisibleTo(userrec* user)
+	virtual bool VisibleTo(User* user)
 	{
 		return IS_OPER(user);
 	}
@@ -53,7 +53,7 @@ class InvisibleMode : public ModeHandler
 		delete qo;
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (source != dest)
 			return MODEACTION_DENY;
@@ -135,7 +135,7 @@ class InvisibleDeOper : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &param, bool adding, ModeType type)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
 	{
 		/* Users who are opers and have +Q get their +Q removed when they deoper */
 		if ((!adding) && (dest->IsModeSet('Q')))
@@ -188,7 +188,7 @@ class ModuleInvisible : public Module
 		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserQuit] = List[I_OnRehash] = 1;
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		if (user->IsModeSet('Q'))
 		{
@@ -199,13 +199,13 @@ class ModuleInvisible : public Module
 		}
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		DELETE(conf);
 		conf = new ConfigReader(ServerInstance);
 	}
 
-	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
+	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
 	{
 		if (user->IsModeSet('Q'))
 		{
@@ -217,7 +217,7 @@ class ModuleInvisible : public Module
 		}
 	}
 
-	void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		if (user->IsModeSet('Q'))
 		{
@@ -240,11 +240,11 @@ class ModuleInvisible : public Module
 	}
 
 	/* No privmsg response when hiding - submitted by Eric at neowin */
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 		{
-			userrec* target = (userrec*)dest;
+			User* target = (User*)dest;
 			if(target->IsModeSet('Q') && !*user->oper)
 			{
 				user->WriteServ("401 %s %s :No such nick/channel",user->nick, target->nick);
@@ -254,13 +254,13 @@ class ModuleInvisible : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 	}
 
 	/* Fix by Eric @ neowin.net, thanks :) -- Brain */
-	void WriteCommonFrom(userrec *user, chanrec* channel, const char* text, ...)
+	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
 	{
 		va_list argsPtr;
 		char textbuffer[MAXBUF];

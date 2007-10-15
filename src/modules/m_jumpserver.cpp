@@ -37,7 +37,7 @@ class cmd_jumpserver : public Command
 		redirect_all_immediately = redirect_new_users = false;
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		int n_done = 0;
 		reason = (pcnt < 4) ? "Please use this server/port instead" : parameters[3];
@@ -84,13 +84,13 @@ class cmd_jumpserver : public Command
 		if (redirect_all_immediately)
 		{
 			/* Redirect everyone but the oper sending the command */
-			for (std::vector<userrec*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
+			for (std::vector<User*>::const_iterator i = ServerInstance->local_users.begin(); i != ServerInstance->local_users.end(); i++)
 			{
-				userrec* t = *i;
+				User* t = *i;
 				if (!IS_OPER(t))
 				{
 					t->WriteServ("010 %s %s %s :Please use this Server/Port instead", user->nick, parameters[0], parameters[1]);
-					userrec::QuitUser(ServerInstance, t, reason);
+					User::QuitUser(ServerInstance, t, reason);
 					n_done++;
 				}
 			}
@@ -135,12 +135,12 @@ class ModuleJumpServer : public Module
 	{
 	}
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		if (js->port && js->redirect_new_users)
 		{
 			user->WriteServ("010 %s %s %d :Please use this Server/Port instead", user->nick, js->redirect_to.c_str(), js->port);
-			userrec::QuitUser(ServerInstance, user, js->reason);
+			User::QuitUser(ServerInstance, user, js->reason);
 			return 0;
 		}
 		return 0;

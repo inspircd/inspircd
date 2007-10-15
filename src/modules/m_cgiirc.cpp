@@ -51,7 +51,7 @@ class cmd_webirc : public Command
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
 		}
-		CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+		CmdResult Handle(const char** parameters, int pcnt, User *user)
 		{
 			if(user->registered == REG_ALL)
 				return CMD_FAILURE;
@@ -83,10 +83,10 @@ class CGIResolver : public Resolver
 {
 	std::string typ;
 	int theirfd;
-	userrec* them;
+	User* them;
 	bool notify;
  public:
-	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, userrec* u, int userfd, const std::string &type, bool &cached)
+	CGIResolver(Module* me, InspIRCd* ServerInstance, bool NotifyOpers, const std::string &source, bool forward, User* u, int userfd, const std::string &type, bool &cached)
 		: Resolver(ServerInstance, source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum = 0)
@@ -146,7 +146,7 @@ public:
 		return PRIORITY_FIRST;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		
@@ -198,7 +198,7 @@ public:
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			std::string* realhost;
 			std::string* realip;
 			
@@ -216,7 +216,7 @@ public:
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		if((extname == "cgiirc_realhost") || (extname == "cgiirc_realip"))
 		{
@@ -233,7 +233,7 @@ public:
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* dest = (userrec*)target;
+			User* dest = (User*)target;
 			std::string* bleh;
 			if(((extname == "cgiirc_realhost") || (extname == "cgiirc_realip")) && (!dest->GetExt(extname, bleh)))
 			{
@@ -242,13 +242,13 @@ public:
 		}
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		OnCleanup(TYPE_USER, user);
 	}
 	
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{	
 		for(CGIHostlist::iterator iter = Hosts.begin(); iter != Hosts.end(); iter++)
 		{			
@@ -283,7 +283,7 @@ public:
 		return 0;
 	}
 
-	virtual void OnUserConnect(userrec* user)
+	virtual void OnUserConnect(User* user)
 	{
 		std::string *webirc_hostname, *webirc_ip;
 		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
@@ -317,7 +317,7 @@ public:
 		}
 	}
 
-	bool CheckPass(userrec* user)
+	bool CheckPass(User* user)
 	{
 		if(IsValidHost(user->password))
 		{
@@ -376,7 +376,7 @@ public:
 		return false;
 	}
 	
-	bool CheckIdent(userrec* user)
+	bool CheckIdent(User* user)
 	{
 		int ip[4];
 		char* ident;

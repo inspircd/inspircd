@@ -22,8 +22,8 @@ class cmd_rsquit : public Command
         SpanningTreeUtilities* Utils;	/* Utility class */
  public:
         cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
-        CmdResult Handle (const char** parameters, int pcnt, userrec *user);
-        void NoticeUser(userrec* user, const std::string &msg);
+        CmdResult Handle (const char** parameters, int pcnt, User *user);
+        void NoticeUser(User* user, const std::string &msg);
 };
 
 #endif

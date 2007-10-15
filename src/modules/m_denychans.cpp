@@ -30,7 +30,7 @@ class ModuleDenyChannels : public Module
 		Conf = new ConfigReader(ServerInstance);
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);
@@ -51,7 +51,7 @@ class ModuleDenyChannels : public Module
 		List[I_OnUserPreJoin] = List[I_OnRehash] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		for (int j =0; j < Conf->Enumerate("badchan"); j++)
 		{

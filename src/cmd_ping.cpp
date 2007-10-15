@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_ping(Instance);
 }
 
-CmdResult cmd_ping::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_ping::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("PONG %s :%s",ServerInstance->Config->ServerName,parameters[0]);
 	return CMD_SUCCESS;

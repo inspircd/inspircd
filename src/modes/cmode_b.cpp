@@ -29,7 +29,7 @@ ModeChannelBan::ModeChannelBan(InspIRCd* Instance) : ModeHandler(Instance, 'b', 
 {
 }
 
-ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelBan::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 	/* Call the correct method depending on wether we're adding or removing the mode */
@@ -49,7 +49,7 @@ ModeAction ModeChannelBan::OnModeChange(userrec* source, userrec* dest, chanrec*
 	return MODEACTION_ALLOW;
 }
 
-void ModeChannelBan::RemoveMode(chanrec* channel)
+void ModeChannelBan::RemoveMode(Channel* channel)
 {
 	BanList copy;
 	char moderemove[MAXBUF];
@@ -67,11 +67,11 @@ void ModeChannelBan::RemoveMode(chanrec* channel)
 	}
 }
 
-void ModeChannelBan::RemoveMode(userrec* user)
+void ModeChannelBan::RemoveMode(User* user)
 {
 }
 
-void ModeChannelBan::DisplayList(userrec* user, chanrec* channel)
+void ModeChannelBan::DisplayList(User* user, Channel* channel)
 {
 	/* Display the channel banlist */
 	for (BanList::reverse_iterator i = channel->bans.rbegin(); i != channel->bans.rend(); ++i)
@@ -82,12 +82,12 @@ void ModeChannelBan::DisplayList(userrec* user, chanrec* channel)
 	return;
 }
 
-void ModeChannelBan::DisplayEmptyList(userrec* user, chanrec* channel)
+void ModeChannelBan::DisplayEmptyList(User* user, Channel* channel)
 {
 	user->WriteServ("368 %s %s :End of channel ban list",user->nick, channel->name);
 }
 
-std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *chan,int status)
+std::string& ModeChannelBan::AddBan(User *user,std::string &dest,Channel *chan,int status)
 {
 	if ((!user) || (!chan))
 	{
@@ -142,7 +142,7 @@ std::string& ModeChannelBan::AddBan(userrec *user,std::string &dest,chanrec *cha
 	return dest;
 }
 
-ModePair ModeChannelBan::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelBan::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {
 	for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 	{
@@ -154,7 +154,7 @@ ModePair ModeChannelBan::ModeSet(userrec* source, userrec* dest, chanrec* channe
         return std::make_pair(false, parameter);
 }
 
-std::string& ModeChannelBan::DelBan(userrec *user,std::string& dest,chanrec *chan,int status)
+std::string& ModeChannelBan::DelBan(User *user,std::string& dest,Channel *chan,int status)
 {
 	if ((!user) || (!chan))
 	{

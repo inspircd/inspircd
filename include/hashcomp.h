@@ -438,8 +438,8 @@ namespace irc
 	 * To use this class, you must derive from it.
 	 * This is because each derived instance has its own freebits array
 	 * which can determine what bitfields are allocated on a TYPE BY TYPE
-	 * basis, e.g. an irc::dynamicbitmask type for userrecs, and one for
-	 * chanrecs, etc. You should inheret it in a very simple way as follows.
+	 * basis, e.g. an irc::dynamicbitmask type for Users, and one for
+	 * Channels, etc. You should inheret it in a very simple way as follows.
 	 * The base class will resize and maintain freebits as required, you are
 	 * just required to make the pointer static and specific to this class
 	 * type.

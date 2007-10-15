@@ -22,7 +22,7 @@ class Redirect : public ModeHandler
  public:
 	Redirect(InspIRCd* Instance) : ModeHandler(Instance, 'L', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		if (channel->IsModeSet('L'))
 			return std::make_pair(true, channel->GetModeParameter('L'));
@@ -30,17 +30,17 @@ class Redirect : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
 	
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
-			chanrec* c = NULL;
+			Channel* c = NULL;
 
 			if (!ServerInstance->IsChannel(parameter.c_str()))
 			{
@@ -114,7 +114,7 @@ class ModuleRedirect : public Module
 		List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{
@@ -125,7 +125,7 @@ class ModuleRedirect : public Module
 					std::string channel = chan->GetModeParameter('L');
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
-					chanrec* destchan = NULL;
+					Channel* destchan = NULL;
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
@@ -134,7 +134,7 @@ class ModuleRedirect : public Module
 					}
 
 					user->WriteServ("470 %s :%s has become full, so you are automatically being transferred to the linked channel %s", user->nick, cname, channel.c_str());
-					chanrec::JoinUser(ServerInstance, user, channel.c_str(), false, "", ServerInstance->Time(true));
+					Channel::JoinUser(ServerInstance, user, channel.c_str(), false, "", ServerInstance->Time(true));
 					return 1;
 				}
 			}

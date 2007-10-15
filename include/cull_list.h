@@ -35,7 +35,7 @@ class CoreExport CullItem : public classbase
 	/** Holds a pointer to the user,
 	 * must be valid and can be a local or remote user.
 	 */
-	userrec* user;
+	User* user;
 	/** Holds the quit reason to use for this user.
 	 */
 	std::string reason;
@@ -53,7 +53,7 @@ class CoreExport CullItem : public classbase
 	* @param r The quit reason of the added user
 	* @param ro The quit reason to show to opers only
 	*/
-	CullItem(userrec* u, std::string &r, const char* ro = "");
+	CullItem(User* u, std::string &r, const char* ro = "");
 	/** Constrcutor.
 	 * Initializes the CullItem with a user pointer
 	 * and their quit reason
@@ -61,7 +61,7 @@ class CoreExport CullItem : public classbase
 	 * @param r The quit reason of the added user
 	 * @param ro The quit reason to show to opers only
 	 */
-	CullItem(userrec* u, const char* r, const char* ro = "");
+	CullItem(User* u, const char* r, const char* ro = "");
 
 	/** Make the quit silent a module is dealing with
 	 * displaying this users quit, so we shouldn't
@@ -80,7 +80,7 @@ class CoreExport CullItem : public classbase
 
 	/** Returns a pointer to the user
 	*/
-	userrec* GetUser();
+	User* GetUser();
 	/** Returns the user's quit reason
 	*/
 	std::string& GetReason();
@@ -111,7 +111,7 @@ class CoreExport CullList : public classbase
 
 	/** Holds a list of users already added for quick lookup
 	 */
-	std::map<userrec*, userrec*> exempt;
+	std::map<User*, User*> exempt;
 
 	/** Holds a list of users being quit.
 	 * See the information for CullItem for
@@ -133,7 +133,7 @@ class CoreExport CullList : public classbase
 	 * @param reason The quit reason of the user being added
 	 * @param o_reason The quit reason to show only to opers
 	 */
-	void AddItem(userrec* user, std::string &reason, const char* o_reason = "");
+	void AddItem(User* user, std::string &reason, const char* o_reason = "");
 
 	/** Adds a user to the cull list for later
 	 * removal via QUIT.
@@ -141,11 +141,11 @@ class CoreExport CullList : public classbase
 	 * @param reason The quit reason of the user being added
 	 * @param o_reason The quit reason to show only to opers
 	 */
-	void AddItem(userrec* user, const char* reason, const char* o_reason = "");
+	void AddItem(User* user, const char* reason, const char* o_reason = "");
 
 	/* Turn an item into a silent item (don't send out QUIT for this user)
 	 */
-	void MakeSilent(userrec* user);
+	void MakeSilent(User* user);
 
 	/** Applies the cull list, quitting all the users
 	 * on the list with their quit reasons all at once.

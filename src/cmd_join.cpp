@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /JOIN
  */
-CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_join::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt > 1)
 	{
@@ -30,7 +30,7 @@ CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
-			chanrec::JoinUser(ServerInstance, user, parameters[0], false, parameters[1]);
+			Channel::JoinUser(ServerInstance, user, parameters[0], false, parameters[1]);
 			return CMD_SUCCESS;
 		}
 	}
@@ -41,7 +41,7 @@ CmdResult cmd_join::Handle (const char** parameters, int pcnt, userrec *user)
 
 		if (ServerInstance->IsChannel(parameters[0]))
 		{
-			chanrec::JoinUser(ServerInstance, user, parameters[0], false, "");
+			Channel::JoinUser(ServerInstance, user, parameters[0], false, "");
 			return CMD_SUCCESS;
 		}
 	}

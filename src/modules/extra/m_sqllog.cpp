@@ -220,7 +220,7 @@ class ModuleSQLLog : public Module
 		dbid = Conf.ReadValue("sqllog","dbid",0);	// database id of a database configured in sql module
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ReadConfig();
 	}
@@ -263,23 +263,23 @@ class ModuleSQLLog : public Module
 		}
 	}
 
-	virtual void OnOper(userrec* user, const std::string &opertype)
+	virtual void OnOper(User* user, const std::string &opertype)
 	{
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
 
-	virtual void OnGlobalOper(userrec* user)
+	virtual void OnGlobalOper(User* user)
 	{
 		AddLogEntry(LT_OPER,user->nick,user->host,user->server);
 	}
 
-	virtual int OnKill(userrec* source, userrec* dest, const std::string &reason)
+	virtual int OnKill(User* source, User* dest, const std::string &reason)
 	{
 		AddLogEntry(LT_KILL,dest->nick,dest->host,source->nick);
 		return 0;
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "GLINE" || command == "KLINE" || command == "ELINE" || command == "ZLINE") && validated)
 		{
@@ -288,12 +288,12 @@ class ModuleSQLLog : public Module
 		return 0;
 	}
 
-	virtual void OnUserConnect(userrec* user)
+	virtual void OnUserConnect(User* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		AddLogEntry(LT_DISCONNECT,user->nick,user->host,user->server);
 	}

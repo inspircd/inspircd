@@ -440,7 +440,7 @@ class CoreExport XLineManager
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	GLine* matches_gline(userrec* user, bool permonly = false);
+	GLine* matches_gline(User* user, bool permonly = false);
 
 	/** Check if a IP matches a ZLine
 	 * @param ipaddr The IP to check against
@@ -452,13 +452,13 @@ class CoreExport XLineManager
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	KLine* matches_kline(userrec* user, bool permonly = false);
+	KLine* matches_kline(User* user, bool permonly = false);
 
 	/** Check if a hostname matches a ELine
 	 * @param user The user to check against
 	 * @return The reason for the line if there is a match, or NULL if there is no match
 	 */
-	ELine* matches_exception(userrec* user, bool permonly = false);
+	ELine* matches_exception(User* user, bool permonly = false);
 
 	/** Expire any pending non-permenant lines
 	 */
@@ -475,31 +475,31 @@ class CoreExport XLineManager
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_k(userrec* user, string_list &results);
+	void stats_k(User* user, string_list &results);
 
 	/** Handle /STATS G
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_g(userrec* user, string_list &results);
+	void stats_g(User* user, string_list &results);
 
 	/** Handle /STATS Q
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_q(userrec* user, string_list &results);
+	void stats_q(User* user, string_list &results);
 
 	/** Handle /STATS Z
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_z(userrec* user, string_list &results);
+	void stats_z(User* user, string_list &results);
 
 	/** Handle /STATS E
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results
 	 */
-	void stats_e(userrec* user, string_list &results);
+	void stats_e(User* user, string_list &results);
 
 	/** Change creation time of a GLine
 	 * @param host The hostname to change

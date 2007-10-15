@@ -27,7 +27,7 @@ class CensorUser : public ModeHandler
  public:
 	CensorUser(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -57,7 +57,7 @@ class CensorChannel : public ModeHandler
  public:
 	CensorChannel(InspIRCd* Instance) : ModeHandler(Instance, 'G', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -128,7 +128,7 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
@@ -136,9 +136,9 @@ class ModuleCensor : public Module
 		bool active = false;
 
 		if (target_type == TYPE_USER)
-			active = ((userrec*)dest)->IsModeSet('G');
+			active = ((User*)dest)->IsModeSet('G');
 		else if (target_type == TYPE_CHANNEL)
-			active = ((chanrec*)dest)->IsModeSet('G');
+			active = ((Channel*)dest)->IsModeSet('G');
 
 		if (!active)
 			return 0;
@@ -150,7 +150,7 @@ class ModuleCensor : public Module
 			{
 				if (index->second.empty())
 				{
-					user->WriteServ("936 %s %s %s :Your message contained a censored word, and was blocked", user->nick, ((chanrec*)dest)->name, index->first.c_str());
+					user->WriteServ("936 %s %s %s :Your message contained a censored word, and was blocked", user->nick, ((Channel*)dest)->name, index->first.c_str());
 					return 1;
 				}
 				
@@ -161,12 +161,12 @@ class ModuleCensor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes

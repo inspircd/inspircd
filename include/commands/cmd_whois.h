@@ -20,7 +20,7 @@
 #include "channels.h"
 
 const char* Spacify(char* n);
-DllExport void do_whois(InspIRCd* Instance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick);
+DllExport void do_whois(InspIRCd* Instance, User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
 
 /** Handle /WHOIS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
@@ -39,7 +39,7 @@ class cmd_whois : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
+	CmdResult Handle(const char** parameters, int pcnt, User *user);
 };
 
 #endif

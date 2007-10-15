@@ -34,7 +34,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		locked = true;
 		user->WriteServ("988 %s %s :Closed for new connections", user->nick, user->server);
@@ -57,7 +57,7 @@ public:
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		locked = false;
 		user->WriteServ("989 %s %s :Open for new connections", user->nick, user->server);
@@ -99,22 +99,22 @@ public:
 		List[I_OnUserRegister] = List[I_OnRehash] = List[I_OnCheckReady] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ResetLocked();
 	}
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		if (locked)
 		{
-			userrec::QuitUser(ServerInstance, user, "Server is temporarily closed. Please try again later.");
+			User::QuitUser(ServerInstance, user, "Server is temporarily closed. Please try again later.");
 			return 1;
 		}
 		return 0;
 	}
 
-	virtual bool OnCheckReady(userrec* user)
+	virtual bool OnCheckReady(User* user)
 	{
 		return !locked;
 	}

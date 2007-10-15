@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
 {
 	char oldnick[NICKMAX];
 
@@ -73,7 +73,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, userrec *user)
 		 * the nickname too, we force a nickchange on the older user (Simply the one who was
 		 * here first, no TS checks need to take place here)
 		 */
-		userrec* InUse = ServerInstance->FindNickOnly(parameters[0]);
+		User* InUse = ServerInstance->FindNickOnly(parameters[0]);
 		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)

@@ -36,7 +36,7 @@ cmd_rsquit::cmd_rsquit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilit
 	syntax = "<remote-server-mask> [target-server-mask]";
 }
 
-CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -103,7 +103,7 @@ CmdResult cmd_rsquit::Handle (const char** parameters, int pcnt, userrec *user)
 	return CMD_SUCCESS;
 }
 
-void cmd_rsquit::NoticeUser(userrec* user, const std::string &msg)
+void cmd_rsquit::NoticeUser(User* user, const std::string &msg)
 {
 	if (IS_LOCAL(user))
 	{

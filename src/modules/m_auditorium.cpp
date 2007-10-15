@@ -20,7 +20,7 @@ class AuditoriumMode : public ModeHandler
  public:
 	AuditoriumMode(InspIRCd* Instance) : ModeHandler(Instance, 'u', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (channel->IsModeSet('u') != adding)
 		{
@@ -65,7 +65,7 @@ class ModuleAuditorium : public Module
 		DELETE(aum);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader conf(ServerInstance);
 		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
@@ -87,7 +87,7 @@ class ModuleAuditorium : public Module
 		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = List[I_OnRehash] = 1;
 	}
 
-	virtual int OnUserList(userrec* user, chanrec* Ptr, CUList* &nameslist)
+	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
 		if (Ptr->IsModeSet('u'))
 		{
@@ -119,7 +119,7 @@ class ModuleAuditorium : public Module
 		return 0;
 	}
 	
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		if (channel->IsModeSet('u'))
 		{
@@ -131,7 +131,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
+	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
 	{
 		if (channel->IsModeSet('u'))
 		{
@@ -148,7 +148,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
+	void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('u'))
 		{
@@ -162,7 +162,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
 		std::vector<std::string> to_leave;

@@ -41,7 +41,7 @@ class ModuleSSLDummy : public Module
 	}
 
 	// :kenny.chatspike.net 320 Om Epy|AFK :is a Secure Connection
-	virtual void OnWhois(userrec* source, userrec* dest)
+	virtual void OnWhois(User* source, User* dest)
 	{
 		if(dest->GetExt("ssl", dummy))
 		{
@@ -49,7 +49,7 @@ class ModuleSSLDummy : public Module
 		}
 	}
 	
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if(extname == "ssl")
@@ -69,7 +69,7 @@ class ModuleSSLDummy : public Module
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "ssl"))
 		{
-			userrec* dest = (userrec*)target;
+			User* dest = (User*)target;
 			// if they dont already have an ssl flag, accept the remote server's
 			if (!dest->GetExt(extname, dummy))
 			{

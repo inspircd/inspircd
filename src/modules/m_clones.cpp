@@ -36,7 +36,7 @@ class cmd_clones : public Command
 		return "<?>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 
 		std::string clonesstr = "304 " + std::string(user->nick) + " :CLONES";

@@ -28,9 +28,9 @@ class cmd_swhois : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle(const char** parameters, int pcnt, userrec* user)
+	CmdResult Handle(const char** parameters, int pcnt, User* user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 		
 		if (!dest)
 		{
@@ -110,7 +110,7 @@ class ModuleSWhois : public Module
 		ServerInstance->AddCommand(mycommand);
 	}
 
-	void OnRehash(userrec* user, const std::string &parameter)
+	void OnRehash(User* user, const std::string &parameter)
 	{
 		DELETE(Conf);
 		Conf = new ConfigReader(ServerInstance);
@@ -122,7 +122,7 @@ class ModuleSWhois : public Module
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text)
+	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric == 312)
@@ -140,11 +140,11 @@ class ModuleSWhois : public Module
 	}
 
 	// Whenever the linking module wants to send out data, but doesnt know what the data
-	// represents (e.g. it is metadata, added to a userrec or chanrec by a module) then
+	// represents (e.g. it is metadata, added to a User or Channel by a module) then
 	// this method is called. We should use the ProtoSendMetaData function after we've
 	// corrected decided how the data should look, to send the metadata on its way if
 	// it is ours.
-	virtual void OnSyncUserMetaData(userrec* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
+	virtual void OnSyncUserMetaData(User* user, Module* proto, void* opaque, const std::string &extname, bool displayable)
 	{
 		// check if the linking module wants to know about OUR metadata
 		if (extname == "swhois")
@@ -162,7 +162,7 @@ class ModuleSWhois : public Module
 	}
 
 	// when a user quits, tidy up their metadata
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		std::string* swhois;
 		user->GetExt("swhois", swhois);
@@ -178,7 +178,7 @@ class ModuleSWhois : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			std::string* swhois;
 			user->GetExt("swhois", swhois);
 			if (swhois)
@@ -201,7 +201,7 @@ class ModuleSWhois : public Module
 		// check if its our metadata key, and its associated with a user
 		if ((target_type == TYPE_USER) && (extname == "swhois"))
 		{
-			userrec* dest = (userrec*)target;
+			User* dest = (User*)target;
 			// if they dont already have an swhois field, accept the remote server's
 			std::string* text;
 			if (!dest->GetExt("swhois", text))
@@ -212,7 +212,7 @@ class ModuleSWhois : public Module
 		}
 	}
 	
-	virtual void OnPostCommand(const std::string &command, const char **params, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const char **params, int pcnt, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;

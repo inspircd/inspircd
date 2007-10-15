@@ -622,7 +622,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	bool smode = false;
 	std::string sourceserv;
 	/* Are we dealing with an FMODE from a user, or from a server? */
-	userrec* who = this->Instance->FindNick(source);
+	User* who = this->Instance->FindNick(source);
 	if (who)
 	{
 		/* FMODE from a user, set sourceserv to the users server name */
@@ -632,7 +632,7 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 	{
 		/* FMODE from a server, use a fake user to receive mode feedback */
 		who = this->Instance->FakeClient;
-		smode = true;	   /* Setting this flag tells us we should free the userrec later */
+		smode = true;	   /* Setting this flag tells us we should free the User later */
 		sourceserv = source;    /* Set sourceserv to the actual source string */
 	}
 	const char* modelist[64];
@@ -656,9 +656,9 @@ bool TreeSocket::ForceMode(const std::string &source, std::deque<std::string> &p
 		}
 
 	}
-	/* Extract the TS value of the object, either userrec or chanrec */
-	userrec* dst = this->Instance->FindNick(params[0]);
-	chanrec* chan = NULL;
+	/* Extract the TS value of the object, either User or Channel */
+	User* dst = this->Instance->FindNick(params[0]);
+	Channel* chan = NULL;
 	time_t ourTS = 0;
 	if (dst)
 	{
@@ -713,7 +713,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 		return true;
 	time_t ts = atoi(params[1].c_str());
 	std::string nsource = source;
-	chanrec* c = this->Instance->FindChan(params[0]);
+	Channel* c = this->Instance->FindChan(params[0]);
 	if (c)
 	{
 		if ((ts >= c->topicset) || (!*c->topic))
@@ -728,7 +728,7 @@ bool TreeSocket::ForceTopic(const std::string &source, std::deque<std::string> &
 			 */
 			if (oldtopic != params[3])
 			{
-				userrec* user = this->Instance->FindNick(source);
+				User* user = this->Instance->FindNick(source);
 				if (!user)
 				{
 					c->WriteChannelWithServ(Instance->Config->ServerName, "TOPIC %s :%s", c->name, c->topic);
@@ -789,12 +789,12 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 		return true;
 
 	irc::modestacker modestack(true);				/* Modes to apply from the users in the user list */
-	userrec* who = NULL;		   				/* User we are currently checking */
+	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
 	irc::tokenstream users(params[2]);				/* Users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
-	chanrec* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
+	Channel* chan = this->Instance->FindChan(channel);		/* The channel we're sending joins to */
 	time_t ourTS = chan ? chan->age : Instance->Time(true)+600;	/* The TS of our side of the link */
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
@@ -866,7 +866,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				chanrec::JoinUser(this->Instance, who, channel.c_str(), true, "", TS);
+				Channel::JoinUser(this->Instance, who, channel.c_str(), true, "", TS);
 			}
 			else
 			{
@@ -898,11 +898,11 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 
 /*
  * Yes, this function looks a little ugly.
- * However, in some circumstances we may not have a userrec, so we need to do things this way.
+ * However, in some circumstances we may not have a User, so we need to do things this way.
  * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
  * Sends SVSNICKs as appropriate and forces nickchanges too.
  */
-int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid)
+int TreeSocket::DoCollision(User *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid)
 {
 	/*
 	 *  Under old protocol rules, we would have had to kill both clients.
@@ -924,7 +924,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 	bool bChangeLocal = true;
 	bool bChangeRemote = true;
 
-	/* for brevity, don't use the userrec */
+	/* for brevity, don't use the User */
 	time_t localts = u->age;
 	const char *localident = u->ident;
 	const char *localip = u->GetIPString();
@@ -980,7 +980,7 @@ int TreeSocket::DoCollision(userrec *u, time_t remotets, const char *remoteident
 		 * have 928AAAB's nick set to that.
 		 *   -- w00t
 		 */
-		userrec *remote = this->Instance->FindUUID(remoteuid);
+		User *remote = this->Instance->FindUUID(remoteuid);
 
 		if (remote)
 		{
@@ -1066,10 +1066,10 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
 	 * sets it up in the UUID hash for us.
 	 */
-	userrec* _new = NULL;
+	User* _new = NULL;
 	try
 	{
-		_new = new userrec(this->Instance, params[0]);
+		_new = new User(this->Instance, params[0]);
 	}
 	catch (...)
 	{
@@ -1142,7 +1142,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
  * If the length of a single line is more than 480-NICKMAX
  * in length, it is split over multiple lines.
  */
-void TreeSocket::SendFJoins(TreeServer* Current, chanrec* c)
+void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 {
 	std::string buffer;
 	char list[MAXBUF];

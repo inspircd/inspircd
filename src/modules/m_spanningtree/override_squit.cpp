@@ -33,7 +33,7 @@
 
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, userrec* user)
+int ModuleSpanningTree::HandleSquit(const char** parameters, int pcnt, User* user)
 {
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)

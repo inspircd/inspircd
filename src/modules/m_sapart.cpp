@@ -27,10 +27,10 @@ class cmd_sapart : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
-		chanrec* channel = ServerInstance->FindChan(parameters[1]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		Channel* channel = ServerInstance->FindChan(parameters[1]);
 		if (dest && channel)
 		{
 			if (ServerInstance->ULine(dest->server))
@@ -47,7 +47,7 @@ class cmd_sapart : public Command
 			{
 				if (!channel->PartUser(dest, dest->nick))
 					delete channel;
-				chanrec* n = ServerInstance->FindChan(parameters[1]);
+				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)
 				{
 					ServerInstance->WriteOpers("*** "+std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);

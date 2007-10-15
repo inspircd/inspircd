@@ -20,7 +20,7 @@
 #include "users.h"
 #include "channels.h"
 
-DllExport void DoStats(InspIRCd* Instance, char statschar, userrec* user, string_list &results);
+DllExport void DoStats(InspIRCd* Instance, char statschar, User* user, string_list &results);
 
 /** Handle /STATS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
@@ -39,7 +39,7 @@ class cmd_stats : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
+	CmdResult Handle(const char** parameters, int pcnt, User *user);
 };
 
 #endif

@@ -22,7 +22,7 @@ class HideOper : public ModeHandler
  public:
 	HideOper(InspIRCd* Instance) : ModeHandler(Instance, 'H', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (source != dest)
 			return MODEACTION_DENY;
@@ -78,7 +78,7 @@ class ModuleHideOper : public Module
 		return Version(1,1,0,0,VF_COMMON|VF_VENDOR,API_VERSION);
 	}
 
-	int OnWhoisLine(userrec* user, userrec* dest, int &numeric, std::string &text)
+	int OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
 	{
 		/* Dont display numeric 313 (RPL_WHOISOPER) if they have +H set and the
 		 * person doing the WHOIS is not an oper

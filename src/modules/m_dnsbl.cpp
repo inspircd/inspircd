@@ -46,12 +46,12 @@ class DNSBLConfEntry
 class DNSBLResolver : public Resolver
 {
 	int theirfd;
-	userrec* them;
+	User* them;
 	DNSBLConfEntry *ConfEntry;
 
  public:
 
-	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, userrec* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+	DNSBLResolver(Module *me, InspIRCd *ServerInstance, const std::string &hostname, User* u, int userfd, DNSBLConfEntry *conf, bool &cached)
 		: Resolver(ServerInstance, hostname, DNS_QUERY_A, cached, me)
 	{
 		theirfd = userfd;
@@ -108,7 +108,7 @@ class DNSBLResolver : public Resolver
 					{
 						case DNSBLConfEntry::I_KILL:
 						{
-							userrec::QuitUser(ServerInstance, them, std::string("Killed (") + reason + ")");
+							User::QuitUser(ServerInstance, them, std::string("Killed (") + reason + ")");
 							break;
 						}
 						case DNSBLConfEntry::I_KLINE:
@@ -290,12 +290,12 @@ class ModuleDNSBL : public Module
 		delete MyConf;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ReadConf();
 	}
 
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		/* only do lookups on local users */
 		if (IS_LOCAL(user))
@@ -354,7 +354,7 @@ class ModuleDNSBL : public Module
 		return 0;
 	}
 	
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol != 'd')
 			return 0;

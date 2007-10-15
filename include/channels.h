@@ -35,8 +35,8 @@ enum ChannelModes {
 };
 
 /* Forward declarations - needed */
-class userrec;
-class chanrec;
+class User;
+class Channel;
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
@@ -70,7 +70,7 @@ typedef std::vector<BanItem> 	BanList;
 
 /** A list of users on a channel
  */
-typedef std::map<userrec*,std::string> CUList;
+typedef std::map<User*,std::string> CUList;
 
 /** Shorthand for CUList::iterator
  */
@@ -106,13 +106,13 @@ typedef std::vector<prefixtype> pfxcontainer;
 
 /** A list of users with zero or more prefixes set on them
  */
-typedef std::map<userrec*, std::vector<prefixtype> > prefixlist;
+typedef std::map<User*, std::vector<prefixtype> > prefixlist;
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, time created, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class CoreExport chanrec : public Extensible
+class CoreExport Channel : public Extensible
 {
  private:
 
@@ -120,9 +120,9 @@ class CoreExport chanrec : public Extensible
 	 */
 	InspIRCd* ServerInstance;
 
-	/** Connect a chanrec to a userrec
+	/** Connect a Channel to a User
 	 */
-	static chanrec* ForceChan(InspIRCd* Instance, chanrec* Ptr, userrec* user, const std::string &privs);
+	static Channel* ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const std::string &privs);
 
 	/** Set default modes for the channel on creation
 	 */
@@ -194,7 +194,7 @@ class CoreExport chanrec : public Extensible
 	time_t created;
 
 	/** Time topic was set.
-	 * If no topic was ever set, this will be equal to chanrec::created
+	 * If no topic was ever set, this will be equal to Channel::created
 	 */
 	time_t topicset;
 
@@ -264,67 +264,67 @@ class CoreExport chanrec : public Extensible
 	 * an arbitary pointer compared to other users by its memory address,
 	 * as this is a very fast 32 or 64 bit integer comparison.
 	 */
-	void AddUser(userrec* user);
+	void AddUser(User* user);
 
 	/** Add a user pointer to the internal reference list of opped users
 	 * @param user The user to add
 	 */
-	void AddOppedUser(userrec* user);
+	void AddOppedUser(User* user);
 
 	/** Add a user pointer to the internal reference list of halfopped users
 	 * @param user The user to add
 	 */
-	void AddHalfoppedUser(userrec* user);
+	void AddHalfoppedUser(User* user);
 
 	/** Add a user pointer to the internal reference list of voiced users
 	 * @param user The user to add
 	 */
-	void AddVoicedUser(userrec* user);
+	void AddVoicedUser(User* user);
 
 	/** Delete a user pointer to the internal reference list
 	 * @param user The user to delete
 	 * @return number of users left on the channel after deletion of the user
 	 */
-	unsigned long DelUser(userrec* user);
+	unsigned long DelUser(User* user);
 
 	/** Delete a user pointer to the internal reference list of opped users
 	 * @param user The user to delete
 	 */
-	void DelOppedUser(userrec* user);
+	void DelOppedUser(User* user);
 
 	/** Delete a user pointer to the internal reference list of halfopped users
 	 * @param user The user to delete
 	 */
-	void DelHalfoppedUser(userrec* user);
+	void DelHalfoppedUser(User* user);
 
 	/** Delete a user pointer to the internal reference list of voiced users
 	 * @param user The user to delete
 	 */
-	void DelVoicedUser(userrec* user);
+	void DelVoicedUser(User* user);
 
 	/** Obtain the internal reference list
-	 * The internal reference list contains a list of userrec*.
+	 * The internal reference list contains a list of User*.
 	 * These are used for rapid comparison to determine
 	 * channel membership for PRIVMSG, NOTICE, QUIT, PART etc.
 	 * The resulting pointer to the vector should be considered
 	 * readonly and only modified via AddUser and DelUser.
 	 *
-	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
 	CUList* GetUsers();
 
 	/** Obtain the internal reference list of opped users
-	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
 	CUList* GetOppedUsers();
 
 	/** Obtain the internal reference list of halfopped users
-	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
 	CUList* GetHalfoppedUsers();
 
 	/** Obtain the internal reference list of voiced users
-	 * @return This function returns pointer to a map of userrec pointers (CUList*).
+	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
 	CUList* GetVoicedUsers();
 
@@ -332,63 +332,63 @@ class CoreExport chanrec : public Extensible
 	 * @param The user to look for
 	 * @return True if the user is on this channel
 	 */
-	bool HasUser(userrec* user);
+	bool HasUser(User* user);
 
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
 	 */
-	chanrec(InspIRCd* Instance);
+	Channel(InspIRCd* Instance);
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
 	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the chanrec immediately!
+	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long KickUser(userrec *src, userrec *user, const char* reason);
+	long KickUser(User *src, User *user, const char* reason);
 
 	/** Make the server kick user from this channel with the given reason.
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
 	 * @param triggerevents True if you wish this kick to trigger module events
 	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the chanrec immediately!
+	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long ServerKickUser(userrec* user, const char* reason, bool triggerevents);
+	long ServerKickUser(User* user, const char* reason, bool triggerevents);
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
 	 * @param user The user who is parting (must be on this channel)
 	 * @param reason The (optional) part reason
 	 * @return The number of users left on the channel. If this is zero
-	 * when the method returns, you MUST delete the chanrec immediately!
+	 * when the method returns, you MUST delete the Channel immediately!
 	 */
-	long PartUser(userrec *user, const char* reason = NULL);
+	long PartUser(User *user, const char* reason = NULL);
 
 	/* Join a user to a channel. May be a channel that doesnt exist yet.
 	 * @param user The user to join to the channel.
 	 * @param cn The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
-	 * @return A pointer to the chanrec the user was joined to. A new chanrec may have
+	 * @return A pointer to the Channel the user was joined to. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
-	static chanrec* JoinUser(InspIRCd* ServerInstance, userrec *user, const char* cn, bool override, const char* key, time_t TS = 0);
+	static Channel* JoinUser(InspIRCd* ServerInstance, User *user, const char* cn, bool override, const char* key, time_t TS = 0);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD types
 	 */
-	void WriteChannel(userrec* user, char* text, ...);
+	void WriteChannel(User* user, char* text, ...);
 
 	/** Write to a channel, from a user, using std::string for text
 	 * @param user User whos details to prefix the line with
 	 * @param text A std::string containing the output line without prefix
 	 */
-	void WriteChannel(userrec* user, const std::string &text);
+	void WriteChannel(User* user, const std::string &text);
 
 	/** Write to a channel, from a server, using va_args for text
 	 * @param ServName Server name to prefix the line with
@@ -412,7 +412,7 @@ class CoreExport chanrec : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
-	void WriteAllExceptSender(userrec* user, bool serversource, char status, char* text, ...);
+	void WriteAllExceptSender(User* user, bool serversource, char status, char* text, ...);
 
 	/** Write to all users on a channel except a list of users, using va_args for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
@@ -423,7 +423,7 @@ class CoreExport chanrec : public Extensible
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
 	 */
-	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, char* text, ...);
+	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, char* text, ...);
 
 	/** Write to all users on a channel except a specific user, using std::string for text.
 	 * Internally, this calls WriteAllExcept().
@@ -433,7 +433,7 @@ class CoreExport chanrec : public Extensible
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A std::string containing the output line without prefix
 	 */
-	void WriteAllExceptSender(userrec* user, bool serversource, char status, const std::string& text);
+	void WriteAllExceptSender(User* user, bool serversource, char status, const std::string& text);
 
 	/** Write to all users on a channel except a list of users, using std::string for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
@@ -443,7 +443,7 @@ class CoreExport chanrec : public Extensible
 	 * @param except_list A list of users NOT to send the text to
 	 * @param text A std::string containing the output line without prefix
 	 */
-	void WriteAllExcept(userrec* user, bool serversource, char status, CUList &except_list, const std::string& text);
+	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
 	/** Returns the maximum number of bans allowed to be set on this channel
 	 * @return The maximum number of bans allowed
@@ -462,7 +462,7 @@ class CoreExport chanrec : public Extensible
 	 * @param ulist The user list to send, NULL to use the
 	 * channel's default names list of everyone
 	 */
-	void UserList(userrec *user, CUList* ulist = NULL);
+	void UserList(User *user, CUList* ulist = NULL);
 
 	/** Get the number of invisible users on this channel
 	 * @return Number of invisible users
@@ -473,13 +473,13 @@ class CoreExport chanrec : public Extensible
 	 * @param user The user to look up
 	 * @return One of STATUS_OP, STATUS_HOP, STATUS_VOICE, or zero.
 	 */
-	int GetStatus(userrec *user);
+	int GetStatus(User *user);
 
 	/** Get a users status on this channel in a bitmask
 	 * @param user The user to look up
 	 * @return A bitmask containing zero or more of STATUS_OP, STATUS_HOP, STATUS_VOICE
 	 */
-	int GetStatusFlags(userrec *user);
+	int GetStatusFlags(User *user);
 
 	/** Get a users prefix on this channel in a string.
 	 * @param user The user to look up
@@ -492,7 +492,7 @@ class CoreExport chanrec : public Extensible
 	 * character you can get, you can deal with it in a 'proprtional' manner
 	 * compared to known prefixes, using GetPrefixValue().
 	 */
-	const char* GetPrefixChar(userrec *user);
+	const char* GetPrefixChar(User *user);
 
 	/** Return all of a users mode prefixes into a char* string.
 	 * @param user The user to look up
@@ -500,7 +500,7 @@ class CoreExport chanrec : public Extensible
 	 * be in rank order, greatest first, as certain IRC clients require
 	 * this when multiple prefixes are used names lists.
 	 */
-	const char* GetAllPrefixChars(userrec* user);
+	const char* GetAllPrefixChars(User* user);
 
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
@@ -513,14 +513,14 @@ class CoreExport chanrec : public Extensible
 	 * is a prefix of greater 'worth' than ops, and a value less than
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
-	unsigned int GetPrefixValue(userrec* user);
+	unsigned int GetPrefixValue(User* user);
 
 	/** This method removes all prefix characters from a user.
 	 * It will not inform the user or the channel of the removal of prefixes,
 	 * and should be used when the user parts or quits.
 	 * @param user The user to remove all prefixes from
 	 */
-	void RemoveAllPrefixes(userrec* user);
+	void RemoveAllPrefixes(User* user);
 
 	/** Add a prefix character to a user.
 	 * Only the core should call this method, usually  from
@@ -531,21 +531,21 @@ class CoreExport chanrec : public Extensible
 	 * @param prefix_rank The rank (value) of this prefix character
 	 * @param adding True if adding the prefix, false when removing
 	 */
-	void SetPrefix(userrec* user, char prefix, unsigned int prefix_rank, bool adding);
+	void SetPrefix(User* user, char prefix, unsigned int prefix_rank, bool adding);
 
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist
 	 * @returns True if the user given is banned
 	 */
-	bool IsBanned(userrec* user);
+	bool IsBanned(User* user);
 
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();
 
-	/** Destructor for chanrec
+	/** Destructor for Channel
 	 */
-	virtual ~chanrec() { /* stub */ }
+	virtual ~Channel() { /* stub */ }
 };
 
 #endif

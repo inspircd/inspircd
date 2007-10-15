@@ -21,10 +21,10 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ISON
  */
-CmdResult cmd_ison::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_ison::Handle (const char** parameters, int pcnt, User *user)
 {
-	std::map<userrec*,userrec*> ison_already;
-	userrec *u;
+	std::map<User*,User*> ison_already;
+	User *u;
 	std::string reply = std::string("303 ") + user->nick + " :";
 
 	for (int i = 0; i < pcnt; i++)

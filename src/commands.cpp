@@ -18,7 +18,7 @@
 
 /* All other ircds when doing this check usually just look for a string of *@* or *. We're smarter than that, though. */
 
-bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
+bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;
@@ -49,7 +49,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, userrec* user)
 	return false;
 }
 
-bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
+bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;
@@ -78,7 +78,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, userrec* user)
 	return false;
 }
 
-bool InspIRCd::NickMatchesEveryone(const std::string &nick, userrec* user)
+bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 {
 	char itrigger[MAXBUF];
 	long matches = 0;

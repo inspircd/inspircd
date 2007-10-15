@@ -27,10 +27,10 @@ class cmd_check : public Command
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec *targuser;
-		chanrec *targchan;
+		User *targuser;
+		Channel *targchan;
 		std::string checkstr;
 		std::string chliststr;
 

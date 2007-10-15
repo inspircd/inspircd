@@ -15,7 +15,7 @@
 #include "commands/cmd_whois.h"
 #include "hashcomp.h"
 
-void do_whois(InspIRCd* ServerInstance, userrec* user, userrec* dest,unsigned long signon, unsigned long idle, const char* nick)
+void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick)
 {
 	if (dest->Visibility && !dest->Visibility->VisibleTo(user))
 	{
@@ -91,9 +91,9 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_whois(Instance);
 }
 
-CmdResult cmd_whois::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_whois::Handle (const char** parameters, int pcnt, User *user)
 {
-	userrec *dest;
+	User *dest;
 	int userindex = 0;
 	unsigned long idle = 0, signon = 0;
 

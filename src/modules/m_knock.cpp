@@ -27,9 +27,9 @@ class cmd_knock : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		chanrec* c = ServerInstance->FindChan(parameters[0]);
+		Channel* c = ServerInstance->FindChan(parameters[0]);
 
 		if (!c)
 		{
@@ -70,7 +70,7 @@ class Knock : public ModeHandler
  public:
 	Knock(InspIRCd* Instance) : ModeHandler(Instance, 'K', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{

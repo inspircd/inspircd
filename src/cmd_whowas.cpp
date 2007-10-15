@@ -29,7 +29,7 @@ cmd_whowas::cmd_whowas(InspIRCd* Instance)
 	Instance->Timers->AddTimer(timer);
 }
 
-CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, userrec* user)
+CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, User* user)
 {
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -92,7 +92,7 @@ CmdResult cmd_whowas::HandleInternal(const unsigned int id, const std::deque<cla
 	switch (id)
 	{
 		case WHOWAS_ADD:
-			AddToWhoWas((userrec*)parameters[0]);
+			AddToWhoWas((User*)parameters[0]);
 		break;
 
 		case WHOWAS_STATS:
@@ -131,7 +131,7 @@ void cmd_whowas::GetStats(Extensible* ext)
 	ext->Extend("stats", stats.c_str());
 }
 
-void cmd_whowas::AddToWhoWas(userrec* user)
+void cmd_whowas::AddToWhoWas(User* user)
 {
 	/* if whowas disabled */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -316,7 +316,7 @@ cmd_whowas::~cmd_whowas()
 	}
 }
 
-WhoWasGroup::WhoWasGroup(userrec* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
+WhoWasGroup::WhoWasGroup(User* user) : host(NULL), dhost(NULL), ident(NULL), server(NULL), gecos(NULL), signon(user->signon)
 {
 	this->host = strdup(user->host);
 	this->dhost = strdup(user->dhost);

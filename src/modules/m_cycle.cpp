@@ -27,9 +27,9 @@ class cmd_cycle : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		chanrec* channel = ServerInstance->FindChan(parameters[0]);
+		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = ConvToStr("Cycling");
 			
 		if (pcnt > 1)
@@ -58,11 +58,11 @@ class cmd_cycle : public Command
 					return CMD_FAILURE;
 				}
 				
-				/* XXX in the future, this may move to a static chanrec method (the delete.) -- w00t */
+				/* XXX in the future, this may move to a static Channel method (the delete.) -- w00t */
 				if (!channel->PartUser(user, reason.c_str()))
 					delete channel;
 				
-				chanrec::JoinUser(ServerInstance, user, parameters[0], true, "", ServerInstance->Time(true));
+				Channel::JoinUser(ServerInstance, user, parameters[0], true, "", ServerInstance->Time(true));
 			}
 
 			return CMD_LOCALONLY;

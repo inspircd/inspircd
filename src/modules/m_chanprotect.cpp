@@ -47,9 +47,9 @@ class FounderProtectBase
 	{
 	}
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
-		userrec* x = MyInstance->FindNick(parameter);
+		User* x = MyInstance->FindNick(parameter);
 		if (x)
 		{
 			if (!channel->HasUser(x))
@@ -72,7 +72,7 @@ class FounderProtectBase
 		return std::make_pair(false, parameter);
 	}
 
-	void RemoveMode(chanrec* channel, char mc)
+	void RemoveMode(Channel* channel, char mc)
 	{
 		unload_kludge = true;
 		CUList* cl = channel->GetUsers();
@@ -102,7 +102,7 @@ class FounderProtectBase
 		unload_kludge = false;
 	}
 
-	void DisplayList(userrec* user, chanrec* channel)
+	void DisplayList(User* user, Channel* channel)
 	{
 		CUList* cl = channel->GetUsers();
 		std::string item = extend+std::string(channel->name);
@@ -116,9 +116,9 @@ class FounderProtectBase
 		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick, channel->name, type.c_str());
 	}
 
-	userrec* FindAndVerify(std::string &parameter, chanrec* channel)
+	User* FindAndVerify(std::string &parameter, Channel* channel)
 	{
-		userrec* theuser = MyInstance->FindNick(parameter);
+		User* theuser = MyInstance->FindNick(parameter);
 		if ((!theuser) || (!channel->HasUser(theuser)))
 		{
 			parameter.clear();
@@ -127,13 +127,13 @@ class FounderProtectBase
 		return theuser;
 	}
 
-	bool CanRemoveOthers(userrec* u1, userrec* u2, chanrec* c)
+	bool CanRemoveOthers(User* u1, User* u2, Channel* c)
 	{
 		std::string item = extend+std::string(c->name);
 		return (u1->GetExt(item, dummyptr) && u2->GetExt(item, dummyptr));
 	}
 
-	ModeAction HandleChange(userrec* source, userrec* theuser, bool adding, chanrec* channel, std::string &parameter)
+	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
 	{
 		std::string item = extend+std::string(channel->name);
 
@@ -174,23 +174,23 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		return FOUNDER_VALUE;
 	}
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
-	void RemoveMode(chanrec* channel)
+	void RemoveMode(Channel* channel)
 	{
 		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
 	}
 
-	void RemoveMode(userrec* user)
+	void RemoveMode(User* user)
 	{
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
+		User* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
 
 		if (!theuser)
 		{
@@ -215,7 +215,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		}
 	}
 
-	void DisplayList(userrec* user, chanrec* channel)
+	void DisplayList(User* user, Channel* channel)
 	{
 		FounderProtectBase::DisplayList(user,channel);
 	}
@@ -236,23 +236,23 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		return PROTECT_VALUE;
 	}
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		return FounderProtectBase::ModeSet(source, dest, channel, parameter);
 	}
 
-	void RemoveMode(chanrec* channel)
+	void RemoveMode(Channel* channel)
 	{
 		FounderProtectBase::RemoveMode(channel, this->GetModeChar());
 	}
 
-	void RemoveMode(userrec* user)
+	void RemoveMode(User* user)
 	{
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		userrec* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
+		User* theuser = FounderProtectBase::FindAndVerify(parameter, channel);
 
 		if (!theuser)
 			return MODEACTION_DENY;
@@ -276,7 +276,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		}
 	}
 
-	virtual void DisplayList(userrec* user, chanrec* channel)
+	virtual void DisplayList(User* user, Channel* channel)
 	{
 		FounderProtectBase::DisplayList(user, channel);
 	}
@@ -318,21 +318,21 @@ class ModuleChanProtect : public Module
 		List[I_OnUserKick] = List[I_OnUserPart] = List[I_OnRehash] = List[I_OnUserPreJoin] = List[I_OnPostJoin] = List[I_OnAccessCheck] = List[I_OnSyncChannel] = 1;
 	}
 
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
+	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 	{
 		// FIX: when someone gets kicked from a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(chan->name));
 		user->Shrink("cm_protect_"+std::string(chan->name));
 	}
 
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partreason, bool &silent)
+	virtual void OnUserPart(User* user, Channel* channel, const std::string &partreason, bool &silent)
 	{
 		// FIX: when someone parts a channel we must remove their Extensibles!
 		user->Shrink("cm_founder_"+std::string(channel->name));
 		user->Shrink("cm_protect_"+std::string(channel->name));
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		/* Create a configreader class and read our flag,
 		 * in old versions this was heap-allocated and the
@@ -367,7 +367,7 @@ class ModuleChanProtect : public Module
 		}
 	}
 	
-	virtual int OnUserPreJoin(userrec *user, chanrec *chan, const char *cname, std::string &privs)
+	virtual int OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
@@ -378,7 +378,7 @@ class ModuleChanProtect : public Module
 		return 0;
 	}
 	
-	virtual void OnPostJoin(userrec *user, chanrec *channel)
+	virtual void OnPostJoin(User *user, Channel *channel)
 	{
 		// This *must* be in PostJoin, not UserJoin - the former will make it appear to happen
 		// before the client is in the channel
@@ -392,7 +392,7 @@ class ModuleChanProtect : public Module
 			user->WriteServ("MODE %s +q %s", channel->name, user->nick);
 	}
 	
-	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
+	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		// here we perform access checks, this is the important bit that actually stops kicking/deopping
 		// etc of protected users. There are many types of access check, we're going to handle
@@ -488,7 +488,7 @@ class ModuleChanProtect : public Module
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
 	}
 	
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		/* NOTE: If +qa prefix is on, this is propagated by the channel join,
 		 * so we dont need to propagate it manually

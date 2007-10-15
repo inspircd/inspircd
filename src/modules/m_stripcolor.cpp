@@ -22,7 +22,7 @@ class ChannelStripColor : public ModeHandler
  public:
 	ChannelStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -52,7 +52,7 @@ class UserStripColor : public ModeHandler
  public:
 	UserStripColor(InspIRCd* Instance) : ModeHandler(Instance, 'S', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		/* Only opers can change other users modes */
 		if (source != dest)
@@ -138,7 +138,7 @@ class ModuleStripColor : public Module
 		}
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
@@ -146,12 +146,12 @@ class ModuleStripColor : public Module
 		bool active = false;
 		if (target_type == TYPE_USER)
 		{
-			userrec* t = (userrec*)dest;
+			User* t = (User*)dest;
 			active = t->IsModeSet('S');
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* t = (chanrec*)dest;
+			Channel* t = (Channel*)dest;
 
 			// check if we allow ops to bypass filtering, if we do, check if they're opped accordingly.
 			// note: short circut logic here, don't wreck it. -- w00t
@@ -167,7 +167,7 @@ class ModuleStripColor : public Module
 		return 0;
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}

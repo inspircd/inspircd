@@ -79,7 +79,7 @@ class cmd_whowas : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user);
+	CmdResult Handle(const char** parameters, int pcnt, User *user);
     /** Handle an internal request from another command, the core, or a module
      * @param Command ID
      * @param Zero or more parameters, whos form is specified by the command ID.
@@ -88,7 +88,7 @@ class cmd_whowas : public Command
      * return CMD_LOCALONLY.
      */
 	CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters);
-	void AddToWhoWas(userrec* user);
+	void AddToWhoWas(User* user);
 	void GetStats(Extensible* ext);
 	void PruneWhoWas(time_t t);
 	void MaintainWhoWas(time_t t);
@@ -121,7 +121,7 @@ class WhoWasGroup : public classbase
 
 	/** Initialize this WhoQasFroup with a user
 	 */
-	WhoWasGroup(userrec* user);
+	WhoWasGroup(User* user);
 	/** Destructor
 	 */
 	~WhoWasGroup();

@@ -52,7 +52,7 @@ class CoreExport classbase
 	virtual ~classbase() { }
 };
 
-/** class Extensible is the parent class of many classes such as userrec and chanrec.
+/** class Extensible is the parent class of many classes such as User and Channel.
  * class Extensible implements a system which allows modules to 'extend' the class by attaching data within
  * a map associated with the object. In this way modules can store their own custom information within user
  * objects, channel objects and server objects, without breaking other modules (this is more sensible than using

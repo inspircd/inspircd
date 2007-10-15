@@ -416,7 +416,7 @@ QLine* XLineManager::matches_qline(const char* nick, bool permonly)
 
 // returns a pointer to the reason if a host matches a gline, NULL if it didnt match
 
-GLine* XLineManager::matches_gline(userrec* user, bool permonly)
+GLine* XLineManager::matches_gline(User* user, bool permonly)
 {
 	if ((glines.empty()) && (pglines.empty()))
 		return NULL;
@@ -446,7 +446,7 @@ GLine* XLineManager::matches_gline(userrec* user, bool permonly)
 	return NULL;
 }
 
-ELine* XLineManager::matches_exception(userrec* user, bool permonly)
+ELine* XLineManager::matches_exception(User* user, bool permonly)
 {
 	if ((elines.empty()) && (pelines.empty()))
 		return NULL;
@@ -587,7 +587,7 @@ ZLine* XLineManager::matches_zline(const char* ipaddr, bool permonly)
 
 // returns a pointer to the reason if a host matches a kline, NULL if it didnt match
 
-KLine* XLineManager::matches_kline(userrec* user, bool permonly)
+KLine* XLineManager::matches_kline(User* user, bool permonly)
 {
 	if ((klines.empty()) && (pklines.empty()))
 		return NULL;
@@ -705,9 +705,9 @@ void XLineManager::apply_lines(const int What)
 			return;
 
 		XLine* check = NULL;
-		for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+		for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 		{
-			userrec* u = (userrec*)(*u2);
+			User* u = (User*)(*u2);
 
 			if (elines.size() || pelines.size())
 				if (matches_exception(u))
@@ -721,9 +721,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "G-Lined", reason);
+						User::QuitUser(ServerInstance, u, "G-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -735,9 +735,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "K-Lined", reason);
+						User::QuitUser(ServerInstance, u, "K-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -749,9 +749,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "Q-Lined", reason);
+						User::QuitUser(ServerInstance, u, "Q-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 
@@ -763,9 +763,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "Z-Lined", reason);
+						User::QuitUser(ServerInstance, u, "Z-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 		}
@@ -779,9 +779,9 @@ void XLineManager::apply_lines(const int What)
 			return;
 
 		XLine* check = NULL;
-		for (std::vector<userrec*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+		for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 		{
-			userrec* u = (userrec*)(*u2);
+			User* u = (User*)(*u2);
 
 			if (elines.size() || pelines.size())
 			{
@@ -797,9 +797,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "G-Lined", reason);
+						User::QuitUser(ServerInstance, u, "G-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_KLINES) && (klines.size() || pklines.size()))
@@ -810,9 +810,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "K-Lined", reason);
+						User::QuitUser(ServerInstance, u, "K-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_QLINES) && (qlines.size() || pqlines.size()))
@@ -823,9 +823,9 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "Q-Lined", reason);
+						User::QuitUser(ServerInstance, u, "Q-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 			if ((What & APPLY_ZLINES) && (zlines.size() || pzlines.size()))
@@ -836,16 +836,16 @@ void XLineManager::apply_lines(const int What)
 					if (*ServerInstance->Config->MoronBanner)
 						u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
 					if (ServerInstance->Config->HideBans)
-						userrec::QuitUser(ServerInstance, u, "Z-Lined", reason);
+						User::QuitUser(ServerInstance, u, "Z-Lined", reason);
 					else
-						userrec::QuitUser(ServerInstance, u, reason);
+						User::QuitUser(ServerInstance, u, reason);
 				}
 			}
 		}
 	}
 }
 
-void XLineManager::stats_k(userrec* user, string_list &results)
+void XLineManager::stats_k(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
@@ -854,7 +854,7 @@ void XLineManager::stats_k(userrec* user, string_list &results)
 		results.push_back(sn+" 216 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
-void XLineManager::stats_g(userrec* user, string_list &results)
+void XLineManager::stats_g(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
@@ -863,7 +863,7 @@ void XLineManager::stats_g(userrec* user, string_list &results)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->identmask+"@"+(*i)->hostmask+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
-void XLineManager::stats_q(userrec* user, string_list &results)
+void XLineManager::stats_q(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
@@ -872,7 +872,7 @@ void XLineManager::stats_q(userrec* user, string_list &results)
 		results.push_back(sn+" 217 "+user->nick+" :"+(*i)->nick+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
-void XLineManager::stats_z(userrec* user, string_list &results)
+void XLineManager::stats_z(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
@@ -881,7 +881,7 @@ void XLineManager::stats_z(userrec* user, string_list &results)
 		results.push_back(sn+" 223 "+user->nick+" :"+(*i)->ipaddr+" "+ConvToStr((*i)->set_time)+" "+ConvToStr((*i)->duration)+" "+(*i)->source+" :"+(*i)->reason);
 }
 
-void XLineManager::stats_e(userrec* user, string_list &results)
+void XLineManager::stats_e(User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)

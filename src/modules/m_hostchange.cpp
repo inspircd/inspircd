@@ -62,7 +62,7 @@ class ModuleHostChange : public Module
 		List[I_OnRehash] = List[I_OnUserConnect] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		MySuffix = Conf.ReadValue("host","suffix",0);
@@ -94,7 +94,7 @@ class ModuleHostChange : public Module
 		return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 	}
 	
-	virtual void OnUserConnect(userrec* user)
+	virtual void OnUserConnect(User* user)
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{

@@ -16,7 +16,7 @@
 #include "inspircd.h"
 #include "wildcard.h"
 
-void spy_userlist(userrec *user, chanrec *c)
+void spy_userlist(User *user, Channel *c)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
@@ -72,7 +72,7 @@ class cmd_spylist : public Command
 		syntax.clear();
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		ServerInstance->WriteOpers("*** Oper %s used SPYLIST to list +s/+p channels and keys.",user->nick);
 		user->WriteServ("321 %s Channel :Users Name",user->nick);
@@ -100,9 +100,9 @@ class cmd_spynames : public Command
 		syntax = "{<channel>{,<channel>}}";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		chanrec* c = NULL;
+		Channel* c = NULL;
 
 		if (!pcnt)
 		{

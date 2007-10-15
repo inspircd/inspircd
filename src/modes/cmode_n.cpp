@@ -21,7 +21,7 @@ ModeChannelNoExternal::ModeChannelNoExternal(InspIRCd* Instance) : ModeHandler(I
 {
 }
 
-ModeAction ModeChannelNoExternal::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelNoExternal::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (channel->modes[CM_NOEXTERNAL] != adding)
 	{

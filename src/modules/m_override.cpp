@@ -38,7 +38,7 @@ class ModuleOverride : public Module
 		OverOps = OverDeops = OverVoices = OverDevoices = OverHalfops = OverDehalfops = 0;
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader* Conf = new ConfigReader(ServerInstance);
@@ -61,7 +61,7 @@ class ModuleOverride : public Module
 		List[I_OnRehash] = List[I_OnAccessCheck] = List[I_On005Numeric] = List[I_OnUserPreJoin] = List[I_OnUserPreKick] = List[I_OnPostCommand] = 1;
 	}
 
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line)
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line)
 	{
 		if ((NoisyOverride) && (OverriddenMode) && (irc::string(command.c_str()) == "MODE") && (result == CMD_SUCCESS))
 		{
@@ -86,7 +86,7 @@ class ModuleOverride : public Module
 		output.append(" OVERRIDE");
 	}
 
-	virtual bool CanOverride(userrec* source, const char* token)
+	virtual bool CanOverride(User* source, const char* token)
 	{
 		// checks to see if the oper's type has <type:override>
 		override_t::iterator j = overrides.find(source->oper);
@@ -101,7 +101,7 @@ class ModuleOverride : public Module
 		return false;
 	}
 
-	virtual int OnUserPreKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason)
+	virtual int OnUserPreKick(User* source, User* user, Channel* chan, const std::string &reason)
 	{
 		if (IS_OPER(source) && CanOverride(source,"KICK"))
 		{
@@ -115,7 +115,7 @@ class ModuleOverride : public Module
 		return 0;
 	}
 	
-	virtual int OnAccessCheck(userrec* source,userrec* dest,chanrec* channel,int access_type)
+	virtual int OnAccessCheck(User* source,User* dest,Channel* channel,int access_type)
 	{
 		if (IS_OPER(source))
 		{
@@ -226,7 +226,7 @@ class ModuleOverride : public Module
 		return ACR_DEFAULT;
 	}
 	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (IS_OPER(user))
 		{

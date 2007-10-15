@@ -21,14 +21,14 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /INVITE
  */
-CmdResult cmd_invite::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_invite::Handle (const char** parameters, int pcnt, User *user)
 {
 	int MOD_RESULT = 0;
 
 	if (pcnt == 2)
 	{
-		userrec* u = ServerInstance->FindNick(parameters[0]);
-		chanrec* c = ServerInstance->FindChan(parameters[1]);
+		User* u = ServerInstance->FindNick(parameters[0]);
+		Channel* c = ServerInstance->FindChan(parameters[1]);
 
 		if ((!c) || (!u))
 		{

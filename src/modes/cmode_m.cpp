@@ -21,7 +21,7 @@ ModeChannelModerated::ModeChannelModerated(InspIRCd* Instance) : ModeHandler(Ins
 {
 }
 
-ModeAction ModeChannelModerated::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelModerated::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	if (channel->modes[CM_MODERATED] != adding)
 	{

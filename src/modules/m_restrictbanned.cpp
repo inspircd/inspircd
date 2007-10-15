@@ -37,7 +37,7 @@ class ModuleRestrictBanned : public Module
 		List[I_OnLocalTopicChange] = List[I_OnUserPreNick] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = 1;
 	}
 
-	int CheckRestricted(userrec *user, chanrec *channel, const std::string &action)
+	int CheckRestricted(User *user, Channel *channel, const std::string &action)
 	{
 		/* aren't local? we don't care. */
 		if (!IS_LOCAL(user))
@@ -53,7 +53,7 @@ class ModuleRestrictBanned : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreNick(userrec *user, const std::string &newnick)
+	virtual int OnUserPreNick(User *user, const std::string &newnick)
 	{
 		/* if they aren't local, we don't care */
 		if (!IS_LOCAL(user))
@@ -73,21 +73,21 @@ class ModuleRestrictBanned : public Module
 		return 0;
 	}
 
-	virtual int OnLocalTopicChange(userrec *user, chanrec *channel, const std::string &topic)
+	virtual int OnLocalTopicChange(User *user, Channel *channel, const std::string &topic)
 	{
 		return CheckRestricted(user, channel, "change the topic");
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			chanrec *channel = (chanrec *)dest;
+			Channel *channel = (Channel *)dest;
 
 			return CheckRestricted(user, channel, "message the channel");
 		}

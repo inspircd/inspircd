@@ -21,11 +21,11 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KICK
  */
-CmdResult cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kick::Handle (const char** parameters, int pcnt, User *user)
 {
 	char reason[MAXKICK];
-	chanrec* c = ServerInstance->FindChan(parameters[0]);
-	userrec* u = ServerInstance->FindNick(parameters[1]);
+	Channel* c = ServerInstance->FindChan(parameters[0]);
+	User* u = ServerInstance->FindNick(parameters[1]);
 
 	if (!u || !c)
 	{
@@ -49,7 +49,7 @@ CmdResult cmd_kick::Handle (const char** parameters, int pcnt, userrec *user)
 	}
 
 	if (!c->KickUser(user, u, reason))
-		/* Nobody left here, delete the chanrec */
+		/* Nobody left here, delete the Channel */
 		delete c;
 
 	return CMD_SUCCESS;

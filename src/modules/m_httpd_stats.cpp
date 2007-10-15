@@ -137,7 +137,7 @@ class ModuleHttpStats : public Module
 
 				for (SortedIter a = so->begin(); a != so->end(); a++)
 				{
-					chanrec* c = ServerInstance->FindChan(a->second.c_str());
+					Channel* c = ServerInstance->FindChan(a->second.c_str());
 					if (c && !c->IsModeSet('s') && !c->IsModeSet('p'))
 					{
 						data << "<channel>";
@@ -176,7 +176,7 @@ class ModuleHttpStats : public Module
 		}
 	}
 
-	void OnChannelDelete(chanrec* chan)
+	void OnChannelDelete(Channel* chan)
 	{
 		StatsIter a = sh->find(chan->name);
 		if (a != sh->end())
@@ -186,7 +186,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserJoin(userrec* user, chanrec* channel, bool &silent)
+	void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		StatsIter a = sh->find(channel->name);
 		if (a != sh->end())
@@ -201,7 +201,7 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent)
+	void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent)
 	{
 		StatsIter a = sh->find(channel->name);
 		if (a != sh->end())
@@ -211,11 +211,11 @@ class ModuleHttpStats : public Module
 		this->changed = true;
 	}
 
-	void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
-			chanrec* c = v->first;
+			Channel* c = v->first;
 			StatsIter a = sh->find(c->name);
 			if (a != sh->end())
 			{

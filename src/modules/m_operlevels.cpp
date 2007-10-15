@@ -45,7 +45,7 @@ class ModuleOperLevels : public Module
 			List[I_OnRehash] = List[I_OnKill] = 1;
 		}
 
-		virtual void OnRehash(userrec* user, const std::string &parameter)
+		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			DELETE(conf);
 			conf = new ConfigReader(ServerInstance);
@@ -56,7 +56,7 @@ class ModuleOperLevels : public Module
 			return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 		}
 
-		virtual int OnKill(userrec* source, userrec* dest, const std::string &reason)
+		virtual int OnKill(User* source, User* dest, const std::string &reason)
 		{
 			long dest_level = 0,source_level = 0;
 

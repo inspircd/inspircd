@@ -21,10 +21,10 @@
 class IdentRequestSocket : public InspSocket
 {
  private:
-	userrec *user;
+	User *user;
 	int original_fd;
  public:
-	IdentRequestSocket(InspIRCd *Server, userrec *user, int timeout, const std::string &bindip)
+	IdentRequestSocket(InspIRCd *Server, User *user, int timeout, const std::string &bindip)
 		: InspSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
 	{
 		original_fd = user->GetFd();
@@ -210,7 +210,7 @@ class ModuleIdent : public Module
 		List[I_OnRehash] = List[I_OnUserRegister] = List[I_OnCheckReady] = List[I_OnCleanup] = List[I_OnUserDisconnect] = 1;
 	}
 	
-	virtual void OnRehash(userrec *user, const std::string &param)
+	virtual void OnRehash(User *user, const std::string &param)
 	{
 		ConfigReader MyConf(ServerInstance);
 		
@@ -219,9 +219,9 @@ class ModuleIdent : public Module
 			RequestTimeout = 5;
 	}
 	
-	virtual int OnUserRegister(userrec *user)
+	virtual int OnUserRegister(User *user)
 	{
-		/* userrec::ident is currently the username field from USER; with m_ident loaded, that
+		/* User::ident is currently the username field from USER; with m_ident loaded, that
 		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
 		memmove(user->ident + 1, user->ident, IDENTMAX);
 		user->ident[0] = '~';
@@ -263,7 +263,7 @@ class ModuleIdent : public Module
 		return 0;
 	}
 	
-	virtual bool OnCheckReady(userrec *user)
+	virtual bool OnCheckReady(User *user)
 	{
 		return (!user->GetExt("ident_socket"));
 	}
@@ -273,7 +273,7 @@ class ModuleIdent : public Module
 		if (target_type == TYPE_USER)
 		{
 			IdentRequestSocket *isock;
-			userrec *user = (userrec*)item;
+			User *user = (User*)item;
 			if (user->GetExt("ident_socket", isock))
 			{
 				int *fd;
@@ -293,7 +293,7 @@ class ModuleIdent : public Module
 		}
 	}
 
-	virtual void OnUserDisconnect(userrec *user)
+	virtual void OnUserDisconnect(User *user)
 	{
 		IdentRequestSocket *isock;
 		if (user->GetExt("ident_socket", isock))

@@ -69,12 +69,12 @@ class RemoveBase
 		}
 	}
 	
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user, bool neworder)
+	CmdResult Handle (const char** parameters, int pcnt, User *user, bool neworder)
 	{
 		const char* channame;
 		const char* username;
-		userrec* target;
-		chanrec* channel;
+		User* target;
+		Channel* channel;
 		ModeLevel tlevel;
 		ModeLevel ulevel;
 		std::string reason;
@@ -213,7 +213,7 @@ class cmd_remove : public Command, public RemoveBase
 		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		return RemoveBase::Handle(parameters, pcnt, user, false);
 	}
@@ -230,7 +230,7 @@ class cmd_fpart : public Command, public RemoveBase
 		syntax = "<channel> <nick> [<reason>]";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		return RemoveBase::Handle(parameters, pcnt, user, true);
 	}
@@ -264,7 +264,7 @@ class ModuleRemove : public Module
 		output.append(" REMOVE");
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string&)
+	virtual void OnRehash(User* user, const std::string&)
 	{
 		ConfigReader conf(ServerInstance);
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);

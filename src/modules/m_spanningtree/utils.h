@@ -158,7 +158,7 @@ class SpanningTreeUtilities
 	void AddThisServer(TreeServer* server, TreeServerList &list);
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(chanrec* c, TreeServerList &list, char status, const CUList &exempt_list);
+	void GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list);
 	/** Find a server by name
 	 */
 	TreeServer* FindServer(const std::string &ServerName);

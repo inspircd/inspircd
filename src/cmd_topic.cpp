@@ -20,9 +20,9 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_topic(Instance);
 }
 
-CmdResult cmd_topic::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_topic::Handle (const char** parameters, int pcnt, User *user)
 {
-	chanrec* Ptr;
+	Channel* Ptr;
 
 	if (pcnt == 1)
 	{

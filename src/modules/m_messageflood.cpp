@@ -24,7 +24,7 @@ class floodsettings : public classbase
 	int secs;
 	int lines;
 	time_t reset;
-	std::map<userrec*,int> counters;
+	std::map<User*,int> counters;
 
 	floodsettings() : ban(0), secs(0), lines(0) {};
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
@@ -32,9 +32,9 @@ class floodsettings : public classbase
 		reset = time(NULL) + secs;
 	};
 
-	void addmessage(userrec* who)
+	void addmessage(User* who)
 	{
-		std::map<userrec*,int>::iterator iter = counters.find(who);
+		std::map<User*,int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
 			iter->second++;
@@ -50,9 +50,9 @@ class floodsettings : public classbase
 		}
 	}
 
-	bool shouldkick(userrec* who)
+	bool shouldkick(User* who)
 	{
-		std::map<userrec*,int>::iterator iter = counters.find(who);
+		std::map<User*,int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
 			return (iter->second >= this->lines);
@@ -60,9 +60,9 @@ class floodsettings : public classbase
 		else return false;
 	}
 
-	void clear(userrec* who)
+	void clear(User* who)
 	{
-		std::map<userrec*,int>::iterator iter = counters.find(who);
+		std::map<User*,int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
 			counters.erase(iter);
@@ -77,7 +77,7 @@ class MsgFlood : public ModeHandler
  public:
 	MsgFlood(InspIRCd* Instance) : ModeHandler(Instance, 'f', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		floodsettings* x;
 		if (channel->GetExt("flood",x))
@@ -86,13 +86,13 @@ class MsgFlood : public ModeHandler
 			return std::make_pair(false, parameter);
 	}
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		floodsettings *f;
 
@@ -213,7 +213,7 @@ class ModuleMsgFlood : public Module
 			throw ModuleException("Could not add new modes!");
 	}
 	
-	int ProcessMessages(userrec* user,chanrec* dest, const std::string &text)
+	int ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'f') && dest->GetStatus(user) == STATUS_OP)
 		{
@@ -261,23 +261,23 @@ class ModuleMsgFlood : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(chanrec*)dest,text);
+			return ProcessMessages(user,(Channel*)dest,text);
 		
 		return 0;
 	}
 
-	virtual int OnUserPreNotice(userrec *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(chanrec*)dest,text);
+			return ProcessMessages(user,(Channel*)dest,text);
 			
 		return 0;
 	}
 
-	void OnChannelDelete(chanrec* chan)
+	void OnChannelDelete(Channel* chan)
 	{
 		floodsettings* f;
 		if (chan->GetExt("flood", f))

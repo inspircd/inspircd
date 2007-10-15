@@ -228,7 +228,7 @@ class TreeSocket : public InspSocket
 	bool ForceJoin(const std::string &source, std::deque<std::string> &params);
 
 	/* Used on nick collision ... XXX ugly function HACK */
-	int DoCollision(userrec *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid);
+	int DoCollision(User *u, time_t remotets, const char *remoteident, const char *remoteip, const char *remoteuid);
 
 	/** UID command */
 	bool ParseUID(const std::string &source, std::deque<std::string> &params);
@@ -237,7 +237,7 @@ class TreeSocket : public InspSocket
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
 	 */
-	void SendFJoins(TreeServer* Current, chanrec* c);
+	void SendFJoins(TreeServer* Current, Channel* c);
 
 	/** Send G, Q, Z and E lines */
 	void SendXLines(TreeServer* Current);

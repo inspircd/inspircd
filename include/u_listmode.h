@@ -64,8 +64,8 @@ typedef std::vector<ListLimit> limitlist;
 class ListModeRequest : public Request
 {
  public:
-	userrec* user;
-	chanrec* chan;
+	User* user;
+	Channel* chan;
 
 	/** Check if a user is on a channel's list.
 	 * The Event::Send() event returns true if the user is on the channel's list.
@@ -74,7 +74,7 @@ class ListModeRequest : public Request
 	 * @param u User to check against
 	 * @param c Channel to check against
 	 */
-	ListModeRequest(Module* sender, Module* target, userrec* u, chanrec* c) : Request(sender, target, "LM_CHECKLIST"), user(u), chan(c)
+	ListModeRequest(Module* sender, Module* target, User* u, Channel* c) : Request(sender, target, "LM_CHECKLIST"), user(u), chan(c)
 	{
 	}
 
@@ -132,7 +132,7 @@ class ListModeBase : public ModeHandler
 
 	/** See mode.h 
 	 */
-	std::pair<bool,std::string> ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	std::pair<bool,std::string> ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
@@ -153,7 +153,7 @@ class ListModeBase : public ModeHandler
 	 * @param user The user to send the list to
 	 * @param channel The channel the user is requesting the list for
 	 */
-	virtual void DisplayList(userrec* user, chanrec* channel)
+	virtual void DisplayList(User* user, Channel* channel)
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
@@ -167,7 +167,7 @@ class ListModeBase : public ModeHandler
 		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
 
-	virtual void DisplayEmptyList(userrec* user, chanrec* channel)
+	virtual void DisplayEmptyList(User* user, Channel* channel)
 	{
 		user->WriteServ("%s %s %s :%s", endoflistnumeric.c_str(), user->nick, channel->name, endofliststring.c_str());
 	}
@@ -176,7 +176,7 @@ class ListModeBase : public ModeHandler
 	 * See mode.h
 	 * @param channel The channel to remove all instances of the mode from
 	 */
-	virtual void RemoveMode(chanrec* channel)
+	virtual void RemoveMode(Channel* channel)
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
@@ -206,7 +206,7 @@ class ListModeBase : public ModeHandler
 
 	/** See mode.h
 	 */
-	virtual void RemoveMode(userrec* user)
+	virtual void RemoveMode(User* user)
 	{
 		/* Listmodes dont get set on users */
 	}
@@ -248,7 +248,7 @@ class ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		// Try and grab the list
 		modelist* el;
@@ -375,7 +375,7 @@ class ListModeBase : public ModeHandler
 	 * See modules.h.
 	 * @param chan Channel being deleted
 	 */
-	virtual void DoChannelDelete(chanrec* chan)
+	virtual void DoChannelDelete(Channel* chan)
 	{
 		modelist* list;
 		chan->GetExt(infokey, list);
@@ -393,7 +393,7 @@ class ListModeBase : public ModeHandler
 	 * @param proto Protocol module pointer
 	 * @param opaque Opaque connection handle
 	 */
-	virtual void DoSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		modelist* list;
 		chan->GetExt(infokey, list);
@@ -429,7 +429,7 @@ class ListModeBase : public ModeHandler
 	 * @param parameter The actual parameter being added
 	 * @return true if the parameter is valid
 	 */
-	virtual bool ValidateParam(userrec* source, chanrec* channel, std::string &parameter)
+	virtual bool ValidateParam(User* source, Channel* channel, std::string &parameter)
 	{
 		return true;
 	}
@@ -441,7 +441,7 @@ class ListModeBase : public ModeHandler
 	 * @param parameter The actual parameter being added
 	 * @return Ignored
 	 */
-	virtual bool TellListTooLong(userrec* source, chanrec* channel, std::string &parameter)
+	virtual bool TellListTooLong(User* source, Channel* channel, std::string &parameter)
 	{
 		return false;
 	}
@@ -452,7 +452,7 @@ class ListModeBase : public ModeHandler
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
 	 */
-	virtual void TellAlreadyOnList(userrec* source, chanrec* channel, std::string &parameter)
+	virtual void TellAlreadyOnList(User* source, Channel* channel, std::string &parameter)
 	{
 	}
 	
@@ -462,7 +462,7 @@ class ListModeBase : public ModeHandler
 	 * @param channel Channel the parameter is being removed from
 	 * @param parameter The actual parameter being removed
 	 */
-	virtual void TellNotSet(userrec* source, chanrec* channel, std::string &parameter)
+	virtual void TellNotSet(User* source, Channel* channel, std::string &parameter)
 	{
 	}
 };

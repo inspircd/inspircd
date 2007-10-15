@@ -28,9 +28,9 @@ unsigned int ModeChannelHalfOp::GetPrefixRank()
 	return HALFOP_VALUE;
 }
 
-ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelHalfOp::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {
-	userrec* x = ServerInstance->FindNick(parameter);
+	User* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
 		if (channel->GetStatusFlags(x) & UCMODE_HOP)
@@ -45,7 +45,7 @@ ModePair ModeChannelHalfOp::ModeSet(userrec* source, userrec* dest, chanrec* cha
 	return std::make_pair(false, parameter);
 }
 
-void ModeChannelHalfOp::RemoveMode(chanrec* channel)
+void ModeChannelHalfOp::RemoveMode(Channel* channel)
 {
 	CUList* list = channel->GetHalfoppedUsers();
 	CUList copy;
@@ -53,7 +53,7 @@ void ModeChannelHalfOp::RemoveMode(chanrec* channel)
 
 	for (CUList::iterator i = list->begin(); i != list->end(); i++)
 	{
-		userrec* n = i->first;
+		User* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));
 	}
 
@@ -66,11 +66,11 @@ void ModeChannelHalfOp::RemoveMode(chanrec* channel)
 
 }
 
-void ModeChannelHalfOp::RemoveMode(userrec* user)
+void ModeChannelHalfOp::RemoveMode(User* user)
 {
 }
 
-ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelHalfOp::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* If halfops are not enabled in the conf, we don't execute
 	 * anything in this class at all.
@@ -103,9 +103,9 @@ ModeAction ModeChannelHalfOp::OnModeChange(userrec* source, userrec* dest, chanr
 		return MODEACTION_DENY;
 }
 
-std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec *chan,int status)
+std::string ModeChannelHalfOp::AddHalfOp(User *user,const char* dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -131,9 +131,9 @@ std::string ModeChannelHalfOp::AddHalfOp(userrec *user,const char* dest,chanrec 
 	return "";
 }
 
-std::string ModeChannelHalfOp::DelHalfOp(userrec *user,const char *dest,chanrec *chan,int status)
+std::string ModeChannelHalfOp::DelHalfOp(User *user,const char *dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{

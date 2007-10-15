@@ -63,14 +63,14 @@ public:
 		List[I_OnRequest] = List[I_OnRehash] = List[I_OnPreCommand] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		
 		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		if ((validated) && (command == "OPER"))
 		{
@@ -87,7 +87,7 @@ public:
 		return 0;
 	}
 
-	bool LookupOper(userrec* user, const std::string &username, const std::string &password)
+	bool LookupOper(User* user, const std::string &username, const std::string &password)
 	{
 		Module* target;
 		
@@ -109,7 +109,7 @@ public:
 			if (req.Send())
 			{
 				/* When we get the query response from the service provider we will be given an ID to play with,
-				 * just an ID number which is unique to this query. We need a way of associating that ID with a userrec
+				 * just an ID number which is unique to this query. We need a way of associating that ID with a User
 				 * so we insert it into a map mapping the IDs to users.
 				 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
 				 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
@@ -140,7 +140,7 @@ public:
 		{
 			SQLresult* res = static_cast<SQLresult*>(request);
 
-			userrec* user = GetAssocUser(this, SQLutils, res->id).S().user;
+			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
 			UnAssociate(this, SQLutils, res->id).S();
 
 			char* tried_user = NULL;
@@ -225,7 +225,7 @@ public:
 		return NULL;
 	}
 
-	void LoginFail(userrec* user, const std::string &username, const std::string &pass)
+	void LoginFail(User* user, const std::string &username, const std::string &pass)
 	{
 		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
 
@@ -240,7 +240,7 @@ public:
 		}
 	}
 
-	bool OperUser(userrec* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
+	bool OperUser(User* user, const std::string &username, const std::string &password, const std::string &pattern, const std::string &type)
 	{
 		ConfigReader Conf(ServerInstance);
 		

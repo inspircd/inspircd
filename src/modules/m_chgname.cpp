@@ -27,9 +27,9 @@ class cmd_chgname : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 	
-	CmdResult Handle(const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char** parameters, int pcnt, User *user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
 		{

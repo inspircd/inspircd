@@ -33,9 +33,9 @@ class cmd_fingerprint : public Command
 		syntax = "<nickname>";
 	}       
 	          
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* target = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->FindNick(parameters[0]);
 		if (target)
 		{
 			ssl_cert* cert;
@@ -94,7 +94,7 @@ class ModuleOperSSLCert : public Module
 		List[I_OnPreCommand] = List[I_OnRehash] = 1;
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		delete cf;
 		cf = new ConfigReader(ServerInstance);
@@ -115,7 +115,7 @@ class ModuleOperSSLCert : public Module
 	}
 
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		irc::string cmd = command.c_str();
 		

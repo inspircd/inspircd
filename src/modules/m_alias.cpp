@@ -127,9 +127,9 @@ class ModuleAlias : public Module
 		}
 	}
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
-		userrec *u = NULL;
+		User *u = NULL;
 
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -210,7 +210,7 @@ class ModuleAlias : public Module
 		return 0;
 	}
 
-	void DoCommand(std::string newline, userrec* user, const std::string &original_line)
+	void DoCommand(std::string newline, User* user, const std::string &original_line)
 	{
 		for (int v = 1; v < 10; v++)
 		{
@@ -260,7 +260,7 @@ class ModuleAlias : public Module
 		ServerInstance->Parser->CallHandler(parv[0], &parv[1], x-1, user);
 	}
  
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ReadAliases();
  	}

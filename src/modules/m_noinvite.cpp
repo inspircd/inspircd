@@ -20,7 +20,7 @@ class NoInvite : public ModeHandler
  public:
 	NoInvite(InspIRCd* Instance) : ModeHandler(Instance, 'V', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -60,7 +60,7 @@ class ModuleNoInvite : public Module
 		List[I_OnUserPreInvite] = 1;
 	}
 
-	virtual int OnUserPreInvite(userrec* user,userrec* dest,chanrec* channel)
+	virtual int OnUserPreInvite(User* user,User* dest,Channel* channel)
 	{
 		if (channel->IsModeSet('V'))
 		{

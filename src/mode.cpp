@@ -104,12 +104,12 @@ char ModeHandler::GetModeChar()
 	return mode;
 }
 
-ModeAction ModeHandler::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	return MODEACTION_DENY;
 }
 
-ModePair ModeHandler::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeHandler::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {
 	if (dest)
 	{
@@ -121,15 +121,15 @@ ModePair ModeHandler::ModeSet(userrec* source, userrec* dest, chanrec* channel, 
 	}
 }
 
-void ModeHandler::DisplayList(userrec* user, chanrec* channel)
+void ModeHandler::DisplayList(User* user, Channel* channel)
 {
 }
 
-void ModeHandler::DisplayEmptyList(userrec* user, chanrec* channel)
+void ModeHandler::DisplayEmptyList(User* user, Channel* channel)
 {
 }
 
-bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 {
 	return (ours < theirs);
 }
@@ -152,18 +152,18 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type)
+bool ModeWatcher::BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type)
+void ModeWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type)
 {
 }
 
-userrec* ModeParser::SanityChecks(userrec *user,const char *dest,chanrec *chan,int status)
+User* ModeParser::SanityChecks(User *user,const char *dest,Channel *chan,int status)
 {
-	userrec *d;
+	User *d;
 	if ((!user) || (!dest) || (!chan) || (!*dest))
 	{
 		return NULL;
@@ -177,7 +177,7 @@ userrec* ModeParser::SanityChecks(userrec *user,const char *dest,chanrec *chan,i
 	return d;
 }
 
-const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
+const char* ModeParser::Grant(User *d,Channel *chan,int MASK)
 {
 	if (!chan)
 		return "";
@@ -207,7 +207,7 @@ const char* ModeParser::Grant(userrec *d,chanrec *chan,int MASK)
 	return "";
 }
 
-const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
+const char* ModeParser::Revoke(User *d,Channel *chan,int MASK)
 {
 	if (!chan)
 		return "";
@@ -237,7 +237,7 @@ const char* ModeParser::Revoke(userrec *d,chanrec *chan,int MASK)
 	return "";
 }
 
-void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text)
+void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text)
 {
 	if (targetchannel)
 	{
@@ -274,13 +274,13 @@ void ModeParser::DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec
 	return;
 }
 
-void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool servermode)
+void ModeParser::Process(const char** parameters, int pcnt, User *user, bool servermode)
 {
 	std::string target = parameters[0];
 	ModeType type = MODETYPE_USER;
 	unsigned char mask = 0;
-	chanrec* targetchannel = ServerInstance->FindChan(parameters[0]);
-	userrec* targetuser  = ServerInstance->FindNick(parameters[0]);
+	Channel* targetchannel = ServerInstance->FindChan(parameters[0]);
+	User* targetuser  = ServerInstance->FindNick(parameters[0]);
 
 	LastParse.clear();
 
@@ -577,7 +577,7 @@ void ModeParser::Process(const char** parameters, int pcnt, userrec *user, bool 
 									/* Does this mode have a prefix? */
 									if (modehandlers[handler_id]->GetPrefix() && targetchannel)
 									{
-										userrec* user_to_prefix = ServerInstance->FindNick(parameter);
+										User* user_to_prefix = ServerInstance->FindNick(parameter);
 										if (user_to_prefix)
 											targetchannel->SetPrefix(user_to_prefix, modehandlers[handler_id]->GetPrefix(),
 													modehandlers[handler_id]->GetPrefixRank(), adding);
@@ -833,7 +833,7 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-std::string ModeParser::ModeString(userrec* user, chanrec* channel)
+std::string ModeParser::ModeString(User* user, Channel* channel)
 {
 	std::string types;
 	std::string pars;
@@ -996,7 +996,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 
 /** This default implementation can remove simple user modes
  */
-void ModeHandler::RemoveMode(userrec* user)
+void ModeHandler::RemoveMode(User* user)
 {
 	char moderemove[MAXBUF];
 	const char* parameters[] = { user->nick, moderemove };
@@ -1011,7 +1011,7 @@ void ModeHandler::RemoveMode(userrec* user)
 /** This default implementation can remove simple channel modes
  * (no parameters)
  */
-void ModeHandler::RemoveMode(chanrec* channel)
+void ModeHandler::RemoveMode(Channel* channel)
 {
 	char moderemove[MAXBUF];
 	const char* parameters[] = { channel->name, moderemove };

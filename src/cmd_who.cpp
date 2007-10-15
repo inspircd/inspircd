@@ -15,7 +15,7 @@
 #include "wildcard.h"
 #include "commands/cmd_who.h"
 
-static char *get_first_visible_channel(userrec *u)
+static char *get_first_visible_channel(User *u)
 {
 	UCListIter i = u->chans.begin();
 	if (i != u->chans.end())
@@ -27,7 +27,7 @@ static char *get_first_visible_channel(userrec *u)
 	return "*";
 }
 
-bool cmd_who::whomatch(userrec* user, const char* matchtext)
+bool cmd_who::whomatch(User* user, const char* matchtext)
 {
 	bool realhost = false;
 	bool realname = false;
@@ -112,7 +112,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_who(Instance);
 }
 
-bool cmd_who::CanView(chanrec* chan, userrec* user)
+bool cmd_who::CanView(Channel* chan, User* user)
 {
 	if (!user || !chan)
 		return false;
@@ -132,10 +132,10 @@ bool cmd_who::CanView(chanrec* chan, userrec* user)
 	return false;
 }
 
-void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch, userrec* u, std::vector<std::string> &whoresults)
+void cmd_who::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
 	std::string lcn = get_first_visible_channel(u);
-	chanrec* chlast = ServerInstance->FindChan(lcn);
+	Channel* chlast = ServerInstance->FindChan(lcn);
 
 	/* Not visible to this user */
 	if (u->Visibility && !u->Visibility->VisibleTo(user))
@@ -165,7 +165,7 @@ void cmd_who::SendWhoLine(userrec* user, const std::string &initial, chanrec* ch
 	whoresults.push_back(wholine);
 }
 
-CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_who::Handle (const char** parameters, int pcnt, User *user)
 {
 	/*
 	 * XXX - RFC says:
@@ -187,7 +187,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 	opt_local = false;
 	opt_far = false;
 
-	chanrec *ch = NULL;
+	Channel *ch = NULL;
 	std::vector<std::string> whoresults;
 	std::string initial = "352 " + std::string(user->nick) + " ";
 
@@ -295,9 +295,9 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
-			for (std::list<userrec*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
+			for (std::list<User*>::iterator i = ServerInstance->all_opers.begin(); i != ServerInstance->all_opers.end(); i++)
 			{
-				userrec* oper = *i;
+				User* oper = *i;
 
 				if (whomatch(oper, matchtext))
 				{

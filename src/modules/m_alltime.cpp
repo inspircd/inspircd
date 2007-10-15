@@ -25,7 +25,7 @@ class cmd_alltime : public Command
 		translation.push_back(TR_END);
 	}
 
-	CmdResult Handle(const char **parameters, int pcnt, userrec *user)
+	CmdResult Handle(const char **parameters, int pcnt, User *user)
 	{
 		char fmtdate[64];
 		char fmtdate2[64];

@@ -19,7 +19,7 @@
 #include "base.h"
 #include "socketengine.h"
 
-/** connection is the base class of userrec, and holds basic user properties.
+/** connection is the base class of User, and holds basic user properties.
  * This can be extended for holding other user-like objects in the future.
  */
 class CoreExport connection : public EventHandler
@@ -50,7 +50,7 @@ class CoreExport connection : public EventHandler
 	 */
 	bool haspassed;
 
-	/** Used by userrec to indicate the registration status of the connection
+	/** Used by User to indicate the registration status of the connection
 	 * It is a bitfield of the REG_NICK, REG_USER and REG_ALL bits to indicate
 	 * the connection state.
 	 */

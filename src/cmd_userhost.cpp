@@ -19,14 +19,14 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_userhost(Instance);
 }
 
-CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_userhost::Handle (const char** parameters, int pcnt, User *user)
 {
 	std::string retbuf = std::string("302 ") + user->nick + " :";
 
 	
 	for (int i = 0; i < pcnt; i++)
 	{
-		userrec *u = ServerInstance->FindNick(parameters[i]);
+		User *u = ServerInstance->FindNick(parameters[i]);
 
 		if ((u) && (u->registered == REG_ALL))
 		{

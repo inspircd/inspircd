@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /ADMIN
  */
-CmdResult cmd_admin::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_admin::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("256 %s :Administrative info for %s",user->nick,ServerInstance->Config->ServerName);
 	if (*ServerInstance->Config->AdminName)

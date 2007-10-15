@@ -28,9 +28,9 @@ unsigned int ModeChannelVoice::GetPrefixRank()
 	return VOICE_VALUE;
 }
 
-ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelVoice::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {
-	userrec* x = ServerInstance->FindNick(parameter);
+	User* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
 		if (channel->GetStatusFlags(x) & UCMODE_VOICE)
@@ -45,7 +45,7 @@ ModePair ModeChannelVoice::ModeSet(userrec* source, userrec* dest, chanrec* chan
 	return std::make_pair(false, parameter);
 }
 
-void ModeChannelVoice::RemoveMode(chanrec* channel)
+void ModeChannelVoice::RemoveMode(Channel* channel)
 {
 	CUList* list = channel->GetVoicedUsers();
 	CUList copy;
@@ -53,7 +53,7 @@ void ModeChannelVoice::RemoveMode(chanrec* channel)
 
 	for (CUList::iterator i = list->begin(); i != list->end(); i++)
 	{
-		userrec* n = i->first;
+		User* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));
 	}
 
@@ -65,11 +65,11 @@ void ModeChannelVoice::RemoveMode(chanrec* channel)
 	}
 }
 
-void ModeChannelVoice::RemoveMode(userrec* user)
+void ModeChannelVoice::RemoveMode(User* user)
 {
 }
 
-ModeAction ModeChannelVoice::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelVoice::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 
@@ -93,9 +93,9 @@ ModeAction ModeChannelVoice::OnModeChange(userrec* source, userrec* dest, chanre
 		return MODEACTION_DENY;
 }
 
-std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *chan,int status)
+std::string ModeChannelVoice::AddVoice(User *user,const char* dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -121,9 +121,9 @@ std::string ModeChannelVoice::AddVoice(userrec *user,const char* dest,chanrec *c
 	return "";
 }
 
-std::string ModeChannelVoice::DelVoice(userrec *user,const char *dest,chanrec *chan,int status)
+std::string ModeChannelVoice::DelVoice(User *user,const char *dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{

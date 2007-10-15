@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /DIE
  */
-CmdResult cmd_die::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_die::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (!strcmp(parameters[0],ServerInstance->Config->diepass))
 	{

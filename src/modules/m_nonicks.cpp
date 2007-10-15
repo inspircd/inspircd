@@ -20,7 +20,7 @@ class NoNicks : public ModeHandler
  public:
 	NoNicks(InspIRCd* Instance) : ModeHandler(Instance, 'N', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -71,7 +71,7 @@ class ModuleNoNickChange : public Module
 		List[I_OnUserPreNick] = 1;
 	}
 
-	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
+	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (IS_LOCAL(user))
 		{
@@ -80,7 +80,7 @@ class ModuleNoNickChange : public Module
 
 			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 			{
-				chanrec* curr = i->first;
+				Channel* curr = i->first;
 
 				if (curr->IsModeSet('N'))
 				{

@@ -20,7 +20,7 @@
 #include "base.h"
 
 /* Forward declarations - required */
-class userrec;
+class User;
 class InspIRCd;
 
 /** Used to indicate command success codes
@@ -119,7 +119,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult Handle(const char** parameters, int pcnt, userrec* user) = 0;
+	virtual CmdResult Handle(const char** parameters, int pcnt, User* user) = 0;
 
 	/** Handle an internal request from another command, the core, or a module
 	 * @param Command ID

@@ -29,9 +29,9 @@ class cmd_taxonomy : public Command
 		syntax = "<nickname>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
 			std::deque<std::string> list;
@@ -76,7 +76,7 @@ class ModuleTaxonomy : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* spool = (userrec*)opaque;
+			User* spool = (User*)opaque;
 			std::string taxstr = "304 " + std::string(spool->nick) + ":TAXONOMY METADATA "+extname+" = "+extdata;
 			spool->WriteServ(taxstr);
 			claimed = true;

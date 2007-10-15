@@ -27,9 +27,9 @@ class cmd_saquit : public Command
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		userrec* dest = ServerInstance->FindNick(parameters[0]);
+		User* dest = ServerInstance->FindNick(parameters[0]);
 		if (dest)
 		{
 			if (ServerInstance->ULine(dest->server))
@@ -46,7 +46,7 @@ class cmd_saquit : public Command
 			if (!IS_LOCAL(dest))
 				return CMD_SUCCESS;
 			
-			userrec::QuitUser(ServerInstance, dest, line);
+			User::QuitUser(ServerInstance, dest, line);
 			return CMD_SUCCESS;
 		}
 		else

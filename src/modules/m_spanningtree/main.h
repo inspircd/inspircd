@@ -63,7 +63,7 @@ class ModuleSpanningTree : public Module
 
 	/** Shows /LINKS
 	 */
-	void ShowLinks(TreeServer* Current, userrec* user, int hops);
+	void ShowLinks(TreeServer* Current, User* user, int hops);
 
 	/** Counts local servers
 	 */
@@ -75,47 +75,47 @@ class ModuleSpanningTree : public Module
 
 	/** Handle LINKS command
 	 */
-	void HandleLinks(const char** parameters, int pcnt, userrec* user);
+	void HandleLinks(const char** parameters, int pcnt, User* user);
 
 	/** Handle LUSERS command
 	 */
-	void HandleLusers(const char** parameters, int pcnt, userrec* user);
+	void HandleLusers(const char** parameters, int pcnt, User* user);
 
 	/** Show MAP output to a user (recursive)
 	 */
-	void ShowMap(TreeServer* Current, userrec* user, int depth, char matrix[128][128], float &totusers, float &totservers);
+	void ShowMap(TreeServer* Current, User* user, int depth, char matrix[128][128], float &totusers, float &totservers);
 
 	/** Handle remote MOTD
 	 */
-	int HandleMotd(const char** parameters, int pcnt, userrec* user);
+	int HandleMotd(const char** parameters, int pcnt, User* user);
 
 	/** Handle remote ADMIN
 	 */
-	int HandleAdmin(const char** parameters, int pcnt, userrec* user);
+	int HandleAdmin(const char** parameters, int pcnt, User* user);
 
 	/** Handle remote STATS
 	 */
-	int HandleStats(const char** parameters, int pcnt, userrec* user);
+	int HandleStats(const char** parameters, int pcnt, User* user);
 
 	/** Handle MAP command
 	 */
-	void HandleMap(const char** parameters, int pcnt, userrec* user);
+	void HandleMap(const char** parameters, int pcnt, User* user);
 
 	/** Handle SQUIT
 	 */
-	int HandleSquit(const char** parameters, int pcnt, userrec* user);
+	int HandleSquit(const char** parameters, int pcnt, User* user);
 
 	/** Handle TIME
 	 */
-	int HandleTime(const char** parameters, int pcnt, userrec* user);
+	int HandleTime(const char** parameters, int pcnt, User* user);
 
 	/** Handle remote WHOIS
 	 */
-	int HandleRemoteWhois(const char** parameters, int pcnt, userrec* user);
+	int HandleRemoteWhois(const char** parameters, int pcnt, User* user);
 
 	/** Handle remote MODULES
 	 */
-	int HandleModules(const char** parameters, int pcnt, userrec* user);
+	int HandleModules(const char** parameters, int pcnt, User* user);
 
 	/** Ping all local servers
 	 */
@@ -131,11 +131,11 @@ class ModuleSpanningTree : public Module
 
 	/** Handle remote VERSON
 	 */
-	int HandleVersion(const char** parameters, int pcnt, userrec* user);
+	int HandleVersion(const char** parameters, int pcnt, User* user);
 
 	/** Handle CONNECT
 	 */
-	int HandleConnect(const char** parameters, int pcnt, userrec* user);
+	int HandleConnect(const char** parameters, int pcnt, User* user);
 
 	/** Send out time sync to all servers
 	 */
@@ -143,7 +143,7 @@ class ModuleSpanningTree : public Module
 
 	/** Attempt to send a message to a user
 	 */
-	void RemoteMessage(userrec* user, const char* format, ...);
+	void RemoteMessage(User* user, const char* format, ...);
 
 	/** Returns oper-specific MAP information
 	 */
@@ -157,39 +157,39 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line);
-	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, CmdResult result, const std::string &original_line);
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line);
+	virtual void OnPostCommand(const std::string &command, const char** parameters, int pcnt, User *user, CmdResult result, const std::string &original_line);
 	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
-	virtual void OnUserInvite(userrec* source,userrec* dest,chanrec* channel);
-	virtual void OnPostLocalTopicChange(userrec* user, chanrec* chan, const std::string &topic);
-	virtual void OnWallops(userrec* user, const std::string &text);
-	virtual void OnUserNotice(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
-	virtual void OnUserMessage(userrec* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+	virtual void OnUserInvite(User* source,User* dest,Channel* channel);
+	virtual void OnPostLocalTopicChange(User* user, Channel* chan, const std::string &topic);
+	virtual void OnWallops(User* user, const std::string &text);
+	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 	virtual void OnBackgroundTimer(time_t curtime);
-	virtual void OnUserJoin(userrec* user, chanrec* channel, bool &silent);
-	virtual void OnChangeHost(userrec* user, const std::string &newhost);
-	virtual void OnChangeName(userrec* user, const std::string &gecos);
-	virtual void OnUserPart(userrec* user, chanrec* channel, const std::string &partmessage, bool &silent);
-	virtual void OnUserConnect(userrec* user);
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message);
-	virtual void OnUserPostNick(userrec* user, const std::string &oldnick);
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent);
-	virtual void OnRemoteKill(userrec* source, userrec* dest, const std::string &reason, const std::string &operreason);
-	virtual void OnRehash(userrec* user, const std::string &parameter);
-	virtual void OnOper(userrec* user, const std::string &opertype);
-	void OnLine(userrec* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
-	virtual void OnAddGLine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
-	virtual void OnAddZLine(long duration, userrec* source, const std::string &reason, const std::string &ipmask);
-	virtual void OnAddQLine(long duration, userrec* source, const std::string &reason, const std::string &nickmask);
-	virtual void OnAddELine(long duration, userrec* source, const std::string &reason, const std::string &hostmask);
-	virtual void OnDelGLine(userrec* source, const std::string &hostmask);
-	virtual void OnDelZLine(userrec* source, const std::string &ipmask);
-	virtual void OnDelQLine(userrec* source, const std::string &nickmask);
-	virtual void OnDelELine(userrec* source, const std::string &hostmask);
-	virtual void OnMode(userrec* user, void* dest, int target_type, const std::string &text);
-	virtual int OnStats(char statschar, userrec* user, string_list &results);
-	virtual void OnSetAway(userrec* user);
-	virtual void OnCancelAway(userrec* user);
+	virtual void OnUserJoin(User* user, Channel* channel, bool &silent);
+	virtual void OnChangeHost(User* user, const std::string &newhost);
+	virtual void OnChangeName(User* user, const std::string &gecos);
+	virtual void OnUserPart(User* user, Channel* channel, const std::string &partmessage, bool &silent);
+	virtual void OnUserConnect(User* user);
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
+	virtual void OnUserPostNick(User* user, const std::string &oldnick);
+	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent);
+	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
+	virtual void OnRehash(User* user, const std::string &parameter);
+	virtual void OnOper(User* user, const std::string &opertype);
+	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
+	virtual void OnAddGLine(long duration, User* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnAddZLine(long duration, User* source, const std::string &reason, const std::string &ipmask);
+	virtual void OnAddQLine(long duration, User* source, const std::string &reason, const std::string &nickmask);
+	virtual void OnAddELine(long duration, User* source, const std::string &reason, const std::string &hostmask);
+	virtual void OnDelGLine(User* source, const std::string &hostmask);
+	virtual void OnDelZLine(User* source, const std::string &ipmask);
+	virtual void OnDelQLine(User* source, const std::string &nickmask);
+	virtual void OnDelELine(User* source, const std::string &hostmask);
+	virtual void OnMode(User* user, void* dest, int target_type, const std::string &text);
+	virtual int OnStats(char statschar, User* user, string_list &results);
+	virtual void OnSetAway(User* user);
+	virtual void OnCancelAway(User* user);
 	virtual void ProtoSendMode(void* opaque, int target_type, void* target, const std::string &modeline);
 	virtual void ProtoSendMetaData(void* opaque, int target_type, void* target, const std::string &extname, const std::string &extdata);
 	virtual void OnEvent(Event* event);

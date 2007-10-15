@@ -62,7 +62,7 @@ class cmd_silence : public Command
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		if (!pcnt)
 		{
@@ -243,7 +243,7 @@ class ModuleSilence : public Module
 		ServerInstance->AddCommand(mycommand);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader Conf(ServerInstance);
 		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
@@ -256,7 +256,7 @@ class ModuleSilence : public Module
 		List[I_OnRehash] = List[I_OnBuildExemptList] = List[I_OnUserQuit] = List[I_On005Numeric] = List[I_OnUserPreNotice] = List[I_OnUserPreMessage] = List[I_OnUserPreInvite] = 1;
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &reason, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		// when the user quits tidy up any silence list they might have just to keep things tidy
 		silencelist* sl;
@@ -274,7 +274,7 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
 	}
 
-	virtual void OnBuildExemptList(MessageType message_type, chanrec* chan, userrec* sender, char status, CUList &exempt_list, const std::string &text)
+	virtual void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
 		CUList *ulist;
@@ -306,18 +306,18 @@ class ModuleSilence : public Module
 		}
 	}
 
-	virtual int PreText(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
+	virtual int PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
 
 		if (target_type == TYPE_USER)
 		{
-			return MatchPattern((userrec*)dest, user, silence_type);
+			return MatchPattern((User*)dest, user, silence_type);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* chan = (chanrec*)dest;
+			Channel* chan = (Channel*)dest;
 			if (chan)
 			{
 				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
@@ -326,22 +326,22 @@ class ModuleSilence : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
 	}
 
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
-	virtual int OnUserPreInvite(userrec* source,userrec* dest,chanrec* channel)
+	virtual int OnUserPreInvite(User* source,User* dest,Channel* channel)
 	{
 		return MatchPattern(dest, source, SILENCE_INVITE);
 	}
 
-	int MatchPattern(userrec* dest, userrec* source, int pattern)
+	int MatchPattern(User* dest, User* source, int pattern)
 	{
 		silencelist* sl;
 		dest->GetExt("silence_list", sl);

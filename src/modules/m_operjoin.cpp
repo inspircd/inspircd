@@ -51,7 +51,7 @@ class ModuleOperjoin : public Module
 			List[I_OnPostOper] = List[I_OnRehash] = 1;
 		}
 
-		virtual void OnRehash(userrec* user, const std::string &parameter)
+		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
 
@@ -72,14 +72,14 @@ class ModuleOperjoin : public Module
 			return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 		}
 
-		virtual void OnPostOper(userrec* user, const std::string &opertype)
+		virtual void OnPostOper(User* user, const std::string &opertype)
 		{
 			if (!IS_LOCAL(user))
 				return;
 
 			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str()))
-					chanrec::JoinUser(ServerInstance, user, it->c_str(), false, "", ServerInstance->Time(true));
+					Channel::JoinUser(ServerInstance, user, it->c_str(), false, "", ServerInstance->Time(true));
 		}
 
 };

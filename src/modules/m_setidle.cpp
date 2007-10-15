@@ -27,7 +27,7 @@ class cmd_setidle : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		time_t idle = ServerInstance->Duration(parameters[0]);
 		if (idle < 1)

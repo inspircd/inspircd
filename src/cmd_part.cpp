@@ -19,12 +19,12 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_part(Instance);
 }
 
-CmdResult cmd_part::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_part::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;
 
-	chanrec* c = ServerInstance->FindChan(parameters[0]);
+	Channel* c = ServerInstance->FindChan(parameters[0]);
 	
 	if (c)
 	{

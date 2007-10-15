@@ -60,7 +60,7 @@ public:
 		output.append(" INVEX=I");
 	}
 	 
-	virtual int OnCheckInvite(userrec* user, chanrec* chan)
+	virtual int OnCheckInvite(User* user, Channel* chan)
 	{
 		if(chan != NULL)
 		{
@@ -115,17 +115,17 @@ public:
 		ie->DoCleanup(target_type, item);
 	}
 
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		ie->DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		ie->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		ie->DoRehash();
 	}

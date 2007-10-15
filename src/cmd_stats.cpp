@@ -31,7 +31,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_stats(Instance);
 }
 
-CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_stats::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (IS_LOCAL(user))
 	{
@@ -44,7 +44,7 @@ CmdResult cmd_stats::Handle (const char** parameters, int pcnt, userrec *user)
 	return CMD_SUCCESS;
 }
 
-DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, string_list &results)
+DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, string_list &results)
 {
 	std::string sn = ServerInstance->Config->ServerName;
 
@@ -173,8 +173,8 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 		case 'z':
 		{
 			results.push_back(sn+" 240 "+user->nick+" :InspIRCd(CLASS) "+ConvToStr(sizeof(InspIRCd))+" bytes");
-			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(userrec))+" bytes)");
-			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(chanrec))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Users(HASH_MAP) "+ConvToStr(ServerInstance->clientlist->size())+" ("+ConvToStr(ServerInstance->clientlist->size()*sizeof(User))+" bytes)");
+			results.push_back(sn+" 249 "+user->nick+" :Channels(HASH_MAP) "+ConvToStr(ServerInstance->chanlist->size())+" ("+ConvToStr(ServerInstance->chanlist->size()*sizeof(Channel))+" bytes)");
 			results.push_back(sn+" 249 "+user->nick+" :Commands(VECTOR) "+ConvToStr(ServerInstance->Parser->cmdlist.size())+" ("+ConvToStr(ServerInstance->Parser->cmdlist.size()*sizeof(Command))+" bytes)");
 
 			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -259,9 +259,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 		/* stats l (show user I/O stats) */
 		case 'l':
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-		  	for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
+		  	for (std::vector<User*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 			{
-				userrec* i = *n;
+				User* i = *n;
 				if (ServerInstance->IsNick(i->nick))
 				{
 					results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
@@ -272,9 +272,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, userrec* user, 
 	/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (std::vector<userrec*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
+			for (std::vector<User*>::iterator n = ServerInstance->local_users.begin(); n != ServerInstance->local_users.end(); n++)
 			{
-				userrec* i = *n;
+				User* i = *n;
 				if (ServerInstance->IsNick(i->nick))
 				{
 					results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->sendq.length())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));

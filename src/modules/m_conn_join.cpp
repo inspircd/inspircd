@@ -58,7 +58,7 @@ class ModuleConnJoin : public Module
 			List[I_OnPostConnect] = List[I_OnRehash] = 1;
 		}
 
-		virtual void OnRehash(userrec* user, const std::string &parameter)
+		virtual void OnRehash(User* user, const std::string &parameter)
 		{
 			ConfigReader* conf = new ConfigReader(ServerInstance);
 			JoinChan = conf->ReadValue("autojoin", "channel", 0);
@@ -77,14 +77,14 @@ class ModuleConnJoin : public Module
 			return Version(1,1,0,1,VF_VENDOR,API_VERSION);
 		}
 
-		virtual void OnPostConnect(userrec* user)
+		virtual void OnPostConnect(User* user)
 		{
 			if (!IS_LOCAL(user))
 				return;
 
 			for(std::vector<std::string>::iterator it = Joinchans.begin(); it != Joinchans.end(); it++)
 				if (ServerInstance->IsChannel(it->c_str()))
-					chanrec::JoinUser(ServerInstance, user, it->c_str(), false, "", ServerInstance->Time(true));
+					Channel::JoinUser(ServerInstance, user, it->c_str(), false, "", ServerInstance->Time(true));
 		}
 
 };

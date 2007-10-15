@@ -22,7 +22,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /KLINE
  */
-CmdResult cmd_kline::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_kline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{

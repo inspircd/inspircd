@@ -58,7 +58,7 @@ enum ModeMasks
 
 /**
  * These fixed values can be used to proportionally compare module-defined prefixes to known values.
- * For example, if your module queries a chanrec, and is told that user 'joebloggs' has the prefix
+ * For example, if your module queries a Channel, and is told that user 'joebloggs' has the prefix
  * '$', and you dont know what $ means, then you can compare it to these three values to determine
  * its worth against them. For example if '$' had a value of 15000, you would know it is of higher
  * status than voice, but lower status than halfop.
@@ -186,7 +186,7 @@ class CoreExport ModeHandler : public Extensible
 	 * Get the 'value' of this modes prefix.
 	 * determines which to display when there are multiple.
 	 * The mode with the highest value is ranked first. See the
-	 * PrefixModeValue enum and chanrec::GetPrefixValue() for
+	 * PrefixModeValue enum and Channel::GetPrefixValue() for
 	 * more information.
 	 */
 	virtual unsigned int GetPrefixRank();
@@ -223,21 +223,21 @@ class CoreExport ModeHandler : public Extensible
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
 	 * without any parameter or other modes in the command.
 	 * @param user The user issuing the command
 	 * @param channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
 	 */
-	virtual void DisplayList(userrec* user, chanrec* channel);
+	virtual void DisplayList(User* user, Channel* channel);
 
 	/**
 	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)
 	 * @param user The user issuing the command
 	 * @param channel The channel tehy're requesting an item list of (e.g. a banlist, or an exception list etc)
 	 */
-	virtual void DisplayEmptyList(userrec* user, chanrec* channel);
+	virtual void DisplayEmptyList(User* user, Channel* channel);
 
 	/**
 	 * If your mode needs special action during a server sync to determine which side wins when comparing timestamps,
@@ -251,7 +251,7 @@ class CoreExport ModeHandler : public Extensible
 	 * @param channel The channel we are checking against
 	 * @return True if the other side wins the merge, false if we win the merge for this mode.
 	 */
-	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel);
+	virtual bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel);
 
 	/**
 	 * When a remote server needs to bounce a set of modes, it will call this method for every mode
@@ -266,7 +266,7 @@ class CoreExport ModeHandler : public Extensible
 	 * the current setting for this mode set locally, when the bool is true, or, the parameter given.
 	 * This allows the local server to enforce our locally set parameters back to a remote server.
 	 */
-	virtual ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter);
+	virtual ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter);
 
 	/**
 	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.
@@ -276,7 +276,7 @@ class CoreExport ModeHandler : public Extensible
 	 * your mode properly from each user.
 	 * @param user The user which the server wants to remove your mode from
 	 */
-	virtual void RemoveMode(userrec* user);
+	virtual void RemoveMode(User* user);
 
 	/**
 	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.
@@ -286,7 +286,7 @@ class CoreExport ModeHandler : public Extensible
 	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
 	 * @param channel The channel which the server wants to remove your mode from
 	 */
-	virtual void RemoveMode(chanrec* channel);
+	virtual void RemoveMode(Channel* channel);
 };
 
 /**
@@ -345,7 +345,7 @@ class CoreExport ModeWatcher : public Extensible
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding, ModeType type);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -356,7 +356,7 @@ class CoreExport ModeWatcher : public Extensible
 	 * @param adding True if the mode is being added and false if it is being removed
 	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
-	virtual void AfterMode(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter, bool adding, ModeType type);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
@@ -387,7 +387,7 @@ class CoreExport ModeParser : public classbase
 	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
-	void DisplayCurrentModes(userrec *user, userrec* targetuser, chanrec* targetchannel, const char* text);
+	void DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
@@ -403,13 +403,13 @@ class CoreExport ModeParser : public classbase
 	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
 	 */
-	userrec* SanityChecks(userrec *user,const char *dest,chanrec *chan,int status);
+	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
 	/** Grant a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
-	const char* Grant(userrec *d,chanrec *chan,int MASK);
+	const char* Grant(User *d,Channel *chan,int MASK);
 	/** Revoke a built in privilage (e.g. ops, halfops, voice) to a user on a channel
 	 */
-	const char* Revoke(userrec *d,chanrec *chan,int MASK);
+	const char* Revoke(User *d,Channel *chan,int MASK);
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *
@@ -466,11 +466,11 @@ class CoreExport ModeParser : public classbase
 	 * they would be from a MODE command.
 	 * @param pcnt The number of items in the parameters array
 	 * @param user The user setting or removing the modes. When the modes are set
-	 * by a server, an 'uninitialized' userrec is used, where *user::nick == NULL
+	 * by a server, an 'uninitialized' User is used, where *user::nick == NULL
 	 * and *user->server == NULL.
 	 * @param servermode True if a server is setting the mode.
 	 */
-	void Process(const char** parameters, int pcnt, userrec *user, bool servermode);
+	void Process(const char** parameters, int pcnt, User *user, bool servermode);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
@@ -520,7 +520,7 @@ class CoreExport ModeParser : public classbase
 	 * @param channel The channel name to look up the privilages of the user for
 	 * @return The mode string.
 	 */
-	std::string ModeString(userrec* user, chanrec* channel);
+	std::string ModeString(User* user, Channel* channel);
 };
 
 #endif

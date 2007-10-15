@@ -27,7 +27,7 @@ class ChanFilter : public ListModeBase
  public:
 	ChanFilter(InspIRCd* Instance) : ListModeBase(Instance, 'g', "End of channel spamfilter list", "941", "940", false, "chanfilter") { }
 	
-	virtual bool ValidateParam(userrec* user, chanrec* chan, std::string &word)
+	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
 		if ((word.length() > 35) || (word.empty()))
 		{
@@ -38,18 +38,18 @@ class ChanFilter : public ListModeBase
 		return true;
 	}
 	
-	virtual bool TellListTooLong(userrec* user, chanrec* chan, std::string &word)
+	virtual bool TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteServ("939 %s %s %s :Channel spamfilter list is full",user->nick, chan->name, word.c_str());
 		return true;
 	}
 	
-	virtual void TellAlreadyOnList(userrec* user, chanrec* chan, std::string &word)
+	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteServ("937 %s %s :The word %s is already on the spamfilter list",user->nick, chan->name,word.c_str());
 	}
 	
-	virtual void TellNotSet(userrec* user, chanrec* chan, std::string &word)
+	virtual void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteServ("938 %s %s :No such spamfilter word is set",user->nick, chan->name);
 	}
@@ -76,17 +76,17 @@ class ModuleChanFilter : public Module
 		List[I_OnCleanup] = List[I_OnChannelDelete] = List[I_OnRehash] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnSyncChannel] = 1;
 	}
 
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		cf->DoChannelDelete(chan);
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		cf->DoRehash();
 	}
 
-	virtual int ProcessMessages(userrec* user,chanrec* chan,std::string &text)
+	virtual int ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
 		if (!IS_LOCAL(user) || CHANOPS_EXEMPT(ServerInstance, 'g') && chan->GetStatus(user) == STATUS_OP)
 			return 0;
@@ -112,11 +112,11 @@ class ModuleChanFilter : public Module
 		return 0;
 	}
 
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
-			return ProcessMessages(user,(chanrec*)dest,text);
+			return ProcessMessages(user,(Channel*)dest,text);
 		}
 		else return 0;
 	}
@@ -126,12 +126,12 @@ class ModuleChanFilter : public Module
 		cf->DoCleanup(target_type, item);
 	}
 	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 	
-	virtual void OnSyncChannel(chanrec* chan, Module* proto, void* opaque)
+	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		cf->DoSyncChannel(chan, proto, opaque);
 	}

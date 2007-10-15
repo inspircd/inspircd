@@ -143,13 +143,13 @@ void ServerConfig::Update005()
 	}
 }
 
-void ServerConfig::Send005(userrec* user)
+void ServerConfig::Send005(User* user)
 {
 	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
 		user->WriteServ("005 %s %s", user->nick, line->c_str());
 }
 
-bool ServerConfig::CheckOnce(char* tag, bool bail, userrec* user)
+bool ServerConfig::CheckOnce(char* tag, bool bail, User* user)
 {
 	int count = ConfValueEnum(this->config_data, tag);
 
@@ -586,7 +586,7 @@ bool DoneMaxBans(ServerConfig* conf, const char* tag)
 	return true;
 }
 
-void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, userrec* user)
+void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail, User* user)
 {
 	ServerInstance->Log(DEFAULT, "There were errors in your configuration file: %s", errormessage.c_str());
 	if (bail)
@@ -625,7 +625,7 @@ void ServerConfig::ReportConfigError(const std::string &errormessage, bool bail,
 	}
 }
 
-void ServerConfig::Read(bool bail, userrec* user)
+void ServerConfig::Read(bool bail, User* user)
 {
 	static char debug[MAXBUF];	/* Temporary buffer for debugging value */
 	static char maxkeep[MAXBUF];	/* Temporary buffer for WhoWasMaxKeep value */

@@ -28,7 +28,7 @@ class ModuleWaitPong : public Module
 		OnRehash(NULL,"");
 	}
 	
-	virtual void OnRehash(userrec* user, const std::string &param)
+	virtual void OnRehash(User* user, const std::string &param)
 	{
 		ConfigReader Conf(ServerInstance);
 		
@@ -58,7 +58,7 @@ class ModuleWaitPong : public Module
 		return (char*)out;
 	}
 	
-	virtual int OnUserRegister(userrec* user)
+	virtual int OnUserRegister(User* user)
 	{
 		char* pingrpl = RandString(10);
 		
@@ -71,7 +71,7 @@ class ModuleWaitPong : public Module
 		return 0;
 	}
 	
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec* user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User* user, bool validated, const std::string &original_line)
 	{
 		if (command == "PONG")
 		{
@@ -89,7 +89,7 @@ class ModuleWaitPong : public Module
 				else
 				{
 					if(killonbadreply)
-						userrec::QuitUser(ServerInstance, user, "Incorrect ping reply for registration");
+						User::QuitUser(ServerInstance, user, "Incorrect ping reply for registration");
 					return 1;
 				}
 			}
@@ -97,13 +97,13 @@ class ModuleWaitPong : public Module
 		return 0;
 	}
 
-	virtual bool OnCheckReady(userrec* user)
+	virtual bool OnCheckReady(User* user)
 	{
 		char* pingrpl;
 		return (!user->GetExt(extenstr, pingrpl));
 	}
 	
-	virtual void OnUserDisconnect(userrec* user)
+	virtual void OnUserDisconnect(User* user)
 	{
 		char* pingrpl;
 		user->GetExt(extenstr, pingrpl);
@@ -119,7 +119,7 @@ class ModuleWaitPong : public Module
 	{
 		if (target_type == TYPE_USER)
 		{
-			userrec* user = (userrec*)item;
+			User* user = (User*)item;
 			char* pingrpl;
 			user->GetExt(extenstr, pingrpl);
 			

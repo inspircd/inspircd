@@ -230,7 +230,7 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &li
 }
 
 /* returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(chanrec* c, TreeServerList &list, char status, const CUList &exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
 	CUList *ulist;
 	switch (status)
@@ -277,7 +277,7 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 			if ((*(params[0].c_str()) != '#') && (*(params[0].c_str()) != '$'))
 			{
 				// special routing for private messages/notices
-				userrec* d = ServerInstance->FindNick(params[0]);
+				User* d = ServerInstance->FindNick(params[0]);
 				if (d)
 				{
 					std::deque<std::string> par;
@@ -297,8 +297,8 @@ bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, cons
 			}
 			else
 			{
-				chanrec* c = ServerInstance->FindChan(params[0]);
-				userrec* u = ServerInstance->FindNick(prefix);
+				Channel* c = ServerInstance->FindChan(params[0]);
+				User* u = ServerInstance->FindNick(prefix);
 				if (c && u)
 				{
 					CUList elist;

@@ -61,7 +61,7 @@ class ModuleFilterPCRE : public FilterBase
 	{
 	}
 
-	virtual FilterResult* FilterMatch(userrec* user, const std::string &text, int flags)
+	virtual FilterResult* FilterMatch(User* user, const std::string &text, int flags)
 	{
 		for (std::vector<PCREFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 		{
@@ -131,7 +131,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{		
 		ConfigReader MyConf(ServerInstance);
 
@@ -164,7 +164,7 @@ class ModuleFilterPCRE : public FilterBase
 		}
 	}
 
-	virtual int OnStats(char symbol, userrec* user, string_list &results)
+	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 's')
 		{

@@ -90,7 +90,7 @@ class NickFlood : public ModeHandler
  public:
 	NickFlood(InspIRCd* Instance) : ModeHandler(Instance, 'F', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		nickfloodsettings* x;
 		if (channel->GetExt("nickflood",x))
@@ -99,13 +99,13 @@ class NickFlood : public ModeHandler
 			return std::make_pair(false, parameter);
 	} 
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		nickfloodsettings* dummy;
 
@@ -219,14 +219,14 @@ class ModuleNickFlood : public Module
 			throw ModuleException("Could not add new modes!");
 	}
 
-	virtual int OnUserPreNick(userrec* user, const std::string &newnick)
+	virtual int OnUserPreNick(User* user, const std::string &newnick)
 	{
 		if (isdigit(newnick[0])) /* allow switches to UID */
 			return 0;
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			chanrec *channel = i->first;
+			Channel *channel = i->first;
 
 			nickfloodsettings *f;
 			if (channel->GetExt("nickflood", f))
@@ -254,7 +254,7 @@ class ModuleNickFlood : public Module
 		return 0;
 	}
 	
-	void OnChannelDelete(chanrec* chan)
+	void OnChannelDelete(Channel* chan)
 	{
 		nickfloodsettings *f;
 		if (chan->GetExt("nickflood",f))

@@ -85,7 +85,7 @@ class CoreExport UserResolver : public Resolver
  private:
 	/** User this class is 'attached' to.
 	 */
-	userrec* bound_user;
+	User* bound_user;
 	/** File descriptor teh lookup is bound to
 	 */
 	int bound_fd;
@@ -100,7 +100,7 @@ class CoreExport UserResolver : public Resolver
 	 * @param qt The query type
 	 * @param cache Modified by the constructor if the result was cached
 	 */
-	UserResolver(InspIRCd* Instance, userrec* user, std::string to_resolve, QueryType qt, bool &cache);
+	UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache);
 
 	/** Called on successful lookup
 	 * @param result Result string
@@ -395,7 +395,7 @@ typedef std::vector<ConnectClass> ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-typedef std::map<chanrec*, char> UserChanList;
+typedef std::map<Channel*, char> UserChanList;
 
 /** Shorthand for an iterator into a UserChanList
  */
@@ -403,10 +403,10 @@ typedef UserChanList::iterator UCListIter;
 
 /* Required forward declaration
  */
-class userrec;
+class User;
 
 /** Visibility data for a user.
- * If a user has a non-null instance of this class in their userrec,
+ * If a user has a non-null instance of this class in their User,
  * then it is used to determine if this user is visible to other users
  * or not.
  */
@@ -423,7 +423,7 @@ class CoreExport VisData
 	 * @param user The other user to compare to
 	 * @return true True if the user is visible to the other user, false if not
 	 */
-	virtual bool VisibleTo(userrec* user);
+	virtual bool VisibleTo(User* user);
 };
 
 /** Holds all information about a user
@@ -433,12 +433,12 @@ class CoreExport VisData
  * by nickname, or the FindDescriptor method of the InspIRCd class to find a specific user by their
  * file descriptor value.
  */
-class CoreExport userrec : public connection
+class CoreExport User : public connection
 {
  private:
 	/** Pointer to creator.
 	 * This is required to make use of core functions
-	 * from within the userrec class.
+	 * from within the User class.
 	 */
 	InspIRCd* ServerInstance;
 
@@ -485,14 +485,14 @@ class CoreExport userrec : public connection
  public:
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
-	 * When this class completes its lookup, userrec::dns_done
+	 * When this class completes its lookup, User::dns_done
 	 * will be set from false to true.
 	 */
 	UserResolver* res_forward;
 
 	/** Resolvers for looking up this users hostname
-	 * This is instantiated by userrec::StartDNSLookup(),
-	 * and on success, instantiates userrec::res_reverse.
+	 * This is instantiated by User::StartDNSLookup(),
+	 * and on success, instantiates User::res_reverse.
 	 */
 	UserResolver* res_reverse;
 
@@ -506,7 +506,7 @@ class CoreExport userrec : public connection
 
 	/** Starts a DNS lookup of the user's IP.
 	 * This will cause two UserResolver classes to be instantiated.
-	 * When complete, these objects set userrec::dns_done to true.
+	 * When complete, these objects set User::dns_done to true.
 	 */
 	void StartDNSLookup();
 
@@ -529,7 +529,7 @@ class CoreExport userrec : public connection
 	char ident[IDENTMAX+2];
 
 	/** The host displayed to non-opers (used for cloaking etc).
-	 * This usually matches the value of userrec::host.
+	 * This usually matches the value of User::host.
 	 */
 	char dhost[65];
 
@@ -542,7 +542,7 @@ class CoreExport userrec : public connection
 	 * this is an array of values in a similar way to channel modes.
 	 * A value of 1 in field (modeletter-65) indicates that the mode is
 	 * set, for example, to work out if mode +s is set, we  check the field
-	 * userrec::modes['s'-65] != 0.
+	 * User::modes['s'-65] != 0.
 	 * The following RFC characters o, w, s, i have constants defined via an
 	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
 	 */
@@ -692,7 +692,7 @@ class CoreExport userrec : public connection
 	 * @param Instance Creator instance
 	 * @param uid User UUID, or empty to allocate one automatically
 	 */
-	userrec(InspIRCd* Instance, const std::string &uid = "");
+	User(InspIRCd* Instance, const std::string &uid = "");
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -775,7 +775,7 @@ class CoreExport userrec : public connection
 	virtual void RemoveInvite(const irc::string &channel);
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
-	 * This is done by looking up their oper type from userrec::oper, then referencing
+	 * This is done by looking up their oper type from User::oper, then referencing
 	 * this to their oper classes and checking the commands they can execute.
 	 * @param command A command (should be all CAPS)
 	 * @return True if this user can execute the command
@@ -885,7 +885,7 @@ class CoreExport userrec : public connection
 	 * @param oreason The quit reason to show to opers
 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
-	static void QuitUser(InspIRCd* Instance, userrec *user, const std::string &r, const char* oreason = "");
+	static void QuitUser(InspIRCd* Instance, User *user, const std::string &r, const char* oreason = "");
 
 	/** Add the user to WHOWAS system
 	 */
@@ -910,9 +910,9 @@ class CoreExport userrec : public connection
 	 * You should not call this function directly. It is used by the core
 	 * to update the users hash entry on a nickchange.
 	 * @param New new user_hash key
-	 * @return Pointer to userrec in hash (usually 'this')
+	 * @return Pointer to User in hash (usually 'this')
 	 */
-	userrec* UpdateNickHash(const char* New);
+	User* UpdateNickHash(const char* New);
 
 	/** Force a nickname change.
 	 * If the nickname change fails (for example, because the nick in question
@@ -924,7 +924,7 @@ class CoreExport userrec : public connection
 	bool ForceNickChange(const char* newnick);
 
 	/** Add a client to the system.
-	 * This will create a new userrec, insert it into the user_hash,
+	 * This will create a new User, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.
 	 * @param Instance a pointer to the server instance
 	 * @param socket The socket id (file descriptor) this user is on
@@ -952,7 +952,7 @@ class CoreExport userrec : public connection
 
 	/** Remove all clone counts from the user, you should
 	 * use this if you change the user's IP address in
-	 * userrec::ip after they have registered.
+	 * User::ip after they have registered.
 	 */
 	void RemoveCloneCounts();
 
@@ -982,27 +982,27 @@ class CoreExport userrec : public connection
 	 * @param user The user to prepend the :nick!user@host of
 	 * @param text A std::string to send to the user
 	 */
-	void WriteFrom(userrec *user, const std::string &text);
+	void WriteFrom(User *user, const std::string &text);
 
 	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
 	 * @param user The user to prepend the :nick!user@host of
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void WriteFrom(userrec *user, const char* text, ...);
+	void WriteFrom(User *user, const char* text, ...);
 
 	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
 	 * @param dest The user to route the message to
 	 * @param text A std::string to send to the user
 	 */
-	void WriteTo(userrec *dest, const std::string &data);
+	void WriteTo(User *dest, const std::string &data);
 
 	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
 	 * @param dest The user to route the message to
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
-	void WriteTo(userrec *dest, const char *data, ...);
+	void WriteTo(User *dest, const char *data, ...);
 
 	/** Write to all users that can see this user (including this user in the list), appending CR/LF
 	 * @param text A std::string to send to the users
@@ -1026,7 +1026,7 @@ class CoreExport userrec : public connection
 	 */
 	void WriteCommonExcept(const std::string &text);
 
-	/** Write a quit message to all common users, as in userrec::WriteCommonExcept but with a specific
+	/** Write a quit message to all common users, as in User::WriteCommonExcept but with a specific
 	 * quit message for opers only.
 	 * @param normal_text Normal user quit message
 	 * @param oper_text Oper only quit message
@@ -1050,10 +1050,10 @@ class CoreExport userrec : public connection
 	 * @param other The other user to compare the channel list against
 	 * @return True if the given user shares at least one channel with this user
 	 */
-	bool SharesChannelWith(userrec *other);
+	bool SharesChannelWith(User *other);
 
 	/** Change the displayed host of a user.
-	 * ALWAYS use this function, rather than writing userrec::dhost directly,
+	 * ALWAYS use this function, rather than writing User::dhost directly,
 	 * as this triggers module events allowing the change to be syncronized to
 	 * remote servers. This will also emulate a QUIT and rejoin (where configured)
 	 * before setting their host field.
@@ -1063,7 +1063,7 @@ class CoreExport userrec : public connection
 	bool ChangeDisplayedHost(const char* host);
 
 	/** Change the ident (username) of a user.
-	 * ALWAYS use this function, rather than writing userrec::ident directly,
+	 * ALWAYS use this function, rather than writing User::ident directly,
 	 * as this correctly causes the user to seem to quit (where configured)
 	 * before setting their ident field.
 	 * @param host The new ident to set
@@ -1072,7 +1072,7 @@ class CoreExport userrec : public connection
 	bool ChangeIdent(const char* newident);
 
 	/** Change a users realname field.
-	 * ALWAYS use this function, rather than writing userrec::fullname directly,
+	 * ALWAYS use this function, rather than writing User::fullname directly,
 	 * as this triggers module events allowing the change to be syncronized to
 	 * remote servers.
 	 * @param gecos The user's new realname
@@ -1095,14 +1095,14 @@ class CoreExport userrec : public connection
 	 * @param The user to send the channel list to if it is not too long
 	 * @return This user's channel list
 	 */
-	std::string ChannelList(userrec* source);
+	std::string ChannelList(User* source);
 
 	/** Split the channel list in cl which came from dest, and spool it to this user
 	 * Used internally by WHOIS
 	 * @param dest The user the original channel list came from
-	 * @param cl The  channel list as a string obtained from userrec::ChannelList()
+	 * @param cl The  channel list as a string obtained from User::ChannelList()
 	 */
-	void SplitChanList(userrec* dest, const std::string &cl);
+	void SplitChanList(User* dest, const std::string &cl);
 
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!
@@ -1142,7 +1142,7 @@ class CoreExport userrec : public connection
 
 	/** Default destructor
 	 */
-	virtual ~userrec();
+	virtual ~User();
 };
 
 /* Configuration callbacks */

@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_reloadmodule(Instance);
 }
 
-CmdResult cmd_reloadmodule::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_reloadmodule::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (ServerInstance->Modules->Unload(parameters[0]))
 	{

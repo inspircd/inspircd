@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_pong(Instance);
 }
 
-CmdResult cmd_pong::Handle (const char** parameters, int pcnt, userrec *user)
+CmdResult cmd_pong::Handle (const char** parameters, int pcnt, User *user)
 {
 	// set the user as alive so they survive to next ping
 	user->lastping = 1;

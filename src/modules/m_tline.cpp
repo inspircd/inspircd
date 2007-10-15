@@ -27,7 +27,7 @@ class cmd_tline : public Command
 		this->syntax = "<mask>";
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		float n_counted = 0;
 		float n_matched = 0;

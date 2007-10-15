@@ -23,7 +23,7 @@ inline int strtoint(const std::string &str)
 	return result;
 }
 
-typedef std::map<userrec*, time_t> delaylist;
+typedef std::map<User*, time_t> delaylist;
 
 /** Handles channel mode +J
  */
@@ -32,7 +32,7 @@ class KickRejoin : public ModeHandler
  public:
 	KickRejoin(InspIRCd* Instance) : ModeHandler(Instance, 'J', 1, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModePair ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+	ModePair ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 	{
 		if (channel->IsModeSet('J'))
 			return std::make_pair(true, channel->GetModeParameter('J'));
@@ -40,13 +40,13 @@ class KickRejoin : public ModeHandler
 			return std::make_pair(false, parameter);
 	} 
 
-	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, chanrec* channel)
+	bool CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
 	{
 		/* When TS is equal, the alphabetically later one wins */
 		return (their_param < our_param);
 	}
 	
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (!adding)
 		{
@@ -128,14 +128,14 @@ public:
 			throw ModuleException("Could not add new modes!");
 	}
 
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{
 			delaylist* dl;
 			if (chan->GetExt("norejoinusers", dl))
 			{
-				std::vector<userrec*> itemstoremove;
+				std::vector<User*> itemstoremove;
 			
 				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 				{
@@ -168,7 +168,7 @@ public:
 		return 0;
 	}
 		
-	virtual void OnUserKick(userrec* source, userrec* user, chanrec* chan, const std::string &reason, bool &silent)
+	virtual void OnUserKick(User* source, User* user, Channel* chan, const std::string &reason, bool &silent)
 	{
 		if (chan->IsModeSet('J') && (source != user))
 		{
@@ -182,7 +182,7 @@ public:
 		}
 	}
 	
-	virtual void OnChannelDelete(chanrec* chan)
+	virtual void OnChannelDelete(Channel* chan)
 	{
 		delaylist* dl;
 			
@@ -196,7 +196,7 @@ public:
 	virtual void OnCleanup(int target_type, void* item)
 	{
 		if(target_type == TYPE_CHANNEL)
-			OnChannelDelete((chanrec*)item);
+			OnChannelDelete((Channel*)item);
 	}
 
 	virtual void Implements(char* List)

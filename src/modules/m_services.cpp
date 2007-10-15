@@ -25,7 +25,7 @@ class Channel_r : public ModeHandler
  public:
 	Channel_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
 		if ((ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
@@ -49,7 +49,7 @@ class User_r : public ModeHandler
  public:
 	User_r(InspIRCd* Instance) : ModeHandler(Instance, 'r', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if ((kludgeme) || (ServerInstance->ULine(source->nick)) || (ServerInstance->ULine(source->server)) || (!*source->server || (strchr(source->nick,'.'))))
 		{
@@ -75,7 +75,7 @@ class Channel_R : public ModeHandler
  public:
 	Channel_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -105,7 +105,7 @@ class User_R : public ModeHandler
  public:
 	User_R(InspIRCd* Instance) : ModeHandler(Instance, 'R', 0, 0, false, MODETYPE_USER, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -135,7 +135,7 @@ class Channel_M : public ModeHandler
  public:
 	Channel_M(InspIRCd* Instance) : ModeHandler(Instance, 'M', 0, 0, false, MODETYPE_CHANNEL, false) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
@@ -189,7 +189,7 @@ class ModuleServices : public Module
 	}
 
 	/* <- :stitch.chatspike.net 307 w00t w00t :is a registered nick */
-	virtual void OnWhois(userrec* source, userrec* dest)
+	virtual void OnWhois(User* source, User* dest)
 	{
 		if (dest->IsModeSet('r'))
 		{
@@ -203,7 +203,7 @@ class ModuleServices : public Module
 		List[I_OnWhois] = List[I_OnUserPostNick] = List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = List[I_OnUserPreJoin] = 1;
 	}
 
-	virtual void OnUserPostNick(userrec* user, const std::string &oldnick)
+	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet('r') && irc::string(user->nick) != oldnick)
@@ -217,14 +217,14 @@ class ModuleServices : public Module
 		}
 	}
 	
-	virtual int OnUserPreMessage(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
 			return 0;
 
 		if (target_type == TYPE_CHANNEL)
 		{
-			chanrec* c = (chanrec*)dest;
+			Channel* c = (Channel*)dest;
 			if ((c->IsModeSet('M')) && (!user->IsModeSet('r')))
 			{
 				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
@@ -239,7 +239,7 @@ class ModuleServices : public Module
 		}
 		if (target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)dest;
+			User* u = (User*)dest;
 			if ((u->IsModeSet('R')) && (!user->IsModeSet('r')))
 			{
 				if ((ServerInstance->ULine(user->nick)) || (ServerInstance->ULine(user->server)))
@@ -255,12 +255,12 @@ class ModuleServices : public Module
 		return 0;
 	}
  	
-	virtual int OnUserPreNotice(userrec* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status, exempt_list);
 	}
  	
-	virtual int OnUserPreJoin(userrec* user, chanrec* chan, const char* cname, std::string &privs)
+	virtual int OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs)
 	{
 		if (chan)
 		{

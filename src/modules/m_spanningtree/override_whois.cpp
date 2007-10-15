@@ -33,11 +33,11 @@
 	
 /* $ModDep: m_spanningtree/timesynctimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h */
 
-int ModuleSpanningTree::HandleRemoteWhois(const char** parameters, int pcnt, userrec* user)
+int ModuleSpanningTree::HandleRemoteWhois(const char** parameters, int pcnt, User* user)
 {
 	if ((IS_LOCAL(user)) && (pcnt > 1))
 	{
-		userrec* remote = ServerInstance->FindNick(parameters[1]);
+		User* remote = ServerInstance->FindNick(parameters[1]);
 		if ((remote) && (remote->GetFd() < 0))
 		{
 			std::deque<std::string> params;

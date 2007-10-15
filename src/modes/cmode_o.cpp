@@ -28,9 +28,9 @@ unsigned int ModeChannelOp::GetPrefixRank()
 	return OP_VALUE;
 }
 
-ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel, const std::string &parameter)
+ModePair ModeChannelOp::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
 {
-	userrec* x = ServerInstance->FindNick(parameter);
+	User* x = ServerInstance->FindNick(parameter);
 	if (x)
 	{
 		if (channel->GetStatusFlags(x) & UCMODE_OP)
@@ -46,7 +46,7 @@ ModePair ModeChannelOp::ModeSet(userrec* source, userrec* dest, chanrec* channel
 }
 
 
-void ModeChannelOp::RemoveMode(chanrec* channel)
+void ModeChannelOp::RemoveMode(Channel* channel)
 {
 	CUList* list = channel->GetOppedUsers();
 	CUList copy;
@@ -54,7 +54,7 @@ void ModeChannelOp::RemoveMode(chanrec* channel)
 
 	for (CUList::iterator i = list->begin(); i != list->end(); i++)
 	{
-		userrec* n = i->first;
+		User* n = i->first;
 		copy.insert(std::make_pair(n,n->nick));
 	}
 
@@ -66,11 +66,11 @@ void ModeChannelOp::RemoveMode(chanrec* channel)
 	}
 }
 
-void ModeChannelOp::RemoveMode(userrec* user)
+void ModeChannelOp::RemoveMode(User* user)
 {
 }
 
-ModeAction ModeChannelOp::OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelOp::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 
@@ -94,9 +94,9 @@ ModeAction ModeChannelOp::OnModeChange(userrec* source, userrec* dest, chanrec* 
 		return MODEACTION_DENY;
 }
 
-std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,int status)
+std::string ModeChannelOp::AddOp(User *user,const char* dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{
@@ -122,9 +122,9 @@ std::string ModeChannelOp::AddOp(userrec *user,const char* dest,chanrec *chan,in
 	return "";
 }
 
-std::string ModeChannelOp::DelOp(userrec *user,const char *dest,chanrec *chan,int status)
+std::string ModeChannelOp::DelOp(User *user,const char *dest,Channel *chan,int status)
 {
-	userrec *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
+	User *d = ServerInstance->Modes->SanityChecks(user,dest,chan,status);
 
 	if (d)
 	{

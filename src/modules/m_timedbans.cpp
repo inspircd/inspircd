@@ -40,9 +40,9 @@ class cmd_tban : public Command
 		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
-		chanrec* channel = ServerInstance->FindChan(parameters[0]);
+		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (channel)
 		{
 			int cm = channel->GetStatus(user);
@@ -125,7 +125,7 @@ class ModuleTimedBans : public Module
 		List[I_OnDelBan] = List[I_OnBackgroundTimer] = 1;
 	}
 
-	virtual int OnDelBan(userrec* source, chanrec* chan, const std::string &banmask)
+	virtual int OnDelBan(User* source, Channel* chan, const std::string &banmask)
 	{
 		irc::string listitem = banmask.c_str();
 		irc::string thischan = chan->name;
@@ -152,7 +152,7 @@ class ModuleTimedBans : public Module
 			{
 				if (curtime > i->expire)
 				{
-					chanrec* cr = ServerInstance->FindChan(i->channel);
+					Channel* cr = ServerInstance->FindChan(i->channel);
 					again = true;
 					if (cr)
 					{

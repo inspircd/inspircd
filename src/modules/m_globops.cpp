@@ -29,7 +29,7 @@ class cmd_globops : public Command
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const char** parameters, int pcnt, userrec *user)
+	CmdResult Handle (const char** parameters, int pcnt, User *user)
 	{
 		std::string line = "From " + std::string(user->nick) + ": ";
 		for (int i = 0; i < pcnt; i++)

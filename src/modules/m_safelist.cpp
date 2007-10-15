@@ -48,7 +48,7 @@ class ModuleSafeList : public Module
 	{
 	}
 
-	virtual void OnRehash(userrec* user, const std::string &parameter)
+	virtual void OnRehash(User* user, const std::string &parameter)
 	{
 		ConfigReader MyConf(ServerInstance);
 		ThrottleSecs = MyConf.ReadInteger("safelist", "throttle", "60", 0, true);
@@ -71,7 +71,7 @@ class ModuleSafeList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */ 
-	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, userrec *user, bool validated, const std::string &original_line)
+	virtual int OnPreCommand(const std::string &command, const char** parameters, int pcnt, User *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -88,7 +88,7 @@ class ModuleSafeList : public Module
 	 * HandleList()
 	 *   Handle (override) the LIST command.
 	 */
-	int HandleList(const char** parameters, int pcnt, userrec* user)
+	int HandleList(const char** parameters, int pcnt, User* user)
 	{
 		int minusers = 0, maxusers = 0;
 
@@ -161,13 +161,13 @@ class ModuleSafeList : public Module
 		return 1;
 	}
 
-	virtual void OnBufferFlushed(userrec* user)
+	virtual void OnBufferFlushed(User* user)
 	{
 		char buffer[MAXBUF];
 		ListData* ld;
 		if (user->GetExt("safelist_cache", ld))
 		{
-			chanrec* chan = NULL;
+			Channel* chan = NULL;
 			long amount_sent = 0;
 			do
 			{
@@ -231,7 +231,7 @@ class ModuleSafeList : public Module
 	{
 		if(target_type == TYPE_USER)
 		{
-			userrec* u = (userrec*)item;
+			User* u = (User*)item;
 			ListData* ld;
 			u->GetExt("safelist_cache", ld);
 			if (ld)
@@ -255,7 +255,7 @@ class ModuleSafeList : public Module
 		output.append(" SAFELIST");
 	}
 
-	virtual void OnUserQuit(userrec* user, const std::string &message, const std::string &oper_message)
+	virtual void OnUserQuit(User* user, const std::string &message, const std::string &oper_message)
 	{
 		this->OnCleanup(TYPE_USER,user);
 	}

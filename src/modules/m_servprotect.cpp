@@ -28,7 +28,7 @@ class ServProtectMode : public ModeHandler
  public:
 	ServProtectMode(InspIRCd* Instance) : ModeHandler(Instance, 'k', 0, 0, false, MODETYPE_USER, true) { }
 
-	ModeAction OnModeChange(userrec* source, userrec* dest, chanrec* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		return MODEACTION_DENY;
 	}
@@ -66,7 +66,7 @@ class ModuleServProtectMode : public Module
 		return Version(1,1,0,0,VF_COMMON,API_VERSION);
 	}
 
-	virtual void OnWhois(userrec* src, userrec* dst)
+	virtual void OnWhois(User* src, User* dst)
 	{
 		if (dst->IsModeSet('k'))
 		{
@@ -74,7 +74,7 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	virtual int OnKill(userrec* src, userrec* dst, const std::string &reason)
+	virtual int OnKill(User* src, User* dst, const std::string &reason)
 	{
 		if (src == NULL)
 			return 0;
@@ -88,7 +88,7 @@ class ModuleServProtectMode : public Module
 		return 0;
 	}
 
-	virtual int OnWhoisLine(userrec* src, userrec* dst, int &numeric, std::string &text)
+	virtual int OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
 	{
 		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k'));
 	}
