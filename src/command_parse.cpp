@@ -25,24 +25,6 @@
 #include <dlfcn.h>
 #endif
 
-bool InspIRCd::ULine(const char* server)
-{
-	if (!server)
-		return false;
-	if (!*server)
-		return true;
-
-	return (Config->ulines.find(server) != Config->ulines.end());
-}
-
-bool InspIRCd::SilentULine(const char* server)
-{
-	std::map<irc::string,bool>::iterator n = Config->ulines.find(server);
-	if (n != Config->ulines.end())
-		return n->second;
-	else return false;
-}
-
 int InspIRCd::OperPassCompare(const char* data,const char* input, int tagnumber)
 {
 	int MOD_RESULT = 0;
@@ -52,11 +34,6 @@ int InspIRCd::OperPassCompare(const char* data,const char* input, int tagnumber)
 	if (MOD_RESULT == -1)
 		return 1;
 	return strcmp(data,input);
-}
-
-std::string InspIRCd::TimeString(time_t curtime)
-{
-	return std::string(ctime(&curtime),24);
 }
 
 /* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.

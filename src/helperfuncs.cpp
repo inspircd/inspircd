@@ -592,4 +592,26 @@ long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
+bool InspIRCd::ULine(const char* server)
+{
+	if (!server)
+		return false;
+	if (!*server)
+		return true;
+
+	return (Config->ulines.find(server) != Config->ulines.end());
+}
+
+bool InspIRCd::SilentULine(const char* server)
+{
+	std::map<irc::string,bool>::iterator n = Config->ulines.find(server);
+	if (n != Config->ulines.end())
+		return n->second;
+	else return false;
+}
+
+std::string InspIRCd::TimeString(time_t curtime)
+{
+	return std::string(ctime(&curtime),24);
+}
 
