@@ -109,9 +109,10 @@ int CullList::Apply()
 	{
 		std::vector<CullItem>::iterator a = list.begin();
 
-		user_hash::iterator iter = ServerInstance->clientlist->find(a->GetUser()->nick);
-		std::map<User*, User*>::iterator exemptiter = exempt.find(a->GetUser());
-		const char* preset_reason = a->GetUser()->GetOperQuit();
+		User *u = a->GetUser();
+		user_hash::iterator iter = ServerInstance->clientlist->find(u->nick);
+		std::map<User*, User*>::iterator exemptiter = exempt.find(u);
+		const char* preset_reason = u->GetOperQuit();
 		std::string reason = a->GetReason();
 		std::string oper_reason = *preset_reason ? preset_reason : a->GetOperReason();
 
@@ -120,32 +121,32 @@ int CullList::Apply()
 		if (oper_reason.length() > MAXQUIT - 1)
 			oper_reason.resize(MAXQUIT - 1);
 
-		if (a->GetUser()->registered != REG_ALL)
+		if (u->registered != REG_ALL)
 			if (ServerInstance->unregistered_count)
 				ServerInstance->unregistered_count--;
 
-		if (IS_LOCAL(a->GetUser()))
+		if (IS_LOCAL(u))
 		{
-			if ((!a->GetUser()->sendq.empty()) && (!(*a->GetUser()->GetWriteError())))
-				a->GetUser()->FlushWriteBuf();
+			if ((!u->sendq.empty()) && (!(*u->GetWriteError())))
+				u->FlushWriteBuf();
 		}
 
-		if (a->GetUser()->registered == REG_ALL)
+		if (u->registered == REG_ALL)
 		{
-			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(a->GetUser(), reason, oper_reason));
-			a->GetUser()->PurgeEmptyChannels();
-			a->GetUser()->WriteCommonQuit(reason, oper_reason);
+			FOREACH_MOD_I(ServerInstance,I_OnUserQuit,OnUserQuit(u, reason, oper_reason));
+			u->PurgeEmptyChannels();
+			u->WriteCommonQuit(reason, oper_reason);
 		}
 
-		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(a->GetUser()));
+		FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(u));
 
-		if (IS_LOCAL(a->GetUser()))
+		if (IS_LOCAL(u))
 		{
-			if (ServerInstance->Config->GetIOHook(a->GetUser()->GetPort()))
+			if (ServerInstance->Config->GetIOHook(u->GetPort()))
 			{
 				try
 				{
-					ServerInstance->Config->GetIOHook(a->GetUser()->GetPort())->OnRawSocketClose(a->GetUser()->GetFd());
+					ServerInstance->Config->GetIOHook(u->GetPort())->OnRawSocketClose(u->GetFd());
 				}
 				catch (CoreException& modexcept)
 				{
@@ -153,43 +154,43 @@ int CullList::Apply()
 				}
 			}
 
-			ServerInstance->SE->DelFd(a->GetUser());
-			a->GetUser()->CloseSocket();
+			ServerInstance->SE->DelFd(u);
+			u->CloseSocket();
 		}
 
 		/*
 		 * this must come before the ServerInstance->SNO->WriteToSnoMaskso that it doesnt try to fill their buffer with anything
 		 * if they were an oper with +sn +qQ.
 		 */
-		if (a->GetUser()->registered == REG_ALL)
+		if (u->registered == REG_ALL)
 		{
-			if (IS_LOCAL(a->GetUser()))
+			if (IS_LOCAL(u))
 			{
 				if (!a->IsSilent())
 				{
-					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s]",u->nick,u->ident,u->host,oper_reason.c_str());
 				}
 			}
 			else
 			{
-				if ((!ServerInstance->SilentULine(a->GetUser()->server)) && (!a->IsSilent()))
+				if ((!ServerInstance->SilentULine(u->server)) && (!a->IsSilent()))
 				{
-					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",a->GetUser()->server,a->GetUser()->nick,a->GetUser()->ident,a->GetUser()->host,oper_reason.c_str());
+					ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s]",u->server,u->nick,u->ident,u->host,oper_reason.c_str());
 				}
 			}
-			a->GetUser()->AddToWhoWas();
+			u->AddToWhoWas();
 		}
 
 		if (iter != ServerInstance->clientlist->end())
 		{
-			if (IS_LOCAL(a->GetUser()))
+			if (IS_LOCAL(u))
 			{
-				std::vector<User*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),a->GetUser());
+				std::vector<User*>::iterator x = find(ServerInstance->local_users.begin(),ServerInstance->local_users.end(),u);
 				if (x != ServerInstance->local_users.end())
 					ServerInstance->local_users.erase(x);
 			}
 			ServerInstance->clientlist->erase(iter);
-			delete a->GetUser();
+			delete u;
 		}
 
 		list.erase(list.begin());
