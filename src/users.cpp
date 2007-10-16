@@ -1139,6 +1139,10 @@ int User::GetProtocolFamily()
 	return sin->sin_family;
 }
 
+/*
+ * XXX the duplication here is horrid..
+ * do we really need two methods doing essentially the same thing?
+ */
 const char* User::GetIPString()
 {
 	static char buf[1024];
@@ -1173,48 +1177,6 @@ const char* User::GetIPString()
 			return buf;
 		}
 		break;
-		default:
-		break;
-	}
-	return "";
-}
-
-const char* User::GetIPString(char* buf)
-{
-	if (this->ip == NULL)
-	{
-		*buf = 0;
-		return buf;
-	}
-
-	switch (this->GetProtocolFamily())
-	{
-#ifdef SUPPORT_IP6LINKS
-		case AF_INET6:
-		{
-			static char temp[1024];
-
-			sockaddr_in6* sin = (sockaddr_in6*)this->ip;
-			inet_ntop(sin->sin6_family, &sin->sin6_addr, buf, sizeof(buf));
-			/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-			if (*buf == ':')
-			{
-				strlcpy(&temp[1], buf, sizeof(temp) - 1);
-				*temp = '0';
-				strlcpy(buf, temp, sizeof(temp));
-			}
-			return buf;
-		}
-		break;
-#endif
-		case AF_INET:
-		{
-			sockaddr_in* sin = (sockaddr_in*)this->ip;
-			inet_ntop(sin->sin_family, &sin->sin_addr, buf, sizeof(buf));
-			return buf;
-		}
-		break;
-
 		default:
 		break;
 	}

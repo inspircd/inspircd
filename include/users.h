@@ -659,12 +659,6 @@ class CoreExport User : public connection
 	 */
 	const char* GetIPString();
 
-	/** Get IP string from sockaddr, using caller-specified buffer
-	 * @param buf A buffer to use
-	 * @return The IP string
-	 */
-	const char* GetIPString(char* buf);
-
 	/* Write error string
 	 */
 	std::string WriteError;
