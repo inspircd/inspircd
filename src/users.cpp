@@ -1098,7 +1098,7 @@ void User::SetSockAddr(int protocol_family, const char* ip, int port)
 		}
 		break;
 		default:
-			ServerInstance->Log(DEBUG,"Ut oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
+			ServerInstance->Log(DEBUG,"Uh oh, I dont know protocol %d to be set on '%s'!", protocol_family, this->nick);
 		break;
 	}
 }
