@@ -973,8 +973,8 @@ void User::FullConnect()
 		ServerInstance->CallCommandHandler("LUSERS", NULL, 0, this);
 
 	/*
-	 * fix 3 by brain, move registered = 7 below these so that spurious modes and host
-	 * changes dont go out onto the network and produce 'fake direction'.
+	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
+	 * for a user that doesn't exist yet.
 	 */
 	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
 
