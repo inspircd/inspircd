@@ -552,24 +552,20 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 	User* user = NULL;
 	std::string item;
 	int translations = 0;
+	dest.clear();
 
 	switch (to)
 	{
 		case TR_NICK:
 			/* Translate single nickname */
-			ServerInstance->Log(DEBUG,"TR_NICK");
 			user = ServerInstance->FindNick(source);
 			if (user)
 			{
-				ServerInstance->Log(DEBUG,"Managed UUID");
 				dest = user->uuid;
 				translations++;
 			}
 			else
-			{
-				ServerInstance->Log(DEBUG,"Had to use source.. (%s)", source.c_str());
 				dest = source;
-			}
 		break;
 		case TR_NICKLIST:
 		{
@@ -584,7 +580,7 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 					translations++;
 				}
 				else
-					dest.append(source);
+					dest.append(item);
 				dest.append(",");
 			}
 			if (!dest.empty())
@@ -604,7 +600,7 @@ int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, st
 					translations++;
 				}
 				else
-					dest.append(source);
+					dest.append(item);
 				dest.append(" ");
 			}
 			if (!dest.empty())
