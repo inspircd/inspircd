@@ -823,11 +823,7 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 		std::string command;
 		std::string output_text;
 
-		ServerInstance->Log(DEBUG,"OnMode: %s", text.c_str());
-
 		ServerInstance->Parser->TranslateUIDs(TR_SPACENICKLIST, text, output_text);
-
-		ServerInstance->Log(DEBUG,"Translated: %s", output_text.c_str());
 
 		if (target_type == TYPE_USER)
 		{
