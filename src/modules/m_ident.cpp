@@ -63,7 +63,7 @@ class IdentRequestSocket : public EventHandler
 				memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(addy));
 				((sockaddr_in6*)addr)->sin6_port = htons(113);
 				size = sizeof(sockaddr_in6);
-				inet_pton(AF_INET6, IP.c_str(), &n);
+				inet_pton(AF_INET6, bindip.c_str(), &n);
 				memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
 				((sockaddr_in6*)s)->sin6_port = 0;
 				((sockaddr_in6*)s)->sin6_family = AF_INET6;
