@@ -6,7 +6,7 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
@@ -18,117 +18,182 @@
 
 /* $ModDesc: Provides support for RFC1413 ident lookups */
 
-class IdentRequestSocket : public BufferedSocket
+class IdentRequestSocket : public EventHandler
 {
  private:
-	User *user;
-	int original_fd;
- public:
-	IdentRequestSocket(InspIRCd *Server, User *user, int timeout, const std::string &bindip)
-		: BufferedSocket(Server, user->GetIPString(), 113, false, timeout, bindip), user(user)
-	{
-		original_fd = user->GetFd();
-		Instance->Log(DEBUG, "Ident request against user with fd %d", original_fd);
-	}
 
-	virtual bool OnConnected()
+	 User *user;
+	 InspIRCd* ServerInstance;
+	 bool done;
+	 std::string result;
+
+ public:
+
+	IdentRequestSocket(InspIRCd *Server, User* u, const std::string &bindip) : user(u), ServerInstance(Server), result(u->ident)
 	{
-		if (Instance->SE->GetRef(original_fd) == user)
+		/* connect here on instantiation, throw on immediate failure */
+
+		socklen_t size = 0;
+
+#ifdef IPV6
+		bool v6 = false;
+		if ((bindip.empty()) || bindip.find(':') != std::string::npos)
+		v6 = true;
+
+		if (v6)
+			SetFd(socket(AF_INET6, SOCK_STREAM, 0));
+		else
+#endif
+			SetFd(socket(AF_INET, SOCK_STREAM, 0));
+
+		if (GetFd() == -1)
+			throw ModuleException("Could not create socket");
+
+		sockaddr* s = new sockaddr[2];
+		sockaddr* addr = new sockaddr[2];
+	
+#ifdef IPV6
+		if (v6)
 		{
-			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
-			return false;
+			in6_addr addy;
+			in6_addr n;
+			if (inet_pton(AF_INET6, user->GetIPString(), &addy) > 0)
+			{
+				((sockaddr_in6*)addr)->sin6_family = AF_INET6;
+				memcpy(&((sockaddr_in6*)addr)->sin6_addr, &addy, sizeof(addy));
+				((sockaddr_in6*)addr)->sin6_port = htons(113);
+				size = sizeof(sockaddr_in6);
+				inet_pton(AF_INET6, IP.c_str(), &n);
+				memcpy(&((sockaddr_in6*)s)->sin6_addr, &n, sizeof(sockaddr_in6));
+				((sockaddr_in6*)s)->sin6_port = 0;
+				((sockaddr_in6*)s)->sin6_family = AF_INET6;
+			}
+		}
+		else
+#endif
+		{
+			in_addr addy;
+			in_addr n;
+			if (inet_aton(user->GetIPString(), &addy) > 0)
+			{
+				((sockaddr_in*)addr)->sin_family = AF_INET;
+				((sockaddr_in*)addr)->sin_addr = addy;
+				((sockaddr_in*)addr)->sin_port = htons(113);
+				inet_aton(bindip.c_str(), &n);
+				((sockaddr_in*)s)->sin_addr = n;
+				((sockaddr_in*)s)->sin_port = 0;
+				((sockaddr_in*)s)->sin_family = AF_INET;
+			}
 		}
 
+		if (ServerInstance->SE->Bind(GetFd(), s, size) < 0)
+		{
+			this->Close();
+			delete[] s;
+			throw ModuleException("failed to bind()");
+		}
+
+		delete[] s;
+		ServerInstance->SE->NonBlocking(GetFd());
+
+		if (ServerInstance->SE->Connect(this, (sockaddr*)addr, size) == -1 && errno != EINPROGRESS)
+		{
+			this->Close();
+			delete[] addr;
+			throw ModuleException("connect() failed");
+		}
+
+		delete[] addr;
+
+		if (!ServerInstance->SE->AddFd(this))
+		{
+			this->Close();
+			throw ModuleException("out of fds");
+		}
+
+		ServerInstance->SE->WantWrite(this);
+	}
+
+	virtual void OnConnected()
+	{
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
 		 * byte level). */
 
-		Instance->Log(DEBUG, "Sending ident request to %s", user->GetIPString());
-		
 		#ifndef IPV6
 		sockaddr_in laddr, raddr;
 		#else
 		sockaddr_in6 laddr, raddr;
 		#endif
-		
+
 		socklen_t laddrsz = sizeof(laddr);
 		socklen_t raddrsz = sizeof(raddr);
-		
+
 		if ((getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0) || (getpeername(user->GetFd(), (sockaddr*) &raddr, &raddrsz) != 0))
-		{
-			// Error
-			TidyUser();
-			return false;
-		}
-		
+			return;
+
 		char req[32];
-		
+
 		#ifndef IPV6
-		snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin_port), ntohs(laddr.sin_port));
+		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin_port), ntohs(laddr.sin_port));
 		#else
-		snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
+		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
 		#endif
 		
-		this->Write(req);
-		
-		return true;
+		if (ServerInstance->SE->Send(this, req, req_size, 0) < req_size)
+			done = true;
 	}
 
-	virtual void OnClose()
+	virtual void HandleEvent(EventType et, int errornum = 0)
 	{
-		/* There used to be a check against the fd table here, to make sure the user hadn't been
-		 * deleted but not yet had their socket closed or something along those lines, dated june
-		 * 2006. Since we added the global cull list and such, I don't *think* that is necessary
-		 * 
-		 * -- YES IT IS!!!! DO NOT REMOVE IT, THIS IS WHAT THE WARNING ABOVE THE OLD CODE SAID :P
-		 */
-		if (Instance->SE->GetRef(original_fd) == user)
+		switch (et)
 		{
-			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
-			return;
+			case EVENT_READ:
+				/* fd readable event, received ident response */
+				ReadResponse();
+			break;
+			case EVENT_WRITE:
+				/* fd writeable event, successfully connected! */
+				OnConnected();
+			break;
+			case EVENT_ERROR:
+				/* fd error event, ohshi- */
+				done = true;
+			break;
 		}
-
-		if (*user->ident == '~' && user->GetExt("ident_socket"))
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
-
-		TidyUser();
-		Instance->next_call = Instance->Time();
 	}
-	
-	virtual void OnError(BufferedSocketError e)
-	{
-		if (Instance->SE->GetRef(original_fd) == user)
-		{
-			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
-			return;
-		}
 
-		// Quick check to make sure that this hasn't been sent ;)
-		if (*user->ident == '~' && user->GetExt("ident_socket"))
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead", user->ident);
-		
-		TidyUser();
-		Instance->next_call = Instance->Time();
+	void Close()
+	{
+		ServerInstance->SE->Close(GetFd());
+		ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
 	}
-	
-	virtual bool OnDataReady()
-	{
-		if (Instance->SE->GetRef(original_fd) == user)
-		{
-			Instance->Log(DEBUG,"Oh dear, our user has gone AWOL on fd %d", original_fd);
-			return false;
-		}
 
-		char *ibuf = this->Read();
-		if (!ibuf)
-		{
-			TidyUser();
-			return false;
-		}
-		
+	bool HasResult()
+	{
+		return done;
+	}
+
+	const char* GetResult()
+	{
+		return result.c_str();
+	}
+
+	void ReadResponse()
+	{
 		// We don't really need to buffer for incomplete replies here, since IDENT replies are
 		// extremely short - there is *no* sane reason it'd be in more than one packet
-		
+
+		char ibuf[MAXBUF];
+		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
+
+		/* Cant possibly be a valid response shorter than 3 chars */
+		if (recvresult < 3)
+		{
+			done = true;
+			return;
+		}
+
 		irc::sepstream sep(ibuf, ':');
 		std::string token;
 		for (int i = 0; sep.GetToken(token); i++)
@@ -136,52 +201,40 @@ class IdentRequestSocket : public BufferedSocket
 			// We only really care about the 4th portion
 			if (i < 3)
 				continue;
-			
+
 			char ident[IDENTMAX + 2];
-			
+
 			// Truncate the ident at any characters we don't like, skip leading spaces
 			int k = 0;
 			for (const char *j = token.c_str(); *j && (k < IDENTMAX + 1); j++)
 			{
 				if (*j == ' ')
 					continue;
-				
+
 				// Rules taken from InspIRCd::IsIdent
 				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
 				{
 					ident[k++] = *j;
 					continue;
 				}
-				
+
 				break;
 			}
-			
+
 			ident[k] = '\0';
-			
+
 			// Redundant check with IsIdent, in case that changes and this doesn't (paranoia!)
-			if (*ident && Instance->IsIdent(ident))
+			if (*ident && ServerInstance->IsIdent(ident))
 			{
-				strlcpy(user->ident, ident, IDENTMAX);
-				user->WriteServ("NOTICE Auth :*** Found your ident: %s", user->ident);
-				Instance->next_call = Instance->Time();
+				result = ident;
+				ServerInstance->next_call = ServerInstance->Time();
 			}
-			
+
 			break;
 		}
 
-		TidyUser();
-		return false;
-	}
-
-	void TidyUser()
-	{
-		user->Shrink("ident_socket");
-		int* delfd;
-		if (user->GetExt("ident_socket_fd", delfd))
-		{
-			delete delfd;
-			user->Shrink("ident_socket_fd");
-		}
+		done = true;
+		return;
 	}
 };
 
@@ -194,10 +247,6 @@ class ModuleIdent : public Module
 		: Module(Me)
 	{
 		OnRehash(NULL, "");
-	}
-	
-	virtual ~ModuleIdent()
-	{
 	}
 	
 	virtual Version GetVersion()
@@ -227,9 +276,9 @@ class ModuleIdent : public Module
 		user->ident[0] = '~';
 		// Ensure that it is null terminated
 		user->ident[IDENTMAX + 1] = '\0';
-		
+
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
-		
+
 		// Get the IP that the user is connected to, and bind to that for the outgoing connection
 		#ifndef IPV6
 		sockaddr_in laddr;
@@ -237,80 +286,75 @@ class ModuleIdent : public Module
 		sockaddr_in6 laddr;
 		#endif
 		socklen_t laddrsz = sizeof(laddr);
-		
+
 		if (getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0)
 		{
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident);
 			return 0;
 		}
-		
+
 		#ifndef IPV6
 		const char *ip = inet_ntoa(laddr.sin_addr);
 		#else
 		char ip[INET6_ADDRSTRLEN + 1];
 		inet_ntop(laddr.sin6_family, &laddr.sin6_addr, ip, INET6_ADDRSTRLEN);
 		#endif
-		
-		IdentRequestSocket *isock = new IdentRequestSocket(ServerInstance, user, RequestTimeout, ip);
-		if (isock->GetFd() > -1)
+
+		IdentRequestSocket *isock = NULL;
+		try
 		{
-			user->Extend("ident_socket_fd", new int(isock->GetFd()));
-			user->Extend("ident_socket", isock);
+			isock = new IdentRequestSocket(ServerInstance, user, ip);
 		}
-		else
-			if (ServerInstance->SocketCull.find(isock) == ServerInstance->SocketCull.end())
-				ServerInstance->SocketCull[isock] = isock;
+		catch (ModuleException &e)
+		{
+			return 0;
+		}
+
+		user->Extend("ident_socket", isock);
 		return 0;
 	}
-	
+
 	virtual bool OnCheckReady(User *user)
 	{
-		return (!user->GetExt("ident_socket"));
+		/* Does user have an ident socket attached at all? */
+		IdentRequestSocket *isock = NULL;
+		if (!user->GetExt("ident_socket", isock))
+			return true;
+
+		if (isock->age < ServerInstance->Time() - RequestTimeout)
+		{
+			/* Ident timeout */
+			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
+			OnUserDisconnect(user);
+			return true;
+		}
+
+		/* Got a result yet? */
+		if (!isock->HasResult())
+			return false;
+
+		/* wooo, got a result! */
+		user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", isock->GetResult());
+		strlcpy(user->ident, isock->GetResult(), IDENTMAX+1);
+		return true;
 	}
-	
+
 	virtual void OnCleanup(int target_type, void *item)
 	{
+		/* Module unloading, tidy up users */
 		if (target_type == TYPE_USER)
-		{
-			IdentRequestSocket *isock;
-			User *user = (User*)item;
-			if (user->GetExt("ident_socket", isock))
-			{
-				int *fd;
-				if (user->GetExt("ident_socket_fd", fd))
-				{
-					if (ServerInstance->SE->GetRef(*fd) == isock)
-						isock->Close();
-
-					/* Check again, isock->Close() can confuse us */
-					if (user->GetExt("ident_socket_fd", fd))
-					{
-						user->Shrink("ident_socket_fd");
-						delete fd;
-					}
-				}
-			}
-		}
+			OnUserDisconnect((User*)item);
 	}
 
 	virtual void OnUserDisconnect(User *user)
 	{
-		IdentRequestSocket *isock;
-		if (user->GetExt("ident_socket", isock))
+		/* User disconnect (generic socket detatch event) */
+		IdentRequestSocket *isock = NULL;
+		if (user->Extend("ident_socket", isock))
 		{
-			int *fd;
-			if (user->GetExt("ident_socket_fd", fd))
-			{
-				if (ServerInstance->SE->GetRef(*fd) == isock)
-					isock->Close();
-
-				/* Check again, isock->Close() can confuse us */
-				if (user->GetExt("ident_socket_fd", fd))
-				{
-					user->Shrink("ident_socket_fd");
-					delete fd;
-				}
-			}
+			isock->Close();
+			delete isock;
+			user->Shrink("ident_socket");
 		}
 	}
 };
