@@ -79,6 +79,7 @@ class IdentRequestSocket : public EventHandler
 				((sockaddr_in*)addr)->sin_family = AF_INET;
 				((sockaddr_in*)addr)->sin_addr = addy;
 				((sockaddr_in*)addr)->sin_port = htons(113);
+				size = sizeof(sockaddr_in);
 				inet_aton(bindip.c_str(), &n);
 				((sockaddr_in*)s)->sin_addr = n;
 				((sockaddr_in*)s)->sin_port = 0;
@@ -116,6 +117,8 @@ class IdentRequestSocket : public EventHandler
 
 	virtual void OnConnected()
 	{
+		ServerInstance->Log(DEBUG,"OnConnected()");
+
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
 		 * byte level). */
@@ -158,6 +161,8 @@ class IdentRequestSocket : public EventHandler
 			break;
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
+				ServerInstance->Log(DEBUG,"EVENT_ERROR");
+				Close();
 				done = true;
 			break;
 		}
@@ -165,8 +170,12 @@ class IdentRequestSocket : public EventHandler
 
 	void Close()
 	{
-		ServerInstance->SE->Close(GetFd());
-		ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
+		if (GetFd() > -1)
+		{
+			ServerInstance->SE->Close(GetFd());
+			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
+			ServerInstance->SE->DelFd(this);
+		}
 	}
 
 	bool HasResult()
@@ -181,6 +190,8 @@ class IdentRequestSocket : public EventHandler
 
 	void ReadResponse()
 	{
+		ServerInstance->Log(DEBUG,"ReadResponse()");
+
 		// We don't really need to buffer for incomplete replies here, since IDENT replies are
 		// extremely short - there is *no* sane reason it'd be in more than one packet
 
@@ -233,6 +244,7 @@ class IdentRequestSocket : public EventHandler
 			break;
 		}
 
+		Close();
 		done = true;
 		return;
 	}
@@ -307,6 +319,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
+			ServerInstance->Log(DEBUG,"Ident exception: %s", e.GetReason());
 			return 0;
 		}
 
@@ -316,26 +329,44 @@ class ModuleIdent : public Module
 
 	virtual bool OnCheckReady(User *user)
 	{
+		ServerInstance->Log(DEBUG,"OnCheckReady %s", user->nick);
+
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = NULL;
 		if (!user->GetExt("ident_socket", isock))
+		{
+			ServerInstance->Log(DEBUG, "No ident socket :(");
 			return true;
+		}
 
-		if (isock->age < ServerInstance->Time() - RequestTimeout)
+		ServerInstance->Log(DEBUG, "Has ident_socket");
+
+		if (isock->age + RequestTimeout > ServerInstance->Time() && !isock->HasResult())
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
+			ServerInstance->Log(DEBUG, "Timeout");
 			OnUserDisconnect(user);
 			return true;
 		}
 
 		/* Got a result yet? */
 		if (!isock->HasResult())
+		{
+			ServerInstance->Log(DEBUG, "No result yet");
 			return false;
+		}
+
+		ServerInstance->Log(DEBUG, "Yay, result!");
 
 		/* wooo, got a result! */
-		user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", isock->GetResult());
+		if (*(isock->GetResult()) != '~')
+			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", isock->GetResult());
+		else
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
+
 		strlcpy(user->ident, isock->GetResult(), IDENTMAX+1);
+		OnUserDisconnect(user);
 		return true;
 	}
 
@@ -350,11 +381,12 @@ class ModuleIdent : public Module
 	{
 		/* User disconnect (generic socket detatch event) */
 		IdentRequestSocket *isock = NULL;
-		if (user->Extend("ident_socket", isock))
+		if (user->GetExt("ident_socket", isock))
 		{
 			isock->Close();
 			delete isock;
 			user->Shrink("ident_socket");
+			ServerInstance->Log(DEBUG, "Removed ident socket from %s", user->nick);
 		}
 	}
 };
