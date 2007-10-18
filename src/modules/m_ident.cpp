@@ -16,6 +16,8 @@
 #include "channels.h"
 #include "modules.h"
 
+using irc::sockets::NonBlocking;
+
 /* $ModDesc: Provides support for RFC1413 ident lookups */
 
 class IdentRequestSocket : public EventHandler
@@ -87,7 +89,7 @@ class IdentRequestSocket : public EventHandler
 			}
 		}
 
-		if (ServerInstance->SE->Bind(GetFd(), s, size) < 0)
+		if (bind(GetFd(), s, size) < 0)
 		{
 			this->Close();
 			delete[] s;
@@ -95,9 +97,9 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		delete[] s;
-		ServerInstance->SE->NonBlocking(GetFd());
+		NonBlocking(GetFd());
 
-		if (ServerInstance->SE->Connect(this, (sockaddr*)addr, size) == -1 && errno != EINPROGRESS)
+		if (connect(GetFd(), (sockaddr*)addr, size) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			delete[] addr;
@@ -146,7 +148,7 @@ class IdentRequestSocket : public EventHandler
 		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
 		#endif
 		
-		if (ServerInstance->SE->Send(this, req, req_size, 0) < req_size)
+		if (send(GetFd(), req, req_size, 0) < req_size)
 			done = true;
 	}
 
@@ -177,8 +179,8 @@ class IdentRequestSocket : public EventHandler
 		{
 			ServerInstance->Log(DEBUG,"Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
-			ServerInstance->SE->Close(GetFd());
-			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
+			close(GetFd());
+			shutdown(GetFd(), SHUT_WR);
 			this->SetFd(-1);
 		}
 	}
@@ -201,7 +203,7 @@ class IdentRequestSocket : public EventHandler
 		// extremely short - there is *no* sane reason it'd be in more than one packet
 
 		char ibuf[MAXBUF];
-		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
+		int recvresult = recv(GetFd(), ibuf, MAXBUF-1, 0);
 
 		/* Cant possibly be a valid response shorter than 3 chars */
 		if (recvresult < 3)
