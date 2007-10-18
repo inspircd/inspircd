@@ -93,11 +93,11 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 
 	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
-	if ((j < 0) && (i < 0) && !force)
-		return false;
-
 	CurrentSetSize--;
 	ref[fd] = NULL;
+
+	if ((j < 0) && (i < 0) && !force)
+		return false;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;

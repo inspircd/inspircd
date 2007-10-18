@@ -40,13 +40,19 @@ bool EPollEngine::AddFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
+	{
+		ServerInstance->Log(DEBUG,"Out of range FD");
 		return false;
+	}
 
 	if (GetRemainingFds() <= 1)
 		return false;
 
 	if (ref[fd])
+	{
+		ServerInstance->Log(DEBUG,"Ref occupied!");
 		return false;
+	}
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
@@ -83,6 +89,9 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
+	ref[fd] = NULL;
+	CurrentSetSize--;
+
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
@@ -91,9 +100,6 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 
 	if (i < 0 && !force)
 		return false;
-
-	CurrentSetSize--;
-	ref[fd] = NULL;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;

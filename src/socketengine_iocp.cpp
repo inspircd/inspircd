@@ -115,9 +115,6 @@ bool IOCPEngine::DelFd(EventHandler* eh, bool force /* = false */)
 		return false;
 
 	int fd = eh->GetFd();
-	
-	if (!ref[*fake_fd])
-		return false;
 
 	void* m_readEvent = NULL;
 	void* m_writeEvent = NULL;

@@ -178,6 +178,7 @@ class IdentRequestSocket : public EventHandler
 			ServerInstance->SE->Close(GetFd());
 			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
 			ServerInstance->SE->DelFd(this);
+			this->SetFd(-1);
 		}
 	}
 

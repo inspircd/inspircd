@@ -700,6 +700,7 @@ void User::UnOper()
 
 void User::QuitUser(InspIRCd* Instance, User *user, const std::string &quitreason, const char* operreason)
 {
+	Instance->Log(DEBUG,"QuitUser: %s", user->nick);
 	user->Write("ERROR :Closing link (%s@%s) [%s]", user->ident, user->host, operreason);
 	user->muted = true;
 	Instance->GlobalCulls.AddItem(user, quitreason.c_str(), operreason);
@@ -734,6 +735,8 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 		Instance->WriteOpers("*** WARNING *** Duplicate UUID allocated!");
 		return;
 	}
+
+	Instance->Log(DEBUG,"New user fd: %d", socket);
 
 	int j = 0;
 
@@ -835,6 +838,7 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
         {
                 if (!Instance->SE->AddFd(New))
                 {
+			Instance->Log(DEBUG,"Internal error on new connection");
 			User::QuitUser(Instance, New, "Internal error handling connection");
                 }
         }
