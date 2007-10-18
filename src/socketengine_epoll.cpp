@@ -99,11 +99,11 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
-	if (i < 0 && !force)
-		return false;
-
 	CurrentSetSize--;
 	ref[fd] = NULL;
+
+	if (i < 0 && !force)
+		return false;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;
