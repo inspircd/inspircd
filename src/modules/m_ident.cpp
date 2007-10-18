@@ -18,24 +18,78 @@
 
 /* $ModDesc: Provides support for RFC1413 ident lookups */
 
+/* --------------------------------------------------------------
+ * Note that this is the third incarnation of m_ident. The first
+ * two attempts were pretty crashy, mainly due to the fact we tried
+ * to use InspSocket/BufferedSocket to make them work. This class
+ * is ok for more heavyweight tasks, it does a lot of things behind
+ * the scenes that are not good for ident sockets and it has a huge
+ * memory footprint!
+ *
+ * To fix all the issues that we had in the old ident modules (many
+ * nasty race conditions that would cause segfaults etc) we have
+ * rewritten this module to use a simplified socket object based
+ * directly off EventHandler. As EventHandler only has low level
+ * readability, writeability and error events tied directly to the
+ * socket engine, this makes our lives easier as nothing happens to
+ * our ident lookup class that is outside of this module, or out-
+ * side of the control of the class. There are no timers, internal
+ * events, or such, which will cause the socket to be deleted,
+ * queued for deletion, etc. In fact, theres not even any queueing!
+ *
+ * Using this framework we have a much more stable module.
+ *
+ * A few things to note:
+ * 
+ *   O  The only place that may *delete* an active or inactive
+ *      ident socket is OnUserDisconnect in the module class.
+ *      Because this is out of scope of the socket class there is
+ *      no possibility that the socket may ever try to delete
+ *      itself.
+ *
+ *   O  Closure of the ident socket with the Close() method will
+ *      not cause removal of the socket from memory or detatchment
+ *      from its 'parent' User class. It will only flag it as an 
+ *      inactive socket in the socket engine.
+ *
+ *   O  Timeouts are handled in OnCheckReaady at the same time as
+ *      checking if the ident socket has a result. This is done
+ *      by checking if the age the of the class (its instantiation
+ *      time) plus the timeout value is greater than the current time.
+ *
+ *  O   The ident socket is able to but should not modify its
+ *      'parent' user directly. Instead the ident socket class sets
+ *      a completion flag and during the next call to OnCheckReady,
+ *      the completion flag will be checked and any result copied to
+ *      that user's class. This again ensures a single point of socket
+ *      deletion for safer, neater code.
+ *
+ *  O   The code in the constructor of the ident socket is taken from
+ *      BufferedSocket but majorly thinned down. It works for both
+ *      IPv4 and IPv6.
+ *
+ *  O   In the event that the ident socket throws a ModuleException,
+ *      nothing is done. This is counted as total and complete
+ *      failure to create a connection.
+ * --------------------------------------------------------------
+ */
+
 class IdentRequestSocket : public EventHandler
 {
  private:
 
-	 User *user;
-	 InspIRCd* ServerInstance;
-	 bool done;
-	 std::string result;
+	 User *user;			/* User we are attached to */
+	 InspIRCd* ServerInstance;	/* Server instance */
+	 bool done;			/* True if lookup is finished */
+	 std::string result;		/* Holds the ident string if done */
 
  public:
 
 	IdentRequestSocket(InspIRCd *Server, User* u, const std::string &bindip) : user(u), ServerInstance(Server), result(u->ident)
 	{
-		/* connect here on instantiation, throw on immediate failure */
-
 		socklen_t size = 0;
-
 #ifdef IPV6
+		/* Does this look like a v6 ip address? */
 		bool v6 = false;
 		if ((bindip.empty()) || bindip.find(':') != std::string::npos)
 		v6 = true;
@@ -49,10 +103,12 @@ class IdentRequestSocket : public EventHandler
 		if (GetFd() == -1)
 			throw ModuleException("Could not create socket");
 
+		/* We allocate two of these because sizeof(sockaddr_in6) > sizeof(sockaddr_in) */
 		sockaddr* s = new sockaddr[2];
 		sockaddr* addr = new sockaddr[2];
 	
 #ifdef IPV6
+		/* Horrid icky nasty ugly berkely socket crap. */
 		if (v6)
 		{
 			in6_addr addy;
@@ -87,6 +143,7 @@ class IdentRequestSocket : public EventHandler
 			}
 		}
 
+		/* Attempt to bind (ident requests must come from the ip the query is referring to */
 		if (ServerInstance->SE->Bind(GetFd(), s, size) < 0)
 		{
 			this->Close();
@@ -97,6 +154,7 @@ class IdentRequestSocket : public EventHandler
 		delete[] s;
 		ServerInstance->SE->NonBlocking(GetFd());
 
+		/* Attempt connection (nonblocking) */
 		if (ServerInstance->SE->Connect(this, (sockaddr*)addr, size) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
@@ -106,12 +164,16 @@ class IdentRequestSocket : public EventHandler
 
 		delete[] addr;
 
+		/* Add fd to socket engine */
 		if (!ServerInstance->SE->AddFd(this))
 		{
 			this->Close();
 			throw ModuleException("out of fds");
 		}
 
+		/* Important: We set WantWrite immediately after connect()
+		 * because a successful connection will trigger a writability event
+		 */
 		ServerInstance->SE->WantWrite(this);
 	}
 
@@ -122,7 +184,6 @@ class IdentRequestSocket : public EventHandler
 		/* Both sockaddr_in and sockaddr_in6 can be safely casted to sockaddr, especially since the
 		 * only members we use are in a part of the struct that should always be identical (at the
 		 * byte level). */
-
 		#ifndef IPV6
 		sockaddr_in laddr, raddr;
 		#else
@@ -140,12 +201,16 @@ class IdentRequestSocket : public EventHandler
 
 		char req[32];
 
+		/* Build request in the form 'localport,remoteport\r\n' */
 		#ifndef IPV6
 		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin_port), ntohs(laddr.sin_port));
 		#else
 		int req_size = snprintf(req, sizeof(req), "%d,%d\r\n", ntohs(raddr.sin6_port), ntohs(laddr.sin6_port));
 		#endif
 		
+		/* Send failed if we didnt write the whole ident request --
+		 * might as well give up if this happens!
+		 */
 		if (ServerInstance->SE->Send(this, req, req_size, 0) < req_size)
 			done = true;
 	}
@@ -165,6 +230,9 @@ class IdentRequestSocket : public EventHandler
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
 				ServerInstance->Log(DEBUG,"EVENT_ERROR");
+				/* We *must* Close() here immediately or we get a
+				 * huge storm of EVENT_ERROR events!
+				 */
 				Close();
 				done = true;
 			break;
@@ -173,6 +241,9 @@ class IdentRequestSocket : public EventHandler
 
 	void Close()
 	{
+		/* Remove ident socket from engine, and close it, but dont detatch it
+		 * from its parent user class, or attempt to delete its memory.
+		 */
 		if (GetFd() > -1)
 		{
 			ServerInstance->Log(DEBUG,"Close ident socket %d", GetFd());
@@ -188,6 +259,9 @@ class IdentRequestSocket : public EventHandler
 		return done;
 	}
 
+	/* Note: if the lookup succeeded, will contain 'ident', otherwise
+	 * will contain '~ident'. Use *GetResult() to determine lookup success.
+	 */
 	const char* GetResult()
 	{
 		return result.c_str();
@@ -197,13 +271,15 @@ class IdentRequestSocket : public EventHandler
 	{
 		ServerInstance->Log(DEBUG,"ReadResponse()");
 
-		// We don't really need to buffer for incomplete replies here, since IDENT replies are
-		// extremely short - there is *no* sane reason it'd be in more than one packet
-
+		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
+		 * extremely short - there is *no* sane reason it'd be in more than one packet
+		 */
 		char ibuf[MAXBUF];
 		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
 
-		/* Cant possibly be a valid response shorter than 3 chars */
+		/* Cant possibly be a valid response shorter than 3 chars,
+		 * because the shortest possible response would look like: '1,1'
+		 */
 		if (recvresult < 3)
 		{
 			done = true;
@@ -214,20 +290,20 @@ class IdentRequestSocket : public EventHandler
 		std::string token;
 		for (int i = 0; sep.GetToken(token); i++)
 		{
-			// We only really care about the 4th portion
+			/* We only really care about the 4th portion */
 			if (i < 3)
 				continue;
 
 			char ident[IDENTMAX + 2];
 
-			// Truncate the ident at any characters we don't like, skip leading spaces
+			/* Truncate the ident at any characters we don't like, skip leading spaces */
 			int k = 0;
 			for (const char *j = token.c_str(); *j && (k < IDENTMAX + 1); j++)
 			{
 				if (*j == ' ')
 					continue;
 
-				// Rules taken from InspIRCd::IsIdent
+				/* Rules taken from InspIRCd::IsIdent */
 				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
 				{
 					ident[k++] = *j;
@@ -239,7 +315,7 @@ class IdentRequestSocket : public EventHandler
 
 			ident[k] = '\0';
 
-			// Redundant check with IsIdent, in case that changes and this doesn't (paranoia!)
+			/* Re-check with IsIdent, in case that changes and this doesn't (paranoia!) */
 			if (*ident && ServerInstance->IsIdent(ident))
 			{
 				result = ident;
@@ -249,6 +325,9 @@ class IdentRequestSocket : public EventHandler
 			break;
 		}
 
+		/* Close (but dont delete from memory) our socket
+		 * and flag as done
+		 */
 		Close();
 		done = true;
 		return;
@@ -291,7 +370,7 @@ class ModuleIdent : public Module
 		 * should be preceded by a ~. The field is actually IDENTMAX+2 characters wide. */
 		memmove(user->ident + 1, user->ident, IDENTMAX);
 		user->ident[0] = '~';
-		// Ensure that it is null terminated
+		/* Ensure that it is null terminated */
 		user->ident[IDENTMAX + 1] = '\0';
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
@@ -332,6 +411,10 @@ class ModuleIdent : public Module
 		return 0;
 	}
 
+	/* This triggers pretty regularly, we can use it in preference to
+	 * creating a Timer object and especially better than creating a
+	 * Timer per ident lookup!
+	 */
 	virtual bool OnCheckReady(User *user)
 	{
 		ServerInstance->Log(DEBUG,"OnCheckReady %s", user->nick);
@@ -346,11 +429,15 @@ class ModuleIdent : public Module
 
 		ServerInstance->Log(DEBUG, "Has ident_socket");
 
+		/* Check for timeout of the socket */
 		if (isock->age + RequestTimeout > ServerInstance->Time() && !isock->HasResult())
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
 			ServerInstance->Log(DEBUG, "Timeout");
+			/* The user isnt actually disconnecting,
+			 * we call this to clean up the user
+			 */
 			OnUserDisconnect(user);
 			return true;
 		}
@@ -364,13 +451,16 @@ class ModuleIdent : public Module
 
 		ServerInstance->Log(DEBUG, "Yay, result!");
 
-		/* wooo, got a result! */
+		/* wooo, got a result (it will be good, or bad) */
 		if (*(isock->GetResult()) != '~')
 			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", isock->GetResult());
 		else
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
 
+		/* Copy the ident string to the user */
 		strlcpy(user->ident, isock->GetResult(), IDENTMAX+1);
+
+		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);
 		return true;
 	}
