@@ -133,7 +133,10 @@ class IdentRequestSocket : public EventHandler
 		socklen_t raddrsz = sizeof(raddr);
 
 		if ((getsockname(user->GetFd(), (sockaddr*) &laddr, &laddrsz) != 0) || (getpeername(user->GetFd(), (sockaddr*) &raddr, &raddrsz) != 0))
+		{
+			done = true;
 			return;
+		}
 
 		char req[32];
 
