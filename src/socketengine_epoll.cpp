@@ -99,7 +99,10 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
 	if (i < 0 && !force)
+	{
+		ServerInstance->Log(DEBUG,"Cant remove socket: %s", strerror(errno));
 		return false;
+	}
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;

@@ -175,9 +175,10 @@ class IdentRequestSocket : public EventHandler
 	{
 		if (GetFd() > -1)
 		{
+			ServerInstance->Log(DEBUG,"Close ident socket %d", GetFd());
+			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
 			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
-			ServerInstance->SE->DelFd(this);
 			this->SetFd(-1);
 		}
 	}
