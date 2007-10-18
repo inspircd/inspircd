@@ -237,8 +237,8 @@ void InspIRCd::DoBackgroundUserStuff(time_t TIME)
 				 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
 				 * say this user is ok to proceed, fully connect them.
 				 */
-				bool ready = AllModulesReportReady(curr);
-				if ((TIME > curr->signon) && (curr->registered == REG_NICKUSER) && (ready))
+				bool ready = curr->registered == REG_NICKUSER && AllModulesReportReady(curr);
+				if ((TIME > curr->signon) && (ready))
 				{
 					if (!curr->dns_done)
 					{
