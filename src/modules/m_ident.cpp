@@ -93,6 +93,7 @@ class IdentRequestSocket : public EventHandler
 		{
 			this->Close();
 			delete[] s;
+			delete[] addr;
 			throw ModuleException("failed to bind()");
 		}
 
