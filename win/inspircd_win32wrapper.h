@@ -56,6 +56,10 @@
 
 #define _WIN32_WINNT 0x500
 
+/* Parameter for 'shutdown' */
+
+#define SHUT_WR 2
+
 /* Normal windows (platform-specific) includes */
 #include <winsock2.h>
 #include <windows.h>
