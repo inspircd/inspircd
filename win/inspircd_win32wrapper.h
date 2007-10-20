@@ -30,6 +30,9 @@
 /* Not defined in windows */
 #define SIGHUP 1
 
+/* Not defined in windows, parameter to shutdown() */
+#define SHUT_WR 2
+
 /* They just have to be *different*, don't they. */
 #define PATH_MAX MAX_PATH
 
