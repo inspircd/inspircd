@@ -47,7 +47,9 @@ void ProcessUserHandler::Call(User* cu)
 
 		try
 		{
-			MOD_RESULT = Server->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,sizeof(ReadBuffer),result2);
+			MOD_RESULT = Server->Config->GetIOHook(cu->GetPort())->OnRawSocketRead(cu->GetFd(),ReadBuffer,Server->Config->NetBufferSize,result2);
+
+			Server->Log(DEBUG,"MOD_RESULT=%d, result2=%d",MOD_RESULT,result2);
 		}
 		catch (CoreException& modexcept)
 		{
