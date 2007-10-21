@@ -49,10 +49,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-	{
-		ServerInstance->Log(DEBUG,"Ref occupied!");
-		return false;
-	}
+		DelFd(ref[fd]);
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
