@@ -515,7 +515,7 @@ std::string User::GetBuffer()
 {
 	try
 	{
-		if (!recvq.length())
+		if (recvq.empty())
 			return "";
 
 		/* Strip any leading \r or \n off the string.
