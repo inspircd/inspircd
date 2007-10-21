@@ -350,12 +350,15 @@ class ModuleIdent : public Module
 			return true;
 		}
 
-		if (ServerInstance->next_call > ((time_t)isock->age + RequestTimeout))
-			ServerInstance->next_call = ((time_t)isock->age + RequestTimeout);
+		time_t compare = isock->age;
+		compare += RequestTimeout;
 
-		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld", ServerInstance->Time(), isock->age, RequestTimeout);
+		if (ServerInstance->next_call > compare)
+			ServerInstance->next_call = compare;
 
-		if ((ServerInstance->Time() > ((time_t)isock->age + RequestTimeout)) && !isock->HasResult())
+		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld compare=%ld", ServerInstance->Time(), isock->age, RequestTimeout, compare);
+
+		if ((ServerInstance->Time() >= compare) && !isock->HasResult())
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
