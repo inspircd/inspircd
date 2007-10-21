@@ -188,29 +188,13 @@ void InspIRCd::DoBackgroundUserStuff()
 
 		/*
 		 * `ready` means that the user has provided NICK/USER(/PASS), and all modules agree
-		 * that the user is okay to proceed. The one thing we are then waiting for is DNS, which we do here...
+		 * that the user is okay to proceed. The one thing we are then waiting for now is DNS...
 		 */
 		bool ready = ((curr->registered == REG_NICKUSER) && AllModulesReportReady(curr));
 
 		if (ready)
 		{
-			if (!curr->dns_done)
-			{
-				/*
-				 * DNS isn't done yet?
-				 * Cool. Check for timeout.
-				 */
-				if (TIME > curr->signon)
-				{
-					/* FZZZZZZZZT, timeout! */
-					curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
-					curr->dns_done = true;
-					this->stats->statsDnsBad++;
-					curr->FullConnect();
-					continue;
-				}
-			}
-			else
+			if (curr->dns_done)
 			{
 				/* DNS passed, connect the user */
 				curr->FullConnect();

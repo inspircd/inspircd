@@ -22,6 +22,7 @@ UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolv
 
 void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
 {
+	ServerInstance->Log(DEBUG, "Got a result (lookup complete)");
 	/* We are only interested in the first matching result */
 	if (resultnum)
 		return;
@@ -102,16 +103,12 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
+	ServerInstance->Log(DEBUG, "Resolver error: " + errormessage);
 	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
 	{
-		/* Since dns timeout is implemented outside of the resolver, this was a race condition that could result in this message being sent *after*
-		 * the user was fully connected. This check fixes that issue  - Special */
-		if (!this->bound_user->dns_done)
-		{
-			/* Error message here */
-			this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
-			this->bound_user->dns_done = true;
-		}
+		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
+		this->bound_user->dns_done = true;
+		ServerInstance->stats->statsDnsBad++;
 	}
 }
 
