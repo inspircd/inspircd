@@ -67,29 +67,32 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
 			user->WriteServ("432 %s %s :Invalid nickname: %s",user->nick,parameters[0], mq->reason);
 			return CMD_FAILURE;
 		}
-		/* Check for nickname overruled -
-		 * This happens when one user has connected and sent only NICK, and is essentially
-		 * "camping" upon a nickname. To give the new user connecting a fair chance of having
-		 * the nickname too, we force a nickchange on the older user (Simply the one who was
-		 * here first, no TS checks need to take place here)
+
+		/*
+		 * Uh oh.. if the nickname is in use, and it's not in use by the person using it (doh) --
+		 * then we have a potential collide. Check whether someone else is camping on the nick
+		 * (i.e. connect -> send NICK, don't send USER.) If they are camping, force-change the
+		 * camper to their UID, and allow the incoming nick change.
+		 *
+		 * If the guy using the nick is already using it, tell the incoming nick change to gtfo,
+		 * because the nick is already (rightfully) in use. -- w00t
 		 */
 		User* InUse = ServerInstance->FindNickOnly(parameters[0]);
 		if (InUse && (InUse != user) && ((ServerInstance->IsNick(parameters[0]) || allowinvalid)))
 		{
 			if (InUse->registered != REG_ALL)
 			{
-				/* change the nick of the older user to its UUID
-				 */
+				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid);
 				InUse->WriteServ("433 %s %s :Nickname overruled.", InUse->nick, InUse->nick);
 				InUse->UpdateNickHash(InUse->uuid);
 				strlcpy(InUse->nick, InUse->uuid, NICKMAX - 1);
 				InUse->InvalidateCache();
-				/* Take away their nickname-sent state forcing them to send a nick again */
 				InUse->registered &= ~REG_NICK;
 			}
 			else
 			{
+				/* No camping, tell the incoming user  to stop trying to change nick ;p */
 				user->WriteServ("433 %s %s :Nickname is already in use.", user->registered >= REG_NICK ? user->nick : "*", parameters[0]);
 				return CMD_FAILURE;
 			}
