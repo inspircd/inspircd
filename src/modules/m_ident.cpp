@@ -434,7 +434,7 @@ class ModuleIdent : public Module
 		compare += RequestTimeout;
 
 		/* Check for timeout of the socket */
-		if (ServerInstance->Time() >= RequestTimeout)
+		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
