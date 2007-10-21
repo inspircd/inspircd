@@ -414,8 +414,6 @@ class ModuleSSLOpenSSL : public Module
 			return;
 		}
 
-		ServerInstance->Log(DEBUG,"OnRawSocketAccept begin handshake");
-
  		Handshake(session);
 	}
 
@@ -448,7 +446,6 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual void OnRawSocketClose(int fd)
 	{
-		ServerInstance->Log(DEBUG,"OnRawSocketClose %d", fd);
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 			return;
@@ -468,7 +465,6 @@ class ModuleSSLOpenSSL : public Module
 
 	virtual int OnRawSocketRead(int fd, char* buffer, unsigned int count, int &readresult)
 	{
-		ServerInstance->Log(DEBUG,"OnRawSocketRead");
 		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
 		if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 			return 0;
@@ -514,10 +510,6 @@ class ModuleSSLOpenSSL : public Module
 			{
 				int ret = DoRead(session);
 
-				ServerInstance->Log(DEBUG, "<***> DoRead count: " + ConvToStr(count));
-				ServerInstance->Log(DEBUG, "<***> DoRead ret: " + ConvToStr(ret));
-				ServerInstance->Log(DEBUG, "<***> DoRead session->inbufoffset: " + ConvToStr(session->inbufoffset));
-
 				if (ret > 0)
 				{
 					if (count <= session->inbufoffset)
@@ -539,7 +531,6 @@ class ModuleSSLOpenSSL : public Module
 						// Zero the offset, as there's nothing there..
 						session->inbufoffset = 0;
 					}
-					ServerInstance->Log(DEBUG,"Read result=%d",readresult);
 					return 1;
 				}
 				return ret;
@@ -733,14 +724,12 @@ class ModuleSSLOpenSSL : public Module
 
 			if (err == SSL_ERROR_WANT_READ)
 			{
-				ServerInstance->Log(DEBUG,"Handshake Want read");
 				session->rstat = ISSL_READ;
 				session->status = ISSL_HANDSHAKING;
 				return true;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
-				ServerInstance->Log(DEBUG,"Handshake Want write");
 				session->wstat = ISSL_WRITE;
 				session->status = ISSL_HANDSHAKING;
 				MakePollWrite(session);
@@ -748,7 +737,6 @@ class ModuleSSLOpenSSL : public Module
 			}
 			else
 			{
-				ServerInstance->Log(DEBUG,"Handshake close session");
 				CloseSession(session);
 			}
 
@@ -756,7 +744,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (ret > 0)
 		{
-			ServerInstance->Log(DEBUG,"Handshake complete");
 			// Handshake complete.
 			// This will do for setting the ssl flag...it could be done earlier if it's needed. But this seems neater.
 			User* u = ServerInstance->FindDescriptor(session->fd);
@@ -774,10 +761,6 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else if (ret == 0)
 		{
-			int ssl_err = SSL_get_error(session->sess, ret);
-			char buf[1024];
-			ERR_print_errors_fp(stderr);
-			ServerInstance->Log(DEBUG,"Handshake fail 2: %d: %s", ssl_err, ERR_error_string(ssl_err,buf));
 			CloseSession(session);
 			return true;
 		}
@@ -814,10 +797,7 @@ class ModuleSSLOpenSSL : public Module
 		if (eh)
 		{
 			ServerInstance->SE->WantWrite(eh);
-			ServerInstance->Log(DEBUG,"Made want write");
 		}
-		else
-			ServerInstance->Log(DEBUG,"Couldnt find descriptor to make writeable!");
 	}
 
 	virtual void OnBufferFlushed(User* user)
