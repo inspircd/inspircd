@@ -688,6 +688,10 @@ class CoreExport User : public connection
 	 */
 	bool UnderPenalty;
 
+	/** If this bool is set then penalty rules do not apply to this user
+	 */
+	bool ExemptFromPenalty;
+
 	/** Default constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 * @param Instance Creator instance
