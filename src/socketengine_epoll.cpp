@@ -74,6 +74,7 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	ev.events = EPOLLOUT;
 	ev.data.fd = eh->GetFd();
 	epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
+	ServerInstance->Log(DEBUG,"WantWrite on fd %d", eh->GetFd());
 }
 
 bool EPollEngine::DelFd(EventHandler* eh, bool force)
@@ -89,7 +90,10 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
 	if (i < 0 && !force)
+	{
+		ServerInstance->Log(DEBUG,"Unable to remove fd: operating system error: %s", strerror(errno));
 		return false;
+	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;

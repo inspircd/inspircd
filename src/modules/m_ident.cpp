@@ -116,6 +116,8 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		ServerInstance->SE->WantWrite(this);
+		/* XXX Writeable socket, readable close? what happens?! */
+		/*Close();*/
 	}
 
 	virtual void OnConnected()
@@ -350,7 +352,7 @@ class ModuleIdent : public Module
 
 		ServerInstance->Log(DEBUG, "Has ident_socket");
 
-		if (isock->age + RequestTimeout > ServerInstance->Time() && !isock->HasResult())
+		if ((ServerInstance->Time() > (isock->age + RequestTimeout)) && !isock->HasResult())
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
