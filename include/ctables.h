@@ -106,7 +106,7 @@ class CoreExport Command : public Extensible
 	 * be allowed before the user is 'registered' (has sent USER,
 	 * NICK, optionally PASS, and been resolved).
 	 */
-	Command(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg), Penalty(1)
+	Command(InspIRCd* Instance, const std::string &cmd, char flags, int minpara, int before_reg = false, int penalty = 1) : ServerInstance(Instance), command(cmd), flags_needed(flags), min_params(minpara), disabled(false), works_before_reg(before_reg), Penalty(penalty)
 	{
 		use_count = 0;
 		total_bytes = 0;
