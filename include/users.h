@@ -681,12 +681,14 @@ class CoreExport User : public connection
 	 */
 	bool exempt;
 
-	/** If this bool is set for a user, then the user is under penalty, in short they
-	 * are waiting for some held commands to be executed. If this is the case, then
-	 * any commands they have in their sendq are executed on a timer tick rather than in
-	 * their event handler.
+	/** This value contains how far into the penalty threshold the user is. Once its over
+	 * the penalty threshold then commands are held and processed on-timer.
 	 */
-	bool UnderPenalty;
+	int Penalty;
+
+	/** True if we are flushing penalty lines
+	 */
+	bool OverPenalty;
 
 	/** If this bool is set then penalty rules do not apply to this user
 	 */

@@ -175,9 +175,10 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	server = (char*)Instance->FindServerNamePtr(Instance->Config->ServerName);
 	reset_due = ServerInstance->Time();
 	age = ServerInstance->Time(true);
+	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	ExemptFromPenalty = UnderPenalty = muted = exempt = haspassed = dns_done = false;
+	OverPenalty = ExemptFromPenalty = muted = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();

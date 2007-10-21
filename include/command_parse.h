@@ -54,7 +54,7 @@ class CoreExport CommandParser : public classbase
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
 	 */
-	void ProcessCommand(User *user, std::string &cmd);
+	bool ProcessCommand(User *user, std::string &cmd);
 
 	/** Finds the init_command symbol in a .so file
 	 * @param v A function pointer to be initialized
@@ -179,7 +179,13 @@ class CoreExport CommandParser : public classbase
 	 * @param buffer The buffer line to process
 	 * @param user The user to whom this line belongs
 	 */
-	void ProcessBuffer(std::string &buffer,User *user);
+	bool ProcessBuffer(std::string &buffer,User *user);
+
+	/** Process lines in a users sendq.
+	 * @param current The user to process
+	 * @param one_only if one_only is set only one command is processed from the sendq.
+	 */
+	void DoLines(User* current, bool one_only = false);
 
 	/** Remove all commands relating to module 'source'.
 	 * @param source A module name which has introduced new commands

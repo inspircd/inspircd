@@ -72,7 +72,6 @@ void ProcessUserHandler::Call(User* cu)
 	{
 		User *current;
 		int currfd;
-		int floodlines = 0;
 
 		Server->stats->statsRecv += result;
 		/*
@@ -123,36 +122,7 @@ void ProcessUserHandler::Call(User* cu)
 				return;
 			}
 
-			// while there are complete lines to process...
-			while (current->BufferIsReady())
-			{
-				if (Server->Time() > current->reset_due)
-				{
-					current->reset_due = Server->Time() + current->threshold;
-					current->lines_in = 0;
-				}
-
-				if (++current->lines_in > current->flood && current->flood)
-				{
-					Server->FloodQuitUser(current);
-					return;
-				}
-
-				if ((++floodlines > current->flood) && (current->flood != 0))
-				{
-					Server->FloodQuitUser(current);
-					return;
-				}
-
-				// use GetBuffer to copy single lines into the sanitized string
-				std::string single_line = current->GetBuffer();
-				current->bytes_in += single_line.length();
-				current->cmds_in++;
-				if (single_line.length() > MAXBUF - 2)	/* MAXBUF is 514 to allow for neccessary line terminators */
-					single_line.resize(MAXBUF - 2); /* So to trim to 512 here, we use MAXBUF - 2 */
-
-				Server->Parser->ProcessBuffer(single_line, current);
-			}
+			Server->Parser->DoLines(current);
 
 			return;
 		}
@@ -189,6 +159,17 @@ void InspIRCd::DoBackgroundUserStuff()
 	for (std::vector<User*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 	{
 		User *curr = *count2;
+
+		if (curr->OverPenalty)
+			Parser->DoLines(curr, true);
+
+		/* Knock a second off */
+		if (curr->Penalty)
+		{
+			curr->Penalty--;
+			if (!curr->Penalty)
+				curr->OverPenalty = false;
+		}
 
 		if ((curr->registered != REG_ALL) && (TIME > curr->timeout))
 		{
