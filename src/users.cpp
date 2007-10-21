@@ -1846,6 +1846,16 @@ const char* User::GetOperQuit()
 	return operquit ? operquit : "";
 }
 
+void User::IncreasePenalty(int increase)
+{
+	this->Penalty += increase;
+}
+
+void User::DecreasePenalty(int decrease)
+{
+	this->Penalty -= decrease;
+}
+
 VisData::VisData()
 {
 }

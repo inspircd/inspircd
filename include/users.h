@@ -1140,6 +1140,14 @@ class CoreExport User : public connection
 	 */
 	const char* GetOperQuit();
 
+	/** Increases a user's command penalty by a set amount.
+	 */
+	void IncreasePenalty(int increase);
+
+	/** Decreases a user's command penalty by a set amount.
+	 */
+	void DecreasePenalty(int decrease);
+
 	/** Handle socket event.
 	 * From EventHandler class.
 	 * @param et Event type
