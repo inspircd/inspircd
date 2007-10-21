@@ -125,7 +125,10 @@ CmdResult cmd_oper::Handle (const char** parameters, int pcnt, User *user)
 				if (!match_hosts)
 					fields.append("hosts");
 			}
+
+			// tell them they suck, and lag them up to help prevent brute-force attacks
 			user->WriteServ("491 %s :Invalid oper credentials",user->nick);
+			user->IncreasePenalty(10);
 			
 			snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s",user->nick,user->ident,user->host, parameters[0], fields.c_str());
 			ServerInstance->SNO->WriteToSnoMask('o',std::string(broadcast));
