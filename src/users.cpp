@@ -177,7 +177,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	age = ServerInstance->Time(true);
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
 	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	muted = exempt = haspassed = dns_done = false;
+	UnderPenalty = muted = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();

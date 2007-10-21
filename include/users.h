@@ -681,6 +681,13 @@ class CoreExport User : public connection
 	 */
 	bool exempt;
 
+	/** If this bool is set for a user, then the user is under penalty, in short they
+	 * are waiting for some held commands to be executed. If this is the case, then
+	 * any commands they have in their sendq are executed on a timer tick rather than in
+	 * their event handler.
+	 */
+	bool UnderPenalty;
+
 	/** Default constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 * @param Instance Creator instance
