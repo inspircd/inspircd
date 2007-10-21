@@ -848,6 +848,15 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 	 * BOPM and other stuff requires it.
 	 */
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
+
+	if (Instance->Config->NoUserDns)
+	{
+		New->dns_done = true;
+	}
+	else
+	{
+		New->StartDNSLookup();
+	}
 }
 
 unsigned long User::GlobalCloneCount()

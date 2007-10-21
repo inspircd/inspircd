@@ -140,17 +140,8 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
 	if (user->registered < REG_NICKUSER)
 	{
 		user->registered = (user->registered | REG_NICK);
-
-		if (ServerInstance->Config->NoUserDns)
-		{
-			user->dns_done = true;
-		}
-		else
-		{
-			user->StartDNSLookup();
-		}
 	}
-	if (user->registered == REG_NICKUSER)
+	else if (user->registered == REG_NICKUSER)
 	{
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 		int MOD_RESULT = 0;
@@ -158,7 +149,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
 		if (MOD_RESULT > 0)
 			return CMD_FAILURE;
 	}
-	if (user->registered == REG_ALL)
+	else if (user->registered == REG_ALL)
 	{
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user,oldnick));
 	}

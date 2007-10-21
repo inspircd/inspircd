@@ -22,7 +22,6 @@ UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolv
 
 void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached, int resultnum)
 {
-	ServerInstance->Log(DEBUG, "Got a result (lookup complete)");
 	/* We are only interested in the first matching result */
 	if (resultnum)
 		return;
@@ -103,7 +102,6 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
-	ServerInstance->Log(DEBUG, "Resolver error: " + errormessage);
 	if (ServerInstance->SE->GetRef(this->bound_fd) == this->bound_user)
 	{
 		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
