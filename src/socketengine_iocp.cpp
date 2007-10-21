@@ -56,7 +56,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 
 	/* Already an entry here */
 	if (ref[fake_fd])
-		DelFd(ref[fake_fd]);
+		return false;
 
 	/* are we a listen socket? */
 	getsockopt(eh->GetFd(), SOL_SOCKET, SO_ACCEPTCONN, (char*)&is_accept, &opt_len);
@@ -70,6 +70,10 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 	/* assign the socket to the completion port */
 	if (!CreateIoCompletionPort((HANDLE)eh->GetFd(), m_completionPort, completion_key, 0))
 		return false;
+
+	/* set up binding, increase set size */
+	ref[fake_fd] = eh;
+	++CurrentSetSize;
 
 	/* setup initial events */
 	if(is_accept)
@@ -94,9 +98,6 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 		/* Ohshi-, map::insert failed :/ */
 		return false;
 	}
-
-	++CurrentSetSize;
-	ref[fake_fd] = eh;
 
 	return true;
 }
