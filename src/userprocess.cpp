@@ -163,15 +163,16 @@ void InspIRCd::DoBackgroundUserStuff()
 		User *curr = *count2;
 
 		if (curr->Penalty)
+		{
 			curr->Penalty--;
+			if (curr->Penalty < 10)
+				Parser->DoLines(curr, true);
+		}
 
 		if (curr->OverPenalty)
 		{
 			if (curr->sendq.empty())
 				curr->OverPenalty = false;
-
-			if (curr->Penalty < 10)
-				Parser->DoLines(curr, true);
 		}
 
 		if ((curr->registered != REG_ALL) && (TIME > curr->timeout))
