@@ -358,7 +358,7 @@ class ModuleIdent : public Module
 
 		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld compare=%ld has result=%d", ServerInstance->Time(), isock->age, RequestTimeout, compare, isock->HasResult());
 
-		if ((ServerInstance->Time() >= compare) && !isock->HasResult())
+		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
