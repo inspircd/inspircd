@@ -356,7 +356,7 @@ class ModuleIdent : public Module
 		if (ServerInstance->next_call > compare)
 			ServerInstance->next_call = compare;
 
-		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld compare=%ld", ServerInstance->Time(), isock->age, RequestTimeout, compare);
+		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld compare=%ld has result=%d", ServerInstance->Time(), isock->age, RequestTimeout, compare, isock->HasResult());
 
 		if ((ServerInstance->Time() >= compare) && !isock->HasResult())
 		{
