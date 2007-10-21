@@ -56,7 +56,7 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 
 	/* Already an entry here */
 	if (ref[fake_fd])
-		return false;
+		DelFd(ref[fake_fd]);
 
 	/* are we a listen socket? */
 	getsockopt(eh->GetFd(), SOL_SOCKET, SO_ACCEPTCONN, (char*)&is_accept, &opt_len);

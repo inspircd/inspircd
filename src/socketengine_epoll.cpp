@@ -52,10 +52,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 	}
 
 	if (ref[fd])
-	{
-		ServerInstance->Log(DEBUG,"Not adding %d fd as ref[fd] != NULL, it's %8x!",fd, ref[fd]);
-		return false;
-	}
+		DelFd(ref[fd]);
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));

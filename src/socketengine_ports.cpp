@@ -46,7 +46,7 @@ bool PortsEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		return false;
+		DelFd(ref[fd]);
 
 	ref[fd] = eh;
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, eh->Readable() ? POLLRDNORM : POLLWRNORM, eh);

@@ -49,7 +49,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		return false;
+		DelFd(ref[fd]);
 
 	struct kevent ke;
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
