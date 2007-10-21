@@ -38,6 +38,7 @@ public:
 			return;
 
 		user->flood = 0;
+		user->ExemptFromPenalty = true;
 		user->WriteServ("NOTICE %s :*** You are now free from flood limits.", user->nick);
 	}
 };
