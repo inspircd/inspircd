@@ -92,6 +92,10 @@ class CoreExport Command : public Extensible
 
 	std::vector<TranslateType> translation;
 
+	/** How many seconds worth of penalty does this command have?
+	 */
+	int Penalty;
+
 	/** Create a new command.
 	 * @param Instance Pointer to creator class
 	 * @param cmd Command name. This must be UPPER CASE.
