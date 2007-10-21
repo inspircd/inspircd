@@ -693,7 +693,7 @@ void InspIRCd::BufferedSocketCull()
 /**********************************************************************************/
 
 /**
- * An ircd in four lines! bwahahaha. ahahahahaha. ahahah *cough*.
+ * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
  */
 
 int ircd(int argc, char ** argv)
