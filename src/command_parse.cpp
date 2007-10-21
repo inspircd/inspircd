@@ -306,7 +306,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	bool do_more = true;
 	if (!user->ExemptFromPenalty)
 	{
-		user->Penalty += cm->second->Penalty;
+		user->IncreasePenalty(cm->second->Penalty);
 		ServerInstance->Log(DEBUG,"Penalty for %s is now incremented to %d (%d added on)", user->nick, user->Penalty, cm->second->Penalty);
 		do_more = (user->Penalty < 10);
 		if (!do_more)
