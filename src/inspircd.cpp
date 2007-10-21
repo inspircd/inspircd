@@ -705,20 +705,19 @@ int ircd(int argc, char ** argv)
 	return 0;
 }
 
-#ifdef WINDOWS
-
 int main(int argc, char ** argv)
 {
-	ircd(argc,argv);
-	return 0;
+	int retval = 0;
+
+	#ifndef WINDOWS
+	// XXX No idea why this is windows only..
+	retval =
+	#endif
+		ircd(argc,argv);
+
+	return retval;
 }
 
-#else
-int main(int argc, char** argv)
-{
-	return ircd(argc,argv);
-}
-#endif
 
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
