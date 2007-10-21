@@ -74,7 +74,6 @@ void EPollEngine::WantWrite(EventHandler* eh)
 	ev.events = EPOLLOUT;
 	ev.data.fd = eh->GetFd();
 	epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
-	ServerInstance->Log(DEBUG,"WantWrite on fd %d", eh->GetFd());
 }
 
 bool EPollEngine::DelFd(EventHandler* eh, bool force)
