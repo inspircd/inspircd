@@ -270,8 +270,6 @@ class IdentRequestSocket : public EventHandler
 
 	void ReadResponse()
 	{
-		ServerInstance->Log(DEBUG,"ReadResponse()");
-
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
 		 */
@@ -283,9 +281,12 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (recvresult < 3)
 		{
+			Close();
 			done = true;
 			return;
 		}
+
+		ServerInstance->Log(DEBUG,"ReadResponse()");
 
 		irc::sepstream sep(ibuf, ':');
 		std::string token;
