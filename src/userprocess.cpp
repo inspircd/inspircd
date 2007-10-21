@@ -122,7 +122,9 @@ void ProcessUserHandler::Call(User* cu)
 				return;
 			}
 
-			Server->Parser->DoLines(current);
+			/* If user is over penalty, dont process here, just build up */
+			if (!current->OverPenalty)
+				Server->Parser->DoLines(current);
 
 			return;
 		}
@@ -161,11 +163,15 @@ void InspIRCd::DoBackgroundUserStuff()
 		User *curr = *count2;
 
 		if (curr->OverPenalty)
+		{
+			Log(DEBUG,"Process line over penalty for %s", curr->nick);
 			Parser->DoLines(curr, true);
+		}
 
 		/* Knock a second off */
 		if (curr->Penalty)
 		{
+			Log(DEBUG,"Penalty for %s decremented to %d", curr->nick, curr->Penalty);
 			curr->Penalty--;
 			if (!curr->Penalty)
 				curr->OverPenalty = false;

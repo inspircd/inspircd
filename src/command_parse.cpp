@@ -304,9 +304,13 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 
 	/* Modify the user's penalty */
 	user->Penalty += cm->second->Penalty;
+	ServerInstance->Log(DEBUG,"Penalty for %s is now incremented to %d (%d added on)", user->nick, user->Penalty, cm->second->Penalty);
 	bool do_more = (user->Penalty < 10);
-	if (do_more)
+	if (!do_more)
+	{
 		user->OverPenalty = true;
+		ServerInstance->Log(DEBUG,"User %s now OVER penalty of 10", user->nick);
+	}
 
 	/* activity resets the ping pending timer */
 	user->nping = ServerInstance->Time() + user->pingmax;
