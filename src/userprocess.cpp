@@ -162,19 +162,16 @@ void InspIRCd::DoBackgroundUserStuff()
 	{
 		User *curr = *count2;
 
+		if (curr->Penalty)
+			curr->Penalty--;
+
 		if (curr->OverPenalty)
 		{
-			Log(DEBUG,"Process line over penalty for %s", curr->nick);
-			Parser->DoLines(curr, true);
-		}
-
-		/* Knock a second off */
-		if (curr->Penalty)
-		{
-			Log(DEBUG,"Penalty for %s decremented to %d", curr->nick, curr->Penalty);
-			curr->Penalty--;
-			if (!curr->Penalty)
+			if (curr->sendq.empty())
 				curr->OverPenalty = false;
+
+			if (curr->Penalty < 10)
+				Parser->DoLines(curr, true);
 		}
 
 		if ((curr->registered != REG_ALL) && (TIME > curr->timeout))
