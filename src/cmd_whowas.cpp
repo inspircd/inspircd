@@ -21,8 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new cmd_whowas(Instance);
 }
 
-cmd_whowas::cmd_whowas(InspIRCd* Instance)
-: Command(Instance, "WHOWAS", 0, 1)
+cmd_whowas::cmd_whowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0, 1, false, 2)
 {
 	syntax = "<nick>{,<nick>}";
 	timer = new WhoWasMaintainTimer(Instance, 3600);

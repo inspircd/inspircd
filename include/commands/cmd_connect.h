@@ -29,7 +29,7 @@ class cmd_connect : public Command
  public:
 	/** Constructor for connect.
 	 */
-	cmd_connect (InspIRCd* Instance) : Command(Instance,"CONNECT",'o',1) { syntax = "<servername> [<remote-server>]"; }
+	cmd_connect (InspIRCd* Instance) : Command(Instance,"CONNECT",'o',1,false,0) { syntax = "<servername> [<remote-server>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

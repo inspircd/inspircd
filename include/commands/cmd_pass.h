@@ -32,7 +32,7 @@ class cmd_pass : public Command
  public:
 	/** Constructor for pass.
 	 */
-	cmd_pass (InspIRCd* Instance) : Command(Instance,"PASS",0,1,true) { syntax = "<password>"; }
+	cmd_pass (InspIRCd* Instance) : Command(Instance,"PASS",0,1,true,false,0) { syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
