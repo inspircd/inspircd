@@ -350,7 +350,7 @@ class ModuleIdent : public Module
 			return true;
 		}
 
-		ServerInstance->Log(DEBUG, "Has ident_socket");
+		ServerInstance->Log(DEBUG, "Has ident_socket. Time=%ld age=%ld RequestTimeout=%ld", ServerInstance->Time(), isock->age, RequestTimeout);
 
 		if ((ServerInstance->Time() > (isock->age + RequestTimeout)) && !isock->HasResult())
 		{
