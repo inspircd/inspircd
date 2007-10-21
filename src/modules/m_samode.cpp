@@ -20,7 +20,7 @@
 class cmd_samode : public Command
 {
  public:
-	cmd_samode (InspIRCd* Instance) : Command(Instance,"SAMODE", 'o', 2)
+	cmd_samode (InspIRCd* Instance) : Command(Instance,"SAMODE", 'o', 2, false, 0)
 	{
 		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";

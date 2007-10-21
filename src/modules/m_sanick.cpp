@@ -20,7 +20,7 @@
 class cmd_sanick : public Command
 {
  public:
- cmd_sanick (InspIRCd* Instance) : Command(Instance,"SANICK", 'o', 2)
+	cmd_sanick (InspIRCd* Instance) : Command(Instance,"SANICK", 'o', 2, false, 0)
 	{
 		this->source = "m_sanick.so";
 		syntax = "<nick> <new-nick>";
