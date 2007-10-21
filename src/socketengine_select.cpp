@@ -37,7 +37,7 @@ bool SelectEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		DelFd(ref[fd]);
+		return false;
 
 	fds[fd] = fd;
 	ref[fd] = eh;
