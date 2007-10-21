@@ -338,7 +338,6 @@ InspIRCd::InspIRCd(int argc, char** argv)
 	this->SNO = new SnomaskManager(this);
 	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
 	this->time_delta = 0;
-	this->next_call = this->TIME + 3;
 	srand(this->TIME);
 
 	*this->LogFileName = 0;
@@ -615,14 +614,18 @@ int InspIRCd::Run()
 		if (TIME != OLDTIME)
 		{
 			if (TIME < OLDTIME)
+			{
 				WriteOpers("*** \002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %d secs.",abs(OLDTIME-TIME));
+			}
+
 			if ((TIME % 3600) == 0)
 			{
 				this->RehashUsersAndChans();
 				FOREACH_MOD_I(this, I_OnGarbageCollect, OnGarbageCollect());
 			}
+
 			Timers->TickTimers(TIME);
-			this->DoBackgroundUserStuff(TIME);
+			this->DoBackgroundUserStuff();
 
 			if ((TIME % 5) == 0)
 			{

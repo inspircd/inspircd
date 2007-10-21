@@ -181,102 +181,77 @@ void ProcessUserHandler::Call(User* cu)
  * It is intended to do background checking on all the user structs, e.g.
  * stuff like ping checks, registration timeouts, etc.
  */
-void InspIRCd::DoBackgroundUserStuff(time_t TIME)
+void InspIRCd::DoBackgroundUserStuff()
 {
-	/* Is it time yet? */
-	if (TIME < next_call)
-		return;
-	else
+	/*
+	 * loop over all local users..
+	 */
+	for (std::vector<User*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
 	{
-		/* Time we actually need to call this again */
-		const time_t DUMMY_VALUE = 32768;
-		next_call = TIME + DUMMY_VALUE;
+		User *curr = *count2;
 
-		for (std::vector<User*>::iterator count2 = local_users.begin(); count2 != local_users.end(); count2++)
+		if ((curr->registered != REG_ALL) && (TIME > curr->timeout))
 		{
-			User* curr = *count2;
-
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
 			 * in the time specified in their connection class.
 			 */
-			if ((TIME > curr->timeout) && (curr->registered != REG_ALL))
+			curr->muted = true;
+			User::QuitUser(this, curr, "Registration timeout");
+			continue;
+		}
+
+		/*
+		 * `ready` means that the user has provided NICK/USER(/PASS), and all modules agree
+		 * that the user is okay to proceed. The one thing we are then waiting for is DNS, which we do here...
+		 */
+		bool ready = ((curr->registered == REG_NICKUSER) && AllModulesReportReady(curr));
+
+		if (ready)
+		{
+			if (!curr->dns_done)
 			{
-				curr->muted = true;
-				User::QuitUser(this, curr, "Registration timeout");
-				continue;
-			}
-			else
-			{
-				if ((curr->registered != REG_ALL) && (next_call > (time_t)curr->timeout))
-					next_call = curr->timeout;
-			}
-			/*
-			 * user has signed on with USER/NICK/PASS, and dns has completed, all the modules
-			 * say this user is ok to proceed, fully connect them.
-			 */
-			bool ready = ((curr->registered == REG_NICKUSER) && AllModulesReportReady(curr));
-			if ((TIME > curr->signon) && (ready))
-			{
-				if (!curr->dns_done)
+				/*
+				 * DNS isn't done yet?
+				 * Cool. Check for timeout.
+				 */
+				if (TIME > curr->signon)
 				{
+					/* FZZZZZZZZT, timeout! */
 					curr->WriteServ("NOTICE Auth :*** Could not resolve your hostname: Request timed out; using your IP address (%s) instead.", curr->GetIPString());
 					curr->dns_done = true;
-				}
-				this->stats->statsDnsBad++;
-				curr->FullConnect();
-				continue;
-			}
-			else
-			{
-				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon))
-					next_call = curr->signon;
-			}
-
-			if ((curr->dns_done) && (curr->registered == REG_NICKUSER) && (ready))
-			{
-				curr->FullConnect();
-				continue;
-			}
-			else
-			{
-				if ((curr->registered == REG_NICKUSER) && (ready) && (next_call > curr->signon + this->Config->dns_timeout))
-					next_call = curr->signon + this->Config->dns_timeout;
-			}
-
-			// It's time to PING this user. Send them a ping.
-			if ((TIME > curr->nping) && (curr->registered == REG_ALL))
-			{
-				// This user didn't answer the last ping, remove them
-				if (!curr->lastping)
-				{
-					/* Everybody loves boobies. */
-					time_t time = this->Time(false) - (curr->nping - curr->pingmax);
-					char message[MAXBUF];
-					snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
-					curr->muted = true;
-					curr->lastping = 1;
-					curr->nping = TIME+curr->pingmax;
-					User::QuitUser(this, curr, message);
+					this->stats->statsDnsBad++;
+					curr->FullConnect();
 					continue;
 				}
-				curr->Write("PING :%s",this->Config->ServerName);
-				curr->lastping = 0;
-				curr->nping = TIME+curr->pingmax;
 			}
 			else
 			{
-				if ((curr->registered == REG_ALL) && (next_call > curr->nping))
-					next_call = curr->nping;
+				/* DNS passed, connect the user */
+				curr->FullConnect();
+				continue;
 			}
 		}
 
-		/* If theres nothing to do, trigger in the next second, something might come up */
-		time_t delta = next_call - TIME;
-		if (delta == DUMMY_VALUE)
+		// It's time to PING this user. Send them a ping.
+		if ((TIME > curr->nping) && (curr->registered == REG_ALL))
 		{
-			next_call = TIME + 1;
-			delta = 1;
+			// This user didn't answer the last ping, remove them
+			if (!curr->lastping)
+			{
+				/* Everybody loves boobies. */
+				time_t time = this->Time(false) - (curr->nping - curr->pingmax);
+				char message[MAXBUF];
+				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
+				curr->muted = true;
+				curr->lastping = 1;
+				curr->nping = TIME+curr->pingmax;
+				User::QuitUser(this, curr, message);
+				continue;
+			}
+			curr->Write("PING :%s",this->Config->ServerName);
+			curr->lastping = 0;
+			curr->nping = TIME+curr->pingmax;
 		}
 	}
 }

@@ -279,9 +279,8 @@ class CoreExport InspIRCd : public classbase
 	void InitialiseUID();
 
 	/** Perform background user events such as PING checks
-	 * @param TIME the current time
 	 */
-	void DoBackgroundUserStuff(time_t TIME);
+	void DoBackgroundUserStuff();
 
 	/** Returns true when all modules have done pre-registration checks on a user
 	 * @param user The user to verify
@@ -462,10 +461,6 @@ class CoreExport InspIRCd : public classbase
 	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
 	 */
 	XLineManager* XLines;
-
-	/** The time we next call our ping timeout and reg timeout checks
-	 */
-	time_t next_call;
 
 	/** Set to the current signal recieved
 	 */

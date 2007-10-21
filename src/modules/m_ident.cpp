@@ -320,7 +320,6 @@ class IdentRequestSocket : public EventHandler
 			if (*ident && ServerInstance->IsIdent(ident))
 			{
 				result = ident;
-				ServerInstance->next_call = ServerInstance->Time();
 			}
 
 			break;
