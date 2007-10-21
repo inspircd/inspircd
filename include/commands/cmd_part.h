@@ -29,7 +29,7 @@ class cmd_part : public Command
  public:
 	/** Constructor for part.
 	 */
-	cmd_part (InspIRCd* Instance) : Command(Instance,"PART",0,1) { syntax = "<channel>{,<channel>} [<reason>]"; }
+	cmd_part (InspIRCd* Instance) : Command(Instance,"PART", 0, 1, false, 5) { syntax = "<channel>{,<channel>} [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
