@@ -59,7 +59,7 @@ bool KQueueEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		DelFd(ref[fd]);
+		return false;
 
 	struct kevent ke;
 	EV_SET(&ke, fd, eh->Readable() ? EVFILT_READ : EVFILT_WRITE, EV_ADD, 0, 0, NULL);
@@ -93,11 +93,11 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 
 	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
-	CurrentSetSize--;
-	ref[fd] = NULL;
-
 	if ((j < 0) && (i < 0) && !force)
 		return false;
+
+	CurrentSetSize--;
+	ref[fd] = NULL;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;

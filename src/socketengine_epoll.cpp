@@ -49,7 +49,7 @@ bool EPollEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		DelFd(ref[fd]);
+		return false;
 
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
@@ -86,9 +86,6 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 		return false;
 
-	ref[fd] = NULL;
-	CurrentSetSize--;
-
 	struct epoll_event ev;
 	memset(&ev,0,sizeof(struct epoll_event));
 	eh->Readable() ? ev.events = EPOLLIN : ev.events = EPOLLOUT;
@@ -100,6 +97,9 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 		ServerInstance->Log(DEBUG,"Cant remove socket: %s", strerror(errno));
 		return false;
 	}
+
+	ref[fd] = NULL;
+	CurrentSetSize--;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;

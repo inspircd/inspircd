@@ -54,11 +54,17 @@ bool IOCPEngine::AddFd(EventHandler* eh)
 
 	/* In range? */
 	if ((*fake_fd < 0) || (*fake_fd > MAX_DESCRIPTORS))
+	{
+		delete fake_fd;
 		return false;
+	}
 
 	/* Already an entry here */
 	if (ref[*fake_fd])
-		DelFd(ref[fd]);
+	{
+		delete fake_fd;
+		return false;
+	}
 
 	/* are we a listen socket? */
 	getsockopt(eh->GetFd(), SOL_SOCKET, SO_ACCEPTCONN, (char*)&is_accept, &opt_len);

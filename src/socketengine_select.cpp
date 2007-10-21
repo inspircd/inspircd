@@ -37,7 +37,7 @@ bool SelectEngine::AddFd(EventHandler* eh)
 		return false;
 
 	if (ref[fd])
-		DelFd(ref[fd]);
+		return false;
 
 	fds[fd] = fd;
 	ref[fd] = eh;
@@ -65,6 +65,7 @@ bool SelectEngine::DelFd(EventHandler* eh, bool force)
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
+	fds[fd] = 0;
 
 	ServerInstance->Log(DEBUG,"Remove file descriptor: %d", fd);
 	return true;
