@@ -20,7 +20,7 @@
 class cmd_cycle : public Command
 {
  public:
-	cmd_cycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1)
+	cmd_cycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1, false, 3)
 	{
 		this->source = "m_cycle.so";
 		syntax = "<channel> :[reason]";
