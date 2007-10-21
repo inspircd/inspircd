@@ -25,7 +25,12 @@ CmdResult cmd_commands::Handle (const char** parameters, int pcnt, User *user)
 {
 	for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
-		user->WriteServ("902 %s :%s %s %d",user->nick,i->second->command.c_str(),i->second->source.c_str(),i->second->min_params);
+		user->WriteServ("902 %s :%s %s %d %d",
+				user->nick,
+				i->second->command.c_str(),
+				i->second->source.c_str(),
+				i->second->min_params,
+				i->second->Penalty);
 	}
 	user->WriteServ("903 %s :End of COMMANDS list",user->nick);
 	return CMD_SUCCESS;
