@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_kick(Instance);
+	return new CommandKick(Instance);
 }
 
 /** Handle /KICK
  */
-CmdResult cmd_kick::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandKick::Handle (const char** parameters, int pcnt, User *user)
 {
 	char reason[MAXKICK];
 	Channel* c = ServerInstance->FindChan(parameters[0]);

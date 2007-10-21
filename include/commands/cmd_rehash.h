@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_rehash : public Command
+class CommandRehash : public Command
 {
  public:
 	/** Constructor for rehash.
 	 */
-	cmd_rehash (InspIRCd* Instance) : Command(Instance,"REHASH",'o',0,false,3) { syntax = "[<servermask>]"; }
+	CommandRehash (InspIRCd* Instance) : Command(Instance,"REHASH",'o',0,false,3) { syntax = "[<servermask>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

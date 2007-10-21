@@ -17,12 +17,12 @@
 
 /** Handle /SETHOST
  */
-class cmd_sethost : public Command
+class CommandSethost : public Command
 {
  private:
 	char* hostmap;
  public:
-	cmd_sethost (InspIRCd* Instance, char* hmap) : Command(Instance,"SETHOST",'o',1), hostmap(hmap)
+	CommandSethost (InspIRCd* Instance, char* hmap) : Command(Instance,"SETHOST",'o',1), hostmap(hmap)
 	{
 		this->source = "m_sethost.so";
 		syntax = "<new-hostname>";
@@ -63,14 +63,14 @@ class cmd_sethost : public Command
 
 class ModuleSetHost : public Module
 {
-	cmd_sethost* mycommand;
+	CommandSethost* mycommand;
 	char hostmap[256];
  public:
 	ModuleSetHost(InspIRCd* Me)
 		: Module(Me)
 	{	
 		OnRehash(NULL,"");
-		mycommand = new cmd_sethost(ServerInstance, hostmap);
+		mycommand = new CommandSethost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
 	}
 

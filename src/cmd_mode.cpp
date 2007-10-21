@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_mode(Instance);
+	return new CommandMode(Instance);
 }
 
 /** Handle /MODE
  */
-CmdResult cmd_mode::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandMode::Handle (const char** parameters, int pcnt, User *user)
 {
 	ServerInstance->Modes->Process(parameters, pcnt, user, false);
 	return CMD_SUCCESS;

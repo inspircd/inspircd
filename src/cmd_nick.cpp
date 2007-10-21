@@ -17,7 +17,7 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_nick(Instance);
+	return new CommandNick(Instance);
 }
 
 /** Handle nick changes from users.
@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandNick::Handle (const char** parameters, int pcnt, User *user)
 {
 	char oldnick[NICKMAX];
 
@@ -161,7 +161,7 @@ CmdResult cmd_nick::Handle (const char** parameters, int pcnt, User *user)
 
 }
 
-CmdResult cmd_nick::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
+CmdResult CommandNick::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
 {
 	allowinvalid = (id != 0);
 	return CMD_SUCCESS;

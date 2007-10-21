@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_trace(Instance);
+	return new CommandTrace(Instance);
 }
 
 /** XXX: This is crap. someone fix this when you have time, to be more useful.
  */
-CmdResult cmd_trace::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandTrace::Handle (const char** parameters, int pcnt, User *user)
 {
 	for (user_hash::iterator i = ServerInstance->clientlist->begin(); i != ServerInstance->clientlist->end(); i++)
 	{

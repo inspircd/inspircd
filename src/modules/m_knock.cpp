@@ -17,10 +17,10 @@
 
 /** Handles the /KNOCK command
  */
-class cmd_knock : public Command
+class CommandKnock : public Command
 {
  public:
-	cmd_knock (InspIRCd* Instance) : Command(Instance,"KNOCK", 0, 2)
+	CommandKnock (InspIRCd* Instance) : Command(Instance,"KNOCK", 0, 2)
 	{
 		this->source = "m_knock.so";
 		syntax = "<channel> <reason>";
@@ -95,7 +95,7 @@ class Knock : public ModeHandler
 
 class ModuleKnock : public Module
 {
-	cmd_knock* mycommand;
+	CommandKnock* mycommand;
 	Knock* kn;
  public:
 	ModuleKnock(InspIRCd* Me) : Module(Me)
@@ -105,7 +105,7 @@ class ModuleKnock : public Module
 		if (!ServerInstance->AddMode(kn, 'K'))
 			throw ModuleException("Could not add new modes!");
 
-		mycommand = new cmd_knock(ServerInstance);
+		mycommand = new CommandKnock(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

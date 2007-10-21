@@ -18,11 +18,11 @@
 
 /** Handle /TITLE
  */
-class cmd_title : public Command
+class CommandTitle : public Command
 {
 	
  public:
-	cmd_title (InspIRCd* Instance) : Command(Instance,"TITLE",0,2)
+	CommandTitle (InspIRCd* Instance) : Command(Instance,"TITLE",0,2)
 	{
 		this->source = "m_customtitle.so";
 		syntax = "<user> <password>";
@@ -110,13 +110,13 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 class ModuleCustomTitle : public Module
 {
-	cmd_title* mycommand;
+	CommandTitle* mycommand;
 	
  public:
 	ModuleCustomTitle(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_title(ServerInstance);
+		mycommand = new CommandTitle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

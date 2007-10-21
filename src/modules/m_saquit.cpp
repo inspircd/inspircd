@@ -17,10 +17,10 @@
 
 /** Handle /SAQUIT
  */
-class cmd_saquit : public Command
+class CommandSaquit : public Command
 {
  public:
-	cmd_saquit (InspIRCd* Instance) : Command(Instance, "SAQUIT", 'o', 2, false, 0)
+	CommandSaquit (InspIRCd* Instance) : Command(Instance, "SAQUIT", 'o', 2, false, 0)
 	{
 		this->source = "m_saquit.so";
 		syntax = "<nick> <reason>";
@@ -60,13 +60,13 @@ class cmd_saquit : public Command
 
 class ModuleSaquit : public Module
 {
-	cmd_saquit*	mycommand;
+	CommandSaquit*	mycommand;
  public:
 	ModuleSaquit(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_saquit(ServerInstance);
+		mycommand = new CommandSaquit(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_die : public Command
+class CommandDie : public Command
 {
  public:
 	/** Constructor for die.
 	 */
-	cmd_die (InspIRCd* Instance) : Command(Instance,"DIE",'o',1,false,0) { syntax = "<password>"; }
+	CommandDie (InspIRCd* Instance) : Command(Instance,"DIE",'o',1,false,0) { syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

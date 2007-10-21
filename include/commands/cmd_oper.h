@@ -26,12 +26,12 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_oper : public Command
+class CommandOper : public Command
 {
  public:
 	/** Constructor for oper.
 	 */
-	cmd_oper (InspIRCd* Instance) : Command(Instance,"OPER",0,2,false,2) { syntax = "<username> <password>"; }
+	CommandOper (InspIRCd* Instance) : Command(Instance,"OPER",0,2,false,2) { syntax = "<username> <password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

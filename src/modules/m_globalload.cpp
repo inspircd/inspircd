@@ -17,10 +17,10 @@
 
 /** Handle /GLOADMODULE
  */
-class cmd_gloadmodule : public Command
+class CommandGloadmodule : public Command
 {
  public:
-	cmd_gloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", 'o', 1)
+	CommandGloadmodule (InspIRCd* Instance) : Command(Instance,"GLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -52,10 +52,10 @@ class cmd_gloadmodule : public Command
 
 /** Handle /GUNLOADMODULE
  */
-class cmd_gunloadmodule : public Command
+class CommandGunloadmodule : public Command
 {
  public:
-	cmd_gunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", 'o', 1)
+	CommandGunloadmodule (InspIRCd* Instance) : Command(Instance,"GUNLOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -86,10 +86,10 @@ class cmd_gunloadmodule : public Command
 
 /** Handle /GRELOADMODULE
  */
-class cmd_greloadmodule : public Command
+class CommandGreloadmodule : public Command
 {
  public:
-	cmd_greloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", 'o', 1)
+	CommandGreloadmodule (InspIRCd* Instance) : Command(Instance, "GRELOADMODULE", 'o', 1)
 	{
 		this->source = "m_globalload.so";
 		syntax = "<modulename> [servermask]";
@@ -121,17 +121,17 @@ class cmd_greloadmodule : public Command
 
 class ModuleGlobalLoad : public Module
 {
-	cmd_gloadmodule *mycommand;
-	cmd_gunloadmodule *mycommand2;
-	cmd_greloadmodule *mycommand3;
+	CommandGloadmodule *mycommand;
+	CommandGunloadmodule *mycommand2;
+	CommandGreloadmodule *mycommand3;
 	
  public:
 	ModuleGlobalLoad(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_gloadmodule(ServerInstance);
-		mycommand2 = new cmd_gunloadmodule(ServerInstance);
-		mycommand3 = new cmd_greloadmodule(ServerInstance);
+		mycommand = new CommandGloadmodule(ServerInstance);
+		mycommand2 = new CommandGunloadmodule(ServerInstance);
+		mycommand3 = new CommandGreloadmodule(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 		ServerInstance->AddCommand(mycommand3);

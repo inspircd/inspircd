@@ -27,7 +27,7 @@ static char *get_first_visible_channel(User *u)
 	return "*";
 }
 
-bool cmd_who::whomatch(User* user, const char* matchtext)
+bool CommandWho::whomatch(User* user, const char* matchtext)
 {
 	bool realhost = false;
 	bool realname = false;
@@ -109,10 +109,10 @@ bool cmd_who::whomatch(User* user, const char* matchtext)
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_who(Instance);
+	return new CommandWho(Instance);
 }
 
-bool cmd_who::CanView(Channel* chan, User* user)
+bool CommandWho::CanView(Channel* chan, User* user)
 {
 	if (!user || !chan)
 		return false;
@@ -132,7 +132,7 @@ bool cmd_who::CanView(Channel* chan, User* user)
 	return false;
 }
 
-void cmd_who::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
+void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
 	std::string lcn = get_first_visible_channel(u);
 	Channel* chlast = ServerInstance->FindChan(lcn);
@@ -165,7 +165,7 @@ void cmd_who::SendWhoLine(User* user, const std::string &initial, Channel* ch, U
 	whoresults.push_back(wholine);
 }
 
-CmdResult cmd_who::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
 {
 	/*
 	 * XXX - RFC says:

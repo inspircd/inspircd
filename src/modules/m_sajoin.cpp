@@ -17,10 +17,10 @@
 
 /** Handle /SAJOIN
  */
-class cmd_sajoin : public Command
+class CommandSajoin : public Command
 {
  public:
-	cmd_sajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", 'o', 2, false, 0)
+	CommandSajoin (InspIRCd* Instance) : Command(Instance,"SAJOIN", 'o', 2, false, 0)
 	{
 		this->source = "m_sajoin.so";
 		syntax = "<nick> <channel>";
@@ -88,13 +88,13 @@ class cmd_sajoin : public Command
 
 class ModuleSajoin : public Module
 {
-	cmd_sajoin*	mycommand;
+	CommandSajoin*	mycommand;
  public:
 	ModuleSajoin(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_sajoin(ServerInstance);
+		mycommand = new CommandSajoin(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

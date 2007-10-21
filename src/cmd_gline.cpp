@@ -17,12 +17,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_gline(Instance);
+	return new CommandGline(Instance);
 }
 
 /** Handle /GLINE
  */
-CmdResult cmd_gline::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{

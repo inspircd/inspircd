@@ -19,10 +19,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_zline(Instance);
+	return new CommandZline(Instance);
 }
 
-CmdResult cmd_zline::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{

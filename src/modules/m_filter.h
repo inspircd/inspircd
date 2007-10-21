@@ -88,11 +88,11 @@ class FilterResult : public classbase
 	}
 };
 
-class cmd_filter;
+class CommandFilter;
 
 class FilterBase : public Module
 {
-	cmd_filter* filtcommand;
+	CommandFilter* filtcommand;
 	int flags;
  public:
 	FilterBase(InspIRCd* Me, const std::string &source);
@@ -116,11 +116,11 @@ class FilterBase : public Module
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 };
 
-class cmd_filter : public Command
+class CommandFilter : public Command
 {
 	FilterBase* Base;
  public:
-	cmd_filter(FilterBase* f, InspIRCd* Me, const std::string &source) : Command(Me, "FILTER", 'o', 1), Base(f)
+	CommandFilter(FilterBase* f, InspIRCd* Me, const std::string &source) : Command(Me, "FILTER", 'o', 1), Base(f)
 	{
 		this->source = source;
 		this->syntax = "<filter-definition> <type> <flags> [<gline-duration>] :<reason>";
@@ -223,7 +223,7 @@ bool FilterBase::AppliesToMe(User* user, FilterResult* filter, int flags)
 
 FilterBase::FilterBase(InspIRCd* Me, const std::string &source) : Module(Me)
 {
-	filtcommand = new cmd_filter(this, Me, source);
+	filtcommand = new CommandFilter(this, Me, source);
 	ServerInstance->AddCommand(filtcommand);
 }
 

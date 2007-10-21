@@ -17,10 +17,10 @@
 
 
 
-class cmd_setname : public Command
+class CommandSetname : public Command
 {
  public:
-	cmd_setname (InspIRCd* Instance) : Command(Instance,"SETNAME", 0, 1)
+	CommandSetname (InspIRCd* Instance) : Command(Instance,"SETNAME", 0, 1)
 	{
 		this->source = "m_setname.so";
 		syntax = "<new-gecos>";
@@ -54,13 +54,13 @@ class cmd_setname : public Command
 
 class ModuleSetName : public Module
 {
-	cmd_setname*	mycommand;
+	CommandSetname*	mycommand;
  public:
 	ModuleSetName(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_setname(ServerInstance);
+		mycommand = new CommandSetname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

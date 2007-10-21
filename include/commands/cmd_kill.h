@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_kill : public Command
+class CommandKill : public Command
 {
  public:
 	/** Constructor for kill.
 	 */
-	cmd_kill (InspIRCd* Instance) : Command(Instance,"KILL",'o',2,false,0) { syntax = "<nickname> <reason>"; }
+	CommandKill (InspIRCd* Instance) : Command(Instance,"KILL",'o',2,false,0) { syntax = "<nickname> <reason>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

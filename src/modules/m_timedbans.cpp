@@ -30,10 +30,10 @@ timedbans TimedBanList;
 
 /** Handle /TBAN
  */
-class cmd_tban : public Command
+class CommandTban : public Command
 {
  public:
- cmd_tban (InspIRCd* Instance) : Command(Instance,"TBAN", 0, 3)
+ CommandTban (InspIRCd* Instance) : Command(Instance,"TBAN", 0, 3)
 	{
 		this->source = "m_timedbans.so";
 		syntax = "<channel> <duration> <banmask>";
@@ -104,13 +104,13 @@ class cmd_tban : public Command
 
 class ModuleTimedBans : public Module
 {
-	cmd_tban* mycommand;
+	CommandTban* mycommand;
  public:
 	ModuleTimedBans(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_tban(ServerInstance);
+		mycommand = new CommandTban(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
 	}

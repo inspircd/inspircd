@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_names(Instance);
+	return new CommandNames(Instance);
 }
 
 /** Handle /NAMES
  */
-CmdResult cmd_names::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandNames::Handle (const char** parameters, int pcnt, User *user)
 {
 	Channel* c;
 

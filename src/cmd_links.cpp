@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_links(Instance);
+	return new CommandLinks(Instance);
 }
 
 /** Handle /LINKS
  */
-CmdResult cmd_links::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandLinks::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("364 %s %s %s :0 %s",user->nick,ServerInstance->Config->ServerName,ServerInstance->Config->ServerName,ServerInstance->Config->ServerDesc);
 	user->WriteServ("365 %s * :End of /LINKS list.",user->nick);

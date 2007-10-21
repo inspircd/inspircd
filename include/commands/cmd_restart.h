@@ -27,12 +27,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_restart : public Command
+class CommandRestart : public Command
 {
  public:
 	/** Constructor for restart.
 	 */
-	cmd_restart (InspIRCd* Instance) : Command(Instance,"RESTART",'o',1,false,0) { syntax = "<password>"; }
+	CommandRestart (InspIRCd* Instance) : Command(Instance,"RESTART",'o',1,false,0) { syntax = "<password>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

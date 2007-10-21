@@ -22,12 +22,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_admin : public Command
+class CommandAdmin : public Command
 {
  public:
 	/** Constructor for admin.
 	 */
-	cmd_admin (InspIRCd* Instance) : Command(Instance,"ADMIN",0,0) { syntax = "[<servername>]"; }
+	CommandAdmin (InspIRCd* Instance) : Command(Instance,"ADMIN",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

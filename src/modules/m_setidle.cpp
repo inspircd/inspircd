@@ -17,10 +17,10 @@
 
 /** Handle /SETIDLE
  */
-class cmd_setidle : public Command
+class CommandSetidle : public Command
 {
  public:
-	cmd_setidle (InspIRCd* Instance) : Command(Instance,"SETIDLE", 'o', 1)
+	CommandSetidle (InspIRCd* Instance) : Command(Instance,"SETIDLE", 'o', 1)
 	{
 		this->source = "m_setidle.so";
 		syntax = "<duration>";
@@ -49,13 +49,13 @@ class cmd_setidle : public Command
 
 class ModuleSetIdle : public Module
 {
-	cmd_setidle*	mycommand;
+	CommandSetidle*	mycommand;
  public:
 	ModuleSetIdle(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_setidle(ServerInstance);
+		mycommand = new CommandSetidle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

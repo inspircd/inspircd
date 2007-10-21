@@ -17,10 +17,10 @@
 
 /** Handle /CHGNAME
  */
-class cmd_chgname : public Command
+class CommandChgname : public Command
 {
  public:
-	cmd_chgname (InspIRCd* Instance) : Command(Instance,"CHGNAME", 'o', 2)
+	CommandChgname (InspIRCd* Instance) : Command(Instance,"CHGNAME", 'o', 2)
 	{
 		this->source = "m_chgname.so";
 		syntax = "<nick> <newname>";
@@ -64,13 +64,13 @@ class cmd_chgname : public Command
 
 class ModuleChgName : public Module
 {
-	cmd_chgname* mycommand;
+	CommandChgname* mycommand;
 	
 	
 public:
 	ModuleChgName(InspIRCd* Me) : Module(Me)
 	{
-		mycommand = new cmd_chgname(ServerInstance);
+		mycommand = new CommandChgname(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

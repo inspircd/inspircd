@@ -27,12 +27,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_rules : public Command
+class CommandRules : public Command
 {
  public:
 	/** Constructor for rules.
 	 */
-	cmd_rules (InspIRCd* Instance) : Command(Instance,"RULES",0,0) { syntax = "[<servername>]"; }
+	CommandRules (InspIRCd* Instance) : Command(Instance,"RULES",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

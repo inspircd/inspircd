@@ -17,10 +17,10 @@
 
 /** Handle /UNINVITE
  */	 
-class cmd_uninvite : public Command
+class CommandUninvite : public Command
 {
  public:
-	cmd_uninvite (InspIRCd* Instance) : Command(Instance,"UNINVITE", 0, 2)
+	CommandUninvite (InspIRCd* Instance) : Command(Instance,"UNINVITE", 0, 2)
 	{
 		this->source = "m_uninvite.so";
 		syntax = "<nick> <channel>";
@@ -79,14 +79,14 @@ class cmd_uninvite : public Command
 
 class ModuleUninvite : public Module
 {
-	cmd_uninvite *mycommand;
+	CommandUninvite *mycommand;
 
  public:
 
 	ModuleUninvite(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_uninvite(ServerInstance);
+		mycommand = new CommandUninvite(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -203,10 +203,10 @@ class RemoveBase
 
 /** Handle /REMOVE
  */
-class cmd_remove : public Command, public RemoveBase
+class CommandRemove : public Command, public RemoveBase
 {
  public:
-	cmd_remove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2), RemoveBase(Instance, snk)
+	CommandRemove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -221,10 +221,10 @@ class cmd_remove : public Command, public RemoveBase
 
 /** Handle /FPART
  */
-class cmd_fpart : public Command, public RemoveBase
+class CommandFpart : public Command, public RemoveBase
 {
  public:
-	cmd_fpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
+	CommandFpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";
@@ -238,8 +238,8 @@ class cmd_fpart : public Command, public RemoveBase
 
 class ModuleRemove : public Module
 {
-	cmd_remove* mycommand;
-	cmd_fpart* mycommand2;
+	CommandRemove* mycommand;
+	CommandFpart* mycommand2;
 	bool supportnokicks;
 	
 	
@@ -247,8 +247,8 @@ class ModuleRemove : public Module
 	ModuleRemove(InspIRCd* Me)
 	: Module(Me)
 	{
-		mycommand = new cmd_remove(ServerInstance, supportnokicks);
-		mycommand2 = new cmd_fpart(ServerInstance, supportnokicks);
+		mycommand = new CommandRemove(ServerInstance, supportnokicks);
+		mycommand2 = new CommandFpart(ServerInstance, supportnokicks);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 		OnRehash(NULL,"");

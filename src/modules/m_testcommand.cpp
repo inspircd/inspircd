@@ -17,11 +17,11 @@
 
 /** Handle /DALINFO
  */
-class cmd_dalinfo : public Command
+class CommandDalinfo : public Command
 {
  public:
 	/* Command 'dalinfo', takes no parameters and needs no special modes */
-	cmd_dalinfo (InspIRCd* Instance) : Command(Instance,"DALINFO", 0, 0)
+	CommandDalinfo (InspIRCd* Instance) : Command(Instance,"DALINFO", 0, 0)
 	{
 		this->source = "m_testcommand.so";
 	}
@@ -35,13 +35,13 @@ class cmd_dalinfo : public Command
 
 class ModuleTestCommand : public Module
 {
-	cmd_dalinfo* newcommand;
+	CommandDalinfo* newcommand;
  public:
 	ModuleTestCommand(InspIRCd* Me)
 		: Module(Me)
 	{
 		// Create a new command
-		newcommand = new cmd_dalinfo(ServerInstance);
+		newcommand = new CommandDalinfo(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 

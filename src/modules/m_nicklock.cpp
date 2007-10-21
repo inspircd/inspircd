@@ -17,11 +17,11 @@
 
 /** Handle /NICKLOCK
  */
-class cmd_nicklock : public Command
+class CommandNicklock : public Command
 {
 	char* dummy;
  public:
-	cmd_nicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", 'o', 2)
+	CommandNicklock (InspIRCd* Instance) : Command(Instance,"NICKLOCK", 'o', 2)
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<oldnick> <newnick>";
@@ -72,10 +72,10 @@ class cmd_nicklock : public Command
 
 /** Handle /NICKUNLOCK
  */
-class cmd_nickunlock : public Command
+class CommandNickunlock : public Command
 {
  public:
-	cmd_nickunlock (InspIRCd* Instance) : Command(Instance,"NICKUNLOCK", 'o', 1)
+	CommandNickunlock (InspIRCd* Instance) : Command(Instance,"NICKUNLOCK", 'o', 1)
 	{
 		this->source = "m_nicklock.so";
 		syntax = "<locked-nick>";
@@ -99,16 +99,16 @@ class cmd_nickunlock : public Command
 
 class ModuleNickLock : public Module
 {
-	cmd_nicklock*	cmd1;
-	cmd_nickunlock*	cmd2;
+	CommandNicklock*	cmd1;
+	CommandNickunlock*	cmd2;
 	char* n;
  public:
 	ModuleNickLock(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		cmd1 = new cmd_nicklock(ServerInstance);
-		cmd2 = new cmd_nickunlock(ServerInstance);
+		cmd1 = new CommandNicklock(ServerInstance);
+		cmd2 = new CommandNickunlock(ServerInstance);
 		ServerInstance->AddCommand(cmd1);
 		ServerInstance->AddCommand(cmd2);
 	}

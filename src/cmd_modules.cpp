@@ -33,12 +33,12 @@ char* itab[] = {
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_modules(Instance);
+	return new CommandModules(Instance);
 }
 
 /** Handle /MODULES
  */
-CmdResult cmd_modules::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandModules::Handle (const char** parameters, int pcnt, User *user)
 {
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{

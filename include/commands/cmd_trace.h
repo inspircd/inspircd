@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_trace : public Command
+class CommandTrace : public Command
 {
  public:
 	/** Constructor for trace.
 	 */
-	cmd_trace (InspIRCd* Instance) : Command(Instance,"TRACE",'o',0) { syntax = "[<object>]"; }
+	CommandTrace (InspIRCd* Instance) : Command(Instance,"TRACE",'o',0) { syntax = "[<object>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

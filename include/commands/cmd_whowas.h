@@ -56,7 +56,7 @@ typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_whowas : public Command
+class CommandWhowas : public Command
 {
   private:
 	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
@@ -72,7 +72,7 @@ class cmd_whowas : public Command
 	std::string stats;
 
   public:
-	cmd_whowas(InspIRCd* Instance);
+	CommandWhowas(InspIRCd* Instance);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -92,7 +92,7 @@ class cmd_whowas : public Command
 	void GetStats(Extensible* ext);
 	void PruneWhoWas(time_t t);
 	void MaintainWhoWas(time_t t);
-	virtual ~cmd_whowas();
+	virtual ~CommandWhowas();
 };
 
 /** Used to hold WHOWAS information

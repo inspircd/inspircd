@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_lusers : public Command
+class CommandLusers : public Command
 {
  public:
 	/** Constructor for lusers.
 	 */
-	cmd_lusers (InspIRCd* Instance) : Command(Instance,"LUSERS",0,0) { }
+	CommandLusers (InspIRCd* Instance) : Command(Instance,"LUSERS",0,0) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

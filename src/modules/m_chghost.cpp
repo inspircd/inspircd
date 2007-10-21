@@ -17,12 +17,12 @@
 
 /** Handle /CHGHOST
  */
-class cmd_chghost : public Command
+class CommandChghost : public Command
 {
  private:
 	char* hostmap;
  public:
-	cmd_chghost (InspIRCd* Instance, char* hmap) : Command(Instance,"CHGHOST",'o',2), hostmap(hmap)
+	CommandChghost (InspIRCd* Instance, char* hmap) : Command(Instance,"CHGHOST",'o',2), hostmap(hmap)
 	{
 		this->source = "m_chghost.so";
 		syntax = "<nick> <newhost>";
@@ -75,14 +75,14 @@ class cmd_chghost : public Command
 
 class ModuleChgHost : public Module
 {
-	cmd_chghost* mycommand;
+	CommandChghost* mycommand;
 	char hostmap[256];
  public:
 	ModuleChgHost(InspIRCd* Me)
 		: Module(Me)
 	{
 		OnRehash(NULL,"");
-		mycommand = new cmd_chghost(ServerInstance, hostmap);
+		mycommand = new CommandChghost(ServerInstance, hostmap);
 		ServerInstance->AddCommand(mycommand);
 	}
 

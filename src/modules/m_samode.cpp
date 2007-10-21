@@ -17,10 +17,10 @@
 
 /** Handle /SAMODE
  */
-class cmd_samode : public Command
+class CommandSamode : public Command
 {
  public:
-	cmd_samode (InspIRCd* Instance) : Command(Instance,"SAMODE", 'o', 2, false, 0)
+	CommandSamode (InspIRCd* Instance) : Command(Instance,"SAMODE", 'o', 2, false, 0)
 	{
 		this->source = "m_samode.so";
 		syntax = "<target> <modes> {<mode-parameters>}";
@@ -68,13 +68,13 @@ class cmd_samode : public Command
 
 class ModuleSaMode : public Module
 {
-	cmd_samode*	mycommand;
+	CommandSamode*	mycommand;
  public:
 	ModuleSaMode(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_samode(ServerInstance);
+		mycommand = new CommandSamode(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

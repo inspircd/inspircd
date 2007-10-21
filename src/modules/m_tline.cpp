@@ -18,10 +18,10 @@
 
 /** Handle /TLINE
  */ 
-class cmd_tline : public Command
+class CommandTline : public Command
 {
  public:
-	cmd_tline (InspIRCd* Instance) : Command(Instance,"TLINE", 'o', 1)
+	CommandTline (InspIRCd* Instance) : Command(Instance,"TLINE", 'o', 1)
 	{
 		this->source = "m_tline.so";
 		this->syntax = "<mask>";
@@ -64,13 +64,13 @@ class cmd_tline : public Command
 
 class ModuleTLine : public Module
 {
-	cmd_tline* newcommand;
+	CommandTline* newcommand;
  public:
 	ModuleTLine(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		newcommand = new cmd_tline(ServerInstance);
+		newcommand = new CommandTline(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 

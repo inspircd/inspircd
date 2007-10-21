@@ -15,11 +15,11 @@
 
 /** Handle /CLOSE
  */
-class cmd_close : public Command
+class CommandClose : public Command
 {
  public:
 	/* Command 'close', needs operator */
-	cmd_close (InspIRCd* Instance) : Command(Instance,"CLOSE", 'o', 0)
+	CommandClose (InspIRCd* Instance) : Command(Instance,"CLOSE", 'o', 0)
 	{
 		this->source = "m_close.so";
 	}
@@ -55,13 +55,13 @@ class cmd_close : public Command
 
 class ModuleClose : public Module
 {
-	cmd_close* newcommand;
+	CommandClose* newcommand;
  public:
 	ModuleClose(InspIRCd* Me)
 		: Module(Me)
 	{
 		// Create a new command
-		newcommand = new cmd_close(ServerInstance);
+		newcommand = new CommandClose(ServerInstance);
 		ServerInstance->AddCommand(newcommand);
 	}
 

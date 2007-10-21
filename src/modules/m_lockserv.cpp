@@ -21,13 +21,13 @@
 */
 
 
-class cmd_lockserv : public Command
+class CommandLockserv : public Command
 {
 private:
 	bool& locked;
 
 public:
-	cmd_lockserv (InspIRCd* Instance, bool &lock)
+	CommandLockserv (InspIRCd* Instance, bool &lock)
 	: Command(Instance, "LOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
@@ -44,13 +44,13 @@ public:
 	}
 };
 
-class cmd_unlockserv : public Command
+class CommandUnlockserv : public Command
 {
 private:
 	bool& locked;
 
 public:
-	cmd_unlockserv (InspIRCd* Instance, bool &lock)
+	CommandUnlockserv (InspIRCd* Instance, bool &lock)
 	: Command(Instance, "UNLOCKSERV", 'o', 0), locked(lock)
 	{
 		this->source = "m_lockserv.so";
@@ -71,8 +71,8 @@ class ModuleLockserv : public Module
 {
 private:
 	bool locked;
-	cmd_lockserv* lockcommand;
-	cmd_unlockserv* unlockcommand;
+	CommandLockserv* lockcommand;
+	CommandUnlockserv* unlockcommand;
 
 	virtual void ResetLocked()
 	{
@@ -83,10 +83,10 @@ public:
 	ModuleLockserv(InspIRCd* Me) : Module(Me)
 	{
 		ResetLocked();
-		lockcommand = new cmd_lockserv(ServerInstance, locked);
+		lockcommand = new CommandLockserv(ServerInstance, locked);
 		ServerInstance->AddCommand(lockcommand);
 
-		unlockcommand = new cmd_unlockserv(ServerInstance, locked);
+		unlockcommand = new CommandUnlockserv(ServerInstance, locked);
 		ServerInstance->AddCommand(unlockcommand);
 	}
 

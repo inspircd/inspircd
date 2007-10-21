@@ -51,11 +51,11 @@ static int SILENCE_ALL		= 0x0020; /* a  all, (pcint)          */
 static int SILENCE_EXCLUDE	= 0x0040; /* x  exclude this pattern  */
 
 
-class cmd_silence : public Command
+class CommandSilence : public Command
 {
 	unsigned int& maxsilence;
  public:
-	cmd_silence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
+	CommandSilence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
 		this->source = "m_silence_ext.so";
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
@@ -231,7 +231,7 @@ class cmd_silence : public Command
 
 class ModuleSilence : public Module
 {
-	cmd_silence* mycommand;
+	CommandSilence* mycommand;
 	unsigned int maxsilence;
  public:
  
@@ -239,7 +239,7 @@ class ModuleSilence : public Module
 		: Module(Me), maxsilence(32)
 	{
 		OnRehash(NULL, "");
-		mycommand = new cmd_silence(ServerInstance,maxsilence);
+		mycommand = new CommandSilence(ServerInstance,maxsilence);
 		ServerInstance->AddCommand(mycommand);
 	}
 

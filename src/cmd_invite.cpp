@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_invite(Instance);
+	return new CommandInvite(Instance);
 }
 
 /** Handle /INVITE
  */
-CmdResult cmd_invite::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandInvite::Handle (const char** parameters, int pcnt, User *user)
 {
 	int MOD_RESULT = 0;
 

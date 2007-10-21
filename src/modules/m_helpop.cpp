@@ -49,10 +49,10 @@ class Helpop : public ModeHandler
 
 /** Handles /HELPOP
  */
-class cmd_helpop : public Command
+class CommandHelpop : public Command
 {
  public:
-	cmd_helpop (InspIRCd* Instance) : Command(Instance, "HELPOP", 0, 0)
+	CommandHelpop (InspIRCd* Instance) : Command(Instance, "HELPOP", 0, 0)
 	{
 		this->source = "m_helpop.so";
 		syntax = "<any-text>";
@@ -106,7 +106,7 @@ class ModuleHelpop : public Module
 {
 	private:
 		std::string  h_file;
-		cmd_helpop* mycommand;
+		CommandHelpop* mycommand;
 		Helpop* ho;
 
 	public:
@@ -117,7 +117,7 @@ class ModuleHelpop : public Module
 			ho = new Helpop(ServerInstance);
 			if (!ServerInstance->AddMode(ho, 'h'))
 				throw ModuleException("Could not add new modes!");
-			mycommand = new cmd_helpop(ServerInstance);
+			mycommand = new CommandHelpop(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}
 

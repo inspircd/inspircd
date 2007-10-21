@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_connect : public Command
+class CommandConnect : public Command
 {
  public:
 	/** Constructor for connect.
 	 */
-	cmd_connect (InspIRCd* Instance) : Command(Instance,"CONNECT",'o',1,false,0) { syntax = "<servername> [<remote-server>]"; }
+	CommandConnect (InspIRCd* Instance) : Command(Instance,"CONNECT",'o',1,false,0) { syntax = "<servername> [<remote-server>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

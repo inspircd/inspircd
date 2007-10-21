@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_kline : public Command
+class CommandKline : public Command
 {
  public:
 	/** Constructor for kline.
 	 */
-	cmd_kline (InspIRCd* Instance) : Command(Instance,"KLINE",'o',1,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
+	CommandKline (InspIRCd* Instance) : Command(Instance,"KLINE",'o',1,false,0) { syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

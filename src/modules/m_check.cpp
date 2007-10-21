@@ -18,10 +18,10 @@
 
 /** Handle /CHECK
  */
-class cmd_check : public Command
+class CommandCheck : public Command
 {
  public:
- 	cmd_check (InspIRCd* Instance) : Command(Instance,"CHECK", 'o', 1)
+ 	CommandCheck (InspIRCd* Instance) : Command(Instance,"CHECK", 'o', 1)
 	{
 		this->source = "m_check.so";
 		syntax = "<nickname>|<ip>|<hostmask>|<channel>";
@@ -157,12 +157,12 @@ class cmd_check : public Command
 class ModuleCheck : public Module
 {
  private:
-	cmd_check *mycommand;
+	CommandCheck *mycommand;
  public:
 	ModuleCheck(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_check(ServerInstance);
+		mycommand = new CommandCheck(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

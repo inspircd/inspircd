@@ -76,7 +76,7 @@ watchentries* whos_watching_me;
 
 /** Handle /WATCH
  */
-class cmd_watch : public Command
+class CommandWatch : public Command
 {
 	unsigned int& MAX_WATCH;
  public:
@@ -192,7 +192,7 @@ class cmd_watch : public Command
 		return CMD_FAILURE;
 	}
 
-	cmd_watch (InspIRCd* Instance, unsigned int &maxwatch) : Command(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
+	CommandWatch (InspIRCd* Instance, unsigned int &maxwatch) : Command(Instance,"WATCH",0,0), MAX_WATCH(maxwatch)
 	{
 		this->source = "m_watch.so";
 		syntax = "[C|L|S]|[+|-<nick>]";
@@ -301,7 +301,7 @@ class cmd_watch : public Command
 
 class Modulewatch : public Module
 {
-	cmd_watch* mycommand;
+	CommandWatch* mycommand;
 	unsigned int maxwatch;
  public:
 
@@ -310,7 +310,7 @@ class Modulewatch : public Module
 	{
 		OnRehash(NULL, "");
 		whos_watching_me = new watchentries();
-		mycommand = new cmd_watch(ServerInstance, maxwatch);
+		mycommand = new CommandWatch(ServerInstance, maxwatch);
 		ServerInstance->AddCommand(mycommand);
 	}
 

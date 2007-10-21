@@ -63,10 +63,10 @@ void spy_userlist(User *user, Channel *c)
 
 /** Handle /SPYLIST
  */
-class cmd_spylist : public Command
+class CommandSpylist : public Command
 {
   public:
-	cmd_spylist (InspIRCd* Instance) : Command(Instance,"SPYLIST", 'o', 0)
+	CommandSpylist (InspIRCd* Instance) : Command(Instance,"SPYLIST", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax.clear();
@@ -91,10 +91,10 @@ class cmd_spylist : public Command
 
 /** Handle /SPYNAMES
  */
-class cmd_spynames : public Command
+class CommandSpynames : public Command
 {
   public:
-	cmd_spynames (InspIRCd* Instance) : Command(Instance,"SPYNAMES", 'o', 0)
+	CommandSpynames (InspIRCd* Instance) : Command(Instance,"SPYNAMES", 'o', 0)
 	{
 		this->source = "m_spy.so";
 		syntax = "{<channel>{,<channel>}}";
@@ -130,14 +130,14 @@ class cmd_spynames : public Command
 
 class ModuleSpy : public Module
 {
-	cmd_spylist *mycommand;
-	cmd_spynames *mycommand2;
+	CommandSpylist *mycommand;
+	CommandSpynames *mycommand2;
  public:
 	ModuleSpy(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_spylist(ServerInstance);
-		mycommand2 = new cmd_spynames(ServerInstance);
+		mycommand = new CommandSpylist(ServerInstance);
+		mycommand2 = new CommandSpynames(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->AddCommand(mycommand2);
 	}

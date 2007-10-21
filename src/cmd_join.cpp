@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_join(Instance);
+	return new CommandJoin(Instance);
 }
 
 /** Handle /JOIN
  */
-CmdResult cmd_join::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandJoin::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt > 1)
 	{

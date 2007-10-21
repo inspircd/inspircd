@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_loadmodule(Instance);
+	return new CommandLoadmodule(Instance);
 }
 
 /** Handle /LOADMODULE
  */
-CmdResult cmd_loadmodule::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandLoadmodule::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{

@@ -24,7 +24,7 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_who : public Command
+class CommandWho : public Command
 {
 	bool CanView(Channel* chan, User* user);
 	bool opt_viewopersonly;
@@ -41,7 +41,7 @@ class cmd_who : public Command
  public:
 	/** Constructor for who.
 	 */
-	cmd_who (InspIRCd* Instance) : Command(Instance,"WHO", 0, 1, false, 2) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
+	CommandWho (InspIRCd* Instance) : Command(Instance,"WHO", 0, 1, false, 2) { syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
 	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd

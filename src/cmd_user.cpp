@@ -16,10 +16,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_user(Instance);
+	return new CommandUser(Instance);
 }
 
-CmdResult cmd_user::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandUser::Handle (const char** parameters, int pcnt, User *user)
 {
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))

@@ -16,10 +16,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_part(Instance);
+	return new CommandPart(Instance);
 }
 
-CmdResult cmd_part::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandPart::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, pcnt, 0))
 		return CMD_SUCCESS;

@@ -17,10 +17,10 @@
 
 /** Handle /CHGIDENT
  */
-class cmd_chgident : public Command
+class CommandChgident : public Command
 {
  public:
-	cmd_chgident (InspIRCd* Instance) : Command(Instance,"CHGIDENT", 'o', 2)
+	CommandChgident (InspIRCd* Instance) : Command(Instance,"CHGIDENT", 'o', 2)
 	{
 		this->source = "m_chgident.so";
 		syntax = "<nick> <newident>";
@@ -68,13 +68,13 @@ class cmd_chgident : public Command
 
 class ModuleChgIdent : public Module
 {
-	cmd_chgident* mycommand;
+	CommandChgident* mycommand;
 	
 	
 public:
 	ModuleChgIdent(InspIRCd* Me) : Module(Me)
 	{
-		mycommand = new cmd_chgident(ServerInstance);
+		mycommand = new CommandChgident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -18,10 +18,10 @@
  */
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_commands(Instance);
+	return new CommandCommands(Instance);
 }
 
-CmdResult cmd_commands::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandCommands::Handle (const char** parameters, int pcnt, User *user)
 {
 	for (Commandable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{

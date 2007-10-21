@@ -17,12 +17,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_eline(Instance);
+	return new CommandEline(Instance);
 }
 
 /** Handle /ELINE
  */
-CmdResult cmd_eline::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{

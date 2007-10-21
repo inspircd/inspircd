@@ -17,10 +17,10 @@
 
 /** Handle /SETIDENT
  */
-class cmd_setident : public Command
+class CommandSetident : public Command
 {
  public:
- cmd_setident (InspIRCd* Instance) : Command(Instance,"SETIDENT", 'o', 1)
+ CommandSetident (InspIRCd* Instance) : Command(Instance,"SETIDENT", 'o', 1)
 	{
 		this->source = "m_setident.so";
 		syntax = "<new-ident>";
@@ -57,13 +57,13 @@ class cmd_setident : public Command
 
 class ModuleSetIdent : public Module
 {
-	cmd_setident*	mycommand;
+	CommandSetident*	mycommand;
 	
  public:
 	ModuleSetIdent(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_setident(ServerInstance);
+		mycommand = new CommandSetident(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -44,10 +44,10 @@ cbanlist cbans;
 
 /** Handle /CBAN
  */
-class cmd_cban : public Command
+class CommandCban : public Command
 {
  public:
-	cmd_cban(InspIRCd* Me) : Command(Me, "CBAN", 'o', 1)
+	CommandCban(InspIRCd* Me) : Command(Me, "CBAN", 'o', 1)
 	{
 		this->source = "m_cban.so";
 		this->syntax = "<channel> [<duration> :<reason>]";
@@ -118,14 +118,14 @@ bool CBanComp(const CBan &ban1, const CBan &ban2)
 
 class ModuleCBan : public Module
 {
-	cmd_cban* mycommand;
+	CommandCban* mycommand;
 	
 
  public:
 	ModuleCBan(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_cban(Me);
+		mycommand = new CommandCban(Me);
 		ServerInstance->AddCommand(mycommand);
 	}
 

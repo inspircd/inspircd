@@ -40,10 +40,10 @@ CmdResult ShowOperMOTD(User* user)
 
 /** Handle /OPERMOTD
  */
-class cmd_opermotd : public Command
+class CommandOpermotd : public Command
 {
  public:
-	cmd_opermotd (InspIRCd* Instance) : Command(Instance,"OPERMOTD", 'o', 0)
+	CommandOpermotd (InspIRCd* Instance) : Command(Instance,"OPERMOTD", 'o', 0)
 	{
 		this->source = "m_opermotd.so";
 		syntax = "[<servername>]";
@@ -58,7 +58,7 @@ class cmd_opermotd : public Command
 
 class ModuleOpermotd : public Module
 {
-	cmd_opermotd* mycommand;
+	CommandOpermotd* mycommand;
  public:
 
 	void LoadOperMOTD()
@@ -79,7 +79,7 @@ class ModuleOpermotd : public Module
 		: Module(Me)
 	{
 		opermotd = NULL;
-		mycommand = new cmd_opermotd(ServerInstance);
+		mycommand = new CommandOpermotd(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		opermotd = new FileReader(ServerInstance);
 		LoadOperMOTD();

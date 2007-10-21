@@ -32,10 +32,10 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_oper(Instance);
+	return new CommandOper(Instance);
 }
 
-CmdResult cmd_oper::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandOper::Handle (const char** parameters, int pcnt, User *user)
 {
 	char LoginName[MAXBUF];
 	char Password[MAXBUF];

@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_info(Instance);
+	return new CommandInfo(Instance);
 }
 
 /** Handle /INFO
  */
-CmdResult cmd_info::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandInfo::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ( "371 %s :                   -/\\- \2InspIRCd\2 -\\/-", user->nick);
 	user->WriteServ( "371 %s :                 November 2002 - Present", user->nick);

@@ -18,10 +18,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_quit(Instance);
+	return new CommandQuit(Instance);
 }
 
-CmdResult cmd_quit::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandQuit::Handle (const char** parameters, int pcnt, User *user)
 {
 
 	std::string quitmsg;

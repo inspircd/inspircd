@@ -17,10 +17,10 @@
 
 extern "C" DllExport  Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_privmsg(Instance);
+	return new CommandPrivmsg(Instance);
 }
 
-CmdResult cmd_privmsg::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandPrivmsg::Handle (const char** parameters, int pcnt, User *user)
 {
 	User *dest;
 	Channel *chan;

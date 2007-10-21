@@ -17,10 +17,10 @@
 
 /** Handle /CYCLE
  */
-class cmd_cycle : public Command
+class CommandCycle : public Command
 {
  public:
-	cmd_cycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1, false, 3)
+	CommandCycle (InspIRCd* Instance) : Command(Instance,"CYCLE", 0, 1, false, 3)
 	{
 		this->source = "m_cycle.so";
 		syntax = "<channel> :[reason]";
@@ -79,13 +79,13 @@ class cmd_cycle : public Command
 
 class ModuleCycle : public Module
 {
-	cmd_cycle*	mycommand;
+	CommandCycle*	mycommand;
  public:
 	ModuleCycle(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_cycle(ServerInstance);
+		mycommand = new CommandCycle(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

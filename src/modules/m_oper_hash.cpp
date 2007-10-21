@@ -21,13 +21,13 @@ typedef std::map<irc::string, Module*> hashymodules;
 
 /* Handle /MKPASSWD
  */
-class cmd_mkpasswd : public Command
+class CommandMkpasswd : public Command
 {
 	Module* Sender;
 	hashymodules &hashers;
 	std::deque<std::string> &names;
  public:
-	cmd_mkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
+	CommandMkpasswd (InspIRCd* Instance, Module* S, hashymodules &h, std::deque<std::string> &n)
 		: Command(Instance,"MKPASSWD", 'o', 2), Sender(S), hashers(h), names(n)
 	{
 		this->source = "m_oper_hash.so";
@@ -66,7 +66,7 @@ class cmd_mkpasswd : public Command
 class ModuleOperHash : public Module
 {
 	
-	cmd_mkpasswd* mycommand;
+	CommandMkpasswd* mycommand;
 	ConfigReader* Conf;
 	hashymodules hashers; /* List of modules which implement HashRequest */
 	std::deque<std::string> names; /* Module names which implement HashRequest */
@@ -106,7 +106,7 @@ class ModuleOperHash : public Module
 			throw ModuleException("I can't find any modules loaded which implement the HashRequest interface! You probably forgot to load a hashing module such as m_md5.so or m_sha256.so.");
 		}
 
-		mycommand = new cmd_mkpasswd(ServerInstance, this, hashers, names);
+		mycommand = new CommandMkpasswd(ServerInstance, this, hashers, names);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -17,10 +17,10 @@
 
 /** Handle /VHOST
  */
-class cmd_vhost : public Command
+class CommandVhost : public Command
 {
  public:
-	cmd_vhost (InspIRCd* Instance) : Command(Instance,"VHOST", 0, 2)
+	CommandVhost (InspIRCd* Instance) : Command(Instance,"VHOST", 0, 2)
 	{
 		this->source = "m_vhost.so";
 		syntax = "<username> <password>";
@@ -58,12 +58,12 @@ class ModuleVHost : public Module
 {
  private:
 
-	cmd_vhost* mycommand;
+	CommandVhost* mycommand;
 	 
  public:
 	ModuleVHost(InspIRCd* Me) : Module(Me)
 	{
-		mycommand = new cmd_vhost(ServerInstance);
+		mycommand = new CommandVhost(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

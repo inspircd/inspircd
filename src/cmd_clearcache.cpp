@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_clearcache(Instance);
+	return new CommandClearcache(Instance);
 }
 
 /** Handle /CLEARCACHE
  */
-CmdResult cmd_clearcache::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandClearcache::Handle (const char** parameters, int pcnt, User *user)
 {
 	int n = ServerInstance->Res->ClearCache();
 	user->WriteServ("NOTICE %s :*** Cleared DNS cache of %d items.", user->nick, n);

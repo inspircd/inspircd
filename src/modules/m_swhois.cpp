@@ -17,11 +17,11 @@
 
 /** Handle /SWHOIS
  */
-class cmd_swhois : public Command
+class CommandSwhois : public Command
 {
 	
  public:
-	cmd_swhois (InspIRCd* Instance) : Command(Instance,"SWHOIS",'o',2)
+	CommandSwhois (InspIRCd* Instance) : Command(Instance,"SWHOIS",'o',2)
 	{
 		this->source = "m_swhois.so";
 		syntax = "<nick> <swhois>";
@@ -97,7 +97,7 @@ class cmd_swhois : public Command
 
 class ModuleSWhois : public Module
 {
-	cmd_swhois* mycommand;
+	CommandSwhois* mycommand;
 	
 	ConfigReader* Conf;
 	
@@ -106,7 +106,7 @@ class ModuleSWhois : public Module
 	{
 		
 		Conf = new ConfigReader(ServerInstance);
-		mycommand = new cmd_swhois(ServerInstance);
+		mycommand = new CommandSwhois(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

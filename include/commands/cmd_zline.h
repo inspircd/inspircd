@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_zline : public Command
+class CommandZline : public Command
 {
  public:
 	/** Constructor for zline.
 	 */
-	cmd_zline (InspIRCd* Instance) : Command(Instance,"ZLINE",'o',1,false,0) { syntax = "<ipmask> [<duration> :<reason>]"; }
+	CommandZline (InspIRCd* Instance) : Command(Instance,"ZLINE",'o',1,false,0) { syntax = "<ipmask> [<duration> :<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

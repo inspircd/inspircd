@@ -17,12 +17,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_kline(Instance);
+	return new CommandKline(Instance);
 }
 
 /** Handle /KLINE
  */
-CmdResult cmd_kline::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandKline::Handle (const char** parameters, int pcnt, User *user)
 {
 	if (pcnt >= 3)
 	{

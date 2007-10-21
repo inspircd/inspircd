@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_unloadmodule : public Command
+class CommandUnloadmodule : public Command
 {
  public:
 	/** Constructor for unloadmodule.
 	 */
-	cmd_unloadmodule (InspIRCd* Instance) : Command(Instance,"UNLOADMODULE",'o',1) { syntax = "<modulename>"; }
+	CommandUnloadmodule (InspIRCd* Instance) : Command(Instance,"UNLOADMODULE",'o',1) { syntax = "<modulename>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

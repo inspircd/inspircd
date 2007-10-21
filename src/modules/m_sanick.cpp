@@ -17,10 +17,10 @@
 
 /** Handle /SANICK
  */
-class cmd_sanick : public Command
+class CommandSanick : public Command
 {
  public:
-	cmd_sanick (InspIRCd* Instance) : Command(Instance,"SANICK", 'o', 2, false, 0)
+	CommandSanick (InspIRCd* Instance) : Command(Instance,"SANICK", 'o', 2, false, 0)
 	{
 		this->source = "m_sanick.so";
 		syntax = "<nick> <new-nick>";
@@ -71,13 +71,13 @@ class cmd_sanick : public Command
 
 class ModuleSanick : public Module
 {
-	cmd_sanick*	mycommand;
+	CommandSanick*	mycommand;
  public:
 	ModuleSanick(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_sanick(ServerInstance);
+		mycommand = new CommandSanick(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

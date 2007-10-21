@@ -19,10 +19,10 @@
 
 /** Handle /GLOBOPS
  */
-class cmd_globops : public Command
+class CommandGlobops : public Command
 {
  public:
-	cmd_globops (InspIRCd* Instance) : Command(Instance,"GLOBOPS",'o',1)
+	CommandGlobops (InspIRCd* Instance) : Command(Instance,"GLOBOPS",'o',1)
 	{
 		this->source = "m_globops.so";
 		syntax = "<any-text>";
@@ -45,12 +45,12 @@ class cmd_globops : public Command
 
 class ModuleGlobops : public Module
 {
-	cmd_globops* mycommand;
+	CommandGlobops* mycommand;
  public:
 	ModuleGlobops(InspIRCd* Me)
 		: Module(Me)
 	{
-		mycommand = new cmd_globops(ServerInstance);
+		mycommand = new CommandGlobops(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}

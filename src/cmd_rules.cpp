@@ -16,10 +16,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_rules(Instance);
+	return new CommandRules(Instance);
 }
 
-CmdResult cmd_rules::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandRules::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->ShowRULES();
 	return CMD_SUCCESS;

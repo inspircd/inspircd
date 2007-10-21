@@ -88,10 +88,10 @@ void do_whois(InspIRCd* ServerInstance, User* user, User* dest,unsigned long sig
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_whois(Instance);
+	return new CommandWhois(Instance);
 }
 
-CmdResult cmd_whois::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandWhois::Handle (const char** parameters, int pcnt, User *user)
 {
 	User *dest;
 	int userindex = 0;

@@ -18,17 +18,17 @@ WhoWasMaintainTimer * timer;
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_whowas(Instance);
+	return new CommandWhowas(Instance);
 }
 
-cmd_whowas::cmd_whowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0, 1, false, 2)
+CommandWhowas::CommandWhowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0, 1, false, 2)
 {
 	syntax = "<nick>{,<nick>}";
 	timer = new WhoWasMaintainTimer(Instance, 3600);
 	Instance->Timers->AddTimer(timer);
 }
 
-CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, User* user)
+CmdResult CommandWhowas::Handle (const char** parameters, int pcnt, User* user)
 {
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -86,7 +86,7 @@ CmdResult cmd_whowas::Handle (const char** parameters, int pcnt, User* user)
 	return CMD_SUCCESS;
 }
 
-CmdResult cmd_whowas::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
+CmdResult CommandWhowas::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
 {
 	switch (id)
 	{
@@ -112,7 +112,7 @@ CmdResult cmd_whowas::HandleInternal(const unsigned int id, const std::deque<cla
 	return CMD_SUCCESS;
 }
 
-void cmd_whowas::GetStats(Extensible* ext)
+void CommandWhowas::GetStats(Extensible* ext)
 {
 	int whowas_size = 0;
 	int whowas_bytes = 0;
@@ -130,7 +130,7 @@ void cmd_whowas::GetStats(Extensible* ext)
 	ext->Extend("stats", stats.c_str());
 }
 
-void cmd_whowas::AddToWhoWas(User* user)
+void CommandWhowas::AddToWhoWas(User* user)
 {
 	/* if whowas disabled */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -187,7 +187,7 @@ void cmd_whowas::AddToWhoWas(User* user)
 }
 
 /* on rehash, refactor maps according to new conf values */
-void cmd_whowas::PruneWhoWas(time_t t)
+void CommandWhowas::PruneWhoWas(time_t t)
 {
 	/* config values */
 	int groupsize = ServerInstance->Config->WhoWasGroupSize;
@@ -259,7 +259,7 @@ void cmd_whowas::PruneWhoWas(time_t t)
 }
 
 /* call maintain once an hour to remove expired nicks */
-void cmd_whowas::MaintainWhoWas(time_t t)
+void CommandWhowas::MaintainWhoWas(time_t t)
 {
 	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
 	{
@@ -276,7 +276,7 @@ void cmd_whowas::MaintainWhoWas(time_t t)
 	}
 }
 
-cmd_whowas::~cmd_whowas()
+CommandWhowas::~CommandWhowas()
 {
 	if (timer)
 	{

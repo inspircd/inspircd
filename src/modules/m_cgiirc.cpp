@@ -40,13 +40,13 @@ public:
 };
 typedef std::vector<CGIhost> CGIHostlist;
 
-class cmd_webirc : public Command
+class CommandWebirc : public Command
 {
 	InspIRCd* Me;
 	CGIHostlist Hosts;
 	bool notify;
 	public:
-		cmd_webirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : Command(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
+		CommandWebirc(InspIRCd* Me, CGIHostlist &Hosts, bool notify) : Command(Me, "WEBIRC", 0, 4, true), Hosts(Hosts), notify(notify)
 		{
 			this->source = "m_cgiirc.so";
 			this->syntax = "password client hostname ip";
@@ -123,7 +123,7 @@ class CGIResolver : public Resolver
 
 class ModuleCgiIRC : public Module
 {
-	cmd_webirc* mycommand;
+	CommandWebirc* mycommand;
 	bool NotifyOpers;
 	CGIHostlist Hosts;
 public:
@@ -131,7 +131,7 @@ public:
 	{
 		
 		OnRehash(NULL,"");
-		mycommand=new cmd_webirc(Me, Hosts, NotifyOpers);
+		mycommand=new CommandWebirc(Me, Hosts, NotifyOpers);
 		ServerInstance->AddCommand(mycommand);
 	}
 

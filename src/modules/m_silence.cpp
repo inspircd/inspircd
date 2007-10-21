@@ -21,11 +21,11 @@
 // have one of these structures associated with their user record.
 typedef std::map<irc::string, time_t> silencelist;
 
-class cmd_silence : public Command
+class CommandSilence : public Command
 {
 	unsigned int& maxsilence;
  public:
-	cmd_silence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
+	CommandSilence (InspIRCd* Instance, unsigned int &max) : Command(Instance,"SILENCE", 0, 0), maxsilence(max)
 	{
 		this->source = "m_silence.so";
 		syntax = "{[+|-]<mask>}";
@@ -125,7 +125,7 @@ class cmd_silence : public Command
 class ModuleSilence : public Module
 {
 	
-	cmd_silence* mycommand;
+	CommandSilence* mycommand;
 	unsigned int maxsilence;
  public:
  
@@ -133,7 +133,7 @@ class ModuleSilence : public Module
 		: Module(Me), maxsilence(32)
 	{
 		OnRehash(NULL, "");
-		mycommand = new cmd_silence(ServerInstance, maxsilence);
+		mycommand = new CommandSilence(ServerInstance, maxsilence);
 		ServerInstance->AddCommand(mycommand);
 	}
 

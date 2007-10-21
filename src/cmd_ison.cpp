@@ -16,12 +16,12 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_ison(Instance);
+	return new CommandIson(Instance);
 }
 
 /** Handle /ISON
  */
-CmdResult cmd_ison::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandIson::Handle (const char** parameters, int pcnt, User *user)
 {
 	std::map<User*,User*> ison_already;
 	User *u;

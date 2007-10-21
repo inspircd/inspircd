@@ -17,10 +17,10 @@
 
 /** Handle /USERIP
  */
-class cmd_userip : public Command
+class CommandUserip : public Command
 {
  public:
-	cmd_userip (InspIRCd* Instance) : Command(Instance,"USERIP", 'o', 1)
+	CommandUserip (InspIRCd* Instance) : Command(Instance,"USERIP", 'o', 1)
 	{
 		this->source = "m_userip.so";
 		syntax = "<nick>{,<nick>}";
@@ -48,13 +48,13 @@ class cmd_userip : public Command
 
 class ModuleUserIP : public Module
 {
-	cmd_userip* mycommand;
+	CommandUserip* mycommand;
  public:
 	ModuleUserIP(InspIRCd* Me)
 		: Module(Me)
 	{
 		
-		mycommand = new cmd_userip(ServerInstance);
+		mycommand = new CommandUserip(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

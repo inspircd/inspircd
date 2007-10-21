@@ -47,10 +47,10 @@ SVSHoldMap HoldMap;
 
 /** Handle /SVSHold
  */
-class cmd_svshold : public Command
+class CommandSvshold : public Command
 {
  public:
-	cmd_svshold(InspIRCd* Me) : Command(Me, "SVSHOLD", 'o', 1)
+	CommandSvshold(InspIRCd* Me) : Command(Me, "SVSHOLD", 'o', 1)
 	{
 		this->source = "m_svshold.so";
 		this->syntax = "<nickname> [<duration> :<reason>]";
@@ -151,13 +151,13 @@ bool SVSHoldComp(const SVSHold* ban1, const SVSHold* ban2)
 
 class ModuleSVSHold : public Module
 {
-	cmd_svshold *mycommand;
+	CommandSvshold *mycommand;
 	
 
  public:
 	ModuleSVSHold(InspIRCd* Me) : Module(Me)
 	{
-		mycommand = new cmd_svshold(Me);
+		mycommand = new CommandSvshold(Me);
 		ServerInstance->AddCommand(mycommand);
 	}
 

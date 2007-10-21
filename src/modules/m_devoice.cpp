@@ -22,10 +22,10 @@
 
 /** Handle /DEVOICE
  */
-class cmd_devoice : public Command
+class CommandDevoice : public Command
 {
  public:
-	cmd_devoice (InspIRCd* Instance) : Command(Instance,"DEVOICE", 0, 1)
+	CommandDevoice (InspIRCd* Instance) : Command(Instance,"DEVOICE", 0, 1)
 	{
 		this->source = "m_devoice.so";
 		syntax = "<channel>";
@@ -54,12 +54,12 @@ class cmd_devoice : public Command
 
 class ModuleDeVoice : public Module
 {
-	cmd_devoice *mycommand;
+	CommandDevoice *mycommand;
  public:
 	ModuleDeVoice(InspIRCd* Me) : Module(Me)
 	{
 
-		mycommand = new cmd_devoice(ServerInstance);
+		mycommand = new CommandDevoice(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 

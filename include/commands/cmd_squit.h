@@ -27,12 +27,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_squit : public Command
+class CommandSquit : public Command
 {
  public:
 	/** Constructor for squit.
 	 */
-	cmd_squit (InspIRCd* Instance) : Command(Instance,"SQUIT",'o',1) { syntax = "<servername> [<reason>]"; }
+	CommandSquit (InspIRCd* Instance) : Command(Instance,"SQUIT",'o',1) { syntax = "<servername> [<reason>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

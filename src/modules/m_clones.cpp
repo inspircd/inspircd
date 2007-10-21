@@ -18,10 +18,10 @@
 
 /** Handle /CHECK
  */
-class cmd_clones : public Command
+class CommandClones : public Command
 {
  public:
- 	cmd_clones (InspIRCd* Instance) : Command(Instance,"CLONES", 'o', 1)
+ 	CommandClones (InspIRCd* Instance) : Command(Instance,"CLONES", 'o', 1)
 	{
 		this->source = "m_clones.so";
 		syntax = "<limit>";
@@ -69,12 +69,12 @@ class cmd_clones : public Command
 class ModuleClones : public Module
 {
  private:
-	cmd_clones *mycommand;
+	CommandClones *mycommand;
  public:
 	ModuleClones(InspIRCd* Me) : Module(Me)
 	{
 		
-		mycommand = new cmd_clones(ServerInstance);
+		mycommand = new CommandClones(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 	}
 	

@@ -25,12 +25,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_pong : public Command
+class CommandPong : public Command
 {
  public:
 	/** Constructor for pong.
 	 */
-	cmd_pong (InspIRCd* Instance) : Command(Instance,"PONG", 0, 1, false, 0) { syntax = "<ping-text>"; }
+	CommandPong (InspIRCd* Instance) : Command(Instance,"PONG", 0, 1, false, 0) { syntax = "<ping-text>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

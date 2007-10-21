@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_list : public Command
+class CommandList : public Command
 {
  public:
 	/** Constructor for list.
 	 */
-	cmd_list (InspIRCd* Instance) : Command(Instance,"LIST", 0, 0, false, 5) { }
+	CommandList (InspIRCd* Instance) : Command(Instance,"LIST", 0, 0, false, 5) { }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

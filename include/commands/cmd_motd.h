@@ -27,12 +27,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_motd : public Command
+class CommandMotd : public Command
 {
  public:
 	/** Constructor for motd.
 	 */
-	cmd_motd (InspIRCd* Instance) : Command(Instance,"MOTD",0,0) { syntax = "[<servername>]"; }
+	CommandMotd (InspIRCd* Instance) : Command(Instance,"MOTD",0,0) { syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

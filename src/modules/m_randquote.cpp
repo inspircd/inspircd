@@ -23,10 +23,10 @@ std::string suffix;
 
 /** Handle /RANDQUOTE
  */
-class cmd_randquote : public Command
+class CommandRandquote : public Command
 {
  public:
-	cmd_randquote (InspIRCd* Instance) : Command(Instance,"RANDQUOTE", 0, 0)
+	CommandRandquote (InspIRCd* Instance) : Command(Instance,"RANDQUOTE", 0, 0)
 	{
 		this->source = "m_randquote.so";
 	}
@@ -72,7 +72,7 @@ class RandquoteException : public ModuleException
 class ModuleRandQuote : public Module
 {
  private:
-	cmd_randquote* mycommand;
+	CommandRandquote* mycommand;
 	ConfigReader *conf;
  public:
 	ModuleRandQuote(InspIRCd* Me)
@@ -104,7 +104,7 @@ class ModuleRandQuote : public Module
 		else
 		{
 			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-			mycommand = new cmd_randquote(ServerInstance);
+			mycommand = new CommandRandquote(ServerInstance);
 			ServerInstance->AddCommand(mycommand);
 		}
 	}

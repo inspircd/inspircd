@@ -18,10 +18,10 @@
 
 extern "C" DllExport Command* init_command(InspIRCd* Instance)
 {
-	return new cmd_version(Instance);
+	return new CommandVersion(Instance);
 }
 
-CmdResult cmd_version::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandVersion::Handle (const char** parameters, int pcnt, User *user)
 {
 	user->WriteServ("351 %s :%s",user->nick,ServerInstance->GetVersionString().c_str());
 	ServerInstance->Config->Send005(user);

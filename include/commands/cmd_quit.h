@@ -24,12 +24,12 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class cmd_quit : public Command
+class CommandQuit : public Command
 {
  public:
 	/** Constructor for quit.
 	 */
-	cmd_quit (InspIRCd* Instance) : Command(Instance,"QUIT",0,0,true) { syntax = "[<message>]"; }
+	CommandQuit (InspIRCd* Instance) : Command(Instance,"QUIT",0,0,true) { syntax = "[<message>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
