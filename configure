@@ -1482,7 +1482,7 @@ sub write_dynamic_makefile
 				}
 				elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
 				{
-					if (($config{$1} ne "y") and ($config{$1} ne "yes") and ($config{$1} ne "1"))
+					if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
 					{
 						# Skip to 'endif'
 						while (chomp($line = <CPP>))
