@@ -13,6 +13,25 @@
 
 /* $Core: libIRCDsocketengine */
 
+/*********        DEFAULTS       **********/
+/* $ExtraSources: socketengine_select.cpp */
+/* $ExtraObjects: socketengine_select.o */
+
+/* $If: USE_KQUEUE */
+/* $ExtraSources: socketengine_kqueue.cpp */
+/* $ExtraObjects: socketengine_kqueue.o */
+/* $EndIf */
+
+/* $If: USE_EPOLL */
+/* $ExtraSources: socketengine_epoll.cpp */
+/* $ExtraObjects: socketengine_epoll.o */
+/* $EndIf */
+
+/* $If: USE_PORTS */
+/* $ExtraSources: socketengine_ports.cpp */
+/* $ExtraObjects: socketengine_ports.o */
+/* $EndIf */
+
 #include "inspircd.h"
 #include "socketengine.h"
 

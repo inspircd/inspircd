@@ -43,7 +43,6 @@ my @immutabledeps = (
 	"inspircd.h",
 );
 
-
 ###############################################################################################
 #
 #                                 NON-EDITABLE VARIABLES
@@ -57,21 +56,25 @@ my @immutabledeps = (
 my %filelist = ();
 
 # If you wish for a file to have special dependencies in the makefile, add an entry here.
+# Auto populated by /* $ExtraDeps: */ instruction
 
 my %specialdeps = ();
 
 # If you wish for a file to have extra make lines (in between the compile and link steps)
 # then insert them here.
+# Auto populated by /* $ExtraBuild: */ instruction
         
 my %extrabuildlines = ();
 
 # If you wish for a file to be linked against extra objects or arctives, insert them here.
+# Auto populated by /* $ExtraObjects: */ instruction
 
 my %extraobjects = ();
 
 # If you wish to compile extra cpp sources into an object, define them here.
 # NOTE: Certain cpp files such as the socket engines have a value auto calculated
 # for this table so that their derived class is built.
+# Auto populated by /* $ExtraSources: */ instruction
 
 my %extrasources = ();
 
@@ -1434,6 +1437,19 @@ sub write_dynamic_makefile
 	}
 	closedir(DIRHANDLE);
 
+	if (!$has_epoll)
+	{
+		$config{USE_EPOLL} = 0;
+	}
+	if (!$has_kqueue)
+	{
+		$config{USE_KQUEUE} = 0;
+	}
+	if (!$has_ports)
+	{
+		$config{USE_PORTS} = 0;
+	}
+
 	print "Scanning src folder for core files";
 	opendir(DIRHANDLE, "src");
 	foreach $name (sort readdir(DIRHANDLE))
@@ -1443,26 +1459,38 @@ sub write_dynamic_makefile
 			open (CPP, "<src/$name") or die("Can't open src/$name to scan it! oh bugger");
 			while (chomp($line = <CPP>))
 			{
-				if ($line =~ /\/\* \$Core: (\w+) \*\//)
+				if ($line =~ /\/\* \$Core: (\w+) \*\//i)
 				{
 					$filelist{$name} = $1;
 					print ".";
 				}
-				elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//)
+				elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
 				{
 					$specialdeps{$name} = $1;
 				}
-				elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//)
+				elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//i)
 				{
 					$extraobjects{$name} = $1;
 				}
-				elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//)
+				elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//i)
 				{
 					$extrabuildlines{$name} = $1;
 				}
-				elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//)
+				elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//i)
 				{
 					$extrasources{$name} = $1;
+				}
+				elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
+				{
+					if (($config{$1} ne "y") and ($config{$1} ne "yes") and ($config{$1} ne "1"))
+					{
+						# Skip to 'endif'
+						while (chomp($line = <CPP>))
+						{
+							die ("\$If buildsystem instruction within another \$If in file src/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
+							last if ($line =~ /\/\* \$EndIf \*\//i);
+						}
+					}
 				}
 			}
 			close CPP;
@@ -1470,20 +1498,6 @@ sub write_dynamic_makefile
 	}
 	closedir(DIRHANDLE);
 	print " done!\n";
-
-	$se = "socketengine_select";
-	if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
-		$se = "socketengine_kqueue";
-	}
-	elsif (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
-		$se = "socketengine_epoll";
-	}
-	elsif (($has_ports) && ($config{USE_PORTS} eq "y")) {
-		$se = "socketengine_ports";
-	}
-
-	$extrasources{"socketengine.cpp"} = $se . ".cpp";
-	$extraobjects{"socketengine.cpp"} = $se . ".o";
 
 	$freebsd4libs = $config{CRAQ};
 
