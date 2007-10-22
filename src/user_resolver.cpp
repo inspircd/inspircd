@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDuserresolver */
+
 #include "inspircd.h"
 
 UserResolver::UserResolver(InspIRCd* Instance, User* user, std::string to_resolve, QueryType qt, bool &cache) :

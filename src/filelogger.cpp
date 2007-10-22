@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDfilelogger */
+
 #include "inspircd.h"
 #include <fstream>
 #include "socketengine.h"

@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDasyncdns */
+
 /*
 dns.cpp - Nonblocking DNS functions.
 Very very loosely based on the firedns library,

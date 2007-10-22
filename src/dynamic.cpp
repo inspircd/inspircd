@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDdynamic */
+
 #include "inspircd.h"
 #include "dynamic.h"
 #ifndef WIN32

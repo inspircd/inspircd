@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDtimer */
+
 #include "inspircd.h"
 #include "timer.h"
 

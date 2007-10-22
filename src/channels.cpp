@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDchannels */
+
 #include "inspircd.h"
 #include <stdarg.h>
 #include "wildcard.h"

@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDusers */
+
 #include "inspircd.h"
 #include <stdarg.h>
 #include "socketengine.h"

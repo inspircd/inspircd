@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDbase */
+
 #include "inspircd_config.h"
 #include "base.h"
 #include <time.h>

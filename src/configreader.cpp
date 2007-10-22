@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDconfigreader */
+
 #include "inspircd.h"
 #include <fstream>
 #include "xline.h"

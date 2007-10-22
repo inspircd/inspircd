@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDinspsocket */
+
 #include "socket.h"
 #include "inspstring.h"
 #include "socketengine.h"

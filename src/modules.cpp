@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDmodules */
+
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"

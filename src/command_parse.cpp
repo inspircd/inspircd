@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDcommand_parse */
+
 #include "inspircd.h"
 #include "wildcard.h"
 #include "xline.h"

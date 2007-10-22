@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDsnomasks */
+
 #include "inspircd.h"
 #include <stdarg.h>
 #include "snomasks.h"

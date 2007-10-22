@@ -29,63 +29,6 @@ use make::opensslcert;
 #
 ###############################################################################################
 
-# This is a list of all files in the core. Each cpp file is mapped to a shared object file,
-# whos file extension is omitted (these can vary from system to system).
-
-my %filelist = (
-	"channels.cpp"      =>      "libIRCDchannels",
-	"mode.cpp"          =>      "libIRCDmode",
-	"xline.cpp"         =>      "libIRCDxline",
-	"inspstring.cpp"    =>      "libIRCDstring",
-	"dns.cpp"           =>      "libIRCDasyncdns",
-	"base.cpp"          =>      "libIRCDbase",
-	"configreader.cpp"  =>      "libIRCDconfigreader",
-	"inspsocket.cpp"    =>      "libIRCDinspsocket",
-	"commands.cpp"      =>      "libIRCDcommands",
-	"dynamic.cpp"       =>      "libIRCDdynamic",
-	"users.cpp"         =>      "libIRCDusers",
-	"modules.cpp"       =>      "libIRCDmodules",
-	"wildcard.cpp"      =>      "libIRCDwildcard",
-	"helperfuncs.cpp"   =>      "libIRCDhelper",
-	"hashcomp.cpp"      =>      "libIRCDhash",
-	"socket.cpp"        =>      "libIRCDsocket",
-	"socketengine.cpp"  =>      "libIRCDsocketengine",
-	"userprocess.cpp"   =>      "libIRCDuserprocess",
-	"cull_list.cpp"     =>      "libIRCDcull_list",
-	"command_parse.cpp" =>      "libIRCDcommand_parse",
-	"timer.cpp"         =>      "libIRCDtimer",
-	"snomasks.cpp"      =>      "libIRCDsnomasks",
-	"server.cpp"        =>      "libIRCDserver",
-	"filelogger.cpp"    =>      "libIRCDfilelogger",
-	"user_resolver.cpp" =>      "libIRCDuserresolver",
-);
-
-# If you wish for a file to have special dependencies in the makefile, add an entry here.
-
-my %specialdeps = (
-	"mode.cpp"	=>	"\$(RELCPPFILES)",
-);
-
-# If you wish for a file to have extra make lines (in between the compile and link steps)
-# then insert them here.
-	
-my %extrabuildlines = (
-	"mode.cpp"	=>	"\${MAKE} -C \"modes\" DIRNAME=\"src/modes\" CC=\"\$(CC)\" \$(MAKEARGS) CPPFILES=\"\$(CPPFILES)\"",
-);
-
-# If you wish for a file to be linked against extra objects or arctives, insert them here.
-
-my %extraobjects = (
-	"mode.cpp"	=>	"modes/modeclasses.a"
-);
-
-# If you wish to compile extra cpp sources into an object, define them here.
-# NOTE: Certain cpp files such as the socket engines have a value auto calculated
-# for this table so that their derived class is built.
-
-my %extrasources = (
-);
-
 # If you wish to ignore a dependency throughout the entire core, add it here.
 
 my @ignoredeps = (
@@ -106,6 +49,31 @@ my @immutabledeps = (
 #                                 NON-EDITABLE VARIABLES
 #
 ###############################################################################################
+
+# This is a list of all files in the core. Each cpp file is mapped to a shared object file,
+# whos file extension is omitted (these can vary from system to system). Auto detected by
+# scanning the src/*.cpp files for files containing /* $Core: */ identifiers.
+
+my %filelist = ();
+
+# If you wish for a file to have special dependencies in the makefile, add an entry here.
+
+my %specialdeps = ();
+
+# If you wish for a file to have extra make lines (in between the compile and link steps)
+# then insert them here.
+        
+my %extrabuildlines = ();
+
+# If you wish for a file to be linked against extra objects or arctives, insert them here.
+
+my %extraobjects = ();
+
+# If you wish to compile extra cpp sources into an object, define them here.
+# NOTE: Certain cpp files such as the socket engines have a value auto calculated
+# for this table so that their derived class is built.
+
+my %extrasources = ();
 
 
 GetOptions (
@@ -1452,17 +1420,56 @@ sub calcdeps($)
 	return length($immutable) ? $immutable . " " . $retlist : $retlist;
 }
 
-sub write_dynamic_makefile {
-
+sub write_dynamic_makefile
+{
 	my $i = 0;
 	my @cmdlist = ();
 	opendir(DIRHANDLE, "src/commands");
-	foreach $name (sort readdir(DIRHANDLE)) {
-		if ($name =~ /^cmd_(.+)\.cpp$/) {
+	foreach $name (sort readdir(DIRHANDLE))
+	{
+		if ($name =~ /^cmd_(.+)\.cpp$/)
+		{
 			$cmdlist[$i++] = $1;
 	    	}
 	}
 	closedir(DIRHANDLE);
+
+	print "Scanning src folder for core files";
+	opendir(DIRHANDLE, "src");
+	foreach $name (sort readdir(DIRHANDLE))
+	{
+		if ($name =~ /\.cpp$/)
+		{
+			open (CPP, "<src/$name") or die("Can't open src/$name to scan it! oh bugger");
+			while (chomp($line = <CPP>))
+			{
+				if ($line =~ /\/\* \$Core: (\w+) \*\//)
+				{
+					$filelist{$name} = $1;
+					print ".";
+				}
+				elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//)
+				{
+					$specialdeps{$name} = $1;
+				}
+				elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//)
+				{
+					$extraobjects{$name} = $1;
+				}
+				elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//)
+				{
+					$extrabuildlines{$name} = $1;
+				}
+				elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//)
+				{
+					$extrasources{$name} = $1;
+				}
+			}
+			close CPP;
+		}
+	}
+	closedir(DIRHANDLE);
+	print " done!\n";
 
 	$se = "socketengine_select";
 	if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {

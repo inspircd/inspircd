@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDhash */
+
 #include "inspircd.h"
 #include "hashcomp.h"
 #ifndef WIN32

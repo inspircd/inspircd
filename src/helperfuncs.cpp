@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDhelper */
+
 #include "inspircd.h"
 #include <stdarg.h>
 #include "wildcard.h"

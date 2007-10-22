@@ -11,6 +11,8 @@
  * ---------------------------------------------------
  */
 
+/* $Core: libIRCDserver */
+
 #include <signal.h>
 #include "exitcodes.h"
 #include "inspircd.h"
