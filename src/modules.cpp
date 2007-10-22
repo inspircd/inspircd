@@ -901,42 +901,6 @@ bool InspIRCd::DelELine(const std::string &hostmask)
 	return XLines->del_eline(hostmask.c_str());
 }
 
-/*
- * XXX why on *earth* is this in modules.cpp...? I think
- * perhaps we need a server.cpp for InspIRCd:: stuff where possible. -- w00t
- */
-bool InspIRCd::IsValidMask(const std::string &mask)
-{
-	char* dest = (char*)mask.c_str();
-	int exclamation = 0;
-	int atsign = 0;
-
-	for (char* i = dest; *i; i++)
-	{
-		/* out of range character, bad mask */
-		if (*i < 32 || *i > 126)
-		{
-			return false;
-		}
-
-		switch (*i)
-		{
-			case '!':
-				exclamation++;
-				break;
-			case '@':
-				atsign++;
-				break;
-		}
-	}
-
-	/* valid masks only have 1 ! and @ */
-	if (exclamation != 1 || atsign != 1)
-		return false;
-
-	return true;
-}
-
 Module* ModuleManager::Find(const std::string &name)
 {
 	for (int i = 0; i <= this->GetCount(); i++)
