@@ -184,7 +184,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="@echo off&#x0D;&#x0A;echo Compiling Command Modules...&#x0D;&#x0A;cd ..\src&#x0D;&#x0A;nmake -f commands.mak&#x0D;&#x0A;echo Compiling Modules...&#x0D;&#x0A;cd modules&#x0D;&#x0A;nmake -f modules.mak&#x0D;&#x0A;"
+				CommandLine="@echo off&#x0D;&#x0A;echo Compiling Command Modules...&#x0D;&#x0A;cd ..\src\commands&#x0D;&#x0A;nmake -f commands.mak&#x0D;&#x0A;echo Compiling Modules...&#x0D;&#x0A;cd ..\modules&#x0D;&#x0A;nmake -f modules.mak&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -3533,16 +3533,8 @@
 			Name="Command Handlers"
 			>
 			<File
-				RelativePath="..\src\cmd_admin.cpp"
+				RelativePath="..\src\commands\cmd_admin.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3553,16 +3545,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_away.cpp"
+				RelativePath="..\src\commands\cmd_away.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3573,16 +3557,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_clearcache.cpp"
+				RelativePath="..\src\commands\cmd_clearcache.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3593,16 +3569,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_commands.cpp"
+				RelativePath="..\src\commands\cmd_commands.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3613,16 +3581,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_connect.cpp"
+				RelativePath="..\src\commands\cmd_connect.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3633,16 +3593,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_die.cpp"
+				RelativePath="..\src\commands\cmd_die.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3653,16 +3605,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_eline.cpp"
+				RelativePath="..\src\commands\cmd_eline.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3673,16 +3617,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_gline.cpp"
+				RelativePath="..\src\commands\cmd_gline.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3693,16 +3629,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_info.cpp"
+				RelativePath="..\src\commands\cmd_info.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3713,16 +3641,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_invite.cpp"
+				RelativePath="..\src\commands\cmd_invite.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3733,16 +3653,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_ison.cpp"
+				RelativePath="..\src\commands\cmd_ison.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3753,16 +3665,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_join.cpp"
+				RelativePath="..\src\commands\cmd_join.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3773,16 +3677,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_kick.cpp"
+				RelativePath="..\src\commands\cmd_kick.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3793,16 +3689,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_kill.cpp"
+				RelativePath="..\src\commands\cmd_kill.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3813,16 +3701,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_kline.cpp"
+				RelativePath="..\src\commands\cmd_kline.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3833,16 +3713,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_links.cpp"
+				RelativePath="..\src\commands\cmd_links.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3853,16 +3725,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_list.cpp"
+				RelativePath="..\src\commands\cmd_list.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3873,16 +3737,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_loadmodule.cpp"
+				RelativePath="..\src\commands\cmd_loadmodule.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3893,16 +3749,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_lusers.cpp"
+				RelativePath="..\src\commands\cmd_lusers.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3913,16 +3761,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_map.cpp"
+				RelativePath="..\src\commands\cmd_map.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3933,16 +3773,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_mode.cpp"
+				RelativePath="..\src\commands\cmd_mode.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3953,16 +3785,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_modules.cpp"
+				RelativePath="..\src\commands\cmd_modules.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3973,16 +3797,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_motd.cpp"
+				RelativePath="..\src\commands\cmd_motd.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -3993,16 +3809,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_names.cpp"
+				RelativePath="..\src\commands\cmd_names.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4013,16 +3821,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_nick.cpp"
+				RelativePath="..\src\commands\cmd_nick.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4033,16 +3833,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_notice.cpp"
+				RelativePath="..\src\commands\cmd_notice.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4053,16 +3845,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_oper.cpp"
+				RelativePath="..\src\commands\cmd_oper.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4073,16 +3857,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_part.cpp"
+				RelativePath="..\src\commands\cmd_part.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4093,16 +3869,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_pass.cpp"
+				RelativePath="..\src\commands\cmd_pass.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4113,16 +3881,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_ping.cpp"
+				RelativePath="..\src\commands\cmd_ping.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4133,16 +3893,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_pong.cpp"
+				RelativePath="..\src\commands\cmd_pong.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4153,16 +3905,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_privmsg.cpp"
+				RelativePath="..\src\commands\cmd_privmsg.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4173,16 +3917,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_qline.cpp"
+				RelativePath="..\src\commands\cmd_qline.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4193,16 +3929,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_quit.cpp"
+				RelativePath="..\src\commands\cmd_quit.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4213,16 +3941,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_rehash.cpp"
+				RelativePath="..\src\commands\cmd_rehash.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4233,16 +3953,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_reloadmodule.cpp"
+				RelativePath="..\src\commands\cmd_reloadmodule.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4253,16 +3965,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_restart.cpp"
+				RelativePath="..\src\commands\cmd_restart.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4273,16 +3977,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_rules.cpp"
+				RelativePath="..\src\commands\cmd_rules.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4293,16 +3989,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_server.cpp"
+				RelativePath="..\src\commands\cmd_server.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4313,16 +4001,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_squit.cpp"
+				RelativePath="..\src\commands\cmd_squit.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4333,16 +4013,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_stats.cpp"
+				RelativePath="..\src\commands\cmd_stats.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4353,16 +4025,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_time.cpp"
+				RelativePath="..\src\commands\cmd_time.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4373,16 +4037,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_topic.cpp"
+				RelativePath="..\src\commands\cmd_topic.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4393,16 +4049,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_trace.cpp"
+				RelativePath="..\src\commands\cmd_trace.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4413,16 +4061,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_unloadmodule.cpp"
+				RelativePath="..\src\commands\cmd_unloadmodule.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4433,16 +4073,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_user.cpp"
+				RelativePath="..\src\commands\cmd_user.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4453,16 +4085,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_userhost.cpp"
+				RelativePath="..\src\commands\cmd_userhost.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4473,16 +4097,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_version.cpp"
+				RelativePath="..\src\commands\cmd_version.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4493,16 +4109,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_wallops.cpp"
+				RelativePath="..\src\commands\cmd_wallops.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4513,16 +4121,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_who.cpp"
+				RelativePath="..\src\commands\cmd_who.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4533,16 +4133,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_whois.cpp"
+				RelativePath="..\src\commands\cmd_whois.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4553,16 +4145,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_whowas.cpp"
+				RelativePath="..\src\commands\cmd_whowas.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
@@ -4573,16 +4157,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\cmd_zline.cpp"
+				RelativePath="..\src\commands\cmd_zline.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
