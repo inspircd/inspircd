@@ -24,6 +24,10 @@ use make::gnutlscert;
 use make::opensslcert;
 
 ###############################################################################################
+#
+#                                   EDITABLE VARIABLES
+#
+###############################################################################################
 
 # This is a list of all files in the core. Each cpp file is mapped to a shared object file,
 # whos file extension is omitted (these can vary from system to system).
@@ -97,6 +101,10 @@ my @immutabledeps = (
 );
 
 
+###############################################################################################
+#
+#                                 NON-EDITABLE VARIABLES
+#
 ###############################################################################################
 
 
