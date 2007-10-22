@@ -681,11 +681,6 @@ class CoreExport InspIRCd : public classbase
 	 */
 	int RegisteredUserCount();
 
-	/** Return a count of invisible (umode +i) users only
-	 * @return The number of invisible users
-	 */
-	int InvisibleUserCount();
-
 	/** Return a count of opered (umode +o) users only
 	 * @return The number of opers
 	 */

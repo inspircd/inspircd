@@ -360,12 +360,6 @@ int InspIRCd::ModeCount(const char mode)
 		return 0;
 }
 
-/* wrapper for readability */
-int InspIRCd::InvisibleUserCount()
-{
-	return ModeCount('i');
-}
-
 /* return how many users are opered */
 int InspIRCd::OperCount()
 {

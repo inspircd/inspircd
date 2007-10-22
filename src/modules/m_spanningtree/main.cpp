@@ -134,8 +134,8 @@ void ModuleSpanningTree::HandleLusers(const char** parameters, int pcnt, User* u
 		}
 	}
 	user->WriteServ("251 %s :There are %d users and %d invisible on %d servers",user->nick,
-			n_users-ServerInstance->InvisibleUserCount(),
-			ServerInstance->InvisibleUserCount(),
+			n_users-ServerInstance->ModeCount('i'),
+			ServerInstance->ModeCount('i'),
 			ulined_count ? this->CountServs() - ulined_count : this->CountServs());
 
 	if (ServerInstance->OperCount())
