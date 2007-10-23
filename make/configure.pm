@@ -17,7 +17,7 @@ require 5.8.0;
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies resolve_directory yesno showhelp promptstring_s);
+@EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
 
 my $no_svn = 0;
 
@@ -108,6 +108,18 @@ sub getdependencies {
 	return undef;
 }
 
+sub nopedantic {
+	my ($file) = @_;
+	open(FLAGS, $file);
+	while (<FLAGS>) {
+		if ($_ =~ /^\/\* \$NoPedantic \*\/$/) {
+			close(FLAGS);
+			return 1;
+		}
+	}
+	close(FLAGS);
+	return 0;
+}
 
 sub getmodules
 {

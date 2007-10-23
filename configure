@@ -1007,13 +1007,13 @@ sub dir_check {
 sub getosflags {
 
 	$config{LDLIBS} = "-lstdc++";
-	$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -Wno-deprecated -g";
+	$config{FLAGS}  = "-W -pedantic -fPIC $config{OPTIMISATI}";
+	$config{DEVELOPER} = "-W -pedantic -fPIC -g";
 	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared";
 	$config{MAKEPROG} = "make";
 
 	if ($config{OSNAME} =~ /darwin/i) {
-		$config{FLAGS}  = "-DDARWIN -frtti -fPIC -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
+		$config{FLAGS}  = "-W -pedantic -DDARWIN -frtti -fPIC $config{OPTIMISATI}";
 		$SHARED = "-bundle -twolevel_namespace -undefined dynamic_lookup";
 		$config{LDLIBS} = "-ldl -lstdc++";
 	}
@@ -1034,7 +1034,7 @@ sub getosflags {
 
 	if ($config{OSNAME} =~ /Linux/i) {
 		$config{LDLIBS} = "-ldl -lstdc++";
-		$config{FLAGS}  = "-fno-strict-aliasing -fPIC -Wall -Woverloaded-virtual -Wno-deprecated $config{OPTIMISATI}";
+		$config{FLAGS}  = "-W -pedantic -fPIC $config{OPTIMISATI}";
 		$config{FLAGS}  .= " " . $ENV{CXXFLAGS} if exists($ENV{CXXFLAGS});
 		$config{LDLIBS} .= " " . $ENV{LDLIBS} if exists($ENV{LDLIBS});
 		$config{MAKEPROG} = "make";
@@ -1286,16 +1286,21 @@ all: \$(MODULES)
 
 EOF
 
+$nicerflags = $options{FLAGS};
+$nicerflags =~ s/\-pedantic//g;
+
 if ($config{OSNAME} =~ /darwin/) {
 		print FILEHANDLE <<EOCHEESE;
 
 PICLDFLAGS = -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle
+NICERFLAGS = $nicerflags
 
 EOCHEESE
 } else {
 		print FILEHANDLE <<EOCHEESE;
 
 PICLDFLAGS = -fPIC -DPIC -shared \$(FLAGS)
+NICERFLAGS = $nicerflags
 
 EOCHEESE
 }
@@ -1317,12 +1322,21 @@ EOCHEESE
 		$cmflags = getcompilerflags("src/modules/m_".$i.".cpp");
 		$liflags = getlinkerflags("src/modules/m_".$i.".cpp");
 		$deps = getdependencies("src/modules/m_".$i.".cpp");
+
+		if (nopedantic("src/modules/m_".$i.".cpp"))
+		{
+			$fl = "\$(FLAGS)";
+		}
+		else
+		{
+			$fl = "\$(LAMEFLAGS)";
+		}
 	
 		#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
 	
 		print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
+	\$(CC) -pipe -I../../include $fl $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
 EOCHEESE
 		$crud = $crud . "	install -m \$(INSTMODE) m_$i.so \$(MODPATH)\n";
 ###
@@ -1343,9 +1357,9 @@ EOCHEESE
 				print "Composing Makefile rules for directory \033[1;32m$name\033[0m... (\033[1;32m$mfcount files found\033[0m)\n";
 				print FILEHANDLE "$name.so: ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $mobjs\n"; 
 				if ($config{IS_DARWIN} eq "YES") {
-					print FILEHANDLE "	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) $mliflags -bundle -o $name.so $mobjs\n"; 
+					print FILEHANDLE "	\$(CC) -pipe -twolevel_namespace -undefined dynamic_lookup $fl $mliflags -bundle -o $name.so $mobjs\n"; 
 				} else {
-					print FILEHANDLE "	\$(CC) -pipe \$(FLAGS) -shared $mliflags -o $name.so $mobjs\n";
+					print FILEHANDLE "	\$(CC) -pipe $fl -shared $mliflags -o $name.so $mobjs\n";
 				}
 				print FILEHANDLE "\n$mfrules\n";
 				closedir(MDIRHANDLE);
@@ -1432,7 +1446,7 @@ sub write_dynamic_makefile
 		if ($name =~ /^cmd_(.+)\.cpp$/)
 		{
 			$cmdlist[$i++] = $1;
-			$install_list = $install_list . "	-install -m \$(INSTMODE) src/commands/cmd_" . $name  . ".so \$(LIBPATH)\n";
+			$install_list = $install_list . "	-install -m \$(INSTMODE) src/commands/cmd_" . $1  . ".so \$(LIBPATH)\n";
 	    	}
 	}
 	closedir(DIRHANDLE);

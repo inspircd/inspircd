@@ -25,6 +25,7 @@
 /* $CompileFlags: exec("mysql_config --include") */
 /* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 /* $ModDep: m_sqlv2.h */
+/* $NoPedantic */
 
 /* THE NONBLOCKING MYSQL API!
  * 
