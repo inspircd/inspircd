@@ -235,7 +235,7 @@ class CoreExport ServerConfig : public Extensible
 
 	/** Check that there is only one of each configuration item
 	 */
-	bool CheckOnce(char* tag) throw (CoreException);
+	bool CheckOnce(char* tag);
   
   public:
 

@@ -151,7 +151,7 @@ void ServerConfig::Send005(User* user)
 		user->WriteServ("005 %s %s", user->nick, line->c_str());
 }
 
-bool ServerConfig::CheckOnce(char* tag) throw (CoreException)
+bool ServerConfig::CheckOnce(char* tag)
 {
 	int count = ConfValueEnum(this->config_data, tag);
 
