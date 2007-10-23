@@ -97,7 +97,7 @@ class ModuleCensor : public Module
 		OnRehash(NULL,"");
 		cu = new CensorUser(ServerInstance);
 		cc = new CensorChannel(ServerInstance);
-		if (!ServerInstance->AddMode(cu, 'G') || !ServerInstance->AddMode(cc, 'G'))
+		if (!ServerInstance->AddMode(cu) || !ServerInstance->AddMode(cc))
 			throw ModuleException("Could not add new modes!");
 	}
 

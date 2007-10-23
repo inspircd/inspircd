@@ -309,7 +309,7 @@ class ModuleChanProtect : public Module
 		cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 		cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 
-		if (!ServerInstance->AddMode(cp, 'a') || !ServerInstance->AddMode(cf, 'q'))
+		if (!ServerInstance->AddMode(cp) || !ServerInstance->AddMode(cf))
 			throw ModuleException("Could not add new modes!");
 	}
 
