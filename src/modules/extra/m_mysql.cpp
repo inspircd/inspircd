@@ -885,4 +885,4 @@ void* DispatcherThread(void* arg)
 	return NULL;
 }
 
-MODULE_INIT(ModuleSQL);
+MODULE_INIT(ModuleSQL)

@@ -151,7 +151,7 @@ void ServerConfig::Send005(User* user)
 		user->WriteServ("005 %s %s", user->nick, line->c_str());
 }
 
-bool ServerConfig::CheckOnce(char* tag, bool bail, User* user)
+bool ServerConfig::CheckOnce(char* tag) throw (CoreException)
 {
 	int count = ConfValueEnum(this->config_data, tag);
 
@@ -168,12 +168,12 @@ bool ServerConfig::CheckOnce(char* tag, bool bail, User* user)
 	return true;
 }
 
-bool NoValidation(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool NoValidation(ServerConfig*, const char*, const char*, ValueItem&)
 {
 	return true;
 }
 
-bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateMaxTargets(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() < 0) || (data.GetInteger() > 31))
 	{
@@ -183,7 +183,7 @@ bool ValidateMaxTargets(ServerConfig* conf, const char* tag, const char* value, 
 	return true;
 }
 
-bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateSoftLimit(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() < 1) || (data.GetInteger() > MAXCLIENTS))
 	{
@@ -193,7 +193,7 @@ bool ValidateSoftLimit(ServerConfig* conf, const char* tag, const char* value, V
 	return true;
 }
 
-bool ValidateMaxConn(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateMaxConn(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (data.GetInteger() > SOMAXCONN)
 		conf->GetInstance()->Log(DEFAULT,"WARNING: <options:somaxconn> value may be higher than the system-defined SOMAXCONN value!");
@@ -221,7 +221,7 @@ bool InitializeDisabledCommands(const char* data, InspIRCd* ServerInstance)
 	return true;
 }
 
-bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if (!*(data.GetString()))
 	{
@@ -259,7 +259,7 @@ bool ValidateDnsServer(ServerConfig* conf, const char* tag, const char* value, V
 	return true;
 }
 
-bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	/* If we already have a servername, and they changed it, we should throw an exception. */
 	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName))
@@ -277,7 +277,7 @@ bool ValidateServerName(ServerConfig* conf, const char* tag, const char* value, 
 	return true;
 }
 
-bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateNetBufferSize(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((!data.GetInteger()) || (data.GetInteger() > 65535) || (data.GetInteger() < 1024))
 	{
@@ -287,7 +287,7 @@ bool ValidateNetBufferSize(ServerConfig* conf, const char* tag, const char* valu
 	return true;
 }
 
-bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateMaxWho(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	if ((data.GetInteger() > 65535) || (data.GetInteger() < 1))
 	{
@@ -297,7 +297,7 @@ bool ValidateMaxWho(ServerConfig* conf, const char* tag, const char* value, Valu
 	return true;
 }
 
-bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateLogLevel(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	std::string dbg = data.GetString();
 	conf->LogLevel = DEFAULT;
@@ -318,26 +318,26 @@ bool ValidateLogLevel(ServerConfig* conf, const char* tag, const char* value, Va
 	return true;
 }
 
-bool ValidateMotd(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateMotd(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->ReadFile(conf->MOTD, data.GetString());
 	return true;
 }
 
-bool ValidateNotEmpty(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateNotEmpty(ServerConfig*, const char* tag, const char*, ValueItem &data)
 {
 	if (!*data.GetString())
 		throw CoreException(std::string("The value for ")+tag+" cannot be empty!");
 	return true;
 }
 
-bool ValidateRules(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateRules(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->ReadFile(conf->RULES, data.GetString());
 	return true;
 }
 
-bool ValidateModeLists(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateModeLists(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->HideModeLists, 0, 256);
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
@@ -345,7 +345,7 @@ bool ValidateModeLists(ServerConfig* conf, const char* tag, const char* value, V
 	return true;
 }
 
-bool ValidateExemptChanOps(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateExemptChanOps(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	memset(conf->ExemptChanOps, 0, 256);
 	for (const unsigned char* x = (const unsigned char*)data.GetString(); *x; ++x)
@@ -353,7 +353,7 @@ bool ValidateExemptChanOps(ServerConfig* conf, const char* tag, const char* valu
 	return true;
 }
 
-bool ValidateInvite(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateInvite(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	std::string v = data.GetString();
 
@@ -369,7 +369,7 @@ bool ValidateInvite(ServerConfig* conf, const char* tag, const char* value, Valu
 	return true;
 }
 
-bool ValidateSID(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateSID(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	int sid = data.GetInteger();
 	if ((sid > 999) || (sid < 0))
@@ -381,7 +381,7 @@ bool ValidateSID(ServerConfig* conf, const char* tag, const char* value, ValueIt
 	return true;
 }
 
-bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, ValueItem &data)
+bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &data)
 {
 	conf->WhoWasMaxKeep = conf->GetInstance()->Duration(data.GetString());
 
@@ -409,7 +409,7 @@ bool ValidateWhoWas(ServerConfig* conf, const char* tag, const char* value, Valu
 
 /* Callback called before processing the first <connect> tag
  */
-bool InitConnect(ServerConfig* conf, const char* tag)
+bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Log(DEFAULT,"Reading connect classes...");
 	conf->Classes.clear();
@@ -418,7 +418,7 @@ bool InitConnect(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <connect> tag
  */
-bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
 	ConnectClass c;
 	const char* allow = values[0].GetString(); /* Yeah, there are a lot of values. Live with it. */
@@ -474,14 +474,14 @@ bool DoConnect(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 
 /* Callback called when there are no more <connect> tags
  */
-bool DoneConnect(ServerConfig* conf, const char* tag)
+bool DoneConnect(ServerConfig*, const char*)
 {
 	return true;
 }
 
 /* Callback called before processing the first <uline> tag
  */
-bool InitULine(ServerConfig* conf, const char* tag)
+bool InitULine(ServerConfig* conf, const char*)
 {
 	conf->ulines.clear();
 	return true;
@@ -489,7 +489,7 @@ bool InitULine(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <uline> tag
  */
-bool DoULine(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoULine(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
 	const char* server = values[0].GetString();
 	const bool silent = values[1].GetBool();
@@ -499,14 +499,14 @@ bool DoULine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 
 /* Callback called when there are no more <uline> tags
  */
-bool DoneULine(ServerConfig* conf, const char* tag)
+bool DoneULine(ServerConfig*, const char*)
 {
 	return true;
 }
 
 /* Callback called before processing the first <module> tag
  */
-bool InitModule(ServerConfig* conf, const char* tag)
+bool InitModule(ServerConfig* conf, const char*)
 {
 	old_module_names.clear();
 	new_module_names.clear();
@@ -521,7 +521,7 @@ bool InitModule(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <module> tag
  */
-bool DoModule(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoModule(ServerConfig*, const char*, char**, ValueList &values, int*)
 {
 	const char* modname = values[0].GetString();
 	new_module_names.push_back(modname);
@@ -530,7 +530,7 @@ bool DoModule(ServerConfig* conf, const char* tag, char** entries, ValueList &va
 
 /* Callback called when there are no more <module> tags
  */
-bool DoneModule(ServerConfig* conf, const char* tag)
+bool DoneModule(ServerConfig*, const char*)
 {
 	// now create a list of new modules that are due to be loaded
 	// and a seperate list of modules which are due to be unloaded
@@ -565,7 +565,7 @@ bool DoneModule(ServerConfig* conf, const char* tag)
 
 /* Callback called before processing the first <banlist> tag
  */
-bool InitMaxBans(ServerConfig* conf, const char* tag)
+bool InitMaxBans(ServerConfig* conf, const char*)
 {
 	conf->maxbans.clear();
 	return true;
@@ -573,7 +573,7 @@ bool InitMaxBans(ServerConfig* conf, const char* tag)
 
 /* Callback called to process a single <banlist> tag
  */
-bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoMaxBans(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
 	const char* channel = values[0].GetString();
 	int limit = values[1].GetInteger();
@@ -583,7 +583,7 @@ bool DoMaxBans(ServerConfig* conf, const char* tag, char** entries, ValueList &v
 
 /* Callback called when there are no more <banlist> tags.
  */
-bool DoneMaxBans(ServerConfig* conf, const char* tag)
+bool DoneMaxBans(ServerConfig*, const char*)
 {
 	return true;
 }
@@ -692,7 +692,7 @@ void ServerConfig::Read(bool bail, User* user)
 		{"die",		"value",	"",			new ValueContainerChar (this->DieValue),		DT_CHARPTR, NoValidation},
 		{"channels",	"users",	"20",			new ValueContainerUInt (&this->MaxChans),		DT_INTEGER, NoValidation},
 		{"channels",	"opers",	"60",			new ValueContainerUInt (&this->OperMaxChans),		DT_INTEGER, NoValidation},
-		{NULL}
+		{NULL,		NULL,		NULL,			NULL,							DT_NOTHING, NoValidation}
 	};
 
 	/* These tags can occur multiple times, and therefore they have special code to read them
@@ -768,7 +768,11 @@ void ServerConfig::Read(bool bail, User* user)
 				{DT_CHARPTR,	DT_CHARPTR},
 				InitClasses, DoClass, DoneClassesAndTypes},
 
-		{NULL}
+		{NULL,
+				{NULL},
+				{NULL},
+				{0},
+				NULL, NULL, NULL}
 	};
 
 	include_stack.clear();
@@ -795,7 +799,7 @@ void ServerConfig::Read(bool bail, User* user)
 		/* Check we dont have more than one of singular tags, or any of them missing
 		 */
 		for (int Index = 0; Once[Index]; Index++)
-			if (!CheckOnce(Once[Index], bail, user))
+			if (!CheckOnce(Once[Index]))
 				return;
 
 		/* Read the values of all the tags which occur once or not at all, and call their callbacks.
@@ -1376,7 +1380,7 @@ bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, con
 bool ServerConfig::ConfValue(ConfigDataHash &target, const std::string &tag, const std::string &var, const std::string &default_value, int index, std::string &result, bool allow_linefeeds)
 {
 	ConfigDataHash::size_type pos = index;
-	if((pos >= 0) && (pos < target.count(tag)))
+	if (pos < target.count(tag))
 	{
 		ConfigDataHash::iterator iter = target.find(tag);
 
@@ -1524,7 +1528,7 @@ int ServerConfig::ConfVarEnum(ConfigDataHash &target, const std::string &tag, in
 {
 	ConfigDataHash::size_type pos = index;
 
-	if((pos >= 0) && (pos < target.count(tag)))
+	if (pos < target.count(tag))
 	{
 		ConfigDataHash::const_iterator iter = target.find(tag);
 
@@ -1786,7 +1790,7 @@ bool ValueItem::GetBool()
 /*
  * XXX should this be in a class? -- w00t
  */
-bool InitTypes(ServerConfig* conf, const char* tag)
+bool InitTypes(ServerConfig* conf, const char*)
 {
 	if (conf->opertypes.size())
 	{
@@ -1804,7 +1808,7 @@ bool InitTypes(ServerConfig* conf, const char* tag)
 /*
  * XXX should this be in a class? -- w00t
  */
-bool InitClasses(ServerConfig* conf, const char* tag)
+bool InitClasses(ServerConfig* conf, const char*)
 {
 	if (conf->operclass.size())
 	{
@@ -1822,7 +1826,7 @@ bool InitClasses(ServerConfig* conf, const char* tag)
 /*
  * XXX should this be in a class? -- w00t
  */
-bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoType(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
 	const char* TypeName = values[0].GetString();
 	const char* Classes = values[1].GetString();
@@ -1834,7 +1838,7 @@ bool DoType(ServerConfig* conf, const char* tag, char** entries, ValueList &valu
 /*
  * XXX should this be in a class? -- w00t
  */
-bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &values, int* types)
+bool DoClass(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
 	const char* ClassName = values[0].GetString();
 	const char* CommandList = values[1].GetString();
@@ -1846,7 +1850,8 @@ bool DoClass(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 /*
  * XXX should this be in a class? -- w00t
  */
-bool DoneClassesAndTypes(ServerConfig* conf, const char* tag)
+bool DoneClassesAndTypes(ServerConfig*, const char*)
 {
 	return true;
 }
+

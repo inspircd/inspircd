@@ -490,5 +490,5 @@ class ModuleIdent : public Module
 	}
 };
 
-MODULE_INIT(ModuleIdent);
+MODULE_INIT(ModuleIdent)
 

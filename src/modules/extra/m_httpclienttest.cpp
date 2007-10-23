@@ -77,5 +77,5 @@ public:
 
 };
 
-MODULE_INIT(MyModule);
+MODULE_INIT(MyModule)
 

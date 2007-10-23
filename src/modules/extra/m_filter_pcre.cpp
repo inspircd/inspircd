@@ -178,5 +178,5 @@ class ModuleFilterPCRE : public FilterBase
 	}
 };
 
-MODULE_INIT(ModuleFilterPCRE);
+MODULE_INIT(ModuleFilterPCRE)
 
