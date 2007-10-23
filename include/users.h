@@ -183,12 +183,16 @@ public:
 		recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),
 		port(source.port)
 	{
+		this->RefCount = 0;
 	}
 
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
-			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0) { }
+			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0)
+	{
+		this->RefCount = 0;
+	}
 
 	/** Create a new connect class to ALLOW connections.
 	 * @param thename Name of the connect class
@@ -214,7 +218,10 @@ public:
 	 * @param hst The IP mask to deny
 	 */
 	ConnectClass(const std::string &thename, const std::string &hst) : type(CC_DENY), name(thename), registration_timeout(0),
-			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0) { }
+			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0)
+	{
+		this->RefCount = 0;
+	}
 
 	/* Create a new connect class based on another class
 	 * @param thename The name of the connect class
@@ -226,6 +233,7 @@ public:
 				recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),
 				port(source.port)
 	{
+		this->RefCount = 0;
 	}
 
 	/* Update an existing entry with new values
@@ -259,6 +267,12 @@ public:
 		if (p)
 			port = p;
 	}
+
+	/** Reference counter. Contains an int as to how many users are connected to this class. :)
+	 * This will be 0 if no users are connected. If a <connect> is removed from the config, and there
+	 * are 0 users on it - it will go away in RAM. :)
+	 */
+	unsigned long RefCount;
 
 	int GetMaxChans()
 	{
@@ -483,6 +497,11 @@ class CoreExport User : public connection
 	unsigned int MaxChans;
 
  public:
+	/** Contains a pointer to the connect class a user is on from - this will be NULL for remote connections.
+	 * The pointer is guarenteed to *always* be valid. :)
+	 */
+	ConnectClass *MyClass;
+
 	/** Resolvers for looking up this users IP address
 	 * This will occur if and when res_reverse completes.
 	 * When this class completes its lookup, User::dns_done

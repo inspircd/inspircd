@@ -188,6 +188,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	res_forward = res_reverse = NULL;
 	Visibility = NULL;
 	ip = NULL;
+	MyClass = NULL;
 	chans.clear();
 	invites.clear();
 	memset(modes,0,sizeof(modes));
@@ -234,6 +235,13 @@ void User::RemoveCloneCounts()
 
 User::~User()
 {
+	/* NULL for remote users :) */
+	if (this->MyClass)
+	{
+		this->MyClass->RefCount--;
+		ServerInstance->Log(DEBUG, "User destructor -- connect refcount now: %u", this->MyClass->RefCount);
+	}
+
 	this->InvalidateCache();
 	this->DecrementModes();
 	if (operquit)
@@ -1707,6 +1715,10 @@ unsigned int User::GetMaxChans()
  * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
+ *
+ * NOTE: This will CACHE (i.e. once a user is in a class, subsequent calls will return the
+ * same class value.
+ * NOTE 2: As of 1.2, explicit_name is DEPRECATED, as we now tie users to classes :)
  */
 ConnectClass* User::GetClass(const std::string &explicit_name)
 {
@@ -1715,11 +1727,19 @@ ConnectClass* User::GetClass(const std::string &explicit_name)
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			if (explicit_name == i->GetName())
+			{
 				return &(*i);
+			}
 		}
 	}
 	else
 	{
+		if (this->MyClass)
+			return this->MyClass;
+
+		if (!IS_LOCAL(this))
+			return NULL;
+
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
@@ -1727,15 +1747,27 @@ ConnectClass* User::GetClass(const std::string &explicit_name)
 				if (i->GetPort())
 				{
 					if (this->GetPort() == i->GetPort())
+					{
+						this->MyClass = &(*i);
+						this->MyClass->RefCount++;
+						ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
 						return &(*i);
+					}
 					else
 						continue;
 				}
 				else
+				{
+					this->MyClass = &(*i);
+					this->MyClass->RefCount++;
+					ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
 					return &(*i);
+				}
 			}
 		}
 	}
+
+	/* will only happen for remote users. */
 	return NULL;
 }
 
