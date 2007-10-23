@@ -119,7 +119,7 @@ class CacheTimer : public Timer
 	CacheTimer(InspIRCd* Instance, DNS* thisdns)
 		: Timer(3600, Instance->Time(), true), ServerInstance(Instance), dns(thisdns) { }
 
-	virtual void Tick(time_t TIME)
+	virtual void Tick(time_t)
 	{
 		dns->PruneCache();
 	}
@@ -135,7 +135,7 @@ class RequestTimeout : public Timer
 	{
 	}
 
-	void Tick(time_t TIME)
+	void Tick(time_t)
 	{
 		if (ServerInstance->Res->requests[watchid] == watch)
 		{
@@ -1020,7 +1020,7 @@ Resolver::Resolver(InspIRCd* Instance, const std::string &source, QueryType qt, 
 }
 
 /** Called when an error occurs */
-void Resolver::OnError(ResolverError e, const std::string &errormessage)
+void Resolver::OnError(ResolverError, const std::string&)
 {
 	/* Nothing in here */
 }
@@ -1043,7 +1043,7 @@ Module* Resolver::GetCreator()
 }
 
 /** Process a socket read event */
-void DNS::HandleEvent(EventType et, int errornum)
+void DNS::HandleEvent(EventType, int)
 {
 	/* Fetch the id and result of the next available packet */
 	int resultnum = 0;
