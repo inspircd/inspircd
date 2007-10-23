@@ -132,7 +132,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult HandleInternal(const unsigned int id, const std::deque<classbase*> &params)
+	virtual CmdResult HandleInternal(const unsigned int /* id */, const std::deque<classbase*>& /* params */)
 	{
 		return CMD_INVALID;
 	}
@@ -146,7 +146,7 @@ class CoreExport Command : public Extensible
 	 * If the command succeeds but should remain local to this server,
 	 * return CMD_LOCALONLY.
 	 */
-	virtual CmdResult HandleServer(const char** parameters, int pcnt, const std::string &servername)
+	virtual CmdResult HandleServer(const char** /* parameters */, int /* pcnt */, const std::string& /* servername */)
 	{
 		return CMD_INVALID;
 	}

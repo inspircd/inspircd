@@ -31,7 +31,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandStats(Instance);
 }
 
-CmdResult CommandStats::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandStats::Handle (const char** parameters, int /* pcnt */, User *user)
 {
 	if (IS_LOCAL(user))
 	{

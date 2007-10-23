@@ -177,7 +177,7 @@ public:
 
 	/** Create a new connect class based on an existing connect class. This is required for std::vector (at least under windows).
 	 */
-	ConnectClass(const ConnectClass& source) : type(source.type), name(source.name),
+	ConnectClass(const ConnectClass& source) : classbase(), type(source.type), name(source.name),
 		registration_timeout(source.registration_timeout), flood(source.flood), host(source.host),
 		pingtime(source.pingtime), pass(source.pass), threshold(source.threshold), sendqmax(source.sendqmax),
 		recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),

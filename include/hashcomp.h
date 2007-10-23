@@ -546,7 +546,7 @@ namespace irc
 
 		/** Set free bits mask
 		 */
-		virtual void SetFreeBits(unsigned char* freebits) { }
+		virtual void SetFreeBits(unsigned char* freebits) { freebits = freebits; }
 	};
 
 	/** Turn _ characters in a string into spaces

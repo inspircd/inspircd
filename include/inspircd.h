@@ -77,7 +77,7 @@ template<typename T> inline std::string ConvNumeric(const T &in)
 		++out;
 		quotient /= 10;
 	}
-	if ( in < 0)
+	if (in < 0)
 		*out++ = '-';
 	*out = 0;
 	std::reverse(res,out);
@@ -94,13 +94,6 @@ inline std::string ConvToStr(const int in)
 /** Template function to convert any input type to std::string
  */
 inline std::string ConvToStr(const long in)
-{
-	return ConvNumeric(in);
-}
-
-/** Template function to convert any input type to std::string
- */
-inline std::string ConvToStr(const unsigned long in)
 {
 	return ConvNumeric(in);
 }
