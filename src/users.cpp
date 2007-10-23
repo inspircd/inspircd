@@ -789,7 +789,7 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
 	 */
-	ConnectClass* i = New->GetClass();
+	ConnectClass* i = New->SetClass();
 
 	if (!i)
 	{
@@ -890,9 +890,9 @@ unsigned long User::LocalCloneCount()
 /*
  * Check class restrictions
  */
-void User::CheckClass(const std::string &explicit_class)
+void User::CheckClass()
 {
-	ConnectClass* a = this->GetClass(explicit_class);
+	ConnectClass* a = this->MyClass;
 
 	if ((!a) || (a->GetType() == CC_DENY))
 	{
@@ -933,12 +933,12 @@ void User::FullConnect()
 	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	this->CheckClass();
+	this->SetClass();
 	
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
-	if ((!this->GetClass()->GetPass().empty()) && (!this->haspassed))
+	if ((!this->MyClass->GetPass().empty()) && (!this->haspassed))
 	{
 		User::QuitUser(ServerInstance, this, "Invalid password");
 		return;
@@ -1711,35 +1711,34 @@ unsigned int User::GetMaxChans()
 	return this->MaxChans;
 }
 
-/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
+
+/*
+ * Sets a user's connection class.
+ * If the class name is provided, it will be used. Otherwise, the class will be guessed using host/ip/ident/etc.
  * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
  * then their ip will be taken as 'priority' anyway, so for example,
  * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
- *
- * NOTE: This will CACHE (i.e. once a user is in a class, subsequent calls will return the
- * same class value.
- * NOTE 2: As of 1.2, explicit_name is DEPRECATED, as we now tie users to classes :)
  */
-ConnectClass* User::GetClass(const std::string &explicit_name)
+ConnectClass* User::SetClass(const std::string &explicit_name)
 {
+	if (this->MyClass)
+	{
+		ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
+		this->MyClass->RefCount--;
+	}
+
 	if (!explicit_name.empty())
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			if (explicit_name == i->GetName())
 			{
-				return &(*i);
+				this->MyClass = &(*i);
 			}
 		}
 	}
 	else
 	{
-		if (this->MyClass)
-			return this->MyClass;
-
-		if (!IS_LOCAL(this))
-			return NULL;
-
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
@@ -1749,9 +1748,6 @@ ConnectClass* User::GetClass(const std::string &explicit_name)
 					if (this->GetPort() == i->GetPort())
 					{
 						this->MyClass = &(*i);
-						this->MyClass->RefCount++;
-						ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
-						return &(*i);
 					}
 					else
 						continue;
@@ -1759,16 +1755,25 @@ ConnectClass* User::GetClass(const std::string &explicit_name)
 				else
 				{
 					this->MyClass = &(*i);
-					this->MyClass->RefCount++;
-					ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
-					return &(*i);
 				}
 			}
 		}
 	}
 
+	this->MyClass->RefCount++;
+	ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
 	/* will only happen for remote users. */
-	return NULL;
+	return this->MyClass;
+}
+
+/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
+ * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
+ * then their ip will be taken as 'priority' anyway, so for example,
+ * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
+ */
+ConnectClass* User::GetClass()
+{
+	return this->MyClass;
 }
 
 void User::PurgeEmptyChannels()

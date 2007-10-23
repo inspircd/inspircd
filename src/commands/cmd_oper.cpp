@@ -89,7 +89,10 @@ CmdResult CommandOper::Handle (const char** parameters, int, User *user)
 					if (*HostName)
 						user->ChangeDisplayedHost(HostName);
 					if (*ClassName)
-						user->CheckClass(ClassName);
+					{
+						user->SetClass(ClassName);
+						user->CheckClass();
+					}
 					found = true;
 					type_invalid = false;
 					break;

@@ -925,7 +925,7 @@ class CoreExport User : public connection
 
 	/** Call this method to find the matching <connect> for a user, and to check them against it.
 	 */
-	void CheckClass(const std::string &explicit_class = "");
+	void CheckClass();
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
@@ -1135,11 +1135,16 @@ class CoreExport User : public connection
 	 */
 	void PurgeEmptyChannels();
 
-	/** Get the connect class which matches this user's host or IP address
-	 * @param explicit_name Set this string to tie the user to a specific class name
-	 * @return A reference to this user's connect class
+	/** Get the connect class which this user belongs to.
+	 * @return A pointer to this user's connect class
 	 */
-	ConnectClass* GetClass(const std::string &explicit_name = "");
+	ConnectClass *GetClass();
+
+	/** Set the connect class to which this user belongs to.
+	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking <connect> tags from the configuration file.
+	 * @return A reference to this user's current connect class.
+	 */
+	ConnectClass *SetClass(const std::string &explicit_name = "");
 
 	/** Show the message of the day to this user
 	 */
