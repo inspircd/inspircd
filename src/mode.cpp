@@ -109,12 +109,12 @@ char ModeHandler::GetModeChar()
 	return mode;
 }
 
-ModeAction ModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
 {
 	return MODEACTION_DENY;
 }
 
-ModePair ModeHandler::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+ModePair ModeHandler::ModeSet(User*, User* dest, Channel* channel, const std::string&)
 {
 	if (dest)
 	{
@@ -126,15 +126,15 @@ ModePair ModeHandler::ModeSet(User* source, User* dest, Channel* channel, const 
 	}
 }
 
-void ModeHandler::DisplayList(User* user, Channel* channel)
+void ModeHandler::DisplayList(User*, Channel*)
 {
 }
 
-void ModeHandler::DisplayEmptyList(User* user, Channel* channel)
+void ModeHandler::DisplayEmptyList(User*, Channel*)
 {
 }
 
-bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
+bool ModeHandler::CheckTimeStamp(time_t theirs, time_t ours, const std::string&, const std::string&, Channel*)
 {
 	return (ours < theirs);
 }
@@ -157,16 +157,16 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type)
+bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type)
+void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType)
 {
 }
 
-User* ModeParser::SanityChecks(User *user,const char *dest,Channel *chan,int status)
+User* ModeParser::SanityChecks(User *user, const char *dest, Channel *chan, int)
 {
 	User *d;
 	if ((!user) || (!dest) || (!chan) || (!*dest))
@@ -692,7 +692,7 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
-bool ModeParser::AddMode(ModeHandler* mh, unsigned const char modeletter)
+bool ModeParser::AddMode(ModeHandler* mh)
 {
 	unsigned char mask = 0;
 	unsigned char pos = 0;
@@ -1030,31 +1030,26 @@ void ModeHandler::RemoveMode(Channel* channel)
 
 ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 {
-	struct Initializer
+	ModeHandler* modes[] =
 	{
-		char modechar;
-		ModeHandler* handler;
-	};
-
-	Initializer modes[] = {
-		{ 's', new ModeChannelSecret(Instance) },
-		{ 'p', new ModeChannelPrivate(Instance) },
-		{ 'm', new ModeChannelModerated(Instance) },
-		{ 't', new ModeChannelTopicOps(Instance) },
-		{ 'n', new ModeChannelNoExternal(Instance) },
-		{ 'i', new ModeChannelInviteOnly(Instance) },
-		{ 'k', new ModeChannelKey(Instance) },
-		{ 'l', new ModeChannelLimit(Instance) },
-		{ 'b', new ModeChannelBan(Instance) },
-		{ 'o', new ModeChannelOp(Instance) },
-		{ 'h', new ModeChannelHalfOp(Instance) },
-		{ 'v', new ModeChannelVoice(Instance) },
-		{ 's', new ModeUserServerNotice(Instance) },
-		{ 'w', new ModeUserWallops(Instance) },
-		{ 'i', new ModeUserInvisible(Instance) },
-		{ 'o', new ModeUserOperator(Instance) },
-		{ 'n', new ModeUserServerNoticeMask(Instance) },
-		{ 0, NULL }
+		new ModeChannelSecret(Instance),
+		new ModeChannelPrivate(Instance),
+		new ModeChannelModerated(Instance),
+		new ModeChannelTopicOps(Instance),
+		new ModeChannelNoExternal(Instance),
+		new ModeChannelInviteOnly(Instance),
+		new ModeChannelKey(Instance),
+		new ModeChannelLimit(Instance),
+		new ModeChannelBan(Instance),
+		new ModeChannelOp(Instance),
+		new ModeChannelHalfOp(Instance),
+		new ModeChannelVoice(Instance),
+		new ModeUserServerNotice(Instance),
+		new ModeUserWallops(Instance),
+		new ModeUserInvisible(Instance),
+		new ModeUserOperator(Instance),
+		new ModeUserServerNoticeMask(Instance),
+		NULL
 	};
 
 	/* Clear mode list */
@@ -1065,6 +1060,6 @@ ModeParser::ModeParser(InspIRCd* Instance) : ServerInstance(Instance)
 	LastParse.clear();
 
 	/* Initialise the RFC mode letters */
-	for (int index = 0; modes[index].modechar; index++)
-		this->AddMode(modes[index].handler, modes[index].modechar);
+	for (int index = 0; modes[index]; index++)
+		this->AddMode(modes[index]);
 }

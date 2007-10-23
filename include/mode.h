@@ -430,12 +430,10 @@ class CoreExport ModeParser : public classbase
 	 * @return Last parsed string, as seen by users.
 	 */
 	const std::string& GetLastParse();
-	/** Add a mode to the mode parser. The modeletter parameter
-	 * is purely to save on doing a lookup in the function, as
-	 * strictly it could be obtained via ModeHandler::GetModeChar().
+	/** Add a mode to the mode parser.
 	 * @return True if the mode was successfully added.
 	 */
-	bool AddMode(ModeHandler* mh, unsigned const char modeletter);
+	bool AddMode(ModeHandler* mh);
 	/** Delete a mode from the mode parser.
 	 * When a mode is deleted, the mode handler will be called
 	 * for every user (if it is a user mode) or for every  channel
