@@ -448,8 +448,16 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\socketengine_iocp.cpp"
+				RelativePath="..\src\socketengines\socketengine_iocp.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\timer.cpp"
@@ -602,7 +610,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\socketengine_iocp.h"
+				RelativePath="..\include\socketengines\socketengine_iocp.h"
 				>
 			</File>
 			<File
