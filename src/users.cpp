@@ -1721,11 +1721,10 @@ unsigned int User::GetMaxChans()
  */
 ConnectClass* User::SetClass(const std::string &explicit_name)
 {
-	if (this->MyClass)
-	{
-		ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
-		this->MyClass->RefCount--;
-	}
+	ConnectClass *found = NULL;
+
+	if (!IS_LOCAL(this))
+		return NULL;
 
 	if (!explicit_name.empty())
 	{
@@ -1733,7 +1732,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			if (explicit_name == i->GetName())
 			{
-				this->MyClass = &(*i);
+				found = &(*i);
 			}
 		}
 	}
@@ -1747,22 +1746,34 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 				{
 					if (this->GetPort() == i->GetPort())
 					{
-						this->MyClass = &(*i);
+						found = &(*i);
 					}
 					else
 						continue;
 				}
 				else
 				{
-					this->MyClass = &(*i);
+					found = &(*i);
 				}
 			}
 		}
 	}
 
-	this->MyClass->RefCount++;
-	ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
-	/* will only happen for remote users. */
+	/* ensure we don't fuck things up refcount wise, only remove them from a class if we find a new one :P */
+	if (found)
+	{
+		/* should always be valid, but just in case .. */
+		if (this->MyClass)
+		{
+			ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
+			this->MyClass->RefCount--;
+		}
+
+		this->MyClass = found;
+		this->MyClass->RefCount++;
+		ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
+	}
+
 	return this->MyClass;
 }
 
