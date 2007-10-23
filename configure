@@ -49,6 +49,10 @@ my @immutabledeps = (
 #
 ###############################################################################################
 
+# List of commands that make up 'make install'
+
+my $install_list = "";
+
 # This is a list of all files in the core. Each cpp file is mapped to a shared object file,
 # whos file extension is omitted (these can vary from system to system). Auto detected by
 # scanning the src/*.cpp files for files containing /* $Core: */ identifiers.
@@ -1195,8 +1199,6 @@ EOF
 	my $file = "";
 	my $exe = "inspircd";
 
-	opendir(DIRHANDLE, $this);
-
 	# Do this once here, and cache it in the .*.inc files,
 	# rather than attempting to read src/version.sh from
 	# compiled code -- we might not have the source to hand.
@@ -1206,13 +1208,14 @@ EOF
 	chomp(my $revision = getrevision());
 	$version = "$version(r$revision)";
 
-	my $LIBEXT = "so";
-	if ($config{IS_DARWIN} eq "YES")
-	{
-		$LIBEXT = "dylib";
-	}
 	# We can actually parse any file starting with . and ending with .inc,
 	# but right now we only parse .inspircd.inc to form './inspircd'
+
+        print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
+	write_dynamic_makefile();
+	write_dynamic_modules_makefile();
+
+	opendir(DIRHANDLE, $this);
 
 	foreach $name (sort readdir(DIRHANDLE)) {
 		if ($name =~ /^\.(.+)\.inc$/) {
@@ -1223,12 +1226,13 @@ EOF
 
 			# All .name.inc files need parsing!
 			$tmp = "";
-			open(FILEHANDLE, ".$file.inc");
+			open(FILEHANDLE, ".$file.inc") or die ("Can't open .$file.inc");
 			while (<FILEHANDLE>) {
 				$tmp .= $_;
 			}
 			close(FILEHANDLE);
 
+			print "Writing \033[1;32m$file\033[0m ...\n";
 			$tmp =~ s/\@CC\@/$config{CC}/;
 			$tmp =~ s/\@MAKEPROG\@/$config{MAKEPROG}/;
 			$tmp =~ s/\@FLAGS\@/$config{FLAGS}/;
@@ -1239,7 +1243,6 @@ EOF
 			$tmp =~ s/\@MODULE_DIR\@/$config{MODULE_DIR}/;
 			$tmp =~ s/\@BINARY_DIR\@/$config{BINARY_DIR}/;
 			$tmp =~ s/\@LIBRARY_DIR\@/$config{LIBRARY_DIR}/;
-			$tmp =~ s/\@LIBRARY_EXT\@/$LIBEXT/;
 			$tmp =~ s/\@MODULES\@/$modules/;
 			$tmp =~ s/\@STARTSCRIPT\@/$config{STARTSCRIPT}/;
 			$tmp =~ s/\@DESTINATION\@/$config{DESTINATION}/;
@@ -1247,8 +1250,8 @@ EOF
 			$tmp =~ s/\@EXECUTABLE\@/$exe/;
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@VERSION\@/$version/;
+			$tmp =~ s/\@INSTALL_LIST\@/$install_list/;
 
-			print "Writing \033[1;32m$file\033[0m\n";
 			open(FILEHANDLE, ">$file");
 			print FILEHANDLE $tmp;
 		}
@@ -1257,10 +1260,6 @@ EOF
 
 	# Make inspircd executable!
 	chmod 0744, 'inspircd';
-
-	print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
-	write_dynamic_makefile();
-	write_dynamic_modules_makefile();
 }
 
 sub write_dynamic_modules_makefile {
@@ -1433,6 +1432,7 @@ sub write_dynamic_makefile
 		if ($name =~ /^cmd_(.+)\.cpp$/)
 		{
 			$cmdlist[$i++] = $1;
+			$install_list = $install_list . "	-install -m \$(INSTMODE) src/commands/cmd_" . $name  . ".so \$(LIBPATH)\n";
 	    	}
 	}
 	closedir(DIRHANDLE);
@@ -1519,6 +1519,7 @@ sub write_dynamic_makefile
 	{
 		$all = $all . $filelist{$cpp} . "." . $libraryext . " ";
 		$all_libsonly = $all_libsonly . $filelist{$cpp} . "." . $libraryext . " ";
+		$install_list = $install_list . "	-install -m \$(INSTMODE) src/" . $filelist{$cpp} . "." . $libraryext . " \$(LIBPATH)\n";
 	}
 	$all = $all . "moo inspircd\n";
 
