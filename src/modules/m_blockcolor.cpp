@@ -54,7 +54,7 @@ class ModuleBlockColour : public Module
 	ModuleBlockColour(InspIRCd* Me) : Module(Me)
 	{
 		bc = new BlockColor(ServerInstance);
-		if (!ServerInstance->AddMode(bc, 'c'))
+		if (!ServerInstance->AddMode(bc))
 			throw ModuleException("Could not add new modes!");
 	}
 

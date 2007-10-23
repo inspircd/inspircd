@@ -58,7 +58,7 @@ public:
 	{
 		OnRehash(NULL,"");
 		bc = new BlockCaps(ServerInstance);
-		if (!ServerInstance->AddMode(bc, 'P'))
+		if (!ServerInstance->AddMode(bc))
 			throw ModuleException("Could not add new modes!");
 	}
 

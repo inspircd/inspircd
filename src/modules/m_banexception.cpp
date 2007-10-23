@@ -46,7 +46,7 @@ public:
 	: Module(Me)
 	{
 		be = new BanException(ServerInstance);
-		if (!ServerInstance->AddMode(be, 'e'))
+		if (!ServerInstance->AddMode(be))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}

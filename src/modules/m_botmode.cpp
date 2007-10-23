@@ -55,7 +55,7 @@ class ModuleBotMode : public Module
 	{
 		
 		bm = new BotMode(ServerInstance);
-		if (!ServerInstance->AddMode(bm, 'B'))
+		if (!ServerInstance->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
 	}
 
