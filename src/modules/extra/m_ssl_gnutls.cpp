@@ -864,4 +864,4 @@ class ModuleSSLGnuTLS : public Module
 
 };
 
-MODULE_INIT(ModuleSSLGnuTLS);
+MODULE_INIT(ModuleSSLGnuTLS)

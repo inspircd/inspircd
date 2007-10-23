@@ -43,4 +43,4 @@ public:
 	}
 };
 
-MODULE_INIT(ModuleOperFlood);
+MODULE_INIT(ModuleOperFlood)

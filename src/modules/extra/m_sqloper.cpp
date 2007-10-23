@@ -279,4 +279,4 @@ public:
 	
 };
 
-MODULE_INIT(ModuleSQLOper);
+MODULE_INIT(ModuleSQLOper)

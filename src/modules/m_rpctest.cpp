@@ -64,4 +64,5 @@ class ModuleRPCTest : public Module
 	}
 };
 
-MODULE_INIT(ModuleRPCTest);
+MODULE_INIT(ModuleRPCTest)
+

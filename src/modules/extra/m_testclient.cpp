@@ -106,4 +106,5 @@ public:
 	}	
 };
 
-MODULE_INIT(ModuleTestClient);
+MODULE_INIT(ModuleTestClient)
+

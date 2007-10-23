@@ -179,8 +179,8 @@ class ModuleServices : public Module
 		m4 = new User_r(ServerInstance);
 		m5 = new User_R(ServerInstance);
 
-		if (!ServerInstance->AddMode(m1, 'r') || !ServerInstance->AddMode(m2, 'R') || !ServerInstance->AddMode(m3, 'M')
-			|| !ServerInstance->AddMode(m4, 'r') || !ServerInstance->AddMode(m5, 'R'))
+		if (!ServerInstance->AddMode(m1) || !ServerInstance->AddMode(m2) || !ServerInstance->AddMode(m3)
+			|| !ServerInstance->AddMode(m4) || !ServerInstance->AddMode(m5))
 		{
 			throw ModuleException("Could not add user and channel modes!");
 		}

@@ -983,4 +983,4 @@ void SQLConn::DelayReconnect()
 	((ModulePgSQL*)us)->ReconnectConn(this);
 }
 
-MODULE_INIT(ModulePgSQL);
+MODULE_INIT(ModulePgSQL)

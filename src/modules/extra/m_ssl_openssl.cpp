@@ -891,4 +891,4 @@ static int error_callback(const char *str, size_t len, void *u)
 	return 0;
 }
 
-MODULE_INIT(ModuleSSLOpenSSL);
+MODULE_INIT(ModuleSSLOpenSSL)

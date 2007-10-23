@@ -176,5 +176,5 @@ class ModuleOperSSLCert : public Module
 	}
 };
 
-MODULE_INIT(ModuleOperSSLCert);
+MODULE_INIT(ModuleOperSSLCert)
 

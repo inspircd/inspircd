@@ -46,7 +46,7 @@ class ModuleServProtectMode : public Module
 	{
 		
 		bm = new ServProtectMode(ServerInstance);
-		if (!ServerInstance->AddMode(bm, 'k'))
+		if (!ServerInstance->AddMode(bm))
 			throw ModuleException("Could not add new modes!");
 	}
 

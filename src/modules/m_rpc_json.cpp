@@ -370,4 +370,4 @@ class ModuleRpcJson : public Module
 	}
 };
 
-MODULE_INIT(ModuleRpcJson);
+MODULE_INIT(ModuleRpcJson)

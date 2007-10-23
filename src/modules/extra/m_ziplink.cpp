@@ -448,5 +448,5 @@ class ModuleZLib : public Module
 
 };
 
-MODULE_INIT(ModuleZLib);
+MODULE_INIT(ModuleZLib)
 

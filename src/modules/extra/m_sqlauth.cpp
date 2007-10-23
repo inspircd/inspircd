@@ -190,4 +190,4 @@ public:
 	
 };
 
-MODULE_INIT(ModuleSQLAuth);
+MODULE_INIT(ModuleSQLAuth)

@@ -656,5 +656,5 @@ void ResultNotifier::Dispatch()
 	((ModuleSQLite3*)mod)->SendQueue();
 }
 
-MODULE_INIT(ModuleSQLite3);
+MODULE_INIT(ModuleSQLite3)
 

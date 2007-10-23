@@ -90,5 +90,5 @@ class ModuleSSLInfo : public Module
 	}
 };
 
-MODULE_INIT(ModuleSSLInfo);
+MODULE_INIT(ModuleSSLInfo)
 

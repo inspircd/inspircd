@@ -234,4 +234,4 @@ public:
 	
 };
 
-MODULE_INIT(ModuleSQLutils);
+MODULE_INIT(ModuleSQLutils)

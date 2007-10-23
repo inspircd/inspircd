@@ -105,7 +105,7 @@ class ModuleRedirect : public Module
 	{
 		
 		re = new Redirect(ServerInstance);
-		if (!ServerInstance->AddMode(re, 'L'))
+		if (!ServerInstance->AddMode(re))
 			throw ModuleException("Could not add new modes!");
 	}
 	

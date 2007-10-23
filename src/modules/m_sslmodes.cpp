@@ -75,7 +75,7 @@ class ModuleSSLModes : public Module
 		
 
 		sslm = new SSLMode(ServerInstance);
-		if (!ServerInstance->AddMode(sslm, 'z'))
+		if (!ServerInstance->AddMode(sslm))
 			throw ModuleException("Could not add new modes!");
 	}
 
@@ -117,5 +117,5 @@ class ModuleSSLModes : public Module
 };
 
 
-MODULE_INIT(ModuleSSLModes);
+MODULE_INIT(ModuleSSLModes)
 

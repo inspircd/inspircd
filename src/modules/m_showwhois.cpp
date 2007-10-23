@@ -60,7 +60,7 @@ class ModuleShowwhois : public Module
 	{
 		
 		sw = new SeeWhois(ServerInstance);
-		if (!ServerInstance->AddMode(sw, 'W'))
+		if (!ServerInstance->AddMode(sw))
 			throw ModuleException("Could not add new modes!");
 	}
 

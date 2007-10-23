@@ -310,4 +310,4 @@ class ModuleSQLLog : public Module
 	
 };
 
-MODULE_INIT(ModuleSQLLog);
+MODULE_INIT(ModuleSQLLog)
