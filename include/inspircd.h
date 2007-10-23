@@ -720,10 +720,9 @@ class CoreExport InspIRCd : public classbase
 
 	/** Add a new mode to this server's mode parser
 	 * @param mh The modehandler to add
-	 * @param modechar The mode character this modehandler handles
 	 * @return True if the mode handler was added
 	 */
-	bool AddMode(ModeHandler* mh, const unsigned char modechar);
+	bool AddMode(ModeHandler* mh);
 
 	/** Add a new mode watcher to this server's mode parser
 	 * @param mw The modewatcher to add
