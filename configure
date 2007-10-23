@@ -1294,6 +1294,7 @@ if ($config{OSNAME} =~ /darwin/) {
 
 PICLDFLAGS = -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle
 LAMEFLAGS = $nicerflags
+LAMEPICFLAGS = -twolevel_namespace -undefined dynamic_lookup $nicerflags -bundle
 
 EOCHEESE
 } else {
@@ -1301,6 +1302,7 @@ EOCHEESE
 
 PICLDFLAGS = -fPIC -DPIC -shared \$(FLAGS)
 LAMEFLAGS = $nicerflags
+LAMEPICFLAGS = -fPIC -DPIC -shared $nicerflags
 
 EOCHEESE
 }
@@ -1326,17 +1328,19 @@ EOCHEESE
 		if (nopedantic("src/modules/m_".$i.".cpp"))
 		{
 			$fl = "\$(LAMEFLAGS)";
+			$pfl = "\$(LAMEPICFLAGS)";
 		}
 		else
 		{
 			$fl = "\$(FLAGS)";
+			$pfl = "\$(PICFLAGS)";
 		}
 	
 		#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
 	
 		print FILEHANDLE <<EOCHEESE;
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\$(CC) -pipe -I../../include $fl $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
+	\$(CC) -pipe -I../../include $fl $cmflags $pfl $liflags -export-dynamic -o m_$i.so m_$i.cpp
 EOCHEESE
 		$crud = $crud . "	install -m \$(INSTMODE) m_$i.so \$(MODPATH)\n";
 ###
