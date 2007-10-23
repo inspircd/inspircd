@@ -1286,21 +1286,21 @@ all: \$(MODULES)
 
 EOF
 
-$nicerflags = $options{FLAGS};
+$nicerflags = $config{FLAGS};
 $nicerflags =~ s/\-pedantic//g;
 
 if ($config{OSNAME} =~ /darwin/) {
 		print FILEHANDLE <<EOCHEESE;
 
 PICLDFLAGS = -twolevel_namespace -undefined dynamic_lookup \$(FLAGS) -bundle
-NICERFLAGS = $nicerflags
+LAMEFLAGS = $nicerflags
 
 EOCHEESE
 } else {
 		print FILEHANDLE <<EOCHEESE;
 
 PICLDFLAGS = -fPIC -DPIC -shared \$(FLAGS)
-NICERFLAGS = $nicerflags
+LAMEFLAGS = $nicerflags
 
 EOCHEESE
 }
@@ -1325,11 +1325,11 @@ EOCHEESE
 
 		if (nopedantic("src/modules/m_".$i.".cpp"))
 		{
-			$fl = "\$(FLAGS)";
+			$fl = "\$(LAMEFLAGS)";
 		}
 		else
 		{
-			$fl = "\$(LAMEFLAGS)";
+			$fl = "\$(FLAGS)";
 		}
 	
 		#print "file: $i: cmflags=$cmflags; liflags=$liflags; deps=$deps\n";
