@@ -217,7 +217,7 @@ class ModuleSafeList : public Module
 				}
 				ld->list_position++;
 			}
-			while ((chan != NULL) && (amount_sent < (user->sendqmax / 4)));
+			while ((chan != NULL) && (amount_sent < (user->MyClass->GetSendqMax() / 4)));
 			if (ld->list_ended)
 			{
 				user->Shrink("safelist_cache");

@@ -104,13 +104,13 @@ void ProcessUserHandler::Call(User* cu)
 					// Make sure they arn't flooding long lines.
 					if (Server->Time() > current->reset_due)
 					{
-						current->reset_due = Server->Time() + current->threshold;
+						current->reset_due = Server->Time() + current->MyClass->GetThreshold();
 						current->lines_in = 0;
 					}
 
 					current->lines_in++;
 
-					if (current->flood && current->lines_in > current->flood)
+					if (current->MyClass->GetFlood() && current->lines_in > current->MyClass->GetFlood())
 						Server->FloodQuitUser(current);
 					else
 					{
@@ -210,18 +210,18 @@ void InspIRCd::DoBackgroundUserStuff()
 			// This user didn't answer the last ping, remove them
 			if (!curr->lastping)
 			{
-				time_t time = this->Time(false) - (curr->nping - curr->pingmax);
+				time_t time = this->Time(false) - (curr->nping - curr->MyClass->GetPingTime());
 				char message[MAXBUF];
 				snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 				curr->muted = true;
 				curr->lastping = 1;
-				curr->nping = TIME+curr->pingmax;
+				curr->nping = TIME + curr->MyClass->GetPingTime();
 				User::QuitUser(this, curr, message);
 				continue;
 			}
 			curr->Write("PING :%s",this->Config->ServerName);
 			curr->lastping = 0;
-			curr->nping = TIME+curr->pingmax;
+			curr->nping = TIME  +curr->MyClass->GetPingTime();
 		}
 	}
 }

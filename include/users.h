@@ -585,12 +585,6 @@ class CoreExport User : public connection
 	 */
 	char awaymsg[MAXAWAY+1];
 
-	/** Number of lines the user can place into the buffer
-	 * (up to the global NetBufferSize bytes) before they
-	 * are disconnected for excess flood
-	 */
-	int flood;
-
 	/** Timestamp of current time + connection class timeout.
 	 * This user must send USER/NICK before this timestamp is
 	 * reached or they will be disconnected.
@@ -609,10 +603,6 @@ class CoreExport User : public connection
 	 * set this value once they complete.
 	 */
 	bool dns_done;
-
-	/** Number of seconds between PINGs for this user (set from &lt;connect:allow&gt; tag
-	 */
-	unsigned int pingmax;
 
 	/** Password specified by the user when they registered.
 	 * This is stored even if the <connect> block doesnt need a password, so that
@@ -638,10 +628,6 @@ class CoreExport User : public connection
 	/** Flood counters - time lines_in is due to be reset
 	 */
 	time_t reset_due;
-
-	/** Flood counters - Highest value lines_in may reach before the user gets disconnected
-	 */
-	long threshold;
 
 	/** If this is set to true, then all read operations for the user
 	 * are dropped into the bit-bucket.
@@ -681,16 +667,6 @@ class CoreExport User : public connection
 	/* Write error string
 	 */
 	std::string WriteError;
-
-	/** Maximum size this user's sendq can become.
-	 * Copied from the connect class on connect.
-	 */
-	long sendqmax;
-
-	/** Maximum size this user's recvq can become.
-	 * Copied from the connect class on connect.
-	 */
-	long recvqmax;
 
 	/** This is true if the user matched an exception when they connected to the ircd.
 	 * It isnt valid after this point, and you should not attempt to do anything with it

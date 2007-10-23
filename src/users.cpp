@@ -179,7 +179,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	age = ServerInstance->Time(true);
 	Penalty = 0;
 	lines_in = lastping = signon = idle_lastmsg = nping = registered = 0;
-	ChannelCount = timeout = flood = bytes_in = bytes_out = cmds_in = cmds_out = 0;
+	ChannelCount = timeout = bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	OverPenalty = ExemptFromPenalty = muted = exempt = haspassed = dns_done = false;
 	fd = -1;
 	recvq.clear();
@@ -495,10 +495,10 @@ bool User::AddBuffer(std::string a)
 		if (a.length())
 			recvq.append(a);
 
-		if (recvq.length() > (unsigned)this->recvqmax)
+		if (recvq.length() > (unsigned)this->MyClass->GetRecvqMax())
 		{
 			this->SetWriteError("RecvQ exceeded");
-			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->recvqmax);
+			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
 			return false;
 		}
 
@@ -567,7 +567,7 @@ void User::AddWriteBuf(const std::string &data)
 	if (*this->GetWriteError())
 		return;
 
-	if (sendq.length() + data.length() > (unsigned)this->sendqmax)
+	if (sendq.length() + data.length() > (unsigned)this->MyClass->GetSendqMax())
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling writeopers, because
@@ -575,7 +575,7 @@ void User::AddWriteBuf(const std::string &data)
 		 * to repeatedly add the text to the sendq!
 		 */
 		this->SetWriteError("SendQ exceeded");
-		ServerInstance->WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->sendqmax);
+		ServerInstance->WriteOpers("*** User %s SendQ of %d exceeds connect class maximum of %d",this->nick,sendq.length() + data.length(),this->MyClass->GetSendqMax());
 		return;
 	}
 
@@ -912,13 +912,8 @@ void User::CheckClass()
 		return;
 	}
 
-	this->pingmax = a->GetPingTime();
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
 	this->timeout = ServerInstance->Time() + a->GetRegTimeout();
-	this->flood = a->GetFlood();
-	this->threshold = a->GetThreshold();
-	this->sendqmax = a->GetSendqMax();
-	this->recvqmax = a->GetRecvqMax();
 	this->MaxChans = a->GetMaxChans();
 }
 
