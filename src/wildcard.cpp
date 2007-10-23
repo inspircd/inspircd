@@ -139,7 +139,8 @@ CoreExport bool match(bool case_sensitive, const char *str, const char *mask, bo
 {
 	if (use_cidr_match && MatchCIDR(str, mask, true))
 		return true;
-	return csmatch(str, mask);
+
+	return case_sensitive ? csmatch(str, mask) : match(str, mask);
 }
 
 CoreExport bool match(bool case_sensitive, const char *str, const char *mask)
