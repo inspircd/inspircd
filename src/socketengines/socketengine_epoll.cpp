@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <sys/epoll.h>
-#include "socketengine_epoll.h"
+#include "socketengines/socketengine_epoll.h"
 
 EPollEngine::EPollEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {

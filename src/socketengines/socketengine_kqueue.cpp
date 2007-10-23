@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include "socketengine_kqueue.h"
+#include "socketengines/socketengine_kqueue.h"
 
 
 KQueueEngine::KQueueEngine(InspIRCd* Instance) : SocketEngine(Instance)

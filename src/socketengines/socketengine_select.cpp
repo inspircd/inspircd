@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 #include <sys/select.h>
-#include "socketengine_select.h"
+#include "socketengines/socketengine_select.h"
 
 
 SelectEngine::SelectEngine(InspIRCd* Instance) : SocketEngine(Instance)

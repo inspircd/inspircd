@@ -1166,7 +1166,7 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 #ifndef __CONFIGURATION_SOCKETENGINE__
 #define __CONFIGURATION_SOCKETENGINE__
 
-#include "$se.h"
+#include "socketengines/$se.h"
 
 #endif
 EOF

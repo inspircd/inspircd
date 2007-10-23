@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <port.h>
-#include "socketengine_ports.h"
+#include "socketengines/socketengine_ports.h"
 
 PortsEngine::PortsEngine(InspIRCd* Instance) : SocketEngine(Instance)
 {
