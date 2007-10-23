@@ -55,7 +55,7 @@ class ModuleNoCTCP : public Module
 	{
 		
 		nc = new NoCTCP(ServerInstance);
-		if (!ServerInstance->AddMode(nc, 'C'))
+		if (!ServerInstance->AddMode(nc))
 			throw ModuleException("Could not add new modes!");
 	}
 

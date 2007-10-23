@@ -58,7 +58,7 @@ class ModuleHideOper : public Module
 	{
 		
 		hm = new HideOper(ServerInstance);
-		if (!ServerInstance->AddMode(hm, 'H'))
+		if (!ServerInstance->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
 	}
 

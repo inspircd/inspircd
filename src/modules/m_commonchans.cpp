@@ -52,7 +52,7 @@ class ModulePrivacyMode : public Module
 	ModulePrivacyMode(InspIRCd* Me) : Module(Me)
 	{
 		pm = new PrivacyMode(ServerInstance);
-		if (!ServerInstance->AddMode(pm, 'c'))
+		if (!ServerInstance->AddMode(pm))
 			throw ModuleException("Could not add new modes!");
 	}
 

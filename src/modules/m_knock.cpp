@@ -102,7 +102,7 @@ class ModuleKnock : public Module
 	{
 		kn = new Knock(ServerInstance);
 
-		if (!ServerInstance->AddMode(kn, 'K'))
+		if (!ServerInstance->AddMode(kn))
 			throw ModuleException("Could not add new modes!");
 
 		mycommand = new CommandKnock(ServerInstance);

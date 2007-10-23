@@ -361,8 +361,8 @@ class ModuleChanProtect : public Module
 			cp = new ChanProtect(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 			cf = new ChanFounder(ServerInstance,QAPrefixes,DeprivSelf,DeprivOthers);
 			/* These wont fail, we already owned the mode characters before */
-			ServerInstance->AddMode(cp, 'a');
-			ServerInstance->AddMode(cf, 'q');
+			ServerInstance->AddMode(cp);
+			ServerInstance->AddMode(cf);
 			ServerInstance->WriteOpers("*** WARNING: +qa prefixes were enabled or disabled via a REHASH. Clients will probably need to reconnect to pick up this change.");
 		}
 	}

@@ -54,7 +54,7 @@ class ModuleNoNotice : public Module
 	{
 		
 		nt = new NoNotice(ServerInstance);
-		if (!ServerInstance->AddMode(nt, 'T'))
+		if (!ServerInstance->AddMode(nt))
 			throw ModuleException("Could not add new modes!");
 	}
 

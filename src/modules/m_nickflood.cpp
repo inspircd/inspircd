@@ -215,7 +215,7 @@ class ModuleNickFlood : public Module
 	{
 		
 		jf = new NickFlood(ServerInstance);
-		if (!ServerInstance->AddMode(jf, 'F'))
+		if (!ServerInstance->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
 	}
 

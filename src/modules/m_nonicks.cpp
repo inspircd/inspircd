@@ -52,7 +52,7 @@ class ModuleNoNickChange : public Module
 	{
 		
 		nn = new NoNicks(ServerInstance);
-		ServerInstance->AddMode(nn, 'N');
+		ServerInstance->AddMode(nn);
 	}
 	
 	virtual ~ModuleNoNickChange()

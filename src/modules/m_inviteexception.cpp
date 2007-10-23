@@ -44,7 +44,7 @@ public:
 	ModuleInviteException(InspIRCd* Me) : Module(Me)
 	{
 		ie = new InviteException(ServerInstance);
-		if (!ServerInstance->AddMode(ie, 'I'))
+		if (!ServerInstance->AddMode(ie))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Modules->PublishInterface("ChannelBanList", this);
 	}

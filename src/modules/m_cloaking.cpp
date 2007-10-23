@@ -327,7 +327,7 @@ class ModuleCloaking : public Module
 		cu = new CloakUser(ServerInstance, this, HashModule);
 
 		/* Register it with the core */		
-		if (!ServerInstance->AddMode(cu, 'x'))
+		if (!ServerInstance->AddMode(cu))
 			throw ModuleException("Could not add new modes!");
 
 		OnRehash(NULL,"");

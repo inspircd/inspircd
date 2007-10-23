@@ -124,7 +124,7 @@ public:
 	{
 		
 		kr = new KickRejoin(ServerInstance);
-		if (!ServerInstance->AddMode(kr, 'J'))
+		if (!ServerInstance->AddMode(kr))
 			throw ModuleException("Could not add new modes!");
 	}
 

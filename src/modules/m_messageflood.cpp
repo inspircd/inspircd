@@ -209,7 +209,7 @@ class ModuleMsgFlood : public Module
 	{
 		
 		mf = new MsgFlood(ServerInstance);
-		if (!ServerInstance->AddMode(mf, 'f'))
+		if (!ServerInstance->AddMode(mf))
 			throw ModuleException("Could not add new modes!");
 	}
 	

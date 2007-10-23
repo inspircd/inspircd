@@ -159,7 +159,7 @@ class ModuleInvisible : public Module
 	{
 		conf = new ConfigReader(ServerInstance);
 		qm = new InvisibleMode(ServerInstance);
-		if (!ServerInstance->AddMode(qm, 'Q'))
+		if (!ServerInstance->AddMode(qm))
 			throw ModuleException("Could not add new modes!");
 		ido = new InvisibleDeOper(ServerInstance);
 		if (!ServerInstance->AddModeWatcher(ido))

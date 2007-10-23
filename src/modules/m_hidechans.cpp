@@ -59,7 +59,7 @@ class ModuleHideChans : public Module
 	{
 		
 		hm = new HideChans(ServerInstance);
-		if (!ServerInstance->AddMode(hm, 'I'))
+		if (!ServerInstance->AddMode(hm))
 			throw ModuleException("Could not add new modes!");
 	}
 

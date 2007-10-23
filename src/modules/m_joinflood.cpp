@@ -216,7 +216,7 @@ class ModuleJoinFlood : public Module
 	{
 		
 		jf = new JoinFlood(ServerInstance);
-		if (!ServerInstance->AddMode(jf, 'j'))
+		if (!ServerInstance->AddMode(jf))
 			throw ModuleException("Could not add new modes!");
 	}
 	
