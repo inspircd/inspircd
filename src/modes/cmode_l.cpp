@@ -21,7 +21,7 @@ ModeChannelLimit::ModeChannelLimit(InspIRCd* Instance) : ModeHandler(Instance, '
 {
 }
 
-ModePair ModeChannelLimit::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+ModePair ModeChannelLimit::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {
 	if (channel->limit)
 	{
@@ -33,13 +33,13 @@ ModePair ModeChannelLimit::ModeSet(User* source, User* dest, Channel* channel, c
 	}
 }
 
-bool ModeChannelLimit::CheckTimeStamp(time_t theirs, time_t ours, const std::string &their_param, const std::string &our_param, Channel* channel)
+bool ModeChannelLimit::CheckTimeStamp(time_t, time_t, const std::string &their_param, const std::string &our_param, Channel*)
 {
 	/* When TS is equal, the higher channel limit wins */
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 }
 
-ModeAction ModeChannelLimit::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelLimit::OnModeChange(User*, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	if (adding)
 	{

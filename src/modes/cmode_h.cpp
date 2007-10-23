@@ -28,7 +28,7 @@ unsigned int ModeChannelHalfOp::GetPrefixRank()
 	return HALFOP_VALUE;
 }
 
-ModePair ModeChannelHalfOp::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+ModePair ModeChannelHalfOp::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {
 	User* x = ServerInstance->FindNick(parameter);
 	if (x)
@@ -66,11 +66,11 @@ void ModeChannelHalfOp::RemoveMode(Channel* channel)
 
 }
 
-void ModeChannelHalfOp::RemoveMode(User* user)
+void ModeChannelHalfOp::RemoveMode(User*)
 {
 }
 
-ModeAction ModeChannelHalfOp::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelHalfOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	/* If halfops are not enabled in the conf, we don't execute
 	 * anything in this class at all.

@@ -507,7 +507,7 @@ bool IsIdentHandler::Call(const char* n)
 }
 
 /* open the proper logfile */
-bool InspIRCd::OpenLog(char** argv, int argc)
+bool InspIRCd::OpenLog(char**, int)
 {
 	Config->MyDir = Config->GetFullProgDir();
 

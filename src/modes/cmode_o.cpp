@@ -28,7 +28,7 @@ unsigned int ModeChannelOp::GetPrefixRank()
 	return OP_VALUE;
 }
 
-ModePair ModeChannelOp::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+ModePair ModeChannelOp::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {
 	User* x = ServerInstance->FindNick(parameter);
 	if (x)
@@ -66,11 +66,11 @@ void ModeChannelOp::RemoveMode(Channel* channel)
 	}
 }
 
-void ModeChannelOp::RemoveMode(User* user)
+void ModeChannelOp::RemoveMode(User*)
 {
 }
 
-ModeAction ModeChannelOp::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 

@@ -28,7 +28,7 @@ unsigned int ModeChannelVoice::GetPrefixRank()
 	return VOICE_VALUE;
 }
 
-ModePair ModeChannelVoice::ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+ModePair ModeChannelVoice::ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 {
 	User* x = ServerInstance->FindNick(parameter);
 	if (x)
@@ -65,11 +65,11 @@ void ModeChannelVoice::RemoveMode(Channel* channel)
 	}
 }
 
-void ModeChannelVoice::RemoveMode(User* user)
+void ModeChannelVoice::RemoveMode(User*)
 {
 }
 
-ModeAction ModeChannelVoice::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction ModeChannelVoice::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	int status = channel->GetStatus(source);
 

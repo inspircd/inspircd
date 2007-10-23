@@ -35,7 +35,7 @@ bool FileLogger::Readable()
 	return false;
 }
     
-void FileLogger::HandleEvent(EventType et, int errornum)
+void FileLogger::HandleEvent(EventType, int)
 {
 	WriteLogLine("");
 	if (log)

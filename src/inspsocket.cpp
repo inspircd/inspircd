@@ -528,7 +528,7 @@ bool BufferedSocket::FlushWriteBuffer()
 	return (fd < 0);
 }
 
-void SocketTimeout::Tick(time_t now)
+void SocketTimeout::Tick(time_t)
 {
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 		return;
@@ -666,9 +666,9 @@ int BufferedSocket::GetFd()
 }
 
 bool BufferedSocket::OnConnected() { return true; }
-void BufferedSocket::OnError(BufferedSocketError e) { return; }
+void BufferedSocket::OnError(BufferedSocketError) { return; }
 int BufferedSocket::OnDisconnect() { return 0; }
-int BufferedSocket::OnIncomingConnection(int newfd, char* ip) { return 0; }
+int BufferedSocket::OnIncomingConnection(int, char*) { return 0; }
 bool BufferedSocket::OnDataReady() { return true; }
 bool BufferedSocket::OnWriteReady() { return true; }
 void BufferedSocket::OnTimeout() { return; }
