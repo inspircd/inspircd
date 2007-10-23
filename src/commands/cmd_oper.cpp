@@ -35,7 +35,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandOper(Instance);
 }
 
-CmdResult CommandOper::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandOper::Handle (const char** parameters, int, User *user)
 {
 	char LoginName[MAXBUF];
 	char Password[MAXBUF];

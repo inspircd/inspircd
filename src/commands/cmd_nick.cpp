@@ -25,7 +25,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandNick::Handle (const char** parameters, int, User *user)
 {
 	char oldnick[NICKMAX];
 
@@ -161,7 +161,7 @@ CmdResult CommandNick::Handle (const char** parameters, int pcnt, User *user)
 
 }
 
-CmdResult CommandNick::HandleInternal(const unsigned int id, const std::deque<classbase*> &parameters)
+CmdResult CommandNick::HandleInternal(const unsigned int id, const std::deque<classbase*>&)
 {
 	allowinvalid = (id != 0);
 	return CMD_SUCCESS;

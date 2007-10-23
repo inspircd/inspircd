@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /MAP
  */
-CmdResult CommandMap::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandMap::Handle (const char**, int, User *user)
 {
 	// as with /LUSERS this does nothing without a linking
 	// module to override its behaviour and display something

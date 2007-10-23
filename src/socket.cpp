@@ -65,7 +65,7 @@ ListenSocket::~ListenSocket()
 	}
 }
 
-void ListenSocket::HandleEvent(EventType et, int errornum)
+void ListenSocket::HandleEvent(EventType, int)
 {
 	sockaddr* sock_us = new sockaddr[2];	// our port number
 	sockaddr* client = new sockaddr[2];
@@ -426,7 +426,8 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 {
 	int sockfd;
 	int on = 1;
-	struct linger linger = { 0 };
+	addr = addr;
+	struct linger linger = { 0, 0 };
 #ifdef IPV6
 	if (strchr(addr,':') || (!*addr))
 		sockfd = socket (PF_INET6, socktype, 0);
@@ -450,7 +451,7 @@ int irc::sockets::OpenTCPSocket(char* addr, int socktype)
 	}
 }
 
-int InspIRCd::BindPorts(bool bail, int &ports_found, FailedPortList &failed_ports)
+int InspIRCd::BindPorts(bool, int &ports_found, FailedPortList &failed_ports)
 {
 	char configToken[MAXBUF], Addr[MAXBUF], Type[MAXBUF];
 	int bound = 0;

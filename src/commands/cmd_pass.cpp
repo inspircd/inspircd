@@ -19,7 +19,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandPass(Instance);
 }
 
-CmdResult CommandPass::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandPass::Handle (const char** parameters, int, User *user)
 {
 	// Check to make sure they havnt registered -- Fix by FCS
 	if (user->registered == REG_ALL)

@@ -38,7 +38,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /MODULES
  */
-CmdResult CommandModules::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandModules::Handle (const char**, int, User *user)
 {
   	for (unsigned int i = 0; i < ServerInstance->Config->module_names.size(); i++)
 	{

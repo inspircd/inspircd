@@ -28,7 +28,7 @@ CommandWhowas::CommandWhowas(InspIRCd* Instance) : Command(Instance, "WHOWAS", 0
 	Instance->Timers->AddTimer(timer);
 }
 
-CmdResult CommandWhowas::Handle (const char** parameters, int pcnt, User* user)
+CmdResult CommandWhowas::Handle (const char** parameters, int, User* user)
 {
 	/* if whowas disabled in config */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -337,7 +337,7 @@ WhoWasGroup::~WhoWasGroup()
 }
 
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
-void WhoWasMaintainTimer::Tick(time_t t)
+void WhoWasMaintainTimer::Tick(time_t)
 {
 	Command* whowas_command = ServerInstance->Parser->GetHandler("WHOWAS");
 	if (whowas_command)

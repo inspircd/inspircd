@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 
 /** Handle /INFO
  */
-CmdResult CommandInfo::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandInfo::Handle (const char**, int, User *user)
 {
 	user->WriteServ( "371 %s :                   -/\\- \2InspIRCd\2 -\\/-", user->nick);
 	user->WriteServ( "371 %s :                 November 2002 - Present", user->nick);

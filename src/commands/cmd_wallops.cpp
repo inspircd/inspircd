@@ -21,7 +21,7 @@ extern "C" DllExport Command* init_command(InspIRCd* Instance)
 	return new CommandWallops(Instance);
 }
 
-CmdResult CommandWallops::Handle (const char** parameters, int pcnt, User *user)
+CmdResult CommandWallops::Handle (const char** parameters, int, User *user)
 {
 	user->WriteWallOps(std::string(parameters[0]));
 	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
