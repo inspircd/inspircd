@@ -421,17 +421,20 @@ bool InitConnect(ServerConfig* conf, const char*)
 	}
 
 goagain:
-	/* change this: only delete a class with refcount 0 */
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
 	{
 		ConnectClass *c = *i;
 
+		/* only delete a class with refcount 0 */
 		if (c->RefCount == 0)
 		{
 			conf->GetInstance()->Log(DEFAULT, "Removing connect class, refcount is 0!");
 			conf->Classes.erase(i);
 			goto goagain; // XXX fucking hell.. how better to  do this
 		}
+
+		/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
+		c->SetDisabled(true);
 	}
 
 	return true;
@@ -467,6 +470,8 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		ConnectClass* c = *item;
 		if ((*name && (c->GetName() == name)) || (*allow && (c->GetHost() == allow)) || (*deny && (c->GetHost() == deny)))
 		{
+			/* reenable class so users can be shoved into it :P */
+			c->SetDisabled(false);
 			conf->GetInstance()->Log(DEFAULT, "Not adding class, it already exists!");
 			return true;
 		} 

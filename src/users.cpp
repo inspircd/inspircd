@@ -1727,7 +1727,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (explicit_name == c->GetName())
+			if (explicit_name == c->GetName() && !c->GetDisabled())
 			{
 				found = c;
 			}
@@ -1743,7 +1743,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 			{
 				if (c->GetPort())
 				{
-					if (this->GetPort() == c->GetPort())
+					if (this->GetPort() == c->GetPort() && !c->GetDisabled())
 					{
 						found = c;
 					}
@@ -1752,7 +1752,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 				}
 				else
 				{
-					found = c;
+					if (!c->GetDisabled())
+						found = c;
 				}
 			}
 		}
@@ -1764,6 +1765,8 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		/* should always be valid, but just in case .. */
 		if (this->MyClass)
 		{
+			if (found == this->MyClass) // no point changing this shit :P
+				return this->MyClass;
 			this->MyClass->RefCount--;
 			ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
 		}
