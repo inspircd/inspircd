@@ -284,16 +284,6 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		return true;
 	}
 
-	if (!user)
-	{
-		/*
-		 * before, we went and found the command even with no user.. seems nonsensical.
-		 * I'm not entirely sure when we would be passed NULL, but let's handle it
-		 * anyway, by dropping it like a hot potato. -- w00t
-		 */
-		return true;
-	}
-
 	/* find the command, check it exists */
 	Commandable::iterator cm = cmdlist.find(command);
 	
@@ -309,13 +299,9 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	if (!user->ExemptFromPenalty)
 	{
 		user->IncreasePenalty(cm->second->Penalty);
-		ServerInstance->Log(DEBUG,"Penalty for %s is now incremented to %d (%d added on)", user->nick, user->Penalty, cm->second->Penalty);
 		do_more = (user->Penalty < 10);
 		if (!do_more)
-		{
 			user->OverPenalty = true;
-			ServerInstance->Log(DEBUG,"User %s now OVER penalty of 10", user->nick);
-		}
 	}
 
 	/* activity resets the ping pending timer */
