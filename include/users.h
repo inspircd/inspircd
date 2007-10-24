@@ -177,11 +177,11 @@ public:
 
 	/** Create a new connect class based on an existing connect class. This is required for std::vector (at least under windows).
 	 */
-	ConnectClass(const ConnectClass& source) : classbase(), type(source.type), name(source.name),
-		registration_timeout(source.registration_timeout), flood(source.flood), host(source.host),
-		pingtime(source.pingtime), pass(source.pass), threshold(source.threshold), sendqmax(source.sendqmax),
-		recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),
-		port(source.port)
+	ConnectClass(const ConnectClass* source) : classbase(), type(source->type), name(source->name),
+		registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
+		pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
+		recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
+		port(source->port)
 	{
 		this->RefCount = 0;
 	}
@@ -227,11 +227,11 @@ public:
 	 * @param thename The name of the connect class
 	 * @param source Another connect class to inherit all but the name from
 	 */
-	ConnectClass(const std::string &thename, const ConnectClass &source) : type(source.type), name(thename),
-				registration_timeout(source.registration_timeout), flood(source.flood), host(source.host),
-				pingtime(source.pingtime), pass(source.pass), threshold(source.threshold), sendqmax(source.sendqmax),
-				recvqmax(source.recvqmax), maxlocal(source.maxlocal), maxglobal(source.maxglobal), maxchans(source.maxchans),
-				port(source.port)
+	ConnectClass(const std::string &thename, const ConnectClass* source) : type(source->type), name(thename),
+				registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
+				pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
+				recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
+				port(source->port)
 	{
 		this->RefCount = 0;
 	}
@@ -375,27 +375,27 @@ public:
 		return maxglobal;
 	}
 
-	bool operator== (ConnectClass &other)
+	bool operator== (ConnectClass* other)
 	{
-		return (other.GetName() == name);
+		return (other->GetName() == name);
 	}
 
-	void operator=(const ConnectClass & other)
+	void operator=(const ConnectClass* other)
 	{
-		type = other.type;
-		name = other.name;
-		registration_timeout = other.registration_timeout;
-		flood = other.flood;
-		host = other.host;
-		pingtime = other.pingtime;
-		pass = other.pass;
-		threshold = other.threshold;
-		sendqmax = other.sendqmax;
-		recvqmax = other.recvqmax;
-		maxlocal = other.maxlocal;
-		maxglobal = other.maxglobal;
-		maxchans = other.maxchans;
-		port = other.port;
+		type = other->type;
+		name = other->name;
+		registration_timeout = other->registration_timeout;
+		flood = other->flood;
+		host = other->host;
+		pingtime = other->pingtime;
+		pass = other->pass;
+		threshold = other->threshold;
+		sendqmax = other->sendqmax;
+		recvqmax = other->recvqmax;
+		maxlocal = other->maxlocal;
+		maxglobal = other->maxglobal;
+		maxchans = other->maxchans;
+		port = other->port;
 	}
 };
 
@@ -405,7 +405,7 @@ typedef std::vector<irc::string> InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
-typedef std::vector<ConnectClass> ClassVector;
+typedef std::vector<ConnectClass*> ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */

@@ -417,7 +417,7 @@ goagain:
 	/* change this: only delete a class with refcount 0 */
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
 	{
-		ConnectClass *c = &(*i);
+		ConnectClass *c = *i;
 
 		if (c->RefCount == 0)
 		{
@@ -459,10 +459,11 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		 */
 		for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
 		{
-			if (item->GetName() == parent)
+			ConnectClass* c = *item;
+			if (c->GetName() == parent)
 			{
-				ConnectClass c(name, *item);
-				c.Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
+				ConnectClass* c = new ConnectClass(name, c);
+				c->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
 				conf->Classes.push_back(c);
 			}
 		}
@@ -472,14 +473,14 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	{
 		if (*allow)
 		{
-			ConnectClass c(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans);
-			c.SetPort(port);
+			ConnectClass* c = new ConnectClass(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			c->SetPort(port);
 			conf->Classes.push_back(c);
 		}
 		else
 		{
-			ConnectClass c(name, deny);
-			c.SetPort(port);
+			ConnectClass* c = new ConnectClass(name, deny);
+			c->SetPort(port);
 			conf->Classes.push_back(c);
 		}
 	}

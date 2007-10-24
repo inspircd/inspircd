@@ -1725,9 +1725,11 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
-			if (explicit_name == i->GetName())
+			ConnectClass* c = *i;
+
+			if (explicit_name == c->GetName())
 			{
-				found = &(*i);
+				found = c;
 			}
 		}
 	}
@@ -1735,20 +1737,22 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
-			if (((match(this->GetIPString(),i->GetHost().c_str(),true)) || (match(this->host,i->GetHost().c_str()))))
+			ConnectClass* c = *i;
+
+			if (((match(this->GetIPString(),c->GetHost().c_str(),true)) || (match(this->host,c->GetHost().c_str()))))
 			{
-				if (i->GetPort())
+				if (c->GetPort())
 				{
-					if (this->GetPort() == i->GetPort())
+					if (this->GetPort() == c->GetPort())
 					{
-						found = &(*i);
+						found = c;
 					}
 					else
 						continue;
 				}
 				else
 				{
-					found = &(*i);
+					found = c;
 				}
 			}
 		}
