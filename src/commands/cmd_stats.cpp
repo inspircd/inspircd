@@ -92,7 +92,8 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			int idx = 0;
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
-				results.push_back(sn+" 215 "+user->nick+" I NOMATCH * "+i->GetHost()+" "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
+				ConnectClass* c = *i;
+				results.push_back(sn+" 215 "+user->nick+" I NOMATCH * "+c->GetHost()+" "+ConvToStr(MAXCLIENTS)+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
 				idx++;
 			}
 		}
@@ -103,8 +104,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			int idx = 0;
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
-				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(i->GetPingTime())+" 0 "+ConvToStr(i->GetSendqMax())+" :"+
-						ConvToStr(i->GetFlood())+" "+ConvToStr(i->GetRegTimeout()));
+				ConnectClass* c = *i;
+				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqMax())+" :"+
+						ConvToStr(c->GetFlood())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
 			}
 		}
