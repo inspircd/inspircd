@@ -459,6 +459,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	const char* name = values[12].GetString();
 	const char* parent = values[13].GetString();
 	int maxchans = values[14].GetInteger();
+	unsigned long limit = values[15].GetInteger();
 
 	/*
 	 * duplicates check: Now we don't delete all connect classes on rehash, we need to ensure we don't add dupes.
@@ -489,7 +490,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 			if (c->GetName() == parent)
 			{
 				ConnectClass* c = new ConnectClass(name, c);
-				c->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port);
+				c->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
 				conf->Classes.push_back(c);
 			}
 		}
@@ -500,6 +501,7 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		if (*allow)
 		{
 			ConnectClass* c = new ConnectClass(name, timeout, flood, allow, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans);
+			c->limit = limit;
 			c->SetPort(port);
 			conf->Classes.push_back(c);
 		}
@@ -746,15 +748,15 @@ void ServerConfig::Read(bool bail, User* user)
 		{"connect",
 				{"allow",	"deny",		"password",	"timeout",	"pingfreq",	"flood",
 				"threshold",	"sendq",	"recvq",	"localmax",	"globalmax",	"port",
-				"name",		"parent",	"maxchans",
+				"name",		"parent",	"maxchans",     "limit",
 				NULL},
 				{"",		"",		"",		"",		"120",		"",
 				 "",		"",		"",		"3",		"3",		"0",
-				 "",		"",		"0",
+				 "",		"",		"0",            "0",
 				 NULL},
 				{DT_CHARPTR,	DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
 				 DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,	DT_INTEGER,
-				 DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER},
+				 DT_CHARPTR,	DT_CHARPTR,	DT_INTEGER,     DT_INTEGER},
 				InitConnect, DoConnect, DoneConnect},
 
 		{"uline",

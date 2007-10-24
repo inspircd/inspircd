@@ -1762,6 +1762,13 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	/* ensure we don't fuck things up refcount wise, only remove them from a class if we find a new one :P */
 	if (found)
 	{
+		/* deny change if change will take class over the limit */
+		if (found->RefCount + 1 >= found->limit)
+		{
+			ServerInstance->Log(DEBUG, "OOPS: Connect class limit (%u) hit, denying", found->limit);
+			return this->MyClass;
+		}
+
 		/* should always be valid, but just in case .. */
 		if (this->MyClass)
 		{

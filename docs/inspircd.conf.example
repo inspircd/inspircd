@@ -211,7 +211,7 @@
 #                                                                     #
 #  Syntax is as follows:                                              #
 #                                                                     #
-#       <connect name="myallow" allow="1.2.3.0/24"                    #
+#       <connect name="myallow" allow="1.2.3.0/24" limit="5"          #
 #                password="blahblah" timeout="10" timeout="blah"      #
 #                flood="5" threshold="8" pingfreq="120" sendq="99999" #
 #                revcq="696969" localmax="3" globalmax="3"            #
@@ -240,6 +240,10 @@
 #   You may optionally include timeout="x" on any allow line, which   #
 #   specifies the amount of time given before an unknown connection   #
 #   is closed if USER/NICK/PASS are not given. This value is in secs. #
+#                                                                     #
+#   You may optionally limit the number of clients that are matched   #
+#   by a single <connect> tag by specifying the maximum in the limit  #
+#   parameter. If set to 0, there is no limit, which is the default.  #
 #                                                                     #
 #   You should also include a flood="x" line which indicates          #
 #   the number of lines a user may place into their buffer at once    #

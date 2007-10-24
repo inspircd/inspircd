@@ -181,14 +181,14 @@ public:
 		registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
 		pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
 		recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-		port(source->port), RefCount(0), disabled(false)
+		port(source->port), RefCount(0), disabled(false), limit(0)
 	{
 	}
 
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass() : type(CC_DENY), name("unnamed"), registration_timeout(0), flood(0), host(""), pingtime(0), pass(""),
-			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), RefCount(0), disabled(false)
+			threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), RefCount(0), disabled(false), limit(0)
 	{
 	}
 
@@ -209,14 +209,14 @@ public:
 			const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
 			unsigned long maxl, unsigned long maxg, unsigned int maxc, int p = 0) :
 			type(CC_ALLOW), name(thename), registration_timeout(timeout), flood(fld), host(hst), pingtime(ping), pass(pas),
-			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), maxchans(maxc), port(p), RefCount(0), disabled(false) { }
+			threshold(thres), sendqmax(sendq), recvqmax(recvq), maxlocal(maxl), maxglobal(maxg), maxchans(maxc), port(p), RefCount(0), disabled(false), limit(0) { }
 
 	/** Create a new connect class to DENY connections
 	 * @param thename Name of the connect class
 	 * @param hst The IP mask to deny
 	 */
 	ConnectClass(const std::string &thename, const std::string &hst) : type(CC_DENY), name(thename), registration_timeout(0),
-			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), RefCount(0), disabled(false)
+			flood(0), host(hst), pingtime(0), pass(""), threshold(0), sendqmax(0), recvqmax(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), RefCount(0), disabled(false), limit(0)
 	{
 	}
 
@@ -228,7 +228,7 @@ public:
 				registration_timeout(source->registration_timeout), flood(source->flood), host(source->host),
 				pingtime(source->pingtime), pass(source->pass), threshold(source->threshold), sendqmax(source->sendqmax),
 				recvqmax(source->recvqmax), maxlocal(source->maxlocal), maxglobal(source->maxglobal), maxchans(source->maxchans),
-				port(source->port), RefCount(0), disabled(false)
+				port(source->port), RefCount(0), disabled(false), limit(0)
 	{
 	}
 
@@ -246,7 +246,7 @@ public:
 	 */
 	void Update(unsigned int timeout, unsigned int fld, const std::string &hst, unsigned int ping,
 				const std::string &pas, unsigned int thres, unsigned long sendq, unsigned long recvq,
-				unsigned long maxl, unsigned long maxg, unsigned int maxc, int p)
+				unsigned long maxl, unsigned long maxg, unsigned int maxc, int p, unsigned long limit)
 	{
 		if (timeout)
 			registration_timeout = timeout;
@@ -272,6 +272,8 @@ public:
 			maxchans = maxc;
 		if (p)
 			port = p;
+
+		this->limit = limit;
 	}
 
 	/** Reference counter. Contains an int as to how many users are connected to this class. :)
@@ -283,6 +285,10 @@ public:
 	/** If this is true, any attempt to set a user to this class will fail. Default false. This is really private, it's only in the public section thanks to the way this class is written
 	 */
 	bool disabled;
+
+	/** How many users may be in this connect class before they are refused? (0 = disabled = default)
+	 */
+	unsigned long limit;
 
 	int GetMaxChans()
 	{
