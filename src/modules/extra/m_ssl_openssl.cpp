@@ -41,6 +41,7 @@
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
 /* $ModDep: transport.h */
+/* $NoPedantic */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 enum issl_io_status { ISSL_WRITE, ISSL_READ };
