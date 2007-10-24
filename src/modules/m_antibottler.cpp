@@ -60,7 +60,7 @@ class ModuleAntiBottler : public Module
 				}
 			}
 			// Bug Fix (#14) -- FCS
-			if (!(data) || !(*data))
+			if (!*data)
 				return 0;
 
 			strtok(data," ");
