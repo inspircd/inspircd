@@ -413,6 +413,13 @@ bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Log(DEFAULT,"Reading connect classes...");
 
+	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
+	{
+		ConnectClass *c = *i;
+
+		conf->GetInstance()->Log(DEBUG, "Address of class is %p", c);
+	}
+
 goagain:
 	/* change this: only delete a class with refcount 0 */
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
@@ -434,7 +441,6 @@ goagain:
  */
 bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
-	conf->GetInstance()->Log(DEFAULT,"Adding a connect class!");
 	ConnectClass c;
 	const char* allow = values[0].GetString(); /* Yeah, there are a lot of values. Live with it. */
 	const char* deny = values[1].GetString();
@@ -451,6 +457,22 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 	const char* name = values[12].GetString();
 	const char* parent = values[13].GetString();
 	int maxchans = values[14].GetInteger();
+
+	/*
+	 * duplicates check: Now we don't delete all connect classes on rehash, we need to ensure we don't add dupes.
+	 * easier said than done, but for now we'll just disallow anything with a duplicate host or name. -- w00t
+	 */
+	for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
+	{
+		ConnectClass* c = *item;
+		if ((*name && (c->GetName() == name)) || (*allow && (c->GetHost() == allow)) || (*deny && (c->GetHost() == deny)))
+		{
+			conf->GetInstance()->Log(DEFAULT, "Not adding class, it already exists!");
+			return true;
+		} 
+	}
+
+	conf->GetInstance()->Log(DEFAULT,"Adding a connect class!");
 
 	if (*parent)
 	{
