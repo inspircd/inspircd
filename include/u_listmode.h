@@ -132,7 +132,7 @@ class ListModeBase : public ModeHandler
 
 	/** See mode.h 
 	 */
-	std::pair<bool,std::string> ModeSet(User* source, User* dest, Channel* channel, const std::string &parameter)
+	std::pair<bool,std::string> ModeSet(User*, User*, Channel* channel, const std::string &parameter)
 	{
 		modelist* el;
 		channel->GetExt(infokey, el);
@@ -206,7 +206,7 @@ class ListModeBase : public ModeHandler
 
 	/** See mode.h
 	 */
-	virtual void RemoveMode(User* user)
+	virtual void RemoveMode(User*)
 	{
 		/* Listmodes dont get set on users */
 	}
@@ -248,7 +248,7 @@ class ListModeBase : public ModeHandler
 	/** Handle the list mode.
 	 * See mode.h
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 	{
 		// Try and grab the list
 		modelist* el;
@@ -418,7 +418,7 @@ class ListModeBase : public ModeHandler
 	 * @param target_type Type of target to clean
 	 * @param item Item to clean
 	 */
-	virtual void DoCleanup(int target_type, void* item)
+	virtual void DoCleanup(int, void*)
 	{
 	}
 	
@@ -429,7 +429,7 @@ class ListModeBase : public ModeHandler
 	 * @param parameter The actual parameter being added
 	 * @return true if the parameter is valid
 	 */
-	virtual bool ValidateParam(User* source, Channel* channel, std::string &parameter)
+	virtual bool ValidateParam(User*, Channel*, std::string&)
 	{
 		return true;
 	}
@@ -441,7 +441,7 @@ class ListModeBase : public ModeHandler
 	 * @param parameter The actual parameter being added
 	 * @return Ignored
 	 */
-	virtual bool TellListTooLong(User* source, Channel* channel, std::string &parameter)
+	virtual bool TellListTooLong(User*, Channel*, std::string&)
 	{
 		return false;
 	}
@@ -452,7 +452,7 @@ class ListModeBase : public ModeHandler
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
 	 */
-	virtual void TellAlreadyOnList(User* source, Channel* channel, std::string &parameter)
+	virtual void TellAlreadyOnList(User*, Channel*, std::string&)
 	{
 	}
 	
@@ -462,7 +462,7 @@ class ListModeBase : public ModeHandler
 	 * @param channel Channel the parameter is being removed from
 	 * @param parameter The actual parameter being removed
 	 */
-	virtual void TellNotSet(User* source, Channel* channel, std::string &parameter)
+	virtual void TellNotSet(User*, Channel*, std::string&)
 	{
 	}
 };
