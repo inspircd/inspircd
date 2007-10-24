@@ -596,7 +596,7 @@ class CoreExport User : public connection
 
 	/** Flood counters - lines received
 	 */
-	int lines_in;
+	unsigned int lines_in;
 
 	/** Flood counters - time lines_in is due to be reset
 	 */

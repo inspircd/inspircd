@@ -219,7 +219,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname,const char**
 void CommandParser::DoLines(User* current, bool one_only)
 {
 	// while there are complete lines to process...
-	int floodlines = 0;
+	unsigned int floodlines = 0;
 
 	while (current->BufferIsReady())
 	{
