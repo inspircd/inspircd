@@ -22,7 +22,7 @@
 /* VERSION 2 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
-/* $CompileFlags: exec("mysql_config --include") */
+/* $CompileFlags: -Wno-variadic-macros exec("mysql_config --include") */
 /* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
 /* $ModDep: m_sqlv2.h */
 /* $NoPedantic */

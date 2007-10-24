@@ -18,6 +18,8 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
+/* $CompileFlags: -Wno-variadic-macros */
+
 static Module* SQLModule;
 static Module* MyMod;
 static std::string dbid;
@@ -135,7 +137,7 @@ public:
 				if (res->Rows() && hostid == -1 && !insert)
 				{
 					hostid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log (category_id,nick,host,source,dtime) VALUES("+ConvToStr(category)+","+ConvToStr(nickid)+","+ConvToStr(hostid)+","+ConvToStr(sourceid)+","+ConvToStr(date)+")");
+					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log (category_id,nick,host,source,dtime) VALUES('?','?','?','?','?')", category, nickid, hostid , sourceid, date);
 					if(req.Send())
 					{
 						insert = true;

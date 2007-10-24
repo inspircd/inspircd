@@ -20,6 +20,7 @@
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 /* $ModDep: m_sqlv2.h m_sqlutils.h */
+/* $CompileFlags: -Wno-variadic-macros */
 
 class ModuleSQLAuth : public Module
 {

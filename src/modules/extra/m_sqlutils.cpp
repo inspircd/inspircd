@@ -22,6 +22,7 @@
 
 /* $ModDesc: Provides some utilities to SQL client modules, such as mapping queries to users and channels */
 /* $ModDep: m_sqlutils.h */
+/* $CompileFlags: -Wno-variadic-macros */
 
 typedef std::map<unsigned long, User*> IdUserMap;
 typedef std::map<unsigned long, Channel*> IdChanMap;

@@ -1008,7 +1008,7 @@ sub getosflags {
 
 	$config{LDLIBS} = "-lstdc++";
 	$config{FLAGS}  = "-fPIC -Wall -pedantic $config{OPTIMISATI}";
-	$config{DEVELOPER} = "-fPIC -Wall -pedantic -g";
+	$config{DEVELOPER} = "-fPIC -Wall -std=c99 -pedantic -g";
 	$SHARED = "-Wl,--rpath -Wl,$config{LIBRARY_DIR} -shared";
 	$config{MAKEPROG} = "make";
 

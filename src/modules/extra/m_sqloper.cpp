@@ -24,6 +24,7 @@
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 /* $ModDep: m_sqlv2.h m_sqlutils.h */
+/* $CompileFlags: -Wno-variadic-macros */
 
 class ModuleSQLOper : public Module
 {
