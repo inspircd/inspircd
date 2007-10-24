@@ -420,7 +420,6 @@ bool InitConnect(ServerConfig* conf, const char*)
 		conf->GetInstance()->Log(DEBUG, "Address of class is %p", c);
 	}
 
-goagain:
 	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
 	{
 		ConnectClass *c = *i;
@@ -430,7 +429,7 @@ goagain:
 		{
 			conf->GetInstance()->Log(DEFAULT, "Removing connect class, refcount is 0!");
 			conf->Classes.erase(i);
-			goto goagain; // XXX fucking hell.. how better to  do this
+			i = conf->Classes.begin(); // start over so we don't trample on a bad iterator
 		}
 
 		/* also mark all existing classes disabled, if they still exist in the conf, they will be reenabled. */
