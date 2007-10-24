@@ -20,7 +20,6 @@
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
 /* $ModDep: m_sqlv2.h m_sqlutils.h */
-/* $CompileFlags: -Wno-variadic-macros */
 
 class ModuleSQLAuth : public Module
 {
@@ -105,7 +104,8 @@ public:
 
 	bool CheckCredentials(User* user)
 	{
-		SQLrequest req = SQLreq(this, SQLprovider, databaseid, "SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')", userfield, usertable, userfield, user->nick, passfield, encryption, user->password);
+		SQLrequest req = SQLrequest(this, SQLprovider, databaseid, SQLquery("SELECT ? FROM ? WHERE ? = '?' AND ? = ?'?')") % userfield % usertable % userfield % user->nick %
+				passfield % encryption % user->password);
 			
 		if(req.Send())
 		{

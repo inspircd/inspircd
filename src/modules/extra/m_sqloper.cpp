@@ -24,7 +24,6 @@
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 /* $ModDep: m_sqlv2.h m_sqlutils.h */
-/* $CompileFlags: -Wno-variadic-macros */
 
 class ModuleSQLOper : public Module
 {
@@ -105,7 +104,8 @@ public:
 			 * also hashing it in the module and only passing a remote query containing a hash is more secure.
 			 */
 
-			SQLrequest req = SQLreq(this, target, databaseid, "SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", username, md5_pass_hash);
+			SQLrequest req = SQLrequest(this, target, databaseid,
+					SQLquery("SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'") % username % md5_pass_hash);
 			
 			if (req.Send())
 			{

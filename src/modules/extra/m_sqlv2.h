@@ -19,12 +19,6 @@
 #include <map>
 #include "modules.h"
 
-/** SQLreq define.
- * This is the voodoo magic which lets us pass multiple
- * parameters to the SQLrequest constructor... voodoo...
- */
-#define SQLreq(a, b, c, d, e...) SQLrequest(a, b, c, (SQLquery(d), ##e))
-
 /** Identifiers used to identify Request types
  */
 #define SQLREQID "SQLv2 Request"
@@ -140,11 +134,11 @@ public:
  * the workaround for this isn't easy to describe simply, but in a nutshell what's really
  * happening when - from the above example - you do this:
  *
- * SQLrequest foo = SQLreq(this, target, "databaseid", "SELECT (foo, bar) FROM rawr WHERE foo = '?' AND bar = ?", "Hello", "42");
+ * SQLrequest foo = SQLrequest(this, target, "databaseid", SQLquery("SELECT (foo, bar) FROM rawr WHERE foo = '?' AND bar = ?", "Hello", "42"));
  *
  * what's actually happening is functionally this:
  *
- * SQLrequest foo = SQLreq(this, target, "databaseid", query("SELECT (foo, bar) FROM rawr WHERE foo = '?' AND bar = ?").addparam("Hello").addparam("42"));
+ * SQLrequest foo = SQLrequest(this, target, "databaseid", query("SELECT (foo, bar) FROM rawr WHERE foo = '?' AND bar = ?").addparam("Hello").addparam("42"));
  *
  * with 'query()' returning a reference to an object with a 'addparam()' member function which
  * in turn returns a reference to that object. There are actually four ways you can create a
@@ -233,7 +227,7 @@ public:
 	/** Initialize an SQLrequest.
 	 * For example:
 	 *
-	 * SQLrequest req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_actors VALUES('','?')", nick);
+	 * SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors VALUES('','?')" % nick));
 	 *
 	 * @param s A pointer to the sending module, where the result should be routed
 	 * @param d A pointer to the receiving module, identified as implementing the 'SQL' feature

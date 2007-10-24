@@ -18,8 +18,6 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
-/* $CompileFlags: -Wno-variadic-macros */
-
 class ModuleTestClient : public Module
 {
 private:
@@ -47,7 +45,8 @@ public:
 		
 		if(target)
 		{
-			SQLrequest foo = SQLreq(this, target, "foo", "UPDATE rawr SET foo = '?' WHERE bar = 42", ConvToStr(time(NULL)));
+			SQLrequest foo = SQLrequest(this, target, "foo",
+					SQLquery("UPDATE rawr SET foo = '?' WHERE bar = 42") % time(NULL));
 			
 			if(foo.Send())
 			{

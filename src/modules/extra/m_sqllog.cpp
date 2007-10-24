@@ -18,8 +18,6 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
-/* $CompileFlags: -Wno-variadic-macros */
-
 static Module* SQLModule;
 static Module* MyMod;
 static std::string dbid;
@@ -62,14 +60,14 @@ public:
 
 	void Go(SQLresult* res)
 	{
-		SQLrequest req = SQLreq(MyMod, SQLModule, dbid, "", "");
+		SQLrequest req = SQLrequest(MyMod, SQLModule, dbid, SQLquery(""));
 		switch (qs)
 		{
 			case FIND_SOURCE:
 				if (res->Rows() && sourceid == -1 && !insert)
 				{
 					sourceid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
 					if(req.Send())
 					{
 						insert = false;
@@ -79,7 +77,7 @@ public:
 				}
 				else if (res->Rows() && sourceid == -1 && insert)
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", source);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
 					if(req.Send())
 					{
 						insert = false;
@@ -89,7 +87,7 @@ public:
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_actors (actor) VALUES('?')", source);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % source);
 					if(req.Send())
 					{
 						insert = true;
@@ -103,7 +101,7 @@ public:
 				if (res->Rows() && nickid == -1 && !insert)
 				{
 					nickid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'", hostname);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
 					if(req.Send())
 					{
 						insert = false;
@@ -113,7 +111,7 @@ public:
 				}
 				else if (res->Rows() && nickid == -1 && insert)
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", nick);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % nick);
 					if(req.Send())
 					{
 						insert = false;
@@ -123,7 +121,7 @@ public:
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_actors (actor) VALUES('?')",nick);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_actors (actor) VALUES('?')") % nick);
 					if(req.Send())
 					{
 						insert = true;
@@ -137,7 +135,8 @@ public:
 				if (res->Rows() && hostid == -1 && !insert)
 				{
 					hostid = atoi(res->GetValue(0,0).d.c_str());
-					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log (category_id,nick,host,source,dtime) VALUES('?','?','?','?','?')", category, nickid, hostid , sourceid, date);
+					req = SQLrequest(MyMod, SQLModule, dbid,
+							SQLquery("INSERT INTO ircd_log (category_id,nick,host,source,dtime) VALUES('?','?','?','?','?')") % category % nickid % hostid % sourceid % date);
 					if(req.Send())
 					{
 						insert = true;
@@ -147,7 +146,7 @@ public:
 				}
 				else if (res->Rows() && hostid == -1 && insert)
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'", hostname);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("SELECT id,hostname FROM ircd_log_hosts WHERE hostname='?'") % hostname);
 					if(req.Send())
 					{
 						insert = false;
@@ -157,7 +156,7 @@ public:
 				}
 				else
 				{
-					req = SQLreq(MyMod, SQLModule, dbid, "INSERT INTO ircd_log_hosts (hostname) VALUES('?')", hostname);
+					req = SQLrequest(MyMod, SQLModule, dbid, SQLquery("INSERT INTO ircd_log_hosts (hostname) VALUES('?')") % hostname);
 					if(req.Send())
 					{
 						insert = true;
@@ -256,7 +255,7 @@ class ModuleSQLLog : public Module
 		if (!SQLModule)
 			return;
 
-		SQLrequest req = SQLreq(this, SQLModule, dbid, "SELECT id,actor FROM ircd_log_actors WHERE actor='?'", source);
+		SQLrequest req = SQLrequest(this, SQLModule, dbid, SQLquery("SELECT id,actor FROM ircd_log_actors WHERE actor='?'") % source);
 		if(req.Send())
 		{
 			QueryInfo* i = new QueryInfo(nick, source, host, req.id, category);
