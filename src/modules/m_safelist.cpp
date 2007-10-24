@@ -168,7 +168,7 @@ class ModuleSafeList : public Module
 		if (user->GetExt("safelist_cache", ld))
 		{
 			Channel* chan = NULL;
-			long amount_sent = 0;
+			unsigned long amount_sent = 0;
 			do
 			{
 				chan = ServerInstance->GetChannelIndex(ld->list_position);

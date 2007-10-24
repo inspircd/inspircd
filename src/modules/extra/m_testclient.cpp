@@ -18,6 +18,8 @@
 #include "configreader.h"
 #include "m_sqlv2.h"
 
+/* $CompileFlags: -Wno-variadic-macros */
+
 class ModuleTestClient : public Module
 {
 private:
