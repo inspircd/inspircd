@@ -265,7 +265,7 @@ bool ValidateServerName(ServerConfig* conf, const char*, const char*, ValueItem 
 	if ((strcasecmp(conf->ServerName, data.GetString())) && (*conf->ServerName))
 	{
 		throw CoreException("Configuration error: You cannot change your servername at runtime! Please restart your server for this change to be applied.");
-		/* XXX: We don't actually reach this return of course... */
+		/* We don't actually reach this return of course... */
 		return false;
 	}
 	if (!strchr(data.GetString(),'.'))
@@ -412,7 +412,21 @@ bool ValidateWhoWas(ServerConfig* conf, const char*, const char*, ValueItem &dat
 bool InitConnect(ServerConfig* conf, const char*)
 {
 	conf->GetInstance()->Log(DEFAULT,"Reading connect classes...");
-	conf->Classes.clear();
+
+goagain:
+	/* change this: only delete a class with refcount 0 */
+	for (ClassVector::iterator i = conf->Classes.begin(); i != conf->Classes.end(); i++)
+	{
+		ConnectClass *c = &(*i);
+
+		if (c->RefCount == 0)
+		{
+			conf->GetInstance()->Log(DEFAULT, "Removing connect class, refcount is 0!");
+			conf->Classes.erase(i);
+			goto goagain; // XXX fucking hell.. how better to  do this
+		}
+	}
+
 	return true;
 }
 
@@ -420,6 +434,7 @@ bool InitConnect(ServerConfig* conf, const char*)
  */
 bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 {
+	conf->GetInstance()->Log(DEFAULT,"Adding a connect class!");
 	ConnectClass c;
 	const char* allow = values[0].GetString(); /* Yeah, there are a lot of values. Live with it. */
 	const char* deny = values[1].GetString();
@@ -474,8 +489,9 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 
 /* Callback called when there are no more <connect> tags
  */
-bool DoneConnect(ServerConfig*, const char*)
+bool DoneConnect(ServerConfig *conf, const char*)
 {
+	conf->GetInstance()->Log(DEFAULT, "Done adding connect classes!");
 	return true;
 }
 

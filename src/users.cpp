@@ -1760,13 +1760,13 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 		/* should always be valid, but just in case .. */
 		if (this->MyClass)
 		{
-			ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
 			this->MyClass->RefCount--;
+			ServerInstance->Log(DEBUG, "Untying user from connect class -- refcount: %u", this->MyClass->RefCount);
 		}
 
 		this->MyClass = found;
 		this->MyClass->RefCount++;
-		ServerInstance->Log(DEBUG, "User tied to class -- connect refcount now: %u", this->MyClass->RefCount);
+		ServerInstance->Log(DEBUG, "User tied to new class -- connect refcount now: %u", this->MyClass->RefCount);
 	}
 
 	return this->MyClass;
