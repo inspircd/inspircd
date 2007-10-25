@@ -495,7 +495,7 @@ bool User::AddBuffer(std::string a)
 		if (a.length())
 			recvq.append(a);
 
-		if (recvq.length() > (unsigned)this->MyClass->GetRecvqMax())
+		if (this->MyClass && (recvq.length() > this->MyClass->GetRecvqMax()))
 		{
 			this->SetWriteError("RecvQ exceeded");
 			ServerInstance->WriteOpers("*** User %s RecvQ of %d exceeds connect class maximum of %d",this->nick,recvq.length(),this->MyClass->GetRecvqMax());
@@ -567,7 +567,7 @@ void User::AddWriteBuf(const std::string &data)
 	if (*this->GetWriteError())
 		return;
 
-	if (sendq.length() + data.length() > (unsigned)this->MyClass->GetSendqMax())
+	if (this->MyClass && (sendq.length() + data.length() > this->MyClass->GetSendqMax()))
 	{
 		/*
 		 * Fix by brain - Set the error text BEFORE calling writeopers, because
@@ -933,12 +933,12 @@ void User::FullConnect()
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
-	if ((!this->MyClass->GetPass().empty()) && (!this->haspassed))
+	if (this->MyClass && !this->MyClass->GetPass().empty() && !this->haspassed)
 	{
 		User::QuitUser(ServerInstance, this, "Invalid password");
 		return;
 	}
-	
+
 	if (!this->exempt)
 	{
 		GLine* r = ServerInstance->XLines->matches_gline(this);

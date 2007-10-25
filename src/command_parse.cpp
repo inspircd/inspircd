@@ -223,22 +223,25 @@ void CommandParser::DoLines(User* current, bool one_only)
 
 	while (current->BufferIsReady())
 	{
-		if (ServerInstance->Time() > current->reset_due)
+		if (current->MyClass)
 		{
-			current->reset_due = ServerInstance->Time() + current->MyClass->GetThreshold();
-			current->lines_in = 0;
-		}
+			if (ServerInstance->Time() > current->reset_due)
+			{
+				current->reset_due = ServerInstance->Time() + current->MyClass->GetThreshold();
+				current->lines_in = 0;
+			}
 
-		if (++current->lines_in > current->MyClass->GetFlood() && current->MyClass->GetFlood())
-		{
-			ServerInstance->FloodQuitUser(current);
-			return;
-		}
+			if (++current->lines_in > current->MyClass->GetFlood() && current->MyClass->GetFlood())
+			{
+				ServerInstance->FloodQuitUser(current);
+				return;
+			}
 
-		if ((++floodlines > current->MyClass->GetFlood()) && (current->MyClass->GetFlood() != 0))
-		{
-			ServerInstance->FloodQuitUser(current);
-			return;
+			if ((++floodlines > current->MyClass->GetFlood()) && (current->MyClass->GetFlood() != 0))
+			{
+				ServerInstance->FloodQuitUser(current);
+				return;
+			}
 		}
 
 		// use GetBuffer to copy single lines into the sanitized string
@@ -305,7 +308,9 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 	}
 
 	/* activity resets the ping pending timer */
-	user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+	if (user->MyClass)
+		user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
+
 	if (cm->second->flags_needed)
 	{
 		if (!user->IsModeSet(cm->second->flags_needed))

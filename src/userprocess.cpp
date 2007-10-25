@@ -101,21 +101,24 @@ void ProcessUserHandler::Call(User* cu)
 				// AddBuffer returned false, theres too much data in the user's buffer and theyre up to no good.
 				if (current->registered == REG_ALL)
 				{
-					// Make sure they arn't flooding long lines.
-					if (Server->Time() > current->reset_due)
+					if (current->MyClass)
 					{
-						current->reset_due = Server->Time() + current->MyClass->GetThreshold();
-						current->lines_in = 0;
-					}
+						// Make sure they arn't flooding long lines.
+						if (Server->Time() > current->reset_due)
+						{
+							current->reset_due = Server->Time() + current->MyClass->GetThreshold();
+							current->lines_in = 0;
+						}
 
-					current->lines_in++;
+						current->lines_in++;
 
-					if (current->MyClass->GetFlood() && current->lines_in > current->MyClass->GetFlood())
-						Server->FloodQuitUser(current);
-					else
-					{
-						current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
-						current->recvq.clear();
+						if (current->MyClass->GetFlood() && current->lines_in > current->MyClass->GetFlood())
+							Server->FloodQuitUser(current);
+						else
+						{
+							current->WriteServ("NOTICE %s :Your previous line was too long and was not delivered (Over %d chars) Please shorten it.", current->nick, MAXBUF-2);
+							current->recvq.clear();
+						}
 					}
 				}
 				else
