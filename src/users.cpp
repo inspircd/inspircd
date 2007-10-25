@@ -1763,7 +1763,7 @@ ConnectClass* User::SetClass(const std::string &explicit_name)
 	if (found)
 	{
 		/* deny change if change will take class over the limit */
-		if (found->RefCount + 1 >= found->limit)
+		if (found->limit && (found->RefCount + 1 >= found->limit))
 		{
 			ServerInstance->Log(DEBUG, "OOPS: Connect class limit (%u) hit, denying", found->limit);
 			return this->MyClass;
