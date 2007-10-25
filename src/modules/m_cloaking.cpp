@@ -78,6 +78,9 @@ class CloakUser : public ModeHandler
 		if (!IS_LOCAL(dest))
 			return MODEACTION_ALLOW;
 
+		/* don't allow this user to spam modechanges */
+		dest->IncreasePenalty(5);
+
 		if (adding)
 		{
 			if(!dest->IsModeSet('x'))
