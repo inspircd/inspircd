@@ -49,9 +49,10 @@ my @immutabledeps = (
 #
 ###############################################################################################
 
-# List of commands that make up 'make install'
+# List of commands that make up 'make install' and 'make deinstall'
 
 my $install_list = "";
+my $uninstall_list = "";
 
 # This is a list of all files in the core. Each cpp file is mapped to a shared object file,
 # whos file extension is omitted (these can vary from system to system). Auto detected by
@@ -1188,6 +1189,7 @@ EOF
 			if (opendir(MDIRHANDLE, "src/modules/$name") != 0) {
 				closedir(MDIRHANDLE);
 				$modules .= "$name.so ";
+				$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/$name.so\n";
 			}
 		}
 	}
@@ -1211,9 +1213,9 @@ EOF
 	# We can actually parse any file starting with . and ending with .inc,
 	# but right now we only parse .inspircd.inc to form './inspircd'
 
-        print "Writing dynamic-build \033[1;32msrc/Makefile\033[0m\n";
-	write_dynamic_makefile();
+        print "Writing \033[1;32mMakefiles\033[0m\n";
 	write_dynamic_modules_makefile();
+	write_dynamic_makefile();
 
 	opendir(DIRHANDLE, $this);
 
@@ -1251,6 +1253,7 @@ EOF
 			$tmp =~ s/\@MAKEORDER\@/$config{MAKEORDER}/;
 			$tmp =~ s/\@VERSION\@/$version/;
 			$tmp =~ s/\@INSTALL_LIST\@/$install_list/;
+			$tmp =~ s/\@UNINSTALL_LIST\@/$uninstall_list/;
 
 			open(FILEHANDLE, ">$file");
 			print FILEHANDLE $tmp;
@@ -1308,8 +1311,6 @@ EOCHEESE
 	my $modules = "";
 	my $cmflags = "";
 	my $liflags = "";
-	my $crud = "";
-
 	foreach $i (@modlist) {
 		###
 		# Write Entry to the MakeFile
@@ -1338,7 +1339,8 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 	\$(CC) -pipe -I../../include \$(FLAGS) $cmflags \$(PICLDFLAGS) $liflags -export-dynamic -o m_$i.so m_$i.cpp
 ";
 		}
-		$crud = $crud . "	install -m \$(INSTMODE) m_$i.so \$(MODPATH)\n";
+		$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/m_$i.so \$(MODPATH)\n";
+		$uninstall_list = $uninstall_list . "	-rm \$(MODULES)/m_$i.so\n";
 ###
 		# End Write Entry to the MakeFile
 		###
@@ -1363,13 +1365,11 @@ m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/ch
 				}
 				print FILEHANDLE "\n$mfrules\n";
 				closedir(MDIRHANDLE);
-				$crud = $crud . "	install -m \$(INSTMODE) $name.so \$(MODPATH)\n";
+				$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/$name.so \$(MODPATH)\n";
 			}
 		}
 	}
 	closedir(DIRHANDLE);
-
-	print FILEHANDLE "modinst:\n	\@echo \"Installing modules...\"\n" . $crud;
 }
 
 sub read_module_directory {
@@ -1440,6 +1440,7 @@ sub write_dynamic_makefile
 {
 	my $i = 0;
 	my @cmdlist = ();
+	my %existing_install_list = ();
 	opendir(DIRHANDLE, "src/commands");
 	foreach $name (sort readdir(DIRHANDLE))
 	{
@@ -1447,6 +1448,7 @@ sub write_dynamic_makefile
 		{
 			$cmdlist[$i++] = $1;
 			$install_list = $install_list . "	-install -m \$(INSTMODE) src/commands/cmd_" . $1 . ".so \$(LIBPATH)\n";
+			$uninstall_list = $uninstall_list . "	-rm \$(LIBPATH)/cmd_$1.so\n";
 	    	}
 	}
 	closedir(DIRHANDLE);
@@ -1464,54 +1466,79 @@ sub write_dynamic_makefile
 		$config{USE_PORTS} = 0;
 	}
 
-	print "Scanning src folder for core files";
-	opendir(DIRHANDLE, "src");
-	foreach $name (sort readdir(DIRHANDLE))
+	foreach my $dir (("src","src/commands","src/modes","src/socketengines","src/modules"))
 	{
-		if ($name =~ /\.cpp$/)
+		print "Scanning \033[1;32m$dir\033[0m for core files ";
+		opendir(DIRHANDLE, $dir);
+		foreach $name (sort readdir(DIRHANDLE))
 		{
-			open (CPP, "<src/$name") or die("Can't open src/$name to scan it! oh bugger");
-			while (chomp($line = <CPP>))
+			if ($name =~ /\.cpp$/)
 			{
-				if ($line =~ /\/\* \$Core: (\w+) \*\//i)
-				{
-					$filelist{$name} = $1;
-					print ".";
-				}
-				elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
-				{
-					$specialdeps{$name} = $1;
-				}
-				elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//i)
-				{
-					$extraobjects{$name} = $1;
-				}
-				elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//i)
-				{
-					$extrabuildlines{$name} = $1;
-				}
-				elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//i)
-				{
-					$extrasources{$name} = $1;
-				}
-				elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
-				{
-					if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
+				open (CPP, "<$dir/$name") or die("Can't open $dir/$name to scan it! oh bugger");
+				while (chomp($line = <CPP>))
 					{
-						# Skip to 'endif'
-						while (chomp($line = <CPP>))
+					if ($line =~ /\/\* \$Core: (\w+) \*\//i)
+					{
+						$filelist{$name} = $1;
+						print ".";
+					}
+					elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
+					{
+						$specialdeps{$name} = $1;
+					}
+					elsif ($line =~ /\/\* \$ExtraObjects: (.*?) \*\//i)
+					{
+						$extraobjects{$name} = $1;
+					}
+					elsif ($line =~ /\/\* \$ExtraBuild: (.*?) \*\//i)
+					{
+						$extrabuildlines{$name} = $1;
+					}
+					elsif ($line =~ /\/\* \$ExtraSources: (.*?) \*\//i)
+					{
+						$extrasources{$name} = $1;
+						}
+					elsif ($line =~ /\/\* \$If: (\w+) \*\//i)
+					{
+						if (($config{$1} !~ /y/i) and ($config{$1} ne "1"))
 						{
-							die ("\$If buildsystem instruction within another \$If in file src/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
-							last if ($line =~ /\/\* \$EndIf \*\//i);
+							# Skip to 'endif'
+							while (chomp($line = <CPP>))
+							{
+								die ("\$If buildsystem instruction within another \$If in file $dir/$name") if ($line =~ /\/\* \$If: (\w+) \*\//i);
+								last if ($line =~ /\/\* \$EndIf \*\//i);
+							}
+						}
+					}
+					elsif ($line =~ /\/\* \$Install: (.*?) \*\//i)
+					{
+						if (!exists($existing_install_list{$1}))
+						{
+							$idir = (split(' ',$1))[1];
+							$ifile = (split(' ',$1))[0];
+							$install_list = $install_list . "	-install -m \$(INSTMODE) $1\n";
+							$ifile =~ s/.*\///g;
+							$uninstall_list = $uninstall_list . "	-rm $idir/$ifile\n";
+						}
+					}
+					elsif ($line =~ /\/\* \$CopyInstall: (.*?) \*\//i)
+					{
+						if (!exists($existing_install_list{$1}))
+						{
+							$idir = (split(' ',$1))[1];
+							$ifile = (split(' ',$1))[0];
+							$install_list = $install_list . "	-cp $1\n" if (!exists($existing_install_list{$1}));
+							$ifile =~ s/.*\///g;
+							$uninstall_list = $uninstall_list . "	-rm $idir/$ifile\n";
 						}
 					}
 				}
+				close CPP;
 			}
-			close CPP;
 		}
+		closedir(DIRHANDLE);
+		print " done!\n";
 	}
-	closedir(DIRHANDLE);
-	print " done!\n";
 
 	$freebsd4libs = $config{CRAQ};
 
@@ -1534,6 +1561,7 @@ sub write_dynamic_makefile
 		$all = $all . $filelist{$cpp} . "." . $libraryext . " ";
 		$all_libsonly = $all_libsonly . $filelist{$cpp} . "." . $libraryext . " ";
 		$install_list = $install_list . "	-install -m \$(INSTMODE) src/" . $filelist{$cpp} . "." . $libraryext . " \$(LIBPATH)\n";
+		$uninstall_list = $uninstall_list . "	-rm \$(LIBPATH)/" . $filelist{$cpp} . "." . $libraryext . "\n";
 	}
 	$all = $all . "moo inspircd\n";
 

@@ -71,24 +71,8 @@ install: all@EXTRA_DIR@
 	@-install -d -m $(INSTMODE) $(BINPATH)
 	@-install -d -m $(INSTMODE) $(CONPATH)
 	@-install -d -m $(INSTMODE) $(MODPATH)
-@INSTALL_LIST@	-install -m $(INSTMODE) src/inspircd $(BINPATH)
 	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
-	@-cp .gdbargs $(BASE)
-	@-cp conf/inspircd.quotes.example $(CONPATH)
-	@-cp conf/inspircd.rules.example $(CONPATH)
-	@-cp conf/inspircd.motd.example $(CONPATH)
-	@-cp conf/inspircd.helpop-full.example $(CONPATH)
-	@-cp conf/inspircd.helpop.example $(CONPATH)
-	@-cp conf/inspircd.censor.example $(CONPATH)
-	@-cp conf/inspircd.filter.example $(CONPATH)
-	@-cp conf/key.pem $(CONPATH)
-	@-cp conf/cert.pem $(CONPATH)
-	@-cp docs/inspircd.conf.example $(CONPATH)
-	${MAKE} modinstall
-
-modinstall: mods
-	${MAKE} -C src/modules DIRNAME="src/modules" $(MAKEARGS) modinst
-	@echo ""
+@INSTALL_LIST@	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
 	@echo "*                                   *"
@@ -114,6 +98,9 @@ modclean:
 	rm -rf src/modules/*/*.o
 	rm -rf lib/*.so
 	rm -f bin/inspircd
+
+deinstall:
+@UNINSTALL_LIST@
 
 squeakyclean: distclean
 

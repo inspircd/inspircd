@@ -12,6 +12,14 @@
  */
 
 /* $Core: libIRCDconfigreader */
+/* $CopyInstall: conf/inspircd.quotes.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.rules.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.motd.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.helpop-full.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.helpop.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.censor.example $(CONPATH) */
+/* $CopyInstall: conf/inspircd.filter.example $(CONPATH) */
+/* $CopyInstall: docs/inspircd.conf.example $(CONPATH) */
 
 #include "inspircd.h"
 #include <fstream>

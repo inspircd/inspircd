@@ -35,7 +35,8 @@
 /* $CompileFlags: exec("libgnutls-config --cflags") */
 /* $LinkerFlags: rpath("libgnutls-config --libs") exec("libgnutls-config --libs") */
 /* $ModDep: transport.h */
-
+/* $CopyInstall: conf/key.pem $(CONPATH) */
+/* $CopyInstall: conf/cert.pem $(CONPATH) */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
