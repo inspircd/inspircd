@@ -696,7 +696,7 @@ void InspIRCd::BufferedSocketCull()
  * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
  */
 
-int ircd(int argc, char ** argv)
+int main(int argc, char ** argv)
 {
 	SI = new InspIRCd(argc, argv);
 	mysig = &SI->s_signal;
@@ -704,20 +704,6 @@ int ircd(int argc, char ** argv)
 	delete SI;
 	return 0;
 }
-
-int main(int argc, char ** argv)
-{
-	int retval = 0;
-
-	#ifndef WINDOWS
-	// XXX No idea why this is windows only..
-	retval =
-	#endif
-		ircd(argc,argv);
-
-	return retval;
-}
-
 
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
