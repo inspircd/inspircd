@@ -1529,7 +1529,7 @@ sub write_dynamic_makefile
 							$existing_install_list{$1} = 1;
 							$idir = (split(' ',$1))[1];
 							$ifile = (split(' ',$1))[0];
-							$install_list = $install_list . "	-cp $1\n" if (!exists($existing_install_list{$1}));
+							$install_list = $install_list . "	-cp $1\n";
 							$ifile =~ s/.*\///g;
 							$uninstall_list = $uninstall_list . "	-rm $idir/$ifile\n";
 						}
