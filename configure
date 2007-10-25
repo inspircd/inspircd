@@ -352,7 +352,7 @@ getmodules();
 
 sub clean
 {
-	system("rm -rf .config.cache");
+	unlink(".config.cache");
 }
 
 sub update
@@ -368,7 +368,7 @@ sub update
 			exit 0;
 		} else {
 			# We've Loaded the cache file and all our variables..
-			print "Updating Files..\n";
+			print "Updating files...\n";
 			getosflags();
 			if ($opt_disable_debug == 1)
 			{
@@ -405,7 +405,7 @@ sub modupdate
 			exit 0;
 		} else {
 			# We've Loaded the cache file and all our variables..
-			print "Updating Files..\n";
+			print "Updating files...\n";
 			getosflags();
 			$has_epoll = $config{HAS_EPOLL};
 			$has_ports = $config{HAS_PORTS};
