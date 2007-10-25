@@ -215,7 +215,7 @@
 #                password="blahblah" timeout="10" timeout="blah"      #
 #                flood="5" threshold="8" pingfreq="120" sendq="99999" #
 #                revcq="696969" localmax="3" globalmax="3"            #
-#                port="6660" maxchans="50">                           #
+#                port="6660" maxchans="50" limit="999">               #
 #                                                                     #
 #       <connect name="blocked" deny="127.0.0.1" port="6667">         #
 #                                                                     #
@@ -292,6 +292,11 @@
 #   only incoming connections on the specified port will match. Port  #
 #   tags may be used on connect allow and connect deny tags.          #
 #                                                                     #
+#   The limit value determines the maximum number of users which may  #
+#   be in this class. Combine this with CIDR masks for various ISP    #
+#   subnets to limit the number of users which may connect at any one #
+#   time from a certain ISP. Omit this value to not limit the tag.    #
+#                                                                     #
 
 <connect allow="196.12.*"  password="secret" port="6667">
 
@@ -303,7 +308,8 @@
          sendq="262144"
          recvq="8192"
          localmax="3"
-         globalmax="3">
+         globalmax="3"
+	 limit="5000">
 
 <connect deny="69.254.*">
 <connect deny="3ffe::0/32">
