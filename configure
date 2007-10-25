@@ -1475,12 +1475,12 @@ sub write_dynamic_makefile
 			if ($name =~ /\.cpp$/)
 			{
 				open (CPP, "<$dir/$name") or die("Can't open $dir/$name to scan it! oh bugger");
+				print ".";
 				while (chomp($line = <CPP>))
-					{
+				{
 					if ($line =~ /\/\* \$Core: (\w+) \*\//i)
 					{
 						$filelist{$name} = $1;
-						print ".";
 					}
 					elsif ($line =~ /\/\* \$ExtraDeps: (.*?) \*\//i)
 					{
