@@ -87,20 +87,17 @@ class ModuleDelayJoin : public Module
 		/* For +D channels ... */
 		if (Ptr->IsModeSet('D'))
 		{
+			std::string key("delayjoin_");
+			key.append(Ptr->name);
+
 			/* Modify the names list, erasing users with the delay join metadata
 			 * for this channel (havent spoken yet)
 			 */
-			ServerInstance->Log(DEBUG,"Iterate");
-
 			for (CUListIter n = nameslist->begin(); n != nameslist->end(); ++n)
-			{
-				ServerInstance->Log(DEBUG,"Item");
-				
-				if (!n->first->GetExt("delayjoin_notspoken"))
+			{				
+				if (!n->first->GetExt(key))
 					nl.insert(*n);
 			}
-
-			ServerInstance->Log(DEBUG,"Done");
 			nl[user] = user->nick;
 			nameslist = &nl;
 		}
