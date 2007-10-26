@@ -197,10 +197,5 @@ CoreExport void ClearConsole();
 /* Windows does not have gettimeofday() */
 CoreExport int gettimeofday(struct timeval * tv, void * tz);
 
-#ifdef ENABLE_CRASHDUMPS
-typedef struct _EXCEPTION_POINTERS EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
-int __cdecl __exceptionHandler(PEXCEPTION_POINTERS pExceptPtrs);
-#endif
-
 #endif
 
