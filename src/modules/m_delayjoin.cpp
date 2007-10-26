@@ -75,8 +75,7 @@ class ModuleDelayJoin : public Module
 
 	void Implements(char* List)
 	{
-		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = 
-		List[I_OnUserPreMessage] = List[I_OnUserPreNotice] = 1;
+		List[I_OnUserJoin] = List[I_OnUserPart] = List[I_OnUserKick] = List[I_OnUserQuit] = List[I_OnUserList] = List[I_OnText] = 1;
 	}
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
