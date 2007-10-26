@@ -1515,6 +1515,14 @@
 #<module name="m_deaf.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Delay join module: Adds the channel mode +D which delays all JOIN
+# messages from users until they speak. If they quit or part before
+# speaking, their quit or part message will not be shown to the channel
+# which helps cut down noise on large channels in a more friendly way
+# than the auditorium mode. Only channel ops may set the +D mode.
+#<module name="m_delayjoin.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
 #<module name="m_denychans.so"> 
 #
