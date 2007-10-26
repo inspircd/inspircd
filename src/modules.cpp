@@ -196,7 +196,7 @@ int		Module::OnWhoisLine(User*, User*, int&, std::string&) { return 0; }
 void		Module::OnBuildExemptList(MessageType, Channel*, User*, char, CUList&, const std::string&) { }
 void		Module::OnGarbageCollect() { }
 void		Module::OnBufferFlushed(User*) { }
-void 		Module::OnText(User*, void*, int, std::string&, char, CUList&) { }
+void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 
 
 ModuleManager::ModuleManager(InspIRCd* Ins)
