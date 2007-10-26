@@ -170,15 +170,15 @@ class ModuleDelayJoin : public Module
 		}
 	}
 
-	int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	void OnText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (target_type != TYPE_CHANNEL)
-			return 0;
+			return;
 
 		Channel* channel = (Channel*) dest;
 
 		if (!user->GetExt(std::string("delayjoin_")+channel->name))
-			return 0;
+			return;
 
 		/* Display the join to everyone else (the user who joined got it earlier) */
 		channel->WriteAllExcept(user, false, 0, exempt_list, "JOIN %s", channel->name);
@@ -191,16 +191,9 @@ class ModuleDelayJoin : public Module
 		 */
 		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			if (f->first->IsModeSet('D'))
-				return 0;
+				return;
 
 		user->Shrink("delayjoin");
-
-		return 0;
-	}
-
-	int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 };
 

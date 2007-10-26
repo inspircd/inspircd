@@ -380,7 +380,8 @@ enum Implementation {	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUse
 			I_OnPostLocalTopicChange, I_OnEvent, I_OnRequest, I_OnOperCompre, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan, I_OnDelBan,
 			I_OnRawSocketAccept, I_OnRawSocketClose, I_OnRawSocketWrite, I_OnRawSocketRead, I_OnChangeLocalUserGECOS, I_OnUserRegister,
 			I_OnOperCompare, I_OnChannelDelete, I_OnPostOper, I_OnSyncOtherMetaData, I_OnSetAway, I_OnCancelAway, I_OnUserList,
-			I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed };
+			I_OnPostCommand, I_OnPostJoin, I_OnWhoisLine, I_OnBuildExemptList, I_OnRawSocketConnect, I_OnGarbageCollect, I_OnBufferFlushed,
+			I_OnText };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -715,6 +716,20 @@ class CoreExport Module : public Extensible
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
 	 */
 	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
+
+	/** Called immediately before any NOTICE or PRIVMSG sent from a user, local or remote.
+	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
+	 * if target_type is TYPE_CHANNEL.
+	 * The difference between this event and OnUserPreNotice/OnUserPreMessage is that delivery is gauranteed,
+	 * the message has already been vetted. In the case of the other two methods, a later module may stop your
+	 * message. This also differs from OnUserMessage which occurs AFTER the message has been sent.
+	 * @param user The user sending the message
+	 * @param dest The target of the message
+	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
+	 * @param text the text being sent by the user
+	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
+	 */
+	virtual void OnText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*

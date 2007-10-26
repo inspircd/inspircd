@@ -41,6 +41,7 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 		parameters[1] = temp.c_str();
 		// notice to server mask
 		const char* servermask = parameters[0] + 1;
+		FOREACH_MOD(I_OnText,OnText(user,(void*)parameters[0],TYPE_SERVER,parameters[1],0,exempt_list));
 		if (match(ServerInstance->Config->ServerName,servermask))
 		{
 			user->SendAll("NOTICE", "%s", parameters[1]);
@@ -90,6 +91,8 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 				return CMD_FAILURE;
 			}
 
+			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
+
 			if (status)
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
@@ -137,6 +140,8 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 			return CMD_FAILURE;
 		}
 		parameters[1] = (char*)temp.c_str();
+
+		FOREACH_MOD(I_OnText,OnText(user,dest,TYPE_USER,parameters[1],0,exempt_list));
 
 		if (IS_LOCAL(dest))
 		{
