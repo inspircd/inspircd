@@ -492,17 +492,21 @@ bool DoConnect(ServerConfig* conf, const char*, char**, ValueList &values, int*)
 		/* Find 'parent' and inherit a new class from it,
 		 * then overwrite any values that are set here
 		 */
-		for (ClassVector::iterator item = conf->Classes.begin(); item != conf->Classes.end(); ++item)
+		ClassVector::iterator item = conf->Classes.begin();
+		for (; item != conf->Classes.end(); ++item)
 		{
 			ConnectClass* c = *item;
+			conf->GetInstance()->Log(DEBUG,"Class: %s", c->GetName().c_str());
 			if (c->GetName() == parent)
 			{
-				ConnectClass* c = new ConnectClass(name, c);
-				c->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
-				conf->Classes.push_back(c);
+				ConnectClass* newclass = new ConnectClass(name, c);
+				newclass->Update(timeout, flood, *allow ? allow : deny, pingfreq, password, threshold, sendq, recvq, localmax, globalmax, maxchans, port, limit);
+				conf->Classes.push_back(newclass);
+				break;
 			}
 		}
-		throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(parent) + "' which cannot be found.");
+		if (item == conf->Classes.end())
+			throw CoreException("Class name '" + std::string(name) + "' is configured to inherit from class '" + std::string(parent) + "' which cannot be found.");
 	}
 	else
 	{
