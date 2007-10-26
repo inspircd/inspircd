@@ -47,7 +47,6 @@ class ModuleDelayJoin : public Module
  private:
 	DelayJoinMode* djm;
 	CUList nl;
-	CUList except_list;
  public:
 	ModuleDelayJoin(InspIRCd* Me)
 		: Module(Me)
@@ -82,8 +81,12 @@ class ModuleDelayJoin : public Module
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
+		/* For +D channels ... */
 		if (Ptr->IsModeSet('D'))
 		{
+			/* Modify the names list, erasing users with the delay join metadata
+			 * for this channel (havent spoken yet)
+			 */
 			nl = *nameslist;
 
 			for (CUListIter n = nameslist->begin(); n != nameslist->end(); ++n)
@@ -105,8 +108,15 @@ class ModuleDelayJoin : public Module
 			silent = true;
 			/* Because we silenced the event, make sure it reaches the user whos joining (but only them of course) */
 			user->WriteFrom(user, "JOIN %s", channel->name);
+
+			/* This metadata tells the module the user is delayed join on this specific channel */
 			user->Extend(std::string("delayjoin_")+channel->name);
-			user->Extend("delayjoin");
+
+			/* This metadata tells the module the user is delayed join on at least one (or more) channels.
+			 * It is only cleared when the user is no longer on ANY +D channels.
+			 */
+			if (!user->GetExt("delayjoin"))
+				user->Extend("delayjoin");
 		}
 	}
 
@@ -156,6 +166,39 @@ class ModuleDelayJoin : public Module
 				parthandler->Handle(parameters, 1, user);
 			}
 		}
+	}
+
+	int OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type != TYPE_CHANNEL)
+			return 0;
+
+		Channel* channel = (Channel*) dest;
+
+		if (!user->GetExt(std::string("delayjoin_")+channel->name))
+			return 0;
+
+		/* Display the join to everyone else (the user who joined got it earlier) */
+		channel->WriteAllExcept(user, false, 0, exempt_list, "JOIN %s", channel->name);
+
+		/* Shrink off the neccessary metadata for a specific channel */
+		user->Shrink(std::string("delayjoin_")+channel->name);
+
+		/* Check if the user is left on any other +D channels, if so don't take away the
+		 * metadata that says theyre on one or more channels 
+		 */
+		for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
+			if (f->first->IsModeSet('D'))
+				return 0;
+
+		user->Shrink("delayjoin");
+
+		return 0;
+	}
+
+	int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 };
 
