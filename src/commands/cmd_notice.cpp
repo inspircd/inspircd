@@ -91,7 +91,7 @@ CmdResult CommandNotice::Handle (const char** parameters, int pcnt, User *user)
 				return CMD_FAILURE;
 			}
 
-			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,parameters[1],status,except_list));
+			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,parameters[1],status,exempt_list));
 
 			if (status)
 			{
