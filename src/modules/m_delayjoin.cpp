@@ -81,23 +81,29 @@ class ModuleDelayJoin : public Module
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
-		if (!nameslist)
-			return 0;
+		CUList* newlist = nameslist ? nameslist : Ptr->GetUsers();
+
+		nl.clear();
 
 		/* For +D channels ... */
 		if (Ptr->IsModeSet('D'))
 		{
 			std::string key("delayjoin_");
 			key.append(Ptr->name);
-
+			ServerInstance->Log(DEBUG,"Key: %s", key.c_str());
 			/* Modify the names list, erasing users with the delay join metadata
 			 * for this channel (havent spoken yet)
 			 */
-			for (CUListIter n = nameslist->begin(); n != nameslist->end(); ++n)
-			{				
+			for (CUListIter n = newlist->begin(); n != newlist->end(); ++n)
+			{
+				ServerInstance->Log(DEBUG,"Item: %s", n->first->nick);
 				if (!n->first->GetExt(key))
+				{
 					nl.insert(*n);
+					ServerInstance->Log(DEBUG,"Spoken: %s", n->first->nick);
+				}
 			}
+			ServerInstance->Log(DEBUG,"Insert self");
 			nl[user] = user->nick;
 			nameslist = &nl;
 		}
