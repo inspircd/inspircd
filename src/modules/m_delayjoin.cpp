@@ -81,26 +81,32 @@ class ModuleDelayJoin : public Module
 
 	virtual int OnUserList(User* user, Channel* Ptr, CUList* &nameslist)
 	{
+		if (!nameslist)
+			return 0;
+
 		/* For +D channels ... */
 		if (Ptr->IsModeSet('D'))
 		{
 			/* Modify the names list, erasing users with the delay join metadata
 			 * for this channel (havent spoken yet)
 			 */
-			nl = *nameslist;
+			ServerInstance->Log(DEBUG,"Iterate");
 
 			for (CUListIter n = nameslist->begin(); n != nameslist->end(); ++n)
 			{
-				if (n->first->GetExt("delayjoin_notspoken"))
-					nl.erase(n->first);
+				ServerInstance->Log(DEBUG,"Item");
+				
+				if (!n->first->GetExt("delayjoin_notspoken"))
+					nl.insert(*n);
 			}
 
+			ServerInstance->Log(DEBUG,"Done");
 			nl[user] = user->nick;
 			nameslist = &nl;
 		}
 		return 0;
 	}
-	
+
 	virtual void OnUserJoin(User* user, Channel* channel, bool &silent)
 	{
 		if (channel->IsModeSet('D'))
@@ -149,19 +155,12 @@ class ModuleDelayJoin : public Module
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 	{
 		Command* parthandler = ServerInstance->Parser->GetHandler("PART");
-		std::vector<std::string> to_leave;
 		const char* parameters[2];
 		if (parthandler && user->GetExt("delayjoin"))
 		{
 			for (UCListIter f = user->chans.begin(); f != user->chans.end(); f++)
 			{
-				if (f->first->IsModeSet('D'))
-					to_leave.push_back(f->first->name);
-			}
-			/* We cant do this neatly in one loop, as we are modifying the map we are iterating */
-			for (std::vector<std::string>::iterator n = to_leave.begin(); n != to_leave.end(); n++)
-			{
-				parameters[0] = n->c_str();
+				parameters[0] = f->first->name;
 				/* This triggers our OnUserPart, above, making the PART silent */
 				parthandler->Handle(parameters, 1, user);
 			}
