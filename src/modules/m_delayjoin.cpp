@@ -220,7 +220,11 @@ class ModuleDelayJoin : public Module
 
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
-			/* User only appears to vanish for non-opers */
+			/* User doesnt get a JOIN sent to themselves */
+			if (user == i->first)
+				continue;
+
+			/* Users with a visibility state that hides them dont appear */
 			if (user->Visibility && !user->Visibility->VisibleTo(i->first))
 				continue;
 
