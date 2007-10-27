@@ -1285,15 +1285,10 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 	confpath = ServerInstance->ConfigFileName;
 	newfile = file;
 
-	for (std::string::iterator c = newfile.begin(); c != newfile.end(); c++)
-	{
-		if (*c == '\\')
-		{
-			*c = '/';
-		}
-	}
+	std::replace(newfile.begin(),newfile.end(),'\\','/');
+	std::replace(confpath.begin(),confpath.end(),'\\','/');
 
-	if (file[0] != '/')
+	if (newfile[0] != '/')
 	{
 		if((pos = confpath.rfind("/")) != std::string::npos)
 		{
@@ -1302,7 +1297,7 @@ bool ServerConfig::DoInclude(ConfigDataHash &target, const std::string &file, st
 		}
 		else
 		{
-			errorstream << "Couldn't get config path from: " << confpath << std::endl;
+			errorstream << "Couldn't get config path from: " << ServerInstance->ConfigFileName << std::endl;
 			return false;
 		}
 	}
