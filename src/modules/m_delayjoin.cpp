@@ -221,7 +221,7 @@ class ModuleDelayJoin : public Module
 		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			/* User only appears to vanish for non-opers */
-			if (user->Visibility && !user->Visibility->VisibleTo(i->first))
+			if (user->Visibility && user->Visibility->VisibleTo(i->first))
 			{
 				i->first->Write(std::string(tb));
 			}
