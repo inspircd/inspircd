@@ -217,6 +217,8 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 		/* parse flags */
 		const char *iter = parameters[1];
 
+		usingwildcards = true;
+
 		while (*iter)
 		{
 			switch (*iter)
@@ -285,7 +287,7 @@ CmdResult cmd_who::Handle (const char** parameters, int pcnt, userrec *user)
 						continue;
 	
 					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet('i') && !inside)
+					if (i->first->IsModeSet('i') && !inside && !IS_OPER(user))
 						continue;
 				}
 	
