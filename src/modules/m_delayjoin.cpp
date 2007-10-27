@@ -6,19 +6,22 @@
  * See: http://www.inspircd.org/wiki/index.php/Credits
  *
  * This program is free but copyrighted software; see
- *            the file COPYING for details.
+ *	    the file COPYING for details.
  *
  * ---------------------------------------------------
  */
 
 #include "inspircd.h"
+#include <stdarg.h>
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
 
 class DelayJoinMode : public ModeHandler
 {
+	CUList empty;
+	Module* Creator;
  public:
-	DelayJoinMode(InspIRCd* Instance) : ModeHandler(Instance, 'D', 0, 0, false, MODETYPE_CHANNEL, false) { }
+	DelayJoinMode(InspIRCd* Instance, Module* Parent) : ModeHandler(Instance, 'D', 0, 0, false, MODETYPE_CHANNEL, false), Creator(Parent) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -31,6 +34,16 @@ class DelayJoinMode : public ModeHandler
 			}
 			else
 			{
+				if (channel->IsModeSet('D'))
+				{
+					/* Make all delayed join users visible, or if an op removes +D
+					 * while users exist that havent spoken, they remain permenantly
+					 * invisible on this channel!
+					 */
+					CUList* names = channel->GetUsers();
+					for (CUListIter n = names->begin(); n != names->end(); ++n)
+						Creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
+				}
 				channel->SetMode('D', adding);
 				return MODEACTION_ALLOW;
 			}
@@ -51,7 +64,7 @@ class ModuleDelayJoin : public Module
 	ModuleDelayJoin(InspIRCd* Me)
 		: Module(Me)
 	{
-		djm = new DelayJoinMode(ServerInstance);
+		djm = new DelayJoinMode(ServerInstance, this);
 		if (!ServerInstance->AddMode(djm))
 			throw ModuleException("Could not add new modes!");
 	}
@@ -177,7 +190,7 @@ class ModuleDelayJoin : public Module
 			return;
 
 		/* Display the join to everyone else (the user who joined got it earlier) */
-		channel->WriteAllExcept(user, false, 0, exempt_list, "JOIN %s", channel->name);
+		this->WriteCommonFrom(user, channel, "JOIN %s", channel->name);
 
 		/* Shrink off the neccessary metadata for a specific channel */
 		user->Shrink(std::string("delayjoin_")+channel->name);
@@ -191,6 +204,30 @@ class ModuleDelayJoin : public Module
 
 		user->Shrink("delayjoin");
 	}
+
+	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...)
+	{
+		va_list argsPtr;
+		char textbuffer[MAXBUF];
+		char tb[MAXBUF];
+
+		va_start(argsPtr, text);
+		vsnprintf(textbuffer, MAXBUF, text, argsPtr);
+		va_end(argsPtr);
+		snprintf(tb,MAXBUF,":%s %s",user->GetFullHost(),textbuffer);
+
+		CUList *ulist = channel->GetUsers();
+
+		for (CUList::iterator i = ulist->begin(); i != ulist->end(); i++)
+		{
+			/* User only appears to vanish for non-opers */
+			if (user->Visibility && !user->Visibility->VisibleTo(i->first))
+			{
+				i->first->Write(std::string(tb));
+			}
+		}
+	}
+
 };
 
 MODULE_INIT(ModuleDelayJoin)
