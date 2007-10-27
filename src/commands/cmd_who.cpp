@@ -213,6 +213,9 @@ CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
 		/* parse flags */
 		const char *iter = parameters[1];
 
+		/* Fix for bug #444, WHO flags count as a wildcard */
+		usingwildcards = true;
+
 		while (*iter)
 		{
 			switch (*iter)
@@ -281,7 +284,7 @@ CmdResult CommandWho::Handle (const char** parameters, int pcnt, User *user)
 						continue;
 	
 					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet('i') && !inside)
+					if (i->first->IsModeSet('i') && !inside && !IS_OPER(user))
 						continue;
 				}
 	
