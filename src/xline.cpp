@@ -137,6 +137,23 @@ bool XLine::Matches(User *u)
 	return false;
 }
 
+//XXX perhaps move into xlinemanager
+void CheckELines(InspIRCd *ServerInstance, std::vector<ELine *> &ELines)
+{
+	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
+	{
+		User* u = (User*)(*u2);
+
+		for (std::vector<ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
+		{
+			ELine *e = (*i);
+
+			u->exempt = e->Matches(u);
+		}
+	}
+}
+
+
 IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 {
 	IdentHostPair n = std::make_pair<std::string,std::string>("*","*");
@@ -553,35 +570,12 @@ void XLineManager::expire_lines()
 
 }
 
-void CheckELines(InspIRCd *ServerInstance, const std::vector &ELines)
-{
-	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
-	{
-		User* u = (User*)(*u2);
-
-		for (std::vector<ELine *>::iterator i = ELines.begin(); i != ELines.end(); i++)
-		{
-			ELine *e = (*i);
-
-			u->exempt = e->Matches(u);
-		}
-	}
-}
-
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
 	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
-
-		if (elines.size())
-		{
-			// ignore people matching exempts -- XXX cache the exempt state in userrec permanently?
-			// should be fairly easy to accomplish really, and might achieve some nice gains?
-			if (matches_exception(u))
-				continue;
-		}
 
 		for (std::vector<XLine *>::iterator i = pending_lines.begin(); i != pending_lines.end(); i++)
 		{
@@ -633,7 +627,7 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-virtual bool Matches(const std::string &str)
+bool XLine::Matches(const std::string &str)
 {
 	return false;
 }
@@ -656,6 +650,9 @@ void XLine::DefaultApply(User* u, char line)
 
 bool KLine::Matches(User *u)
 {
+	if (u->exempt)
+		return false;
+
 	if ((match(u->ident, this->identmask)))
 	{
 		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
@@ -674,6 +671,9 @@ void KLine::Apply(User* u)
 
 bool GLine::Matches(User *u)
 {
+	if (u->exempt)
+		return false;
+
 	if ((match(u->ident, this->identmask)))
 	{
 		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
@@ -692,6 +692,9 @@ void GLine::Apply(User* u)
 
 bool ELine::Matches(User *u)
 {
+	if (u->exempt)
+		return false;
+
 	if ((match(u->ident, this->identmask)))
 	{
 		if ((match(u->host, this->hostmask, true)) || (match(u->GetIPString(), this->hostmask, true)))
@@ -705,6 +708,9 @@ bool ELine::Matches(User *u)
 
 bool ZLine::Matches(User *u)
 {
+	if (u->exempt)
+		return false;
+
 	if (match(u->GetIPString(), this->ipaddr, true))
 		return true;
 	else
@@ -719,7 +725,10 @@ void ZLine::Apply(User* u)
 
 bool QLine::Matches(User *u)
 {
-	if (match(user->nick, this->nick))
+	if (u->exempt)
+		return false;
+
+	if (match(u->nick, this->nick))
 		return true;
 
 	return false;
