@@ -115,25 +115,25 @@ class DNSBLResolver : public Resolver
 						{
 							std::string ban = std::string("*@") + them->GetIPString();
 							if (show)
-								ServerInstance->XLines->apply_lines();								
-							show = ServerInstance->XLines->add_kline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
+								ServerInstance->XLines->ApplyLines();								
+							show = ServerInstance->XLines->AddKLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
 							FOREACH_MOD(I_OnAddKLine,OnAddKLine(ConfEntry->duration, NULL, reason, ban));
 							break;
 						}
 						case DNSBLConfEntry::I_GLINE:
 						{
 							std::string ban = std::string("*@") + them->GetIPString();
-							show = ServerInstance->XLines->add_gline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
+							show = ServerInstance->XLines->AddGLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), ban.c_str());
 							if (show)
-								ServerInstance->XLines->apply_lines();
+								ServerInstance->XLines->ApplyLines();
 							FOREACH_MOD(I_OnAddGLine,OnAddGLine(ConfEntry->duration, NULL, reason, ban));
 							break;
 						}
 						case DNSBLConfEntry::I_ZLINE:
 						{
-							show = ServerInstance->XLines->add_zline(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), them->GetIPString());
+							show = ServerInstance->XLines->AddZLine(ConfEntry->duration, ServerInstance->Config->ServerName, reason.c_str(), them->GetIPString());
 							if (show)
-								ServerInstance->XLines->apply_lines();
+								ServerInstance->XLines->ApplyLines();
 							FOREACH_MOD(I_OnAddZLine,OnAddZLine(ConfEntry->duration, NULL, reason, them->GetIPString()));
 							break;
 						}

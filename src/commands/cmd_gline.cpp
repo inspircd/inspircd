@@ -42,7 +42,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 		}
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->add_gline(duration,user->nick,parameters[2],parameters[0]))
+		if (ServerInstance->XLines->AddGLine(duration,user->nick,parameters[2],parameters[0]))
 		{
 			FOREACH_MOD(I_OnAddGLine,OnAddGLine(duration, user, parameters[2], parameters[0]));
 
@@ -57,7 +57,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
 
-			ServerInstance->XLines->apply_lines();
+			ServerInstance->XLines->ApplyLines();
 		}
 		else
 		{
@@ -67,7 +67,7 @@ CmdResult CommandGline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->del_gline(parameters[0]))
+		if (ServerInstance->XLines->DelGLine(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelGLine,OnDelGLine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed G-line on %s.",user->nick,parameters[0]);

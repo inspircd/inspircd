@@ -324,7 +324,7 @@ class CoreExport XLineManager
 	 * @param hostmask The hostmask
 	 * @return True if the line was added successfully
 	 */
-	bool add_gline(long duration, const char* source, const char* reason, const char* hostmask);
+	bool AddGLine(long duration, const char* source, const char* reason, const char* hostmask);
 
 	/** Add a new QLine
 	 * @param duration The duration of the line
@@ -333,7 +333,7 @@ class CoreExport XLineManager
 	 * @param nickname The nickmask
 	 * @return True if the line was added successfully
 	 */
-	bool add_qline(long duration, const char* source, const char* reason, const char* nickname);
+	bool AddQLine(long duration, const char* source, const char* reason, const char* nickname);
 
 	/** Add a new ZLine
 	 * @param duration The duration of the line
@@ -342,7 +342,7 @@ class CoreExport XLineManager
 	 * @param ipaddr The IP mask
 	 * @return True if the line was added successfully
 	 */
-	bool add_zline(long duration, const char* source, const char* reason, const char* ipaddr);
+	bool AddZLine(long duration, const char* source, const char* reason, const char* ipaddr);
 
 	/** Add a new KLine
 	 * @param duration The duration of the line
@@ -351,7 +351,7 @@ class CoreExport XLineManager
 	 * @param hostmask The hostmask
 	 * @return True if the line was added successfully
 	 */
-	bool add_kline(long duration, const char* source, const char* reason, const char* hostmask);
+	bool AddKLine(long duration, const char* source, const char* reason, const char* hostmask);
 
 	/** Add a new ELine
 	 * @param duration The duration of the line
@@ -360,42 +360,42 @@ class CoreExport XLineManager
 	 * @param hostmask The hostmask
 	 * @return True if the line was added successfully
 	 */
-	bool add_eline(long duration, const char* source, const char* reason, const char* hostmask);
+	bool AddELine(long duration, const char* source, const char* reason, const char* hostmask);
 
 	/** Delete a GLine
 	 * @param hostmask The host to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_gline(const char* hostmask, bool simulate = false);
+	bool DelGLine(const char* hostmask, bool simulate = false);
 
 	/** Delete a QLine
 	 * @param nickname The nick to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_qline(const char* nickname, bool simulate = false);
+	bool DelQLine(const char* nickname, bool simulate = false);
 
 	/** Delete a ZLine
 	 * @param ipaddr The IP to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_zline(const char* ipaddr, bool simulate = false);
+	bool DelZLine(const char* ipaddr, bool simulate = false);
 
 	/** Delete a KLine
 	 * @param hostmask The host to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_kline(const char* hostmask, bool simulate = false);
+	bool DelKLine(const char* hostmask, bool simulate = false);
 
 	/** Delete a ELine
 	 * @param hostmask The host to remove
 	 * @param simulate If this is true, don't actually remove the line, just return
 	 * @return True if the line was deleted successfully
 	 */
-	bool del_eline(const char* hostmask, bool simulate = false);
+	bool DelELine(const char* hostmask, bool simulate = false);
 
 	/** Check if a nickname matches a QLine
 	 * @return nick The nick to check against
@@ -433,7 +433,7 @@ class CoreExport XLineManager
 
 	/** Apply any new lines that are pending to be applied
 	 */
-	void apply_lines();
+	void ApplyLines();
 
 	/** Handle /STATS K
 	 * @param user The username making the query

@@ -280,9 +280,9 @@ int FilterBase::OnUserPreNotice(User* user,void* dest,int target_type, std::stri
 		}
 		if (f->action == "gline")
 		{
-			if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
+			if (ServerInstance->XLines->AddGLine(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), user->MakeHostIP()))
 			{
-				ServerInstance->XLines->apply_lines();
+				ServerInstance->XLines->ApplyLines();
 				FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 			}
 		}
@@ -368,9 +368,9 @@ int FilterBase::OnPreCommand(const std::string &command, const char** parameters
 					std::string wild = "*@";
 					wild.append(user->GetIPString());
 
-					if (ServerInstance->XLines->add_gline(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), wild.c_str()))
+					if (ServerInstance->XLines->AddGLine(f->gline_time, ServerInstance->Config->ServerName, f->reason.c_str(), wild.c_str()))
 					{
-						ServerInstance->XLines->apply_lines();
+						ServerInstance->XLines->ApplyLines();
 						FOREACH_MOD(I_OnAddGLine,OnAddGLine(f->gline_time, NULL, f->reason, user->MakeHostIP()));
 					}
 				}

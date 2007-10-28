@@ -36,7 +36,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 			return CMD_FAILURE;
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->add_zline(duration,user->nick,parameters[2],parameters[0]))
+		if (ServerInstance->XLines->AddZLine(duration,user->nick,parameters[2],parameters[0]))
 		{
 			FOREACH_MOD(I_OnAddZLine,OnAddZLine(duration, user, parameters[2], parameters[0]));
 			if (!duration)
@@ -49,7 +49,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Z-line for %s, expires on %s",user->nick,parameters[0],
 						ServerInstance->TimeString(c_requires_crap).c_str());
 			}
-			ServerInstance->XLines->apply_lines();
+			ServerInstance->XLines->ApplyLines();
 		}
 		else
 		{
@@ -58,7 +58,7 @@ CmdResult CommandZline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->del_zline(parameters[0]))
+		if (ServerInstance->XLines->DelZLine(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelZLine,OnDelZLine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed Z-line on %s.",user->nick,parameters[0]);

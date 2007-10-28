@@ -71,28 +71,28 @@ bool InitXLine(ServerConfig* conf, const char* tag)
 bool DoneZLine(ServerConfig* conf, const char* tag)
 {
 	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->apply_lines();
+	conf->GetInstance()->XLines->ApplyLines();
 	return true;
 }
 
 bool DoneQLine(ServerConfig* conf, const char* tag)
 {
 	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->apply_lines();
+	conf->GetInstance()->XLines->ApplyLines();
 	return true;
 }
 
 bool DoneKLine(ServerConfig* conf, const char* tag)
 {
 	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->apply_lines();
+	conf->GetInstance()->XLines->ApplyLines();
 	return true;
 }
 
 bool DoneELine(ServerConfig* conf, const char* tag)
 {
 	// XXX we should really only call this once - after we've finished processing configuration all together
-	conf->GetInstance()->XLines->apply_lines();
+	conf->GetInstance()->XLines->ApplyLines();
 	return true;
 }
 
@@ -101,7 +101,7 @@ bool DoZLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* reason = values[0].GetString();
 	const char* ipmask = values[1].GetString();
 
-	conf->GetInstance()->XLines->add_zline(0,"<Config>",reason,ipmask);
+	conf->GetInstance()->XLines->AddZLine(0,"<Config>",reason,ipmask);
 	return true;
 }
 
@@ -110,7 +110,7 @@ bool DoQLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* reason = values[0].GetString();
 	const char* nick = values[1].GetString();
 
-	conf->GetInstance()->XLines->add_qline(0,"<Config>",reason,nick);
+	conf->GetInstance()->XLines->AddQLine(0,"<Config>",reason,nick);
 	return true;
 }
 
@@ -119,7 +119,7 @@ bool DoKLine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
 
-	conf->GetInstance()->XLines->add_kline(0,"<Config>",reason,host);
+	conf->GetInstance()->XLines->AddKLine(0,"<Config>",reason,host);
 	return true;
 }
 
@@ -128,7 +128,7 @@ bool DoELine(ServerConfig* conf, const char* tag, char** entries, ValueList &val
 	const char* reason = values[0].GetString();
 	const char* host = values[1].GetString();
 
-	conf->GetInstance()->XLines->add_eline(0,"<Config>",reason,host);
+	conf->GetInstance()->XLines->AddELine(0,"<Config>",reason,host);
 	return true;
 }
 
@@ -155,11 +155,11 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 
 // adds a g:line
 
-bool XLineManager::add_gline(long duration, const char* source,const char* reason,const char* hostmask)
+bool XLineManager::AddGLine(long duration, const char* source,const char* reason,const char* hostmask)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (del_gline(hostmask, true))
+	if (DelGLine(hostmask, true))
 		return false;
 
 	GLine* item = new GLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
@@ -172,11 +172,11 @@ bool XLineManager::add_gline(long duration, const char* source,const char* reaso
 
 // adds an e:line (exception to bans)
 
-bool XLineManager::add_eline(long duration, const char* source, const char* reason, const char* hostmask)
+bool XLineManager::AddELine(long duration, const char* source, const char* reason, const char* hostmask)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (del_eline(hostmask, true))
+	if (DelELine(hostmask, true))
 		return false;
 
 	ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
@@ -189,9 +189,9 @@ bool XLineManager::add_eline(long duration, const char* source, const char* reas
 
 // adds a q:line
 
-bool XLineManager::add_qline(long duration, const char* source, const char* reason, const char* nickname)
+bool XLineManager::AddQLine(long duration, const char* source, const char* reason, const char* nickname)
 {
-	if (del_qline(nickname, true))
+	if (DelQLine(nickname, true))
 		return false;
 
 	QLine* item = new QLine(ServerInstance->Time(), duration, source, reason, nickname);
@@ -204,7 +204,7 @@ bool XLineManager::add_qline(long duration, const char* source, const char* reas
 
 // adds a z:line
 
-bool XLineManager::add_zline(long duration, const char* source, const char* reason, const char* ipaddr)
+bool XLineManager::AddZLine(long duration, const char* source, const char* reason, const char* ipaddr)
 {
 	if (strchr(ipaddr,'@'))
 	{
@@ -213,7 +213,7 @@ bool XLineManager::add_zline(long duration, const char* source, const char* reas
 		ipaddr++;
 	}
 
-	if (del_zline(ipaddr, true))
+	if (DelZLine(ipaddr, true))
 		return false;
 
 	ZLine* item = new ZLine(ServerInstance->Time(), duration, source, reason, ipaddr);
@@ -226,11 +226,11 @@ bool XLineManager::add_zline(long duration, const char* source, const char* reas
 
 // adds a k:line
 
-bool XLineManager::add_kline(long duration, const char* source, const char* reason, const char* hostmask)
+bool XLineManager::AddKLine(long duration, const char* source, const char* reason, const char* hostmask)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 
-	if (del_kline(hostmask, true))
+	if (DelKLine(hostmask, true))
 		return false;
 
 	KLine* item = new KLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
@@ -243,7 +243,7 @@ bool XLineManager::add_kline(long duration, const char* source, const char* reas
 
 // deletes a g:line, returns true if the line existed and was removed
 
-bool XLineManager::del_gline(const char* hostmask, bool simulate)
+bool XLineManager::DelGLine(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<GLine*>::iterator i = glines.begin(); i != glines.end(); i++)
@@ -264,7 +264,7 @@ bool XLineManager::del_gline(const char* hostmask, bool simulate)
 
 // deletes a e:line, returns true if the line existed and was removed
 
-bool XLineManager::del_eline(const char* hostmask, bool simulate)
+bool XLineManager::DelELine(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<ELine*>::iterator i = elines.begin(); i != elines.end(); i++)
@@ -285,7 +285,7 @@ bool XLineManager::del_eline(const char* hostmask, bool simulate)
 
 // deletes a q:line, returns true if the line existed and was removed
 
-bool XLineManager::del_qline(const char* nickname, bool simulate)
+bool XLineManager::DelQLine(const char* nickname, bool simulate)
 {
 	for (std::vector<QLine*>::iterator i = qlines.begin(); i != qlines.end(); i++)
 	{
@@ -305,7 +305,7 @@ bool XLineManager::del_qline(const char* nickname, bool simulate)
 
 // deletes a z:line, returns true if the line existed and was removed
 
-bool XLineManager::del_zline(const char* ipaddr, bool simulate)
+bool XLineManager::DelZLine(const char* ipaddr, bool simulate)
 {
 	for (std::vector<ZLine*>::iterator i = zlines.begin(); i != zlines.end(); i++)
 	{
@@ -325,7 +325,7 @@ bool XLineManager::del_zline(const char* ipaddr, bool simulate)
 
 // deletes a k:line, returns true if the line existed and was removed
 
-bool XLineManager::del_kline(const char* hostmask, bool simulate)
+bool XLineManager::DelKLine(const char* hostmask, bool simulate)
 {
 	IdentHostPair ih = IdentSplit(hostmask);
 	for (std::vector<KLine*>::iterator i = klines.begin(); i != klines.end(); i++)
@@ -552,7 +552,7 @@ void XLineManager::expire_lines()
 
 // applies lines, removing clients and changing nicks etc as applicable
 
-void XLineManager::apply_lines()
+void XLineManager::ApplyLines()
 {
 	int What = 0; // XXX remove me
 	char reason[MAXBUF];

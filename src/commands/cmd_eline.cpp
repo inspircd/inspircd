@@ -37,7 +37,7 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 		}
 
 		long duration = ServerInstance->Duration(parameters[1]);
-		if (ServerInstance->XLines->add_eline(duration,user->nick,parameters[2],parameters[0]))
+		if (ServerInstance->XLines->AddELine(duration,user->nick,parameters[2],parameters[0]))
 		{
 			FOREACH_MOD(I_OnAddELine,OnAddELine(duration, user, parameters[2], parameters[0]));
 
@@ -59,7 +59,7 @@ CmdResult CommandEline::Handle (const char** parameters, int pcnt, User *user)
 	}
 	else
 	{
-		if (ServerInstance->XLines->del_eline(parameters[0]))
+		if (ServerInstance->XLines->DelELine(parameters[0]))
 		{
 			FOREACH_MOD(I_OnDelELine,OnDelELine(user, parameters[0]));
 			ServerInstance->SNO->WriteToSnoMask('x',"%s Removed E-line on %s.",user->nick,parameters[0]);
