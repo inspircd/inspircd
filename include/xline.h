@@ -203,8 +203,6 @@ class CoreExport ELine : public XLine
 
 	virtual bool Matches(User *u);
 
-	virtual void Apply(User* u);
-
 	/** Ident mask
 	 */
 	char* identmask;
