@@ -688,10 +688,10 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-//irtual bool Matches(const std::string &str)
-//{
-	//return false;
-//}
+bool XLine::Matches(const std::string &str)
+{
+	return false;
+}
 
 bool KLine::Matches(User *u)
 {
