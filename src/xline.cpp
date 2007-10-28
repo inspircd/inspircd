@@ -650,7 +650,10 @@ XLineManager::XLineManager(InspIRCd* Instance) : ServerInstance(Instance)
 {
 }
 
-
+virtual bool Matches(const std::string &str)
+{
+	return false;
+}
 
 bool KLine::Matches(User *u)
 {
@@ -706,3 +709,20 @@ bool QLine::Matches(User *u)
 
 	return false;
 }
+
+bool ZLine::Matches(const std::string &str)
+{
+	if (match(str.c_str(), this->ipaddr, true))
+		return true;
+	else
+		return false;
+}
+
+bool QLine::Matches(const std::string &str)
+{
+	if (match(str.c_str(), this->nick))
+		return true;
+
+	return false;
+}
+

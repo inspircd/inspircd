@@ -61,6 +61,8 @@ class CoreExport XLine : public classbase
 	 */
 	virtual bool Matches(User *u) = 0;
 
+	virtual bool Matches(const std::string &str);
+
 	/** The time the line was added.
 	 */
 	time_t set_time;
@@ -217,6 +219,8 @@ class CoreExport ZLine : public XLine
 
 	virtual bool Matches(User *u);
 
+	virtual bool Matches(const std::string &str);
+
 	/** IP mask
 	 */
 	char* ipaddr;
@@ -247,6 +251,8 @@ class CoreExport QLine : public XLine
 
 	}
 	virtual bool Matches(User *u);
+
+	virtual bool Matches(const std::string &str);
 
 	/** Nickname mask
 	 */
