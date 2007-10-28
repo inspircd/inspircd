@@ -547,9 +547,6 @@ void XLineManager::expire_lines()
 
 void XLineManager::ApplyLines()
 {
-	char reason[MAXBUF];
-
-	XLine* check = NULL;
 	for (std::vector<User*>::const_iterator u2 = ServerInstance->local_users.begin(); u2 != ServerInstance->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
@@ -564,85 +561,9 @@ void XLineManager::ApplyLines()
 
 		for (std::vector<XLine *>::iterator i = pending_lines.begin(); i != pending_lines.end(); i++)
 		{
-			XLine *x = (*i);
-
-			switch (x->type)
-			{
-				case 'Z':
-				{
-					ZLine *z = dynamic_cast<ZLine *>(x);
-
-					if (z->Matches(u))
-					{
-						snprintf(reason,MAXBUF,"Z-Lined: %s", check->reason);
-						if (*ServerInstance->Config->MoronBanner)
-							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-						if (ServerInstance->Config->HideBans)
-							User::QuitUser(ServerInstance, u, "Z-Lined", reason);
-						else
-							User::QuitUser(ServerInstance, u, reason);
-					}
-					break;
-				}
-				case 'G':
-				{
-					GLine *g = dynamic_cast<GLine *>(x);
-
-					if (g->Matches(u))
-					{
-						snprintf(reason,MAXBUF,"G-Lined: %s",check->reason);
-						if (*ServerInstance->Config->MoronBanner)
-							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-						if (ServerInstance->Config->HideBans)
-							User::QuitUser(ServerInstance, u, "G-Lined", reason);
-						else
-							User::QuitUser(ServerInstance, u, reason);
-					}
-					break;
-				}
-				case 'Q':
-				{
-					QLine *q = dynamic_cast<QLine *>(x);
-
-					if (q->Matches(u))
-					{
-						snprintf(reason,MAXBUF,"Q-Lined: %s",check->reason);
-						if (*ServerInstance->Config->MoronBanner)
-							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-						if (ServerInstance->Config->HideBans)
-							User::QuitUser(ServerInstance, u, "Q-Lined", reason);
-						else
-							User::QuitUser(ServerInstance, u, reason);
-					}
-					break;
-				}
-				case 'K':
-				{
-					KLine *k = dynamic_cast<KLine *>(x);
-
-					if (k->Matches(u))
-					{
-						snprintf(reason,MAXBUF,"K-Lined: %s",check->reason);
-						if (*ServerInstance->Config->MoronBanner)
-							u->WriteServ("NOTICE %s :*** %s", u->nick, ServerInstance->Config->MoronBanner);
-						if (ServerInstance->Config->HideBans)
-							User::QuitUser(ServerInstance, u, "K-Lined", reason);
-						else
-							User::QuitUser(ServerInstance, u, reason);
-					}
-					break;
-				}
-				case 'E':
-				{
-//					ELine *e = dynamic_cast<ELine *>(x);
-					break;
-				}
-				default:
-				{
-					ServerInstance->Log(DEBUG, "Unknown line type pending: %c", x->type);
-					break;
-				}
-			}
+			XLine *x = *i;
+			if (x->Matches(u))
+				x->Apply(u);
 		}
 	}
 
