@@ -833,7 +833,8 @@ void User::AddClient(InspIRCd* Instance, int socket, int port, bool iscached, in
 	New->exempt = (Instance->XLines->matches_exception(New) != NULL);
 	if (!New->exempt)
 	{
-		ZLine* r = Instance->XLines->matches_zline(ipaddr);
+		ZLine* r = Instance->XLines->matches_zline(New);
+
 		if (r)
 		{
 			char reason[MAXBUF];
