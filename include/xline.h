@@ -125,6 +125,8 @@ class CoreExport KLine : public XLine
 
 	virtual bool Matches(User *u);
 
+	virtual void Apply(User* u);
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -163,6 +165,8 @@ class CoreExport GLine : public XLine
 
 	virtual bool Matches(User *u);
 
+	virtual void Apply(User* u);
+
 	/** Ident mask
 	 */
 	char* identmask;
@@ -198,6 +202,8 @@ class CoreExport ELine : public XLine
 	}
 
 	virtual bool Matches(User *u);
+
+	virtual void Apply(User* u);
 
 	/** Ident mask
 	 */
@@ -236,6 +242,8 @@ class CoreExport ZLine : public XLine
 
 	virtual bool Matches(const std::string &str);
 
+	virtual void Apply(User* u);
+
 	/** IP mask
 	 */
 	char* ipaddr;
@@ -269,6 +277,8 @@ class CoreExport QLine : public XLine
 	virtual bool Matches(User *u);
 
 	virtual bool Matches(const std::string &str);
+
+	virtual void Apply(User* u);
 
 	/** Nickname mask
 	 */

@@ -167,7 +167,7 @@ bool XLineManager::AddGLine(long duration, const char* source,const char* reason
 	if (DelGLine(hostmask, true))
 		return false;
 
-	GLine* item = new GLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	GLine* item = new GLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
 	glines.push_back(item);
 	sort(glines.begin(), glines.end(),XLineManager::XSortComparison);
@@ -185,7 +185,7 @@ bool XLineManager::AddELine(long duration, const char* source, const char* reaso
 	if (DelELine(hostmask, true))
 		return false;
 
-	ELine* item = new ELine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	ELine* item = new ELine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
 	elines.push_back(item);
 	sort(elines.begin(), elines.end(),XLineManager::XSortComparison);
@@ -201,7 +201,7 @@ bool XLineManager::AddQLine(long duration, const char* source, const char* reaso
 	if (DelQLine(nickname, true))
 		return false;
 
-	QLine* item = new QLine(ServerInstance->Time(), duration, source, reason, nickname);
+	QLine* item = new QLine(ServerInstance, ServerInstance->Time(), duration, source, reason, nickname);
 
 	qlines.push_back(item);
 	sort(qlines.begin(), qlines.end(),XLineManager::XSortComparison);
@@ -224,7 +224,7 @@ bool XLineManager::AddZLine(long duration, const char* source, const char* reaso
 	if (DelZLine(ipaddr, true))
 		return false;
 
-	ZLine* item = new ZLine(ServerInstance->Time(), duration, source, reason, ipaddr);
+	ZLine* item = new ZLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ipaddr);
 
 	zlines.push_back(item);
 	sort(zlines.begin(), zlines.end(),XLineManager::XSortComparison);
@@ -242,7 +242,7 @@ bool XLineManager::AddKLine(long duration, const char* source, const char* reaso
 	if (DelKLine(hostmask, true))
 		return false;
 
-	KLine* item = new KLine(ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
+	KLine* item = new KLine(ServerInstance, ServerInstance->Time(), duration, source, reason, ih.first.c_str(), ih.second.c_str());
 
 	klines.push_back(item);
 	sort(klines.begin(), klines.end(),XLineManager::XSortComparison);
